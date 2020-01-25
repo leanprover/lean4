@@ -27,7 +27,7 @@ structure Context extends Meta.Context :=
 (levelNames      : List Name       := [])
 (openDecls       : List OpenDecl   := [])
 (macroStack      : MacroStack      := [])
-(currMacroScope  : MacroScope      := 0)
+(currMacroScope  : MacroScope      := firstFrontendMacroScope)
 /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
    The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
    the list of pending synthetic metavariables, and returns `?m`. -/
@@ -53,7 +53,7 @@ structure State extends Meta.State :=
 (messages        : MessageLog := {})
 (instImplicitIdx : Nat := 1)
 (anonymousIdx    : Nat := 1)
-(nextMacroScope  : Nat := 1)
+(nextMacroScope  : Nat := firstFrontendMacroScope + 1)
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 

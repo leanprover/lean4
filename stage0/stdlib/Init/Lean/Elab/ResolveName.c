@@ -39,6 +39,7 @@ lean_object* l_List_toString___at_Lean_Elab_OpenDecl_HasToString___spec__2(lean_
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_ResolveName_2__resolveUsingNamespace___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Elab_OpenDecl_HasToString___spec__3(uint8_t, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_Lean_Elab_resolveNamespaceUsingOpenDecls___main(lean_object*, lean_object*, lean_object*);
@@ -60,16 +61,17 @@ lean_object* l___private_Init_Lean_Elab_ResolveName_4__resolveOpenDecls(lean_obj
 lean_object* l___private_Init_Lean_Elab_ResolveName_5__resolveGlobalNameAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elab_ResolveName_5__resolveGlobalNameAux___main___spec__3(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_rootNamespace___closed__1;
 lean_object* l___private_Init_Lean_Elab_ResolveName_5__resolveGlobalNameAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_OpenDecl_HasToString___closed__2;
 lean_object* l_Lean_Elab_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_rootNamespace___closed__2;
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_ResolveName_5__resolveGlobalNameAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_OpenDecl_Inhabited;
 lean_object* l_Lean_Elab_OpenDecl_HasToString(lean_object*);
 lean_object* l___private_Init_Lean_Elab_ResolveName_3__resolveExact(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveNamespaceUsingOpenDecls___main___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkCIdentFrom___closed__2;
 lean_object* l_Lean_Elab_resolveNamespaceUsingOpenDecls___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_OpenDecl_HasToString___closed__1;
 extern lean_object* l_System_FilePath_dirName___closed__1;
@@ -319,11 +321,29 @@ x_4 = l_List_toStringAux___main___at_Lean_Elab_OpenDecl_HasToString___spec__3(x_
 return x_4;
 }
 }
+lean_object* _init_l_Lean_Elab_rootNamespace___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("_root_");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Elab_rootNamespace___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_rootNamespace___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
 lean_object* _init_l_Lean_Elab_rootNamespace() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_mkCIdentFrom___closed__2;
+x_1 = l_Lean_Elab_rootNamespace___closed__2;
 return x_1;
 }
 }
@@ -1201,6 +1221,10 @@ l_Lean_Elab_OpenDecl_HasToString___closed__1 = _init_l_Lean_Elab_OpenDecl_HasToS
 lean_mark_persistent(l_Lean_Elab_OpenDecl_HasToString___closed__1);
 l_Lean_Elab_OpenDecl_HasToString___closed__2 = _init_l_Lean_Elab_OpenDecl_HasToString___closed__2();
 lean_mark_persistent(l_Lean_Elab_OpenDecl_HasToString___closed__2);
+l_Lean_Elab_rootNamespace___closed__1 = _init_l_Lean_Elab_rootNamespace___closed__1();
+lean_mark_persistent(l_Lean_Elab_rootNamespace___closed__1);
+l_Lean_Elab_rootNamespace___closed__2 = _init_l_Lean_Elab_rootNamespace___closed__2();
+lean_mark_persistent(l_Lean_Elab_rootNamespace___closed__2);
 l_Lean_Elab_rootNamespace = _init_l_Lean_Elab_rootNamespace();
 lean_mark_persistent(l_Lean_Elab_rootNamespace);
 return lean_mk_io_result(lean_box(0));

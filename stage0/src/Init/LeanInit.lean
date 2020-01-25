@@ -247,6 +247,10 @@ paper soon.
 -/
 
 abbrev MacroScope := Nat
+/-- Macro scope used internally. It is not available for our frontend. -/
+def reservedMacroScope := 0
+/-- First macro scope available for our frontend -/
+def firstFrontendMacroScope := reservedMacroScope + 1
 
 /-- A monad that supports syntax quotations. Syntax quotations (in term
     position) are monadic values that when executed retrieve the current "macro
@@ -423,7 +427,9 @@ Syntax.ident info (toString val).toSubstring val []
   be captured. -/
 def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
 let info := src.getHeadInfo;
-Syntax.ident info (toString c).toSubstring (`_root_ ++ c) [(c, [])]
+-- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
+let id   := addMacroScope `_internal c reservedMacroScope;
+Syntax.ident info (toString id).toSubstring id [(c, [])]
 
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
 let info := src.getHeadInfo;

@@ -27,6 +27,7 @@ lean_object* l_Lean_monadQuotationTrans(lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Unhygienic_MonadQuotation___spec__1(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* l_Lean_monadQuotationTrans___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation;
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__1;
@@ -34,6 +35,7 @@ lean_object* l_ReaderT_pure___at_Lean_Unhygienic_MonadQuotation___spec__2___rarg
 lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__2;
 lean_object* l_ReaderT_pure___at_Lean_Unhygienic_MonadQuotation___spec__2(lean_object*);
+lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l_ReaderT_pure___at_Lean_Unhygienic_MonadQuotation___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Unhygienic_MonadQuotation___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -157,12 +159,22 @@ lean_dec(x_3);
 return x_5;
 }
 }
+lean_object* _init_l_Lean_Unhygienic_run___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_firstFrontendMacroScope;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_add(x_1, x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_Unhygienic_run___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_unsigned_to_nat(1u);
+x_2 = l_Lean_firstFrontendMacroScope;
+x_3 = l_Lean_Unhygienic_run___rarg___closed__1;
 x_4 = lean_apply_2(x_1, x_2, x_3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
@@ -269,6 +281,8 @@ l_Lean_Unhygienic_MonadQuotation___closed__6 = _init_l_Lean_Unhygienic_MonadQuot
 lean_mark_persistent(l_Lean_Unhygienic_MonadQuotation___closed__6);
 l_Lean_Unhygienic_MonadQuotation = _init_l_Lean_Unhygienic_MonadQuotation();
 lean_mark_persistent(l_Lean_Unhygienic_MonadQuotation);
+l_Lean_Unhygienic_run___rarg___closed__1 = _init_l_Lean_Unhygienic_run___rarg___closed__1();
+lean_mark_persistent(l_Lean_Unhygienic_run___rarg___closed__1);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

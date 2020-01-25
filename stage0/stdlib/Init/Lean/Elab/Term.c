@@ -710,6 +710,7 @@ lean_object* l_Lean_Elab_Term_monadLog___lambda__4(lean_object*, lean_object*, l
 lean_object* l_Lean_Elab_Term_elabNum(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Term_3__fromMetaState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabListLit___closed__3;
+extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_mkStrLit(lean_object*);
 lean_object* l_Lean_Elab_Term_addContext(lean_object*, lean_object*, lean_object*);
@@ -840,19 +841,20 @@ return x_7;
 lean_object* _init_l_Lean_Elab_Term_State_inhabited___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Term_State_inhabited___closed__1;
 x_3 = l_PersistentArray_empty___closed__3;
 x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_1);
-lean_ctor_set(x_5, 2, x_3);
-lean_ctor_set(x_5, 3, x_4);
-lean_ctor_set(x_5, 4, x_4);
-lean_ctor_set(x_5, 5, x_4);
-return x_5;
+x_5 = l_Lean_Unhygienic_run___rarg___closed__1;
+x_6 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_6, 0, x_2);
+lean_ctor_set(x_6, 1, x_1);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_4);
+lean_ctor_set(x_6, 4, x_4);
+lean_ctor_set(x_6, 5, x_5);
+return x_6;
 }
 }
 lean_object* _init_l_Lean_Elab_Term_State_inhabited() {

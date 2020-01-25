@@ -159,6 +159,7 @@ lean_object* l_Lean_Macro_addMacroScope(lean_object*, lean_object*);
 lean_object* l_Lean_mkTermIdFrom___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*);
+lean_object* l_Lean_firstFrontendMacroScope___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_numLitKind___closed__1;
 lean_object* l_Lean_NameGenerator_next(lean_object*);
@@ -171,6 +172,7 @@ lean_object* l_Lean_NameGenerator_Inhabited___closed__2;
 lean_object* l_Lean_Syntax_getArgs___boxed(lean_object*);
 lean_object* l_Array_getSepElems___rarg(lean_object*);
 lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___boxed(lean_object*);
+lean_object* l_Lean_reservedMacroScope;
 lean_object* l___private_Init_LeanInit_10__decodeDecimalLitAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNullNode(lean_object*);
 lean_object* l_Lean_strLitKind___closed__2;
@@ -199,6 +201,7 @@ lean_object* l_Lean_ParserDescr_try___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_ident___boxed(lean_object*);
 lean_object* l_Lean_mkOptionalNode(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* l_Lean_ParserDescr_node___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_nameLit___boxed(lean_object*);
 lean_object* l_Lean_NameGenerator_mkChild(lean_object*);
@@ -2119,6 +2122,32 @@ lean_dec(x_1);
 return x_2;
 }
 }
+lean_object* _init_l_Lean_reservedMacroScope() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(0u);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_firstFrontendMacroScope___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_reservedMacroScope;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_add(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_firstFrontendMacroScope() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_firstFrontendMacroScope___closed__1;
+return x_1;
+}
+}
 lean_object* _init_l_Lean_Name_hasMacroScopes___main___closed__1() {
 _start:
 {
@@ -3102,7 +3131,7 @@ lean_object* _init_l_Lean_mkCIdentFrom___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_root_");
+x_1 = lean_mk_string("_internal");
 return x_1;
 }
 }
@@ -3119,33 +3148,34 @@ return x_3;
 lean_object* l_Lean_mkCIdentFrom(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_3 = l_Lean_Syntax_getHeadInfo___main(x_1);
-x_4 = l_Lean_Name_toString___closed__1;
+x_4 = l_Lean_mkCIdentFrom___closed__2;
+x_5 = l_Lean_reservedMacroScope;
 lean_inc(x_2);
-x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_2);
-x_6 = lean_string_utf8_byte_size(x_5);
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_8, 0, x_5);
-lean_ctor_set(x_8, 1, x_7);
-lean_ctor_set(x_8, 2, x_6);
-x_9 = l_Lean_mkCIdentFrom___closed__2;
-lean_inc(x_2);
-x_10 = l_Lean_Name_append___main(x_9, x_2);
-x_11 = lean_box(0);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_2);
-lean_ctor_set(x_12, 1, x_11);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_11);
-x_14 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_14, 0, x_3);
-lean_ctor_set(x_14, 1, x_8);
-lean_ctor_set(x_14, 2, x_10);
-lean_ctor_set(x_14, 3, x_13);
-return x_14;
+x_6 = l_Lean_addMacroScope(x_4, x_2, x_5);
+x_7 = l_Lean_Name_toString___closed__1;
+lean_inc(x_6);
+x_8 = l_Lean_Name_toStringWithSep___main(x_7, x_6);
+x_9 = lean_string_utf8_byte_size(x_8);
+x_10 = lean_unsigned_to_nat(0u);
+x_11 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_11, 0, x_8);
+lean_ctor_set(x_11, 1, x_10);
+lean_ctor_set(x_11, 2, x_9);
+x_12 = lean_box(0);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_2);
+lean_ctor_set(x_13, 1, x_12);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_12);
+x_15 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_15, 0, x_3);
+lean_ctor_set(x_15, 1, x_11);
+lean_ctor_set(x_15, 2, x_6);
+lean_ctor_set(x_15, 3, x_14);
+return x_15;
 }
 }
 lean_object* l_Lean_mkCIdentFrom___boxed(lean_object* x_1, lean_object* x_2) {
@@ -5778,6 +5808,12 @@ l_Lean_Syntax_getKind___closed__3 = _init_l_Lean_Syntax_getKind___closed__3();
 lean_mark_persistent(l_Lean_Syntax_getKind___closed__3);
 l_Lean_Syntax_getKind___closed__4 = _init_l_Lean_Syntax_getKind___closed__4();
 lean_mark_persistent(l_Lean_Syntax_getKind___closed__4);
+l_Lean_reservedMacroScope = _init_l_Lean_reservedMacroScope();
+lean_mark_persistent(l_Lean_reservedMacroScope);
+l_Lean_firstFrontendMacroScope___closed__1 = _init_l_Lean_firstFrontendMacroScope___closed__1();
+lean_mark_persistent(l_Lean_firstFrontendMacroScope___closed__1);
+l_Lean_firstFrontendMacroScope = _init_l_Lean_firstFrontendMacroScope();
+lean_mark_persistent(l_Lean_firstFrontendMacroScope);
 l_Lean_Name_hasMacroScopes___main___closed__1 = _init_l_Lean_Name_hasMacroScopes___main___closed__1();
 lean_mark_persistent(l_Lean_Name_hasMacroScopes___main___closed__1);
 l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1 = _init_l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1();

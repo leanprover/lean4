@@ -304,9 +304,27 @@ lvls.foldSepRevArgsM
     pure (lvl::lvls))
   []
 
+private partial def elabAppFnId (ref : Syntax) (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
+    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool) (acc : Array TermElabResult)
+    : TermElabM (Array TermElabResult) :=
+match fIdent with
+| Syntax.ident _ _ n preresolved => do
+  funLVals ← resolveName fIdent n preresolved fExplicitUnivs;
+  funLVals.foldlM
+    (fun acc ⟨f, fields⟩ => do
+      let lvals' := fields.map LVal.fieldName;
+      s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
+      pure $ acc.push s)
+    acc
+| _ => throwUnsupportedSyntax
+
 private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array NamedArg → Array Arg → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
 | f, lvals, namedArgs, args, expectedType?, explicit, acc =>
-  if f.getKind == choiceKind then
+  if f.isIdent then
+    -- A raw identifier is not a valid Term. Recall that `Term.id` is defined as `parser! ident >> optional (explicitUniv <|> namedPattern)`
+    -- We handle it here to make macro development more comfortable.
+    elabAppFnId ref f [] lvals namedArgs args expectedType? explicit acc
+  else if f.getKind == choiceKind then
     f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
   else match_syntax f with
   | `(@$id:id) =>
@@ -319,20 +337,10 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     elabAppFn (f.getArg 0) (newLVals ++ lvals) namedArgs args expectedType? explicit acc
   | `($e[$idx]) =>
     elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
-  -- TODO: replace `*` with new `?` optional modifier
-  | `($id:ident$us:explicitUniv*) =>
+  | `($id:ident$us:explicitUniv*) => do
     -- Remark: `id.<namedPattern>` should already have been expanded
-    match id with
-    | Syntax.ident _ _ n preresolved => do
-      us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
-      funLVals ← resolveName f n preresolved us;
-      funLVals.foldlM
-        (fun acc ⟨f, fields⟩ => do
-          let lvals' := fields.map LVal.fieldName;
-          s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
-          pure $ acc.push s)
-        acc
-    | _ => throwUnsupportedSyntax
+    us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
+    elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
   | _ => do
     f ← elabTerm f none;
     s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;
@@ -410,6 +418,9 @@ fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
+/- A raw identiier is not a valid term,
+   but it is nice to have a handler for them because it allows `macros` to insert them into terms. -/
+@[builtinTermElab ident] def elabRawIdent : TermElab := elabAtom
 
 @[builtinTermElab sortApp] def elabSortApp : TermElab :=
 fun stx _ => do

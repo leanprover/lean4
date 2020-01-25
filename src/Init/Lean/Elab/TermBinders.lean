@@ -56,32 +56,33 @@ else
     throwUnsupportedSyntax
 
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
-withNode stx $ fun node => do
-  let k := node.getKind;
+match stx with
+| Syntax.node k args =>
   if k == `Lean.Parser.Term.simpleBinder then
     -- binderIdent+
-    let ids  := (node.getArg 0).getArgs;
+    let ids  := (args.get! 0).getArgs;
     let type := mkHole stx;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.explicitBinder then do
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
-    let ids         := (node.getArg 1).getArgs;
-    let type        := expandBinderType (node.getArg 2);
-    let optModifier := node.getArg 3;
+    let ids         := (args.get! 1).getArgs;
+    let type        := expandBinderType (args.get! 2);
+    let optModifier := args.get! 3;
     type ← expandBinderModifier type optModifier;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`
-    let ids  := (node.getArg 1).getArgs;
-    let type := expandBinderType (node.getArg 2);
+    let ids  := (args.get! 1).getArgs;
+    let type := expandBinderType (args.get! 2);
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.implicit }
   else if k == `Lean.Parser.Term.instBinder then do
     -- `[` optIdent type `]`
-    id ← expandOptIdent (node.getArg 1);
-    let type := node.getArg 2;
+    id ← expandOptIdent (args.get! 1);
+    let type := args.get! 2;
     pure #[ { id := id, type := type, bi := BinderInfo.instImplicit } ]
   else
-    throwError stx "term elaborator failed, unexpected binder syntax"
+    throwUnsupportedSyntax
+| _ => throwUnsupportedSyntax
 
 def mkFreshFVarId : TermElabM Name := do
 s ← get;

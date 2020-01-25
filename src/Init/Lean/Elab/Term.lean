@@ -313,11 +313,6 @@ modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := ki
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
 
-@[inline] def withNode {α} (stx : Syntax) (x : Syntax → TermElabM α) : TermElabM α :=
-match stx with
-| Syntax.node _ _ => x stx
-| _               => throwError stx ("term elaborator failed, unexpected syntax: " ++ toString stx)
-
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
@@ -471,13 +466,13 @@ instance : MonadMacroAdapter TermElabM :=
 
 /- Main loop for `elabTerm` -/
 partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) : Syntax → TermElabM Expr
-| stx => withFreshMacroScope $ withIncRecDepth stx $ withNode stx $ fun node => do
+| stx => withFreshMacroScope $ withIncRecDepth stx $ do
   trace `Elab.step stx $ fun _ => stx;
   s ← get;
   let table := (termElabAttribute.ext.getState s.env).table;
-  let k := node.getKind;
+  let k := stx.getKind;
   match table.find? k with
-  | some elabFns => elabTermUsing s node expectedType? catchExPostpone elabFns
+  | some elabFns => elabTermUsing s stx expectedType? catchExPostpone elabFns
   | none         => do
     env  ← getEnv;
     stx' ← catch

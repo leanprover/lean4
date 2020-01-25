@@ -68,18 +68,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-class MonadIO (m : Type → Type) extends HasMonadLiftT IO m, MonadExcept IO.Error m
-
-instance : MonadIO IO := {  }
-
-instance ExceptT.monadFail (m : Type → Type) [Monad m] [MonadExcept IO.Error m] : MonadFail m :=
-⟨fun _ => throw ∘ IO.userError⟩
-
-/- Omitted instances of MonadIO: OptionT, ExceptT and EStateT. The possibility for
-errors introduces the risk that `withStdout` will not restore the previous handle when
-an error is returned in the topmost monad. -/
-instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) := {  }
-instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) := {  }
+abbrev MonadIO (m : Type → Type) := HasMonadLiftT IO m
 
 namespace IO
 
@@ -94,7 +83,11 @@ pure (fn ())
 inductive FS.Mode
 | read | write | readWrite | append
 
-constant FS.Handle : Type := Unit
+constant FS.HandleDecl : PointedType := arbitrary _
+
+def FS.Handle : Type := FS.HandleDecl.1
+
+instance FS.HandleInh : Inhabited FS.Handle := ⟨ FS.HandleDecl.2 ⟩
 
 namespace Prim
 open FS

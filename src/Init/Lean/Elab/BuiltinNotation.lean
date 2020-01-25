@@ -77,6 +77,7 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(have $x : $type := $val; $body)   => `((fun ($x:ident : $type) => $body) $val)
 | _                                   => throwUnsupportedSyntax
 
+/-
 @[termElab «where»] def elabWhere : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($body where $decls*) =>  do
@@ -85,6 +86,7 @@ adaptExpander $ fun stx => match_syntax stx with
     (fun decl body => `(let $decl; $body))
     body
 | _                      => throwUnsupportedSyntax
+-/
 
 @[termElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with

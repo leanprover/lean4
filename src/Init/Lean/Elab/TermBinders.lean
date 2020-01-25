@@ -311,6 +311,7 @@ throwError decl "not implemented yet"
 def elabLetPatDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 throwError decl "not implemented yet"
 
+/-
 @[builtinTermElab «let»] def elabLet : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(let $id:id := $decl; $body) => do
@@ -332,6 +333,7 @@ fun stx expectedType? => match_syntax stx with
     elabLetPatDecl ref decl body expectedType?
   else
     throwError ref "unknown let-declaration kind"
+-/
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.let;

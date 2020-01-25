@@ -206,6 +206,16 @@ inductive Syntax
 instance Syntax.inhabited : Inhabited Syntax :=
 ⟨Syntax.missing⟩
 
+/- Builtin kinds -/
+def choiceKind : SyntaxNodeKind := `choice
+def nullKind : SyntaxNodeKind := `null
+def identKind : SyntaxNodeKind := `ident
+def strLitKind : SyntaxNodeKind := `strLit
+def charLitKind : SyntaxNodeKind := `charLit
+def numLitKind : SyntaxNodeKind := `numLit
+def nameLitKind : SyntaxNodeKind := `nameLit
+def fieldIdxKind : SyntaxNodeKind := `fieldIdx
+
 namespace Syntax
 
 def getKind (stx : Syntax) : SyntaxNodeKind :=
@@ -216,7 +226,7 @@ match stx with
 -- is compiled to ``if stx.isOfKind `ident ...``
 | Syntax.missing       => `missing
 | Syntax.atom _ v      => mkNameSimple v
-| Syntax.ident _ _ _ _ => `ident
+| Syntax.ident _ _ _ _ => identKind
 
 def isOfKind : Syntax → SyntaxNodeKind → Bool
 | stx, k => stx.getKind == k
@@ -401,16 +411,6 @@ instance MacroM.monadQuotation : MonadQuotation MacroM :=
   withFreshMacroScope := fun _ x => x }
 
 abbrev Macro := Syntax → MacroM Syntax
-
-/- Builtin kinds -/
-
-@[matchPattern] def choiceKind : SyntaxNodeKind := `choice
-@[matchPattern] def nullKind : SyntaxNodeKind := `null
-def strLitKind : SyntaxNodeKind := `strLit
-def charLitKind : SyntaxNodeKind := `charLit
-def numLitKind : SyntaxNodeKind := `numLit
-def nameLitKind : SyntaxNodeKind := `nameLit
-def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /- Helper functions for processing Syntax programmatically -/
 

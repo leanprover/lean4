@@ -194,7 +194,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
 let pat := alt.fst.head!;
 let unconditional (rhsFn) := { HeadInfo . rhsFn := rhsFn };
 -- variable pattern
-if pat.isOfKind `Lean.Parser.Term.id then unconditional $ fun rhs => `(let $pat:id := discr; $rhs)
+if pat.isOfKind `Lean.Parser.Term.id then unconditional $ fun rhs => `(let_core $pat := discr; $rhs)
 -- wildcard pattern
 else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
 -- quotation pattern
@@ -222,13 +222,13 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     | anti    => anti;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
-    else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti:id := discr; $rhs) }
+    else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let_core $anti := discr; $rhs) }
     else unconditional $ fun _ => throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
   | _ =>
     if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
       -- quotation is a single antiquotation splice => bind args array
       let anti := getAntiquotTerm (quoted.getArg 0);
-      unconditional $ fun rhs => `(let $anti:term := Syntax.getArgs discr; $rhs)
+      unconditional $ fun rhs => `(let_core $anti := Syntax.getArgs discr; $rhs)
       -- TODO: support for more complex antiquotation splices
     else
       -- not an antiquotation: match head shape
@@ -269,14 +269,14 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
   yes ← withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts;
   some kind ← pure info.kind
     -- unconditional match step
-    | `(let discr := $discr; $yes);
+    | `(let_core discr := $discr; $yes);
   -- conditional match step
   let noAlts  := (alts.filter $ fun (alt : HeadInfo × Alt) => !info.generalizes alt.1).map Prod.snd;
   no ← withFreshMacroScope $ compileStxMatch (discr::discrs) noAlts;
   cond ← match info.argPats with
   | some pats => `(Syntax.isOfKind discr $(quote kind) && Array.size (Syntax.getArgs discr) == $(quote pats.size))
   | none      => `(Syntax.isOfKind discr $(quote kind));
-  `(let discr := $discr; if coe $cond then $yes else $no)
+  `(let_core discr := $discr; if coe $cond then $yes else $no)
 | _, _ => unreachable!
 
 private partial def getPatternVarsAux : Syntax → List Syntax
@@ -314,13 +314,13 @@ private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → Li
     rhs' ← `(rhs ());
     -- NOTE: new macro scope so that introduced bindings do not collide
     stx ← withFreshMacroScope $ letBindRhss alts ((pats, rhs')::altsRev');
-    `(let rhs := fun _ => $rhs; $stx)
+    `(let_core rhs := fun _ => $rhs; $stx)
   | _ => do
     -- rhs ← `(fun $vars* => $rhs)
     let rhs := Syntax.node `Lean.Parser.Term.fun #[mkAtom "fun", Syntax.node `null vars.toArray, mkAtom "=>", rhs];
     rhs' ← `(rhs);
     stx ← withFreshMacroScope $ letBindRhss alts ((pats, rhs')::altsRev');
-    `(let rhs := $rhs; $stx)
+    `(let_core rhs := $rhs; $stx)
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
 let discr := stx.getArg 1;
@@ -391,6 +391,19 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
     adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
       e ← toPreterm $ args.get! 3;
       pure $ lctx.mkLambda #[mkFVar n] e
+  | `Lean.Parser.Term.let_core =>
+    -- parser! "let_core " >> termParser >> ":=" >> termParser >> "; " >> termParser
+    match (args.get! 1).isSimpleTermId? true with
+    | some n => do
+      let n   := n.getId;
+      let val := args.get! 3;
+      val ← toPreterm val;
+      lctx ← getLCtx;
+      let lctx := lctx.mkLetDecl n n exprPlaceholder val;
+      adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
+        e ← toPreterm $ args.get! 5;
+        pure $ lctx.mkLambda #[mkFVar n] e
+    | none => throwError stx $ "stxQuot: unsupported let_core"
   | `Lean.Parser.Term.app => do
     fn ← toPreterm $ args.get! 0;
     as ← (args.get! 1).getArgs.mapM toPreterm;

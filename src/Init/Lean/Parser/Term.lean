@@ -98,6 +98,9 @@ def letEqns           := parser! try (letIdLhs >> lookahead " | ") >> many1Inden
 def letPatDecl        := parser! termParser >> optType >> " := " >> termParser
 def letDecl           := try letIdDecl <|> letEqns <|> letPatDecl
 @[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser
+
+@[builtinTermParser] def «let_core» := parser! "let_core " >> termParser >> ":=" >> termParser >> "; " >> termParser
+
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
 def doLet  := parser! "let " >> letDecl
 def doId   := parser! try (ident >> optType >> leftArrow) >> termParser

@@ -82,21 +82,10 @@ pure (fn ())
 inductive FS.Mode
 | read | write | readWrite | append
 
-constant FS.HandleDecl : PointedType := arbitrary _
-
-def FS.Handle : Type := FS.HandleDecl.1
-
-instance FS.HandleInh : Inhabited FS.Handle := ⟨ FS.HandleDecl.2 ⟩
+constant FS.Handle : Type := Unit
 
 namespace Prim
 open FS
-
-@[extern "lean_get_stdin"]
-constant getStdin  : IO FS.Handle := arbitrary _
-@[extern "lean_get_stderr"]
-constant getStderr : IO FS.Handle := arbitrary _
-@[extern "lean_get_stdout"]
-constant getStdout : IO FS.Handle := arbitrary _
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
@@ -116,6 +105,12 @@ let mode :=
 let bin := if b then "b" else "t";
 mode ++ bin
 
+@[extern "lean_io_prim_put_str"]
+constant putStr (s: @& String) : IO Unit := arbitrary _
+@[extern "lean_io_prim_read_text_file"]
+constant readTextFile (s : @& String) : IO String := arbitrary _
+@[extern "lean_io_prim_get_line"]
+constant getLine : IO String := arbitrary _
 @[extern "lean_io_prim_handle_mk"]
 constant Handle.mk (s : @& String) (mode : @& String) : IO Handle := arbitrary _
 @[extern "lean_io_prim_handle_is_eof"]
@@ -152,6 +147,27 @@ constant appPath : IO String := arbitrary _
 @[inline] def liftIO {m : Type → Type} {α : Type} [MonadIO m] (x : IO α) : m α :=
 monadLift x
 end Prim
+
+section
+variables {m : Type → Type} [Monad m] [MonadIO m]
+
+private def putStr : String → m Unit :=
+Prim.liftIO ∘ Prim.putStr
+
+def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
+def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
+def readTextFile : String → m String := Prim.liftIO ∘ Prim.readTextFile
+def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
+def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
+def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
+def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
+def appPath : m String := Prim.liftIO Prim.appPath
+
+def appDir : m String := do
+p ← appPath;
+realPath (System.FilePath.dirName p)
+
+end
 
 namespace FS
 variables {m : Type → Type} [Monad m] [MonadIO m]
@@ -192,43 +208,16 @@ Prim.liftIO $ Prim.iterate "" $ fun r => do
     c ← h.getLine;
     pure $ Sum.inl (r ++ c) -- continue
 
-end FS
-
-section
-variables {m : Type → Type} [Monad m] [MonadIO m]
-
-def getStderr : m FS.Handle :=
-Prim.liftIO Prim.getStderr
-
-def getStdout : m FS.Handle :=
-Prim.liftIO Prim.getStdout
-
-def getStdin : m FS.Handle :=
-Prim.liftIO Prim.getStdin
-
-private def putStr (s : String) : m Unit := do
-out ← getStdout;
-out.putStr s
-
-def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
-def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
-def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
-def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
-def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
-def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
-def appPath : m String := Prim.liftIO Prim.appPath
-
-def appDir : m String := do
-p ← appPath;
-realPath (System.FilePath.dirName p)
-
 def readFile (fname : String) (bin := false) : m String := do
-IO.println fname;
-h ← FS.Handle.mk fname Mode.read bin;
+h ← Handle.mk fname Mode.read bin;
 r ← h.readToEnd;
 pure r
 
-end
+end FS
+
+-- constant stdin : IO FS.Handle
+-- constant stderr : IO FS.Handle
+-- constant stdout : IO FS.Handle
 
 /-
 namespace Proc
@@ -322,7 +311,7 @@ class HasEval (α : Type u) :=
 (eval : α → IO Unit)
 
 instance HasRepr.HasEval {α : Type u} [HasRepr α] : HasEval α :=
-⟨fun a => IO.print (repr a)⟩
+⟨fun a => IO.println (repr a)⟩
 
 instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
 ⟨fun x => do a ← x; HasEval.eval a⟩

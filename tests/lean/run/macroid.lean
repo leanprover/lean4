@@ -11,3 +11,5 @@ macro_rules
 | `(case! $h : $cond with $t, $e) => `((fun $h => cond $h $t $e) $cond)
 
 #check case! h : 0 == 0 with h, not h
+
+#check let_core x := 1+2; x+x

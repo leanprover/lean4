@@ -60,8 +60,7 @@ macro_rules
 
 -- Define `Sum`
 syntax "Sum" "(" index ")" term : term
-macro_rules
-| `(Sum ($idx:index) $F:term) => `(_big [HasAdd.add, 0] ($idx:index) $F:term)
+macro_rules `(Sum ($idx:index) $F:term) => `(_big [HasAdd.add, 0] ($idx:index) $F:term)
 
 -- We can already use `Sum` with the different kinds of index.
 #check Sum (i <- [0, 2, 4] | i != 2) i
@@ -70,8 +69,7 @@ macro_rules
 
 -- Define `Prod`
 syntax "Prod" "(" index ")" term : term
-macro_rules
-| `(Prod ($idx:index) $F:term) => `(_big [HasMul.mul, 1] ($idx:index) $F:term)
+macro_rules `(Prod ($idx:index) $F:term) => `(_big [HasMul.mul, 1] ($idx:index) $F:term)
 
 -- The examples above now also work for `Prod`
 #check Prod (i <- [0, 2, 4] | i != 2) i
@@ -99,8 +97,7 @@ def myPred (x : Fin 10) : Bool := true
 
 -- We can easily create alternative syntax for any big operator.
 syntax "Σ" index "=>" term : term
-macro_rules
-| `(Σ $idx:index => $F:term) => `(Prod ($idx:index) $F)
+macro_rules `(Σ $idx:index => $F:term) => `(Prod ($idx:index) $F)
 
 #check Σ 10 ≤ i < 20 => i+1
 

@@ -291,12 +291,6 @@ withLetDecl ref n type val $ fun x => do
   body ← instantiateMVars ref body;
   mkLet ref x body
 
-@[builtinTermElab «let_core»] def elabLetCore : TermElab :=
-fun stx expectedType? => match_syntax stx with
-| `(let_core $id:ident := $val; $body) =>
-   elabLetDeclAux stx id.getId #[] (mkHole stx) val body expectedType?
-| _ => throwUnsupportedSyntax
-
 def elabLetIdDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 -- `decl` is of the form: ident bracktedBinder+ (`:` term)? `:=` term
 let n        := decl.getIdAt 0;

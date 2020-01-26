@@ -102,6 +102,7 @@ lean_object* l_Lean_Parser_Command_partial___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_classInductive___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_openHiding;
 lean_object* l_Lean_Parser_Command_synth___elambda__1___closed__7;
+extern lean_object* l_Lean_Parser_Term_letEqnsDecl___closed__1;
 lean_object* l_Lean_Parser_Command_declModifiers___closed__8;
 lean_object* l_Lean_Parser_Command_def___elambda__1___closed__8;
 extern lean_object* l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___closed__5;
@@ -893,7 +894,6 @@ lean_object* l_Lean_Parser_Command_declaration___closed__2;
 lean_object* l_Lean_Parser_Command_end___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Command_constant___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Command_attribute___elambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqns___elambda__1___spec__1___closed__1;
 lean_object* l_Lean_Parser_Command_structureTk___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Command_variable___closed__3;
 lean_object* l_Lean_Parser_Command_check___closed__3;
@@ -957,7 +957,6 @@ lean_object* l_Lean_Parser_Command_declSig___closed__5;
 lean_object* l_Lean_Parser_Command_structCtor___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_structureTk___closed__5;
 lean_object* l_Lean_Parser_Command_universes___elambda__1___closed__9;
-extern lean_object* l_Lean_Parser_Term_letEqns___closed__1;
 lean_object* l_Lean_Parser_Command_set__option___closed__1;
 extern lean_object* l_Lean_Parser_Term_matchAlt___closed__1;
 lean_object* l_Lean_Parser_Command_protected___elambda__1(lean_object*, lean_object*, lean_object*);
@@ -974,6 +973,7 @@ lean_object* l_Lean_Parser_Command_strictInferMod___closed__2;
 lean_object* l_Lean_Parser_Command_synth___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_structImplicitBinder___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Command_classInductive___elambda__1___closed__4;
+extern lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqnsDecl___elambda__1___spec__1___closed__1;
 lean_object* l_Lean_Parser_Term_stxQuot___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_declValSimple___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_set__option___closed__2;
@@ -6884,7 +6884,7 @@ lean_dec(x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; 
-x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqns___elambda__1___spec__1___closed__1;
+x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqnsDecl___elambda__1___spec__1___closed__1;
 x_33 = l_Lean_Parser_ParserState_mkError(x_5, x_32);
 x_11 = x_33;
 goto block_26;
@@ -7012,7 +7012,7 @@ lean_dec(x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; 
-x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqns___elambda__1___spec__1___closed__1;
+x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqnsDecl___elambda__1___spec__1___closed__1;
 x_33 = l_Lean_Parser_ParserState_mkError(x_5, x_32);
 x_11 = x_33;
 goto block_26;
@@ -7228,7 +7228,7 @@ lean_dec(x_22);
 lean_dec(x_20);
 lean_dec(x_2);
 lean_dec(x_1);
-x_24 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqns___elambda__1___spec__1___closed__1;
+x_24 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqnsDecl___elambda__1___spec__1___closed__1;
 x_25 = l_Lean_Parser_ParserState_mkError(x_14, x_24);
 x_26 = l_Lean_nullKind;
 lean_inc(x_16);
@@ -7311,7 +7311,7 @@ lean_dec(x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; 
-x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqns___elambda__1___spec__1___closed__1;
+x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqnsDecl___elambda__1___spec__1___closed__1;
 x_33 = l_Lean_Parser_ParserState_mkError(x_5, x_32);
 x_11 = x_33;
 goto block_26;
@@ -7439,7 +7439,7 @@ lean_dec(x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; 
-x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqns___elambda__1___spec__1___closed__1;
+x_32 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_letEqnsDecl___elambda__1___spec__1___closed__1;
 x_33 = l_Lean_Parser_ParserState_mkError(x_5, x_32);
 x_11 = x_33;
 goto block_26;
@@ -7544,7 +7544,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_declValEqns___elambda__1___closed__2;
-x_2 = l_Lean_Parser_Term_letEqns___closed__1;
+x_2 = l_Lean_Parser_Term_letEqnsDecl___closed__1;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }

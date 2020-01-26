@@ -305,35 +305,18 @@ let type     := expandOptType ref (decl.getArg 2);
 let val      := decl.getArg 4;
 elabLetDeclAux ref n binders type val body expectedType?
 
-def elabLetEqnsDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
-throwError decl "not implemented yet"
-
-def elabLetPatDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
-throwError decl "not implemented yet"
-
-/-
-@[builtinTermElab «let»] def elabLet : TermElab :=
+@[builtinTermElab letDecl] def elabLetDecl : TermElab :=
 fun stx expectedType? => match_syntax stx with
-| `(let $id:id := $decl; $body) => do
-  -- HACK: support single-id pattern let (as produced by quotations) by translation to ident let for now
+| `(let $id $args* := $val; $body) =>
+   elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType?
+| `(let $id $args* : $type := $val; $body) =>
+   elabLetDeclAux stx id.getId args type val body expectedType?
+| `(let $id:id := $val; $body) => do
+  -- HACK: support single Term.id pattern let (as produced by quotations) by translation to ident let for now
   let id := id.getArg 0;
-  stx ← `(let $id:ident := $decl; $body);
+  stx ← `(let $id:ident := $val; $body);
   elabTerm stx expectedType?
-| _ => do
-  -- `let` decl `;` body
-  let ref      := stx;
-  let decl     := stx.getArg 1;
-  let body     := stx.getArg 3;
-  let declKind := decl.getKind;
-  if declKind == `Lean.Parser.Term.letIdDecl then
-    elabLetIdDecl ref decl body expectedType?
-  else if declKind == `Lean.Parser.Term.letEqns then
-    elabLetEqnsDecl ref decl body expectedType?
-  else if declKind == `Lean.Parser.Term.letPatDecl then
-    elabLetPatDecl ref decl body expectedType?
-  else
-    throwError ref "unknown let-declaration kind"
--/
+| _ => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.let;

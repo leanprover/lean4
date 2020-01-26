@@ -94,11 +94,14 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> darrow >> termParser
 def letIdLhs      : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
 def letSimpleDecl : Parser := try (letIdLhs >> " := ") >> termParser
 def letPatDecl    : Parser := termParser >> optType >> " := " >> termParser
-@[builtinTermParser] def letDecl := parser! "let " >> (letSimpleDecl <|> letPatDecl) >> "; " >> termParser
+@[builtinTermParser] def «let» := parser! "let " >> (letSimpleDecl <|> letPatDecl) >> "; " >> termParser
 
-def equation          := matchAlt
+def equation            := matchAlt
+def letEqnsDecl : Parser := letIdLhs >> many1Indent equation "equations must be indented"
 @[builtinTermParser] def letEqns :=
-parser! "let " >> letIdLhs >> many1Indent equation "equations must be indented"
+parser! "let " >> letEqnsDecl >> "; " >> termParser
+
+def letDecl := letSimpleDecl <|> letPatDecl <|> letEqnsDecl
 
 @[builtinTermParser] def «let_core» := parser! "let_core " >> termParser >> ":=" >> termParser >> "; " >> termParser
 

@@ -14,3 +14,10 @@ macro_rules [myAdd2]
 #check fun (x : Nat) => if x +++ 3 = x then x else x + 1
 
 #check [1, 2] +++ [3, 4]
+
+syntax [myAdd3] term "++":65 term:65 : term
+
+macro_rules [myAdd3]
+| `($a ++ $b) => `($a + $b)
+
+#check (1:Nat) ++ 2

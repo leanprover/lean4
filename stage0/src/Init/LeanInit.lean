@@ -753,4 +753,33 @@ match stx.isTermId? relaxed with
 end Syntax
 end Lean
 
-abbrev Array.getSepElems := @Array.getEvenElems
+namespace Array
+
+abbrev getSepElems := @getEvenElems
+
+open Lean
+
+private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) : Nat → Array Syntax → m (Array Syntax)
+| i, acc =>
+  if h : i < a.size then
+    let stx := a.get ⟨i, h⟩;
+    condM (p stx)
+      (if acc.isEmpty then
+         filterSepElemsMAux (i+2) (acc.push stx)
+       else if hz : i ≠ 0 then
+         have i.pred < i from Nat.predLt hz;
+         let sepStx := a.get ⟨i.pred, Nat.ltTrans this h⟩;
+         filterSepElemsMAux (i+2) ((acc.push sepStx).push stx)
+       else
+         filterSepElemsMAux (i+2) (acc.push stx))
+      (filterSepElemsMAux (i+2) acc)
+  else
+    pure acc
+
+def filterSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) : m (Array Syntax) :=
+filterSepElemsMAux a p 0 #[]
+
+def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
+Id.run $ a.filterSepElemsM p
+
+end Array

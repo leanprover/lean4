@@ -180,12 +180,20 @@ fun stx => do
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 
+def getMacroRulesAltKind (alt : Syntax) : CommandElabM SyntaxNodeKind :=
+match_syntax (alt.getArg 0).getArg 0 with
+| `(`($quot)) => pure quot.getKind
+| stx         => throwUnsupportedSyntax
+
 def elabMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
-k ← match_syntax ((alts.get! 0).getArg 0).getArg 0 with
-  | `(`($quot)) => pure quot.getKind
-  | stx         => throwUnsupportedSyntax;
--- TODO: meaningful, unhygienic def name for selective macro `open`ing?
-`(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+k ← getMacroRulesAltKind (alts.get! 0);
+altsK    ← alts.filterSepElemsM (fun alt => do k' ← getMacroRulesAltKind alt; pure $ k == k');
+altsNotK ← alts.filterSepElemsM (fun alt => do k' ← getMacroRulesAltKind alt; pure $ k != k');
+altsKDef ← `(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $altsK:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax);
+if altsNotK.isEmpty then
+  pure altsKDef
+else
+  `($altsKDef:command macro_rules $altsNotK:matchAlt*)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with

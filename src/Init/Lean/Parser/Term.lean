@@ -104,7 +104,7 @@ withPosition $ fun pos =>
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs      : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
 def letSimpleDecl : Parser := try (letIdLhs >> " := ") >> termParser
-def letPatDecl    : Parser := try (termParser >> optType >> " := ") >> termParser
+def letPatDecl    : Parser := try (termParser >> pushNone >> optType >> " := ") >> termParser
 def letEqnsDecl   : Parser := letIdLhs >> matchAlts false
 def letDecl                := letSimpleDecl <|> letPatDecl <|> letEqnsDecl
 @[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser

@@ -1460,7 +1460,7 @@ private def noImmediateColon {k : ParserKind} : Parser k :=
   else s
 }
 
-private def pushNone {k : ParserKind} : Parser k :=
+def pushNone {k : ParserKind} : Parser k :=
 { fn := fun a c s => s.pushSyntax mkNullNode }
 
 /-

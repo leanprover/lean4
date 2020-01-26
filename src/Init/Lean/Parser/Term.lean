@@ -82,6 +82,8 @@ def simpleBinder := parser! many1 binderIdent
 
 def matchAlt : Parser :=
   let k := `Lean.Parser.Term.matchAlt;
+  -- We don't use `parser!` because we want `$x` to be a `matchAlt`. That is, we must use `$x:matchAlt`.
+  -- This is important because otherwise, the `$lhs` at `(match ... with $lhs => $rhs) would be a valid `matchAlt`
   mkAntiquot "matchAlt" k false <|> node k (sepBy1 termParser ", " >> darrow >> termParser)
 
 def matchAlts (optionalFirstBar := true) : Parser :=

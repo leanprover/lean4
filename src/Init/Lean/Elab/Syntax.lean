@@ -190,7 +190,7 @@ alts ← alts.mapSepElemsM $ fun alt => do {
      if k' == k then
        pure alt
      else if k' == choiceKind then do
-        match quot.getArgs.find? $ fun quotAlt => if quotAlt.getKind == k then some quotAlt else none with
+        match quot.getArgs.find? $ fun quotAlt => quotAlt.getKind == k with
         | none      => throwError alt ("invalid macro_rules alternative, expected syntax node kind '" ++ k ++ "'")
         | some quot => do
           pat ← `(`($quot));

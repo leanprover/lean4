@@ -192,21 +192,20 @@ iterateM₂Aux a₁ a₂ f 0 b
 @[inline] def foldlM₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
 iterateM₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
--- TODO(Leo): justify termination using wf-rec
-@[specialize] partial def findMAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
+@[specialize] partial def findSomeMAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
 | i =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      do r ← f (a.get idx);
         match r with
         | some v => pure r
-        | none   => findMAux (i+1)
+        | none   => findSomeMAux (i+1)
   else pure none
 
-@[inline] def findM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
-findMAux a f 0
+@[inline] def findSomeM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+findSomeMAux a f 0
 
-@[specialize] partial def findRevMAux (a : Array α) (f : α → m (Option β)) : ∀ (idx : Nat), idx ≤ a.size → m (Option β)
+@[specialize] partial def findSomeRevMAux (a : Array α) (f : α → m (Option β)) : ∀ (idx : Nat), idx ≤ a.size → m (Option β)
 | i, h =>
   if hLt : 0 < i then
     have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
@@ -218,13 +217,45 @@ findMAux a f 0
       | some v => pure r
       | none   =>
         have i - 1 ≤ a.size from Nat.leOfLt this;
-        findRevMAux (i-1) this
+        findSomeRevMAux (i-1) this
   else pure none
 
-@[inline] def findRevM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
-findRevMAux a f a.size (Nat.leRefl _)
-
+@[inline] def findSomeRevM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+findSomeRevMAux a f a.size (Nat.leRefl _)
 end
+
+-- TODO(Leo): justify termination using wf-rec
+@[specialize] partial def findMAux {α : Type} {m : Type → Type} [Monad m] (a : Array α) (p : α → m Bool) : Nat → m (Option α)
+| i =>
+  if h : i < a.size then do
+    let v := a.get ⟨i, h⟩;
+    condM (p v) (pure (some v)) (findMAux (i+1))
+  else pure none
+
+@[inline] def findM? {α : Type} {m : Type → Type} [Monad m] (a : Array α) (p : α → m Bool) : m (Option α) :=
+findMAux a p 0
+
+@[inline] def find? {α : Type} (a : Array α) (p : α → Bool) : Option α :=
+Id.run $ a.findM? p
+
+@[specialize] partial def findRevMAux {α : Type} {m : Type → Type} [Monad m] (a : Array α) (p : α → m Bool) : ∀ (idx : Nat), idx ≤ a.size → m (Option α)
+| i, h =>
+  if hLt : 0 < i then
+    have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
+    have i - 1 < a.size from Nat.ltOfLtOfLe this h;
+    let v := a.get ⟨i - 1, this⟩;
+    do {
+      condM (p v) (pure (some v)) $
+        have i - 1 ≤ a.size from Nat.leOfLt this;
+        findRevMAux (i-1) this
+    }
+  else pure none
+
+@[inline] def findRevM? {α : Type} {m : Type → Type} [Monad m] (a : Array α) (p : α → m Bool) : m (Option α) :=
+findRevMAux a p a.size (Nat.leRefl _)
+
+@[inline] def findRev? {α : Type} (a : Array α) (p : α → Bool) : Option α :=
+Id.run $ a.findRevM? p
 
 section
 variables {β : Type w} {σ : Type u}
@@ -247,19 +278,19 @@ Id.run $ iterateM₂Aux a₁ a₂ f 0 b
 @[inline] def foldl₂ (f : β → α → σ → β) (b : β) (a₁ : Array α) (a₂ : Array σ) : β :=
 iterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
-@[inline] def find? (a : Array α) (f : α → Option β) : Option β :=
-Id.run $ findMAux a f 0
+@[inline] def findSome? (a : Array α) (f : α → Option β) : Option β :=
+Id.run $ findSomeMAux a f 0
 
-@[inline] def find! [Inhabited β] (a : Array α) (f : α → Option β) : β :=
-match find? a f with
+@[inline] def findSome! [Inhabited β] (a : Array α) (f : α → Option β) : β :=
+match findSome? a f with
 | some b => b
 | none   => panic! "failed to find element"
 
-@[inline] def findRev? (a : Array α) (f : α → Option β) : Option β :=
-Id.run $ findRevMAux a f a.size (Nat.leRefl _)
+@[inline] def findSomeRev? (a : Array α) (f : α → Option β) : Option β :=
+Id.run $ findSomeRevMAux a f a.size (Nat.leRefl _)
 
-@[inline] def findRev! [Inhabited β] (a : Array α) (f : α → Option β) : β :=
-match findRev? a f with
+@[inline] def findSomeRev! [Inhabited β] (a : Array α) (f : α → Option β) : β :=
+match findSomeRev? a f with
 | some b => b
 | none   => panic! "failed to find element"
 

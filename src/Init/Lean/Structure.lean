@@ -84,7 +84,7 @@ partial def findField? (env : Environment) : Name → Name → Option Name
   if (getStructureFields env structName).contains fieldName then
     some structName
   else
-    (getParentStructures env structName).find? $ fun parentStructName => findField? parentStructName fieldName
+    (getParentStructures env structName).findSome? $ fun parentStructName => findField? parentStructName fieldName
 
 private partial def getStructureFieldsFlattenedAux (env : Environment) : Name → Array Name → Array Name
 | structName, fullNames =>
@@ -127,7 +127,7 @@ partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name
     some path.reverse
   else
     let fieldNames := getStructureFields env structName;
-    fieldNames.find? $ fun fieldName =>
+    fieldNames.findSome? $ fun fieldName =>
       match isSubobjectField? env structName fieldName with
       | none                  => none
       | some parentStructName => getPathToBaseStructureAux parentStructName ((structName ++ fieldName) :: path)

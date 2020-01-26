@@ -191,13 +191,13 @@ SourceInfo.pos <$> stx.getHeadInfo
 partial def getTailWithInfo : Syntax → Option Syntax
 | stx@(atom (some _) _)      => some stx
 | stx@(ident (some _) _ _ _) => some stx
-| node _ args                => args.findRev? getTailWithInfo
+| node _ args                => args.findSomeRev? getTailWithInfo
 | _                          => none
 
 partial def getTailInfo : Syntax → Option SourceInfo
 | atom info _      => info
 | ident info _ _ _ => info
-| node _ args      => args.findRev? getTailInfo
+| node _ args      => args.findSomeRev? getTailInfo
 | _                => none
 
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) : Nat → Option (Array α)

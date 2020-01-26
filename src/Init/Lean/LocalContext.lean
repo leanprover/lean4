@@ -141,7 +141,7 @@ match lctx with
 
 @[export lean_local_ctx_find_from_user_name]
 def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
-lctx.decls.findRev? (fun decl =>
+lctx.decls.findSomeRev? (fun decl =>
   match decl with
   | none      => none
   | some decl => if decl.userName == userName then some decl else none)
@@ -202,12 +202,12 @@ lctx.decls.forM $ fun decl => match decl with
   | some decl => f decl *> pure PUnit.unit
 
 @[specialize] def findDeclM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-lctx.decls.findM? $ fun decl => match decl with
+lctx.decls.findSomeM? $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
 
 @[specialize] def findDeclRevM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-lctx.decls.findRevM? $ fun decl => match decl with
+lctx.decls.findSomeRevM? $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
 

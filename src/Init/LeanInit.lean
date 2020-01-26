@@ -245,7 +245,7 @@ match stx with
 partial def getHeadInfo : Syntax → Option SourceInfo
 | atom info _      => info
 | ident info _ _ _ => info
-| node _ args      => args.find? getHeadInfo
+| node _ args      => args.findSome? getHeadInfo
 | _                => none
 
 end Syntax

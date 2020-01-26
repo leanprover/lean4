@@ -91,13 +91,14 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> darrow >> termParser
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
-def letIdLhs : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
-def letIdDecl         := parser! try (letIdLhs >> " := ") >> termParser
+def letIdLhs      : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
+def letSimpleDecl : Parser := try (letIdLhs >> " := ") >> termParser
+def letPatDecl    : Parser := termParser >> optType >> " := " >> termParser
+@[builtinTermParser] def letDecl := parser! "let " >> (letSimpleDecl <|> letPatDecl) >> "; " >> termParser
+
 def equation          := matchAlt
-def letEqns           := parser! try (letIdLhs >> lookahead " | ") >> many1Indent equation "equations must be indented"
-def letPatDecl        := parser! termParser >> optType >> " := " >> termParser
-def letDecl           := try letIdDecl <|> letEqns <|> letPatDecl
-@[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser
+@[builtinTermParser] def letEqns :=
+parser! "let " >> letIdLhs >> many1Indent equation "equations must be indented"
 
 @[builtinTermParser] def «let_core» := parser! "let_core " >> termParser >> ":=" >> termParser >> "; " >> termParser
 

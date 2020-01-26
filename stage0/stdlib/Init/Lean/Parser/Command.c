@@ -957,6 +957,7 @@ lean_object* l_Lean_Parser_Command_declSig___closed__5;
 lean_object* l_Lean_Parser_Command_structCtor___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_structureTk___closed__5;
 lean_object* l_Lean_Parser_Command_universes___elambda__1___closed__9;
+extern lean_object* l_Lean_Parser_Term_letEqns___closed__1;
 lean_object* l_Lean_Parser_Command_set__option___closed__1;
 extern lean_object* l_Lean_Parser_Term_matchAlt___closed__1;
 lean_object* l_Lean_Parser_Command_protected___elambda__1(lean_object*, lean_object*, lean_object*);
@@ -1036,7 +1037,6 @@ lean_object* l_Lean_Parser_Command_partial___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Command_namespace;
 lean_object* l_Lean_Parser_Command_axiom___closed__2;
 lean_object* l_Lean_Parser_Command_constant___elambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Term_letEqns___closed__2;
 lean_object* l_Lean_Parser_Command_structure___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_check___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Command_declValSimple___closed__3;
@@ -7544,7 +7544,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_declValEqns___elambda__1___closed__2;
-x_2 = l_Lean_Parser_Term_letEqns___closed__2;
+x_2 = l_Lean_Parser_Term_letEqns___closed__1;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }

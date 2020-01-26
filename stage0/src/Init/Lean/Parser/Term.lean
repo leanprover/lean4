@@ -81,8 +81,8 @@ def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
 
 def matchAlt : Parser :=
-  let k := `Lean.Parser.Term.matchAlt;
-  mkAntiquot "matchAlt" k false <|> node k (sepBy1 termParser ", " >> darrow >> termParser)
+nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
+  sepBy1 termParser ", " >> darrow >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
 withPosition $ fun pos =>
@@ -100,11 +100,11 @@ withPosition $ fun pos =>
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> matchAlts
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
-def letIdLhs      : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
-def letSimpleDecl : Parser := try (letIdLhs >> " := ") >> termParser
-def letPatDecl    : Parser := try (termParser >> optType >> " := ") >> termParser
-def letEqnsDecl   : Parser := letIdLhs >> matchAlts false
-def letDecl                := letSimpleDecl <|> letPatDecl <|> letEqnsDecl
+def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
+def letIdDecl   : Parser := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl $ try (letIdLhs >> " := ") >> termParser
+def letPatDecl  : Parser := node `Lean.Parser.Term.letDecl $ try (termParser >> pushNone >> optType >> " := ") >> termParser
+def letEqnsDecl : Parser := node `Lean.Parser.Term.letDecl $ letIdLhs >> matchAlts false
+def letDecl              := letIdDecl <|> letPatDecl <|> letEqnsDecl
 @[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser
 
 @[builtinTermParser] def «let_core» := parser! "let_core " >> termParser >> ":=" >> termParser >> "; " >> termParser

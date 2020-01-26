@@ -1460,7 +1460,7 @@ private def noImmediateColon {k : ParserKind} : Parser k :=
   else s
 }
 
-private def pushNone {k : ParserKind} : Parser k :=
+def pushNone {k : ParserKind} : Parser k :=
 { fn := fun a c s => s.pushSyntax mkNullNode }
 
 /-
@@ -1489,6 +1489,9 @@ node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotE
 /- ===================== -/
 /- End of Antiquotations -/
 /- ===================== -/
+
+def nodeWithAntiquot {k : ParserKind} (name : String) (kind : SyntaxNodeKind) (p : Parser k) : Parser k :=
+mkAntiquot name kind false <|> node kind p
 
 def ident {k : ParserKind} : Parser k :=
 mkAntiquot "ident" identKind <|> identNoAntiquot

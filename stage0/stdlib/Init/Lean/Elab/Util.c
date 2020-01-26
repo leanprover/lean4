@@ -25,7 +25,6 @@ lean_object* l___private_Init_Lean_Elab_Util_6__ElabAttribute_add___rarg___boxed
 extern lean_object* l_Lean_Macro_throwUnsupported___closed__1;
 extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 lean_object* l_AssocList_contains___main___at_Lean_Elab_ElabFnTable_insert___spec__26___rarg___boxed(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Parser_Parser_27__BuiltinParserAttribute_add___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_Elab_ElabFnTable_insert___spec__20___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttribute(lean_object*);
@@ -296,6 +295,7 @@ lean_object* l_Lean_SMap_insert___at_Lean_Elab_ElabFnTable_insert___spec__9(lean
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_PersistentHashMap_empty___at_Lean_Elab_mkBuiltinMacroFnTable___spec__3;
 lean_object* l_mkHashMap___at_Lean_Elab_mkElabAttributeAux___spec__5___rarg(lean_object*);
+extern lean_object* l___private_Init_Lean_Parser_Parser_26__BuiltinParserAttribute_add___closed__2;
 lean_object* l_Lean_Elab_declareBuiltinMacro___closed__8;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Elab_getMacros___spec__3(lean_object*, size_t, lean_object*);
@@ -5859,7 +5859,7 @@ lean_dec(x_13);
 lean_dec(x_11);
 lean_dec(x_2);
 lean_dec(x_1);
-x_25 = l___private_Init_Lean_Parser_Parser_27__BuiltinParserAttribute_add___closed__2;
+x_25 = l___private_Init_Lean_Parser_Parser_26__BuiltinParserAttribute_add___closed__2;
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_12);

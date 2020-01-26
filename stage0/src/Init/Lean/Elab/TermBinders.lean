@@ -305,7 +305,8 @@ let type     := expandOptType ref (decl.getArg 2);
 let val      := decl.getArg 4;
 elabLetDeclAux ref n binders type val body expectedType?
 
-@[builtinTermElab letDecl] def elabLetDecl : TermElab :=
+/-
+@[builtinTermElab «let»] def elabLetDecl : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(let $id $args* := $val; $body) =>
    elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType?
@@ -317,6 +318,7 @@ fun stx expectedType? => match_syntax stx with
   stx ← `(let $id:ident := $val; $body);
   elabTerm stx expectedType?
 | _ => throwUnsupportedSyntax
+-/
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.let;

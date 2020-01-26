@@ -46,7 +46,7 @@ def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> 
 def declSig          := parser! many Term.bracktedBinder >> Term.typeSpec
 def optDeclSig       := parser! many Term.bracktedBinder >> Term.optType
 def declValSimple    := parser! " := " >> termParser
-def declValEqns      := parser! many1Indent Term.equation "equations must be indented"
+def declValEqns      := parser! Term.matchAlts false
 def declVal          := declValSimple <|> declValEqns
 def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
 def «def»            := parser! "def " >> declId >> optDeclSig >> declVal

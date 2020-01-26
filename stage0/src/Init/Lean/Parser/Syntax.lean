@@ -61,7 +61,7 @@ def identPrec  := parser! ident >> optPrecedence
 
 -- TODO: remove " := " after old frontend is gone
 @[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> (" := " <|> darrow) >> termParser
-@[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
+@[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> Term.matchAlts
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
 def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> nonReservedSymbol "str" <|> nonReservedSymbol "char" <|> (ident >> optPrecedence)

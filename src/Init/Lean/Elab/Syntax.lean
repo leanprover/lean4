@@ -211,7 +211,7 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 k ← inferMacroRulesAltKind (alts.get! 0);
 if k == choiceKind then
   throwError (alts.get! 0)
-    "invalid macro_rules alternative, multiple interpretations for first element (solution: specify node kind using `macro_rules [<kind>] ...`)"
+    "invalid macro_rules alternative, multiple interpretations for pattern (solution: specify node kind using `macro_rules [<kind>] ...`)"
 else do
   altsK    ← alts.filterSepElemsM (fun alt => do k' ← inferMacroRulesAltKind alt; pure $ k == k');
   altsNotK ← alts.filterSepElemsM (fun alt => do k' ← inferMacroRulesAltKind alt; pure $ k != k');

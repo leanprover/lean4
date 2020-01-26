@@ -93,7 +93,7 @@ stx.isOfKind nullKind && stx.getArgs.any isAntiquotSplice
     explicit kinds behave the same at runtime. So we replace `choice` nodes that contain
     at least one implicit antiquotation with that antiquotation. -/
 private partial def elimAntiquotChoices : Syntax → Syntax
-| Syntax.node `choice args => match args.find? (fun arg => if antiquotKind? arg == Name.anonymous then some arg else none) with
+| Syntax.node `choice args => match args.find? (fun arg => antiquotKind? arg == Name.anonymous) with
   | some anti => anti
   | none      => Syntax.node `choice $ args.map elimAntiquotChoices
 | Syntax.node k args       => Syntax.node k $ args.map elimAntiquotChoices

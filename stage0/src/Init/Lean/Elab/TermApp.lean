@@ -342,8 +342,10 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
     elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
   | _ => do
-    f ← elabTerm f none;
-    s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;
+    s ← observing $ do {
+      f ← elabTerm f none;
+      elabAppLVals ref f lvals namedArgs args expectedType? explicit
+    };
     pure $ acc.push s
 
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=

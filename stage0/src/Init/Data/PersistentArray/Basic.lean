@@ -197,24 +197,24 @@ variable {β : Type v}
 @[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (b : β) : m β := do
 b ← foldlMAux f t.root b; t.tail.foldlM f b
 
-@[specialize] partial def findMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
-| node cs => cs.findM? (fun c => findMAux c)
-| leaf vs => vs.findM? f
+@[specialize] partial def findSomeMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
+| node cs => cs.findSomeM? (fun c => findSomeMAux c)
+| leaf vs => vs.findSomeM? f
 
-@[specialize] def findM? (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
-b ← findMAux f t.root;
+@[specialize] def findSomeM? (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
+b ← findSomeMAux f t.root;
 match b with
-| none   => t.tail.findM? f
+| none   => t.tail.findSomeM? f
 | some b => pure (some b)
 
-@[specialize] partial def findRevMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
-| node cs => cs.findRevM? (fun c => findRevMAux c)
-| leaf vs => vs.findRevM? f
+@[specialize] partial def findSomeRevMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
+| node cs => cs.findSomeRevM? (fun c => findSomeRevMAux c)
+| leaf vs => vs.findSomeRevM? f
 
-@[specialize] def findRevM? (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
-b ← t.tail.findRevM? f;
+@[specialize] def findSomeRevM? (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
+b ← t.tail.findSomeRevM? f;
 match b with
-| none   => findRevMAux f t.root
+| none   => findSomeRevMAux f t.root
 | some b => pure (some b)
 
 partial def foldlFromMAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
@@ -252,11 +252,11 @@ else t₂.foldl PersistentArray.push t₁
 
 instance : HasAppend (PersistentArray α) := ⟨append⟩
 
-@[inline] def find? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
-Id.run (t.findM? f)
+@[inline] def findSome? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
+Id.run (t.findSomeM? f)
 
-@[inline] def findRev? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
-Id.run (t.findRevM? f)
+@[inline] def findSomeRev? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
+Id.run (t.findSomeRevM? f)
 
 @[inline] def foldlFrom {β} (t : PersistentArray α) (f : β → α → β) (b : β) (ini : Nat) : β :=
 Id.run (t.foldlFromM f b ini)

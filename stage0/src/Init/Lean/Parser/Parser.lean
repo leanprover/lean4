@@ -988,7 +988,7 @@ match prev.getTailInfo with
 | none      => false
 
 private def pickNonNone (stack : Array Syntax) : Syntax :=
-match stack.findRev? $ fun stx => if stx.isNone then none else some stx with
+match stack.findRev? $ fun stx => !stx.isNone with
 | none => Syntax.missing
 | some stx => stx
 

@@ -60,9 +60,10 @@ def strLitPrec := parser! strLit >> optPrecedence
 def identPrec  := parser! ident >> optPrecedence
 
 -- TODO: remove " := " after old frontend is gone
+def optKind : Parser := optional ("[" >> ident >> "]")
 @[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> (" := " <|> darrow) >> termParser
-@[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> Term.matchAlts
-@[builtinCommandParser] def «syntax»      := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts
+@[builtinCommandParser] def «syntax»      := parser! "syntax " >> optKind >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
 def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> nonReservedSymbol "str" <|> nonReservedSymbol "char" <|> (ident >> optPrecedence)
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> macroArgType

@@ -180,16 +180,18 @@ fun stx => do
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 
-@[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
-adaptExpander $ fun stx => match_syntax stx with
-| `(macro_rules $alts*) => do
-  -- TODO: clean up with matchAlt quotation
-  k ← match_syntax ((alts.get! 0).getArg 1).getArg 0 with
+def elabMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
+k ← match_syntax ((alts.get! 0).getArg 0).getArg 0 with
   | `(`($quot)) => pure quot.getKind
   | stx         => throwUnsupportedSyntax;
-  -- TODO: meaningful, unhygienic def name for selective macro `open`ing?
-  `(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
-| _ => throwUnsupportedSyntax
+-- TODO: meaningful, unhygienic def name for selective macro `open`ing?
+`(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+
+@[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(macro_rules $alts:matchAlt*)   => elabMacroRulesAux alts
+| `(macro_rules | $alts:matchAlt*) => elabMacroRulesAux alts
+| _                                => throwUnsupportedSyntax
 
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()

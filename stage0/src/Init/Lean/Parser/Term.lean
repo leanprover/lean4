@@ -107,8 +107,6 @@ def letEqnsDecl : Parser := node `Lean.Parser.Term.letDecl $ letIdLhs >> matchAl
 def letDecl              := letIdDecl <|> letPatDecl <|> letEqnsDecl
 @[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser
 
-@[builtinTermParser] def «let_core» := parser! "let_core " >> termParser >> ":=" >> termParser >> "; " >> termParser
-
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
 def doLet  := parser! "let " >> letDecl
 def doId   := parser! try (ident >> optType >> leftArrow) >> termParser

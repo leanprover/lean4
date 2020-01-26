@@ -1490,6 +1490,9 @@ node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotE
 /- End of Antiquotations -/
 /- ===================== -/
 
+def nodeWithAntiquot {k : ParserKind} (name : String) (kind : SyntaxNodeKind) (p : Parser k) : Parser k :=
+mkAntiquot name kind false <|> node kind p
+
 def ident {k : ParserKind} : Parser k :=
 mkAntiquot "ident" identKind <|> identNoAntiquot
 

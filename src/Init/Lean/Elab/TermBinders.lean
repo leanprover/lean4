@@ -307,14 +307,14 @@ elabLetDeclAux ref n binders type val body expectedType?
 
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
 fun stx expectedType? => match_syntax stx with
-| `(let $id $args* := $val; $body) =>
+| `(let $id:ident $args* := $val; $body) =>
    elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType?
-| `(let $id $args* : $type := $val; $body) =>
+| `(let $id:ident $args* : $type := $val; $body) =>
    elabLetDeclAux stx id.getId args type val body expectedType?
 | `(let $id:id := $val; $body) => do
   -- HACK: support single Term.id pattern let (as produced by quotations) by translation to ident let for now
   let id := id.getArg 0;
-  stx ← `(let $id:ident := $val; $body);
+  stx ← `(let $id := $val; $body);
   elabTerm stx expectedType?
 | _ => throwUnsupportedSyntax
 

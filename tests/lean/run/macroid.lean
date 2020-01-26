@@ -17,3 +17,9 @@ macro_rules
 | `(case2! $h : $c with $t, $e) => `(let $h := $c; cond $h $t $e)
 
 #check case2! h : 0 == 0 with h, not h
+
+syntax "test" term : term
+macro_rules
+| `(test $x:id) => `(let $x := 0; $x)
+
+#check fun (x : Nat) => test x

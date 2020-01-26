@@ -77,18 +77,16 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(have $x : $type := $val; $body)   => `((fun ($x:ident : $type) => $body) $val)
 | _                                   => throwUnsupportedSyntax
 
-/-
-@[termElab «where»] def elabWhere : TermElab :=
+@[builtinTermElab «where»] def elabWhere : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `($body where $decls*) =>  do
+| `($body where $decls:letDecl*) =>  do
   let decls := decls.getEvenElems;
   decls.foldrM
-    (fun decl body => `(let $decl; $body))
+    (fun decl body => `(let $decl:letDecl; $body))
     body
 | _                      => throwUnsupportedSyntax
--/
 
-@[termElab «parser!»] def elabParserMacro : TermElab :=
+@[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(parser! $e) => do
   some declName ← getDeclName?
@@ -107,7 +105,7 @@ adaptExpander $ fun stx => match_syntax stx with
   | _             => throwError stx "invalid `parser!` macro, unexpected declaration name"
 | _             => throwUnsupportedSyntax
 
-@[termElab «tparser!»] def elabTParserMacro : TermElab :=
+@[builtinTermElab «tparser!»] def elabTParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(tparser! $e) => do
   declName? ← getDeclName?;

@@ -23,3 +23,5 @@ macro_rules
 | `(test $x:id) => `(let $x := 0; $x)
 
 #check fun (x : Nat) => test x
+
+#check x where y := 1; where x := y + 1

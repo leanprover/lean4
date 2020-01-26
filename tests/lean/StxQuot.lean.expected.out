@@ -25,5 +25,5 @@
 "(Term.simpleBinder (null (Term.hole \"_\")))"
 "`a._@.UnhygienicMain._hyg.1"
 "(Term.id `a._@.UnhygienicMain._hyg.1 (null (Term.explicitUniv \".{\" (null (Level.num (numLit \"0\"))) \"}\")))"
-"#[(Term.matchAlt \"|\" (null (Term.id `a._@.UnhygienicMain._hyg.1 (null))) \"=>\" (Term.num (numLit \"1\"))), (Term.matchAlt \"|\" (null (Term.hole \"_\")) \"=>\" (Term.num (numLit \"2\")))]"
-"#[(Term.matchAlt \"|\" (null (Term.id `a._@.UnhygienicMain._hyg.1 (null))) \"=>\" (Term.num (numLit \"1\"))), (Term.matchAlt \"|\" (null (Term.hole \"_\")) \"=>\" (Term.num (numLit \"2\")))]"
+"#[]"
+StxQuot.lean:40:74: error: expected '⇒', '=>'

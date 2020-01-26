@@ -324,13 +324,13 @@ private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → Li
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
 let discr := stx.getArg 1;
-let alts := stx.getArg 3;
-alts ← alts.getArgs.mapM $ fun alt => do {
-  let pats := alt.getArg 1;
+let alts := stx.getArg 4;
+alts ← alts.getArgs.getSepElems.mapM $ fun alt => do {
+  let pats := alt.getArg 0;
   pat ← if pats.getArgs.size == 1 then pure $ pats.getArg 0
     else throwError stx "match_syntax: expected exactly one pattern per alternative";
   let pat := if pat.isOfKind `Lean.Parser.Term.stxQuot then pat.setArg 1 $ elimAntiquotChoices $ pat.getArg 1 else pat;
-  let rhs := alt.getArg 3;
+  let rhs := alt.getArg 2;
   pure ([pat], rhs)
 };
 -- letBindRhss (compileStxMatch stx [discr]) alts.toList []

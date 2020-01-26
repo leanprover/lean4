@@ -79,8 +79,17 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 @[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
-def matchAlt := parser! " | " >> sepBy1 termParser ", " >> darrow >> termParser
-@[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1Indent matchAlt "'match' alternatives must be indented"
+
+def matchAlt : Parser :=
+  let k := `Lean.Parser.Term.matchAlt;
+  mkAntiquot "matchAlt" k false <|> node k (sepBy1 termParser ", " >> darrow >> termParser)
+
+def matchAlts (optionalFirstBar := true) : Parser :=
+withPosition $ fun pos =>
+  (if optionalFirstBar then optional "|" else "|") >>
+  sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+
+@[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch»  := parser! "nomatch " >> termParser
 @[builtinTermParser] def «parser!»  := parser! "parser! " >> termParser
 @[builtinTermParser] def «tparser!» := parser! "tparser! " >> termParser
@@ -88,14 +97,13 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> darrow >> termParser
 @[builtinTermParser] def quotedName := parser! nameLit
 -- NOTE: syntax quotations are defined in Init.Lean.Parser.Command
 @[builtinTermParser] def antiquot   := (mkAntiquot "term" none true : Parser)
-@[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"
+@[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> matchAlts
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs      : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
 def letSimpleDecl : Parser := try (letIdLhs >> " := ") >> termParser
-def letPatDecl    : Parser := termParser >> optType >> " := " >> termParser
-def equation               := matchAlt
-def letEqnsDecl   : Parser := letIdLhs >> many1Indent equation "equations must be indented"
+def letPatDecl    : Parser := try (termParser >> optType >> " := ") >> termParser
+def letEqnsDecl   : Parser := letIdLhs >> matchAlts false
 def letDecl                := letSimpleDecl <|> letPatDecl <|> letEqnsDecl
 @[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser
 

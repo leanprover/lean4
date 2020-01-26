@@ -187,15 +187,13 @@ match_syntax (alt.getArg 0).getArg 0 with
 
 def elabMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 k ← getMacroRulesAltKind (alts.get! 0);
--- We currently reject `macro_rules` command that try to transform different node kinds.
--- Rejection is better than silently ignoring alternatives.
--- TODO: split into different `macro_rules` commands
-alts.getSepElems.forM $ fun alt => do {
-  k' ← getMacroRulesAltKind alt;
-  unless (k == k') $ throwError alt ("invalid 'macro_rules', mixing node kinds: " ++ k ++ " and " ++ k')
-};
--- TODO: meaningful, unhygienic def name for selective macro `open`ing?
-`(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+altsK    ← alts.filterSepElemsM (fun alt => do k' ← getMacroRulesAltKind alt; pure $ k == k');
+altsNotK ← alts.filterSepElemsM (fun alt => do k' ← getMacroRulesAltKind alt; pure $ k != k');
+altsKDef ← `(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $altsK:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax);
+if altsNotK.isEmpty then
+  pure altsKDef
+else
+  `($altsKDef:command macro_rules $altsNotK:matchAlt*)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with

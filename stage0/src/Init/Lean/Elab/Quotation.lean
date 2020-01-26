@@ -330,8 +330,11 @@ alts ← alts.getArgs.getSepElems.mapM $ fun alt => do {
   pat ← if pats.getArgs.size == 1 then pure $ pats.getArg 0
     else throwError stx "match_syntax: expected exactly one pattern per alternative";
   let pat := if pat.isOfKind `Lean.Parser.Term.stxQuot then pat.setArg 1 $ elimAntiquotChoices $ pat.getArg 1 else pat;
-  let rhs := alt.getArg 2;
-  pure ([pat], rhs)
+  match pat.find? $ fun stx => stx.getKind == choiceKind with
+  | some choiceStx => throwError choiceStx "invalid pattern, nested syntax has multiple interpretations"
+  | none           =>
+    let rhs := alt.getArg 2;
+    pure ([pat], rhs)
 };
 -- letBindRhss (compileStxMatch stx [discr]) alts.toList []
 compileStxMatch stx [discr] alts.toList

@@ -750,6 +750,13 @@ match stx.isTermId? relaxed with
 | some (id, opt) => if opt.isNone then some id else none
 | none           => none
 
+partial def findAux (p : Syntax → Bool) : Syntax → Option Syntax
+| stx@(Syntax.node _ args) => if p stx then some stx else args.findSome? findAux
+| stx                      => if p stx then some stx else none
+
+def find? (stx : Syntax) (p : Syntax → Bool) : Option Syntax :=
+findAux p stx
+
 end Syntax
 end Lean
 

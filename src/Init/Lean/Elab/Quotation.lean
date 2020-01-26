@@ -381,15 +381,16 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
         e ← toPreterm stx;
         pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let => do
-    let ⟨n, val⟩ := show Name × Syntax from match (args.get! 1).getKind with
-      | `Lean.Parser.Term.letIdDecl  => ((args.get! 1).getIdAt 0, (args.get! 1).getArg 4)
-      | `Lean.Parser.Term.letPatDecl => (((args.get! 1).getArg 0).getIdAt 0, (args.get! 1).getArg 3)
-      | _                            => unreachable!;
+    let (n, val, body) :=
+      if (args.get! 1).isIdent then
+        ((args.get! 1).getId, args.get! 5, args.get! 7)
+      else
+        ((args.get! 1).getIdAt 0, args.get! 4, args.get! 6);
     val ← toPreterm val;
     lctx ← getLCtx;
     let lctx := lctx.mkLetDecl n n exprPlaceholder val;
     adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
-      e ← toPreterm $ args.get! 3;
+      e ← toPreterm $ body;
       pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let_core =>
     -- parser! "let_core " >> termParser >> ":=" >> termParser >> "; " >> termParser

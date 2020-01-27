@@ -40,7 +40,7 @@ adaptExpander $ fun stx => match_syntax stx with
 | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
 | _                       => throwUnsupportedSyntax
 
-@[builtinTermElab anonymousCtor] def elabAnoymousCtor : TermElab :=
+@[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(⟨$args*⟩) => do
   let ref := stx;
@@ -57,7 +57,7 @@ fun stx expectedType? => match_syntax stx with
         match val.ctors with
         | [ctor] => do
           stx ← `($(mkCTermIdFrom ref ctor) $(args.getSepElems)*);
-          elabTerm stx expectedType?
+          withMacroExpansion ref stx $ elabTerm stx expectedType?
         | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
       | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
     | _ => throwError ref ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)

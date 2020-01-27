@@ -41,28 +41,28 @@ adaptExpander $ fun stx => match_syntax stx with
 | _                       => throwUnsupportedSyntax
 
 @[builtinTermElab anonymousCtor] def elabAnoymousCtor : TermElab :=
-fun stx expectedType? => do
-let ref := stx;
-tryPostponeIfNoneOrMVar expectedType?;
-match expectedType? with
-| none              => throwError ref "invalid constructor ⟨...⟩, expected type must be known"
-| some expectedType => do
-  expectedType ← instantiateMVars ref expectedType;
-  let expectedType := expectedType.consumeMData;
-  match expectedType.getAppFn with
-  | Expr.const constName _ _ => do
-    env ← getEnv;
-    match env.find? constName with
-    | some (ConstantInfo.inductInfo val) =>
-      if val.ctors.length != 1 then
-        throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
-      else
-        let ctor   := mkCTermIdFrom ref val.ctors.head!;
-        let args   := (stx.getArg 1).getArgs.getEvenElems; do
-        let newStx := mkAppStx ctor args;
-        withMacroExpansion ref newStx $ elabTerm newStx expectedType?
-    | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
-  | _ => throwError ref ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
+fun stx expectedType? => match_syntax stx with
+| `(⟨$args*⟩) => do
+  let ref := stx;
+  tryPostponeIfNoneOrMVar expectedType?;
+  match expectedType? with
+  | some expectedType => do
+    expectedType ← instantiateMVars ref expectedType;
+    let expectedType := expectedType.consumeMData;
+    match expectedType.getAppFn with
+    | Expr.const constName _ _ => do
+      env ← getEnv;
+      match env.find? constName with
+      | some (ConstantInfo.inductInfo val) =>
+        match val.ctors with
+        | [ctor] => do
+          stx ← `($(mkCTermIdFrom ref ctor) $(args.getSepElems)*);
+          elabTerm stx expectedType?
+        | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
+      | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
+    | _ => throwError ref ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
+  | none => throwError ref "invalid constructor ⟨...⟩, expected type must be known"
+| _ => throwUnsupportedSyntax
 
 @[builtinTermElab «show»] def elabShow : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with

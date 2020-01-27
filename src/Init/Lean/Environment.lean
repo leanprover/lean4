@@ -478,6 +478,8 @@ partial def importModulesAux : List Import → (NameSet × Array ModuleData) →
   else do
     let s := s.insert i.module;
     mFile ← findOLean i.module;
+    unlessM (IO.fileExists mFile) $
+      throw $ IO.userError $ "object file '" ++ mFile ++ "' of module " ++ toString i.module ++ " does not exist";
     mod ← readModuleData mFile;
     (s, mods) ← importModulesAux mod.imports.toList (s, mods);
     let mods := mods.push mod;

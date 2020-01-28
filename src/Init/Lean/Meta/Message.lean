@@ -71,8 +71,8 @@ def toMessageData : Exception → MessageData
 | invalidProjection s i e ctx     => mkCtx ctx $ "invalid projection" ++ indentExpr (mkProj s i e)
 | revertFailure xs decl ctx       => mkCtx ctx $ "revert failure"
 | readOnlyMVar mvarId ctx         => mkCtx ctx $ "tried to update read only metavariable " ++ mkMVar mvarId
-| isLevelDefEqStuck u v ctx       => mkCtx ctx $ "stuck at " ++ u ++ " =?= " ++ v
-| isExprDefEqStuck t s ctx        => mkCtx ctx $ "stuck at " ++ t ++ " =?= " ++ s
+| isLevelDefEqStuck u v ctx       => mkCtx ctx $ "stuck at universe level constraint " ++ u ++ " =?= " ++ v
+| isExprDefEqStuck t s ctx        => mkCtx ctx $ "stuck at constraint " ++ t ++ " =?= " ++ s
 | letTypeMismatch fvarId ctx      => mkLetTypeMismatchMessage fvarId ctx
 | appTypeMismatch f a ctx         => mkAppTypeMismatchMessage f a ctx
 | notInstance i ctx               => mkCtx ctx $ "not a type class instance " ++ i

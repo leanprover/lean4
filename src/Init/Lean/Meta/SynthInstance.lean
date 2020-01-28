@@ -535,25 +535,31 @@ withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox
   match s.cache.synthInstance.find? type with
   | some result => pure result
   | none        => do
-    result ← withNewMCtxDepth $ do {
+    result? ← withNewMCtxDepth $ do {
       normType ← preprocessOutParam type;
       result?  ← SynthInstance.main normType fuel;
       match result? with
       | none        => pure none
       | some result => do
+        result ← instantiateMVars result;
+        condM (hasAssignableMVar result)
+          (pure none)
+          (pure (some result))
+    };
+    result? ← match result? with
+      | none        => pure none
+      | some result => do {
         resultType ← inferType result;
         condM (withConfig (fun _ => inputConfig) $ isDefEq type resultType)
           (do result ← instantiateMVars result;
-              condM (hasAssignableMVar result)
-                (pure none)
-                (pure (some result)))
+              pure (some result))
           (pure none)
-    };
+      };
     if type.hasMVar then
-      pure result
+      pure result?
     else do
-      modify $ fun s => { cache := { synthInstance := s.cache.synthInstance.insert type result, .. s.cache }, .. s };
-      pure result
+      modify $ fun s => { cache := { synthInstance := s.cache.synthInstance.insert type result?, .. s.cache }, .. s };
+      pure result?
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if

@@ -79,13 +79,15 @@ universes u₁ u₂ u₃
 
 /- Transitive closure for HasLift, HasCoe, HasCoeToFun -/
 
+namespace Legacy
+
 instance liftTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasLiftT b c] [HasLift a b] : HasLiftT a c :=
 ⟨fun x => liftT (lift x : b)⟩
 
 instance liftRefl {a : Sort u} : HasLiftT a a :=
 ⟨id⟩
 
-instance coeTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoeT b c] [HasCoe a b] : HasCoeT a c :=
+instance coeoeTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoeT b c] [HasCoe a b] : HasCoeT a c :=
 ⟨fun x => oldCoeT (oldCoeB x : b)⟩
 
 instance coeBase {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeT a b :=
@@ -105,7 +107,7 @@ instance coeBase {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeT a b :=
           ?b₂ := Option (Option α))
    ...
 -/
-instance coeOption {a : Type u} : HasCoeT a (Option a) :=
+instance oldCoeOption {a : Type u} : HasCoeT a (Option a) :=
 ⟨fun x => some x⟩
 
 /- Auxiliary transitive closure for HasCoe which does not contain
@@ -134,10 +136,6 @@ instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [HasCoeToSort.{u₂, u₃}
 
 instance coeToLift {a : Sort u} {b : Sort v} [HasCoeT a b] : HasLiftT a b :=
 ⟨oldCoeT⟩
-
-instance oldCoeToLift {a : Sort u} {b : Sort v} [HasCoeT a b] : HasLiftT a b :=
-⟨oldCoeT⟩
-
 
 /- basic coercions -/
 
@@ -184,3 +182,8 @@ instance liftPair₂ {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [HasL
 
 instance liftList {a : Type u} {b : Type v} [HasLiftT a b] : HasLift (List a) (List b) :=
 ⟨fun l => List.map (@oldCoe a b _) l⟩
+
+end Legacy
+
+instance oldCoeToLift {a : Sort u} {b : Sort v} [HasCoeT a b] : HasLiftT a b :=
+⟨oldCoeT⟩

@@ -483,21 +483,18 @@ us ← us.foldlM
   [];
 pure $ us.reverse
 
-private partial def preprocessArgs (ys : Array Expr) : Nat → Array Expr → MetaM (Array Expr)
-| i, args => do
-  if h : i < ys.size then do
-    let y := ys.get ⟨i, h⟩;
-    yType ← inferType y;
-    if isOutParam yType then do
-      if h : i < args.size then do
-        let arg := args.get ⟨i, h⟩;
-        argType ← inferType arg;
-        arg'    ← mkFreshExprMVar argType;
-        preprocessArgs (i+1) (args.set ⟨i, h⟩ arg')
-      else
-        throw $ Exception.other "type class resolution failed, insufficient number of arguments" -- TODO improve error message
-    else
-      preprocessArgs (i+1) args
+private partial def preprocessArgs : Expr → Nat → Array Expr → MetaM (Array Expr)
+| type, i, args =>
+  if h : i < args.size then do
+    type ← whnf type;
+    match type with
+    | Expr.forallE _ d b _ => do
+      let arg := args.get ⟨i, h⟩;
+      arg ← if isOutParam d then mkFreshExprMVar d else pure arg;
+      let args := args.set ⟨i, h⟩ arg;
+      preprocessArgs (b.instantiate1 arg) (i+1) args
+    | _ =>
+      throw $ Exception.other "type class resolution failed, insufficient number of arguments" -- TODO improve error message
   else
     pure args
 
@@ -509,14 +506,12 @@ forallTelescope type $ fun xs typeBody =>
     if !hasOutParams env constName then pure type
     else do
       let args := typeBody.getAppArgs;
+      us    ← preprocessLevels us;
+      let c := mkConst constName us;
       cType ← inferType c;
-      forallTelescopeReducing cType $ fun ys _ => do
-        us   ← preprocessLevels us;
-        args ← preprocessArgs ys 0 args;
-        type ← mkForall xs (mkAppN (mkConst constName us) args);
-        pure type
+      args ← preprocessArgs cType 0 args;
+      mkForall xs (mkAppN c args)
   | _ => pure type
-
 
 @[init] def maxStepsOption : IO Unit :=
 registerOption `synthInstance.maxSteps { defValue := (10000 : Nat), group := "", descr := "maximum steps for the type class instance synthesis procedure" }
@@ -537,10 +532,12 @@ withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox
   | none        => do
     result? ← withNewMCtxDepth $ do {
       normType ← preprocessOutParam type;
+      trace! `Meta.synthInstance (type ++ " ==> " ++ normType);
       result?  ← SynthInstance.main normType fuel;
       match result? with
       | none        => pure none
       | some result => do
+        trace! `Meta.synthInstance ("FOUND result " ++ result);
         result ← instantiateMVars result;
         condM (hasAssignableMVar result)
           (pure none)
@@ -549,6 +546,7 @@ withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox
     result? ← match result? with
       | none        => pure none
       | some result => do {
+        trace! `Meta.synthInstance ("result " ++ result);
         resultType ← inferType result;
         condM (withConfig (fun _ => inputConfig) $ isDefEq type resultType)
           (do result ← instantiateMVars result;

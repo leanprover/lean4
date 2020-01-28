@@ -26,10 +26,10 @@ name const * g_cast = nullptr;
 name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
 name const * g_char_of_nat = nullptr;
-name const * g_coe = nullptr;
-name const * g_coe_fn = nullptr;
-name const * g_coe_sort = nullptr;
-name const * g_coe_to_lift = nullptr;
+name const * g_old_coe = nullptr;
+name const * g_old_coe_fn = nullptr;
+name const * g_old_coe_sort = nullptr;
+name const * g_old_coe_to_lift = nullptr;
 name const * g_congr = nullptr;
 name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
@@ -217,10 +217,10 @@ void initialize_constants() {
     g_char = new name{"Char"};
     g_char_mk = new name{"Char", "mk"};
     g_char_of_nat = new name{"Char", "ofNat"};
-    g_coe = new name{"coe"};
-    g_coe_fn = new name{"coeFn"};
-    g_coe_sort = new name{"coeSort"};
-    g_coe_to_lift = new name{"coeToLift"};
+    g_old_coe = new name{"oldCoe"};
+    g_old_coe_fn = new name{"oldCoeFn"};
+    g_old_coe_sort = new name{"oldCoeSort"};
+    g_old_coe_to_lift = new name{"oldCoeToLift"};
     g_congr = new name{"congr"};
     g_congr_arg = new name{"congrArg"};
     g_congr_fun = new name{"congrFun"};
@@ -409,10 +409,10 @@ void finalize_constants() {
     delete g_char;
     delete g_char_mk;
     delete g_char_of_nat;
-    delete g_coe;
-    delete g_coe_fn;
-    delete g_coe_sort;
-    delete g_coe_to_lift;
+    delete g_old_coe;
+    delete g_old_coe_fn;
+    delete g_old_coe_sort;
+    delete g_old_coe_to_lift;
     delete g_congr;
     delete g_congr_arg;
     delete g_congr_fun;
@@ -600,10 +600,10 @@ name const & get_cast_name() { return *g_cast; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
 name const & get_char_of_nat_name() { return *g_char_of_nat; }
-name const & get_coe_name() { return *g_coe; }
-name const & get_coe_fn_name() { return *g_coe_fn; }
-name const & get_coe_sort_name() { return *g_coe_sort; }
-name const & get_coe_to_lift_name() { return *g_coe_to_lift; }
+name const & get_old_coe_name() { return *g_old_coe; }
+name const & get_old_coe_fn_name() { return *g_old_coe_fn; }
+name const & get_old_coe_sort_name() { return *g_old_coe_sort; }
+name const & get_old_coe_to_lift_name() { return *g_old_coe_to_lift; }
 name const & get_congr_name() { return *g_congr; }
 name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }

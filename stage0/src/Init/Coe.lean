@@ -53,16 +53,25 @@ class HasCoeToSort (a : Sort u) : Type (max u (v+1)) :=
 @[inline] def liftT {a : Sort u} {b : Sort v} [HasLiftT a b] : a → b :=
 @HasLiftT.lift a b _
 
-@[inline] def coeB {a : Sort u} {b : Sort v} [HasCoe a b] : a → b :=
+@[inline] def oldCoeB {a : Sort u} {b : Sort v} [HasCoe a b] : a → b :=
 @HasCoe.coe a b _
 
-@[inline] def coeT {a : Sort u} {b : Sort v} [HasCoeT a b] : a → b :=
+@[inline] def oldCoeT {a : Sort u} {b : Sort v} [HasCoeT a b] : a → b :=
 @HasCoeT.coe a b _
 
-@[inline] def coeFnB {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ (x : a), HasCoeToFun.F.{u, v} x :=
+@[inline] def oldCoeFnB {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ (x : a), HasCoeToFun.F.{u, v} x :=
 HasCoeToFun.coe
 
 /- User Level coercion operators -/
+
+@[reducible, inline] def oldCoe {a : Sort u} {b : Sort v} [HasLiftT a b] : a → b :=
+liftT
+
+@[reducible, inline] def oldCoeFn {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ (x : a), HasCoeToFun.F.{u, v} x :=
+HasCoeToFun.coe
+
+@[reducible, inline] def oldCoeSort {a : Sort u} [HasCoeToSort.{u, v} a] : a → HasCoeToSort.S.{u, v} a :=
+HasCoeToSort.coe
 
 @[reducible, inline] def coe {a : Sort u} {b : Sort v} [HasLiftT a b] : a → b :=
 liftT
@@ -86,10 +95,10 @@ instance liftRefl {a : Sort u} : HasLiftT a a :=
 ⟨id⟩
 
 instance coeTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoeT b c] [HasCoe a b] : HasCoeT a c :=
-⟨fun x => coeT (coeB x : b)⟩
+⟨fun x => oldCoeT (oldCoeB x : b)⟩
 
 instance coeBase {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeT a b :=
-⟨coeB⟩
+⟨oldCoeB⟩
 
 /- We add this instance directly into HasCoeT to avoid non-termination.
 
@@ -117,23 +126,27 @@ class HasCoeTAux (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
 instance coeTransAux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoeTAux b c] [HasCoe a b] : HasCoeTAux a c :=
-⟨fun x => @HasCoeTAux.coe b c _ (coeB x)⟩
+⟨fun x => @HasCoeTAux.coe b c _ (oldCoeB x)⟩
 
 instance coeBaseAux {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeTAux a b :=
-⟨coeB⟩
+⟨oldCoeB⟩
 
 instance coeFnTrans {a : Sort u₁} {b : Sort u₂} [HasCoeToFun.{u₂, u₃} b] [HasCoeTAux a b] : HasCoeToFun.{u₁, u₃} a :=
 { F   := fun x => @HasCoeToFun.F.{u₂, u₃} b _ (@HasCoeTAux.coe a b _ x),
-  coe := fun x => coeFn (@HasCoeTAux.coe a b _ x) }
+  coe := fun x => oldCoeFn (@HasCoeTAux.coe a b _ x) }
 
 instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [HasCoeToSort.{u₂, u₃} b] [HasCoeTAux a b] : HasCoeToSort.{u₁, u₃} a :=
 { S   := HasCoeToSort.S.{u₂, u₃} b,
-  coe := fun x => coeSort (@HasCoeTAux.coe a b _ x) }
+  coe := fun x => oldCoeSort (@HasCoeTAux.coe a b _ x) }
 
 /- Every coercion is also a lift -/
 
 instance coeToLift {a : Sort u} {b : Sort v} [HasCoeT a b] : HasLiftT a b :=
-⟨coeT⟩
+⟨oldCoeT⟩
+
+instance oldCoeToLift {a : Sort u} {b : Sort v} [HasCoeT a b] : HasLiftT a b :=
+⟨oldCoeT⟩
+
 
 /- basic coercions -/
 
@@ -148,7 +161,7 @@ instance coeBoolToProp : HasCoe Bool Prop :=
 @[reducible] instance coeSortBool : HasCoeToSort Bool :=
 ⟨Prop, fun y => y = true⟩
 
-instance coeDecidableEq (x : Bool) : Decidable (coe x) :=
+instance coeDecidableEq (x : Bool) : Decidable (oldCoe x) :=
 inferInstanceAs (Decidable (x = true))
 
 instance coeSubtype {a : Sort u} {p : a → Prop} : HasCoe {x // p x} a :=
@@ -161,22 +174,22 @@ universes ua ua₁ ua₂ ub ub₁ ub₂
 /- Remark: we can't use [HasLiftT a₂ a₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
 instance liftFn {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLiftT b₁ b₂] [HasLift a₂ a₁] : HasLift (a₁ → b₁) (a₂ → b₂) :=
-⟨fun f x => coe (f (coe x))⟩
+⟨fun f x => oldCoe (f (oldCoe x))⟩
 
 instance liftFnRange {a : Sort ua} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLiftT b₁ b₂] : HasLift (a → b₁) (a → b₂) :=
-⟨fun f x => coe (f x)⟩
+⟨fun f x => oldCoe (f x)⟩
 
 instance liftFnDom {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b : Sort ub} [HasLift a₂ a₁] : HasLift (a₁ → b) (a₂ → b) :=
-⟨fun f x => f (coe x)⟩
+⟨fun f x => f (oldCoe x)⟩
 
 instance liftPair {a₁ : Type ua₁} {a₂ : Type ub₂} {b₁ : Type ub₁} {b₂ : Type ub₂} [HasLiftT a₁ a₂] [HasLiftT b₁ b₂] : HasLift (a₁ × b₁) (a₂ × b₂) :=
-⟨fun p => Prod.casesOn p (fun x y => (coe x,  coe y))⟩
+⟨fun p => Prod.casesOn p (fun x y => (oldCoe x,  oldCoe y))⟩
 
 instance liftPair₁ {a₁ : Type ua₁} {a₂ : Type ua₂} {b : Type ub} [HasLiftT a₁ a₂] : HasLift (a₁ × b) (a₂ × b) :=
-⟨fun p => Prod.casesOn p (fun x y => (coe x, y))⟩
+⟨fun p => Prod.casesOn p (fun x y => (oldCoe x, y))⟩
 
 instance liftPair₂ {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [HasLiftT b₁ b₂] : HasLift (a × b₁) (a × b₂) :=
-⟨fun p => Prod.casesOn p (fun x y => (x,  coe y))⟩
+⟨fun p => Prod.casesOn p (fun x y => (x,  oldCoe y))⟩
 
 instance liftList {a : Type u} {b : Type v} [HasLiftT a b] : HasLift (List a) (List b) :=
-⟨fun l => List.map (@coe a b _) l⟩
+⟨fun l => List.map (@oldCoe a b _) l⟩

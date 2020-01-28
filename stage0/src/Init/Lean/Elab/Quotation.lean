@@ -276,7 +276,7 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
   cond ← match info.argPats with
   | some pats => `(Syntax.isOfKind discr $(quote kind) && Array.size (Syntax.getArgs discr) == $(quote pats.size))
   | none      => `(Syntax.isOfKind discr $(quote kind));
-  `(let discr := $discr; if coe $cond then $yes else $no)
+  `(let discr := $discr; if $cond = true then $yes else $no)
 | _, _ => unreachable!
 
 private partial def getPatternVarsAux : Syntax → List Syntax
@@ -413,6 +413,9 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
   | `Lean.Parser.Term.beq =>
     let lhs := args.get! 0; let rhs := args.get! 2;
     toPreterm $ Unhygienic.run `(HasBeq.beq $lhs $rhs)
+  | `Lean.Parser.Term.eq =>
+    let lhs := args.get! 0; let rhs := args.get! 2;
+    toPreterm $ Unhygienic.run `(Eq $lhs $rhs)
   | `Lean.Parser.Term.str => pure $ mkStrLit $ (stx.getArg 0).isStrLit?.getD ""
   | `Lean.Parser.Term.num => pure $ mkNatLit $ (stx.getArg 0).isNatLit?.getD 0
   | `expr => pure $ unsafeCast $ stx.getArg 0  -- HACK: see below

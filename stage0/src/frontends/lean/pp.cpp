@@ -457,11 +457,11 @@ auto pretty_fn::pp_child_core(expr const & e, unsigned bp, bool ignore_hide) -> 
 }
 
 static bool is_coercion(expr const & e) {
-    return is_app_of(e, get_coe_name()) && get_app_num_args(e) >= 4;
+    return is_app_of(e, get_old_coe_name()) && get_app_num_args(e) >= 4;
 }
 
 static bool is_coercion_fn(expr const & e) {
-    return is_app_of(e, get_coe_fn_name()) && get_app_num_args(e) >= 3;
+    return is_app_of(e, get_old_coe_fn_name()) && get_app_num_args(e) >= 3;
 }
 
 auto pretty_fn::pp_hide_coercion(expr const & e, unsigned bp, bool ignore_hide) -> result {

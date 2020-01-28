@@ -145,9 +145,6 @@ instance [MonadExcept ε m] {α : Type v} : HasOrelse (m α) :=
 @[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := true) : m α :=
 catch t₁ $ fun e₁ => catch t₂ $ fun e₂ => throw (if useFirstEx then e₁ else e₂)
 
-@[inline] def liftExcept {ε' : Type u} [MonadExcept ε m] [HasLiftT ε' ε] [Monad m] {α : Type v} : Except ε' α → m α
-| Except.error e => throw (coe e)
-| Except.ok a    => pure a
 end MonadExcept
 
 export MonadExcept (throw catch)

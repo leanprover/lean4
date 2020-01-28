@@ -73,15 +73,6 @@ HasCoeToFun.coe
 @[reducible, inline] def oldCoeSort {a : Sort u} [HasCoeToSort.{u, v} a] : a → HasCoeToSort.S.{u, v} a :=
 HasCoeToSort.coe
 
-@[reducible, inline] def coe {a : Sort u} {b : Sort v} [HasLiftT a b] : a → b :=
-liftT
-
-@[reducible, inline] def coeFn {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ (x : a), HasCoeToFun.F.{u, v} x :=
-HasCoeToFun.coe
-
-@[reducible, inline] def coeSort {a : Sort u} [HasCoeToSort.{u, v} a] : a → HasCoeToSort.S.{u, v} a :=
-HasCoeToSort.coe
-
 /- Notation -/
 
 universes u₁ u₂ u₃

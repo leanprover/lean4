@@ -64,6 +64,9 @@ instance coeSortTrans {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeT �
 instance boolToProp : Coe Bool Prop :=
 { coe := fun b => b = true }
 
+instance coeDecidableEq (x : Bool) : Decidable (coe x) :=
+inferInstanceAs (Decidable (x = true))
+
 instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool :=
 { coe := decide p }
 

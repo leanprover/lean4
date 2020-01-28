@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Nat.Basic
 import Init.Data.Nat.Div
-import Init.Coe
+import Init.HasCoe
 
 namespace Nat
 

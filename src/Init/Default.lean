@@ -7,7 +7,6 @@ prelude
 import Init.Core
 import Init.Control
 import Init.Data.Basic
-import Init.Coe
 import Init.WF
 import Init.Data
 import Init.System

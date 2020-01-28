@@ -7,7 +7,7 @@ prelude
 import Init.Core
 import Init.Control.Monad
 import Init.Control.Alternative
-import Init.Coe
+import Init.HasCoe
 open Decidable
 
 universes u v

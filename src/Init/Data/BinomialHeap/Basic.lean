@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.List
-import Init.Coe
 universes u
 
 namespace BinomialHeapImp

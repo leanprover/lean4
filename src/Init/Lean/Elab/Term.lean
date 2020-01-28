@@ -38,6 +38,9 @@ structure Context extends Meta.Context :=
 inductive SyntheticMVarKind
 -- typeclass instance search
 | typeClass
+-- Similar to typeClass, but error messages are different,
+-- we use "type mismatch" or "application type mismatch" (when `f?` is some) instead of "failed to synthesize"
+| coe (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
 -- tactic block execution
 | tactic (tacticCode : Syntax)
 -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
@@ -550,43 +553,6 @@ ctx       ← read;
 let needReset := ctx.localInstances == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
-/--
-  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
-  If they are not, then try coercions.
-  Return `some e'` if successful, where `e'` may be different from `e` if coercions have been applied,
-  and `none` otherwise
- -/
-def tryEnsureHasType? (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM (Option Expr) :=
-match expectedType? with
-| none              => pure (some e)
-| some expectedType =>
-  condM (isDefEq ref eType expectedType)
-    (pure (some e))
-    -- TODO try `HasCoe`
-    (pure none)
-
-/--
-  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
-  If they are not, then try coercions. -/
-def ensureHasTypeAux (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr := do
-e? ← tryEnsureHasType? ref expectedType? eType e;
-match e? with
-| some e => pure e
-| none   =>
-  let msg : MessageData :=
-    "type mismatch" ++ indentExpr e
-    ++ Format.line ++ "has type" ++ indentExpr eType
-    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType?.get!;
-  throwError ref msg
-
-/--
-  If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.
-  If they are not, then try coercions. -/
-def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TermElabM Expr :=
-match expectedType? with
-| none => pure e
-| _    => do eType ← inferType ref e; ensureHasTypeAux ref expectedType? eType e
-
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
    with the current local context and local instances.
@@ -618,6 +584,68 @@ let mvarId := mvar.mvarId!;
 unlessM (synthesizeInstMVarCore ref mvarId) $
   registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
 pure mvar
+
+def throwTypeMismatchError {α} (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr)
+    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
+let extraMsg : MessageData := match extraMsg? with
+  | none          => Format.nil
+  | some extraMsg => Format.line ++ extraMsg;
+match f? with
+| none =>
+  let msg : MessageData :=
+    "type mismatch" ++ indentExpr e
+    ++ Format.line ++ "has type" ++ indentExpr eType
+    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
+    ++ extraMsg;
+  throwError ref msg
+| some f => do
+  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
+  throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f e { env := env, mctx := mctx, lctx := lctx, opts := opts } ++ extraMsg
+
+/--
+  Try to apply coercion to make sure `e` has type `expectedType`.
+  Relevant definitions:
+  ```
+  class CoeT (α : Sort u) (a : α) (β : Sort v)
+  abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
+  ``` -/
+def tryCoe (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
+u ← getLevel ref eType;
+v ← getLevel ref expectedType;
+let coeTInstType := mkAppN (mkConst `CoeT [u, v]) #[eType, e, expectedType];
+mvar ← mkFreshExprMVar ref coeTInstType MetavarKind.synthetic;
+let eNew := mkAppN (mkConst `coe [u, v]) #[eType, expectedType, e, mvar];
+let mvarId := mvar.mvarId!;
+catch
+  (do
+    unlessM (synthesizeInstMVarCore ref mvarId) $
+      registerSyntheticMVar ref mvarId (SyntheticMVarKind.coe expectedType eType e f?);
+    pure eNew)
+  (fun ex =>
+    match ex with
+    | Exception.ex (Elab.Exception.error errMsg) => throwTypeMismatchError ref expectedType eType e f? errMsg.data
+    | _ => throwTypeMismatchError ref expectedType eType e f?)
+
+/--
+  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
+  If they are not, then try coercions.
+
+  Argument `f?` is used only for generating error messages. -/
+def ensureHasTypeAux (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) (f? : Option Expr := none) : TermElabM Expr :=
+match expectedType? with
+| none              => pure e
+| some expectedType =>
+  condM (isDefEq ref eType expectedType)
+    (pure e)
+    (tryCoe ref expectedType eType e f?)
+
+/--
+  If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.
+  If they are not, then try coercions. -/
+def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TermElabM Expr :=
+match expectedType? with
+| none => pure e
+| _    => do eType ← inferType ref e; ensureHasTypeAux ref expectedType? eType e
 
 /- =======================================
        Builtin elaboration functions

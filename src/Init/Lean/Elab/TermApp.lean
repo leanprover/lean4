@@ -47,12 +47,7 @@ instMVars.forM $ fun mvarId =>
 
 private def ensureArgType (ref : Syntax) (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
 argType ← inferType ref arg;
-arg? ← tryEnsureHasType? ref expectedType argType arg;
-match arg? with
-| some arg => pure arg
-| none     => do
-  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
-  throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f arg { env := env, mctx := mctx, lctx := lctx, opts := opts }
+ensureHasTypeAux ref expectedType argType arg f
 
 private def elabArg (ref : Syntax) (f : Expr) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
 match arg with

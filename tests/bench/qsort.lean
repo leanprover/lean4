@@ -18,7 +18,7 @@ partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
 -- copied from stdlib, but with `UInt32` indices instead of `Nat` (which is more comparable to the other versions)
 abbrev Idx := UInt32
 instance : HasLift UInt32 Nat := ⟨UInt32.toNat⟩
-prefix `↑`:max := coe
+prefix `↑`:max := oldCoe
 
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Idx) (pivot : α) : Array α → Idx → Idx → Idx × Array α
 | as, i, j =>

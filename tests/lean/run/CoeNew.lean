@@ -37,10 +37,22 @@ instance coeBase {α : Sort u} {β : Sort v} (a : α) [Coe α a β] : CoeT α a 
 instance boolToNat (b : Bool) : Coe Bool b Nat :=
 { coe := cond b 1 0 }
 
+instance natToBool (n : Nat) : Coe Nat n Bool :=
+{ coe := match n with
+  | 0 => false
+  | _ => true }
+
+instance subtypeCoe {α : Sort u} {p : α → Prop} (v : { x // p x }) : CoeT { x // p x } v α :=
+{ coe := v.val }
+
 new_frontend
 set_option pp.implicit true
+
+#synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Nat
+#synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Bool
 #synth CoeT Nat 0 (Option Nat)
 #synth CoeT Nat 0 (Option (Option Nat))
+#synth CoeT Nat 0 (Option (Option (Option Nat)))
 #synth CoeT Prop (0 = 1) Nat
 #synth CoeT Bool true (Option Nat)
 -- #synth CoeT Bool true (Option (Nat × Nat)) -- fail quickly

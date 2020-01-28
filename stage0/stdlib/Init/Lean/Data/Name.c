@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Data.Name
-// Imports: Init.Coe Init.LeanInit Init.Data.UInt Init.Data.ToString Init.Data.Hashable Init.Data.RBMap Init.Data.RBTree
+// Imports: Init.LeanInit Init.Data.UInt Init.Data.ToString Init.Data.Hashable Init.Data.RBMap Init.Data.RBTree
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8868,7 +8868,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Coe(lean_object*);
 lean_object* initialize_Init_LeanInit(lean_object*);
 lean_object* initialize_Init_Data_UInt(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
@@ -8880,9 +8879,6 @@ lean_object* initialize_Init_Lean_Data_Name(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Coe(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_LeanInit(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -119,7 +119,6 @@ lean_object* l_Lean_IR_UnreachableBranches_Value_format___main___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_format(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_UnreachableBranches_elimDeadAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_List_Monad;
 lean_object* l_Lean_IR_UnreachableBranches_Value_format___main___closed__1;
 lean_object* l_HashMapImp_insert___at_Lean_IR_UnreachableBranches_updateVarAssignment___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___spec__5(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -291,7 +290,6 @@ lean_object* l_Lean_IR_UnreachableBranches_elimDeadAux___boxed(lean_object*, lea
 lean_object* l_Lean_IR_UnreachableBranches_Value_format___main___closed__5;
 extern lean_object* l_Lean_Format_paren___closed__3;
 lean_object* l_Lean_IR_UnreachableBranches_elimDeadAux(lean_object*, lean_object*);
-lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4;
 lean_object* l_Lean_IR_UnreachableBranches_Value_Lean_HasFormat;
 lean_object* l_Array_findIdxAux___main___at_Lean_IR_UnreachableBranches_interpExpr___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_get_x21___at_Lean_IR_UnreachableBranches_interpExpr___spec__3(lean_object*, lean_object*);
@@ -327,7 +325,6 @@ lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___closed__9;
 lean_object* l_HashMapImp_find_x3f___at_Lean_IR_UnreachableBranches_getFunctionSummary_x3f___spec__5(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_IR_UnreachableBranches_Value_truncate___main___spec__2(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___spec__22(lean_object*, lean_object*);
 lean_object* _init_l_Lean_IR_UnreachableBranches_Value_Inhabited() {
 _start:
@@ -715,22 +712,12 @@ return x_1;
 lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_Monad;
-x_2 = l_Lean_IR_UnreachableBranches_Value_Inhabited;
-x_3 = l_monadInhabited___rarg(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string("Init.Lean.Compiler.IR.ElimDeadBranches");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3() {
+lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -738,14 +725,14 @@ x_1 = lean_mk_string("invalid addChoice");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4() {
+lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2;
+x_1 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
 x_2 = lean_unsigned_to_nat(46u);
 x_3 = lean_unsigned_to_nat(10u);
-x_4 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3;
+x_4 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }
@@ -841,8 +828,8 @@ lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_22 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
-x_23 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4;
+x_22 = lean_box(0);
+x_23 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3;
 x_24 = lean_panic_fn(x_22, x_23);
 return x_24;
 }
@@ -854,8 +841,8 @@ lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_25 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
-x_26 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4;
+x_25 = lean_box(0);
+x_26 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3;
 x_27 = lean_panic_fn(x_25, x_26);
 return x_27;
 }
@@ -7521,8 +7508,6 @@ l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2 = _init_l_Lean_
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2);
 l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3 = _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3();
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3);
-l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4 = _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4);
 l_List_foldl___main___at_Lean_IR_UnreachableBranches_Value_merge___main___spec__2___closed__1 = _init_l_List_foldl___main___at_Lean_IR_UnreachableBranches_Value_merge___main___spec__2___closed__1();
 lean_mark_persistent(l_List_foldl___main___at_Lean_IR_UnreachableBranches_Value_merge___main___spec__2___closed__1);
 l_Lean_IR_UnreachableBranches_Value_format___main___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_format___main___closed__1();

@@ -21,10 +21,10 @@ cast
 Char
 Char.mk
 Char.ofNat
-coe
-coeFn
-coeSort
-coeToLift
+oldCoe
+oldCoeFn
+oldCoeSort
+oldCoeToLift
 congr
 congrArg
 congrFun

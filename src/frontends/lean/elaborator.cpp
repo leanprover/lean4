@@ -703,8 +703,8 @@ optional<expr> elaborator::mk_coercion_core(expr const & e, expr const & e_type,
         }
         level u_1 = get_level(e_type, ref);
         level u_2 = get_level(type, ref);
-        expr coe_to_lift = mk_app(mk_constant(get_coe_to_lift_name(), {u_1, u_2}), e_type, type, *inst);
-        expr coe         = mk_app(mk_constant(get_coe_name(), {u_1, u_2}), e_type, type, coe_to_lift, e);
+        expr coe_to_lift = mk_app(mk_constant(get_old_coe_to_lift_name(), {u_1, u_2}), e_type, type, *inst);
+        expr coe         = mk_app(mk_constant(get_old_coe_name(), {u_1, u_2}), e_type, type, coe_to_lift, e);
         return some_expr(coe);
     } else {
         return none_expr();
@@ -897,7 +897,7 @@ optional<expr> elaborator::mk_coercion_to_fn_sort(bool is_fn, expr const & e, ex
         try {
             bool mask[3] = { true, false, true };
             expr args[2] = { e_type, e };
-            expr new_e = mk_app(m_ctx, is_fn ? get_coe_fn_name() : get_coe_sort_name(), 3, mask, args);
+            expr new_e = mk_app(m_ctx, is_fn ? get_old_coe_fn_name() : get_old_coe_sort_name(), 3, mask, args);
             expr new_e_type = whnf(infer_type(new_e));
             if ((is_fn && is_pi(new_e_type)) || (!is_fn && is_sort(new_e_type))) {
                 return some_expr(new_e);

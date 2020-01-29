@@ -59,8 +59,8 @@ abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β :=
 abbrev coeFun {α : Sort u} {γ : Sort v} (a : α) [CoeFun α a γ] : γ :=
 @CoeFun.coe α a γ _
 
-abbrev coeSort {α : Sort u} {γ : Sort v} (a : α) [CoeSort α a γ] : γ :=
-@CoeSort.coe α a γ _
+abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α a β] : β :=
+@CoeSort.coe α a β _
 
 instance coeDepTrans {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeTC α a β] [CoeDep β (coeTC a) δ] : CoeTC α a δ :=
 { coe := coeD (coeTC a : β) }

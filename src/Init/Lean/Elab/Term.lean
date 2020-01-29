@@ -261,6 +261,7 @@ fun ctx s =>
   | EStateM.Result.error ex newS => EStateM.Result.error (fromMetaException ctx ref ex) (fromMetaState ref ctx s newS oldTraceState)
 
 def ppGoal (ref : Syntax) (mvarId : MVarId) : TermElabM Format := liftMetaM ref $ Meta.ppGoal mvarId
+def isType (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isType e
 def isDefEq (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.approxDefEq $ Meta.isDefEq t s
 def inferType (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.inferType e
 def whnf (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnf e
@@ -507,27 +508,6 @@ fun stx expectedType? => do
   stx' ← exp stx;
   withMacroExpansion stx stx' $ elabTerm stx' expectedType?
 
-/--
-  Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
-  or is unifiable with `Expr.sort`, or can be coerced into one. -/
-def ensureType (ref : Syntax) (e : Expr) : TermElabM Expr := do
-eType ← inferType ref e;
-eType ← whnf ref eType;
-if eType.isSort then
-  pure e
-else do
-  u ← mkFreshLevelMVar ref;
-  condM (isDefEq ref eType (mkSort u))
-    (pure e)
-    (do -- TODO try coercion to sort
-        throwError ref "type expected")
-
-/-- Elaborate `stx` and ensure result is a type. -/
-def elabType (stx : Syntax) : TermElabM Expr := do
-u ← mkFreshLevelMVar stx;
-type ← elabTerm stx (mkSort u);
-ensureType stx type
-
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
 
@@ -646,6 +626,47 @@ def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : Term
 match expectedType? with
 | none => pure e
 | _    => do eType ← inferType ref e; ensureHasTypeAux ref expectedType? eType e
+
+/-
+  Relevant definitions:
+  ```
+  class CoeSort (α : Sort u) (a : α) (β : outParam (Sort v))
+  abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α a β] : β :=
+  ``` -/
+private def tryCoeSort (ref : Syntax) (α : Expr) (a : Expr) : TermElabM Expr := do
+β ← mkFreshTypeMVar ref;
+u ← getLevel ref α;
+v ← getLevel ref β;
+let coeSortInstType := mkAppN (Lean.mkConst `CoeSort [u, v]) #[α, a, β];
+mvar ← mkFreshExprMVar ref coeSortInstType MetavarKind.synthetic;
+let mvarId := mvar.mvarId!;
+catch
+  (condM (synthesizeInstMVarCore ref mvarId)
+    (pure $ mkAppN (Lean.mkConst `coeSort [u, v]) #[α, β, a, mvar])
+    (throwError ref "type expected"))
+  (fun ex =>
+    match ex with
+    | Exception.ex (Elab.Exception.error errMsg) => throwError ref ("type expected" ++ Format.line ++ errMsg.data)
+    | _ => throwError ref "type expected")
+
+/--
+  Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
+  or is unifiable with `Expr.sort`, or can be coerced into one. -/
+def ensureType (ref : Syntax) (e : Expr) : TermElabM Expr :=
+condM (isType ref e)
+  (pure e)
+  (do
+    eType ← inferType ref e;
+    u ← mkFreshLevelMVar ref;
+    condM (isDefEq ref eType (mkSort u))
+      (pure e)
+      (tryCoeSort ref eType e))
+
+/-- Elaborate `stx` and ensure result is a type. -/
+def elabType (stx : Syntax) : TermElabM Expr := do
+u ← mkFreshLevelMVar stx;
+type ← elabTerm stx (mkSort u);
+ensureType stx type
 
 /- =======================================
        Builtin elaboration functions

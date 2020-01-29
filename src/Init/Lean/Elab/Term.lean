@@ -753,7 +753,7 @@ fun stx expectedType? => do
   let consId   := mkTermIdFrom openBkt `List.cons;
   let nilId    := mkTermIdFrom closeBkt `List.nil;
   let newStx   := args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
-  elabTerm newStx expectedType?
+  withMacroExpansion stx newStx $ elabTerm newStx expectedType?
 
 @[builtinTermElab «arrayLit»] def elabArrayLit : TermElab :=
 fun stx expectedType? => do

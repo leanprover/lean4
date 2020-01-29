@@ -14,6 +14,15 @@ namespace Lean
 namespace Meta
 namespace SynthInstance
 
+def mkInferTCGoalsLRAttr : IO TagAttribute :=
+registerTagAttribute `inferTCGoalsLR "instruct type class resolution procedure to solve goals from left to right for this instance"
+
+@[init mkInferTCGoalsLRAttr]
+constant inferTCGoalsLRAttr : TagAttribute := arbitrary _
+
+def hasInferTCGoalsLRAttribute (env : Environment) (constName : Name) : Bool :=
+inferTCGoalsLRAttr.hasTag env constName
+
 structure GeneratorNode :=
 (mvar            : Expr)
 (key             : Expr)

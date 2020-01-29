@@ -79,6 +79,7 @@ lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_List_reprAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_id_HasRepr(lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
+uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_String_quoteAux___main(lean_object*);
 lean_object* l_Substring_HasRepr(lean_object*);
 lean_object* l_String_Iterator_HasRepr___closed__2;
@@ -1280,25 +1281,26 @@ return x_1;
 lean_object* l_String_quote(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
+uint8_t x_2; uint8_t x_3; 
 x_2 = l_String_isEmpty(x_1);
-if (x_2 == 0)
+x_3 = l_coeDecidableEq(x_2);
+if (x_3 == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_string_data(x_1);
-x_4 = l_String_quoteAux___main(x_3);
-x_5 = l_String_quote___closed__1;
-x_6 = lean_string_append(x_5, x_4);
-lean_dec(x_4);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_string_data(x_1);
+x_5 = l_String_quoteAux___main(x_4);
+x_6 = l_String_quote___closed__1;
 x_7 = lean_string_append(x_6, x_5);
-return x_7;
+lean_dec(x_5);
+x_8 = lean_string_append(x_7, x_6);
+return x_8;
 }
 else
 {
-lean_object* x_8; 
+lean_object* x_9; 
 lean_dec(x_1);
-x_8 = l_String_quote___closed__2;
-return x_8;
+x_9 = l_String_quote___closed__2;
+return x_9;
 }
 }
 }

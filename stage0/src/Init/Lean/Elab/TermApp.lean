@@ -47,12 +47,7 @@ instMVars.forM $ fun mvarId =>
 
 private def ensureArgType (ref : Syntax) (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
 argType ← inferType ref arg;
-arg? ← tryEnsureHasType? ref expectedType argType arg;
-match arg? with
-| some arg => pure arg
-| none     => do
-  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
-  throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f arg { env := env, mctx := mctx, lctx := lctx, opts := opts }
+ensureHasTypeAux ref expectedType argType arg f
 
 private def elabArg (ref : Syntax) (f : Expr) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
 match arg with
@@ -60,6 +55,28 @@ match arg with
 | Arg.stx val  => do
   val ← elabTerm val expectedType;
   ensureArgType ref f val expectedType
+
+/-
+  Relevant definitions:
+  ```
+  class CoeFun (α : Sort u) (a : α) (γ : outParam (Sort v))
+  abbrev coeFun {α : Sort u} {γ : Sort v} (a : α) [CoeFun α a γ]
+  ``` -/
+private def tryCoeFun (ref : Syntax) (α : Expr) (a : Expr) : TermElabM Expr := do
+γ ← mkFreshTypeMVar ref;
+u ← getLevel ref α;
+v ← getLevel ref γ;
+let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, a, γ];
+mvar ← mkFreshExprMVar ref coeFunInstType MetavarKind.synthetic;
+let mvarId := mvar.mvarId!;
+catch
+  (condM (synthesizeInstMVarCore ref mvarId)
+    (pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar])
+    (throwError ref "function expected"))
+  (fun ex =>
+    match ex with
+    | Exception.ex (Elab.Exception.error errMsg) => throwError ref ("function expected" ++ Format.line ++ errMsg.data)
+    | _ => throwError ref "function expected")
 
 private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     : Nat → Array NamedArg → Array MVarId → Expr → Expr → TermElabM Expr
@@ -107,9 +124,10 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
   | _ =>
     if namedArgs.isEmpty && argIdx == args.size then
       finalize ()
-    else
-      -- TODO: try `HasCoeToFun`
-      throwError ref "too many arguments"
+    else do
+      e ← tryCoeFun ref eType e;
+      eType ← inferType ref e;
+      elabAppArgsAux argIdx namedArgs instMVars eType e
 
 private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do

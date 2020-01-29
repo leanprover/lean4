@@ -25,7 +25,9 @@ lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux(lea
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
 uint32_t l_Nat_digitChar(lean_object*);
+uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_String_Iterator_next(lean_object*);
+extern uint8_t l_String_posOfAux___main___closed__2;
 lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
 lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
@@ -72,116 +74,154 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; uint32_t x_8; uint8_t x_9; 
+lean_object* x_6; lean_object* x_7; uint32_t x_8; lean_object* x_9; uint8_t x_46; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_1, x_6);
 lean_dec(x_1);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = l_Char_isAlpha(x_8);
-if (x_9 == 0)
+x_46 = l_Char_isAlpha(x_8);
+if (x_46 == 0)
 {
-uint8_t x_10; 
-x_10 = l_Char_isDigit(x_8);
-if (x_10 == 0)
+uint8_t x_47; uint8_t x_48; 
+x_47 = l_Char_isDigit(x_8);
+x_48 = l_coeDecidableEq(x_47);
+if (x_48 == 0)
 {
-uint32_t x_11; uint8_t x_12; 
-x_11 = 95;
-x_12 = x_8 == x_11;
-if (x_12 == 0)
+uint32_t x_49; uint8_t x_50; 
+x_49 = 95;
+x_50 = x_8 == x_49;
+if (x_50 == 0)
 {
-lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_13 = lean_uint32_to_nat(x_8);
-x_14 = lean_unsigned_to_nat(255u);
-x_15 = lean_nat_dec_lt(x_13, x_14);
-if (x_15 == 0)
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint32_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint32_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint32_t x_30; lean_object* x_31; lean_object* x_32; uint32_t x_33; lean_object* x_34; lean_object* x_35; 
-x_16 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
-x_17 = lean_string_append(x_3, x_16);
-x_18 = lean_unsigned_to_nat(4096u);
-x_19 = lean_nat_div(x_13, x_18);
-x_20 = l_Nat_digitChar(x_19);
-lean_dec(x_19);
-x_21 = lean_string_push(x_17, x_20);
-x_22 = lean_nat_mod(x_13, x_18);
-lean_dec(x_13);
-x_23 = lean_unsigned_to_nat(256u);
-x_24 = lean_nat_div(x_22, x_23);
-x_25 = l_Nat_digitChar(x_24);
-lean_dec(x_24);
-x_26 = lean_string_push(x_21, x_25);
-x_27 = lean_nat_mod(x_22, x_23);
-lean_dec(x_22);
-x_28 = lean_unsigned_to_nat(16u);
-x_29 = lean_nat_div(x_27, x_28);
-x_30 = l_Nat_digitChar(x_29);
-lean_dec(x_29);
-x_31 = lean_string_push(x_26, x_30);
-x_32 = lean_nat_mod(x_27, x_28);
-lean_dec(x_27);
-x_33 = l_Nat_digitChar(x_32);
-lean_dec(x_32);
-x_34 = lean_string_push(x_31, x_33);
-x_35 = l_String_Iterator_next(x_2);
-x_1 = x_7;
-x_2 = x_35;
-x_3 = x_34;
-goto _start;
+lean_object* x_51; 
+x_51 = lean_box(0);
+x_9 = x_51;
+goto block_45;
 }
 else
 {
-lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint32_t x_41; lean_object* x_42; lean_object* x_43; uint32_t x_44; lean_object* x_45; lean_object* x_46; 
-x_37 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
-x_38 = lean_string_append(x_3, x_37);
-x_39 = lean_unsigned_to_nat(16u);
-x_40 = lean_nat_div(x_13, x_39);
-x_41 = l_Nat_digitChar(x_40);
-lean_dec(x_40);
-x_42 = lean_string_push(x_38, x_41);
-x_43 = lean_nat_mod(x_13, x_39);
-lean_dec(x_13);
-x_44 = l_Nat_digitChar(x_43);
-lean_dec(x_43);
-x_45 = lean_string_push(x_42, x_44);
-x_46 = l_String_Iterator_next(x_2);
-x_1 = x_7;
-x_2 = x_46;
-x_3 = x_45;
-goto _start;
-}
-}
-else
-{
-lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-x_48 = l_String_Iterator_next(x_2);
-x_49 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3;
-x_50 = lean_string_append(x_3, x_49);
-x_1 = x_7;
-x_2 = x_48;
-x_3 = x_50;
-goto _start;
-}
-}
-else
-{
-lean_object* x_52; lean_object* x_53; 
+lean_object* x_52; lean_object* x_53; lean_object* x_54; 
 x_52 = l_String_Iterator_next(x_2);
-x_53 = lean_string_push(x_3, x_8);
+x_53 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3;
+x_54 = lean_string_append(x_3, x_53);
 x_1 = x_7;
 x_2 = x_52;
-x_3 = x_53;
+x_3 = x_54;
 goto _start;
 }
 }
 else
 {
-lean_object* x_55; lean_object* x_56; 
-x_55 = l_String_Iterator_next(x_2);
-x_56 = lean_string_push(x_3, x_8);
+lean_object* x_56; lean_object* x_57; 
+x_56 = l_String_Iterator_next(x_2);
+x_57 = lean_string_push(x_3, x_8);
 x_1 = x_7;
-x_2 = x_55;
-x_3 = x_56;
+x_2 = x_56;
+x_3 = x_57;
 goto _start;
+}
+}
+else
+{
+uint8_t x_59; 
+x_59 = l_String_posOfAux___main___closed__2;
+if (x_59 == 0)
+{
+uint32_t x_60; uint8_t x_61; 
+x_60 = 95;
+x_61 = x_8 == x_60;
+if (x_61 == 0)
+{
+lean_object* x_62; 
+x_62 = lean_box(0);
+x_9 = x_62;
+goto block_45;
+}
+else
+{
+lean_object* x_63; lean_object* x_64; lean_object* x_65; 
+x_63 = l_String_Iterator_next(x_2);
+x_64 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3;
+x_65 = lean_string_append(x_3, x_64);
+x_1 = x_7;
+x_2 = x_63;
+x_3 = x_65;
+goto _start;
+}
+}
+else
+{
+lean_object* x_67; lean_object* x_68; 
+x_67 = l_String_Iterator_next(x_2);
+x_68 = lean_string_push(x_3, x_8);
+x_1 = x_7;
+x_2 = x_67;
+x_3 = x_68;
+goto _start;
+}
+}
+block_45:
+{
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_dec(x_9);
+x_10 = lean_uint32_to_nat(x_8);
+x_11 = lean_unsigned_to_nat(255u);
+x_12 = lean_nat_dec_lt(x_10, x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint32_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint32_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint32_t x_27; lean_object* x_28; lean_object* x_29; uint32_t x_30; lean_object* x_31; lean_object* x_32; 
+x_13 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
+x_14 = lean_string_append(x_3, x_13);
+x_15 = lean_unsigned_to_nat(4096u);
+x_16 = lean_nat_div(x_10, x_15);
+x_17 = l_Nat_digitChar(x_16);
+lean_dec(x_16);
+x_18 = lean_string_push(x_14, x_17);
+x_19 = lean_nat_mod(x_10, x_15);
+lean_dec(x_10);
+x_20 = lean_unsigned_to_nat(256u);
+x_21 = lean_nat_div(x_19, x_20);
+x_22 = l_Nat_digitChar(x_21);
+lean_dec(x_21);
+x_23 = lean_string_push(x_18, x_22);
+x_24 = lean_nat_mod(x_19, x_20);
+lean_dec(x_19);
+x_25 = lean_unsigned_to_nat(16u);
+x_26 = lean_nat_div(x_24, x_25);
+x_27 = l_Nat_digitChar(x_26);
+lean_dec(x_26);
+x_28 = lean_string_push(x_23, x_27);
+x_29 = lean_nat_mod(x_24, x_25);
+lean_dec(x_24);
+x_30 = l_Nat_digitChar(x_29);
+lean_dec(x_29);
+x_31 = lean_string_push(x_28, x_30);
+x_32 = l_String_Iterator_next(x_2);
+x_1 = x_7;
+x_2 = x_32;
+x_3 = x_31;
+goto _start;
+}
+else
+{
+lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint32_t x_38; lean_object* x_39; lean_object* x_40; uint32_t x_41; lean_object* x_42; lean_object* x_43; 
+x_34 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
+x_35 = lean_string_append(x_3, x_34);
+x_36 = lean_unsigned_to_nat(16u);
+x_37 = lean_nat_div(x_10, x_36);
+x_38 = l_Nat_digitChar(x_37);
+lean_dec(x_37);
+x_39 = lean_string_push(x_35, x_38);
+x_40 = lean_nat_mod(x_10, x_36);
+lean_dec(x_10);
+x_41 = l_Nat_digitChar(x_40);
+lean_dec(x_40);
+x_42 = lean_string_push(x_39, x_41);
+x_43 = l_String_Iterator_next(x_2);
+x_1 = x_7;
+x_2 = x_43;
+x_3 = x_42;
+goto _start;
+}
 }
 }
 else

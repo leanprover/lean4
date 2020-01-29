@@ -71,6 +71,15 @@ withMVarContext instMVar $ catch
     | _ => unreachable!)
 
 /--
+  Similar to `synthesizePendingInstMVar`, but generates type mismatch error message. -/
+private def synthesizePendingCoeInstMVar (ref : Syntax) (instMVar : MVarId) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
+withMVarContext instMVar $ catch
+  (synthesizeInstMVarCore ref instMVar)
+  (fun ex => match ex with
+    | Exception.ex (Elab.Exception.error errMsg) => throwTypeMismatchError ref expectedType eType e f? errMsg.data
+    | _ => unreachable!)
+
+/--
   Return `true` iff `mvarId` is assigned to a term whose the
   head is not a metavariable. We use this method to process `SyntheticMVarKind.withDefault`. -/
 private def checkWithDefault (ref : Syntax) (mvarId : MVarId) : TermElabM Bool := do
@@ -80,11 +89,12 @@ pure $ !val.getAppFn.isMVar
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
 match mvarSyntheticDecl.kind with
-| SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.typeClass                   => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.coe expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId expectedType eType e f?
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-| SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId postponeOnError
-| SyntheticMVarKind.tactic tacticCode    => do runTactic mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId tacticCode; pure true
+| SyntheticMVarKind.withDefault _               => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.postponed macroStack        => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId postponeOnError
+| SyntheticMVarKind.tactic tacticCode           => do runTactic mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId tacticCode; pure true
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.
@@ -137,6 +147,10 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
       mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId;
       logError mvarSyntheticDecl.ref $
         "failed to create type class instance for " ++ indentExpr mvarDecl.type
+  | SyntheticMVarKind.coe expectedType eType e f? =>
+    withMVarContext mvarSyntheticDecl.mvarId $ do
+      mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId;
+      throwTypeMismatchError mvarSyntheticDecl.ref expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
   | _ => unreachable! -- TODO handle other cases.
 
 private def getSomeSynthethicMVarsRef : TermElabM Syntax := do

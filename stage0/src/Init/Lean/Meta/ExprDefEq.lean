@@ -895,6 +895,15 @@ private def isAssigned : Expr → MetaM Bool
 | Expr.mvar mvarId _ => isExprMVarAssigned mvarId
 | _                  => pure false
 
+private def isDelayedAssignedHead (tFn : Expr) (t : Expr) : MetaM Bool :=
+match tFn with
+| Expr.mvar mvarId _ => do
+  condM (isDelayedAssigned mvarId)
+    (do tNew ← instantiateMVars t;
+        pure $ tNew != t)
+    (pure false)
+| _ => pure false
+
 private def isSynthetic : Expr → MetaM Bool
 | Expr.mvar mvarId _ => do
   mvarDecl ← getMVarDecl mvarId;
@@ -934,8 +943,10 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   let tFn := t.getAppFn;
   let sFn := s.getAppFn;
   cond (!tFn.isMVar && !sFn.isMVar) (pure LBool.undef) $
-  condM (isAssigned tFn) (do t ← instantiateMVars t; isDefEqQuick t s)  $
+  condM (isAssigned tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
   condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
+  condM (isDelayedAssignedHead tFn t) (do t ← instantiateMVars t; isDefEqQuick t s) $
+  condM (isDelayedAssignedHead sFn s) (do s ← instantiateMVars s; isDefEqQuick t s) $
   condM (isSynthetic tFn <&&> synthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
   condM (isSynthetic sFn <&&> synthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
   tAssign? ← isAssignable tFn;

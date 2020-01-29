@@ -327,6 +327,10 @@ def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit := do
 whenDebugging $ whenM (isExprMVarAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
 modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
 
+def isDelayedAssigned (mvarId : MVarId) : MetaM Bool := do
+mctx ← getMCtx;
+pure $ mctx.isDelayedAssigned mvarId
+
 def hasAssignableMVar (e : Expr) : MetaM Bool := do
 mctx ← getMCtx;
 pure $ mctx.hasAssignableMVar e

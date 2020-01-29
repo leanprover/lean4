@@ -28,6 +28,7 @@ lean_object* l_coeSortTrans(lean_object*, lean_object*, lean_object*, lean_objec
 lean_object* l_decPropToBool___rarg___boxed(lean_object*);
 lean_object* l_coeSort___rarg(lean_object*);
 lean_object* l_coeFun___rarg___boxed(lean_object*);
+lean_object* l_hasOfNatOfCoe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeFunTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeFunTrans___rarg(lean_object*);
 lean_object* l_coeDepTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,13 +38,16 @@ lean_object* l_subtypeCoe___rarg___boxed(lean_object*);
 lean_object* l_optionCoe___rarg(lean_object*);
 lean_object* l_coeFun___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeSortTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_hasOfNatOfCoe(lean_object*, lean_object*);
 lean_object* l_coeFunTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_coeD___rarg___boxed(lean_object*);
 lean_object* l_coeDepBase(lean_object*, lean_object*, lean_object*);
 lean_object* l_coe___rarg(lean_object*);
 lean_object* l_coeDepTrans___rarg___boxed(lean_object*);
 lean_object* l_coe(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeSortTrans___rarg(lean_object*);
+lean_object* l_coeDecidableEq___boxed(lean_object*);
 lean_object* l_coeTrans___rarg(lean_object*, lean_object*);
 lean_object* l_optionCoe(lean_object*);
 lean_object* l_coeDepTrans___rarg(lean_object*);
@@ -392,6 +396,34 @@ _start:
 return lean_box(0);
 }
 }
+uint8_t l_coeDecidableEq(uint8_t x_1) {
+_start:
+{
+if (x_1 == 0)
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+}
+}
+lean_object* l_coeDecidableEq___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_coeDecidableEq(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 uint8_t l_decPropToBool___rarg(uint8_t x_1) {
 _start:
 {
@@ -464,6 +496,23 @@ _start:
 lean_object* x_3; 
 x_3 = l_subtypeCoe(x_1, x_2);
 lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_hasOfNatOfCoe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_apply_1(x_1, x_3);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+lean_object* l_hasOfNatOfCoe(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_hasOfNatOfCoe___rarg), 3, 0);
 return x_3;
 }
 }

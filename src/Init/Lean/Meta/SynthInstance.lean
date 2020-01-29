@@ -287,7 +287,15 @@ private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInst
     - `B (?m_1 xs) ... (?m_n xs)` -/
 def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Expr) : MetaM SubgoalsResult := do
 instType ← inferType inst;
-getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType
+result ← getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType;
+match inst.getAppFn with
+| Expr.const constName _ _ => do
+  env ← getEnv;
+  if hasInferTCGoalsLRAttribute env constName then
+    pure { subgoals := result.subgoals.reverse, .. result }
+  else
+    pure result
+| _ => pure result
 
 def tryResolveCore (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
 mvarType   ← inferType mvar;

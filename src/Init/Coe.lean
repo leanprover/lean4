@@ -53,10 +53,12 @@ instance coeBase {α : Sort u} {β : Sort v} (a : α) [Coe α β] : CoeT α a β
 instance coeDepBase {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeT α a β :=
 { coe := coeD a }
 
+@[inferTCGoalsLR]
 instance coeFunTrans {α : Sort u} {β : Sort v} {γ : Sort w} (a : α) [CoeT α a β] [CoeFun β (coe a) γ] : CoeFun α a γ :=
 { coe := coeFun (coe a : β) }
 
-instance coeSortTrans {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeT α a β] [CoeSort β (coe a) δ] : CoeFun α a δ :=
+@[inferTCGoalsLR]
+instance coeSortTrans {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeT α a β] [CoeSort β (coe a) δ] : CoeSort α a δ :=
 { coe := coeSort (coe a : β) }
 
 /- Basic instances -/

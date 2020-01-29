@@ -18,12 +18,10 @@ instance constantFunctionCoe {α β : Type} (c : ConstantFunction α β) : CoeFu
 new_frontend
 set_option pp.implicit true
 
-#synth CoeT Nat 0 (Option (Option (Option (Option (Option Nat)))))
 #synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Nat
 #synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Bool
 #synth CoeT Nat 0 (Option Nat)
-#synth CoeT Nat 0 (Option (Option Nat))
-#synth CoeT Nat 0 (Option (Option (Option Nat)))
+#synth CoeT Bool true (Option Nat)
 #synth CoeT Prop (0 = 1) Nat
 #synth CoeT Bool true (Option Nat)
 

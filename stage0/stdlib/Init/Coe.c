@@ -13,10 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_coeTC(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeBase___rarg(lean_object*, lean_object*);
+lean_object* l_coeOfHead___rarg(lean_object*, lean_object*);
+lean_object* l_coeTail___rarg(lean_object*, lean_object*);
 lean_object* l_coeSort___rarg___boxed(lean_object*);
 lean_object* l_coeD___rarg(lean_object*);
+lean_object* l_coeOfTCOfTail(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeOfHeadOfTC___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeSortTrans___rarg___boxed(lean_object*);
+lean_object* l_coeTC___rarg(lean_object*);
+lean_object* l_coeTail(lean_object*, lean_object*);
+lean_object* l_coeOfTC___rarg(lean_object*);
 lean_object* l_coeFun(lean_object*, lean_object*, lean_object*);
 uint8_t l_decPropToBool___rarg(uint8_t);
 lean_object* l_coeBase(lean_object*, lean_object*);
@@ -24,46 +32,72 @@ lean_object* l_coeDepTrans___boxed(lean_object*, lean_object*, lean_object*, lea
 lean_object* l_coeTrans(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeSort___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeB___rarg(lean_object*, lean_object*);
+lean_object* l_coeOfTail(lean_object*, lean_object*);
 lean_object* l_coeSortTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeOfHeadOfTC___rarg(lean_object*);
+lean_object* l_coeOfTC___rarg___boxed(lean_object*);
 lean_object* l_decPropToBool___rarg___boxed(lean_object*);
 lean_object* l_coeSort___rarg(lean_object*);
 lean_object* l_coeFun___rarg___boxed(lean_object*);
 lean_object* l_hasOfNatOfCoe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeFunTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeFunDepTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeFunTrans___rarg(lean_object*);
+lean_object* l_coeOfHeafOfTCOfTail___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeSortDepTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeDepTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeFunDepTrans___rarg___boxed(lean_object*);
+lean_object* l_coeOfHeadOfTC(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeOfTCOfTail___rarg(lean_object*, lean_object*);
 lean_object* l_coeDepBase___rarg___boxed(lean_object*);
+lean_object* l_coeSortDepTrans___rarg(lean_object*);
 lean_object* l_coe___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_coeFunDepTrans___rarg(lean_object*);
 lean_object* l_subtypeCoe___rarg___boxed(lean_object*);
+lean_object* l_coeOfTCOfTail___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeSortDepTrans___rarg___boxed(lean_object*);
+lean_object* l_coeOfHead(lean_object*, lean_object*);
 lean_object* l_optionCoe___rarg(lean_object*);
 lean_object* l_coeFun___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeSortTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_hasOfNatOfCoe(lean_object*, lean_object*);
 lean_object* l_coeFunTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeOfTC(lean_object*, lean_object*, lean_object*);
 uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_coeD___rarg___boxed(lean_object*);
 lean_object* l_coeDepBase(lean_object*, lean_object*, lean_object*);
+lean_object* l_coeOfTail___rarg(lean_object*, lean_object*);
 lean_object* l_coe___rarg(lean_object*);
 lean_object* l_coeDepTrans___rarg___boxed(lean_object*);
+lean_object* l_coeOfHeadOfTC___rarg___boxed(lean_object*);
+lean_object* l_coeSortDepTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coe(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeSortTrans___rarg(lean_object*);
 lean_object* l_coeDecidableEq___boxed(lean_object*);
 lean_object* l_coeTrans___rarg(lean_object*, lean_object*);
 lean_object* l_optionCoe(lean_object*);
+lean_object* l_coeOfTC___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeDepTrans___rarg(lean_object*);
 lean_object* l_subtypeCoe___rarg(lean_object*);
 lean_object* l_coeFun___rarg(lean_object*);
+lean_object* l_coeFunDepTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeB(lean_object*, lean_object*);
 lean_object* l_subtypeCoe(lean_object*, lean_object*);
 lean_object* l_coeSort(lean_object*, lean_object*, lean_object*);
+lean_object* l_coeOfHeafOfTCOfTail___rarg(lean_object*, lean_object*);
 lean_object* l_coe___rarg___boxed(lean_object*);
 lean_object* l_boolToProp;
 lean_object* l_coeDepBase___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_coeHead___rarg(lean_object*, lean_object*);
 lean_object* l_subtypeCoe___boxed(lean_object*, lean_object*);
 lean_object* l_coeFunTrans___rarg___boxed(lean_object*);
+lean_object* l_coeTC___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeD___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_coeTC___rarg___boxed(lean_object*);
 lean_object* l_coeTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_decPropToBool(lean_object*);
+lean_object* l_coeOfHeafOfTCOfTail(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_coeHead(lean_object*, lean_object*);
 lean_object* l_coeDepBase___rarg(lean_object*);
 lean_object* l_coeD(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeB___rarg(lean_object* x_1, lean_object* x_2) {
@@ -79,6 +113,38 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_coeB___rarg), 2, 0);
+return x_3;
+}
+}
+lean_object* l_coeHead___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_coeHead(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_coeHead___rarg), 2, 0);
+return x_3;
+}
+}
+lean_object* l_coeTail___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_coeTail(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_coeTail___rarg), 2, 0);
 return x_3;
 }
 }
@@ -111,6 +177,39 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_coeD(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+lean_object* l_coeTC___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_coeTC(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_coeTC___rarg___boxed), 1, 0);
+return x_4;
+}
+}
+lean_object* l_coeTC___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_coeTC___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_coeTC___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_coeTC(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }
@@ -320,6 +419,224 @@ lean_object* x_4;
 x_4 = l_coeDepBase(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+lean_object* l_coeOfHeafOfTCOfTail___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_coeOfHeafOfTCOfTail(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_coeOfHeafOfTCOfTail___rarg), 2, 0);
+return x_7;
+}
+}
+lean_object* l_coeOfHeafOfTCOfTail___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_coeOfHeafOfTCOfTail(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_6);
+lean_dec(x_5);
+return x_7;
+}
+}
+lean_object* l_coeOfHeadOfTC___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_coeOfHeadOfTC(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_alloc_closure((void*)(l_coeOfHeadOfTC___rarg___boxed), 1, 0);
+return x_6;
+}
+}
+lean_object* l_coeOfHeadOfTC___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_coeOfHeadOfTC___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_coeOfHeadOfTC___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_coeOfHeadOfTC(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_4);
+return x_6;
+}
+}
+lean_object* l_coeOfTCOfTail___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_coeOfTCOfTail(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_coeOfTCOfTail___rarg), 2, 0);
+return x_5;
+}
+}
+lean_object* l_coeOfTCOfTail___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_coeOfTCOfTail(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+lean_object* l_coeOfHead___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_coeOfHead(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_coeOfHead___rarg), 2, 0);
+return x_3;
+}
+}
+lean_object* l_coeOfTail___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_coeOfTail(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_coeOfTail___rarg), 2, 0);
+return x_3;
+}
+}
+lean_object* l_coeOfTC___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_coeOfTC(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_coeOfTC___rarg___boxed), 1, 0);
+return x_4;
+}
+}
+lean_object* l_coeOfTC___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_coeOfTC___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_coeOfTC___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_coeOfTC(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+lean_object* l_coeFunDepTrans___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_coeFunDepTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_alloc_closure((void*)(l_coeFunDepTrans___rarg___boxed), 1, 0);
+return x_6;
+}
+}
+lean_object* l_coeFunDepTrans___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_coeFunDepTrans___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_coeFunDepTrans___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_coeFunDepTrans(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_4);
+return x_6;
+}
+}
+lean_object* l_coeSortDepTrans___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_coeSortDepTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_alloc_closure((void*)(l_coeSortDepTrans___rarg___boxed), 1, 0);
+return x_6;
+}
+}
+lean_object* l_coeSortDepTrans___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_coeSortDepTrans___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_coeSortDepTrans___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_coeSortDepTrans(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_4);
+return x_6;
 }
 }
 lean_object* l_coeFunTrans___rarg(lean_object* x_1) {

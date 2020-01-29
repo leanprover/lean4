@@ -37,3 +37,10 @@ panic (mkPanicMessage modName line col msg)
 -- TODO: should be a macro
 @[neverExtract, noinline, nospecialize] def unreachable! {α : Type u} [Inhabited α] : α :=
 panic! "unreachable"
+
+
+@[noinline, nospecialize, neverExtract] def withPtrEq {α : Type u} (r : α → α → Bool) (h : ∀ a, r a a = true) : α → α → Bool :=
+r
+
+@[noinline, nospecialize, neverExtract] def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : Nat → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
+k 0

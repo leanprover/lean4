@@ -461,3 +461,31 @@ withLocalDecl `z nat BinderInfo.default $ fun z => do
   pure ()
 
 #eval tst28
+
+def norm : Level → Level := @Lean.Level.normalize
+
+def tst29 : MetaM Unit := do
+print "----- tst29 -----";
+let u  := mkLevelParam `u;
+let v  := mkLevelParam `v;
+let u1 := mkLevelSucc u;
+let m  := mkLevelMax levelOne u1;
+print (norm m);
+check $ pure $ norm m == u1;
+let m  := mkLevelMax u1 levelOne;
+print (norm m);
+check $ pure $ norm m == u1;
+let m  := mkLevelMax (mkLevelMax levelOne (mkLevelSucc u1)) (mkLevelSucc levelOne);
+check $ pure $ norm m == mkLevelSucc u1;
+print m;
+print (norm m);
+let m  := mkLevelMax (mkLevelMax (mkLevelSucc (mkLevelSucc u1)) (mkLevelSucc u1)) (mkLevelSucc levelOne);
+print m;
+print (norm m);
+check $ pure $ norm m == mkLevelSucc (mkLevelSucc u1);
+let m  := mkLevelMax (mkLevelMax (mkLevelSucc v) (mkLevelSucc u1)) (mkLevelSucc levelOne);
+print m;
+print (norm m);
+pure ()
+
+#eval tst29

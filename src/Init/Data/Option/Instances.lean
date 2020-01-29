@@ -14,5 +14,5 @@ theorem Option.eqOfEqSome {α : Type u} : ∀ {x y : Option α}, (∀z, x = some
 | some z, none,   h => Option.noConfusion ((h z).1 rfl)
 | some z, some w, h => Option.noConfusion ((h w).2 rfl) (congrArg some)
 
-theorem Option.eqNoneOfIsNone {α : Type u} : ∀ {o : Option α}, o.isNone → o = none
+theorem Option.eqNoneOfIsNone {α : Type u} : ∀ {o : Option α}, o.isNone = true → o = none
 | none, h => rfl

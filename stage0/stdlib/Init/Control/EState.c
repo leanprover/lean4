@@ -62,7 +62,6 @@ lean_object* l_EStateM_nonBacktrackable___closed__1;
 lean_object* l_EStateM_MonadState(lean_object*, lean_object*);
 lean_object* l_EStateM_adaptState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_nonBacktrackable___closed__2;
-uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_EStateM_Monad___closed__7;
 lean_object* l_EStateM_Result_inhabited(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Result_toString___rarg(lean_object*, lean_object*, lean_object*);
@@ -494,50 +493,50 @@ return x_13;
 }
 else
 {
+if (x_4 == 0)
+{
 uint8_t x_14; 
+lean_dec(x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
-lean_object* x_15; uint8_t x_16; 
-x_15 = lean_ctor_get(x_13, 0);
-x_16 = l_coeDecidableEq(x_4);
-if (x_16 == 0)
-{
-lean_dec(x_9);
 return x_13;
 }
 else
 {
-lean_dec(x_15);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_13, 0);
+x_16 = lean_ctor_get(x_13, 1);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_dec(x_13);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+return x_17;
+}
+}
+else
+{
+uint8_t x_18; 
+x_18 = !lean_is_exclusive(x_13);
+if (x_18 == 0)
+{
+lean_object* x_19; 
+x_19 = lean_ctor_get(x_13, 0);
+lean_dec(x_19);
 lean_ctor_set(x_13, 0, x_9);
 return x_13;
 }
-}
 else
 {
-lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_17 = lean_ctor_get(x_13, 0);
-x_18 = lean_ctor_get(x_13, 1);
-lean_inc(x_18);
-lean_inc(x_17);
+lean_object* x_20; lean_object* x_21; 
+x_20 = lean_ctor_get(x_13, 1);
+lean_inc(x_20);
 lean_dec(x_13);
-x_19 = l_coeDecidableEq(x_4);
-if (x_19 == 0)
-{
-lean_object* x_20; 
-lean_dec(x_9);
-x_20 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_20, 0, x_17);
-lean_ctor_set(x_20, 1, x_18);
-return x_20;
-}
-else
-{
-lean_object* x_21; 
-lean_dec(x_17);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_9);
-lean_ctor_set(x_21, 1, x_18);
+lean_ctor_set(x_21, 1, x_20);
 return x_21;
 }
 }

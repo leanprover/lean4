@@ -43,7 +43,6 @@ lean_object* l_Option_isNone___rarg___boxed(lean_object*);
 lean_object* l_Option_toMonad___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_Monad___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad(lean_object*, lean_object*);
-uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_Option_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad___boxed(lean_object*, lean_object*);
 lean_object* l_Option_Monad;
@@ -622,19 +621,18 @@ return x_2;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_6; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox(x_4);
 lean_dec(x_4);
-x_6 = l_coeDecidableEq(x_5);
-if (x_6 == 0)
+if (x_5 == 0)
 {
-lean_object* x_7; 
+lean_object* x_6; 
 lean_dec(x_2);
-x_7 = lean_box(0);
-return x_7;
+x_6 = lean_box(0);
+return x_6;
 }
 else
 {

@@ -48,7 +48,6 @@ lean_object* l_oldCoeB___rarg(lean_object*, lean_object*);
 lean_object* l_oldCoeSort(lean_object*);
 lean_object* l_Legacy_liftPair_u2081(lean_object*, lean_object*, lean_object*);
 lean_object* l_Legacy_coeFnTrans___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Legacy_coeSortBool;
 lean_object* l_Legacy_liftFnDom___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Legacy_coeSubtype___boxed(lean_object*, lean_object*);
 lean_object* l_Legacy_coeTransAux(lean_object*, lean_object*, lean_object*);
@@ -365,12 +364,6 @@ return x_3;
 }
 }
 lean_object* _init_l_Legacy_coeBoolToProp() {
-_start:
-{
-return lean_box(0);
-}
-}
-lean_object* _init_l_Legacy_coeSortBool() {
 _start:
 {
 return lean_box(0);
@@ -700,7 +693,6 @@ res = initialize_Init_Data_List_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Legacy_coeBoolToProp = _init_l_Legacy_coeBoolToProp();
-l_Legacy_coeSortBool = _init_l_Legacy_coeSortBool();
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

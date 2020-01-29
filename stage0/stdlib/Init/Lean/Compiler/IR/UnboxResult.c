@@ -25,7 +25,6 @@ lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__3;
-uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_Lean_IR_UnboxResult_hasUnboxAttr___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_UnboxResult_hasUnboxAttr(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1;
@@ -118,32 +117,31 @@ lean_inc(x_5);
 lean_dec(x_3);
 if (lean_obj_tag(x_5) == 5)
 {
-lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_6; uint8_t x_7; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
 lean_dec(x_6);
-x_8 = l_coeDecidableEq(x_7);
-if (x_8 == 0)
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
+return x_8;
+}
+else
 {
 lean_object* x_9; 
-x_9 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
+x_9 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7;
 return x_9;
+}
 }
 else
 {
 lean_object* x_10; 
-x_10 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7;
-return x_10;
-}
-}
-else
-{
-lean_object* x_11; 
 lean_dec(x_5);
-x_11 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
-return x_11;
+x_10 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
+return x_10;
 }
 }
 }

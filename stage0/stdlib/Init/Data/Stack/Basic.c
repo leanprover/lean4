@@ -30,7 +30,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Stack_peek_x21(lean_object*);
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 lean_object* l_Stack_push___rarg(lean_object*, lean_object*);
-uint8_t l_coeDecidableEq(uint8_t);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Stack_isEmpty___rarg___boxed(lean_object*);
 lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
@@ -95,25 +94,24 @@ return x_2;
 lean_object* l_Stack_peek_x3f___rarg(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; uint8_t x_3; 
+uint8_t x_2; 
 x_2 = l_Array_isEmpty___rarg(x_1);
-x_3 = l_coeDecidableEq(x_2);
-if (x_3 == 0)
+if (x_2 == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_array_get_size(x_1);
-x_5 = lean_unsigned_to_nat(1u);
-x_6 = lean_nat_sub(x_4, x_5);
-lean_dec(x_4);
-x_7 = l_Array_get_x3f___rarg(x_1, x_6);
-lean_dec(x_6);
-return x_7;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_array_get_size(x_1);
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_sub(x_3, x_4);
+lean_dec(x_3);
+x_6 = l_Array_get_x3f___rarg(x_1, x_5);
+lean_dec(x_5);
+return x_6;
 }
 else
 {
-lean_object* x_8; 
-x_8 = lean_box(0);
-return x_8;
+lean_object* x_7; 
+x_7 = lean_box(0);
+return x_7;
 }
 }
 }

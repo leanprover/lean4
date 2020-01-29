@@ -83,7 +83,13 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
 | argIdx, namedArgs, instMVars, eType, e => do
   let finalize : Unit → TermElabM Expr := fun _ => do {
     -- all user explicit arguments have been consumed
-    e ← ensureHasTypeAux ref expectedType? eType e;
+    match expectedType? with
+    | none              => pure ()
+    | some expectedType => do {
+      -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
+      isDefEq ref expectedType eType;
+      pure ()
+    };
     synthesizeAppInstMVars ref instMVars;
     pure e
   };

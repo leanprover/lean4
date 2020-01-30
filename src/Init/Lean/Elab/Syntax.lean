@@ -121,7 +121,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.orelse $d₁ $d₂)
   else
-    liftM $ throwUnsupportedSyntax
+    liftM $ throwError stx $ "unexpected syntax kind of category `syntax`: " ++ kind
 
 /--
   Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,

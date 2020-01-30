@@ -306,11 +306,12 @@ fun stx expectedType? => match_syntax stx with
    elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType?
 | `(let $id:ident $args* : $type := $val; $body) =>
    elabLetDeclAux stx id.getId args type val body expectedType?
-| `(let $id:id := $val; $body) => do
-  -- HACK: support single Term.id pattern let (as produced by quotations) by translation to ident let for now
-  let id := id.getArg 0;
-  stx ← `(let $id := $val; $body);
-  elabTerm stx expectedType?
+| `(let $pat:term := $val; $body) => do
+   stxNew ← `(let x := $val; match x with $pat => $body);
+   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+| `(let $pat:term : $type := $val; $body) => do
+   stxNew ← `(let x : $type := $val; match x with $pat => $body);
+   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 | _ => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do

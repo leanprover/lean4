@@ -288,6 +288,39 @@ private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) : Nat → Level
   else
     accMax result prev (extraK + prevK)
 
+/-
+  Auxiliary function for `normalize`. It assumes `lvls` has been sorted using `normLt`.
+  It finds the first position that is not an explicit universe. -/
+private partial def skipExplicit (lvls : Array Level) : Nat → Nat
+| i =>
+  if h : i < lvls.size then
+    let lvl := lvls.get ⟨i, h⟩;
+    if lvl.getLevelOffset.isZero then skipExplicit (i+1) else i
+  else
+    i
+
+/-
+  Auxiliary function for `normalize`.
+  `maxExplicit` is the maximum explicit universe level at `lvls`.
+  Return true if it finds a level with offset ≥ maxExplicit.
+  `i` starts at the first non explict level.
+  It assumes `lvls` has been sorted using `normLt`. -/
+private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Nat) : Nat → Bool
+| i =>
+  if h : i < lvls.size then
+    let lvl := lvls.get ⟨i, h⟩;
+    if lvl.getOffset ≥ maxExplicit then true
+    else isExplicitSubsumedAux (i+1)
+  else
+    false
+
+/- Auxiliary function for `normalize`. See `isExplicitSubsumedAux` -/
+private def isExplicitSubsumed (lvls : Array Level) (firstNonExplicit : Nat) : Bool :=
+if firstNonExplicit == 0 then false
+else
+  let max := (lvls.get! (firstNonExplicit - 1)).getOffset;
+  isExplicitSubsumedAux lvls max firstNonExplicit
+
 partial def normalize : Level → Level
 | l =>
   if isAlreadyNormalizedCheap l then l
@@ -299,10 +332,12 @@ partial def normalize : Level → Level
       let lvls  := getMaxArgsAux normalize l₁ false #[];
       let lvls  := getMaxArgsAux normalize l₂ false lvls;
       let lvls  := lvls.qsort normLt;
-      let lvl₁  := lvls.get! 0;
+      let firstNonExplicit := skipExplicit lvls 0;
+      let i := if isExplicitSubsumed lvls firstNonExplicit then firstNonExplicit else firstNonExplicit - 1;
+      let lvl₁  := lvls.get! i;
       let prev  := lvl₁.getLevelOffset;
       let prevK := lvl₁.getOffset;
-      mkMaxAux lvls k 1 prev prevK levelZero
+      mkMaxAux lvls k (i+1) prev prevK levelZero
     | imax l₁ l₂ _ =>
       if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
       else
@@ -310,7 +345,6 @@ partial def normalize : Level → Level
         let l₂ := normalize l₂;
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
-
 
 /- Return true if `u` and `v` denote the same level.
    Check is currently incomplete. -/

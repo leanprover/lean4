@@ -83,7 +83,7 @@ withUsedWhen ref vars xs e dummyExpr cond k
 def mkDef (view : DefView) (declName : Name) (explictLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
     : TermElabM (Option Declaration) := do
 let ref := view.ref;
-val     ← Term.ensureHasType ref type val;
+val     ← Term.ensureHasType view.val type val;
 Term.synthesizeSyntheticMVars false;
 type    ← Term.instantiateMVars ref type;
 val     ← Term.instantiateMVars view.val val;

@@ -30,7 +30,7 @@ export HasMonadLiftT (monadLift)
 
 abbrev liftM := @monadLift
 
-instance hasMonadLiftTTrans (m n o) [HasMonadLift n o] [HasMonadLiftT m n] : HasMonadLiftT m o :=
+instance hasMonadLiftTTrans (m n o) [HasMonadLiftT m n] [HasMonadLift n o] : HasMonadLiftT m o :=
 ⟨fun α ma => HasMonadLift.monadLift (monadLift ma : n α)⟩
 
 instance hasMonadLiftTRefl (m) : HasMonadLiftT m m :=

@@ -1460,6 +1460,14 @@ private def noImmediateColon {k : ParserKind} : Parser k :=
   else s
 }
 
+def setExpectedFn {k : ParserKind} (expected : List String) (p : ParserFn k) : ParserFn k :=
+fun a c s => match p a c s with
+  | s'@{ errorMsg := some msg } => { s' with errorMsg := some { msg with expected := [] } }
+  | s'                          => s'
+
+def setExpected {k : ParserKind} (expected : List String) (p : Parser k) : Parser k :=
+{ fn := setExpectedFn expected p.fn, info := p.info }
+
 def pushNone {k : ParserKind} : Parser k :=
 { fn := fun a c s => s.pushSyntax mkNullNode }
 
@@ -1484,7 +1492,8 @@ let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux 
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
-node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
+-- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
+node kind $ try $ setExpected [] dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
 
 /- ===================== -/
 /- End of Antiquotations -/

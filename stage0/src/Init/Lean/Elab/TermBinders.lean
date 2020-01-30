@@ -276,11 +276,12 @@ if optType.isNone then
 else
   (optType.getArg 0).getArg 1
 
-def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (type : Syntax) (val : Syntax) (body : Syntax)
+def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
     (expectedType? : Option Expr) : TermElabM Expr := do
 (type, val) ← elabBinders binders $ fun xs => do {
-  type ← elabType type;
-  val  ← elabTerm val type;
+  type ← elabType typeStx;
+  val  ← elabTerm valStx type;
+  val  ← ensureHasType valStx type val;
   type ← mkForall ref xs type;
   val  ← mkLambda ref xs val;
   pure (type, val)
@@ -305,11 +306,12 @@ fun stx expectedType? => match_syntax stx with
    elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType?
 | `(let $id:ident $args* : $type := $val; $body) =>
    elabLetDeclAux stx id.getId args type val body expectedType?
-| `(let $id:id := $val; $body) => do
-  -- HACK: support single Term.id pattern let (as produced by quotations) by translation to ident let for now
-  let id := id.getArg 0;
-  stx ← `(let $id := $val; $body);
-  elabTerm stx expectedType?
+| `(let $pat:term := $val; $body) => do
+   stxNew ← `(let x := $val; match x with $pat => $body);
+   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+| `(let $pat:term : $type := $val; $body) => do
+   stxNew ← `(let x : $type := $val; match x with $pat => $body);
+   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 | _ => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do

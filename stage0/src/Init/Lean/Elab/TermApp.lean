@@ -56,87 +56,202 @@ match arg with
   val ← elabTerm val expectedType;
   ensureArgType ref f val expectedType
 
+private def mkArrow (d b : Expr) : TermElabM Expr := do
+n ← mkFreshAnonymousName;
+pure $ Lean.mkForall n BinderInfo.default d b
+
 /-
   Relevant definitions:
   ```
-  class CoeFun (α : Sort u) (a : α) (γ : outParam (Sort v))
-  abbrev coeFun {α : Sort u} {γ : Sort v} (a : α) [CoeFun α a γ]
+  class CoeFun (α : Sort u) (γ : α → outParam (Sort v))
+  abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
   ``` -/
 private def tryCoeFun (ref : Syntax) (α : Expr) (a : Expr) : TermElabM Expr := do
-γ ← mkFreshTypeMVar ref;
+v ← mkFreshLevelMVar ref;
+type ← mkArrow α (mkSort v);
+γ ← mkFreshExprMVar ref type;
 u ← getLevel ref α;
-v ← getLevel ref γ;
-let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, a, γ];
+let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, γ];
 mvar ← mkFreshExprMVar ref coeFunInstType MetavarKind.synthetic;
 let mvarId := mvar.mvarId!;
-catch
-  (condM (synthesizeInstMVarCore ref mvarId)
-    (pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar])
-    (throwError ref "function expected"))
+synthesized ←
+  catch (withoutMacroStackAtErr $ synthesizeInstMVarCore ref mvarId)
   (fun ex =>
     match ex with
     | Exception.ex (Elab.Exception.error errMsg) => throwError ref ("function expected" ++ Format.line ++ errMsg.data)
-    | _ => throwError ref "function expected")
+    | _ => throwError ref "function expected");
+if synthesized then
+  pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
+else
+  throwError ref "function expected"
 
-private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
-    : Nat → Array NamedArg → Array MVarId → Expr → Expr → TermElabM Expr
-| argIdx, namedArgs, instMVars, eType, e => do
+/-- Auxiliary structure used to elaborate function application arguments. -/
+structure ElabAppArgsCtx :=
+(ref           : Syntax)
+(args          : Array Arg)
+(expectedType? : Option Expr)
+(explicit      : Bool)                -- if true, all arguments are treated as explicit
+(argIdx        : Nat := 0)            -- position of next explicit argument to be processed
+(namedArgs     : Array NamedArg)      -- remaining named arguments to be processed
+(instMVars     : Array MVarId := #[]) -- metavariables for the instance implicit arguments that have already been processed
+(typeMVars     : Array MVarId := #[]) -- metavariables for implicit arguments of the form `{α : Sort u}` that have already been processed
+(foundExplicit : Bool := false)       -- true if an explicit argument has already been processed
+
+private def isAutoOrOptParam (type : Expr) : Bool :=
+-- TODO: add auto param
+type.getOptParamDefault?.isSome
+
+/- Auxiliary function for retrieving the resulting type of a function application.
+   See `propagateExpectedType`. -/
+private partial def getForallBody : Nat → Array NamedArg → Expr → Option Expr
+| i, namedArgs, type@(Expr.forallE n d b c) =>
+  match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
+  | some idx => getForallBody i (namedArgs.eraseIdx idx) b
+  | none     =>
+    if !c.binderInfo.isExplicit then
+      getForallBody i namedArgs b
+    else if i > 0 then
+      getForallBody (i-1) namedArgs b
+    else if isAutoOrOptParam d then
+      getForallBody i namedArgs b
+    else
+      some type
+| i, namedArgs, type => if i == 0 && namedArgs.isEmpty then some type else none
+
+private def hasTypeMVar (ctx : ElabAppArgsCtx) (type : Expr) : Bool :=
+(type.findMVar? (fun mvarId => ctx.typeMVars.contains mvarId)).isSome
+
+private def hasOnlyTypeMVar (ctx : ElabAppArgsCtx) (type : Expr) : Bool :=
+(type.findMVar? (fun mvarId => !ctx.typeMVars.contains mvarId)).isNone
+
+/-
+  Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
+  argument. The goal is to propagate the expected type in applications of functions such as
+  ```lean
+  HasAdd.add {α : Type u} : α → α → α
+  List.cons {α : Type u} : α → List α → List α
+  ```
+  This is particularly useful when there applicable coercions. For example,
+  assume we have a coercion from `Nat` to `Int`, and we have
+  `(x : Nat)` and the expected type is `List Int`. Then, if we don't use this function,
+  the elaborator will fail to elaborate
+  ```
+  List.cons x []
+  ```
+  First, the elaborator creates a new metavariable `?α` for the implicit argument `{α : Type u}`.
+  Then, when it processes `x`, it assigns `?α := Nat`, and then obtain the
+  resultant type `List Nat` which is **not** definitionally equal to `List Int`.
+  We solve the problem by executing this method before we elaborate the first explicit argument (`x` in this example).
+  This method infers that the resultant type is `List ?α` and unifies it with `List Int`.
+  Then, when we elaborate `x`, the elaborate realizes the coercion from `Nat` to `Int` must be used, and the
+  term
+  ```
+  @List.cons Int (coe x) (@List.nil Int)
+  ```
+  is produced.
+
+  The method will do nothing if
+  1- The resultant type depends on the remaining arguments (i.e., `!eTypeBody.hasLooseBVars`)
+  2- The resultant type does not contain any type metavariable.
+  3- The resultant type contains a nontype metavariable.
+
+  We added conditions 2&3 to be able to restrict this method to simple functions that are "morally" in
+  the Hindley&Milner fragment.
+  For example, consider the following definitions
+  ```
+  def foo {n m : Nat} (a : bv n) (b : bv m) : bv (n - m)
+  ```
+  Now, consider
+  ```
+  def test (x1 : bv 32) (x2 : bv 31) (y1 : bv 64) (y2 : bv 63) : bv 1 :=
+  foo x1 x2 = foo y1 y2
+  ```
+  When the elaborator reaches the term `foo y1 y2`, the expected type is `bv (32-31)`.
+  If we apply this method, we would solve the unification problem `bv (?n - ?m) =?= bv (32 - 31)`,
+  by assigning `?n := 32` and `?m := 31`. Then, the elaborator fails elaborating `y1` since
+  `bv 64` is **not** definitionally equal to `bv 32`.
+-/
+private def propagateExpectedType (ctx : ElabAppArgsCtx) (eType : Expr) : TermElabM Unit :=
+unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
+  match ctx.expectedType? with
+  | none              => pure ()
+  | some expectedType =>
+    let numRemainingArgs := ctx.args.size - ctx.argIdx;
+    match getForallBody numRemainingArgs ctx.namedArgs eType with
+    | none           => pure ()
+    | some eTypeBody =>
+      unless eTypeBody.hasLooseBVars $
+      when (hasTypeMVar ctx eTypeBody && hasOnlyTypeMVar ctx eTypeBody) $ do
+        isDefEq ctx.ref expectedType eTypeBody;
+        pure ()
+
+/- Elaborate function application arguments. -/
+private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermElabM Expr
+| ctx, e, eType => do
   let finalize : Unit → TermElabM Expr := fun _ => do {
     -- all user explicit arguments have been consumed
-    e ← ensureHasTypeAux ref expectedType? eType e;
-    synthesizeAppInstMVars ref instMVars;
+    match ctx.expectedType? with
+    | none              => pure ()
+    | some expectedType => do {
+      -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
+      isDefEq ctx.ref expectedType eType;
+      pure ()
+    };
+    synthesizeAppInstMVars ctx.ref ctx.instMVars;
     pure e
   };
-  eType ← whnfForall ref eType;
+  eType ← whnfForall ctx.ref eType;
   match eType with
   | Expr.forallE n d b c =>
-    match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
+    match ctx.namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
     | some idx => do
-      let arg := namedArgs.get! idx;
-      let namedArgs := namedArgs.eraseIdx idx;
-      argElab ← elabArg ref e arg.val d;
-      elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 argElab) (mkApp e argElab)
+      let arg := ctx.namedArgs.get! idx;
+      let namedArgs := ctx.namedArgs.eraseIdx idx;
+      argElab ← elabArg ctx.ref e arg.val d;
+      propagateExpectedType ctx eType;
+      elabAppArgsAux { foundExplicit := true, namedArgs := namedArgs, .. ctx } (mkApp e argElab) (b.instantiate1 argElab)
     | none =>
       let processExplictArg : Unit → TermElabM Expr := fun _ => do {
-        if h : argIdx < args.size then do
-          argElab ← elabArg ref e (args.get ⟨argIdx, h⟩) d;
-          elabAppArgsAux (argIdx + 1) namedArgs instMVars (b.instantiate1 argElab) (mkApp e argElab)
+        propagateExpectedType ctx eType;
+        let ctx := { foundExplicit := true, .. ctx };
+        if h : ctx.argIdx < ctx.args.size then do
+          argElab ← elabArg ctx.ref e (ctx.args.get ⟨ctx.argIdx, h⟩) d;
+          elabAppArgsAux { argIdx := ctx.argIdx + 1, .. ctx } (mkApp e argElab) (b.instantiate1 argElab)
         else match d.getOptParamDefault? with
-          | some defVal => elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 defVal) (mkApp e defVal)
+          | some defVal => elabAppArgsAux ctx (mkApp e defVal) (b.instantiate1 defVal)
           | none        =>
             -- TODO: tactic auto param
-            if namedArgs.isEmpty then
+            if ctx.namedArgs.isEmpty then
               finalize ()
             else
-              throwError ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
+              throwError ctx.ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
       };
-      if explicit then
+      if ctx.explicit then
         processExplictArg ()
       else match c.binderInfo with
         | BinderInfo.implicit => do
-          a ← mkFreshExprMVar ref d;
-          elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 a) (mkApp e a)
+          a ← mkFreshExprMVar ctx.ref d;
+          typeMVars ← condM (isType ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
+          elabAppArgsAux { typeMVars := typeMVars, .. ctx } (mkApp e a) (b.instantiate1 a)
         | BinderInfo.instImplicit => do
-          a ← mkFreshExprMVar ref d MetavarKind.synthetic;
-          elabAppArgsAux argIdx namedArgs (instMVars.push a.mvarId!) (b.instantiate1 a) (mkApp e a)
+          a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
+          elabAppArgsAux { instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
         | _ =>
           processExplictArg ()
   | _ =>
-    if namedArgs.isEmpty && argIdx == args.size then
+    if ctx.namedArgs.isEmpty && ctx.argIdx == ctx.args.size then
       finalize ()
     else do
-      e ← tryCoeFun ref eType e;
-      eType ← inferType ref e;
-      elabAppArgsAux argIdx namedArgs instMVars eType e
+      e ← tryCoeFun ctx.ref eType e;
+      eType ← inferType ctx.ref e;
+      elabAppArgsAux ctx e eType
 
 private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 fType ← inferType ref f;
 fType ← instantiateMVars ref fType;
 tryPostponeIfMVar fType;
-let argIdx    := 0;
-let instMVars := #[];
-elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f
+elabAppArgsAux {ref := ref, args := args, expectedType? := expectedType?, explicit := explicit, namedArgs := namedArgs } f fType
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution

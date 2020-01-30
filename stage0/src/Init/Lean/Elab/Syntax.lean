@@ -99,9 +99,6 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.lookahead then do
     d ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.lookahead $d)
-  else if kind == `Lean.Parser.Syntax.optional then do
-    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
-    `(ParserDescr.optional $d)
   else if kind == `Lean.Parser.Syntax.sepBy then do
     d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
     d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
@@ -116,12 +113,15 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.many1 then do
     d ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.many1 $d)
+  else if kind == `Lean.Parser.Syntax.optional then do
+    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
+    `(ParserDescr.optional $d)
   else if kind == `Lean.Parser.Syntax.orelse then do
     d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
     d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.orelse $d₁ $d₂)
   else
-    liftM $ throwUnsupportedSyntax
+    liftM $ throwError stx $ "unexpected syntax kind of category `syntax`: " ++ kind
 
 /--
   Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,

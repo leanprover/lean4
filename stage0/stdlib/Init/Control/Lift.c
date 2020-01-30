@@ -60,8 +60,8 @@ lean_object* l_hasMonadLiftTTrans___rarg(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_apply_2(x_2, lean_box(0), x_4);
-x_6 = lean_apply_2(x_1, lean_box(0), x_5);
+x_5 = lean_apply_2(x_1, lean_box(0), x_4);
+x_6 = lean_apply_2(x_2, lean_box(0), x_5);
 return x_6;
 }
 }

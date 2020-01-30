@@ -30,12 +30,12 @@ namespace Syntax
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
 @[builtinSyntaxParser] def ident     := parser! nonReservedSymbol "ident"
-@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser
-@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser
-@[builtinSyntaxParser] def optional  := parser! nonReservedSymbol "optional " >> syntaxParser
-@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser >> syntaxParser
-@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser >> syntaxParser
+@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser appPrec
+@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser appPrec
+@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser appPrec >> syntaxParser appPrec
+@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser appPrec >> syntaxParser appPrec
 
+@[builtinSyntaxParser] def optional  := tparser! pushLeading >> symbolAux "?" none
 @[builtinSyntaxParser] def many      := tparser! pushLeading >> symbolAux "*" none
 @[builtinSyntaxParser] def many1     := tparser! pushLeading >> symbolAux "+" none
 @[builtinSyntaxParser] def orelse    := tparser! pushLeading >> " <|> " >> syntaxParser 1
@@ -59,8 +59,8 @@ def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
 def strLitPrec := parser! strLit >> optPrecedence
 def identPrec  := parser! ident >> optPrecedence
 
--- TODO: remove " := " after old frontend is gone
 def optKind : Parser := optional ("[" >> ident >> "]")
+-- TODO: remove " := " after old frontend is gone
 @[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> (" := " <|> darrow) >> termParser
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optKind >> many1 syntaxParser >> " : " >> ident

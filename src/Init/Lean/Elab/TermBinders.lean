@@ -276,11 +276,12 @@ if optType.isNone then
 else
   (optType.getArg 0).getArg 1
 
-def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (type : Syntax) (val : Syntax) (body : Syntax)
+def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
     (expectedType? : Option Expr) : TermElabM Expr := do
 (type, val) ← elabBinders binders $ fun xs => do {
-  type ← elabType type;
-  val  ← elabTerm val type;
+  type ← elabType typeStx;
+  val  ← elabTerm valStx type;
+  ensureHasType valStx type val;
   type ← mkForall ref xs type;
   val  ← mkLambda ref xs val;
   pure (type, val)

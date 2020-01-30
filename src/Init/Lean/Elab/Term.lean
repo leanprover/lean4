@@ -33,6 +33,8 @@ structure Context extends Meta.Context :=
    the list of pending synthetic metavariables, and returns `?m`. -/
 (mayPostpone     : Bool            := true)
 (errToSorry      : Bool            := true)
+/- If `macroStackAtErr == true`, we include it in error messages. -/
+(macroStackAtErr : Bool            := true)
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind
@@ -130,7 +132,7 @@ instance monadLog : MonadLog TermElabM :=
 def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
 ctx ← read;
 let ref     := getBetterRef ref ctx.macroStack;
-let msgData := addMacroStack msgData ctx.macroStack;
+let msgData := if ctx.macroStackAtErr then addMacroStack msgData ctx.macroStack else msgData;
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.ex (Elab.Exception.error msg))
 
@@ -582,6 +584,9 @@ match f? with
   env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
   throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f e { env := env, mctx := mctx, lctx := lctx, opts := opts } ++ extraMsg
 
+@[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { macroStackAtErr := false, .. ctx }) x
+
 /--
   Try to apply coercion to make sure `e` has type `expectedType`.
   Relevant definitions:
@@ -597,7 +602,7 @@ mvar ← mkFreshExprMVar ref coeTInstType MetavarKind.synthetic;
 let eNew := mkAppN (mkConst `coe [u, v]) #[eType, expectedType, e, mvar];
 let mvarId := mvar.mvarId!;
 catch
-  (do
+  (withoutMacroStackAtErr $ do
     unlessM (synthesizeInstMVarCore ref mvarId) $
       registerSyntheticMVar ref mvarId (SyntheticMVarKind.coe expectedType eType e f?);
     pure eNew)
@@ -641,7 +646,7 @@ let coeSortInstType := mkAppN (Lean.mkConst `CoeSort [u, v]) #[α, a, β];
 mvar ← mkFreshExprMVar ref coeSortInstType MetavarKind.synthetic;
 let mvarId := mvar.mvarId!;
 catch
-  (condM (synthesizeInstMVarCore ref mvarId)
+  (withoutMacroStackAtErr $ condM (synthesizeInstMVarCore ref mvarId)
     (pure $ mkAppN (Lean.mkConst `coeSort [u, v]) #[α, β, a, mvar])
     (throwError ref "type expected"))
   (fun ex =>

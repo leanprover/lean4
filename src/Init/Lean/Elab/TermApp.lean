@@ -70,7 +70,7 @@ let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, a, γ];
 mvar ← mkFreshExprMVar ref coeFunInstType MetavarKind.synthetic;
 let mvarId := mvar.mvarId!;
 catch
-  (condM (synthesizeInstMVarCore ref mvarId)
+  (withoutMacroStackAtErr $ condM (synthesizeInstMVarCore ref mvarId)
     (pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar])
     (throwError ref "function expected"))
   (fun ex =>

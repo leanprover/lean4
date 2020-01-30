@@ -21,3 +21,8 @@ def x := 1
 #check match 1 : Int with x => x + 1
 #check match 1 with | x => x + 1
 #check match 1 : Int with | x => x + 1
+
+def g (x : Nat × Nat) (y : Nat) :=
+x.1 + x.2 + y
+
+#check (g ⟨·, 1⟩ ·)

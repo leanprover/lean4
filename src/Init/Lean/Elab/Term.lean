@@ -357,24 +357,29 @@ let instIdx := s.instImplicitIdx;
 modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
 pure $ (`_inst).appendIndexAfter instIdx
 
-private partial def isCDot (stx : Syntax) : Bool :=
-match_syntax stx with
-| `(·) => true
-| _    => false
+private partial def hasCDot : Syntax → Bool
+| Syntax.node k args =>
+  if k == `Lean.Parser.Term.paren then false
+  else if k == `Lean.Parser.Term.cdot then true
+  else args.any hasCDot
+| _ => false
 
 /--
   Auxiliary function for expandind the `·` notation.
   The extra state `Array Syntax` contains the new binder names.
   If `stx` is a `·`, we create a fresh identifier, store in the
   extra state, and return it. Otherwise, we just return `stx`. -/
-private def expandCDot (stx : Syntax) : StateT (Array Syntax) TermElabM Syntax :=
-withFreshMacroScope $
-  match_syntax stx with
-  | `(·) => do
-     id ← `(a);
-     modify $ fun s => s.push id;
-     pure id
-  | _ => pure stx
+private partial def expandCDot : Syntax → StateT (Array Syntax) TermElabM Syntax
+| stx@(Syntax.node k args) =>
+  if k == `Lean.Parser.Term.paren then pure stx
+  else if k == `Lean.Parser.Term.cdot then withFreshMacroScope $ do
+    id ← `(a);
+    modify $ fun s => s.push id;
+    pure id
+  else do
+    args ← args.mapM expandCDot;
+    pure $ Syntax.node k args
+| stx => pure stx
 
 /--
   Return `some` if succeeded expanding `·` notation occurring in
@@ -383,22 +388,11 @@ withFreshMacroScope $
   - `· + 1` => `fun _a_1 => _a_1 + 1`
   - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
 def expandCDot? (stx : Syntax) : TermElabM (Option Syntax) :=
-match_syntax stx with
-| `($f $args*) =>
-   if args.any isCDot then do
-     (args, binders) ← (args.mapM expandCDot).run #[];
-     `(fun $binders* => $f $args*)
-   else
-     pure none
-| _ => match stx with
-  | Syntax.node k args =>
-    if args.any isCDot then do
-      (args, binders) ← (args.mapM expandCDot).run #[];
-      let newNode := Syntax.node k args;
-      `(fun $binders* => $newNode)
-    else
-      pure none
-  | _ => pure none
+if hasCDot stx then do
+  (newStx, binders) ← (expandCDot stx).run #[];
+  `(fun $binders* => $newStx)
+else
+  pure none
 
 private def exceptionToSorry (ref : Syntax) (errMsg : Message) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
@@ -727,6 +721,7 @@ mkPairsAux elems (elems.size - 1) elems.back
   Recall that in Lean the `·` notation must be surrounded by parentheses.
   We may change this is the future, but right now, here are valid examples
   - `(· + 1)`
+  - `(f ⟨·, 1⟩ ·)`
   - `(· + ·)`
   - `(f · a b)` -/
 private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do

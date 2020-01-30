@@ -69,14 +69,16 @@ v ← getLevel ref γ;
 let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, a, γ];
 mvar ← mkFreshExprMVar ref coeFunInstType MetavarKind.synthetic;
 let mvarId := mvar.mvarId!;
-catch
-  (withoutMacroStackAtErr $ condM (synthesizeInstMVarCore ref mvarId)
-    (pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar])
-    (throwError ref "function expected"))
+synthesized ←
+  catch (withoutMacroStackAtErr $ synthesizeInstMVarCore ref mvarId)
   (fun ex =>
     match ex with
     | Exception.ex (Elab.Exception.error errMsg) => throwError ref ("function expected" ++ Format.line ++ errMsg.data)
-    | _ => throwError ref "function expected")
+    | _ => throwError ref "function expected");
+if synthesized then
+  pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
+else
+  throwError ref "function expected"
 
 structure ElabAppArgsCtx :=
 (ref           : Syntax)

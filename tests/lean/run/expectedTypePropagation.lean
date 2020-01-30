@@ -15,3 +15,7 @@ def g2 (n : Nat) (i : Int) : Int :=
 def g3 (n : Nat) (i : Int) : Int :=
 let x : Int := n+i;
 x + x
+
+def g4 (n : Nat) (i : Int) : Int :=
+let f := fun x => x + i;
+f n

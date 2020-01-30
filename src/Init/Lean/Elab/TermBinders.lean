@@ -281,7 +281,7 @@ def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (typeStx :
 (type, val) ← elabBinders binders $ fun xs => do {
   type ← elabType typeStx;
   val  ← elabTerm valStx type;
-  ensureHasType valStx type val;
+  val  ← ensureHasType valStx type val;
   type ← mkForall ref xs type;
   val  ← mkLambda ref xs val;
   pure (type, val)

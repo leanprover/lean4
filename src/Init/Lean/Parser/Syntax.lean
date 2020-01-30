@@ -30,10 +30,10 @@ namespace Syntax
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
 @[builtinSyntaxParser] def ident     := parser! nonReservedSymbol "ident"
-@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser
-@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser
-@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser >> syntaxParser
-@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser >> syntaxParser
+@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser appPrec
+@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser appPrec
+@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser appPrec >> syntaxParser appPrec
+@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser appPrec >> syntaxParser appPrec
 
 @[builtinSyntaxParser] def optional  := tparser! pushLeading >> symbolAux "?" none
 @[builtinSyntaxParser] def many      := tparser! pushLeading >> symbolAux "*" none

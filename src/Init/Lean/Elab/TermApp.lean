@@ -217,9 +217,9 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
         if h : ctx.argIdx < ctx.args.size then do
           argElab ← elabArg ctx.ref e (ctx.args.get ⟨ctx.argIdx, h⟩) d;
           elabAppArgsAux { argIdx := ctx.argIdx + 1, .. ctx } (mkApp e argElab) (b.instantiate1 argElab)
-        else match d.getOptParamDefault? with
-          | some defVal => elabAppArgsAux ctx (mkApp e defVal) (b.instantiate1 defVal)
-          | none        =>
+        else match ctx.explicit, d.getOptParamDefault? with
+          | false, some defVal => elabAppArgsAux ctx (mkApp e defVal) (b.instantiate1 defVal)
+          | _, _               =>
             -- TODO: tactic auto param
             if ctx.namedArgs.isEmpty then
               finalize ()

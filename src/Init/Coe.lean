@@ -31,11 +31,11 @@ class CoeTail (α : Sort u) (β : Sort v) :=
 class CoeT (α : Sort u) (a : α) (β : Sort v) :=
 (coe : β)
 
-class CoeFun (α : Sort u) (a : α) (γ : outParam (Sort v)) :=
-(coe : γ)
+class CoeFun (α : Sort u) (γ : outParam (α → outParam (Sort v))) :=
+(coe : forall (a : α), γ a)
 
-class CoeSort (α : Sort u) (a : α) (β : outParam (Sort v)) :=
-(coe : β)
+class CoeSort (α : Sort u) (β : outParam (Sort v)) :=
+(coe : α → β)
 
 abbrev coeB {α : Sort u} {β : Sort v} (a : α) [Coe α β] : β :=
 @Coe.coe α β _ a
@@ -56,11 +56,11 @@ abbrev coeTC {α : Sort u} {β : Sort v} (a : α) [CoeTC α a β] : β :=
 abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β :=
 @CoeT.coe α a β _
 
-abbrev coeFun {α : Sort u} {γ : Sort v} (a : α) [CoeFun α a γ] : γ :=
-@CoeFun.coe α a γ _
+abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a :=
+@CoeFun.coe α γ _ a
 
-abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α a β] : β :=
-@CoeSort.coe α a β _
+abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α β] : β :=
+@CoeSort.coe α β _ a
 
 instance coeDepTrans {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeTC α a β] [CoeDep β (coeTC a) δ] : CoeTC α a δ :=
 { coe := coeD (coeTC a : β) }
@@ -74,7 +74,8 @@ instance coeBase {α : Sort u} {β : Sort v} (a : α) [Coe α β] : CoeTC α a �
 instance coeDepBase {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeTC α a β :=
 { coe := coeD a }
 
-instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} (a : α) [CoeHead α β] [CoeTC β (coeHead a) δ] [CoeTail δ γ] : CoeT α a γ :=
+@[inferTCGoalsLR]
+instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} (a : α) [CoeHead α β] [CoeTail δ γ] [CoeTC β (coeHead a) δ] : CoeT α a γ :=
 { coe := coeTail (coeTC (coeHead a : β) : δ) }
 
 @[inferTCGoalsLR]
@@ -93,21 +94,11 @@ instance coeOfTail {α : Sort u} {β : Sort v} (a : α) [CoeTail α β] : CoeT �
 instance coeOfTC {α : Sort u} {β : Sort v} (a : α) [CoeTC α a β] : CoeT α a β :=
 { coe := coeTC a }
 
-@[inferTCGoalsLR]
-instance coeFunDepTrans {α : Sort u} {β : Sort v} {γ : Sort w} (a : α) [CoeDep α a β] [CoeFun β (coe a) γ] : CoeFun α a γ :=
-{ coe := coeFun (coeD a : β) }
+instance coeFunTrans {α : Sort u} {β : Sort v} {γ : β → Sort w} [Coe α β] [CoeFun β γ] : CoeFun α (fun a => γ (coe a)) :=
+{ coe := fun a => coeFun (coeB a : β) }
 
-@[inferTCGoalsLR]
-instance coeSortDepTrans {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeDep α a β] [CoeSort β (coe a) δ] : CoeSort α a δ :=
-{ coe := coeSort (coeD a : β) }
-
-@[inferTCGoalsLR]
-instance coeFunTrans {α : Sort u} {β : Sort v} {γ : Sort w} (a : α) [Coe α β] [CoeFun β (coe a) γ] : CoeFun α a γ :=
-{ coe := coeFun (coeB a : β) }
-
-@[inferTCGoalsLR]
-instance coeSortTrans {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [Coe α β] [CoeSort β (coe a) δ] : CoeSort α a δ :=
-{ coe := coeSort (coeB a : β) }
+instance coeSortTrans {α : Sort u} {β : Sort v} {δ : Sort w} [Coe α β] [CoeSort β δ] : CoeSort α δ :=
+{ coe := fun a => coeSort (coeB a : β) }
 
 /- Basic instances -/
 
@@ -131,7 +122,6 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α :=
 /-
   Remark: one may question why we use `HasOfNat α` instead of `Coe Nat α`.
   Reason: `HasOfNat` is for implementing polymorphic numeric literals, and we may
-  want to have numberic literals for a type α and **no** coercion from `Nat` to `α`.
--/
-instance hasOfNatOfCoe {α : Type u} {β : Type v} [HasOfNat α] [∀ a, CoeT α a β] : HasOfNat β :=
+  want to have numberic literals for a type α and **no** coercion from `Nat` to `α`. -/
+instance hasOfNatOfCoe {α : Type u} {β : Type v} [HasOfNat α] [Coe α β] : HasOfNat β :=
 { ofNat := fun (n : Nat) => coe (HasOfNat.ofNat α n) }

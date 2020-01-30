@@ -3,8 +3,8 @@ universe u
 structure Group :=
 (carrier : Type u) (mul : carrier → carrier → carrier) (one : carrier)
 
-instance GroupToType (g : Group) : CoeSort Group g (Type u) :=
-CoeSort.mk _ g.carrier
+instance GroupToType : CoeSort Group (Type u) :=
+CoeSort.mk (fun g => g.carrier)
 
 new_frontend
 

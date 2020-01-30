@@ -635,14 +635,14 @@ match expectedType? with
 /-
   Relevant definitions:
   ```
-  class CoeSort (α : Sort u) (a : α) (β : outParam (Sort v))
-  abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α a β] : β :=
+  class CoeSort (α : Sort u) (β : outParam (Sort v))
+  abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α β] : β
   ``` -/
 private def tryCoeSort (ref : Syntax) (α : Expr) (a : Expr) : TermElabM Expr := do
 β ← mkFreshTypeMVar ref;
 u ← getLevel ref α;
 v ← getLevel ref β;
-let coeSortInstType := mkAppN (Lean.mkConst `CoeSort [u, v]) #[α, a, β];
+let coeSortInstType := mkAppN (Lean.mkConst `CoeSort [u, v]) #[α, β];
 mvar ← mkFreshExprMVar ref coeSortInstType MetavarKind.synthetic;
 let mvarId := mvar.mvarId!;
 catch

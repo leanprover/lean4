@@ -12,8 +12,8 @@ structure ConstantFunction (α β : Type) :=
 (f : α → β)
 (h : ∀ a₁ a₂, f a₁ = f a₂)
 
-instance constantFunctionCoe {α β : Type} (c : ConstantFunction α β) : CoeFun (ConstantFunction α β) c (α → β) :=
-{ coe := c.f }
+instance constantFunctionCoe {α β : Type} : CoeFun (ConstantFunction α β) (fun _ => α → β) :=
+{ coe := fun c => c.f }
 
 new_frontend
 set_option pp.implicit true
@@ -25,7 +25,5 @@ set_option pp.implicit true
 #synth CoeT Prop (0 = 1) Nat
 #synth CoeT Bool true (Option Nat)
 
-variables (f : ConstantFunction _ _)
-#synth CoeFun (ConstantFunction _ _) f _
-
--- #synth CoeT Bool true (Option (Nat × Nat)) -- fail quickly
+def f (c : ConstantFunction Nat Nat) : Nat :=
+c 0

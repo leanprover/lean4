@@ -56,17 +56,22 @@ match arg with
   val ← elabTerm val expectedType;
   ensureArgType ref f val expectedType
 
+private def mkArrow (d b : Expr) : TermElabM Expr := do
+n ← mkFreshAnonymousName;
+pure $ Lean.mkForall n BinderInfo.default d b
+
 /-
   Relevant definitions:
   ```
-  class CoeFun (α : Sort u) (a : α) (γ : outParam (Sort v))
-  abbrev coeFun {α : Sort u} {γ : Sort v} (a : α) [CoeFun α a γ]
+  class CoeFun (α : Sort u) (γ : α → outParam (Sort v))
+  abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
   ``` -/
 private def tryCoeFun (ref : Syntax) (α : Expr) (a : Expr) : TermElabM Expr := do
-γ ← mkFreshTypeMVar ref;
+v ← mkFreshLevelMVar ref;
+type ← mkArrow α (mkSort v);
+γ ← mkFreshExprMVar ref type;
 u ← getLevel ref α;
-v ← getLevel ref γ;
-let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, a, γ];
+let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, γ];
 mvar ← mkFreshExprMVar ref coeFunInstType MetavarKind.synthetic;
 let mvarId := mvar.mvarId!;
 synthesized ←

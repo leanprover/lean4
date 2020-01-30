@@ -17,28 +17,28 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(do $x:ident ← $e:term; $f:term) => `(HasBind.bind $e (fun $x:ident => $f:term))
 | _                                 => throwUnsupportedSyntax
 
-@[builtinTermElab dollar] def elabDollar : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+@[builtinMacro Lean.Parser.Term.dollar] def expandDollar : Macro :=
+fun stx => match_syntax stx with
 | `($f $args* $ $a) => let args := args.push a; `($f $args*)
 | `($f $ $a)        => `($f $a)
-| _                 => throwUnsupportedSyntax
+| _                 => Macro.throwUnsupported
 
-@[builtinTermElab dollarProj] def elabDollarProj : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+@[builtinMacro Lean.Parser.Term.dollarProj] def expandDollarProj : Macro :=
+fun stx => match_syntax stx with
 | `($term $.$field) => `($(term).$field)
-| _                 => throwUnsupportedSyntax
+| _                 => Macro.throwUnsupported
 
-@[builtinTermElab «if»] def elabIf : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+@[builtinMacro Lean.Parser.Term.if] def expandIf : Macro :=
+fun stx => match_syntax stx with
 | `(if $h : $cond then $t else $e) => `(dite $cond (fun $h:ident => $t) (fun $h:ident => $e))
 | `(if $cond then $t else $e)      => `(ite $cond $t $e)
-| _                                => throwUnsupportedSyntax
+| _                                => Macro.throwUnsupported
 
-@[builtinTermElab subtype] def elabSubtype : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+@[builtinMacro Lean.Parser.Term.subtype] def expandSubtype : Macro :=
+fun stx => match_syntax stx with
 | `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))
 | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
-| _                       => throwUnsupportedSyntax
+| _                       => Macro.throwUnsupported
 
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab :=
 fun stx expectedType? => match_syntax stx with
@@ -64,27 +64,27 @@ fun stx expectedType? => match_syntax stx with
   | none => throwError ref "invalid constructor ⟨...⟩, expected type must be known"
 | _ => throwUnsupportedSyntax
 
-@[builtinTermElab «show»] def elabShow : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+@[builtinMacro Lean.Parser.Term.show] def expandShow : Macro :=
+fun stx => match_syntax stx with
 | `(show $type from $val) => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $thisId) $val)
-| _                       => throwUnsupportedSyntax
+| _                       => Macro.throwUnsupported
 
-@[builtinTermElab «have»] def elabHave : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+@[builtinMacro Lean.Parser.Term.have] def expandHave : Macro :=
+fun stx => match_syntax stx with
 | `(have $type from $val; $body)      => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
 | `(have $type := $val; $body)        => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
 | `(have $x : $type from $val; $body) => `((fun ($x:ident : $type) => $body) $val)
 | `(have $x : $type := $val; $body)   => `((fun ($x:ident : $type) => $body) $val)
-| _                                   => throwUnsupportedSyntax
+| _                                   => Macro.throwUnsupported
 
-@[builtinTermElab «where»] def elabWhere : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+@[builtinMacro Lean.Parser.Term.where] def expandWhere : Macro :=
+fun stx => match_syntax stx with
 | `($body where $decls:letDecl*) =>  do
   let decls := decls.getEvenElems;
   decls.foldrM
     (fun decl body => `(let $decl:letDecl; $body))
     body
-| _                      => throwUnsupportedSyntax
+| _                      => Macro.throwUnsupported
 
 @[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
@@ -114,63 +114,63 @@ adaptExpander $ fun stx => match_syntax stx with
   | none          => throwError stx "invalid `tparser!` macro, it must be used in definitions"
 | _             => throwUnsupportedSyntax
 
-def elabInfix (f : Syntax) : TermElab :=
-fun stx expectedType? => do
+def elabInfix (f : Syntax) : Macro :=
+fun stx => do
   -- term `op` term
   let a := stx.getArg 0;
   let b := stx.getArg 2;
-  elabTerm (mkAppStx f #[a, b]) expectedType?
+  pure (mkAppStx f #[a, b])
 
-def elabInfixOp (op : Name) : TermElab :=
-fun stx expectedType? => elabInfix (mkCTermIdFrom (stx.getArg 1) op) stx expectedType?
+def elabInfixOp (op : Name) : Macro :=
+fun stx => elabInfix (mkCTermIdFrom (stx.getArg 1) op) stx
 
-@[builtinTermElab prod] def elabProd : TermElab := elabInfixOp `Prod
-@[builtinTermElab fcomp] def ElabFComp : TermElab := elabInfixOp `Function.comp
+@[builtinMacro Lean.Parser.Term.prod] def elabProd : Macro := elabInfixOp `Prod
+@[builtinMacro Lean.Parser.Term.fcomp] def ElabFComp : Macro := elabInfixOp `Function.comp
 
-@[builtinTermElab add] def elabAdd : TermElab := elabInfixOp `HasAdd.add
-@[builtinTermElab sub] def elabSub : TermElab := elabInfixOp `HasSub.sub
-@[builtinTermElab mul] def elabMul : TermElab := elabInfixOp `HasMul.mul
-@[builtinTermElab div] def elabDiv : TermElab := elabInfixOp `HasDiv.div
-@[builtinTermElab mod] def elabMod : TermElab := elabInfixOp `HasMod.mod
-@[builtinTermElab modN] def elabModN : TermElab := elabInfixOp `HasModN.modn
-@[builtinTermElab pow] def elabPow : TermElab := elabInfixOp `HasPow.pow
+@[builtinMacro Lean.Parser.Term.add] def elabAdd : Macro := elabInfixOp `HasAdd.add
+@[builtinMacro Lean.Parser.Term.sub] def elabSub : Macro := elabInfixOp `HasSub.sub
+@[builtinMacro Lean.Parser.Term.mul] def elabMul : Macro := elabInfixOp `HasMul.mul
+@[builtinMacro Lean.Parser.Term.div] def elabDiv : Macro := elabInfixOp `HasDiv.div
+@[builtinMacro Lean.Parser.Term.mod] def elabMod : Macro := elabInfixOp `HasMod.mod
+@[builtinMacro Lean.Parser.Term.modN] def elabModN : Macro := elabInfixOp `HasModN.modn
+@[builtinMacro Lean.Parser.Term.pow] def elabPow : Macro := elabInfixOp `HasPow.pow
 
-@[builtinTermElab le] def elabLE : TermElab := elabInfixOp `HasLessEq.LessEq
-@[builtinTermElab ge] def elabGE : TermElab := elabInfixOp `GreaterEq
-@[builtinTermElab lt] def elabLT : TermElab := elabInfixOp `HasLess.Less
-@[builtinTermElab gt] def elabGT : TermElab := elabInfixOp `Greater
-@[builtinTermElab eq] def elabEq : TermElab := elabInfixOp `Eq
-@[builtinTermElab ne] def elabNe : TermElab := elabInfixOp `Ne
-@[builtinTermElab beq] def elabBEq : TermElab := elabInfixOp `HasBeq.beq
-@[builtinTermElab bne] def elabBNe : TermElab := elabInfixOp `bne
-@[builtinTermElab heq] def elabHEq : TermElab := elabInfixOp `HEq
-@[builtinTermElab equiv] def elabEquiv : TermElab := elabInfixOp `HasEquiv.Equiv
+@[builtinMacro Lean.Parser.Term.le] def elabLE : Macro := elabInfixOp `HasLessEq.LessEq
+@[builtinMacro Lean.Parser.Term.ge] def elabGE : Macro := elabInfixOp `GreaterEq
+@[builtinMacro Lean.Parser.Term.lt] def elabLT : Macro := elabInfixOp `HasLess.Less
+@[builtinMacro Lean.Parser.Term.gt] def elabGT : Macro := elabInfixOp `Greater
+@[builtinMacro Lean.Parser.Term.eq] def elabEq : Macro := elabInfixOp `Eq
+@[builtinMacro Lean.Parser.Term.ne] def elabNe : Macro := elabInfixOp `Ne
+@[builtinMacro Lean.Parser.Term.beq] def elabBEq : Macro := elabInfixOp `HasBeq.beq
+@[builtinMacro Lean.Parser.Term.bne] def elabBNe : Macro := elabInfixOp `bne
+@[builtinMacro Lean.Parser.Term.heq] def elabHEq : Macro := elabInfixOp `HEq
+@[builtinMacro Lean.Parser.Term.equiv] def elabEquiv : Macro := elabInfixOp `HasEquiv.Equiv
 
-@[builtinTermElab and] def elabAnd : TermElab := elabInfixOp `And
-@[builtinTermElab or] def elabOr : TermElab := elabInfixOp `Or
-@[builtinTermElab iff] def elabIff : TermElab := elabInfixOp `Iff
+@[builtinMacro Lean.Parser.Term.and] def elabAnd : Macro := elabInfixOp `And
+@[builtinMacro Lean.Parser.Term.or] def elabOr : Macro := elabInfixOp `Or
+@[builtinMacro Lean.Parser.Term.iff] def elabIff : Macro := elabInfixOp `Iff
 
-@[builtinTermElab band] def elabBAnd : TermElab := elabInfixOp `and
-@[builtinTermElab bor] def elabBOr : TermElab := elabInfixOp `or
+@[builtinMacro Lean.Parser.Term.band] def elabBAnd : Macro := elabInfixOp `and
+@[builtinMacro Lean.Parser.Term.bor] def elabBOr : Macro := elabInfixOp `or
 
-@[builtinTermElab append] def elabAppend : TermElab := elabInfixOp `HasAppend.append
-@[builtinTermElab cons] def elabCons : TermElab := elabInfixOp `List.cons
+@[builtinMacro Lean.Parser.Term.append] def elabAppend : Macro := elabInfixOp `HasAppend.append
+@[builtinMacro Lean.Parser.Term.cons] def elabCons : Macro := elabInfixOp `List.cons
 
-@[builtinTermElab andthen] def elabAndThen : TermElab := elabInfixOp `HasAndthen.andthen
-@[builtinTermElab bindOp] def elabBind : TermElab := elabInfixOp `HasBind.bind
+@[builtinMacro Lean.Parser.Term.andthen] def elabAndThen : Macro := elabInfixOp `HasAndthen.andthen
+@[builtinMacro Lean.Parser.Term.bindOp] def elabBind : Macro := elabInfixOp `HasBind.bind
 
-@[builtinTermElab seq] def elabseq : TermElab := elabInfixOp `HasSeq.seq
-@[builtinTermElab seqLeft] def elabseqLeft : TermElab := elabInfixOp `HasSeqLeft.seqLeft
-@[builtinTermElab seqRight] def elabseqRight : TermElab := elabInfixOp `HasSeqRight.seqRight
+@[builtinMacro Lean.Parser.Term.seq] def elabseq : Macro := elabInfixOp `HasSeq.seq
+@[builtinMacro Lean.Parser.Term.seqLeft] def elabseqLeft : Macro := elabInfixOp `HasSeqLeft.seqLeft
+@[builtinMacro Lean.Parser.Term.seqRight] def elabseqRight : Macro := elabInfixOp `HasSeqRight.seqRight
 
-@[builtinTermElab map] def elabMap : TermElab := elabInfixOp `Functor.map
-@[builtinTermElab mapRev] def elabMapRev : TermElab := elabInfixOp `Functor.mapRev
-@[builtinTermElab mapConst] def elabMapConst : TermElab := elabInfixOp `Functor.mapConst
-@[builtinTermElab mapConstRev] def elabMapConstRev : TermElab := elabInfixOp `Functor.mapConstRev
+@[builtinMacro Lean.Parser.Term.map] def elabMap : Macro := elabInfixOp `Functor.map
+@[builtinMacro Lean.Parser.Term.mapRev] def elabMapRev : Macro := elabInfixOp `Functor.mapRev
+@[builtinMacro Lean.Parser.Term.mapConst] def elabMapConst : Macro := elabInfixOp `Functor.mapConst
+@[builtinMacro Lean.Parser.Term.mapConstRev] def elabMapConstRev : Macro := elabInfixOp `Functor.mapConstRev
 
-@[builtinTermElab orelse] def elabOrElse : TermElab := elabInfixOp `HasOrelse.orelse
-@[builtinTermElab orM] def elabOrM : TermElab := elabInfixOp `orM
-@[builtinTermElab andM] def elabAndM : TermElab := elabInfixOp `andM
+@[builtinMacro Lean.Parser.Term.orelse] def elabOrElse : Macro := elabInfixOp `HasOrelse.orelse
+@[builtinMacro Lean.Parser.Term.orM] def elabOrM : Macro := elabInfixOp `orM
+@[builtinMacro Lean.Parser.Term.andM] def elabAndM : Macro := elabInfixOp `andM
 
 /-
 TODO

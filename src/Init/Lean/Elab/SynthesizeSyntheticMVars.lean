@@ -49,6 +49,9 @@ withMVarContext mvarId $ do
       mvarDecl     ← getMVarDecl mvarId;
       expectedType ← instantiateMVars stx mvarDecl.type;
       result       ← resumeElabTerm stx expectedType (!postponeOnError);
+      /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
+         That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
+      ensureHasType stx expectedType result;
       assignExprMVar mvarId result;
       pure true)
     (fun ex => match ex with

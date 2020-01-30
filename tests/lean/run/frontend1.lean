@@ -226,3 +226,5 @@ def three := 3
 
 #eval run "universes u v #check Type (max u v)"
 #eval run "universes u v #check Type (imax u v)"
+
+#eval fail "namespace Boo def f (x : Nat) := x def s := 'a' #check (fun x => f x) s end Boo"

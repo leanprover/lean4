@@ -80,6 +80,7 @@ if synthesized then
 else
   throwError ref "function expected"
 
+/-- Auxiliary structure used to elaborate function application arguments. -/
 structure ElabAppArgsCtx :=
 (ref           : Syntax)
 (args          : Array Arg)
@@ -112,11 +113,59 @@ private partial def getForallBody : Nat → Array NamedArg → Expr → Option E
       some type
 | i, namedArgs, type => if i == 0 && namedArgs.isEmpty then some type else none
 
+private def hasTypeMVar (ctx : ElabAppArgsCtx) (type : Expr) : Bool :=
+(type.findMVar? (fun mvarId => ctx.typeMVars.contains mvarId)).isSome
+
+private def hasOnlyTypeMVar (ctx : ElabAppArgsCtx) (type : Expr) : Bool :=
+(type.findMVar? (fun mvarId => !ctx.typeMVars.contains mvarId)).isNone
+
 /-
   Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
-  argument. We only use it on polymorphic functions (i.e., `!ctx.typeMVars.isEmpty`).
-  It is applied only if the resultant type does not depend on the remaining arguments (i.e., `!eTypeBody.hasLooseBVars`),
-  but depends on the implicit ones processed so far. -/
+  argument. The goal is to propagate the expected type in applications of functions such as
+  ```lean
+  HasAdd.add {α : Type u} : α → α → α
+  List.cons {α : Type u} : α → List α → List α
+  ```
+  This is particularly useful when there applicable coercions. For example,
+  assume we have a coercion from `Nat` to `Int`, and we have
+  `(x : Nat)` and the expected type is `List Int`. Then, if we don't use this function,
+  the elaborator will fail to elaborate
+  ```
+  List.cons x []
+  ```
+  First, the elaborator creates a new metavariable `?α` for the implicit argument `{α : Type u}`.
+  Then, when it processes `x`, it assigns `?α := Nat`, and then obtain the
+  resultant type `List Nat` which is **not** definitionally equal to `List Int`.
+  We solve the problem by executing this method before we elaborate the first explicit argument (`x` in this example).
+  This method infers that the resultant type is `List ?α` and unifies it with `List Int`.
+  Then, when we elaborate `x`, the elaborate realizes the coercion from `Nat` to `Int` must be used, and the
+  term
+  ```
+  @List.cons Int (coe x) (@List.nil Int)
+  ```
+  is produced.
+
+  The method will do nothing if
+  1- The resultant type depends on the remaining arguments (i.e., `!eTypeBody.hasLooseBVars`)
+  2- The resultant type does not contain any type metavariable.
+  3- The resultant type contains a nontype metavariable.
+
+  We added conditions 2&3 to be able to restrict this method to simple functions that are "morally" in
+  the Hindley&Milner fragment.
+  For example, consider the following definitions
+  ```
+  def foo {n m : Nat} (a : bv n) (b : bv m) : bv (n - m)
+  ```
+  Now, consider
+  ```
+  def test (x1 : bv 32) (x2 : bv 31) (y1 : bv 64) (y2 : bv 63) : bv 1 :=
+  foo x1 x2 = foo y1 y2
+  ```
+  When the elaborator reaches the term `foo y1 y2`, the expected type is `bv (32-31)`.
+  If we apply this method, we would solve the unification problem `bv (?n - ?m) =?= bv (32 - 31)`,
+  by assigning `?n := 32` and `?m := 31`. Then, the elaborator fails elaborating `y1` since
+  `bv 64` is **not** definitionally equal to `bv 32`.
+-/
 private def propagateExpectedType (ctx : ElabAppArgsCtx) (eType : Expr) : TermElabM Unit :=
 unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
   match ctx.expectedType? with
@@ -127,10 +176,11 @@ unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
     | none           => pure ()
     | some eTypeBody =>
       unless eTypeBody.hasLooseBVars $
-      unless (eTypeBody.findMVar? (fun mvarId => ctx.typeMVars.contains mvarId)).isNone $ do
+      when (hasTypeMVar ctx eTypeBody && hasOnlyTypeMVar ctx eTypeBody) $ do
         isDefEq ctx.ref expectedType eTypeBody;
         pure ()
 
+/- Elaborate function application arguments. -/
 private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermElabM Expr
 | ctx, e, eType => do
   let finalize : Unit → TermElabM Expr := fun _ => do {

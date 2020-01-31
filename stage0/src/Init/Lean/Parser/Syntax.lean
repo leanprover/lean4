@@ -14,7 +14,7 @@ namespace Parser
 let leadingIdentAsSymbol := true;
 registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 
-@[inline] def syntaxParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
+@[inline] def syntaxParser (rbp : Nat := 0) : Parser :=
 categoryParser `syntax rbp
 
 def maxPrec := parser! nonReservedSymbol "max" true

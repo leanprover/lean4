@@ -132,57 +132,32 @@ mkNameNum g.namePrefix g.idx
 
 end NameGenerator
 
-inductive ParserKind
-| leading | trailing
-
 /-
   Small DSL for describing parsers. We implement an interpreter for it
   at `Parser.lean` -/
-inductive ParserDescrCore : ParserKind → Type
-| andthen {k : ParserKind}       : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
-| orelse  {k : ParserKind}       : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
-| optional {k : ParserKind}      : ParserDescrCore k → ParserDescrCore k
-| lookahead {k : ParserKind}     : ParserDescrCore k → ParserDescrCore k
-| try {k : ParserKind}           : ParserDescrCore k → ParserDescrCore k
-| many {k : ParserKind}          : ParserDescrCore k → ParserDescrCore k
-| many1 {k : ParserKind}         : ParserDescrCore k → ParserDescrCore k
-| sepBy {k : ParserKind}         : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
-| sepBy1 {k : ParserKind}        : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
-| node {k : ParserKind}          : Name → ParserDescrCore k → ParserDescrCore k
-| trailingNode                   : Name → ParserDescrCore ParserKind.trailing → ParserDescrCore ParserKind.trailing
-| symbol {k : ParserKind}        : String → Option Nat → ParserDescrCore k
-| nonReservedSymbol              : String → Bool → ParserDescrCore ParserKind.leading
-| numLit {k : ParserKind}        : ParserDescrCore k
-| strLit {k : ParserKind}        : ParserDescrCore k
-| charLit {k : ParserKind}       : ParserDescrCore k
-| nameLit {k : ParserKind}       : ParserDescrCore k
-| ident {k : ParserKind}         : ParserDescrCore k
-| parser {k : ParserKind}        : Name → Nat → ParserDescrCore k
+inductive ParserDescr
+| andthen           : ParserDescr → ParserDescr → ParserDescr
+| orelse            : ParserDescr → ParserDescr → ParserDescr
+| optional          : ParserDescr → ParserDescr
+| lookahead         : ParserDescr → ParserDescr
+| try               : ParserDescr → ParserDescr
+| many              : ParserDescr → ParserDescr
+| many1             : ParserDescr → ParserDescr
+| sepBy             : ParserDescr → ParserDescr → ParserDescr
+| sepBy1            : ParserDescr → ParserDescr → ParserDescr
+| node              : Name → ParserDescr → ParserDescr
+| trailingNode      : Name → ParserDescr → ParserDescr
+| symbol            : String → Option Nat → ParserDescr
+| nonReservedSymbol : String → Bool → ParserDescr
+| numLit            : ParserDescr
+| strLit            : ParserDescr
+| charLit           : ParserDescr
+| nameLit           : ParserDescr
+| ident             : ParserDescr
+| parser            : Name → Nat → ParserDescr
 
-instance ParserDescrCore.inhabited {k} : Inhabited (ParserDescrCore k) := ⟨ParserDescrCore.symbol "" none⟩
-
-abbrev ParserDescr := ParserDescrCore ParserKind.leading
-abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
-
-@[matchPattern] abbrev ParserDescr.andthen := @ParserDescrCore.andthen
-@[matchPattern] abbrev ParserDescr.orelse := @ParserDescrCore.orelse
-@[matchPattern] abbrev ParserDescr.optional := @ParserDescrCore.optional
-@[matchPattern] abbrev ParserDescr.lookahead := @ParserDescrCore.lookahead
-@[matchPattern] abbrev ParserDescr.try := @ParserDescrCore.try
-@[matchPattern] abbrev ParserDescr.many := @ParserDescrCore.many
-@[matchPattern] abbrev ParserDescr.many1 := @ParserDescrCore.many1
-@[matchPattern] abbrev ParserDescr.sepBy := @ParserDescrCore.sepBy
-@[matchPattern] abbrev ParserDescr.sepBy1 := @ParserDescrCore.sepBy1
-@[matchPattern] abbrev ParserDescr.node := @ParserDescrCore.node
-@[matchPattern] abbrev ParserDescr.trailingNode := @ParserDescrCore.trailingNode
-@[matchPattern] abbrev ParserDescr.symbol := @ParserDescrCore.symbol
-@[matchPattern] abbrev ParserDescr.numLit := @ParserDescrCore.numLit
-@[matchPattern] abbrev ParserDescr.strLit := @ParserDescrCore.strLit
-@[matchPattern] abbrev ParserDescr.charLit := @ParserDescrCore.charLit
-@[matchPattern] abbrev ParserDescr.nameLit := @ParserDescrCore.nameLit
-@[matchPattern] abbrev ParserDescr.ident := @ParserDescrCore.ident
-@[matchPattern] abbrev ParserDescr.nonReservedSymbol := @ParserDescrCore.nonReservedSymbol
-@[matchPattern] abbrev ParserDescr.parser := @ParserDescrCore.parser
+instance ParserDescr.inhabited : Inhabited ParserDescr := ⟨ParserDescr.symbol "" none⟩
+abbrev TrailingParserDescr := ParserDescr
 
 /- Syntax -/
 

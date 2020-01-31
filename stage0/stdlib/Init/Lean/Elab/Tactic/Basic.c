@@ -217,7 +217,6 @@ lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalTraceState___closed__3;
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalCase___closed__3;
 extern lean_object* l_Lean_Parser_declareBuiltinParser___closed__7;
-extern lean_object* l_Lean_Parser_Tactic_orelse___elambda__1___rarg___closed__1;
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Tactic_evalTactic___main___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadLog___closed__8;
 extern lean_object* l_Lean_Parser_Tactic_skip___elambda__1___closed__2;
@@ -328,6 +327,7 @@ uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_Parser_isValidSyntaxN
 lean_object* l_Lean_Elab_Tactic_addBuiltinTactic(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_modifyMCtx(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_tagUntaggedGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_orelse___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Tactic_getOptions___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_declareBuiltinTactic___closed__2;
 lean_object* l_Lean_Elab_Tactic_withMVarContext___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14896,7 +14896,7 @@ lean_object* l_Lean_Elab_Tactic_evalOrelse(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Lean_Parser_Tactic_orelse___elambda__1___rarg___closed__1;
+x_4 = l_Lean_Parser_Tactic_orelse___elambda__1___closed__1;
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
@@ -15021,7 +15021,7 @@ lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalOrelse(lean_object* x_1) 
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Parser_Tactic_orelse___elambda__1___rarg___closed__1;
+x_2 = l_Lean_Parser_Tactic_orelse___elambda__1___closed__1;
 x_3 = l___regBuiltinTactic_Lean_Elab_Tactic_evalOrelse___closed__2;
 x_4 = l___regBuiltinTactic_Lean_Elab_Tactic_evalOrelse___closed__3;
 x_5 = l_Lean_Elab_Tactic_addBuiltinTactic(x_2, x_3, x_4, x_1);

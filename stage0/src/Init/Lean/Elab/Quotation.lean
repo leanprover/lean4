@@ -426,7 +426,7 @@ def oldParseExpr (env : Environment) (input : String) (pos : String.Pos) : Excep
 let c := Parser.mkParserContext env (Parser.mkInputContext input "<foo>");
 let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
-let s := (Parser.termParser Parser.appPrec : Parser.Parser).fn Parser.appPrec c s;
+let s := (Parser.termParser Parser.appPrec : Parser.Parser).fn { rbp := Parser.appPrec, .. c } s;
 let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>

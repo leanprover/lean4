@@ -1714,6 +1714,7 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.sepBy d₁ d₂                         => sepBy <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.node k d                            => node k <$> compileParserDescr d
+| ParserKind.trailing, ParserDescr.trailingNode k d  => trailingNode k <$> compileParserDescr d
 | _, ParserDescr.symbol tk lbp                       => pure $ symbolAux tk lbp
 | _, ParserDescr.numLit                              => pure $ numLit
 | _, ParserDescr.strLit                              => pure $ strLit

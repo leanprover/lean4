@@ -54,7 +54,7 @@ def nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "
 @[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
-@[builtinTacticParser] def orelse := tparser! pushLeading >> " <|> " >> tacticParser 1
+@[builtinTacticParser] def orelse := tparser! " <|> " >> tacticParser 1
 
 end Tactic
 

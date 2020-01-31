@@ -34,7 +34,7 @@ else
 structure ToParserDescrContext :=
 (catName              : Name)
 (first                : Bool)
-(pushLeadingAllowed   : Bool)
+(leftRec              : Bool) -- true iff left recursion is allowed
 /- When `leadingIdentAsSymbol == true` we convert
    `Lean.Parser.Syntax.atom` into `Lean.ParserDescr.nonReservedSymbol`
    See comment at `Parser.ParserCategory`. -/
@@ -43,36 +43,56 @@ structure ToParserDescrContext :=
 abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateT Bool TermElabM)
 private def markAsTrailingParser : ToParserDescrM Unit := set true
 
-@[inline] private def withFirst {α} (first : Bool) (x : ToParserDescrM α) : ToParserDescrM α :=
-adaptReader (fun (ctx : ToParserDescrContext) => { first := ctx.first && first, .. ctx }) x
+@[inline] private def withNotFirst {α} (x : ToParserDescrM α) : ToParserDescrM α :=
+adaptReader (fun (ctx : ToParserDescrContext) => { first := false, .. ctx }) x
 
-@[inline] private def withNoPushLeading {α} (x : ToParserDescrM α) : ToParserDescrM α :=
-adaptReader (fun (ctx : ToParserDescrContext) => { pushLeadingAllowed := false, .. ctx }) x
+@[inline] private def withoutLeftRec {α} (x : ToParserDescrM α) : ToParserDescrM α :=
+adaptReader (fun (ctx : ToParserDescrContext) => { leftRec := false, .. ctx }) x
+
+def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
+if stx.getKind == `Lean.Parser.Syntax.cat then do
+  let cat := (stx.getIdAt 0).eraseMacroScopes;
+  ctx ← read;
+  if ctx.first && cat == ctx.catName then do
+    let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
+    unless rbp?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
+    ctx ← read;
+    unless ctx.leftRec $ liftM $
+      throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion");
+    markAsTrailingParser; -- mark as trailing par
+    pure true
+  else
+    pure false
+else
+  pure false
 
 partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
 | stx =>
   let kind := stx.getKind;
   if kind == nullKind then do
-     args ← stx.getArgs.mapIdxM $ fun i arg => withFirst (i == 0) (toParserDescrAux arg);
-     liftM $ mkParserSeq args
+    let args := stx.getArgs;
+    condM (checkLeftRec stx)
+      (do
+        when (args.size == 1) $ liftM $ throwError stx "invalid atomic left recursive syntax";
+        let args := args.eraseIdx 0;
+        args ← stx.getArgs.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
+        liftM $ mkParserSeq args)
+      (do
+        args ← stx.getArgs.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
+        liftM $ mkParserSeq args)
   else if kind == choiceKind then do
     toParserDescrAux (stx.getArg 0)
   else if kind == `Lean.Parser.Syntax.paren then
     toParserDescrAux (stx.getArg 1)
   else if kind == `Lean.Parser.Syntax.cat then do
     let cat := (stx.getIdAt 0).eraseMacroScopes;
-    let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
-    env ← liftM getEnv;
-    unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
     ctx ← read;
-    if ctx.first && cat == ctx.catName then do
-      unless rbp?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
-      ctx ← read;
-      unless ctx.pushLeadingAllowed $ liftM $
-        throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion");
-      markAsTrailingParser; -- mark as trailing par
-      `(ParserDescr.pushLeading)
-    else
+    if ctx.first && cat == ctx.catName then
+      liftM $ throwError stx "invalid atomic left recursive syntax"
+    else do
+      let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
+      env ← liftM getEnv;
+      unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
       let rbp := rbp?.getD 0;
       `(ParserDescr.parser $(quote cat) $(quote rbp))
   else if kind == `Lean.Parser.Syntax.atom then do
@@ -94,31 +114,31 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.ident then
     `(ParserDescr.ident)
   else if kind == `Lean.Parser.Syntax.try then do
-    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
+    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.try $d)
   else if kind == `Lean.Parser.Syntax.lookahead then do
-    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
+    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.lookahead $d)
   else if kind == `Lean.Parser.Syntax.sepBy then do
-    d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
-    d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
+    d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+    d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.sepBy $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.sepBy1 then do
-    d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
-    d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
+    d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+    d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.sepBy1 $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.many then do
-    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
+    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.many $d)
   else if kind == `Lean.Parser.Syntax.many1 then do
-    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
+    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.many1 $d)
   else if kind == `Lean.Parser.Syntax.optional then do
-    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
+    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.optional $d)
   else if kind == `Lean.Parser.Syntax.orelse then do
-    d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
-    d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
+    d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
+    d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.orelse $d₁ $d₂)
   else
     liftM $ throwError stx $ "unexpected syntax kind of category `syntax`: " ++ kind
@@ -130,7 +150,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
 def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) := do
 env ← getEnv;
 let leadingIdentAsSymbol := Parser.leadingIdentAsSymbol env catName;
-(toParserDescrAux stx { catName := catName, first := true, pushLeadingAllowed := true, leadingIdentAsSymbol := leadingIdentAsSymbol }).run false
+(toParserDescrAux stx { catName := catName, first := true, leftRec := true, leadingIdentAsSymbol := leadingIdentAsSymbol }).run false
 
 end Term
 
@@ -174,9 +194,11 @@ fun stx => do
   kind ← elabKind (stx.getArg 1) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
   (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2) cat;
-  type ← if trailingParser then `(Lean.TrailingParserDescr) else `(Lean.ParserDescr);
-  -- TODO: meaningful, unhygienic def name for selective parser `open`ing?
-  d ← `(@[$catParserId:ident] def myParser : $type := ParserDescr.node $(quote kind) $val);
+  d ←
+    if trailingParser then
+      `(@[$catParserId:ident] def myParser : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $val)
+    else
+      `(@[$catParserId:ident] def myParser : Lean.ParserDescr := ParserDescr.node $(quote kind) $val);
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 

@@ -13,7 +13,7 @@ do env  ← MetaIO.getEnv;
 
 open Lean.Parser
 
-@[termParser] def tst := parser! "(|" >> termParser >> optional (", " >> termParser) >> "|)"
+@[termParser] def tst := parser! "(|" >> termParser >> optional (symbolAux ", " >> termParser) >> "|)"
 
 @[termParser] def boo : ParserDescr :=
 ParserDescr.node `boo

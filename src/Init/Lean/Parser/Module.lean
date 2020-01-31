@@ -39,7 +39,7 @@ let ctx := mkParserContext env inputCtx;
 let ctx := Module.updateTokens ctx;
 let s   := mkParserState ctx.input;
 let s   := whitespace ctx s;
-let s   := Module.header.fn (0:Nat) ctx s;
+let s   := Module.header.fn ctx s;
 let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>
@@ -73,7 +73,7 @@ partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleP
     let c  := mkParserContext env inputCtx;
     let s  := { ParserState . cache := initCacheForInput c.input, pos := pos };
     let s  := whitespace c s;
-    let s  := (commandParser : Parser).fn (0:Nat) c s;
+    let s  := (commandParser : Parser).fn c s;
     match s.errorMsg with
     | none =>
       let stx := s.stxStack.back;

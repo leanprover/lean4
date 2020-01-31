@@ -8,7 +8,7 @@ open Lean.Parser
 def regBlaParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute (mkNameSimple "blaParser") (mkNameSimple "bla")
 
-@[inline] def parser {k : ParserKind} : Parser k :=
+@[inline] def parser : Parser :=
 categoryParser (mkNameSimple "bla") 0
 
 #check @parser

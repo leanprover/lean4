@@ -122,9 +122,9 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser! "-" >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser! many1 ((toTrailing namedArgument) <|> termParser appPrec)
+@[builtinTermParser] def app      := tparser! many1 (namedArgument <|> termParser appPrec)
 
-def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Term.type || leading.isOfKind `Lean.Parser.Term.sort)
+def checkIsSort := checkStackTop (fun stx => stx.isOfKind `Lean.Parser.Term.type || stx.isOfKind `Lean.Parser.Term.sort)
 @[builtinTermParser] def sortApp  := tparser! checkIsSort >> levelParser appPrec
 @[builtinTermParser] def proj     := tparser! symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
@@ -133,7 +133,7 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def dollar     := tparser! try (dollarSymbol >> checkWsBefore "space expected") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser! symbol "$." 1 >> (fieldIdx <|> ident)
 
-@[builtinTermParser] def «where»    := tparser! symbol " where " 1 >> sepBy1 (toTrailing letDecl) (group ("; " >> " where "))
+@[builtinTermParser] def «where»    := tparser! symbol " where " 1 >> sepBy1 letDecl (group ("; " >> " where "))
 
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 

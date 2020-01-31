@@ -16,19 +16,19 @@ registerBuiltinParserAttribute `builtinTacticParser `tactic leadingIdentAsSymbol
 @[init] def regTacticParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `tacticParser `tactic
 
-@[inline] def tacticParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
+@[inline] def tacticParser (rbp : Nat := 0) : Parser :=
 categoryParser `tactic rbp
 
 namespace Tactic
 
-def underscoreFn {k : ParserKind} : ParserFn k :=
-fun a c s =>
-  let s   := symbolFn "_" a c s;
+def underscoreFn : ParserFn :=
+fun c s =>
+  let s   := symbolFn "_" c s;
   let stx := s.stxStack.back;
   let s   := s.popSyntax;
   s.pushSyntax $ mkIdentFrom stx `_
 
-@[inline] def underscore {k : ParserKind} : Parser k :=
+@[inline] def underscore : Parser :=
 { fn   := underscoreFn,
   info := mkAtomicInfo "ident" }
 

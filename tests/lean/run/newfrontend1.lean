@@ -184,3 +184,9 @@ def blabla := 100
 
 theorem simple15 (x : Nat) (h : x = 0) : x = 0 :=
 begin blabla end
+
+theorem tstprec1 (x y z : Nat) : x + y * z = x + (y * z) :=
+rfl
+
+theorem tstprec2 (x y z : Nat) : y * z + x = (y * z) + x :=
+rfl

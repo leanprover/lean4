@@ -15,7 +15,7 @@ registerBuiltinParserAttribute `builtinCommandParser `command
 @[init] def regCommandParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `commandParser `command
 
-@[inline] def commandParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
+@[inline] def commandParser (rbp : Nat := 0) : Parser :=
 categoryParser `command rbp
 
 /--
@@ -28,7 +28,7 @@ categoryParser `command rbp
 
 namespace Command
 def commentBody : Parser :=
-{ fn := rawFn (fun _ => finishCommentBlock 1) true }
+{ fn := rawFn (finishCommentBlock 1) true }
 
 def docComment       := parser! "/--" >> commentBody
 def attrArg : Parser := ident <|> strLit <|> numLit

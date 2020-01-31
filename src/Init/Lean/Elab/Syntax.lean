@@ -50,13 +50,12 @@ adaptReader (fun (ctx : ToParserDescrContext) => { first := false, .. ctx }) x
 adaptReader (fun (ctx : ToParserDescrContext) => { leftRec := false, .. ctx }) x
 
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
-if stx.getKind == `Lean.Parser.Syntax.cat then do
+ctx ← read;
+if ctx.first && stx.getKind == `Lean.Parser.Syntax.cat then do
   let cat := (stx.getIdAt 0).eraseMacroScopes;
-  ctx ← read;
-  if ctx.first && cat == ctx.catName then do
+  if cat == ctx.catName then do
     let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
     unless rbp?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
-    ctx ← read;
     unless ctx.leftRec $ liftM $
       throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion");
     markAsTrailingParser; -- mark as trailing par
@@ -71,14 +70,14 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   let kind := stx.getKind;
   if kind == nullKind then do
     let args := stx.getArgs;
-    condM (checkLeftRec stx)
+    condM (checkLeftRec (stx.getArg 0))
       (do
         when (args.size == 1) $ liftM $ throwError stx "invalid atomic left recursive syntax";
         let args := args.eraseIdx 0;
-        args ← stx.getArgs.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
+        args ← args.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
         liftM $ mkParserSeq args)
       (do
-        args ← stx.getArgs.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
+        args ← args.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
         liftM $ mkParserSeq args)
   else if kind == choiceKind then do
     toParserDescrAux (stx.getArg 0)

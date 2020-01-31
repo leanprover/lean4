@@ -17,16 +17,16 @@ namespace Term
 /- Helper functions for defining simple parsers -/
 
 def unicodeInfixR (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser (lbp - 1)
+unicodeSymbol sym asciiSym lbp >> termParser (lbp - 1)
 
 def infixR (sym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> symbol sym lbp >> termParser (lbp - 1)
+symbol sym lbp >> termParser (lbp - 1)
 
 def unicodeInfixL (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
+unicodeSymbol sym asciiSym lbp >> termParser lbp
 
 def infixL (sym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> symbol sym lbp >> termParser lbp
+symbol sym lbp >> termParser lbp
 
 /- Built-in parsers -/
 -- NOTE: `checkNoWsBefore` should be used *before* `parser!` so that it is also applied to the generated
@@ -122,18 +122,18 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser! "-" >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser! pushLeading >> many1 ((toTrailing namedArgument) <|> termParser appPrec)
+@[builtinTermParser] def app      := tparser! many1 ((toTrailing namedArgument) <|> termParser appPrec)
 
 def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Term.type || leading.isOfKind `Lean.Parser.Term.sort)
-@[builtinTermParser] def sortApp  := tparser! checkIsSort >> pushLeading >> levelParser appPrec
-@[builtinTermParser] def proj     := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
+@[builtinTermParser] def sortApp  := tparser! checkIsSort >> levelParser appPrec
+@[builtinTermParser] def proj     := tparser! symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
-@[builtinTermParser] def arrayRef := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
+@[builtinTermParser] def arrayRef := tparser! symbolNoWs "[" (appPrec+1) >> termParser >>"]"
 
-@[builtinTermParser] def dollar     := tparser! try (pushLeading >> dollarSymbol >> checkWsBefore "space expected") >> termParser 0
-@[builtinTermParser] def dollarProj := tparser! pushLeading >> symbol "$." 1 >> (fieldIdx <|> ident)
+@[builtinTermParser] def dollar     := tparser! try (dollarSymbol >> checkWsBefore "space expected") >> termParser 0
+@[builtinTermParser] def dollarProj := tparser! symbol "$." 1 >> (fieldIdx <|> ident)
 
-@[builtinTermParser] def «where»    := tparser! pushLeading >> symbol " where " 1 >> sepBy1 (toTrailing letDecl) (group ("; " >> " where "))
+@[builtinTermParser] def «where»    := tparser! symbol " where " 1 >> sepBy1 (toTrailing letDecl) (group ("; " >> " where "))
 
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 

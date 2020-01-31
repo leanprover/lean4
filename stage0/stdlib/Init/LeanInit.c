@@ -267,6 +267,7 @@ lean_object* l_Lean_ParserDescrCore_inhabited___boxed(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes___main(lean_object*);
 lean_object* l_Lean_ParserDescr_strLit___boxed(lean_object*);
 lean_object* l_Lean_identKind;
+lean_object* l_Lean_ParserDescr_trailingNode(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_sepBy1(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_mkCTermId(lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
@@ -1536,7 +1537,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_box(0);
 x_3 = l_String_splitAux___main___closed__1;
-x_4 = lean_alloc_ctor(10, 2, 1);
+x_4 = lean_alloc_ctor(11, 2, 1);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
@@ -1758,11 +1759,21 @@ x_5 = l_Lean_ParserDescr_node(x_4, x_2, x_3);
 return x_5;
 }
 }
+lean_object* l_Lean_ParserDescr_trailingNode(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_ParserDescr_symbol(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_ctor(10, 2, 1);
+x_4 = lean_alloc_ctor(11, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
 lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
@@ -1783,7 +1794,7 @@ lean_object* l_Lean_ParserDescr_numLit(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_ctor(12, 0, 1);
+x_2 = lean_alloc_ctor(13, 0, 1);
 lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
@@ -1802,7 +1813,7 @@ lean_object* l_Lean_ParserDescr_strLit(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_ctor(13, 0, 1);
+x_2 = lean_alloc_ctor(14, 0, 1);
 lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
@@ -1821,7 +1832,7 @@ lean_object* l_Lean_ParserDescr_charLit(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_ctor(14, 0, 1);
+x_2 = lean_alloc_ctor(15, 0, 1);
 lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
@@ -1840,7 +1851,7 @@ lean_object* l_Lean_ParserDescr_nameLit(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_ctor(15, 0, 1);
+x_2 = lean_alloc_ctor(16, 0, 1);
 lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
@@ -1859,7 +1870,7 @@ lean_object* l_Lean_ParserDescr_ident(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_ctor(16, 0, 1);
+x_2 = lean_alloc_ctor(17, 0, 1);
 lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
@@ -1878,7 +1889,7 @@ lean_object* l_Lean_ParserDescr_nonReservedSymbol(lean_object* x_1, uint8_t x_2)
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_ctor(11, 1, 1);
+x_3 = lean_alloc_ctor(12, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
@@ -1898,7 +1909,7 @@ lean_object* _init_l_Lean_ParserDescr_pushLeading() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(17);
+x_1 = lean_box(18);
 return x_1;
 }
 }
@@ -1906,7 +1917,7 @@ lean_object* l_Lean_ParserDescr_parser(uint8_t x_1, lean_object* x_2, lean_objec
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_ctor(18, 2, 1);
+x_4 = lean_alloc_ctor(19, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
 lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);

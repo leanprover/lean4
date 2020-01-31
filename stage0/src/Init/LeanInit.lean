@@ -149,6 +149,7 @@ inductive ParserDescrCore : ParserKind → Type
 | sepBy {k : ParserKind}         : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
 | sepBy1 {k : ParserKind}        : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
 | node {k : ParserKind}          : Name → ParserDescrCore k → ParserDescrCore k
+| trailingNode                   : Name → ParserDescrCore ParserKind.trailing → ParserDescrCore ParserKind.trailing
 | symbol {k : ParserKind}        : String → Option Nat → ParserDescrCore k
 | nonReservedSymbol              : String → Bool → ParserDescrCore ParserKind.leading
 | numLit {k : ParserKind}        : ParserDescrCore k
@@ -174,6 +175,7 @@ abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
 @[matchPattern] abbrev ParserDescr.sepBy := @ParserDescrCore.sepBy
 @[matchPattern] abbrev ParserDescr.sepBy1 := @ParserDescrCore.sepBy1
 @[matchPattern] abbrev ParserDescr.node := @ParserDescrCore.node
+@[matchPattern] abbrev ParserDescr.trailingNode := @ParserDescrCore.trailingNode
 @[matchPattern] abbrev ParserDescr.symbol := @ParserDescrCore.symbol
 @[matchPattern] abbrev ParserDescr.numLit := @ParserDescrCore.numLit
 @[matchPattern] abbrev ParserDescr.strLit := @ParserDescrCore.strLit

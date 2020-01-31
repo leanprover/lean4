@@ -35,10 +35,10 @@ namespace Syntax
 @[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser appPrec >> syntaxParser appPrec
 @[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser appPrec >> syntaxParser appPrec
 
-@[builtinSyntaxParser] def optional  := tparser! pushLeading >> symbolAux "?" none
-@[builtinSyntaxParser] def many      := tparser! pushLeading >> symbolAux "*" none
-@[builtinSyntaxParser] def many1     := tparser! pushLeading >> symbolAux "+" none
-@[builtinSyntaxParser] def orelse    := tparser! pushLeading >> " <|> " >> syntaxParser 1
+@[builtinSyntaxParser] def optional  := tparser! symbolAux "?" none
+@[builtinSyntaxParser] def many      := tparser! symbolAux "*" none
+@[builtinSyntaxParser] def many1     := tparser! symbolAux "+" none
+@[builtinSyntaxParser] def orelse    := tparser! " <|> " >> syntaxParser 1
 
 end Syntax
 

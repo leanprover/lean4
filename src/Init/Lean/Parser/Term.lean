@@ -121,8 +121,8 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def bnot   := parser! symbol "!" 40 >> termParser 40
 @[builtinTermParser] def uminus := parser! "-" >> termParser 100
 
-def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser! pushLeading >> many1 (namedArgument <|> termParser appPrec)
+def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
+@[builtinTermParser] def app      := tparser! pushLeading >> many1 ((toTrailing namedArgument) <|> termParser appPrec)
 
 def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Term.type || leading.isOfKind `Lean.Parser.Term.sort)
 @[builtinTermParser] def sortApp  := tparser! checkIsSort >> pushLeading >> levelParser appPrec

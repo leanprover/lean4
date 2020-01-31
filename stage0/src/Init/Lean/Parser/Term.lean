@@ -115,6 +115,7 @@ def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
 def doSeq  := sepBy1 doElem "; "
 def bracketedDoSeq := parser! "{" >> doSeq >> "}"
+def liftMethod := parser! symbol "(^" appPrec >> termParser >> ")"
 @[builtinTermParser] def «do»  := parser! "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def not    := parser! symbol "¬" 40 >> termParser 40

@@ -1139,15 +1139,15 @@ extern "C" object * lean_nat_big_sub(object * a1, object * a2) {
 extern "C" object * lean_nat_big_mul(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
-        return mpz_to_nat_core(mpz::of_size_t(lean_unbox(a1)) * mpz_value(a2));
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) * mpz_value(a2));
     else if (lean_is_scalar(a2))
-        return mpz_to_nat_core(mpz_value(a1) * mpz::of_size_t(lean_unbox(a2)));
+        return mpz_to_nat(mpz_value(a1) * mpz::of_size_t(lean_unbox(a2)));
     else
         return mpz_to_nat_core(mpz_value(a1) * mpz_value(a2));
 }
 
 extern "C" object * lean_nat_overflow_mul(size_t a1, size_t a2) {
-    return mpz_to_nat_core(mpz::of_size_t(a1) * mpz::of_size_t(a2));
+    return mpz_to_nat(mpz::of_size_t(a1) * mpz::of_size_t(a2));
 }
 
 extern "C" object * lean_nat_big_div(object * a1, object * a2) {

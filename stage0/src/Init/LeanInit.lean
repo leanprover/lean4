@@ -157,7 +157,6 @@ inductive ParserDescrCore : ParserKind → Type
 | charLit {k : ParserKind}       : ParserDescrCore k
 | nameLit {k : ParserKind}       : ParserDescrCore k
 | ident {k : ParserKind}         : ParserDescrCore k
-| pushLeading                    : ParserDescrCore ParserKind.trailing
 | parser {k : ParserKind}        : Name → Nat → ParserDescrCore k
 
 instance ParserDescrCore.inhabited {k} : Inhabited (ParserDescrCore k) := ⟨ParserDescrCore.symbol "" none⟩
@@ -183,7 +182,6 @@ abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
 @[matchPattern] abbrev ParserDescr.nameLit := @ParserDescrCore.nameLit
 @[matchPattern] abbrev ParserDescr.ident := @ParserDescrCore.ident
 @[matchPattern] abbrev ParserDescr.nonReservedSymbol := @ParserDescrCore.nonReservedSymbol
-@[matchPattern] abbrev ParserDescr.pushLeading := @ParserDescrCore.pushLeading
 @[matchPattern] abbrev ParserDescr.parser := @ParserDescrCore.parser
 
 /- Syntax -/

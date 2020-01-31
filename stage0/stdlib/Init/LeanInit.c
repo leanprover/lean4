@@ -24,7 +24,6 @@ lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Syntax_isIdOrAtom_x3f___boxed(lean_object*);
 lean_object* l_Lean_mkAppStx(lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
-lean_object* l_Lean_ParserDescr_pushLeading;
 lean_object* l_Lean_fieldIdxKind;
 lean_object* l_Lean_Syntax_isNatLit_x3f___boxed(lean_object*);
 lean_object* l_Array_findSomeMAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1(lean_object*, lean_object*);
@@ -1905,19 +1904,11 @@ x_4 = l_Lean_ParserDescr_nonReservedSymbol(x_1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_ParserDescr_pushLeading() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(18);
-return x_1;
-}
-}
 lean_object* l_Lean_ParserDescr_parser(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_ctor(19, 2, 1);
+x_4 = lean_alloc_ctor(18, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
 lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
@@ -6966,8 +6957,6 @@ l_Lean_NameGenerator_Inhabited___closed__3 = _init_l_Lean_NameGenerator_Inhabite
 lean_mark_persistent(l_Lean_NameGenerator_Inhabited___closed__3);
 l_Lean_NameGenerator_Inhabited = _init_l_Lean_NameGenerator_Inhabited();
 lean_mark_persistent(l_Lean_NameGenerator_Inhabited);
-l_Lean_ParserDescr_pushLeading = _init_l_Lean_ParserDescr_pushLeading();
-lean_mark_persistent(l_Lean_ParserDescr_pushLeading);
 l_Lean_Syntax_inhabited = _init_l_Lean_Syntax_inhabited();
 lean_mark_persistent(l_Lean_Syntax_inhabited);
 l_Lean_choiceKind___closed__1 = _init_l_Lean_choiceKind___closed__1();

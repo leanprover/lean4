@@ -278,13 +278,6 @@ abbrev TrailingParser := Parser trailing
 @[noinline] def epsilonInfo : ParserInfo :=
 { firstTokens := FirstTokens.epsilon }
 
-@[inline] def pushLeadingFn : ParserFn trailing :=
-fun _ c s => s
-
-@[inline] def pushLeading : TrailingParser :=
-{ info := epsilonInfo,
-  fn   := pushLeadingFn }
-
 @[inline] def toTrailing (p : Parser) (rbp : Nat := 0) : TrailingParser :=
 { info := p.info,
   fn   := fun a => p.fn rbp }
@@ -1727,7 +1720,6 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
   match categories.find? catName with
   | some _ => pure $ categoryParser catName rbp
   | none   => throwUnknownParserCategory catName
-| ParserKind.trailing, ParserDescr.pushLeading => pure $ pushLeading
 
 unsafe def mkParserOfConstantUnsafe (env : Environment) (categories : ParserCategories) (constName : Name)
     : Except String (Sigma (fun (k : ParserKind) => Parser k)) :=

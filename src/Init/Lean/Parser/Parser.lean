@@ -1733,6 +1733,9 @@ match env.find? constName with
   | Expr.app (Expr.const `Lean.Parser.Parser _ _) (Expr.const `Lean.ParserKind.leading _ _) _ => do
     p ← env.evalConst (Parser leading) constName;
     pure ⟨leading, p⟩
+  | Expr.const `Lean.Parser.Parser _ _ => do
+    p ← env.evalConst (Parser leading) constName;
+    pure ⟨leading, p⟩
   | Expr.const `Lean.ParserDescr _ _ => do
     d ← env.evalConst ParserDescr constName;
     p ← compileParserDescr categories d;
@@ -1896,6 +1899,8 @@ match env.find? declName with
  | Expr.const `Lean.Parser.TrailingParser _ _ =>
    declareTrailingBuiltinParser env catName declName
  | Expr.app (Expr.const `Lean.Parser.Parser _ _) (Expr.const `Lean.ParserKind.leading _ _) _ =>
+   declareLeadingBuiltinParser env catName declName
+ | Expr.const `Lean.Parser.Parser _ _ =>
    declareLeadingBuiltinParser env catName declName
  | _ =>
    throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))

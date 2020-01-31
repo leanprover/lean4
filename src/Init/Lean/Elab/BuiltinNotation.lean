@@ -11,12 +11,6 @@ namespace Lean
 namespace Elab
 namespace Term
 
-@[builtinTermElab «do»] def elabDo : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
--- TODO: implement more than the bare minimum necessary for the paper example
-| `(do $x:ident ← $e:term; $f:term) => `(HasBind.bind $e (fun $x:ident => $f:term))
-| _                                 => throwUnsupportedSyntax
-
 @[builtinMacro Lean.Parser.Term.dollar] def expandDollar : Macro :=
 fun stx => match_syntax stx with
 | `($f $args* $ $a) => let args := args.push a; `($f $args*)

@@ -18,3 +18,4 @@ import Init.Lean.Elab.Declaration
 import Init.Lean.Elab.Tactic
 import Init.Lean.Elab.Syntax
 import Init.Lean.Elab.Match
+import Init.Lean.Elab.DoNotation

@@ -23,13 +23,13 @@ lean_object* l_Lean_Syntax_setTailInfo(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_removeParen___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_truncateTrailing(lean_object*);
-lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__nameLitAux___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
 extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
@@ -41,7 +41,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1__
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Syntax_getTailInfo___main(lean_object*);
-extern lean_object* l___private_Init_Lean_Parser_Parser_13__antiquotNestedExpr___elambda__1___rarg___closed__2;
+lean_object* l_Array_back___at_Lean_Parser_checkLeadingFn___spec__1(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -61,7 +61,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_array_fget(x_3, x_4);
-x_9 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__nameLitAux___spec__1(x_5);
+x_9 = l_Array_back___at_Lean_Parser_checkLeadingFn___spec__1(x_5);
 x_10 = l_Lean_Syntax_getTailInfo___main(x_9);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_add(x_4, x_11);
@@ -210,7 +210,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l___private_Init_Lean_Parser_Parser_13__antiquotNestedExpr___elambda__1___rarg___closed__2;
+x_4 = l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___closed__2;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {

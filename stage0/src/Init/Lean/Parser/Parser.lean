@@ -171,13 +171,21 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
 match s with
 | ⟨stack, pos, cache, err⟩ =>
   if err != none && stack.size == iniStackSz then
-    -- If there is an error but there are no new nodes on the stack, we just return `d`
+    -- If there is an error but there are no new nodes on the stack, we just return `s`
     s
   else
     let newNode := Syntax.node k (stack.extract iniStackSz stack.size);
     let stack   := stack.shrink iniStackSz;
     let stack   := stack.push newNode;
     ⟨stack, pos, cache, err⟩
+
+def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
+match s with
+| ⟨stack, pos, cache, err⟩ =>
+  let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size);
+  let stack   := stack.shrink iniStackSz;
+  let stack   := stack.push newNode;
+  ⟨stack, pos, cache, err⟩
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
 match s with
@@ -205,8 +213,8 @@ match s with
 end ParserState
 
 def ParserArg : ParserKind → Type
-| ParserKind.leading => Nat
-| ParserKind.trailing => Syntax
+| ParserKind.leading  => Nat
+| ParserKind.trailing => Unit
 
 export ParserKind (leading trailing)
 
@@ -271,7 +279,7 @@ abbrev TrailingParser := Parser trailing
 { firstTokens := FirstTokens.epsilon }
 
 @[inline] def pushLeadingFn : ParserFn trailing :=
-fun a c s => s.pushSyntax a
+fun _ c s => s
 
 @[inline] def pushLeading : TrailingParser :=
 { info := epsilonInfo,
@@ -282,8 +290,8 @@ fun a c s => s.pushSyntax a
   fn   := fun a => p.fn rbp }
 
 @[inline] def checkLeadingFn (p : Syntax → Bool) : ParserFn trailing :=
-fun a c s =>
-  if p a then s
+fun _ c s =>
+  if p s.stxStack.back then s
   else s.mkUnexpectedError "invalid leading token"
 
 @[inline] def checkLeading (p : Syntax → Bool) : TrailingParser :=
@@ -314,7 +322,9 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 | a, c, s =>
   let iniSz := s.stackSize;
   let s     := p a c s;
-  s.mkNode n iniSz
+  match k with
+  | ParserKind.trailing => s.mkTrailingNode n iniSz
+  | ParserKind.leading  => s.mkNode n iniSz
 
 @[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens,
@@ -1006,7 +1016,8 @@ def symbolNoWsInfo (sym : String) (lbpNoWs : Option Nat) : ParserInfo :=
   firstTokens   := FirstTokens.tokens [ { val := sym, lbpNoWs := lbpNoWs } ] }
 
 @[inline] def symbolNoWsFnAux (sym : String) (errorMsg : String) : ParserFn trailing :=
-fun left c s =>
+fun _ c s =>
+  let left := s.stxStack.back;
   if checkTailNoWs left then
     let startPos := s.pos;
     let input    := c.input;
@@ -1379,40 +1390,45 @@ fun a c s =>
   if ps.isEmpty then
     s.mkError (toString kind)
   else
-    let s       := longestMatchFn ps a c s;
+    let s := longestMatchFn ps a c s;
     mkResult s iniSz
 
 def trailingLoopStep (tables : PrattParsingTables) (ps : List (Parser trailing)) : ParserFn trailing :=
-fun left c s =>
-  orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) left c s
+fun _ c s =>
+  orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) () c s
 
-partial def trailingLoop (tables : PrattParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
-| left, s =>
+private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
+let s := mkResult s iniSz;
+-- Stack contains `[..., left, result]`
+-- We must remove `left`
+let result := s.stxStack.back;
+let s      := s.popSyntax.popSyntax;
+s.pushSyntax result
+
+partial def trailingLoop (tables : PrattParsingTables) (rbp : Nat) (c : ParserContext) : ParserState → ParserState
+| s =>
+  let left := s.stxStack.back;
   let (s, lbp) := currLbp left c s;
-  if rbp ≥ lbp then s.pushSyntax left
+  if rbp ≥ lbp then s
   else
     let iniSz         := s.stackSize;
     let identAsSymbol := false;
     let (s, ps)       := indexed tables.trailingTable c s identAsSymbol;
     if ps.isEmpty && tables.trailingParsers.isEmpty then
-      s.pushSyntax left -- no available trailing parser
+      s -- no available trailing parser
     else
-      let s := trailingLoopStep tables ps left c s;
+      let s := trailingLoopStep tables ps () c s;
       if s.hasError then s
       else
-        let s := mkResult s iniSz;
-        let left := s.stxStack.back;
-        let s    := s.popSyntax;
-        trailingLoop left s
+        let s := mkTrailingResult s iniSz;
+        trailingLoop s
 
 def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) : ParserFn leading :=
 fun rbp c s =>
   let s := leadingParser kind tables leadingIdentAsSymbol rbp c s;
   if s.hasError then s
   else
-    let left := s.stxStack.back;
-    let s    := s.popSyntax;
-    trailingLoop tables rbp c left s
+    trailingLoop tables rbp c s
 
 abbrev CategoryParserFn := Name → ParserFn leading
 
@@ -1486,7 +1502,7 @@ private def antiquotExpr {k} : Parser k       := antiquotId <|> antiquotNestedEx
   forms can also be used with an appended `*` to turn them into an
   antiquotation "splice". If `kind` is given, it will additionally be checked
   when evaluating `match_syntax`. -/
-def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser k :=
+def mkAntiquotAux (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
 let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux ":" >> nonReservedSymbol name;
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
@@ -1494,6 +1510,11 @@ let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux 
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
 -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
 node kind $ try $ setExpected [] dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
+
+def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser k :=
+match k with
+| ParserKind.leading  => mkAntiquotAux name kind anonymous
+| ParserKind.trailing => toTrailing $ mkAntiquotAux name kind anonymous
 
 /- ===================== -/
 /- End of Antiquotations -/

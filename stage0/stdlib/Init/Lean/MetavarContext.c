@@ -24112,6 +24112,7 @@ lean_dec(x_18);
 x_21 = lean_expr_abstract_range(x_19, x_11, x_3);
 lean_dec(x_19);
 x_22 = l_Lean_mkForall(x_15, x_17, x_21, x_6);
+lean_dec(x_15);
 x_5 = x_11;
 x_6 = x_22;
 x_7 = x_20;
@@ -24181,7 +24182,6 @@ x_38 = lean_expr_abstract_range(x_36, x_11, x_3);
 lean_dec(x_36);
 x_39 = 0;
 lean_inc(x_34);
-lean_inc(x_28);
 x_40 = l_Lean_mkLet(x_28, x_34, x_38, x_6, x_39);
 x_41 = lean_box(x_4);
 if (lean_obj_tag(x_41) == 2)
@@ -24191,6 +24191,7 @@ x_42 = lean_expr_lift_loose_bvars(x_40, x_8, x_10);
 lean_dec(x_40);
 x_43 = 0;
 x_44 = l_Lean_mkForall(x_28, x_43, x_34, x_42);
+lean_dec(x_28);
 x_5 = x_11;
 x_6 = x_44;
 x_7 = x_37;
@@ -32179,6 +32180,7 @@ if (x_4 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_21 = l_Lean_mkForall(x_14, x_16, x_20, x_9);
+lean_dec(x_14);
 x_22 = lean_unsigned_to_nat(1u);
 x_23 = lean_nat_add(x_10, x_22);
 lean_dec(x_10);
@@ -32191,6 +32193,7 @@ else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = l_Lean_mkLambda(x_14, x_16, x_20, x_9);
+lean_dec(x_14);
 x_25 = lean_unsigned_to_nat(1u);
 x_26 = lean_nat_add(x_10, x_25);
 lean_dec(x_10);
@@ -32215,6 +32218,7 @@ if (x_4 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_30 = l_Lean_mkForall(x_14, x_16, x_29, x_9);
+lean_dec(x_14);
 x_31 = lean_unsigned_to_nat(1u);
 x_32 = lean_nat_add(x_10, x_31);
 lean_dec(x_10);
@@ -32229,6 +32233,7 @@ else
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_34 = l_Lean_mkLambda(x_14, x_16, x_29, x_9);
+lean_dec(x_14);
 x_35 = lean_unsigned_to_nat(1u);
 x_36 = lean_nat_add(x_10, x_35);
 lean_dec(x_10);
@@ -32315,6 +32320,7 @@ if (x_4 == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 x_54 = l_Lean_mkForall(x_42, x_44, x_53, x_9);
+lean_dec(x_42);
 x_55 = lean_unsigned_to_nat(1u);
 x_56 = lean_nat_add(x_10, x_55);
 lean_dec(x_10);
@@ -32327,6 +32333,7 @@ else
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 x_57 = l_Lean_mkLambda(x_42, x_44, x_53, x_9);
+lean_dec(x_42);
 x_58 = lean_unsigned_to_nat(1u);
 x_59 = lean_nat_add(x_10, x_58);
 lean_dec(x_10);
@@ -32351,6 +32358,7 @@ if (x_4 == 0)
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
 x_63 = l_Lean_mkForall(x_42, x_44, x_62, x_9);
+lean_dec(x_42);
 x_64 = lean_unsigned_to_nat(1u);
 x_65 = lean_nat_add(x_10, x_64);
 lean_dec(x_10);
@@ -32365,6 +32373,7 @@ else
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 x_67 = l_Lean_mkLambda(x_42, x_44, x_62, x_9);
+lean_dec(x_42);
 x_68 = lean_unsigned_to_nat(1u);
 x_69 = lean_nat_add(x_10, x_68);
 lean_dec(x_10);
@@ -32465,6 +32474,7 @@ lean_dec(x_1);
 lean_dec(x_89);
 x_91 = 0;
 x_92 = l_Lean_mkLet(x_75, x_86, x_90, x_9, x_91);
+lean_dec(x_75);
 x_93 = lean_unsigned_to_nat(1u);
 x_94 = lean_nat_add(x_10, x_93);
 lean_dec(x_10);
@@ -32486,6 +32496,7 @@ lean_dec(x_1);
 lean_dec(x_95);
 x_98 = 0;
 x_99 = l_Lean_mkLet(x_75, x_86, x_97, x_9, x_98);
+lean_dec(x_75);
 x_100 = lean_unsigned_to_nat(1u);
 x_101 = lean_nat_add(x_10, x_100);
 lean_dec(x_10);
@@ -32604,6 +32615,7 @@ if (x_4 == 0)
 {
 lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; 
 x_124 = l_Lean_mkForall(x_116, x_118, x_123, x_111);
+lean_dec(x_116);
 x_125 = lean_unsigned_to_nat(1u);
 x_126 = lean_nat_add(x_112, x_125);
 lean_dec(x_112);
@@ -32623,6 +32635,7 @@ else
 {
 lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; 
 x_129 = l_Lean_mkLambda(x_116, x_118, x_123, x_111);
+lean_dec(x_116);
 x_130 = lean_unsigned_to_nat(1u);
 x_131 = lean_nat_add(x_112, x_130);
 lean_dec(x_112);
@@ -32723,6 +32736,7 @@ if (x_4 == 0)
 {
 lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; 
 x_152 = l_Lean_mkForall(x_138, x_140, x_151, x_111);
+lean_dec(x_138);
 x_153 = lean_unsigned_to_nat(1u);
 x_154 = lean_nat_add(x_112, x_153);
 lean_dec(x_112);
@@ -32742,6 +32756,7 @@ else
 {
 lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; 
 x_157 = l_Lean_mkLambda(x_138, x_140, x_151, x_111);
+lean_dec(x_138);
 x_158 = lean_unsigned_to_nat(1u);
 x_159 = lean_nat_add(x_112, x_158);
 lean_dec(x_112);
@@ -32856,6 +32871,7 @@ lean_dec(x_1);
 lean_dec(x_180);
 x_184 = 0;
 x_185 = l_Lean_mkLet(x_166, x_178, x_183, x_111, x_184);
+lean_dec(x_166);
 x_186 = lean_unsigned_to_nat(1u);
 x_187 = lean_nat_add(x_112, x_186);
 lean_dec(x_112);

@@ -811,6 +811,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get_uint64(x_14, sizeof(void*)*3);
 lean_dec(x_14);
 x_19 = l_Lean_Meta_try___at___private_Init_Lean_Meta_ExprDefEq_1__isDefEqEta___spec__1(x_1, x_2, x_16, x_17, x_18, x_3, x_15);
+lean_dec(x_16);
 return x_19;
 }
 else
@@ -921,6 +922,7 @@ uint64_t x_8; lean_object* x_9;
 x_8 = lean_unbox_uint64(x_5);
 lean_dec(x_5);
 x_9 = l_Lean_Meta_try___at___private_Init_Lean_Meta_ExprDefEq_1__isDefEqEta___spec__1(x_1, x_2, x_3, x_4, x_8, x_6, x_7);
+lean_dec(x_3);
 return x_9;
 }
 }

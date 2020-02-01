@@ -9,7 +9,7 @@ import Init.Data.Array.Basic
 import Init.Data.UInt
 import Init.Data.Hashable
 import Init.Control.Reader
-import Init.Control.Except
+import Init.Control.EState
 
 namespace Lean
 /-
@@ -371,7 +371,7 @@ inductive Exception
 
 end Macro
 
-abbrev MacroM := ReaderT Macro.Context (ExceptT Macro.Exception Id)
+abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception MacroScope)
 
 def Macro.addMacroScope (n : Name) : MacroM Name := do
 ctx ← read;
@@ -380,10 +380,14 @@ pure $ Lean.addMacroScope ctx.mainModule n ctx.currMacroScope
 def Macro.throwUnsupported {α} : MacroM α :=
 throw Macro.Exception.unsupportedSyntax
 
+@[inline] protected def Macro.withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
+fresh ← modifyGet (fun s => (s, s+1));
+adaptReader (fun (ctx : Macro.Context) => { currMacroScope := fresh, .. ctx }) x
+
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
   getMainModule       := fun ctx => pure ctx.mainModule,
-  withFreshMacroScope := fun _ x => x }
+  withFreshMacroScope := @Macro.withFreshMacroScope }
 
 abbrev Macro := Syntax → MacroM Syntax
 

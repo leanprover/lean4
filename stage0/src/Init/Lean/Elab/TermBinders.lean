@@ -253,6 +253,17 @@ fun stx expectedType? => do
     e ← elabTerm body none;
     mkLambda stx xs e
 
+def withLocalDecl {α} (ref : Syntax) (n : Name) (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
+fvarId ← mkFreshFVarId;
+ctx ← read;
+let lctx       := ctx.lctx.mkLocalDecl fvarId n type;
+let localInsts := ctx.localInstances;
+let fvar       := mkFVar fvarId;
+c? ← isClass ref type;
+match c? with
+| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
+| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
+
 def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
 fvarId ← mkFreshFVarId;
 ctx ← read;

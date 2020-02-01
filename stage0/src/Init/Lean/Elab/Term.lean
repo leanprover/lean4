@@ -470,6 +470,8 @@ private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Exp
 instance : MonadMacroAdapter TermElabM :=
 { getEnv                 := getEnv,
   getCurrMacroScope      := getCurrMacroScope,
+  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
+  setNextMacroScope      := fun next => modify $ fun s => { nextMacroScope := next, .. s },
   throwError             := @throwError,
   throwUnsupportedSyntax := @throwUnsupportedSyntax}
 

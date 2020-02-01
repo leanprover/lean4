@@ -177,6 +177,8 @@ adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after
 instance : MonadMacroAdapter TacticM :=
 { getEnv                 := getEnv,
   getCurrMacroScope      := getCurrMacroScope,
+  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
+  setNextMacroScope      := fun next => modify $ fun s => { nextMacroScope := next, .. s },
   throwError             := @throwError,
   throwUnsupportedSyntax := @throwUnsupportedSyntax }
 

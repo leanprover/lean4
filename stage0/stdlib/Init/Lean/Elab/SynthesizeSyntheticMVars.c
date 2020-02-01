@@ -31,7 +31,6 @@ lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSy
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__7;
 lean_object* l_Lean_mkMVar(lean_object*);
 lean_object* l_Lean_Elab_Term_liftTacticElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__4;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
@@ -51,7 +50,6 @@ lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeSy
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__8;
-lean_object* l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1(lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_3__synthesizePendingInstMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_8__synthesizeUsingDefault___spec__1___lambda__1___closed__1;
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_8__synthesizeUsingDefault___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,6 +75,7 @@ lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSy
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__3;
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_5__checkWithDefault(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_lift___at_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getMVarDecl___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_8__synthesizeUsingDefault(lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
@@ -138,7 +137,6 @@ lean_object* l_List_forM___main___at___private_Init_Lean_Elab_SynthesizeSyntheti
 uint8_t l_List_isEmpty___rarg(lean_object*);
 extern lean_object* l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__1;
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeSyntheticMVarsStep(uint8_t, uint8_t, lean_object*, lean_object*);
-lean_object* l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_4__synthesizePendingCoeInstMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__5;
@@ -1551,22 +1549,6 @@ x_7 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_1__resumeElabTerm(x_1,
 return x_7;
 }
 }
-lean_object* l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_apply_1(x_1, x_3);
-return x_4;
-}
-}
-lean_object* l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1___rarg___boxed), 3, 0);
-return x_2;
-}
-}
 lean_object* _init_l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___lambda__1___closed__1() {
 _start:
 {
@@ -1912,7 +1894,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_EStateM_MonadState___closed__2;
-x_2 = lean_alloc_closure((void*)(l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_ReaderT_lift___at_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___spec__1___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1935,15 +1917,6 @@ lean_closure_set(x_10, 1, x_8);
 x_11 = l_Lean_Elab_Term_withMVarContext___rarg(x_3, x_10, x_5, x_6);
 lean_dec(x_3);
 return x_11;
-}
-}
-lean_object* l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_ReaderT_lift___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___spec__1___rarg(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

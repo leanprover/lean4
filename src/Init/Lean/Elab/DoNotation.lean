@@ -43,7 +43,37 @@ if arg.getKind == `Lean.Parser.Term.bracketedDoSeq then
 else
   arg.getArgs
 
-/- Expand `doLet`, `doPat`, and nonterminal `doExpr` -/
+private partial def hasLiftMethod : Syntax → Bool
+| Syntax.node k args =>
+  if k == `Lean.Parser.Term.do then false
+  else if k == `Lean.Parser.Term.liftMethod then true
+  else args.any hasLiftMethod
+| _ => false
+
+private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) TermElabM Syntax
+| stx@(Syntax.node k args) =>
+  if k == `Lean.Parser.Term.do then pure stx
+  else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
+    let term := args.get! 1;
+    term ← expandLiftMethodAux term;
+    auxDo ← `(do a ← $term; $(Syntax.missing));
+    let auxDoElems := (getDoElems auxDo).pop;
+    modify $ fun s => s ++ auxDoElems;
+    `(a)
+  else do
+    args ← args.mapM expandLiftMethodAux;
+    pure $ Syntax.node k args
+| stx => pure stx
+
+private def expandLiftMethod (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
+if hasLiftMethod stx then do
+  (stx, doElems) ← (expandLiftMethodAux stx).run #[];
+  let doElems := doElems.push stx;
+  pure doElems
+else
+  pure none
+
+/- Expand `doLet`, `doPat`, nonterminal `doExpr`s, and `liftMethod` -/
 private partial def expandDoElems : Array Syntax → Nat → TermElabM (Option Syntax)
 | doElems, i =>
   let mkRest : Unit → TermElabM Syntax := fun _ => do {
@@ -57,39 +87,48 @@ private partial def expandDoElems : Array Syntax → Nat → TermElabM (Option S
     if i == 0 then
       pure rest
     else
-      let newElems := doElems.extract 0 (i-1);
+      let newElems := doElems.extract 0 i;
       let newElems := newElems.push $ Syntax.node `Lean.Parser.Term.doExpr #[rest];
       `(do { $newElems* })
   };
-  if h : i < doElems.size then
+  if h : i < doElems.size then do
     let doElem := doElems.get ⟨i, h⟩;
-    if doElem.getKind == `Lean.Parser.Term.doLet then do
-      let letDecl := doElem.getArg 1;
-      rest ← mkRest ();
-      newBody ← `(let $letDecl:letDecl; $rest);
-      addPrefix newBody
-    else if doElem.getKind == `Lean.Parser.Term.doPat then withFreshMacroScope $ do
-      -- (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
-      let pat      := doElem.getArg 0;
-      let discr    := doElem.getArg 2;
-      let optElse  := doElem.getArg 3;
-      rest ← mkRest ();
-      newBody ←
-        if optElse.isNone then do
-          `(do x ← $discr; match x with | $pat => $rest)
-        else
-          let elseBody := optElse.getArg 1;
-          `(do x ← $discr; match x with | $pat => $rest | _ => $elseBody);
-      addPrefix newBody
-    else if i < doElems.size - 2 && doElem.getKind == `Lean.Parser.Term.doExpr then do
-      -- def doExpr := parser! termParser
-      let term := doElem.getArg 0;
-      auxDo ← `(do x ← $term; $(Syntax.missing));
-      let doElemNew := (getDoElems auxDo).get! 0;
-      let doElems := doElems.set! i doElemNew;
-      expandDoElems doElems (i+2)
-    else
-      expandDoElems doElems (i+2)
+    doElemsNew? ← expandLiftMethod doElem;
+    match doElemsNew? with
+    | some doElemsNew => do
+      let post    := doElems.extract (i+1) doElems.size;
+      let pre     := doElems.extract 0 i;
+      let doElems := pre ++ doElemsNew ++ post;
+      tmp ← `(do { $doElems* });
+      expandDoElems doElems i
+    | none =>
+      if doElem.getKind == `Lean.Parser.Term.doLet then do
+        let letDecl := doElem.getArg 1;
+        rest ← mkRest ();
+        newBody ← `(let $letDecl:letDecl; $rest);
+        addPrefix newBody
+      else if doElem.getKind == `Lean.Parser.Term.doPat then withFreshMacroScope $ do
+        -- (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
+        let pat      := doElem.getArg 0;
+        let discr    := doElem.getArg 2;
+        let optElse  := doElem.getArg 3;
+        rest ← mkRest ();
+        newBody ←
+          if optElse.isNone then do
+            `(do x ← $discr; match x with | $pat => $rest)
+          else
+            let elseBody := optElse.getArg 1;
+            `(do x ← $discr; match x with | $pat => $rest | _ => $elseBody);
+        addPrefix newBody
+      else if i < doElems.size - 2 && doElem.getKind == `Lean.Parser.Term.doExpr then do
+        -- def doExpr := parser! termParser
+        let term := doElem.getArg 0;
+        auxDo ← `(do x ← $term; $(Syntax.missing));
+        let doElemNew := (getDoElems auxDo).get! 0;
+        let doElems := doElems.set! i doElemNew;
+        expandDoElems doElems (i+2)
+      else
+        expandDoElems doElems (i+2)
   else
     pure none
 

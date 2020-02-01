@@ -1,3 +1,19 @@
+open Lean
+
+partial def expandHash : Syntax → StateT Bool MacroM Syntax
+| Syntax.node k args =>
+  if k == `doHash then do set true; `((^MonadState.get))
+  else do
+    args ← args.mapM expandHash;
+    pure $ Syntax.node k args
+| stx => pure stx
+
+@[macro Lean.Parser.Term.do] def expandDo : Macro :=
+fun stx => do
+  (stx, expanded) ← expandHash stx false;
+  if expanded then pure stx
+  else Macro.throwUnsupported
+
 new_frontend
 
 def f : IO Nat :=
@@ -26,3 +42,11 @@ else do
   x ← f;
   y ← g x;
   IO.println y
+
+syntax [doHash] "#":max : term
+
+def tst4 : StateT (Nat × Nat) IO Unit := do
+if #.1 == 0 then
+  IO.println "first field is zero"
+else
+  IO.println "first field is not zero"

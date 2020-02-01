@@ -480,9 +480,8 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) 
 | stx => withFreshMacroScope $ withIncRecDepth stx $ do
   trace `Elab.step stx $ fun _ => stx;
   s ← get;
-  env ← getEnv;
   stxNew? ← catch
-    (do newStx ← adaptMacro (getMacros env) stx; pure (some newStx))
+    (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
     (fun ex => match ex with
       | Exception.ex Elab.Exception.unsupportedSyntax => pure none
       | _                                             => throw ex);

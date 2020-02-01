@@ -207,18 +207,19 @@ partial def elabCommand : Syntax → CommandElabM Unit
     else do
       trace `Elab.step stx $ fun _ => stx;
       s ← get;
-      let table := (commandElabAttribute.ext.getState s.env).table;
-      let k := stx.getKind;
-      match table.find? k with
-      | some elabFns => elabCommandUsing s stx elabFns
-      | none         => do
-        env  ← getEnv;
-        stx' ← catch
-        (adaptMacro (getMacros env) stx)
+      stxNew? ← catch
+        (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
         (fun ex => match ex with
-          | Exception.unsupportedSyntax => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+          | Exception.unsupportedSyntax => pure none
           | _                           => throw ex);
-        withMacroExpansion stx stx' $ elabCommand stx'
+      match stxNew? with
+      | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
+      | _ => do
+        let table := (commandElabAttribute.ext.getState s.env).table;
+        let k := stx.getKind;
+        match table.find? k with
+        | some elabFns => elabCommandUsing s stx elabFns
+        | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
   | _ => throwError stx "unexpected command"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/

@@ -20,6 +20,9 @@ f x
 @[inline] def Id.map {α β : Type u} (f : α → β) (x : Id α) : Id β :=
 f x
 
+instance Id.hasBind : HasBind Id :=
+{ bind := @Id.bind }
+
 instance Id.monad : Monad Id :=
 { pure := @Id.pure, bind := @Id.bind, map := @Id.map }
 

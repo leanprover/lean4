@@ -303,6 +303,15 @@ fun ctx s =>
 def elabLevel (stx : Syntax) : TermElabM Level :=
 liftLevelM $ Level.elabLevel stx
 
+@[inline] def withConfig {α} (f : Meta.Config → Meta.Config) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { config := f ctx.config, .. ctx }) x
+
+@[inline] def withTransparency {α} (mode : Meta.TransparencyMode) (x : TermElabM α) : TermElabM α :=
+withConfig (fun config => { transparency := mode, .. config }) x
+
+@[inline] def withReducible {α} (x : TermElabM α) : TermElabM α :=
+withTransparency Meta.TransparencyMode.reducible x
+
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack, .. ctx }) x
@@ -560,6 +569,14 @@ let mvarId := mvar.mvarId!;
 unlessM (synthesizeInstMVarCore ref mvarId) $
   registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
 pure mvar
+
+def synthesizeInst (ref : Syntax) (type : Expr) : TermElabM Expr := do
+type ← instantiateMVars ref type;
+result ← trySynthInstance ref type;
+match result with
+| LOption.some val => pure val
+| LOption.undef    => throwError ref ("failed to synthesize instance" ++ indentExpr type)
+| LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
 
 def throwTypeMismatchError {α} (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=

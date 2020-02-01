@@ -65,6 +65,7 @@ lean_object* l_PersistentHashMap_isEmpty___boxed(lean_object*, lean_object*, lea
 lean_object* l_PersistentHashMap_containsAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_containsAux___main___rarg(lean_object*, lean_object*, size_t, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
+extern lean_object* l_Id_monad;
 lean_object* l_PersistentHashMap_foldlMAux___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_HasToString;
@@ -129,7 +130,6 @@ size_t l_PersistentHashMap_mod2Shift(size_t, size_t);
 lean_object* l_PersistentHashMap_empty___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-extern lean_object* l_Id_Monad;
 size_t l_USize_land(size_t, size_t);
 lean_object* l_PersistentHashMap_div2Shift___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_containsAtAux___main(lean_object*);
@@ -2916,7 +2916,7 @@ lean_object* l_PersistentHashMap_foldl___rarg(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Id_Monad;
+x_6 = l_Id_monad;
 x_7 = l_PersistentHashMap_foldlM___rarg(x_6, lean_box(0), x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }

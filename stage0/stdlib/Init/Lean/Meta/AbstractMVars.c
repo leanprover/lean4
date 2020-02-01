@@ -34,6 +34,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Id_monad;
 lean_object* l_AssocList_find___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__8___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateLambdaE_x21___closed__1;
@@ -70,7 +71,6 @@ lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
-extern lean_object* l_Id_Monad;
 lean_object* l_HashMapImp_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_AbstractMVars_2__visitExpr(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1902,7 +1902,7 @@ lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_Monad;
+x_1 = l_Id_monad;
 x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }

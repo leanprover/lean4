@@ -142,6 +142,7 @@ lean_object* l_Lean_MetavarContext_MkBinding_Lean_MonadHashMapCacheAdapter___clo
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_MetavarContext_getDelayedAssignment_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_contains___at_Lean_MetavarContext_isLevelAssigned___spec__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Id_monad;
 lean_object* l_PersistentArray_anyMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__35___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -335,7 +336,6 @@ lean_object* l_PersistentArray_foldlMAux___main___at_Lean_MetavarContext_instant
 lean_object* l_Array_iterateMAux___main___at_Lean_MetavarContext_instantiateLCtxMVars___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__26(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__46___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_Monad;
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_MetavarContext_isLevelAssigned___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_anyMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__29___boxed(lean_object*, lean_object*);
@@ -13878,7 +13878,7 @@ lean_inc(x_14);
 lean_dec(x_13);
 x_15 = lean_alloc_closure((void*)(l___private_Init_Lean_MetavarContext_8__dep___main___lambda__1___boxed), 2, 1);
 lean_closure_set(x_15, 0, x_2);
-x_16 = l_Id_Monad;
+x_16 = l_Id_monad;
 x_17 = l_PersistentArray_anyM___rarg(x_16, x_14, x_15);
 x_18 = lean_unbox(x_17);
 lean_dec(x_17);

@@ -116,6 +116,7 @@ lean_object* l_Lean_PersistentEnvExtension_setState___rarg___boxed(lean_object*,
 lean_object* l_Lean_EnvExtension_modifyState(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_readModuleData___boxed(lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
+extern lean_object* l_Id_monad;
 lean_object* l_Lean_Environment_compileDecl___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlMAux___main___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_size___at_Lean_Environment_displayStats___spec__3(lean_object*);
@@ -293,7 +294,6 @@ uint8_t l_Lean_Format_isNil(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 lean_object* l_Lean_ModuleData_inhabited;
 lean_object* l___private_Init_Lean_Environment_12__isNamespaceName___main___boxed(lean_object*);
-extern lean_object* l_Id_Monad;
 lean_object* l_Lean_SMap_find_x3f_x27___at_Lean_Environment_find_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Environment_displayStats___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
@@ -4967,7 +4967,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_alloc_closure((void*)(l_PersistentArray_foldlMAux___main___rarg___lambda__2___boxed), 4, 1);
 lean_closure_set(x_5, 0, x_1);
-x_6 = l_Id_Monad;
+x_6 = l_Id_monad;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_Array_iterateMAux___main___rarg(x_6, lean_box(0), x_3, x_5, x_7, x_4);
 return x_8;
@@ -4979,7 +4979,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_4, 0, x_1);
-x_5 = l_Id_Monad;
+x_5 = l_Id_monad;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Array_iterateMAux___main___rarg(x_5, lean_box(0), x_3, x_4, x_6, x_2);
 return x_7;

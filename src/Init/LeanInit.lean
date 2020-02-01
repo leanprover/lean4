@@ -392,6 +392,11 @@ instance MacroM.monadQuotation : MonadQuotation MacroM :=
   getMainModule       := fun ctx => pure ctx.mainModule,
   withFreshMacroScope := @Macro.withFreshMacroScope }
 
+instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
+{ getCurrMacroScope   := liftM (getCurrMacroScope : m MacroScope),
+  getMainModule       := liftM (getMainModule : m Name),
+  withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }
+
 abbrev Macro := Syntax → MacroM Syntax
 
 /- Helper functions for processing Syntax programmatically -/

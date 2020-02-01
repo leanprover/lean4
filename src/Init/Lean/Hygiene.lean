@@ -36,9 +36,4 @@ instance MonadQuotation : MonadQuotation Unhygienic := {
 protected def run {α : Type} (x : Unhygienic α) : α := run x firstFrontendMacroScope (firstFrontendMacroScope+1)
 end Unhygienic
 
-instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
-{ getCurrMacroScope   := liftM (getCurrMacroScope : m MacroScope),
-  getMainModule       := liftM (getMainModule : m Name),
-  withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }
-
 end Lean

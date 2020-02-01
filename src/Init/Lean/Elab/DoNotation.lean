@@ -50,7 +50,7 @@ private partial def hasLiftMethod : Syntax → Bool
   else args.any hasLiftMethod
 | _ => false
 
-private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) TermElabM Syntax
+private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) MacroM Syntax
 | stx@(Syntax.node k args) =>
   if k == `Lean.Parser.Term.do then pure stx
   else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
@@ -65,7 +65,7 @@ private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) TermE
     pure $ Syntax.node k args
 | stx => pure stx
 
-private def expandLiftMethod (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
+private def expandLiftMethod (stx : Syntax) : MacroM (Option (Array Syntax)) :=
 if hasLiftMethod stx then do
   (stx, doElems) ← (expandLiftMethodAux stx).run #[];
   let doElems := doElems.push stx;
@@ -74,16 +74,16 @@ else
   pure none
 
 /- Expand `doLet`, `doPat`, nonterminal `doExpr`s, and `liftMethod` -/
-private partial def expandDoElems : Bool → Array Syntax → Nat → TermElabM (Option Syntax)
+private partial def expandDoElemsAux : Bool → Array Syntax → Nat → MacroM (Option Syntax)
 | modified, doElems, i =>
-  let mkRest : Unit → TermElabM Syntax := fun _ => do {
+  let mkRest : Unit → MacroM Syntax := fun _ => do {
     let restElems := doElems.extract (i+2) doElems.size;
     if restElems.size == 1 then
       pure $ (restElems.get! 0).getArg 0
     else
       `(do { $restElems* })
   };
-  let addPrefix (rest : Syntax) : TermElabM (Option Syntax) := do {
+  let addPrefix (rest : Syntax) : MacroM (Option Syntax) := do {
     if i == 0 then
       pure rest
     else
@@ -100,7 +100,7 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → TermElabM 
       let pre     := doElems.extract 0 i;
       let doElems := pre ++ doElemsNew ++ post;
       tmp ← `(do { $doElems* });
-      expandDoElems true doElems i
+      expandDoElemsAux true doElems i
     | none =>
       if doElem.getKind == `Lean.Parser.Term.doLet then do
         let letDecl := doElem.getArg 1;
@@ -126,13 +126,16 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → TermElabM 
         auxDo ← `(do x ← $term; $(Syntax.missing));
         let doElemNew := (getDoElems auxDo).get! 0;
         let doElems := doElems.set! i doElemNew;
-        expandDoElems true doElems (i+2)
+        expandDoElemsAux true doElems (i+2)
       else
-        expandDoElems modified doElems (i+2)
+        expandDoElemsAux modified doElems (i+2)
   else if modified then
     `(do { $doElems* })
   else
     pure none
+
+private partial def expandDoElems (doElems : Array Syntax) : MacroM (Option Syntax) :=
+expandDoElemsAux false doElems 0
 
 private def ensureDoElemType (ref : Syntax) (expectedMonad : Expr) (expectedType : Expr) (val : Expr) : TermElabM Expr := do
 -- TODO: try MonadLift
@@ -215,7 +218,7 @@ fun stx expectedType? => do
   let ref := stx;
   tryPostponeIfNoneOrMVar expectedType?;
   let doElems := getDoElems stx;
-  stxNew? ← expandDoElems false doElems 0;
+  stxNew? ← liftMacroM $ expandDoElems doElems;
   match stxNew? with
   | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
   | none => do

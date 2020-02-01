@@ -366,7 +366,7 @@ structure Context :=
 (currMacroScope : MacroScope)
 
 inductive Exception
-| error             : String → Exception
+| error             : Syntax → String → Exception
 | unsupportedSyntax : Exception
 
 end Macro
@@ -379,6 +379,9 @@ pure $ Lean.addMacroScope ctx.mainModule n ctx.currMacroScope
 
 def Macro.throwUnsupported {α} : MacroM α :=
 throw Macro.Exception.unsupportedSyntax
+
+def Macro.throwError {α} (ref : Syntax) (msg : String) : MacroM α :=
+throw $ Macro.Exception.error ref msg
 
 @[inline] protected def Macro.withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
 fresh ← modifyGet (fun s => (s, s+1));

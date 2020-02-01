@@ -231,14 +231,17 @@ class MonadMacroAdapter (m : Type → Type) :=
 (throwError {} {α : Type}             : Syntax → MessageData → m α)
 (throwUnsupportedSyntax {} {α : Type} : m α)
 
-@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : Macro) (stx : Syntax) : m Syntax := do
+@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : MacroM α) : m α := do
 scp  ← MonadMacroAdapter.getCurrMacroScope;
 env  ← MonadMacroAdapter.getEnv;
 next ← MonadMacroAdapter.getNextMacroScope;
-match x stx { currMacroScope := scp, mainModule := env.mainModule } next with
+match x { currMacroScope := scp, mainModule := env.mainModule } next with
 | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => MonadMacroAdapter.throwUnsupportedSyntax
-| EStateM.Result.error (Macro.Exception.error msg) _       => MonadMacroAdapter.throwError stx msg
-| EStateM.Result.ok stx nextMacroScope                     => do MonadMacroAdapter.setNextMacroScope nextMacroScope; pure stx
+| EStateM.Result.error (Macro.Exception.error ref msg) _   => MonadMacroAdapter.throwError ref msg
+| EStateM.Result.ok a nextMacroScope                       => do MonadMacroAdapter.setNextMacroScope nextMacroScope; pure a
+
+@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : Macro) (stx : Syntax) : m Syntax :=
+liftMacroM (x stx)
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab;

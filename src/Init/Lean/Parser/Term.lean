@@ -98,7 +98,6 @@ withPosition $ fun pos =>
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! nameLit
 -- NOTE: syntax quotations are defined in Init.Lean.Parser.Command
-@[builtinTermParser] def antiquot   := (mkAntiquot "term" none true : Parser)
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> matchAlts
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/

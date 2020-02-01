@@ -24,7 +24,6 @@ categoryParser `command rbp
   Multiple command will be put in a `null node, but a single command will not (so that you can directly
   match against a quotation in a command kind's elaborator). -/
 @[builtinTermParser] def Term.stxQuot := parser! symbol "`(" appPrec >> (termParser <|> many1 commandParser true) >> ")"
-@[builtinCommandParser] def Command.antiquot := (mkAntiquot "command" none true : Parser)
 
 namespace Command
 def commentBody : Parser :=

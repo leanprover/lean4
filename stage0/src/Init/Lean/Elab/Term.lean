@@ -480,18 +480,19 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) 
 | stx => withFreshMacroScope $ withIncRecDepth stx $ do
   trace `Elab.step stx $ fun _ => stx;
   s ← get;
-  let table := (termElabAttribute.ext.getState s.env).table;
-  let k := stx.getKind;
-  match table.find? k with
-  | some elabFns => elabTermUsing s stx expectedType? catchExPostpone elabFns
-  | none         => do
-    env  ← getEnv;
-    stx' ← catch
-      (adaptMacro (getMacros env) stx)
-      (fun ex => match ex with
-        | Exception.ex Elab.Exception.unsupportedSyntax => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
-        | _                                             => throw ex);
-    withMacroExpansion stx stx' $ elabTermAux stx'
+  stxNew? ← catch
+    (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
+    (fun ex => match ex with
+      | Exception.ex Elab.Exception.unsupportedSyntax => pure none
+      | _                                             => throw ex);
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabTermAux stxNew
+  | _ =>
+    let table := (termElabAttribute.ext.getState s.env).table;
+    let k := stx.getKind;
+    match table.find? k with
+    | some elabFns => elabTermUsing s stx expectedType? catchExPostpone elabFns
+    | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 /--
   Main function for elaborating terms.

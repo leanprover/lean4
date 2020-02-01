@@ -366,7 +366,7 @@ structure Context :=
 (currMacroScope : MacroScope)
 
 inductive Exception
-| error             : String → Exception
+| error             : Syntax → String → Exception
 | unsupportedSyntax : Exception
 
 end Macro
@@ -380,6 +380,9 @@ pure $ Lean.addMacroScope ctx.mainModule n ctx.currMacroScope
 def Macro.throwUnsupported {α} : MacroM α :=
 throw Macro.Exception.unsupportedSyntax
 
+def Macro.throwError {α} (ref : Syntax) (msg : String) : MacroM α :=
+throw $ Macro.Exception.error ref msg
+
 @[inline] protected def Macro.withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
 fresh ← modifyGet (fun s => (s, s+1));
 adaptReader (fun (ctx : Macro.Context) => { currMacroScope := fresh, .. ctx }) x
@@ -388,6 +391,11 @@ instance MacroM.monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
   getMainModule       := fun ctx => pure ctx.mainModule,
   withFreshMacroScope := @Macro.withFreshMacroScope }
+
+instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
+{ getCurrMacroScope   := liftM (getCurrMacroScope : m MacroScope),
+  getMainModule       := liftM (getMainModule : m Name),
+  withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }
 
 abbrev Macro := Syntax → MacroM Syntax
 

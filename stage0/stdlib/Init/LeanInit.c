@@ -109,6 +109,7 @@ lean_object* l_Lean_mkAppStx___closed__4;
 lean_object* l_Array_filterSepElems___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkIdentFrom___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeStrLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_monadQuotationTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameGenerator_Inhabited;
 lean_object* l_Lean_mkTermIdFromIdent___closed__1;
 lean_object* l_Lean_nameLitKind;
@@ -123,6 +124,7 @@ lean_object* l___private_Init_LeanInit_4__extractMainModule___main(lean_object*,
 lean_object* l_Array_foldlStepMAux___main___at_Array_getSepElems___spec__1(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Array_getSepElems___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_monadQuotationTrans___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind___closed__2;
 lean_object* l_Lean_Syntax_getKind___closed__1;
 lean_object* l_Lean_Name_hashable;
@@ -185,7 +187,9 @@ lean_object* l_Array_getSepElems___rarg(lean_object*);
 lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___boxed(lean_object*);
 lean_object* l_Lean_reservedMacroScope;
 lean_object* l___private_Init_LeanInit_10__decodeDecimalLitAux___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Macro_throwError(lean_object*);
 lean_object* l_Lean_mkNullNode(lean_object*);
+lean_object* l_Lean_monadQuotationTrans(lean_object*, lean_object*);
 lean_object* l_Lean_strLitKind___closed__2;
 lean_object* l_Lean_NameGenerator_Inhabited___closed__1;
 size_t l_Lean_Name_hash(lean_object*);
@@ -216,6 +220,7 @@ lean_object* l_Lean_Syntax_isCharLit_x3f___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_2__assembleParts(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_nullKind___closed__1;
+lean_object* l_Lean_monadQuotationTrans___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeStrLit___boxed(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isIdEndEscape(uint32_t);
@@ -240,12 +245,15 @@ lean_object* l_Lean_identKind;
 lean_object* l_Lean_mkCTermId(lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Syntax_inhabited;
+lean_object* l_Lean_Macro_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppStx___closed__5;
+lean_object* l_Lean_Macro_throwError___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkHole(lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_3__extractImported(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_5__extractMacroScopesAux___main(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
+lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 uint8_t l_Char_isAlphanum(uint32_t);
 lean_object* l___private_Init_LeanInit_12__decodeQuotedChar(lean_object*, lean_object*);
@@ -2661,6 +2669,36 @@ lean_dec(x_2);
 return x_3;
 }
 }
+lean_object* l_Lean_Macro_throwError___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+x_6 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+return x_6;
+}
+}
+lean_object* l_Lean_Macro_throwError(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Macro_throwError___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_Macro_throwError___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Macro_throwError___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 lean_object* l_Lean_Macro_withFreshMacroScope___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2783,6 +2821,66 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_MacroM_monadQuotation___lambda__2(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 2);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_2(x_4, lean_box(0), x_3);
+return x_5;
+}
+}
+lean_object* l_Lean_monadQuotationTrans___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_alloc_closure((void*)(l_Lean_monadQuotationTrans___rarg___lambda__1), 3, 1);
+lean_closure_set(x_5, 0, x_1);
+x_6 = lean_apply_3(x_2, lean_box(0), x_5, x_4);
+return x_6;
+}
+}
+lean_object* l_Lean_monadQuotationTrans___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_inc(x_2);
+x_5 = lean_apply_2(x_2, lean_box(0), x_4);
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+x_7 = lean_apply_2(x_2, lean_box(0), x_6);
+x_8 = lean_alloc_closure((void*)(l_Lean_monadQuotationTrans___rarg___lambda__2), 4, 2);
+lean_closure_set(x_8, 0, x_1);
+lean_closure_set(x_8, 1, x_3);
+x_9 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_7);
+lean_ctor_set(x_9, 2, x_8);
+return x_9;
+}
+}
+lean_object* l_Lean_monadQuotationTrans(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_monadQuotationTrans___rarg), 3, 0);
+return x_3;
+}
+}
+lean_object* l_Lean_monadQuotationTrans___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_monadQuotationTrans(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }

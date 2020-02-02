@@ -54,12 +54,17 @@ let m1 := do {  -- Type inferred from application below
   g x;          -- liftM inserted here
   IO.println 1
 };
+let m2 (y : Nat) := do {  -- Type inferred from application below
+  h (x+y);      -- liftM inserted here
+  myPrint y     -- liftM inserted here
+};
 a ← h 1;        -- liftM inserted here
 IO.println x;
 b ← g1 a;       -- liftM inserted here
 when (a > 100) $ throw "Error";
 myPrint b.1;    -- liftM inserted here
 m1;
+m2 a;
 pure 1
 
 def tst1 : IO Unit := do

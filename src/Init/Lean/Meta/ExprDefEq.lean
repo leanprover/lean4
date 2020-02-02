@@ -337,12 +337,10 @@ isDefEqBindingAux lctx #[] a b #[]
 
 namespace CheckAssignment
 
-structure Context :=
-(lctx         : LocalContext)
+structure Context extends Meta.Context :=
 (mvarId       : MVarId)
 (mvarDecl     : MetavarDecl)
 (fvars        : Array Expr)
-(ctxApprox    : Bool)
 (hasCtxLocals : Bool)
 
 inductive Exception
@@ -351,22 +349,26 @@ inductive Exception
 | outOfScopeFVar                     (fvarId : FVarId)
 | readOnlyMVarWithBiggerLCtx         (mvarId : MVarId)
 | unknownExprMVar                    (mvarId : MVarId)
+| meta (ex : Meta.Exception)
 
-structure State :=
-(mctx  : MetavarContext)
-(ngen  : NameGenerator)
-(cache : ExprStructMap Expr := {})
+structure State extends Meta.State :=
+(checkCache : ExprStructMap Expr := {})
 
 abbrev CheckAssignmentM := ReaderT Context (EStateM Exception State)
 
 private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
-s ← get; pure $ s.cache.find? e
+s ← get; pure $ s.checkCache.find? e
 
 private def cache (e r : Expr) : CheckAssignmentM Unit :=
-modify $ fun s => { cache := s.cache.insert e r, .. s }
+modify $ fun s => { checkCache := s.checkCache.insert e r, .. s }
 
 instance : MonadCache Expr Expr CheckAssignmentM :=
 { findCached? := findCached?, cache := cache }
+
+def liftMetaM {α} (x : MetaM α) : CheckAssignmentM α :=
+fun ctx s => match x ctx.toContext s.toState with
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a { toState := newS, .. s }
+  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { toState := newS, .. s }
 
 @[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
 if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
@@ -405,7 +407,7 @@ match mctx.getExprAssignment? mvarId with
       if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
       else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx then pure mvar
       else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
-      else if ctx.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
+      else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
         mvarType ← check mvarDecl.type;
         /- Create an auxiliary metavariable with a smaller context and "checked" type.
            Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
@@ -449,6 +451,7 @@ match ex with
 | CheckAssignment.Exception.unknownExprMVar mvarId =>
   -- This case can only happen if the MetaM API is being misused
   throwEx $ Exception.unknownExprMVar mvarId
+| CheckAssignment.Exception.meta ex => throw ex
 
 namespace CheckAssignmentQuick
 
@@ -509,16 +512,15 @@ fun ctx s => if !v.hasExprMVar && !v.hasFVar then EStateM.Result.ok (some v) s e
     EStateM.Result.ok (some v) s
   else
     let checkCtx : CheckAssignment.Context := {
-      lctx         := ctx.lctx,
       mvarId       := mvarId,
       mvarDecl     := s.mctx.getDecl mvarId,
       fvars        := fvars,
-      ctxApprox    := ctx.config.ctxApprox,
-      hasCtxLocals := hasCtxLocals
+      hasCtxLocals := hasCtxLocals,
+      toContext    := ctx
     };
-    match (CheckAssignment.check v checkCtx).run { mctx := s.mctx, ngen := s.ngen } with
-    | EStateM.Result.ok e newS     => EStateM.Result.ok (some e) { mctx := newS.mctx, ngen := newS.ngen, .. s }
-    | EStateM.Result.error ex newS => checkAssignmentFailure mvarId fvars v ex ctx { ngen := newS.ngen, .. s }
+    match (CheckAssignment.check v checkCtx).run { toState := s } with
+    | EStateM.Result.ok e newS     => EStateM.Result.ok (some e) newS.toState
+    | EStateM.Result.error ex newS => checkAssignmentFailure mvarId fvars v ex ctx newS.toState
 
 /-
   We try to unify arguments before we try to unify the functions.

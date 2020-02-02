@@ -558,10 +558,24 @@ fun stx => do
   | Syntax.atom _ "false" => setOption ref optionName (DataValue.ofBool false)
   | _ => logError val ("unexpected set_option value " ++ toString val)
 
+/-
+  `declId` is of the form
+  ```
+  parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+  ```
+  but we also accept a single identifier to users to make macro writing more convenient .
+-/
+def expandDeclId (declId : Syntax) : Name × Syntax :=
+if declId.isIdent then
+  (declId.getId, mkNullNode)
+else
+  let id             := declId.getIdAt 0;
+  let optUnivDeclStx := declId.getArg 1;
+  (id, optUnivDeclStx)
+
 @[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-let id             := declId.getIdAt 0;
-let optUnivDeclStx := declId.getArg 1;
+let (id, optUnivDeclStx) := expandDeclId declId;
 savedLevelNames ← getLevelNames;
 levelNames      ←
   if optUnivDeclStx.isNone then

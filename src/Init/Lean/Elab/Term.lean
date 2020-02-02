@@ -294,6 +294,13 @@ match u? with
 | some u => pure u
 | none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
 
+/- This function is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
+   Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
+   and then decrement 1 to obtain `u`. -/
+def getDecLevel (ref : Syntax) (type : Expr) : TermElabM Level := do
+u ← getLevel ref type;
+decLevel ref u
+
 def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
 fun ctx s =>
   match (x { .. ctx }).run { .. s } with

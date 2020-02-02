@@ -22,7 +22,32 @@ pure 0
 def g (x : Nat) : IO Nat :=
 pure (x + 1)
 
+def g1 {α : Type} (x : α) : IO (α × α) :=
+pure (x, x)
+
+def g2 (p : Nat × Nat) : Nat :=
+p.1
+
 set_option trace.Elab.definition true
+
+def h (x : Nat) : StateT Nat IO Nat := do
+s ← get;
+a ← f;            -- liftM inserted here
+b ← g1 (1:Nat);   -- liftM inserted here
+let x := g2 b;
+IO.println b;
+pure (s+a)
+
+def myPrint {α} [HasToString α] (a : α) : IO Unit :=
+IO.println (">> " ++ toString a)
+
+def h₂ (x : Nat) : ExceptT String (StateT Nat IO) Nat := do
+a ← h 1;        -- liftM inserted here
+IO.println x;
+b ← g1 a;       -- liftM inserted here
+when (a > 100) $ throw "Error";
+myPrint b.1;    -- liftM inserted here
+pure (a + 1)
 
 def tst1 : IO Unit := do
 a ← f;

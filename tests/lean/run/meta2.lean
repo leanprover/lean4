@@ -489,3 +489,19 @@ print (norm m);
 pure ()
 
 #eval tst29
+
+def tst30 : MetaM Unit := do
+print "----- tst30 -----";
+m1 ← mkFreshExprMVar nat;
+m2 ← mkFreshExprMVar (mkArrow nat nat);
+withLocalDecl `x nat BinderInfo.default $ fun x => do
+  let t := mkApp succ $ mkApp m2 x;
+  print t;
+  check $ approxDefEq $ isDefEq m1 t;
+  r ← instantiateMVars m1;
+  print r;
+  r ← instantiateMVars m2;
+  print r;
+  pure ()
+
+#eval tst30

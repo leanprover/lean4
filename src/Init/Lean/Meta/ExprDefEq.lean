@@ -185,6 +185,16 @@ private partial def isDefEqBindingAux : LocalContext → Array Expr → Expr →
 lctx ← getLCtx;
 isDefEqBindingAux lctx #[] a b #[]
 
+private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
+traceCtx `Meta.isDefEq.assign.checkTypes $ do
+  -- must check whether types are definitionally equal or not, before assigning and returning true
+  mvarType ← inferType mvar;
+  vType    ← inferType v;
+  condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
+    (do assignExprMVar mvar.mvarId! v; pure true)
+    (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
+        pure false)
+
 /-
   Each metavariable is declared in a particular local context.
   We use the notation `C |- ?m : t` to denote a metavariable `?m` that
@@ -397,31 +407,41 @@ pure (mkMVar mvarId)
 let mvarId := mvar.mvarId!;
 ctx  ← read;
 mctx ← getMCtx;
-match mctx.getExprAssignment? mvarId with
-| some v => visit check v
-| none   =>
-  if mvarId == ctx.mvarId then throw Exception.occursCheck
-  else match mctx.findDecl? mvarId with
-    | none          => throw $ Exception.unknownExprMVar mvarId
-    | some mvarDecl =>
-      if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
-      else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx then pure mvar
-      else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
-      else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
-        mvarType ← check mvarDecl.type;
-        /- Create an auxiliary metavariable with a smaller context and "checked" type.
-           Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
-           a metavariable that we also need to reduce the context. -/
-        newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-        modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
-        pure newMVar
-      else
-        pure mvar
+if mvarId == ctx.mvarId then throw Exception.occursCheck
+else match mctx.findDecl? mvarId with
+  | none          => throw $ Exception.unknownExprMVar mvarId
+  | some mvarDecl =>
+    if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
+    else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx then pure mvar
+    else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
+    else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
+      mvarType ← check mvarDecl.type;
+      /- Create an auxiliary metavariable with a smaller context and "checked" type.
+         Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
+         a metavariable that we also need to reduce the context. -/
+      newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+      modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+      pure newMVar
+    else
+      pure mvar
+
+/-
+  Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
+  and one of them is out-of-scope.
+  See `Expr.app` case at `check`.
+  If `ctxApprox` is true, then we solve this case by creating a fresh metavariable ?n with the correct scope,
+  an assigning `?m := fun _ ... _ => ?n` -/
+def assignToConstFun (mvar : Expr) (numArgs : Nat) (newMVar : Expr) : MetaM Bool := do
+mvarType ← inferType mvar;
+forallBoundedTelescope mvarType numArgs $ fun xs _ =>
+  if xs.size != numArgs then pure false
+  else do
+    v ← mkLambda xs newMVar;
+    checkTypesAndAssign mvar v
 
 partial def check : Expr → CheckAssignmentM Expr
 | e@(Expr.mdata _ b _)     => do b ← visit check b; pure $ e.updateMData! b
 | e@(Expr.proj _ _ s _)    => do s ← visit check s; pure $ e.updateProj! s
-| e@(Expr.app f a _)       => do f ← visit check f; a ← visit check a; pure $ e.updateApp! f a
 | e@(Expr.lam _ d b _)     => do d ← visit check d; b ← visit check b; pure $ e.updateLambdaE! d b
 | e@(Expr.forallE _ d b _) => do d ← visit check d; b ← visit check b; pure $ e.updateForallE! d b
 | e@(Expr.letE _ t v b _)  => do t ← visit check t; v ← visit check v; b ← visit check b; pure $ e.updateLet! t v b
@@ -432,6 +452,29 @@ partial def check : Expr → CheckAssignmentM Expr
 | e@(Expr.fvar _ _)        => visit (checkFVar check) e
 | e@(Expr.mvar _ _)        => visit (checkMVar check) e
 | Expr.localE _ _ _ _      => unreachable!
+| e@(Expr.app _ _ _)       => e.withApp $ fun f args => do
+  ctx ← read;
+  if f.isMVar && ctx.config.ctxApprox && args.all Expr.isFVar then do
+    f ← visit (checkMVar check) f;
+    catch
+      (do
+        args ← args.mapM (visit check);
+        pure $ mkAppN f args)
+      (fun ex => match ex with
+        | Exception.outOfScopeFVar _ => do
+          eType ← liftMetaM $ inferType e;
+          mvarType ← check eType;
+          /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+            Note that `mvarType` may be different from `eType`. -/
+          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+          condM (liftMetaM $ assignToConstFun f args.size newMVar)
+            (pure newMVar)
+            (throw ex)
+        | _ => throw ex)
+  else do
+    f ← visit check f;
+    args ← args.mapM (visit check);
+    pure $ mkAppN f args
 
 end CheckAssignment
 
@@ -495,6 +538,20 @@ partial def check
 
 end CheckAssignmentQuick
 
+-- See checkAssignment
+def checkAssignmentAux (mvarId : MVarId) (mvarDecl : MetavarDecl) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) :=
+fun ctx s =>
+  let checkCtx : CheckAssignment.Context := {
+    mvarId       := mvarId,
+    mvarDecl     := s.mctx.getDecl mvarId,
+    fvars        := fvars,
+    hasCtxLocals := hasCtxLocals,
+    toContext    := ctx
+  };
+  match (CheckAssignment.check v checkCtx).run { toState := s } with
+  | EStateM.Result.ok e newS     => EStateM.Result.ok (some e) newS.toState
+  | EStateM.Result.error ex newS => checkAssignmentFailure mvarId fvars v ex ctx newS.toState
+
 /--
   Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
   It will check whether we can perform the assignment
@@ -504,23 +561,19 @@ end CheckAssignmentQuick
   The result is `none` if the assignment can't be performed.
   The result is `some newV` where `newV` is a possibly updated `v`. This method may need
   to unfold let-declarations. -/
-def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) :=
-fun ctx s => if !v.hasExprMVar && !v.hasFVar then EStateM.Result.ok (some v) s else
-  let mvarDecl     := s.mctx.getDecl mvarId;
+def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) := do
+if !v.hasExprMVar && !v.hasFVar then
+  pure (some v)
+else do
+  mvarDecl ← getMVarDecl mvarId;
   let hasCtxLocals := fvars.any $ fun fvar => mvarDecl.lctx.containsFVar fvar;
-  if CheckAssignmentQuick.check hasCtxLocals ctx.config.ctxApprox s.mctx ctx.lctx mvarDecl mvarId fvars v then
-    EStateM.Result.ok (some v) s
-  else
-    let checkCtx : CheckAssignment.Context := {
-      mvarId       := mvarId,
-      mvarDecl     := s.mctx.getDecl mvarId,
-      fvars        := fvars,
-      hasCtxLocals := hasCtxLocals,
-      toContext    := ctx
-    };
-    match (CheckAssignment.check v checkCtx).run { toState := s } with
-    | EStateM.Result.ok e newS     => EStateM.Result.ok (some e) newS.toState
-    | EStateM.Result.error ex newS => checkAssignmentFailure mvarId fvars v ex ctx newS.toState
+  ctx ← read;
+  mctx ← getMCtx;
+  if CheckAssignmentQuick.check hasCtxLocals ctx.config.ctxApprox mctx ctx.lctx mvarDecl mvarId fvars v then
+    pure (some v)
+  else do
+    v ← instantiateMVars v;
+    checkAssignmentAux mvarId mvarDecl fvars hasCtxLocals v
 
 /-
   We try to unify arguments before we try to unify the functions.
@@ -624,16 +677,6 @@ private partial def simpAssignmentArgAux : Expr → MetaM Expr
 private def simpAssignmentArg (arg : Expr) : MetaM Expr := do
 arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
 simpAssignmentArgAux arg
-
-private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
-traceCtx `Meta.isDefEq.assign.checkTypes $ do
-  -- must check whether types are definitionally equal or not, before assigning and returning true
-  mvarType ← inferType mvar;
-  vType    ← inferType v;
-  condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
-    (do assignExprMVar mvar.mvarId! v; pure true)
-    (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
-        pure false)
 
 private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool := do
 let mvarId := mvar.mvarId!;

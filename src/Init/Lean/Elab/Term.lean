@@ -802,6 +802,16 @@ private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String
 lctx ← getLCtx;
 pure $ resolveLocalNameAux lctx n []
 
+/- Return true iff `stx` is a `Term.id`, and it is local variable. -/
+def isLocalTermId? (stx : Syntax) : TermElabM (Option Expr) :=
+match stx.isTermId? with
+| some (Syntax.ident _ _ val _, _) => do
+  r? ← resolveLocalName val;
+  match r? with
+  | some (fvar, []) => pure (some fvar)
+  | _               => pure none
+| _ => pure none
+
 private def mkFreshLevelMVars (ref : Syntax) (num : Nat) : TermElabM (List Level) :=
 num.foldM (fun _ us => do u ← mkFreshLevelMVar ref; pure $ u::us) []
 

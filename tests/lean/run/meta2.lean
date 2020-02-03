@@ -22,6 +22,7 @@ do v? ← getExprMVarAssignment? m.mvarId!;
 def nat   := mkConst `Nat
 def boolE := mkConst `Bool
 def succ  := mkConst `Nat.succ
+def zero  := mkConst `Nat.zero
 def add   := mkConst `Nat.add
 def io    := mkConst `IO
 def type  := mkSort levelOne
@@ -505,3 +506,13 @@ withLocalDecl `x nat BinderInfo.default $ fun x => do
   pure ()
 
 #eval tst30
+
+def tst31 : MetaM Unit := do
+print "----- tst31 -----";
+m ← mkFreshExprMVar nat;
+let t := mkLet `x nat zero m;
+print t;
+check $ isDefEq t m;
+pure ()
+
+#eval tst31

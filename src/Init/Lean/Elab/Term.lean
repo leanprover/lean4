@@ -632,6 +632,98 @@ catch
     | Exception.ex (Elab.Exception.error errMsg) => throwTypeMismatchError ref expectedType eType e f? errMsg.data
     | _ => throwTypeMismatchError ref expectedType eType e f?)
 
+private def isTypeApp? (ref : Syntax) (type : Expr) : TermElabM (Option (Expr × Expr)) := do
+type ← withReducible $ whnf ref type;
+match type with
+| Expr.app m α _ => pure (some (m, α))
+| _              => pure none
+
+private def isMonad? (ref : Syntax) (type : Expr) : TermElabM (Option (Expr × Expr)) := do
+type ← withReducible $ whnf ref type;
+match type with
+| Expr.app m α _ =>
+  catch
+    (do
+      monadType ← mkAppM ref `Monad #[m];
+      result    ← trySynthInstance ref monadType;
+      match result with
+      | LOption.some _ => pure (some (m, α))
+      | _              => pure none)
+    (fun _ => pure none)
+| _              => pure none
+
+/-
+Try coercions and monad lifts to make sure `e` has type `expectedType`.
+
+If `expectedType` is of the form `n β` where `n` is a Monad, we try monad lifts and other extensions.
+Otherwise, we just use the basic `tryCoe`.
+
+Extensions for monads.
+
+Given an expected type of the form `n β` and a given type `eType` is of the form `m α`. We use the following approaches.
+
+1- Try to unify `n` and `m`. If it succeeds, then we rely on `tryCoe`, and
+   the instances
+   ```
+   instance coeMethod {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] : Coe (m α) (m β)
+   instance pureCoeDepProp {m : Type → Type v} [HasPure m] {p : Prop} [Decidable p] : CoeDep (m Prop) (pure p) (m Bool)
+   ```
+
+2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
+  ```
+  liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : HasMonadLiftT m n] {α : Type u_1}, m α → n α
+  ```
+
+3- If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
+  ```
+  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [HasMonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
+  ```
+
+Note that approach 3 does not subsume 1 because it is only applicable if there is a coercion from `α` to `β` for all values in `α`.
+This is not the case for example for `pure $ x > 0` when the expected type is `IO Bool`. The given type is `IO Prop`, and
+we only have a coercion from decidable propositions.  Approach 1 works because it constructs the coercion `CoeT (m Prop) (pure $ x > 0) (m Bool)`
+using the instance `pureCoeDepProp`.
+
+Note that, approach 2 is more powerful than `tryCoe`.
+Recall that type class resolution never assigns metavariables created by other modules.
+Now, consider the following scenario
+```lean
+def g (x : Nat) : IO Nat := ...
+deg h (x : Nat) : StateT Nat IO Nat := do
+v ← g x;
+IO.Println v;
+...
+```
+Let's assume there is no other occurrence of `v` in `h`.
+Thus, we have that the expected of `g x` is `StateT Nat IO ?α`,
+and the given type is `IO Nat`. So, even if we add a coercion.
+```
+instance {α m n} [HasLiftT m n] {α} : Coe (m α) (n α) := ...
+```
+It is not applicable because TC would have to assign `?α := Nat`.
+On the other hand, TC can easily solve `[HasLiftT IO (StateT Nat IO)]`
+since this goal does not contain any metavariables. And then, we
+convert `g x` into `liftM $ g x`.
+-/
+def tryCoeAndLift (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
+some (n, β) ← isMonad? ref expectedType | tryCoe ref expectedType eType e f?;
+some (m, α) ← isTypeApp? ref eType | tryCoe ref expectedType eType e f?;
+condM (isDefEq ref m n) (tryCoe ref expectedType eType e f?) $
+  catch
+    (do
+      -- Construct lift from `m` to `n`
+      hasMonadLiftType ← mkAppM ref `HasMonadLiftT #[m, n];
+      hasMonadLiftVal  ← synthesizeInst ref hasMonadLiftType;
+      u_1 ← getDecLevel ref α;
+      u_2 ← getDecLevel ref eType;
+      u_3 ← getDecLevel ref expectedType;
+      let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, hasMonadLiftVal, α, e];
+      eNewType ← inferType ref eNew;
+      condM (isDefEq ref expectedType eNewType)
+        (pure eNew)
+        (throwTypeMismatchError ref expectedType eType e f?)) -- TODO approach 3
+    (fun _ => throwTypeMismatchError ref expectedType eType e f?)
+
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
   If they are not, then try coercions.
@@ -643,7 +735,7 @@ match expectedType? with
 | some expectedType =>
   condM (isDefEq ref eType expectedType)
     (pure e)
-    (tryCoe ref expectedType eType e f?)
+    (tryCoeAndLift ref expectedType eType e f?)
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.

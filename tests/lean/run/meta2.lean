@@ -380,7 +380,7 @@ do print "----- tst24 -----";
    print zero;
    print idNat;
    print lhs;
-   check $ approxDefEq $ isDefEq lhs idNat;
+   check $ fullApproxDefEq $ isDefEq lhs idNat;
    pure ()
 
 #eval tst24

@@ -106,7 +106,6 @@
                  ?⅋ ?⅌ ?⅍ ?ⅎ ?⅏))
     (modify-syntax-entry ?' "w" st)
     (modify-syntax-entry ?_ "w" st)
-    (modify-syntax-entry ?\. "w" st)
 
     ;; Lean operator chars
     (mapc #'(lambda (ch) (modify-syntax-entry ch "_" st))

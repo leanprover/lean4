@@ -58,7 +58,7 @@ def haveAssign := parser! " := " >> termParser
 @[builtinTermParser] def «suffices» := parser! "suffices " >> optIdent >> termParser >> fromTerm >> "; " >> termParser
 @[builtinTermParser] def «show»     := parser! "show " >> termParser >> fromTerm
 @[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> darrow >> termParser
-def structInstArrayRef := parser! symbol "[" (appPrec+1) >> termParser >>"]"
+def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> ident) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
 def structInstSource := parser! ".." >> optional termParser

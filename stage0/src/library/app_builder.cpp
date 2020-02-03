@@ -963,7 +963,7 @@ expr mk_ite(type_context_old & ctx, expr const & c, expr const & t, expr const &
     expr t_type   = ctx.infer(t);
     level u       = get_level(ctx, t_type);
     return mk_app(mk_constant(get_ite_name(), {u}),
-                  {c, *dec_c_val, t_type, t, e});
+                  {t_type, c, *dec_c_val, t, e});
 }
 
 expr mk_id(type_context_old & ctx, expr const & type, expr const & h) {

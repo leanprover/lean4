@@ -849,12 +849,12 @@ isFalse notFalse
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-@[macroInline] def dite (c : Prop) [h : Decidable c] {α : Sort u} : (c → α) → (¬ c → α) → α :=
+@[macroInline] def dite {α : Sort u} (c : Prop) [h : Decidable c] : (c → α) → (¬ c → α) → α :=
 fun t e => Decidable.casesOn h e t
 
 /- if-then-else -/
 
-@[macroInline] def ite (c : Prop) [h : Decidable c] {α : Sort u} (t e : α) : α :=
+@[macroInline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
 Decidable.casesOn h (fun hnc => e) (fun hc => t)
 
 namespace Decidable
@@ -1717,7 +1717,7 @@ match (propDecidable (Nonempty α)) with
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
   (h : Nonempty α) : {x : α // Exists (fun (y : α) => p y) → p x} :=
-@dite (Exists (fun (x : α) => p x)) (propDecidable _) _
+@dite _ (Exists (fun (x : α) => p x)) (propDecidable _)
   (fun (hp : Exists (fun (x : α) => p x)) =>
     show {x : α // Exists (fun (y : α) => p y) → p x} from
     let xp := indefiniteDescription _ hp;

@@ -34,8 +34,9 @@ instance : HasToString Bool :=
 ⟨fun b => cond b "true" "false"⟩
 
 instance {p : Prop} : HasToString (Decidable p) :=
--- Remark: type class inference will not consider local instance `b` in the new Elaborator
-⟨fun b => @ite p b _ "true" "false"⟩
+⟨fun h => match h with
+  | Decidable.isTrue _  => "true"
+  | Decidable.isFalse _ => "false"⟩
 
 protected def List.toStringAux {α : Type u} [HasToString α] : Bool → List α → String
 | b,     []    => ""

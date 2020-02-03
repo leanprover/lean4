@@ -59,7 +59,7 @@ def haveAssign := parser! " := " >> termParser
 @[builtinTermParser] def «show»     := parser! "show " >> termParser >> fromTerm
 @[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> darrow >> termParser
 def structInstArrayRef := parser! "[" >> termParser >>"]"
-def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> ident) <|> structInstArrayRef)
+def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
 def structInstSource := parser! ".." >> optional termParser
 @[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (ident >> " . ")) >> sepBy (structInstField <|> structInstSource) ", " true >> "}"
@@ -98,7 +98,6 @@ withPosition $ fun pos =>
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! nameLit
 -- NOTE: syntax quotations are defined in Init.Lean.Parser.Command
-@[builtinTermParser] def antiquot   := (mkAntiquot "term" none true : Parser)
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> matchAlts
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
@@ -117,7 +116,7 @@ def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
 def doSeq  := sepBy1 doElem "; "
 def bracketedDoSeq := parser! "{" >> doSeq >> "}"
-@[builtinTermParser] def liftMethod := parser! symbol "(^" appPrec >> termParser >> ")"
+@[builtinTermParser] def liftMethod := parser! leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser! "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def not    := parser! symbol "¬" 40 >> termParser 40

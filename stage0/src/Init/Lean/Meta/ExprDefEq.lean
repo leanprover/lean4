@@ -1074,8 +1074,15 @@ unstuckMVar t (fun t => isExprDefEqAux t s) $
 unstuckMVar s (fun s => isExprDefEqAux t s) $
 pure false
 
+/- Remove unnecessary let-decls -/
+private def consumeLet : Expr → Expr
+| e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then b else consumeLet b
+| e                       => e
+
 partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
 | t, s => do
+  let t := consumeLet t;
+  let s := consumeLet s;
   trace `Meta.isDefEq.step $ fun _ => t ++ " =?= " ++ s;
   tryL (isDefEqQuick t s) $
   tryL (isDefEqProofIrrel t s) $

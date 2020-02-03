@@ -1364,8 +1364,8 @@ private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
 else s.mkNode nullKind iniSz -- throw error instead?
 
-def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) : ParserFn :=
-fun c s =>
+def leadingParser (kind : Name) (tables : PrattParsingTables) (preLeadingParser : Parser) (leadingIdentAsSymbol : Bool) : ParserFn :=
+orelseFn preLeadingParser.fn $ fun c s =>
   let iniSz   := s.stackSize;
   let (s, ps) := indexed tables.leadingTable c s leadingIdentAsSymbol;
   let ps      := tables.leadingParsers ++ ps;
@@ -1405,9 +1405,16 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
         let s := mkTrailingResult s iniSz;
         trailingLoop s
 
-def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) : ParserFn :=
+/--
+  Implements a recursive precedence parser according to Pratt's algorithm.
+
+  `preLeadingParser` is a parser that is preferred over all other leading
+  parsers. We use it to inject the antiquotation parser into syntax categories.
+  It should not be added to the regular leading parsers because it would heavily
+  overlap with antiquotation parsers nested inside them. -/
+def prattParser (kind : Name) (tables : PrattParsingTables) (preLeadingParser : Parser) (leadingIdentAsSymbol : Bool) : ParserFn :=
 fun c s =>
-  let s := leadingParser kind tables leadingIdentAsSymbol c s;
+  let s := leadingParser kind tables preLeadingParser leadingIdentAsSymbol c s;
   if s.hasError then s
   else
     trailingLoop tables c s
@@ -1784,22 +1791,23 @@ match (parserExtension.getState env).categories.find? catName with
 | none     => false
 | some cat => cat.leadingIdentAsSymbol
 
-def categoryParserFnImplAux (catName : Name) : ParserFn :=
-fun ctx s =>
-  let categories := (parserExtension.getState ctx.env).categories;
-  match categories.find? catName with
-  | some cat => prattParser catName cat.tables cat.leadingIdentAsSymbol ctx s
-  | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
-
 private def catNameToString : Name → String
 | Name.str Name.anonymous s _ => s
 | n                           => n.toString
 
 def categoryParserFnImpl (catName : Name) : ParserFn :=
-if catName != `term then
-  orelseFn (mkAntiquot (catNameToString catName) none false).fn (categoryParserFnImplAux catName)
-else
-  categoryParserFnImplAux catName
+fun ctx s =>
+  let categories := (parserExtension.getState ctx.env).categories;
+  match categories.find? catName with
+  | some cat =>
+    -- allow "anonymous" antiquotations `$x` for the `term` category only
+    -- TODO: make customizable
+    -- one good example for a category that should not be anonymous is
+    -- `index` in `tests/lean/run/bigop.lean`.
+    let anonAntiquot := catName == `term;
+    let preP := mkAntiquot (catNameToString catName) none anonAntiquot;
+    prattParser catName cat.tables preP cat.leadingIdentAsSymbol ctx s
+  | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[init] def setCategoryParserFnRef : IO Unit :=
 categoryParserFnRef.set categoryParserFnImpl
@@ -1838,19 +1846,16 @@ def mkParserContext (env : Environment) (ctx : InputContext) : ParserContext :=
 def mkParserState (input : String) : ParserState :=
 { cache := initCacheForInput input }
 
+/- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
-let categories := (parserExtension.getState env).categories;
-match categories.find? catName with
-| some cat =>
-  let c := mkParserContext env (mkInputContext input fileName);
-  let s := mkParserState input;
-  let s := whitespace c s;
-  let s := prattParser catName cat.tables cat.leadingIdentAsSymbol c s;
-  if s.hasError then
-    Except.error (s.toErrorMsg c)
-  else
-    Except.ok s.stxStack.back
-| none => throwUnknownParserCategory catName
+let c := mkParserContext env (mkInputContext input fileName);
+let s := mkParserState input;
+let s := whitespace c s;
+let s := categoryParserFnImpl catName c s;
+if s.hasError then
+  Except.error (s.toErrorMsg c)
+else
+  Except.ok s.stxStack.back
 
 def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;

@@ -85,6 +85,7 @@ lean_object* l_Lean_Meta_forallTelescope(lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallTelescope___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_fullApproxDefEq(lean_object*);
 lean_object* l_Option_hash___at_Lean_Meta_InfoCacheKey_Hashable___spec__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_lambdaMetaTelescope___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLetDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,6 +107,7 @@ lean_object* l_Lean_Meta_forallTelescope___rarg(lean_object*, lean_object*, lean
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_isClassExpensive___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Meta_MetaExtState_inhabited___lambda__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_fullApproxDefEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_4__forallTelescopeReducingAuxAux___main___at_Lean_Meta_forallTelescope___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallBoundedTelescope___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConst(lean_object*, lean_object*, lean_object*);
@@ -42254,6 +42256,111 @@ x_7 = 1;
 lean_ctor_set_uint8(x_5, sizeof(void*)*1, x_7);
 lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 1, x_7);
 lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 2, x_7);
+x_8 = lean_apply_2(x_1, x_2, x_3);
+return x_8;
+}
+else
+{
+lean_object* x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; 
+x_9 = lean_ctor_get(x_5, 0);
+x_10 = lean_ctor_get_uint8(x_5, sizeof(void*)*1 + 3);
+x_11 = lean_ctor_get_uint8(x_5, sizeof(void*)*1 + 4);
+x_12 = lean_ctor_get_uint8(x_5, sizeof(void*)*1 + 5);
+x_13 = lean_ctor_get_uint8(x_5, sizeof(void*)*1 + 6);
+lean_inc(x_9);
+lean_dec(x_5);
+x_14 = 1;
+x_15 = lean_alloc_ctor(0, 1, 7);
+lean_ctor_set(x_15, 0, x_9);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1, x_14);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1 + 1, x_14);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1 + 2, x_14);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1 + 3, x_10);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1 + 4, x_11);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1 + 5, x_12);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1 + 6, x_13);
+lean_ctor_set(x_2, 0, x_15);
+x_16 = lean_apply_2(x_1, x_2, x_3);
+return x_16;
+}
+}
+else
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_17 = lean_ctor_get(x_2, 0);
+x_18 = lean_ctor_get(x_2, 1);
+x_19 = lean_ctor_get(x_2, 2);
+x_20 = lean_ctor_get(x_2, 3);
+x_21 = lean_ctor_get(x_2, 4);
+lean_inc(x_21);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_inc(x_18);
+lean_inc(x_17);
+lean_dec(x_2);
+x_22 = lean_ctor_get(x_17, 0);
+lean_inc(x_22);
+x_23 = lean_ctor_get_uint8(x_17, sizeof(void*)*1 + 3);
+x_24 = lean_ctor_get_uint8(x_17, sizeof(void*)*1 + 4);
+x_25 = lean_ctor_get_uint8(x_17, sizeof(void*)*1 + 5);
+x_26 = lean_ctor_get_uint8(x_17, sizeof(void*)*1 + 6);
+if (lean_is_exclusive(x_17)) {
+ lean_ctor_release(x_17, 0);
+ x_27 = x_17;
+} else {
+ lean_dec_ref(x_17);
+ x_27 = lean_box(0);
+}
+x_28 = 1;
+if (lean_is_scalar(x_27)) {
+ x_29 = lean_alloc_ctor(0, 1, 7);
+} else {
+ x_29 = x_27;
+}
+lean_ctor_set(x_29, 0, x_22);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1, x_28);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1 + 1, x_28);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1 + 2, x_28);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1 + 3, x_23);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1 + 4, x_24);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1 + 5, x_25);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1 + 6, x_26);
+x_30 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_18);
+lean_ctor_set(x_30, 2, x_19);
+lean_ctor_set(x_30, 3, x_20);
+lean_ctor_set(x_30, 4, x_21);
+x_31 = lean_apply_2(x_1, x_30, x_3);
+return x_31;
+}
+}
+}
+lean_object* l_Lean_Meta_approxDefEq(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_approxDefEq___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_Meta_fullApproxDefEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_2);
+if (x_4 == 0)
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = !lean_is_exclusive(x_5);
+if (x_6 == 0)
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = 1;
+lean_ctor_set_uint8(x_5, sizeof(void*)*1, x_7);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 1, x_7);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 2, x_7);
 lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 3, x_7);
 x_8 = lean_apply_2(x_1, x_2, x_3);
 return x_8;
@@ -42333,11 +42440,11 @@ return x_29;
 }
 }
 }
-lean_object* l_Lean_Meta_approxDefEq(lean_object* x_1) {
+lean_object* l_Lean_Meta_fullApproxDefEq(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_approxDefEq___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_fullApproxDefEq___rarg), 3, 0);
 return x_2;
 }
 }

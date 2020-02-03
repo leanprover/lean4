@@ -24,7 +24,9 @@ instance : HasRepr Bool :=
 ⟨fun b => cond b "true" "false"⟩
 
 instance {p : Prop} : HasRepr (Decidable p) :=
-⟨fun b => @ite p b _ "true" "false"⟩
+⟨fun h => match h with
+  | Decidable.isTrue _  => "true"
+  | Decidable.isFalse _ => "false"⟩
 
 protected def List.reprAux {α : Type u} [HasRepr α] : Bool → List α → String
 | b,     []    => ""

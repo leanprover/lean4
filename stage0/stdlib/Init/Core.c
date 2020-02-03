@@ -29,7 +29,7 @@ lean_object* l_Function_swap___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Ne_Decidable(lean_object*);
 lean_object* l_Quotient_rec___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_bne(lean_object*);
-lean_object* l_dite(lean_object*);
+lean_object* l_dite(lean_object*, lean_object*);
 lean_object* l_Quotient_liftOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_recOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_PSum_sizeof(lean_object*, lean_object*);
@@ -145,7 +145,7 @@ lean_object* l_Prod_HasLess___boxed(lean_object*, lean_object*, lean_object*, le
 lean_object* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Or_Decidable(lean_object*, lean_object*);
 lean_object* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_ite(lean_object*);
+lean_object* l_ite(lean_object*, lean_object*);
 lean_object* l_Quot_hrecOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Sigma_HasSizeof___boxed(lean_object*, lean_object*);
 lean_object* l_not___boxed(lean_object*);
@@ -212,7 +212,7 @@ lean_object* l_Thunk_bind___boxed(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_implies_Decidable___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 lean_object* l_NonScalar_Inhabited;
-lean_object* l_ite___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ite___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_or(uint8_t, uint8_t);
 lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 uint8_t l_Decidable_decide___rarg(uint8_t);
@@ -230,7 +230,7 @@ lean_object* l_and___boxed(lean_object*, lean_object*);
 lean_object* l_Eq_ndrec(lean_object*, lean_object*, lean_object*);
 lean_object* l_Sum_sizeof___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Subtype_Inhabited___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_ite___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_ite___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Eq_ndrec___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Sigma_HasSizeof___rarg(lean_object*, lean_object*);
@@ -311,7 +311,7 @@ lean_object* l_Quotient_recOnSubsingleton_u2082(lean_object*, lean_object*, lean
 lean_object* l_Decidable_byCases(lean_object*, lean_object*);
 lean_object* l_id(lean_object*);
 lean_object* l_inline___rarg(lean_object*);
-lean_object* l_dite___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_dite___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_id___rarg(lean_object*);
 lean_object* l_arbitrary(lean_object*);
 lean_object* l_Subtype_DecidableEq(lean_object*, lean_object*);
@@ -319,7 +319,7 @@ lean_object* l_Xor_Decidable___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_HasAdd;
 lean_object* l_Nat_Inhabited;
-lean_object* l_dite___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_dite___rarg(uint8_t, lean_object*, lean_object*);
 uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* l_Sum_inhabitedRight(lean_object*, lean_object*);
 lean_object* l_PUnit_sizeof___boxed(lean_object*);
@@ -1946,76 +1946,76 @@ x_1 = 0;
 return x_1;
 }
 }
-lean_object* l_dite___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_dite___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (x_1 == 0)
 {
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_apply_1(x_4, lean_box(0));
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_4);
-x_6 = lean_apply_1(x_3, lean_box(0));
-return x_6;
-}
-}
-}
-lean_object* l_dite(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_dite___rarg___boxed), 4, 0);
-return x_2;
-}
-}
-lean_object* l_dite___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_1);
-lean_dec(x_1);
-x_6 = l_dite___rarg(x_5, x_2, x_3, x_4);
-return x_6;
-}
-}
-lean_object* l_ite___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_inc(x_4);
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_apply_1(x_3, lean_box(0));
 return x_4;
 }
 else
 {
-lean_inc(x_3);
+lean_object* x_5; 
+lean_dec(x_3);
+x_5 = lean_apply_1(x_2, lean_box(0));
+return x_5;
+}
+}
+}
+lean_object* l_dite(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_dite___rarg___boxed), 3, 0);
 return x_3;
 }
 }
-}
-lean_object* l_ite(lean_object* x_1) {
+lean_object* l_dite___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ite___rarg___boxed), 4, 0);
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_dite___rarg(x_4, x_2, x_3);
+return x_5;
+}
+}
+lean_object* l_ite___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_inc(x_3);
+return x_3;
+}
+else
+{
+lean_inc(x_2);
 return x_2;
 }
 }
-lean_object* l_ite___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+}
+lean_object* l_ite(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_1);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_ite___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+lean_object* l_ite___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
 lean_dec(x_1);
-x_6 = l_ite___rarg(x_5, x_2, x_3, x_4);
-lean_dec(x_4);
+x_5 = l_ite___rarg(x_4, x_2, x_3);
 lean_dec(x_3);
-return x_6;
+lean_dec(x_2);
+return x_5;
 }
 }
 lean_object* l_Decidable_recOnTrue___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

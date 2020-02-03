@@ -262,6 +262,7 @@ lean_object* l___regBuiltinTermElab_Lean_Elab_Term_Quotation_elabMatchSyntax___c
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__22;
 lean_object* l_Lean_Elab_Term_Quotation_isAntiquotSplice___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Term_12__mkPairsAux___main___closed__7;
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Syntax_paren___elambda__1___closed__1;
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__1___closed__4;
@@ -550,7 +551,6 @@ lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___lambda__2(lea
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__31;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Elab_Term_Quotation_isAntiquotSplicePat___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_DiscrTree_Trie_format___main___rarg___closed__1;
-extern lean_object* l___private_Init_Lean_Elab_Term_10__mkPairsAux___main___closed__7;
 lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___spec__1___closed__4;
@@ -821,7 +821,7 @@ x_7 = lean_apply_1(x_2, x_5);
 x_8 = l_Lean_mkAppStx___closed__9;
 x_9 = lean_array_push(x_8, x_6);
 x_10 = lean_array_push(x_9, x_7);
-x_11 = l___private_Init_Lean_Elab_Term_10__mkPairsAux___main___closed__7;
+x_11 = l___private_Init_Lean_Elab_Term_12__mkPairsAux___main___closed__7;
 x_12 = l_Lean_mkCAppStx(x_11, x_10);
 return x_12;
 }
@@ -2014,7 +2014,7 @@ x_9 = l___private_Init_Lean_Elab_Quotation_2__quoteList___main___at___private_In
 x_10 = l_Lean_mkAppStx___closed__9;
 x_11 = lean_array_push(x_10, x_8);
 x_12 = lean_array_push(x_11, x_9);
-x_13 = l___private_Init_Lean_Elab_Term_10__mkPairsAux___main___closed__7;
+x_13 = l___private_Init_Lean_Elab_Term_12__mkPairsAux___main___closed__7;
 x_14 = l_Lean_mkCAppStx(x_13, x_12);
 x_15 = lean_array_push(x_10, x_14);
 x_16 = lean_array_push(x_15, x_5);

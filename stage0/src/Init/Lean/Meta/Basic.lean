@@ -725,8 +725,19 @@ pure mvarId
 def whnfD : Expr → MetaM Expr :=
 fun e => withTransparency TransparencyMode.default $ whnf e
 
-/-- Execute `x` using approximate unification. -/
+/-- Execute `x` using approximate unification: `foApprox`, `ctxApprox` and `quasiPatternApprox`.  -/
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
+adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
+  x
+
+/--
+  Similar to `approxDefEq`, but uses all available approximations.
+  We don't use `constApprox` by default at `approxDefEq` because it often produces undesirable solution for monadic code.
+  For example, suppose we have `pure (x > 0)` which has type `?m Prop`. We also have the goal `[HasPure ?m]`.
+  Now, assume the expected type is `IO Bool`. Then, the unification constraint `?m Prop =?= IO Bool` could be solved
+  as `?m := fun _ => IO Bool` using `constApprox`, but this spurious solution would generate a failure when we try to
+  solve `[HasPure (fun _ => IO Bool)]` -/
+@[inline] def fullApproxDefEq {α} (x : MetaM α) : MetaM α :=
 adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true, .. ctx.config }, .. ctx })
   x
 

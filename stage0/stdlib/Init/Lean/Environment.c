@@ -108,6 +108,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_mkModuleData___spec__4___boxed
 extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_namespacesExt___elambda__4___rarg(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
+lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_evalConst___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtension___rarg(lean_object*);
@@ -7789,6 +7790,18 @@ x_1 = l_NonScalar_Inhabited;
 return x_1;
 }
 }
+lean_object* _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -7847,7 +7860,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_array_get_size(x_15);
 lean_dec(x_15);
-x_18 = lean_box(0);
+x_18 = l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1;
 x_19 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_1);
@@ -8062,13 +8075,13 @@ lean_object* _init_l_Lean_modListExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_modListExtension___closed__1;
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_modListExtension___closed__1;
+x_3 = l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set(x_4, 2, x_1);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
@@ -12653,6 +12666,8 @@ l_Lean_CPPExtensionState_inhabited = _init_l_Lean_CPPExtensionState_inhabited();
 lean_mark_persistent(l_Lean_CPPExtensionState_inhabited);
 l_Lean_Modification_inhabited = _init_l_Lean_Modification_inhabited();
 lean_mark_persistent(l_Lean_Modification_inhabited);
+l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1();
+lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1);
 l_Lean_regModListExtension___closed__1 = _init_l_Lean_regModListExtension___closed__1();
 lean_mark_persistent(l_Lean_regModListExtension___closed__1);
 l_Lean_modListExtension___closed__1 = _init_l_Lean_modListExtension___closed__1();

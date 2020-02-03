@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Elab_Term_elabModN___closed__2;
+extern lean_object* l___private_Init_Lean_Elab_Term_12__mkPairsAux___main___closed__5;
 lean_object* l_Lean_Elab_Term_elabBAnd___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabseqLeft___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getEnv___rarg(lean_object*);
@@ -314,7 +315,6 @@ extern lean_object* l_Lean_Parser_Term_bor___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_elabCons___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabPow___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinMacro_Lean_Elab_Term_elabAndM___closed__1;
-extern lean_object* l___private_Init_Lean_Elab_Term_10__mkPairsAux___main___closed__5;
 lean_object* l_Lean_Elab_Term_elabGE(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinMacro_Lean_Elab_Term_elabMapConstRev(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4678,7 +4678,7 @@ lean_object* l_Lean_Elab_Term_elabProd(lean_object* x_1, lean_object* x_2, lean_
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l___private_Init_Lean_Elab_Term_10__mkPairsAux___main___closed__5;
+x_4 = l___private_Init_Lean_Elab_Term_12__mkPairsAux___main___closed__5;
 x_5 = l_Lean_Elab_Term_elabInfixOp(x_4, x_1, x_2, x_3);
 return x_5;
 }

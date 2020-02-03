@@ -638,7 +638,12 @@ match type with
 | Expr.app m α _ => pure (some (m, α))
 | _              => pure none
 
-private def isMonad? (ref : Syntax) (type : Expr) : TermElabM (Option (Expr × Expr)) := do
+structure IsMonadResult :=
+(m    : Expr)
+(α    : Expr)
+(inst : Expr)
+
+private def isMonad? (ref : Syntax) (type : Expr) : TermElabM (Option IsMonadResult) := do
 type ← withReducible $ whnf ref type;
 match type with
 | Expr.app m α _ =>
@@ -647,8 +652,8 @@ match type with
       monadType ← mkAppM ref `Monad #[m];
       result    ← trySynthInstance ref monadType;
       match result with
-      | LOption.some _ => pure (some (m, α))
-      | _              => pure none)
+      | LOption.some inst => pure (some { m := m, α := α, inst := inst })
+      | _                 => pure none)
     (fun _ => pure none)
 | _              => pure none
 
@@ -706,7 +711,7 @@ since this goal does not contain any metavariables. And then, we
 convert `g x` into `liftM $ g x`.
 -/
 def tryCoeAndLift (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
-some (n, β) ← isMonad? ref expectedType | tryCoe ref expectedType eType e f?;
+some ⟨n, β, monadInst⟩ ← isMonad? ref expectedType | tryCoe ref expectedType eType e f?;
 some (m, α) ← isTypeApp? ref eType | tryCoe ref expectedType eType e f?;
 condM (isDefEq ref m n) (tryCoe ref expectedType eType e f?) $
   catch
@@ -720,8 +725,17 @@ condM (isDefEq ref m n) (tryCoe ref expectedType eType e f?) $
       let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, hasMonadLiftVal, α, e];
       eNewType ← inferType ref eNew;
       condM (isDefEq ref expectedType eNewType)
-        (pure eNew)
-        (throwTypeMismatchError ref expectedType eType e f?)) -- TODO approach 3
+        (pure eNew) -- approach 2 worked
+        (do
+          u ← getLevel ref α;
+          v ← getLevel ref β;
+          let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst `CoeT [u, v]) #[α, mkBVar 0, β];
+          coeTInstVal ← synthesizeInst ref coeTInstType;
+          let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, hasMonadLiftVal, coeTInstVal, monadInst, e];
+          eNewType ← inferType ref eNew;
+          condM (isDefEq ref expectedType eNewType)
+            (pure eNew) -- approach 3 worked
+            (throwTypeMismatchError ref expectedType eType e f?)))
     (fun _ => throwTypeMismatchError ref expectedType eType e f?)
 
 /--

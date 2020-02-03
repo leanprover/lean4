@@ -10,6 +10,7 @@ Please see https://hackage.haskell.org/package/layers-0.1/docs/Documentation-Lay
 -/
 prelude
 import Init.Control.Monad
+import Init.Coe
 
 universes u v w
 
@@ -29,6 +30,10 @@ class HasMonadLiftT (m : Type u → Type v) (n : Type u → Type w) :=
 export HasMonadLiftT (monadLift)
 
 abbrev liftM := @monadLift
+
+@[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [HasMonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
+a ← liftM $ x;
+pure $ coe a
 
 instance hasMonadLiftTTrans (m n o) [HasMonadLiftT m n] [HasMonadLift n o] : HasMonadLiftT m o :=
 ⟨fun α ma => HasMonadLift.monadLift (monadLift ma : n α)⟩

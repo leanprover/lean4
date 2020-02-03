@@ -101,10 +101,15 @@ pure $ x > 0
 def tst5 (x : Nat) : IO (Option Nat) :=
 if x > 10 then pure x else pure none
 
+def tst6 (x : Nat) : StateT Nat IO (Option Nat) :=
+if x > 10 then g x else pure none
+
 syntax [doHash] "#":max : term
 
-def tst6 : StateT (Nat × Nat) IO Unit := do
+def tst7 : StateT (Nat × Nat) IO Unit := do
 if #.1 == 0 then
   IO.println "first field is zero"
 else
   IO.println "first field is not zero"
+
+#check tst7

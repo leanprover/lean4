@@ -2,7 +2,7 @@ open Lean
 
 partial def expandHash : Syntax → StateT Bool MacroM Syntax
 | Syntax.node k args =>
-  if k == `doHash then do set true; `((^MonadState.get))
+  if k == `doHash then do set true; `(←MonadState.get)
   else do
     args ← args.mapM expandHash;
     pure $ Syntax.node k args
@@ -74,21 +74,30 @@ IO.println "hello";
 IO.println x
 
 def tst2 : IO Unit := do
-let x := (^g $ (^f) + (^f));
+let x := ← g $ (←f) + ←f;
 IO.println "hello";
 IO.println x
 
 def tst3 : IO Unit := do
-if (^g 1) > 0 then
+if (← g 1) > 0 then
   IO.println "gt"
 else do
   x ← f;
   y ← g x;
   IO.println y
 
+def pred (x : Nat) : IO Bool := do
+pure $ decide $ (← g 1) > 0
+
+def tst4 (x : Nat) : IO Unit := do
+if ← pred x then
+  IO.println "is true"
+else do
+  IO.println "is false"
+
 syntax [doHash] "#":max : term
 
-def tst4 : StateT (Nat × Nat) IO Unit := do
+def tst5 : StateT (Nat × Nat) IO Unit := do
 if #.1 == 0 then
   IO.println "first field is zero"
 else

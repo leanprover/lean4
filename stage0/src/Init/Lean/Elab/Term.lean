@@ -294,6 +294,13 @@ match u? with
 | some u => pure u
 | none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
 
+/- This function is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
+   Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
+   and then decrement 1 to obtain `u`. -/
+def getDecLevel (ref : Syntax) (type : Expr) : TermElabM Level := do
+u ← getLevel ref type;
+decLevel ref u
+
 def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
 fun ctx s =>
   match (x { .. ctx }).run { .. s } with
@@ -378,7 +385,7 @@ private partial def hasCDot : Syntax → Bool
   The extra state `Array Syntax` contains the new binder names.
   If `stx` is a `·`, we create a fresh identifier, store in the
   extra state, and return it. Otherwise, we just return `stx`. -/
-private partial def expandCDot : Syntax → StateT (Array Syntax) TermElabM Syntax
+private partial def expandCDot : Syntax → StateT (Array Syntax) MacroM Syntax
 | stx@(Syntax.node k args) =>
   if k == `Lean.Parser.Term.paren then pure stx
   else if k == `Lean.Parser.Term.cdot then withFreshMacroScope $ do
@@ -396,7 +403,7 @@ private partial def expandCDot : Syntax → StateT (Array Syntax) TermElabM Synt
   Examples:
   - `· + 1` => `fun _a_1 => _a_1 + 1`
   - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
-def expandCDot? (stx : Syntax) : TermElabM (Option Syntax) :=
+def expandCDot? (stx : Syntax) : MacroM (Option Syntax) :=
 if hasCDot stx then do
   (newStx, binders) ← (expandCDot stx).run #[];
   `(fun $binders* => $newStx)
@@ -721,7 +728,7 @@ fun stx expectedType? =>
   | none => throwError stx ("invalid tactic block, expected type has not been provided")
 
 /-- Main loop for `mkPairs`. -/
-private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax
+private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → MacroM Syntax
 | i, acc =>
   if i > 0 then do
     let i    := i - 1;
@@ -732,7 +739,7 @@ private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermE
     pure acc
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
-def mkPairs (elems : Array Syntax) : TermElabM Syntax :=
+def mkPairs (elems : Array Syntax) : MacroM Syntax :=
 mkPairsAux elems (elems.size - 1) elems.back
 
 /--
@@ -745,7 +752,7 @@ mkPairsAux elems (elems.size - 1) elems.back
   - `(· + ·)`
   - `(f · a b)` -/
 private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-stx? ← expandCDot? stx;
+stx? ← liftMacroM $ expandCDot? stx;
 match stx? with
 | some stx' => withMacroExpansion stx stx' (elabTerm stx' expectedType?)
 | none      => elabTerm stx expectedType?
@@ -761,7 +768,7 @@ fun stx expectedType? =>
     ensureHasType ref type e
   | `(($e))         => elabCDot e expectedType?
   | `(($e, $es*))   => do
-    pairs ← mkPairs (#[e] ++ es.getEvenElems);
+    pairs ← liftMacroM $ mkPairs (#[e] ++ es.getEvenElems);
     withMacroExpansion stx pairs (elabTerm pairs expectedType?)
   | _ => throwError stx "unexpected parentheses notation"
 

@@ -12,25 +12,30 @@ namespace Lean
 namespace Elab
 namespace Term
 
-private def mkIdBindFor (ref : Syntax) (type : Expr) : TermElabM (Expr × Expr) := do
+structure ExtractMonadResult :=
+(m           : Expr)
+(α           : Expr)
+(hasBindInst : Expr)
+
+private def mkIdBindFor (ref : Syntax) (type : Expr) : TermElabM ExtractMonadResult := do
 u ← getLevel ref type;
 let id        := Lean.mkConst `Id [u];
 let idBindVal := Lean.mkConst `Id.hasBind [u];
-pure (id, idBindVal)
+pure { m := id, hasBindInst := idBindVal, α := type }
 
-private def extractMonad (ref : Syntax) (expectedType? : Option Expr) : TermElabM (Expr × Expr) := do
+private def extractMonad (ref : Syntax) (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
 match expectedType? with
 | none => throwError ref "invalid do notation, expected type is not available"
 | some expectedType => do
   type ← withReducible $ whnf ref expectedType;
   when type.getAppFn.isMVar $ throwError ref "invalid do notation, expected type is not available";
   match type with
-  | Expr.app m _ _ =>
+  | Expr.app m α _ =>
     catch
       (do
         bindInstType ← mkAppM ref `HasBind #[m];
         bindInstVal  ← synthesizeInst ref bindInstType;
-        pure (m, bindInstVal))
+        pure { m := m, hasBindInst := bindInstVal, α := α })
       (fun ex => mkIdBindFor ref type)
   | _ => mkIdBindFor ref type
 
@@ -137,21 +142,57 @@ private partial def expandDoElemsAux : Bool → Array Syntax → Nat → MacroM 
 private partial def expandDoElems (doElems : Array Syntax) : MacroM (Option Syntax) :=
 expandDoElemsAux false doElems 0
 
+private def extractTypeFormerAppArg (ref : Syntax) (type : Expr) : TermElabM Expr := do
+type ← withReducible $ whnf ref type;
+match type with
+| Expr.app _ a _ => pure a
+| _              => throwError ref ("type former application expected" ++ indentExpr type)
+
+/-
+We try to coerce first using `HasMonadLift` because it is more flexible than coercions.
+Recall that type class resolution never assigns metavariables created by other modules.
+Now, consider the following scenario
+```lean
+def g (x : Nat) : IO Nat := ...
+deg h (x : Nat) : StateT Nat IO Nat := do
+v ← g x;
+IO.Println v;
+...
+```
+Let's assume there is no other occurrence of `v` in `h`.
+Thus, we have that the expected of `g x` is `StateT Nat IO ?α`,
+and the given type is `IO Nat`. So, even if we add a coercion.
+```
+instance {α m n} [HasLiftT m n] {α} : Coe (m α) (n α) := ...
+```
+It is not applicable because TC would have to assign `?α := Nat`.
+On the other hand, TC can easily solve `[HasLiftT IO (StateT Nat IO)]`
+since this goal does not contain any metavariables. And then, we
+convert `g x` into `liftM $ g x`.
+-/
+private def mkMonadLift (ref : Syntax) (expectedMonad : Expr) (expectedType : Expr) (val : Expr) (valType : Expr) : TermElabM Expr := do
+-- liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : HasMonadLiftT m n] {α : Type u_1}, m α → n α
+extractResult    ← extractMonad ref valType;
+hasMonadLiftType ← mkAppM ref `HasMonadLiftT #[extractResult.m, expectedMonad];
+hasMonadLiftVal  ← synthesizeInst ref hasMonadLiftType;
+u_1 ← getDecLevel ref extractResult.α;
+u_2 ← getDecLevel ref valType;
+u_3 ← getDecLevel ref expectedType;
+let newVal := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[extractResult.m, expectedMonad, hasMonadLiftVal, extractResult.α, val];
+ensureHasType ref expectedType newVal
+
 private def ensureDoElemType (ref : Syntax) (expectedMonad : Expr) (expectedType : Expr) (val : Expr) : TermElabM Expr := do
--- TODO: try MonadLift
-ensureHasType ref expectedType val
+valType ← inferType ref val;
+condM (isDefEq ref valType expectedType) (pure val) $
+  catch
+    (mkMonadLift ref expectedMonad expectedType val valType)
+    (fun _ => ensureHasType ref expectedType val)
 
 structure ProcessedDoElem :=
 (action : Expr)
 (var    : Expr)
 
 instance ProcessedDoElem.inhabited : Inhabited ProcessedDoElem := ⟨⟨arbitrary _, arbitrary _⟩⟩
-
-private def extractTypeFormerAppArg (ref : Syntax) (type : Expr) : TermElabM Expr := do
-type ← withReducible $ whnf ref type;
-match type with
-| Expr.app _ a _ => pure a
-| _              => throwError ref ("type former application expected" ++ indentExpr type)
 
 /-
 HasBind.bind : ∀ {m : Type u_1 → Type u_2} [self : HasBind m] {α β : Type u_1}, m α → (α → m β) → m β
@@ -162,11 +203,9 @@ if elems.isEmpty then
 else do
   let x := elems.back.var; -- any variable would work since they must be in the same universe
   xType ← inferType ref x;
-  u_1 ← getLevel ref xType;
-  u_1 ← decLevel ref u_1;
+  u_1 ← getDecLevel ref xType;
   bodyType ← inferType ref body;
-  u_2 ← getLevel ref bodyType;
-  u_2 ← decLevel ref u_2;
+  u_2 ← getDecLevel ref bodyType;
   let bindAndInst := mkApp2 (Lean.mkConst `HasBind.bind [u_1, u_2]) m bindInstVal;
   elems.foldrM
     (fun elem body => do
@@ -224,7 +263,7 @@ fun stx expectedType? => do
   | none => do
     trace `Elab.do ref $ fun _ => stx;
     let doElems := doElems.getSepElems;
-    (m, bindInstVal) ← extractMonad ref expectedType?;
+    { m := m, hasBindInst := bindInstVal, .. } ← extractMonad ref expectedType?;
     result ← processDoElems doElems m bindInstVal expectedType?.get!;
     -- dbgTrace ("result: " ++ toString result);
     pure result

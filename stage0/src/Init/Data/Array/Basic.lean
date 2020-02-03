@@ -474,6 +474,9 @@ variable {β : Type u}
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
 Id.run $ a.modifyM i f
 
+@[inline] def modifyOp [Inhabited α] (self : Array α) (idx : Nat) (f : α → α) : Array α :=
+self.modify idx f
+
 @[inline] def mapIdx (f : Nat → α → β) (a : Array α) : Array β :=
 Id.run $ mapIdxM f a
 

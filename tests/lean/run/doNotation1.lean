@@ -87,7 +87,7 @@ else do
   IO.println y
 
 def pred (x : Nat) : IO Bool := do
-pure $ decide $ (← g 1) > 0
+pure $ (← g 1) > 0
 
 def tst4 (x : Nat) : IO Unit := do
 if ← pred x then

@@ -23,7 +23,7 @@ let id        := Lean.mkConst `Id [u];
 let idBindVal := Lean.mkConst `Id.hasBind [u];
 pure { m := id, hasBindInst := idBindVal, α := type }
 
-private def extractMonad (ref : Syntax) (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
+private def extractBind (ref : Syntax) (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
 match expectedType? with
 | none => throwError ref "invalid do notation, expected type is not available"
 | some expectedType => do
@@ -142,6 +142,12 @@ private partial def expandDoElemsAux : Bool → Array Syntax → Nat → MacroM 
 private partial def expandDoElems (doElems : Array Syntax) : MacroM (Option Syntax) :=
 expandDoElemsAux false doElems 0
 
+private def extractTypeFormer (ref : Syntax) (type : Expr) : TermElabM Expr := do
+type ← withReducible $ whnf ref type;
+match type with
+| Expr.app m _ _ => pure m
+| _              => throwError ref ("type former application expected" ++ indentExpr type)
+
 private def extractTypeFormerAppArg (ref : Syntax) (type : Expr) : TermElabM Expr := do
 type ← withReducible $ whnf ref type;
 match type with
@@ -149,6 +155,31 @@ match type with
 | _              => throwError ref ("type former application expected" ++ indentExpr type)
 
 /-
+Given an expected type of the form `n β` and a given type `m α`. We use the following approaches.
+
+1- Try to unify `n` and `m`. If it succeeds, then we rely on the regular coercions, and
+   the instances
+   ```
+   instance coeMethod {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] : Coe (m α) (m β)
+   instance pureCoeDepProp {m : Type → Type v} [HasPure m] {p : Prop} [Decidable p] : CoeDep (m Prop) (pure p) (m Bool)
+   ```
+
+2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
+  ```
+  liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : HasMonadLiftT m n] {α : Type u_1}, m α → n α
+  ```
+
+3- If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
+  ```
+  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [HasMonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
+  ```
+
+Note that approach 3 does not subsume 1 because it is only applicable if there is a coercion from `α` to `β` for all values in `α`.
+This is not the case for example for `pure $ x > 0` when the expected type is `IO Bool`. The given type is `IO Prop`, and
+we only have a coercion from decidable propositions.  Approach 1 works because it constructs the coercion `CoeT (m Prop) (pure $ x > 0) (m Bool)`
+using the instance `pureCoeDepProp`.
+
+
 We try to coerce first using `HasMonadLift` because it is more flexible than coercions.
 Recall that type class resolution never assigns metavariables created by other modules.
 Now, consider the following scenario
@@ -170,23 +201,29 @@ On the other hand, TC can easily solve `[HasLiftT IO (StateT Nat IO)]`
 since this goal does not contain any metavariables. And then, we
 convert `g x` into `liftM $ g x`.
 -/
-private def mkMonadLift (ref : Syntax) (expectedMonad : Expr) (expectedType : Expr) (val : Expr) (valType : Expr) : TermElabM Expr := do
--- liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : HasMonadLiftT m n] {α : Type u_1}, m α → n α
-extractResult    ← extractMonad ref valType;
-hasMonadLiftType ← mkAppM ref `HasMonadLiftT #[extractResult.m, expectedMonad];
-hasMonadLiftVal  ← synthesizeInst ref hasMonadLiftType;
-u_1 ← getDecLevel ref extractResult.α;
-u_2 ← getDecLevel ref valType;
-u_3 ← getDecLevel ref expectedType;
-let newVal := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[extractResult.m, expectedMonad, hasMonadLiftVal, extractResult.α, val];
-ensureHasType ref expectedType newVal
+private def coeMethod (ref : Syntax) (expectedMonad : Expr) (expectedType : Expr) (val : Expr) (valType : Expr) : TermElabM Expr := do
+m ← extractTypeFormer ref valType;
+condM (isDefEq ref expectedMonad m)
+  (ensureHasType ref expectedType val) -- approach 1 worked
+  (do
+    -- Construct lift from `m` to `n`
+    α ← extractTypeFormerAppArg ref valType;
+    hasMonadLiftType ← mkAppM ref `HasMonadLiftT #[m, expectedMonad];
+    hasMonadLiftVal  ← synthesizeInst ref hasMonadLiftType;
+    u_1 ← getDecLevel ref α;
+    u_2 ← getDecLevel ref valType;
+    u_3 ← getDecLevel ref expectedType;
+    let newVal := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, expectedMonad, hasMonadLiftVal, α, val];
+    newValType ← inferType ref newVal;
+    condM (isDefEq ref expectedType newValType)
+      (pure newVal) -- approach 2 worked
+      (throwTypeMismatchError ref expectedType valType val)) -- TODO: approach 3
 
 private def ensureDoElemType (ref : Syntax) (expectedMonad : Expr) (expectedType : Expr) (val : Expr) : TermElabM Expr := do
 valType ← inferType ref val;
+valType ← instantiateMVars ref valType;
 condM (isDefEq ref valType expectedType) (pure val) $
-  catch
-    (mkMonadLift ref expectedMonad expectedType val valType)
-    (fun _ => ensureHasType ref expectedType val)
+  (coeMethod ref expectedMonad expectedType val valType)
 
 structure ProcessedDoElem :=
 (action : Expr)
@@ -263,7 +300,7 @@ fun stx expectedType? => do
   | none => do
     trace `Elab.do ref $ fun _ => stx;
     let doElems := doElems.getSepElems;
-    { m := m, hasBindInst := bindInstVal, .. } ← extractMonad ref expectedType?;
+    { m := m, hasBindInst := bindInstVal, .. } ← extractBind ref expectedType?;
     result ← processDoElems doElems m bindInstVal expectedType?.get!;
     -- dbgTrace ("result: " ++ toString result);
     pure result

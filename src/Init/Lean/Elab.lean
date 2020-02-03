@@ -19,3 +19,4 @@ import Init.Lean.Elab.Tactic
 import Init.Lean.Elab.Syntax
 import Init.Lean.Elab.Match
 import Init.Lean.Elab.DoNotation
+import Init.Lean.Elab.StructInst

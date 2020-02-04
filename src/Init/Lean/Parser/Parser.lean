@@ -1399,6 +1399,17 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
         let s := mkTrailingResult s iniSz;
         trailingLoop s
 
+def checkTokenLBPFn : ParserFn :=
+fun c s =>
+  let left := s.stxStack.back;
+  let (s, lbp) := currLbp left c s;
+  if c.rbp < lbp then s
+  else s.mkUnexpectedError "unexpected token"
+
+def checkTokenLBP : Parser :=
+{ info := epsilonInfo,
+  fn   := checkTokenLBPFn }
+
 /--
   Implements a recursive precedence parser according to Pratt's algorithm.
 

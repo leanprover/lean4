@@ -515,7 +515,7 @@ f 20
 max a b
 (Term.app (Term.id `max (null)) (null (Term.id `a (null)) (Term.id `b (null))))
 f {x : a} -> b
-failed as expected, error: <input>:1:10 found '→' as expected, but brackets are needed
+failed as expected, error: <input>:1:10 expected parentheses around dependent arrow
 (x := 20)
 failed as expected, error: <input>:1:3 expected ':' or ')'
 let x 10; x

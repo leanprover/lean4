@@ -1043,14 +1043,14 @@ let asciiSym := asciiSym.trim;
   fn   := unicodeSymbolFn sym asciiSym }
 
 /- Succeeds if RBP > lower -/
-def checkRBPGreaterFn (lower : Nat) : ParserFn :=
+def checkRBPGreaterFn (lower : Nat) (errorMsg : String) : ParserFn :=
 fun c s =>
-  if c.rbp > lower then s.mkUnexpectedError "parentheses are needed" -- improve error message
+  if c.rbp > lower then s.mkUnexpectedError errorMsg
   else s
 
-def checkRBPGreater (lower : Nat) : Parser :=
+def checkRBPGreater (lower : Nat) (errorMsg : String) : Parser :=
 { info := epsilonInfo,
-  fn   := checkRBPGreaterFn lower }
+  fn   := checkRBPGreaterFn lower errorMsg }
 
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ { val := k } ] }

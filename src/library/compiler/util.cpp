@@ -486,6 +486,17 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
             return mk_enf_neutral_type();
         }
 
+        if (is_pi(e)) {
+            expr it = e;
+            while (is_pi(it))
+                it = binding_body(it);
+            if (is_sort(it)) {
+                // functions that produce types are irrelevant
+                return mk_enf_neutral_type();
+            }
+        }
+
+
         /* If `e` is a trivial structure such as `Subtype`, then convert the only relevant
            field to a runtime type. */
         if (is_app(e)) {

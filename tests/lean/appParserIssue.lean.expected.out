@@ -1,5 +1,4 @@
-f 1 : (Nat → Nat) → Nat
-appParserIssue.lean:5:11: error: expected command
+appParserIssue.lean:5:11: error: unexpected token; expected longestMatch: empty list or '('
 f 1 (λ (x : Nat), x) : Nat
 f 1 (λ (x : Nat), x) : Nat
 appParserIssue.lean:12:13: error: unexpected token

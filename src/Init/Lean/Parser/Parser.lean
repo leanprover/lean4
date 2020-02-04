@@ -1042,21 +1042,15 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym lbp,
   fn   := unicodeSymbolFn sym asciiSym }
 
-def unicodeSymbolCheckPrecFnAux (sym asciiSym : String) (lbp : Nat) (expected : List String) (precErrorMsg : String) : ParserFn :=
+/- Succeeds if RBP > lower -/
+def checkRBPGreaterFn (lower : Nat) : ParserFn :=
 fun c s =>
-  if c.rbp > lbp then s.mkUnexpectedError precErrorMsg
-  else satisfySymbolFn (fun s => s == sym || s == asciiSym) expected c s
+  if c.rbp > lower then s.mkUnexpectedError "parentheses are needed" -- improve error message
+  else s
 
-@[inline] def unicodeSymbolCheckPrecFn (sym asciiSym : String) (lbp : Nat) : ParserFn :=
-unicodeSymbolCheckPrecFnAux sym asciiSym lbp
-  ["'" ++ sym ++ "'", "'" ++ asciiSym ++ "'"]
-  ("found '" ++ sym ++ "' as expected, but brackets are needed") -- improve error message
-
-@[inline] def unicodeSymbolCheckPrec (sym asciiSym : String) (lbp : Nat) : Parser :=
-let sym := sym.trim;
-let asciiSym := asciiSym.trim;
-{ info := unicodeSymbolInfo sym asciiSym lbp,
-  fn   := unicodeSymbolCheckPrecFn sym asciiSym lbp }
+def checkRBPGreater (lower : Nat) : Parser :=
+{ info := epsilonInfo,
+  fn   := checkRBPGreaterFn lower }
 
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ { val := k } ] }

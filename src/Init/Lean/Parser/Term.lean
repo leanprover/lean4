@@ -124,7 +124,7 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser! "-" >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser! many1 (namedArgument <|> (checkTokenLBP >> termParser appPrec))
+@[builtinTermParser] def app      := tparser! many1 (namedArgument <|> termParser appPrec)
 
 def checkIsSort := checkStackTop (fun stx => stx.isOfKind `Lean.Parser.Term.type || stx.isOfKind `Lean.Parser.Term.sort)
 @[builtinTermParser] def sortApp  := tparser! checkIsSort >> levelParser appPrec

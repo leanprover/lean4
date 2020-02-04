@@ -74,7 +74,7 @@ IO.println "hello";
 IO.println x
 
 def tst2 : IO Unit := do
-let x := ← g $ (←f) + ←f;
+let x := ← g $ (←f) + (←f);
 IO.println "hello";
 IO.println x
 

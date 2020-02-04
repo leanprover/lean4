@@ -1354,69 +1354,6 @@ match stx with
 | some (Syntax.node k _)        => find k
 | _                             => (s, [])
 
-private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
-if s.stackSize == iniSz + 1 then s
-else s.mkNode nullKind iniSz -- throw error instead?
-
-def leadingParser (kind : Name) (tables : PrattParsingTables) (preLeadingParser : Parser) (leadingIdentAsSymbol : Bool) : ParserFn :=
-orelseFn preLeadingParser.fn $ fun c s =>
-  let iniSz   := s.stackSize;
-  let (s, ps) := indexed tables.leadingTable c s leadingIdentAsSymbol;
-  let ps      := tables.leadingParsers ++ ps;
-  if ps.isEmpty then
-    s.mkError (toString kind)
-  else
-    let s := longestMatchFn ps c s;
-    mkResult s iniSz
-
-def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
-fun c s =>
-  orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) c s
-
-private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
-let s := mkResult s iniSz;
--- Stack contains `[..., left, result]`
--- We must remove `left`
-let result := s.stxStack.back;
-let s      := s.popSyntax.popSyntax;
-s.pushSyntax result
-
-partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : ParserState → ParserState
-| s =>
-  let left := s.stxStack.back;
-  let (s, lbp) := currLbp left c s;
-  if c.rbp ≥ lbp then s
-  else
-    let iniSz         := s.stackSize;
-    let identAsSymbol := false;
-    let (s, ps)       := indexed tables.trailingTable c s identAsSymbol;
-    if ps.isEmpty && tables.trailingParsers.isEmpty then
-      s -- no available trailing parser
-    else
-      let s := trailingLoopStep tables ps c s;
-      if s.hasError then s
-      else
-        let s := mkTrailingResult s iniSz;
-        trailingLoop s
-
-/--
-  Implements a recursive precedence parser according to Pratt's algorithm.
-
-  `preLeadingParser` is a parser that is preferred over all other leading
-  parsers. We use it to inject the antiquotation parser into syntax categories.
-  It should not be added to the regular leading parsers because it would heavily
-  overlap with antiquotation parsers nested inside them. -/
-def prattParser (kind : Name) (tables : PrattParsingTables) (preLeadingParser : Parser) (leadingIdentAsSymbol : Bool) : ParserFn :=
-fun c s =>
-  let left := s.stxStack.back;
-  let (s, lbp) := currLbp left c s;
-  if c.rbp > lbp then s.mkUnexpectedError "unexpected token"
-  else
-    let s := leadingParser kind tables preLeadingParser leadingIdentAsSymbol c s;
-    if s.hasError then s
-    else
-      trailingLoop tables c s
-
 abbrev CategoryParserFn := Name → ParserFn
 
 def mkCategoryParserFnRef : IO (IO.Ref CategoryParserFn) :=
@@ -1536,6 +1473,92 @@ fun ctx s =>
 
 def categoryParserOfStack (offset : Nat) (rbp : Nat := 0) : Parser :=
 { fn := fun c s => categoryParserOfStackFn offset { rbp := rbp, .. c } s }
+
+private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
+if s.stackSize == iniSz + 1 then s
+else s.mkNode nullKind iniSz -- throw error instead?
+
+def leadingParserAux (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) : ParserFn :=
+fun c s =>
+  let iniSz   := s.stackSize;
+  let (s, ps) := indexed tables.leadingTable c s leadingIdentAsSymbol;
+  let ps      := tables.leadingParsers ++ ps;
+  if ps.isEmpty then
+    s.mkError (toString kind)
+  else
+    let s := longestMatchFn ps c s;
+    mkResult s iniSz
+
+private def catNameToString : Name → String
+| Name.str Name.anonymous s _ => s
+| n                           => n.toString
+
+@[inline] def leadingParserAntiquot (kind : Name) : ParserFn :=
+-- allow "anonymous" antiquotations `$x` for the `term` category only
+-- TODO: make customizable
+-- one good example for a category that should not be anonymous is
+-- `index` in `tests/lean/run/bigop.lean`.
+let anonAntiquot := kind == `term;
+(mkAntiquot (catNameToString kind) none anonAntiquot).fn
+
+private def isDollar (c : ParserContext) (s : ParserState) : Bool :=
+match peekToken c s with
+| (_, some (Syntax.atom _ val)) => val == "$"
+| _ => false
+
+def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : Bool) : ParserFn :=
+fun c s =>
+  if antiquotParser && isDollar c s then
+    orelseFn (leadingParserAntiquot kind) (leadingParserAux kind tables leadingIdentAsSymbol) c s
+  else
+    leadingParserAux kind tables leadingIdentAsSymbol c s
+
+def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
+fun c s =>
+  orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) c s
+
+private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
+let s := mkResult s iniSz;
+-- Stack contains `[..., left, result]`
+-- We must remove `left`
+let result := s.stxStack.back;
+let s      := s.popSyntax.popSyntax;
+s.pushSyntax result
+
+partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : ParserState → ParserState
+| s =>
+  let left := s.stxStack.back;
+  let (s, lbp) := currLbp left c s;
+  if c.rbp ≥ lbp then s
+  else
+    let iniSz         := s.stackSize;
+    let identAsSymbol := false;
+    let (s, ps)       := indexed tables.trailingTable c s identAsSymbol;
+    if ps.isEmpty && tables.trailingParsers.isEmpty then
+      s -- no available trailing parser
+    else
+      let s := trailingLoopStep tables ps c s;
+      if s.hasError then s
+      else
+        let s := mkTrailingResult s iniSz;
+        trailingLoop s
+
+/--
+  Implements a recursive precedence parser according to Pratt's algorithm.
+
+  If `antiquotParser == true`, we inject the antiquotation parser into syntax categories.
+  It should not be added to the regular leading parsers because it would heavily
+  overlap with antiquotation parsers nested inside them. -/
+def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : Bool) : ParserFn :=
+fun c s =>
+  let left := s.stxStack.back;
+  let (s, lbp) := currLbp left c s;
+  if c.rbp > lbp then s.mkUnexpectedError "unexpected token"
+  else
+    let s := leadingParser kind tables leadingIdentAsSymbol antiquotParser c s;
+    if s.hasError then s
+    else
+      trailingLoop tables c s
 
 def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 @[init mkBuiltinTokenTable] constant builtinTokenTable : IO.Ref TokenTable := arbitrary _
@@ -1789,22 +1812,12 @@ match (parserExtension.getState env).categories.find? catName with
 | none     => false
 | some cat => cat.leadingIdentAsSymbol
 
-private def catNameToString : Name → String
-| Name.str Name.anonymous s _ => s
-| n                           => n.toString
-
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;
   match categories.find? catName with
   | some cat =>
-    -- allow "anonymous" antiquotations `$x` for the `term` category only
-    -- TODO: make customizable
-    -- one good example for a category that should not be anonymous is
-    -- `index` in `tests/lean/run/bigop.lean`.
-    let anonAntiquot := catName == `term;
-    let preP := mkAntiquot (catNameToString catName) none anonAntiquot;
-    prattParser catName cat.tables preP cat.leadingIdentAsSymbol ctx s
+    prattParser catName cat.tables cat.leadingIdentAsSymbol true ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[init] def setCategoryParserFnRef : IO Unit :=

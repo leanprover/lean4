@@ -78,7 +78,7 @@ def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >>
 def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
 def instBinder := parser! "[" >> optIdent >> termParser >> "]"
 def bracktedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
-@[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
+@[builtinTermParser] def depArrow := parser! bracktedBinder true >> checkRBPGreater 25 >> unicodeSymbol " → " " -> " >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
 
@@ -116,7 +116,7 @@ def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
 def doSeq  := sepBy1 doElem "; "
 def bracketedDoSeq := parser! "{" >> doSeq >> "}"
-@[builtinTermParser] def liftMethod := parser! leftArrow >> termParser
+@[builtinTermParser] def liftMethod := parser! checkRBPGreater (appPrec-1) >> leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser! "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def not    := parser! symbol "¬" 40 >> termParser 40

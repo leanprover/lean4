@@ -612,6 +612,60 @@ extern "C" obj_res lean_io_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
     return set_io_result(box(r));
 }
 
+/* Mutable quotients are simpler version of IO.Ref */
+
+extern "C" obj_res lean_mutquot_mk(obj_arg a) {
+    lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
+    lean_set_st_header((lean_object*)o, LeanRef, 0);
+    o->m_value = a;
+    return (lean_object*)(o);
+}
+
+extern "C" obj_res lean_mutquot_get(obj_arg q) {
+    if (ref_maybe_mt(q)) {
+        atomic<object *> * val_addr = mt_ref_val_addr(q);
+        object * val;
+        while (true) {
+            val = val_addr->exchange(nullptr);
+            if (val != nullptr)
+                break;
+        }
+        inc(val);
+        object * tmp = val_addr->exchange(val);
+        if (tmp != nullptr) {
+            /* this may happen if another thread wrote `ref` */
+            dec(tmp);
+        }
+        dec(q);
+        return val;
+    } else {
+        object * val = lean_to_ref(q)->m_value;
+        lean_assert(val != nullptr);
+        inc(val);
+        dec(q);
+        return val;
+    }
+}
+
+extern "C" uint8_t lean_mutquot_set(b_obj_arg q, obj_arg a) {
+    if (ref_maybe_mt(q)) {
+        /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
+           Reason: our runtime relies on the fact that a single-threaded object
+           cannot be reached from a multi-thread object. */
+        mark_mt(a);
+        atomic<object *> * val_addr = mt_ref_val_addr(q);
+        object * old_a = val_addr->exchange(a);
+        if (old_a != nullptr)
+            dec(old_a);
+        return 0;
+    } else {
+        lean_assert(lean_to_ref(q)->m_value);
+        dec(lean_to_ref(q)->m_value);
+        lean_to_ref(q)->m_value = a;
+        return 0;
+    }
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = mk_string("null reference read");
     mark_persistent(g_io_error_nullptr_read);

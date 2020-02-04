@@ -116,7 +116,7 @@ def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
 def doSeq  := sepBy1 doElem "; "
 def bracketedDoSeq := parser! "{" >> doSeq >> "}"
-@[builtinTermParser] def liftMethod := parser! checkRBPGreater (appPrec-1) "expected parentheses monad lift operator" >> leftArrow >> termParser
+@[builtinTermParser] def liftMethod := parser! leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser! "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def not    := parser! symbol "¬" 40 >> termParser 40

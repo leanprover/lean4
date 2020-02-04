@@ -32,8 +32,8 @@ set_option trace.Elab.definition true
 
 def h (x : Nat) : StateT Nat IO Nat := do
 s ← get;
-a ← f;            -- liftM inserted here
-b ← g1 (1:Nat);   -- liftM inserted here
+a ← f;      -- liftM inserted here
+b ← g1 1;   -- liftM inserted here
 let x := g2 b;
 IO.println b;
 pure (s+a)

@@ -65,8 +65,35 @@ structure Result : Type :=
 
 set_option eqn_compiler.max_steps 5000
 
-def mergeCongr (op : Op) (x₁ y₁ : Term) : Result → Result → Result
+def mergeCongr1 (op : Op) (x₁ y₁ : Term) : Result → Result → Result
 | ⟨_, refl _⟩, ⟨_, refl _⟩ => ⟨app op x₁ y₁, refl $ app op x₁ y₁⟩
 | ⟨x₂, px⟩,    ⟨_, refl _⟩ => ⟨app op x₂ y₁, congrArg₁ op px y₁⟩
 | ⟨_, refl _⟩, ⟨y₂, py⟩    => ⟨app op x₁ y₂, congrArg₂ op x₁ py⟩
 | ⟨x₂, px⟩,    ⟨y₂, py⟩    => ⟨app op x₂ y₂, congrArgs op px py⟩
+
+-- The following is much faster (but still slow) because the current equation compiler is dumb and is doing a lot of duplicate work.
+def mergeCongr2 (op : Op) (x₁ y₁ : Term) (r₁ r₂ : Result) : Result :=
+match r₁ with
+| ⟨_, refl _⟩ =>
+  match r₂ with
+  | ⟨_, refl _⟩ => ⟨app op x₁ y₁, refl $ app op x₁ y₁⟩
+  | ⟨y₂, py⟩    => ⟨app op x₁ y₂, congrArg₂ op x₁ py⟩
+| ⟨x₂, px⟩ =>
+  match r₂ with
+  | ⟨_, refl _⟩ => ⟨app op x₂ y₁, congrArg₁ op px y₁⟩
+  | ⟨y₂, py⟩    => ⟨app op x₂ y₂, congrArgs op px py⟩
+
+-- Plan: in the new equation compiler we should use join points (special kind of let-decls) to avoid duplicate work.
+
+def isRefl : Proof → Bool
+| refl _ => true
+| _      => false
+
+-- Very fast to compile using Lean3 equation compiler
+def mergeCongr3 (op : Op) (x₁ y₁ : Term) : Result → Result → Result
+| ⟨x₂, px⟩, ⟨y₂, py⟩ =>
+  match isRefl px, isRefl py with
+  | true,  true  => ⟨app op x₁ y₁, refl $ app op x₁ y₁⟩
+  | false, true  => ⟨app op x₂ y₁, congrArg₁ op px y₁⟩
+  | true,  false => ⟨app op x₁ y₂, congrArg₂ op x₁ py⟩
+  | false, false => ⟨app op x₂ y₂, congrArgs op px py⟩

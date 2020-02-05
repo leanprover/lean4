@@ -154,12 +154,53 @@ else do
     | Expr.const constName _ _ => pure constName
     | _                        => useSource ()
 
-/- Convert a path such as `[N.C.toB, N.B.toA]` into `#[ "." toB, "." toA]` -/
-private def mkParentFieldNameFromPath (ref : Syntax) (path : List Name) : TermElabM (Array Syntax) :=
-path.toArray.mapM $ fun toFunName =>
-  match toFunName with
-  | Name.str _ s _ => pure $ mkNullNode #[mkAtomFrom ref ".", mkIdentFrom ref (mkNameSimple s)]
-  | _              => throwError ref "invalid field name to parent structure"
+/- Given a structure instance element `structInstElem`, prepend the new fields.
+   `structInstElem` is of the form
+    ```
+      def structInstField  := parser! structInstLVal >> " := " >> termParser
+      def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
+    ``` -/
+private def prependFields (structInstElem : Syntax) (newFields : List Name) : Syntax :=
+match newFields with
+| []            => structInstElem
+| first :: rest =>
+  let currFirst      := structInstElem.getArg 0;
+  let currFirst      := if currFirst.isIdent then mkNullNode #[mkAtomFrom currFirst ".", currFirst] else currFirst;
+  let restStx        := rest.toArray.map $ fun fieldName => mkNullNode #[mkAtomFrom structInstElem ".", mkIdentFrom structInstElem fieldName];
+  let newManyArgs    := restStx.push currFirst ++ (structInstElem.getArg 1).getArgs;
+  let structInstElem := structInstElem.setArg 1 (mkNullNode newManyArgs);
+  structInstElem.setArg 0 (mkIdentFrom structInstElem first)
+
+/- Given a structure instance `stx`, expand the first field of each element if it is a composite name.
+   Example:
+   ```
+   (Term.structInstField `x.y (null) ":=" (Term.num (numLit "1")))
+   ```
+   is expanded into
+   ```
+   (Term.structInstField `x (null (null "." `y)) ":=" (Term.num (numLit "1")))
+   ``` -/
+private def expandCompositeFields (stx : Syntax) : Syntax :=
+let args := (stx.getArg 2).getArgs;
+let args := args.map $ fun arg =>
+  if arg.getKind == `Lean.Parser.Term.structInstField then
+    /- arg is of the form
+       def structInstField  := parser! structInstLVal >> " := " >> termParser
+       def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef) -/
+    let field := arg.getArg 0;
+    if field.isIdent then
+      match field.getId with
+      | Name.str Name.anonymous _ _ => arg -- atomic field
+      | Name.str pre s _ =>
+        -- update first with `s`
+        let arg := arg.setArg 0 (mkIdentFrom field (mkNameSimple s));
+        prependFields arg pre.components
+      | _ => unreachable!
+    else
+      arg
+  else
+    arg;
+stx.setArg 2 (mkNullNode args)
 
 /- For example, consider the following structures:
    ```
@@ -192,13 +233,11 @@ args ← args.mapM $ fun arg =>
       | some baseStructName =>
         if baseStructName == structName then pure arg
         else match getPathToBaseStructure? env baseStructName structName with
-          | some (Name.str _ firstField _ :: rest) => do
-            let newFieldStx  := mkIdentFrom arg (mkNameSimple firstField);
-            let arg          := arg.setArg 0 newFieldStx;
-            newFieldsStx ← mkParentFieldNameFromPath arg (rest ++ [fieldName]);
-            let newManyArgs  := newFieldsStx ++ (arg.getArg 1).getArgs;
-            let arg          := arg.setArg 1 (mkNullNode newManyArgs);
-            pure arg
+          | some path => do
+            let path := path.map $ fun funName => match funName with
+              | Name.str _ s _ => mkNameSimple s
+              | _              => unreachable!;
+            pure $ prependFields arg path
           | _ => throwError arg ("failed to access field '" ++ fieldName ++ "' in parent structure")
     else
       pure arg
@@ -211,6 +250,7 @@ structName ← getStructName stx expectedType? sourceView;
 env ← getEnv;
 unless (isStructureLike env structName) $
   throwError stx ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
+let stx := expandCompositeFields stx;
 stx ← expandParentFields stx structName;
 throwError stx ("WIP " ++ toString structName ++ toString stx)
 

@@ -459,6 +459,7 @@ lean_object* l_Lean_Elab_Term_Quotation_oldParseExpr___closed__1;
 lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___closed__25;
 extern lean_object* l_Lean_mkHole___closed__1;
+extern lean_object* l_List_foldlM___main___at_Lean_parseSearchPath___spec__8___closed__3;
 lean_object* l_Lean_Parser_categoryParser___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__40;
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax(lean_object*, lean_object*, lean_object*);
@@ -517,7 +518,6 @@ extern lean_object* l_Lean_Elab_Term_mkExplicitBinder___closed__4;
 lean_object* l___private_Init_Lean_Elab_Quotation_13__toPreterm___main___closed__4;
 extern lean_object* l_Lean_mkHole___closed__2;
 lean_object* l___private_Init_Lean_Elab_Quotation_10__getPatternVarsAux___main___boxed(lean_object*);
-extern lean_object* l_List_foldlM___main___at_Lean_parseSearchPath___spec__7___closed__3;
 lean_object* l___private_Init_Lean_Elab_Quotation_8__explodeHeadPat___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__7;
 lean_object* l_List_foldl___main___at___private_Init_Lean_Elab_Quotation_13__toPreterm___main___spec__5(lean_object*, lean_object*, lean_object*);
@@ -7891,7 +7891,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_List_foldlM___main___at_Lean_parseSearchPath___spec__7___closed__3;
+x_2 = l_List_foldlM___main___at_Lean_parseSearchPath___spec__8___closed__3;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

@@ -866,7 +866,7 @@ fun c s =>
       let s := tokenFnAux c s;
       updateCache i s
 
-def peekToken (c : ParserContext) (s : ParserState) : ParserState × Option Syntax :=
+def peekTokenAux (c : ParserContext) (s : ParserState) : ParserState × Option Syntax :=
 let iniSz  := s.stackSize;
 let iniPos := s.pos;
 let s      := tokenFn c s;
@@ -874,6 +874,13 @@ if s.hasError then (s.restore iniSz iniPos, none)
 else
   let stx := s.stxStack.back;
   (s.restore iniSz iniPos, some stx)
+
+@[inline] def peekToken (c : ParserContext) (s : ParserState) : ParserState × Option Syntax :=
+let tkc := s.cache.tokenCache;
+if tkc.startPos == s.pos then
+  (s, some tkc.token)
+else
+  peekTokenAux c s
 
 /- Treat keywords as identifiers. -/
 def rawIdentFn : ParserFn :=

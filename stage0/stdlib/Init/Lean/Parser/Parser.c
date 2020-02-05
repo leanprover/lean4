@@ -502,6 +502,7 @@ lean_object* l_Lean_Parser_binNumberFn(lean_object*, lean_object*, lean_object*)
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkParserOfConstant___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_charLitNoAntiquot___closed__3;
+lean_object* l_Lean_Parser_peekTokenAux(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_HasBeq;
 lean_object* l_Lean_Parser_nonReservedSymbolInfo___closed__3;
 extern lean_object* l___private_Init_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1;
@@ -9046,7 +9047,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Lean_Parser_peekToken(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Parser_peekTokenAux(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -9086,6 +9087,42 @@ x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 return x_15;
+}
+}
+}
+lean_object* l_Lean_Parser_peekToken(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_2, 2);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_2, 1);
+lean_inc(x_5);
+x_6 = lean_nat_dec_eq(x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; 
+lean_dec(x_3);
+x_7 = l_Lean_Parser_peekTokenAux(x_1, x_2);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec(x_1);
+x_8 = lean_ctor_get(x_3, 2);
+lean_inc(x_8);
+lean_dec(x_3);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_2);
+lean_ctor_set(x_10, 1, x_9);
+return x_10;
 }
 }
 }
@@ -22785,9 +22822,42 @@ return x_1;
 lean_object* l_Lean_Parser_currLbp(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; lean_object* x_163; lean_object* x_164; lean_object* x_165; uint8_t x_166; 
+x_163 = lean_ctor_get(x_3, 2);
+lean_inc(x_163);
+x_164 = lean_ctor_get(x_163, 0);
+lean_inc(x_164);
+x_165 = lean_ctor_get(x_3, 1);
+lean_inc(x_165);
+x_166 = lean_nat_dec_eq(x_164, x_165);
+lean_dec(x_165);
+lean_dec(x_164);
+if (x_166 == 0)
+{
+lean_object* x_167; 
+lean_dec(x_163);
 lean_inc(x_2);
-x_4 = l_Lean_Parser_peekToken(x_2, x_3);
+x_167 = l_Lean_Parser_peekTokenAux(x_2, x_3);
+x_4 = x_167;
+goto block_162;
+}
+else
+{
+lean_object* x_168; lean_object* x_169; lean_object* x_170; 
+x_168 = lean_ctor_get(x_163, 2);
+lean_inc(x_168);
+lean_dec(x_163);
+x_169 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_169, 0, x_168);
+x_170 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_170, 0, x_3);
+lean_ctor_set(x_170, 1, x_169);
+x_4 = x_170;
+goto block_162;
+}
+block_162:
+{
+lean_object* x_5; 
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 if (lean_obj_tag(x_5) == 0)
@@ -23695,6 +23765,7 @@ return x_161;
 }
 }
 }
+}
 lean_object* l_Lean_Parser_currLbp___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -23860,8 +23931,42 @@ return x_2;
 lean_object* l_Lean_Parser_indexed___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = l_Lean_Parser_peekToken(x_2, x_3);
+lean_object* x_5; lean_object* x_37; lean_object* x_38; lean_object* x_39; uint8_t x_40; 
+x_37 = lean_ctor_get(x_3, 2);
+lean_inc(x_37);
+x_38 = lean_ctor_get(x_37, 0);
+lean_inc(x_38);
+x_39 = lean_ctor_get(x_3, 1);
+lean_inc(x_39);
+x_40 = lean_nat_dec_eq(x_38, x_39);
+lean_dec(x_39);
+lean_dec(x_38);
+if (x_40 == 0)
+{
+lean_object* x_41; 
+lean_dec(x_37);
+x_41 = l_Lean_Parser_peekTokenAux(x_2, x_3);
+x_5 = x_41;
+goto block_36;
+}
+else
+{
+lean_object* x_42; lean_object* x_43; lean_object* x_44; 
+lean_dec(x_2);
+x_42 = lean_ctor_get(x_37, 2);
+lean_inc(x_42);
+lean_dec(x_37);
+x_43 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_43, 0, x_42);
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_3);
+lean_ctor_set(x_44, 1, x_43);
+x_5 = x_44;
+goto block_36;
+}
+block_36:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -24012,6 +24117,7 @@ if (lean_is_scalar(x_8)) {
 lean_ctor_set(x_14, 0, x_6);
 lean_ctor_set(x_14, 1, x_13);
 return x_14;
+}
 }
 }
 }
@@ -27068,8 +27174,42 @@ return x_10;
 uint8_t l___private_Init_Lean_Parser_Parser_16__isDollar(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Parser_peekToken(x_1, x_2);
+lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_12 = lean_ctor_get(x_2, 2);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_12, 0);
+lean_inc(x_13);
+x_14 = lean_ctor_get(x_2, 1);
+lean_inc(x_14);
+x_15 = lean_nat_dec_eq(x_13, x_14);
+lean_dec(x_14);
+lean_dec(x_13);
+if (x_15 == 0)
+{
+lean_object* x_16; 
+lean_dec(x_12);
+x_16 = l_Lean_Parser_peekTokenAux(x_1, x_2);
+x_3 = x_16;
+goto block_11;
+}
+else
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_dec(x_1);
+x_17 = lean_ctor_get(x_12, 2);
+lean_inc(x_17);
+lean_dec(x_12);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_2);
+lean_ctor_set(x_19, 1, x_18);
+x_3 = x_19;
+goto block_11;
+}
+block_11:
+{
+lean_object* x_4; 
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 lean_dec(x_3);
@@ -27102,6 +27242,7 @@ uint8_t x_10;
 lean_dec(x_6);
 x_10 = 0;
 return x_10;
+}
 }
 }
 }

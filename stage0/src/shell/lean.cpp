@@ -427,7 +427,12 @@ int main(int argc, char ** argv) {
     llvm::InitializeNativeTarget();
 #endif
 
-    init_search_path();
+    try {
+        init_search_path();
+    } catch (lean::throwable & ex) {
+        std::cerr << "error: " << ex.what() << std::endl;
+        return 1;
+    }
 
     options opts;
     optional<std::string> server_in;
@@ -557,28 +562,29 @@ int main(int argc, char ** argv) {
 
     std::string mod_fn = "<unknown>";
     std::string contents;
-    if (use_stdin) {
-        if (argc - optind != 0) {
-            std::cerr << "Expected exactly one of file name or --stdin\n";
-            display_help(std::cerr);
-            return 1;
-        }
-        mod_fn = "<stdin>";
-        std::stringstream buf;
-        buf << std::cin.rdbuf();
-        contents = buf.str();
-    } else {
-        if (!run && argc - optind != 1) {
-            std::cerr << "Expected exactly one file name\n";
-            display_help(std::cerr);
-            return 1;
-        }
-        mod_fn = lrealpath(argv[optind++]);
-        contents = read_file(mod_fn);
-        main_module_name = module_name_of_file(mod_fn);
-    }
 
     try {
+        if (use_stdin) {
+            if (argc - optind != 0) {
+                std::cerr << "Expected exactly one of file name or --stdin\n";
+                display_help(std::cerr);
+                return 1;
+            }
+            mod_fn = "<stdin>";
+            std::stringstream buf;
+            buf << std::cin.rdbuf();
+            contents = buf.str();
+        } else {
+            if (!run && argc - optind != 1) {
+                std::cerr << "Expected exactly one file name\n";
+                display_help(std::cerr);
+                return 1;
+            }
+            mod_fn = lrealpath(argv[optind++]);
+            contents = read_file(mod_fn);
+            main_module_name = module_name_of_file(mod_fn);
+        }
+
         bool ok = true;
         if (new_frontend) {
             optional<environment> new_env = run_new_frontend(env, contents, mod_fn, opts);

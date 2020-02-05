@@ -100,12 +100,10 @@ extern "C" void lean_io_mark_end_initialization() {
 }
 
 static obj_res mk_file_not_found_error(b_obj_arg fname) {
-    object * err = mk_string("file '");
-    err = string_append(err, fname);
-    object * tmp = mk_string("' not found");
-    err = string_append(err, tmp);
-    dec_ref(tmp);
-    return set_io_error(err);
+    inc(fname);
+    int errnum = ENOENT;
+    object * details = mk_string("");
+    return set_io_error(lean_mk_io_error_no_file_or_directory(fname, errnum, details));
 }
 
 extern "C" obj_res lean_io_prim_read_text_file(b_obj_arg fname, obj_arg) {

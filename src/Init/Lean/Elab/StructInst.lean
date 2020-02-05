@@ -154,11 +154,64 @@ else do
     | Expr.const constName _ _ => pure constName
     | _                        => useSource ()
 
+/- Convert a path such as `[N.C.toB, N.B.toA]` into `#[ "." toB, "." toA]` -/
+private def mkParentFieldNameFromPath (ref : Syntax) (path : List Name) : TermElabM (Array Syntax) :=
+path.toArray.mapM $ fun toFunName =>
+  match toFunName with
+  | Name.str _ s _ => pure $ mkNullNode #[mkAtomFrom ref ".", mkIdentFrom ref (mkNameSimple s)]
+  | _              => throwError ref "invalid field name to parent structure"
+
+/- For example, consider the following structures:
+   ```
+   structure A := (x : Nat)
+   structure B extends A := (y : Nat)
+   structure C extends B := (z : Bool)
+   ```
+   This method expands parent structure fields using the path to the parent structure.
+   For example,
+   ```
+   { C . x := 0, y := 0, z := true }
+   ```
+   is expanded into
+   ```
+   { C . toB.toA.x := 0, toB.y := 0, z := true }
+   ``` -/
+private def expandParentFields (stx : Syntax) (structName : Name) : TermElabM Syntax := do
+env ← getEnv;
+let args := (stx.getArg 2).getArgs;
+args ← args.mapM $ fun arg =>
+  if arg.getKind == `Lean.Parser.Term.structInstField then
+    /- arg is of the form
+       def structInstField  := parser! structInstLVal >> " := " >> termParser
+       def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef) -/
+    let field := arg.getArg 0;
+    if field.isIdent then
+      let fieldName := field.getId;
+      match findField? env structName fieldName with
+      | none => throwError arg ("'" ++ fieldName ++ "' is not a field of structure '" ++ structName ++ "'")
+      | some baseStructName =>
+        if baseStructName == structName then pure arg
+        else match getPathToBaseStructure? env baseStructName structName with
+          | some (Name.str _ firstField _ :: rest) => do
+            let newFieldStx  := mkIdentFrom arg (mkNameSimple firstField);
+            let arg          := arg.setArg 0 newFieldStx;
+            newFieldsStx ← mkParentFieldNameFromPath arg (rest ++ [fieldName]);
+            let newManyArgs  := newFieldsStx ++ (arg.getArg 1).getArgs;
+            let arg          := arg.setArg 1 (mkNullNode newManyArgs);
+            pure arg
+          | _ => throwError arg ("failed to access field '" ++ fieldName ++ "' in parent structure")
+    else
+      pure arg
+  else
+    pure arg;
+pure $ stx.setArg 2 (mkNullNode args)
+
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sourceView : SourceView) : TermElabM Expr := do
 structName ← getStructName stx expectedType? sourceView;
 env ← getEnv;
 unless (isStructureLike env structName) $
   throwError stx ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
+stx ← expandParentFields stx structName;
 throwError stx ("WIP " ++ toString structName ++ toString stx)
 
 @[builtinTermElab structInst] def elabStructInst : TermElab :=

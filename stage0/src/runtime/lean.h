@@ -1658,13 +1658,18 @@ static inline lean_obj_res lean_mk_io_error(lean_obj_arg e) {
     lean_ctor_set(r, 1, lean_box(0));
     return r;
 }
-/* IO Ref primitives */
 
+/* IO Ref primitives */
 lean_obj_res lean_io_mk_ref(lean_obj_arg, lean_obj_arg);
 lean_obj_res lean_io_ref_get(b_lean_obj_arg, lean_obj_arg);
 lean_obj_res lean_io_ref_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 lean_obj_res lean_io_ref_reset(b_lean_obj_arg, lean_obj_arg);
 lean_obj_res lean_io_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
+
+/* MutQuot Ref primitives */
+lean_obj_res lean_mutquot_mk(lean_obj_arg);
+lean_obj_res lean_mutquot_get(lean_obj_arg);
+uint8_t lean_mutquot_set(b_lean_obj_arg, lean_obj_arg);
 
 #ifdef __cplusplus
 }

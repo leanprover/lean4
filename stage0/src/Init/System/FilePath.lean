@@ -52,4 +52,8 @@ match fname.revPosOf pathSeparator with
 | some pos => { Substring . str := fname, startPos := 0, stopPos := pos }.toString
 
 end FilePath
+
+def mkFilePath (parts : List String) : String :=
+String.intercalate FilePath.pathSeparator.toString parts
+
 end System

@@ -171,6 +171,25 @@ match newFields with
   let structInstElem := structInstElem.setArg 1 (mkNullNode newManyArgs);
   structInstElem.setArg 0 (mkIdentFrom structInstElem first)
 
+/-
+Recall that `structInstField` elements have the form
+```
+   def structInstField  := parser! structInstLVal >> " := " >> termParser
+   def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
+-/
+
+@[inline] private def modifyStructInstFieldsM {m : Type → Type} [Monad m] (stx : Syntax) (f : Syntax → m Syntax) : m Syntax := do
+let args := (stx.getArg 2).getArgs;
+args ← args.mapM $ fun arg =>
+  if arg.getKind == `Lean.Parser.Term.structInstField then
+    f arg
+  else
+    pure arg;
+pure $ stx.setArg 2 (mkNullNode args)
+
+@[inline] private def modifyStructInstFields (stx : Syntax) (f : Syntax → Syntax) : Syntax :=
+Id.run $ modifyStructInstFieldsM stx f
+
 /- Given a structure instance `stx`, expand the first field of each element if it is a composite name.
    Example:
    ```
@@ -181,26 +200,18 @@ match newFields with
    (Term.structInstField `x (null (null "." `y)) ":=" (Term.num (numLit "1")))
    ``` -/
 private def expandCompositeFields (stx : Syntax) : Syntax :=
-let args := (stx.getArg 2).getArgs;
-let args := args.map $ fun arg =>
-  if arg.getKind == `Lean.Parser.Term.structInstField then
-    /- arg is of the form
-       def structInstField  := parser! structInstLVal >> " := " >> termParser
-       def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef) -/
-    let field := arg.getArg 0;
-    if field.isIdent then
-      match field.getId with
-      | Name.str Name.anonymous _ _ => arg -- atomic field
-      | Name.str pre s _ =>
-        -- update first with `s`
-        let arg := arg.setArg 0 (mkIdentFrom field (mkNameSimple s));
-        prependFields arg pre.components
-      | _ => unreachable!
-    else
-      arg
+modifyStructInstFields stx $ fun arg =>
+  let field := arg.getArg 0;
+  if field.isIdent then
+    match field.getId with
+    | Name.str Name.anonymous _ _ => arg -- atomic field
+    | Name.str pre s _ =>
+      -- update first with `s`
+      let arg := arg.setArg 0 (mkIdentFrom field (mkNameSimple s));
+      prependFields arg pre.components
+    | _ => unreachable!
   else
-    arg;
-stx.setArg 2 (mkNullNode args)
+    arg
 
 /- For example, consider the following structures:
    ```
@@ -219,31 +230,26 @@ stx.setArg 2 (mkNullNode args)
    ``` -/
 private def expandParentFields (stx : Syntax) (structName : Name) : TermElabM Syntax := do
 env ← getEnv;
-let args := (stx.getArg 2).getArgs;
-args ← args.mapM $ fun arg =>
-  if arg.getKind == `Lean.Parser.Term.structInstField then
-    /- arg is of the form
-       def structInstField  := parser! structInstLVal >> " := " >> termParser
-       def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef) -/
-    let field := arg.getArg 0;
-    if field.isIdent then
-      let fieldName := field.getId;
-      match findField? env structName fieldName with
-      | none => throwError arg ("'" ++ fieldName ++ "' is not a field of structure '" ++ structName ++ "'")
-      | some baseStructName =>
-        if baseStructName == structName then pure arg
-        else match getPathToBaseStructure? env baseStructName structName with
-          | some path => do
-            let path := path.map $ fun funName => match funName with
-              | Name.str _ s _ => mkNameSimple s
-              | _              => unreachable!;
-            pure $ prependFields arg path
-          | _ => throwError arg ("failed to access field '" ++ fieldName ++ "' in parent structure")
-    else
-      pure arg
+modifyStructInstFieldsM stx $ fun arg =>
+  /- arg is of the form
+     def structInstField  := parser! structInstLVal >> " := " >> termParser
+     def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef) -/
+  let field := arg.getArg 0;
+  if field.isIdent then
+    let fieldName := field.getId;
+    match findField? env structName fieldName with
+    | none => throwError arg ("'" ++ fieldName ++ "' is not a field of structure '" ++ structName ++ "'")
+    | some baseStructName =>
+      if baseStructName == structName then pure arg
+      else match getPathToBaseStructure? env baseStructName structName with
+        | some path => do
+          let path := path.map $ fun funName => match funName with
+            | Name.str _ s _ => mkNameSimple s
+            | _              => unreachable!;
+          pure $ prependFields arg path
+        | _ => throwError arg ("failed to access field '" ++ fieldName ++ "' in parent structure")
   else
-    pure arg;
-pure $ stx.setArg 2 (mkNullNode args)
+    pure arg
 
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sourceView : SourceView) : TermElabM Expr := do
 structName ← getStructName stx expectedType? sourceView;

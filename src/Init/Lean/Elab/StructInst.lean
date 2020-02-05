@@ -213,6 +213,21 @@ modifyStructInstFields stx $ fun arg =>
   else
     arg
 
+/- Example `{ Prod . 1 := 10, 2 := true }` => `{ Prod . fst := 10, snd := true }` -/
+private def expandNumLitFields (stx : Syntax) (structName : Name) : TermElabM Syntax := do
+env ← getEnv;
+let fieldNames := getStructureFields env structName;
+modifyStructInstFieldsM stx $ fun arg =>
+  let field := arg.getArg 0;
+  match field.isNatLit? with
+  | none     => pure arg
+  | some idx =>
+    if idx == 0 then throwError arg "invalid field index, index must be greater than 0"
+    else if idx > fieldNames.size then throwError arg ("invalid field index, structure has only #" ++ toString fieldNames.size ++ " fields")
+    else
+      let newField := mkIdentFrom field (fieldNames.get! idx);
+      pure $ arg.setArg 0 newField
+
 /- For example, consider the following structures:
    ```
    structure A := (x : Nat)
@@ -257,6 +272,7 @@ env ← getEnv;
 unless (isStructureLike env structName) $
   throwError stx ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
 let stx := expandCompositeFields stx;
+stx ← expandNumLitFields stx structName;
 stx ← expandParentFields stx structName;
 throwError stx ("WIP " ++ toString structName ++ toString stx)
 

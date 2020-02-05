@@ -427,7 +427,12 @@ int main(int argc, char ** argv) {
     llvm::InitializeNativeTarget();
 #endif
 
-    init_search_path();
+    try {
+        init_search_path();
+    } catch (lean::throwable & ex) {
+        std::cerr << "error: " << ex.what() << std::endl;
+        return 1;
+    }
 
     options opts;
     optional<std::string> server_in;

@@ -38,7 +38,10 @@ constant searchPathRef : IO.Ref SearchPath := arbitrary _
 def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath := do
 let ps := System.FilePath.splitSearchPath path;
 sp ← ps.foldlM (fun (sp : SearchPath) s => match s.splitOn "=" with
-  | [pkg, path] => pure $ sp.insert pkg path
+  | [pkg, path] => do
+    condM (IO.isDir path)
+      (pure $ sp.insert pkg path)
+      (throw $ IO.userError $ "invalid search path, '" ++ path ++ "' is not a directory")
   | _           => throw $ IO.userError $ "ill-formed search path entry '" ++ s ++ "', should be of form 'pkg=path'")
   sp;
 pure sp

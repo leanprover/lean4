@@ -126,6 +126,7 @@ name const & get_lean_mk_name_num_name();
 name const & get_lean_mk_name_str_name();
 name const & get_lean_parser_leading_node_name();
 name const & get_lean_parser_trailing_node_name();
+name const & get_mut_quot_name();
 name const & get_nat_name();
 name const & get_nat_succ_name();
 name const & get_nat_zero_name();

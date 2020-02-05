@@ -647,7 +647,7 @@ extern "C" obj_res lean_mutquot_get(obj_arg q) {
     }
 }
 
-extern "C" uint8_t lean_mutquot_set(b_obj_arg q, obj_arg a) {
+extern "C" obj_res lean_mutquot_set(b_obj_arg q, obj_arg a, obj_arg b) {
     if (ref_maybe_mt(q)) {
         /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
            Reason: our runtime relies on the fact that a single-threaded object
@@ -657,12 +657,12 @@ extern "C" uint8_t lean_mutquot_set(b_obj_arg q, obj_arg a) {
         object * old_a = val_addr->exchange(a);
         if (old_a != nullptr)
             dec(old_a);
-        return 0;
+        return b;
     } else {
         lean_assert(lean_to_ref(q)->m_value);
         dec(lean_to_ref(q)->m_value);
         lean_to_ref(q)->m_value = a;
-        return 0;
+        return b;
     }
 }
 

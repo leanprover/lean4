@@ -1669,7 +1669,7 @@ lean_obj_res lean_io_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 /* MutQuot Ref primitives */
 lean_obj_res lean_mutquot_mk(lean_obj_arg);
 lean_obj_res lean_mutquot_get(lean_obj_arg);
-uint8_t lean_mutquot_set(b_lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_mutquot_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 
 #ifdef __cplusplus
 }

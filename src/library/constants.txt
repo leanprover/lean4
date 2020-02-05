@@ -119,6 +119,7 @@ Lean.mkNameNum
 Lean.mkNameStr
 Lean.Parser.leadingNode
 Lean.Parser.trailingNode
+MutQuot
 Nat
 Nat.succ
 Nat.zero

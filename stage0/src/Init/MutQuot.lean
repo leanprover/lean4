@@ -11,14 +11,25 @@ universes u v
 structure MutQuot {α : Type u} (r : α → α → Prop) :=
 mkAux :: (val : Quot r)
 
--- attribute [extern "lean_mutquot_mkaux"] MutQuot.mkAux
--- attribute [extern "lean_mutquot_val"] MutQuot.val
+attribute [extern "lean_mutquot_mk"] MutQuot.mkAux
+attribute [extern "lean_mutquot_get"] MutQuot.val
 
--- @[extern "lean_mutquot_mk"]
+@[extern "lean_mutquot_mk"]
 def MutQuot.mk {α : Type u} (r : α → α → Prop) (a : α) : MutQuot r :=
 MutQuot.mkAux (Quot.mk r a)
 
--- @[extern "lean_mutquot_liftupdate"]
+@[extern "lean_mutquot_set", neverExtract]
+unsafe def MutQuot.set {α : Type u} {β : Sort v} {r : α → α → Prop} (q : MutQuot r) (a : α) (b : β) : β := b
+
+/- Internal efficient implementation for `MutQuot.liftUpdate` -/
+@[inline] unsafe def MutQuot.liftUpdateUnsafe {α : Type u} {r : α → α → Prop} {β : Sort v}
+    (f : α → PProd β α)
+    (h₁ : ∀ (a₁ a₂ : α), r a₁ a₂ → (f a₁).1 = (f a₂).1)
+    (h₂ : ∀ (a : α), r a (f a).2)
+    (q : MutQuot r) : β :=
+let ⟨b, a⟩ := f (cast lcProof q.val : α); MutQuot.set q a b
+
+@[implementedBy MutQuot.liftUpdateUnsafe]
 def MutQuot.liftUpdate {α : Type u} {r : α → α → Prop} {β : Sort v}
     (f : α → PProd β α)
     (h₁ : ∀ (a₁ a₂ : α), r a₁ a₂ → (f a₁).1 = (f a₂).1)
@@ -26,7 +37,7 @@ def MutQuot.liftUpdate {α : Type u} {r : α → α → Prop} {β : Sort v}
     (q : MutQuot r) : β :=
 Quot.lift (fun a => (f a).1) h₁ q.val
 
--- @[extern "lean_mutquot_lift"]
+@[inline]
 def MutQuot.lift {α : Type u} {r : α → α → Prop} {β : Sort v}
     (f : α → β)
     (h : ∀ (a₁ a₂ : α), r a₁ a₂ → f a₁ = f a₂)

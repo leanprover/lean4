@@ -33,7 +33,6 @@ lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_HasToString;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_SyntaxNode_withArgs(lean_object*);
-lean_object* l_Lean_Syntax_mreplace___main___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Syntax_4__reprintLeaf___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_reprint___main(lean_object*);
 lean_object* l_Lean_Syntax_mrewriteBottomUp___main___rarg(lean_object*, lean_object*, lean_object*);
@@ -58,7 +57,6 @@ lean_object* l_Lean_Syntax_truncateTrailing(lean_object*);
 lean_object* l_Lean_Syntax_mreplace___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Syntax_3__updateLast___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_mrewriteBottomUp___main___boxed(lean_object*);
 lean_object* l_Lean_Syntax_modifyArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___main___closed__1;
 extern lean_object* l_Lean_Format_sbracket___closed__2;
@@ -140,7 +138,6 @@ extern lean_object* l_Lean_Format_paren___closed__1;
 extern lean_object* l_Lean_Syntax_inhabited;
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___main___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
-lean_object* l_Lean_Syntax_mrewriteBottomUp___boxed(lean_object*);
 lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_updateTrailing(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Syntax_2__updateLeadingAux(lean_object*, lean_object*);
@@ -175,7 +172,6 @@ lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___main___spec__5(le
 lean_object* lean_mk_syntax_list(lean_object*);
 lean_object* l_Lean_Syntax_getTailInfo___boxed(lean_object*);
 lean_object* l_Lean_Syntax_mreplace___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_mreplace___boxed(lean_object*);
 lean_object* lean_mk_syntax_str_lit(lean_object*);
 lean_object* l_Lean_mkStxLit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -1217,15 +1213,6 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l_Lean_Syntax_mreplace___main___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Syntax_mreplace___main(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Syntax_mreplace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1239,15 +1226,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Syntax_mreplace___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Syntax_mreplace___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Syntax_mreplace(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -1322,15 +1300,6 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l_Lean_Syntax_mrewriteBottomUp___main___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Syntax_mrewriteBottomUp___main(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Syntax_mrewriteBottomUp___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1344,15 +1313,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Syntax_mrewriteBottomUp___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Syntax_mrewriteBottomUp___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Syntax_mrewriteBottomUp(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

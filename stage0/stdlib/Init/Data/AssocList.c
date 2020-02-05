@@ -13,10 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_AssocList_foldlM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find(lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_AssocList_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldl___rarg(lean_object*, lean_object*, lean_object*);
@@ -106,15 +104,6 @@ x_5 = lean_alloc_closure((void*)(l_AssocList_foldlM___main___rarg), 4, 0);
 return x_5;
 }
 }
-lean_object* l_AssocList_foldlM___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_AssocList_foldlM___main(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
 lean_object* l_AssocList_foldlM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -128,15 +117,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_alloc_closure((void*)(l_AssocList_foldlM___rarg), 4, 0);
-return x_5;
-}
-}
-lean_object* l_AssocList_foldlM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_AssocList_foldlM(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }

@@ -84,7 +84,6 @@ extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_Elab_ElabFnTable_insert___spec__2___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_Elab_ElabFnTable_insert___spec__11(lean_object*);
 lean_object* l_Lean_Elab_mkElabAttributeAux___rarg___closed__3;
-lean_object* l_Lean_Elab_adaptMacro___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Util_2__throwUnexpectedElabType___rarg(lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_SMap_insert___at_Lean_Elab_ElabFnTable_insert___spec__20(lean_object*);
@@ -112,7 +111,6 @@ lean_object* l_List_foldl___main___at_Lean_Elab_addMacroStack___spec__1___closed
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 extern lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
 lean_object* l_Lean_Elab_macroAttribute___closed__5;
-lean_object* l_Lean_Elab_liftMacroM___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKind___closed__2;
 lean_object* l___private_Init_Lean_Elab_Util_3__mkElabFnOfConstantUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_ElabAttribute_inhabited___closed__5;
@@ -6728,15 +6726,6 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Lean_Elab_liftMacroM___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Elab_liftMacroM(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -6863,15 +6852,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Elab_adaptMacro___rarg), 4, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Elab_adaptMacro___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_adaptMacro(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

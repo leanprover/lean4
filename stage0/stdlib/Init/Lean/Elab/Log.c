@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_getPosition___boxed(lean_object*);
 lean_object* l_Lean_Elab_logWarning___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logWarning(lean_object*);
@@ -25,7 +24,6 @@ lean_object* l_Lean_Elab_logError(lean_object*);
 lean_object* l_Lean_Elab_logInfoAt(lean_object*);
 lean_object* l_Lean_Elab_throwErrorUsingCmdPos___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getPosition___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_mkMessage___boxed(lean_object*);
 lean_object* l_Lean_Elab_log___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Elab_logInfoAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,17 +32,13 @@ lean_object* l_Lean_Elab_mkMessage___rarg___boxed(lean_object*, lean_object*, le
 lean_object* l_Lean_Elab_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageAt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_log(lean_object*);
-lean_object* l_Lean_Elab_mkMessageAt___boxed(lean_object*);
 lean_object* l_Lean_Elab_mkMessage(lean_object*);
 lean_object* l_Lean_Elab_mkMessage___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_getPos(lean_object*);
-lean_object* l_Lean_Elab_getPos___boxed(lean_object*);
-lean_object* l_Lean_Elab_log___boxed(lean_object*);
 lean_object* l_Lean_Elab_logInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getPosition___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_throwErrorUsingCmdPos___boxed(lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -52,19 +46,14 @@ lean_object* l_Lean_Elab_getPos___rarg(lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_Elab_getPos___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_log___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_logWarning___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_logError___boxed(lean_object*);
 lean_object* l_Lean_Elab_getPosition___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageAt(lean_object*);
 lean_object* l_Lean_Elab_throwErrorUsingCmdPos(lean_object*);
-lean_object* l_Lean_Elab_logInfoAt___boxed(lean_object*);
 lean_object* l_Lean_Elab_getPosition(lean_object*);
 lean_object* l_Lean_Elab_throwErrorUsingCmdPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwError___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_logWarning___boxed(lean_object*);
-lean_object* l_Lean_Elab_logAt___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
-lean_object* l_Lean_Elab_logInfo___boxed(lean_object*);
 lean_object* l_Lean_Elab_log___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwError___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -78,7 +67,6 @@ lean_object* l_Lean_Elab_mkMessageAt___rarg(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Elab_mkMessage___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_getPosition___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_throwError___boxed(lean_object*);
 lean_object* l_Lean_Elab_getPosition___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -161,15 +149,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
-}
-}
-lean_object* l_Lean_Elab_getPosition___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_getPosition(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
@@ -355,15 +334,6 @@ x_7 = l_Lean_Elab_mkMessageAt___rarg(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
 }
-lean_object* l_Lean_Elab_mkMessageAt___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_mkMessageAt(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_getPos___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -410,15 +380,6 @@ x_4 = l_Lean_Elab_getPos___rarg(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
-}
-}
-lean_object* l_Lean_Elab_getPos___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_getPos(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_Elab_mkMessage___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
@@ -478,15 +439,6 @@ lean_dec(x_5);
 return x_7;
 }
 }
-lean_object* l_Lean_Elab_mkMessage___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_mkMessage(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_logAt___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -533,15 +485,6 @@ x_7 = l_Lean_Elab_logAt___rarg(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
 }
-lean_object* l_Lean_Elab_logAt___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_logAt(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_logInfoAt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -556,15 +499,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Elab_logInfoAt___rarg), 4, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Elab_logInfoAt___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_logInfoAt(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -626,15 +560,6 @@ lean_dec(x_3);
 return x_7;
 }
 }
-lean_object* l_Lean_Elab_log___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_log(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_logError___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -659,15 +584,6 @@ lean_object* x_5;
 x_5 = l_Lean_Elab_logError___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
-}
-}
-lean_object* l_Lean_Elab_logError___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_logError(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_Elab_logWarning___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -696,15 +612,6 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l_Lean_Elab_logWarning___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_logWarning(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_logInfo___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -729,15 +636,6 @@ lean_object* x_5;
 x_5 = l_Lean_Elab_logInfo___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
-}
-}
-lean_object* l_Lean_Elab_logInfo___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_logInfo(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_Elab_throwError___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
@@ -784,15 +682,6 @@ lean_dec(x_5);
 return x_7;
 }
 }
-lean_object* l_Lean_Elab_throwError___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_throwError(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_throwErrorUsingCmdPos___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -831,15 +720,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Elab_throwErrorUsingCmdPos___rarg), 5, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Elab_throwErrorUsingCmdPos___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_throwErrorUsingCmdPos(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

@@ -1666,10 +1666,13 @@ lean_obj_res lean_io_ref_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 lean_obj_res lean_io_ref_reset(b_lean_obj_arg, lean_obj_arg);
 lean_obj_res lean_io_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 
+/* pointer address unsafe primitive  */
+static inline size_t lean_ptr_addr(b_lean_obj_arg a) { return (size_t)a; }
+
 /* MutQuot Ref primitives */
 lean_obj_res lean_mutquot_mk(lean_obj_arg);
 lean_obj_res lean_mutquot_get(lean_obj_arg);
-uint8_t lean_mutquot_set(b_lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_mutquot_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 
 #ifdef __cplusplus
 }

@@ -29,7 +29,6 @@ lean_object* l_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_HashSet_size___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashSet_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_HashSet_isEmpty___rarg(lean_object*);
-lean_object* l_Array_iterateMAux___main___at_HashSet_foldM___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashSet_insert(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_HashSet_HasEmptyc___boxed(lean_object*, lean_object*, lean_object*);
@@ -59,7 +58,6 @@ lean_object* l_HashSet_fold___boxed(lean_object*, lean_object*, lean_object*, le
 lean_object* l_Array_iterateMAux___main___at_HashSet_foldM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashSet_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashSet_size___rarg(lean_object*);
-lean_object* l_AssocList_foldlM___main___at_HashSet_foldM___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_HashSet_fold___spec__1(lean_object*, lean_object*);
 extern lean_object* l_HashMap_Inhabited___closed__1;
 lean_object* l_HashSet_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -404,15 +402,6 @@ x_6 = lean_alloc_closure((void*)(l_HashSet_foldM___rarg), 4, 0);
 return x_6;
 }
 }
-lean_object* l_AssocList_foldlM___main___at_HashSet_foldM___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_AssocList_foldlM___main___at_HashSet_foldM___spec__1(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 lean_object* l_Array_iterateMAux___main___at_HashSet_foldM___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -422,21 +411,11 @@ lean_dec(x_5);
 return x_7;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_HashSet_foldM___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Array_iterateMAux___main___at_HashSet_foldM___spec__2(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 lean_object* l_HashSet_foldM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
 x_6 = l_HashSet_foldM(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_6;

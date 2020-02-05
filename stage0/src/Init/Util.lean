@@ -38,9 +38,19 @@ panic (mkPanicMessage modName line col msg)
 @[neverExtract, noinline, nospecialize] def unreachable! {α : Type u} [Inhabited α] : α :=
 panic! "unreachable"
 
+@[extern "lean_ptr_addr"]
+unsafe def ptrAddrUnsafe {α : Type u} (a : @& α) : USize := 0
 
-@[noinline, nospecialize, neverExtract] def withPtrEq {α : Type u} (r : α → α → Bool) (h : ∀ a, r a a = true) : α → α → Bool :=
+@[inline] unsafe def withPtrEqUnsafe {α : Type u} (r : α → α → Bool) (h : ∀ a, r a a = true) : α → α → Bool :=
+fun a b => if ptrAddrUnsafe a == ptrAddrUnsafe b then true else r a b
+
+@[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
+k (ptrAddrUnsafe a)
+
+@[implementedBy withPtrEqUnsafe]
+def withPtrEq {α : Type u} (r : α → α → Bool) (h : ∀ a, r a a = true) : α → α → Bool :=
 r
 
-@[noinline, nospecialize, neverExtract] def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : Nat → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
+@[implementedBy withPtrAddrUnsafe]
+def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
 k 0

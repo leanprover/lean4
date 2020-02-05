@@ -38,7 +38,6 @@ lean_object* l_Sigma_HasRepr___rarg___closed__1;
 lean_object* l_Option_HasRepr(lean_object*);
 lean_object* l_List_HasRepr___rarg(lean_object*);
 lean_object* l_Unit_HasRepr(lean_object*);
-lean_object* l_Sigma_HasRepr___boxed(lean_object*, lean_object*);
 lean_object* l_String_quote___closed__2;
 lean_object* l_Unit_HasRepr___closed__1;
 lean_object* l_Sum_HasRepr(lean_object*, lean_object*);
@@ -69,7 +68,6 @@ lean_object* l_Nat_toDigitsCore___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_Substring_HasRepr___boxed(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Char_HasRepr___closed__1;
-lean_object* l_Subtype_HasRepr___boxed(lean_object*, lean_object*);
 lean_object* l_Char_HasRepr___boxed(lean_object*);
 lean_object* l_UInt16_HasRepr(uint16_t);
 lean_object* l_Char_quoteCore___closed__4;
@@ -645,15 +643,6 @@ x_3 = lean_alloc_closure((void*)(l_Sigma_HasRepr___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Sigma_HasRepr___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Sigma_HasRepr(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_Subtype_HasRepr___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -667,15 +656,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Subtype_HasRepr___rarg), 2, 0);
-return x_3;
-}
-}
-lean_object* l_Subtype_HasRepr___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Subtype_HasRepr(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

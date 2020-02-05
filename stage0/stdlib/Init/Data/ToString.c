@@ -41,7 +41,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_UInt8_HasToString(uint8_t);
 extern lean_object* l_Sigma_HasRepr___rarg___closed__2;
 lean_object* l_List_toStringAux___rarg(lean_object*, uint8_t, lean_object*);
-lean_object* l_Subtype_HasToString___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_String_HasToString___boxed(lean_object*);
 lean_object* l_UInt64_HasToString___boxed(lean_object*);
@@ -75,7 +74,6 @@ lean_object* l_Sigma_HasToString___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_Fin_HasToString(lean_object*);
 lean_object* l_List_toString(lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__2;
-lean_object* l_Sigma_HasToString___boxed(lean_object*, lean_object*);
 lean_object* l_UInt32_HasToString(uint32_t);
 lean_object* l_String_Iterator_HasToString(lean_object*);
 lean_object* l_Substring_HasToString___boxed(lean_object*);
@@ -844,15 +842,6 @@ x_3 = lean_alloc_closure((void*)(l_Sigma_HasToString___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Sigma_HasToString___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Sigma_HasToString(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_Subtype_HasToString___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -866,15 +855,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Subtype_HasToString___rarg), 2, 0);
-return x_3;
-}
-}
-lean_object* l_Subtype_HasToString___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Subtype_HasToString(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

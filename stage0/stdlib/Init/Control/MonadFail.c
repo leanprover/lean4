@@ -13,11 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_matchFailed___boxed(lean_object*, lean_object*);
 lean_object* l_monadFailLift___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadFailLift___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadFailLift(lean_object*, lean_object*);
-lean_object* l_monadFailLift___boxed(lean_object*, lean_object*);
 lean_object* l_matchFailed___rarg___closed__1;
 lean_object* l_matchFailed(lean_object*, lean_object*);
 lean_object* l_matchFailed___rarg(lean_object*);
@@ -46,15 +44,6 @@ x_3 = lean_alloc_closure((void*)(l_matchFailed___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* l_matchFailed___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_matchFailed(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_monadFailLift___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -79,16 +68,6 @@ lean_object* x_6;
 x_6 = l_monadFailLift___rarg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 return x_6;
-}
-}
-lean_object* l_monadFailLift___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_monadFailLift(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Init_Control_Lift(lean_object*);

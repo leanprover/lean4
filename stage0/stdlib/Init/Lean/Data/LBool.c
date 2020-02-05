@@ -31,7 +31,6 @@ extern lean_object* l_Bool_HasRepr___closed__2;
 uint8_t l_Lean_LBool_neg(uint8_t);
 uint8_t l_Bool_toLBool(uint8_t);
 lean_object* l_Lean_LBool_toString___closed__1;
-lean_object* l_toLBoolM___boxed(lean_object*);
 uint8_t l_Lean_LBool_beq(uint8_t, uint8_t);
 lean_object* l_Lean_LBool_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LBool_HasToString___closed__1;
@@ -328,15 +327,6 @@ x_3 = lean_unbox(x_2);
 lean_dec(x_2);
 x_4 = l_toLBoolM___rarg___lambda__1(x_1, x_3);
 return x_4;
-}
-}
-lean_object* l_toLBoolM___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_toLBoolM(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* initialize_Init_Data_ToString(lean_object*);

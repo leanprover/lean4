@@ -15,30 +15,21 @@ extern "C" {
 #endif
 lean_object* l_whenM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_whenM(lean_object*);
-lean_object* l_whenM___boxed(lean_object*);
 lean_object* l_condM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_whenM___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_unlessM___boxed(lean_object*);
 extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_coeM___at_coeMethod___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_coeM___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unlessM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
-lean_object* l_coeMethod___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_coeM___at_coeMethod___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadInhabited_x27___rarg(lean_object*);
 lean_object* l_unlessM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_condM(lean_object*);
 lean_object* l_unlessM(lean_object*);
-lean_object* l_pureCoeDepProp___boxed(lean_object*);
 lean_object* l_whenM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_condM___boxed(lean_object*);
 lean_object* l_condM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mcomp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeMethod___rarg(lean_object*, lean_object*);
 lean_object* l_pureCoeDepProp(lean_object*);
 lean_object* l_coeM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_monadInhabited_x27___boxed(lean_object*, lean_object*);
-lean_object* l_mcomp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mcomp___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_condM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeM(lean_object*, lean_object*, lean_object*);
@@ -46,11 +37,9 @@ lean_object* l_coeM___at_coeMethod___spec__1___rarg(lean_object*, lean_object*, 
 lean_object* l_joinM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadInhabited(lean_object*, lean_object*);
 lean_object* l_joinM(lean_object*);
-lean_object* l_monadInhabited___boxed(lean_object*, lean_object*);
 lean_object* l_pureCoeDepProp___rarg(lean_object*, lean_object*, uint8_t);
 lean_object* l_pureCoeDepProp___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeM___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_joinM___boxed(lean_object*);
 lean_object* l_unlessM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeMethod(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadInhabited_x27(lean_object*, lean_object*);
@@ -69,15 +58,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_alloc_closure((void*)(l_mcomp___rarg), 4, 0);
-return x_5;
-}
-}
-lean_object* l_mcomp___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_mcomp(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -103,15 +83,6 @@ x_3 = lean_alloc_closure((void*)(l_monadInhabited_x27___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* l_monadInhabited_x27___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_monadInhabited_x27(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_monadInhabited___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -134,15 +105,6 @@ x_3 = lean_alloc_closure((void*)(l_monadInhabited___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* l_monadInhabited___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_monadInhabited(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_joinM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -160,15 +122,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_joinM___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_joinM___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_joinM(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -219,15 +172,6 @@ x_5 = l_condM___rarg___lambda__1(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
-}
-}
-lean_object* l_condM___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_condM(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_whenM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
@@ -286,15 +230,6 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_whenM___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_whenM(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_unlessM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
@@ -351,15 +286,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_unlessM___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_unlessM(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_coeM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -393,15 +319,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_coeM___rarg), 3, 0);
-return x_4;
-}
-}
-lean_object* l_coeM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_coeM(x_1, x_2, x_3);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -444,24 +361,6 @@ x_4 = lean_alloc_closure((void*)(l_coeMethod___rarg), 2, 0);
 return x_4;
 }
 }
-lean_object* l_coeM___at_coeMethod___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_coeM___at_coeMethod___spec__1(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_coeMethod___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_coeMethod(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 lean_object* l_pureCoeDepProp___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
@@ -487,15 +386,6 @@ x_4 = lean_unbox(x_3);
 lean_dec(x_3);
 x_5 = l_pureCoeDepProp___rarg(x_1, x_2, x_4);
 return x_5;
-}
-}
-lean_object* l_pureCoeDepProp___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_pureCoeDepProp(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* initialize_Init_Control_Applicative(lean_object*);

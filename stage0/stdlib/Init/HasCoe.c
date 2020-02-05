@@ -49,7 +49,6 @@ lean_object* l_oldCoeSort(lean_object*);
 lean_object* l_Legacy_liftPair_u2081(lean_object*, lean_object*, lean_object*);
 lean_object* l_Legacy_coeFnTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Legacy_liftFnDom___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Legacy_coeSubtype___boxed(lean_object*, lean_object*);
 lean_object* l_Legacy_coeTransAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_oldCoeFnB(lean_object*);
 lean_object* l_Legacy_coeoeTrans___rarg(lean_object*, lean_object*, lean_object*);
@@ -419,15 +418,6 @@ lean_object* x_2;
 x_2 = l_Legacy_coeSubtype___rarg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-lean_object* l_Legacy_coeSubtype___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Legacy_coeSubtype(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l_Legacy_liftFn___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

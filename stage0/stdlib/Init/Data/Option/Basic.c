@@ -56,7 +56,6 @@ lean_object* l_Option_Alternative___closed__1;
 lean_object* l_Option_map___rarg(lean_object*, lean_object*);
 lean_object* l_Option_Monad___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_Alternative___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Option_decidableRelLt___boxed(lean_object*, lean_object*);
 lean_object* l_Option_map(lean_object*, lean_object*);
 uint8_t l_Option_isNone___rarg(lean_object*);
 uint8_t l_Option_toBool___rarg(lean_object*);
@@ -116,7 +115,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Option_toMonad(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -808,15 +806,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Option_decidableRelLt___rarg), 3, 0);
-return x_3;
-}
-}
-lean_object* l_Option_decidableRelLt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Option_decidableRelLt(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

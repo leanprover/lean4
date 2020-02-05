@@ -15,25 +15,19 @@ extern "C" {
 #endif
 lean_object* l_alternativeHasOrelse___rarg(lean_object*);
 lean_object* l_assert___rarg(lean_object*, lean_object*, uint8_t);
-lean_object* l_guard___boxed(lean_object*);
 lean_object* l_failure___rarg(lean_object*, lean_object*);
-lean_object* l_failure___boxed(lean_object*);
 lean_object* l_guard___rarg(lean_object*, lean_object*, uint8_t);
 lean_object* l_guardb(lean_object*);
-lean_object* l_optional___boxed(lean_object*);
 lean_object* l_optional___rarg___closed__1;
 lean_object* l_guardb___rarg(lean_object*, uint8_t);
 lean_object* l_assert(lean_object*);
 lean_object* l_optional___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_alternativeHasOrelse___boxed(lean_object*, lean_object*);
 lean_object* l_failure(lean_object*);
 lean_object* l_guard___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_guardb___boxed(lean_object*);
 lean_object* l_optional___rarg___lambda__1(lean_object*);
 lean_object* l_alternativeHasOrelse(lean_object*, lean_object*);
 lean_object* l_guardb___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_guard(lean_object*);
-lean_object* l_assert___boxed(lean_object*);
 lean_object* l_optional(lean_object*);
 lean_object* l_assert___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_alternativeHasOrelse___rarg(lean_object* x_1) {
@@ -55,15 +49,6 @@ x_3 = lean_alloc_closure((void*)(l_alternativeHasOrelse___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* l_alternativeHasOrelse___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_alternativeHasOrelse(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 lean_object* l_failure___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -80,15 +65,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_failure___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_failure___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_failure(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -137,15 +113,6 @@ x_5 = l_guard___rarg(x_1, x_2, x_4);
 return x_5;
 }
 }
-lean_object* l_guard___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_guard(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_assert___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
@@ -188,15 +155,6 @@ x_4 = lean_unbox(x_3);
 lean_dec(x_3);
 x_5 = l_assert___rarg(x_1, x_2, x_4);
 return x_5;
-}
-}
-lean_object* l_assert___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_assert(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_guardb___rarg(lean_object* x_1, uint8_t x_2) {
@@ -242,15 +200,6 @@ x_3 = lean_unbox(x_2);
 lean_dec(x_2);
 x_4 = l_guardb___rarg(x_1, x_3);
 return x_4;
-}
-}
-lean_object* l_guardb___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_guardb(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_optional___rarg___lambda__1(lean_object* x_1) {
@@ -300,15 +249,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_optional___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_optional___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_optional(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

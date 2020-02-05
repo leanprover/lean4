@@ -30,7 +30,6 @@ lean_object* l_Lean_LOption_HasBeq___rarg(lean_object*);
 lean_object* l_Option_toLOption___rarg___boxed(lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Option_toLOption(lean_object*);
-lean_object* l_toLOptionM___boxed(lean_object*, lean_object*);
 lean_object* l_toLOptionM___rarg(lean_object*, lean_object*);
 lean_object* l_toLOptionM___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_LOption_Inhabited(lean_object* x_1) {
@@ -264,15 +263,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_toLOptionM___rarg___lambda__1(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-lean_object* l_toLOptionM___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_toLOptionM(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

@@ -151,7 +151,6 @@ lean_object* lean_ir_mk_app_expr(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Expr_hasAeqv;
 lean_object* l_Lean_IR_AltCore_mmodifyBody___rarg___closed__1;
 lean_object* l_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_IR_mmodifyJPs___spec__1___boxed(lean_object*);
 lean_object* l_Lean_IR_mkIf___closed__4;
 lean_object* lean_ir_mk_proj_expr(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Alt_ctor(lean_object*, lean_object*);
@@ -224,7 +223,6 @@ lean_object* lean_ir_mk_sset(lean_object*, lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_IR_VarId_HasToString(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_mmodifyJPs___spec__1(lean_object*);
 lean_object* l_Lean_IR_FnBody_resetBody(lean_object*);
-lean_object* l_Lean_IR_mmodifyJPs___boxed(lean_object*);
 uint8_t l_Lean_IR_Arg_alphaEqv(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_altInh___closed__1;
 lean_object* l_Lean_IR_mkIf___closed__6;
@@ -254,7 +252,6 @@ lean_object* l_Lean_IR_Alt_default(lean_object*);
 extern lean_object* l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__1;
 uint8_t l_RBNode_isBlack___rarg(lean_object*);
 lean_object* l_Lean_IR_Decl_isExtern___boxed(lean_object*);
-lean_object* l_Lean_IR_AltCore_mmodifyBody___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_eraseJoinPointDecl___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -2282,15 +2279,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_AltCore_mmodifyBody___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_IR_AltCore_mmodifyBody___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_IR_AltCore_mmodifyBody(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 uint8_t l_Lean_IR_Alt_isDefault(lean_object* x_1) {
 _start:
 {
@@ -2703,24 +2691,6 @@ x_7 = l_Array_umapMAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda_
 lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
-}
-}
-lean_object* l_Array_umapMAux___main___at_Lean_IR_mmodifyJPs___spec__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Array_umapMAux___main___at_Lean_IR_mmodifyJPs___spec__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_IR_mmodifyJPs___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_IR_mmodifyJPs(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* lean_ir_mk_alt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

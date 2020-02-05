@@ -16,11 +16,9 @@ extern "C" {
 lean_object* l_when(lean_object*);
 lean_object* l_unless___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_when___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_when___boxed(lean_object*);
 lean_object* l_unless(lean_object*);
 lean_object* l_unless___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_when___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_unless___boxed(lean_object*);
 lean_object* l_when___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
@@ -61,15 +59,6 @@ lean_dec(x_4);
 return x_6;
 }
 }
-lean_object* l_when___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_when(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_unless___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
@@ -108,15 +97,6 @@ lean_dec(x_3);
 x_6 = l_unless___rarg(x_1, x_2, x_5, x_4);
 lean_dec(x_4);
 return x_6;
-}
-}
-lean_object* l_unless___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_unless(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* initialize_Init_Control_Functor(lean_object*);

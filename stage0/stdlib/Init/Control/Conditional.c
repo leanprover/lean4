@@ -16,8 +16,6 @@ extern "C" {
 lean_object* l_Option_HasToBool(lean_object*);
 lean_object* l_notM___rarg___lambda__1___boxed(lean_object*);
 extern lean_object* l_Nat_HasOfNat___closed__1;
-lean_object* l_andM___boxed(lean_object*, lean_object*);
-lean_object* l_notM___boxed(lean_object*);
 lean_object* l_andM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_notM___rarg___closed__1;
 lean_object* l_orM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,7 +29,6 @@ lean_object* l_andM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_
 uint8_t l_notM___rarg___lambda__1(uint8_t);
 lean_object* l_bool___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Bool_HasToBool;
-lean_object* l_orM___boxed(lean_object*, lean_object*);
 lean_object* l_andM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_andM(lean_object*, lean_object*);
 lean_object* l_orM(lean_object*, lean_object*);
@@ -158,15 +155,6 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_orM___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_orM(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 lean_object* l_andM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -227,15 +215,6 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l_andM___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_andM(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 uint8_t l_notM___rarg___lambda__1(uint8_t x_1) {
 _start:
 {
@@ -293,15 +272,6 @@ lean_dec(x_1);
 x_3 = l_notM___rarg___lambda__1(x_2);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-lean_object* l_notM___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_notM(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* initialize_Init_Control_Monad(lean_object*);

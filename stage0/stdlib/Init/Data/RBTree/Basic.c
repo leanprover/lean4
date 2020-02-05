@@ -21,7 +21,6 @@ lean_object* l_RBTree_ofList___rarg(lean_object*, lean_object*);
 lean_object* l_rbtreeOf___rarg(lean_object*, lean_object*);
 lean_object* l_RBTree_subset___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBTree_max(lean_object*, lean_object*);
-lean_object* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_mfold___main___at_RBTree_mfor___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_RBNode_all___main___at_RBTree_subset___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -37,7 +36,6 @@ lean_object* l_RBNode_all___main___at_RBTree_subset___spec__1___rarg___boxed(lea
 lean_object* l_RBTree_all___boxed(lean_object*, lean_object*);
 uint8_t l_RBTree_subset___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBTree_depth___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBTree_fold___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBTree_ofList___main___rarg(lean_object*, lean_object*);
@@ -420,21 +418,11 @@ x_5 = lean_alloc_closure((void*)(l_RBTree_mfold___rarg), 4, 0);
 return x_5;
 }
 }
-lean_object* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_RBNode_mfold___main___at_RBTree_mfold___spec__1(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 lean_object* l_RBTree_mfold___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
 x_5 = l_RBTree_mfold(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -548,21 +536,11 @@ lean_dec(x_6);
 return x_7;
 }
 }
-lean_object* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_RBNode_mfold___main___at_RBTree_mfor___spec__1(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 lean_object* l_RBTree_mfor___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
 x_5 = l_RBTree_mfor(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 lean_dec(x_3);
 return x_5;
 }

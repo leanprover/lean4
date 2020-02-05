@@ -124,7 +124,6 @@ extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList___closed__4;
 lean_object* l_Lean_MessageData_bracket(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MessageLog_forM___boxed(lean_object*);
 lean_object* lean_format_group(lean_object*);
 lean_object* l_Lean_MessageData_joinSep___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1897,15 +1896,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_MessageLog_forM___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_MessageLog_forM___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_MessageLog_forM(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

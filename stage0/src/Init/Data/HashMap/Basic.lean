@@ -179,6 +179,12 @@ m.size = 0
 @[inline] def empty : HashMap α β :=
 mkHashMap
 
+def toList (m : HashMap α β) : List (α × β) :=
+m.fold (fun r k v => (k, v)::r) []
+
+def toArray (m : HashMap α β) : Array (α × β) :=
+m.fold (fun r k v => r.push (k, v)) #[]
+
 def numBuckets (m : HashMap α β) : Nat :=
 m.val.buckets.val.size
 

@@ -134,6 +134,7 @@ lean_object* l_Lean_Syntax_hasArgs___boxed(lean_object*);
 lean_object* l_Lean_mkStxNumLit(lean_object*, lean_object*);
 lean_object* l_Lean_Name_HasAppend___closed__1;
 lean_object* l_Array_mapSepElems___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_mkSepStx___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* l_Lean_Syntax_isLit_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_termIdToAntiquot___closed__4;
@@ -226,6 +227,7 @@ uint8_t l_Lean_Syntax_isAtom(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_7__decodeOctalLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_nullKind___closed__2;
+lean_object* l_Lean_mkSepStx(lean_object*, lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___closed__3;
 uint8_t l_Lean_isLetterLike(uint32_t);
 lean_object* l_Lean_Syntax_isStrLit_x3f___boxed(lean_object*);
@@ -280,6 +282,7 @@ lean_object* l_Lean_Name_hasMacroScopes___boxed(lean_object*);
 lean_object* l_Lean_isIdBeginEscape___boxed(lean_object*);
 lean_object* l_Lean_mkStxStrLit(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_mkSepStx___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_13__decodeNameLitAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_14__filterSepElemsMAux___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_14__filterSepElemsMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -290,6 +293,7 @@ lean_object* l_Lean_Name_append___main___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_mkTermIdFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeNameLit(lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_mkSepStx___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l_Lean_Syntax_isNameLit_x3f(lean_object*);
 lean_object* l_Lean_isIdEndEscape___boxed(lean_object*);
@@ -3044,6 +3048,82 @@ x_2 = l_Lean_nullKind;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+lean_object* l_Array_iterateMAux___main___at_Lean_mkSepStx___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_array_get_size(x_3);
+x_7 = lean_nat_dec_lt(x_4, x_6);
+lean_dec(x_6);
+if (x_7 == 0)
+{
+lean_dec(x_4);
+lean_dec(x_2);
+return x_5;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = lean_array_fget(x_3, x_4);
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_nat_dec_lt(x_9, x_4);
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_add(x_4, x_11);
+lean_dec(x_4);
+if (x_10 == 0)
+{
+lean_object* x_13; 
+x_13 = lean_array_push(x_5, x_8);
+x_4 = x_12;
+x_5 = x_13;
+goto _start;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; 
+lean_inc(x_2);
+x_15 = lean_array_push(x_5, x_2);
+x_16 = lean_array_push(x_15, x_8);
+x_4 = x_12;
+x_5 = x_16;
+goto _start;
+}
+}
+}
+}
+lean_object* l_Lean_mkSepStx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_Array_empty___closed__1;
+x_5 = l_Array_iterateMAux___main___at_Lean_mkSepStx___spec__1(x_1, x_2, x_1, x_3, x_4);
+x_6 = l_Lean_nullKind;
+x_7 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_5);
+return x_7;
+}
+}
+lean_object* l_Array_iterateMAux___main___at_Lean_mkSepStx___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Array_iterateMAux___main___at_Lean_mkSepStx___spec__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_6;
+}
+}
+lean_object* l_Lean_mkSepStx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_mkSepStx(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

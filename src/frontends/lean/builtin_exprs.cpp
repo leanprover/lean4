@@ -797,7 +797,7 @@ static expr parse_parser(parser & p, bool leading, pos_info const & pos) {
     name n = leading ? get_lean_parser_leading_node_name() : get_lean_parser_trailing_node_name();
     expr r = mk_app(mk_constant(n), quote(kind), e);
     if (leading && kind.is_string()) {
-        r = mk_app(mk_constant({"HasOrelse", "orelse"}),
+        r = mk_app(mk_constant({"Lean", "Parser", "withAntiquot"}),
                    mk_app(mk_constant({"Lean", "Parser", "mkAntiquot"}),
                           quote(kind.get_string().data()),
                           quote(kind)),

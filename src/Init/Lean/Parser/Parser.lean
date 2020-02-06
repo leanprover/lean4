@@ -1442,31 +1442,44 @@ let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNon
 -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
 node kind $ try $ setExpected [] dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
 
+@[inline] def withAntiquotFn (antiquotP p : ParserFn) : ParserFn :=
+fun c s =>
+  let (s, stx?) := peekToken c s;
+  let tryAnti := match stx? with
+  | some stx@(Syntax.atom _ sym) => sym == "$"
+  | _ => false;
+  (if tryAnti then orelseFn antiquotP p else p) c s
+
+/-- Optimized version of `mkAntiquot ... <|> p`. -/
+@[inline] def withAntiquot (antiquotP p : Parser) : Parser :=
+{ fn := withAntiquotFn antiquotP.fn p.fn,
+  info := orelseInfo antiquotP.info p.info }
+
 /- ===================== -/
 /- End of Antiquotations -/
 /- ===================== -/
 
 def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) : Parser :=
-mkAntiquot name kind false <|> node kind p
+withAntiquot (mkAntiquot name kind false) $ node kind p
 
 def ident : Parser :=
-mkAntiquot "ident" identKind <|> identNoAntiquot
+withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
 
 -- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
 def rawIdent : Parser :=
-mkAntiquot "ident" identKind <|> rawIdentNoAntiquot
+withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
 def numLit : Parser :=
-mkAntiquot "numLit" numLitKind <|> numLitNoAntiquot
+withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
 
 def strLit : Parser :=
-mkAntiquot "strLit" strLitKind <|> strLitNoAntiquot
+withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot
 
 def charLit : Parser :=
-mkAntiquot "charLit" charLitKind <|> charLitNoAntiquot
+withAntiquot (mkAntiquot "charLit" charLitKind) charLitNoAntiquot
 
 def nameLit : Parser :=
-mkAntiquot "nameLit" nameLitKind <|> nameLitNoAntiquot
+withAntiquot (mkAntiquot "nameLit" nameLitKind) nameLitNoAntiquot
 
 def categoryParserOfStackFn (offset : Nat) : ParserFn :=
 fun ctx s =>
@@ -1496,29 +1509,8 @@ fun c s =>
     let s := longestMatchFn ps c s;
     mkResult s iniSz
 
-private def catNameToString : Name → String
-| Name.str Name.anonymous s _ => s
-| n                           => n.toString
-
-@[inline] def leadingParserAntiquot (kind : Name) : ParserFn :=
--- allow "anonymous" antiquotations `$x` for the `term` category only
--- TODO: make customizable
--- one good example for a category that should not be anonymous is
--- `index` in `tests/lean/run/bigop.lean`.
-let anonAntiquot := kind == `term;
-(mkAntiquot (catNameToString kind) none anonAntiquot).fn
-
-private def isDollar (c : ParserContext) (s : ParserState) : Bool :=
-match peekToken c s with
-| (_, some (Syntax.atom _ val)) => val == "$"
-| _ => false
-
-def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : Bool) : ParserFn :=
-fun c s =>
-  if antiquotParser && isDollar c s then
-    orelseFn (leadingParserAntiquot kind) (leadingParserAux kind tables leadingIdentAsSymbol) c s
-  else
-    leadingParserAux kind tables leadingIdentAsSymbol c s
+def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
+withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol)
 
 def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
 fun c s =>
@@ -1553,10 +1545,10 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
 /--
   Implements a recursive precedence parser according to Pratt's algorithm.
 
-  If `antiquotParser == true`, we inject the antiquotation parser into syntax categories.
+  `antiquotParser` should be a `mkAntiquot` parser (or always fail) and is tried before all other parsers.
   It should not be added to the regular leading parsers because it would heavily
   overlap with antiquotation parsers nested inside them. -/
-def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : Bool) : ParserFn :=
+def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
 fun c s =>
   let left := s.stxStack.back;
   let (s, lbp) := currLbp left c s;
@@ -1819,12 +1811,24 @@ match (parserExtension.getState env).categories.find? catName with
 | none     => false
 | some cat => cat.leadingIdentAsSymbol
 
+private def catNameToString : Name → String
+| Name.str Name.anonymous s _ => s
+| n                           => n.toString
+
+@[inline] def mkCategoryAntiquotParser (kind : Name) : ParserFn :=
+-- allow "anonymous" antiquotations `$x` for the `term` category only
+-- TODO: make customizable
+-- one good example for a category that should not be anonymous is
+-- `index` in `tests/lean/run/bigop.lean`.
+let anonAntiquot := kind == `term;
+(mkAntiquot (catNameToString kind) none anonAntiquot).fn
+
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;
   match categories.find? catName with
   | some cat =>
-    prattParser catName cat.tables cat.leadingIdentAsSymbol true ctx s
+    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName) ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[init] def setCategoryParserFnRef : IO Unit :=
@@ -1978,9 +1982,9 @@ fun c s =>
     s.mkErrorAt "field index" iniPos
 
 @[inline] def fieldIdx : Parser :=
-mkAntiquot "fieldIdx" `fieldIdx <|>
-{ fn   := fieldIdxFn,
-  info := mkAtomicInfo "fieldIdx" }
+withAntiquot (mkAntiquot "fieldIdx" `fieldIdx)
+  { fn   := fieldIdxFn,
+    info := mkAtomicInfo "fieldIdx" }
 
 end Parser
 

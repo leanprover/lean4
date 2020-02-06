@@ -300,7 +300,7 @@ structure FieldView :=
 (fieldName : Name)
 (val: Syntax)
 
-private def getFields (stx : Syntax) (sourceView : SourceView) : TermElabM (List FieldView) := do
+private def getFieldViews (stx : Syntax) (sourceView : SourceView) : TermElabM (List FieldView) := do
 let instFields := getStructInstFields stx;
 fieldMap ← groupFields instFields;
 pure $ fieldMap.toList.map $ fun ⟨fieldName, instFields⟩ =>
@@ -323,6 +323,53 @@ pure $ fieldMap.toList.map $ fun ⟨fieldName, instFields⟩ =>
     let newStruct := stx.setArg 2 (mkSepStx newArgs (mkAtomFrom stx ","));
     { ref := instFields.head!, fieldName := fieldName, val := newStruct }
 
+structure CtorHeaderResult :=
+(ctorFn     : Expr)
+(ctorFnType : Expr)
+(instMVars  : Array Expr)
+
+private def mkCtorHeaderAux (ref : Syntax) : Nat → Expr → Expr → Array Expr → TermElabM CtorHeaderResult
+| 0,   type, ctorFn, instMVars => pure { ctorFn := ctorFn, ctorFnType := type, instMVars := instMVars }
+| n+1, type, ctorFn, instMVars => do
+  type ← whnfForall ref type;
+  match type with
+  | Expr.forallE _ d b c =>
+    match c.binderInfo with
+    | BinderInfo.instImplicit => do
+      a ← mkFreshExprMVar ref d MetavarKind.synthetic;
+      mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a) (instMVars.push a)
+    | _ => do
+      a ← mkFreshExprMVar ref d;
+      mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a) instMVars
+  | _ => throwError ref "unexpected constructor type"
+
+private partial def getForallBody : Nat → Expr → Option Expr
+| i+1, Expr.forallE _ _ b _ => getForallBody i b
+| i+1, _                    => none
+| 0,   type                 => type
+
+private def propagateExpectedType (ref : Syntax) (type : Expr) (numFields : Nat) (expectedType? : Option Expr) : TermElabM Unit :=
+match expectedType? with
+| none              => pure ()
+| some expectedType =>
+  match getForallBody numFields type with
+    | none           => pure ()
+    | some typeBody =>
+      unless typeBody.hasLooseBVars $ do
+        isDefEq ref expectedType typeBody;
+        pure ()
+
+/-
+  Create structure ctor, with fresh metavariable for universe levels and parameters, and then propagate expected (if available).
+  Note that the expected type propagate is slightly different from the one in regular applications. -/
+private def mkCtorHeader (ref : Syntax) (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
+lvls ← ctorVal.lparams.mapM $ fun _ => mkFreshLevelMVar ref;
+let val  := Lean.mkConst ctorVal.name lvls;
+let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams lvls;
+r ← mkCtorHeaderAux ref ctorVal.nparams type val #[];
+propagateExpectedType ref r.ctorFnType ctorVal.nfields expectedType?;
+pure r
+
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sourceView : SourceView) : TermElabM Expr := do
 structName ← getStructName stx expectedType? sourceView;
 env ← getEnv;
@@ -331,8 +378,11 @@ unless (isStructureLike env structName) $
 let stx := expandCompositeFields stx;
 stx ← expandNumLitFields stx structName;
 stx ← expandParentFields stx structName;
-fieldViews ← getFields stx sourceView;
-fieldViews.forM $ fun v => dbgTrace (toString v.fieldName ++ " := " ++ toString v.val);
+fieldViews ← getFieldViews stx sourceView;
+let ctorVal := getStructureCtor env structName;
+ctorHeader ← mkCtorHeader stx ctorVal expectedType?;
+-- fieldViews.forM $ fun v => dbgTrace (toString v.fieldName ++ " := " ++ toString v.val);
+-- dbgTrace (">> " ++ toString ctorHeader.ctorFn);
 throwError stx ("WIP")
 
 @[builtinTermElab structInst] def elabStructInst : TermElab :=

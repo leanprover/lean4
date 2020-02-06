@@ -223,13 +223,10 @@ value unbox_t(object * o, type t) {
         case type::Float: throw exception("floats are not supported yet");
         case type::UInt8: return unbox(o);
         case type::UInt16: return unbox(o);
-        case type::UInt32: { value v = unbox_uint32(o); dec(o); return v; }
-        case type::UInt64: { value v = unbox_uint64(o); dec(o); return v; }
-        case type::USize: { value v = unbox_size_t(o); dec(o); return v; }
-        case type::Object:
-        case type::TObject:
-        case type::Irrelevant:
-            return o;
+        case type::UInt32: { return unbox_uint32(o); }
+        case type::UInt64: { return unbox_uint64(o); }
+        case type::USize: { return unbox_size_t(o); }
+        default: lean_unreachable();
     }
 }
 
@@ -733,7 +730,15 @@ class interpreter {
             }
             push_frame(e.m_decl, old_size);
             object * o = curry(e.m_addr, args.size(), args2);
-            r = unbox_t(o, decl_type(e.m_decl));
+            type t = decl_type(e.m_decl);
+            if (type_is_scalar(t)) {
+                lean_assert(e.m_boxed);
+                // NOTE: this unboxing does not exist in the IR, so we should manually consume `o`
+                r = unbox_t(o, t);
+                lean_dec(o);
+            } else {
+                r = o;
+            }
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
                 throw exception(sstream() << "unexpected external declaration '" << fn << "'");

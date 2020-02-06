@@ -154,12 +154,14 @@ else do
     | Expr.const constName _ _ => pure constName
     | _                        => useSource ()
 
-/- Given a structure instance element `structInstElem`, prepend the new fields.
-   `structInstElem` is of the form
-    ```
-      def structInstField  := parser! structInstLVal >> " := " >> termParser
-      def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
-    ``` -/
+/-
+Recall that `structInstField` elements have the form
+```
+   def structInstField  := parser! structInstLVal >> " := " >> termParser
+   def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
+-/
+
+/- Given a structure instance element `structInstElem`, prepend the new fields. -/
 private def prependFields (structInstElem : Syntax) (newFields : List Name) : Syntax :=
 match newFields with
 | []            => structInstElem
@@ -170,13 +172,6 @@ match newFields with
   let newManyArgs    := restStx.push currFirst ++ (structInstElem.getArg 1).getArgs;
   let structInstElem := structInstElem.setArg 1 (mkNullNode newManyArgs);
   structInstElem.setArg 0 (mkIdentFrom structInstElem first)
-
-/-
-Recall that `structInstField` elements have the form
-```
-   def structInstField  := parser! structInstLVal >> " := " >> termParser
-   def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
--/
 
 @[inline] private def modifyStructInstFieldsM {m : Type → Type} [Monad m] (stx : Syntax) (f : Syntax → m Syntax) : m Syntax := do
 let args := (stx.getArg 2).getArgs;
@@ -246,9 +241,6 @@ modifyStructInstFieldsM stx $ fun arg =>
 private def expandParentFields (stx : Syntax) (structName : Name) : TermElabM Syntax := do
 env ← getEnv;
 modifyStructInstFieldsM stx $ fun arg =>
-  /- arg is of the form
-     def structInstField  := parser! structInstLVal >> " := " >> termParser
-     def structInstLVal   := (ident <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef) -/
   let field := arg.getArg 0;
   if field.isIdent then
     let fieldName := field.getId;
@@ -266,6 +258,71 @@ modifyStructInstFieldsM stx $ fun arg =>
   else
     pure arg
 
+/- We say a `structInstField` is simple if the suffix is empty.
+   That is, the `many` component `many (("." >> (ident <|> numLit)) <|> structInstArrayRef)` is empty. -/
+private def isSimpleStructInstField (stx : Syntax) : Bool :=
+(stx.getArg 1).getArgs.isEmpty
+
+private def getStructInstFields (stx : Syntax) : Array Syntax :=
+(stx.getArg 2).getArgs.filter $ fun elem => elem.getKind == `Lean.Parser.Term.structInstField
+
+private def getFieldName (structInstField : Syntax) : Name :=
+(structInstField.getArg 0).getId
+
+private abbrev FieldMap := HashMap Name (List Syntax)
+
+private def groupFields (instFields : Array Syntax) : TermElabM FieldMap :=
+instFields.foldlM
+  (fun fieldMap instField =>
+    let fieldName := getFieldName instField;
+    match fieldMap.find? fieldName with
+    | some (prevInstField::restInstFields) =>
+      if isSimpleStructInstField prevInstField || isSimpleStructInstField instField then
+        throwError instField ("field '" ++ fieldName ++ "' has already beed specified")
+      else
+        pure $ fieldMap.insert fieldName (instField::prevInstField::restInstFields)
+    | _ => pure $ fieldMap.insert fieldName [instField])
+  {}
+
+private def isSimpleStructInstFieldSingleton? : List Syntax → Option Syntax
+| [instField] => if isSimpleStructInstField instField then some instField else none
+| _           => none
+
+-- def structInstSource := parser! ".." >> optional termParser
+private def mkStructInstSource (ref : Syntax) (optTermParser : Syntax) : Syntax :=
+Syntax.node `Lean.Parser.Term.structInstSource #[mkAtomFrom ref "..", optTermParser]
+
+private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
+Syntax.node `Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+
+structure FieldView :=
+(ref : Syntax)
+(fieldName : Name)
+(val: Syntax)
+
+private def getFields (stx : Syntax) (sourceView : SourceView) : TermElabM (List FieldView) := do
+let instFields := getStructInstFields stx;
+fieldMap ← groupFields instFields;
+pure $ fieldMap.toList.map $ fun ⟨fieldName, instFields⟩ =>
+  match isSimpleStructInstFieldSingleton? instFields with
+  | some instField => { ref := instField, fieldName := fieldName, val := instField.getArg 3 }
+  | none =>
+    let newArgs := instFields.toArray.map $ fun instField =>
+      let suffixElems    := (instField.getArg 1).getArgs;
+      let newField       := suffixElems.get! 0;
+      let newField       := if newField.getKind == `Lean.Parser.Term.structInstArrayRef then newField else newField.getArg 1;
+      let newSuffixElems := suffixElems.eraseIdx 0;
+      let instField      := instField.setArg 0 newField;
+      let instField      := instField.setArg 1 (mkNullNode newSuffixElems);
+      instField;
+    let newArgs := match sourceView with
+      | SourceView.none         => newArgs
+      | SourceView.implicit     => newArgs.push $ mkStructInstSource stx mkNullNode
+      | SourceView.explicit src => newArgs.push $ mkStructInstSource stx (mkNullNode #[mkProjStx src fieldName]);
+    let newStruct := stx.setArg 1 mkNullNode; -- erase explicit struct name
+    let newStruct := stx.setArg 2 (mkSepStx newArgs (mkAtomFrom stx ","));
+    { ref := instFields.head!, fieldName := fieldName, val := newStruct }
+
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sourceView : SourceView) : TermElabM Expr := do
 structName ← getStructName stx expectedType? sourceView;
 env ← getEnv;
@@ -274,7 +331,9 @@ unless (isStructureLike env structName) $
 let stx := expandCompositeFields stx;
 stx ← expandNumLitFields stx structName;
 stx ← expandParentFields stx structName;
-throwError stx ("WIP " ++ toString structName ++ toString stx)
+fieldViews ← getFields stx sourceView;
+fieldViews.forM $ fun v => dbgTrace (toString v.fieldName ++ " := " ++ toString v.val);
+throwError stx ("WIP")
 
 @[builtinTermElab structInst] def elabStructInst : TermElab :=
 fun stx expectedType? => do

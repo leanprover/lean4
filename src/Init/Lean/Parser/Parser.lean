@@ -1509,7 +1509,7 @@ fun c s =>
     let s := longestMatchFn ps c s;
     mkResult s iniSz
 
-def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
+@[inline] def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
 withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol)
 
 def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
@@ -1548,7 +1548,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   `antiquotParser` should be a `mkAntiquot` parser (or always fail) and is tried before all other parsers.
   It should not be added to the regular leading parsers because it would heavily
   overlap with antiquotation parsers nested inside them. -/
-def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
+@[inline] def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
 fun c s =>
   let left := s.stxStack.back;
   let (s, lbp) := currLbp left c s;

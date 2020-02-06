@@ -7,9 +7,13 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "runtime/lean.h"
 #include "runtime/compact.h"
 
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
+
+// uncomment to track the number of each kind of object in an .olean file
+// #define LEAN_TAG_COUNTERS
 
 namespace lean {
 /*
@@ -215,6 +219,44 @@ void object_compactor::insert_mpz(object * o) {
     memcpy(data, s.c_str(), s.size() + 1);
 }
 
+#ifdef LEAN_TAG_COUNTERS
+
+static size_t g_tag_counters[256];
+
+struct tag_counter_manager {
+
+    static void display_kind(char const * msg, unsigned k) {
+        if (g_tag_counters[k] != 0)
+            std::cout << msg << " " << g_tag_counters[k] << "\n";
+    }
+
+    tag_counter_manager() {
+        for (unsigned i = 0; i < 256; i++) g_tag_counters[i] = 0;
+    }
+
+    ~tag_counter_manager() {
+        display_kind("#closure:  ", LeanClosure);
+        display_kind("#array:    ", LeanArray);
+        display_kind("#sarray:   ", LeanStructArray);
+        display_kind("#scarray:  ", LeanScalarArray);
+        display_kind("#string:   ", LeanString);
+        display_kind("#mpz:      ", LeanMPZ);
+        display_kind("#thunk:    ", LeanThunk);
+        display_kind("#task:     ", LeanTask);
+        display_kind("#ref:      ", LeanRef);
+        display_kind("#external: ", LeanExternal);
+
+        size_t num_ctors = 0;
+        for (unsigned i = 0; i <= LeanMaxCtorTag; i++)
+            num_ctors += g_tag_counters[i];
+        std::cout << "#ctors:     " << num_ctors << "\n";
+    }
+};
+
+tag_counter_manager g_tag_counter_manager;
+
+#endif
+
 void object_compactor::operator()(object * o) {
     lean_assert(m_todo.empty());
     if (!lean_is_scalar(o)) {
@@ -227,6 +269,9 @@ void object_compactor::operator()(object * o) {
             }
             lean_assert(!lean_is_scalar(curr));
             bool r = true;
+#ifdef LEAN_TAG_COUNTERS
+            g_tag_counters[lean_ptr_tag(curr)]++;
+#endif
             switch (lean_ptr_tag(curr)) {
             case LeanClosure:         lean_panic("closures cannot be compacted");
             case LeanArray:           r = insert_array(curr); break;

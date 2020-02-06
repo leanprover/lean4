@@ -1442,13 +1442,14 @@ let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNon
 -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
 node kind $ try $ setExpected [] dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
 
+def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
+let (s, stx?) := peekToken c s;
+match stx? with
+| some stx@(Syntax.atom _ sym) => sym == "$"
+| _                            => false
+
 @[inline] def withAntiquotFn (antiquotP p : ParserFn) : ParserFn :=
-fun c s =>
-  let (s, stx?) := peekToken c s;
-  let tryAnti := match stx? with
-  | some stx@(Syntax.atom _ sym) => sym == "$"
-  | _ => false;
-  (if tryAnti then orelseFn antiquotP p else p) c s
+fun c s => if tryAnti c s then orelseFn antiquotP p c s else p c s
 
 /-- Optimized version of `mkAntiquot ... <|> p`. -/
 @[inline] def withAntiquot (antiquotP p : Parser) : Parser :=

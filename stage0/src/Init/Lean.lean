@@ -22,3 +22,4 @@ import Init.Lean.Linter
 import Init.Lean.Meta
 import Init.Lean.Eval
 import Init.Lean.Structure
+import Init.Lean.ReplaceExpr

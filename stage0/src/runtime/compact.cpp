@@ -4,14 +4,53 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <unordered_set>
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "runtime/hash.h"
+#include "runtime/lean.h"
 #include "runtime/compact.h"
 
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
+#define LEAN_MAX_SHARING_TABLE_INITIAL_SIZE 1024*1024
+
+// uncomment to track the number of each kind of object in an .olean file
+// #define LEAN_TAG_COUNTERS
 
 namespace lean {
+
+struct max_sharing_key {
+    size_t m_offset;
+    size_t m_size;
+    max_sharing_key(size_t offset, size_t sz):m_offset(offset), m_size(sz) {}
+};
+
+struct max_sharing_hash {
+    object_compactor * m;
+    max_sharing_hash(object_compactor * manager):m(manager) {}
+    unsigned operator()(max_sharing_key const & k) const {
+        return hash_str(k.m_size, reinterpret_cast<char const *>(m->m_begin) + k.m_offset, 17);
+    }
+};
+
+struct max_sharing_eq {
+    object_compactor * m;
+    max_sharing_eq(object_compactor * manager):m(manager) {}
+    bool operator()(max_sharing_key const & k1, max_sharing_key const & k2) const {
+        if (k1.m_size != k2.m_size) return false;
+        return memcmp(reinterpret_cast<char*>(m->m_begin) + k1.m_offset, reinterpret_cast<char*>(m->m_begin) + k2.m_offset, k1.m_size) == 0;
+    }
+};
+
+
+struct object_compactor::max_sharing_table {
+    std::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
+    max_sharing_table(object_compactor * manager):
+        m_table(LEAN_MAX_SHARING_TABLE_INITIAL_SIZE, max_sharing_hash(manager), max_sharing_eq(manager)) {
+    }
+};
+
 /*
   Special object that terminates the data block constructing the object graph rooted in `m_value`.
   We use this object to ensure `m_value` is correctly aligned. In the past, we would allocate
@@ -24,6 +63,7 @@ struct terminator_object {
 };
 
 object_compactor::object_compactor():
+    m_max_sharing_table(new max_sharing_table(this)),
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
@@ -52,6 +92,23 @@ void * object_compactor::alloc(size_t sz) {
     m_end = static_cast<char*>(m_end) + sz;
     lean_assert(m_end <= m_capacity);
     return r;
+}
+
+void object_compactor::save(object * o, object * new_o) {
+    lean_assert(m_begin <= new_o && new_o < m_end);
+    m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin))));
+}
+
+void object_compactor::save_max_sharing(object * o, object * new_o, size_t new_o_sz) {
+    max_sharing_key k(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin), new_o_sz);
+    auto it = m_max_sharing_table->m_table.find(k);
+    if (it != m_max_sharing_table->m_table.end()) {
+        m_end = new_o;
+        new_o = reinterpret_cast<lean_object*>(reinterpret_cast<char*>(m_begin) + it->m_offset);
+    } else {
+        m_max_sharing_table->m_table.insert(k);
+    }
+    save(o, new_o);
 }
 
 object_offset object_compactor::to_offset(object * o) {
@@ -85,7 +142,6 @@ object * object_compactor::copy_object(object * o) {
     lean_assert(lean_ptr_tag(r) == lean_ptr_tag(o));
     lean_assert(lean_ptr_other(r) == lean_ptr_other(o));
     lean_assert(lean_object_byte_size(r) == sz);
-    save(o, r);
     return r;
 }
 
@@ -98,7 +154,7 @@ void object_compactor::insert_sarray(object * o) {
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
     memcpy(new_o->m_data, lean_to_sarray(o)->m_data, elem_sz*sz);
-    save(o, (lean_object*)new_o);
+    save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
 
 void object_compactor::insert_string(object * o) {
@@ -111,8 +167,10 @@ void object_compactor::insert_string(object * o) {
     new_o->m_capacity = sz;
     new_o->m_length   = len;
     memcpy(new_o->m_data, lean_to_string(o)->m_data, sz);
-    save(o, (lean_object*)new_o);
+    save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
+
+// #define ShowCtors
 
 bool object_compactor::insert_constructor(object * o) {
     std::vector<object_offset> & offsets = m_tmp;
@@ -127,9 +185,19 @@ bool object_compactor::insert_constructor(object * o) {
     }
     if (missing_children)
         return false;
+#ifdef ShowCtors
+    if (lean_object_byte_size(o) == sizeof(lean_object) + sizeof(void*)*lean_ctor_num_objs(o)) {
+        std::cout << "ctor " << (unsigned)lean_ptr_tag(o);
+        for (unsigned i = 0; i < num_objs; i++) {
+            std::cout << " " << (size_t)offsets[i];
+        }
+        std::cout << "\n";
+    }
+#endif
     object * new_o = copy_object(o);
     for (unsigned i = 0; i < lean_ctor_num_objs(o); i++)
         lean_ctor_set(new_o, i, offsets[i]);
+    save_max_sharing(o, new_o, lean_object_byte_size(o));
     return true;
 }
 
@@ -138,6 +206,7 @@ bool object_compactor::insert_array(object * o) {
     offsets.clear();
     bool missing_children = false;
     size_t sz = array_size(o);
+    // std::cout << sz << " array\n";
     for (size_t i = 0; i < sz; i++) {
         object_offset c = to_offset(array_get(o, i));
         if (c == g_null_offset)
@@ -154,7 +223,7 @@ bool object_compactor::insert_array(object * o) {
     for (size_t i = 0; i < sz; i++) {
         lean_array_set_core((lean_object*)new_o, i, offsets[i]);
     }
-    save(o, (lean_object*)new_o);
+    save_max_sharing(o, (lean_object*)new_o, obj_sz);
     return true;
 }
 
@@ -165,6 +234,7 @@ bool object_compactor::insert_thunk(object * o) {
         return false;
     object * r = copy_object(o);
     lean_to_thunk(r)->m_value = c;
+    save_max_sharing(o, r, lean_object_byte_size(o));
     return true;
 }
 
@@ -175,6 +245,7 @@ bool object_compactor::insert_ref(object * o) {
         return false;
     object * r = copy_object(o);
     lean_to_ref(r)->m_value = c;
+    save_max_sharing(o, r, lean_object_byte_size(o));
     return true;
 }
 
@@ -197,7 +268,7 @@ bool object_compactor::insert_task(object * o) {
     lean_set_non_heap_header((lean_object*)new_o, sz, LeanThunk, 0);
     new_o->m_value   = c;
     new_o->m_closure = (lean_object*)0;
-    save(o, (lean_object*)new_o);
+    save_max_sharing(o, (lean_object*)(new_o), sz);
     return true;
 }
 
@@ -215,6 +286,44 @@ void object_compactor::insert_mpz(object * o) {
     memcpy(data, s.c_str(), s.size() + 1);
 }
 
+#ifdef LEAN_TAG_COUNTERS
+
+static size_t g_tag_counters[256];
+
+struct tag_counter_manager {
+
+    static void display_kind(char const * msg, unsigned k) {
+        if (g_tag_counters[k] != 0)
+            std::cout << msg << " " << g_tag_counters[k] << "\n";
+    }
+
+    tag_counter_manager() {
+        for (unsigned i = 0; i < 256; i++) g_tag_counters[i] = 0;
+    }
+
+    ~tag_counter_manager() {
+        display_kind("#closure:  ", LeanClosure);
+        display_kind("#array:    ", LeanArray);
+        display_kind("#sarray:   ", LeanStructArray);
+        display_kind("#scarray:  ", LeanScalarArray);
+        display_kind("#string:   ", LeanString);
+        display_kind("#mpz:      ", LeanMPZ);
+        display_kind("#thunk:    ", LeanThunk);
+        display_kind("#task:     ", LeanTask);
+        display_kind("#ref:      ", LeanRef);
+        display_kind("#external: ", LeanExternal);
+
+        size_t num_ctors = 0;
+        for (unsigned i = 0; i <= LeanMaxCtorTag; i++)
+            num_ctors += g_tag_counters[i];
+        std::cout << "#ctors:     " << num_ctors << "\n";
+    }
+};
+
+tag_counter_manager g_tag_counter_manager;
+
+#endif
+
 void object_compactor::operator()(object * o) {
     lean_assert(m_todo.empty());
     if (!lean_is_scalar(o)) {
@@ -227,6 +336,9 @@ void object_compactor::operator()(object * o) {
             }
             lean_assert(!lean_is_scalar(curr));
             bool r = true;
+#ifdef LEAN_TAG_COUNTERS
+            g_tag_counters[lean_ptr_tag(curr)]++;
+#endif
             switch (lean_ptr_tag(curr)) {
             case LeanClosure:         lean_panic("closures cannot be compacted");
             case LeanArray:           r = insert_array(curr); break;

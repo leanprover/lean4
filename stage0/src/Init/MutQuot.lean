@@ -37,6 +37,27 @@ def MutQuot.liftUpdate {α : Type u} {r : α → α → Prop} {β : Sort v}
     (q : MutQuot r) : β :=
 Quot.lift (fun a => (f a).1) h₁ q.val
 
+abbrev MutSquash (α : Type u) := @MutQuot α (fun _ _ => True)
+
+/- Internal efficient implementation for `MutSquash.liftUpdate`. -/
+@[inline] unsafe def MutSquash.liftUpdateUnsafe {α : Type u} {β : Sort v}
+    (f : α → PProd β α)
+    (h : ∀ (a₁ a₂ : α), (f a₁).1 = (f a₂).1)
+    (init : α)
+    (q : MutSquash α) : β :=
+let a : α  := (cast lcProof q.val : α); -- rely on the fact that `@Quot α r` and `α` have the same runtime representation
+let a : α  := MutQuot.set q init a;     -- reset value in `q` with `init`. The idea is to take the ownership of `a`.
+let ⟨b, a⟩ := f a;                      -- If `q` was the only object referencing `a`, `f` will be able to perform destructive updates
+MutQuot.set q a b
+
+@[implementedBy MutSquash.liftUpdateUnsafe]
+def MutSquash.liftUpdate {α : Type u} {β : Sort v}
+    (f : α → PProd β α)
+    (h : ∀ (a₁ a₂ : α), (f a₁).1 = (f a₂).1)
+    (init : α)
+    (q : MutSquash α) : β :=
+MutQuot.liftUpdate f (fun a₁ a₂ _ => h a₁ a₂) (fun _ => True.intro) q
+
 @[inline]
 def MutQuot.lift {α : Type u} {r : α → α → Prop} {β : Sort v}
     (f : α → β)

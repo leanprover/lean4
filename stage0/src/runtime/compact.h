@@ -14,17 +14,19 @@ namespace lean {
 typedef lean_object * object_offset;
 
 class object_compactor {
+    struct max_sharing_table;
+    friend struct max_sharing_hash;
+    friend struct max_sharing_eq;
     std::unordered_map<object*, object_offset, std::hash<object*>, std::equal_to<object*>> m_obj_table;
+    std::unique_ptr<max_sharing_table> m_max_sharing_table;
     std::vector<object*> m_todo;
     std::vector<object_offset> m_tmp;
     void * m_begin;
     void * m_end;
     void * m_capacity;
     size_t capacity() const { return static_cast<char*>(m_capacity) - static_cast<char*>(m_begin); }
-    void save(object * o, object * new_o) {
-        lean_assert(m_begin <= new_o && new_o < m_end);
-        m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin))));
-    }
+    void save(object * o, object * new_o);
+    void save_max_sharing(object * o, object * new_o, size_t new_o_sz);
     void * alloc(size_t sz);
     object_offset to_offset(object * o);
     void insert_terminator(object * o);

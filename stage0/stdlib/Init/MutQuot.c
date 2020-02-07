@@ -25,13 +25,18 @@ lean_object* l_MutQuot_dlift(lean_object*, lean_object*, lean_object*);
 lean_object* l_MutQuot_val___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_MutQuot_lift(lean_object*, lean_object*, lean_object*);
 lean_object* l_MutQuot_liftUpdate___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MutSquash_liftUpdate(lean_object*, lean_object*);
 lean_object* l_MutQuot_mkAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_MutQuot_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MutSquash_liftUpdate___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_MutQuot_mk___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_MutQuot_liftUpdateUnsafe(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mutquot_mk(lean_object*);
 lean_object* l_MutQuot_liftSubsingleton___rarg(lean_object*, lean_object*);
+lean_object* l_MutSquash_liftUpdate___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MutSquash_liftUpdateUnsafe(lean_object*, lean_object*);
 lean_object* l_MutQuot_liftUpdateUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MutSquash_liftUpdateUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mutquot_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_MutQuot_mkAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -107,6 +112,65 @@ _start:
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_MutQuot_liftUpdate___rarg), 4, 0);
 return x_4;
+}
+}
+lean_object* l_MutSquash_liftUpdateUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_inc(x_4);
+x_5 = lean_mutquot_get(x_4);
+lean_inc(x_4);
+x_6 = lean_mutquot_set(x_4, x_3, x_5);
+x_7 = lean_apply_1(x_1, x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_7, 1);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = lean_mutquot_set(x_4, x_9, x_8);
+return x_10;
+}
+}
+lean_object* l_MutSquash_liftUpdateUnsafe(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_MutSquash_liftUpdateUnsafe___rarg), 4, 0);
+return x_3;
+}
+}
+lean_object* l_MutSquash_liftUpdate___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_inc(x_4);
+x_5 = lean_mutquot_get(x_4);
+x_6 = lean_apply_1(x_1, x_5);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_6, 1);
+lean_inc(x_8);
+lean_dec(x_6);
+x_9 = lean_mutquot_set(x_4, x_8, x_7);
+return x_9;
+}
+}
+lean_object* l_MutSquash_liftUpdate(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_MutSquash_liftUpdate___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+lean_object* l_MutSquash_liftUpdate___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_MutSquash_liftUpdate___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 lean_object* l_MutQuot_lift___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

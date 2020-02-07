@@ -12,7 +12,7 @@ structure MutQuot {α : Type u} (r : α → α → Prop) :=
 mkAux :: (val : Quot r)
 
 attribute [extern "lean_mutquot_mk"] MutQuot.mkAux
-attribute [extern "lean_mutquot_get"] MutQuot.val
+attribute [extern "lean_mutquot_get", neverExtract] MutQuot.val
 
 @[extern "lean_mutquot_mk"]
 def MutQuot.mk {α : Type u} (r : α → α → Prop) (a : α) : MutQuot r :=

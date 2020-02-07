@@ -26,6 +26,8 @@
       find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean: ' &&
       find src -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'lines C++: ' &&
+      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       "
     max_runs: 1
     runner: output

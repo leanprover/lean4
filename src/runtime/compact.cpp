@@ -89,6 +89,7 @@ void * object_compactor::alloc(size_t sz) {
         m_begin    = new_begin;
     }
     void * r = m_end;
+    memset(r, 0, sz);
     m_end = static_cast<char*>(m_end) + sz;
     lean_assert(m_end <= m_capacity);
     return r;

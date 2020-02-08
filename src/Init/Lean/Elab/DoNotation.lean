@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Elab.Term
-import Init.Lean.Elab.TermBinders
+import Init.Lean.Elab.Binders
 import Init.Lean.Elab.Quotation
 
 namespace Lean

@@ -7,7 +7,7 @@ prelude
 import Init.Lean.Util.CollectLevelParams
 import Init.Lean.Util.CollectFVars
 import Init.Lean.Elab.DeclModifiers
-import Init.Lean.Elab.TermBinders
+import Init.Lean.Elab.Binders
 
 namespace Lean
 namespace Elab

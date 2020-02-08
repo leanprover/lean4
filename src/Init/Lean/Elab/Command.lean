@@ -8,8 +8,8 @@ import Init.Lean.Elab.Alias
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.ResolveName
 import Init.Lean.Elab.Term
-import Init.Lean.Elab.TermBinders
-import Init.Lean.Elab.SynthesizeSyntheticMVars
+import Init.Lean.Elab.Binders
+import Init.Lean.Elab.SyntheticMVars
 
 namespace Lean
 namespace Elab

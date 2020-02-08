@@ -40,7 +40,7 @@ when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
   throwError ref ("argument '" ++ toString namedArg.name ++ "' was already set");
 pure $ namedArgs.push namedArg
 
-private def synthesizeAppInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
+def synthesizeAppInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
 instMVars.forM $ fun mvarId =>
   unlessM (synthesizeInstMVarCore ref mvarId) $
     registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass

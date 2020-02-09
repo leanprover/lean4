@@ -323,6 +323,10 @@ match mctx.decls.find? mvarId with
 | some decl => decl
 | none      => panic! "unknown metavariable"
 
+def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) : MetavarContext :=
+let decl := mctx.getDecl mvarId;
+{ decls := mctx.decls.insert mvarId { kind := kind, .. decl }, .. mctx }
+
 def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
 mctx.lDepth.find? mvarId
 

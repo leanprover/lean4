@@ -294,6 +294,9 @@ match mctx.findDecl? mvarId with
 | some d => pure d
 | none   => throwEx $ Exception.unknownExprMVar mvarId
 
+def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
+modify $ fun s => { mctx := s.mctx.setMVarKind mvarId kind, .. s}
+
 def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
 mvarDecl ← getMVarDecl mvarId;
 mctx     ← getMCtx;

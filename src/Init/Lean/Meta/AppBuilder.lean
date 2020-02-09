@@ -168,5 +168,33 @@ traceCtx `Meta.appBuilder $ withNewMCtxDepth $ do
   let fType := cinfo.instantiateTypeLevelParams us;
   mkAppMAux f xs 0 #[] 0 #[] fType
 
+def mkEqNDRec (motive h1 h2 : Expr) : MetaM Expr :=
+if h2.isAppOf `Eq.refl then pure h1
+else do
+  h2Type ← infer h2;
+  match h2Type.eq? with
+  | none => throwEx $ Exception.appBuilder `Eq.ndrec "equality proof expected" #[h2]
+  | some (α, a, b) => do
+    u2 ← getLevel α;
+    motiveType ← infer motive;
+    match motiveType with
+    | Expr.forallE _ _ (Expr.sort u1 _) _ =>
+      pure $ mkAppN (mkConst `Eq.ndrec [u1, u2]) #[α, a, motive, h1, b, h2]
+    | _ => throwEx $ Exception.appBuilder `Eq.ndrec "invalid motive" #[motive]
+
+def mkEqRec (motive h1 h2 : Expr) : MetaM Expr :=
+if h2.isAppOf `Eq.refl then pure h1
+else do
+  h2Type ← infer h2;
+  match h2Type.eq? with
+  | none => throwEx $ Exception.appBuilder `Eq.rec "equality proof expected" #[h2]
+  | some (α, a, b) => do
+    u2 ← getLevel α;
+    motiveType ← infer motive;
+    match motiveType with
+    | Expr.forallE _ _ (Expr.forallE _ _ (Expr.sort u1 _) _) _ =>
+      pure $ mkAppN (mkConst `Eq.rec [u1, u2]) #[α, a, motive, h1, b, h2]
+    | _ => throwEx $ Exception.appBuilder `Eq.rec "invalid motive" #[motive]
+
 end Meta
 end Lean

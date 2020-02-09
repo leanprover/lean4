@@ -515,4 +515,42 @@ print t;
 check $ isDefEq t m;
 pure ()
 
-#eval tst31
+def tst32 : MetaM Unit := do
+print "----- tst32 -----";
+withLocalDecl `a nat BinderInfo.default $ fun a => do
+withLocalDecl `b nat BinderInfo.default $ fun b => do
+aeqb ← mkEq a b;
+withLocalDecl `h2 aeqb BinderInfo.default $ fun h2 => do
+t ← mkEq (mkApp2 add a a) a;
+print t;
+let motive := Lean.mkLambda `x BinderInfo.default nat (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 0)) a);
+withLocalDecl `h1 t BinderInfo.default $ fun h1 => do
+r ← mkEqNDRec motive h1 h2;
+print r;
+rType ← inferType r >>= whnf;
+print rType;
+check r;
+pure ()
+
+#eval tst32
+
+def tst33 : MetaM Unit := do
+print "----- tst33 -----";
+withLocalDecl `a nat BinderInfo.default $ fun a => do
+withLocalDecl `b nat BinderInfo.default $ fun b => do
+aeqb ← mkEq a b;
+withLocalDecl `h2 aeqb BinderInfo.default $ fun h2 => do
+t ← mkEq (mkApp2 add a a) a;
+let motive :=
+  Lean.mkLambda `x BinderInfo.default nat $
+  Lean.mkLambda `h BinderInfo.default (mkApp3 (mkConst `Eq [levelOne]) nat a (mkBVar 0)) $
+    (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 1)) a);
+withLocalDecl `h1 t BinderInfo.default $ fun h1 => do
+r ← mkEqRec motive h1 h2;
+print r;
+rType ← inferType r >>= whnf;
+print rType;
+check r;
+pure ()
+
+#eval tst33

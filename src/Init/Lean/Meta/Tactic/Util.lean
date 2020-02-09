@@ -30,9 +30,8 @@ pure mvarDecl.type
 def ppGoal (mvarId : MVarId) : MetaM Format := do
 env  ← getEnv;
 mctx ← getMCtx;
-lctx ← getLCtx;
 opts ← getOptions;
-pure $ ppGoal env mctx lctx opts mvarId
+pure $ ppGoal env mctx opts mvarId
 
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic

@@ -799,16 +799,6 @@ mctx' ← getMCtx;
 modify $ fun s => { mctx := mctx, .. s };
 finally x (modify $ fun s => { mctx := mctx', .. s })
 
-instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x => do
-   match x { config := { opts := opts }, currRecDepth := 0, maxRecDepth := getMaxRecDepth opts } { env := env } with
-   | EStateM.Result.ok a s    => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     MetaHasEval.eval s.env opts a
-   | EStateM.Result.error err s => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     throw (IO.userError (toString err))⟩
-
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta
 

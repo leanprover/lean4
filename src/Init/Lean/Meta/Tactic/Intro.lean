@@ -49,27 +49,28 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
       else
         throwTacticEx `introN mvarId "insufficient number of binders"
 
-@[specialize] def introNCore {σ} (mvarId : MVarId) (n : Nat) (mkName : LocalContext → Name → σ → Name × σ) (s : σ) : MetaM (Array Expr × MVarId) :=
+@[specialize] def introNCore {σ} (mvarId : MVarId) (n : Nat) (mkName : LocalContext → Name → σ → Name × σ) (s : σ) : MetaM (Array FVarId × MVarId) :=
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `introN;
   mvarType ← getMVarType mvarId;
   lctx ← getLCtx;
-  introNCoreAux mvarId mkName n lctx #[] 0 s mvarType
+  (fvars, mvarId) ← introNCoreAux mvarId mkName n lctx #[] 0 s mvarType;
+  pure (fvars.map Expr.fvarId!, mvarId)
 
 def mkAuxName (lctx : LocalContext) (defaultName : Name) : List Name → Name × List Name
 | []         => (lctx.getUnusedName defaultName, [])
 | n :: rest  => (if n == "_" then lctx.getUnusedName defaultName else n, rest)
 
-def introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) : MetaM (Array Expr × MVarId) :=
+def introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) : MetaM (Array FVarId × MVarId) :=
 introNCore mvarId n mkAuxName givenNames
 
-def intro (mvarId : MVarId) (name : Name) : MetaM (Expr × MVarId) := do
-(fvars, mvarId) ← introN mvarId 1 [name];
-pure (fvars.get! 0, mvarId)
+def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
+(fvarIds, mvarId) ← introN mvarId 1 [name];
+pure (fvarIds.get! 0, mvarId)
 
-def intro1 (mvarId : MVarId) : MetaM (Expr × MVarId) := do
-(fvars, mvarId) ← introN mvarId 1 [];
-pure (fvars.get! 0, mvarId)
+def intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) := do
+(fvarIds, mvarId) ← introN mvarId 1 [];
+pure (fvarIds.get! 0, mvarId)
 
 end Meta
 end Lean

@@ -658,7 +658,10 @@ structure State :=
 (ngen  : NameGenerator)
 (cache : HashMap Expr Expr := {}) --
 
-abbrev M := EStateM Exception State
+abbrev MCore := EStateM Exception State
+abbrev M     := ReaderT Bool (EStateM Exception State)
+
+def preserveOrder : M Bool := read
 
 instance : MonadHashMapCacheAdapter Expr Expr M :=
 { getCache    := do s ← get; pure s.cache,
@@ -678,13 +681,30 @@ xs.foldlFrom
     in `lctx` that may depend on `toRevert`.
 
     Remark: the result is sorted by `LocalDecl` indices. -/
-private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) : Except Exception (Array Expr) :=
+private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (preserveOrder : Bool) : Except Exception (Array Expr) :=
 if toRevert.size == 0 then pure toRevert
-else
-  let minDecl := getLocalDeclWithSmallestIdx lctx toRevert;
+else do
+  when preserveOrder $ do {
+    -- Make sure none of `toRevert` is an AuxDecl
+    -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
+    toRevert.size.forM $ fun i => do
+      let fvar := toRevert.get! i;
+      let decl := lctx.getFVar! fvar;
+      when decl.binderInfo.isAuxDecl $
+        throw (Exception.revertFailure mctx lctx toRevert decl);
+      i.forM $ fun j =>
+        let prevFVar := toRevert.get! j;
+        let prevDecl := lctx.getFVar! prevFVar;
+        when (localDeclDependsOn mctx (fun fvarId => fvarId == fvar.fvarId!) prevDecl) $
+          throw (Exception.revertFailure mctx lctx toRevert prevDecl)
+  };
+  let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size;
+  let firstDeclToVisit := if preserveOrder then lctx.getFVar! toRevert.back else getLocalDeclWithSmallestIdx lctx toRevert;
+  let skipFirst        := preserveOrder;
   lctx.foldlFromM
-    (fun newToRevert decl =>
-      if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
+    (fun (newToRevert : Array Expr) decl =>
+      if skipFirst && decl.index == firstDeclToVisit.index then pure newToRevert
+      else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
         pure (newToRevert.push decl.toExpr)
       else if localDeclDependsOn mctx (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) decl then
         if decl.binderInfo.isAuxDecl then
@@ -693,8 +713,8 @@ else
           pure (newToRevert.push decl.toExpr)
       else
         pure newToRevert)
-    (Array.mkEmpty toRevert.size)
-    minDecl
+    newToRevert
+    firstDeclToVisit
 
 /-- Create a new `LocalContext` by removing the free variables in `toRevert` from `lctx`.
     We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/
@@ -810,7 +830,8 @@ private partial def elimMVarDepsApp (elimMVarDepsAux : Expr → M Expr) (xs : Ar
         -/
         let continue (nestedFVars : Array Expr) : M Expr := do {
           args ← args.mapM (visit elimMVarDepsAux);
-          match collectDeps mctx mvarLCtx toRevert with
+          preserve ← preserveOrder;
+          match collectDeps mctx mvarLCtx toRevert preserve with
           | Except.error ex    => throw ex
           | Except.ok toRevert => do
             let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
@@ -892,13 +913,13 @@ xs.size.foldRevM
 
 end MkBinding
 
-abbrev MkBindingM := ReaderT LocalContext MkBinding.M
+abbrev MkBindingM := ReaderT LocalContext MkBinding.MCore
 
-def elimMVarDeps (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
-fun _ => MkBinding.elimMVarDeps xs e
+def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr :=
+fun _ => MkBinding.elimMVarDeps xs e preserveOrder
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) :=
-fun lctx => MkBinding.mkBinding isLambda lctx xs e usedOnly
+fun lctx => MkBinding.mkBinding isLambda lctx xs e usedOnly false
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
 (e, _) ← mkBinding true xs e;

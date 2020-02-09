@@ -64,7 +64,7 @@ partial def formatAux : Option MessageDataContext → MessageData → Format
 | none,      ofExpr e          => format (toString e)
 | some ctx,  ofExpr e          => ppExpr ctx.env ctx.mctx ctx.lctx ctx.opts e
 | none,      ofGoal mvarId     => "goal " ++ format (mkMVar mvarId)
-| some ctx,  ofGoal mvarId     => ppGoal ctx.env ctx.mctx ctx.lctx ctx.opts mvarId
+| some ctx,  ofGoal mvarId     => ppGoal ctx.env ctx.mctx ctx.opts mvarId
 | _,         withContext ctx d => formatAux (some ctx) d
 | ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
 | ctx,       nest n d          => Format.nest n (formatAux ctx d)

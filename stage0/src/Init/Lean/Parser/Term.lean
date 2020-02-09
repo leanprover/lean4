@@ -162,7 +162,7 @@ def checkIsSort := checkStackTop (fun stx => stx.isOfKind `Lean.Parser.Term.type
 @[builtinTermParser] def heq   := tparser! unicodeInfixL " ≅ " " ~= " 50
 @[builtinTermParser] def equiv := tparser! infixL " ≈ " 50
 
-@[builtinTermParser] def subst := tparser! infixR " ▸ " 75
+@[builtinTermParser] def subst := tparser! symbol " ▸ " 75 >> sepBy1 (termParser 75) " ▸ "
 
 @[builtinTermParser] def and   := tparser! unicodeInfixR " ∧ " " /\\ " 35
 @[builtinTermParser] def or    := tparser! unicodeInfixR " ∨ " " \\/ " 30

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Meta.Tactic.Apply
 import Init.Lean.Elab.Tactic.Basic
-import Init.Lean.Elab.SynthesizeSyntheticMVars
+import Init.Lean.Elab.SyntheticMVars
 
 namespace Lean
 namespace Elab

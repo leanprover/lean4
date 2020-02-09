@@ -301,6 +301,10 @@ def getDecLevel (ref : Syntax) (type : Expr) : TermElabM Level := do
 u ← getLevel ref type;
 decLevel ref u
 
+@[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
+mctx ← getMCtx;
+finally x (modify $ fun s => { mctx := mctx, .. s })
+
 def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
 fun ctx s =>
   match (x { .. ctx }).run { .. s } with

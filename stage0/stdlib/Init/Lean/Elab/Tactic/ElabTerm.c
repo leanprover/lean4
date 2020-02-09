@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Tactic.ElabTerm
-// Imports: Init.Lean.Meta.Tactic.Apply Init.Lean.Elab.Tactic.Basic Init.Lean.Elab.SynthesizeSyntheticMVars
+// Imports: Init.Lean.Meta.Tactic.Apply Init.Lean.Elab.Tactic.Basic Init.Lean.Elab.SyntheticMVars
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,6 +24,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalApply(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalRefine(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalExact(lean_object*);
+lean_object* l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_elabTerm___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalRefine___closed__3;
@@ -38,7 +39,6 @@ lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalApply(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_Lean_Elab_Tactic_evalApply___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalExact___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,7 +95,7 @@ lean_inc(x_11);
 lean_dec(x_9);
 x_12 = lean_box(0);
 lean_inc(x_4);
-x_13 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_3, x_12, x_4, x_11);
+x_13 = l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_3, x_12, x_4, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -212,7 +212,7 @@ lean_inc(x_41);
 lean_dec(x_39);
 x_42 = lean_box(0);
 lean_inc(x_37);
-x_43 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_3, x_42, x_37, x_41);
+x_43 = l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_3, x_42, x_37, x_41);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; 
@@ -1318,7 +1318,7 @@ return x_5;
 }
 lean_object* initialize_Init_Lean_Meta_Tactic_Apply(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Tactic_Basic(lean_object*);
-lean_object* initialize_Init_Lean_Elab_SynthesizeSyntheticMVars(lean_object*);
+lean_object* initialize_Init_Lean_Elab_SyntheticMVars(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Elab_Tactic_ElabTerm(lean_object* w) {
 lean_object * res;
@@ -1330,7 +1330,7 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_Tactic_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elab_SynthesizeSyntheticMVars(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_SyntheticMVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___regBuiltinTactic_Lean_Elab_Tactic_evalExact___closed__1 = _init_l___regBuiltinTactic_Lean_Elab_Tactic_evalExact___closed__1();

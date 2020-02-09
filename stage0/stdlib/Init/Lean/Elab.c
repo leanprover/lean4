@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Elab
-// Imports: Init.Lean.Elab.Import Init.Lean.Elab.Exception Init.Lean.Elab.ElabStrategyAttrs Init.Lean.Elab.Command Init.Lean.Elab.Term Init.Lean.Elab.TermApp Init.Lean.Elab.TermBinders Init.Lean.Elab.Quotation Init.Lean.Elab.Frontend Init.Lean.Elab.BuiltinNotation Init.Lean.Elab.Declaration Init.Lean.Elab.Tactic Init.Lean.Elab.Syntax Init.Lean.Elab.Match Init.Lean.Elab.DoNotation Init.Lean.Elab.StructInst
+// Imports: Init.Lean.Elab.Import Init.Lean.Elab.Exception Init.Lean.Elab.StrategyAttrs Init.Lean.Elab.Command Init.Lean.Elab.Term Init.Lean.Elab.App Init.Lean.Elab.Binders Init.Lean.Elab.Quotation Init.Lean.Elab.Frontend Init.Lean.Elab.BuiltinNotation Init.Lean.Elab.Declaration Init.Lean.Elab.Tactic Init.Lean.Elab.Syntax Init.Lean.Elab.Match Init.Lean.Elab.DoNotation Init.Lean.Elab.StructInst
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,11 +15,11 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Lean_Elab_Import(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Exception(lean_object*);
-lean_object* initialize_Init_Lean_Elab_ElabStrategyAttrs(lean_object*);
+lean_object* initialize_Init_Lean_Elab_StrategyAttrs(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Command(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Term(lean_object*);
-lean_object* initialize_Init_Lean_Elab_TermApp(lean_object*);
-lean_object* initialize_Init_Lean_Elab_TermBinders(lean_object*);
+lean_object* initialize_Init_Lean_Elab_App(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Binders(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Quotation(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Frontend(lean_object*);
 lean_object* initialize_Init_Lean_Elab_BuiltinNotation(lean_object*);
@@ -40,7 +40,7 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_Exception(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elab_ElabStrategyAttrs(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_StrategyAttrs(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_Command(lean_io_mk_world());
@@ -49,10 +49,10 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_Term(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elab_TermApp(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_App(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elab_TermBinders(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_Binders(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_Quotation(lean_io_mk_world());

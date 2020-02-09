@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Definition
-// Imports: Init.Lean.Util.CollectLevelParams Init.Lean.Util.CollectFVars Init.Lean.Elab.DeclModifiers Init.Lean.Elab.TermBinders
+// Imports: Init.Lean.Util.CollectLevelParams Init.Lean.Util.CollectFVars Init.Lean.Elab.DeclModifiers Init.Lean.Elab.Binders
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* l_Lean_Elab_Command_addDecl(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Elab_Term_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_SyntheticMVars_2__resumePostponed___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_inferType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_collectUsedFVarsAtFVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabDefLike___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,6 +49,7 @@ lean_object* l_Lean_Name_getNumParts___main(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkFreshTypeMVar(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getOptions(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_Elab_Command_removeUnused___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Term_elabParen___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,7 +71,6 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_logTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabDefLike___spec__4(lean_object*, lean_object*, lean_object*);
@@ -86,7 +87,6 @@ lean_object* l_Lean_Elab_Command_throwError___rarg(lean_object*, lean_object*, l
 uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_6__mkTermContext(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalInstances_erase(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectFVars_main___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen_x27(lean_object*);
 lean_object* l_Lean_Elab_Command_DefKind_isDefOrOpaque___boxed(lean_object*);
@@ -1580,7 +1580,7 @@ lean_dec(x_37);
 lean_dec(x_35);
 lean_dec(x_32);
 lean_dec(x_8);
-x_58 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___lambda__1___closed__1;
+x_58 = l___private_Init_Lean_Elab_SyntheticMVars_2__resumePostponed___lambda__1___closed__1;
 x_59 = l_unreachable_x21___rarg(x_58);
 x_60 = lean_apply_2(x_59, x_11, x_38);
 return x_60;
@@ -1754,7 +1754,7 @@ lean_dec(x_13);
 x_16 = 0;
 x_17 = lean_box(0);
 lean_inc(x_8);
-x_18 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_16, x_17, x_8, x_15);
+x_18 = l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_16, x_17, x_8, x_15);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
@@ -4419,7 +4419,7 @@ lean_dec(x_26);
 x_29 = 0;
 x_30 = lean_box(0);
 lean_inc(x_8);
-x_31 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_29, x_30, x_8, x_28);
+x_31 = l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_29, x_30, x_8, x_28);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; lean_object* x_39; 
@@ -6579,7 +6579,7 @@ return x_13;
 lean_object* initialize_Init_Lean_Util_CollectLevelParams(lean_object*);
 lean_object* initialize_Init_Lean_Util_CollectFVars(lean_object*);
 lean_object* initialize_Init_Lean_Elab_DeclModifiers(lean_object*);
-lean_object* initialize_Init_Lean_Elab_TermBinders(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Binders(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Elab_Definition(lean_object* w) {
 lean_object * res;
@@ -6594,7 +6594,7 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_DeclModifiers(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elab_TermBinders(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_Binders(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_removeUnused___closed__1 = _init_l_Lean_Elab_Command_removeUnused___closed__1();

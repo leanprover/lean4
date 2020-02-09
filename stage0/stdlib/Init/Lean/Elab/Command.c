@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Command
-// Imports: Init.Lean.Elab.Alias Init.Lean.Elab.Log Init.Lean.Elab.ResolveName Init.Lean.Elab.Term Init.Lean.Elab.TermBinders Init.Lean.Elab.SynthesizeSyntheticMVars
+// Imports: Init.Lean.Elab.Alias Init.Lean.Elab.Log Init.Lean.Elab.ResolveName Init.Lean.Elab.Term Init.Lean.Elab.Binders Init.Lean.Elab.SyntheticMVars
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -169,6 +169,7 @@ lean_object* l_Lean_Elab_Command_addBuiltinCommandElab(lean_object*, lean_object
 lean_object* l_Lean_Elab_Command_State_inhabited___closed__3;
 lean_object* l_Lean_Elab_Command_withIncRecDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_setOption___closed__1;
+lean_object* l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Elab_Command_sortDeclLevelParams___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabUniverses___closed__3;
 lean_object* l_Lean_Elab_Command_elabEnd___closed__4;
@@ -302,7 +303,6 @@ lean_object* l___private_Init_Lean_Elab_Command_6__mkTermContext(lean_object*, l
 lean_object* l_Lean_Elab_Command_elabCheck___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_declareBuiltinParser___closed__7;
 lean_object* l_Lean_Elab_Command_elabOpenOnly(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Options_empty;
 extern lean_object* l_Lean_Parser_Command_variable___elambda__1___closed__2;
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabOpenSimple___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -17387,7 +17387,7 @@ lean_dec(x_8);
 x_11 = 0;
 x_12 = lean_box(0);
 lean_inc(x_5);
-x_13 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_11, x_12, x_5, x_10);
+x_13 = l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_11, x_12, x_5, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -18017,7 +18017,7 @@ lean_dec(x_8);
 x_11 = 0;
 x_12 = lean_box(0);
 lean_inc(x_4);
-x_13 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_11, x_12, x_4, x_10);
+x_13 = l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(x_11, x_12, x_4, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
@@ -23916,8 +23916,8 @@ lean_object* initialize_Init_Lean_Elab_Alias(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Log(lean_object*);
 lean_object* initialize_Init_Lean_Elab_ResolveName(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Term(lean_object*);
-lean_object* initialize_Init_Lean_Elab_TermBinders(lean_object*);
-lean_object* initialize_Init_Lean_Elab_SynthesizeSyntheticMVars(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Binders(lean_object*);
+lean_object* initialize_Init_Lean_Elab_SyntheticMVars(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Elab_Command(lean_object* w) {
 lean_object * res;
@@ -23935,10 +23935,10 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_Term(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elab_TermBinders(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_Binders(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elab_SynthesizeSyntheticMVars(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_SyntheticMVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_Scope_inhabited___closed__1 = _init_l_Lean_Elab_Command_Scope_inhabited___closed__1();

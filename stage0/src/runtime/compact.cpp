@@ -292,7 +292,6 @@ void object_compactor::insert_mpz(object * o) {
 static size_t g_tag_counters[256];
 
 struct tag_counter_manager {
-
     static void display_kind(char const * msg, unsigned k) {
         if (g_tag_counters[k] != 0)
             std::cout << msg << " " << g_tag_counters[k] << "\n";

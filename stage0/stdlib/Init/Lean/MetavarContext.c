@@ -197,6 +197,7 @@ lean_object* l_Lean_LocalContext_foldlFromM___at___private_Init_Lean_MetavarCont
 extern lean_object* l_Array_HasRepr___rarg___closed__1;
 uint8_t l_PersistentArray_anyM___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__16(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_MetavarContext_3__getMCtx(lean_object*);
+lean_object* l_Lean_MetavarContext_elimMVarDeps___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t l_List_foldr___main___at_Lean_MetavarContext_hasAssignableMVar___main___spec__1(lean_object*, uint8_t, lean_object*);
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -271,6 +272,7 @@ lean_object* l_Lean_MetavarContext_instantiateLevelMVars(lean_object*, lean_obje
 lean_object* l_Array_iterateMAux___main___at_Lean_MetavarContext_instantiateLCtxMVars___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlFromM___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__40___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
+lean_object* l_Lean_MetavarContext_elimMVarDeps(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_20__anyDependsOn___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_anyM___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__22___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33035,6 +33037,23 @@ x_8 = lean_unbox(x_5);
 lean_dec(x_5);
 x_9 = l_Lean_MetavarContext_MkBinding_mkBinding(x_7, x_2, x_3, x_4, x_8, x_6);
 return x_9;
+}
+}
+lean_object* l_Lean_MetavarContext_elimMVarDeps(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_MetavarContext_MkBinding_elimMVarDeps(x_1, x_2, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_MetavarContext_elimMVarDeps___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_MetavarContext_elimMVarDeps(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 lean_object* l_Lean_MetavarContext_mkBinding(uint8_t x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {

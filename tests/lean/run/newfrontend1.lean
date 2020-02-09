@@ -175,6 +175,16 @@ begin
   repeat assumption
 end
 
+theorem simple15 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intros h1 h2 h3;
+  revert y;
+  intros y h1 h3;
+  apply Eq.trans;
+  exact h3;
+  exact h1
+end
+
 macro "blabla" : tactic => `(assumption)
 
 -- Tactic head symbols do not become reserved words
@@ -182,7 +192,7 @@ def blabla := 100
 
 #check blabla
 
-theorem simple15 (x : Nat) (h : x = 0) : x = 0 :=
+theorem simple16 (x : Nat) (h : x = 0) : x = 0 :=
 begin blabla end
 
 theorem tstprec1 (x y z : Nat) : x + y * z = x + (y * z) :=

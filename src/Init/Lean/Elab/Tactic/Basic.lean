@@ -329,6 +329,21 @@ fun stx => match_syntax stx with
     pure [mvarId]
   | _                       => throwUnsupportedSyntax
 
+@[builtinTactic «revert»] def evalRevert : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| revert $hs*) => do
+     (g, gs) ← getMainGoal stx;
+     withMVarContext g $ do
+       fvarIds ← hs.mapM $ fun h => do {
+         fvar? ← liftTermElabM $ Term.isLocalTermId? h true;
+         match fvar? with
+         | some fvar => pure fvar.fvarId!
+         | none      => throwError h ("unknown variable '" ++ toString h.getId ++ "'")
+       };
+       (_, g) ← liftMetaM stx $ Meta.revert g fvarIds;
+       setGoals (g :: gs)
+  | _                     => throwUnsupportedSyntax
+
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalTactic (stx.getArg 1)
 

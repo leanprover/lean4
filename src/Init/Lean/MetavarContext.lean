@@ -890,6 +890,9 @@ end MkBinding
 
 abbrev MkBindingM := ReaderT LocalContext MkBinding.M
 
+def elimMVarDeps (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
+fun _ => MkBinding.elimMVarDeps xs e
+
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) :=
 fun lctx => MkBinding.mkBinding isLambda lctx xs e usedOnly
 

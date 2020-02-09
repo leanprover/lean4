@@ -414,6 +414,9 @@ if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkLambda xs e
 def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MetaM (Expr × Nat) :=
 if xs.isEmpty then pure (e, 0) else liftMkBindingM $ MetavarContext.mkForallUsedOnly xs e
 
+def elimMVarDeps (xs : Array Expr) (e : Expr) : MetaM Expr :=
+if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e
+
 /-- Save cache, execute `x`, restore cache -/
 @[inline] def savingCache {α} (x : MetaM α) : MetaM α := do
 s ← get;

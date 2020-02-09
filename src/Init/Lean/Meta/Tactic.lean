@@ -7,3 +7,4 @@ prelude
 import Init.Lean.Meta.Tactic.Intro
 import Init.Lean.Meta.Tactic.Assumption
 import Init.Lean.Meta.Tactic.Apply
+import Init.Lean.Meta.Tactic.Revert

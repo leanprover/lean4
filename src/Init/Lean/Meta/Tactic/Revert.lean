@@ -13,7 +13,9 @@ def revert (mvarId : MVarId) (fvars : Array FVarId) : MetaM (Array FVarId × MVa
 if fvars.isEmpty then pure (fvars, mvarId)
 else withMVarContext mvarId $ do
   checkNotAssigned mvarId `revert;
-  e ← elimMVarDeps (fvars.map mkFVar) (mkMVar mvarId);
+  -- Set metavariable kind to natural to make sure `elimMVarDeps` will assign it.
+  setMVarKind mvarId MetavarKind.natural;
+  e ← finally (elimMVarDeps (fvars.map mkFVar) (mkMVar mvarId)) (setMVarKind mvarId MetavarKind.syntheticOpaque);
   pure $ e.withApp $ fun mvar args => (args.map Expr.fvarId!, mvar.mvarId!)
 
 end Meta

@@ -47,6 +47,11 @@ unless parentTag.isAnonymous $
       currTag ← getMVarTag newMVarId;
       renameMVar newMVarId (parentTag ++ currTag.eraseMacroScopes)
 
+def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
+synthAppInstances tacticName mvarId newMVars binderInfos;
+-- TODO: default and auto params
+appendParentTag mvarId newMVars binderInfos
+
 private def dependsOnOthers (mvar : Expr) (otherMVars : Array Expr) : MetaM Bool :=
 otherMVars.anyM $ fun otherMVar =>
   if mvar == otherMVar then pure false
@@ -80,10 +85,8 @@ withMVarContext mvarId $ do
   };
   (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType (some numArgs);
   unlessM (isDefEq eType targetType) $ throwApplyError mvarId eType targetType;
-  synthAppInstances `apply mvarId newMVars binderInfos;
-  let val := mkAppN e newMVars;
-  assignExprMVar mvarId val;
-  appendParentTag mvarId newMVars binderInfos;
+  postprocessAppMVars `apply mvarId newMVars binderInfos;
+  assignExprMVar mvarId (mkAppN e newMVars);
   newMVars ← newMVars.filterM $ fun mvar => not <$> isExprMVarAssigned mvar.mvarId!;
   -- TODO: add option `ApplyNewGoals` and implement other orders
   reorderNonDependentFirst newMVars

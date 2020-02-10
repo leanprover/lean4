@@ -23,7 +23,7 @@ withMVarContext mvarId $ do
   eq      ← mkEq target newTarget;
   let newProof := mkApp2 (mkConst `id [levelZero]) eq eqProof; -- checkpoint for eqProof
   let newVal := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, newTarget, eqProof, newMVar];
-  modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+  assignExprMVar mvarId newMVar;
   pure newMVar.mvarId!
 
 /--
@@ -43,7 +43,7 @@ withMVarContext mvarId $ do
     newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag;
     u       ← getLevel target;
     let newVal := mkApp2 (Lean.mkConst `id [u]) target newMVar;
-    modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+    assignExprMVar mvarId newMVar;
     pure newMVar.mvarId!
 
 end Meta

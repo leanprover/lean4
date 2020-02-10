@@ -19,7 +19,7 @@ withMVarContext mvarId $ do
   target ← getMVarType mvarId;
   let newType := Lean.mkForall name BinderInfo.default type target;
   newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag;
-  modify $ fun s => { mctx := s.mctx.assignExpr mvarId (mkApp newMVar val), .. s };
+  assignExprMVar mvarId (mkApp newMVar val);
   pure newMVar.mvarId!
 
 /--
@@ -32,7 +32,7 @@ withMVarContext mvarId $ do
   target ← getMVarType mvarId;
   let newType := Lean.mkLet name type val target;
   newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag;
-  modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+  assignExprMVar mvarId newMVar;
   pure newMVar.mvarId!
 
 end Meta

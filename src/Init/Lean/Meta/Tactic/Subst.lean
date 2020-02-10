@@ -52,7 +52,7 @@ withMVarContext mvarId $ do
             newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag;
             let minor := newMVar;
             newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major;
-            modify $ fun s => { mctx := s.mctx.assignExpr mvarId newVal, .. s };
+            assignExprMVar mvarId newVal;
             let mvarId := newMVar.mvarId!;
             mvarId ← clear mvarId hFVarId;
             mvarId ← clear mvarId aFVarId;

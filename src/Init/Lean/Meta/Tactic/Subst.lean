@@ -29,7 +29,7 @@ withMVarContext mvarId $ do
     | Expr.fvar aFVarId _ => do
       mctx ← getMCtx;
       when (mctx.exprDependsOn b aFVarId) $
-        throwTacticEx `subst mvarId ("occurs check failed '" ++ a ++ "' occurs at" ++ indentExpr b);
+        throwTacticEx `subst mvarId ("'" ++ a ++ "' occurs at" ++ indentExpr b);
       aLocalDecl ← getLocalDecl aFVarId;
       (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true;
       trace `Meta.Tactic.subst $ fun _ => "revert" ++ Format.line ++ MessageData.ofGoal mvarId;
@@ -102,10 +102,10 @@ withMVarContext mvarId $ do
   hLocalDecl ← getLocalDecl hFVarId;
   match hLocalDecl.type.eq? with
   | some (α, lhs, rhs) =>
-    if lhs.isFVar then
-      Prod.snd <$> substCore mvarId hFVarId
-    else if rhs.isFVar then
+    if rhs.isFVar then
       Prod.snd <$> substCore mvarId hFVarId true
+    else if lhs.isFVar then
+      Prod.snd <$> substCore mvarId hFVarId
     else
       throwTacticEx `subst mvarId $
         "invalid equality proof, it is not of the form (x = t) or (t = x)"
@@ -115,18 +115,15 @@ withMVarContext mvarId $ do
     lctx ← getLCtx;
     some (fvarId, symm) ← lctx.findDeclM?
       (fun localDecl => match localDecl.type.eq? with
-       | some (α, Expr.fvar fvarId _, rhs) =>
-         if fvarId == hFVarId && !mctx.exprDependsOn rhs fvarId then
-           pure $ some (localDecl.fvarId, false)
-         else
-          pure none
-       | some (α, lhs, Expr.fvar fvarId _) =>
-         if fvarId == hFVarId && !mctx.exprDependsOn lhs fvarId then
+       | some (α, lhs, rhs) =>
+         if rhs.isFVar && rhs.fvarId! == hFVarId && !mctx.exprDependsOn lhs hFVarId then
            pure $ some (localDecl.fvarId, true)
+         else if lhs.isFVar && lhs.fvarId! == hFVarId && !mctx.exprDependsOn rhs hFVarId then
+           pure $ some (localDecl.fvarId, false)
          else
            pure none
        | _ => pure none)
-      | throwTacticEx `subst mvarId ("failed to find equation for eliminating '" ++ mkFVar hFVarId ++ "'");
+      | throwTacticEx `subst mvarId ("did not find equation for eliminating '" ++ mkFVar hFVarId ++ "'");
     Prod.snd <$> substCore mvarId fvarId symm
 
 @[init] private def regTraceClasses : IO Unit :=

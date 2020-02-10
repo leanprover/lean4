@@ -281,7 +281,6 @@ lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__2;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__8;
-extern lean_object* l_Nat_forMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__87___closed__1;
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Meta_SynthInstance_3__preprocessLevels___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_addContext___boxed(lean_object*, lean_object*, lean_object*);
@@ -289,6 +288,7 @@ lean_object* l___private_Init_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Met
 lean_object* l_Lean_Meta_SynthInstance_Waiter_isRoot___boxed(lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__4(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+extern lean_object* l_Nat_forMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__51___closed__1;
 lean_object* l_Lean_MetavarContext_incDepth(lean_object*);
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getResult___boxed(lean_object*);
@@ -398,7 +398,7 @@ lean_object* l_Lean_Meta_SynthInstance_mkInferTCGoalsLRAttr___lambda__1(lean_obj
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Nat_forMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__87___closed__1;
+x_3 = l_Nat_forMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__51___closed__1;
 return x_3;
 }
 }

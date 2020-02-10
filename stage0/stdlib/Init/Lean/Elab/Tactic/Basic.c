@@ -134,6 +134,7 @@ lean_object* l___private_Init_Lean_Elab_Tactic_Basic_3__getIntrosSize___main___b
 lean_object* l_Lean_Elab_Tactic_getMainGoal___closed__2;
 lean_object* l___private_Init_Lean_Elab_Tactic_Basic_3__getIntrosSize(lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadLog___closed__3;
+extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 lean_object* l_Lean_Meta_intro(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_tagUntaggedGoals___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -312,7 +313,6 @@ extern lean_object* l_Lean_Elab_macroAttribute;
 lean_object* l_Lean_Elab_Tactic_liftMetaTactic(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTactic___main___closed__1;
 lean_object* lean_environment_main_module(lean_object*);
-extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__41___closed__8;
 lean_object* l_Lean_Elab_Tactic_evalTactic___main___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_empty___at_Lean_Elab_Tactic_mkBuiltinTacticTable___spec__3;
 lean_object* l_Lean_Elab_Tactic_evalRevert___closed__1;
@@ -15137,7 +15137,7 @@ x_25 = l_Array_umapMAux___main___at_Lean_Elab_Tactic_evalRevert___spec__1___clos
 x_26 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_24);
-x_27 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__41___closed__8;
+x_27 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 x_28 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);

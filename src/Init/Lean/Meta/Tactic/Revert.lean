@@ -12,11 +12,14 @@ namespace Meta
 def revert (mvarId : MVarId) (fvars : Array FVarId) (preserveOrder : Bool := false) : MetaM (Array FVarId × MVarId) :=
 if fvars.isEmpty then pure (fvars, mvarId)
 else withMVarContext mvarId $ do
+  tag ← getMVarTag mvarId;
   checkNotAssigned mvarId `revert;
   -- Set metavariable kind to natural to make sure `elimMVarDeps` will assign it.
   setMVarKind mvarId MetavarKind.natural;
   e ← finally (elimMVarDeps (fvars.map mkFVar) (mkMVar mvarId) preserveOrder) (setMVarKind mvarId MetavarKind.syntheticOpaque);
-  pure $ e.withApp $ fun mvar args => (args.map Expr.fvarId!, mvar.mvarId!)
+  e.withApp $ fun mvar args => do
+    setMVarTag mvar.mvarId! tag;
+    pure (args.map Expr.fvarId!, mvar.mvarId!)
 
 end Meta
 end Lean

@@ -146,7 +146,6 @@ private:
     optional<expr> mk_Prop_to_bool_coercion(expr const & e, expr const & ref);
     optional<expr> mk_coercion_core(expr const & e, expr const & e_type, expr const & type, expr const & ref);
     bool is_monad(expr const & e);
-    bool is_monad_fail(expr const & e);
     optional<expr> try_monad_coercion(expr const & e, expr e_type, expr type, expr const & ref);
     optional<expr> mk_coercion(expr const & e, expr e_type, expr type, expr const & ref);
 
@@ -239,7 +238,6 @@ private:
     expr visit_app(expr const & e, optional<expr> const & expected_type);
     expr visit_let(expr const & e, optional<expr> const & expected_type);
     expr visit_convoy(expr const & e, optional<expr> const & expected_type);
-    bool keep_do_failure_eq(expr const & first_eq);
     expr visit_equations(expr const & e);
     expr visit_equation(expr const & eq, unsigned num_fns);
     expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);

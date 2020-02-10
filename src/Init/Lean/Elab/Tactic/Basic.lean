@@ -7,6 +7,8 @@ prelude
 import Init.Lean.Util.CollectMVars
 import Init.Lean.Meta.Tactic.Assumption
 import Init.Lean.Meta.Tactic.Intro
+import Init.Lean.Meta.Tactic.Clear
+import Init.Lean.Meta.Tactic.Revert
 import Init.Lean.Elab.Util
 import Init.Lean.Elab.Term
 
@@ -342,6 +344,20 @@ fun stx => match_syntax stx with
        };
        (_, g) ← liftMetaM stx $ Meta.revert g fvarIds;
        setGoals (g :: gs)
+  | _                     => throwUnsupportedSyntax
+
+@[builtinTactic «clear»] def evalClear : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| clear $hs*) =>
+    hs.forM $ fun h => do
+      (g, gs) ← getMainGoal stx;
+      withMVarContext g $ do
+        fvar? ← liftTermElabM $ Term.isLocalTermId? h true;
+        match fvar? with
+        | none      => throwError h ("unknown variable '" ++ toString h.getId ++ "'")
+        | some fvar => do
+          g ← liftMetaM stx $ Meta.clear g fvar.fvarId!;
+          setGoals (g :: gs)
   | _                     => throwUnsupportedSyntax
 
 @[builtinTactic paren] def evalParen : Tactic :=

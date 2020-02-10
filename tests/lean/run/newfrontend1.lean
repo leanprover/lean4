@@ -185,6 +185,17 @@ begin
   exact h1
 end
 
+theorem simple16 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intros h1 h2 h3;
+  -- clear x;
+  clear h2;
+  traceState;
+  apply Eq.trans;
+  exact h3;
+  exact h1
+end
+
 macro "blabla" : tactic => `(assumption)
 
 -- Tactic head symbols do not become reserved words
@@ -192,7 +203,7 @@ def blabla := 100
 
 #check blabla
 
-theorem simple16 (x : Nat) (h : x = 0) : x = 0 :=
+theorem simple17 (x : Nat) (h : x = 0) : x = 0 :=
 begin blabla end
 
 theorem tstprec1 (x y z : Nat) : x + y * z = x + (y * z) :=

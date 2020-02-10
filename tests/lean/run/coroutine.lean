@@ -162,8 +162,8 @@ unsafe def visit {α : Type v} : tree α → coroutine Unit α Unit
 
 unsafe def tst {α : Type} [HasToString α] (t : tree α) : ExceptT String IO Unit :=
 do c  ← pure $ visit t;
-   (yielded v₁ c) ← pure $ resume c ();
-   (yielded v₂ c) ← pure $ resume c ();
+   (yielded v₁ c) ← pure (resume c ()) | throw "failed";
+   (yielded v₂ c) ← pure (resume c ()) | throw "failed";
    IO.println $ toString v₁;
    IO.println $ toString v₂;
    pure ()
@@ -187,12 +187,12 @@ do
 
 unsafe def tst2 : ExceptT String IO Unit :=
 do let c := StateT.run ex 5;
-   (yielded r c₁) ← pure $ resume c 10;
+   (yielded r c₁) ← pure $ resume c 10 | throw "failed";
    IO.println r;
-   (yielded r c₂) ← pure $ resume c₁ 20;
+   (yielded r c₂) ← pure $ resume c₁ 20 | throw "failed";
    IO.println r;
-   (done _) ← pure $ resume c₂ 30;
-   (yielded r c₃) ← pure $ resume c₁ 100;
+   (done _) ← pure $ resume c₂ 30 | throw "failed";
+   (yielded r c₃) ← pure $ resume c₁ 100 | throw "failed";
    IO.println r;
    IO.println "done";
    pure ()

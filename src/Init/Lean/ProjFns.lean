@@ -43,7 +43,7 @@ match env.getModuleIdxFor? projName with
   match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
   | some e => some e.2
   | none   => none
-| none        => (projectionFnInfoExt.getState env).find projName
+| none        => (projectionFnInfoExt.getState env).find? projName
 
 def isProjectionFn (env : Environment) (n : Name) : Bool :=
 match env.getModuleIdxFor? n with

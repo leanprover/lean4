@@ -148,7 +148,7 @@ def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
 
 def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
 
-@[inline] def find (m : NameMap α) (n : Name) : Option α := RBMap.find m n
+@[inline] def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
 
 end NameMap
 

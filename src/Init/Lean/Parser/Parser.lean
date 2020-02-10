@@ -1275,7 +1275,7 @@ def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
 namespace TokenMap
 
 def insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
-match map.find k with
+match map.find? k with
 | none    => map.insert k [v]
 | some vs => map.insert k (v::vs)
 
@@ -1344,15 +1344,15 @@ match stx? with
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (leadingIdentAsSymbol : Bool) : ParserState × List α :=
 let (s, stx) := peekToken c s;
 let find (n : Name) : ParserState × List α :=
-  match map.find n with
+  match map.find? n with
   | some as => (s, as)
   | _       => (s, []);
 match stx with
 | some (Syntax.atom _ sym)      => find (mkNameSimple sym)
 | some (Syntax.ident _ _ val _) =>
   if leadingIdentAsSymbol then
-    match map.find val with
-    | some as => match map.find identKind with
+    match map.find? val with
+    | some as => match map.find? identKind with
       | some as' => (s, as ++ as')
       | _        => (s, as)
     | none    => find identKind

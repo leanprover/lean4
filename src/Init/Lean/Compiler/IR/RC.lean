@@ -36,7 +36,7 @@ def getDecl (ctx : Context) (fid : FunId) : Decl :=
 | none      => arbitrary _ -- unreachable if well-formed
 
 def getVarInfo (ctx : Context) (x : VarId) : VarInfo :=
-match ctx.varMap.find x with
+match ctx.varMap.find? x with
 | some info => info
 | none      => {} -- unreachable in well-formed code
 
@@ -46,7 +46,7 @@ match ctx.localCtx.getJPParams j with
 | none    => #[] -- unreachable in well-formed code
 
 def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
-match ctx.jpLiveVarMap.find j with
+match ctx.jpLiveVarMap.find? j with
 | some s => s
 | none   => {}
 
@@ -65,7 +65,7 @@ FnBody.dec x 1 true info.persistent b
 private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : Context :=
 if c.isRef then ctx
 else let m := ctx.varMap;
-  { varMap := match m.find x with
+  { varMap := match m.find? x with
     | some info => m.insert x { ref := false, .. info } -- I really want a Lenses library + notation
     | none      => m,
     .. ctx }
@@ -167,7 +167,7 @@ private def isPersistent : Expr → Bool
 
 /- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool
-| Expr.proj i x   => match m.find x with
+| Expr.proj i x   => match m.find? x with
   | some info => info.consume
   | none      => true
 | other => true

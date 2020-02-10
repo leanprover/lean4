@@ -454,27 +454,27 @@ def LocalContext.addParams (ctx : LocalContext) (ps : Array Param) : LocalContex
 ps.foldl LocalContext.addParam ctx
 
 def LocalContext.isJP (ctx : LocalContext) (idx : Index) : Bool :=
-match ctx.find idx with
+match ctx.find? idx with
 | some (LocalContextEntry.joinPoint _ _) => true
 | other => false
 
 def LocalContext.getJPBody (ctx : LocalContext) (j : JoinPointId) : Option FnBody :=
-match ctx.find j.idx with
+match ctx.find? j.idx with
 | some (LocalContextEntry.joinPoint _ b) => some b
 | other => none
 
 def LocalContext.getJPParams (ctx : LocalContext) (j : JoinPointId) : Option (Array Param) :=
-match ctx.find j.idx with
+match ctx.find? j.idx with
 | some (LocalContextEntry.joinPoint ys _) => some ys
 | other => none
 
 def LocalContext.isParam (ctx : LocalContext) (idx : Index) : Bool :=
-match ctx.find idx with
+match ctx.find? idx with
 | some (LocalContextEntry.param _) => true
 | other => false
 
 def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
-match ctx.find idx with
+match ctx.find? idx with
 | some (LocalContextEntry.localVar _ _) => true
 | other => false
 
@@ -485,13 +485,13 @@ def LocalContext.eraseJoinPointDecl (ctx : LocalContext) (j : JoinPointId) : Loc
 ctx.erase j.idx
 
 def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
-match ctx.find x.idx with
+match ctx.find? x.idx with
 | some (LocalContextEntry.param t) => some t
 | some (LocalContextEntry.localVar t _) => some t
 | other => none
 
 def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
-match ctx.find x.idx with
+match ctx.find? x.idx with
 | some (LocalContextEntry.localVar _ v) => some v
 | other => none
 
@@ -503,7 +503,7 @@ class HasAlphaEqv (α : Type) :=
 export HasAlphaEqv (aeqv)
 
 def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
-match ρ.find v₁.idx with
+match ρ.find? v₁.idx with
 | some v => v == v₂.idx
 | none   => v₁ == v₂
 

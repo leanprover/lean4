@@ -51,7 +51,7 @@ pure $ decls.fold
 
 def getOptionDecl (name : Name) : IO OptionDecl := do
 decls ← getOptionDecls;
-(some decl) ← pure (decls.find name) | throw $ IO.userError ("unknown option '" ++ toString name ++ "'");
+(some decl) ← pure (decls.find? name) | throw $ IO.userError ("unknown option '" ++ toString name ++ "'");
 pure decl
 
 def getOptionDefaulValue (name : Name) : IO DataValue := do

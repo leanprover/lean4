@@ -30,7 +30,7 @@ withMVarContext mvarId $ do
     | none => localInsts
     | some idx => localInsts.eraseIdx idx;
   newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type tag MetavarKind.syntheticOpaque;
-  modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+  assignExprMVar mvarId newMVar;
   pure newMVar.mvarId!
 
 end Meta

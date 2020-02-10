@@ -114,9 +114,7 @@ name const * g_list = nullptr;
 name const * g_list_nil = nullptr;
 name const * g_list_cons = nullptr;
 name const * g_list_to_array = nullptr;
-name const * g_match_failed = nullptr;
 name const * g_monad = nullptr;
-name const * g_monad_fail = nullptr;
 name const * g_lean_name_anonymous = nullptr;
 name const * g_lean_name_num = nullptr;
 name const * g_lean_name_str = nullptr;
@@ -306,9 +304,7 @@ void initialize_constants() {
     g_list_nil = new name{"List", "nil"};
     g_list_cons = new name{"List", "cons"};
     g_list_to_array = new name{"List", "toArray"};
-    g_match_failed = new name{"matchFailed"};
     g_monad = new name{"Monad"};
-    g_monad_fail = new name{"MonadFail"};
     g_lean_name_anonymous = new name{"Lean", "Name", "anonymous"};
     g_lean_name_num = new name{"Lean", "Name", "num"};
     g_lean_name_str = new name{"Lean", "Name", "str"};
@@ -499,9 +495,7 @@ void finalize_constants() {
     delete g_list_nil;
     delete g_list_cons;
     delete g_list_to_array;
-    delete g_match_failed;
     delete g_monad;
-    delete g_monad_fail;
     delete g_lean_name_anonymous;
     delete g_lean_name_num;
     delete g_lean_name_str;
@@ -691,9 +685,7 @@ name const & get_list_name() { return *g_list; }
 name const & get_list_nil_name() { return *g_list_nil; }
 name const & get_list_cons_name() { return *g_list_cons; }
 name const & get_list_to_array_name() { return *g_list_to_array; }
-name const & get_match_failed_name() { return *g_match_failed; }
 name const & get_monad_name() { return *g_monad; }
-name const & get_monad_fail_name() { return *g_monad_fail; }
 name const & get_lean_name_anonymous_name() { return *g_lean_name_anonymous; }
 name const & get_lean_name_num_name() { return *g_lean_name_num; }
 name const & get_lean_name_str_name() { return *g_lean_name_str; }

@@ -329,18 +329,13 @@ static expr parse_do(parser & p, bool has_braces) {
                 if (optional<expr> r = else_cases[i]) {
                     else_case        = *r;
                     ignore_if_unused = false;
-                } else {
-                    else_case        = p.save_pos(mark_do_failure_eq(p.save_pos(mk_constant(get_match_failed_name()), pos)), pos);
-                    ignore_if_unused = true;
+                    expr x = mk_local(p.next_name(), "_x", mk_expr_placeholder(), mk_binder_info());
+                    expr else_eq = Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
+                                                                         else_case,
+                                                                         ignore_if_unused),
+                                                             pos), p), p);
+                    eqs.push_back(else_eq);
                 }
-                // add case
-                //    _ := else_case
-                expr x = mk_local(p.next_name(), "_x", mk_expr_placeholder(), mk_binder_info());
-                expr else_eq = Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
-                                                                     else_case,
-                                                                     ignore_if_unused),
-                                                         pos), p), p);
-                eqs.push_back(else_eq);
                 equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("_p", mk_expr_placeholder());

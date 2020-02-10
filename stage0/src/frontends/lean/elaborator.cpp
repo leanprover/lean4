@@ -722,17 +722,6 @@ bool elaborator::is_monad(expr const & e) {
     }
 }
 
-bool elaborator::is_monad_fail(expr const & e) {
-    try {
-        expr m = mk_app(m_ctx, get_monad_fail_name(), e);
-        return static_cast<bool>(m_ctx.mk_class_instance(m));
-    } catch (app_builder_exception &) {
-        return false;
-    } catch (class_exception &) {
-        return false;
-    }
-}
-
 /*
    When lifting monads in do-notation and/or bind, it is very common to have coercion problems such as
 
@@ -2355,18 +2344,6 @@ static void check_equations_arity(buffer<expr> const & eqns) {
     }
 }
 
-bool elaborator::keep_do_failure_eq(expr const & first_eq) {
-    if (!is_lambda(first_eq))
-        return false; // possible with error recovery
-    expr type = binding_domain(first_eq);
-    if (!is_pi(type))
-        return false;
-    type = binding_body(type);
-    if (has_loose_bvars(type))
-        return false;
-    return is_app(type) && is_monad_fail(app_fn(type));
-}
-
 static void mvar_dep_sort_aux(type_context_old & ctx, expr const & m,
                               name_set const & mvar_names, name_set & visited, buffer<expr> & result) {
     if (visited.contains(mvar_name(m)))
@@ -2721,15 +2698,11 @@ expr elaborator::visit_equations(expr const & e) {
     for (expr const & eq : eqs) {
         expr new_eq;
         if (first_eq) {
-            if (is_do_failure_eq(eq) && !keep_do_failure_eq(*first_eq)) {
-                /* skip equation since it doesn't implement the monad_fail interface */
-            } else {
-                /* Replace first num_fns domains of eq with the ones in first_eq.
-                   This is a trick/hack to ensure the fns in each equation have
-                   the same elaborated type. */
-                new_eq   = copy_pos(eq, visit_equation(copy_domain(num_fns, *first_eq, eq), num_fns));
-                new_eqs.push_back(new_eq);
-            }
+            /* Replace first num_fns domains of eq with the ones in first_eq.
+               This is a trick/hack to ensure the fns in each equation have
+               the same elaborated type. */
+            new_eq   = copy_pos(eq, visit_equation(copy_domain(num_fns, *first_eq, eq), num_fns));
+            new_eqs.push_back(new_eq);
         } else {
             new_eq   = copy_pos(eq, visit_equation(eq, num_fns));
             first_eq = new_eq;

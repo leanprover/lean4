@@ -9,6 +9,7 @@ import Init.Lean.Meta.Tactic.Assumption
 import Init.Lean.Meta.Tactic.Intro
 import Init.Lean.Meta.Tactic.Clear
 import Init.Lean.Meta.Tactic.Revert
+import Init.Lean.Meta.Tactic.Subst
 import Init.Lean.Elab.Util
 import Init.Lean.Elab.Term
 
@@ -346,18 +347,25 @@ fun stx => match_syntax stx with
        setGoals (g :: gs)
   | _                     => throwUnsupportedSyntax
 
+def forEachVar (ref : Syntax) (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit :=
+hs.forM $ fun h => do
+  (g, gs) ← getMainGoal ref;
+  withMVarContext g $ do
+    fvar? ← liftTermElabM $ Term.isLocalTermId? h true;
+    match fvar? with
+    | none      => throwError h ("unknown variable '" ++ toString h.getId ++ "'")
+    | some fvar => do
+      g ← liftMetaM ref $ tac g fvar.fvarId!;
+      setGoals (g :: gs)
+
 @[builtinTactic «clear»] def evalClear : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| clear $hs*) =>
-    hs.forM $ fun h => do
-      (g, gs) ← getMainGoal stx;
-      withMVarContext g $ do
-        fvar? ← liftTermElabM $ Term.isLocalTermId? h true;
-        match fvar? with
-        | none      => throwError h ("unknown variable '" ++ toString h.getId ++ "'")
-        | some fvar => do
-          g ← liftMetaM stx $ Meta.clear g fvar.fvarId!;
-          setGoals (g :: gs)
+  | `(tactic| clear $hs*) => forEachVar stx hs Meta.clear
+  | _                     => throwUnsupportedSyntax
+
+@[builtinTactic «subst»] def evalSubst : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| subst $hs*) => forEachVar stx hs Meta.subst
   | _                     => throwUnsupportedSyntax
 
 @[builtinTactic paren] def evalParen : Tactic :=

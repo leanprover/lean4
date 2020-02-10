@@ -271,14 +271,14 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 | []        => mkRBMap _ _ _
 | ⟨k,v⟩::xs => (ofList xs).insert k v
 
-@[inline] def findCore : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
+@[inline] def findCore? : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
 | ⟨t, _⟩, x => t.findCore lt x
 
-@[inline] def find : RBMap α β lt → α → Option β
+@[inline] def find? : RBMap α β lt → α → Option β
 | ⟨t, _⟩, x => t.find lt x
 
 @[inline] def findD (t : RBMap α β lt) (k : α) (v₀ : β) : β :=
-(t.find k).getD v₀
+(t.find? k).getD v₀
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
@@ -286,7 +286,7 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 | ⟨t, _⟩, x => t.lowerBound lt x none
 
 @[inline] def contains (t : RBMap α β lt) (a : α) : Bool :=
-(t.find a).isSome
+(t.find? a).isSome
 
 @[inline] def fromList (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=
 l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β lt)

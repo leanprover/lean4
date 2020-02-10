@@ -14,13 +14,13 @@ withMVarContext mvarId $ do
   checkNotAssigned mvarId `clear;
   lctx ← getLCtx;
   unless (lctx.contains fvarId) $
-    throwTacticEx `clear mvarId ("unknown hypothesis '" ++ mkFVar fvarId ++ "'");
+    throwTacticEx `clear mvarId ("unknown variable '" ++ mkFVar fvarId ++ "'");
   tag ← getMVarTag mvarId;
   mctx ← getMCtx;
   lctx.forM $ fun localDecl =>
     unless (localDecl.fvarId == fvarId) $
       when (mctx.localDeclDependsOn localDecl fvarId) $
-        throwTacticEx `clear mvarId ("hypothesis '" ++ localDecl.value ++ "' depends on '" ++ mkFVar fvarId ++ "'");
+        throwTacticEx `clear mvarId ("variable '" ++ localDecl.toExpr ++ "' depends on '" ++ mkFVar fvarId ++ "'");
   mvarDecl ← getMVarDecl mvarId;
   when (mctx.exprDependsOn mvarDecl.type fvarId) $
     throwTacticEx `clear mvarId ("taget depends on '" ++ mkFVar fvarId ++ "'");

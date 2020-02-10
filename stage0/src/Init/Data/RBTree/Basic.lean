@@ -66,13 +66,13 @@ RBMap.erase t a
 | []    => mkRBTree _ _
 | x::xs => (ofList xs).insert x
 
-@[inline] def find (t : RBTree α lt) (a : α) : Option α :=
-match RBMap.findCore t a with
+@[inline] def find? (t : RBTree α lt) (a : α) : Option α :=
+match RBMap.findCore? t a with
 | some ⟨a, _⟩ => some a
 | none        => none
 
 @[inline] def contains (t : RBTree α lt) (a : α) : Bool :=
-(t.find a).isSome
+(t.find? a).isSome
 
 def fromList (l : List α) (lt : α → α → Bool) : RBTree α lt :=
 l.foldl insert (mkRBTree α lt)
@@ -84,7 +84,7 @@ RBMap.all t (fun a _ => p a)
 RBMap.any t (fun a _ => p a)
 
 def subset (t₁ t₂ : RBTree α lt) : Bool :=
-t₁.all $ fun a => (t₂.find a).toBool
+t₁.all $ fun a => (t₂.find? a).toBool
 
 def seteq (t₁ t₂ : RBTree α lt) : Bool :=
 subset t₁ t₂ && subset t₂ t₁

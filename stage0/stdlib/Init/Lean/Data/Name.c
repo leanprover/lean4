@@ -16,12 +16,14 @@ extern "C" {
 lean_object* l_Lean_Name_isAtomic___boxed(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 extern lean_object* l_Lean_mkHole___closed__3;
+lean_object* l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1___rarg___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_stringToName;
 uint8_t l_RBNode_isRed___rarg(lean_object*);
 lean_object* l_Lean_Name_DecidableRel___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hasLtQuick;
+lean_object* l_Lean_NameMap_find_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_Inhabited(lean_object*);
 uint8_t l_Lean_Name_lt___main(lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -36,6 +38,7 @@ lean_object* l_Lean_Name_getNumParts___main___boxed(lean_object*);
 lean_object* l_Lean_Name_updatePrefix(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
 lean_object* l_Lean_mkNameSimple(lean_object*);
+lean_object* l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_Lean_Name_lt___boxed(lean_object*, lean_object*);
@@ -51,10 +54,11 @@ lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1(lean_object*);
 lean_object* l_Lean_NameMap_insert___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
+lean_object* l_Lean_NameMap_find_x3f___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_String_toName(lean_object*);
-lean_object* l_Lean_NameMap_find___rarg(lean_object*, lean_object*);
+lean_object* l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1(lean_object*);
 uint8_t l_Lean_Name_quickLtAux(lean_object*, lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__2(lean_object*);
 lean_object* l_Lean_Name_components_x27(lean_object*);
@@ -78,6 +82,7 @@ lean_object* l_Lean_Name_getNumParts(lean_object*);
 lean_object* l_Lean_NameMap_HasEmptyc(lean_object*);
 uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_Lean_Name_isInternal___main___boxed(lean_object*);
+lean_object* l_Lean_NameMap_find_x3f(lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNameSet;
 lean_object* l_Lean_Name_quickLtAux___main___boxed(lean_object*, lean_object*);
@@ -92,14 +97,12 @@ lean_object* l_Lean_Name_appendAfter(lean_object*, lean_object*);
 uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts___boxed(lean_object*);
 uint8_t l_Lean_Name_isInternal___main(lean_object*);
-lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1(lean_object*);
 lean_object* l_Lean_Name_getPrefix___boxed(lean_object*);
 lean_object* l_Lean_Name_components_x27___main(lean_object*);
 uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_Inhabited;
-lean_object* l_Lean_NameMap_find(lean_object*);
 lean_object* l_Lean_Name_replacePrefix___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_String_toName___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isSuffixOf___main(lean_object*, lean_object*);
@@ -117,14 +120,11 @@ lean_object* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__2___rarg(lean_
 lean_object* l_Lean_Name_getRoot___main___boxed(lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_NameMap_contains___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkNameMap(lean_object*);
-lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot___boxed(lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
-lean_object* l_Lean_NameMap_find___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_components(lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
-lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -6209,7 +6209,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -6252,45 +6252,45 @@ goto _start;
 }
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1(lean_object* x_1) {
+lean_object* l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_NameMap_find___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_NameMap_find_x3f___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg(x_1, x_2);
+x_3 = l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1___rarg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_NameMap_find(lean_object* x_1) {
+lean_object* l_Lean_NameMap_find_x3f(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_NameMap_find___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_NameMap_find_x3f___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg(x_1, x_2);
+x_3 = l_RBNode_find___main___at_Lean_NameMap_find_x3f___spec__1___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_NameMap_find___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_NameMap_find_x3f___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_NameMap_find___rarg(x_1, x_2);
+x_3 = l_Lean_NameMap_find_x3f___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

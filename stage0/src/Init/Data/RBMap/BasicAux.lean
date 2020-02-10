@@ -23,7 +23,7 @@ match t.max with
 | none   => panic! "map is empty"
 
 @[inline] def find! [Inhabited β] (t : RBMap α β lt) (k : α) : β :=
-match t.find k with
+match t.find? k with
 | some b => b
 | none   => panic! "key is not in the map"
 

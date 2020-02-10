@@ -327,6 +327,10 @@ def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) :
 let decl := mctx.getDecl mvarId;
 { decls := mctx.decls.insert mvarId { kind := kind, .. decl }, .. mctx }
 
+def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
+let decl := mctx.getDecl mvarId;
+{ decls := mctx.decls.insert mvarId { userName := userName, .. decl }, .. mctx }
+
 def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
 mctx.lDepth.find? mvarId
 
@@ -706,11 +710,11 @@ else do
           throw (Exception.revertFailure mctx lctx toRevert prevDecl)
   };
   let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size;
-  let firstDeclToVisit := if preserveOrder then lctx.getFVar! toRevert.back else getLocalDeclWithSmallestIdx lctx toRevert;
-  let skipFirst        := preserveOrder;
+  let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert;
+  let initSize         := newToRevert.size;
   lctx.foldlFromM
     (fun (newToRevert : Array Expr) decl =>
-      if skipFirst && decl.index == firstDeclToVisit.index then pure newToRevert
+      if initSize.any $ fun i => decl.fvarId == (newToRevert.get! i).fvarId! then pure newToRevert
       else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
         pure (newToRevert.push decl.toExpr)
       else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) then

@@ -34,7 +34,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__4;
-lean_object* l_Lean_LocalDecl_value(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear___closed__1;
@@ -52,6 +51,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_PersistentArray_forMAux___main___at_Lean_Meta_clear___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_assignExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_localDeclDependsOn(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* l_Lean_LocalContext_forM___at_Lean_Meta_clear___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
@@ -165,7 +165,7 @@ lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hypothesis '");
+x_1 = lean_mk_string("variable '");
 return x_1;
 }
 }
@@ -303,7 +303,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 lean_dec(x_6);
 lean_dec(x_4);
-x_25 = l_Lean_LocalDecl_value(x_17);
+x_25 = l_Lean_LocalDecl_toExpr(x_17);
 lean_dec(x_17);
 x_26 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -447,7 +447,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 lean_dec(x_6);
 lean_dec(x_4);
-x_25 = l_Lean_LocalDecl_value(x_17);
+x_25 = l_Lean_LocalDecl_toExpr(x_17);
 lean_dec(x_17);
 x_26 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -746,7 +746,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 lean_dec(x_6);
 lean_dec(x_4);
-x_25 = l_Lean_LocalDecl_value(x_17);
+x_25 = l_Lean_LocalDecl_toExpr(x_17);
 lean_dec(x_17);
 x_26 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -890,7 +890,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 lean_dec(x_6);
 lean_dec(x_4);
-x_25 = l_Lean_LocalDecl_value(x_17);
+x_25 = l_Lean_LocalDecl_toExpr(x_17);
 lean_dec(x_17);
 x_26 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -1141,7 +1141,7 @@ lean_object* _init_l_Lean_Meta_clear___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown hypothesis '");
+x_1 = lean_mk_string("unknown variable '");
 return x_1;
 }
 }

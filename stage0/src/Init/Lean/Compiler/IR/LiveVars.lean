@@ -107,7 +107,7 @@ collectArray as collectArg
 private def accumulate (s' : LiveVarSet) : Collector :=
 fun s => s'.fold (fun s x => s.insert x) s
 private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
-match m.find j with
+match m.find? j with
 | some xs => accumulate xs
 | none    => skip -- unreachable for well-formed code
 private def bindVar (x : VarId) : Collector :=

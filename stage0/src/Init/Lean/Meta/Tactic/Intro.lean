@@ -57,12 +57,12 @@ withMVarContext mvarId $ do
   (fvars, mvarId) ← introNCoreAux mvarId mkName n lctx #[] 0 s mvarType;
   pure (fvars.map Expr.fvarId!, mvarId)
 
-def mkAuxName (lctx : LocalContext) (defaultName : Name) : List Name → Name × List Name
-| []         => (lctx.getUnusedName defaultName, [])
-| n :: rest  => (if n == "_" then lctx.getUnusedName defaultName else n, rest)
+def mkAuxName (useUnusedNames : Bool) (lctx : LocalContext) (defaultName : Name) : List Name → Name × List Name
+| []         => (if useUnusedNames then lctx.getUnusedName defaultName else defaultName, [])
+| n :: rest  => (if n != "_" then n else if useUnusedNames then lctx.getUnusedName defaultName else defaultName, rest)
 
-def introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) : MetaM (Array FVarId × MVarId) :=
-introNCore mvarId n mkAuxName givenNames
+def introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) (useUnusedNames := true) : MetaM (Array FVarId × MVarId) :=
+introNCore mvarId n (mkAuxName useUnusedNames) givenNames
 
 def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
 (fvarIds, mvarId) ← introN mvarId 1 [name];

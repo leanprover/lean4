@@ -349,12 +349,12 @@ match env.getModuleIdxFor? decl with
   match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) => some val
   | none          => none
-| none        => (attr.ext.getState env).find decl
+| none        => (attr.ext.getState env).find? decl
 
 def setParam {α : Type} (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
 if (env.getModuleIdxFor? decl).isSome then
   Except.error ("invalid '" ++ toString attr.attr.name ++ "'.setParam, declaration is in an imported module")
-else if ((attr.ext.getState env).find decl).isSome then
+else if ((attr.ext.getState env).find? decl).isSome then
   Except.error ("invalid '" ++ toString attr.attr.name ++ "'.setParam, attribute has already been set")
 else
   Except.ok (attr.ext.addEntry env (decl, param))
@@ -405,12 +405,12 @@ match env.getModuleIdxFor? decl with
   match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) => some val
   | none          => none
-| none        => (attr.ext.getState env).find decl
+| none        => (attr.ext.getState env).find? decl
 
 def setValue {α : Type} (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
 if (env.getModuleIdxFor? decl).isSome then
   Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
-else if ((attrs.ext.getState env).find decl).isSome then
+else if ((attrs.ext.getState env).find? decl).isSome then
   Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")
 else
   Except.ok (attrs.ext.addEntry env (decl, val))

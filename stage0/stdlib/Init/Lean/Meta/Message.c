@@ -1380,7 +1380,7 @@ lean_object* _init_l_Lean_Meta_Exception_toMessageData___closed__49() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' failed ");
+x_1 = lean_mk_string("' failed, ");
 return x_1;
 }
 }

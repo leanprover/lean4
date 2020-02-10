@@ -9,3 +9,5 @@ import Init.Lean.Meta.Tactic.Assumption
 import Init.Lean.Meta.Tactic.Apply
 import Init.Lean.Meta.Tactic.Revert
 import Init.Lean.Meta.Tactic.Clear
+import Init.Lean.Meta.Tactic.Assert
+import Init.Lean.Meta.Tactic.Target

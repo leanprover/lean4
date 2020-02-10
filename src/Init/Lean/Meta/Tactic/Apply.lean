@@ -28,16 +28,16 @@ pure numArgs
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α :=
 throwTacticEx `apply mvarId ("failed to unify" ++ indentExpr eType ++ Format.line ++ "with" ++ indentExpr targetType)
 
-private def synthInstances (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit :=
+def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit :=
 newMVars.size.forM $ fun i =>
   when (binderInfos.get! i).isInstImplicit $ do
     let mvar := newMVars.get! i;
     mvarType ← inferType mvar;
     mvarVal  ← synthInstance mvarType;
     unlessM (isDefEq mvar mvarVal) $
-      throwTacticEx `apply mvarId ("failed to assign synthesized instance")
+      throwTacticEx tacticName mvarId ("failed to assign synthesized instance")
 
-private def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
+def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
 parentTag ← getMVarTag mvarId;
 unless parentTag.isAnonymous $
   newMVars.size.forM $ fun i =>
@@ -80,7 +80,7 @@ withMVarContext mvarId $ do
   };
   (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType (some numArgs);
   unlessM (isDefEq eType targetType) $ throwApplyError mvarId eType targetType;
-  synthInstances mvarId newMVars binderInfos;
+  synthAppInstances `apply mvarId newMVars binderInfos;
   let val := mkAppN e newMVars;
   assignExprMVar mvarId val;
   appendParentTag mvarId newMVars binderInfos;

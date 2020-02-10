@@ -710,11 +710,11 @@ else do
           throw (Exception.revertFailure mctx lctx toRevert prevDecl)
   };
   let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size;
-  let firstDeclToVisit := if preserveOrder then lctx.getFVar! toRevert.back else getLocalDeclWithSmallestIdx lctx toRevert;
-  let skipFirst        := preserveOrder;
+  let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert;
+  let initSize         := newToRevert.size;
   lctx.foldlFromM
     (fun (newToRevert : Array Expr) decl =>
-      if skipFirst && decl.index == firstDeclToVisit.index then pure newToRevert
+      if initSize.any $ fun i => decl.fvarId == (newToRevert.get! i).fvarId! then pure newToRevert
       else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
         pure (newToRevert.push decl.toExpr)
       else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) then

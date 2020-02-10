@@ -785,7 +785,7 @@ finally x (modify $ fun s => { mctx := savedMCtx, .. s })
   Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
   The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
   different from the current ones. -/
-@[inline] def withMVarContext {α} (mvarId : MVarId) (x : MetaM α) : MetaM α := do
+def withMVarContext {α} (mvarId : MVarId) (x : MetaM α) : MetaM α := do
 mvarDecl ← getMVarDecl mvarId;
 localInsts ← getLocalInstances;
 adaptReader (fun (ctx : Context) => { lctx := mvarDecl.lctx, localInstances := mvarDecl.localInstances, .. ctx }) $

@@ -32,9 +32,7 @@ withMVarContext mvarId $ do
         throwTacticEx `subst mvarId ("'" ++ a ++ "' occurs at" ++ indentExpr b);
       aLocalDecl ← getLocalDecl aFVarId;
       (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true;
-      trace `Meta.Tactic.subst $ fun _ => "revert" ++ Format.line ++ MessageData.ofGoal mvarId;
       (twoVars, mvarId) ← introN mvarId 2 [] false;
-      trace `Meta.Tactic.subst $ fun _ => "intro2" ++ Format.line ++ MessageData.ofGoal mvarId;
       let aFVarId := twoVars.get! 0;
       let a       := mkFVar aFVarId;
       let hFVarId := twoVars.get! 1;
@@ -56,12 +54,9 @@ withMVarContext mvarId $ do
             newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major;
             modify $ fun s => { mctx := s.mctx.assignExpr mvarId newVal, .. s };
             let mvarId := newMVar.mvarId!;
-            trace `Meta.Tactic.subst $ fun _ => "subst" ++ Format.line ++ MessageData.ofGoal mvarId;
             mvarId ← clear mvarId hFVarId;
             mvarId ← clear mvarId aFVarId;
-            trace `Meta.Tactic.subst $ fun _ => "clear" ++ Format.line ++ MessageData.ofGoal mvarId;
             (newFVars, mvarId) ← introN mvarId (vars.size - 2) [] false;
-            trace `Meta.Tactic.subst $ fun _ => "introN" ++ Format.line ++ MessageData.ofGoal mvarId;
             fvarSubst ← pure {FVarSubst . }; -- TODO
             pure (fvarSubst, mvarId)
           };
@@ -79,12 +74,11 @@ withMVarContext mvarId $ do
                     `newType` is type correct because `h` and `hAux.symm` are definitionally equal by proof irrelevance.
                  3- Create motive by abstracting `a` and `hAux` in `newType`. -/
               hAuxType ← mkEq b a;
-              (motive, newType) ← withLocalDecl `_h hAuxType BinderInfo.default $ fun hAux => do {
+              motive ← withLocalDecl `_h hAuxType BinderInfo.default $ fun hAux => do {
                 hAuxSymm ← mkEqSymm hAux;
                 /- replace h in type with hAuxSymm -/
                 let newType := (type.abstract #[h]).instantiate1 hAuxSymm;
-                motive ← mkLambda #[a, hAux] newType;
-                pure (motive, newType)
+                mkLambda #[a, hAux] newType
               };
               continue motive newType
           else do

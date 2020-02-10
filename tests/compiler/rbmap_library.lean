@@ -12,11 +12,11 @@ do let Map := RBMap String Nat (fun a b => a < b);
    let m : Map := {};
    let m := m.insert "hello" 0;
    let m := m.insert "world" 1;
-   check (m.find "hello" == some 0);
-   check (m.find "world" == some 1);
+   check (m.find? "hello" == some 0);
+   check (m.find? "world" == some 1);
    let m := m.erase "hello";
-   check (m.find "hello" == none);
-   check (m.find "world" == some 1);
+   check (m.find? "hello" == none);
+   check (m.find? "world" == some 1);
    pure ()
 
 def tst2 : IO Unit :=
@@ -40,7 +40,7 @@ def mkRandMap (max : Nat) : Nat → Map → Array (Nat × Nat) → IO (Map × Ar
 | n+1,   m, a => do
   k ← IO.rand 0 max;
   v ← IO.rand 0 max;
-  if m.find k == none then do
+  if m.find? k == none then do
     let m := m.insert k v;
     let a := a.push (k, v);
     mkRandMap n m a
@@ -51,11 +51,11 @@ def tst3 (seed : Nat) (n : Nat) (max : Nat) : IO Unit :=
 do IO.setRandSeed seed;
    (m, a) ← mkRandMap max n {} Array.empty;
    check (sz m == a.size);
-   check (a.all (fun ⟨k, v⟩ => m.find k == some v));
+   check (a.all (fun ⟨k, v⟩ => m.find? k == some v));
    IO.println ("tst3 size: " ++ toString a.size);
    let m := a.iterate m (fun i ⟨k, v⟩ m => if i.val % 2 == 0 then m.erase k else m);
    check (sz m == a.size / 2);
-   a.iterateM () (fun i ⟨k, v⟩ _ => when (i.val % 2 == 1) (check (m.find k == some v)));
+   a.iterateM () (fun i ⟨k, v⟩ _ => when (i.val % 2 == 1) (check (m.find? k == some v)));
    IO.println ("tst3 after, depth: " ++ toString (depth m) ++ ", size: " ++ toString (sz m));
    pure ()
 

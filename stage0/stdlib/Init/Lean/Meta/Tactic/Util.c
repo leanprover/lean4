@@ -24,7 +24,7 @@ lean_object* l_Lean_Meta_throwTacticEx___rarg___boxed(lean_object*, lean_object*
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal(lean_object*, lean_object*, lean_object*);
 uint8_t lean_metavar_ctx_is_expr_assigned(lean_object*, lean_object*);
-lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -302,24 +302,22 @@ return x_4;
 lean_object* l_Lean_Meta_ppGoal(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_2, 1);
+x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
 lean_dec(x_2);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-lean_dec(x_7);
-x_9 = l_Lean_ppGoal(x_4, x_5, x_6, x_8, x_1);
-x_10 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_3);
-return x_10;
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = l_Lean_ppGoal(x_4, x_5, x_7, x_1);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_3);
+return x_9;
 }
 }
 lean_object* _init_l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__1() {

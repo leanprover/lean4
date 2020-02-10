@@ -182,7 +182,6 @@ extern lean_object* l_PersistentHashMap_insertAux___main___rarg___closed__3;
 lean_object* l_Lean_Meta_SynthInstance_Consumernode_inhabited___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_Lean_Meta_SynthInstance_newSubgoal___spec__5(lean_object*, lean_object*);
-extern lean_object* l_Lean_mkReducibilityAttrs___lambda__1___closed__1;
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -282,6 +281,7 @@ lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__2;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__8;
+extern lean_object* l_Nat_forMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__87___closed__1;
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Meta_SynthInstance_3__preprocessLevels___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_addContext___boxed(lean_object*, lean_object*, lean_object*);
@@ -398,7 +398,7 @@ lean_object* l_Lean_Meta_SynthInstance_mkInferTCGoalsLRAttr___lambda__1(lean_obj
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_mkReducibilityAttrs___lambda__1___closed__1;
+x_3 = l_Nat_forMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__87___closed__1;
 return x_3;
 }
 }

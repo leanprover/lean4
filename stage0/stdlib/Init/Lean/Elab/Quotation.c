@@ -165,7 +165,6 @@ lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___cl
 lean_object* l___private_Init_Lean_Elab_Quotation_8__explodeHeadPat___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__1___lambda__1___boxed(lean_object*);
-extern lean_object* l_Lean_Meta_MetaHasEval___rarg___closed__4;
 lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__47;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___spec__1___closed__7;
@@ -375,6 +374,7 @@ lean_object* l___private_Init_Lean_Elab_Quotation_11__letBindRhss___main___close
 lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l_List_head_x21___at___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___spec__2___closed__3;
 lean_object* l_Lean_Elab_Term_TermElabM_inhabited___boxed(lean_object*, lean_object*);
+extern lean_object* l_IO_runMeta___rarg___closed__4;
 extern lean_object* l_Lean_nullKind___closed__1;
 lean_object* l_List_foldl___main___at___private_Init_Lean_Elab_Quotation_13__toPreterm___main___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_8__explodeHeadPat___closed__3;
@@ -25235,7 +25235,7 @@ lean_ctor_set_uint8(x_21, sizeof(void*)*10, x_20);
 lean_ctor_set_uint8(x_21, sizeof(void*)*10 + 1, x_20);
 lean_ctor_set_uint8(x_21, sizeof(void*)*10 + 2, x_20);
 x_22 = l_Lean_MetavarContext_Inhabited___closed__1;
-x_23 = l_Lean_Meta_MetaHasEval___rarg___closed__4;
+x_23 = l_IO_runMeta___rarg___closed__4;
 x_24 = l_Lean_NameGenerator_Inhabited___closed__3;
 x_25 = l_Lean_TraceState_Inhabited___closed__1;
 x_26 = l_PersistentArray_empty___closed__3;

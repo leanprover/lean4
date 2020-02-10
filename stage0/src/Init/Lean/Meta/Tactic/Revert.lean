@@ -9,11 +9,13 @@ import Init.Lean.Meta.Tactic.Util
 namespace Lean
 namespace Meta
 
-def revert (mvarId : MVarId) (fvars : Array FVarId) : MetaM (Array FVarId × MVarId) :=
+def revert (mvarId : MVarId) (fvars : Array FVarId) (preserveOrder : Bool := false) : MetaM (Array FVarId × MVarId) :=
 if fvars.isEmpty then pure (fvars, mvarId)
 else withMVarContext mvarId $ do
   checkNotAssigned mvarId `revert;
-  e ← elimMVarDeps (fvars.map mkFVar) (mkMVar mvarId);
+  -- Set metavariable kind to natural to make sure `elimMVarDeps` will assign it.
+  setMVarKind mvarId MetavarKind.natural;
+  e ← finally (elimMVarDeps (fvars.map mkFVar) (mkMVar mvarId) preserveOrder) (setMVarKind mvarId MetavarKind.syntheticOpaque);
   pure $ e.withApp $ fun mvar args => (args.map Expr.fvarId!, mvar.mvarId!)
 
 end Meta

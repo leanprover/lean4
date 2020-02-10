@@ -294,6 +294,9 @@ match mctx.findDecl? mvarId with
 | some d => pure d
 | none   => throwEx $ Exception.unknownExprMVar mvarId
 
+def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
+modify $ fun s => { mctx := s.mctx.setMVarKind mvarId kind, .. s}
+
 def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
 mvarDecl ← getMVarDecl mvarId;
 mctx     ← getMCtx;
@@ -414,8 +417,8 @@ if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkLambda xs e
 def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MetaM (Expr × Nat) :=
 if xs.isEmpty then pure (e, 0) else liftMkBindingM $ MetavarContext.mkForallUsedOnly xs e
 
-def elimMVarDeps (xs : Array Expr) (e : Expr) : MetaM Expr :=
-if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e
+def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
+if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e preserveOrder
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] def savingCache {α} (x : MetaM α) : MetaM α := do
@@ -795,16 +798,6 @@ adaptReader (fun (ctx : Context) => { lctx := mvarDecl.lctx, localInstances := m
 mctx' ← getMCtx;
 modify $ fun s => { mctx := mctx, .. s };
 finally x (modify $ fun s => { mctx := mctx', .. s })
-
-instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x => do
-   match x { config := { opts := opts }, currRecDepth := 0, maxRecDepth := getMaxRecDepth opts } { env := env } with
-   | EStateM.Result.ok a s    => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     MetaHasEval.eval s.env opts a
-   | EStateM.Result.error err s => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     throw (IO.userError (toString err))⟩
 
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta

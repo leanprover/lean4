@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Meta_CheckAssignmentQuick_check___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_ExprDefEq_8__findCached_x3f___spec__1___boxed(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Meta_Check_2__checkLambdaLet___lambda__2___closed__1;
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_ExprDefEq_18__processConstApprox___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__51;
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -324,6 +323,7 @@ lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_17__simpAssignmentArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_44__unstuckMVar___at___private_Init_Lean_Meta_ExprDefEq_45__isDefEqOnFailure___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_WHNF_whnfEasyCases___main___at_Lean_Meta_whnfImpl___main___spec__1___closed__1;
 extern lean_object* l_Lean_Expr_updateLet_x21___closed__1;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
@@ -362,7 +362,6 @@ lean_object* l_Lean_Meta_CheckAssignment_getMCtx___boxed(lean_object*);
 lean_object* l_Lean_Meta_setIsExprDefEqAuxRef___closed__1;
 lean_object* l___private_Init_Lean_Expr_9__etaExpandedAux___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_35__isAssigned___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_CheckAssignment_check___main___closed__1;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_11__checkAssignmentFailure___closed__4;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_46__consumeLet___main___boxed(lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at___private_Init_Lean_Meta_ExprDefEq_9__cache___spec__4(lean_object*, lean_object*, lean_object*);
@@ -402,13 +401,13 @@ uint8_t l_Lean_LocalContext_isSubPrefixOf(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_getMCtx___rarg(lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_CheckAssignment_check___main___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ReducibilityHints_lt(lean_object*, lean_object*);
+extern lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_11__checkAssignmentFailure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__findCached_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_14__processAssignmentFOApproxAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isLet(lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_ExprDefEq_18__processConstApprox___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFVarLocalDecl(lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Lean_Meta_try___at___private_Init_Lean_Meta_ExprDefEq_1__isDefEqEta___spec__1___closed__1() {
 _start:
@@ -24347,16 +24346,6 @@ return x_1496;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_CheckAssignment_check___main___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Meta_Check_2__checkLambdaLet___lambda__2___closed__1;
-x_2 = l_Lean_Expr_Inhabited;
-x_3 = l_monadInhabited___rarg(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Meta_CheckAssignment_check___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -25721,7 +25710,7 @@ case 12:
 {
 lean_object* x_317; lean_object* x_318; lean_object* x_319; 
 lean_dec(x_1);
-x_317 = l_Lean_Meta_CheckAssignment_check___main___closed__1;
+x_317 = l_Lean_WHNF_whnfEasyCases___main___at_Lean_Meta_whnfImpl___main___spec__1___closed__1;
 x_318 = l_unreachable_x21___rarg(x_317);
 x_319 = lean_apply_2(x_318, x_2, x_3);
 return x_319;
@@ -47344,7 +47333,7 @@ lean_object* l___private_Init_Lean_Meta_ExprDefEq_44__unstuckMVar(lean_object* x
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_6 = l___private_Init_Lean_Meta_Check_2__checkLambdaLet___lambda__2___closed__1;
+x_6 = l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
 x_7 = l___private_Init_Lean_Meta_ExprDefEq_44__unstuckMVar___closed__1;
 x_8 = l___private_Init_Lean_Meta_ExprDefEq_44__unstuckMVar___closed__2;
 lean_inc(x_1);
@@ -51045,8 +51034,6 @@ l_Lean_Meta_CheckAssignment_Lean_MonadCache___closed__3 = _init_l_Lean_Meta_Chec
 lean_mark_persistent(l_Lean_Meta_CheckAssignment_Lean_MonadCache___closed__3);
 l_Lean_Meta_CheckAssignment_Lean_MonadCache = _init_l_Lean_Meta_CheckAssignment_Lean_MonadCache();
 lean_mark_persistent(l_Lean_Meta_CheckAssignment_Lean_MonadCache);
-l_Lean_Meta_CheckAssignment_check___main___closed__1 = _init_l_Lean_Meta_CheckAssignment_check___main___closed__1();
-lean_mark_persistent(l_Lean_Meta_CheckAssignment_check___main___closed__1);
 l___private_Init_Lean_Meta_ExprDefEq_11__checkAssignmentFailure___closed__1 = _init_l___private_Init_Lean_Meta_ExprDefEq_11__checkAssignmentFailure___closed__1();
 lean_mark_persistent(l___private_Init_Lean_Meta_ExprDefEq_11__checkAssignmentFailure___closed__1);
 l___private_Init_Lean_Meta_ExprDefEq_11__checkAssignmentFailure___closed__2 = _init_l___private_Init_Lean_Meta_ExprDefEq_11__checkAssignmentFailure___closed__2();

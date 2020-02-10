@@ -913,8 +913,8 @@ lctx ← getLCtx;
 pure $ resolveLocalNameAux lctx n []
 
 /- Return true iff `stx` is a `Term.id`, and it is local variable. -/
-def isLocalTermId? (stx : Syntax) : TermElabM (Option Expr) :=
-match stx.isTermId? with
+def isLocalTermId? (stx : Syntax) (relaxed : Bool := false) : TermElabM (Option Expr) :=
+match stx.isTermId? relaxed with
 | some (Syntax.ident _ _ val _, _) => do
   r? ← resolveLocalName val;
   match r? with

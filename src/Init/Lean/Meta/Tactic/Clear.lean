@@ -20,7 +20,7 @@ withMVarContext mvarId $ do
   lctx.forM $ fun localDecl =>
     unless (localDecl.fvarId == fvarId) $
       when (mctx.localDeclDependsOn localDecl fvarId) $
-        throwTacticEx `clear mvarId ("variable '" ++ localDecl.value ++ "' depends on '" ++ mkFVar fvarId ++ "'");
+        throwTacticEx `clear mvarId ("variable '" ++ localDecl.toExpr ++ "' depends on '" ++ mkFVar fvarId ++ "'");
   mvarDecl ← getMVarDecl mvarId;
   when (mctx.exprDependsOn mvarDecl.type fvarId) $
     throwTacticEx `clear mvarId ("taget depends on '" ++ mkFVar fvarId ++ "'");

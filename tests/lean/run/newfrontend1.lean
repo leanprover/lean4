@@ -188,7 +188,7 @@ end
 theorem simple16 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 begin
   intros h1 h2 h3;
-  -- clear x;
+  try (clear x); -- should fail
   clear h2;
   traceState;
   apply Eq.trans;

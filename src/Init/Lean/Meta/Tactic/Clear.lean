@@ -19,10 +19,10 @@ withMVarContext mvarId $ do
   mctx ← getMCtx;
   lctx.forM $ fun localDecl =>
     unless (localDecl.fvarId == fvarId) $
-      when (mctx.localDeclDependsOn (fun fvarId' => fvarId' == fvarId) localDecl) $
+      when (mctx.localDeclDependsOn localDecl fvarId) $
         throwTacticEx `clear mvarId ("hypothesis '" ++ localDecl.value ++ "' depends on '" ++ mkFVar fvarId ++ "'");
   mvarDecl ← getMVarDecl mvarId;
-  when (mctx.exprDependsOn (fun fvarId' => fvarId' == fvarId) mvarDecl.type) $
+  when (mctx.exprDependsOn mvarDecl.type fvarId) $
     throwTacticEx `clear mvarId ("taget depends on '" ++ mkFVar fvarId ++ "'");
   let lctx := lctx.erase fvarId;
   localInsts ← getLocalInstances;

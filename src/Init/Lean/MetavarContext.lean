@@ -624,15 +624,22 @@ end DependsOn
   1- If `?m := t`, then we visit `t` looking for `x`
   2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
      This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
-@[inline] def exprDependsOn (mctx : MetavarContext) (p : FVarId → Bool) (e : Expr) : Bool :=
+@[inline] def findExprDependsOn (mctx : MetavarContext) (e : Expr) (p : FVarId → Bool) : Bool :=
 (DependsOn.main mctx p e).run' {}
 
 /--
   Similar to `exprDependsOn`, but checks the expressions in the given local declaration
   depends on a free variable `x` s.t. `p x` is `true`. -/
-@[inline] def localDeclDependsOn (mctx : MetavarContext) (p : FVarId → Bool) : LocalDecl → Bool
-| LocalDecl.cdecl _ _ _ type _     => exprDependsOn mctx p type
+@[inline] def findLocalDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (p : FVarId → Bool) : Bool :=
+match localDecl with
+| LocalDecl.cdecl _ _ _ type _     => findExprDependsOn mctx type p
 | LocalDecl.ldecl _ _ _ type value => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
+
+def exprDependsOn (mctx : MetavarContext) (e : Expr) (fvarId : FVarId) : Bool :=
+findExprDependsOn mctx e $ fun fvarId' => fvarId == fvarId'
+
+def localDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (fvarId : FVarId) : Bool :=
+findLocalDeclDependsOn mctx localDecl $ fun fvarId' => fvarId == fvarId'
 
 namespace MkBinding
 
@@ -695,7 +702,7 @@ else do
       i.forM $ fun j =>
         let prevFVar := toRevert.get! j;
         let prevDecl := lctx.getFVar! prevFVar;
-        when (localDeclDependsOn mctx (fun fvarId => fvarId == fvar.fvarId!) prevDecl) $
+        when (localDeclDependsOn mctx prevDecl fvar.fvarId!) $
           throw (Exception.revertFailure mctx lctx toRevert prevDecl)
   };
   let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size;
@@ -706,7 +713,7 @@ else do
       if skipFirst && decl.index == firstDeclToVisit.index then pure newToRevert
       else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
         pure (newToRevert.push decl.toExpr)
-      else if localDeclDependsOn mctx (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) decl then
+      else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) then
         if decl.binderInfo.isAuxDecl then
           throw (Exception.revertFailure mctx lctx toRevert decl)
         else
@@ -791,7 +798,7 @@ pure mvarId
 
 /-- Return true iff some `e` in `es` depends on `fvarId` -/
 private def anyDependsOn (mctx : MetavarContext) (es : Array Expr) (fvarId : FVarId) : Bool :=
-es.any $ fun e => exprDependsOn mctx (fun fvarId' => fvarId == fvarId') e
+es.any $ fun e => exprDependsOn mctx e fvarId
 
 private partial def elimMVarDepsApp (elimMVarDepsAux : Expr → M Expr) (xs : Array Expr) : Expr → Array Expr → M Expr
 | f, args =>

@@ -735,18 +735,9 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
       let mvarId := mvar.mvarId!;
       v? ← checkAssignment mvarId args v;
       match v? with
-      | none => useFOApprox ()
+      | none   => useFOApprox ()
       | some v => do
         v ← mkLambda args v;
-        let finalize : Unit → MetaM Bool := fun _ => traceCtx `Meta.isDefEq.assign.checkTypes $ do {
-           -- must check whether types are definitionally equal or not, before assigning and returning true
-           mvarType ← inferType mvar;
-           vType    ← inferType v;
-           condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
-             (do assignExprMVar mvarId v; pure true)
-             (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
-                 pure false)
-        };
         if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
           /- We need to type check `v` because abstraction using `mkLambda` may have produced
              a type incorrect term. See discussion at A2 -/

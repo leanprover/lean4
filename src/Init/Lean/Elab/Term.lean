@@ -414,143 +414,53 @@ if hasCDot stx then do
 else
   pure none
 
-private def exceptionToSorry (ref : Syntax) (errMsg : Message) (expectedType? : Option Expr) : TermElabM Expr := do
-expectedType : Expr ← match expectedType? with
-  | none              => mkFreshTypeMVar ref
-  | some expectedType => pure expectedType;
-u ← getLevel ref expectedType;
--- TODO: should be `(sorryAx.{$u} $expectedType true) when we support antiquotations at that place
-let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
-unless errMsg.data.hasSyntheticSorry $ logMessage errMsg;
-pure syntheticSorry
-
-/-- If `mayPostpone == true`, throw `Expection.postpone`. -/
-def tryPostpone : TermElabM Unit := do
-ctx ← read;
-when ctx.mayPostpone $ throw Exception.postpone
-
-/-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
-def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
-when e.getAppFn.isMVar $ tryPostpone
-
-def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
-match e? with
-| some e => tryPostponeIfMVar e
-| none   => tryPostpone
-
-private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-trace `Elab.postpone stx $ fun _ => stx ++ " : " ++ expectedType?;
-mvar ← mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque;
-ctx ← read;
-registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
-pure mvar
-
-/-
-  Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
-  an error is found. -/
-private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
-    : List TermElab → TermElabM Expr
-| []                => do
-  let refFmt := stx.prettyPrint;
-  throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
-| (elabFn::elabFns) => catch (elabFn stx expectedType?)
-  (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg)    => do ctx ← read; if ctx.errToSorry then exceptionToSorry stx errMsg expectedType? else throw ex
-    | Exception.ex Elab.Exception.unsupportedSyntax => do set s; elabTermUsing elabFns
-    | Exception.postpone          =>
-      if catchExPostpone then do
-        /- If `elab` threw `Exception.postpone`, we reset any state modifications.
-           For example, we want to make sure pending synthetic metavariables created by `elab` before
-           it threw `Exception.postpone` are discarded.
-           Note that we are also discarding the messages created by `elab`.
-
-           For example, consider the expression.
-           `((f.x a1).x a2).x a3`
-           Now, suppose the elaboration of `f.x a1` produces an `Exception.postpone`.
-           Then, a new metavariable `?m` is created. Then, `?m.x a2` also throws `Exception.postpone`
-           because the type of `?m` is not yet known. Then another, metavariable `?n` is created, and
-          finally `?n.x a3` also throws `Exception.postpone`. If we did not restore the state, we would
-          keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
-          wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
-          and new metavariables are created for the nested functions. -/
-          set s;
-          postponeElabTerm stx expectedType?
-        else
-          throw ex)
-
-instance : MonadMacroAdapter TermElabM :=
-{ getEnv                 := getEnv,
-  getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modify $ fun s => { nextMacroScope := next, .. s },
-  throwError             := @throwError,
-  throwUnsupportedSyntax := @throwUnsupportedSyntax}
-
-/- Main loop for `elabTerm` -/
-partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) : Syntax → TermElabM Expr
-| stx => withFreshMacroScope $ withIncRecDepth stx $ do
-  trace `Elab.step stx $ fun _ => stx;
-  s ← get;
-  stxNew? ← catch
-    (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
-    (fun ex => match ex with
-      | Exception.ex Elab.Exception.unsupportedSyntax => pure none
-      | _                                             => throw ex);
-  match stxNew? with
-  | some stxNew => withMacroExpansion stx stxNew $ elabTermAux stxNew
-  | _ =>
-    let table := (termElabAttribute.ext.getState s.env).table;
-    let k := stx.getKind;
-    match table.find? k with
-    | some elabFns => elabTermUsing s stx expectedType? catchExPostpone elabFns
-    | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
-
-/--
-  Main function for elaborating terms.
-  It extracts the elaboration methods from the environment using the node kind.
-  Recall that the environment has a mapping from `SyntaxNodeKind` to `TermElab` methods.
-  It creates a fresh macro scope for executing the elaboration method.
-  All unlogged trace messages produced by the elaboration method are logged using
-  the position information at `stx`. If the elaboration method throws an `Exception.error` and `errToSorry == true`,
-  the error is logged and a synthetic sorry expression is returned.
-  If the elaboration throws `Exception.postpone` and `catchExPostpone == true`,
-  a new synthetic metavariable of kind `SyntheticMVarKind.postponed` is created, registered,
-  and returned.
-  The option `catchExPostpone == false` is used to implement `resumeElabTerm`
-  to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
-elabTermAux expectedType? catchExPostpone stx
-
-/-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
-def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
-fun stx expectedType? => do
-  stx' ← exp stx;
-  withMacroExpansion stx stx' $ elabTerm stx' expectedType?
-
-@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
-
-def resetSynthInstanceCache : TermElabM Unit :=
-modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s }
-
-@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
+def mkFreshFVarId : TermElabM Name := do
 s ← get;
-let savedSythInstance := s.cache.synthInstance;
-resetSynthInstanceCache;
-finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+let id := s.ngen.curr;
+modify $ fun s => { ngen := s.ngen.next, .. s };
+pure id
 
-@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
-if b then resettingSynthInstanceCache x else x
+def withLocalDecl {α} (ref : Syntax) (n : Name) (binderInfo : BinderInfo) (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
+fvarId ← mkFreshFVarId;
+ctx ← read;
+let lctx       := ctx.lctx.mkLocalDecl fvarId n type binderInfo;
+let localInsts := ctx.localInstances;
+let fvar       := mkFVar fvarId;
+c? ← isClass ref type;
+match c? with
+| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
+| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
 
-/--
-  Execute `x` using the given metavariable's `LocalContext` and `LocalInstances`.
-  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
-  different from the current ones. -/
-def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
-mvarDecl  ← getMVarDecl mvarId;
-ctx       ← read;
-let needReset := ctx.localInstances == mvarDecl.localInstances;
-withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
+def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
+fvarId ← mkFreshFVarId;
+ctx ← read;
+let lctx       := ctx.lctx.mkLetDecl fvarId n type val;
+let localInsts := ctx.localInstances;
+let fvar       := mkFVar fvarId;
+c? ← isClass ref type;
+match c? with
+| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
+| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
+
+def throwTypeMismatchError {α} (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr)
+    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
+let extraMsg : MessageData := match extraMsg? with
+  | none          => Format.nil
+  | some extraMsg => Format.line ++ extraMsg;
+match f? with
+| none =>
+  let msg : MessageData :=
+    "type mismatch" ++ indentExpr e
+    ++ Format.line ++ "has type" ++ indentExpr eType
+    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
+    ++ extraMsg;
+  throwError ref msg
+| some f => do
+  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
+  throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f e { env := env, mctx := mctx, lctx := lctx, opts := opts } ++ extraMsg
+
+@[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { macroStackAtErr := false, .. ctx }) x
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
@@ -576,41 +486,6 @@ match result with
   pure true
 | LOption.undef    => pure false -- we will try later
 | LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
-
-def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
-mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
-let mvarId := mvar.mvarId!;
-unlessM (synthesizeInstMVarCore ref mvarId) $
-  registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
-pure mvar
-
-def synthesizeInst (ref : Syntax) (type : Expr) : TermElabM Expr := do
-type ← instantiateMVars ref type;
-result ← trySynthInstance ref type;
-match result with
-| LOption.some val => pure val
-| LOption.undef    => throwError ref ("failed to synthesize instance" ++ indentExpr type)
-| LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
-
-def throwTypeMismatchError {α} (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
-let extraMsg : MessageData := match extraMsg? with
-  | none          => Format.nil
-  | some extraMsg => Format.line ++ extraMsg;
-match f? with
-| none =>
-  let msg : MessageData :=
-    "type mismatch" ++ indentExpr e
-    ++ Format.line ++ "has type" ++ indentExpr eType
-    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
-    ++ extraMsg;
-  throwError ref msg
-| some f => do
-  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
-  throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f e { env := env, mctx := mctx, lctx := lctx, opts := opts } ++ extraMsg
-
-@[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { macroStackAtErr := false, .. ctx }) x
 
 /--
   Try to apply coercion to make sure `e` has type `expectedType`.
@@ -660,6 +535,14 @@ match type with
       | _                 => pure none)
     (fun _ => pure none)
 | _              => pure none
+
+def synthesizeInst (ref : Syntax) (type : Expr) : TermElabM Expr := do
+type ← instantiateMVars ref type;
+result ← trySynthInstance ref type;
+match result with
+| LOption.some val => pure val
+| LOption.undef    => throwError ref ("failed to synthesize instance" ++ indentExpr type)
+| LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
 
 /-
 Try coercions and monad lifts to make sure `e` has type `expectedType`.
@@ -762,6 +645,178 @@ def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : Term
 match expectedType? with
 | none => pure e
 | _    => do eType ← inferType ref e; ensureHasTypeAux ref expectedType? eType e
+
+private def exceptionToSorry (ref : Syntax) (errMsg : Message) (expectedType? : Option Expr) : TermElabM Expr := do
+expectedType : Expr ← match expectedType? with
+  | none              => mkFreshTypeMVar ref
+  | some expectedType => pure expectedType;
+u ← getLevel ref expectedType;
+-- TODO: should be `(sorryAx.{$u} $expectedType true) when we support antiquotations at that place
+let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
+unless errMsg.data.hasSyntheticSorry $ logMessage errMsg;
+pure syntheticSorry
+
+/-- If `mayPostpone == true`, throw `Expection.postpone`. -/
+def tryPostpone : TermElabM Unit := do
+ctx ← read;
+when ctx.mayPostpone $ throw Exception.postpone
+
+/-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
+def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
+when e.getAppFn.isMVar $ tryPostpone
+
+def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
+match e? with
+| some e => tryPostponeIfMVar e
+| none   => tryPostpone
+
+private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+trace `Elab.postpone stx $ fun _ => stx ++ " : " ++ expectedType?;
+mvar ← mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque;
+ctx ← read;
+registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
+pure mvar
+
+/-
+  Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
+  an error is found. -/
+private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
+    : List TermElab → TermElabM Expr
+| []                => do
+  let refFmt := stx.prettyPrint;
+  throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+| (elabFn::elabFns) => catch (elabFn stx expectedType?)
+  (fun ex => match ex with
+    | Exception.ex (Elab.Exception.error errMsg)    => do ctx ← read; if ctx.errToSorry then exceptionToSorry stx errMsg expectedType? else throw ex
+    | Exception.ex Elab.Exception.unsupportedSyntax => do set s; elabTermUsing elabFns
+    | Exception.postpone          =>
+      if catchExPostpone then do
+        /- If `elab` threw `Exception.postpone`, we reset any state modifications.
+           For example, we want to make sure pending synthetic metavariables created by `elab` before
+           it threw `Exception.postpone` are discarded.
+           Note that we are also discarding the messages created by `elab`.
+
+           For example, consider the expression.
+           `((f.x a1).x a2).x a3`
+           Now, suppose the elaboration of `f.x a1` produces an `Exception.postpone`.
+           Then, a new metavariable `?m` is created. Then, `?m.x a2` also throws `Exception.postpone`
+           because the type of `?m` is not yet known. Then another, metavariable `?n` is created, and
+          finally `?n.x a3` also throws `Exception.postpone`. If we did not restore the state, we would
+          keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
+          wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
+          and new metavariables are created for the nested functions. -/
+          set s;
+          postponeElabTerm stx expectedType?
+        else
+          throw ex)
+
+instance : MonadMacroAdapter TermElabM :=
+{ getEnv                 := getEnv,
+  getCurrMacroScope      := getCurrMacroScope,
+  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
+  setNextMacroScope      := fun next => modify $ fun s => { nextMacroScope := next, .. s },
+  throwError             := @throwError,
+  throwUnsupportedSyntax := @throwUnsupportedSyntax}
+
+/- Main loop for `elabTerm` -/
+partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) : Syntax → TermElabM Expr
+| stx => withFreshMacroScope $ withIncRecDepth stx $ do
+  trace `Elab.step stx $ fun _ => expectedType? ++ " " ++ stx;
+  s ← get;
+  stxNew? ← catch
+    (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
+    (fun ex => match ex with
+      | Exception.ex Elab.Exception.unsupportedSyntax => pure none
+      | _                                             => throw ex);
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabTermAux stxNew
+  | _ =>
+    let table := (termElabAttribute.ext.getState s.env).table;
+    let k := stx.getKind;
+    match table.find? k with
+    | some elabFns => elabTermUsing s stx expectedType? catchExPostpone elabFns
+    | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+
+/-- Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β` -/
+def isImplicitForall? (expectedType? : Option Expr) : Option Expr :=
+match expectedType? with
+| some type@(Expr.forallE _ _ _ c) => if c.binderInfo.isExplicit then none else some type
+| _                                => none
+
+/-
+WIP
+def elabImplicitForallAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
+body ← elabTermAux expectedType catchExPostpone stx;
+mkLambda stx fvars body
+
+def elabImplicitForall (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
+| type@(Expr.forallE n d b c), fvars =>
+  if c.binderInfo.isExplicit then
+    let type := type.instantiateRev fvars;
+    elabImplicitForallAux stx catchExPostpone type fvars
+  else
+    let d := d.instantiateRev fvars;
+    withLocalDecl stx n c.binderInfo d $ fun fvar => elabImplicitForall b (fvars.push fvar)
+| type, fvars =>
+  let type := type.instantiateRev fvars;
+  elabImplicitForallAux stx catchExPostpone type fvars
+-/
+
+/--
+  Main function for elaborating terms.
+  It extracts the elaboration methods from the environment using the node kind.
+  Recall that the environment has a mapping from `SyntaxNodeKind` to `TermElab` methods.
+  It creates a fresh macro scope for executing the elaboration method.
+  All unlogged trace messages produced by the elaboration method are logged using
+  the position information at `stx`. If the elaboration method throws an `Exception.error` and `errToSorry == true`,
+  the error is logged and a synthetic sorry expression is returned.
+  If the elaboration throws `Exception.postpone` and `catchExPostpone == true`,
+  a new synthetic metavariable of kind `SyntheticMVarKind.postponed` is created, registered,
+  and returned.
+  The option `catchExPostpone == false` is used to implement `resumeElabTerm`
+  to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
+match isImplicitForall? expectedType? with
+| some expectedType => elabTermAux expectedType? catchExPostpone stx -- elabImplicitForall stx catchExPostpone expectedType #[]
+| none              => elabTermAux expectedType? catchExPostpone stx
+
+/-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
+def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
+fun stx expectedType? => do
+  stx' ← exp stx;
+  withMacroExpansion stx stx' $ elabTerm stx' expectedType?
+
+@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
+
+def resetSynthInstanceCache : TermElabM Unit :=
+modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s }
+
+@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
+s ← get;
+let savedSythInstance := s.cache.synthInstance;
+resetSynthInstanceCache;
+finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+
+@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
+if b then resettingSynthInstanceCache x else x
+
+/--
+  Execute `x` using the given metavariable's `LocalContext` and `LocalInstances`.
+  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+  different from the current ones. -/
+def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
+mvarDecl  ← getMVarDecl mvarId;
+ctx       ← read;
+let needReset := ctx.localInstances == mvarDecl.localInstances;
+withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
+
+def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
+mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
+let mvarId := mvar.mvarId!;
+unlessM (synthesizeInstMVarCore ref mvarId) $
+  registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
+pure mvar
 
 /-
   Relevant definitions:

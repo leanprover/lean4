@@ -84,12 +84,6 @@ match stx with
     throwUnsupportedSyntax
 | _ => throwUnsupportedSyntax
 
-def mkFreshFVarId : TermElabM Name := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
-pure id
-
 private partial def elabBinderViews (binderViews : Array BinderView)
     : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>
@@ -252,28 +246,6 @@ fun stx expectedType? => do
     -- TODO: expected type
     e ← elabTerm body none;
     mkLambda stx xs e
-
-def withLocalDecl {α} (ref : Syntax) (n : Name) (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
-fvarId ← mkFreshFVarId;
-ctx ← read;
-let lctx       := ctx.lctx.mkLocalDecl fvarId n type;
-let localInsts := ctx.localInstances;
-let fvar       := mkFVar fvarId;
-c? ← isClass ref type;
-match c? with
-| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
-| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
-
-def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
-fvarId ← mkFreshFVarId;
-ctx ← read;
-let lctx       := ctx.lctx.mkLetDecl fvarId n type val;
-let localInsts := ctx.localInstances;
-let fvar       := mkFVar fvarId;
-c? ← isClass ref type;
-match c? with
-| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
-| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
 
 /-
   Recall that

@@ -211,3 +211,6 @@ rfl
 
 theorem tstprec2 (x y z : Nat) : y * z + x = (y * z) + x :=
 rfl
+
+#check fun {α} (a : α) => a
+#check fun {α} [HasAdd α] (a : α) => a + a

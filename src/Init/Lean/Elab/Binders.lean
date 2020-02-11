@@ -188,6 +188,8 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
       pure (binders, newBody)
     };
     match binder with
+    | Syntax.node `Lean.Parser.Term.implicitBinder _ => expandFunBindersAux body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.instBinder _     => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.hole _ => do
       ident ← mkFreshAnonymousIdent binder;
       let type := binder;
@@ -222,7 +224,8 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
 /--
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
   ```
-  parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+  def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
+  parser! unicodeSymbol "λ" "fun" >> many1 funBinder >> unicodeSymbol "⇒" "=>" >> termParser
   ```
   to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.
   The result is a pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form

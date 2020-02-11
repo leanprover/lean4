@@ -185,6 +185,14 @@ unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
         isDefEq ctx.ref expectedType eTypeBody;
         pure ()
 
+private def nextArgIsHole (ctx : ElabAppArgsCtx) : Bool :=
+if h : ctx.argIdx < ctx.args.size then
+  match ctx.args.get ⟨ctx.argIdx, h⟩ with
+  | Arg.stx (Syntax.node `Lean.Parser.Term.hole _) => true
+  | _                                              => false
+else
+  false
+
 /- Elaborate function application arguments. -/
 private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermElabM Expr
 | ctx, e, eType => do
@@ -227,16 +235,26 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
             else
               throwError ctx.ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
       };
-      if ctx.explicit then
-        processExplictArg ()
-      else match c.binderInfo with
-        | BinderInfo.implicit => do
-          a ← mkFreshExprMVar ctx.ref d;
-          typeMVars ← condM (isType ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
-          elabAppArgsAux { typeMVars := typeMVars, .. ctx } (mkApp e a) (b.instantiate1 a)
-        | BinderInfo.instImplicit => do
-          a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
-          elabAppArgsAux { instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
+      match c.binderInfo with
+        | BinderInfo.implicit =>
+          if ctx.explicit then
+            processExplictArg ()
+          else do
+            a ← mkFreshExprMVar ctx.ref d;
+            typeMVars ← condM (isType ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
+            elabAppArgsAux { typeMVars := typeMVars, .. ctx } (mkApp e a) (b.instantiate1 a)
+
+        | BinderInfo.instImplicit =>
+          if ctx.explicit && nextArgIsHole ctx then do
+            /- Recall that if '@' has been used, and the argument is '_', then we still use
+               type class resolution -/
+            a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
+            elabAppArgsAux { argIdx := ctx.argIdx + 1, instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
+          else if ctx.explicit then
+            processExplictArg ()
+          else do
+            a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
+            elabAppArgsAux { instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
         | _ =>
           processExplictArg ()
   | _ =>

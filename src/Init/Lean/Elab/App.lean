@@ -460,8 +460,6 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
   else if f.getKind == choiceKind then
     f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
   else match_syntax f with
-  | `(@$id:id) =>
-    elabAppFn id lvals namedArgs args expectedType? true acc
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!;
     elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
@@ -474,6 +472,8 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     -- Remark: `id.<namedPattern>` should already have been expanded
     us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
     elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
+  | `(@$f) =>
+    elabAppFn f lvals namedArgs args expectedType? true acc
   | _ => do
     s ← observing $ do {
       f ← elabTerm f none;

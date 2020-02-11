@@ -191,7 +191,8 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
   mvarType ← inferType mvar;
   vType    ← inferType v;
   condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
-    (do assignExprMVar mvar.mvarId! v; pure true)
+    (do trace! `Meta.isDefEq.assign.final (mvar ++ " := " ++ v);
+        assignExprMVar mvar.mvarId! v; pure true)
     (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
         pure false)
 
@@ -266,27 +267,7 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
    `a` that depends on the free variable `α` being abstracted. Note that
    this dependency cannot occur in patterns.
 
-   Here is another example in the same local context
-
-      ?m_1 α =?= id ?m_2
-
-   If we use the approximation above we obtain:
-
-      ?m_1 := (fun α' => id (?m_2' α'))
-
-   where `?m_2'` is a new metavariable, and `?m_2 := ?m_2 α`
-
-   Now, suppose we assign `?m_2'`.
-
-     ?m_2 := (fun α => @id α a)
-
-   Then, we have
-
-      ?m_1 := (fun α' => id (@id α' a))
-
-   which is again type incorrect.
-
-   We can address the issue on the first example by type checking
+   We can address this by type checking
    the term after abstraction. This is not a significant performance
    bottleneck because this case doesn't happen very often in practice
    (262 times when compiling stdlib on Jan 2018). The second example
@@ -295,35 +276,15 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
    we define monads and auxiliary combinators for them).
    We considered three options for the addressing the issue on the second example:
 
-    a) For each metavariable that may contain a free variable
-       that depends on a term being abstracted, we create a fresh metavariable
-       with a smaller local context. In the example above, when we perform
-       the assignment
-
-         ?m_1 := (fun α' => id (?m_2' α'))
-
-    b) If we find a metavariable with this kind of dependency, we just
-       fail and fallback to first-order unification.
-
-    c) If we find a metavariable on the term after abstraction, we just
-       fail and fallback to first-order unification.
-
-   The first two options are incomparable, each one of them can solve
-   problems where the other fails. The third one is weaker than the second,
-   but we didn't find any example in the stdlib where the second option
-   applies. The first and third options are also incomparable.
-
-   So, we decide to use the third option since it is the simplest to implement,
-   and all examples we have identified are in Init/Control.
-
  A3) `a₁ ... aₙ` are not pairwise distinct (failed condition 1).
    In Lean3, we would try to approximate this case using an approach similar to A2.
    However, this approximation complicates the code, and is never used in the
    Lean3 stdlib and mathlib.
 
  A4) `t` contains a metavariable `?m'@C'` where `C'` is not a subprefix of `C`.
-   (approximated) solution: restrict the context of `?m'`
-   If `?m'` is assigned, the workaround is precise, and we just unfold `?m'`.
+   If `?m'` is assigned, we substitute.
+   If not, we create an auxiliary metavariable with a smaller scope.
+   Actually, we let `elimMVarDeps` at `MetavarContext.lean` to perform this step.
 
  A5) If some `aᵢ` is not a free variable,
      then we use first-order unification (if `config.foApprox` is set to true)
@@ -411,8 +372,12 @@ if mvarId == ctx.mvarId then throw Exception.occursCheck
 else match mctx.findDecl? mvarId with
   | none          => throw $ Exception.unknownExprMVar mvarId
   | some mvarDecl =>
-    if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
-    else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx then pure mvar
+    if ctx.hasCtxLocals then
+      throw $ Exception.useFOApprox -- It is not a pattern, then we fail and fall back to FO unification
+    else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
+      /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
+         We "substract" variables being abstracted because we use `elimMVarDeps` -/
+      pure mvar
     else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
     else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
       mvarType ← check mvarDecl.type;
@@ -530,7 +495,7 @@ partial def check
       | none           => false
       | some mvarDecl' =>
         if hasCtxLocals then false -- use CheckAssignment.check
-        else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx then true
+        else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then true
         else if mvarDecl'.depth != mctx.depth || mvarDecl'.kind.isSyntheticOpaque then false  -- use CheckAssignment.check
         else if ctxApprox && mvarDecl.lctx.isSubPrefixOf mvarDecl'.lctx then false  -- use CheckAssignment.check
         else true
@@ -737,6 +702,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
       match v? with
       | none   => useFOApprox ()
       | some v => do
+        trace `Meta.isDefEq.assign.beforeMkLambda $ fun _ => mvar ++ " " ++ args ++ " := " ++ v;
         v ← mkLambda args v;
         if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
           /- We need to type check `v` because abstraction using `mkLambda` may have produced

@@ -327,5 +327,22 @@ match r with
   | Expr.sort _ _ => pure true
   | _             => pure false
 
+partial def isTypeFormerAux : Expr → MetaM Bool
+| type => do
+  type ← whnfD type;
+  match type with
+  | Expr.sort _ _ => pure true
+  | Expr.forallE n d b c =>
+    withLocalDecl n d c.binderInfo $ fun fvar =>
+    isTypeFormerAux (b.instantiate1 fvar)
+  | _ => pure false
+
+/--
+  Return true iff `e : Sort _` or `e : (forall As, Sort _)`.
+  Remark: it subsumes `isType` -/
+def isTypeFormer (e : Expr) : MetaM Bool := do
+type ← inferType e;
+isTypeFormerAux type
+
 end Meta
 end Lean

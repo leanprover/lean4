@@ -554,3 +554,15 @@ check r;
 pure ()
 
 #eval tst33
+
+def tst34 : MetaM Unit := do
+print "----- tst33 -----";
+let type := mkSort levelOne;
+withLocalDecl `α type BinderInfo.default $ fun α => do
+  m ← mkFreshExprMVar α;
+  t ← approxDefEq $ mkLambda #[α] (mkArrow m m);
+  print t;
+  pure ()
+
+set_option pp.purify_metavars false
+#eval tst34

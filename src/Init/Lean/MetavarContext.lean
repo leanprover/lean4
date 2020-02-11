@@ -811,7 +811,7 @@ private partial def elimMVarDepsApp (elimMVarDepsAux : Expr → M Expr) (xs : Ar
     let processDefault (newF : Expr) : M Expr := do {
       if newF.isLambda then do
         args ← args.mapM (visit elimMVarDepsAux);
-        pure $ newF.betaRev args.reverse
+        elimMVarDepsAux $ newF.betaRev args.reverse
       else if newF == f then do
         args ← args.mapM (visit elimMVarDepsAux);
         pure $ mkAppN newF args

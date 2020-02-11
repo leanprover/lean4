@@ -556,13 +556,32 @@ pure ()
 #eval tst33
 
 def tst34 : MetaM Unit := do
-print "----- tst33 -----";
+print "----- tst34 -----";
 let type := mkSort levelOne;
 withLocalDecl `α type BinderInfo.default $ fun α => do
-  m ← mkFreshExprMVar α;
-  t ← approxDefEq $ mkLambda #[α] (mkArrow m m);
+  m ← mkFreshExprMVar type;
+  t ← mkLambda #[α] (mkArrow m m);
   print t;
   pure ()
 
 set_option pp.purify_metavars false
 #eval tst34
+
+def tst35 : MetaM Unit := do
+print "----- tst35 -----";
+let type := mkSort levelOne;
+withLocalDecl `α type BinderInfo.default $ fun α => do
+  m1 ← mkFreshExprMVar type;
+  m2 ← mkFreshExprMVar (mkArrow nat type);
+  let v := mkLambda `x BinderInfo.default nat m1;
+  assignExprMVar m2.mvarId! v;
+  let w := mkApp m2 zero;
+  t1 ← mkLambda #[α] (mkArrow w w);
+  print t1;
+  m3 ← mkFreshExprMVar type;
+  t2 ← mkLambda #[α] (mkArrow (mkBVar 0) (mkBVar 1));
+  print t2;
+  check $ isDefEq t1 t2;
+  pure ()
+
+#eval tst35

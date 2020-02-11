@@ -587,7 +587,6 @@ withLocalDecl `α type BinderInfo.default $ fun α => do
 #eval tst35
 #check @Id
 
-
 def tst36 : MetaM Unit := do
 print "----- tst36 -----";
 let type := mkSort levelOne;
@@ -599,9 +598,23 @@ withLocalDecl `α type BinderInfo.default $ fun α => do
   check $ approxDefEq $ isDefEq m1 (mkConst `Id [levelZero]);
   pure ()
 
+#eval tst36
+
+def tst37 : MetaM Unit := do
+print "----- tst37 -----";
+m1 ← mkFreshExprMVar (mkArrow nat (mkArrow type type));
+m2 ← mkFreshExprMVar (mkArrow nat type);
+withLocalDecl `v nat BinderInfo.default $ fun v => do
+  let lhs := mkApp2 m1 v (mkApp m2 v);
+  rhs ← mkAppM `StateM #[nat, nat];
+  print lhs;
+  print rhs;
+  check $ approxDefEq $ isDefEq lhs rhs;
+  pure ()
+
 set_option pp.all true
 set_option trace.Meta.isDefEq.step true
 set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
 
-#eval tst36
+#eval tst37

@@ -214,3 +214,8 @@ rfl
 
 #check fun {α} (a : α) => a
 #check fun {α} [HasAdd α] (a : α) => a + a
+
+def g1 {α} (a₁ a₂ : α) {β} (b : β) : α × α × β :=
+(a₁, a₂, b)
+
+#check @(g1 true)

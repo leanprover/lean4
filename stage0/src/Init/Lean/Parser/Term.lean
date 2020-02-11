@@ -69,7 +69,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def listLit := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def arrayLit := parser! symbol "#[" appPrec >> sepBy termParser "," true >> "]"
-@[builtinTermParser] def explicit := parser! symbol "@" appPrec >> id
+@[builtinTermParser] def explicit := parser! symbol "@" appPrec >> termParser appPrec
 @[builtinTermParser] def inaccessible := parser! symbol ".(" appPrec >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)

@@ -236,19 +236,18 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
   We update the `body` syntax when expanding the pattern notation.
   Example: `fun (a, b) => a + b` expands into `fun _a_1 => match _a_1 with | (a, b) => a + b`.
   See local function `processAsPattern` at `expandFunBindersAux`. -/
-private def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
+def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
 expandFunBindersAux binders body 0 #[]
 
-@[builtinTermElab «fun»] def elabFun : TermElab :=
-fun stx expectedType? => do
-  -- `fun` term+ `=>` term
-  let binders := (stx.getArg 1).getArgs;
-  let body := stx.getArg 3;
-  (binders, body) ← expandFunBinders binders body;
-  elabBinders binders $ fun xs => do
-    -- TODO: expected type
-    e ← elabTerm body none;
-    mkLambda stx xs e
+def elabFunCore (stx : Syntax) : TermElabM Expr := do
+-- `fun` term+ `=>` term
+let binders := (stx.getArg 1).getArgs;
+let body := stx.getArg 3;
+(binders, body) ← expandFunBinders binders body;
+elabBinders binders $ fun xs => do {
+  e ← elabTerm body none;
+  mkLambda stx xs e
+}
 
 /-
   Recall that

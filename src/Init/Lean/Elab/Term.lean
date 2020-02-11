@@ -737,32 +737,44 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) 
     | some elabFns => elabTermUsing s stx expectedType? catchExPostpone elabFns
     | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
-/-- Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β` -/
-def isImplicitForall? (ref : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) := do
-match expectedType? with
-| some expectedType => do
-  expectedType ← whnfForall ref expectedType;
-  match expectedType with
-  | Expr.forallE _ _ _ c => pure $ if c.binderInfo.isExplicit then none else some expectedType
-  | _                    => pure $ none
-| _         => pure $ none
+private def isExplicit (stx : Syntax) : Bool :=
+match_syntax stx with
+| `(@$f) => true
+| _      => false
 
-def elabImplicitForallAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
+private def isExplicitApp (stx : Syntax) : Bool :=
+stx.getKind == `Lean.Parser.Term.app && isExplicit (stx.getArg 0)
+
+/--
+  Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β`, and
+  `stx` is not `@f` nor `@f arg1 ...` -/
+def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
+if isExplicit stx || isExplicitApp stx then pure none
+else match expectedType? with
+  | some expectedType => do
+    expectedType ← whnfForall stx expectedType;
+    match expectedType with
+    | Expr.forallE _ _ _ c => pure $ if c.binderInfo.isExplicit then none else some expectedType
+    | _                    => pure $ none
+  | _         => pure $ none
+
+def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
 body ← elabTermAux expectedType catchExPostpone stx;
+-- body ← ensureHasType stx expectedType body;
 r ← mkLambda stx fvars body;
 trace `Elab.implicitForall stx $ fun _ => r;
 pure r
 
-partial def elabImplicitForall (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
+partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
 | type@(Expr.forallE n d b c), fvars =>
   if c.binderInfo.isExplicit then
-    elabImplicitForallAux stx catchExPostpone type fvars
+    elabImplicitLambdaAux stx catchExPostpone type fvars
   else
     withLocalDecl stx n c.binderInfo d $ fun fvar => do
       type ← whnfForall stx (b.instantiate1 fvar);
-      elabImplicitForall type (fvars.push fvar)
+      elabImplicitLambda type (fvars.push fvar)
 | type, fvars =>
-  elabImplicitForallAux stx catchExPostpone type fvars
+  elabImplicitLambdaAux stx catchExPostpone type fvars
 
 /--
   Main function for elaborating terms.
@@ -778,9 +790,9 @@ partial def elabImplicitForall (stx : Syntax) (catchExPostpone : Bool) : Expr �
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
-implicit? ← isImplicitForall? stx expectedType?;
+implicit? ← useImplicitLambda? stx expectedType?;
 match implicit? with
-| some expectedType => elabImplicitForall stx catchExPostpone expectedType #[]
+| some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
 | none              => elabTermAux expectedType? catchExPostpone stx
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/

@@ -212,15 +212,19 @@ rfl
 theorem tstprec2 (x y z : Nat) : y * z + x = (y * z) + x :=
 rfl
 
+set_option pp.all true
+
 #check fun {α} (a : α) => a
-#check fun {α} [HasAdd α] (a : α) => a + a
+#check @(fun {α} (a : α) => a)
+
+-- In the following example, we need `@` otherwise we will try to insert mvars for α and [HasAdd α],
+-- and will fail to generate instance for [HasAdd α]
+#check @(fun {α} [HasAdd α] (a : α) => a + a)
 
 def g1 {α} (a₁ a₂ : α) {β} (b : β) : α × α × β :=
 (a₁, a₂, b)
 
 #check @(g1 true)
-
-set_option trace.Elab.definition true
 
 def id1 : {α : Type} → α → α :=
 fun x => x
@@ -228,10 +232,41 @@ fun x => x
 def listId : List ({α : Type} → α → α) :=
 (fun x => x) :: []
 
-def altTst {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
+def id2 : {α : Type} → α → α :=
+fun {α : Type} (x : α) => id1 x
+
+def id3 : {α : Type} → α → α :=
+@(fun {α} x => id1 x)
+
+def id4 : {α : Type} → α → α :=
+fun x => id1 x
+
+def id5 : {α : Type} → α → α :=
+@(fun α x => id1 x)
+
+def altTst1 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 ⟨StateT.failure, StateT.orelse⟩
 
-#exit
+def altTst2 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
+⟨@(fun α => StateT.failure), @(fun α => StateT.orelse)⟩
 
-def id2 : {α : Type} → α → α :=
-fun {α} x => _
+def altTst3 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
+⟨@(fun {α} => StateT.failure), @(fun {α} => StateT.orelse)⟩
+
+def altTst4 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
+⟨@StateT.failure _ _ _ _, @StateT.orelse _ _ _ _⟩
+
+/-
+universes u v
+
+/-
+  MonadFunctorT.{u ?M_1 v} (λ (β : Type u), m α) (λ (β : Type u), m' α) n n'
+-/
+set_option syntaxMaxDepth 100
+set_option trace.Elab true
+
+
+def adapt {m m' σ σ'} {n n' : Type → Type} [MonadFunctor m m' n n'] [MonadStateAdapter σ σ' m m'] : MonadStateAdapter σ σ' n n' :=
+⟨fun split join => monadMap (adaptState split join : m α → m' α)⟩
+
+-/

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Elab.Term
+import Init.Lean.Elab.Binders
 
 namespace Lean
 namespace Elab
@@ -269,6 +270,7 @@ private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 fType ← inferType ref f;
 fType ← instantiateMVars ref fType;
+trace `Elab.app.args ref $ fun _ => "explicit: " ++ toString explicit ++ ", " ++ f ++ " : " ++ fType;
 tryPostponeIfMVar fType;
 elabAppArgsAux {ref := ref, args := args, expectedType? := expectedType?, explicit := explicit, namedArgs := namedArgs } f fType
 
@@ -491,6 +493,12 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     -- Remark: `id.<namedPattern>` should already have been expanded
     us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
     elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
+  | `(@($f:fun)) => do
+    s ← observing $ do {
+      f ← elabFunCore f;
+      elabAppLVals ref f lvals namedArgs args expectedType? true
+    };
+    pure $ acc.push s
   | `(@$f) =>
     elabAppFn f lvals namedArgs args expectedType? true acc
   | _ => do
@@ -575,6 +583,11 @@ fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 /- A raw identiier is not a valid term,
    but it is nice to have a handler for them because it allows `macros` to insert them into terms. -/
 @[builtinTermElab ident] def elabRawIdent : TermElab := elabAtom
+
+@[builtinTermElab «fun»] def elabFun : TermElab :=
+fun stx _ => do
+  f ← elabFunCore stx;
+  elabAppArgs stx f #[] #[] none false
 
 @[builtinTermElab sortApp] def elabSortApp : TermElab :=
 fun stx _ => do

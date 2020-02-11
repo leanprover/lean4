@@ -59,7 +59,6 @@ def haveAssign := parser! " := " >> termParser
 @[builtinTermParser] def «have» := parser! symbol "have " leadPrec >> optIdent >> termParser >> (haveAssign <|> fromTerm) >> "; " >> termParser
 @[builtinTermParser] def «suffices» := parser! symbol "suffices " leadPrec >> optIdent >> termParser >> fromTerm >> "; " >> termParser
 @[builtinTermParser] def «show»     := parser! symbol "show " leadPrec >> termParser >> fromTerm
-@[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" leadPrec >> many1 (termParser appPrec) >> darrow >> termParser
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
@@ -83,6 +82,9 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 @[builtinTermParser] def depArrow := parser! bracktedBinder true >> checkRBPGreater 25 "expected parentheses around dependent arrow" >> unicodeSymbol " → " " -> " >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" leadPrec >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
+
+def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
+@[builtinTermParser] def «fun» := parser! unicodeSymbol "λ" "fun" leadPrec >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $

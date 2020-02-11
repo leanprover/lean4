@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Except
-// Imports: Init.Control.Alternative Init.Control.Lift Init.Data.ToString Init.Control.MonadFail
+// Imports: Init.Control.Alternative Init.Control.Lift Init.Data.ToString
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,7 +22,6 @@ lean_object* l_ExceptT_bindCont___at_ExceptT_Monad___spec__3___rarg(lean_object*
 lean_object* l_ExceptT_Monad___rarg(lean_object*);
 lean_object* l_ExceptT_pure(lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_MonadFail___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_lift___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_adapt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_MonadFunctor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,7 +107,6 @@ lean_object* l_ExceptT_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_exceptTOfExcept(lean_object*, lean_object*);
 lean_object* l_ExceptT_Monad___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_MonadFail(lean_object*);
 lean_object* l_Except_MonadExcept(lean_object*);
 lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2129,30 +2127,6 @@ x_4 = lean_alloc_closure((void*)(l_ExceptT_MonadRun___rarg), 3, 0);
 return x_4;
 }
 }
-lean_object* l_ExceptT_MonadFail___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_6, 0, x_3);
-x_7 = lean_apply_2(x_5, lean_box(0), x_6);
-return x_7;
-}
-}
-lean_object* l_ExceptT_MonadFail(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ExceptT_MonadFail___rarg), 3, 0);
-return x_2;
-}
-}
 lean_object* l_finally___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2253,7 +2227,6 @@ return x_4;
 lean_object* initialize_Init_Control_Alternative(lean_object*);
 lean_object* initialize_Init_Control_Lift(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
-lean_object* initialize_Init_Control_MonadFail(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Except(lean_object* w) {
 lean_object * res;
@@ -2266,9 +2239,6 @@ res = initialize_Init_Control_Lift(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_MonadFail(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Except_toString___rarg___closed__1 = _init_l_Except_toString___rarg___closed__1();

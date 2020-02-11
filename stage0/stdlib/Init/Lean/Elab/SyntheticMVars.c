@@ -76,13 +76,13 @@ lean_object* l_Lean_Elab_Term_throwError___rarg(lean_object*, lean_object*, lean
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_2__resumePostponed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__1;
+extern lean_object* l___private_Init_Lean_Elab_Term_9__postponeElabTerm___closed__1;
 lean_object* l_Lean_fmt___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__3(uint8_t);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_5__checkWithDefault___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__3;
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_1__resumeElabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_3__synthesizePendingInstMVar___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__5;
-extern lean_object* l___private_Init_Lean_Elab_Term_7__postponeElabTerm___closed__1;
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_2__resumePostponed___closed__1;
 lean_object* l_List_forM___main___at___private_Init_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Init_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__1___closed__3;
@@ -2565,7 +2565,7 @@ if (lean_is_exclusive(x_4)) {
  lean_dec_ref(x_4);
  x_11 = lean_box(0);
 }
-x_18 = l___private_Init_Lean_Elab_Term_7__postponeElabTerm___closed__1;
+x_18 = l___private_Init_Lean_Elab_Term_9__postponeElabTerm___closed__1;
 lean_inc(x_3);
 x_19 = lean_name_mk_string(x_3, x_18);
 x_20 = lean_ctor_get(x_9, 0);

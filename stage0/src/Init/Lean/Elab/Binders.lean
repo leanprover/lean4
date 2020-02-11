@@ -84,12 +84,6 @@ match stx with
     throwUnsupportedSyntax
 | _ => throwUnsupportedSyntax
 
-def mkFreshFVarId : TermElabM Name := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
-pure id
-
 private partial def elabBinderViews (binderViews : Array BinderView)
     : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>
@@ -194,6 +188,8 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
       pure (binders, newBody)
     };
     match binder with
+    | Syntax.node `Lean.Parser.Term.implicitBinder _ => expandFunBindersAux body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.instBinder _     => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.hole _ => do
       ident ← mkFreshAnonymousIdent binder;
       let type := binder;
@@ -228,7 +224,8 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
 /--
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
   ```
-  parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+  def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
+  parser! unicodeSymbol "λ" "fun" >> many1 funBinder >> unicodeSymbol "⇒" "=>" >> termParser
   ```
   to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.
   The result is a pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form
@@ -252,28 +249,6 @@ fun stx expectedType? => do
     -- TODO: expected type
     e ← elabTerm body none;
     mkLambda stx xs e
-
-def withLocalDecl {α} (ref : Syntax) (n : Name) (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
-fvarId ← mkFreshFVarId;
-ctx ← read;
-let lctx       := ctx.lctx.mkLocalDecl fvarId n type;
-let localInsts := ctx.localInstances;
-let fvar       := mkFVar fvarId;
-c? ← isClass ref type;
-match c? with
-| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
-| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
-
-def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
-fvarId ← mkFreshFVarId;
-ctx ← read;
-let lctx       := ctx.lctx.mkLetDecl fvarId n type val;
-let localInsts := ctx.localInstances;
-let fvar       := mkFVar fvarId;
-c? ← isClass ref type;
-match c? with
-| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
-| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
 
 /-
   Recall that

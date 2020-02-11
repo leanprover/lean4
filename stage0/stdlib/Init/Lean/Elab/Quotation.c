@@ -299,7 +299,6 @@ lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__15;
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__35;
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__3;
 lean_object* l_Lean_Elab_Term_Quotation_HeadInfo_Inhabited;
-extern lean_object* l___private_Init_Lean_Elab_Term_6__exceptionToSorry___closed__2;
 lean_object* l_List_foldl___main___at___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___spec__3(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_expandCDot_x3f___closed__3;
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___closed__24;
@@ -573,6 +572,7 @@ lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___cl
 lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__9;
 lean_object* l___private_Init_Lean_Elab_Quotation_3__quoteOption___rarg___closed__4;
 lean_object* l___private_Init_Lean_Elab_Quotation_8__explodeHeadPat___closed__2;
+extern lean_object* l___private_Init_Lean_Elab_Term_8__exceptionToSorry___closed__2;
 lean_object* l_Lean_Prod_hasQuote(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString(lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_antiquotKind_x3f(lean_object*);
@@ -7936,7 +7936,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Init_Lean_Elab_Term_6__exceptionToSorry___closed__2;
+x_2 = l___private_Init_Lean_Elab_Term_8__exceptionToSorry___closed__2;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

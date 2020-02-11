@@ -9,7 +9,6 @@ prelude
 import Init.Control.Alternative
 import Init.Control.Lift
 import Init.Data.ToString
-import Init.Control.MonadFail
 universes u v w
 
 inductive Except (ε : Type u) (α : Type v)
@@ -180,10 +179,6 @@ end
 
 instance (ε m out) [MonadRun out m] : MonadRun (fun α => out (Except ε α)) (ExceptT ε m) :=
 ⟨fun α => run⟩
-
--- useful for implicit failures in do-notation
-instance (m : Type → Type) [Monad m] : MonadFail (ExceptT String m) :=
-⟨fun _ => throw⟩
 
 /-- Execute `x` and then execute `finalizer` even if `x` threw an exception -/
 @[inline] def finally {ε α β : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) (finalizer : m β) : m α :=

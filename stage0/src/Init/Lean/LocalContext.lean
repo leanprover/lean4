@@ -231,25 +231,26 @@ Id.run $ lctx.findDeclRevM? f
 @[inline] def foldlFrom {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) (decl : LocalDecl) : β :=
 Id.run $ lctx.foldlFromM f b decl
 
-partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) : Nat → Nat → Bool
+partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) : Nat → Nat → Bool
 | i, j =>
   if i < a₁.size then
-  if j < a₂.size then
     match a₁.get! i with
     | none       => isSubPrefixOfAux (i+1) j
     | some decl₁ =>
-      match a₂.get! j with
-      | none => isSubPrefixOfAux i (j+1)
-      | some decl₂ =>
-        if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux (i+1) (j+1) else isSubPrefixOfAux i (j+1)
-  else false
+      if exceptFVars.any $ fun fvar => fvar.fvarId! == decl₁.fvarId then
+        isSubPrefixOfAux (i+1) j
+      else if j < a₂.size then
+        match a₂.get! j with
+        | none       => isSubPrefixOfAux i (j+1)
+        | some decl₂ => if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux (i+1) (j+1) else isSubPrefixOfAux i (j+1)
+      else false
   else true
 
-/- Given `lctx₁` of the form `(x_1 : A_1) ... (x_n : A_n)`, then return true
+/- Given `lctx₁ - exceptFVars` of the form `(x_1 : A_1) ... (x_n : A_n)`, then return true
    iff there is a local context `B_1* (x_1 : A_1) ... B_n* (x_n : A_n)` which is a prefix
    of `lctx₂` where `B_i`'s are (possibly empty) sequences of local declarations. -/
-def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) : Bool :=
-isSubPrefixOfAux lctx₁.decls lctx₂.decls 0 0
+def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := #[]) : Bool :=
+isSubPrefixOfAux lctx₁.decls lctx₂.decls exceptFVars 0 0
 
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
 let b := b.abstract xs;

@@ -18,7 +18,9 @@ size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Level_normalize___main(lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_4__inferForallType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForall(lean_object*, lean_object*, lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l___private_Init_Lean_Meta_InferType_15__isProofQuickApp___main___at_Lean_Meta_isProofQuick___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,6 +96,7 @@ lean_object* l_Lean_Meta_setInferTypeRef___closed__1;
 lean_object* l___private_Init_Lean_Expr_3__getAppArgsAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
+uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_PersistentHashMap_insertAtCollisionNodeAux___main___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(lean_object*, lean_object*);
@@ -102,6 +105,7 @@ lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_16__isArrowType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isTypeQuick(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,6 +119,7 @@ lean_object* l_Lean_Meta_lambdaTelescope___rarg(lean_object*, lean_object*, lean
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*);
 lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_5__inferLambdaType(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_15__isProofQuickApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
@@ -140,9 +145,11 @@ extern lean_object* l_Lean_Meta_isClassQuick___main___closed__1;
 lean_object* l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_11__isAlwaysZero___main___boxed(lean_object*);
+lean_object* l_Lean_Meta_isTypeFormer(lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_3__inferProjType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_12__isArrowProp(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_InferType_11__isAlwaysZero___main(lean_object*);
@@ -7632,6 +7639,194 @@ x_56 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
 return x_56;
+}
+}
+}
+}
+lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_expr_instantiate1(x_1, x_2);
+x_6 = l_Lean_Meta_isTypeFormerAux___main(x_5, x_3, x_4);
+return x_6;
+}
+}
+lean_object* l_Lean_Meta_isTypeFormerAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+lean_inc(x_2);
+x_4 = l_Lean_Meta_whnfD(x_1, x_2, x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+switch (lean_obj_tag(x_5)) {
+case 3:
+{
+uint8_t x_6; 
+lean_dec(x_5);
+lean_dec(x_2);
+x_6 = !lean_is_exclusive(x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_4, 0);
+lean_dec(x_7);
+x_8 = 1;
+x_9 = lean_box(x_8);
+lean_ctor_set(x_4, 0, x_9);
+return x_4;
+}
+else
+{
+lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_4, 1);
+lean_inc(x_10);
+lean_dec(x_4);
+x_11 = 1;
+x_12 = lean_box(x_11);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_10);
+return x_13;
+}
+}
+case 7:
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint64_t x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
+x_14 = lean_ctor_get(x_4, 1);
+lean_inc(x_14);
+lean_dec(x_4);
+x_15 = lean_ctor_get(x_5, 0);
+lean_inc(x_15);
+x_16 = lean_ctor_get(x_5, 1);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_5, 2);
+lean_inc(x_17);
+x_18 = lean_ctor_get_uint64(x_5, sizeof(void*)*3);
+lean_dec(x_5);
+x_19 = (uint8_t)((x_18 << 24) >> 61);
+x_20 = lean_alloc_closure((void*)(l_Lean_Meta_isTypeFormerAux___main___lambda__1___boxed), 4, 1);
+lean_closure_set(x_20, 0, x_17);
+x_21 = l_Lean_Meta_withLocalDecl___rarg(x_15, x_16, x_19, x_20, x_2, x_14);
+return x_21;
+}
+default: 
+{
+uint8_t x_22; 
+lean_dec(x_5);
+lean_dec(x_2);
+x_22 = !lean_is_exclusive(x_4);
+if (x_22 == 0)
+{
+lean_object* x_23; uint8_t x_24; lean_object* x_25; 
+x_23 = lean_ctor_get(x_4, 0);
+lean_dec(x_23);
+x_24 = 0;
+x_25 = lean_box(x_24);
+lean_ctor_set(x_4, 0, x_25);
+return x_4;
+}
+else
+{
+lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; 
+x_26 = lean_ctor_get(x_4, 1);
+lean_inc(x_26);
+lean_dec(x_4);
+x_27 = 0;
+x_28 = lean_box(x_27);
+x_29 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set(x_29, 1, x_26);
+return x_29;
+}
+}
+}
+}
+else
+{
+uint8_t x_30; 
+lean_dec(x_2);
+x_30 = !lean_is_exclusive(x_4);
+if (x_30 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_31 = lean_ctor_get(x_4, 0);
+x_32 = lean_ctor_get(x_4, 1);
+lean_inc(x_32);
+lean_inc(x_31);
+lean_dec(x_4);
+x_33 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_33, 0, x_31);
+lean_ctor_set(x_33, 1, x_32);
+return x_33;
+}
+}
+}
+}
+lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Meta_isTypeFormerAux___main___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* l_Lean_Meta_isTypeFormerAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Meta_isTypeFormerAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_Meta_isTypeFormer(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+lean_inc(x_2);
+x_4 = l_Lean_Meta_inferType(x_1, x_2, x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+lean_dec(x_4);
+x_7 = l_Lean_Meta_isTypeFormerAux___main(x_5, x_2, x_6);
+return x_7;
+}
+else
+{
+uint8_t x_8; 
+lean_dec(x_2);
+x_8 = !lean_is_exclusive(x_4);
+if (x_8 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_4, 0);
+x_10 = lean_ctor_get(x_4, 1);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_dec(x_4);
+x_11 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_11, 0, x_9);
+lean_ctor_set(x_11, 1, x_10);
+return x_11;
 }
 }
 }

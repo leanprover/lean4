@@ -197,7 +197,7 @@ private partial def processDoElemsAux (doElems : Array Syntax) (m bindInstVal : 
     let actionExpectedType := mkApp m type;
     action ← elabTerm actionStx actionExpectedType;
     action ← ensureHasType actionStx actionExpectedType action;
-    withLocalDecl ref id type $ fun x =>
+    withLocalDecl ref id BinderInfo.default type $ fun x =>
       processDoElemsAux (i+1) (elems.push { action := action, var := x })
   else if doElem.getKind == `Lean.Parser.Term.doExpr then do
     when (i != doElems.size - 1) $

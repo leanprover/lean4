@@ -62,6 +62,7 @@ lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___lambda__1___closed__8;
 extern lean_object* l_Lean_identKind___closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__92;
+extern lean_object* l___private_Init_Lean_Elab_Term_8__exceptionToSorry___closed__1;
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__14;
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__28;
@@ -232,7 +233,6 @@ lean_object* l_Lean_Elab_Command_elabMacroRulesAux___lambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Command_def___elambda__1___closed__2;
 lean_object* l_Lean_Macro_addMacroScope(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_declValSimple___elambda__1___closed__2;
-extern lean_object* l___private_Init_Lean_Elab_Term_6__exceptionToSorry___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_run___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_elabSyntax___closed__25;
@@ -2577,7 +2577,7 @@ lean_object* _init_l_Lean_Elab_Term_toParserDescrAux___main___closed__106() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Elab_Term_6__exceptionToSorry___closed__1;
+x_1 = l___private_Init_Lean_Elab_Term_8__exceptionToSorry___closed__1;
 x_2 = l_Bool_HasRepr___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -738,29 +738,31 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) 
     | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 /-- Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β` -/
-def isImplicitForall? (expectedType? : Option Expr) : Option Expr :=
+def isImplicitForall? (ref : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) := do
 match expectedType? with
-| some type@(Expr.forallE _ _ _ c) => if c.binderInfo.isExplicit then none else some type
-| _                                => none
+| some expectedType => do
+  expectedType ← whnfForall ref expectedType;
+  match expectedType with
+  | Expr.forallE _ _ _ c => pure $ if c.binderInfo.isExplicit then none else some expectedType
+  | _                    => pure $ none
+| _         => pure $ none
 
-/-
-WIP
 def elabImplicitForallAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
 body ← elabTermAux expectedType catchExPostpone stx;
-mkLambda stx fvars body
+r ← mkLambda stx fvars body;
+trace `Elab.implicitForall stx $ fun _ => r;
+pure r
 
-def elabImplicitForall (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
+partial def elabImplicitForall (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
 | type@(Expr.forallE n d b c), fvars =>
   if c.binderInfo.isExplicit then
-    let type := type.instantiateRev fvars;
     elabImplicitForallAux stx catchExPostpone type fvars
   else
-    let d := d.instantiateRev fvars;
-    withLocalDecl stx n c.binderInfo d $ fun fvar => elabImplicitForall b (fvars.push fvar)
+    withLocalDecl stx n c.binderInfo d $ fun fvar => do
+      type ← whnfForall stx (b.instantiate1 fvar);
+      elabImplicitForall type (fvars.push fvar)
 | type, fvars =>
-  let type := type.instantiateRev fvars;
   elabImplicitForallAux stx catchExPostpone type fvars
--/
 
 /--
   Main function for elaborating terms.
@@ -775,9 +777,10 @@ def elabImplicitForall (stx : Syntax) (catchExPostpone : Bool) : Expr → Array 
   and returned.
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
-match isImplicitForall? expectedType? with
-| some expectedType => elabTermAux expectedType? catchExPostpone stx -- elabImplicitForall stx catchExPostpone expectedType #[]
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
+implicit? ← isImplicitForall? stx expectedType?;
+match implicit? with
+| some expectedType => elabImplicitForall stx catchExPostpone expectedType #[]
 | none              => elabTermAux expectedType? catchExPostpone stx
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/

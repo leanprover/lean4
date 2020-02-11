@@ -190,6 +190,7 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
 | ctx, e, eType => do
   let finalize : Unit → TermElabM Expr := fun _ => do {
     -- all user explicit arguments have been consumed
+    trace `Elab.app.finalize ctx.ref $ fun _ => e;
     match ctx.expectedType? with
     | none              => pure ()
     | some expectedType => do {

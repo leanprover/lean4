@@ -219,3 +219,19 @@ def g1 {α} (a₁ a₂ : α) {β} (b : β) : α × α × β :=
 (a₁, a₂, b)
 
 #check @(g1 true)
+
+set_option trace.Elab.definition true
+
+def id1 : {α : Type} → α → α :=
+fun x => x
+
+def listId : List ({α : Type} → α → α) :=
+(fun x => x) :: []
+
+def altTst {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
+⟨StateT.failure, StateT.orelse⟩
+
+#exit
+
+def id2 : {α : Type} → α → α :=
+fun {α} x => _

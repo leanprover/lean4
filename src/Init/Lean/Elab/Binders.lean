@@ -9,6 +9,7 @@ import Init.Lean.Elab.Term
 namespace Lean
 namespace Elab
 namespace Term
+namespace Binders
 /--
   Given syntax of the forms
     a) (`:` term)?
@@ -35,7 +36,6 @@ else
 
 structure BinderView :=
 (id : Syntax) (type : Syntax) (bi : BinderInfo)
-
 
 /-
 Expand `optional (binderDefault <|> binderTactic)`
@@ -84,37 +84,42 @@ match stx with
     throwUnsupportedSyntax
 | _ => throwUnsupportedSyntax
 
-private partial def elabBinderViews (binderViews : Array BinderView)
-    : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
-| i, fvars, lctx, localInsts =>
+structure State :=
+(fvars      : Array Expr := #[])
+(lctx       : LocalContext)
+(localInsts : LocalInstances)
+
+private partial def elabBinderViews (binderViews : Array BinderView) : Nat → State → TermElabM State
+| i, s =>
   if h : i < binderViews.size then
     let binderView := binderViews.get ⟨i, h⟩;
-    withLCtx lctx localInsts $ do
+    withLCtx s.lctx s.localInsts $ do
       type       ← elabType binderView.type;
       fvarId     ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
-      let fvars := fvars.push fvar;
+      let fvars := s.fvars.push fvar;
       -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
-      let lctx  := lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
+      let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
       className? ← isClass binderView.type type;
       match className? with
-      | none           => elabBinderViews (i+1) fvars lctx localInsts
+      | none           => elabBinderViews (i+1) { fvars := fvars, lctx := lctx, .. s }
       | some className => do
         resetSynthInstanceCache;
-        let localInsts := localInsts.push { className := className, fvar := mkFVar fvarId };
-        elabBinderViews (i+1) fvars lctx localInsts
+        let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId };
+        elabBinderViews (i+1) { fvars := fvars, lctx := lctx, localInsts := localInsts }
   else
-    pure (fvars, lctx, localInsts)
+    pure s
 
-private partial def elabBindersAux (binders : Array Syntax)
-    : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
-| i, fvars, lctx, localInsts =>
+partial def elabBindersAux (binders : Array Syntax) : Nat → State → TermElabM State
+| i, s =>
   if h : i < binders.size then do
     binderViews ← matchBinder (binders.get ⟨i, h⟩);
-    (fvars, lctx, localInsts) ← elabBinderViews binderViews 0 fvars lctx localInsts;
-    elabBindersAux (i+1) fvars lctx localInsts
+    s ← elabBinderViews binderViews 0 s;
+    elabBindersAux (i+1) s
   else
-    pure (fvars, lctx, localInsts)
+    pure s
+
+end Binders
 
 /--
   Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracktedBinder`),
@@ -125,9 +130,9 @@ if binders.isEmpty then x #[]
 else do
   lctx ← getLCtx;
   localInsts ← getLocalInsts;
-  (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
-  resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $ withLCtx lctx newLocalInsts $
-    x fvars
+  s ← Binders.elabBindersAux binders 0 { lctx := lctx, localInsts := localInsts };
+  resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) $ withLCtx s.lctx s.localInsts $
+    x s.fvars
 
 @[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
@@ -239,7 +244,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
 def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
 expandFunBindersAux binders body 0 #[]
 
-def elabFunCore (stx : Syntax) : TermElabM Expr := do
+def elabFunCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 -- `fun` term+ `=>` term
 let binders := (stx.getArg 1).getArgs;
 let body := stx.getArg 3;

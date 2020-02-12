@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Elab.Term
+import Init.Lean.Elab.Binders
 
 namespace Lean
 namespace Elab
@@ -185,11 +186,20 @@ unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
         isDefEq ctx.ref expectedType eTypeBody;
         pure ()
 
+private def nextArgIsHole (ctx : ElabAppArgsCtx) : Bool :=
+if h : ctx.argIdx < ctx.args.size then
+  match ctx.args.get ⟨ctx.argIdx, h⟩ with
+  | Arg.stx (Syntax.node `Lean.Parser.Term.hole _) => true
+  | _                                              => false
+else
+  false
+
 /- Elaborate function application arguments. -/
 private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermElabM Expr
 | ctx, e, eType => do
   let finalize : Unit → TermElabM Expr := fun _ => do {
     -- all user explicit arguments have been consumed
+    trace `Elab.app.finalize ctx.ref $ fun _ => e;
     match ctx.expectedType? with
     | none              => pure ()
     | some expectedType => do {
@@ -226,16 +236,26 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
             else
               throwError ctx.ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
       };
-      if ctx.explicit then
-        processExplictArg ()
-      else match c.binderInfo with
-        | BinderInfo.implicit => do
-          a ← mkFreshExprMVar ctx.ref d;
-          typeMVars ← condM (isType ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
-          elabAppArgsAux { typeMVars := typeMVars, .. ctx } (mkApp e a) (b.instantiate1 a)
-        | BinderInfo.instImplicit => do
-          a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
-          elabAppArgsAux { instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
+      match c.binderInfo with
+        | BinderInfo.implicit =>
+          if ctx.explicit then
+            processExplictArg ()
+          else do
+            a ← mkFreshExprMVar ctx.ref d;
+            typeMVars ← condM (isTypeFormer ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
+            elabAppArgsAux { typeMVars := typeMVars, .. ctx } (mkApp e a) (b.instantiate1 a)
+
+        | BinderInfo.instImplicit =>
+          if ctx.explicit && nextArgIsHole ctx then do
+            /- Recall that if '@' has been used, and the argument is '_', then we still use
+               type class resolution -/
+            a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
+            elabAppArgsAux { argIdx := ctx.argIdx + 1, instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
+          else if ctx.explicit then
+            processExplictArg ()
+          else do
+            a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
+            elabAppArgsAux { instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
         | _ =>
           processExplictArg ()
   | _ =>
@@ -250,6 +270,7 @@ private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 fType ← inferType ref f;
 fType ← instantiateMVars ref fType;
+trace `Elab.app.args ref $ fun _ => "explicit: " ++ toString explicit ++ ", " ++ f ++ " : " ++ fType;
 tryPostponeIfMVar fType;
 elabAppArgsAux {ref := ref, args := args, expectedType? := expectedType?, explicit := explicit, namedArgs := namedArgs } f fType
 
@@ -460,8 +481,6 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
   else if f.getKind == choiceKind then
     f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
   else match_syntax f with
-  | `(@$id:id) =>
-    elabAppFn id lvals namedArgs args expectedType? true acc
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!;
     elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
@@ -474,6 +493,17 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     -- Remark: `id.<namedPattern>` should already have been expanded
     us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
     elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
+  | `(@($f:fun)) => do
+    s ← observing $ do {
+      if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then
+        elabFunCore f expectedType? true
+      else do
+        f ← elabFunCore f none true;
+        elabAppLVals ref f lvals namedArgs args expectedType? true
+    };
+    pure $ acc.push s
+  | `(@$f) =>
+    elabAppFn f lvals namedArgs args expectedType? true acc
   | _ => do
     s ← observing $ do {
       f ← elabTerm f none;
@@ -556,6 +586,11 @@ fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 /- A raw identiier is not a valid term,
    but it is nice to have a handler for them because it allows `macros` to insert them into terms. -/
 @[builtinTermElab ident] def elabRawIdent : TermElab := elabAtom
+
+@[builtinTermElab «fun»] def elabFun : TermElab :=
+fun stx expectedType? => do
+  f ← elabFunCore stx expectedType? false;
+  elabAppArgs stx f #[] #[] none false
 
 @[builtinTermElab sortApp] def elabSortApp : TermElab :=
 fun stx _ => do

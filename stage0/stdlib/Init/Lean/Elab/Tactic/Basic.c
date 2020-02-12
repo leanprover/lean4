@@ -144,6 +144,7 @@ lean_object* l_Lean_Elab_Tactic_getMainGoal___closed__2;
 lean_object* l___private_Init_Lean_Elab_Tactic_Basic_3__getIntrosSize(lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadLog___closed__3;
 extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+extern uint8_t l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 lean_object* l_Lean_Meta_intro(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_tagUntaggedGoals___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,7 +159,6 @@ extern lean_object* l_Lean_Meta_dbgTrace___rarg___closed__1;
 extern lean_object* l___private_Init_Lean_Elab_Term_10__elabTermUsing___main___closed__3;
 lean_object* l_List_findM_x3f___main___at_Lean_Elab_Tactic_evalCase___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTactic___main___closed__2;
-extern uint8_t l_Lean_Elab_Term_elabParen___closed__4;
 extern lean_object* l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
 lean_object* l_Lean_Elab_Tactic_evalCase(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Tactic_evalTactic___main___spec__1___boxed(lean_object*, lean_object*);
@@ -14267,7 +14267,7 @@ if (x_12 == 0)
 if (x_10 == 0)
 {
 uint8_t x_13; 
-x_13 = l_Lean_Elab_Term_elabParen___closed__4;
+x_13 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -15699,7 +15699,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = l_Lean_Elab_Term_elabParen___closed__4;
+x_6 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -15809,7 +15809,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = l_Lean_Elab_Term_elabParen___closed__4;
+x_6 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -16476,7 +16476,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = l_Lean_Elab_Term_elabParen___closed__4;
+x_6 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_6 == 0)
 {
 lean_object* x_7; 

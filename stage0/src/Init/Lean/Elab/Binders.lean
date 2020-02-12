@@ -9,6 +9,7 @@ import Init.Lean.Elab.Term
 namespace Lean
 namespace Elab
 namespace Term
+
 /--
   Given syntax of the forms
     a) (`:` term)?
@@ -236,19 +237,82 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
   We update the `body` syntax when expanding the pattern notation.
   Example: `fun (a, b) => a + b` expands into `fun _a_1 => match _a_1 with | (a, b) => a + b`.
   See local function `processAsPattern` at `expandFunBindersAux`. -/
-private def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
+def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
 expandFunBindersAux binders body 0 #[]
 
-@[builtinTermElab «fun»] def elabFun : TermElab :=
-fun stx expectedType? => do
-  -- `fun` term+ `=>` term
-  let binders := (stx.getArg 1).getArgs;
-  let body := stx.getArg 3;
-  (binders, body) ← expandFunBinders binders body;
-  elabBinders binders $ fun xs => do
-    -- TODO: expected type
-    e ← elabTerm body none;
-    mkLambda stx xs e
+namespace FunBinders
+
+structure State :=
+(implicitArgs  : Array Expr := #[])
+(fvars         : Array Expr := #[])
+(lctx          : LocalContext)
+(localInsts    : LocalInstances)
+(expectedType? : Option Expr := none)
+(explicit      : Bool := false)
+
+private def propagateExpectedType (ref : Syntax) (fvar : Expr) (fvarType : Expr) (s : State) : TermElabM State := do
+match s.expectedType? with
+| none              => pure s
+| some expectedType => do
+  expectedType ← whnfForall ref expectedType;
+  match expectedType with
+  | Expr.forallE _ d b _ => do
+    isDefEq ref fvarType d;
+    let b := b.instantiate1 fvar;
+    pure { expectedType? := some b, .. s }
+  | _ => pure { expectedType? := none, .. s }
+
+private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat → State → TermElabM State
+| i, s =>
+  if h : i < binderViews.size then
+    let binderView := binderViews.get ⟨i, h⟩;
+    withLCtx s.lctx s.localInsts $ do
+      type       ← elabType binderView.type;
+      fvarId     ← mkFreshFVarId;
+      let fvar  := mkFVar fvarId;
+      let fvars := s.fvars.push fvar;
+      -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
+      let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
+      s ← propagateExpectedType binderView.id fvar type s;
+      className? ← isClass binderView.type type;
+      match className? with
+      | none           => elabFunBinderViews (i+1) { fvars := fvars, lctx := lctx, .. s }
+      | some className => do
+        resetSynthInstanceCache;
+        let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId };
+        elabFunBinderViews (i+1) { fvars := fvars, lctx := lctx, localInsts := localInsts, .. s }
+  else
+    pure s
+
+partial def elabFunBindersAux (binders : Array Syntax) : Nat → State → TermElabM State
+| i, s =>
+  if h : i < binders.size then do
+    binderViews ← matchBinder (binders.get ⟨i, h⟩);
+    s ← elabFunBinderViews binderViews 0 s;
+    elabFunBindersAux (i+1) s
+  else
+    pure s
+
+end FunBinders
+
+def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (explicit : Bool) (x : Array Expr → Option Expr → TermElabM α) : TermElabM α :=
+if binders.isEmpty then x #[] expectedType?
+else do
+  lctx ← getLCtx;
+  localInsts ← getLocalInsts;
+  s ← FunBinders.elabFunBindersAux binders 0 { lctx := lctx, localInsts := localInsts, expectedType? := expectedType?, explicit := explicit };
+  resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) $ withLCtx s.lctx s.localInsts $
+    x s.fvars s.expectedType?
+
+def elabFunCore (stx : Syntax) (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
+-- `fun` term+ `=>` term
+let binders := (stx.getArg 1).getArgs;
+let body := stx.getArg 3;
+(binders, body) ← expandFunBinders binders body;
+elabFunBinders binders expectedType? explicit $ fun xs expectedType? => do {
+  e ← elabTerm body expectedType?;
+  mkLambda stx xs e
+}
 
 /-
   Recall that

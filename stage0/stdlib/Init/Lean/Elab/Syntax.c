@@ -181,6 +181,7 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__16;
 extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 extern lean_object* l_Lean_Parser_Command_macro__rules___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__49;
+extern uint8_t l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__105;
 extern lean_object* l_Lean_Parser_Command_macro__rules___elambda__1___closed__2;
 lean_object* l___private_Init_Lean_Elab_Syntax_7__antiquote___main(lean_object*, lean_object*);
@@ -195,7 +196,6 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__100;
 lean_object* l_Lean_Elab_Term_checkLeftRec___closed__4;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__53;
 lean_object* l_Lean_Elab_Command_expandMacroHeadIntoPattern(lean_object*, lean_object*, lean_object*);
-extern uint8_t l_Lean_Elab_Term_elabParen___closed__4;
 lean_object* l_Lean_Elab_Command_elabNoKindMacroRulesAux___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_toParserDescrAux___main___spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__42;
@@ -10846,7 +10846,7 @@ x_8 = l_Lean_Syntax_isOfKind(x_6, x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-x_9 = l_Lean_Elab_Term_elabParen___closed__4;
+x_9 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -11818,7 +11818,7 @@ if (x_18 == 0)
 {
 uint8_t x_21; 
 lean_dec(x_16);
-x_21 = l_Lean_Elab_Term_elabParen___closed__4;
+x_21 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
@@ -11965,7 +11965,7 @@ if (x_63 == 0)
 {
 uint8_t x_66; 
 lean_dec(x_62);
-x_66 = l_Lean_Elab_Term_elabParen___closed__4;
+x_66 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; 
@@ -12621,7 +12621,7 @@ if (x_44 == 0)
 {
 uint8_t x_45; 
 lean_dec(x_27);
-x_45 = l_Lean_Elab_Term_elabParen___closed__4;
+x_45 = l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 if (x_45 == 0)
 {
 lean_dec(x_15);

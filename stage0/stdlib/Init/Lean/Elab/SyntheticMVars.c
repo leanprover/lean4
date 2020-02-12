@@ -56,6 +56,7 @@ lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_monadLog___spec__2___rarg(lean
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_2__resumePostponed___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__8;
+lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Init_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__4;
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_6__synthesizeSyntheticMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,7 +67,6 @@ lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_10__getSomeSynthethicMVarsRef___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Elab_Tactic_getUnsolvedGoals(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_4__synthesizePendingCoeInstMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Init_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_logTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1432,7 +1432,7 @@ if (x_7 == 0)
 uint8_t x_8; lean_object* x_9; 
 x_8 = 0;
 lean_ctor_set_uint8(x_4, sizeof(void*)*10 + 1, x_8);
-x_9 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_8, x_1, x_4, x_5);
+x_9 = l_Lean_Elab_Term_elabTerm(x_1, x_2, x_8, x_4, x_5);
 return x_9;
 }
 else
@@ -1476,7 +1476,7 @@ lean_ctor_set(x_23, 9, x_19);
 lean_ctor_set_uint8(x_23, sizeof(void*)*10, x_20);
 lean_ctor_set_uint8(x_23, sizeof(void*)*10 + 1, x_22);
 lean_ctor_set_uint8(x_23, sizeof(void*)*10 + 2, x_21);
-x_24 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_22, x_1, x_23, x_5);
+x_24 = l_Lean_Elab_Term_elabTerm(x_1, x_2, x_22, x_23, x_5);
 return x_24;
 }
 }
@@ -1489,7 +1489,7 @@ if (x_25 == 0)
 uint8_t x_26; lean_object* x_27; 
 lean_ctor_set_uint8(x_4, sizeof(void*)*10 + 1, x_3);
 x_26 = 0;
-x_27 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_26, x_1, x_4, x_5);
+x_27 = l_Lean_Elab_Term_elabTerm(x_1, x_2, x_26, x_4, x_5);
 return x_27;
 }
 else
@@ -1533,7 +1533,7 @@ lean_ctor_set_uint8(x_40, sizeof(void*)*10, x_38);
 lean_ctor_set_uint8(x_40, sizeof(void*)*10 + 1, x_3);
 lean_ctor_set_uint8(x_40, sizeof(void*)*10 + 2, x_39);
 x_41 = 0;
-x_42 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_41, x_1, x_40, x_5);
+x_42 = l_Lean_Elab_Term_elabTerm(x_1, x_2, x_41, x_40, x_5);
 return x_42;
 }
 }

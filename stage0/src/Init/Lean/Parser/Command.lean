@@ -81,6 +81,7 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def «universe»     := parser! "universe " >> ident
 @[builtinCommandParser] def «universes»    := parser! "universes " >> many1 ident
 @[builtinCommandParser] def check          := parser! "#check " >> termParser
+@[builtinCommandParser] def check_failure  := parser! "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 @[builtinCommandParser] def synth          := parser! "#synth " >> termParser
 @[builtinCommandParser] def exit           := parser! "#exit"
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident

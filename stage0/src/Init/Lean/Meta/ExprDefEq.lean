@@ -369,26 +369,28 @@ let mvarId := mvar.mvarId!;
 ctx  ← read;
 mctx ← getMCtx;
 if mvarId == ctx.mvarId then throw Exception.occursCheck
-else match mctx.findDecl? mvarId with
-  | none          => throw $ Exception.unknownExprMVar mvarId
-  | some mvarDecl =>
-    if ctx.hasCtxLocals then
-      throw $ Exception.useFOApprox -- It is not a pattern, then we fail and fall back to FO unification
-    else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
-      /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
-         We "substract" variables being abstracted because we use `elimMVarDeps` -/
-      pure mvar
-    else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
-    else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
-      mvarType ← check mvarDecl.type;
-      /- Create an auxiliary metavariable with a smaller context and "checked" type.
-         Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
-         a metavariable that we also need to reduce the context. -/
-      newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-      modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
-      pure newMVar
-    else
-      pure mvar
+else match mctx.getExprAssignment? mvarId with
+  | some v => check v
+  | none   => match mctx.findDecl? mvarId with
+    | none          => throw $ Exception.unknownExprMVar mvarId
+    | some mvarDecl =>
+      if ctx.hasCtxLocals then
+        throw $ Exception.useFOApprox -- It is not a pattern, then we fail and fall back to FO unification
+      else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
+        /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
+           We "substract" variables being abstracted because we use `elimMVarDeps` -/
+        pure mvar
+      else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
+      else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
+        mvarType ← check mvarDecl.type;
+        /- Create an auxiliary metavariable with a smaller context and "checked" type.
+           Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
+           a metavariable that we also need to reduce the context. -/
+        newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+        modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+        pure newMVar
+      else
+        pure mvar
 
 /-
   Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
@@ -426,15 +428,16 @@ partial def check : Expr → CheckAssignmentM Expr
         args ← args.mapM (visit check);
         pure $ mkAppN f args)
       (fun ex => match ex with
-        | Exception.outOfScopeFVar _ => do
-          eType ← liftMetaM $ inferType e;
-          mvarType ← check eType;
-          /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
-            Note that `mvarType` may be different from `eType`. -/
-          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-          condM (liftMetaM $ assignToConstFun f args.size newMVar)
-            (pure newMVar)
-            (throw ex)
+        | Exception.outOfScopeFVar _ =>
+          condM (liftMetaM $ isDelayedAssigned f.mvarId!) (throw ex) $ do
+            eType ← liftMetaM $ inferType e;
+            mvarType ← check eType;
+            /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+               Note that `mvarType` may be different from `eType`. -/
+            newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+            condM (liftMetaM $ assignToConstFun f args.size newMVar)
+              (pure newMVar)
+              (throw ex)
         | _ => throw ex)
   else do
     f ← visit check f;
@@ -540,66 +543,10 @@ else do
     v ← instantiateMVars v;
     checkAssignmentAux mvarId mvarDecl fvars hasCtxLocals v
 
-/-
-  We try to unify arguments before we try to unify the functions.
-  The motivation is the following: the universe constraints in
-  the arguments propagate to the function. -/
-private partial def isDefEqFOApprox (f₁ f₂ : Expr) (args₁ args₂ : Array Expr) : Nat → Nat → MetaM Bool
-| i₁, i₂ =>
-  if h : i₂ < args₂.size then
-    let arg₁ := args₁.get! i₁;
-    let arg₂ := args₂.get ⟨i₂, h⟩;
-    condM (isExprDefEqAux arg₁ arg₂)
-      (isDefEqFOApprox (i₁+1) (i₂+1))
-      (pure false)
-  else
-    isExprDefEqAux f₁ f₂
-
 private def processAssignmentFOApproxAux (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
-let vArgs := v.getAppArgs;
-if vArgs.isEmpty then
-  /- ?m a_1 ... a_k =?= t,  where t is not an application -/
-  pure false
-else if args.size > vArgs.size then
-  /-
-    ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
-
-    reduces to
-
-    ?m a_1 ... a_i =?= f
-    a_{i+1}        =?= b_1
-    ...
-    a_{i+k}        =?= b_k
-  -/
-  let f₁ := mkAppRange mvar 0 (args.size - vArgs.size) args;
-  let i₁ := args.size - vArgs.size;
-  isDefEqFOApprox f₁ v.getAppFn args vArgs i₁ 0
-else if args.size < vArgs.size then
-  /-
-    ?m a_1 ... a_k =?= f b_1 ... b_i b_{i+1} ... b_{i+k}
-
-    reduces to
-
-    ?m  =?= f b_1 ... b_i
-    a_1 =?= b_{i+1}
-    ...
-    a_k =?= b_{i+k}
-  -/
-  let vFn := mkAppRange v.getAppFn 0 (vArgs.size - args.size) vArgs;
-  let i₂  := vArgs.size - args.size;
-  isDefEqFOApprox mvar vFn args vArgs 0 i₂
-else
-  /-
-    ?m a_1 ... a_k =?= f b_1 ... b_k
-
-    reduces to
-
-    ?m  =?= f
-    a_1 =?= b_1
-    ...
-    a_k =?= b_k
-  -/
-  isDefEqFOApprox mvar v.getAppFn args vArgs 0 0
+match v with
+| Expr.app f a _ => isExprDefEqAux args.back a <&&> isExprDefEqAux (mkAppRange mvar 0 (args.size - 1) args) f
+| _              => pure false
 
 /-
   Auxiliary method for applying first-order unification. It is an approximation.
@@ -1033,7 +980,7 @@ pure false
 
 /- Remove unnecessary let-decls -/
 private def consumeLet : Expr → Expr
-| e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then b else consumeLet b
+| e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
 | e                       => e
 
 partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool

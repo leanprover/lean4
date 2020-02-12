@@ -153,6 +153,7 @@ lean_object* l_Lean_Elab_Term_StructInst_Field_isSimple(lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Struct_fields___boxed(lean_object*);
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_FieldLHS_toSyntax(uint8_t, lean_object*);
+lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_StructInst_4__elabModifyOp___closed__2;
 lean_object* l___private_Init_Lean_Elab_StructInst_13__isSimpleField_x3f___boxed(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_StructInst_ExpandNonAtomicExplicitSource_main___spec__1___closed__5;
@@ -172,7 +173,6 @@ lean_object* l___private_Init_Lean_Elab_StructInst_14__getFieldIdx___closed__1;
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_StructInst_Field_toSyntax___spec__1(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__2;
 size_t l_Lean_Name_hash(lean_object*);
-lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Init_Lean_Elab_StructInst_14__getFieldIdx___closed__2;
 lean_object* l_List_head_x21___at___private_Init_Lean_Elab_StructInst_18__expandStruct___main___spec__5(lean_object*);
@@ -14710,7 +14710,7 @@ lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_33);
 lean_ctor_set(x_3, 8, x_35);
 x_36 = 1;
-x_37 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_36, x_31, x_3, x_30);
+x_37 = l_Lean_Elab_Term_elabTerm(x_31, x_2, x_36, x_3, x_30);
 return x_37;
 }
 else
@@ -14762,7 +14762,7 @@ lean_ctor_set_uint8(x_53, sizeof(void*)*10, x_48);
 lean_ctor_set_uint8(x_53, sizeof(void*)*10 + 1, x_49);
 lean_ctor_set_uint8(x_53, sizeof(void*)*10 + 2, x_50);
 x_54 = 1;
-x_55 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_54, x_31, x_53, x_30);
+x_55 = l_Lean_Elab_Term_elabTerm(x_31, x_2, x_54, x_53, x_30);
 return x_55;
 }
 }

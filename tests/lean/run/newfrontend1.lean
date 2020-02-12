@@ -263,6 +263,9 @@ def altTst3 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 def altTst4 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 ⟨@StateT.failure _ _ _ _, @StateT.orelse _ _ _ _⟩
 
+def altTst5 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
+⟨fun {α} => StateT.failure, fun {α} => StateT.orelse⟩
+
 #check_failure 1 + true
 
 /-

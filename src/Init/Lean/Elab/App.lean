@@ -494,17 +494,8 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     -- Remark: `id.<namedPattern>` should already have been expanded
     us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
     elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
-  | `(@($f:fun)) => do
-    s ← observing $ do {
-      if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then
-        elabFunCore f expectedType? true
-      else do
-        f ← elabFunCore f none true;
-        elabAppLVals ref f lvals namedArgs args expectedType? true
-    };
-    pure $ acc.push s
-  | `(@$f) =>
-    elabAppFn f lvals namedArgs args expectedType? true acc
+  | `(@$id:id) =>
+    elabAppFn id lvals namedArgs args expectedType? true acc
   | _ => do
     s ← observing $ do {
       f ← elabTerm f none;
@@ -580,18 +571,24 @@ def elabAtom : TermElab :=
 fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 
 @[builtinTermElab «id»] def elabId : TermElab := elabAtom
-@[builtinTermElab explicit] def elabExplicit : TermElab := elabAtom
+
+@[builtinTermElab explicit] def elabExplicit : TermElab :=
+fun stx expectedType? => match_syntax stx with
+  | `(@$f:fun)           => elabFunCore f expectedType? true
+  | `(@($f:fun))         => elabFunCore f expectedType? true
+  | `(@($f:fun : $type)) => do
+    type ← elabType type;
+    f ← elabFunCore f type true;
+    ensureHasType stx type f
+  | `(@$id:id)          => elabAtom stx expectedType?
+  | _                   => throwUnsupportedSyntax
+
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
 /- A raw identiier is not a valid term,
    but it is nice to have a handler for them because it allows `macros` to insert them into terms. -/
 @[builtinTermElab ident] def elabRawIdent : TermElab := elabAtom
-
-@[builtinTermElab «fun»] def elabFun : TermElab :=
-fun stx expectedType? => do
-  f ← elabFunCore stx expectedType? false;
-  elabAppArgs stx f #[] #[] none false
 
 @[builtinTermElab sortApp] def elabSortApp : TermElab :=
 fun stx _ => do

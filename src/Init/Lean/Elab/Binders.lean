@@ -243,7 +243,6 @@ expandFunBindersAux binders body 0 #[]
 namespace FunBinders
 
 structure State :=
-(implicitArgs  : Array Expr := #[])
 (fvars         : Array Expr := #[])
 (lctx          : LocalContext)
 (localInsts    : LocalInstances)
@@ -267,20 +266,29 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
   if h : i < binderViews.size then
     let binderView := binderViews.get ⟨i, h⟩;
     withLCtx s.lctx s.localInsts $ do
+      let s     := if binderView.bi.isExplicit then { explicit := true, .. s } else s;
       type       ← elabType binderView.type;
-      fvarId     ← mkFreshFVarId;
+      fvarId ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
-      let fvars := s.fvars.push fvar;
-      -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
-      let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
-      s ← propagateExpectedType binderView.id fvar type s;
-      className? ← isClass binderView.type type;
-      match className? with
-      | none           => elabFunBinderViews (i+1) { fvars := fvars, lctx := lctx, .. s }
-      | some className => do
-        resetSynthInstanceCache;
-        let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId };
-        elabFunBinderViews (i+1) { fvars := fvars, lctx := lctx, localInsts := localInsts, .. s }
+      let s     := { fvars := s.fvars.push fvar, .. s };
+      let continue (s : State) : TermElabM State := do {
+        className? ← isClass binderView.type type;
+        match className? with
+        | none           => elabFunBinderViews (i+1) s
+        | some className => do
+          resetSynthInstanceCache;
+          let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId };
+          elabFunBinderViews (i+1) { localInsts := localInsts, .. s }
+      };
+      if s.explicit then do
+        -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
+        let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
+        s ← propagateExpectedType binderView.id fvar type s;
+        continue { lctx := lctx, .. s }
+      else do
+        mvar ← mkFreshExprMVar binderView.id type;
+        let lctx := s.lctx.mkLetDecl fvarId binderView.id.getId type mvar;
+        continue { lctx := lctx, .. s }
   else
     pure s
 
@@ -313,6 +321,9 @@ elabFunBinders binders expectedType? explicit $ fun xs expectedType? => do {
   e ← elabTerm body expectedType?;
   mkLambda stx xs e
 }
+
+@[builtinTermElab «fun»] def elabFun : TermElab :=
+fun stx expectedType? => elabFunCore stx expectedType? false
 
 /-
   Recall that

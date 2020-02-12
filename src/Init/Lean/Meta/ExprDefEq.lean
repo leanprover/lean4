@@ -428,15 +428,16 @@ partial def check : Expr → CheckAssignmentM Expr
         args ← args.mapM (visit check);
         pure $ mkAppN f args)
       (fun ex => match ex with
-        | Exception.outOfScopeFVar _ => do
-          eType ← liftMetaM $ inferType e;
-          mvarType ← check eType;
-          /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
-            Note that `mvarType` may be different from `eType`. -/
-          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-          condM (liftMetaM $ assignToConstFun f args.size newMVar)
-            (pure newMVar)
-            (throw ex)
+        | Exception.outOfScopeFVar _ =>
+          condM (liftMetaM $ isDelayedAssigned f.mvarId!) (throw ex) $ do
+            eType ← liftMetaM $ inferType e;
+            mvarType ← check eType;
+            /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+               Note that `mvarType` may be different from `eType`. -/
+            newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+            condM (liftMetaM $ assignToConstFun f args.size newMVar)
+              (pure newMVar)
+              (throw ex)
         | _ => throw ex)
   else do
     f ← visit check f;

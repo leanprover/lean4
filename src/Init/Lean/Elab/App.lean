@@ -271,7 +271,8 @@ private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (
 fType ← inferType ref f;
 fType ← instantiateMVars ref fType;
 trace `Elab.app.args ref $ fun _ => "explicit: " ++ toString explicit ++ ", " ++ f ++ " : " ++ fType;
-tryPostponeIfMVar fType;
+unless (namedArgs.isEmpty && args.isEmpty) $
+  tryPostponeIfMVar fType;
 elabAppArgsAux {ref := ref, args := args, expectedType? := expectedType?, explicit := explicit, namedArgs := namedArgs } f fType
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/

@@ -536,7 +536,13 @@ let restoreMessages (prevMessages : MessageLog) : CommandElabM Unit := do {
   modify $ fun s => { messages := prevMessages ++ s.messages.errorsToWarnings, .. s }
 };
 prevMessages ← resetMessages;
-succeeded ← finally (catch (do x; hasNoErrorMessages) (fun ex => pure false)) (restoreMessages prevMessages);
+succeeded ← finally
+  (catch
+     (do x; hasNoErrorMessages)
+     (fun ex => match ex with
+       | Exception.error msg         => do modify (fun s => { messages := s.messages.add msg, .. s }); pure false
+       | Exception.unsupportedSyntax => do logError ref "unsupported syntax"; pure false))
+  (restoreMessages prevMessages);
 when succeeded $
   throwError ref "unexpected success"
 

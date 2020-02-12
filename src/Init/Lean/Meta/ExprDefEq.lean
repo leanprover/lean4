@@ -611,7 +611,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
     arg ← simpAssignmentArg arg;
     let args := args.set ⟨i, h⟩ arg;
     let useConstApprox : Unit → MetaM Bool := fun _ =>
-      if cfg.constApprox then
+      if cfg.constApprox || (not args.isEmpty && not v.isApp) then
         processConstApprox mvar args.size v
       else
         pure false;

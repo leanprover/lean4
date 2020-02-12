@@ -224,8 +224,6 @@ set_option pp.all true
 def g1 {α} (a₁ a₂ : α) {β} (b : β) : α × α × β :=
 (a₁, a₂, b)
 
-#check @(g1 true)
-
 def id1 : {α : Type} → α → α :=
 fun x => x
 
@@ -243,6 +241,15 @@ fun x => id1 x
 
 def id5 : {α : Type} → α → α :=
 @(fun α x => id1 x)
+
+def id6 : {α : Type} → α → α :=
+fun {α} x => id1 x
+
+def id7 : {α : Type} → α → α :=
+fun {α} x => @id α x
+
+def id8 : {α : Type} → α → α :=
+fun {α} x => id (@id α x)
 
 def altTst1 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 ⟨StateT.failure, StateT.orelse⟩

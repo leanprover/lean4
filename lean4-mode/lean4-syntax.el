@@ -127,7 +127,7 @@
       (1 'font-lock-doc-face))
      (,(rx (group "@[" (zero-or-more (not (any "]"))) "]"))
       (1 'font-lock-doc-face))
-     (,(rx (group "#" (or "eval" "print" "reduce" "help" "check" "synth")))
+     (,(rx (group "#" (or "eval" "print" "reduce" "help" "check" "check_failure" "synth")))
       (1 'font-lock-keyword-face))
      ;; mutual definitions "names"
      (,(rx word-start

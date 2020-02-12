@@ -980,7 +980,7 @@ pure false
 
 /- Remove unnecessary let-decls -/
 private def consumeLet : Expr → Expr
-| e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then b else consumeLet b
+| e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
 | e                       => e
 
 partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool

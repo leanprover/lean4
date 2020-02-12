@@ -770,7 +770,8 @@ partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr �
 | type@(Expr.forallE n d b c), fvars =>
   if c.binderInfo.isExplicit then
     elabImplicitLambdaAux stx catchExPostpone type fvars
-  else
+  else withFreshMacroScope $ do
+    n ← MonadQuotation.addMacroScope n;
     withLocalDecl stx n c.binderInfo d $ fun fvar => do
       type ← whnfForall stx (b.instantiate1 fvar);
       elabImplicitLambda type (fvars.push fvar)

@@ -359,6 +359,11 @@ if n.hasMacroScopes then
 else
   mkNameNum (mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg") scp
 
+@[inline] def MonadQuotation.addMacroScope {m : Type → Type} [MonadQuotation m] [Monad m] (n : Name) : m Name := do
+mainModule ← getMainModule;
+scp ← getCurrMacroScope;
+pure $ addMacroScope mainModule n scp
+
 namespace Macro
 
 structure Context :=

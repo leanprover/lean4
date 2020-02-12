@@ -261,7 +261,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
 def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
 expandFunBindersAux binders body 0 #[]
 
-def elabFunCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+def elabFunCore (stx : Syntax) (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 -- `fun` term+ `=>` term
 let binders := (stx.getArg 1).getArgs;
 let body := stx.getArg 3;

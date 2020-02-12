@@ -495,8 +495,11 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
   | `(@($f:fun)) => do
     s ← observing $ do {
-      f ← elabFunCore f expectedType?;
-      elabAppLVals ref f lvals namedArgs args expectedType? true
+      if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then
+        elabFunCore f expectedType? true
+      else do
+        f ← elabFunCore f none true;
+        elabAppLVals ref f lvals namedArgs args expectedType? true
     };
     pure $ acc.push s
   | `(@$f) =>
@@ -586,7 +589,7 @@ fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 
 @[builtinTermElab «fun»] def elabFun : TermElab :=
 fun stx expectedType? => do
-  f ← elabFunCore stx expectedType?;
+  f ← elabFunCore stx expectedType? false;
   elabAppArgs stx f #[] #[] none false
 
 @[builtinTermElab sortApp] def elabSortApp : TermElab :=

@@ -522,6 +522,27 @@ fun stx => do
     logInfo stx (e ++ " : " ++ type);
     pure ()
 
+def hasNoErrorMessages : CommandElabM Bool := do
+s ← get; pure $ !s.messages.hasErrors
+
+def failIfSucceeds {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM Unit := do
+let resetMessages : CommandElabM MessageLog := do {
+  s ← get;
+  let messages := s.messages;
+  modify $ fun s => { messages := {}, .. s };
+  pure messages
+};
+let restoreMessages (prevMessages : MessageLog) : CommandElabM Unit := do {
+  modify $ fun s => { messages := prevMessages ++ s.messages.eraseErrors, .. s }
+};
+prevMessages ← resetMessages;
+succeeded ← finally (catch (do x; hasNoErrorMessages) (fun ex => pure false)) (restoreMessages prevMessages);
+when succeeded $
+  throwError ref "unexpected success"
+
+@[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab :=
+fun stx => failIfSucceeds stx $ elabCheck stx
+
 @[builtinCommandElab «synth»] def elabSynth : CommandElab :=
 fun stx => do
   let ref  := stx;

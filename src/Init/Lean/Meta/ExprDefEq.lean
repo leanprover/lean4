@@ -369,26 +369,28 @@ let mvarId := mvar.mvarId!;
 ctx  ← read;
 mctx ← getMCtx;
 if mvarId == ctx.mvarId then throw Exception.occursCheck
-else match mctx.findDecl? mvarId with
-  | none          => throw $ Exception.unknownExprMVar mvarId
-  | some mvarDecl =>
-    if ctx.hasCtxLocals then
-      throw $ Exception.useFOApprox -- It is not a pattern, then we fail and fall back to FO unification
-    else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
-      /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
-         We "substract" variables being abstracted because we use `elimMVarDeps` -/
-      pure mvar
-    else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
-    else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
-      mvarType ← check mvarDecl.type;
-      /- Create an auxiliary metavariable with a smaller context and "checked" type.
-         Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
-         a metavariable that we also need to reduce the context. -/
-      newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-      modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
-      pure newMVar
-    else
-      pure mvar
+else match mctx.getExprAssignment? mvarId with
+  | some v => check v
+  | none   => match mctx.findDecl? mvarId with
+    | none          => throw $ Exception.unknownExprMVar mvarId
+    | some mvarDecl =>
+      if ctx.hasCtxLocals then
+        throw $ Exception.useFOApprox -- It is not a pattern, then we fail and fall back to FO unification
+      else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
+        /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
+           We "substract" variables being abstracted because we use `elimMVarDeps` -/
+        pure mvar
+      else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
+      else if ctx.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
+        mvarType ← check mvarDecl.type;
+        /- Create an auxiliary metavariable with a smaller context and "checked" type.
+           Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
+           a metavariable that we also need to reduce the context. -/
+        newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+        modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+        pure newMVar
+      else
+        pure mvar
 
 /-
   Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,

@@ -612,9 +612,27 @@ withLocalDecl `v nat BinderInfo.default $ fun v => do
   check $ approxDefEq $ isDefEq lhs rhs;
   pure ()
 
+#eval tst37
+
+def tst38 : MetaM Unit := do
+print "----- tst37 -----";
+m1 ← mkFreshExprMVar nat;
+withLocalDecl `x nat BinderInfo.default $ fun x => do
+m2 ← mkFreshExprMVar type;
+withLocalDecl `y m2 BinderInfo.default $ fun y => do
+m3 ← mkFreshExprMVar (mkArrow m2 nat);
+let rhs := mkApp m3 y;
+check $ approxDefEq $ isDefEq m2 nat;
+print m2;
+check $ getAssignment m2 >>= fun v => pure $ v == nat;
+check $ approxDefEq $ isDefEq m1 rhs;
+print m2;
+check $ getAssignment m2 >>= fun v => pure $ v == nat;
+pure ()
+
 set_option pp.all true
 set_option trace.Meta.isDefEq.step true
 set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
 
-#eval tst37
+#eval tst38

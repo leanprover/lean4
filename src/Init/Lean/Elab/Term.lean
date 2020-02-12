@@ -264,6 +264,7 @@ fun ctx s =>
 
 def ppGoal (ref : Syntax) (mvarId : MVarId) : TermElabM Format := liftMetaM ref $ Meta.ppGoal mvarId
 def isType (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isType e
+def isTypeFormer (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isTypeFormer e
 def isDefEq (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.approxDefEq $ Meta.isDefEq t s
 def inferType (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.inferType e
 def whnf (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnf e

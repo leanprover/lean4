@@ -242,7 +242,7 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
             processExplictArg ()
           else do
             a ← mkFreshExprMVar ctx.ref d;
-            typeMVars ← condM (isType ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
+            typeMVars ← condM (isTypeFormer ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
             elabAppArgsAux { typeMVars := typeMVars, .. ctx } (mkApp e a) (b.instantiate1 a)
 
         | BinderInfo.instImplicit =>

@@ -166,8 +166,8 @@ log.msgs.any $ fun m => match m.severity with
 | MessageSeverity.error => true
 | _                     => false
 
-def eraseErrors (log : MessageLog) : MessageLog :=
-{ msgs := log.msgs.foldl (fun r m => match m.severity with | MessageSeverity.error => r | _ => r.push m) {} }
+def errorsToWarnings (log : MessageLog) : MessageLog :=
+{ msgs := log.msgs.map (fun m => match m.severity with | MessageSeverity.error => { severity := MessageSeverity.warning, .. m} | _ => m) }
 
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
 log.msgs.forM f

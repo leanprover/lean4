@@ -533,7 +533,7 @@ let resetMessages : CommandElabM MessageLog := do {
   pure messages
 };
 let restoreMessages (prevMessages : MessageLog) : CommandElabM Unit := do {
-  modify $ fun s => { messages := prevMessages ++ s.messages.eraseErrors, .. s }
+  modify $ fun s => { messages := prevMessages ++ s.messages.errorsToWarnings, .. s }
 };
 prevMessages ← resetMessages;
 succeeded ← finally (catch (do x; hasNoErrorMessages) (fun ex => pure false)) (restoreMessages prevMessages);

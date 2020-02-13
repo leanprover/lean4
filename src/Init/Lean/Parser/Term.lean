@@ -73,9 +73,9 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def inaccessible := parser! symbol ".(" appPrec >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
+def binderTactic  := parser! try (" := " >> " by ") >> ident
 def binderDefault := parser! " := " >> termParser
-def binderTactic  := parser! " . " >> termParser
-def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderDefault <|> binderTactic) >> ")"
+def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
 def instBinder := parser! "[" >> optIdent >> termParser >> "]"
 def bracktedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder

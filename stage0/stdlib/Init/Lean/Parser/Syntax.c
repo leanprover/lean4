@@ -111,7 +111,6 @@ lean_object* l_Lean_Parser_Command_reserve___elambda__1(lean_object*, lean_objec
 lean_object* l_Lean_Parser_Command_macro__rules___elambda__1___closed__7;
 lean_object* l___regBuiltinParser_Lean_Parser_Syntax_try(lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkNode(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_seq___elambda__1___spec__1(uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Syntax_many___elambda__1___closed__3;
 extern lean_object* l_Lean_Parser_darrow;
 lean_object* l_Lean_Parser_Command_macroArgSimple___closed__4;
@@ -285,6 +284,7 @@ lean_object* l_Lean_Parser_Syntax_ident___elambda__1(lean_object*, lean_object*)
 lean_object* l_Lean_Parser_Command_macro___closed__7;
 extern lean_object* l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___closed__2;
 lean_object* l___regBuiltinParser_Lean_Parser_Command_macro__rules(lean_object*);
+lean_object* l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_nonEmptySeq___elambda__1___spec__1(uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Syntax_paren___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Command_macro__rules___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_macroTailCommand___closed__2;
@@ -13035,7 +13035,7 @@ if (lean_obj_tag(x_4) == 0)
 uint8_t x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = 1;
 lean_inc(x_1);
-x_6 = l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_seq___elambda__1___spec__1(x_5, x_5, x_1, x_3);
+x_6 = l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_nonEmptySeq___elambda__1___spec__1(x_5, x_5, x_1, x_3);
 x_7 = lean_ctor_get(x_6, 3);
 lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)

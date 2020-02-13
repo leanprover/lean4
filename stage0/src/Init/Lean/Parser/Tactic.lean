@@ -37,7 +37,7 @@ def ident' : Parser := ident <|> underscore
 /-
   We must not use the `parser! t` macro here it because it expands into `mkAntiquot ... <|> t`,
   but a tactic parser may start with an antiquotation. -/
-def seq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
+def seq : Parser         := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
 def nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
 
 @[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> optional ident'
@@ -64,6 +64,7 @@ end Tactic
 namespace Term
 
 @[builtinTermParser] def tacticBlock := parser! symbol "begin " appPrec >> Tactic.seq >> "end"
+@[builtinTermParser] def byTactic    := parser! symbol "by " leadPrec >> Tactic.nonEmptySeq
 -- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.stxQuot`
 @[builtinTermParser] def tacticStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(tactic|" appPrec >> sepBy1 tacticParser "; " true true >> ")"
 

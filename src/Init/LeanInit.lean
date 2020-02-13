@@ -132,6 +132,13 @@ mkNameNum g.namePrefix g.idx
 
 end NameGenerator
 
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the tactic declaration name `tacName` to synthesize the argument.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tacName : Name) : Sort u := α
+
 /-
   Small DSL for describing parsers. We implement an interpreter for it
   at `Parser.lean` -/

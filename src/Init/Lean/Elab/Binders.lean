@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Elab.Term
+import Init.Lean.Elab.Quotation
 
 namespace Lean
 namespace Elab
@@ -37,11 +38,39 @@ else
 structure BinderView :=
 (id : Syntax) (type : Syntax) (bi : BinderInfo)
 
+partial def quoteAutoTactic : Syntax → TermElabM Syntax
+| stx@(Syntax.ident _ _ _ _) => throwError stx "invalic auto tactic, identifier is not allowed"
+| stx@(Syntax.node k args)   =>
+  if Quotation.isAntiquot stx then
+    throwError stx "invalic auto tactic, antiquotation is not allowed"
+  else do
+    empty ← `(Array.empty);
+    args ← args.foldlM (fun args arg =>
+      if k == nullKind && Quotation.isAntiquotSplice arg then
+        throwError arg "invalic auto tactic, antiquotation is not allowed"
+      else do
+        arg ← quoteAutoTactic arg;
+        `(Array.push $args $arg)) empty;
+    `(Syntax.node $(quote k) $args)
+| Syntax.atom info val => `(Syntax.missing) -- atoms are irrelevant for auto tactics, we only care about `Syntax.node`s
+| Syntax.missing       => unreachable!
+
+def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
+withFreshMacroScope $ do
+  name ← MonadQuotation.addMacroScope `_auto;
+  let type := Lean.mkConst `Lean.Syntax;
+  tactic ← quoteAutoTactic tactic;
+  val ← elabTerm tactic type;
+  val ← instantiateMVars tactic val;
+  let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
+  addDecl tactic decl;
+  compileDecl tactic decl;
+  pure name
 
 /-
-Expand `optional (binderDefault <|> binderTactic)`
+Expand `optional (binderTactic <|> binderDefault)`
+def binderTactic  := parser! " := " >> " by " >> tacticParser
 def binderDefault := parser! " := " >> termParser
-def binderTactic  := parser! " . " >> termParser
 -/
 private def expandBinderModifier (type : Syntax) (optBinderModifier : Syntax) : TermElabM Syntax :=
 if optBinderModifier.isNone then pure type
@@ -52,7 +81,8 @@ else
     let defaultVal := modifier.getArg 1;
     `(optParam $type $defaultVal)
   else if kind == `Lean.Parser.Term.binderTactic then do
-    throwError modifier "not implemented yet"
+    name ← declareTacticSyntax (modifier.getArg 2);
+    `(autoParam $type $(quote name))
   else
     throwUnsupportedSyntax
 
@@ -283,6 +313,11 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
       };
       if s.explicit then do
         -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
+        /-
+          We do **not** want to support default and auto arguments in lambda abstractions.
+          Example: `fun (x : Nat := 10) => x+1`.
+          We do not believe this is an useful feature, and it would complicate the logic here.
+        -/
         let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
         s ← propagateExpectedType binderView.id fvar type s;
         continue { lctx := lctx, .. s }

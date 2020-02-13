@@ -263,13 +263,16 @@ match result with
 instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
 
-@[inline] def runTermElabM {α} (declName? : Option Name) (elab : Array Expr → TermElabM α) : CommandElabM α := do
+@[inline] def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
 ctx ← read;
 s ← get;
-match (Term.elabBinders (getVarDecls s) elab (mkTermContext ctx s declName?)).run (mkTermState s) with
+match (x $ mkTermContext ctx s declName?).run (mkTermState s) with
 | EStateM.Result.ok a newS                          => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; pure a
 | EStateM.Result.error (Term.Exception.ex ex) newS  => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; throw ex
 | EStateM.Result.error Term.Exception.postpone newS => unreachable!
+
+@[inline] def runTermElabM {α} (declName? : Option Name) (elab : Array Expr → TermElabM α) : CommandElabM α := do
+s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elab)
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x (fun ex => match ex with
@@ -643,18 +646,8 @@ let remaining := usedParams.filter (fun levelParam => !explicitParams.elem level
 let remaining := remaining.qsort Name.lt;
 result ++ remaining.toList
 
-def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := do
-env ← getEnv;
-match env.addDecl decl with
-| Except.ok    env => setEnv env
-| Except.error kex => do opts ← getOptions; throwError ref (kex.toMessageData opts)
-
-def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := do
-env  ← getEnv;
-opts ← getOptions;
-match env.compileDecl opts decl with
-| Except.ok env    => setEnv env
-| Except.error kex => throwError ref (kex.toMessageData opts)
+def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.addDecl ref decl
+def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.compileDecl ref decl
 
 end Command
 end Elab

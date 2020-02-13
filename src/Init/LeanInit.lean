@@ -132,13 +132,6 @@ mkNameNum g.namePrefix g.idx
 
 end NameGenerator
 
-/--
-  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
-  the tactic declaration name `tacName` to synthesize the argument.
-  Like `optParam`, this gadget only affects elaboration.
-  For example, the tactic will *not* be invoked during type class resolution. -/
-abbrev autoParam.{u} (α : Sort u) (tacName : Name) : Sort u := α
-
 /-
   Small DSL for describing parsers. We implement an interpreter for it
   at `Parser.lean` -/
@@ -187,6 +180,13 @@ inductive Syntax
 
 instance Syntax.inhabited : Inhabited Syntax :=
 ⟨Syntax.missing⟩
+
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the tactic described by the syntax object stored at `tacDeclName`.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tacDeclName : Name) : Sort u := α
 
 /- Builtin kinds -/
 def choiceKind : SyntaxNodeKind := `choice

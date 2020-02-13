@@ -909,6 +909,12 @@ fun stx expectedType? =>
   | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
   | none => throwError stx ("invalid tactic block, expected type has not been provided")
 
+@[builtinTermElab byTactic] def elabByTactic : TermElab :=
+fun stx expectedType? =>
+  match expectedType? with
+  | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
+  | none => throwError stx ("invalid 'by' tactic, expected type has not been provided")
+
 /-- Main loop for `mkPairs`. -/
 private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → MacroM Syntax
 | i, acc =>

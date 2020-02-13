@@ -206,6 +206,12 @@ def blabla := 100
 theorem simple17 (x : Nat) (h : x = 0) : x = 0 :=
 begin blabla end
 
+theorem simple18 (x : Nat) (h : x = 0) : x = 0 :=
+by blabla
+
+theorem simple19 (x y : Nat) (h₁ : x = 0) (h₂ : x = y) : y = 0 :=
+by subst x; subst y; exact rfl
+
 theorem tstprec1 (x y z : Nat) : x + y * z = x + (y * z) :=
 rfl
 

@@ -266,6 +266,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
   if h : i < binderViews.size then
     let binderView := binderViews.get ⟨i, h⟩;
     withLCtx s.lctx s.localInsts $ do
+      /- As soon as we find an explicit binder, we switch to `explict := true` mode. -/
       let s     := if binderView.bi.isExplicit then { explicit := true, .. s } else s;
       type       ← elabType binderView.type;
       fvarId ← mkFreshFVarId;
@@ -286,6 +287,39 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
         s ← propagateExpectedType binderView.id fvar type s;
         continue { lctx := lctx, .. s }
       else do
+        /- When `@` is not used, we use let-declarations to elaborate the implicit binders
+           occurring in a prefix of lambda abstraction.
+           For example, `fun {α} => b` is elaborated into `let α := ?m; b`.
+           We do this because we can propagate the expected type more effectively.
+           Recall that, a term `fun {α} => b` has to be elaborated as `(fun α => b) ?m` where
+           `?m` is a fresh metavariable for the implicit argument `{α}`.
+           `let α := ?m; b` is the same expression after beta-reduction, but we can elaborate
+           `b` using the expected type for `fun {α} => b`.
+
+           This design decision is also motivated by the implicit lambda feature.
+           For example, suppose we have
+           ```
+           def id : {α : Type} → α → α :=
+           fun {α} x => @id α x
+           ```
+           When the elaborator reaches `fun {α} x => id x` the expected type is `{α : Type} → α → α`.
+           Then, it introduces a new local variable `α_1` for the implict binder, and elaborates
+           `fun {α} x => @id α x` with expected type `α_1 → α_1`.
+           Then, the elaborator reaches this branch, and creates the let declaration `α : ?t_1 := ?mvar`,
+           Note that `type` is the metavariable `?t_1` in this example since we de not specify any type at `{α}`.
+           Then, it elaborates `fun x => @id α x` still using the expected type `α_1 → α_1`.
+           When it reaches the binder `x`, it creates the variable `x : ?t_1`, and `propagateExpectedType` creates
+           the unification problem `?t_1 =?= α_1` which is solved `?t_1 := α_1`. Then, when it elaborates
+           `@id α x`, the unification constraint `α =?= α_1` is created. The unifier (aka `isDefEq`), zeta-reduce ‵α`
+           and reduces the constraint to `?mvar =?= α_1`, which is solved `?mvar := α_1`, their type are also unified
+           which produces the assignment `?t_1 := Type`. Thus, the resulting expression is:
+           ```
+           def id : {α : Type} → α → α :=
+           fun {α_1} => let α : Type := α_1; fun (x : α_1) => @id α x
+           ```
+           It is also matches the intuition that lambda binders {α} are useful for naming binders produced by
+           the implicit lambda feature.
+        -/
         mvar ← mkFreshExprMVar binderView.id type;
         let lctx := s.lctx.mkLetDecl fvarId binderView.id.getId type mvar;
         continue { lctx := lctx, .. s }

@@ -574,13 +574,28 @@ fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 
 @[builtinTermElab explicit] def elabExplicit : TermElab :=
 fun stx expectedType? => match_syntax stx with
-  | `(@$f:fun)           => elabFunCore f expectedType? true
-  | `(@($f:fun))         => elabFunCore f expectedType? true
-  | `(@($f:fun : $type)) => do
+  | `(@$f:fun)           => elabFunCore f expectedType? true -- This rule is just a convenience for macro writers, the LHS cannot be built by the parser
+  | `(@($f:fun))         => elabFunCore f expectedType? true -- Elaborate lambda abstraction `f` pretending all binders are explicit.
+  | `(@($f:fun : $type)) => do  -- Elaborate lambda abstraction `f` using `type` as the expected type, and pretending all binders are explicit.
     type ← elabType type;
     f ← elabFunCore f type true;
     ensureHasType stx type f
   | `(@$id:id)          => elabAtom stx expectedType?
+  /- Remark: we may support other occurrences `@` in the future, but we did not find compelling applications for them yet.
+     One instance we considered that is barely useful: applications. We found the behavior counterintuitive.
+     Example:
+     ```lean
+     def g1 {α} (a₁ a₂ : α) {β} (b : β) : α × α × β :=
+     (a₁, a₂, b)
+     #check @(g1 true) -- α → {β : Type} → β → α × α × β
+     ```
+     The example above is reasonable, but we say this feautre would produce counterintuitive because of the following small variant
+     ```lean
+     def g2 {α} (a : α) {β} (b : β) : α × β :=
+     (a, b)
+     #check @(g2 true) -- ?β → α × ?β
+     ```
+     That is, `g2 true` "consumed" the arguments `{α} (a : α) {β}` as expected. -/
   | _                   => throwUnsupportedSyntax
 
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom

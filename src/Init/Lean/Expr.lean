@@ -739,6 +739,12 @@ if e.isAppOfArity `autoParam 2 then
 else
   none
 
+def isOptParam (e : Expr) : Bool :=
+e.isAppOfArity `optParam 2
+
+def isAutoParam (e : Expr) : Bool :=
+e.isAppOfArity `autoParam 2
+
 @[specialize] private partial def hasAnyFVarAux (p : FVarId → Bool) : Expr → Bool
 | e => if !e.hasFVar then false else
   match e with

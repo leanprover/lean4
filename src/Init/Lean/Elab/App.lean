@@ -98,9 +98,6 @@ structure ElabAppArgsCtx :=
 (typeMVars     : Array MVarId := #[]) -- metavariables for implicit arguments of the form `{α : Sort u}` that have already been processed
 (foundExplicit : Bool := false)       -- true if an explicit argument has already been processed
 
-private def isAutoOrOptParam (type : Expr) : Bool :=
-type.getOptParamDefault?.isSome || type.getAutoParamTactic?.isSome
-
 /- Auxiliary function for retrieving the resulting type of a function application.
    See `propagateExpectedType`. -/
 private partial def getForallBody : Nat → Array NamedArg → Expr → Option Expr
@@ -112,7 +109,7 @@ private partial def getForallBody : Nat → Array NamedArg → Expr → Option E
       getForallBody i namedArgs b
     else if i > 0 then
       getForallBody (i-1) namedArgs b
-    else if isAutoOrOptParam d then
+    else if d.isAutoParam || d.isOptParam then
       getForallBody i namedArgs b
     else
       some type

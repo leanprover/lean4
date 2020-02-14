@@ -281,6 +281,13 @@ structure State :=
 (expectedType? : Option Expr := none)
 (explicit      : Bool := false)
 
+private def checkNoOptAutoParam (ref : Syntax) (type : Expr) : TermElabM Unit := do
+type ← instantiateMVars ref type;
+when type.isOptParam $
+  throwError ref "optParam is not allowed at 'fun/λ' binders";
+when type.isAutoParam $
+  throwError ref "autoParam is not allowed at 'fun/λ' binders"
+
 private def propagateExpectedType (ref : Syntax) (fvar : Expr) (fvarType : Expr) (s : State) : TermElabM State := do
 match s.expectedType? with
 | none              => pure s
@@ -289,6 +296,7 @@ match s.expectedType? with
   match expectedType with
   | Expr.forallE _ d b _ => do
     isDefEq ref fvarType d;
+    checkNoOptAutoParam ref fvarType;
     let b := b.instantiate1 fvar;
     pure { expectedType? := some b, .. s }
   | _ => pure { expectedType? := none, .. s }
@@ -301,6 +309,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
       /- As soon as we find an explicit binder, we switch to `explict := true` mode. -/
       let s     := if binderView.bi.isExplicit then { explicit := true, .. s } else s;
       type       ← elabType binderView.type;
+      checkNoOptAutoParam binderView.type type;
       fvarId ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
       let s     := { fvars := s.fvars.push fvar, .. s };

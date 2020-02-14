@@ -50,3 +50,13 @@ set_option pp.all true
 #check let x := (fun f => (f, f)) @id; (x.1 (), x.2 true) -- works
 #check_failure let x := (fun f => (f, f)) id; (x.1 (), x.2 true) -- fails as expected
 #check let x := (fun (f : {α : Type} → α → α) => (f, f)) @id; (x.1 (), x.2 true) -- works
+
+set_option pp.all false
+set_option pp.implicit true
+
+def h (x := 10) (y := 20) : Nat := x + y
+#check h -- h 10 20 : Nat
+#check let f := @h; f -- (let f : optParam Nat 10 → optParam Nat 20 → Nat := @h; f 10 20) : Nat
+
+#check_failure let f := fun (x : optParam Nat 10) => x + 1; f + f 1
+#check_failure (fun (x : optParam Nat 10) => x)

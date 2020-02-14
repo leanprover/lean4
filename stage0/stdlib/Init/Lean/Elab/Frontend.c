@@ -23,7 +23,6 @@ lean_object* l_Lean_Elab_IO_processCommands(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Elab_runFrontend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_liftIOCore_x21(lean_object*);
-extern lean_object* l_Lean_Elab_Command_runTermElabM___rarg___closed__1;
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM___closed__1;
@@ -77,6 +76,7 @@ uint8_t l_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_obj
 extern lean_object* l_Nat_Inhabited;
 lean_object* l_Lean_Elab_Frontend_getParserState___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_process(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
 lean_object* l_Lean_Elab_Frontend_processCommands___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_3__setState(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommands(lean_object*, lean_object*);
@@ -597,7 +597,7 @@ lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68;
 x_65 = lean_ctor_get(x_16, 1);
 lean_inc(x_65);
 lean_dec(x_16);
-x_66 = l_Lean_Elab_Command_runTermElabM___rarg___closed__1;
+x_66 = l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
 x_67 = l_unreachable_x21___rarg(x_66);
 x_68 = lean_apply_2(x_67, x_15, x_65);
 if (lean_obj_tag(x_68) == 0)
@@ -905,7 +905,7 @@ lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145;
 x_142 = lean_ctor_get(x_93, 1);
 lean_inc(x_142);
 lean_dec(x_93);
-x_143 = l_Lean_Elab_Command_runTermElabM___rarg___closed__1;
+x_143 = l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
 x_144 = l_unreachable_x21___rarg(x_143);
 x_145 = lean_apply_2(x_144, x_92, x_142);
 if (lean_obj_tag(x_145) == 0)

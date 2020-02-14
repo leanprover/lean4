@@ -10,6 +10,19 @@ import Init.Lean.Parser.Level
 namespace Lean
 namespace Parser
 
+@[init] def regBuiltinTacticParserAttr : IO Unit :=
+let leadingIdentAsSymbol := true;
+registerBuiltinParserAttribute `builtinTacticParser `tactic leadingIdentAsSymbol
+
+@[init] def regTacticParserAttribute : IO Unit :=
+registerBuiltinDynamicParserAttribute `tacticParser `tactic
+
+@[inline] def tacticParser (rbp : Nat := 0) : Parser :=
+categoryParser `tactic rbp
+
+def Tactic.seq : Parser         := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
+def Tactic.nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
+
 def darrow : Parser := unicodeSymbol "⇒" "=>"
 
 namespace Term
@@ -73,9 +86,9 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def inaccessible := parser! symbol ".(" appPrec >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
+def binderTactic  := parser! try (" := " >> " by ") >> Tactic.nonEmptySeq
 def binderDefault := parser! " := " >> termParser
-def binderTactic  := parser! " . " >> termParser
-def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderDefault <|> binderTactic) >> ")"
+def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
 def instBinder := parser! "[" >> optIdent >> termParser >> "]"
 def bracktedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
@@ -188,6 +201,11 @@ def checkIsSort := checkStackTop (fun stx => stx.isOfKind `Lean.Parser.Term.type
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
 @[builtinTermParser] def mapConst    := tparser! infixR " <$ "  100
 @[builtinTermParser] def mapConstRev := tparser! infixR " $> "  100
+
+@[builtinTermParser] def tacticBlock := parser! symbol "begin " appPrec >> Tactic.seq >> "end"
+@[builtinTermParser] def byTactic    := parser! symbol "by " leadPrec >> Tactic.nonEmptySeq
+-- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.stxQuot`
+@[builtinTermParser] def tacticStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(tactic|" appPrec >> sepBy1 tacticParser "; " true true >> ")"
 
 end Term
 end Parser

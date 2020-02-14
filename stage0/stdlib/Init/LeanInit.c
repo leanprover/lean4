@@ -216,6 +216,7 @@ lean_object* l_Lean_ParserDescr_inhabited___closed__1;
 lean_object* l_Lean_NameGenerator_mkChild(lean_object*);
 lean_object* l_Lean_Syntax_isCharLit_x3f___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_2__assembleParts(lean_object*, lean_object*);
+lean_object* l_Lean_SourceInfo_inhabited;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_nullKind___closed__1;
 lean_object* l_Lean_Syntax_decodeStrLit___boxed(lean_object*);
@@ -243,6 +244,7 @@ lean_object* l_Lean_identKind;
 lean_object* l_Lean_mkCTermId(lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Syntax_inhabited;
+extern lean_object* l_Substring_drop___closed__2;
 lean_object* l_Lean_Macro_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppStx___closed__5;
 lean_object* l_Lean_Macro_throwError___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -252,6 +254,7 @@ lean_object* l___private_Init_LeanInit_3__extractImported(lean_object*, lean_obj
 lean_object* l___private_Init_LeanInit_5__extractMacroScopesAux___main(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_SourceInfo_inhabited___closed__1;
 lean_object* l_String_quote(lean_object*);
 uint8_t l_Char_isAlphanum(uint32_t);
 lean_object* l___private_Init_LeanInit_12__decodeQuotedChar(lean_object*, lean_object*);
@@ -1520,6 +1523,27 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_ParserDescr_inhabited___closed__1;
+return x_1;
+}
+}
+lean_object* _init_l_Lean_SourceInfo_inhabited___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Substring_drop___closed__2;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_1);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_SourceInfo_inhabited() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_SourceInfo_inhabited___closed__1;
 return x_1;
 }
 }
@@ -6751,6 +6775,10 @@ l_Lean_ParserDescr_inhabited___closed__1 = _init_l_Lean_ParserDescr_inhabited___
 lean_mark_persistent(l_Lean_ParserDescr_inhabited___closed__1);
 l_Lean_ParserDescr_inhabited = _init_l_Lean_ParserDescr_inhabited();
 lean_mark_persistent(l_Lean_ParserDescr_inhabited);
+l_Lean_SourceInfo_inhabited___closed__1 = _init_l_Lean_SourceInfo_inhabited___closed__1();
+lean_mark_persistent(l_Lean_SourceInfo_inhabited___closed__1);
+l_Lean_SourceInfo_inhabited = _init_l_Lean_SourceInfo_inhabited();
+lean_mark_persistent(l_Lean_SourceInfo_inhabited);
 l_Lean_Syntax_inhabited = _init_l_Lean_Syntax_inhabited();
 lean_mark_persistent(l_Lean_Syntax_inhabited);
 l_Lean_choiceKind___closed__1 = _init_l_Lean_choiceKind___closed__1();

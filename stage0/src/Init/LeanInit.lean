@@ -132,13 +132,6 @@ mkNameNum g.namePrefix g.idx
 
 end NameGenerator
 
-/--
-  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
-  the tactic declaration name `tacName` to synthesize the argument.
-  Like `optParam`, this gadget only affects elaboration.
-  For example, the tactic will *not* be invoked during type class resolution. -/
-abbrev autoParam.{u} (α : Sort u) (tacName : Name) : Sort u := α
-
 /-
   Small DSL for describing parsers. We implement an interpreter for it
   at `Parser.lean` -/
@@ -174,6 +167,8 @@ structure SourceInfo :=
 (leading  : Substring)
 (pos      : String.Pos)
 (trailing : Substring)
+
+instance SourceInfo.inhabited : Inhabited SourceInfo := ⟨⟨"".toSubstring, arbitrary _, "".toSubstring⟩⟩
 
 abbrev SyntaxNodeKind := Name
 
@@ -814,3 +809,10 @@ def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
 Id.run $ a.mapSepElemsM f
 
 end Array
+
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the given tactic.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α

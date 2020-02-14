@@ -107,7 +107,7 @@ pure { table := table }
 private def throwUnexpectedElabType {γ} (typeName : Name) (constName : Name) : ExceptT String Id γ :=
 throw ("unexpected elaborator type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
 
-private unsafe def mkElabFnOfConstantUnsafe (γ) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id γ :=
+private unsafe def evalConstantUnsafe (γ) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id γ :=
 match env.find? constName with
 | none      => throw ("unknow constant '" ++ toString constName ++ "'")
 | some info =>
@@ -117,8 +117,12 @@ match env.find? constName with
     else env.evalConst γ constName
   | _ => throwUnexpectedElabType typeName constName
 
-@[implementedBy mkElabFnOfConstantUnsafe]
-constant mkElabFnOfConstant (γ : Type) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id γ := throw ""
+-- We mark `evalConstant` as private because it is only safe if `mkConst typeName` is definitionally equal to `γ`.
+@[implementedBy evalConstantUnsafe]
+private constant evalConstant (γ : Type) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id γ := throw ""
+
+def evalSyntaxConstant (env : Environment) (constName : Name) : ExceptT String Id Syntax :=
+evalConstant Syntax env `Lean.Syntax constName
 
 private def ElabAttribute.addImportedParsers {γ} (typeName : Name) (builtinTableRef : IO.Ref (ElabFnTable γ))
     (env : Environment) (es : Array (Array ElabAttributeOLeanEntry)) : IO (ElabAttributeExtensionState γ) := do
@@ -127,7 +131,7 @@ table ← es.foldlM
   (fun table entries =>
     entries.foldlM
       (fun (table : ElabFnTable γ) entry =>
-        match mkElabFnOfConstant γ env typeName entry.constName with
+        match evalConstant γ env typeName entry.constName with
         | Except.ok f     => pure $ table.insert entry.kind f
         | Except.error ex => throw (IO.userError ex))
       table)
@@ -139,7 +143,7 @@ private def ElabAttribute.addExtensionEntry {γ} (s : ElabAttributeExtensionStat
 
 private def ElabAttribute.add {γ} (parserNamespace : Name) (typeName : Name) (ext : ElabAttributeExtension γ)
     (env : Environment) (constName : Name) (arg : Syntax) (persistent : Bool) : IO Environment := do
-match mkElabFnOfConstant γ env typeName constName with
+match evalConstant γ env typeName constName with
 | Except.error ex => throw (IO.userError ex)
 | Except.ok f     => do
   kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env parserNamespace arg;

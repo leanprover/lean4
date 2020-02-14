@@ -114,6 +114,8 @@ def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
 def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
+def setEnv (newEnv : Environment) : TermElabM Unit :=
+modify $ fun s => { env := newEnv, .. s }
 
 def addContext (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
@@ -876,6 +878,19 @@ u ← mkFreshLevelMVar stx;
 type ← elabTerm stx (mkSort u);
 ensureType stx type
 
+def addDecl (ref : Syntax) (decl : Declaration) : TermElabM Unit := do
+env ← getEnv;
+match env.addDecl decl with
+| Except.ok    env => setEnv env
+| Except.error kex => do opts ← getOptions; throwError ref (kex.toMessageData opts)
+
+def compileDecl (ref : Syntax) (decl : Declaration) : TermElabM Unit := do
+env  ← getEnv;
+opts ← getOptions;
+match env.compileDecl opts decl with
+| Except.ok env    => setEnv env
+| Except.error kex => throwError ref (kex.toMessageData opts)
+
 /- =======================================
        Builtin elaboration functions
    ======================================= -/
@@ -908,6 +923,12 @@ fun stx expectedType? =>
   match expectedType? with
   | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
   | none => throwError stx ("invalid tactic block, expected type has not been provided")
+
+@[builtinTermElab byTactic] def elabByTactic : TermElab :=
+fun stx expectedType? =>
+  match expectedType? with
+  | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
+  | none => throwError stx ("invalid 'by' tactic, expected type has not been provided")
 
 /-- Main loop for `mkPairs`. -/
 private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → MacroM Syntax

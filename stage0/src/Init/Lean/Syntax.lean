@@ -229,6 +229,36 @@ match stx.getTailInfo with
 | none      => stx
 | some info => stx.setTailInfo info.truncateTrailing
 
+@[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) : Nat → Option (Array α)
+| i =>
+  if h : i < a.size then
+    let v := a.get ⟨i, h⟩;
+    match f v with
+    | some v => some $ a.set ⟨i, h⟩ v
+    | none   => updateFirst (i+1)
+  else
+    none
+
+partial def setHeadInfoAux (info : Option SourceInfo) : Syntax → Option Syntax
+| atom _ val             => some $ atom info val
+| ident _ rawVal val pre => some $ ident info rawVal val pre
+| node k args            =>
+  match updateFirst args setHeadInfoAux args.size with
+  | some args => some $ node k args
+  | noxne      => none
+| stx                    => none
+
+def setHeadInfo (stx : Syntax) (info : Option SourceInfo) : Syntax :=
+match setHeadInfoAux info stx with
+| some stx => stx
+| none     => stx
+
+partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
+| atom _ val             => atom info val
+| ident _ rawVal val pre => ident info rawVal val pre
+| node k args            => node k $ args.map replaceInfo
+| stx                    => stx
+
 private def reprintLeaf : Option SourceInfo → String → String
 -- no source info => add gracious amounts of whitespace to definitely separate tokens
 -- Note that the proper pretty printer does not use this function.

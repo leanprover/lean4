@@ -330,7 +330,6 @@ class csimp_fn {
     };
 
     void collect_cases_info(expr e, cases_info_result & result) {
-        lean_assert(m_before_erasure);
         while (true) {
             if (is_lambda(e))
                 e = binding_body(e);

@@ -168,6 +168,8 @@ structure SourceInfo :=
 (pos      : String.Pos)
 (trailing : Substring)
 
+instance SourceInfo.inhabited : Inhabited SourceInfo := ⟨⟨"".toSubstring, arbitrary _, "".toSubstring⟩⟩
+
 abbrev SyntaxNodeKind := Name
 
 /- Syntax AST -/
@@ -180,13 +182,6 @@ inductive Syntax
 
 instance Syntax.inhabited : Inhabited Syntax :=
 ⟨Syntax.missing⟩
-
-/--
-  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
-  the tactic described by the syntax object stored at `tacDeclName`.
-  Like `optParam`, this gadget only affects elaboration.
-  For example, the tactic will *not* be invoked during type class resolution. -/
-abbrev autoParam.{u} (α : Sort u) (tacDeclName : Name) : Sort u := α
 
 /- Builtin kinds -/
 def choiceKind : SyntaxNodeKind := `choice
@@ -814,3 +809,10 @@ def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
 Id.run $ a.mapSepElemsM f
 
 end Array
+
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the given tactic.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α

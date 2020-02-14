@@ -52,7 +52,7 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
         arg ← quoteAutoTactic arg;
         `(Array.push $args $arg)) empty;
     `(Syntax.node $(quote k) $args)
-| Syntax.atom info val => `(Syntax.missing) -- atoms are irrelevant for auto tactics, we only care about `Syntax.node`s
+| Syntax.atom info val => `(Syntax.atom none $(quote val))
 | Syntax.missing       => unreachable!
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
@@ -62,6 +62,7 @@ withFreshMacroScope $ do
   tactic ← quoteAutoTactic tactic;
   val ← elabTerm tactic type;
   val ← instantiateMVars tactic val;
+  trace `Elab.autoParam tactic $ fun _ => val;
   let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
   addDecl tactic decl;
   compileDecl tactic decl;
@@ -81,8 +82,9 @@ else
     let defaultVal := modifier.getArg 1;
     `(optParam $type $defaultVal)
   else if kind == `Lean.Parser.Term.binderTactic then do
-    name ← declareTacticSyntax (modifier.getArg 2);
-    `(autoParam $type $(quote name))
+    let tac := modifier.getArg 2;
+    name ← declareTacticSyntax tac;
+    `(autoParam $type $(mkTermIdFrom tac name))
   else
     throwUnsupportedSyntax
 

@@ -99,8 +99,7 @@ structure ElabAppArgsCtx :=
 (foundExplicit : Bool := false)       -- true if an explicit argument has already been processed
 
 private def isAutoOrOptParam (type : Expr) : Bool :=
--- TODO: add auto param
-type.getOptParamDefault?.isSome
+type.getOptParamDefault?.isSome || type.getAutoParamTactic?.isSome
 
 /- Auxiliary function for retrieving the resulting type of a function application.
    See `propagateExpectedType`. -/
@@ -227,10 +226,25 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
         if h : ctx.argIdx < ctx.args.size then do
           argElab ← elabArg ctx.ref e (ctx.args.get ⟨ctx.argIdx, h⟩) d;
           elabAppArgsAux { argIdx := ctx.argIdx + 1, .. ctx } (mkApp e argElab) (b.instantiate1 argElab)
-        else match ctx.explicit, d.getOptParamDefault? with
-          | false, some defVal => elabAppArgsAux ctx (mkApp e defVal) (b.instantiate1 defVal)
-          | _, _               =>
-            -- TODO: tactic auto param
+        else match ctx.explicit, d.getOptParamDefault?, d.getAutoParamTactic? with
+          | false, some defVal, _                      => elabAppArgsAux ctx (mkApp e defVal) (b.instantiate1 defVal)
+          | false, _, some (Expr.const tacticDecl _ _) => do
+            env ← getEnv;
+            match evalSyntaxConstant env tacticDecl with
+            | Except.error err       => throwError ctx.ref err
+            | Except.ok tacticSyntax => do
+              tacticBlock ← `(begin $(tacticSyntax.getArgs)* end);
+              -- tacticBlock does not have any position information
+              -- use ctx.ref.getHeadInfo if available
+              let tacticBlock := match ctx.ref.getHeadInfo with
+                | some info => tacticBlock.replaceInfo info
+                | _         => tacticBlock;
+              let d := d.getArg! 0; -- `autoParam type := by tactic` ==> `type`
+              argElab ← elabArg ctx.ref e (Arg.stx tacticBlock) d;
+              elabAppArgsAux ctx (mkApp e argElab) (b.instantiate1 argElab)
+          | false, _, some _ =>
+            throwError ctx.ref "invalid autoParam, argument must be a constant"
+          | _, _, _ =>
             if ctx.namedArgs.isEmpty then
               finalize ()
             else

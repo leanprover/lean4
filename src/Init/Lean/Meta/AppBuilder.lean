@@ -13,6 +13,12 @@ if p.isAppOfArity `Eq 3 then
 else
   none
 
+@[inline] def Expr.iff? (p : Expr) : Option (Expr × Expr) :=
+if p.isAppOfArity `Iff 2 then
+  some (p.getArg! 0, p.getArg! 1)
+else
+  none
+
 @[inline] def Expr.heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
 if p.isAppOfArity `HEq 4 then
   some (p.getArg! 0, p.getArg! 1, p.getArg! 2, p.getArg! 4)

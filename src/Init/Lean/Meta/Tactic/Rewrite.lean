@@ -40,7 +40,7 @@ withMVarContext mvarId $ do
         eEqE ← mkEq e e;
         let eEqEAbst := mkApp eEqE.appFn! eAbst;
         let motive := Lean.mkLambda `_a BinderInfo.default α eEqEAbst;
-        unlessM (withAtLeastTransparency TransparencyMode.default $ isTypeCorrect motive) $
+        unlessM (isTypeCorrect motive) $
           throwTacticEx `rewrite mvarId ("motive is not type correct");
         eqRefl ← mkEqRefl e;
         eqPrf ← mkEqNDRec motive eqRefl heq;

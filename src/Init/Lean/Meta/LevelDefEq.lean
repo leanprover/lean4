@@ -189,8 +189,7 @@ numPostponed ← getNumPostponed;
 if numPostponed == 0 then pure true
 else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
 
-
-private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
+def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
 modify $ fun s => { env := env, mctx := mctx, postponed := postponed, .. s }
 
 /--

@@ -202,5 +202,11 @@ else do
       pure $ mkAppN (mkConst `Eq.rec [u1, u2]) #[α, a, motive, h1, b, h2]
     | _ => throwEx $ Exception.appBuilder `Eq.rec "invalid motive" #[motive]
 
+def mkEqMP (eqProof pr : Expr) : MetaM Expr :=
+mkAppM `Eq.mp #[eqProof, pr]
+
+def mkEqMPR (eqProof pr : Expr) : MetaM Expr :=
+mkAppM `Eq.mpr #[eqProof, pr]
+
 end Meta
 end Lean

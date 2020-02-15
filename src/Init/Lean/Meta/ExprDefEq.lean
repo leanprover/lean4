@@ -31,7 +31,7 @@ if a.isLambda && !b.isLambda then do
   match bType with
   | Expr.forallE n d _ c =>
     let b' := Lean.mkLambda n c.binderInfo d (mkApp b (mkBVar 0));
-    try $ isExprDefEqAux a b'
+    commitWhen $ isExprDefEqAux a b'
   | _ => pure false
 else
   pure false
@@ -567,7 +567,7 @@ match v with
 private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) : Expr → MetaM Bool
 | v => do
   trace! `Meta.isDefEq.foApprox (mvar ++ " " ++ args ++ " := " ++ v);
-  condM (try $ processAssignmentFOApproxAux mvar args v)
+  condM (commitWhen $ processAssignmentFOApproxAux mvar args v)
     (pure true)
     (do v? ← unfoldDefinition? v;
         match v? with
@@ -701,7 +701,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool :=
 let tFn := t.getAppFn;
 let sFn := s.getAppFn;
 traceCtx `Meta.isDefEq.delta $
-  try $ do
+  commitWhen $ do
     b ← isDefEqArgs tFn t.getAppArgs s.getAppArgs
         <&&>
         isListLevelDefEqAux tFn.constLevels! sFn.constLevels!;
@@ -924,10 +924,10 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   if s.isMVar && !t.isMVar then
     /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
        Reason: this assignment is precise. -/
-    condM (try (processAssignment s t)) (pure LBool.true) $
+    condM (commitWhen (processAssignment s t)) (pure LBool.true) $
     assign t s
   else
-    condM (try (processAssignment t s)) (pure LBool.true) $
+    condM (commitWhen (processAssignment t s)) (pure LBool.true) $
     assign s t
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
@@ -945,7 +945,7 @@ match status with
     (do sType ← inferType s; toLBoolM $ isExprDefEqAux tType sType)
     (pure LBool.undef)
 
-@[inline] def tryL (x : MetaM LBool) (k : MetaM Bool) : MetaM Bool := do
+@[inline] def whenUndefDo (x : MetaM LBool) (k : MetaM Bool) : MetaM Bool := do
 status ← x;
 match status with
 | LBool.true  => pure true
@@ -960,7 +960,8 @@ s' ← whnfCore s;
 if t == t' && s == s' then
   k t' s'
 else
-  tryL (isDefEqQuick t' s') $ k t' s'
+  whenUndefDo (isDefEqQuick t' s') $
+    k t' s'
 
 @[specialize] private def unstuckMVar
     (e : Expr)
@@ -988,17 +989,17 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
   let t := consumeLet t;
   let s := consumeLet s;
   trace `Meta.isDefEq.step $ fun _ => t ++ " =?= " ++ s;
-  tryL (isDefEqQuick t s) $
-  tryL (isDefEqProofIrrel t s) $
+  whenUndefDo (isDefEqQuick t s) $
+  whenUndefDo (isDefEqProofIrrel t s) $
   isDefEqWHNF t s $ fun t s => do
-  tryL (isDefEqOffset t s) $ do
-  tryL (isDefEqDelta t s) $
+  whenUndefDo (isDefEqOffset t s) $ do
+  whenUndefDo (isDefEqDelta t s) $
   condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
   match t, s with
   | Expr.const c us _, Expr.const d vs _ => if c == d then isListLevelDefEqAux us vs else pure false
   | Expr.app _ _ _,    Expr.app _ _ _    =>
     let tFn := t.getAppFn;
-    condM (try (isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs))
+    condM (commitWhen (isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs))
       (pure true)
       (isDefEqOnFailure t s)
   | _, _ => isDefEqOnFailure t s

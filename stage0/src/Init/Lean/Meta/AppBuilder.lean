@@ -13,6 +13,12 @@ if p.isAppOfArity `Eq 3 then
 else
   none
 
+@[inline] def Expr.iff? (p : Expr) : Option (Expr × Expr) :=
+if p.isAppOfArity `Iff 2 then
+  some (p.getArg! 0, p.getArg! 1)
+else
+  none
+
 @[inline] def Expr.heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
 if p.isAppOfArity `HEq 4 then
   some (p.getArg! 0, p.getArg! 1, p.getArg! 2, p.getArg! 4)
@@ -195,6 +201,12 @@ else do
     | Expr.forallE _ _ (Expr.forallE _ _ (Expr.sort u1 _) _) _ =>
       pure $ mkAppN (mkConst `Eq.rec [u1, u2]) #[α, a, motive, h1, b, h2]
     | _ => throwEx $ Exception.appBuilder `Eq.rec "invalid motive" #[motive]
+
+def mkEqMP (eqProof pr : Expr) : MetaM Expr :=
+mkAppM `Eq.mp #[eqProof, pr]
+
+def mkEqMPR (eqProof pr : Expr) : MetaM Expr :=
+mkAppM `Eq.mpr #[eqProof, pr]
 
 end Meta
 end Lean

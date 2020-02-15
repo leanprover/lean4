@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Tactic.Util
-// Imports: Init.Lean.Meta.Basic
+// Imports: Init.Lean.Meta.Basic Init.Lean.Meta.LevelDefEq
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,14 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Meta_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setMVarTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx(lean_object*);
+lean_object* l_Lean_Meta_orelse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___closed__3;
 extern lean_object* l___private_Init_Lean_Meta_Basic_10__regTraceClasses___closed__2;
 lean_object* l_Lean_Meta_checkNotAssigned___closed__1;
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___closed__2;
+lean_object* l_Lean_Meta_Meta_hasOrelse___closed__1;
+lean_object* l_Lean_Meta_orelse(lean_object*);
 lean_object* l_Lean_MetavarContext_setMVarUserName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,6 +38,7 @@ lean_object* l_Lean_Meta_getMVarType___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Meta_hasOrelse(lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__1;
 lean_object* l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__2;
@@ -381,6 +386,66 @@ lean_ctor_set(x_9, 1, x_3);
 return x_9;
 }
 }
+lean_object* l_Lean_Meta_orelse___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+lean_inc(x_4);
+lean_inc(x_3);
+x_5 = lean_apply_2(x_1, x_3, x_4);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_ctor_get(x_4, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_4, 1);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_4, 5);
+lean_inc(x_9);
+lean_dec(x_4);
+x_10 = l_Lean_Meta_restore(x_7, x_8, x_9, x_3, x_6);
+x_11 = lean_ctor_get(x_10, 1);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = lean_apply_2(x_2, x_3, x_11);
+return x_12;
+}
+}
+}
+lean_object* l_Lean_Meta_orelse(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_orelse___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_Meta_Meta_hasOrelse___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_orelse___rarg), 4, 0);
+return x_1;
+}
+}
+lean_object* l_Lean_Meta_Meta_hasOrelse(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Meta_hasOrelse___closed__1;
+return x_2;
+}
+}
 lean_object* _init_l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__1() {
 _start:
 {
@@ -409,6 +474,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Lean_Meta_Basic(lean_object*);
+lean_object* initialize_Init_Lean_Meta_LevelDefEq(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Meta_Tactic_Util(lean_object* w) {
 lean_object * res;
@@ -417,12 +483,17 @@ _G_initialized = true;
 res = initialize_Init_Lean_Meta_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Lean_Meta_LevelDefEq(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Meta_checkNotAssigned___closed__1 = _init_l_Lean_Meta_checkNotAssigned___closed__1();
 lean_mark_persistent(l_Lean_Meta_checkNotAssigned___closed__1);
 l_Lean_Meta_checkNotAssigned___closed__2 = _init_l_Lean_Meta_checkNotAssigned___closed__2();
 lean_mark_persistent(l_Lean_Meta_checkNotAssigned___closed__2);
 l_Lean_Meta_checkNotAssigned___closed__3 = _init_l_Lean_Meta_checkNotAssigned___closed__3();
 lean_mark_persistent(l_Lean_Meta_checkNotAssigned___closed__3);
+l_Lean_Meta_Meta_hasOrelse___closed__1 = _init_l_Lean_Meta_Meta_hasOrelse___closed__1();
+lean_mark_persistent(l_Lean_Meta_Meta_hasOrelse___closed__1);
 l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__1 = _init_l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__1();
 lean_mark_persistent(l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__1);
 l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__2 = _init_l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__2();

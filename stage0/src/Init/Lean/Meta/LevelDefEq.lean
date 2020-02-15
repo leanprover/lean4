@@ -189,17 +189,16 @@ numPostponed ← getNumPostponed;
 if numPostponed == 0 then pure true
 else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
 
-
-private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
+def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
 modify $ fun s => { env := env, mctx := mctx, postponed := postponed, .. s }
 
 /--
-  `try x` executes `x` and process all postponed universe level constraints produced by `x`.
+  `commitWhen x` executes `x` and process all postponed universe level constraints produced by `x`.
   We keep the modifications only if both return `true`.
 
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
-@[specialize] def try (x : MetaM Bool) : MetaM Bool := do
+@[specialize] def commitWhen (x : MetaM Bool) : MetaM Bool := do
 s ← get;
 let env       := s.env;
 let mctx      := s.mctx;
@@ -213,33 +212,17 @@ catch
     (do restore env mctx postponed; pure false))
   (fun ex => do restore env mctx postponed; throw ex)
 
-@[specialize] def tryOpt {α} (x : MetaM (Option α)) : MetaM (Option α) := do
-s ← get;
-let env       := s.env;
-let mctx      := s.mctx;
-let postponed := s.postponed;
-modify $ fun s => { postponed := {}, .. s };
-catch
-  (do a? ← x;
-      match a? with
-      | some a =>
-        condM processPostponed
-          (pure (some a))
-          (do restore env mctx postponed; pure none)
-      | none   => do restore env mctx postponed; pure none)
-  (fun ex => do restore env mctx postponed; throw ex)
-
 /- Public interface -/
 
 def isLevelDefEq (u v : Level) : MetaM Bool :=
 traceCtx `Meta.isLevelDefEq $ do
-  b ← try $ isLevelDefEqAux u v;
+  b ← commitWhen $ isLevelDefEqAux u v;
   trace! `Meta.isLevelDefEq (u ++ " =?= " ++ v ++ " ... " ++ if b then "success" else "failure");
   pure b
 
 def isExprDefEq (t s : Expr) : MetaM Bool :=
 traceCtx `Meta.isDefEq $ do
-  b ← try $ isExprDefEqAux t s;
+  b ← commitWhen $ isExprDefEqAux t s;
   trace! `Meta.isDefEq (t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure");
   pure b
 

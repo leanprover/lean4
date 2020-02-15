@@ -11,3 +11,6 @@ import Init.Lean.Meta.Tactic.Revert
 import Init.Lean.Meta.Tactic.Clear
 import Init.Lean.Meta.Tactic.Assert
 import Init.Lean.Meta.Tactic.Target
+import Init.Lean.Meta.Tactic.Rewrite
+import Init.Lean.Meta.Tactic.Generalize
+import Init.Lean.Meta.Tactic.LocalDecl

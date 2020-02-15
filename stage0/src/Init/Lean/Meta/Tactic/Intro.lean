@@ -68,8 +68,8 @@ def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
 (fvarIds, mvarId) ← introN mvarId 1 [name];
 pure (fvarIds.get! 0, mvarId)
 
-def intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) := do
-(fvarIds, mvarId) ← introN mvarId 1 [];
+def intro1 (mvarId : MVarId) (useUnusedNames := true) : MetaM (FVarId × MVarId) := do
+(fvarIds, mvarId) ← introN mvarId 1 [] useUnusedNames;
 pure (fvarIds.get! 0, mvarId)
 
 end Meta

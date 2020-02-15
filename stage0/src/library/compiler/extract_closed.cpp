@@ -187,9 +187,20 @@ class extract_closed_fn {
         return !is_lambda(info->get_value());
     }
 
+    bool is_join_point_app(expr const & e) const {
+        if (!is_app(e)) return false;
+        expr const & fn = get_app_fn(e);
+        return
+            is_fvar(fn) &&
+            is_join_point_name(m_lctx.get_local_decl(fn).get_user_name());
+    }
+
     expr mk_aux_constant(expr const & e0) {
         expr e = find(e0);
         if (is_enf_neutral(e) || is_enf_unreachable(e)) {
+            return e0;
+        }
+        if (is_join_point_app(e)) {
             return e0;
         }
         if (is_constant(e) && arity_eq_0(const_name(e))) {

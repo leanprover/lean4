@@ -94,6 +94,11 @@ match lctx with
   let decl := LocalDecl.ldecl idx fvarId userName type value;
   { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
+/- Low level API -/
+def addDecl (lctx : LocalContext) (newDecl : LocalDecl) : LocalContext :=
+match lctx with
+| { fvarIdToDecl := map, decls := decls } => { fvarIdToDecl := map.insert newDecl.fvarId newDecl, decls := decls.set newDecl.index newDecl }
+
 @[export lean_local_ctx_find]
 def find? (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
 lctx.fvarIdToDecl.find? fvarId

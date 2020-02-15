@@ -213,22 +213,6 @@ catch
     (do restore env mctx postponed; pure false))
   (fun ex => do restore env mctx postponed; throw ex)
 
-@[specialize] def tryOpt {α} (x : MetaM (Option α)) : MetaM (Option α) := do
-s ← get;
-let env       := s.env;
-let mctx      := s.mctx;
-let postponed := s.postponed;
-modify $ fun s => { postponed := {}, .. s };
-catch
-  (do a? ← x;
-      match a? with
-      | some a =>
-        condM processPostponed
-          (pure (some a))
-          (do restore env mctx postponed; pure none)
-      | none   => do restore env mctx postponed; pure none)
-  (fun ex => do restore env mctx postponed; throw ex)
-
 /- Public interface -/
 
 def isLevelDefEq (u v : Level) : MetaM Bool :=

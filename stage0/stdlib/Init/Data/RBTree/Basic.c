@@ -109,7 +109,6 @@ uint8_t l_RBNode_any___main___at_RBTree_any___spec__1___rarg(lean_object*, lean_
 lean_object* l_RBNode_any___main___at_RBTree_any___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBTree_min___rarg___boxed(lean_object*);
-lean_object* l_RBTree_min___rarg___closed__1;
 lean_object* l_RBTree_HasRepr___rarg___closed__1;
 lean_object* l_mkRBTree(lean_object*, lean_object*);
 lean_object* l_RBNode_any___main___at_RBTree_any___spec__1(lean_object*);
@@ -643,23 +642,64 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_RBTree_min___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 lean_object* l_RBTree_min___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_RBNode_min___main___rarg(x_1);
+lean_object* x_2; lean_object* x_11; 
+x_11 = l_RBNode_min___main___rarg(x_1);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; 
+x_12 = lean_box(0);
+x_2 = x_12;
+goto block_10;
+}
+else
+{
+uint8_t x_13; 
+x_13 = !lean_is_exclusive(x_11);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_14 = lean_ctor_get(x_11, 0);
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
+lean_dec(x_14);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+lean_ctor_set(x_11, 0, x_17);
+x_2 = x_11;
+goto block_10;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_18 = lean_ctor_get(x_11, 0);
+lean_inc(x_18);
+lean_dec(x_11);
+x_19 = lean_ctor_get(x_18, 0);
+lean_inc(x_19);
+x_20 = lean_ctor_get(x_18, 1);
+lean_inc(x_20);
+lean_dec(x_18);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_19);
+lean_ctor_set(x_21, 1, x_20);
+x_22 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+x_2 = x_22;
+goto block_10;
+}
+}
+block_10:
+{
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_RBTree_min___rarg___closed__1;
+x_3 = lean_box(0);
 return x_3;
 }
 else
@@ -688,6 +728,7 @@ lean_dec(x_7);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 return x_9;
+}
 }
 }
 }
@@ -721,12 +762,61 @@ return x_3;
 lean_object* l_RBTree_max___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_RBNode_max___main___rarg(x_1);
+lean_object* x_2; lean_object* x_11; 
+x_11 = l_RBNode_max___main___rarg(x_1);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; 
+x_12 = lean_box(0);
+x_2 = x_12;
+goto block_10;
+}
+else
+{
+uint8_t x_13; 
+x_13 = !lean_is_exclusive(x_11);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_14 = lean_ctor_get(x_11, 0);
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
+lean_dec(x_14);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+lean_ctor_set(x_11, 0, x_17);
+x_2 = x_11;
+goto block_10;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_18 = lean_ctor_get(x_11, 0);
+lean_inc(x_18);
+lean_dec(x_11);
+x_19 = lean_ctor_get(x_18, 0);
+lean_inc(x_19);
+x_20 = lean_ctor_get(x_18, 1);
+lean_inc(x_20);
+lean_dec(x_18);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_19);
+lean_ctor_set(x_21, 1, x_20);
+x_22 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+x_2 = x_22;
+goto block_10;
+}
+}
+block_10:
+{
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_RBTree_min___rarg___closed__1;
+x_3 = lean_box(0);
 return x_3;
 }
 else
@@ -755,6 +845,7 @@ lean_dec(x_7);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 return x_9;
+}
 }
 }
 }
@@ -1423,8 +1514,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_RBTree_toList___rarg___closed__1 = _init_l_RBTree_toList___rarg___closed__1();
 lean_mark_persistent(l_RBTree_toList___rarg___closed__1);
-l_RBTree_min___rarg___closed__1 = _init_l_RBTree_min___rarg___closed__1();
-lean_mark_persistent(l_RBTree_min___rarg___closed__1);
 l_RBTree_HasRepr___rarg___closed__1 = _init_l_RBTree_HasRepr___rarg___closed__1();
 lean_mark_persistent(l_RBTree_HasRepr___rarg___closed__1);
 return lean_mk_io_result(lean_box(0));

@@ -144,7 +144,14 @@ throwError stx ("WIP " ++ stx)
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name :=
 let arg := stx.getArg 1;
 if !arg.isNone then do
-  pure $ arg.getIdAt 0
+  r : List (Name × List String) ← resolveGlobalName (arg.getIdAt 0);
+  env ← getEnv;
+  let r := r.filter $ fun p => p.2.isEmpty && isStructureLike env p.1;
+  let candidates := r.map $ fun p => p.1;
+  match candidates with
+  | [c] => pure c
+  | []  => throwError arg "invalid {...} notation, structure expected"
+  | _   => throwError arg ("invalid {...} notation, ambiguous " ++ toString candidates)
 else do
   let ref := stx;
   tryPostponeIfNoneOrMVar expectedType?;

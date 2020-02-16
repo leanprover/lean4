@@ -71,6 +71,8 @@ inductive Source
 | implicit (stx : Syntax) -- `..`
 | explicit (stx : Syntax) (src : Expr) -- `.. term`
 
+instance Source.inhabited : Inhabited Source := ⟨Source.none⟩
+
 def Source.isNone : Source → Bool
 | Source.none => true
 | _           => false
@@ -188,11 +190,12 @@ instance FieldLHS.hasFormat : HasFormat FieldLHS :=
 inductive FieldVal (σ : Type)
 | term {} (stx : Syntax) : FieldVal
 | nested (s : σ)         : FieldVal
+| default {}             : FieldVal -- mark that field must be synthesized using default value
 
 structure Field (σ : Type) :=
-mk {} :: (ref : Syntax) (lhs : List FieldLHS) (val : FieldVal σ)
+mk {} :: (ref : Syntax) (lhs : List FieldLHS) (val : FieldVal σ) (expr : Option Expr := none)
 
-instance Field.inhabited {σ} : Inhabited (Field σ) := ⟨⟨arbitrary _, [], FieldVal.term (arbitrary _)⟩⟩
+instance Field.inhabited {σ} : Inhabited (Field σ) := ⟨⟨arbitrary _, [], FieldVal.term (arbitrary _), arbitrary _⟩⟩
 
 def Field.isSimple {σ} : Field σ → Bool
 | { lhs := [_], .. } => true
@@ -200,6 +203,8 @@ def Field.isSimple {σ} : Field σ → Bool
 
 inductive Struct
 | mk (ref : Syntax) (structName : Name) (fields : List (Field Struct)) (source : Source)
+
+instance Struct.inhabited : Inhabited Struct := ⟨⟨arbitrary _, arbitrary _, [], arbitrary _⟩⟩
 
 abbrev Fields := List (Field Struct)
 
@@ -220,6 +225,7 @@ Format.joinSep field.lhs " . " ++ " := " ++
   match field.val with
   | FieldVal.term v   => v.prettyPrint
   | FieldVal.nested s => formatStruct s
+  | FieldVal.default  => "<default>"
 
 partial def formatStruct : Struct → Format
 | ⟨_, structName, fields, source⟩ =>
@@ -284,8 +290,11 @@ def Struct.modifyFieldsM {m : Type → Type} [Monad m] (s : Struct) (f : Fields 
 match s with
 | ⟨ref, structName, fields, source⟩ => do fields ← f fields; pure ⟨ref, structName, fields, source⟩
 
-def Struct.modifyFields (s : Struct) (f : Fields → Fields) : Struct :=
+@[inline] def Struct.modifyFields (s : Struct) (f : Fields → Fields) : Struct :=
 Id.run $ s.modifyFieldsM f
+
+def Struct.setFields (s : Struct) (fields : Fields) : Struct :=
+s.modifyFields $ fun _ => fields
 
 private def expandCompositeFields (s : Struct) : Struct :=
 s.modifyFields $ fun fields => fields.map $ fun field => match field with
@@ -401,12 +410,113 @@ s.modifyFieldsM $ fun fields => do
         let valStx := valStx.setArg 2 (mkSepStx args (mkAtomFrom s.ref ","));
         pure { lhs := [field.lhs.head!], val := FieldVal.term valStx, .. field }
 
+def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
+fields.find? $ fun field =>
+  match field.lhs with
+  | [FieldLHS.fieldName _ n] => n == fieldName
+  | _                        => false
+
+@[specialize] private def addMissingFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
+env ← getEnv;
+let fieldNames := getStructureFields env s.structName;
+let ref := s.ref;
+fields ← fieldNames.foldlM
+  (fun fields fieldName => do
+    match findField? s.fields fieldName with
+    | some field => pure $ field::fields
+    | none       =>
+      let addField (val : FieldVal Struct) : TermElabM Fields := do {
+        pure $ { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
+      };
+      match Lean.isSubobjectField? env s.structName fieldName with
+      | some substructName => do
+        substructSource ← mkSubstructSource s.ref s.structName fieldNames fieldName s.source;
+        let substruct := Struct.mk s.ref substructName [] substructSource;
+        substruct ← expandStruct substruct;
+        addField (FieldVal.nested substruct)
+      | none =>
+        match s.source with
+        | Source.none           => addField FieldVal.default
+        | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
+        | Source.explicit stx _ =>
+          let val := stx.modifyArg 1 $ fun stx => stx.modifyArg 0 $ fun stx => mkProjStx stx fieldName;
+          addField (FieldVal.term val))
+  [];
+pure $ s.setFields fields.reverse
+
 private partial def expandStruct : Struct → TermElabM Struct
 | s => do
   let s := expandCompositeFields s;
   s ← expandNumLitFields s;
   s ← expandParentFields s;
-  groupFields expandStruct s
+  s ← groupFields expandStruct s;
+  addMissingFields expandStruct s
+
+structure State :=
+(instMVars : Array MVarId)
+
+structure CtorHeaderResult :=
+(ctorFn     : Expr)
+(ctorFnType : Expr)
+
+private def mkCtorHeaderAux (ref : Syntax) : Nat → Expr → Expr → StateT State TermElabM CtorHeaderResult
+| 0,   type, ctorFn => pure { ctorFn := ctorFn, ctorFnType := type }
+| n+1, type, ctorFn => do
+  type ← liftM $ whnfForall ref type;
+  match type with
+  | Expr.forallE _ d b c =>
+    match c.binderInfo with
+    | BinderInfo.instImplicit => do
+      a ← liftM $ mkFreshExprMVar ref d MetavarKind.synthetic;
+      modify $ fun s => { instMVars := s.instMVars.push a.mvarId!, .. s };
+      mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a)
+    | _ => do
+      a ← liftM $ mkFreshExprMVar ref d;
+      mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a)
+  | _ => liftM $ throwError ref "unexpected constructor type"
+
+private partial def getForallBody : Nat → Expr → Option Expr
+| i+1, Expr.forallE _ _ b _ => getForallBody i b
+| i+1, _                    => none
+| 0,   type                 => type
+
+private def propagateExpectedType (ref : Syntax) (type : Expr) (numFields : Nat) (expectedType? : Option Expr) : TermElabM Unit :=
+match expectedType? with
+| none              => pure ()
+| some expectedType =>
+  match getForallBody numFields type with
+    | none           => pure ()
+    | some typeBody =>
+      unless typeBody.hasLooseBVars $ do
+        isDefEq ref expectedType typeBody;
+        pure ()
+
+private def mkCtorHeader (ref : Syntax) (ctorVal : ConstructorVal) (expectedType? : Option Expr) : StateT State TermElabM CtorHeaderResult := do
+lvls ← ctorVal.lparams.mapM $ fun _ => liftM $ mkFreshLevelMVar ref;
+let val  := Lean.mkConst ctorVal.name lvls;
+let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams lvls;
+r ← mkCtorHeaderAux ref ctorVal.nparams type val;
+liftM $ propagateExpectedType ref r.ctorFnType ctorVal.nfields expectedType?;
+pure r
+
+@[specialize] private partial def elabFields
+    (elabStruct : Struct → Option Expr → StateT State TermElabM (Expr × Struct))
+    (ref : Syntax) (source : Source) : Fields → Expr → Expr → StateT State TermElabM (Expr × Fields)
+| fields, type, e => do
+  type ← liftM $ whnfForall ref type;
+  match type with
+  | Expr.forallE n d b c => do
+    let fieldName := deinternalizeFieldName n;
+    throw $ arbitrary _
+  | _ => pure (e, fields)
+
+private partial def elabStruct : Struct → Option Expr → StateT State TermElabM (Expr × Struct)
+| s, expectedType? => do
+  env ← liftM $ getEnv;
+  let ctorVal := getStructureCtor env s.structName;
+  { ctorFn := ctorFn, ctorFnType := ctorFnType } ← mkCtorHeader s.ref ctorVal expectedType?;
+  (r, fields) ← elabFields elabStruct s.ref s.source s.fields ctorFnType ctorFn;
+  pure (r, s.setFields fields)
 
 /-
 namespace ElabFields

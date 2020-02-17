@@ -439,7 +439,9 @@ fields ← fieldNames.foldlM
         | Source.none           => addField FieldVal.default
         | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
         | Source.explicit stx _ =>
-          let val := stx.modifyArg 1 $ fun stx => stx.modifyArg 0 $ fun stx => mkProjStx stx fieldName;
+          -- stx is of the form `".." >> optional termParser`
+          let src := (stx.getArg 1).getArg 0;
+          let val := mkProjStx src fieldName;
           addField (FieldVal.term val))
   [];
 pure $ s.setFields fields.reverse
@@ -453,7 +455,7 @@ private partial def expandStruct : Struct → TermElabM Struct
   addMissingFields expandStruct s
 
 structure State :=
-(instMVars : Array MVarId)
+(instMVars : Array MVarId := #[])
 
 structure CtorHeaderResult :=
 (ctorFn     : Expr)
@@ -499,132 +501,50 @@ r ← mkCtorHeaderAux ref ctorVal.nparams type val;
 liftM $ propagateExpectedType ref r.ctorFnType ctorVal.nfields expectedType?;
 pure r
 
-@[specialize] private partial def elabFields
-    (elabStruct : Struct → Option Expr → StateT State TermElabM (Expr × Struct))
-    (ref : Syntax) (source : Source) : Fields → Expr → Expr → StateT State TermElabM (Expr × Fields)
-| fields, type, e => do
-  type ← liftM $ whnfForall ref type;
-  match type with
-  | Expr.forallE n d b c => do
-    let fieldName := deinternalizeFieldName n;
-    throw $ arbitrary _
-  | _ => pure (e, fields)
+def markDefaultMissing (e : Expr) : Expr :=
+mkMData (KVMap.empty.insert `structInstDefault (DataValue.ofBool true)) e
+
+def throwFailedToElabField {α} (ref : Syntax) (fieldName : Name) (structName : Name) (msgData : MessageData) : StateT State TermElabM α :=
+liftM $ throwError ref ("failed to elaborate field '" ++ fieldName ++ "' of '" ++ structName ++ ", " ++ msgData)
 
 private partial def elabStruct : Struct → Option Expr → StateT State TermElabM (Expr × Struct)
 | s, expectedType? => do
   env ← liftM $ getEnv;
   let ctorVal := getStructureCtor env s.structName;
   { ctorFn := ctorFn, ctorFnType := ctorFnType } ← mkCtorHeader s.ref ctorVal expectedType?;
-  (r, fields) ← elabFields elabStruct s.ref s.source s.fields ctorFnType ctorFn;
-  pure (r, s.setFields fields)
+  (e, _, fields) ← s.fields.foldlM
+    (fun (acc : Expr × Expr × Fields) field =>
+      let (e, type, fields) := acc;
+      match field.lhs with
+      | [FieldLHS.fieldName ref fieldName] => do
+        type ← liftM $ whnfForall field.ref type;
+        match type with
+        | Expr.forallE _ d b c =>
+          let continue (val : Expr) (field : Field Struct) : StateT State TermElabM (Expr × Expr × Fields) := do {
+            let e     := mkApp e val;
+            let type  := b.instantiate1 val;
+            let field := { expr := some val, .. field };
+            pure (e, type, field::fields)
+          };
+          match field.val with
+          | FieldVal.term stx => do val ← liftM $ elabTerm stx (some d); continue val field
+          | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); continue val { val := FieldVal.nested sNew, .. field }
+          | FieldVal.default  => do val ← liftM $ mkFreshExprMVar field.ref (some d); continue (markDefaultMissing val) field
+        | _ => throwFailedToElabField field.ref fieldName s.structName ("unexpected constructor type" ++ indentExpr type)
+      | _ => liftM $ throwError field.ref "unexpected unexpanded structure field")
+    (ctorFn, ctorFnType, []);
+  pure (e, s.setFields fields.reverse)
 
-/-
-namespace ElabFields
-
-structure Context :=
-(structPath : List Name)
-
-structure PendingField :=
-(ref        : Syntax)
-(structPath : List Name)
-(fieldName  : Name)
-(mvar       : MVarId)
-
-structure State :=
-(instMVars     : Array MVarId)
-(pendingFields : List PendingField)
-
-end ElabFields
-
-
-structure CtorHeaderResult :=
-(ctorFn     : Expr)
-(ctorFnType : Expr)
-(instMVars  : Array MVarId)
-
-private def mkCtorHeaderAux (ref : Syntax) : Nat → Expr → Expr → Array MVarId → TermElabM CtorHeaderResult
-| 0,   type, ctorFn, instMVars => pure { ctorFn := ctorFn, ctorFnType := type, instMVars := instMVars }
-| n+1, type, ctorFn, instMVars => do
-  type ← whnfForall ref type;
-  match type with
-  | Expr.forallE _ d b c =>
-    match c.binderInfo with
-    | BinderInfo.instImplicit => do
-      a ← mkFreshExprMVar ref d MetavarKind.synthetic;
-      mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a) (instMVars.push a.mvarId!)
-    | _ => do
-      a ← mkFreshExprMVar ref d;
-      mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a) instMVars
-  | _ => throwError ref "unexpected constructor type"
-
-private partial def getForallBody : Nat → Expr → Option Expr
-| i+1, Expr.forallE _ _ b _ => getForallBody i b
-| i+1, _                    => none
-| 0,   type                 => type
-
-private def propagateExpectedType (ref : Syntax) (type : Expr) (numFields : Nat) (expectedType? : Option Expr) : TermElabM Unit :=
-match expectedType? with
-| none              => pure ()
-| some expectedType =>
-  match getForallBody numFields type with
-    | none           => pure ()
-    | some typeBody =>
-      unless typeBody.hasLooseBVars $ do
-        isDefEq ref expectedType typeBody;
-        pure ()
-
-/-
-  Create structure ctor, with fresh metavariable for universe levels and parameters, and then propagate expected (if available).
-  Note that the expected type propagate is slightly different from the one in regular applications. -/
-private def mkCtorHeader (ref : Syntax) (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
-lvls ← ctorVal.lparams.mapM $ fun _ => mkFreshLevelMVar ref;
-let val  := Lean.mkConst ctorVal.name lvls;
-let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams lvls;
-r ← mkCtorHeaderAux ref ctorVal.nparams type val #[];
-propagateExpectedType ref r.ctorFnType ctorVal.nfields expectedType?;
-pure r
-
-private partial def elabFields (ref : Syntax) (structName : Name) (sourceView : Source) : List FieldView → Expr → Expr → TermElabM Expr
-| fieldViews, type, e => do
-  type ← whnfForall ref type;
-  match type with
-  | Expr.forallE n d b c => do
-    let fieldName := deinternalizeFieldName n;
-    dbgTrace (">> field " ++ toString fieldName);
-    arg ← mkFreshExprMVar ref d;   -- TODO
-    let fieldViews := fieldViews;  -- TODO
-    let b := b.instantiate1 arg;
-    let e := mkApp e arg;
-    elabFields fieldViews b e
-  | _ =>
-    match fieldViews with
-    | fview :: _ => throwError fview.ref ("'" ++ fview.fieldName ++ "' is not a field of structure '" ++ structName ++ "'")
-    | _ => pure e
-
-private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Expr := do
-structName ← getStructName stx expectedType? sourceView;
-env ← getEnv;
-unless (isStructureLike env structName) $
-  throwError stx ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
-let stx := expandCompositeFields stx;
-stx ← expandNumLitFields stx structName;
-stx ← expandParentFields stx structName;
-fieldViews ← getFieldViews stx sourceView;
-let ctorVal := getStructureCtor env structName;
-ctorHeader ← mkCtorHeader stx ctorVal expectedType?;
--- fieldViews.forM $ fun v => dbgTrace (toString v.fieldName ++ " := " ++ toString v.val);
--- dbgTrace (">> " ++ toString ctorHeader.ctorFn);
-s ← elabFields stx structName sourceView fieldViews ctorHeader.ctorFnType ctorHeader.ctorFn;
-synthesizeAppInstMVars stx ctorHeader.instMVars;
-pure s
--/
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (source : Source) : TermElabM Expr := do
 structName ← getStructName stx expectedType? source;
 env ← getEnv;
 unless (isStructureLike env structName) $
   throwError stx ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
 struct ← expandStruct $ mkStructView stx structName source;
-throwError stx ("WIP" ++ Format.line ++ toString struct)
+trace `Elab.struct stx $ fun _ => toString struct;
+((r, struct), s) ← (elabStruct struct expectedType?).run {};
+-- TODO: resolve missing default
+pure r
 
 @[builtinTermElab structInst] def elabStructInst : TermElab :=
 fun stx expectedType? => do

@@ -69,24 +69,37 @@ def isAntiquot : Syntax → Bool
 | Syntax.node (Name.str _ "antiquot" _) _ => true
 | _                                       => false
 
+-- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros.
+def isEscapedAntiquot (stx : Syntax) : Bool :=
+!(stx.getArg 1).getArgs.isEmpty
+
+def unescapeAntiquot (stx : Syntax) : Syntax :=
+if isAntiquot stx then
+  stx.setArg 1 $ mkNullNode (stx.getArg 1).getArgs.pop
+else stx
+
+def getAntiquotTerm (stx : Syntax) : Syntax :=
+let e := stx.getArg 2;
+if e.isIdent then mkTermIdFromIdent e
+else
+  -- `e` is from `"(" >> termParser >> ")"`
+  e.getArg 1
+
 def antiquotKind? : Syntax → Option SyntaxNodeKind
 | Syntax.node (Name.str k "antiquot" _) args =>
   -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
-  if (args.get! 2).isNone then some Name.anonymous
+  if (args.get! 3).isNone then some Name.anonymous
   else some k
 | _                                          => none
 
-def getAntiquotTerm (stx : Syntax) : Syntax :=
-stx.getArg 1
-
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
 def isAntiquotSplice (stx : Syntax) : Bool :=
-isAntiquot stx && (stx.getArg 4).getOptional?.isSome
+isAntiquot stx && (stx.getArg 5).getOptional?.isSome
 
 -- If any item of a `many` node is an antiquotation splice, its result should
 -- be substituted into the `many` node's children
 def isAntiquotSplicePat (stx : Syntax) : Bool :=
-stx.isOfKind nullKind && stx.getArgs.any isAntiquotSplice
+stx.isOfKind nullKind && stx.getArgs.any (fun arg => isAntiquotSplice arg && !isEscapedAntiquot arg)
 
 /-- A term like `($e) is actually ambiguous: the antiquotation could be of kind `term`,
     or `ident`, or ... . But it shouldn't really matter because antiquotations without
@@ -110,14 +123,16 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   -- `scp` is bound in stxQuot.expand
   `(Syntax.ident none $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
 -- if antiquotation, insert contents as-is, else recurse
-| stx@(Syntax.node k args) =>
-  if isAntiquot stx then
+| stx@(Syntax.node k _) =>
+  if isAntiquot stx && !isEscapedAntiquot stx then
     -- splices must occur in a `many` node
     if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
     else pure $ getAntiquotTerm stx
   else do
     empty ← `(Array.empty);
-    args ← args.foldlM (fun args arg =>
+    -- if escaped antiquotation, decrement by one escape level
+    let stx := unescapeAntiquot stx;
+    args ← stx.getArgs.foldlM (fun args arg =>
       if k == nullKind && isAntiquotSplice arg then
         -- antiquotation splice pattern: inject args array
         `(Array.append $args $(getAntiquotTerm arg))
@@ -201,9 +216,9 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   if quoted.isAtom then
     -- We assume that atoms are uniquely determined by the node kind and never have to be checked
     unconditional pure
-  else match antiquotKind? quoted with
-  -- quotation is a single antiquotation
-  | some k =>
+  else if isAntiquot quoted && !isEscapedAntiquot quoted then
+    -- quotation contains a single antiquotation
+    let k := antiquotKind? quoted;
     -- Antiquotation kinds like `$id:id` influence the parser, but also need to be considered by
     -- match_syntax (but not by quotation terms). For example, `($id:id) and `($e) are not
     -- distinguishable without checking the kind of the node to be captured. Note that some
@@ -214,24 +229,22 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     --   let id := stx; ...
     -- else
     --   let e := stx; ...
-    let kind := if k == Name.anonymous then none else some k;
-    let anti := match_syntax getAntiquotTerm quoted with
-    | `(($e)) => e
-    | anti    => anti;
+    let kind := if k == Name.anonymous then none else k;
+    let anti := getAntiquotTerm quoted;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
     else unconditional $ fun _ => throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
-  | _ =>
-    if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
-      -- quotation is a single antiquotation splice => bind args array
-      let anti := getAntiquotTerm (quoted.getArg 0);
-      unconditional $ fun rhs => `(let $anti := Syntax.getArgs discr; $rhs)
-      -- TODO: support for more complex antiquotation splices
-    else
-      -- not an antiquotation: match head shape
-      let argPats := quoted.getArgs.map $ fun arg => Syntax.node `Lean.Parser.Term.stxQuot #[mkAtom "`(", arg, mkAtom ")"];
-      { kind := quoted.getKind, argPats := argPats }
+  else if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
+    -- quotation is a single antiquotation splice => bind args array
+    let anti := getAntiquotTerm (quoted.getArg 0);
+    unconditional $ fun rhs => `(let $anti := Syntax.getArgs discr; $rhs)
+    -- TODO: support for more complex antiquotation splices
+  else
+    -- not an antiquotation or escaped antiquotation: match head shape
+    let quoted := unescapeAntiquot quoted;
+    let argPats := quoted.getArgs.map $ fun arg => Syntax.node `Lean.Parser.Term.stxQuot #[mkAtom "`(", arg, mkAtom ")"];
+    { kind := quoted.getKind, argPats := argPats }
 else
   unconditional $ fun _ => throwError pat ("match_syntax: unexpected pattern kind " ++ toString pat)
 
@@ -279,11 +292,8 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
 
 private partial def getPatternVarsAux : Syntax → List Syntax
 | stx@(Syntax.node k args) =>
-  if isAntiquot stx then
-    let anti := args.get! 1;
-    let anti := match_syntax anti with
-    | `(($e)) => e
-    | _       => anti;
+  if isAntiquot stx && !isEscapedAntiquot stx then
+    let anti := getAntiquotTerm stx;
     if anti.isOfKind `Lean.Parser.Term.id then [anti]
     else []
   else

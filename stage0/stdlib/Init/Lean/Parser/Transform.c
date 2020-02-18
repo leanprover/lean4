@@ -27,10 +27,13 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_removeParen___boxed(lean_object*);
+lean_object* l_Lean_Syntax_removeParen___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___closed__2;
+lean_object* l_Lean_Syntax_removeParen___closed__2;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_truncateTrailing(lean_object*);
+extern lean_object* l_Lean_mkAppStx___closed__6;
 lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
 extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
@@ -202,6 +205,24 @@ lean_dec(x_2);
 return x_6;
 }
 }
+lean_object* _init_l_Lean_Syntax_removeParen___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("paren");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Syntax_removeParen___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_mkAppStx___closed__6;
+x_2 = l_Lean_Syntax_removeParen___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_Syntax_removeParen(lean_object* x_1) {
 _start:
 {
@@ -210,7 +231,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___closed__2;
+x_4 = l_Lean_Syntax_removeParen___closed__2;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
@@ -559,6 +580,10 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Parser_Parser(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Syntax_removeParen___closed__1 = _init_l_Lean_Syntax_removeParen___closed__1();
+lean_mark_persistent(l_Lean_Syntax_removeParen___closed__1);
+l_Lean_Syntax_removeParen___closed__2 = _init_l_Lean_Syntax_removeParen___closed__2();
+lean_mark_persistent(l_Lean_Syntax_removeParen___closed__2);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.Util.FindExpr
 import Init.Lean.Elab.App
 import Init.Lean.Elab.Binders
 import Init.Lean.Elab.Quotation
@@ -540,7 +541,8 @@ namespace DefaultFields
 
 structure Context :=
 -- We must search for default values overriden in derived structures
-(surroudingStructs : List Name := [])
+(structs : Array Struct := #[])
+(allStructNames : Array Name := #[])
 /-
 Consider the following example:
 ```
@@ -570,6 +572,16 @@ The fixpoint for setting default values works in the following way.
 structure State :=
 (progress : Bool := false)
 
+partial def collectStructNames : Struct → Array Name → Array Name
+| struct, names =>
+  let names := names.push struct.structName;
+  struct.fields.foldl
+    (fun names field =>
+      match field.val with
+      | FieldVal.nested struct => collectStructNames struct names
+      | _ => names)
+    names
+
 partial def getHierarchyDepth : Struct → Nat
 | struct =>
   struct.fields.foldl
@@ -590,10 +602,147 @@ partial def findDefaultMissing? (mctx : MetavarContext) : Struct → Option (Fie
        | some (Expr.mvar mvarId _) => if mctx.isExprAssigned mvarId then none else some field
        | _                         => none
 
+def getFieldName (field : Field Struct) : Name :=
+match field.lhs with
+| [FieldLHS.fieldName _ fieldName] => fieldName
+| _ => unreachable!
+
 abbrev M := ReaderT Context (StateT State TermElabM)
 
-def step : Struct → M Unit
-| struct => pure () -- TODO
+def isRoundDone : M Bool := do
+ctx ← read;
+s ← get;
+pure (s.progress && ctx.maxDistance > 0)
+
+def getFieldValue? (struct : Struct) (fieldName : Name) : Option Expr :=
+struct.fields.findSome? $ fun field =>
+  if getFieldName field == fieldName then
+    field.expr?
+  else
+    none
+
+partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Expr)
+| Expr.lam n d b c =>
+  let ref := struct.ref;
+  if c.binderInfo.isExplicit then
+    let fieldName := n;
+    match getFieldValue? struct fieldName with
+    | none     => pure none
+    | some val => do
+      valType ← inferType ref val;
+      condM (isDefEq ref valType d)
+        (mkDefaultValueAux? (b.instantiate1 val))
+        (pure none)
+  else do
+    arg ← mkFreshExprMVar ref d;
+    mkDefaultValueAux? (b.instantiate1 arg)
+| e =>
+  if e.isAppOfArity `id 2 then
+    pure (some e.appArg!)
+  else
+    pure (some e)
+
+def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option Expr) := do
+let ref := struct.ref;
+us ← cinfo.lparams.mapM $ fun _ => mkFreshLevelMVar ref;
+mkDefaultValueAux? struct (cinfo.instantiateValueLevelParams us)
+
+/-- If `e` is a projection function of one of the given structures, then reduce it -/
+def reduceProjOf? (structNames : Array Name) (e : Expr) : MetaM (Option Expr) := do
+if !e.isApp then pure none
+else match e.getAppFn with
+  | Expr.const name _ _ => do
+    env ← Meta.getEnv;
+    if env.isProjectionFn name then
+      match name with
+      | Name.str structName fieldName _ => do
+        if structNames.contains structName then
+          Meta.unfoldDefinition? e
+        else
+          pure none
+      | _ => pure none
+    else
+      pure none
+  | _ => pure none
+
+/-- Reduce default value. It performs beta reduction and projections of the given structures. -/
+partial def reduce (structNames : Array Name) : Expr → MetaM Expr
+| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e $ fun xs b => do b ← reduce b; Meta.mkLambda xs b
+| e@(Expr.forallE _ _ _ _) => Meta.forallTelescope e $ fun xs b => do b ← reduce b; Meta.mkForall xs b
+| e@(Expr.letE _ _ _ _ _)  => Meta.lambdaTelescope e $ fun xs b => do b ← reduce b; Meta.mkLambda xs b
+| e@(Expr.proj _ i b _)    => do
+  r? ← Meta.reduceProj? b i;
+  match r? with
+  | some r => reduce r
+  | none   => do b ← reduce b; pure $ e.updateProj! b
+| e@(Expr.app f _ _) => do
+  r? ← reduceProjOf? structNames e;
+  match r? with
+  | some r => reduce r
+  | none   => do
+    let f := f.getAppFn;
+    f' ← reduce f;
+    if f'.isLambda then
+      let revArgs := e.getAppRevArgs;
+      reduce $ f'.betaRev revArgs
+    else do
+      args ← e.getAppArgs.mapM reduce;
+      pure (mkAppN f' args)
+| e@(Expr.mdata _ b _) => do
+  b ← reduce b;
+  if (isDefaultMissing? e).isSome && !b.isMVar then
+    pure b
+  else
+    pure $ e.updateMData! b
+| e@(Expr.mvar mvarId _) => do
+  val? ← Meta.getExprMVarAssignment? mvarId;
+  match val? with
+  | some val => if val.isMVar then reduce val else pure val
+  | none     => pure e
+| e => pure e
+
+partial def tryToSynthesizeDefaultAux (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat)
+    (fieldName : Name) (mvarId : MVarId) : Nat → Nat → TermElabM Bool
+| i, dist =>
+  if dist > maxDistance then pure false
+  else if h : i < structs.size then do
+    let struct := structs.get ⟨i, h⟩;
+    let defaultName := struct.structName ++ fieldName ++ `_default;
+    env ← getEnv;
+    match env.find? defaultName with
+    | some cinfo@(ConstantInfo.defnInfo defVal) => do
+      mctx ← getMCtx;
+      val? ← mkDefaultValue? struct cinfo;
+      match val? with
+      | none     => do setMCtx mctx; tryToSynthesizeDefaultAux (i+1) (dist+1)
+      | some val => do
+        val ← liftMetaM struct.ref $ reduce allStructNames val;
+        match val.find? $ fun e => (isDefaultMissing? e).isSome with
+        | some _ => do setMCtx mctx; tryToSynthesizeDefaultAux (i+1) (dist+1)
+        | none   => do
+          assignExprMVar mvarId val;
+          pure true
+    | _ => tryToSynthesizeDefaultAux (i+1) dist
+  else
+    pure false
+
+def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat) (fieldName : Name) (mvarId : MVarId) : TermElabM Bool :=
+tryToSynthesizeDefaultAux structs allStructNames maxDistance fieldName mvarId 0 0
+
+partial def step : Struct → M Unit
+| struct => unlessM isRoundDone $ adaptReader (fun (ctx : Context) => { structs := ctx.structs.push struct, .. ctx }) $ do
+  struct.fields.forM $ fun field =>
+    match field.val with
+    | FieldVal.nested struct => step struct
+    | _ => match field.expr? with
+      | none      => unreachable!
+      | some expr => match isDefaultMissing? expr with
+        | some (Expr.mvar mvarId _) =>
+          unlessM (liftM $ isExprMVarAssigned mvarId) $ do
+            ctx ← read;
+            whenM (liftM $ tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) $ do
+              modify $ fun s => { progress := true, .. s }
+        | _ => pure ()
 
 partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
 | d, struct => do
@@ -602,9 +751,7 @@ partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
   | none       => pure () -- Done
   | some field =>
     if d > hierarchyDepth then
-      match field.lhs with
-      | [FieldLHS.fieldName ref fieldName] => liftM $ throwError ref ("field '" ++ fieldName ++ "' is missing")
-      | _                                  => unreachable!
+      liftM $ throwError field.ref ("field '" ++ getFieldName field ++ "' is missing")
     else adaptReader (fun (ctx : Context) => { maxDistance := d, .. ctx }) $ do
       modify $ fun (s : State) => { progress := false, .. s};
       step struct;
@@ -616,7 +763,8 @@ partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
 
 def propagate (struct : Struct) : TermElabM Unit :=
 let hierarchyDepth := getHierarchyDepth struct;
-(propagateLoop hierarchyDepth 0 struct {}).run' {}
+let structNames := collectStructNames struct #[];
+(propagateLoop hierarchyDepth 0 struct { allStructNames := structNames }).run' {}
 
 end DefaultFields
 

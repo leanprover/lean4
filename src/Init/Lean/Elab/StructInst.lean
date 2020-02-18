@@ -193,7 +193,7 @@ inductive FieldVal (σ : Type)
 | default {}             : FieldVal -- mark that field must be synthesized using default value
 
 structure Field (σ : Type) :=
-mk {} :: (ref : Syntax) (lhs : List FieldLHS) (val : FieldVal σ) (expr : Option Expr := none)
+mk {} :: (ref : Syntax) (lhs : List FieldLHS) (val : FieldVal σ) (expr? : Option Expr := none)
 
 instance Field.inhabited {σ} : Inhabited (Field σ) := ⟨⟨arbitrary _, [], FieldVal.term (arbitrary _), arbitrary _⟩⟩
 
@@ -500,7 +500,10 @@ synthesizeAppInstMVars ref r.instMVars;
 pure r
 
 def markDefaultMissing (e : Expr) : Expr :=
-mkMData (KVMap.empty.insert `structInstDefault (DataValue.ofBool true)) e
+mkAnnotation `structInstDefault e
+
+def isDefaultMissing? (e : Expr) : Option Expr :=
+isAnnotation? `structInstDefault e
 
 def throwFailedToElabField {α} (ref : Syntax) (fieldName : Name) (structName : Name) (msgData : MessageData) : TermElabM α :=
 throwError ref ("failed to elaborate field '" ++ fieldName ++ "' of '" ++ structName ++ ", " ++ msgData)
@@ -521,7 +524,7 @@ private partial def elabStruct : Struct → Option Expr → TermElabM (Expr × S
           let continue (val : Expr) (field : Field Struct) : TermElabM (Expr × Expr × Fields) := do {
             let e     := mkApp e val;
             let type  := b.instantiate1 val;
-            let field := { expr := some val, .. field };
+            let field := { expr? := some val, .. field };
             pure (e, type, field::fields)
           };
           match field.val with
@@ -533,6 +536,90 @@ private partial def elabStruct : Struct → Option Expr → TermElabM (Expr × S
     (ctorFn, ctorFnType, []);
   pure (e, s.setFields fields.reverse)
 
+namespace DefaultFields
+
+structure Context :=
+-- We must search for default values overriden in derived structures
+(surroudingStructs : List Name := [])
+/-
+Consider the following example:
+```
+structure A :=
+(x : Nat := 1)
+
+structure B extends A :=
+(y : Nat := x + 1) (x := y + 1)
+
+structure C extends B :=
+(z : Nat := 2*y) (x := z + 3)
+```
+And we are trying to elaborate a structure instance for `C`. There are default values for `x` at `A`, `B`, and `C`.
+We say the default value at `C` has distance 0, the one at `B` distance 1, and the one at `A` distance 2.
+The field `maxDistance` specifies the maximum distance considered in a round of Default field computation.
+Remark: since `C` does not set a default value of `y`, the default value at `B` is at distance 0.
+
+The fixpoint for setting default values works in the following way.
+- Keep computing default values using `maxDistance == 0`.
+- We increase `maxDistance` whenever we failed to compute a new default value in a round.
+- If `maxDistance > 0`, then we interrupt a round as soon as we compute some default value.
+  We use depth-first search.
+- We sign an error if no progress is made when `maxDistance` == structure hierarchy depth (2 in the example above).
+-/
+(maxDistance : Nat := 0)
+
+structure State :=
+(progress : Bool := false)
+
+partial def getHierarchyDepth : Struct → Nat
+| struct =>
+  struct.fields.foldl
+    (fun max field =>
+      match field.val with
+      | FieldVal.nested struct => Nat.max max (getHierarchyDepth struct + 1)
+      | _ => max)
+    0
+
+partial def findDefaultMissing? (mctx : MetavarContext) : Struct → Option (Field Struct)
+| struct =>
+  struct.fields.findSome? $ fun field =>
+   match field.val with
+   | FieldVal.nested struct => findDefaultMissing? struct
+   | _ => match field.expr? with
+     | none      => unreachable!
+     | some expr => match isDefaultMissing? expr with
+       | some (Expr.mvar mvarId _) => if mctx.isExprAssigned mvarId then none else some field
+       | _                         => none
+
+abbrev M := ReaderT Context (StateT State TermElabM)
+
+def step : Struct → M Unit
+| struct => pure () -- TODO
+
+partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
+| d, struct => do
+  mctx ← liftM $ getMCtx;
+  match findDefaultMissing? mctx struct with
+  | none       => pure () -- Done
+  | some field =>
+    if d > hierarchyDepth then
+      match field.lhs with
+      | [FieldLHS.fieldName ref fieldName] => liftM $ throwError ref ("field '" ++ fieldName ++ "' is missing")
+      | _                                  => unreachable!
+    else adaptReader (fun (ctx : Context) => { maxDistance := d, .. ctx }) $ do
+      modify $ fun (s : State) => { progress := false, .. s};
+      step struct;
+      s ← get;
+      if s.progress then do
+        propagateLoop 0 struct
+      else
+        propagateLoop (d+1) struct
+
+def propagate (struct : Struct) : TermElabM Unit :=
+let hierarchyDepth := getHierarchyDepth struct;
+(propagateLoop hierarchyDepth 0 struct {}).run' {}
+
+end DefaultFields
+
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (source : Source) : TermElabM Expr := do
 structName ← getStructName stx expectedType? source;
 env ← getEnv;
@@ -541,7 +628,7 @@ unless (isStructureLike env structName) $
 struct ← expandStruct $ mkStructView stx structName source;
 trace `Elab.struct stx $ fun _ => toString struct;
 (r, struct) ← elabStruct struct expectedType?;
--- TODO: resolve missing default
+DefaultFields.propagate struct;
 pure r
 
 @[builtinTermElab structInst] def elabStructInst : TermElab :=

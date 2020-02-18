@@ -905,6 +905,8 @@ private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' 
 def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
 instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
 
+end Expr
+
 def mkAnnotation (kind : Name) (e : Expr) : Expr :=
 mkMData (KVMap.empty.insert kind (DataValue.ofBool true)) e
 
@@ -913,5 +915,4 @@ match e with
 | Expr.mdata d e _ => if d.size == 1 && d.getBool kind false then some e else none
 | _                => none
 
-end Expr
 end Lean

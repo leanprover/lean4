@@ -1418,15 +1418,9 @@ def setExpected (expected : List String) (p : Parser) : Parser :=
 def pushNone : Parser :=
 { fn := fun c s => s.pushSyntax mkNullNode }
 
-/-
-  We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-
-  TODO: we are making both cases look like syntax terms. Reason: the current expander expects a term.
-  We should remove this hack and modify the expander. This hack is bad since it relies on how we define `id` and `paren` in
-  the term parser at `Term.lean`. -/
-private def antiquotId : Parser         := node `Lean.Parser.Term.id (identNoAntiquot >> pushNone)
-private def antiquotNestedExpr : Parser := node `Lean.Parser.Term.paren ("(" >> node nullKind (termParser >> pushNone) >> ")")
-private def antiquotExpr : Parser       := antiquotId <|> antiquotNestedExpr
+-- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
+private def antiquotNestedExpr : Parser := node `antiquotNestedExpr ("(" >> termParser >> ")")
+private def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 /--
   Define parser for `$e` (if anonymous == true) and `$e:name`. Both

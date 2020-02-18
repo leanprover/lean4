@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Expr
-import Init.Lean.ReplaceExpr
+import Init.Lean.Util.ReplaceExpr
 
 namespace Lean
 namespace Meta

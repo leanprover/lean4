@@ -114,8 +114,8 @@ def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
 def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
-def setEnv (newEnv : Environment) : TermElabM Unit :=
-modify $ fun s => { env := newEnv, .. s }
+def setEnv (env : Environment) : TermElabM Unit := modify $ fun s => { env := env, .. s }
+def setMCtx (mctx : MetavarContext) : TermElabM Unit := modify $ fun s => { mctx := mctx, .. s }
 
 def addContext (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
@@ -1043,6 +1043,12 @@ candidates.foldlM
     pure $ (const, projs) :: result)
   []
 
+def resolveGlobalName (n : Name) : TermElabM (List (Name × List String)) := do
+env ← getEnv;
+currNamespace ← getCurrNamespace;
+openDecls ← getOpenDecls;
+pure (Lean.Elab.resolveGlobalName env currNamespace openDecls n)
+
 def resolveName (ref : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
 result? ← resolveLocalName n;
 match result? with
@@ -1060,10 +1066,8 @@ match result? with
     mkConsts ref candidates explicitLevels
   };
   if preresolved.isEmpty then do
-    env           ← getEnv;
-    currNamespace ← getCurrNamespace;
-    openDecls     ← getOpenDecls;
-    process (resolveGlobalName env currNamespace openDecls n)
+    r ← resolveGlobalName n;
+    process r
   else
     process preresolved
 

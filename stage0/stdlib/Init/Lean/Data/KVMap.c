@@ -31,6 +31,7 @@ uint8_t l_Lean_KVMap_subsetAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_nameVal___closed__1;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_size(lean_object*);
 lean_object* l_Lean_KVMap_nameVal___closed__3;
 lean_object* l_Lean_KVMap_intVal___closed__1;
 lean_object* l_Lean_KVMap_findCore___main(lean_object*, lean_object*);
@@ -54,6 +55,7 @@ lean_object* l_Lean_KVMap_HasToString(lean_object*);
 lean_object* l_Lean_KVMap_subsetAux___main___boxed(lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_nat2DataValue(lean_object*);
+lean_object* l_Lean_KVMap_size___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_DataValue_beq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getBool___boxed(lean_object*, lean_object*, lean_object*);
@@ -62,6 +64,7 @@ lean_object* l_List_toStringAux___main___at_Lean_KVMap_HasToString___spec__2___b
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_name2DataValue(lean_object*);
 lean_object* l_Lean_KVMap_eqv___boxed(lean_object*, lean_object*);
+lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_find___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_stringVal___closed__2;
 lean_object* l_Lean_KVMap_intVal___closed__3;
@@ -622,6 +625,24 @@ x_2 = l_Lean_KVMap_isEmpty(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+lean_object* l_Lean_KVMap_size(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l_List_lengthAux___main___rarg(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_KVMap_size___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_KVMap_size(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_KVMap_findCore___main(lean_object* x_1, lean_object* x_2) {

@@ -104,10 +104,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
 | Syntax.ident info rawVal val preresolved => do
   -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
   -- See the paper for details.
-  env           ← getEnv;
-  currNamespace ← getCurrNamespace;
-  openDecls     ← getOpenDecls;
-  let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
+  r ← resolveGlobalName val;
+  let preresolved := r ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
   `(Syntax.ident none $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))

@@ -16,21 +16,26 @@ extern "C" {
 lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
+lean_object* l_withPtrEqUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* l_withPtrAddr(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_withPtrEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_withPtrEq___rarg(lean_object*, lean_object*);
 lean_object* l_withPtrEqUnsafe(lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_dbg_trace(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l_withPtrEqDecEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_withPtrEq___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg___closed__2;
+lean_object* l_withPtrEqDecEq(lean_object*);
 lean_object* l_panicWithPos___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_dbg_sleep(uint32_t, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_withPtrAddr___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_withPtrEq(lean_object*);
+lean_object* l_withPtrEq(lean_object*, lean_object*, lean_object*);
+uint8_t l_withPtrEqDecEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe(lean_object*, lean_object*);
 lean_object* lean_dbg_trace_if_shared(lean_object*, lean_object*);
@@ -232,39 +237,6 @@ x_4 = lean_box_usize(x_3);
 return x_4;
 }
 }
-lean_object* l_withPtrEqUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-size_t x_5; size_t x_6; uint8_t x_7; 
-x_5 = lean_ptr_addr(x_3);
-x_6 = lean_ptr_addr(x_4);
-x_7 = x_5 == x_6;
-if (x_7 == 0)
-{
-lean_object* x_8; 
-x_8 = lean_apply_2(x_1, x_3, x_4);
-return x_8;
-}
-else
-{
-uint8_t x_9; lean_object* x_10; 
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_1);
-x_9 = 1;
-x_10 = lean_box(x_9);
-return x_10;
-}
-}
-}
-lean_object* l_withPtrEqUnsafe(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_withPtrEqUnsafe___rarg), 4, 0);
-return x_2;
-}
-}
 lean_object* l_withPtrAddrUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -292,20 +264,128 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_withPtrEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_withPtrEqUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_apply_2(x_1, x_3, x_4);
-return x_5;
+size_t x_5; size_t x_6; uint8_t x_7; 
+x_5 = lean_ptr_addr(x_1);
+x_6 = lean_ptr_addr(x_2);
+x_7 = x_5 == x_6;
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_box(0);
+x_9 = lean_apply_1(x_3, x_8);
+return x_9;
+}
+else
+{
+uint8_t x_10; lean_object* x_11; 
+lean_dec(x_3);
+x_10 = 1;
+x_11 = lean_box(x_10);
+return x_11;
 }
 }
-lean_object* l_withPtrEq(lean_object* x_1) {
+}
+lean_object* l_withPtrEqUnsafe(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_withPtrEq___rarg), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_withPtrEqUnsafe___rarg___boxed), 4, 0);
 return x_2;
+}
+}
+lean_object* l_withPtrEqUnsafe___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_withPtrEqUnsafe___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* l_withPtrEq___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_box(0);
+x_4 = lean_apply_1(x_1, x_3);
+return x_4;
+}
+}
+lean_object* l_withPtrEq(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_withPtrEq___rarg), 2, 0);
+return x_4;
+}
+}
+lean_object* l_withPtrEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_withPtrEq(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+uint8_t l_withPtrEqDecEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+size_t x_4; size_t x_5; uint8_t x_6; 
+x_4 = lean_ptr_addr(x_1);
+x_5 = lean_ptr_addr(x_2);
+x_6 = x_4 == x_5;
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_7 = lean_box(0);
+x_8 = lean_apply_1(x_3, x_7);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
+else
+{
+uint8_t x_11; 
+x_11 = 1;
+return x_11;
+}
+}
+else
+{
+uint8_t x_12; 
+lean_dec(x_3);
+x_12 = 1;
+return x_12;
+}
+}
+}
+lean_object* l_withPtrEqDecEq(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_withPtrEqDecEq___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_withPtrEqDecEq___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_withPtrEqDecEq___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 lean_object* _init_l_withPtrAddr___rarg___boxed__const__1() {

@@ -41,15 +41,22 @@ panic! "unreachable"
 @[extern "lean_ptr_addr"]
 unsafe def ptrAddrUnsafe {α : Type u} (a : @& α) : USize := 0
 
-@[inline] unsafe def withPtrEqUnsafe {α : Type u} (r : α → α → Bool) (h : ∀ a, r a a = true) : α → α → Bool :=
-fun a b => if ptrAddrUnsafe a == ptrAddrUnsafe b then true else r a b
-
 @[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
 k (ptrAddrUnsafe a)
 
+@[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+if ptrAddrUnsafe a == ptrAddrUnsafe b then true else k ()
+
 @[implementedBy withPtrEqUnsafe]
-def withPtrEq {α : Type u} (r : α → α → Bool) (h : ∀ a, r a a = true) : α → α → Bool :=
-r
+def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+k ()
+
+-- `withPtrEq` for `DecidableEq`
+@[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=
+let aux := withPtrEq a b (fun _ => @decide (a = b) (k ())) (fun h => @decideEqTrue _ (k ()) h);
+match aux, rfl : forall x (h : _ = x), _ with
+| true,  h => isTrue (@ofDecideEqTrue _ (k ()) h)
+| false, h => isFalse (@ofDecideEqFalse _ (k ()) h)
 
 @[implementedBy withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=

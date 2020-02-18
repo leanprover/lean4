@@ -906,4 +906,13 @@ def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Arr
 instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
 
 end Expr
+
+def mkAnnotation (kind : Name) (e : Expr) : Expr :=
+mkMData (KVMap.empty.insert kind (DataValue.ofBool true)) e
+
+def isAnnotation? (kind : Name) (e : Expr) : Option Expr :=
+match e with
+| Expr.mdata d e _ => if d.size == 1 && d.getBool kind false then some e else none
+| _                => none
+
 end Lean

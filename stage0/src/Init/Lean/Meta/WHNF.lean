@@ -32,5 +32,22 @@ partial def whnfImpl : Expr → MetaM Expr
 @[init] def setWHNFRef : IO Unit :=
 whnfRef.set whnfImpl
 
+/- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/
+def reduceProj? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
+env ← getEnv;
+e   ← whnf e;
+match e.getAppFn with
+| Expr.const name _ _ =>
+  match env.find? name with
+  | some (ConstantInfo.ctorInfo ctorVal) =>
+    let numArgs := e.getAppNumArgs;
+    let idx := ctorVal.nparams + i;
+    if idx < numArgs then
+      pure (some (e.getArg! idx))
+    else
+      pure none
+  | _ => pure none
+| _ => pure none
+
 end Meta
 end Lean

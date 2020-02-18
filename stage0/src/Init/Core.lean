@@ -680,6 +680,14 @@ theorem eqTrueOfNeFalse : ∀ {b : Bool}, b ≠ false → b = true
 | true, h => rfl
 | false, h => False.elim (h rfl)
 
+theorem neFalseOfEqTrue : ∀ {b : Bool}, b = true → b ≠ false
+| true, _  => fun h => Bool.noConfusion h
+| false, h => Bool.noConfusion h
+
+theorem neTrueOfEqFalse : ∀ {b : Bool}, b = false → b ≠ true
+| true, h  => Bool.noConfusion h
+| false, _ => fun h => Bool.noConfusion h
+
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
@@ -836,10 +844,32 @@ instance beqOfEq {α : Type u} [DecidableEq α] : HasBeq α :=
 ⟨fun a b => decide (a = b)⟩
 
 theorem decideTrueEqTrue (h : Decidable True) : @decide True h = true :=
-Decidable.casesOn h (fun h => False.elim (Iff.mp notTrue h)) (fun _ => rfl)
+match h with
+| isTrue h  => rfl
+| isFalse h => False.elim (Iff.mp notTrue h)
 
 theorem decideFalseEqFalse (h : Decidable False) : @decide False h = false :=
-Decidable.casesOn h (fun h => rfl) (fun h => False.elim h)
+match h with
+| isFalse h => rfl
+| isTrue h  => False.elim h
+
+theorem decideEqTrue : ∀ {p : Prop} [s : Decidable p], p → decide p = true
+| _, isTrue  _, _   => rfl
+| _, isFalse h₁, h₂ => absurd h₂ h₁
+
+theorem decideEqFalse : ∀ {p : Prop} [s : Decidable p], ¬p → decide p = false
+| _, isTrue  h₁, h₂ => absurd h₁ h₂
+| _, isFalse h, _   => rfl
+
+theorem ofDecideEqTrue {p : Prop} [s : Decidable p] : decide p = true → p :=
+fun h => match s with
+  | isTrue  h₁ => h₁
+  | isFalse h₁ => absurd h (neTrueOfEqFalse (decideEqFalse h₁))
+
+theorem ofDecideEqFalse {p : Prop} [s : Decidable p] : decide p = false → ¬p :=
+fun h => match s with
+  | isTrue  h₁ => absurd h (neFalseOfEqTrue (decideEqTrue h₁))
+  | isFalse h₁ => h₁
 
 instance : Decidable True :=
 isTrue trivial

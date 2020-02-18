@@ -14,3 +14,13 @@ e.replace $ fun e => match e with
 #eval replaceTest $ mkBig 4
 
 #eval (replaceTest $ mkBig 128).getAppFn
+
+def findTest (e : Expr) : Option Expr :=
+e.find? $ fun e => match e with
+  | Expr.const c _ _ => c == `g
+  | _ => false
+
+#eval findTest $ mkBig 4
+#eval findTest $ replaceTest $ mkBig 4
+#eval findTest $ mkBig 128
+#eval findTest $ (replaceTest $ mkBig 128)

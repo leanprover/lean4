@@ -44,23 +44,23 @@ else do
 unsafe def initCache : State :=
 { keys    := mkArray cacheSize.toNat (cast lcProof ()) }
 
-@[inline] unsafe def findExprUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
+@[inline] unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
 (findM? p cacheSize e).run' initCache
 
 end FindImpl
 
-@[implementedBy FindImpl.findExprUnsafe?]
-partial def findExpr? (p : Expr → Bool) : Expr → Option Expr
+@[implementedBy FindImpl.findUnsafe?]
+partial def find? (p : Expr → Bool) : Expr → Option Expr
 | e =>
   /- This is a reference implementation for the unsafe one above -/
   if p e then some e
   else match e with
-    | Expr.forallE _ d b _   => findExpr? d <|> findExpr? b
-    | Expr.lam _ d b _       => findExpr? d <|> findExpr? b
-    | Expr.mdata _ b _       => findExpr? b
-    | Expr.letE _ t v b _    => findExpr? t <|> findExpr? v <|> findExpr? b
-    | Expr.app f a _         => findExpr? f <|> findExpr? a
-    | Expr.proj _ _ b _      => findExpr? b
+    | Expr.forallE _ d b _   => find? d <|> find? b
+    | Expr.lam _ d b _       => find? d <|> find? b
+    | Expr.mdata _ b _       => find? b
+    | Expr.letE _ t v b _    => find? t <|> find? v <|> find? b
+    | Expr.app f a _         => find? f <|> find? a
+    | Expr.proj _ _ b _      => find? b
     | e                      => none
 
 end Expr

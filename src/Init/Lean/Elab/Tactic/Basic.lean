@@ -297,6 +297,21 @@ match newGoals with
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
 
+partial def evalChoiceAux (tactics : Array Syntax) : Nat → TacticM Unit
+| i =>
+  if h : i < tactics.size then
+    let tactic := tactics.get ⟨i, h⟩;
+    catch
+      (evalTactic tactic)
+      (fun ex => match ex with
+        | Exception.unsupportedSyntax => evalChoiceAux (i+1)
+        | _ => throw ex)
+  else
+    throwUnsupportedSyntax
+
+@[builtinTactic choice] def evalChoice : Tactic :=
+fun stx => evalChoiceAux stx.getArgs 0
+
 @[builtinTactic skip] def evalSkip : Tactic :=
 fun stx => pure ()
 

@@ -2,6 +2,15 @@
 This is an annoyingly unhelpful error message that I see all the time.
 An exact line number would help a lot, but even so it would be great
 to replace the `⟨...⟩` with the actual term in question.
+
+[Leo]: The bad position is due the transition to the new elaborator.
+The new frontend produces the correct position.
+Note that, the new frontend reports an error at `⟨4⟩`. This is the correct
+position, and it is not possible to infer anything about the expected type since
+`x4` is not used anywhere. So, the error message is the best we can get.
+There is no actual term to replace. If we comment the line `let x4 := ...`,
+the new elaborator succeeds.
+
 -/
 structure Foo := (n : Nat)
 

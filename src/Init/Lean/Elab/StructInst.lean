@@ -119,26 +119,36 @@ s? ← args.foldSepByM
   (fun arg s? =>
     let k := arg.getKind;
     if k == `Lean.Parser.Term.structInstSource then pure s?
-    else if k == `Lean.Parser.Term.structInstArrayRef then
-      match s? with
-      | none   => pure (some arg)
-      | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwError arg "invalid {...} notation, at most one `[..]` at a given level"
-        else
-          throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+    else if k == `Lean.Parser.Term.structInstField then
+      /- Remark: the syntax for `structInstField` is
+         ```
+         def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
+         def structInstField  := parser! structInstLVal >> " := " >> termParser
+         ``` -/
+      let lval := arg.getArg 0;
+      let k    := lval.getKind;
+      if k == `Lean.Parser.Term.structInstArrayRef then
+        match s? with
+        | none   => pure (some arg)
+        | some s =>
+          if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+            throwError arg "invalid {...} notation, at most one `[..]` at a given level"
+          else
+            throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+      else
+        match s? with
+        | none   => pure (some arg)
+        | some s =>
+          if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+            throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+          else
+            pure s?
     else
-      match s? with
-      | none   => pure (some arg)
-      | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
-        else
-          pure s?)
+      throwError arg "unexpected {...} notation")
   none;
 match s? with
 | none   => pure none
-| some s => if s.getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
+| some s => if (s.getArg 0).getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
 
 private def elabModifyOp (stx modifyOp : Syntax) (source : Expr) (expectedType? : Option Expr) : TermElabM Expr :=
 throwError stx ("WIP " ++ stx)

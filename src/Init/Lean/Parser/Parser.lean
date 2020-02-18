@@ -1432,7 +1432,8 @@ private def antiquotExpr : Parser       := antiquotId <|> antiquotNestedExpr
   Define parser for `$e` (if anonymous == true) and `$e:name`. Both
   forms can also be used with an appended `*` to turn them into an
   antiquotation "splice". If `kind` is given, it will additionally be checked
-  when evaluating `match_syntax`. -/
+  when evaluating `match_syntax`. Antiquotations can be escaped as in `$$e`, which
+  produces the syntax tree for `$e`. -/
 def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
 let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux ":" >> nonReservedSymbol name;
@@ -1440,7 +1441,12 @@ let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux 
 -- antiquotation kind via `noImmediateColon`
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
 -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
-node kind $ try $ setExpected [] dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
+node kind $ try $
+  setExpected [] dollarSymbol >>
+  many (checkNoWsBefore "" >> dollarSymbol) >>
+  checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
+  nameP >>
+  optional (checkNoWsBefore "" >> "*")
 
 def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
 let (s, stx?) := peekToken c s;

@@ -105,11 +105,7 @@ macro_rules `(Σ $idx:index => $F:term) => `(Prod ($idx:index) $F)
 syntax "def_bigop" str term:max term:max : command
 macro_rules
 | `(def_bigop $head:strLit $op $unit) =>
-   -- We have to use `$(mkAntiquotStx idx "index"):index` instead of `$idx:index` because it occurs inside of a nested quasiquotation.
-   -- We have to use write `(HasBind.bind `(idx) (fund idx => ...))` to make sure `idx` contains the same macro scopes of the `idx` occurring
-   -- on the left-hand-side of the macro command.
-   HasBind.bind `(idx) (fun idx => HasBind.bind `(F) (fun F =>
-    `(macro $head:strLit "(" idx:index ")" F:term : term => `(_big [$op, $unit] ($(idx.termIdToAntiquot "index"):index) $(F.termIdToAntiquot "term")))))
+   `(macro $head:strLit "(" idx:index ")" F:term : term => `(_big [$op, $unit] ($$idx:index) $$F))
 
 def_bigop "SUM" Nat.add 0
 #check SUM (i <- [0, 1, 2]) i+1

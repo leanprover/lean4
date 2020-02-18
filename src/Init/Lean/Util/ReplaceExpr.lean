@@ -14,14 +14,13 @@ namespace ReplaceImpl
 abbrev cacheSize : USize := 8192
 
 structure State :=
-(keys    : Array Expr)
-(used    : Array Bool)
+(keys    : Array Expr) -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
 (results : Array Expr)
 
 abbrev ReplaceM := StateM State
 
 @[inline] unsafe def cache (i : USize) (key : Expr) (result : Expr) : ReplaceM Expr := do
-modify $ fun s => { keys := s.keys.uset i key lcProof, used := s.used.uset i true lcProof, results := s.results.uset i result lcProof };
+modify $ fun s => { keys := s.keys.uset i key lcProof, results := s.results.uset i result lcProof };
 pure result
 
 @[specialize] unsafe def replaceUnsafeM (f? : Expr → Option Expr) (size : USize) : Expr → ReplaceM Expr
@@ -29,7 +28,7 @@ pure result
   c ← get;
   let h := ptrAddrUnsafe e;
   let i := h % size;
-  if c.used.uget i lcProof && ptrAddrUnsafe (c.keys.uget i lcProof) == h then
+  if ptrAddrUnsafe (c.keys.uget i lcProof) == h then
     pure $ c.results.uget i lcProof
   else match f? e with
     | some eNew => cache i e eNew
@@ -43,10 +42,9 @@ pure result
       | Expr.localE _ _ _ _    => unreachable!
       | e                      => pure e
 
-def initCache : State :=
-{ keys    := mkArray cacheSize.toNat (arbitrary _),
-  results := mkArray cacheSize.toNat (arbitrary _),
-  used    := mkArray cacheSize.toNat false }
+unsafe def initCache : State :=
+{ keys    := mkArray cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
+  results := mkArray cacheSize.toNat (arbitrary _) }
 
 @[inline] unsafe def replaceUnsafe (f? : Expr → Option Expr) (e : Expr) : Expr :=
 (replaceUnsafeM f? cacheSize e).run' initCache

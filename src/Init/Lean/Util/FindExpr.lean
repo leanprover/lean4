@@ -15,7 +15,7 @@ namespace FindImpl
 abbrev cacheSize : USize := 8192
 
 structure State :=
-(keys : Array Expr)
+(keys : Array Expr) -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
 
 abbrev FindM := StateM State
 
@@ -41,8 +41,8 @@ else do
     | Expr.proj _ _ b _      => findM? b
     | e                      => failure
 
-def initCache : State :=
-{ keys    := mkArray cacheSize.toNat (arbitrary _) }
+unsafe def initCache : State :=
+{ keys    := mkArray cacheSize.toNat (cast lcProof ()) }
 
 @[inline] unsafe def findExprUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
 (findM? p cacheSize e).run' initCache

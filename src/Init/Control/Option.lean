@@ -19,12 +19,13 @@ x
 namespace OptionT
   variables {m : Type u → Type v} [Monad m] {α β : Type u}
 
-  @[inline] protected def bindCont {α β : Type u} (f : α → OptionT m β) : Option α → m (Option β)
-  | some a => f a
-  | none   => pure none
-
   @[inline] protected def bind (ma : OptionT m α) (f : α → OptionT m β) : OptionT m β :=
-  (ma >>= OptionT.bindCont f : m (Option β))
+  (do {
+    a? ← ma;
+    match a? with
+    | some a => f a
+    | none   => pure none
+  } : m (Option β))
 
   @[inline] protected def pure (a : α) : OptionT m α :=
   (pure (some a) : m (Option α))
@@ -32,9 +33,11 @@ namespace OptionT
   instance : Monad (OptionT m) :=
   { pure := @OptionT.pure _ _, bind := @OptionT.bind _ _ }
 
-  protected def orelse (ma : OptionT m α) (mb : OptionT m α) : OptionT m α :=
-  (do { some a ← ma | mb;
-        pure (some a) } : m (Option α))
+  @[inline] protected def orelse (ma : OptionT m α) (mb : OptionT m α) : OptionT m α :=
+  (do { a? ← ma;
+        match a? with
+        | some a => pure (some a)
+        | _      => mb } : m (Option α))
 
   @[inline] protected def fail : OptionT m α :=
   (pure none : m (Option α))
@@ -56,7 +59,7 @@ namespace OptionT
   instance (m') [Monad m'] : MonadFunctor m m' (OptionT m) (OptionT m') :=
   ⟨fun α => OptionT.monadMap⟩
 
-  protected def catch (ma : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α :=
+  @[inline] protected def catch (ma : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α :=
   (do { some a ← ma | (handle ());
         pure a } : m (Option α))
 

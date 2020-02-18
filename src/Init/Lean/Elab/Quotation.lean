@@ -79,7 +79,11 @@ if isAntiquot stx then
 else stx
 
 def getAntiquotTerm (stx : Syntax) : Syntax :=
-stx.getArg 2
+let e := stx.getArg 2;
+if e.isIdent then mkTermIdFromIdent e
+else
+  -- `e` is from `"(" >> termParser >> ")"`
+  e.getArg 1
 
 def antiquotKind? : Syntax → Option SyntaxNodeKind
 | Syntax.node (Name.str k "antiquot" _) args =>
@@ -226,9 +230,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     -- else
     --   let e := stx; ...
     let kind := if k == Name.anonymous then none else k;
-    let anti := match_syntax getAntiquotTerm quoted with
-    | `(($e)) => e
-    | anti    => anti;
+    let anti := getAntiquotTerm quoted;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
@@ -292,9 +294,6 @@ private partial def getPatternVarsAux : Syntax → List Syntax
 | stx@(Syntax.node k args) =>
   if isAntiquot stx && !isEscapedAntiquot stx then
     let anti := getAntiquotTerm stx;
-    let anti := match_syntax anti with
-    | `(($e)) => e
-    | _       => anti;
     if anti.isOfKind `Lean.Parser.Term.id then [anti]
     else []
   else

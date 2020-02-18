@@ -259,7 +259,7 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
 | stx => match_syntax stx with
 | `($id:ident) =>
   if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then
-    Syntax.node `antiquot #[mkAtom "$", mkNullNode, Unhygienic.run `($id:ident), mkNullNode, mkNullNode]
+    Syntax.node `antiquot #[mkAtom "$", mkNullNode, id, mkNullNode, mkNullNode]
   else
     stx
 | _ => match stx with
@@ -290,7 +290,7 @@ def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.identPrec then
   let item := stx.getArg 0;
-  pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, mkTermIdFromIdent item, mkNullNode, mkNullNode]
+  pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, item, mkNullNode, mkNullNode]
 else if k == `Lean.Parser.Command.quotedSymbolPrec then
   pure $ (stx.getArg 0).getArg 1
 else if k == `Lean.Parser.Command.strLitPrec then
@@ -346,7 +346,7 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.macroArgSimple then
   let item := stx.getArg 0;
-  pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, mkTermIdFromIdent item, mkNullNode, mkNullNode]
+  pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, item, mkNullNode, mkNullNode]
 else if k == `Lean.Parser.Command.strLitPrec then
   strLitPrecToPattern stx
 else

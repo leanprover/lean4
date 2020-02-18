@@ -529,8 +529,8 @@ private partial def elabStruct : Struct → Option Expr → TermElabM (Expr × S
             pure (e, type, field::fields)
           };
           match field.val with
-          | FieldVal.term stx => do val ← elabTerm stx (some d); continue val field
-          | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); continue val { val := FieldVal.nested sNew, .. field }
+          | FieldVal.term stx => do val ← elabTerm stx (some d); val ← ensureHasType stx d val; continue val field
+          | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); val ← ensureHasType s.ref d val; continue val { val := FieldVal.nested sNew, .. field }
           | FieldVal.default  => do val ← mkFreshExprMVar field.ref (some d); continue (markDefaultMissing val) field
         | _ => throwFailedToElabField field.ref fieldName s.structName ("unexpected constructor type" ++ indentExpr type)
       | _ => throwError field.ref "unexpected unexpanded structure field")
@@ -701,7 +701,7 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
   | none     => pure e
 | e => pure e
 
-partial def tryToSynthesizeDefaultAux (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat)
+partial def tryToSynthesizeDefaultAux (ref : Syntax) (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat)
     (fieldName : Name) (mvarId : MVarId) : Nat → Nat → TermElabM Bool
 | i, dist =>
   if dist > maxDistance then pure false
@@ -720,14 +720,17 @@ partial def tryToSynthesizeDefaultAux (structs : Array Struct) (allStructNames :
         match val.find? $ fun e => (isDefaultMissing? e).isSome with
         | some _ => do setMCtx mctx; tryToSynthesizeDefaultAux (i+1) (dist+1)
         | none   => do
+          mvarDecl ← getMVarDecl mvarId;
+          val ← ensureHasType ref mvarDecl.type val;
           assignExprMVar mvarId val;
           pure true
     | _ => tryToSynthesizeDefaultAux (i+1) dist
   else
     pure false
 
-def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat) (fieldName : Name) (mvarId : MVarId) : TermElabM Bool :=
-tryToSynthesizeDefaultAux structs allStructNames maxDistance fieldName mvarId 0 0
+def tryToSynthesizeDefault (ref : Syntax) (structs : Array Struct) (allStructNames : Array Name)
+    (maxDistance : Nat) (fieldName : Name) (mvarId : MVarId) : TermElabM Bool :=
+tryToSynthesizeDefaultAux ref structs allStructNames maxDistance fieldName mvarId 0 0
 
 partial def step : Struct → M Unit
 | struct => unlessM isRoundDone $ adaptReader (fun (ctx : Context) => { structs := ctx.structs.push struct, .. ctx }) $ do
@@ -740,7 +743,7 @@ partial def step : Struct → M Unit
         | some (Expr.mvar mvarId _) =>
           unlessM (liftM $ isExprMVarAssigned mvarId) $ do
             ctx ← read;
-            whenM (liftM $ tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) $ do
+            whenM (liftM $ tryToSynthesizeDefault field.ref ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) $ do
               modify $ fun s => { progress := true, .. s }
         | _ => pure ()
 

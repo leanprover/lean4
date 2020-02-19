@@ -20,3 +20,6 @@ def foo : Foo := {}
 #check { x[1].2 := true, .. foo }
 #check { x[1].fst.snd := 1, .. foo }
 #check { x[1].1.fst := 1, .. foo }
+
+#check { x[1].1.1 := 5, .. foo }
+#check { x[1].1.2 := 5, .. foo }

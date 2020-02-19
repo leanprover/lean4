@@ -547,7 +547,7 @@ private partial def decodeDecimalLitAux (s : String) : String.Pos → Nat → Op
     if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux (s.next i) (10*val + c.toNat - '0'.toNat)
     else none
 
-private def decodeNatLitVal (s : String) : Option Nat :=
+def decodeNatLitVal (s : String) : Option Nat :=
 let len := s.length;
 if len == 0 then none
 else

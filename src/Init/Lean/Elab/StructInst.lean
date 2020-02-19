@@ -150,8 +150,29 @@ match s? with
 | none   => pure none
 | some s => if (s.getArg 0).getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
 
-private def elabModifyOp (stx modifyOp : Syntax) (source : Expr) (expectedType? : Option Expr) : TermElabM Expr :=
-throwError stx ("WIP " ++ stx)
+private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+let continue (val : Syntax) : TermElabM Expr := do {
+  let lval := modifyOp.getArg 0;
+  let idx  := lval.getArg 1;
+  let self := (source.getArg 1).getArg 0;
+  stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val));
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+};
+let rest := modifyOp.getArg 1;
+if rest.isNone then do
+  continue (modifyOp.getArg 3)
+else do
+  s ← `(s);
+  let valFirst  := rest.getArg 0;
+  let valFirst  := if valFirst.getKind == `Lean.Parser.Term.structInstArrayRef then valFirst else valFirst.getArg 1;
+  let restArgs  := rest.getArgs;
+  let valRest   := mkNullNode (restArgs.extract 1 restArgs.size);
+  let valField  := modifyOp.setArg 0 valFirst;
+  let valField  := valField.setArg 1 valRest;
+  let valSource := source.modifyArg 1 $ fun stx => stx.modifyArg 0 $ fun _ => s;
+  let val       := stx.setArg 1 mkNullNode;
+  let val       := val.setArg 2 $ mkNullNode #[valField, mkAtomFrom stx ", ", valSource];
+  continue val
 
 /- Get structure name and elaborate explicit source (if avialable) -/
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name :=
@@ -801,7 +822,7 @@ fun stx expectedType? => do
     sourceView ← getStructSource stx;
     modifyOp?  ← isModifyOp? stx;
     match modifyOp?, sourceView with
-    | some modifyOp, Source.explicit _ source => elabModifyOp stx modifyOp source expectedType?
+    | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
     | some _,        _                        => throwError stx ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
     | _,             _                        => elabStructInstAux stx expectedType? sourceView
 

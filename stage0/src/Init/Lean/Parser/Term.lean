@@ -73,7 +73,7 @@ def haveAssign := parser! " := " >> termParser
 @[builtinTermParser] def «suffices» := parser! symbol "suffices " leadPrec >> optIdent >> termParser >> fromTerm >> "; " >> termParser
 @[builtinTermParser] def «show»     := parser! symbol "show " leadPrec >> termParser >> fromTerm
 def structInstArrayRef := parser! "[" >> termParser >>"]"
-def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
+def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
 def structInstSource := parser! ".." >> optional termParser
 @[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (ident >> checkWsBefore "expected space '.'" >> " . ")) >> sepBy (structInstField <|> structInstSource) ", " true >> "}"

@@ -45,7 +45,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Offset_5__mkOffset___closed__1;
 lean_object* l_Lean_Meta_evalNat___main___closed__9;
 uint8_t l_Bool_toLBool(uint8_t);
-extern lean_object* l___private_Init_LeanInit_11__decodeNatLitVal___closed__1;
 uint8_t l___private_Init_Lean_Meta_Offset_4__isNatZero(lean_object*);
 lean_object* l_Lean_Meta_evalNat___main___closed__17;
 lean_object* l_Lean_Meta_evalNat___main___closed__8;
@@ -60,6 +59,7 @@ lean_object* l_Lean_Meta_evalNat___main___closed__14;
 lean_object* l_Lean_Meta_evalNat___main___closed__1;
 lean_object* l___private_Init_Lean_Meta_Offset_1__getOffsetAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
+extern lean_object* l_Lean_Syntax_decodeNatLitVal___closed__1;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -282,7 +282,7 @@ return x_12;
 else
 {
 lean_object* x_13; 
-x_13 = l___private_Init_LeanInit_11__decodeNatLitVal___closed__1;
+x_13 = l_Lean_Syntax_decodeNatLitVal___closed__1;
 return x_13;
 }
 }

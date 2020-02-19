@@ -376,6 +376,21 @@ if levelNames.elem id then
 else
   modifyScope $ fun scope => { levelNames := id :: scope.levelNames, .. scope }
 
+partial def elabChoiceAux (cmds : Array Syntax) : Nat → CommandElabM Unit
+| i =>
+  if h : i < cmds.size then
+    let cmd := cmds.get ⟨i, h⟩;
+    catch
+      (elabCommand cmd)
+      (fun ex => match ex with
+        | Exception.unsupportedSyntax => elabChoiceAux (i+1)
+        | _ => throw ex)
+  else
+    throwUnsupportedSyntax
+
+@[builtinCommandElab choice] def elbChoice : CommandElab :=
+fun stx => elabChoiceAux stx.getArgs 0
+
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab :=
 fun n => do
   addUnivLevel (n.getArg 1)

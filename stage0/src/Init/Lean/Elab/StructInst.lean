@@ -119,29 +119,60 @@ s? ← args.foldSepByM
   (fun arg s? =>
     let k := arg.getKind;
     if k == `Lean.Parser.Term.structInstSource then pure s?
-    else if k == `Lean.Parser.Term.structInstArrayRef then
-      match s? with
-      | none   => pure (some arg)
-      | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwError arg "invalid {...} notation, at most one `[..]` at a given level"
-        else
-          throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+    else if k == `Lean.Parser.Term.structInstField then
+      /- Remark: the syntax for `structInstField` is
+         ```
+         def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
+         def structInstField  := parser! structInstLVal >> " := " >> termParser
+         ``` -/
+      let lval := arg.getArg 0;
+      let k    := lval.getKind;
+      if k == `Lean.Parser.Term.structInstArrayRef then
+        match s? with
+        | none   => pure (some arg)
+        | some s =>
+          if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+            throwError arg "invalid {...} notation, at most one `[..]` at a given level"
+          else
+            throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+      else
+        match s? with
+        | none   => pure (some arg)
+        | some s =>
+          if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+            throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+          else
+            pure s?
     else
-      match s? with
-      | none   => pure (some arg)
-      | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
-        else
-          pure s?)
+      throwError arg "unexpected {...} notation")
   none;
 match s? with
 | none   => pure none
-| some s => if s.getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
+| some s => if (s.getArg 0).getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
 
-private def elabModifyOp (stx modifyOp : Syntax) (source : Expr) (expectedType? : Option Expr) : TermElabM Expr :=
-throwError stx ("WIP " ++ stx)
+private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+let continue (val : Syntax) : TermElabM Expr := do {
+  let lval := modifyOp.getArg 0;
+  let idx  := lval.getArg 1;
+  let self := (source.getArg 1).getArg 0;
+  stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val));
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+};
+let rest := modifyOp.getArg 1;
+if rest.isNone then do
+  continue (modifyOp.getArg 3)
+else do
+  s ← `(s);
+  let valFirst  := rest.getArg 0;
+  let valFirst  := if valFirst.getKind == `Lean.Parser.Term.structInstArrayRef then valFirst else valFirst.getArg 1;
+  let restArgs  := rest.getArgs;
+  let valRest   := mkNullNode (restArgs.extract 1 restArgs.size);
+  let valField  := modifyOp.setArg 0 valFirst;
+  let valField  := valField.setArg 1 valRest;
+  let valSource := source.modifyArg 1 $ fun stx => stx.modifyArg 0 $ fun _ => s;
+  let val       := stx.setArg 1 mkNullNode;
+  let val       := val.setArg 2 $ mkNullNode #[valField, mkAtomFrom stx ", ", valSource];
+  continue val
 
 /- Get structure name and elaborate explicit source (if avialable) -/
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name :=
@@ -267,25 +298,27 @@ def Field.toSyntax : Field Struct → Syntax
     stx
   | _ => unreachable!
 
-private def toFieldLHS (stx : Syntax) : FieldLHS :=
-if stx.getKind == `Lean.Parser.Term.structInstArrayRef then FieldLHS.modifyOp stx (stx.getArg 1)
+private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
+if stx.getKind == `Lean.Parser.Term.structInstArrayRef then
+  pure $ FieldLHS.modifyOp stx (stx.getArg 1)
 else
   -- Note that the representation of the first field is different.
   let stx := if stx.getKind == nullKind then stx.getArg 1 else stx;
-  if stx.isIdent then FieldLHS.fieldName stx stx.getId
-  else match stx.isNatLit? with
-    | some idx => FieldLHS.fieldIndex stx idx
-    | none     => unreachable!
+  if stx.isIdent then pure $ FieldLHS.fieldName stx stx.getId
+  else match stx.isFieldIdx? with
+    | some idx => pure $ FieldLHS.fieldIndex stx idx
+    | none     => throw "unexpected structure syntax"
 
-private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : Struct :=
+private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : Except String Struct := do
 let args      := (stx.getArg 2).getArgs;
 let fieldsStx := args.filter $ fun arg => arg.getKind == `Lean.Parser.Term.structInstField;
-let fields := fieldsStx.toList.map $ fun fieldStx =>
+fields ← fieldsStx.toList.mapM $ fun fieldStx => do {
   let val   := fieldStx.getArg 3;
-  let first := toFieldLHS (fieldStx.getArg 0);
-  let rest  := (fieldStx.getArg 1).getArgs.toList.map $ toFieldLHS;
-  ({ref := fieldStx, lhs := first :: rest, val := FieldVal.term val } : Field Struct);
-⟨stx, structName, fields, source⟩
+  first ← toFieldLHS (fieldStx.getArg 0);
+  rest  ← (fieldStx.getArg 1).getArgs.toList.mapM toFieldLHS;
+  pure $ ({ref := fieldStx, lhs := first :: rest, val := FieldVal.term val } : Field Struct)
+};
+pure ⟨stx, structName, fields, source⟩
 
 def Struct.modifyFieldsM {m : Type → Type} [Monad m] (s : Struct) (f : Fields → m Fields) : m Struct :=
 match s with
@@ -776,11 +809,14 @@ structName ← getStructName stx expectedType? source;
 env ← getEnv;
 unless (isStructureLike env structName) $
   throwError stx ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
-struct ← expandStruct $ mkStructView stx structName source;
-trace `Elab.struct stx $ fun _ => toString struct;
-(r, struct) ← elabStruct struct expectedType?;
-DefaultFields.propagate struct;
-pure r
+match mkStructView stx structName source with
+| Except.error ex  => throwError stx ex
+| Except.ok struct => do
+  struct ← expandStruct struct;
+  trace `Elab.struct stx $ fun _ => toString struct;
+  (r, struct) ← elabStruct struct expectedType?;
+  DefaultFields.propagate struct;
+  pure r
 
 @[builtinTermElab structInst] def elabStructInst : TermElab :=
 fun stx expectedType? => do
@@ -791,7 +827,7 @@ fun stx expectedType? => do
     sourceView ← getStructSource stx;
     modifyOp?  ← isModifyOp? stx;
     match modifyOp?, sourceView with
-    | some modifyOp, Source.explicit _ source => elabModifyOp stx modifyOp source expectedType?
+    | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
     | some _,        _                        => throwError stx ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
     | _,             _                        => elabStructInstAux stx expectedType? sourceView
 

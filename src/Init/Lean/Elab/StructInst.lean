@@ -298,35 +298,25 @@ def Field.toSyntax : Field Struct → Syntax
     stx
   | _ => unreachable!
 
-private def toFieldLHS (stx : Syntax) : Except String (List FieldLHS) :=
+private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
 if stx.getKind == `Lean.Parser.Term.structInstArrayRef then
-  pure $ [FieldLHS.modifyOp stx (stx.getArg 1)]
+  pure $ FieldLHS.modifyOp stx (stx.getArg 1)
 else
   -- Note that the representation of the first field is different.
   let stx := if stx.getKind == nullKind then stx.getArg 1 else stx;
-  if stx.isIdent then pure $ [FieldLHS.fieldName stx stx.getId]
-  else match stx.isNatLit? with
-    | some idx => pure $ [FieldLHS.fieldIndex stx idx]
-    | none     => match stx.isLit? numLitKind with
-      | some val =>
-        let parts := val.split $ fun c => c == '.';
-        parts.mapM $ fun part =>
-          match Syntax.decodeNatLitVal part with
-          | some idx => pure $ FieldLHS.fieldIndex (mkStxNumLit (toString idx) stx.getHeadInfo) idx
-          | none     => throw "unexpected structure syntax"
-      | none     => throw "unexpected structure syntax"
+  if stx.isIdent then pure $ FieldLHS.fieldName stx stx.getId
+  else match stx.isFieldIdx? with
+    | some idx => pure $ FieldLHS.fieldIndex stx idx
+    | none     => throw "unexpected structure syntax"
 
 private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : Except String Struct := do
 let args      := (stx.getArg 2).getArgs;
 let fieldsStx := args.filter $ fun arg => arg.getKind == `Lean.Parser.Term.structInstField;
 fields ← fieldsStx.toList.mapM $ fun fieldStx => do {
   let val   := fieldStx.getArg 3;
-  lhs ← toFieldLHS (fieldStx.getArg 0) | throw "unexpected structure syntax";
-  lhs ←
-    (fieldStx.getArg 1).getArgs.toList.foldlM
-      (fun lhs lhsStx => do lhsNew ← toFieldLHS lhsStx; pure (lhs ++ lhsNew))
-      lhs;
-  pure $ ({ref := fieldStx, lhs := lhs, val := FieldVal.term val } : Field Struct)
+  first ← toFieldLHS (fieldStx.getArg 0);
+  rest  ← (fieldStx.getArg 1).getArgs.toList.mapM toFieldLHS;
+  pure $ ({ref := fieldStx, lhs := first :: rest, val := FieldVal.term val } : Field Struct)
 };
 pure ⟨stx, structName, fields, source⟩
 

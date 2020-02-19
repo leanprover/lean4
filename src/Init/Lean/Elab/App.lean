@@ -497,7 +497,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     let idx := idx.isFieldIdx?.get!;
     elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
   | `($(e).$field:ident) =>
-    let newLVals := field.getId.components.map (fun n => LVal.fieldName (toString n));
+    let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName (toString n));
     elabAppFn (f.getArg 0) (newLVals ++ lvals) namedArgs args expectedType? explicit acc
   | `($e[$idx]) =>
     elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
@@ -564,7 +564,7 @@ let f    := stx.getArg 0;
     let (namedArgs, args) := acc;
     if stx.getKind == `Lean.Parser.Term.namedArgument then do
       -- tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
-      let name := (stx.getArg 1).getId;
+      let name := (stx.getArg 1).getId.eraseMacroScopes;
       let val  := stx.getArg 3;
       namedArgs ← addNamedArg stx namedArgs { name := name, val := Arg.stx val };
       pure (namedArgs, args)

@@ -49,5 +49,22 @@ match e.getAppFn with
   | _ => pure none
 | _ => pure none
 
+@[specialize] private partial def whnfHeadPredAux (pred : Expr → MetaM Bool) : Expr → MetaM Expr
+| e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment? e $ fun e => do
+  e ← whnfCore e;
+  condM (pred e)
+    (do
+      e? ← unfoldDefinition? e;
+      match e? with
+      | some e => whnfHeadPredAux e
+      | none   => pure e)
+    (pure e)
+
+def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : MetaM Expr :=
+whnfHeadPredAux pred e
+
+def whnfUntil (e : Expr) (declName : Name) : MetaM Expr :=
+whnfHeadPredAux (fun e => pure $ e.isAppOf declName) e
+
 end Meta
 end Lean

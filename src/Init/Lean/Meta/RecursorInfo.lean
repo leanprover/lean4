@@ -152,6 +152,30 @@ indicesPos ← numIndices.foldM
   #[];
 pure indicesPos.toList
 
+private def getMotiveLevel (declName : Name) (motiveResultType : Expr) : MetaM Level :=
+match motiveResultType with
+| Expr.sort u@(Level.zero _) _    => pure u
+| Expr.sort u@(Level.param _ _) _ => pure u
+| _                               => throw $ Exception.other
+ ("invalid user defined recursor '" ++ toString declName ++ "' , motive result sort must be Prop or (Sort u) where u is a universe level parameter")
+
+private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl : Level) (Ilevels : List Level) : MetaM (List RecursorUnivLevelPos) := do
+let Ilevels := Ilevels.toArray;
+univLevelPos ← lparams.foldlM
+  (fun (univLevelPos : Array RecursorUnivLevelPos) p =>
+    if motiveLvl == mkLevelParam p then
+      pure $ univLevelPos.push RecursorUnivLevelPos.motive
+    else
+      match Ilevels.findIdx? $ fun u => u == mkLevelParam p with
+      | some i => pure $ univLevelPos.push $ RecursorUnivLevelPos.majorType i
+      | none   => throw $ Exception.other
+        ("invalid user defined recursor '" ++ toString declName ++ "' , major premise type does not contain universe level parameter '" ++ toString p ++ "'"))
+  #[];
+pure univLevelPos.toList
+
+private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices majorPos : Nat) (motive : Expr) : MetaM (List Bool × Bool) := do
+pure ([], true) -- TODO
+
 def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
 cinfo ← getConstInfo declName;
 match cinfo with
@@ -203,8 +227,21 @@ match cinfo with
             ("invalid user defined recursor '" ++ toString declName ++ "', motive must have a type of the form "
              ++ "(C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), "
              ++ "(i : B A) is a (possibly empty) telescope (aka indices), and I is a constant");
-          -- TODO
-          throw $ arbitrary _
+          motiveLvl ← getMotiveLevel declName motiveResultType;
+          univLevelPos ← getUnivLevelPos declName cinfo.lparams motiveLvl Ilevels;
+          (produceMotive, recursive) ← getProduceMotiveAndRecursive xs numParams numIndices majorPos motive;
+          pure {
+            recursorName  := declName,
+            typeName      := Iname,
+            univLevelPos  := univLevelPos,
+            majorPos      := majorPos,
+            depElim       := depElim,
+            recursive     := recursive,
+            produceMotive := produceMotive,
+            paramsPos     := paramsPos,
+            indicesPos    := indicesPos,
+            numArgs       := xs.size
+          }
       | _ => throw $ Exception.other
         ("invalid user defined recursor '" ++ toString declName
          ++ "', type of the major premise must be of the form (I ...), where I is a constant")

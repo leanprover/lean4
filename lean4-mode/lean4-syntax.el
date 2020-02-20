@@ -17,7 +17,7 @@
     "match_syntax" "match" "nomatch" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "end" "this" "using" "using_well_founded" "namespace" "section"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
-    "attributes" "raw" "replacing"
+    "attributes" "raw" "replacing" "generalizing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "then" "else" "assume" "from" "init_quot"
     "mutual" "def" "run_cmd")

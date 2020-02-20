@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Nat.Control
 import Init.Lean.AuxRecursor
+import Init.Lean.Util.FindExpr
 import Init.Lean.Meta.ExprDefEq
 
 namespace Lean
@@ -65,9 +66,35 @@ instance : HasToString RecursorInfo :=
   "  motive         := " ++ toString info.motivePos ++ "\n" ++
   "  paramsAtMajor  := " ++ toString info.paramsPos ++ "\n" ++
   "  indicesAtMajor := " ++ toString info.indicesPos ++ "\n" ++
+  "  produceMotive  := " ++ toString info.produceMotive ++ "\n" ++
   "}"⟩
 
 end RecursorInfo
+
+private def mkRecursorInfoForKernelRec (declName : Name) (val : RecursorVal) : MetaM RecursorInfo := do
+indInfo ← getConstInfo val.getInduct;
+match indInfo with
+| ConstantInfo.inductInfo ival =>
+  let numLParams    := ival.lparams.length;
+  let univLevelPos  := (List.range numLParams).map RecursorUnivLevelPos.majorType;
+  let univLevelPos  := if val.lparams.length == numLParams then univLevelPos else RecursorUnivLevelPos.motive :: univLevelPos;
+  let produceMotive := List.replicate val.nminors true;
+  let paramsPos     := (List.range val.nparams).map some;
+  let indicesPos    := (List.range val.nindices).map (fun pos => val.nparams + pos);
+  let numArgs       := val.nindices + val.nparams + val.nminors + val.nmotives + 1;
+  pure {
+   recursorName  := declName,
+   typeName      := val.getInduct,
+   univLevelPos  := univLevelPos,
+   majorPos      := val.getMajorIdx,
+   depElim       := true,
+   recursive     := ival.isRec,
+   produceMotive := produceMotive,
+   paramsPos     := paramsPos,
+   indicesPos    := indicesPos,
+   numArgs       := numArgs
+  }
+| _ => throw $ Exception.other "ill-formed builtin recursor"
 
 private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat) : MetaM (Option Nat) :=
 if majorPos?.isSome then pure majorPos?
@@ -143,7 +170,7 @@ indicesPos ← numIndices.foldM
   (fun i (indicesPos : Array Nat) => do
     let i := majorPos - numIndices + i;
     let x := xs.get! i;
-    trace! `Meta ("getIndicesPos " ++ toString i ++ ": " ++ x);
+    -- trace! `Meta ("getIndicesPos " ++ toString i ++ ": " ++ x);
     j? ← Iargs.findIdxM? $ fun Iarg => isDefEq Iarg x;
     match j? with
     | some j => pure $ indicesPos.push j
@@ -174,77 +201,74 @@ univLevelPos ← lparams.foldlM
 pure univLevelPos.toList
 
 private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices majorPos : Nat) (motive : Expr) : MetaM (List Bool × Bool) := do
-pure ([], true) -- TODO
+(produceMotive, rec) ← xs.size.foldM
+  (fun i (p : Array Bool × Bool) =>
+    if i < numParams + 1 then pure p -- skip parameters and motive
+    else if majorPos - numIndices ≤ i && i ≤ majorPos then pure p -- skip indices and major premise
+    else do -- process minor premise
+      let (produceMotive, rec) := p;
+      let x := xs.get! i;
+      xType ← inferType x;
+      forallTelescopeReducing xType $ fun minorArgs minorResultType => minorResultType.withApp $ fun res _ => do
+        -- trace! `Meta ("xType: " ++ xType ++ ", motive: " ++ motive ++ ", " ++ minorArgs ++ ", " ++ res);
+        let produceMotive := produceMotive.push (res == motive);
+        rec ← if rec then pure rec else minorArgs.anyM $ fun minorArg => do {
+          minorArgType ← inferType minorArg;
+          pure $ (minorArgType.find? $ fun e => e == motive).isSome
+        };
+        pure (produceMotive, rec))
+  (#[], false);
+pure (produceMotive.toList, rec)
+
+private def checkMotiveResultType (declName : Name) (motiveArgs : Array Expr) (motiveResultType : Expr) (motiveTypeParams : Array Expr) : MetaM Unit :=
+when (!motiveResultType.isSort || motiveArgs.size != motiveTypeParams.size) $ throw $ Exception.other
+  ("invalid user defined recursor '" ++ toString declName ++ "', motive must have a type of the form "
+   ++ "(C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), "
+   ++ "(i : B A) is a (possibly empty) telescope (aka indices), and I is a constant")
+
+private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : MetaM RecursorInfo := do
+let declName := cinfo.name;
+majorPos? ← getMajorPosIfAuxRecursor? declName majorPos?;
+forallTelescopeReducing cinfo.type $ fun xs type => type.withApp $ fun motive motiveArgs => do
+  checkMotive declName motive motiveArgs;
+  let numParams := getNumParams xs motive 0;
+  (major, majorPos, depElim) ← getMajorPosDepElim declName majorPos? xs motive motiveArgs;
+  let numIndices := if depElim then motiveArgs.size - 1 else motiveArgs.size;
+  when (majorPos < numIndices) $ throw $ Exception.other
+    ("invalid user defined recursor '" ++ toString declName ++ "', indices must occur before major premise");
+  majorType ← inferType major;
+  majorType.withApp $ fun I Iargs =>
+  match I with
+  | Expr.const Iname Ilevels _ => do
+    paramsPos ← getParamsPos declName xs numParams Iargs;
+    indicesPos ← getIndicesPos declName xs majorPos numIndices Iargs;
+    motiveType ← inferType motive;
+    forallTelescopeReducing motiveType $ fun motiveTypeParams motiveResultType => do
+      checkMotiveResultType declName motiveArgs motiveResultType motiveTypeParams;
+      motiveLvl ← getMotiveLevel declName motiveResultType;
+      univLevelPos ← getUnivLevelPos declName cinfo.lparams motiveLvl Ilevels;
+      (produceMotive, recursive) ← getProduceMotiveAndRecursive xs numParams numIndices majorPos motive;
+      pure {
+        recursorName  := declName,
+        typeName      := Iname,
+        univLevelPos  := univLevelPos,
+        majorPos      := majorPos,
+        depElim       := depElim,
+        recursive     := recursive,
+        produceMotive := produceMotive,
+        paramsPos     := paramsPos,
+        indicesPos    := indicesPos,
+        numArgs       := xs.size
+      }
+  | _ => throw $ Exception.other
+    ("invalid user defined recursor '" ++ toString declName
+     ++ "', type of the major premise must be of the form (I ...), where I is a constant")
 
 def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
 cinfo ← getConstInfo declName;
 match cinfo with
-| ConstantInfo.recInfo val => do
-  indInfo ← getConstInfo val.getInduct;
-  match indInfo with
-  | ConstantInfo.inductInfo ival =>
-    let numLParams    := ival.lparams.length;
-    let univLevelPos  := (List.range numLParams).map RecursorUnivLevelPos.majorType;
-    let univLevelPos  := if val.lparams.length == numLParams then univLevelPos else RecursorUnivLevelPos.motive :: univLevelPos;
-    let produceMotive := List.replicate val.nminors true;
-    let paramsPos     := (List.range val.nparams).map some;
-    let indicesPos    := (List.range val.nindices).map (fun pos => val.nparams + pos);
-    let numArgs       := val.nindices + val.nparams + val.nminors + val.nmotives + 1;
-    pure {
-     recursorName  := declName,
-     typeName      := val.getInduct,
-     univLevelPos  := univLevelPos,
-     majorPos      := val.getMajorIdx,
-     depElim       := true,
-     recursive     := ival.isRec,
-     produceMotive := produceMotive,
-     paramsPos     := paramsPos,
-     indicesPos    := indicesPos,
-     numArgs       := numArgs
-    }
-  | _ => throw $ Exception.other "ill-formed builtin recursor"
-| _ => do
-  majorPos? ← getMajorPosIfAuxRecursor? declName majorPos?;
-  forallTelescopeReducing cinfo.type $ fun xs type => type.withApp $ fun motive motiveArgs => do
-    checkMotive declName motive motiveArgs;
-    let numParams := getNumParams xs motive 0;
-    (major, majorPos, depElim) ← getMajorPosDepElim declName majorPos? xs motive motiveArgs;
-    let numIndices := if depElim then motiveArgs.size - 1 else motiveArgs.size;
-    when (majorPos < numIndices) $ throw $ Exception.other
-      ("invalid user defined recursor '" ++ toString declName ++ "', indices must occur before major premise");
-    trace! `Meta ("majorPos: " ++ toString majorPos ++ ", depElim: " ++ toString depElim ++ ", numIndices: " ++ toString numIndices);
-    majorType ← inferType major;
-    majorType.withApp $ fun I Iargs =>
-      match I with
-      | Expr.const Iname Ilevels _ => do
-        trace! `Meta ("Iargs: " ++ Iargs);
-        paramsPos ← getParamsPos declName xs numParams Iargs;
-        indicesPos ← getIndicesPos declName xs majorPos numIndices Iargs;
-        trace! `Meta ("paramsPos: " ++ toString paramsPos ++ ", indicesPos: " ++ toString indicesPos);
-        motiveType ← inferType motive;
-        forallTelescopeReducing motiveType $ fun motiveTypeParams motiveResultType => do
-          when (!motiveResultType.isSort || motiveArgs.size != motiveTypeParams.size) $ throw $ Exception.other
-            ("invalid user defined recursor '" ++ toString declName ++ "', motive must have a type of the form "
-             ++ "(C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), "
-             ++ "(i : B A) is a (possibly empty) telescope (aka indices), and I is a constant");
-          motiveLvl ← getMotiveLevel declName motiveResultType;
-          univLevelPos ← getUnivLevelPos declName cinfo.lparams motiveLvl Ilevels;
-          (produceMotive, recursive) ← getProduceMotiveAndRecursive xs numParams numIndices majorPos motive;
-          pure {
-            recursorName  := declName,
-            typeName      := Iname,
-            univLevelPos  := univLevelPos,
-            majorPos      := majorPos,
-            depElim       := depElim,
-            recursive     := recursive,
-            produceMotive := produceMotive,
-            paramsPos     := paramsPos,
-            indicesPos    := indicesPos,
-            numArgs       := xs.size
-          }
-      | _ => throw $ Exception.other
-        ("invalid user defined recursor '" ++ toString declName
-         ++ "', type of the major premise must be of the form (I ...), where I is a constant")
+| ConstantInfo.recInfo val => mkRecursorInfoForKernelRec declName val
+| _                        => mkRecursorInfoAux cinfo majorPos?
 
 end Meta
 end Lean

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Tactic
-// Imports: Init.Lean.Elab.Term Init.Lean.Elab.Tactic.Basic Init.Lean.Elab.Tactic.ElabTerm
+// Imports: Init.Lean.Elab.Term Init.Lean.Elab.Tactic.Basic Init.Lean.Elab.Tactic.ElabTerm Init.Lean.Elab.Tactic.Induction
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Lean_Elab_Term(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Tactic_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Elab_Tactic_ElabTerm(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Tactic_Induction(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Elab_Tactic(lean_object* w) {
 lean_object * res;
@@ -28,6 +29,9 @@ res = initialize_Init_Lean_Elab_Tactic_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Elab_Tactic_ElabTerm(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Elab_Tactic_Induction(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

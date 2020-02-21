@@ -294,13 +294,22 @@ match findSomeRev? a f with
 | some b => b
 | none   => panic! "failed to find element"
 
+@[specialize] partial def findIdxMAux {m : Type → Type u} [Monad m] (a : Array α) (p : α → m Bool) : Nat → m (Option Nat)
+| i =>
+  if h : i < a.size then
+    condM (p (a.get ⟨i, h⟩)) (pure (some i)) (findIdxMAux (i+1))
+  else
+    pure none
+
+@[inline] def findIdxM? {m : Type → Type u} [Monad m] (a : Array α) (p : α → m Bool) : m (Option Nat) :=
+findIdxMAux a p 0
+
 @[specialize] partial def findIdxAux (a : Array α) (p : α → Bool) : Nat → Option Nat
 | i =>
   if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩;
-     if p (a.get idx) then some i
-     else findIdxAux (i+1)
-  else none
+    if p (a.get ⟨i, h⟩) then some i else findIdxAux (i+1)
+  else
+    none
 
 @[inline] def findIdx? (a : Array α) (p : α → Bool) : Option Nat :=
 findIdxAux a p 0
@@ -309,6 +318,9 @@ findIdxAux a p 0
 match findIdxAux a p 0 with
 | some i => i
 | none   => panic! "failed to find element"
+
+def getIdx? [HasBeq α] (a : Array α) (v : α) : Option Nat :=
+a.findIdx? $ fun a => a == v
 
 end
 

@@ -444,7 +444,8 @@ fun c s =>
   let pos := s.pos;
   let s   := p c s;
   if s.hasError then
-    if pOpt then
+    if s.pos > pos then s
+    else if pOpt then
       let s := s.restore sz pos;
       if s.stackSize - iniSz == 2 && unboxSingleton then
         s.popSyntax

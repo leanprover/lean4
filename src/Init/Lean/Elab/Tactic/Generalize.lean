@@ -15,10 +15,10 @@ namespace Tactic
 
 private def getAuxHypothesisName (stx : Syntax) : Option Name :=
 if (stx.getArg 1).isNone then none
-else some ((stx.getArg 1).getIdAt 0).eraseMacroScopes
+else some ((stx.getArg 1).getIdAt 0)
 
 private def getVarName (stx : Syntax) : Name :=
-(stx.getIdAt 4).eraseMacroScopes
+stx.getIdAt 4
 
 private def evalGeneralizeFinalize (mvarId : MVarId) (e : Expr) (target : Expr) : MetaM (List MVarId) := do
 tag         ← Meta.getMVarTag mvarId;

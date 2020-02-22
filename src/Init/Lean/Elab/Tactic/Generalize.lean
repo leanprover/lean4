@@ -5,6 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Meta.Tactic.Generalize
+import Init.Lean.Meta.Check
+import Init.Lean.Meta.Tactic.Intro
 import Init.Lean.Elab.Tactic.ElabTerm
 
 namespace Lean
@@ -18,13 +20,40 @@ else some ((stx.getArg 1).getIdAt 0).eraseMacroScopes
 private def getVarName (stx : Syntax) : Name :=
 (stx.getIdAt 4).eraseMacroScopes
 
-def evalGeneralizeWithEq (ref : Syntax) (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
+private def evalGeneralizeFinalize (mvarId : MVarId) (e : Expr) (target : Expr) : MetaM (List MVarId) := do
+eType       ← Meta.inferType e;
+u           ← Meta.getLevel eType;
+mvar' ← Meta.mkFreshExprSyntheticOpaqueMVar target;
+let rfl    := mkApp2 (Lean.mkConst `Eq.refl [u]) eType e;
+let val    := mkApp2 mvar' e rfl;
+Meta.assignExprMVar mvarId val;
+let mvarId' := mvar'.mvarId!;
+(_, mvarId') ← Meta.introN mvarId' 2 [] false;
+pure [mvarId']
+
+private def evalGeneralizeWithEq (ref : Syntax) (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
 liftMetaTactic ref $ fun mvarId => do
-  eType    ← Meta.inferType e;
-  mvarId   ← Meta.generalize mvarId e x;
-  mvarDecl ← Meta.getMVarDecl mvarId;
-  -- let target := Lean.mkForall
-  pure [] -- TODO
+  mvarId      ← Meta.generalize mvarId e x;
+  mvarDecl    ← Meta.getMVarDecl mvarId;
+  match mvarDecl.type with
+  | Expr.forallE _ _ b _ => do
+    (_, mvarId) ← Meta.intro1 mvarId false;
+    eType       ← Meta.inferType e;
+    u           ← Meta.getLevel eType;
+    let eq     := mkApp3 (Lean.mkConst `Eq [u]) eType e (mkBVar 0);
+    let target := Lean.mkForall x BinderInfo.default eType $ Lean.mkForall h BinderInfo.default eq (b.liftLooseBVars 0 1);
+    evalGeneralizeFinalize mvarId e target
+  | _ => throw $ Meta.Exception.other "unexpected type after generalize"
+
+-- If generalizing fails, fall back to not replacing anything
+private def evalGeneralizeFallback (ref : Syntax) (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
+liftMetaTactic ref $ fun mvarId => do
+  eType       ← Meta.inferType e;
+  u           ← Meta.getLevel eType;
+  mvarType    ← Meta.getMVarType mvarId;
+  let eq     := mkApp3 (Lean.mkConst `Eq [u]) eType e (mkBVar 0);
+  let target := Lean.mkForall x BinderInfo.default eType $ Lean.mkForall h BinderInfo.default eq mvarType;
+  evalGeneralizeFinalize mvarId e target
 
 def evalGeneralizeAux (ref : Syntax) (h? : Option Name) (e : Expr) (x : Name) : TacticM Unit :=
 match h? with
@@ -33,7 +62,7 @@ match h? with
   (_, mvarId) ← Meta.intro1 mvarId false;
   pure [mvarId]
 | some h =>
-  throwError ref ("WIP " ++ toString h? ++ " : " ++ e ++ " = " ++ x)
+  evalGeneralizeWithEq ref h e x <|> evalGeneralizeFallback ref h e x
 
 @[builtinTactic «generalize»] def evalGeneralize : Tactic :=
 fun stx => do

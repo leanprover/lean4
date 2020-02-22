@@ -21,9 +21,10 @@ private def getVarName (stx : Syntax) : Name :=
 (stx.getIdAt 4).eraseMacroScopes
 
 private def evalGeneralizeFinalize (mvarId : MVarId) (e : Expr) (target : Expr) : MetaM (List MVarId) := do
+tag         ← Meta.getMVarTag mvarId;
 eType       ← Meta.inferType e;
 u           ← Meta.getLevel eType;
-mvar' ← Meta.mkFreshExprSyntheticOpaqueMVar target;
+mvar' ← Meta.mkFreshExprSyntheticOpaqueMVar target tag;
 let rfl    := mkApp2 (Lean.mkConst `Eq.refl [u]) eType e;
 let val    := mkApp2 mvar' e rfl;
 Meta.assignExprMVar mvarId val;

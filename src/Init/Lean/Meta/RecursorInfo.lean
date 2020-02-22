@@ -106,7 +106,7 @@ else do
     if s != "recOn" && s != "casesOn" && s != "brecOn" then
       pure none
     else do
-      recInfo ← getConstInfo (mkNameStr p "rec");
+      recInfo ← getConstInfo (mkRecFor p);
       match recInfo with
       | ConstantInfo.recInfo val => pure (some (val.nparams + val.nindices + (if s == "casesOn" then 1 else val.nmotives)))
       | _                        => throw $ Exception.other "unexpected recursor information"

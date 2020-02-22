@@ -76,6 +76,8 @@ def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
 def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals ref goals
+def inferType (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.inferType ref e
+def whnf (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnf ref e
 
 /-- Collect unassigned metavariables -/
 def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do
@@ -257,11 +259,19 @@ def ensureHasNoMVars (ref : Syntax) (e : Expr) : TacticM Unit := do
 e ← instantiateMVars ref e;
 when e.hasMVar $ throwError ref ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
 
-@[inline] def liftMetaTactic (ref : Syntax) (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit := do
+def withMainMVarContext {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
+(mvarId, _) ← getMainGoal ref;
+withMVarContext mvarId x
+
+@[inline] def liftMetaTacticAux {α} (ref : Syntax) (tactic : MVarId → MetaM (α × List MVarId)) : TacticM α := do
 (g, gs) ← getMainGoal ref;
 withMVarContext g $ do
-  gs' ← liftMetaM ref $ tactic g;
-  setGoals (gs' ++ gs)
+  (a, gs') ← liftMetaM ref $ tactic g;
+  setGoals (gs' ++ gs);
+  pure a
+
+@[inline] def liftMetaTactic (ref : Syntax) (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit :=
+liftMetaTacticAux ref (fun mvarId => do gs ← tactic mvarId; pure ((), gs))
 
 def done (ref : Syntax) : TacticM Unit := do
 gs ← getUnsolvedGoals;
@@ -347,17 +357,21 @@ fun stx => match_syntax stx with
     pure [mvarId]
   | _                       => throwUnsupportedSyntax
 
+def getFVarId (id : Syntax) : TacticM FVarId := do
+fvar? ← liftTermElabM $ Term.isLocalTermId? id true;
+match fvar? with
+| some fvar => pure fvar.fvarId!
+| none      => throwError id ("unknown variable '" ++ toString id.getId ++ "'")
+
+def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) :=
+ids.mapM getFVarId
+
 @[builtinTactic «revert»] def evalRevert : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| revert $hs*) => do
      (g, gs) ← getMainGoal stx;
      withMVarContext g $ do
-       fvarIds ← hs.mapM $ fun h => do {
-         fvar? ← liftTermElabM $ Term.isLocalTermId? h true;
-         match fvar? with
-         | some fvar => pure fvar.fvarId!
-         | none      => throwError h ("unknown variable '" ++ toString h.getId ++ "'")
-       };
+       fvarIds ← getFVarIds hs;
        (_, g) ← liftMetaM stx $ Meta.revert g fvarIds;
        setGoals (g :: gs)
   | _                     => throwUnsupportedSyntax
@@ -366,12 +380,9 @@ def forEachVar (ref : Syntax) (hs : Array Syntax) (tac : MVarId → FVarId → M
 hs.forM $ fun h => do
   (g, gs) ← getMainGoal ref;
   withMVarContext g $ do
-    fvar? ← liftTermElabM $ Term.isLocalTermId? h true;
-    match fvar? with
-    | none      => throwError h ("unknown variable '" ++ toString h.getId ++ "'")
-    | some fvar => do
-      g ← liftMetaM ref $ tac g fvar.fvarId!;
-      setGoals (g :: gs)
+    fvarId ← getFVarId h;
+    g ← liftMetaM ref $ tac g fvarId;
+    setGoals (g :: gs)
 
 @[builtinTactic «clear»] def evalClear : Tactic :=
 fun stx => match_syntax stx with

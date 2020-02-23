@@ -309,8 +309,10 @@ structure ParametricAttribute (α : Type) :=
 (ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
 def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
-       (getParam : Environment → Name → Syntax → Except String α)
-       (afterSet : Environment → Name → α → Except String Environment := fun env _ _ => Except.ok env) : IO (ParametricAttribute α) := do
+    (getParam : Environment → Name → Syntax → Except String α)
+    (afterSet : Environment → Name → α → Except String Environment := fun env _ _ => Except.ok env)
+    (appTime := AttributeApplicationTime.afterTypeChecking)
+    : IO (ParametricAttribute α) := do
 ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := name,
   mkInitial       := pure {},
@@ -324,6 +326,7 @@ ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← register
 let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
+  applicationTime := appTime,
   add   := fun env decl args persistent => do
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor? decl).isNone $

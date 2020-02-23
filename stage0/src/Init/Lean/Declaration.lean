@@ -213,4 +213,8 @@ constant instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) :
 constant instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr := arbitrary _
 
 end ConstantInfo
+
+def mkRecFor (declName : Name) : Name :=
+mkNameStr declName "rec"
+
 end Lean

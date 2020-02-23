@@ -8,3 +8,4 @@ import Init.Lean.Elab.Term
 import Init.Lean.Elab.Tactic.Basic
 import Init.Lean.Elab.Tactic.ElabTerm
 import Init.Lean.Elab.Tactic.Induction
+import Init.Lean.Elab.Tactic.Generalize

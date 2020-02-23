@@ -8,6 +8,7 @@ import Init.Data.Nat.Control
 import Init.Lean.AuxRecursor
 import Init.Lean.Util.FindExpr
 import Init.Lean.Meta.ExprDefEq
+import Init.Lean.Meta.Message
 
 namespace Lean
 namespace Meta
@@ -106,7 +107,7 @@ else do
     if s != "recOn" && s != "casesOn" && s != "brecOn" then
       pure none
     else do
-      recInfo ← getConstInfo (mkNameStr p "rec");
+      recInfo ← getConstInfo (mkRecFor p);
       match recInfo with
       | ConstantInfo.recInfo val => pure (some (val.nparams + val.nindices + (if s == "casesOn" then 1 else val.nmotives)))
       | _                        => throw $ Exception.other "unexpected recursor information"
@@ -264,11 +265,43 @@ forallTelescopeReducing cinfo.type $ fun xs type => type.withApp $ fun motive mo
     ("invalid user defined recursor '" ++ toString declName
      ++ "', type of the major premise must be of the form (I ...), where I is a constant")
 
-def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
+private def syntaxToMajorPos (stx : Syntax) : Except String Nat :=
+match stx with
+| Syntax.node _ args =>
+  if args.size == 0 then Except.error "unexpected kind of argument"
+  else match (args.get! 0).isNatLit? with
+    | some idx =>
+      if idx == 0 then Except.error "major premise position must be greater than 0"
+      else pure (idx - 1)
+    | none => Except.error "unexpected kind of argument"
+| _ => Except.error "unexpected kind of argument"
+
+private def mkRecursorInfoCore (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
 cinfo ← getConstInfo declName;
 match cinfo with
 | ConstantInfo.recInfo val => mkRecursorInfoForKernelRec declName val
 | _                        => mkRecursorInfoAux cinfo majorPos?
+
+def mkRecursorAttr : IO (ParametricAttribute Nat) :=
+registerParametricAttribute `recursor "user defined recursor, numerical parameter specifies position of the major premise"
+  (fun _ _ => syntaxToMajorPos)
+  (fun env declName majorPos =>
+    match Meta.run env (mkRecursorInfoCore declName (some majorPos)) with
+    | Except.ok _     => pure env
+    | Except.error ex => Except.error $ toString ex)
+
+@[init mkRecursorAttr] constant recursorAttribute : ParametricAttribute Nat := arbitrary _
+
+def getMajorPos? (env : Environment) (declName : Name) : Option Nat :=
+recursorAttribute.getParam env declName
+
+def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
+cinfo ← getConstInfo declName;
+match cinfo with
+| ConstantInfo.recInfo val => mkRecursorInfoForKernelRec declName val
+| _                        => match majorPos? with
+  | none => do env ← getEnv; mkRecursorInfoAux cinfo (getMajorPos? env declName)
+  | _    => mkRecursorInfoAux cinfo majorPos?
 
 end Meta
 end Lean

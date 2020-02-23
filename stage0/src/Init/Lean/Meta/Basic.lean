@@ -805,6 +805,11 @@ finally x (modify $ fun s => { mctx := mctx', .. s })
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta
 
+def run {α} (env : Environment) (x : MetaM α) (maxRecDepth := 10000) : Except Exception α :=
+match x { maxRecDepth := maxRecDepth, currRecDepth := 0 } { env := env } with
+| EStateM.Result.ok a _     => Except.ok a
+| EStateM.Result.error ex _ => Except.error ex
+
 end Meta
 end Lean
 

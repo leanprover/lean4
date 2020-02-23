@@ -36,7 +36,9 @@ lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l_Lean_ConstantVal_inhabited;
 lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
+lean_object* l_Lean_mkRecFor___closed__1;
 lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
 lean_object* l_Lean_ReducibilityHints_Inhabited;
 lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
@@ -59,6 +61,7 @@ lean_object* l_Lean_ConstantInfo_value_x21___closed__3;
 lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
 lean_object* lean_task_get(lean_object*);
+lean_object* l_Lean_mkRecFor(lean_object*);
 lean_object* l_Lean_ConstantInfo_type___boxed(lean_object*);
 uint8_t l_Lean_ReducibilityHints_lt(lean_object*, lean_object*);
 lean_object* _init_l_Lean_ReducibilityHints_Inhabited() {
@@ -555,6 +558,23 @@ lean_dec(x_1);
 return x_3;
 }
 }
+lean_object* _init_l_Lean_mkRecFor___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("rec");
+return x_1;
+}
+}
+lean_object* l_Lean_mkRecFor(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_mkRecFor___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
 lean_object* initialize_Init_Lean_Expr(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Declaration(lean_object* w) {
@@ -582,6 +602,8 @@ l_Lean_ConstantInfo_value_x21___closed__2 = _init_l_Lean_ConstantInfo_value_x21_
 lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__2);
 l_Lean_ConstantInfo_value_x21___closed__3 = _init_l_Lean_ConstantInfo_value_x21___closed__3();
 lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__3);
+l_Lean_mkRecFor___closed__1 = _init_l_Lean_mkRecFor___closed__1();
+lean_mark_persistent(l_Lean_mkRecFor___closed__1);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

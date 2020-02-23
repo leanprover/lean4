@@ -65,6 +65,7 @@ lean_object* l_Lean_Meta_Exception_toMessageData___closed__45;
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 lean_object* l_Lean_Meta_Exception_mkAppTypeMismatchMessage___closed__11;
 lean_object* l___private_Init_Lean_Meta_Message_4__whnf_x3f(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_run___rarg___closed__5;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__8;
 lean_object* l_Lean_KernelException_toMessageData___closed__6;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__17;
@@ -120,7 +121,6 @@ lean_object* l_Lean_Meta_Exception_toMessageData___closed__25;
 lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Message_4__whnf_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__3;
-extern lean_object* l_IO_runMeta___rarg___closed__4;
 lean_object* l_Lean_KernelException_toMessageData___closed__40;
 lean_object* l_Lean_KernelException_toMessageData___closed__9;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__3;
@@ -176,6 +176,7 @@ lean_object* l_Lean_KernelException_toMessageData___closed__13;
 lean_object* l_Lean_Meta_Exception_mkAppTypeMismatchMessage___closed__3;
 lean_object* l___private_Init_Lean_Meta_Message_1__run_x3f___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
+extern lean_object* l_Lean_Meta_run___rarg___closed__1;
 extern lean_object* l_Lean_Meta_Exception_toStr___closed__15;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__18;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__30;
@@ -193,7 +194,6 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_PersistentArray_forMAux___main___at_Lean_Meta_MetaHasEval___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__15;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__16;
-lean_object* l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__4;
 lean_object* l_Lean_KernelException_toMessageData___closed__11;
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__20;
@@ -218,45 +218,26 @@ return x_5;
 lean_object* _init_l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__1() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Options_empty;
-x_2 = 0;
-x_3 = 1;
-x_4 = lean_alloc_ctor(0, 1, 7);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_2);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 1, x_2);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 2, x_2);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 3, x_2);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 4, x_2);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 5, x_2);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 6, x_3);
-return x_4;
+lean_object* x_1; 
+x_1 = lean_mk_string("_meta_exception");
+return x_1;
 }
 }
 lean_object* _init_l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("_meta_exception");
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 lean_object* _init_l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__2;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__3;
+x_1 = l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__2;
 x_2 = lean_unsigned_to_nat(1u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -273,7 +254,7 @@ x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_1, 2);
 x_6 = lean_ctor_get(x_1, 3);
 x_7 = l_Lean_getMaxRecDepth(x_6);
-x_8 = l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__1;
+x_8 = l_Lean_Meta_run___rarg___closed__1;
 x_9 = l_Array_empty___closed__1;
 x_10 = lean_unsigned_to_nat(0u);
 lean_inc(x_5);
@@ -283,8 +264,8 @@ lean_ctor_set(x_11, 1, x_5);
 lean_ctor_set(x_11, 2, x_9);
 lean_ctor_set(x_11, 3, x_10);
 lean_ctor_set(x_11, 4, x_7);
-x_12 = l_IO_runMeta___rarg___closed__4;
-x_13 = l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__4;
+x_12 = l_Lean_Meta_run___rarg___closed__5;
+x_13 = l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__3;
 x_14 = l_Lean_TraceState_Inhabited___closed__1;
 x_15 = l_PersistentArray_empty___closed__3;
 lean_inc(x_4);
@@ -2111,7 +2092,7 @@ lean_ctor_set(x_13, 2, x_11);
 lean_ctor_set(x_13, 3, x_12);
 lean_ctor_set(x_13, 4, x_9);
 x_14 = l_Lean_MetavarContext_Inhabited___closed__1;
-x_15 = l_IO_runMeta___rarg___closed__4;
+x_15 = l_Lean_Meta_run___rarg___closed__5;
 x_16 = l_Lean_NameGenerator_Inhabited___closed__3;
 x_17 = l_Lean_TraceState_Inhabited___closed__1;
 x_18 = l_PersistentArray_empty___closed__3;
@@ -3071,8 +3052,6 @@ l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__2 = _init_l___pri
 lean_mark_persistent(l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__2);
 l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__3 = _init_l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__3();
 lean_mark_persistent(l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__3);
-l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__4 = _init_l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__4();
-lean_mark_persistent(l___private_Init_Lean_Meta_Message_1__run_x3f___rarg___closed__4);
 l___private_Init_Lean_Meta_Message_3__inferDomain_x3f___lambda__1___closed__1 = _init_l___private_Init_Lean_Meta_Message_3__inferDomain_x3f___lambda__1___closed__1();
 lean_mark_persistent(l___private_Init_Lean_Meta_Message_3__inferDomain_x3f___lambda__1___closed__1);
 l___private_Init_Lean_Meta_Message_3__inferDomain_x3f___lambda__1___closed__2 = _init_l___private_Init_Lean_Meta_Message_3__inferDomain_x3f___lambda__1___closed__2();

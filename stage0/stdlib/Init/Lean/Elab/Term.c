@@ -282,6 +282,7 @@ lean_object* l_Lean_Elab_Term_withTransparency(lean_object*);
 lean_object* l_HashMapImp_find_x3f___at_Lean_Elab_Term_elabTermAux___main___spec__5___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_byTactic___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_withIncRecDepth___rarg___closed__1;
+extern lean_object* l_Lean_Meta_run___rarg___closed__5;
 lean_object* l_Lean_Elab_Term_elabListLit___closed__2;
 lean_object* l_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_withConfig___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -534,7 +535,6 @@ lean_object* l_Lean_Elab_Term_mkFreshAnonymousIdent___boxed(lean_object*, lean_o
 lean_object* l_Lean_Elab_Term_elabRawNumLit(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTermAux___main___closed__3;
 lean_object* l___private_Init_Lean_Elab_Term_13__tryCoeSort___closed__3;
-extern lean_object* l_IO_runMeta___rarg___closed__4;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 lean_object* l___private_Init_Lean_Elab_Term_6__isTypeApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux___main___at___private_Init_Lean_Elab_Term_18__mkFreshLevelMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -935,7 +935,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = l_Lean_EnvExtension_setState___closed__1;
 x_2 = l_Lean_MetavarContext_Inhabited___closed__1;
-x_3 = l_IO_runMeta___rarg___closed__4;
+x_3 = l_Lean_Meta_run___rarg___closed__5;
 x_4 = l_Lean_NameGenerator_Inhabited___closed__3;
 x_5 = l_Lean_TraceState_Inhabited___closed__1;
 x_6 = l_PersistentArray_empty___closed__3;

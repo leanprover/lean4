@@ -78,6 +78,8 @@ def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : Tact
 def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals ref goals
 def inferType (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.inferType ref e
 def whnf (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnf ref e
+def whnfCore (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore ref e
+def unfoldDefinition? (ref : Syntax) (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? ref e
 
 /-- Collect unassigned metavariables -/
 def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do

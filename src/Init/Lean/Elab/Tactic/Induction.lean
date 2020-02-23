@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Init.Lean.Meta.RecursorInfo
 import Init.Lean.Elab.Tactic.ElabTerm
 import Init.Lean.Elab.Tactic.Generalize
 
@@ -111,6 +112,31 @@ liftMetaMAtMain ref $ fun mvarId => do
     | _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType)
   | _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType)
 
+private partial def getRecFromUsingLoop (ref : Syntax) (baseRecName : Name) : Expr → TacticM (Option Meta.RecursorInfo)
+| majorType => do
+  let continue (majorType : Expr) : TacticM (Option Meta.RecursorInfo) := do {
+    majorType? ← unfoldDefinition? ref majorType;
+    match majorType? with
+    | some majorType => withIncRecDepth ref $ getRecFromUsingLoop majorType
+    | none           => pure none
+  };
+  majorType ← whnfCore ref majorType;
+  match majorType.getAppFn with
+  | Expr.const name _ _ => do
+    let candidate := name ++ baseRecName;
+    env ← getEnv;
+    match env.find? candidate with
+    | some _ =>
+      catch
+        (liftMetaMAtMain ref $ fun _ => do info ← Meta.mkRecursorInfo candidate; pure (some info))
+        (fun _ => continue majorType)
+    | none   => continue majorType
+  | _ => continue majorType
+
+
+def getRecFromUsing (ref : Syntax) (major : Expr) (baseRecName : Name) : TacticM Name := do
+throw $ arbitrary _
+
 /-
   Recall that
   ```
@@ -150,7 +176,9 @@ if usingRecStx.isNone then do
     unless remainingAlts.isEmpty $
       throwError (remainingAlts.get! 0) "unused alternative";
     pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
-else
+else do
+  let baseRecName := (usingRecStx.getIdAt 1).eraseMacroScopes;
+  let recName := getRecFromUsing ref major baseRecName;
   -- TODO
   throw $ arbitrary _
 

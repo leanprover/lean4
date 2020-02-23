@@ -133,9 +133,20 @@ private partial def getRecFromUsingLoop (ref : Syntax) (baseRecName : Name) : Ex
     | none   => continue majorType
   | _ => continue majorType
 
-
-def getRecFromUsing (ref : Syntax) (major : Expr) (baseRecName : Name) : TacticM Name := do
-throw $ arbitrary _
+def getRecFromUsing (ref : Syntax) (major : Expr) (baseRecName : Name) : TacticM Meta.RecursorInfo := do
+majorType ← inferType ref major;
+recInfo? ← getRecFromUsingLoop ref baseRecName majorType;
+match recInfo? with
+| some recInfo => pure recInfo
+| none => do
+  result ← resolveGlobalName baseRecName;
+  match result with
+  | _::_::_         => throwError ref ("ambiguous recursor name '" ++ baseRecName ++ "', " ++ toString (result.map Prod.fst))
+  | [(recName, [])] => do
+    catch
+      (liftMetaMAtMain ref $ fun _ => Meta.mkRecursorInfo recName)
+      (fun _ => throwError ref ("invalid recursor name '" ++ baseRecName ++ "'"))
+  | _ => throwError ref ("invalid recursor name '" ++ baseRecName ++ "'")
 
 /-
   Recall that
@@ -178,9 +189,35 @@ if usingRecStx.isNone then do
     pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
 else do
   let baseRecName := (usingRecStx.getIdAt 1).eraseMacroScopes;
-  let recName := getRecFromUsing ref major baseRecName;
-  -- TODO
-  throw $ arbitrary _
+  recInfo ← getRecFromUsing ref major baseRecName;
+  let recName := recInfo.recursorName;
+  if withAlts.isNone then pure { recName := recName }
+  else do
+    let alts := getAlts withAlts;
+    paramNames ← liftMetaMAtMain ref $ fun _ => Meta.getParamNames recInfo.recursorName;
+    (altVars, altRHSs, remainingAlts, _) ← paramNames.size.foldM
+      (fun (i : Nat) (result : Array (List Name) × Array Syntax × Array Syntax × Option Syntax) =>
+        if recInfo.isMinor i then
+          let paramName := paramNames.get! i;
+          let (altVars, altRHSs, remainingAlts, prevAnonymousAlt?) := result;
+          match remainingAlts.findIdx? (fun alt => getAltName alt == paramName) with
+          | some idx =>
+            let newAlt := remainingAlts.get! idx;
+            pure (altVars.push (getAltVarNames newAlt).toList, altRHSs.push (getAltRHS newAlt), remainingAlts.eraseIdx idx, prevAnonymousAlt?)
+          | none => match remainingAlts.findIdx? (fun alt => getAltName alt == `_) with
+            | some idx =>
+              let newAlt     := remainingAlts.get! idx;
+              pure (altVars.push (getAltVarNames newAlt).toList, altRHSs.push (getAltRHS newAlt), remainingAlts.eraseIdx idx, some newAlt)
+            | none => match prevAnonymousAlt? with
+              | some alt =>
+                pure (altVars.push (getAltVarNames alt).toList, altRHSs.push (getAltRHS alt), remainingAlts, prevAnonymousAlt?)
+              | none     => throwError ref ("alternative for minor premise '" ++ toString paramName ++ "' is missing")
+        else
+          pure result)
+      (#[], #[], alts, none);
+    unless remainingAlts.isEmpty $
+      throwError (remainingAlts.get! 0) "unused alternative";
+    pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
 
 @[builtinTactic «induction»] def evalInduction : Tactic :=
 fun stx => focus stx $ do

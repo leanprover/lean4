@@ -80,6 +80,7 @@ def inferType (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.i
 def whnf (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnf ref e
 def whnfCore (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore ref e
 def unfoldDefinition? (ref : Syntax) (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? ref e
+def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
 /-- Collect unassigned metavariables -/
 def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do

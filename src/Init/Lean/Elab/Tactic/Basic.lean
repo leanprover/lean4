@@ -263,6 +263,10 @@ def withMainMVarContext {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
 (mvarId, _) ← getMainGoal ref;
 withMVarContext mvarId x
 
+@[inline] def liftMetaMAtMain {α} (ref : Syntax) (x : MVarId → MetaM α) : TacticM α := do
+(g, _) ← getMainGoal ref;
+withMVarContext g $ liftMetaM ref $ x g
+
 @[inline] def liftMetaTacticAux {α} (ref : Syntax) (tactic : MVarId → MetaM (α × List MVarId)) : TacticM α := do
 (g, gs) ← getMainGoal ref;
 withMVarContext g $ do

@@ -551,12 +551,14 @@ public:
         unsigned minor_idx = 1;
         d_idx = 0;
         for (inductive_type const & ind_type : m_ind_types) {
+            name ind_type_name = ind_type.get_name();
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 buffer<expr> b_u; // nonrec and rec args;
                 buffer<expr> u;   // rec args
                 buffer<expr> v;   // inductive args
-                expr t     = constructor_type(cnstr);
-                unsigned i = 0;
+                name cnstr_name = constructor_name(cnstr);
+                expr t          = constructor_type(cnstr);
+                unsigned i      = 0;
                 while (is_pi(t)) {
                     if (i < m_nparams) {
                         t = instantiate(binding_body(t), m_params[i]);
@@ -572,7 +574,7 @@ public:
                 buffer<expr> it_indices;
                 unsigned it_idx = get_I_indices(t, it_indices);
                 expr C_app      = mk_app(m_rec_infos[it_idx].m_C, it_indices);
-                expr intro_app  = mk_app(mk_app(mk_constant(constructor_name(cnstr), m_levels), m_params), b_u);
+                expr intro_app  = mk_app(mk_app(mk_constant(cnstr_name, m_levels), m_params), b_u);
                 C_app = mk_app(C_app, intro_app);
                 /* populate v using u */
                 for (unsigned i = 0; i < u.size(); i++) {
@@ -593,8 +595,9 @@ public:
                     expr v_i    = mk_local_decl(name("v").append_after(i), v_i_ty, binder_info());
                     v.push_back(v_i);
                 }
-                expr minor_ty = mk_pi(b_u, mk_pi(v, C_app));
-                expr minor    = mk_local_decl(name("m").append_after(minor_idx), minor_ty);
+                expr minor_ty   = mk_pi(b_u, mk_pi(v, C_app));
+                name minor_name = cnstr_name.replace_prefix(ind_type_name, name());
+                expr minor      = mk_local_decl(minor_name, minor_ty);
                 m_rec_infos[d_idx].m_minors.push_back(minor);
                 minor_idx++;
             }

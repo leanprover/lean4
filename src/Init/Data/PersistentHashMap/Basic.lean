@@ -166,6 +166,26 @@ match m.find? a with
 | some b => b
 | none   => panic! "key is not in the map"
 
+partial def findEntryAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) : Nat → α → Option (α × β)
+| i, k =>
+  if h : i < keys.size then
+    let k' := keys.get ⟨i, h⟩;
+    if k == k' then some (k', vals.get ⟨i, heq ▸ h⟩)
+    else findEntryAtAux (i+1) k
+  else none
+
+partial def findEntryAux [HasBeq α] : Node α β → USize → α → Option (α × β)
+| Node.entries entries, h, k =>
+  let j     := (mod2Shift h shift).toNat;
+  match entries.get! j with
+  | Entry.null       => none
+  | Entry.ref node   => findEntryAux node (div2Shift h shift) k
+  | Entry.entry k' v => if k == k' then some (k', v) else none
+| Node.collision keys vals heq, _, k => findEntryAtAux keys vals heq 0 k
+
+def findEntry? [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option (α × β)
+| { root := n, .. }, k => findEntryAux n (hash k) k
+
 partial def containsAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) : Nat → α → Bool
 | i, k =>
   if h : i < keys.size then

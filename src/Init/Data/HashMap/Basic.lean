@@ -56,11 +56,17 @@ foldBucketsM h.buckets d f
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
 
+def findEntry? [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
+match m with
+| ⟨_, buckets⟩ =>
+  let ⟨i, h⟩ := mkIdx buckets.property (hash a);
+  (buckets.val.uget i h).findEntry? a
+
 def find? [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
 match m with
 | ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a);
-  (buckets.val.uget i h).find a
+  (buckets.val.uget i h).find? a
 
 def contains [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
 match m with
@@ -141,6 +147,10 @@ match m with
 @[inline] def erase (m : HashMap α β) (a : α) : HashMap α β :=
 match m with
 | ⟨ m, hw ⟩ => ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
+
+@[inline] def findEntry? (m : HashMap α β) (a : α) : Option (α × β) :=
+match m with
+| ⟨ m, _ ⟩ => m.findEntry? a
 
 @[inline] def find? (m : HashMap α β) (a : α) : Option β :=
 match m with

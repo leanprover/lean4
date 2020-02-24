@@ -30,6 +30,11 @@ instance : HasEmptyc (HashSet α) :=
 @[inline] def erase (s : HashSet α) (a : α) : HashSet α :=
 { set := s.set.erase a }
 
+@[inline] def find? (s : HashSet α) (a : α) : Option α :=
+match s.set.findEntry? a with
+| some (k, _) => some k
+| none        => none
+
 @[inline] def contains (s : HashSet α) (a : α) : Bool :=
 s.set.contains a
 

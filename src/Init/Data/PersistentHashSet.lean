@@ -35,6 +35,11 @@ instance : HasEmptyc (PersistentHashSet α) :=
 @[inline] def erase (s : PersistentHashSet α) (a : α) : PersistentHashSet α :=
 { set := s.set.erase a }
 
+@[inline] def find? (s : PersistentHashSet α) (a : α) : Option α :=
+match s.set.findEntry? a with
+| some (a, _) => some a
+| none        => none
+
 @[inline] def contains (s : PersistentHashSet α) (a : α) : Bool :=
 s.set.contains a
 

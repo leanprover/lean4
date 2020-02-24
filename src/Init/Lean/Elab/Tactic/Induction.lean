@@ -221,7 +221,7 @@ else do
     pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
 
 @[builtinTactic «induction»] def evalInduction : Tactic :=
-fun stx => focus stx $ do
+fun stx => focusAux stx $ do
   let h? := getAuxHypothesisName stx;
   major ← elabMajor stx h? (getMajor stx);
   major ← generalizeMajor stx major;
@@ -229,7 +229,8 @@ fun stx => focus stx $ do
   recInfo ← getRecInfo stx major;
   liftMetaTactic stx $ fun mvarId => do
     result ← Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars;
-    pure []
+    -- TODO: use RHS
+    pure $ result.toList.map $ fun s => s.mvarId
 
 end Tactic
 end Elab

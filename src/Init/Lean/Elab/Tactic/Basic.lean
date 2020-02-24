@@ -284,13 +284,16 @@ def done (ref : Syntax) : TacticM Unit := do
 gs ← getUnsolvedGoals;
 unless gs.isEmpty $ reportUnsolvedGoals ref gs
 
-def focus {α} (ref : Syntax) (tactic : TacticM α) : TacticM α := do
+def focusAux {α} (ref : Syntax) (tactic : TacticM α) : TacticM α := do
 (g, gs) ← getMainGoal ref;
 setGoals [g];
 a ← tactic;
-done ref;
-setGoals gs;
+gs' ← getGoals;
+setGoals (gs' ++ gs);
 pure a
+
+def focus {α} (ref : Syntax) (tactic : TacticM α) : TacticM α :=
+focusAux ref (do a ← tactic; done ref; pure a)
 
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.

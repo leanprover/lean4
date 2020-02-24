@@ -17,6 +17,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
     withNewLocalInstances isClassExpensive fvars j $ do
       tag     ← getMVarTag mvarId;
+      let type := type.headBeta;
       newMVar ← mkFreshExprSyntheticOpaqueMVar type tag;
       lctx    ← getLCtx;
       newVal  ← mkLambda fvars newMVar;
@@ -24,6 +25,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
       pure $ (fvars, newMVar.mvarId!)
 | (i+1), lctx, fvars, j, s, Expr.letE n type val body _ => do
   let type   := type.instantiateRevRange j fvars.size fvars;
+  let type   := type.headBeta;
   let val    := val.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let (n, s) := mkName lctx n s;
@@ -33,6 +35,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
   introNCoreAux i lctx fvars j s body
 | (i+1), lctx, fvars, j, s, Expr.forallE n type body c => do
   let type   := type.instantiateRevRange j fvars.size fvars;
+  let type   := type.headBeta;
   fvarId ← mkFreshId;
   let (n, s) := mkName lctx n s;
   let lctx   := lctx.mkLocalDecl fvarId n type c.binderInfo;

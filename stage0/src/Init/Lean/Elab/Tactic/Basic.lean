@@ -80,6 +80,7 @@ def inferType (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.i
 def whnf (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnf ref e
 def whnfCore (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore ref e
 def unfoldDefinition? (ref : Syntax) (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? ref e
+def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
 /-- Collect unassigned metavariables -/
 def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do
@@ -283,13 +284,16 @@ def done (ref : Syntax) : TacticM Unit := do
 gs ← getUnsolvedGoals;
 unless gs.isEmpty $ reportUnsolvedGoals ref gs
 
-def focus {α} (ref : Syntax) (tactic : TacticM α) : TacticM α := do
+def focusAux {α} (ref : Syntax) (tactic : TacticM α) : TacticM α := do
 (g, gs) ← getMainGoal ref;
 setGoals [g];
 a ← tactic;
-done ref;
-setGoals gs;
+gs' ← getGoals;
+setGoals (gs' ++ gs);
 pure a
+
+def focus {α} (ref : Syntax) (tactic : TacticM α) : TacticM α :=
+focusAux ref (do a ← tactic; done ref; pure a)
 
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.

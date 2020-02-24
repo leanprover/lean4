@@ -607,6 +607,14 @@ forallTelescopeReducingAux isClassExpensive type none k
 def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 forallTelescopeReducingAux isClassExpensive type maxFVars? k
 
+/-- Return the parameter names for the givel global declaration. -/
+def getParamNames (declName : Name) : MetaM (Array Name) := do
+cinfo ← getConstInfo declName;
+forallTelescopeReducing cinfo.type $ fun xs _ => do
+  xs.mapM $ fun x => do
+    localDecl ← getLocalDecl x.fvarId!;
+    pure localDecl.userName
+
 def isClass (type : Expr) : MetaM (Option Name) := do
 c? ← isClassQuick type;
 match c? with

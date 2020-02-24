@@ -33,5 +33,8 @@ withMVarContext mvarId $ do
   assignExprMVar mvarId newMVar;
   pure newMVar.mvarId!
 
+def tryClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
+clear mvarId fvarId <|> pure mvarId
+
 end Meta
 end Lean

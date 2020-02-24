@@ -30,7 +30,7 @@ structure RecursorInfo :=
 (recursive     : Bool)
 (numArgs       : Nat) -- Total number of arguments
 (majorPos      : Nat)
-(paramsPos     : List (Option Nat)) -- Position of the recursor parameters in the major premise
+(paramsPos     : List (Option Nat)) -- Position of the recursor parameters in the major premise, instance implicit arguments are `none`
 (indicesPos    : List Nat) -- Position of the recursor indices in the major premise
 (produceMotive : List Bool) -- If the i-th element is true then i-th minor premise produces the motive
 

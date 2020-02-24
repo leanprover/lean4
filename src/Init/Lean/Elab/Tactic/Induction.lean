@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Meta.RecursorInfo
+import Init.Lean.Meta.Tactic.Induction
 import Init.Lean.Elab.Tactic.ElabTerm
 import Init.Lean.Elab.Tactic.Generalize
 
@@ -226,9 +227,9 @@ fun stx => focus stx $ do
   major ← generalizeMajor stx major;
   n ← generalizeVars stx major;
   recInfo ← getRecInfo stx major;
-  goals ← getGoals;
-  throwError stx ("WIP " ++ stx ++ major ++ ", n : " ++ toString n ++ Format.line ++ goalsToMessageData goals ++
-    Format.line ++ toString recInfo.altVars ++ Format.line ++ toString recInfo.altRHSs)
+  liftMetaTactic stx $ fun mvarId => do
+    result ← Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars;
+    pure []
 
 end Tactic
 end Elab

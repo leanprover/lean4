@@ -66,6 +66,7 @@ lean_object* l_ReaderT_lift___at_Lean_Elab_Tactic_Lean_Elab_MonadMacroAdapter___
 extern lean_object* l_Lean_Parser_Tactic_subst___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Tactic_trace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Tactic_Basic_1__evalTacticUsing(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_appendGoals___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_focus(lean_object*);
 lean_object* l_Lean_Elab_Tactic_getLCtx___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadQuotation___closed__2;
@@ -157,7 +158,6 @@ lean_object* l___private_Init_Lean_Elab_Tactic_Basic_3__getIntrosSize___main___b
 lean_object* l_Lean_Elab_Tactic_getMainGoal___closed__2;
 lean_object* l___private_Init_Lean_Elab_Tactic_Basic_3__getIntrosSize(lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadLog___closed__3;
-extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 extern uint8_t l___private_Init_Lean_Elab_Term_11__isExplicit___closed__1;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 lean_object* l_Lean_Meta_intro(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -211,6 +211,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalNestedTacticBlock___closed__3;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftTermElabM(lean_object*);
+extern lean_object* l_Lean_Elab_Term_mkConst___closed__4;
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getUnsolvedGoals(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntros___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -322,6 +323,7 @@ lean_object* l_Lean_Elab_Tactic_registerBuiltinTacticAttr___closed__3;
 lean_object* l_Lean_Elab_Tactic_evalIntros___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_declareBuiltinMacro___closed__4;
 lean_object* l_List_erase___main___at_Lean_Elab_Tactic_evalCase___spec__2(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_appendGoals(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_traceAtCmdPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Parser_Parser_15__throwParserCategoryAlreadyDefined___rarg___closed__2;
 lean_object* l_Lean_Elab_Tactic_registerBuiltinTacticAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11763,6 +11765,52 @@ lean_dec(x_2);
 return x_4;
 }
 }
+lean_object* l_Lean_Elab_Tactic_appendGoals(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_3, 1);
+x_6 = l_List_append___rarg(x_5, x_1);
+lean_ctor_set(x_3, 1, x_6);
+x_7 = lean_box(0);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_3);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_9 = lean_ctor_get(x_3, 0);
+x_10 = lean_ctor_get(x_3, 1);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_dec(x_3);
+x_11 = l_List_append___rarg(x_10, x_1);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = lean_box(0);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_12);
+return x_14;
+}
+}
+}
+lean_object* l_Lean_Elab_Tactic_appendGoals___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Elab_Tactic_appendGoals(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 lean_object* l_List_filterAuxM___main___at_Lean_Elab_Tactic_pruneSolvedGoals___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -15688,7 +15736,7 @@ x_15 = l_Lean_Meta_clear___lambda__1___closed__6;
 x_16 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
-x_17 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_17 = l_Lean_Elab_Term_mkConst___closed__4;
 x_18 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);

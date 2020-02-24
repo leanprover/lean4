@@ -227,10 +227,26 @@ fun stx => focusAux stx $ do
   major ← generalizeMajor stx major;
   n ← generalizeVars stx major;
   recInfo ← getRecInfo stx major;
-  liftMetaTactic stx $ fun mvarId => do
-    result ← Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars;
-    -- TODO: use RHS
-    pure $ result.toList.map $ fun s => s.mvarId
+  (mvarId, _) ← getMainGoal stx;
+  result ← liftMetaM stx $ Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars;
+  if recInfo.altRHSs.isEmpty then
+    setGoals $ result.toList.map $ fun s => s.mvarId
+  else do
+    unless (recInfo.altRHSs.size == result.size) $
+      throwError stx ("mistmatch on the number of subgoals produced (" ++ toString result.size ++ ") and " ++
+                      "alternatives provided (" ++ toString recInfo.altRHSs.size ++ ")");
+    result.size.forM $ fun i => do
+      let subgoal := result.get! i;
+      let rhs     := recInfo.altRHSs.get! i;
+      let mvarId  := subgoal.mvarId;
+      withMVarContext mvarId $ do
+        mvarDecl ← getMVarDecl mvarId;
+        val ← elabTerm rhs mvarDecl.type;
+        val ← ensureHasType rhs mvarDecl.type val;
+        assignExprMVar mvarId val;
+        gs'  ← collectMVars rhs val;
+        tagUntaggedGoals mvarDecl.userName `induction gs';
+        appendGoals gs'
 
 end Tactic
 end Elab

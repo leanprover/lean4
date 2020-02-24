@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Exception
-// Imports: Init.Lean.Meta
+// Imports: Init.Lean.Meta.Message
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -130,13 +130,13 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Init_Lean_Meta(lean_object*);
+lean_object* initialize_Init_Lean_Meta_Message(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Elab_Exception(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Lean_Meta(lean_io_mk_world());
+res = initialize_Init_Lean_Meta_Message(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Exception_inhabited___closed__1 = _init_l_Lean_Elab_Exception_inhabited___closed__1();

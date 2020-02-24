@@ -252,6 +252,7 @@ withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen
 
 def getGoals : TacticM (List MVarId) := do s ← get; pure s.goals
 def setGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { goals := gs, .. s }
+def appendGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { goals := s.goals ++ gs, .. s }
 def pruneSolvedGoals : TacticM Unit := do
 gs ← getGoals;
 gs ← gs.filterM $ fun g => not <$> isExprMVarAssigned g;

@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Util.Sorry
 import Init.Lean.Structure
-import Init.Lean.Meta
+import Init.Lean.Meta.ExprDefEq
+import Init.Lean.Meta.AppBuilder
+import Init.Lean.Meta.SynthInstance
+import Init.Lean.Meta.Tactic.Util
 import Init.Lean.Hygiene
 import Init.Lean.Util.RecDepth
 import Init.Lean.Elab.Log

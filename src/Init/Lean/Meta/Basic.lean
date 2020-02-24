@@ -819,6 +819,9 @@ match x { maxRecDepth := maxRecDepth, currRecDepth := 0 } { env := env } with
 | EStateM.Result.error ex _ => Except.error ex
 
 end Meta
+
+export Meta (MetaM)
+
 end Lean
 
 open Lean

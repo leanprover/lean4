@@ -52,21 +52,30 @@ extern "C" obj_res lean_object_pset_find(obj_arg s, obj_arg o);
 // unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : ObjectPersistentSet
 extern "C" obj_res lean_object_pset_insert(obj_arg s, obj_arg o);
 
-static obj_res pack_state(obj_arg m, obj_arg s) {
+static obj_res mk_pair(obj_arg a, obj_arg b) {
     object * r = alloc_cnstr(0, 2, 0);
-    cnstr_set(r, 0, m);
-    cnstr_set(r, 1, s);
+    cnstr_set(r, 0, a);
+    cnstr_set(r, 1, b);
     return r;
 }
 
-/*
 extern "C" obj_res lean_maxsharing_mk_state(obj_arg) {
-    return pack_state(lean_mk_object_map(box(0)), lean_mk_object_set(box(0)));
+    return mk_pair(lean_mk_object_map(box(0)), lean_mk_object_set(box(0)));
 }
 
 extern "C" obj_res lean_maxsharing_mk_pstate(obj_arg) {
-    return pack_state(lean_mk_object_pmap(box(0)), lean_mk_object_pset(box(0)));
+    return mk_pair(lean_mk_object_pmap(box(0)), lean_mk_object_pset(box(0)));
 }
-*/
 
+// def State.maxSharing {α} (s : State) (a : α) : α × State
+extern "C" obj_res lean_state_maxsharing(obj_arg s, obj_arg a) {
+    // TODO
+    return mk_pair(a, s);
+}
+
+// def PersistentState.maxSharing {α} (s : PersistentState) (a : α) : α × PersistentState
+extern "C" obj_res lean_persistent_state_maxsharing(obj_arg s, obj_arg a) {
+    // TODO
+    return mk_pair(a, s);
+}
 };

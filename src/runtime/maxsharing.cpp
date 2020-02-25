@@ -154,43 +154,43 @@ class max_sharing_fn {
     state m_state;
 
     obj_res visit_closure(b_obj_arg a) {
-        // TODO
+        // TODO(Leo)
         lean_inc(a);
         return a;
     }
 
     obj_res visit_array(b_obj_arg a) {
-        // TODO
+        // TODO(Leo)
         lean_inc(a);
         return a;
     }
 
     obj_res visit_sarray(b_obj_arg a) {
-        // TODO
+        // TODO(Leo)
         lean_inc(a);
         return a;
     }
 
     obj_res visit_string(b_obj_arg a) {
-        // TODO
+        // TODO(Leo)
         lean_inc(a);
         return a;
     }
 
     obj_res visit_mpz(b_obj_arg a) {
-        // TODO
+        // TODO(Leo)
         lean_inc(a);
         return a;
     }
 
     obj_res visit_thunk(b_obj_arg a) {
-        // TODO
+        // TODO(Leo)
         lean_inc(a);
         return a;
     }
 
     obj_res visit_ctor(b_obj_arg a) {
-        // TODO
+        // TODO(Leo)
         lean_inc(a);
         return a;
     }

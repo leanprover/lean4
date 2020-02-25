@@ -88,8 +88,6 @@ unsafe def ObjectPersistentSet.find? (s : ObjectPersistentSet) (o : Object) : Op
 unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : ObjectPersistentSet :=
 @PersistentHashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
 
-#exit -- REMOVE after update stage0
-
 /- Internally `State` is implemented as a pair `ObjectMap` and `ObjectSet` -/
 constant StatePointed : PointedType := arbitrary _
 abbrev State : Type := StatePointed.type

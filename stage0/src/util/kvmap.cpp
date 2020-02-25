@@ -7,6 +7,19 @@ Author: Leonardo de Moura
 #include "util/kvmap.h"
 
 namespace lean {
+extern "C" object * lean_mk_bool_data_value(bool b);
+extern "C" uint8 lean_data_value_bool(object * v);
+
+data_value::data_value(bool v):
+    object_ref(alloc_cnstr(static_cast<unsigned>(data_value_kind::Bool), 0, 1)) {
+    cnstr_set_scalar<unsigned char>(raw(), 0, v);
+}
+
+bool data_value::get_bool() const {
+    lean_assert(kind() == data_value_kind::Bool);
+    return static_cast<bool>(cnstr_get_scalar<unsigned char>(raw(), 0));
+}
+
 bool operator==(data_value const & a, data_value const & b) {
     if (a.kind() != b.kind()) return false;
     switch (a.kind()) {

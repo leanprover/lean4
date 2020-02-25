@@ -33,6 +33,7 @@ extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_size(lean_object*);
 lean_object* l_Lean_KVMap_nameVal___closed__3;
+uint8_t lean_data_value_bool(lean_object*);
 lean_object* l_Lean_KVMap_intVal___closed__1;
 lean_object* l_Lean_KVMap_findCore___main(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
@@ -51,6 +52,7 @@ lean_object* l_Lean_KVMap_stringVal___closed__3;
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 extern lean_object* l_Int_zero;
 lean_object* l_Lean_KVMap_Inhabited;
+lean_object* lean_mk_bool_data_value(uint8_t);
 lean_object* l_Lean_KVMap_HasToString(lean_object*);
 lean_object* l_Lean_KVMap_subsetAux___main___boxed(lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
@@ -61,6 +63,7 @@ uint8_t l_Lean_DataValue_beq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getBool___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_stringVal;
 lean_object* l_List_toStringAux___main___at_Lean_KVMap_HasToString___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_DataValue_getBoolEx___boxed(lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_name2DataValue(lean_object*);
 lean_object* l_Lean_KVMap_eqv___boxed(lean_object*, lean_object*);
@@ -81,6 +84,7 @@ lean_object* l_Lean_KVMap_insertCore___main(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_KVMap_findD(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setInt(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
+lean_object* l_Lean_mkBoolDataValueEx___boxed(lean_object*);
 lean_object* l_Lean_KVMap_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getInt(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_bool2DataValue(uint8_t);
@@ -119,6 +123,53 @@ lean_object* l_Lean_DataValue_sameCtor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_DataValue_hasToString___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getNat___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_bool_data_value(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_mkBoolDataValueEx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = lean_mk_bool_data_value(x_2);
+return x_3;
+}
+}
+uint8_t lean_data_value_bool(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 1)
+{
+uint8_t x_2; 
+x_2 = lean_ctor_get_uint8(x_1, 0);
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+lean_dec(x_1);
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_DataValue_getBoolEx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_data_value_bool(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 uint8_t l_Lean_DataValue_beq(lean_object* x_1, lean_object* x_2) {
 _start:
 {

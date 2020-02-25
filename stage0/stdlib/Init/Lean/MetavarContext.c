@@ -496,6 +496,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_MetavarContext_localDeclDepen
 lean_object* lean_metavar_ctx_mk_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Init_Lean_MetavarContext_8__dep___main___at_Lean_MetavarContext_localDeclDependsOn___spec__25___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint8_t l_Bool_Inhabited;
+lean_object* l_Lean_mkMetavarDeclEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_metavar_ctx_assign_level(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MetavarContext_addLevelMVarDecl___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -586,6 +587,7 @@ lean_object* l___private_Init_Lean_MetavarContext_7__visit(lean_object*, lean_ob
 lean_object* l___private_Init_Lean_MetavarContext_10__collectDeps___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_instantiateMVarDeclMVars(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__32(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_metavar_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Init_Lean_MetavarContext_21__elimMVarDepsApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_MetavarContext_9__getLocalDeclWithSmallestIdx___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_MetavarContext_getDelayedAssignment_x3f___spec__1(lean_object*, lean_object*);
@@ -863,6 +865,30 @@ lean_dec(x_1);
 x_3 = l_Lean_MetavarKind_isSyntheticOpaque(x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+lean_object* lean_mk_metavar_decl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set(x_7, 4, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*5, x_6);
+return x_7;
+}
+}
+lean_object* l_Lean_mkMetavarDeclEx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = lean_unbox(x_6);
+lean_dec(x_6);
+x_8 = lean_mk_metavar_decl(x_1, x_2, x_3, x_4, x_5, x_7);
+return x_8;
 }
 }
 lean_object* _init_l_Lean_MetavarDecl_Inhabited___closed__1() {
@@ -2242,7 +2268,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(324u);
+x_2 = lean_unsigned_to_nat(328u);
 x_3 = lean_unsigned_to_nat(15u);
 x_4 = l_Lean_MetavarContext_getDecl___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -2696,7 +2722,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(340u);
+x_2 = lean_unsigned_to_nat(344u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Lean_MetavarContext_getDecl___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -2775,7 +2801,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(349u);
+x_2 = lean_unsigned_to_nat(353u);
 x_3 = lean_unsigned_to_nat(19u);
 x_4 = l_Lean_MetavarContext_getDecl___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -6264,7 +6290,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(398u);
+x_2 = lean_unsigned_to_nat(402u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Lean_MetavarContext_isLevelAssignable___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

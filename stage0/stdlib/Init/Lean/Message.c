@@ -130,6 +130,7 @@ lean_object* l_Lean_MessageData_HasAppend(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList___closed__4;
+lean_object* l_Lean_mkMessageEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_bracket(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_group(lean_object*);
 lean_object* l_Lean_MessageData_joinSep___boxed(lean_object*, lean_object*);
@@ -173,6 +174,7 @@ lean_object* l_Lean_MessageData_ofList___closed__1;
 lean_object* l_Lean_MessageLog_isEmpty___boxed(lean_object*);
 lean_object* l_Lean_MessageData_arrayExpr_toMessageData___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_coeOfArrayExpr___boxed(lean_object*);
+lean_object* lean_mk_message(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_MessageLog_hasErrors___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1317,6 +1319,34 @@ lean_object* x_2;
 x_2 = l_Lean_MessageData_ofArray(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* lean_mk_message(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+x_8 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+x_9 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_9, 0, x_1);
+lean_ctor_set(x_9, 1, x_2);
+lean_ctor_set(x_9, 2, x_3);
+lean_ctor_set(x_9, 3, x_5);
+lean_ctor_set(x_9, 4, x_8);
+lean_ctor_set_uint8(x_9, sizeof(void*)*5, x_4);
+return x_9;
+}
+}
+lean_object* l_Lean_mkMessageEx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = lean_unbox(x_4);
+lean_dec(x_4);
+x_8 = lean_mk_message(x_1, x_2, x_3, x_7, x_5, x_6);
+return x_8;
 }
 }
 lean_object* l_Lean_fmt___at_Lean_Message_toString___spec__1(lean_object* x_1) {

@@ -43,12 +43,7 @@ structure message :=
 class message : public object_ref {
 public:
     message(std::string const & filename, pos_info const & pos, optional<pos_info> const & end_pos,
-            message_severity severity, std::string const & caption, std::string const & text) :
-        object_ref(mk_cnstr(0, string_ref(filename), position(pos),
-                            option_ref<position>(end_pos ? some(position(*end_pos)) : optional<position>()),
-                            string_ref(caption), string_ref(text), sizeof(message_severity))) {
-        cnstr_set_scalar(raw(), sizeof(void*) * 5, severity);
-    }
+            message_severity severity, std::string const & caption, std::string const & text);
     message(std::string const & filename, pos_info const & pos,
             message_severity severity, std::string const & caption, std::string const & text) :
         message(filename, pos, optional<pos_info>(), severity, caption, text) {}
@@ -66,9 +61,7 @@ public:
         auto pos = static_cast<option_ref<position> const &>(cnstr_get_ref(*this, 2)).get();
         return pos ? some(pos->to_pos_info()) : optional<pos_info>();
     }
-    message_severity get_severity() const {
-        return cnstr_get_scalar<message_severity>(raw(), sizeof(void*) * 5);
-    }
+    message_severity get_severity() const;
     std::string get_caption() const { return static_cast<string_ref const &>(cnstr_get_ref(*this, 3)).to_std_string(); }
     std::string get_text() const { return static_cast<string_ref const &>(cnstr_get_ref(*this, 4)).to_std_string(); }
 

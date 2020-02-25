@@ -41,10 +41,7 @@ public:
         if (cnstr_tag(raw()) == 0) return none_expr();
         return some_expr(static_cast<expr const &>(cnstr_get_ref(raw(), 4)));
     }
-    binder_info get_info() const {
-        if (cnstr_tag(raw()) == 0) return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*4));
-        else return binder_info();
-    }
+    binder_info get_info() const;
     expr mk_ref() const;
 };
 

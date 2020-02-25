@@ -18,12 +18,16 @@ lean_object* l_MaxSharing_Object_eq___boxed(lean_object*, lean_object*);
 lean_object* l_MaxSharing_Object_inhabited;
 lean_object* l_PersistentHashMap_insert___at_MaxSharing_ObjectPersistentMap_insert___spec__1(lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
+lean_object* l_MaxSharing_PersistentState_empty;
+lean_object* l_MaxSharing_State_empty___closed__1;
 lean_object* lean_object_set_insert(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_PersistentHashMap_insert___at_MaxSharing_ObjectPersistentSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_maxSharing(lean_object*);
 lean_object* l_HashMapImp_find_x3f___at_MaxSharing_ObjectMap_find_x3f___spec__1(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
+lean_object* l_MaxSharing_mkState___boxed(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_AssocList_replace___main___at_MaxSharing_ObjectMap_insert___spec__6(lean_object*, lean_object*, lean_object*);
 uint8_t lean_maxsharing_eq(lean_object*, lean_object*);
@@ -56,7 +60,9 @@ lean_object* l_MaxSharing_mkObjectSet___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_object_pset_find(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_MaxSharing_ObjectPersistentMap_find_x3f___spec__1(lean_object*, lean_object*);
+lean_object* lean_maxsharing_mk_state(lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_MaxSharing_ObjectPersistentSet_insert___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_maxSharing___rarg(lean_object*);
 lean_object* l_mkHashSet___at_MaxSharing_mkObjectSet___spec__1(lean_object*);
 lean_object* l_PersistentHashMap_findEntry_x3f___at_MaxSharing_ObjectPersistentSet_find_x3f___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -68,9 +74,12 @@ lean_object* l_AssocList_contains___main___at_MaxSharing_ObjectMap_insert___spec
 lean_object* l_AssocList_replace___main___at_MaxSharing_ObjectSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentMap___spec__1___closed__1;
 lean_object* lean_object_pmap_insert(lean_object*, lean_object*, lean_object*);
+lean_object* l_MaxSharing_State_inhabited;
 lean_object* l_HashMapImp_expand___at_MaxSharing_ObjectSet_insert___spec__3(lean_object*, lean_object*);
+lean_object* l_MaxSharing_PersistentState_empty___closed__1;
 lean_object* l_PersistentHashMap_findEntry_x3f___at_MaxSharing_ObjectPersistentSet_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
+lean_object* lean_state_maxsharing(lean_object*, lean_object*);
 lean_object* l_AssocList_findEntry_x3f___main___at_MaxSharing_ObjectSet_find_x3f___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_PersistentHashMap_empty___rarg___closed__2;
 lean_object* l_PersistentHashMap_findEntryAtAux___main___at_MaxSharing_ObjectPersistentSet_find_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,10 +88,13 @@ lean_object* l_Array_iterateMAux___main___at_MaxSharing_ObjectPersistentMap_inse
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentSet___spec__1___closed__1;
 size_t l_USize_land(size_t, size_t);
+lean_object* lean_persistent_state_maxsharing(lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_MaxSharing_mkObjectSet___spec__2(lean_object*);
+lean_object* l_MaxSharing_mkPersistentState___boxed(lean_object*);
 lean_object* l_AssocList_contains___main___at_MaxSharing_ObjectSet_insert___spec__2___boxed(lean_object*, lean_object*);
 size_t l_MaxSharing_Object_ptrHash(lean_object*);
 lean_object* l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentMap___spec__1___closed__3;
+lean_object* l_MaxSharing_PersistentState_inhabited;
 size_t lean_ptr_addr(lean_object*);
 lean_object* lean_mk_object_set(lean_object*);
 lean_object* l_HashMapImp_insert___at_MaxSharing_ObjectSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -93,18 +105,23 @@ lean_object* l_AssocList_findEntry_x3f___main___at_MaxSharing_ObjectSet_find_x3f
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
 lean_object* lean_object_map_find(lean_object*, lean_object*);
+lean_object* lean_maxsharing_mk_pstate(lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_MaxSharing_ObjectPersistentMap_insert___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findEntryAux___main___at_MaxSharing_ObjectPersistentSet_find_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_MaxSharing_ObjectPersistentMap_find_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_object_map_insert(lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_MaxSharing_mkObjectMap___spec__1(lean_object*);
+lean_object* l_MaxSharing_PersistentStatePointed;
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_MaxSharing_ObjectPersistentSet_insert___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MaxSharing_StatePointed;
 lean_object* l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentMap___spec__1___closed__2;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_mk_object_map(lean_object*);
 lean_object* l_MaxSharing_mkObjectMap___closed__1;
+lean_object* l_MaxSharing_State_maxSharing___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_MaxSharing_PersistentState_maxSharing___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_MaxSharing_ObjectPersistentSet_insert___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_findEntry_x3f___at_MaxSharing_ObjectSet_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_MaxSharing_ObjectMap_insert___spec__5(lean_object*, lean_object*);
@@ -117,6 +134,7 @@ lean_object* l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentMap___s
 uint8_t l_AssocList_contains___main___at_MaxSharing_ObjectSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_MaxSharing_ObjectPersistentMap_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_MaxSharing_ObjectPersistentSet_insert___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
+lean_object* l_MaxSharing_State_empty;
 lean_object* l_PersistentHashMap_findAux___main___at_MaxSharing_ObjectPersistentMap_find_x3f___spec__2(lean_object*, size_t, lean_object*);
 lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_MaxSharing_Object_ptrEq(lean_object*, lean_object*);
@@ -2606,6 +2624,124 @@ x_8 = l_PersistentHashMap_insertAux___main___at_MaxSharing_ObjectPersistentSet_i
 return x_8;
 }
 }
+lean_object* _init_l_MaxSharing_StatePointed() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+lean_object* l_MaxSharing_mkState___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_maxsharing_mk_state(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_MaxSharing_State_empty___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_maxsharing_mk_state(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_MaxSharing_State_empty() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_MaxSharing_State_empty___closed__1;
+return x_1;
+}
+}
+lean_object* _init_l_MaxSharing_State_inhabited() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_MaxSharing_State_empty;
+return x_1;
+}
+}
+lean_object* _init_l_MaxSharing_PersistentStatePointed() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+lean_object* l_MaxSharing_mkPersistentState___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_maxsharing_mk_pstate(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_MaxSharing_PersistentState_empty___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_maxsharing_mk_pstate(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_MaxSharing_PersistentState_empty() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_MaxSharing_PersistentState_empty___closed__1;
+return x_1;
+}
+}
+lean_object* _init_l_MaxSharing_PersistentState_inhabited() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_MaxSharing_PersistentState_empty;
+return x_1;
+}
+}
+lean_object* l_MaxSharing_State_maxSharing___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_state_maxsharing(x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_MaxSharing_PersistentState_maxSharing___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_persistent_state_maxsharing(x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_maxSharing___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_MaxSharing_State_empty;
+x_3 = lean_state_maxsharing(x_2, x_1);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec(x_3);
+return x_4;
+}
+}
+lean_object* l_maxSharing(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_maxSharing___rarg), 1, 0);
+return x_2;
+}
+}
 lean_object* initialize_Init_Util(lean_object*);
 lean_object* initialize_Init_Data_HashMap(lean_object*);
 lean_object* initialize_Init_Data_HashSet(lean_object*);
@@ -2655,6 +2791,22 @@ l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentSet___spec__1___clos
 lean_mark_persistent(l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentSet___spec__1___closed__3);
 l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentSet___spec__1 = _init_l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentSet___spec__1();
 lean_mark_persistent(l_PersistentHashMap_empty___at_MaxSharing_mkObjectPersistentSet___spec__1);
+l_MaxSharing_StatePointed = _init_l_MaxSharing_StatePointed();
+lean_mark_persistent(l_MaxSharing_StatePointed);
+l_MaxSharing_State_empty___closed__1 = _init_l_MaxSharing_State_empty___closed__1();
+lean_mark_persistent(l_MaxSharing_State_empty___closed__1);
+l_MaxSharing_State_empty = _init_l_MaxSharing_State_empty();
+lean_mark_persistent(l_MaxSharing_State_empty);
+l_MaxSharing_State_inhabited = _init_l_MaxSharing_State_inhabited();
+lean_mark_persistent(l_MaxSharing_State_inhabited);
+l_MaxSharing_PersistentStatePointed = _init_l_MaxSharing_PersistentStatePointed();
+lean_mark_persistent(l_MaxSharing_PersistentStatePointed);
+l_MaxSharing_PersistentState_empty___closed__1 = _init_l_MaxSharing_PersistentState_empty___closed__1();
+lean_mark_persistent(l_MaxSharing_PersistentState_empty___closed__1);
+l_MaxSharing_PersistentState_empty = _init_l_MaxSharing_PersistentState_empty();
+lean_mark_persistent(l_MaxSharing_PersistentState_empty);
+l_MaxSharing_PersistentState_inhabited = _init_l_MaxSharing_PersistentState_inhabited();
+lean_mark_persistent(l_MaxSharing_PersistentState_inhabited);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

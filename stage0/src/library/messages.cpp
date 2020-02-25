@@ -9,9 +9,24 @@ Author: Gabriel Ebner
 #include "library/trace.h"
 
 namespace lean {
+extern "C" object * lean_mk_message(object * filename, object * pos, object * end_pos, uint8 severity,
+                                    object * caption, object * text);
+extern "C" uint8 lean_message_severity(object * msg);
+
+message::message(std::string const & filename, pos_info const & pos, optional<pos_info> const & end_pos,
+                 message_severity severity, std::string const & caption, std::string const & text) :
+    object_ref(mk_cnstr(0, string_ref(filename), position(pos),
+                        option_ref<position>(end_pos ? some(position(*end_pos)) : optional<position>()),
+                        string_ref(caption), string_ref(text), sizeof(message_severity))) {
+    cnstr_set_scalar(raw(), sizeof(void*) * 5, severity);
+}
 
 message::message(parser_exception const & ex) :
         message(ex.get_file_name(), *ex.get_pos(), ERROR, ex.get_msg()) {}
+
+message_severity message::get_severity() const {
+    return cnstr_get_scalar<message_severity>(raw(), sizeof(void*) * 5);
+}
 
 std::ostream & operator<<(std::ostream & out, message const & msg) {
     if (msg.get_severity() != INFORMATION) {

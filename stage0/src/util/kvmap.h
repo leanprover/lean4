@@ -25,7 +25,7 @@ public:
     explicit data_value(char const * v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), mk_string(v))) {}
     explicit data_value(string_ref const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), v.raw())) { inc(v.raw()); }
     explicit data_value(nat const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::Nat), v.raw())) { inc(v.raw()); }
-    explicit data_value(bool v):object_ref(alloc_cnstr(static_cast<unsigned>(data_value_kind::Bool), 0, 1)) { cnstr_set_scalar<unsigned char>(raw(), 0, v); }
+    explicit data_value(bool v);
     explicit data_value(name const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::Name), v.raw())) { inc(v.raw()); }
     data_value():data_value(false) {}
     data_value(data_value const & other):object_ref(other) {}
@@ -40,7 +40,7 @@ public:
     string_ref const & get_string() const { lean_assert(kind() == data_value_kind::String); return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)); }
     nat const & get_nat() const { lean_assert(kind() == data_value_kind::Nat); return static_cast<nat const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { lean_assert(kind() == data_value_kind::Name); return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
-    bool get_bool() const { lean_assert(kind() == data_value_kind::Bool); return static_cast<bool>(cnstr_get_scalar<unsigned char>(raw(), 0)); }
+    bool get_bool() const;
 
     friend bool operator==(data_value const & a, data_value const & b);
     friend bool operator<(data_value const & a, data_value const & b);

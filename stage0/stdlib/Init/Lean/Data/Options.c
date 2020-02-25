@@ -1208,11 +1208,17 @@ return x_3;
 lean_object* _init_l_Lean_verboseOption___closed__3() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; 
+uint8_t x_1; uint32_t x_2; uint16_t x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = 1;
-x_2 = lean_alloc_ctor(1, 0, 1);
-lean_ctor_set_uint8(x_2, 0, x_1);
-return x_2;
+x_2 = 0;
+x_3 = 0;
+x_4 = 0;
+x_5 = lean_alloc_ctor(1, 0, 8);
+lean_ctor_set_uint8(x_5, 6, x_1);
+lean_ctor_set_uint32(x_5, 0, x_2);
+lean_ctor_set_uint16(x_5, 4, x_3);
+lean_ctor_set_uint8(x_5, 7, x_4);
+return x_5;
 }
 }
 lean_object* _init_l_Lean_verboseOption___closed__4() {

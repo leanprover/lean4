@@ -74,18 +74,24 @@ return x_4;
 lean_object* l_Lean_Elab_mkMessageCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint32_t x_9; uint16_t x_10; uint8_t x_11; lean_object* x_12; 
 x_6 = l_Lean_FileMap_toPosition(x_2, x_5);
 x_7 = lean_box(0);
 x_8 = l_String_splitAux___main___closed__1;
-x_9 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_6);
-lean_ctor_set(x_9, 2, x_7);
-lean_ctor_set(x_9, 3, x_8);
-lean_ctor_set(x_9, 4, x_3);
-lean_ctor_set_uint8(x_9, sizeof(void*)*5, x_4);
-return x_9;
+x_9 = 0;
+x_10 = 0;
+x_11 = 0;
+x_12 = lean_alloc_ctor(0, 5, 8);
+lean_ctor_set(x_12, 0, x_1);
+lean_ctor_set(x_12, 1, x_6);
+lean_ctor_set(x_12, 2, x_7);
+lean_ctor_set(x_12, 3, x_8);
+lean_ctor_set(x_12, 4, x_3);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 6, x_4);
+lean_ctor_set_uint32(x_12, sizeof(void*)*5, x_9);
+lean_ctor_set_uint16(x_12, sizeof(void*)*5 + 4, x_10);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 7, x_11);
+return x_12;
 }
 }
 lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -103,21 +109,27 @@ return x_7;
 lean_object* l_Lean_Elab_mkExceptionCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; uint32_t x_9; uint16_t x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = l_Lean_FileMap_toPosition(x_2, x_4);
 x_6 = lean_box(0);
 x_7 = 2;
 x_8 = l_String_splitAux___main___closed__1;
-x_9 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_5);
-lean_ctor_set(x_9, 2, x_6);
-lean_ctor_set(x_9, 3, x_8);
-lean_ctor_set(x_9, 4, x_3);
-lean_ctor_set_uint8(x_9, sizeof(void*)*5, x_7);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-return x_10;
+x_9 = 0;
+x_10 = 0;
+x_11 = 0;
+x_12 = lean_alloc_ctor(0, 5, 8);
+lean_ctor_set(x_12, 0, x_1);
+lean_ctor_set(x_12, 1, x_5);
+lean_ctor_set(x_12, 2, x_6);
+lean_ctor_set(x_12, 3, x_8);
+lean_ctor_set(x_12, 4, x_3);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 6, x_7);
+lean_ctor_set_uint32(x_12, sizeof(void*)*5, x_9);
+lean_ctor_set_uint16(x_12, sizeof(void*)*5 + 4, x_10);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 7, x_11);
+x_13 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
+return x_13;
 }
 }
 lean_object* l_Lean_Elab_mkExceptionCore___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

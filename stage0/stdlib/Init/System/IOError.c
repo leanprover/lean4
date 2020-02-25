@@ -116,14 +116,16 @@ return x_1;
 lean_object* lean_mk_io_error_inappropriate_type_file(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; uint32_t x_5; lean_object* x_6; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_1);
-x_5 = lean_alloc_ctor(15, 2, 4);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_2);
-return x_5;
+x_5 = 0;
+x_6 = lean_alloc_ctor(15, 2, 8);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 1, x_3);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2, x_2);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2 + 4, x_5);
+return x_6;
 }
 }
 lean_object* l_IO_Error_mkInappropriateTypeFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -139,12 +141,14 @@ return x_5;
 lean_object* lean_mk_io_error_interrupted(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_alloc_ctor(10, 2, 4);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_2);
-return x_4;
+uint32_t x_4; lean_object* x_5; 
+x_4 = 0;
+x_5 = lean_alloc_ctor(10, 2, 8);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_2);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2 + 4, x_4);
+return x_5;
 }
 }
 lean_object* l_IO_Error_mkInterrupted___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -160,14 +164,16 @@ return x_5;
 lean_object* lean_mk_io_error_invalid_argument_file(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; uint32_t x_5; lean_object* x_6; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_1);
-x_5 = lean_alloc_ctor(12, 2, 4);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_2);
-return x_5;
+x_5 = 0;
+x_6 = lean_alloc_ctor(12, 2, 8);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 1, x_3);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2, x_2);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2 + 4, x_5);
+return x_6;
 }
 }
 lean_object* l_IO_Error_mkInvalidArgumentFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -183,12 +189,14 @@ return x_5;
 lean_object* lean_mk_io_error_no_file_or_directory(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_alloc_ctor(11, 2, 4);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_2);
-return x_4;
+uint32_t x_4; lean_object* x_5; 
+x_4 = 0;
+x_5 = lean_alloc_ctor(11, 2, 8);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_2);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2 + 4, x_4);
+return x_5;
 }
 }
 lean_object* l_IO_Error_mkNoFileOrDirectory___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -204,14 +212,16 @@ return x_5;
 lean_object* lean_mk_io_error_no_such_thing_file(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; uint32_t x_5; lean_object* x_6; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_1);
-x_5 = lean_alloc_ctor(16, 2, 4);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_2);
-return x_5;
+x_5 = 0;
+x_6 = lean_alloc_ctor(16, 2, 8);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 1, x_3);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2, x_2);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2 + 4, x_5);
+return x_6;
 }
 }
 lean_object* l_IO_Error_mkNoSuchThingFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -227,14 +237,16 @@ return x_5;
 lean_object* lean_mk_io_error_permission_denied_file(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; uint32_t x_5; lean_object* x_6; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_1);
-x_5 = lean_alloc_ctor(13, 2, 4);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_2);
-return x_5;
+x_5 = 0;
+x_6 = lean_alloc_ctor(13, 2, 8);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 1, x_3);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2, x_2);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2 + 4, x_5);
+return x_6;
 }
 }
 lean_object* l_IO_Error_mkPermissionDeniedFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -250,14 +262,16 @@ return x_5;
 lean_object* lean_mk_io_error_resource_exhausted_file(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; uint32_t x_5; lean_object* x_6; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_1);
-x_5 = lean_alloc_ctor(14, 2, 4);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_2);
-return x_5;
+x_5 = 0;
+x_6 = lean_alloc_ctor(14, 2, 8);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 1, x_3);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2, x_2);
+lean_ctor_set_uint32(x_6, sizeof(void*)*2 + 4, x_5);
+return x_6;
 }
 }
 lean_object* l_IO_Error_mkResourceExhaustedFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -273,11 +287,13 @@ return x_5;
 lean_object* lean_mk_io_error_unsupported_operation(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(4, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(4, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkUnsupportedOperation___boxed(lean_object* x_1, lean_object* x_2) {
@@ -293,13 +309,15 @@ return x_4;
 lean_object* lean_mk_io_error_resource_exhausted(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; uint32_t x_4; lean_object* x_5; 
 x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(14, 2, 4);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_1);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(14, 2, 8);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_1);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2 + 4, x_4);
+return x_5;
 }
 }
 lean_object* l_IO_Error_mkResourceExhausted___boxed(lean_object* x_1, lean_object* x_2) {
@@ -315,11 +333,13 @@ return x_4;
 lean_object* lean_mk_io_error_already_exists(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(0, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkAlreadyExists___boxed(lean_object* x_1, lean_object* x_2) {
@@ -335,13 +355,15 @@ return x_4;
 lean_object* lean_mk_io_error_inappropriate_type(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; uint32_t x_4; lean_object* x_5; 
 x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(15, 2, 4);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_1);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(15, 2, 8);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_1);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2 + 4, x_4);
+return x_5;
 }
 }
 lean_object* l_IO_Error_mkInappropriateType___boxed(lean_object* x_1, lean_object* x_2) {
@@ -357,13 +379,15 @@ return x_4;
 lean_object* lean_mk_io_error_no_such_thing(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; uint32_t x_4; lean_object* x_5; 
 x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(16, 2, 4);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_1);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(16, 2, 8);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_1);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2 + 4, x_4);
+return x_5;
 }
 }
 lean_object* l_IO_Error_mkNoSuchThing___boxed(lean_object* x_1, lean_object* x_2) {
@@ -379,11 +403,13 @@ return x_4;
 lean_object* lean_mk_io_error_resource_vanished(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(3, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(3, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkResourceVanished___boxed(lean_object* x_1, lean_object* x_2) {
@@ -399,11 +425,13 @@ return x_4;
 lean_object* lean_mk_io_error_resource_busy(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(2, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(2, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkResourceBusy___boxed(lean_object* x_1, lean_object* x_2) {
@@ -419,13 +447,15 @@ return x_4;
 lean_object* lean_mk_io_error_invalid_argument(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; uint32_t x_4; lean_object* x_5; 
 x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(12, 2, 4);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_1);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(12, 2, 8);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_1);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2 + 4, x_4);
+return x_5;
 }
 }
 lean_object* l_IO_Error_mkInvalidArgument___boxed(lean_object* x_1, lean_object* x_2) {
@@ -441,11 +471,13 @@ return x_4;
 lean_object* lean_mk_io_error_other_error(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(1, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(1, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkOtherError___boxed(lean_object* x_1, lean_object* x_2) {
@@ -461,13 +493,15 @@ return x_4;
 lean_object* lean_mk_io_error_permission_denied(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; uint32_t x_4; lean_object* x_5; 
 x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(13, 2, 4);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_1);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(13, 2, 8);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2, x_1);
+lean_ctor_set_uint32(x_5, sizeof(void*)*2 + 4, x_4);
+return x_5;
 }
 }
 lean_object* l_IO_Error_mkPermissionDenied___boxed(lean_object* x_1, lean_object* x_2) {
@@ -483,11 +517,13 @@ return x_4;
 lean_object* lean_mk_io_error_hardware_fault(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(5, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(5, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkHardwareFault___boxed(lean_object* x_1, lean_object* x_2) {
@@ -503,11 +539,13 @@ return x_4;
 lean_object* lean_mk_io_error_unsatisfied_constraints(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(6, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(6, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkUnsatisfiedConstraints___boxed(lean_object* x_1, lean_object* x_2) {
@@ -523,11 +561,13 @@ return x_4;
 lean_object* lean_mk_io_error_illegal_operation(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(7, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(7, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkIllegalOperation___boxed(lean_object* x_1, lean_object* x_2) {
@@ -543,11 +583,13 @@ return x_4;
 lean_object* lean_mk_io_error_protocol_error(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(8, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(8, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkProtocolError___boxed(lean_object* x_1, lean_object* x_2) {
@@ -563,11 +605,13 @@ return x_4;
 lean_object* lean_mk_io_error_time_expired(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(9, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+uint32_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = lean_alloc_ctor(9, 1, 8);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1, x_1);
+lean_ctor_set_uint32(x_4, sizeof(void*)*1 + 4, x_3);
+return x_4;
 }
 }
 lean_object* l_IO_Error_mkTimeExpired___boxed(lean_object* x_1, lean_object* x_2) {

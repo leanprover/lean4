@@ -2155,15 +2155,15 @@ uint32_t l_IO_AccessRight_flags(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, 0);
+x_2 = lean_ctor_get_uint8(x_1, 4);
 if (x_2 == 0)
 {
 uint8_t x_3; 
-x_3 = lean_ctor_get_uint8(x_1, 1);
+x_3 = lean_ctor_get_uint8(x_1, 5);
 if (x_3 == 0)
 {
 uint8_t x_4; 
-x_4 = lean_ctor_get_uint8(x_1, 2);
+x_4 = lean_ctor_get_uint8(x_1, 6);
 if (x_4 == 0)
 {
 uint32_t x_5; 
@@ -2180,7 +2180,7 @@ return x_6;
 else
 {
 uint8_t x_7; 
-x_7 = lean_ctor_get_uint8(x_1, 2);
+x_7 = lean_ctor_get_uint8(x_1, 6);
 if (x_7 == 0)
 {
 uint32_t x_8; 
@@ -2198,11 +2198,11 @@ return x_9;
 else
 {
 uint8_t x_10; 
-x_10 = lean_ctor_get_uint8(x_1, 1);
+x_10 = lean_ctor_get_uint8(x_1, 5);
 if (x_10 == 0)
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_1, 2);
+x_11 = lean_ctor_get_uint8(x_1, 6);
 if (x_11 == 0)
 {
 uint32_t x_12; 
@@ -2219,7 +2219,7 @@ return x_13;
 else
 {
 uint8_t x_14; 
-x_14 = lean_ctor_get_uint8(x_1, 2);
+x_14 = lean_ctor_get_uint8(x_1, 6);
 if (x_14 == 0)
 {
 uint32_t x_15; 

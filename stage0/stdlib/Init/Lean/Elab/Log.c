@@ -154,7 +154,7 @@ return x_5;
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint32_t x_10; uint16_t x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec(x_1);
@@ -163,15 +163,21 @@ lean_inc(x_7);
 lean_dec(x_6);
 x_8 = lean_box(0);
 x_9 = l_String_splitAux___main___closed__1;
-x_10 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_10, 0, x_2);
-lean_ctor_set(x_10, 1, x_3);
-lean_ctor_set(x_10, 2, x_8);
-lean_ctor_set(x_10, 3, x_9);
-lean_ctor_set(x_10, 4, x_5);
-lean_ctor_set_uint8(x_10, sizeof(void*)*5, x_4);
-x_11 = lean_apply_2(x_7, lean_box(0), x_10);
-return x_11;
+x_10 = 0;
+x_11 = 0;
+x_12 = 0;
+x_13 = lean_alloc_ctor(0, 5, 8);
+lean_ctor_set(x_13, 0, x_2);
+lean_ctor_set(x_13, 1, x_3);
+lean_ctor_set(x_13, 2, x_8);
+lean_ctor_set(x_13, 3, x_9);
+lean_ctor_set(x_13, 4, x_5);
+lean_ctor_set_uint8(x_13, sizeof(void*)*5 + 6, x_4);
+lean_ctor_set_uint32(x_13, sizeof(void*)*5, x_10);
+lean_ctor_set_uint16(x_13, sizeof(void*)*5 + 4, x_11);
+lean_ctor_set_uint8(x_13, sizeof(void*)*5 + 7, x_12);
+x_14 = lean_apply_2(x_7, lean_box(0), x_13);
+return x_14;
 }
 }
 lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7, lean_object* x_8, lean_object* x_9) {

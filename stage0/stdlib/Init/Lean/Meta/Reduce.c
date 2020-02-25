@@ -141,11 +141,11 @@ else
 {
 lean_object* x_52; uint8_t x_53; 
 x_52 = lean_array_fget(x_33, x_15);
-x_53 = lean_ctor_get_uint8(x_52, sizeof(void*)*1);
+x_53 = lean_ctor_get_uint8(x_52, sizeof(void*)*1 + 4);
 if (x_53 == 0)
 {
 uint8_t x_54; 
-x_54 = lean_ctor_get_uint8(x_52, sizeof(void*)*1 + 1);
+x_54 = lean_ctor_get_uint8(x_52, sizeof(void*)*1 + 5);
 lean_dec(x_52);
 if (x_54 == 0)
 {

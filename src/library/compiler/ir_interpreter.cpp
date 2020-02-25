@@ -71,7 +71,7 @@ nat const & ctor_info_ssize(ctor_info const & c) { return cnstr_get_ref_t<nat>(c
 
 /* Return the only Bool scalar field in an object that has `num_obj_fields` object/usize fields */
 static inline bool get_bool_field(object * o, unsigned num_obj_fields) {
-    return cnstr_get_uint8(o, sizeof(void*)*num_obj_fields + 7); /* we have "filler" fields for alligning constructor objects */
+    return cnstr_get_uint8(o, sizeof(void*)*num_obj_fields + 6); /* we have "filler" fields for alligning constructor objects */
 }
 
 enum class expr_kind { Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox, Lit, IsShared, IsTaggedPtr };

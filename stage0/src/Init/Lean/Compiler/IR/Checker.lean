@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Compiler.IR.CompilerM
+import Init.Lean.Compiler.IR.Format
 
 namespace Lean
 namespace IR
@@ -56,7 +57,7 @@ as.forM checkArg
 unless (ty₁ == ty₂) $ throw ("unexpected type")
 
 @[inline] def checkType (ty : IRType) (p : IRType → Bool) : M Unit :=
-unless (p ty) $ throw ("unexpected type")
+unless (p ty) $ throw ("unexpected type '" ++ toString ty ++ "'")
 
 def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj
 
@@ -106,7 +107,7 @@ def checkExpr (ty : IRType) : Expr → M Unit
   | IRType.tobject      => checkObjType ty
   | IRType.struct _ tys => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
   | IRType.union _ tys  => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
-  | other               => throw "unexpected type"
+  | other               => throw ("unexpected IR type '" ++ toString xType ++ "'")
 | Expr.uproj _ x          => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
 | Expr.sproj _ _ x        => checkObjVar x *> checkScalarType ty
 | Expr.isShared x         => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)

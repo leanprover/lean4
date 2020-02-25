@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_IR_litValHasFormat___closed__1;
+lean_object* l_Lean_IR_typeHasToString;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__15;
 lean_object* l_Lean_IR_formatFnBody___main___closed__6;
@@ -105,6 +106,7 @@ lean_object* l_Lean_IR_formatDecl___closed__1;
 lean_object* l_Lean_IR_formatDecl___closed__2;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__3;
 lean_object* l_Lean_formatKVMap(lean_object*);
+lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_declHasFormat;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__20;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___boxed(lean_object*);
@@ -129,6 +131,7 @@ lean_object* l_Lean_IR_formatFnBodyHead___closed__27;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__1;
 extern lean_object* l_Lean_Format_sbracket___closed__3;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_4__formatExpr___closed__25;
+extern lean_object* l_Lean_HasRepr___closed__1;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_4__formatExpr___closed__1;
 lean_object* l_Lean_IR_fnBodyHasToString(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__13;
@@ -168,6 +171,7 @@ lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___c
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_formatFnBody___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Format_4__formatExpr___closed__7;
 lean_object* l_Lean_IR_formatDecl___closed__4;
+lean_object* l_Lean_IR_typeHasToString___closed__1;
 lean_object* l_Lean_IR_formatArray___at_Lean_IR_formatParams___spec__1___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Format_6__formatParam___closed__3;
@@ -1859,6 +1863,26 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_IR_typeHasFormat___closed__1;
+return x_1;
+}
+}
+lean_object* _init_l_Lean_IR_typeHasToString___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_HasRepr___closed__1;
+x_2 = l_Lean_IR_typeHasFormat___closed__1;
+x_3 = lean_alloc_closure((void*)(l_Function_comp___rarg), 3, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_IR_typeHasToString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_IR_typeHasToString___closed__1;
 return x_1;
 }
 }
@@ -4322,6 +4346,10 @@ l_Lean_IR_typeHasFormat___closed__1 = _init_l_Lean_IR_typeHasFormat___closed__1(
 lean_mark_persistent(l_Lean_IR_typeHasFormat___closed__1);
 l_Lean_IR_typeHasFormat = _init_l_Lean_IR_typeHasFormat();
 lean_mark_persistent(l_Lean_IR_typeHasFormat);
+l_Lean_IR_typeHasToString___closed__1 = _init_l_Lean_IR_typeHasToString___closed__1();
+lean_mark_persistent(l_Lean_IR_typeHasToString___closed__1);
+l_Lean_IR_typeHasToString = _init_l_Lean_IR_typeHasToString();
+lean_mark_persistent(l_Lean_IR_typeHasToString);
 l___private_Init_Lean_Compiler_IR_Format_6__formatParam___closed__1 = _init_l___private_Init_Lean_Compiler_IR_Format_6__formatParam___closed__1();
 lean_mark_persistent(l___private_Init_Lean_Compiler_IR_Format_6__formatParam___closed__1);
 l___private_Init_Lean_Compiler_IR_Format_6__formatParam___closed__2 = _init_l___private_Init_Lean_Compiler_IR_Format_6__formatParam___closed__2();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.UnboxResult
-// Imports: Init.Lean.Data.Format Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CtorLayout
+// Imports: Init.Lean.Data.Format Init.Lean.Compiler.IR.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -213,7 +213,6 @@ return x_4;
 }
 lean_object* initialize_Init_Lean_Data_Format(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
-lean_object* initialize_Init_Lean_Compiler_IR_CtorLayout(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_IR_UnboxResult(lean_object* w) {
 lean_object * res;
@@ -223,9 +222,6 @@ res = initialize_Init_Lean_Data_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Compiler_IR_Basic(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Lean_Compiler_IR_CtorLayout(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1 = _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1();

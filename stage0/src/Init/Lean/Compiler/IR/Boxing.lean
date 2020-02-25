@@ -199,7 +199,7 @@ match opt? with
     FnBody.vdecl { idx := 1 } xType v $
     FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
     FnBody.ret (mkVarArg { idx := 2 });
-  match s.auxDeclCache.find body with
+  match s.auxDeclCache.find? body with
   | some v => pure v
   | none   => do
     let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId);

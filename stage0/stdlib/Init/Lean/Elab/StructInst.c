@@ -140,6 +140,7 @@ extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Elab_Term_StructInst_formatField(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_StructInst_17__groupFields___lambda__1(lean_object*);
 lean_object* l_List_head_x21___at___private_Init_Lean_Elab_StructInst_19__expandStruct___main___spec__3(lean_object*);
+lean_object* l_AssocList_find_x3f___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Elab_Util_9__regTraceClasses___closed__1;
 lean_object* l___private_Init_Lean_Elab_StructInst_17__groupFields___lambda__3___closed__3;
@@ -257,7 +258,6 @@ lean_object* l___private_Init_Lean_Elab_StructInst_4__elabModifyOp___closed__3;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_mkConst___closed__4;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_find___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Field_inhabited(lean_object*);
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
@@ -341,6 +341,7 @@ lean_object* l_List_foldlM___main___at___private_Init_Lean_Elab_StructInst_12__m
 extern lean_object* l_Lean_Parser_Term_structInstField___elambda__1___closed__2;
 lean_object* l___private_Init_Lean_Elab_StructInst_2__getStructSource___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
+lean_object* l_AssocList_find_x3f___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(lean_object*, lean_object*);
 lean_object* l_List_mapM___main___at_Lean_Elab_Term_StructInst_DefaultFields_mkDefaultValue_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_StructInst_8__expandCompositeFields___closed__1;
 lean_object* l___private_Init_Lean_Elab_StructInst_21__getForallBody(lean_object*, lean_object*);
@@ -402,7 +403,6 @@ lean_object* l_Lean_Elab_Term_StructInst_throwFailedToElabField___rarg___closed_
 lean_object* l_Lean_Elab_Term_StructInst_Source_hasFormat___closed__4;
 lean_object* l_Lean_Meta_reduceProj_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_getFieldValue_x3f___lambda__1(lean_object*, lean_object*);
-lean_object* l_AssocList_find___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Struct_source___boxed(lean_object*);
@@ -12314,7 +12314,7 @@ lean_dec(x_1);
 return x_6;
 }
 }
-lean_object* l_AssocList_find___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_find_x3f___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -12356,7 +12356,7 @@ x_5 = l_Lean_Name_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
-x_8 = l_AssocList_find___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(x_2, x_7);
+x_8 = l_AssocList_find_x3f___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(x_2, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -13244,11 +13244,11 @@ x_5 = l_List_foldlM___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldM
 return x_5;
 }
 }
-lean_object* l_AssocList_find___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_find_x3f___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_AssocList_find___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(x_1, x_2);
+x_3 = l_AssocList_find_x3f___main___at___private_Init_Lean_Elab_StructInst_12__mkFieldMap___spec__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

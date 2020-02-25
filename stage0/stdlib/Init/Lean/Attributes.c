@@ -36,6 +36,7 @@ lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4(lean_object*,
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_ParametricAttribute_setParam___rarg___closed__1;
 lean_object* l_Lean_registerBuiltinAttribute___closed__3;
+lean_object* l_AssocList_find_x3f___main___at_Lean_mkAttributeImplOfBuilder___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_binSearchAux___main___at_Lean_TagDeclarationExtension_isTagged___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_attribute_application_time(lean_object*, lean_object*);
@@ -63,7 +64,6 @@ uint8_t l_Array_anyRangeMAux___main___at_Lean_registerTagAttribute___spec__3(lea
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_Lean_mkAttributeImplBuilderTable___spec__1(lean_object*);
 lean_object* l_Lean_registerTagAttribute___closed__1;
-lean_object* l_AssocList_find___main___at_Lean_mkAttributeImplOfBuilder___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlM___at_Lean_getBuiltinAttributeNames___spec__1(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -157,6 +157,7 @@ lean_object* lean_is_attribute(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlMAux___main___at_Lean_getBuiltinAttributeNames___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_find_x3f___main___at_Lean_mkAttributeImplOfBuilder___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_attributeExtension___closed__2;
 lean_object* l_Lean_mkAttributeMapRef(lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Attributes_2__AttributeExtension_addImported___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -308,7 +309,6 @@ lean_object* lean_push_scope(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__3___boxed(lean_object*);
-lean_object* l_AssocList_find___main___at_Lean_mkAttributeImplOfBuilder___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__3___closed__1;
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerEnumAttributes___spec__9___rarg(lean_object*, lean_object*);
@@ -2185,7 +2185,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_AssocList_find___main___at_Lean_mkAttributeImplOfBuilder___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_find_x3f___main___at_Lean_mkAttributeImplOfBuilder___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -2227,7 +2227,7 @@ x_5 = l_Lean_Name_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
-x_8 = l_AssocList_find___main___at_Lean_mkAttributeImplOfBuilder___spec__2(x_2, x_7);
+x_8 = l_AssocList_find_x3f___main___at_Lean_mkAttributeImplOfBuilder___spec__2(x_2, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -2383,11 +2383,11 @@ return x_37;
 }
 }
 }
-lean_object* l_AssocList_find___main___at_Lean_mkAttributeImplOfBuilder___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_find_x3f___main___at_Lean_mkAttributeImplOfBuilder___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_AssocList_find___main___at_Lean_mkAttributeImplOfBuilder___spec__2(x_1, x_2);
+x_3 = l_AssocList_find_x3f___main___at_Lean_mkAttributeImplOfBuilder___spec__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

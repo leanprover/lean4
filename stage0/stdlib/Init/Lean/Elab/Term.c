@@ -316,7 +316,6 @@ lean_object* l_Lean_Elab_Term_mkFreshAnonymousName___rarg(lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabProp___closed__3;
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_AssocList_find___main___at_Lean_Elab_Term_elabTermAux___main___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_withMVarContext(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Term_17__resolveLocalName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_termElabAttribute___closed__4;
@@ -338,6 +337,7 @@ lean_object* l_Lean_Elab_Term_decLevel_x3f(lean_object*, lean_object*, lean_obje
 extern lean_object* l_Lean_numLitKind;
 lean_object* l_Lean_MetavarContext_levelMVarToParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkFreshFVarId___rarg(lean_object*);
+lean_object* l_AssocList_find_x3f___main___at_Lean_Elab_Term_elabTermAux___main___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Term_5__expandCDot(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getLevel(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -373,6 +373,7 @@ lean_object* l_Lean_Elab_Term_isType(lean_object*, lean_object*, lean_object*, l
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Elab_Term_19__mkConsts___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_setEnv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_AssocList_find_x3f___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabQuotedName(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_TermElabM_inhabited(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkInstMVar(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -469,7 +470,6 @@ lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Term_elabTermAux___main___spec_
 lean_object* l_Lean_Elab_Term_getMainModule(lean_object*);
 lean_object* l_Lean_Elab_Term_throwUnsupportedSyntax___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkTermElabAttribute(lean_object*);
-lean_object* l_AssocList_find___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(lean_object*, lean_object*);
 extern lean_object* l_Lean_numLitKind___closed__2;
 extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__4;
 uint8_t l_PersistentHashMap_contains___at_Lean_Elab_Term_addBuiltinTermElab___spec__4(lean_object*, lean_object*);
@@ -17502,7 +17502,7 @@ x_5 = l_PersistentHashMap_findAux___main___at_Lean_Elab_Term_elabTermAux___main_
 return x_5;
 }
 }
-lean_object* l_AssocList_find___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_find_x3f___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -17544,7 +17544,7 @@ x_5 = l_Lean_Name_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
-x_8 = l_AssocList_find___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(x_2, x_7);
+x_8 = l_AssocList_find_x3f___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(x_2, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -19519,11 +19519,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_AssocList_find___main___at_Lean_Elab_Term_elabTermAux___main___spec__6___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_find_x3f___main___at_Lean_Elab_Term_elabTermAux___main___spec__6___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_AssocList_find___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(x_1, x_2);
+x_3 = l_AssocList_find_x3f___main___at_Lean_Elab_Term_elabTermAux___main___spec__6(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

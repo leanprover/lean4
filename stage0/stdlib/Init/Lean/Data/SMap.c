@@ -88,7 +88,7 @@ lean_object* l_Lean_SMap_Inhabited___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_PersistentHashMap_empty___rarg(x_2, x_1);
+x_3 = l_PersistentHashMap_empty___rarg(x_1, x_2);
 x_4 = 1;
 x_5 = l_HashMap_Inhabited___closed__1;
 x_6 = lean_alloc_ctor(0, 2, 1);
@@ -120,7 +120,7 @@ lean_object* l_Lean_SMap_empty___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_PersistentHashMap_empty___rarg(x_2, x_1);
+x_3 = l_PersistentHashMap_empty___rarg(x_1, x_2);
 x_4 = 1;
 x_5 = l_HashMap_Inhabited___closed__1;
 x_6 = lean_alloc_ctor(0, 2, 1);

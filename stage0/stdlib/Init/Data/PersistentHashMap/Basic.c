@@ -42,6 +42,7 @@ lean_object* l_PersistentHashMap_collectStats___rarg(lean_object*, lean_object*,
 lean_object* l_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
+lean_object* l_PersistentHashMap_findEntryAtAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_contains(lean_object*, lean_object*);
@@ -50,6 +51,7 @@ lean_object* l_PersistentHashMap_foldlM___rarg(lean_object*, lean_object*, lean_
 lean_object* l_PersistentHashMap_isUnaryNode___rarg___boxed(lean_object*);
 lean_object* l_PersistentHashMap_mkEmptyEntriesArray___closed__1;
 lean_object* l_PersistentHashMap_HasEmptyc(lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntryAux___rarg(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_PersistentHashMap_isUnaryNode___rarg(lean_object*);
 lean_object* l_PersistentHashMap_HasToString___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -66,9 +68,12 @@ lean_object* l_PersistentHashMap_containsAux___main___rarg___boxed(lean_object*,
 lean_object* l_PersistentHashMap_containsAux___main___rarg(lean_object*, lean_object*, size_t, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
 extern lean_object* l_Id_monad;
+lean_object* l_PersistentHashMap_findEntryAtAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlMAux___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntryAux___main___rarg(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_HasToString;
+lean_object* l_PersistentHashMap_findEntryAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_isUnaryEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_PersistentHashMap_foldlMAux___main___at_PersistentHashMap_toList___spec__2___rarg___boxed(lean_object*, lean_object*);
@@ -84,6 +89,7 @@ lean_object* l_PersistentHashMap_foldl(lean_object*, lean_object*, lean_object*)
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mul2Shift___boxed(lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntry_x3f(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlM___at_PersistentHashMap_toList___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_maxCollisions;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -101,6 +107,7 @@ lean_object* l_PersistentHashMap_foldlMAux___main___rarg___lambda__1___boxed(lea
 lean_object* l_PersistentHashMap_foldlMAux___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntryAtAux(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_Stats_toString___closed__1;
 lean_object* l_PersistentHashMap_foldlM(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_containsAtAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -130,6 +137,7 @@ lean_object* l_PersistentHashMap_find_x3f___rarg(lean_object*, lean_object*, lea
 lean_object* l_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_PersistentHashMap_div2Shift___boxed(lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntryAux(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_containsAtAux___main(lean_object*);
 lean_object* l_PersistentHashMap_eraseAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_eraseAux___rarg(lean_object*, lean_object*, size_t, lean_object*);
@@ -150,6 +158,8 @@ lean_object* l_PersistentHashMap_isEmpty___rarg___boxed(lean_object*);
 lean_object* l_PersistentHashMap_Stats_toString(lean_object*);
 lean_object* l_PersistentHashMap_isUnaryEntries___main___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
+lean_object* l_PersistentHashMap_findEntryAtAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntryAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_isUnaryEntries___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_empty(lean_object*, lean_object*);
@@ -185,6 +195,8 @@ lean_object* l_PersistentHashMap_findD___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_PersistentHashMap_foldlMAux___main___at_PersistentHashMap_toList___spec__2(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlMAux___main___at_PersistentHashMap_toList___spec__2___rarg(lean_object*, lean_object*);
 size_t l_PersistentHashMap_maxDepth;
+lean_object* l_PersistentHashMap_findEntryAtAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x21(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_toList___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAtCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -201,12 +213,14 @@ lean_object* l_PersistentHashMap_eraseAux___main___rarg(lean_object*, lean_objec
 lean_object* l_PersistentHashMap_isUnaryNode(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAtCollisionNode(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
+lean_object* l_PersistentHashMap_findEntryAux___main(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_forM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_stats___rarg___closed__1;
 lean_object* l_PersistentHashMap_stats___rarg___boxed(lean_object*);
 lean_object* l_PersistentHashMap_stats(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux(lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_findEntryAtAux___main(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_forM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_HasEmptyc___rarg___boxed(lean_object*, lean_object*);
@@ -1585,6 +1599,257 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_PersistentHashMap_find_x21___rarg), 5, 0);
+return x_3;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAtAux___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_array_get_size(x_2);
+x_8 = lean_nat_dec_lt(x_5, x_7);
+lean_dec(x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_1);
+x_9 = lean_box(0);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_10 = lean_array_fget(x_2, x_5);
+lean_inc(x_1);
+lean_inc(x_10);
+lean_inc(x_6);
+x_11 = lean_apply_2(x_1, x_6, x_10);
+x_12 = lean_unbox(x_11);
+lean_dec(x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; 
+lean_dec(x_10);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_5, x_13);
+lean_dec(x_5);
+x_4 = lean_box(0);
+x_5 = x_14;
+goto _start;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_dec(x_6);
+lean_dec(x_1);
+x_16 = lean_array_fget(x_3, x_5);
+lean_dec(x_5);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_10);
+lean_ctor_set(x_17, 1, x_16);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+return x_18;
+}
+}
+}
+}
+lean_object* l_PersistentHashMap_findEntryAtAux___main(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_PersistentHashMap_findEntryAtAux___main___rarg___boxed), 6, 0);
+return x_3;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAtAux___main___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_PersistentHashMap_findEntryAtAux___main___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_7;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAtAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_PersistentHashMap_findEntryAtAux___main___rarg(x_1, x_2, x_3, lean_box(0), x_5, x_6);
+return x_7;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAtAux(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_PersistentHashMap_findEntryAtAux___rarg___boxed), 6, 0);
+return x_3;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAtAux___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_PersistentHashMap_findEntryAtAux___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_7;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAux___main___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_5; size_t x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = 5;
+x_7 = l_PersistentHashMap_insertAux___main___rarg___closed__2;
+x_8 = x_3 & x_7;
+x_9 = lean_usize_to_nat(x_8);
+x_10 = lean_box(2);
+x_11 = lean_array_get(x_10, x_5, x_9);
+lean_dec(x_9);
+lean_dec(x_5);
+switch (lean_obj_tag(x_11)) {
+case 0:
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc(x_13);
+lean_dec(x_11);
+lean_inc(x_12);
+x_14 = lean_apply_2(x_1, x_4, x_12);
+x_15 = lean_unbox(x_14);
+lean_dec(x_14);
+if (x_15 == 0)
+{
+lean_object* x_16; 
+lean_dec(x_13);
+lean_dec(x_12);
+x_16 = lean_box(0);
+return x_16;
+}
+else
+{
+lean_object* x_17; lean_object* x_18; 
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_12);
+lean_ctor_set(x_17, 1, x_13);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+return x_18;
+}
+}
+case 1:
+{
+lean_object* x_19; size_t x_20; 
+x_19 = lean_ctor_get(x_11, 0);
+lean_inc(x_19);
+lean_dec(x_11);
+x_20 = x_3 >> x_6;
+x_2 = x_19;
+x_3 = x_20;
+goto _start;
+}
+default: 
+{
+lean_object* x_22; 
+lean_dec(x_4);
+lean_dec(x_1);
+x_22 = lean_box(0);
+return x_22;
+}
+}
+}
+else
+{
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_23 = lean_ctor_get(x_2, 0);
+lean_inc(x_23);
+x_24 = lean_ctor_get(x_2, 1);
+lean_inc(x_24);
+lean_dec(x_2);
+x_25 = lean_unsigned_to_nat(0u);
+x_26 = l_PersistentHashMap_findEntryAtAux___main___rarg(x_1, x_23, x_24, lean_box(0), x_25, x_4);
+lean_dec(x_24);
+lean_dec(x_23);
+return x_26;
+}
+}
+}
+lean_object* l_PersistentHashMap_findEntryAux___main(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_PersistentHashMap_findEntryAux___main___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAux___main___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_6 = l_PersistentHashMap_findEntryAux___main___rarg(x_1, x_2, x_5, x_4);
+return x_6;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAux___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_PersistentHashMap_findEntryAux___main___rarg(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAux(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_PersistentHashMap_findEntryAux___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+lean_object* l_PersistentHashMap_findEntryAux___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_6 = l_PersistentHashMap_findEntryAux___rarg(x_1, x_2, x_5, x_4);
+return x_6;
+}
+}
+lean_object* l_PersistentHashMap_findEntry_x3f___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; size_t x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+lean_inc(x_4);
+x_6 = lean_apply_1(x_2, x_4);
+x_7 = lean_unbox_usize(x_6);
+lean_dec(x_6);
+x_8 = l_PersistentHashMap_findEntryAux___main___rarg(x_1, x_5, x_7, x_4);
+return x_8;
+}
+}
+lean_object* l_PersistentHashMap_findEntry_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_PersistentHashMap_findEntry_x3f___rarg), 4, 0);
 return x_3;
 }
 }

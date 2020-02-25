@@ -25,11 +25,17 @@ nil
 @[inline] def foldl (f : δ → α → β → δ) (d : δ) (as : AssocList α β) : δ :=
 Id.run (foldlM f d as)
 
-def find [HasBeq α] (a : α) : AssocList α β → Option β
+def findEntry? [HasBeq α] (a : α) : AssocList α β → Option (α × β)
+| nil         => none
+| cons k v es => match k == a with
+  | true  => some (k, v)
+  | false => findEntry? es
+
+def find? [HasBeq α] (a : α) : AssocList α β → Option β
 | nil         => none
 | cons k v es => match k == a with
   | true  => some v
-  | false => find es
+  | false => find? es
 
 def contains [HasBeq α] (a : α) : AssocList α β → Bool
 | nil         => false

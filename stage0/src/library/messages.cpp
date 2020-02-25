@@ -15,17 +15,17 @@ extern "C" uint8 lean_message_severity(object * msg);
 
 message::message(std::string const & filename, pos_info const & pos, optional<pos_info> const & end_pos,
                  message_severity severity, std::string const & caption, std::string const & text) :
-    object_ref(mk_cnstr(0, string_ref(filename), position(pos),
-                        option_ref<position>(end_pos ? some(position(*end_pos)) : optional<position>()),
-                        string_ref(caption), string_ref(text), sizeof(message_severity))) {
-    cnstr_set_scalar(raw(), sizeof(void*) * 5, severity);
+    object_ref(lean_mk_message(string_ref(filename).to_obj_arg(), position(pos).to_obj_arg(),
+                               option_ref<position>(end_pos ? some(position(*end_pos)) : optional<position>()).to_obj_arg(),
+                               static_cast<uint8>(severity),
+                               string_ref(caption).to_obj_arg(), string_ref(text).to_obj_arg())) {
 }
 
 message::message(parser_exception const & ex) :
-        message(ex.get_file_name(), *ex.get_pos(), ERROR, ex.get_msg()) {}
+    message(ex.get_file_name(), *ex.get_pos(), ERROR, ex.get_msg()) {}
 
 message_severity message::get_severity() const {
-    return cnstr_get_scalar<message_severity>(raw(), sizeof(void*) * 5);
+    return static_cast<message_severity>(lean_message_severity(to_obj_arg()));
 }
 
 std::ostream & operator<<(std::ostream & out, message const & msg) {

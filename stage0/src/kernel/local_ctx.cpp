@@ -20,12 +20,11 @@ extern "C" uint8 lean_local_decl_binder_info(object * d);
 local_decl::local_decl():object_ref(*g_dummy_decl) {}
 
 local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v):
-    object_ref(mk_cnstr(1, nat(idx), n, un, t, v)) {
+    object_ref(lean_mk_let_decl(nat(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg())) {
 }
 
 local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, binder_info bi):
-    object_ref(mk_cnstr(0, nat(idx), n, un, t, sizeof(unsigned char))) {
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*4, static_cast<unsigned char>(bi));
+    object_ref(lean_mk_local_decl(nat(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), static_cast<uint8>(bi))) {
 }
 
 local_decl::local_decl(local_decl const & d, expr const & t, expr const & v):
@@ -35,8 +34,7 @@ local_decl::local_decl(local_decl const & d, expr const & t):
     local_decl(d.get_idx(), d.get_name(), d.get_user_name(), t, d.get_info()) {}
 
 binder_info local_decl::get_info() const {
-    if (cnstr_tag(raw()) == 0) return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*4));
-    else return binder_info();
+    return static_cast<binder_info>(lean_local_decl_binder_info(to_obj_arg()));
 }
 
 expr local_decl::mk_ref() const {

@@ -94,12 +94,6 @@ inline void cnstr_set_uint8(b_obj_arg o, unsigned offset, uint8 v) { lean_ctor_s
 inline void cnstr_set_uint16(b_obj_arg o, unsigned offset, uint16 v) { lean_ctor_set_uint16(o, offset, v); }
 inline void cnstr_set_uint32(b_obj_arg o, unsigned offset, uint32 v) { lean_ctor_set_uint32(o, offset, v); }
 inline void cnstr_set_uint64(b_obj_arg o, unsigned offset, uint64 v) { lean_ctor_set_uint64(o, offset, v); }
-template<typename T> inline T cnstr_get_scalar(b_obj_arg o, unsigned offset) {
-    return *((T*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
-}
-template<typename T> inline void cnstr_set_scalar(b_obj_arg o, unsigned offset, T v) {
-    *((T*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
-}
 
 // =======================================
 // Closures

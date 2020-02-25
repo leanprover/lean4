@@ -34,7 +34,7 @@ public:
     name const & get_constructor() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     unsigned get_i() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
-    bool is_inst_implicit() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
+    bool is_inst_implicit() const;
 };
 
 /** \brief Mark \c p as a projection in the given environment and store that

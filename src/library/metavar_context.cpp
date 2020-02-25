@@ -16,6 +16,8 @@ namespace lean {
 static name *       g_meta_prefix;
 static expr *       g_dummy_type;
 
+extern "C" object * lean_mk_metavar_decl(object * user_name, object * lctx, object * type, object * depth, object * local_insts, uint8 k);
+
 metavar_decl::metavar_decl(name const & user_name, local_context const & lctx, expr const & type):
     object_ref(mk_cnstr(0, user_name, lctx, type, 1)) {
     cnstr_set_scalar<uint8>(raw(), 3*sizeof(object*), false);

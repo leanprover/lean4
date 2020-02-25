@@ -39,14 +39,10 @@ class reducibility_hints : public object_ref {
 public:
     static reducibility_hints mk_opaque() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Opaque))); }
     static reducibility_hints mk_abbreviation() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Abbreviation))); }
-    static reducibility_hints mk_regular(unsigned h) {
-        object * r = alloc_cnstr(static_cast<unsigned>(reducibility_hints_kind::Regular), 0, sizeof(unsigned));
-        cnstr_set_scalar<unsigned>(r, 0, h);
-        return reducibility_hints(r);
-    }
+    static reducibility_hints mk_regular(unsigned h);
     reducibility_hints_kind kind() const { return static_cast<reducibility_hints_kind>(obj_tag(raw())); }
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
-    unsigned get_height() const { return is_regular() ? cnstr_get_scalar<unsigned>(raw(), 0) : 0; }
+    unsigned get_height() const;
     void serialize(serializer & s) const { s.write_object(raw()); }
     static reducibility_hints deserialize(deserializer & d) { return reducibility_hints(d.read_object(), true); }
 };
@@ -302,9 +298,9 @@ public:
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_get_ref(*this, 4)); }
     unsigned get_ncnstrs() const { return length(get_cnstrs()); }
-    bool is_rec() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
-    bool is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
-    bool is_reflexive() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2) != 0; }
+    bool is_rec() const;
+    bool is_unsafe() const;
+    bool is_reflexive() const;
 };
 
 /*
@@ -327,7 +323,7 @@ public:
     unsigned get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
     unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
-    bool is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
+    bool is_unsafe() const;
 };
 
 /*
@@ -380,8 +376,8 @@ public:
     unsigned get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
-    bool is_k() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
-    bool is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }
+    bool is_k() const;
+    bool is_unsafe() const;
 };
 
 enum class quot_kind { Type, Mk, Lift, Ind };

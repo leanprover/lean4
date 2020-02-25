@@ -13,10 +13,15 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 
 namespace lean {
+extern "C" object * lean_mk_projection_info(object * ctor_name, object * nparams, object * i, uint8 from_class);
+extern "C" uint8 lean_projection_info_from_class(object * info);
+
 projection_info::projection_info(name const & c, unsigned nparams, unsigned i, bool inst_implicit):
     object_ref(mk_cnstr(0, c, nat(nparams), nat(i))) {
     cnstr_set_scalar<unsigned char>(raw(), 3*sizeof(object*), static_cast<unsigned char>(inst_implicit));
 }
+
+bool projection_info::is_inst_implicit() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 
 extern "C" object* lean_add_projection_info(object* env, object* p, object* ctor, object* nparams, object* i, uint8 fromClass);
 extern "C" object* lean_get_projection_info(object* env, object* p);

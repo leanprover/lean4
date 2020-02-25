@@ -15,6 +15,17 @@ inductive LocalDecl
 | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
 | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr)
 
+@[export lean_mk_local_decl]
+def mkLocalDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) : LocalDecl :=
+LocalDecl.cdecl index fvarId userName type bi
+@[export lean_mk_let_decl]
+def mkLetDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : LocalDecl :=
+LocalDecl.ldecl index fvarId userName type val
+@[export lean_local_decl_binder_info]
+def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
+| LocalDecl.cdecl _ _ _ _ bi => bi
+| _                          => BinderInfo.default
+
 namespace LocalDecl
 instance : Inhabited LocalDecl := ⟨ldecl (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _)⟩
 

@@ -13,6 +13,10 @@ namespace lean {
 static expr *       g_dummy_type;
 static local_decl * g_dummy_decl;
 
+extern "C" object * lean_mk_local_decl(object * index, object * fvarid, object * user_name, object * type, uint8 bi);
+extern "C" object * lean_mk_let_decl(object * index, object * fvarid, object * user_name, object * type, object * val);
+extern "C" uint8 lean_local_decl_binder_info(object * d);
+
 local_decl::local_decl():object_ref(*g_dummy_decl) {}
 
 local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v):
@@ -29,6 +33,11 @@ local_decl::local_decl(local_decl const & d, expr const & t, expr const & v):
 
 local_decl::local_decl(local_decl const & d, expr const & t):
     local_decl(d.get_idx(), d.get_name(), d.get_user_name(), t, d.get_info()) {}
+
+binder_info local_decl::get_info() const {
+    if (cnstr_tag(raw()) == 0) return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*4));
+    else return binder_info();
+}
 
 expr local_decl::mk_ref() const {
     return mk_fvar(get_name());

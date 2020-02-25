@@ -9,6 +9,20 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 
 namespace lean {
+
+extern "C" object * lean_mk_reducibility_hints_regular(uint32 h);
+extern "C" uint32 lean_reducibility_hints_get_height(object * o);
+
+reducibility_hints reducibility_hints::mk_regular(unsigned h) {
+    object * r = alloc_cnstr(static_cast<unsigned>(reducibility_hints_kind::Regular), 0, sizeof(unsigned));
+    cnstr_set_scalar<unsigned>(r, 0, h);
+    return reducibility_hints(r);
+}
+
+unsigned reducibility_hints::get_height() const {
+    return is_regular() ? cnstr_get_scalar<unsigned>(raw(), 0) : 0;
+}
+
 int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
     if (h1.kind() == h2.kind()) {
         if (h1.kind() == reducibility_hints_kind::Regular) {
@@ -41,12 +55,18 @@ constant_val::constant_val(name const & n, names const & lparams, expr const & t
     object_ref(mk_cnstr(0, n, lparams, type)) {
 }
 
+extern "C" object * lean_mk_axiom_val(object * n, object * lparams, object * type, uint8 is_unsafe);
+extern "C" uint8 lean_axiom_val_is_unsafe(object * v);
+
 axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(is_unsafe));
 }
 
 bool axiom_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)) != 0; }
+
+extern "C" object * lean_mk_definition_val(object * n, object * lparams, object * type, object * value, object * hints, uint8 is_unsafe);
+extern "C" uint8 lean_definition_val_is_unsafe(object * v);
 
 definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val, hints, 1)) {
@@ -65,12 +85,18 @@ expr theorem_val::get_value() const {
     return expr(v, true);
 }
 
+extern "C" object * lean_mk_opaque_val(object * n, object * lparams, object * type, object * value, uint8 is_unsafe);
+extern "C" uint8 lean_opaque_val_is_unsafe(object * v);
+
 opaque_val::opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val, 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*2, static_cast<unsigned char>(is_unsafe));
 }
 
 bool opaque_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*2) != 0; }
+
+extern "C" object * lean_mk_quot_val(object * n, object * lparams, object * type, object * value, uint8 k);
+extern "C" uint8 lean_quot_val_kind(object * v);
 
 quot_val::quot_val(name const & n, names const & lparams, expr const & type, quot_kind k):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
@@ -83,6 +109,12 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
     object_ref(mk_cnstr(0, cnstr, nat(nfields), rhs)) {
 }
 
+extern "C" object * lean_mk_inductive_val(object * n, object * lparams, object * type, object * nparams, object * nindices,
+                                          object * all, object * cnstrs, uint8 rec, uint8 unsafe, uint8 is_refl);
+extern "C" uint8 lean_inductive_val_is_rec(object * v);
+extern "C" uint8 lean_inductive_val_is_unsafe(object * v);
+extern "C" uint8 lean_inductive_val_is_reflexive(object * v);
+
 inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
                              unsigned nindices, names const & all, names const & cnstrs, bool rec, bool unsafe, bool is_refl):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), nat(nparams), nat(nindices), all, cnstrs, 3)) {
@@ -94,10 +126,27 @@ inductive_val::inductive_val(name const & n, names const & lparams, expr const &
     lean_assert(is_reflexive() == is_refl);
 }
 
-constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_unsafe):
+bool inductive_val::is_rec() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
+bool inductive_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
+bool inductive_val::is_reflexive() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2) != 0; }
+
+extern "C" object * lean_mk_constructor_val(object * n, object * lparams, object * type, object * induct,
+                                            object * cidx, object * nparams, object * nfields, uint8 unsafe);
+extern "C" uint8 lean_constructor_val_is_unsafe(object * v);
+
+constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned
+                                 nfields, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), induct, nat(cidx), nat(nparams), nat(nfields), 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(is_unsafe));
 }
+
+bool constructor_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
+
+extern "C" object * lean_mk_recursor_val(object * n, object * lparams, object * type, object * all,
+                                         object * nparams, object * nindices, object * nmotives, object * nminors,
+                                         object * rules, uint8 k, uint8 unsafe);
+extern "C" uint8 lean_recursor_val_k(object * v);
+extern "C" uint8 lean_recursor_val_is_unsafe(object * v);
 
 recursor_val::recursor_val(name const & n, names const & lparams, expr const & type,
                            names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
@@ -108,6 +157,8 @@ recursor_val::recursor_val(name const & n, names const & lparams, expr const & t
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1, static_cast<unsigned char>(is_unsafe));
 }
 
+bool recursor_val::is_k() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
+bool recursor_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }
 
 bool declaration::is_unsafe() const {
     switch (kind()) {
@@ -216,6 +267,9 @@ inductive_type::inductive_type(name const & id, expr const & type, constructors 
 }
 
 static unsigned inductive_decl_scalar_offset() { return sizeof(object*)*3; }
+
+extern "C" object * lean_mk_inductive_decl(object * lparams, object * nparams, object * types, uint8 unsafe);
+extern "C" uint8 lean_is_unsafe_inductive_decl(object * d);
 
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe) {
     declaration r(mk_cnstr(static_cast<unsigned>(declaration_kind::Inductive), lparams, nparams, types, 1));

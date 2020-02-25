@@ -256,6 +256,10 @@ structure MetavarDecl :=
 (localInstances : LocalInstances)
 (kind           : MetavarKind)
 
+@[export lean_mk_metavar_decl]
+def mkMetavarDeclEx (userName : Name) (lctx : LocalContext) (type : Expr) (depth : Nat) (localInstances : LocalInstances) (kind : MetavarKind) : MetavarDecl :=
+{ userName := userName, lctx := lctx, type := type, depth := depth, localInstances := localInstances, kind := kind }
+
 namespace MetavarDecl
 instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], kind := MetavarKind.natural }⟩
 end MetavarDecl

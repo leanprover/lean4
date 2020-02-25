@@ -17,6 +17,11 @@ inductive DataValue
 | ofNat    (v : Nat)
 | ofInt    (v : Int)
 
+@[export lean_mk_bool_data_value] def mkBoolDataValueEx (b : Bool) : DataValue := DataValue.ofBool b
+@[export lean_data_value_bool] def DataValue.getBoolEx : DataValue → Bool
+| DataValue.ofBool b => b
+| _                  => false
+
 def DataValue.beq : DataValue → DataValue → Bool
 | DataValue.ofString s₁, DataValue.ofString s₂ => s₁ = s₂
 | DataValue.ofNat n₁,    DataValue.ofNat n₂    => n₂ = n₂

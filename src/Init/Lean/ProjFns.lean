@@ -16,6 +16,12 @@ structure ProjectionFunctionInfo :=
 (i : Nat)          -- The field index associated with the auxiliary projection function.
 (fromClass : Bool) -- `true` if the structure is a class
 
+@[export lean_mk_projection_info]
+def mkProjectionInfoEx (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : ProjectionFunctionInfo :=
+{ctorName := ctorName, nparams := nparams, i := i, fromClass := fromClass }
+@[export lean_projection_info_from_class]
+def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool := info.fromClass
+
 instance ProjectionFunctionInfo.inhabited : Inhabited ProjectionFunctionInfo :=
 ⟨{ ctorName := arbitrary _, nparams := arbitrary _, i := 0, fromClass := false }⟩
 

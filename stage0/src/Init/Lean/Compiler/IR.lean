@@ -20,6 +20,7 @@ import Init.Lean.Compiler.IR.ExpandResetReuse
 import Init.Lean.Compiler.IR.UnboxResult
 import Init.Lean.Compiler.IR.ElimDeadBranches
 import Init.Lean.Compiler.IR.EmitC
+import Init.Lean.Compiler.IR.CtorLayout
 
 namespace Lean
 namespace IR

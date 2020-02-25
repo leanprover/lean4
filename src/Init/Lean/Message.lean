@@ -131,7 +131,6 @@ mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
    | MessageSeverity.error => "error: ") ++
   (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ toString (fmt msg.data))
 
-
 instance : Inhabited Message :=
 ⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary _}⟩
 

@@ -55,16 +55,18 @@ struct field_info {
     unsigned m_idx;
     unsigned m_offset; // it is used only if `m_kind == Scalar`
     expr     m_type;
+    bool     m_filler{false}; // true if it is a "filler" field used to align constructor objects
     field_info():m_kind(Irrelevant), m_idx(0), m_type(mk_enf_neutral()) {}
     field_info(unsigned idx):m_kind(Object), m_idx(idx), m_type(mk_enf_object_type()) {}
     field_info(unsigned num, bool):m_kind(USize), m_idx(num), m_type(mk_constant(get_usize_name())) {}
-    field_info(unsigned sz, unsigned num, unsigned offset, expr const & type):
-        m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type) {}
+    field_info(unsigned sz, unsigned num, unsigned offset, expr const & type, bool filler):
+        m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type), m_filler(filler) {}
     expr get_type() const { return m_type; }
     static field_info mk_irrelevant() { return field_info(); }
     static field_info mk_object(unsigned idx) { return field_info(idx); }
     static field_info mk_usize() { return field_info(0, true); }
-    static field_info mk_scalar(unsigned sz, expr const & type) { return field_info(sz, 0, 0, type); }
+    static field_info mk_scalar(unsigned sz, expr const & type) { return field_info(sz, 0, 0, type, false); }
+    static field_info mk_scalar_filler(unsigned sz, expr const & type) { return field_info(sz, 0, 0, type, true); }
 };
 
 struct cnstr_info {

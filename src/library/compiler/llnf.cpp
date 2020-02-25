@@ -291,17 +291,17 @@ static void get_cnstr_info_core(type_checker::state & st, name const & n, buffer
     if (scalar_sz % sizeof(void*) != 0) {
         unsigned to_fill_sz  = sizeof(void*) - (scalar_sz % sizeof(void*));
         if (to_fill_sz >= 4) {
-            result.push_back(field_info::mk_scalar(4, *to_uint_type(4)));
+            result.push_back(field_info::mk_scalar_filler(4, *to_uint_type(4)));
             max_scalar_size = std::max(max_scalar_size, 4u);
             to_fill_sz -= 4;
         }
         if (to_fill_sz >= 2) {
-            result.push_back(field_info::mk_scalar(2, *to_uint_type(2)));
+            result.push_back(field_info::mk_scalar_filler(2, *to_uint_type(2)));
             max_scalar_size = std::max(max_scalar_size, 2u);
             to_fill_sz -= 2;
         }
         for (unsigned i = 0; i < to_fill_sz; i++) {
-            result.push_back(field_info::mk_scalar(1, *to_uint_type(1)));
+            result.push_back(field_info::mk_scalar_filler(1, *to_uint_type(1)));
         }
     }
 
@@ -574,6 +574,8 @@ class to_lambda_pure_fn {
             cnstr_info cinfo     = get_cnstr_info(cnames[i]);
             buffer<expr> fields;
             for (field_info const & info : cinfo.m_field_info) {
+                if (info.m_filler)
+                    break;
                 lean_assert(is_lambda(minor));
                 switch (info.m_kind) {
                 case field_info::Irrelevant:

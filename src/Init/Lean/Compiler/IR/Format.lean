@@ -67,6 +67,7 @@ private partial def formatIRType : IRType → Format
 | IRType.union _ tys  => "union " ++ Format.bracket "{" (@Format.joinSep _ ⟨formatIRType⟩ tys.toList ", ") "}"
 
 instance typeHasFormat : HasFormat IRType := ⟨formatIRType⟩
+instance typeHasToString : HasToString IRType := ⟨toString ∘ format⟩
 
 private def formatParam : Param → Format
 | { x := name, borrow := b, ty := ty } => "(" ++ format name ++ " : " ++ (if b then "@& " else "") ++ format ty ++ ")"

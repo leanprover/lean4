@@ -269,6 +269,42 @@ static void get_cnstr_info_core(type_checker::state & st, name const & n, buffer
             }
         }
     }
+
+    /*
+       Add "filler" fields to make sure constructor objects are aligned.
+
+       Recall that in our runtime `lean_object_byte_size` is always
+       a multiple of the machine word size for constructors.
+
+       The fillers guarantee that the memory allocated for a
+       constructor is fully initialized. This is important for the sharing
+       maximizer procedures at `maxsharing.cpp` and `compact.cpp`.
+       If we didn't have the fillers, then the memory would not be fully
+       initialized, and we may mistakenly assume to structurally equal
+       objects are not identical because of uninitialized memory.
+    */
+    unsigned scalar_sz = 0;
+    for (field_info & info : result) {
+        if (info.m_kind == field_info::Scalar)
+            scalar_sz += info.m_size;
+    }
+    if (scalar_sz % sizeof(void*) != 0) {
+        unsigned to_fill_sz  = sizeof(void*) - (scalar_sz % sizeof(void*));
+        if (to_fill_sz >= 4) {
+            result.push_back(field_info::mk_scalar(4, *to_uint_type(4)));
+            max_scalar_size = std::max(max_scalar_size, 4u);
+            to_fill_sz -= 4;
+        }
+        if (to_fill_sz >= 2) {
+            result.push_back(field_info::mk_scalar(2, *to_uint_type(2)));
+            max_scalar_size = std::max(max_scalar_size, 2u);
+            to_fill_sz -= 2;
+        }
+        for (unsigned i = 0; i < to_fill_sz; i++) {
+            result.push_back(field_info::mk_scalar(1, *to_uint_type(1)));
+        }
+    }
+
     unsigned next_idx = next_object;
     /* Remark:
        - usize fields are stored after object fields.
@@ -626,11 +662,17 @@ class to_lambda_pure_fn {
         buffer<expr> obj_args;
         unsigned j             = nparams;
         for (field_info const & info : k_info.m_field_info) {
-            if (info.m_kind != field_info::Irrelevant)
-                args[j] = visit(args[j]);
+            // We need the following test because we have "filler" fields
+            if (j < args.size()) {
+                if (info.m_kind != field_info::Irrelevant)
+                    args[j] = visit(args[j]);
 
-            if (info.m_kind == field_info::Object) {
-                obj_args.push_back(args[j]);
+                if (info.m_kind == field_info::Object) {
+                    obj_args.push_back(args[j]);
+                }
+            } else {
+                // Create variable for initializing "filler" fields.
+                args.push_back(mk_let_decl(info.m_type, mk_lit(literal(mpz(0)))));
             }
             j++;
         }
@@ -650,6 +692,7 @@ class to_lambda_pure_fn {
                 if (first) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
+                lean_assert(j < args.size());
                 r = mk_let_decl(mk_enf_object_type(), mk_uset(r, info.m_idx, args[j]));
                 first = false;
                 break;

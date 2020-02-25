@@ -63,7 +63,7 @@ public:
     }
     message_severity get_severity() const;
     std::string get_caption() const { return static_cast<string_ref const &>(cnstr_get_ref(*this, 3)).to_std_string(); }
-    std::string get_text() const { return static_cast<string_ref const &>(cnstr_get_ref(*this, 4)).to_std_string(); }
+    std::string get_text() const;
 
     bool is_error() const { return get_severity() >= ERROR; }
 };

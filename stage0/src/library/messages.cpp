@@ -12,6 +12,7 @@ namespace lean {
 extern "C" object * lean_mk_message(object * filename, object * pos, object * end_pos, uint8 severity,
                                     object * caption, object * text);
 extern "C" uint8 lean_message_severity(object * msg);
+extern "C" object * lean_message_string(object * msg);
 
 message::message(std::string const & filename, pos_info const & pos, optional<pos_info> const & end_pos,
                  message_severity severity, std::string const & caption, std::string const & text) :
@@ -26,6 +27,10 @@ message::message(parser_exception const & ex) :
 
 message_severity message::get_severity() const {
     return static_cast<message_severity>(lean_message_severity(to_obj_arg()));
+}
+
+std::string message::get_text() const {
+    return string_ref(lean_message_string(to_obj_arg())).to_std_string();
 }
 
 std::ostream & operator<<(std::ostream & out, message const & msg) {

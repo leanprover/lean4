@@ -171,7 +171,7 @@ class max_sharing_fn {
         // We do not maximize sharing for the following kinds of objects
         case LeanMPZ:      case LeanThunk:
         case LeanTask:     case LeanRef:
-        case LeanExternal:
+        case LeanExternal: case LeanClosure:
             m_children.push_back(a);
             return true;
         default:
@@ -214,12 +214,6 @@ class max_sharing_fn {
             m_state.map_insert(new_a, new_a); // `new_a` is the maximally shared representation for itself
             // std::cout << "new maximized " << new_a << "\n";
         }
-    }
-
-    void visit_closure(b_obj_arg a) {
-        // TODO(Leo)
-        lean_inc(a);
-        save(a, a);
     }
 
     void visit_array(b_obj_arg a) {
@@ -300,7 +294,7 @@ public:
             b_obj_arg curr = m_todo.back();
             // std::cout << "visiting " << curr << " " << static_cast<unsigned>(lean_ptr_tag(curr)) << "\n";
             switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         visit_closure(curr); break;
+            case LeanClosure:         lean_unreachable();
             case LeanArray:           visit_array(curr); break;
             case LeanScalarArray:     visit_sarray(curr); break;
             case LeanString:          visit_string(curr); break;

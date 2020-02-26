@@ -236,9 +236,11 @@ class max_sharing_fn {
     }
 
     void visit_sarray(b_obj_arg a) {
-        // TODO(Leo)
-        lean_inc(a);
-        save(a, a);
+        size_t sz        = lean_sarray_size(a);
+        unsigned elem_sz = lean_sarray_elem_size(a);
+        lean_sarray_object * new_a = (lean_sarray_object*)lean_alloc_sarray(elem_sz, sz, sz);
+        memcpy(new_a->m_data, lean_to_sarray(a)->m_data, elem_sz*sz);
+        save(a, (lean_object*)new_a);
     }
 
     void visit_string(b_obj_arg a) {

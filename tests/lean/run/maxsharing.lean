@@ -117,3 +117,32 @@ check $ ptrAddrUnsafe (c.get! 0) == ptrAddrUnsafe (c.get! 1);
 pure ()
 
 #eval tst5
+
+@[noinline] def mkByteArray1 (x : Nat) : ByteArray :=
+let r := ByteArray.empty;
+let r := r.push x.toUInt8;
+let r := r.push (x+1).toUInt8;
+let r := r.push (x+2).toUInt8;
+r
+
+@[noinline] def mkByteArray2 (x : Nat) : ByteArray :=
+mkByteArray1 x
+
+unsafe def tst6 (x : Nat) : IO Unit := do
+let a := [mkByteArray1 x];
+let b := [mkByteArray2 x];
+let c := [mkByteArray2 (x+1)];
+IO.println a;
+IO.println b;
+IO.println c;
+check $ ptrAddrUnsafe a != ptrAddrUnsafe b;
+check $ ptrAddrUnsafe a != ptrAddrUnsafe c;
+let s := MaxSharing.State.empty;
+let (a, s) := s.maxSharing a;
+let (b, s) := s.maxSharing b;
+let (c, s) := s.maxSharing c;
+check $ ptrAddrUnsafe a == ptrAddrUnsafe b;
+check $ ptrAddrUnsafe a != ptrAddrUnsafe c;
+pure ()
+
+#eval tst6 2

@@ -73,14 +73,47 @@ check $ ptrAddrUnsafe x != ptrAddrUnsafe y;
 let s := MaxSharing.State.empty;
 let (x, s) := s.maxSharing x;
 let (y, s) := s.maxSharing y;
--- check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
+check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
 let (z, s) := s.maxSharing ["world"];
 let (x, s) := s.maxSharing x;
--- check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
+check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
 check $ ptrAddrUnsafe x != ptrAddrUnsafe z;
 IO.println x;
 IO.println y;
 IO.println z
 
+#eval tst4
 
-#eval tst3
+@[noinline] def mkList1 (x : Nat) : List Nat := List.replicate x x
+@[noinline] def mkList2 (x : Nat) : List Nat := List.replicate x x
+@[noinline] def mkArray1 (x : Nat) : Array (List Nat) :=
+#[ mkList1 x, mkList2 x, mkList2 (x+1) ]
+@[noinline] def mkArray2 (x : Nat) : Array (List Nat) :=
+mkArray1 x
+
+unsafe def tst5 : IO Unit := do
+let a := mkArray1 3;
+let b := mkArray2 3;
+let c := mkArray2 4;
+IO.println a;
+IO.println b;
+IO.println c;
+check $ ptrAddrUnsafe a != ptrAddrUnsafe b;
+check $ ptrAddrUnsafe a != ptrAddrUnsafe c;
+check $ ptrAddrUnsafe (a.get! 0) != ptrAddrUnsafe (a.get! 1);
+check $ ptrAddrUnsafe (a.get! 0) != ptrAddrUnsafe (a.get! 2);
+check $ ptrAddrUnsafe (b.get! 0) != ptrAddrUnsafe (b.get! 1);
+check $ ptrAddrUnsafe (c.get! 0) != ptrAddrUnsafe (c.get! 1);
+let s := MaxSharing.State.empty;
+let (a, s) := s.maxSharing a;
+let (b, s) := s.maxSharing b;
+let (c, s) := s.maxSharing c;
+check $ ptrAddrUnsafe a == ptrAddrUnsafe b;
+check $ ptrAddrUnsafe a != ptrAddrUnsafe c;
+check $ ptrAddrUnsafe (a.get! 0) == ptrAddrUnsafe (a.get! 1);
+check $ ptrAddrUnsafe (a.get! 0) != ptrAddrUnsafe (a.get! 2);
+check $ ptrAddrUnsafe (b.get! 0) == ptrAddrUnsafe (b.get! 1);
+check $ ptrAddrUnsafe (c.get! 0) == ptrAddrUnsafe (c.get! 1);
+pure ()
+
+#eval tst5

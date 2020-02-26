@@ -223,9 +223,22 @@ class max_sharing_fn {
     }
 
     void visit_array(b_obj_arg a) {
-        // TODO(Leo)
-        lean_inc(a);
-        save(a, a);
+        clear_children();
+        bool missing_children = false;
+        size_t sz = array_size(a);
+        for (size_t i = 0; i < sz; i++) {
+            if (!push_child(lean_array_get_core(a, i))) {
+                missing_children = true;
+            }
+        }
+        if (missing_children)
+            return;
+        lean_array_object * new_a = (lean_array_object*)lean_alloc_array(sz, sz);
+        for (size_t i = 0; i < sz; i++) {
+            lean_inc(m_children[i]);
+            lean_array_set_core((lean_object*)new_a, i, m_children[i]);
+        }
+        save(a, (lean_object*)new_a);
     }
 
     void visit_sarray(b_obj_arg a) {
@@ -235,8 +248,15 @@ class max_sharing_fn {
     }
 
     void visit_string(b_obj_arg a) {
-        lean_inc(a);
-        save(a, a);
+        size_t sz     = lean_string_size(a);
+        size_t len    = lean_string_len(a);
+        lean_string_object * new_a = (lean_string_object*)lean_alloc_string(sz, sz, len);
+        lean_set_st_header((lean_object*)new_a, LeanString, 0);
+        new_a->m_size     = sz;
+        new_a->m_capacity = sz;
+        new_a->m_length   = len;
+        memcpy(new_a->m_data, lean_to_string(a)->m_data, sz);
+        save(a, (lean_object*)new_a);
     }
 
     void visit_ctor(b_obj_arg a) {

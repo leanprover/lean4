@@ -142,7 +142,7 @@ match d with
 | Decl.fdecl f xs t b => do
   unless (xs.size == 2 || xs.size == 1) (throw "invalid main function, incorrect arity when generating code");
   env ← getEnv;
-  let usesLeanAPI := usesLeanNamespace env d;
+  let usesLeanAPI := usesModuleFrom env `Init.Lean;
   if usesLeanAPI then
      emitLn "void lean_initialize();"
   else

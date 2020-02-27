@@ -18,42 +18,8 @@ match b with
 | FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (Arg.var y)) => x == y && f == g
 | _  => false
 
-namespace UsesLeanNamespace
-
-abbrev M := ReaderT Environment (StateM NameSet)
-
-def leanNameSpacePrefix := `Lean
-
-partial def visitFnBody : FnBody → M Bool
-| FnBody.vdecl _ _ v b   =>
-  let checkFn (f : FunId) : M Bool :=
-     if leanNameSpacePrefix.isPrefixOf f then pure true
-     else do {
-       s ← get;
-       if s.contains f then
-         visitFnBody b
-       else do
-         modify (fun s => s.insert f);
-         env ← read;
-         match findEnvDecl env f with
-         | some (Decl.fdecl _ _ _ fbody) => visitFnBody fbody <||> visitFnBody b
-         | other                         => visitFnBody b
-    };
-  match v with
-  | Expr.fap f _ => checkFn f
-  | Expr.pap f _ => checkFn f
-  | other        => visitFnBody b
-| FnBody.jdecl _ _ v b   => visitFnBody v <||> visitFnBody b
-| FnBody.case _ _ _ alts => alts.anyM $ fun alt => visitFnBody alt.body
-| e =>
-  if e.isTerminal then pure false
-  else visitFnBody e.body
-
-end UsesLeanNamespace
-
-def usesLeanNamespace (env : Environment) : Decl → Bool
-| Decl.fdecl _ _ _ b => (UsesLeanNamespace.visitFnBody b env).run' {}
-| _                  => false
+def usesModuleFrom (env : Environment) (modulePrefix : Name) : Bool :=
+env.allImportedModuleNames.toList.any $ fun modName => modulePrefix.isPrefixOf modName
 
 namespace CollectUsedDecls
 

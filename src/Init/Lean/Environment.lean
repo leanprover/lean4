@@ -38,7 +38,8 @@ structure EnvironmentHeader :=
 (trustLevel   : UInt32       := 0)
 (quotInit     : Bool         := false)
 (mainModule   : Name         := arbitrary _)
-(imports      : Array Import := #[])
+(imports      : Array Import := #[]) -- direct imports
+(moduleNames  : NameSet      := {})  -- all imported .lean modules
 
 /- TODO: mark opaque. -/
 structure Environment :=
@@ -65,6 +66,9 @@ env.constants.contains n
 
 def imports (env : Environment) : Array Import :=
 env.header.imports
+
+def allImportedModuleNames (env : Environment) : NameSet :=
+env.header.moduleNames
 
 @[export lean_environment_set_main_module]
 def setMainModule (env : Environment) (m : Name) : Environment :=
@@ -511,7 +515,7 @@ pExtDescrs.iterateM env $ fun _ extDescr env => do
 
 @[export lean_import_modules]
 def importModules (imports : List Import) (trustLevel : UInt32 := 0) : IO Environment := do
-(_, mods) ← importModulesAux imports ({}, #[]);
+(moduleNames, mods) ← importModulesAux imports ({}, #[]);
 let const2ModIdx := mods.iterate {} $ fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
   mod.constants.iterate m $ fun _ cinfo m =>
     m.insert cinfo.name modIdx.val;
@@ -529,7 +533,8 @@ let env : Environment := {
   header       := {
     quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
     trustLevel   := trustLevel,
-    imports      := imports.toArray
+    imports      := imports.toArray,
+    moduleNames  := moduleNames
   }
 };
 env ← setImportedEntries env mods;

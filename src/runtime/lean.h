@@ -278,6 +278,30 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #endif
 }
 
+static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    unsigned slot_idx = lean_get_slot_idx(sz);
+    assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
+    lean_object* r = (lean_object*)lean_alloc_small(sz1, slot_idx);
+    if (sz1 > sz) {
+        /* Initialize last word.
+           In our runtime `lean_object_byte_size` is always
+           a multiple of the machine word size for constructors.
+
+           By setting the last word to 0, we make sure the sharing
+           maximizer procedures at `maxsharing.cpp` and `compact.cpp` are
+           not affected by uninitialized data at the (sz1 - sz) last bytes.
+           Otherwise, we may mistakenly assume to structurally equal
+           objects are not identical because of this uninitialized memory. */
+        *((size_t*)((char*)r + sz1) - 1) = 0;
+    }
+    return r;
+#else
+    return lean_alloc_small_object(sz);
+#endif
+}
+
 static inline unsigned lean_small_object_size(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     return lean_small_mem_size(o);
@@ -622,7 +646,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     assert(tag <= LeanMaxCtorTag && num_objs < 256 && scalar_sz < 1024);
-    lean_object * o = lean_alloc_small_object(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
+    lean_object * o = lean_alloc_ctor_memory(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
     lean_set_st_header(o, tag, num_objs);
     return o;
 }

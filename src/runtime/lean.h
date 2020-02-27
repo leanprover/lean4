@@ -281,8 +281,8 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
 static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    unsigned slot_idx = lean_get_slot_idx(sz);
-    assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
+    unsigned slot_idx = lean_get_slot_idx(sz1);
+    assert(sz1 <= LEAN_MAX_SMALL_OBJECT_SIZE);
     lean_object* r = (lean_object*)lean_alloc_small(sz1, slot_idx);
     if (sz1 > sz) {
         /* Initialize last word.
@@ -294,7 +294,8 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
            not affected by uninitialized data at the (sz1 - sz) last bytes.
            Otherwise, we may mistakenly assume to structurally equal
            objects are not identical because of this uninitialized memory. */
-        *((size_t*)((char*)r + sz1) - 1) = 0;
+        size_t * end = (size_t*)(((char*)r) + sz1);
+        end[-1] = 0;
     }
     return r;
 #else

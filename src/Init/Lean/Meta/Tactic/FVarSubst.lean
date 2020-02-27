@@ -20,6 +20,8 @@ structure FVarSubst :=
 
 namespace FVarSubst
 
+def empty : FVarSubst := {}
+
 def insert (s : FVarSubst) (fvarId : FVarId) (e : Expr) : FVarSubst :=
 { map := s.map.insert fvarId e }
 

@@ -3763,7 +3763,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = l_System_FilePath_dirName___closed__1;
 x_12 = l_Lean_Name_toStringWithSep___main(x_11, x_10);
-x_13 = lean_ctor_get_uint8(x_9, sizeof(void*)*1 + 6);
+x_13 = lean_ctor_get_uint8(x_9, sizeof(void*)*1);
 lean_dec(x_9);
 if (x_13 == 0)
 {
@@ -9131,7 +9131,7 @@ x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_3, 1);
 lean_inc(x_13);
-x_14 = lean_ctor_get_uint8(x_3, sizeof(void*)*3 + 6);
+x_14 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
 x_15 = lean_ctor_get(x_3, 2);
 lean_inc(x_15);
 lean_dec(x_3);
@@ -10149,7 +10149,7 @@ return x_53;
 case 6:
 {
 uint8_t x_54; 
-x_54 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 7);
+x_54 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 1);
 if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
@@ -10157,7 +10157,7 @@ x_55 = lean_ctor_get(x_2, 0);
 lean_inc(x_55);
 x_56 = lean_ctor_get(x_2, 1);
 lean_inc(x_56);
-x_57 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 6);
+x_57 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
 x_58 = lean_ctor_get(x_2, 2);
 lean_inc(x_58);
 lean_dec(x_2);
@@ -10182,7 +10182,7 @@ goto _start;
 case 7:
 {
 uint8_t x_64; 
-x_64 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 7);
+x_64 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 1);
 if (x_64 == 0)
 {
 lean_object* x_65; lean_object* x_66; uint8_t x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
@@ -10190,7 +10190,7 @@ x_65 = lean_ctor_get(x_2, 0);
 lean_inc(x_65);
 x_66 = lean_ctor_get(x_2, 1);
 lean_inc(x_66);
-x_67 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 6);
+x_67 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
 x_68 = lean_ctor_get(x_2, 2);
 lean_inc(x_68);
 lean_dec(x_2);

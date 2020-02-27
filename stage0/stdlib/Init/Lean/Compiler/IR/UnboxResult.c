@@ -121,7 +121,7 @@ lean_object* x_6; uint8_t x_7;
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 4);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
 lean_dec(x_6);
 if (x_7 == 0)
 {

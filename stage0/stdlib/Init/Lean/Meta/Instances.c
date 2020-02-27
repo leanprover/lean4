@@ -3495,23 +3495,17 @@ return x_1;
 lean_object* _init_l_Lean_Meta_registerInstanceAttr___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; uint32_t x_5; uint16_t x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_registerInstanceAttr___closed__2;
 x_2 = l_Lean_Meta_registerInstanceAttr___closed__3;
 x_3 = l_Lean_Meta_registerInstanceAttr___closed__4;
 x_4 = 0;
-x_5 = 0;
-x_6 = 0;
-x_7 = 0;
-x_8 = lean_alloc_ctor(0, 3, 8);
-lean_ctor_set(x_8, 0, x_1);
-lean_ctor_set(x_8, 1, x_2);
-lean_ctor_set(x_8, 2, x_3);
-lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 6, x_4);
-lean_ctor_set_uint32(x_8, sizeof(void*)*3, x_5);
-lean_ctor_set_uint16(x_8, sizeof(void*)*3 + 4, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 7, x_7);
-return x_8;
+x_5 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_4);
+return x_5;
 }
 }
 lean_object* l_Lean_Meta_registerInstanceAttr(lean_object* x_1) {

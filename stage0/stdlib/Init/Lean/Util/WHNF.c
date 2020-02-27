@@ -1114,7 +1114,7 @@ lean_object* l_Lean_WHNF_reduceRec___rarg___lambda__2(lean_object* x_1, lean_obj
 _start:
 {
 uint8_t x_15; lean_object* x_16; 
-x_15 = lean_ctor_get_uint8(x_1, sizeof(void*)*7 + 6);
+x_15 = lean_ctor_get_uint8(x_1, sizeof(void*)*7);
 lean_inc(x_1);
 x_16 = lean_alloc_closure((void*)(l_Lean_WHNF_reduceRec___rarg___lambda__1___boxed), 8, 7);
 lean_closure_set(x_16, 0, x_1);
@@ -1236,7 +1236,7 @@ lean_object* l_Lean_WHNF_isRecStuck___rarg(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 uint8_t x_7; 
-x_7 = lean_ctor_get_uint8(x_4, sizeof(void*)*7 + 6);
+x_7 = lean_ctor_get_uint8(x_4, sizeof(void*)*7);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
@@ -1329,7 +1329,7 @@ if (lean_obj_tag(x_11) == 4)
 {
 lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_ctor_get(x_11, 0);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*1 + 6);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*1);
 x_14 = lean_box(x_13);
 if (lean_obj_tag(x_14) == 1)
 {
@@ -1480,7 +1480,7 @@ lean_object* l_Lean_WHNF_reduceQuotRec___rarg(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_21; lean_object* x_22; 
-x_21 = lean_ctor_get_uint8(x_4, sizeof(void*)*1 + 6);
+x_21 = lean_ctor_get_uint8(x_4, sizeof(void*)*1);
 x_22 = lean_box(x_21);
 switch (lean_obj_tag(x_22)) {
 case 2:
@@ -1594,7 +1594,7 @@ lean_object* l_Lean_WHNF_isQuotRecStuck___rarg(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_7; lean_object* x_13; uint8_t x_22; lean_object* x_23; 
-x_22 = lean_ctor_get_uint8(x_4, sizeof(void*)*1 + 6);
+x_22 = lean_ctor_get_uint8(x_4, sizeof(void*)*1);
 x_23 = lean_box(x_22);
 switch (lean_obj_tag(x_23)) {
 case 2:

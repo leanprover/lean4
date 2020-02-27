@@ -126,16 +126,10 @@ lean_object* l_Lean_KVMap_getNat___boxed(lean_object*, lean_object*, lean_object
 lean_object* lean_mk_bool_data_value(uint8_t x_1) {
 _start:
 {
-uint32_t x_2; uint16_t x_3; uint8_t x_4; lean_object* x_5; 
-x_2 = 0;
-x_3 = 0;
-x_4 = 0;
-x_5 = lean_alloc_ctor(1, 0, 8);
-lean_ctor_set_uint8(x_5, 6, x_1);
-lean_ctor_set_uint32(x_5, 0, x_2);
-lean_ctor_set_uint16(x_5, 4, x_3);
-lean_ctor_set_uint8(x_5, 7, x_4);
-return x_5;
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_mkBoolDataValueEx___boxed(lean_object* x_1) {
@@ -154,7 +148,7 @@ _start:
 if (lean_obj_tag(x_1) == 1)
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, 6);
+x_2 = lean_ctor_get_uint8(x_1, 0);
 lean_dec(x_1);
 return x_2;
 }
@@ -202,11 +196,11 @@ case 1:
 if (lean_obj_tag(x_2) == 1)
 {
 uint8_t x_7; 
-x_7 = lean_ctor_get_uint8(x_1, 6);
+x_7 = lean_ctor_get_uint8(x_1, 0);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-x_8 = lean_ctor_get_uint8(x_2, 6);
+x_8 = lean_ctor_get_uint8(x_2, 0);
 if (x_8 == 0)
 {
 uint8_t x_9; 
@@ -223,7 +217,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_2, 6);
+x_11 = lean_ctor_get_uint8(x_2, 0);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -405,7 +399,7 @@ return x_2;
 case 1:
 {
 uint8_t x_3; 
-x_3 = lean_ctor_get_uint8(x_1, 6);
+x_3 = lean_ctor_get_uint8(x_1, 0);
 lean_dec(x_1);
 if (x_3 == 0)
 {
@@ -480,16 +474,10 @@ return x_2;
 lean_object* l_Lean_bool2DataValue(uint8_t x_1) {
 _start:
 {
-uint32_t x_2; uint16_t x_3; uint8_t x_4; lean_object* x_5; 
-x_2 = 0;
-x_3 = 0;
-x_4 = 0;
-x_5 = lean_alloc_ctor(1, 0, 8);
-lean_ctor_set_uint8(x_5, 6, x_1);
-lean_ctor_set_uint32(x_5, 0, x_2);
-lean_ctor_set_uint16(x_5, 4, x_3);
-lean_ctor_set_uint8(x_5, 7, x_4);
-return x_5;
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_bool2DataValue___boxed(lean_object* x_1) {
@@ -1125,7 +1113,7 @@ lean_dec(x_4);
 if (lean_obj_tag(x_5) == 1)
 {
 uint8_t x_6; 
-x_6 = lean_ctor_get_uint8(x_5, 6);
+x_6 = lean_ctor_get_uint8(x_5, 0);
 lean_dec(x_5);
 return x_6;
 }
@@ -1227,17 +1215,11 @@ return x_5;
 lean_object* l_Lean_KVMap_setBool(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-uint32_t x_4; uint16_t x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = 0;
-x_5 = 0;
-x_6 = 0;
-x_7 = lean_alloc_ctor(1, 0, 8);
-lean_ctor_set_uint8(x_7, 6, x_3);
-lean_ctor_set_uint32(x_7, 0, x_4);
-lean_ctor_set_uint16(x_7, 4, x_5);
-lean_ctor_set_uint8(x_7, 7, x_6);
-x_8 = l_Lean_KVMap_insertCore___main(x_1, x_2, x_7);
-return x_8;
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_4, 0, x_3);
+x_5 = l_Lean_KVMap_insertCore___main(x_1, x_2, x_4);
+return x_5;
 }
 }
 lean_object* l_Lean_KVMap_setBool___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

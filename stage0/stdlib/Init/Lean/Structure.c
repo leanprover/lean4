@@ -132,7 +132,7 @@ lean_dec(x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
-x_10 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 4);
+x_10 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
 lean_dec(x_6);
 if (x_10 == 0)
 {
@@ -385,7 +385,7 @@ lean_inc(x_13);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 
-x_14 = lean_ctor_get_uint8(x_8, sizeof(void*)*5 + 4);
+x_14 = lean_ctor_get_uint8(x_8, sizeof(void*)*5);
 lean_dec(x_8);
 if (x_14 == 0)
 {

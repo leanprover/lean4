@@ -941,85 +941,61 @@ lean_object* l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1(l
 _start:
 {
 uint8_t x_4; 
-x_4 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 6);
+x_4 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 if (x_4 == 0)
 {
 uint8_t x_5; 
 x_5 = !lean_is_exclusive(x_1);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; uint32_t x_8; uint16_t x_9; uint8_t x_10; 
+lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = l_PersistentHashMap_insert___at_Lean_mkClosedTermCacheExtension___spec__2(x_6, x_2, x_3);
-x_8 = 0;
-x_9 = 0;
-x_10 = 0;
 lean_ctor_set(x_1, 1, x_7);
-lean_ctor_set_uint32(x_1, sizeof(void*)*2, x_8);
-lean_ctor_set_uint16(x_1, sizeof(void*)*2 + 4, x_9);
-lean_ctor_set_uint8(x_1, sizeof(void*)*2 + 7, x_10);
 return x_1;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; uint32_t x_14; uint16_t x_15; uint8_t x_16; lean_object* x_17; 
-x_11 = lean_ctor_get(x_1, 0);
-x_12 = lean_ctor_get(x_1, 1);
-lean_inc(x_12);
-lean_inc(x_11);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_1, 1);
+lean_inc(x_9);
+lean_inc(x_8);
 lean_dec(x_1);
-x_13 = l_PersistentHashMap_insert___at_Lean_mkClosedTermCacheExtension___spec__2(x_12, x_2, x_3);
-x_14 = 0;
-x_15 = 0;
-x_16 = 0;
-x_17 = lean_alloc_ctor(0, 2, 8);
-lean_ctor_set(x_17, 0, x_11);
-lean_ctor_set(x_17, 1, x_13);
-lean_ctor_set_uint8(x_17, sizeof(void*)*2 + 6, x_4);
-lean_ctor_set_uint32(x_17, sizeof(void*)*2, x_14);
-lean_ctor_set_uint16(x_17, sizeof(void*)*2 + 4, x_15);
-lean_ctor_set_uint8(x_17, sizeof(void*)*2 + 7, x_16);
-return x_17;
+x_10 = l_PersistentHashMap_insert___at_Lean_mkClosedTermCacheExtension___spec__2(x_9, x_2, x_3);
+x_11 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_11, 0, x_8);
+lean_ctor_set(x_11, 1, x_10);
+lean_ctor_set_uint8(x_11, sizeof(void*)*2, x_4);
+return x_11;
 }
 }
 else
 {
-uint8_t x_18; 
-x_18 = !lean_is_exclusive(x_1);
-if (x_18 == 0)
+uint8_t x_12; 
+x_12 = !lean_is_exclusive(x_1);
+if (x_12 == 0)
 {
-lean_object* x_19; lean_object* x_20; uint32_t x_21; uint16_t x_22; uint8_t x_23; 
-x_19 = lean_ctor_get(x_1, 0);
-x_20 = l_HashMapImp_insert___at_Lean_mkClosedTermCacheExtension___spec__6(x_19, x_2, x_3);
-x_21 = 0;
-x_22 = 0;
-x_23 = 0;
-lean_ctor_set(x_1, 0, x_20);
-lean_ctor_set_uint32(x_1, sizeof(void*)*2, x_21);
-lean_ctor_set_uint16(x_1, sizeof(void*)*2 + 4, x_22);
-lean_ctor_set_uint8(x_1, sizeof(void*)*2 + 7, x_23);
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_ctor_get(x_1, 0);
+x_14 = l_HashMapImp_insert___at_Lean_mkClosedTermCacheExtension___spec__6(x_13, x_2, x_3);
+lean_ctor_set(x_1, 0, x_14);
 return x_1;
 }
 else
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; uint32_t x_27; uint16_t x_28; uint8_t x_29; lean_object* x_30; 
-x_24 = lean_ctor_get(x_1, 0);
-x_25 = lean_ctor_get(x_1, 1);
-lean_inc(x_25);
-lean_inc(x_24);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_ctor_get(x_1, 0);
+x_16 = lean_ctor_get(x_1, 1);
+lean_inc(x_16);
+lean_inc(x_15);
 lean_dec(x_1);
-x_26 = l_HashMapImp_insert___at_Lean_mkClosedTermCacheExtension___spec__6(x_24, x_2, x_3);
-x_27 = 0;
-x_28 = 0;
-x_29 = 0;
-x_30 = lean_alloc_ctor(0, 2, 8);
-lean_ctor_set(x_30, 0, x_26);
-lean_ctor_set(x_30, 1, x_25);
-lean_ctor_set_uint8(x_30, sizeof(void*)*2 + 6, x_4);
-lean_ctor_set_uint32(x_30, sizeof(void*)*2, x_27);
-lean_ctor_set_uint16(x_30, sizeof(void*)*2 + 4, x_28);
-lean_ctor_set_uint8(x_30, sizeof(void*)*2 + 7, x_29);
-return x_30;
+x_17 = l_HashMapImp_insert___at_Lean_mkClosedTermCacheExtension___spec__6(x_15, x_2, x_3);
+x_18 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_16);
+lean_ctor_set_uint8(x_18, sizeof(void*)*2, x_4);
+return x_18;
 }
 }
 }
@@ -1064,21 +1040,15 @@ return x_2;
 lean_object* _init_l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12___closed__2() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; uint32_t x_4; uint16_t x_5; uint8_t x_6; lean_object* x_7; 
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12___closed__1;
 x_3 = l_PersistentHashMap_empty___at_Lean_mkClosedTermCacheExtension___spec__14;
-x_4 = 0;
-x_5 = 0;
-x_6 = 0;
-x_7 = lean_alloc_ctor(0, 2, 8);
-lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_3);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2 + 6, x_1);
-lean_ctor_set_uint32(x_7, sizeof(void*)*2, x_4);
-lean_ctor_set_uint16(x_7, sizeof(void*)*2 + 4, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2 + 7, x_6);
-return x_7;
+x_4 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
+return x_4;
 }
 }
 lean_object* _init_l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12() {
@@ -1161,7 +1131,7 @@ lean_object* l_Lean_SMap_switch___at_Lean_mkClosedTermCacheExtension___spec__18(
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 6);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 if (x_2 == 0)
 {
 return x_1;
@@ -1172,37 +1142,25 @@ uint8_t x_3;
 x_3 = !lean_is_exclusive(x_1);
 if (x_3 == 0)
 {
-uint8_t x_4; uint32_t x_5; uint16_t x_6; uint8_t x_7; 
+uint8_t x_4; 
 x_4 = 0;
-x_5 = 0;
-x_6 = 0;
-x_7 = 0;
-lean_ctor_set_uint8(x_1, sizeof(void*)*2 + 6, x_4);
-lean_ctor_set_uint32(x_1, sizeof(void*)*2, x_5);
-lean_ctor_set_uint16(x_1, sizeof(void*)*2 + 4, x_6);
-lean_ctor_set_uint8(x_1, sizeof(void*)*2 + 7, x_7);
+lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_4);
 return x_1;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; uint8_t x_10; uint32_t x_11; uint16_t x_12; uint8_t x_13; lean_object* x_14; 
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-lean_inc(x_8);
+lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_inc(x_5);
 lean_dec(x_1);
-x_10 = 0;
-x_11 = 0;
-x_12 = 0;
-x_13 = 0;
-x_14 = lean_alloc_ctor(0, 2, 8);
-lean_ctor_set(x_14, 0, x_8);
-lean_ctor_set(x_14, 1, x_9);
-lean_ctor_set_uint8(x_14, sizeof(void*)*2 + 6, x_10);
-lean_ctor_set_uint32(x_14, sizeof(void*)*2, x_11);
-lean_ctor_set_uint16(x_14, sizeof(void*)*2 + 4, x_12);
-lean_ctor_set_uint8(x_14, sizeof(void*)*2 + 7, x_13);
-return x_14;
+x_7 = 0;
+x_8 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 1, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*2, x_7);
+return x_8;
 }
 }
 }
@@ -2224,21 +2182,15 @@ return x_3;
 lean_object* _init_l_Lean_closedTermCacheExt___closed__1() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; uint32_t x_4; uint16_t x_5; uint8_t x_6; lean_object* x_7; 
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_HashMap_Inhabited___closed__1;
 x_3 = l_PersistentHashMap_empty___at_Lean_mkClosedTermCacheExtension___spec__14;
-x_4 = 0;
-x_5 = 0;
-x_6 = 0;
-x_7 = lean_alloc_ctor(0, 2, 8);
-lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_3);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2 + 6, x_1);
-lean_ctor_set_uint32(x_7, sizeof(void*)*2, x_4);
-lean_ctor_set_uint16(x_7, sizeof(void*)*2 + 4, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2 + 7, x_6);
-return x_7;
+x_4 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
+return x_4;
 }
 }
 lean_object* _init_l_Lean_closedTermCacheExt___closed__2() {
@@ -2564,7 +2516,7 @@ lean_object* l_Lean_SMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__1(lean
 _start:
 {
 uint8_t x_3; 
-x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 6);
+x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 

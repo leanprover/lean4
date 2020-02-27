@@ -587,59 +587,47 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint32_t x_12; uint16_t x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = lean_ctor_get(x_4, 2);
 x_9 = l_Lean_FileMap_toPosition(x_7, x_8);
 x_10 = lean_box(0);
 x_11 = l_String_splitAux___main___closed__1;
-x_12 = 0;
-x_13 = 0;
-x_14 = 0;
 lean_inc(x_6);
-x_15 = lean_alloc_ctor(0, 5, 8);
-lean_ctor_set(x_15, 0, x_6);
-lean_ctor_set(x_15, 1, x_9);
-lean_ctor_set(x_15, 2, x_10);
-lean_ctor_set(x_15, 3, x_11);
-lean_ctor_set(x_15, 4, x_1);
-lean_ctor_set_uint8(x_15, sizeof(void*)*5 + 6, x_2);
-lean_ctor_set_uint32(x_15, sizeof(void*)*5, x_12);
-lean_ctor_set_uint16(x_15, sizeof(void*)*5 + 4, x_13);
-lean_ctor_set_uint8(x_15, sizeof(void*)*5 + 7, x_14);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_5);
-return x_16;
+x_12 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_12, 0, x_6);
+lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 2, x_10);
+lean_ctor_set(x_12, 3, x_11);
+lean_ctor_set(x_12, 4, x_1);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5, x_2);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_5);
+return x_13;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint32_t x_23; uint16_t x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; 
-x_17 = lean_ctor_get(x_4, 0);
-x_18 = lean_ctor_get(x_4, 1);
-x_19 = lean_ctor_get(x_3, 0);
-x_20 = l_Lean_FileMap_toPosition(x_18, x_19);
-x_21 = lean_box(0);
-x_22 = l_String_splitAux___main___closed__1;
-x_23 = 0;
-x_24 = 0;
-x_25 = 0;
-lean_inc(x_17);
-x_26 = lean_alloc_ctor(0, 5, 8);
-lean_ctor_set(x_26, 0, x_17);
-lean_ctor_set(x_26, 1, x_20);
-lean_ctor_set(x_26, 2, x_21);
-lean_ctor_set(x_26, 3, x_22);
-lean_ctor_set(x_26, 4, x_1);
-lean_ctor_set_uint8(x_26, sizeof(void*)*5 + 6, x_2);
-lean_ctor_set_uint32(x_26, sizeof(void*)*5, x_23);
-lean_ctor_set_uint16(x_26, sizeof(void*)*5 + 4, x_24);
-lean_ctor_set_uint8(x_26, sizeof(void*)*5 + 7, x_25);
-x_27 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_5);
-return x_27;
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_14 = lean_ctor_get(x_4, 0);
+x_15 = lean_ctor_get(x_4, 1);
+x_16 = lean_ctor_get(x_3, 0);
+x_17 = l_Lean_FileMap_toPosition(x_15, x_16);
+x_18 = lean_box(0);
+x_19 = l_String_splitAux___main___closed__1;
+lean_inc(x_14);
+x_20 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_20, 0, x_14);
+lean_ctor_set(x_20, 1, x_17);
+lean_ctor_set(x_20, 2, x_18);
+lean_ctor_set(x_20, 3, x_19);
+lean_ctor_set(x_20, 4, x_1);
+lean_ctor_set_uint8(x_20, sizeof(void*)*5, x_2);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_5);
+return x_21;
 }
 }
 }

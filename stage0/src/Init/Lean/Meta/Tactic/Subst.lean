@@ -57,7 +57,12 @@ withMVarContext mvarId $ do
             mvarId ← clear mvarId hFVarId;
             mvarId ← clear mvarId aFVarId;
             (newFVars, mvarId) ← introN mvarId (vars.size - 2) [] false;
-            fvarSubst ← pure {FVarSubst . }; -- TODO
+            fvarSubst ← newFVars.size.foldM
+              (fun i (fvarSubst : FVarSubst) =>
+                let var      := vars.get! i;
+                let newFVar := newFVars.get! i;
+                pure $ fvarSubst.insert var (mkFVar newFVar))
+              FVarSubst.empty;
             pure (fvarSubst, mvarId)
           };
           if depElim then do

@@ -268,17 +268,16 @@ class max_sharing_fn {
         }
         if (missing_child)
             return;
-        unsigned tag        = lean_ptr_tag(a);
-        unsigned sz         = lean_object_byte_size(a);
-        lean_object * new_a = lean_alloc_small_object(sz);
-        lean_set_st_header(new_a, tag, num_objs);
+        unsigned tag           = lean_ptr_tag(a);
+        unsigned sz            = lean_object_byte_size(a);
+        unsigned scalar_offset = sizeof(lean_object) + num_objs*sizeof(void*);
+        unsigned scalar_sz     = sz - scalar_offset;
+        lean_object * new_a    = lean_alloc_ctor(tag, num_objs, scalar_sz);
         for (unsigned i = 0; i < num_objs; i++) {
             lean_inc(m_children[i]);
             lean_ctor_set(new_a, i, m_children[i]);
         }
-        unsigned scalar_offset = sizeof(lean_object) + num_objs*sizeof(void*);
-        if (scalar_offset < sz) {
-            unsigned scalar_sz     = sz - scalar_offset;
+        if (scalar_sz > 0) {
             memcpy(reinterpret_cast<char*>(new_a) + scalar_offset, reinterpret_cast<char*>(a) + scalar_offset, scalar_sz);
         }
         save(a, new_a);

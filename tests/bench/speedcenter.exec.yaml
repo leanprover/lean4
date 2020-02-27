@@ -32,6 +32,27 @@
     max_runs: 1
     runner: output
 - attributes:
+    description: bin/lean
+    tags: [deterministic, fast]
+  run_config:
+    cmd: |
+      set -eu
+      echo -n 'binary size: '
+      wc -c ../../bin/lean | cut -d' ' -f 1
+    max_runs: 1
+    runner: output
+- attributes:
+    description: tests/compiler
+    tags: [deterministic, slow]
+  run_config:
+    cwd: ../compiler/
+    cmd: |
+      set -eu
+      echo -n 'sum binary sizes: '
+      for f in *.lean; do ../bench/compile.sh $f; echo -n "$f.out\0"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+    max_runs: 1
+    runner: output
+- attributes:
     description: binarytrees
     tags: [fast, suite]
   run_config:

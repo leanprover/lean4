@@ -551,6 +551,9 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 | true,  x, y => x
 | false, x, y => y
 
+@[inline] def condEq {β : Sort u} (b : Bool) (h₁ : b = true → β) (h₂ : b = false → β) : β :=
+@Bool.casesOn (λ x => b = x → β) b h₂ h₁ rfl
+
 @[macroInline] def or : Bool → Bool → Bool
 | true,  _ => true
 | false, b => b
@@ -870,6 +873,19 @@ theorem ofDecideEqFalse {p : Prop} [s : Decidable p] : decide p = false → ¬p 
 fun h => match s with
   | isTrue  h₁ => absurd h (neFalseOfEqTrue (decideEqTrue h₁))
   | isFalse h₁ => h₁
+
+/-- Similar to `decide`, but uses an explicit instance -/
+@[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
+@decide p d
+
+theorem toBoolUsingEqTrue {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
+@decideEqTrue _ d h
+
+theorem ofBoolUsingEqTrue {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
+@ofDecideEqTrue _ d h
+
+theorem ofBoolUsingEqFalse {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬ p :=
+@ofDecideEqFalse _ d h
 
 instance : Decidable True :=
 isTrue trivial

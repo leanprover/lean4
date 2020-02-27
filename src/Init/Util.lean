@@ -52,11 +52,12 @@ def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () =
 k ()
 
 -- `withPtrEq` for `DecidableEq`
+
 @[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=
-let aux := withPtrEq a b (fun _ => @decide (a = b) (k ())) (fun h => @decideEqTrue _ (k ()) h);
-match aux, rfl : forall x (h : _ = x), _ with
-| true,  h => isTrue (@ofDecideEqTrue _ (k ()) h)
-| false, h => isFalse (@ofDecideEqFalse _ (k ()) h)
+let b := withPtrEq a b (fun _ => toBoolUsing (k ())) (toBoolUsingEqTrue (k ()));
+condEq b
+  (fun h => isTrue (ofBoolUsingEqTrue h))
+  (fun h => isFalse (ofBoolUsingEqFalse h))
 
 @[implementedBy withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=

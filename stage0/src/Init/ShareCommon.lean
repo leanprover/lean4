@@ -9,8 +9,11 @@ import Init.Data.HashMap
 import Init.Data.HashSet
 import Init.Data.PersistentHashSet
 import Init.Data.PersistentHashMap
+import Init.Control.State
 
-namespace MaxSharing
+universes u v
+
+namespace ShareCommon
 /-
   The max sharing primitives are implemented internally.
   They use maps and sets of Lean objects. We have two versions:
@@ -29,10 +32,10 @@ ptrAddrUnsafe a == ptrAddrUnsafe b
 unsafe def Object.ptrHash (a : Object) : USize :=
 ptrAddrUnsafe a
 
-@[extern "lean_maxsharing_eq"]
+@[extern "lean_sharecommon_eq"]
 unsafe constant Object.eq (a b : @& Object) : Bool := arbitrary _
 
-@[extern "lean_maxsharing_hash"]
+@[extern "lean_sharecommon_hash"]
 unsafe constant Object.hash (a : @& Object) : USize := arbitrary _
 
 unsafe def ObjectMap : Type := @HashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
@@ -90,30 +93,61 @@ unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : O
 
 /- Internally `State` is implemented as a pair `ObjectMap` and `ObjectSet` -/
 constant StatePointed : PointedType := arbitrary _
-abbrev State : Type := StatePointed.type
-@[extern "lean_maxsharing_mk_state"]
+abbrev State : Type u := StatePointed.type
+@[extern "lean_sharecommon_mk_state"]
 constant mkState : Unit → State := fun _ => StatePointed.val
 def State.empty : State := mkState ()
 instance State.inhabited : Inhabited State := ⟨State.empty⟩
 
 /- Internally `PersistentState` is implemented as a pair `ObjectPersistentMap` and `ObjectPersistentSet` -/
 constant PersistentStatePointed : PointedType := arbitrary _
-abbrev PersistentState : Type := PersistentStatePointed.type
-@[extern "lean_maxsharing_mk_pstate"]
+abbrev PersistentState : Type u := PersistentStatePointed.type
+@[extern "lean_sharecommon_mk_pstate"]
 constant mkPersistentState : Unit → PersistentState := fun _ => PersistentStatePointed.val
 def PersistentState.empty : PersistentState := mkPersistentState ()
 instance PersistentState.inhabited : Inhabited PersistentState := ⟨PersistentState.empty⟩
-abbrev PState : Type := PersistentState
+abbrev PState : Type u := PersistentState
 
-@[extern "lean_state_maxsharing"]
-def State.maxSharing {α} (s : State) (a : α) : α × State :=
+@[extern "lean_state_sharecommon"]
+def State.shareCommon {α} (s : State) (a : α) : α × State :=
 (a, s)
 
-@[extern "lean_persistent_state_maxsharing"]
-def PersistentState.maxSharing {α} (s : PersistentState) (a : α) : α × PersistentState :=
+@[extern "lean_persistent_state_sharecommon"]
+def PersistentState.shareCommon {α} (s : PersistentState) (a : α) : α × PersistentState :=
 (a, s)
 
-end MaxSharing
+end ShareCommon
 
-def maxSharing {α} (a : α) : α :=
-(MaxSharing.State.empty.maxSharing a).1
+class MonadShareCommon (m : Type u → Type v) :=
+(withShareCommon {} {α : Type u} : α → m α)
+
+export MonadShareCommon (withShareCommon)
+
+abbrev shareCommonM {α : Type u} {m : Type u → Type v} [MonadShareCommon m] (a : α) : m α :=
+withShareCommon a
+
+abbrev ShareCommonT (m : Type u → Type v)  := StateT ShareCommon.State m
+abbrev PShareCommonT (m : Type u → Type v) := StateT ShareCommon.PState m
+abbrev ShareCommonM := ShareCommonT Id
+abbrev PShareCommonM := PShareCommonT Id
+
+@[specialize] def ShareCommonT.withShareCommon {m : Type u → Type v} [Monad m] {α : Type u} (a : α) : ShareCommonT m α :=
+modifyGet $ fun s => s.shareCommon a
+
+@[specialize] def PShareCommonT.withShareCommon {m : Type u → Type v} [Monad m] {α : Type u} (a : α) : PShareCommonT m α :=
+modifyGet $ fun s => s.shareCommon a
+
+instance ShareCommonT.monadShareCommon {m : Type u → Type v} [Monad m] : MonadShareCommon (ShareCommonT m) :=
+{ withShareCommon := @ShareCommonT.withShareCommon _ _ }
+
+instance PShareCommonT.monadShareCommon {m : Type u → Type v} [Monad m] : MonadShareCommon (PShareCommonT m) :=
+{ withShareCommon := @PShareCommonT.withShareCommon _ _ }
+
+@[inline] def ShareCommonT.run {m : Type u → Type v} [Monad m] {α : Type u} (x : ShareCommonT m α) : m α :=
+x.run' ShareCommon.State.empty
+
+@[inline] def PShareCommonT.run {m : Type u → Type v} [Monad m] {α : Type u} (x : PShareCommonT m α) : m α :=
+x.run' ShareCommon.PersistentState.empty
+
+def shareCommon {α} (a : α) : α :=
+(withShareCommon a : ShareCommonM α).run

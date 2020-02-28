@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Default
-// Imports: Init.Core Init.Control Init.Data.Basic Init.WF Init.Data Init.System Init.Util Init.Fix Init.LeanInit Init.MaxSharing
+// Imports: Init.Core Init.Control Init.Data.Basic Init.WF Init.Data Init.System Init.Util Init.Fix Init.LeanInit Init.ShareCommon
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,7 +22,7 @@ lean_object* initialize_Init_System(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
 lean_object* initialize_Init_Fix(lean_object*);
 lean_object* initialize_Init_LeanInit(lean_object*);
-lean_object* initialize_Init_MaxSharing(lean_object*);
+lean_object* initialize_Init_ShareCommon(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Default(lean_object* w) {
 lean_object * res;
@@ -55,7 +55,7 @@ lean_dec_ref(res);
 res = initialize_Init_LeanInit(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_MaxSharing(lean_io_mk_world());
+res = initialize_Init_ShareCommon(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

@@ -53,6 +53,20 @@
     max_runs: 1
     runner: output
 - attributes:
+    description: tests/bench/ interpreted
+    tags: [slow]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c '
+      set -euxo pipefail
+      ulimit -s unlimited
+      for f in *.args; do
+        ../../bin/lean --run ${f%.args} $(cat $f)
+      done
+      '
+    max_runs: 5
+- attributes:
     description: binarytrees
     tags: [fast, suite]
   run_config:

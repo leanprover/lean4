@@ -19,12 +19,14 @@ lean_object* l_strictAnd___boxed(lean_object*, lean_object*);
 lean_object* l_Prod_HasBeq(lean_object*, lean_object*);
 lean_object* lean_thunk_map(lean_object*, lean_object*);
 lean_object* l_Prod_DecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_condEq___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Subtype_sizeof(lean_object*);
 lean_object* l_Quotient_hrecOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift(lean_object*, lean_object*, lean_object*);
 uint8_t l_Prod_DecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_inline(lean_object*);
 lean_object* l_Quotient_lift_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_condEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Function_swap___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Ne_Decidable(lean_object*);
 lean_object* l_Quotient_rec___boxed(lean_object*, lean_object*, lean_object*);
@@ -92,6 +94,7 @@ lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_cond(lean_object*);
 lean_object* l_Decidable_byCases___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___at_Quotient_DecidableEq___spec__1(lean_object*, lean_object*);
+uint8_t l_toBoolUsing___rarg(uint8_t);
 lean_object* l_Eq_ndrecOn___rarg___boxed(lean_object*);
 lean_object* l_Quotient_mk(lean_object*, lean_object*);
 lean_object* l_Quotient_liftOn___rarg(lean_object*, lean_object*, lean_object*);
@@ -108,6 +111,7 @@ lean_object* l_decidableOfDecidableOfEq___rarg___boxed(lean_object*, lean_object
 lean_object* l___private_Init_Core_20__funSetoid(lean_object*, lean_object*);
 lean_object* l_EqvGen_Setoid(lean_object*, lean_object*);
 lean_object* l_Function_const___rarg(lean_object*, lean_object*);
+lean_object* l_toBoolUsing___rarg___boxed(lean_object*);
 lean_object* l_idDelta(lean_object*);
 uint8_t l_Or_Decidable___rarg(uint8_t, uint8_t);
 lean_object* l_cast___rarg___boxed(lean_object*);
@@ -214,6 +218,7 @@ lean_object* l_Fun_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_and___boxed(lean_object*, lean_object*);
 lean_object* l_Eq_ndrec(lean_object*, lean_object*, lean_object*);
 lean_object* l_Sum_sizeof___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_toBoolUsing(lean_object*);
 lean_object* l_Subtype_Inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_ite___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Eq_ndrec___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -248,6 +253,7 @@ lean_object* l_inline___rarg___boxed(lean_object*);
 lean_object* l_Quotient_recOnSubsingleton(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_liftOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Decidable_recOnFalse___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_condEq(lean_object*);
 lean_object* l_PUnit_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_Decidable_recOnTrue___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_cast(lean_object*, lean_object*, lean_object*);
@@ -1505,6 +1511,43 @@ lean_dec(x_2);
 return x_5;
 }
 }
+lean_object* l_condEq___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_apply_1(x_3, lean_box(0));
+return x_4;
+}
+else
+{
+lean_object* x_5; 
+lean_dec(x_3);
+x_5 = lean_apply_1(x_2, lean_box(0));
+return x_5;
+}
+}
+}
+lean_object* l_condEq(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_condEq___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_condEq___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_condEq___rarg(x_4, x_2, x_3);
+return x_5;
+}
+}
 uint8_t l_or(uint8_t x_1, uint8_t x_2) {
 _start:
 {
@@ -1832,6 +1875,31 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_beqOfEq___rarg), 3, 0);
 return x_2;
+}
+}
+uint8_t l_toBoolUsing___rarg(uint8_t x_1) {
+_start:
+{
+return x_1;
+}
+}
+lean_object* l_toBoolUsing(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_toBoolUsing___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_toBoolUsing___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_toBoolUsing___rarg(x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 uint8_t _init_l_True_Decidable() {

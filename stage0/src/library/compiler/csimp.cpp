@@ -1534,6 +1534,19 @@ class csimp_fn {
         return r;
     }
 
+    /* Applies `Bool.casesOn x false true` ==> `x`
+
+       This transformation is often applicable to code that goes back and forth between `Decidable` and `Bool`.
+       After `erase_irrelevant` both are `Bool`. */
+    optional<expr> is_identity_bool_cases_on (inductive_val const & I_val, buffer<expr> const & args) {
+        if (m_before_erasure) return none_expr();
+        if (args.size() == 3 && I_val.to_constant_val().get_name() == get_bool_name() &&
+            args[1] == mk_bool_false() && args[2] == mk_bool_true()) {
+            return some_expr(args[0]);
+        }
+        return none_expr();
+    }
+
     expr visit_cases(expr const & e, bool is_let_val) {
         buffer<expr> args;
         expr const & c = get_app_args(e, args);
@@ -1545,6 +1558,10 @@ class csimp_fn {
 
         if (is_nat_lit(major)) {
             major = nat_lit_to_constructor(major);
+        }
+
+        if (optional<expr> r = is_identity_bool_cases_on(I_val, args)) {
+            return *r;
         }
 
         if (is_constructor_app(env(), major)) {

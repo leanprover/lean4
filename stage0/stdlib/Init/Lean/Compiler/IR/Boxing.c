@@ -180,24 +180,13 @@ lean_object* x_2; lean_object* x_3; uint8_t x_4;
 x_2 = lean_ctor_get(x_1, 1);
 x_3 = l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
 x_4 = lean_string_dec_eq(x_2, x_3);
-if (x_4 == 0)
+return x_4;
+}
+else
 {
 uint8_t x_5; 
 x_5 = 0;
 return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
 }
 }
 }

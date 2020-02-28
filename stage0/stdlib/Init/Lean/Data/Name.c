@@ -80,7 +80,6 @@ uint8_t l_Lean_Name_isAtomic(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts(lean_object*);
 lean_object* l_Lean_NameMap_HasEmptyc(lean_object*);
-uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_Lean_Name_isInternal___main___boxed(lean_object*);
 lean_object* l_Lean_NameMap_find_x3f(lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -1002,10 +1001,9 @@ return x_1;
 uint8_t l_Lean_Name_DecidableRel(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; 
+uint8_t x_3; 
 x_3 = l_Lean_Name_quickLt(x_1, x_2);
-x_4 = l_coeDecidableEq(x_3);
-return x_4;
+return x_3;
 }
 }
 lean_object* l_Lean_Name_DecidableRel___boxed(lean_object* x_1, lean_object* x_2) {

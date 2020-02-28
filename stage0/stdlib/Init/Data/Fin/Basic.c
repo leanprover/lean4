@@ -491,18 +491,7 @@ _start:
 {
 uint8_t x_3; 
 x_3 = lean_nat_dec_eq(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = 1;
-return x_5;
-}
+return x_3;
 }
 }
 lean_object* l_Fin_DecidableEq(lean_object* x_1) {

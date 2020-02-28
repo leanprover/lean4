@@ -465,32 +465,21 @@ lean_object* x_26; lean_object* x_27; uint8_t x_28;
 x_26 = lean_ctor_get(x_1, 0);
 x_27 = lean_ctor_get(x_2, 0);
 x_28 = l_Lean_Literal_lt(x_26, x_27);
-if (x_28 == 0)
-{
-uint8_t x_29; 
-x_29 = 0;
-return x_29;
+return x_28;
 }
 else
 {
-uint8_t x_30; 
-x_30 = 1;
-return x_30;
-}
-}
-else
-{
-lean_object* x_31; 
-x_31 = lean_box(0);
-x_3 = x_31;
+lean_object* x_29; 
+x_29 = lean_box(0);
+x_3 = x_29;
 goto block_7;
 }
 }
 default: 
 {
-lean_object* x_32; 
-x_32 = lean_box(0);
-x_3 = x_32;
+lean_object* x_30; 
+x_30 = lean_box(0);
+x_3 = x_30;
 goto block_7;
 }
 }

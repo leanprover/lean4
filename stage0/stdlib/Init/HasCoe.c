@@ -371,18 +371,7 @@ return lean_box(0);
 uint8_t l_Legacy_coeDecidableEq(uint8_t x_1) {
 _start:
 {
-if (x_1 == 0)
-{
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
+return x_1;
 }
 }
 lean_object* l_Legacy_coeDecidableEq___boxed(lean_object* x_1) {

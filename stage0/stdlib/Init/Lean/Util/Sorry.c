@@ -81,16 +81,19 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_ctor_get(x_4, 1);
 x_7 = l_Lean_Expr_isSorry___closed__1;
 x_8 = lean_string_dec_eq(x_6, x_7);
-if (x_8 == 0)
+return x_8;
+}
+else
 {
 uint8_t x_9; 
 x_9 = 0;
 return x_9;
 }
+}
 else
 {
 uint8_t x_10; 
-x_10 = 1;
+x_10 = 0;
 return x_10;
 }
 }
@@ -113,20 +116,6 @@ else
 uint8_t x_13; 
 x_13 = 0;
 return x_13;
-}
-}
-else
-{
-uint8_t x_14; 
-x_14 = 0;
-return x_14;
-}
-}
-else
-{
-uint8_t x_15; 
-x_15 = 0;
-return x_15;
 }
 }
 }
@@ -212,18 +201,21 @@ else
 lean_object* x_19; uint8_t x_20; 
 x_19 = l_Bool_HasRepr___closed__2;
 x_20 = lean_string_dec_eq(x_14, x_19);
-if (x_20 == 0)
+return x_20;
+}
+}
+else
 {
 uint8_t x_21; 
 x_21 = 0;
 return x_21;
 }
+}
 else
 {
 uint8_t x_22; 
-x_22 = 1;
+x_22 = 0;
 return x_22;
-}
 }
 }
 else
@@ -240,6 +232,7 @@ x_24 = 0;
 return x_24;
 }
 }
+}
 else
 {
 uint8_t x_25; 
@@ -252,7 +245,6 @@ else
 uint8_t x_26; 
 x_26 = 0;
 return x_26;
-}
 }
 }
 else
@@ -274,20 +266,6 @@ else
 uint8_t x_29; 
 x_29 = 0;
 return x_29;
-}
-}
-else
-{
-uint8_t x_30; 
-x_30 = 0;
-return x_30;
-}
-}
-else
-{
-uint8_t x_31; 
-x_31 = 0;
-return x_31;
 }
 }
 }

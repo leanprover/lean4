@@ -230,16 +230,19 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = l___private_Init_Lean_Compiler_InitAttr_2__isUnitType___closed__1;
 x_6 = lean_string_dec_eq(x_4, x_5);
-if (x_6 == 0)
+return x_6;
+}
+else
 {
 uint8_t x_7; 
 x_7 = 0;
 return x_7;
 }
+}
 else
 {
 uint8_t x_8; 
-x_8 = 1;
+x_8 = 0;
 return x_8;
 }
 }
@@ -248,20 +251,6 @@ else
 uint8_t x_9; 
 x_9 = 0;
 return x_9;
-}
-}
-else
-{
-uint8_t x_10; 
-x_10 = 0;
-return x_10;
-}
-}
-else
-{
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
 }
 }
 }

@@ -208,25 +208,14 @@ uint32_t x_7; uint32_t x_8; uint8_t x_9;
 x_7 = lean_string_utf8_get(x_2, x_4);
 x_8 = 95;
 x_9 = x_7 == x_8;
-if (x_9 == 0)
+return x_9;
+}
+}
+else
 {
 uint8_t x_10; 
 x_10 = 0;
 return x_10;
-}
-else
-{
-uint8_t x_11; 
-x_11 = 1;
-return x_11;
-}
-}
-}
-else
-{
-uint8_t x_12; 
-x_12 = 0;
-return x_12;
 }
 }
 }

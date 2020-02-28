@@ -338,20 +338,9 @@ return x_13;
 }
 else
 {
-uint8_t x_14; 
-x_14 = l_List_hasDecEq___main___rarg(x_1, x_8, x_10);
-if (x_14 == 0)
-{
-uint8_t x_15; 
-x_15 = 0;
-return x_15;
-}
-else
-{
-uint8_t x_16; 
-x_16 = 1;
-return x_16;
-}
+x_2 = x_8;
+x_3 = x_10;
+goto _start;
 }
 }
 }
@@ -457,20 +446,9 @@ return x_13;
 }
 else
 {
-uint8_t x_14; 
-x_14 = l_List_hasDecEq___main___at_List_DecidableEq___spec__1___rarg(x_1, x_8, x_10);
-if (x_14 == 0)
-{
-uint8_t x_15; 
-x_15 = 0;
-return x_15;
-}
-else
-{
-uint8_t x_16; 
-x_16 = 1;
-return x_16;
-}
+x_2 = x_8;
+x_3 = x_10;
+goto _start;
 }
 }
 }
@@ -3893,41 +3871,30 @@ x_15 = lean_unbox(x_14);
 lean_dec(x_14);
 if (x_15 == 0)
 {
-uint8_t x_16; 
-x_16 = l_List_hasDecidableLt___main___rarg(x_1, x_2, x_9, x_11);
-if (x_16 == 0)
+x_3 = x_9;
+x_4 = x_11;
+goto _start;
+}
+else
 {
 uint8_t x_17; 
+lean_dec(x_11);
+lean_dec(x_9);
+lean_dec(x_2);
 x_17 = 0;
 return x_17;
+}
 }
 else
 {
 uint8_t x_18; 
-x_18 = 1;
-return x_18;
-}
-}
-else
-{
-uint8_t x_19; 
-lean_dec(x_11);
-lean_dec(x_9);
-lean_dec(x_2);
-x_19 = 0;
-return x_19;
-}
-}
-else
-{
-uint8_t x_20; 
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_2);
-x_20 = 1;
-return x_20;
+x_18 = 1;
+return x_18;
 }
 }
 }
@@ -4052,41 +4019,30 @@ x_15 = lean_unbox(x_14);
 lean_dec(x_14);
 if (x_15 == 0)
 {
-uint8_t x_16; 
-x_16 = l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___rarg(x_1, x_2, x_9, x_11);
-if (x_16 == 0)
+x_3 = x_9;
+x_4 = x_11;
+goto _start;
+}
+else
 {
 uint8_t x_17; 
+lean_dec(x_11);
+lean_dec(x_9);
+lean_dec(x_2);
 x_17 = 0;
 return x_17;
+}
 }
 else
 {
 uint8_t x_18; 
-x_18 = 1;
-return x_18;
-}
-}
-else
-{
-uint8_t x_19; 
-lean_dec(x_11);
-lean_dec(x_9);
-lean_dec(x_2);
-x_19 = 0;
-return x_19;
-}
-}
-else
-{
-uint8_t x_20; 
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_2);
-x_20 = 1;
-return x_20;
+x_18 = 1;
+return x_18;
 }
 }
 }

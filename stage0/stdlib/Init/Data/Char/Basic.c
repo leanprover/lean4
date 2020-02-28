@@ -277,18 +277,7 @@ _start:
 {
 uint8_t x_3; 
 x_3 = x_1 == x_2;
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = 1;
-return x_5;
-}
+return x_3;
 }
 }
 lean_object* l_Char_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
@@ -328,31 +317,20 @@ if (x_5 == 0)
 uint32_t x_6; uint8_t x_7; 
 x_6 = 10;
 x_7 = x_1 == x_6;
-if (x_7 == 0)
+return x_7;
+}
+else
 {
 uint8_t x_8; 
-x_8 = 0;
+x_8 = 1;
 return x_8;
+}
 }
 else
 {
 uint8_t x_9; 
 x_9 = 1;
 return x_9;
-}
-}
-else
-{
-uint8_t x_10; 
-x_10 = 1;
-return x_10;
-}
-}
-else
-{
-uint8_t x_11; 
-x_11 = 1;
-return x_11;
 }
 }
 }

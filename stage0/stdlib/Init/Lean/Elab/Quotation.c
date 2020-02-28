@@ -1065,31 +1065,20 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_3 = lean_ctor_get(x_2, 1);
 x_4 = l_Lean_Parser_mkAntiquot___closed__1;
 x_5 = lean_string_dec_eq(x_3, x_4);
-if (x_5 == 0)
+return x_5;
+}
+else
 {
 uint8_t x_6; 
 x_6 = 0;
 return x_6;
 }
+}
 else
 {
 uint8_t x_7; 
-x_7 = 1;
+x_7 = 0;
 return x_7;
-}
-}
-else
-{
-uint8_t x_8; 
-x_8 = 0;
-return x_8;
-}
-}
-else
-{
-uint8_t x_9; 
-x_9 = 0;
-return x_9;
 }
 }
 }

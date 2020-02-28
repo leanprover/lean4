@@ -218,48 +218,37 @@ else
 {
 uint8_t x_11; 
 x_11 = lean_ctor_get_uint8(x_2, 0);
-if (x_11 == 0)
+return x_11;
+}
+}
+else
 {
 uint8_t x_12; 
 x_12 = 0;
 return x_12;
-}
-else
-{
-uint8_t x_13; 
-x_13 = 1;
-return x_13;
-}
-}
-}
-else
-{
-uint8_t x_14; 
-x_14 = 0;
-return x_14;
 }
 }
 case 3:
 {
 if (lean_obj_tag(x_2) == 3)
 {
-lean_object* x_15; uint8_t x_16; 
-x_15 = lean_ctor_get(x_2, 0);
-x_16 = lean_nat_dec_eq(x_15, x_15);
-return x_16;
+lean_object* x_13; uint8_t x_14; 
+x_13 = lean_ctor_get(x_2, 0);
+x_14 = lean_nat_dec_eq(x_13, x_13);
+return x_14;
 }
 else
 {
-uint8_t x_17; 
-x_17 = 0;
-return x_17;
+uint8_t x_15; 
+x_15 = 0;
+return x_15;
 }
 }
 default: 
 {
-uint8_t x_18; 
-x_18 = 0;
-return x_18;
+uint8_t x_16; 
+x_16 = 0;
+return x_16;
 }
 }
 }

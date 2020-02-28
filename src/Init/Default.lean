@@ -13,4 +13,4 @@ import Init.System
 import Init.Util
 import Init.Fix
 import Init.LeanInit
-import Init.MaxSharing
+import Init.ShareCommon

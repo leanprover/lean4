@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-extern "C" uint8 lean_maxsharing_eq(b_obj_arg o1, b_obj_arg o2) {
+extern "C" uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     lean_assert(!lean_is_scalar(o1));
     lean_assert(!lean_is_scalar(o2));
     size_t sz1 = lean_object_byte_size(o1);
@@ -25,7 +25,11 @@ extern "C" uint8 lean_maxsharing_eq(b_obj_arg o1, b_obj_arg o2) {
     return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
 }
 
-extern "C" usize lean_maxsharing_hash(b_obj_arg o) {
+extern "C" uint8 lean_maxsharing_eq(b_obj_arg o1, b_obj_arg o2) {
+    return lean_sharecommon_eq(o1, o2);
+}
+
+extern "C" usize lean_sharecommon_hash(b_obj_arg o) {
     lean_assert(!lean_is_scalar(o));
     size_t sz = lean_object_byte_size(o);
     size_t header_sz = sizeof(lean_object);
@@ -33,6 +37,10 @@ extern "C" usize lean_maxsharing_hash(b_obj_arg o) {
     unsigned init = hash(lean_ptr_tag(o), lean_ptr_other(o));
     // hash body
     return hash_str(sz - header_sz, reinterpret_cast<char const *>(o) + header_sz, init);
+}
+
+extern "C" usize lean_maxsharing_hash(b_obj_arg o) {
+    return lean_sharecommon_hash(o);
 }
 
 // unsafe def mkObjectMap : Unit → ObjectMap
@@ -71,6 +79,14 @@ static obj_res mk_pair(obj_arg a, obj_arg b) {
     return r;
 }
 
+extern "C" obj_res lean_sharecommon_mk_state(obj_arg) {
+    return mk_pair(lean_mk_object_map(lean_box(0)), lean_mk_object_set(lean_box(0)));
+}
+
+extern "C" obj_res lean_sharecommon_mk_pstate(obj_arg) {
+    return mk_pair(lean_mk_object_pmap(lean_box(0)), lean_mk_object_pset(lean_box(0)));
+}
+
 extern "C" obj_res lean_maxsharing_mk_state(obj_arg) {
     return mk_pair(lean_mk_object_map(lean_box(0)), lean_mk_object_set(lean_box(0)));
 }
@@ -79,19 +95,19 @@ extern "C" obj_res lean_maxsharing_mk_pstate(obj_arg) {
     return mk_pair(lean_mk_object_pmap(lean_box(0)), lean_mk_object_pset(lean_box(0)));
 }
 
-class max_sharing_state_core {
+class sharecommon_state_core {
 protected:
     object * m_map;
     object * m_set;
 public:
-    max_sharing_state_core(obj_arg s) {
+    sharecommon_state_core(obj_arg s) {
         m_map = lean_ctor_get(s, 0); lean_inc(m_map);
         m_set = lean_ctor_get(s, 1); lean_inc(m_set);
-        // std::cout << "max_sharing_state_core " << m_map << " " << m_set << std::endl;
+        // std::cout << "sharecommon_state_core " << m_map << " " << m_set << std::endl;
         lean_dec(s);
     }
 
-    ~max_sharing_state_core() {
+    ~sharecommon_state_core() {
         lean_dec(m_map);
         lean_dec(m_set);
     }
@@ -104,9 +120,9 @@ public:
     }
 };
 
-class max_sharing_state : public max_sharing_state_core {
+class sharecommon_state : public sharecommon_state_core {
 public:
-    max_sharing_state(obj_arg s):max_sharing_state_core(s) {}
+    sharecommon_state(obj_arg s):sharecommon_state_core(s) {}
 
     obj_res map_find(b_obj_arg k) {
         lean_inc(m_map); lean_inc(k);
@@ -127,9 +143,9 @@ public:
     }
 };
 
-class max_sharing_pstate : public max_sharing_state_core {
+class sharecommon_pstate : public sharecommon_state_core {
 public:
-    max_sharing_pstate(obj_arg s):max_sharing_state_core(s) {}
+    sharecommon_pstate(obj_arg s):sharecommon_state_core(s) {}
 
     obj_res map_find(b_obj_arg k) {
         lean_inc(m_map); lean_inc(k);
@@ -151,7 +167,7 @@ public:
 };
 
 template<typename state>
-class max_sharing_fn {
+class sharecommon_fn {
     state                     m_state;
     std::vector<lean_object*> m_children;
     std::vector<lean_object*> m_todo;
@@ -284,7 +300,7 @@ class max_sharing_fn {
     }
 
 public:
-    max_sharing_fn(obj_arg s):m_state(s) {
+    sharecommon_fn(obj_arg s):m_state(s) {
     }
 
     obj_res operator()(obj_arg a) {
@@ -319,14 +335,23 @@ public:
     }
 };
 
+// def State.shareCommon {α} (s : State) (a : α) : α × State
+extern "C" obj_res lean_state_sharecommon(obj_arg s, obj_arg a) {
+    return sharecommon_fn<sharecommon_state>(s)(a);
+}
+
+// def PersistentState.shareCommon {α} (s : PersistentState) (a : α) : α × PersistentState
+extern "C" obj_res lean_persistent_state_sharecommon(obj_arg s, obj_arg a) {
+    return sharecommon_fn<sharecommon_pstate>(s)(a);
+}
 
 // def State.maxSharing {α} (s : State) (a : α) : α × State
 extern "C" obj_res lean_state_maxsharing(obj_arg s, obj_arg a) {
-    return max_sharing_fn<max_sharing_state>(s)(a);
+    return sharecommon_fn<sharecommon_state>(s)(a);
 }
 
 // def PersistentState.maxSharing {α} (s : PersistentState) (a : α) : α × PersistentState
 extern "C" obj_res lean_persistent_state_maxsharing(obj_arg s, obj_arg a) {
-    return max_sharing_fn<max_sharing_pstate>(s)(a);
+    return sharecommon_fn<sharecommon_pstate>(s)(a);
 }
 };

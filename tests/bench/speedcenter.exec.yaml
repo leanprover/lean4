@@ -48,8 +48,8 @@
     cwd: ../compiler/
     cmd: |
       set -eu
-      echo -n 'sum binary sizes: '
-      for f in *.lean; do ../bench/compile.sh $f; echo -ne "$f.out\0"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      printf 'sum binary sizes: '
+      for f in *.lean; do ../bench/compile.sh $f; printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:

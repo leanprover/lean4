@@ -306,18 +306,6 @@ abbrev DecidableEq (α : Sort u) :=
 def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (a = b) :=
 s a b
 
-class inductive SemiDeciable (p : Prop)
-| unknown {}     : SemiDeciable
-| isTrue (h : p) : SemiDeciable
-
-def Decidable.toSemiDecidable {p : Prop} (d : Decidable p) : SemiDeciable p :=
-match d with
-| Decidable.isTrue h => SemiDeciable.isTrue h
-| _                  => SemiDeciable.unknown
-
-instance SemiDeciable.ofDecidable {p : Prop} [d : Decidable p] : SemiDeciable p :=
-d.toSemiDecidable
-
 inductive Option (α : Type u)
 | none {} : Option
 | some (val : α) : Option

@@ -47,7 +47,7 @@ k (ptrAddrUnsafe a)
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
 if ptrAddrUnsafe a == ptrAddrUnsafe b then true else k ()
 
-inductive PtrEqResult {α : Type u} (x y : α) : Prop
+inductive PtrEqResult {α : Type u} (x y : α) : Type
 | unknown {}          : PtrEqResult
 | yes     (h : x = y) : PtrEqResult
 

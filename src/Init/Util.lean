@@ -47,7 +47,7 @@ k (ptrAddrUnsafe a)
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
 if ptrAddrUnsafe a == ptrAddrUnsafe b then true else k ()
 
-@[inline] unsafe def withPtrEqSubsingletonUnsafe {α : Type u} {β : Type v} [Subsingleton β] (a b : α) (k : SemiDeciable (a = b) → β) : β :=
+@[inline] unsafe def withPtrEqResultUnsafe {α : Type u} {β : Type v} [Subsingleton β] (a b : α) (k : SemiDeciable (a = b) → β) : β :=
 if ptrAddrUnsafe a == ptrAddrUnsafe b then k (SemiDeciable.isTrue lcProof) else k SemiDeciable.unknown
 
 @[implementedBy withPtrEqUnsafe]
@@ -61,8 +61,9 @@ condEq b
   (fun h => isTrue (ofBoolUsingEqTrue h))
   (fun h => isFalse (ofBoolUsingEqFalse h))
 
-@[implementedBy withPtrEqSubsingletonUnsafe]
-def withPtrEqSubsingleton {α : Type u} {β : Type v} [Subsingleton β] (a b : α) (k : SemiDeciable (a = b) → β) : β :=
+/-- Similar to `withPtrEq`, but executes the continuation `k` with the "result" of the pointer equality test. -/
+@[implementedBy withPtrEqResultUnsafe]
+def withPtrEqResult {α : Type u} {β : Type v} [Subsingleton β] (a b : α) (k : SemiDeciable (a = b) → β) : β :=
 k SemiDeciable.unknown
 
 @[implementedBy withPtrAddrUnsafe]

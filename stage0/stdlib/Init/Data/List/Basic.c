@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_List_HasAppend(lean_object*);
 lean_object* l_List_erase___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_replace(lean_object*);
 lean_object* l_List_foldl___main(lean_object*, lean_object*);
 lean_object* l_List_isEqv___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_eraseDupsAux___main___rarg(lean_object*, lean_object*, lean_object*);
@@ -52,6 +53,7 @@ lean_object* l_List_isPrefixOf___main(lean_object*);
 lean_object* l_List_filterAux___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverseAux(lean_object*);
 lean_object* l_List_lengthAux___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_List_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isSuffixOf___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isPrefixOf___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_isPrefixOf___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -126,6 +128,7 @@ lean_object* l_List_init___rarg(lean_object*);
 lean_object* l_List_isSuffixOf(lean_object*);
 uint8_t l_List_or(lean_object*);
 uint8_t l_List_isPrefixOf___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_replace___main(lean_object*);
 lean_object* l_List_replicate(lean_object*);
 lean_object* l_List_isPrefixOf___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg___boxed(lean_object*, lean_object*);
@@ -177,6 +180,7 @@ lean_object* l_List_partitionAux(lean_object*);
 lean_object* l_List_isEmpty(lean_object*);
 lean_object* l_List_drop___rarg(lean_object*, lean_object*);
 lean_object* l_List_take___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_List_replace___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_span___rarg(lean_object*, lean_object*);
 lean_object* l_List_hasDecEq___main(lean_object*);
 lean_object* l_List_erase(lean_object*);
@@ -1878,6 +1882,109 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_List_findSome_x3f___rarg), 2, 0);
 return x_3;
+}
+}
+lean_object* l_List_replace___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_2);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_1);
+lean_inc(x_3);
+lean_inc(x_6);
+x_8 = lean_apply_2(x_1, x_6, x_3);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; 
+x_10 = l_List_replace___main___rarg(x_1, x_7, x_3, x_4);
+lean_ctor_set(x_2, 1, x_10);
+return x_2;
+}
+else
+{
+lean_dec(x_6);
+lean_dec(x_3);
+lean_dec(x_1);
+lean_ctor_set(x_2, 0, x_4);
+return x_2;
+}
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = lean_ctor_get(x_2, 1);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_2);
+lean_inc(x_1);
+lean_inc(x_3);
+lean_inc(x_11);
+x_13 = lean_apply_2(x_1, x_11, x_3);
+x_14 = lean_unbox(x_13);
+lean_dec(x_13);
+if (x_14 == 0)
+{
+lean_object* x_15; lean_object* x_16; 
+x_15 = l_List_replace___main___rarg(x_1, x_12, x_3, x_4);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_11);
+lean_ctor_set(x_16, 1, x_15);
+return x_16;
+}
+else
+{
+lean_object* x_17; 
+lean_dec(x_11);
+lean_dec(x_3);
+lean_dec(x_1);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_4);
+lean_ctor_set(x_17, 1, x_12);
+return x_17;
+}
+}
+}
+}
+}
+lean_object* l_List_replace___main(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_replace___main___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_List_replace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_List_replace___main___rarg(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_List_replace(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_replace___rarg), 4, 0);
+return x_2;
 }
 }
 uint8_t l_List_elem___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

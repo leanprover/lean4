@@ -96,6 +96,7 @@ lean_object* l_Lean_Elab_Command_elabDefLike___lambda__2___boxed(lean_object*, l
 uint8_t l_Lean_Elab_Command_DefKind_isTheorem(uint8_t);
 extern lean_object* l_Lean_Elab_Command_withDeclId___closed__3;
 lean_object* l_Lean_Elab_Command_sortDeclLevelParams(lean_object*, lean_object*);
+extern lean_object* l_HashSet_Inhabited___closed__1;
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__3;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabDefLike___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +125,6 @@ lean_object* l_Lean_Elab_Term_elabBinders___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_Elab_Command_removeUnused___closed__1;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-extern lean_object* l_HashMap_Inhabited___closed__1;
 uint8_t l_Lean_Elab_Command_DefKind_isDefOrOpaque(uint8_t);
 lean_object* lean_task_pure(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_7__mkTermState(lean_object*);
@@ -848,7 +848,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_HashMap_Inhabited___closed__1;
+x_2 = l_HashSet_Inhabited___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -1342,7 +1342,7 @@ lean_object* _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_HashMap_Inhabited___closed__1;
+x_1 = l_HashSet_Inhabited___closed__1;
 x_2 = l_Array_empty___closed__1;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);

@@ -165,6 +165,12 @@ def findSome? (f : α → Option β) : List α → Option β
   | some b => some b
   | none   => findSome? as
 
+def replace [HasBeq α] : List α → α → α → List α
+| [],    _, _ => []
+| a::as, b, c => match a == b with
+  | true  => c::as
+  | flase => a :: (replace as b c)
+
 def elem [HasBeq α] (a : α) : List α → Bool
 | []    => false
 | b::bs => match a == b with

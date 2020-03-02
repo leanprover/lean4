@@ -25,10 +25,6 @@ extern "C" uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
 }
 
-extern "C" uint8 lean_maxsharing_eq(b_obj_arg o1, b_obj_arg o2) {
-    return lean_sharecommon_eq(o1, o2);
-}
-
 extern "C" usize lean_sharecommon_hash(b_obj_arg o) {
     lean_assert(!lean_is_scalar(o));
     size_t sz = lean_object_byte_size(o);
@@ -37,10 +33,6 @@ extern "C" usize lean_sharecommon_hash(b_obj_arg o) {
     unsigned init = hash(lean_ptr_tag(o), lean_ptr_other(o));
     // hash body
     return hash_str(sz - header_sz, reinterpret_cast<char const *>(o) + header_sz, init);
-}
-
-extern "C" usize lean_maxsharing_hash(b_obj_arg o) {
-    return lean_sharecommon_hash(o);
 }
 
 // unsafe def mkObjectMap : Unit → ObjectMap
@@ -84,14 +76,6 @@ extern "C" obj_res lean_sharecommon_mk_state(obj_arg) {
 }
 
 extern "C" obj_res lean_sharecommon_mk_pstate(obj_arg) {
-    return mk_pair(lean_mk_object_pmap(lean_box(0)), lean_mk_object_pset(lean_box(0)));
-}
-
-extern "C" obj_res lean_maxsharing_mk_state(obj_arg) {
-    return mk_pair(lean_mk_object_map(lean_box(0)), lean_mk_object_set(lean_box(0)));
-}
-
-extern "C" obj_res lean_maxsharing_mk_pstate(obj_arg) {
     return mk_pair(lean_mk_object_pmap(lean_box(0)), lean_mk_object_pset(lean_box(0)));
 }
 
@@ -342,16 +326,6 @@ extern "C" obj_res lean_state_sharecommon(obj_arg s, obj_arg a) {
 
 // def PersistentState.shareCommon {α} (s : PersistentState) (a : α) : α × PersistentState
 extern "C" obj_res lean_persistent_state_sharecommon(obj_arg s, obj_arg a) {
-    return sharecommon_fn<sharecommon_pstate>(s)(a);
-}
-
-// def State.maxSharing {α} (s : State) (a : α) : α × State
-extern "C" obj_res lean_state_maxsharing(obj_arg s, obj_arg a) {
-    return sharecommon_fn<sharecommon_state>(s)(a);
-}
-
-// def PersistentState.maxSharing {α} (s : PersistentState) (a : α) : α × PersistentState
-extern "C" obj_res lean_persistent_state_maxsharing(obj_arg s, obj_arg a) {
     return sharecommon_fn<sharecommon_pstate>(s)(a);
 }
 };

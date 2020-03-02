@@ -380,6 +380,13 @@ std::string olean_of_lean(std::string const & lean_fn) {
 }
 }
 
+void check_optarg(char const * option_name) {
+    if (!optarg) {
+        std::cerr << "error: argument missing for option '-" << option_name << "'" << std::endl;
+        std::exit(1);
+    }
+}
+
 int main(int argc, char ** argv) {
 #if defined(LEAN_EMSCRIPTEN)
     EM_ASM(
@@ -459,9 +466,11 @@ int main(int argc, char ** argv) {
                 display_help(std::cout);
                 return 0;
             case 'c':
+                check_optarg("c");
                 c_output = optarg;
                 break;
             case 'C':
+                check_optarg("C");
                 c_output = optarg;
                 break;
             case 's':
@@ -481,12 +490,15 @@ int main(int argc, char ** argv) {
                 }
                 break;
             case 'M':
+                check_optarg("M");
                 opts = opts.update(get_max_memory_opt_name(), static_cast<unsigned>(atoi(optarg)));
                 break;
             case 'T':
+                check_optarg("T");
                 opts = opts.update(get_timeout_opt_name(), static_cast<unsigned>(atoi(optarg)));
                 break;
             case 't':
+                check_optarg("t");
                 trust_lvl = atoi(optarg);
                 break;
             case 'q':
@@ -500,6 +512,7 @@ int main(int argc, char ** argv) {
                 break;
             case 'D':
                 try {
+                    check_optarg("D");
                     opts = set_config_option(opts, optarg);
                 } catch (lean::exception & ex) {
                     std::cerr << ex.what() << std::endl;
@@ -517,6 +530,7 @@ int main(int argc, char ** argv) {
                 break;
 #if defined(LEAN_DEBUG)
             case 'B':
+                check_optarg("B");
                 lean::enable_debug(optarg);
                 break;
 #endif
@@ -524,6 +538,7 @@ int main(int argc, char ** argv) {
                 new_frontend = true;
                 break;
             case 'p':
+                check_optarg("p");
                 load_plugin(optarg);
                 break;
             default:

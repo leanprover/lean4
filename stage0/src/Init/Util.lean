@@ -47,17 +47,28 @@ k (ptrAddrUnsafe a)
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
 if ptrAddrUnsafe a == ptrAddrUnsafe b then true else k ()
 
+inductive PtrEqResult {α : Type u} (x y : α) : Type
+| unknown {}           : PtrEqResult
+| yesEqual (h : x = y) : PtrEqResult
+
+@[inline] unsafe def withPtrEqResultUnsafe {α : Type u} {β : Type v} [Subsingleton β] (a b : α) (k : PtrEqResult a b → β) : β :=
+if ptrAddrUnsafe a == ptrAddrUnsafe b then k (PtrEqResult.yesEqual lcProof) else k PtrEqResult.unknown
+
 @[implementedBy withPtrEqUnsafe]
 def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
 k ()
 
--- `withPtrEq` for `DecidableEq`
-
+/-- `withPtrEq` for `DecidableEq` -/
 @[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=
 let b := withPtrEq a b (fun _ => toBoolUsing (k ())) (toBoolUsingEqTrue (k ()));
 condEq b
   (fun h => isTrue (ofBoolUsingEqTrue h))
   (fun h => isFalse (ofBoolUsingEqFalse h))
+
+/-- Similar to `withPtrEq`, but executes the continuation `k` with the "result" of the pointer equality test. -/
+@[implementedBy withPtrEqResultUnsafe]
+def withPtrEqResult {α : Type u} {β : Type v} [Subsingleton β] (a b : α) (k : PtrEqResult a b → β) : β :=
+k PtrEqResult.unknown
 
 @[implementedBy withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=

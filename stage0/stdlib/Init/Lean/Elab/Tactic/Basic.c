@@ -302,6 +302,7 @@ lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_MessageData_joinSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_State_inhabited;
+extern lean_object* l_HashSet_Inhabited___closed__1;
 lean_object* l_HashMapImp_find_x3f___at_Lean_Elab_Tactic_evalTactic___main___spec__5(lean_object*, lean_object*);
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalTraceState___closed__1;
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalIntros(lean_object*);
@@ -502,7 +503,6 @@ extern lean_object* l_Lean_Parser_Tactic_seq___elambda__1___closed__1;
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalNestedTacticBlockCurly___closed__2;
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Tactic_getFVarIds___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainModule(lean_object*);
-extern lean_object* l_HashMap_Inhabited___closed__1;
 lean_object* l_Lean_Elab_Tactic_throwUnsupportedSyntax___rarg___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_revert___elambda__1___closed__2;
 lean_object* l_List_foldl___main___at_Lean_Elab_Tactic_tagUntaggedGoals___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1647,7 +1647,7 @@ lean_object* _init_l_Lean_Elab_Tactic_collectMVars___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_HashMap_Inhabited___closed__1;
+x_1 = l_HashSet_Inhabited___closed__1;
 x_2 = l_Array_empty___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

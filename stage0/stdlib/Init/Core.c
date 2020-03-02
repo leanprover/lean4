@@ -39,6 +39,7 @@ lean_object* l_PSigma_HasSizeof(lean_object*, lean_object*);
 lean_object* l_Quotient_recOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_bne___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Squash_mk___rarg___boxed(lean_object*);
 lean_object* l_Nat_HasOne;
 lean_object* l_idRhs___rarg___boxed(lean_object*);
 lean_object* l_arbitrary___rarg___boxed(lean_object*);
@@ -129,6 +130,7 @@ lean_object* l_setoidHasEquiv(lean_object*, lean_object*);
 lean_object* l_PUnit_sizeof(lean_object*);
 lean_object* l_Iff_Decidable(lean_object*, lean_object*);
 lean_object* l_Nat_HasSizeof;
+lean_object* l_Squash_lift___rarg(lean_object*, lean_object*);
 lean_object* l_Ne_Decidable___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Sum_inhabitedLeft___rarg(lean_object*);
 lean_object* l_Quotient_lift_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,6 +191,7 @@ lean_object* l_inferInstance(lean_object*);
 lean_object* l_decidableOfDecidableOfEq(lean_object*, lean_object*);
 lean_object* l_typedExpr(lean_object*);
 lean_object* l_Bool_sizeof___boxed(lean_object*);
+lean_object* l_Squash_mk(lean_object*);
 lean_object* l_PSigma_sizeof___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_sizeof(lean_object*);
 lean_object* l_bit0(lean_object*);
@@ -206,6 +209,7 @@ lean_object* l_bit1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_implies_Decidable___rarg(uint8_t, uint8_t);
 lean_object* l_typedExpr___rarg(lean_object*);
 lean_object* l_idRhs___rarg(lean_object*);
+lean_object* l_Squash_lift(lean_object*, lean_object*, lean_object*);
 lean_object* l_Prop_Inhabited;
 lean_object* l_inferInstanceAs___rarg(lean_object*);
 lean_object* l_Eq_mp(lean_object*, lean_object*, lean_object*);
@@ -308,6 +312,7 @@ lean_object* l_implies_Decidable(lean_object*, lean_object*);
 uint8_t l_strictAnd(uint8_t, uint8_t);
 lean_object* l_Quotient_liftOn_u2082___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PSigma_HasSizeof___rarg(lean_object*, lean_object*);
+lean_object* l_Squash_mk___rarg(lean_object*);
 lean_object* l_Thunk_pure___boxed(lean_object*, lean_object*);
 lean_object* l_decidableOfDecidableOfIff(lean_object*, lean_object*);
 lean_object* l_bit0___rarg(lean_object*, lean_object*);
@@ -3571,6 +3576,46 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Function_swap___rarg), 3, 0);
+return x_4;
+}
+}
+lean_object* l_Squash_mk___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Squash_mk(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Squash_mk___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_Squash_mk___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Squash_mk___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Squash_lift___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_Squash_lift(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Squash_lift___rarg), 2, 0);
 return x_4;
 }
 }

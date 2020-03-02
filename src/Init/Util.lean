@@ -48,11 +48,11 @@ k (ptrAddrUnsafe a)
 if ptrAddrUnsafe a == ptrAddrUnsafe b then true else k ()
 
 inductive PtrEqResult {α : Type u} (x y : α) : Type
-| unknown {}          : PtrEqResult
-| yes     (h : x = y) : PtrEqResult
+| unknown {}           : PtrEqResult
+| yesEqual (h : x = y) : PtrEqResult
 
 @[inline] unsafe def withPtrEqResultUnsafe {α : Type u} {β : Type v} [Subsingleton β] (a b : α) (k : PtrEqResult a b → β) : β :=
-if ptrAddrUnsafe a == ptrAddrUnsafe b then k (PtrEqResult.yes lcProof) else k PtrEqResult.unknown
+if ptrAddrUnsafe a == ptrAddrUnsafe b then k (PtrEqResult.yesEqual lcProof) else k PtrEqResult.unknown
 
 @[implementedBy withPtrEqUnsafe]
 def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=

@@ -1682,6 +1682,21 @@ fun y x => f x y
 
 end Function
 
+/- Squash -/
+
+def Squash (α : Type u) := Quot (fun (a b : α) => True)
+
+def Squash.mk {α : Type u} (x : α) : Squash α := Quot.mk _ x
+
+theorem Squash.ind {α : Type u} {β : Squash α → Prop} (h : ∀ (a : α), β (Squash.mk a)) : ∀ (q : Squash α), β q :=
+Quot.ind h
+
+@[inline] def Squash.lift {α β} [Subsingleton β] (s : Squash α) (f : α → β) : β :=
+Quot.lift f (fun a b _ => Subsingleton.elim _ _) s
+
+instance Squash.Subsingleton {α} : Subsingleton (Squash α) :=
+⟨Squash.ind (fun (a : α) => Squash.ind (fun (b : α) => Quot.sound trivial))⟩
+
 /- Classical reasoning support -/
 
 namespace Classical

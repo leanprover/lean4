@@ -23,6 +23,10 @@ Prod.fst <$> x s
 
 @[reducible] def StateM (σ α : Type u) : Type u := StateT σ Id α
 
+instance StateM.subsingleton {σ α} [Subsingleton σ] [Subsingleton α] : Subsingleton (StateM σ α) :=
+⟨λ x y => funext $ fun (s : σ) => match x s, y s with
+  | (a₁, s₁), (a₂, s₂) => Subsingleton.elim a₁ a₂ ▸ Subsingleton.elim s₁ s₂ ▸ rfl⟩
+
 namespace StateT
 section
 variables {σ : Type u} {m : Type u → Type v}

@@ -29,7 +29,11 @@ structure Context :=
 (mainFn     : FunId := arbitrary _)
 (mainParams : Array Param := #[])
 
-abbrev M := ReaderT Context (EStateM String String)
+structure State :=
+(code      : String := "")
+(delayInit : NameSet := {})
+
+abbrev M := ReaderT Context (EStateM String State)
 
 def getEnv : M Environment := Context.env <$> read
 def getModName : M Name := Context.modName <$> read
@@ -39,8 +43,12 @@ match findEnvDecl env n with
 | some d => pure d
 | none   => throw ("unknown declaration '" ++ toString n ++ "'")
 
+def isDelayInit (n : Name) : M Bool := do
+st ← get;
+pure $ st.delayInit.contains n
+
 @[inline] def emit {α : Type} [HasToString α] (a : α) : M Unit :=
-modify (fun out => out ++ toString a)
+modify (fun st => { st with code := st.code ++ toString a })
 
 @[inline] def emitLn {α : Type} [HasToString α] (a : α) : M Unit :=
 emit a *> emit "\n"
@@ -56,6 +64,7 @@ match x with
 def emitArg (x : Arg) : M Unit :=
 emit (argToCString x)
 
+@[export lean_to_c_type]
 def toCType : IRType → String
 | IRType.float      => "double"
 | IRType.uint8      => "uint8_t"
@@ -472,6 +481,7 @@ emitLhs z; emit "!lean_is_scalar("; emit x; emitLn ");"
 def toHexDigit (c : Nat) : String :=
 String.singleton c.digitChar
 
+@[export lean_c_quote_string]
 def quoteString (s : String) : String :=
 let q := "\"";
 let q := s.foldl
@@ -612,6 +622,9 @@ emitBlock emitFnBody b;
 emitJPs emitFnBody b;
 emitLn "}"
 
+@[extern "lean_eval_emit_const"]
+constant evalEmitConst (env : @& Environment) (decl : @& Name) : Except String String := arbitrary _
+
 def emitDeclAux (d : Decl) : M Unit := do
 env ← getEnv;
 let (vMap, jpMap) := mkVarJPMaps d;
@@ -619,9 +632,21 @@ adaptReader (fun (ctx : Context) => { jpMap := jpMap, .. ctx }) $ do
 unless (hasInitAttr env d.name) $
   match d with
   | Decl.fdecl f xs t b => do
+    let emitBody : M Unit := do {
+      emitLn " {";
+      when (xs.size > closureMaxArgs && isBoxedName d.name) $
+        xs.size.forM $ fun i => do {
+          let x := xs.get! i;
+          emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
+        };
+      emitLn "_start:";
+      adaptReader (fun (ctx : Context) => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
+      emitLn "}"
+    };
     baseName ← toCName f;
-    emit (toCType t); emit " ";
     if xs.size > 0 then do {
+      emit (toCType t);
+      emit " ";
       emit baseName;
       emit "(";
       if xs.size > closureMaxArgs && isBoxedName d.name then
@@ -632,19 +657,17 @@ unless (hasInitAttr env d.name) $
           let x := xs.get! i;
           emit (toCType x.ty); emit " "; emit x.x
         };
-      emit ")"
-    } else do {
-      emit ("_init_" ++ baseName ++ "()")
-    };
-    emitLn " {";
-    when (xs.size > closureMaxArgs && isBoxedName d.name) $
-      xs.size.forM $ fun i => do {
-        let x := xs.get! i;
-        emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
-      };
-    emitLn "_start:";
-    adaptReader (fun (ctx : Context) => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
-    emitLn "}"
+      emit ")";
+      emitBody
+    } else match evalEmitConst env d.name with
+    | Except.ok code => emit code
+    | Except.error e => do
+      -- TODO: log `e`?
+      modify (fun st => { st with delayInit := st.delayInit.insert d.name });
+      emit (toCType t);
+      emit " ";
+      emit ("_init_" ++ baseName ++ "()");
+      emitBody
   | _ => pure ()
 
 def emitDecl (d : Decl) : M Unit :=
@@ -679,7 +702,8 @@ if isIOUnitInitFn env n then do {
     emitMarkPersistent d n;
     emitLn "lean_dec_ref(res);"
     }
-  | _ => do { emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n }
+  | _ => whenM (isDelayInit d.name) $ do
+    emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
 def emitInitFn : M Unit := do
 env ← getEnv;
@@ -712,8 +736,8 @@ end EmitC
 
 @[export lean_ir_emit_c]
 def emitC (env : Environment) (modName : Name) : Except String String :=
-match (EmitC.main { env := env, modName := modName }).run "" with
-| EStateM.Result.ok    _   s => Except.ok s
+match (EmitC.main { env := env, modName := modName }).run {} with
+| EStateM.Result.ok    _   s => Except.ok s.code
 | EStateM.Result.error err _ => Except.error err
 
 end IR

@@ -85,7 +85,7 @@ LEAN_CASSERT(sizeof(void*) == 8);
 #endif
 
 /* Lean object header */
-typedef struct {
+typedef struct lean_object {
 #if defined(LEAN_COMPRESSED_OBJECT_HEADER)
     /* (high) 8-bits  : tag
               8-bits  : num fields for constructors, element size for scalar arrays
@@ -292,7 +292,7 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
            By setting the last word to 0, we make sure the sharing
            maximizer procedures at `maxsharing.cpp` and `compact.cpp` are
            not affected by uninitialized data at the (sz1 - sz) last bytes.
-           Otherwise, we may mistakenly assume to structurally equal
+           Otherwise, we may mistakenly assume two structurally equal
            objects are not identical because of this uninitialized memory. */
         size_t * end = (size_t*)(((char*)r) + sz1);
         end[-1] = 0;
@@ -604,6 +604,15 @@ static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned ot
     o->m_other    = other;
 #endif
 }
+
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
+// TODO
+//o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | (1ull << LEAN_ST_BIT) | 1;
+#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+#define MK_PERSISTENT_HEADER(tag, other) (((size_t)(tag) << 56) | ((size_t)(other) << 48) | ((size_t)LEAN_PERSISTENT_MEM_KIND << 40) | 1)
+#else
+// TODO
+#endif
 
 /* Remark: we don't need a reference counter for objects that are not stored in the heap.
    Thus, we use the area to store the object size for small objects. */

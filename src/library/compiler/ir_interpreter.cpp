@@ -700,9 +700,8 @@ class interpreter {
                 case type::USize: return *static_cast<size_t *>(e.m_addr);
                 case type::Object:
                 case type::TObject:
+                case type::Irrelevant:
                     return *static_cast<object **>(e.m_addr);
-                default:
-                    throw exception("invalid type");
             }
         } else {
             push_frame(e.m_decl, m_arg_stack.size());
@@ -848,7 +847,7 @@ public:
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
-            r = load(fn, decl_type(e.m_decl)).m_obj;
+            r = box_t(load(fn, decl_type(e.m_decl)), decl_type(e.m_decl));
         } else {
             // First allocate a closure with zero fixed parameters. This is slightly wasteful in the under-application
             // case, but simpler to handle.
@@ -916,6 +915,173 @@ extern "C" object * lean_eval_const(object * env, object * c) {
     try {
         return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
+        return mk_cnstr(0, string_ref(ex.what())).steal();
+    }
+}
+
+extern "C" object * lean_c_quote_string(object * s);
+std::string c_quote_string(b_obj_arg s) {
+    inc(s);
+    object_ref o(lean_c_quote_string(s));
+    return string_to_std(o.raw());
+}
+
+class emit_const_fn {
+    std::stringstream m_ss;
+    std::vector<object*> m_todo;
+    std::unordered_map<object*, std::string, std::hash<object*>, std::equal_to<object*>> m_obj_table;
+    name const & m_base;
+    unsigned m_idx = 0;
+
+    std::string get_name(object * o) {
+        auto it = m_obj_table.find(o);
+        if (it != m_obj_table.end()) {
+            return it->second;
+        } else {
+            m_idx++;
+            m_todo.push_back(o);
+            return m_obj_table[o] = name_mangle(name(m_base, m_idx), *g_mangle_prefix).to_std_string();
+        }
+    }
+
+    void emit_use(object * o) {
+        if (is_scalar(o)) {
+            m_ss << "(lean_object*)" << o;
+        } else {
+            m_ss << "(lean_object*)&" << get_name(o);
+        }
+    }
+
+    void emit_sarray(object * o) {
+        // TODO
+        throw exception("cannot emit sarray");
+        size_t sz        = lean_sarray_size(o);
+        unsigned elem_sz = lean_sarray_elem_size(o);
+        size_t obj_sz = sizeof(lean_sarray_object) + elem_sz*sz;
+        m_ss << "static TODO " << get_name(o) << ";";
+    }
+
+    void emit_string(object * o) {
+        size_t sz        = lean_string_size(o);
+        size_t len       = lean_string_len(o);
+        m_ss << "static struct { lean_string_object m_init; char m_data[" << sz << "]; } " << get_name(o) << " = { "
+                << "MK_PERSISTENT_HEADER(LeanString, 0), "
+                << sz << ", "
+                << sz << ", " // capacity
+                << len << ", "
+                << "{}, " // m_init.m_data
+                << c_quote_string(o) << " };";
+    }
+
+    void emit_constructor(object * o) {
+        unsigned num_objs     = lean_ctor_num_objs(o);
+        if (lean_object_byte_size(o) > sizeof(object) + num_objs * sizeof(object*)) {
+            throw exception("cannot emit unboxed data");
+        }
+
+        m_ss << "static struct { lean_object m_init; lean_object * m_objs[" << num_objs << "]; } " << get_name(o) << " = { "
+          << "MK_PERSISTENT_HEADER(" << num_objs << ", 0), {";
+        for (unsigned i = 0; i < num_objs; i++) {
+            emit_use(cnstr_get(o, i));
+            if (i + 1 != num_objs) {
+                m_ss << ", ";
+            }
+        }
+        m_ss << "} };";
+    }
+
+    void emit_closure(object * o) {
+        throw exception("cannot emit closure");
+        unsigned num_fixed = lean_closure_num_fixed(o);
+        m_ss << "static struct { lean_closure_object m_init; lean_object * m_objs[" << num_fixed << "]; } " << get_name(o) << " = { "
+             << "MK_PERSISTENT_HEADER(LeanClosure, 0), "
+             << "TODO, "
+             << lean_closure_arity(o) << ", "
+             << num_fixed << ", "
+             << "{} , {";  // m_init.m_objs
+        for (unsigned i = 0; i < num_fixed; i++) {
+            emit_use(closure_get(o, i));
+            if (i + 1 != num_fixed) {
+                m_ss << ", ";
+            }
+        }
+        m_ss << "};";
+    }
+
+    void emit_array(object * o) {
+        // TODO
+        throw exception("cannot emit array");
+        m_ss << "static TODO " << get_name(o) << ";";
+        size_t sz = array_size(o);
+        for (size_t i = 0; i < sz; i++) {
+            emit_use(array_get(o, i));
+        }
+    }
+
+public:
+    explicit emit_const_fn(name const & base): m_base(base) {}
+
+    std::string operator()(sstream & ss, object * o) {
+        lean_assert(m_todo.empty());
+        get_name(o);
+        std::vector<std::string> lines;
+        while (!m_todo.empty()) {
+            object * curr = m_todo.back();
+            m_todo.pop_back();
+            if (!lean_is_scalar(curr)) {
+                switch (lean_ptr_tag(curr)) {
+                    case LeanClosure:         emit_closure(curr); break;
+                    case LeanArray:           emit_array(curr); break;
+                    case LeanScalarArray:     emit_sarray(curr); break;
+                    case LeanString:          emit_string(curr); break;
+                    case LeanMPZ:             throw exception("cannot emit mpz"); break;
+                    case LeanThunk:           throw exception("cannot emit thunk"); break;
+                    case LeanTask:            throw exception("cannot emit task"); break;
+                    case LeanRef:             throw exception("cannot emit ref"); break;
+                    case LeanExternal:        throw exception("cannot emit external"); break;
+                    case LeanReserved:        lean_unreachable();
+                    default:                  emit_constructor(curr); break;
+                }
+                lines.push_back(m_ss.str());
+                m_ss = std::stringstream();
+            }
+        }
+        for (int i = lines.size() - 1; i >= 0; i--) {
+            ss << lines[i] << "\n";
+        }
+        emit_use(o);
+        return m_ss.str();
+    }
+};
+
+extern "C" obj_res lean_to_c_type(b_obj_arg ty);
+string_ref to_c_type(type ty) {
+    return string_ref(lean_to_c_type(box(static_cast<size_t>(ty))));
+}
+
+extern "C" object * lean_eval_emit_const(object * o_env, object * o_c) {
+    environment const & env = TO_REF(environment, o_env);
+    name const & c = TO_REF(name, o_c);
+    interpreter interp(env);
+    type ty = decl_type(*find_ir_decl(env, c).get());
+    try {
+        object_ref ret = object_ref(interp.call_boxed(c, 0, nullptr));
+        sstream code;
+        std::string ret_code;
+        if (!type_is_scalar(ty)) {
+            emit_const_fn fn(c);
+            ret_code = fn(code, ret.raw());
+        }
+        code << to_c_type(ty).to_std_string() << " " << name_mangle(c, *g_mangle_prefix).to_std_string() << " = ";
+        if (type_is_scalar(ty)) {
+            code << unbox_t(ret.raw(), ty).m_num;
+        } else {
+            code << ret_code;
+        }
+        code << ";\n";
+        return mk_cnstr(1, mk_string(code.str())).steal();
+    } catch (exception & ex) {
+        std::cerr << "FAIL " << c << ": " << ex.what() << "\n";
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }
 }

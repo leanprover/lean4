@@ -294,6 +294,7 @@ class interpreter {
     };
     // caches symbol lookup successes _and_ failures
     name_map<symbol_cache_entry> m_symbol_cache;
+    bool m_prefer_ir;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
@@ -656,13 +657,15 @@ class interpreter {
             string_ref mangled = name_mangle(fn, *g_mangle_prefix);
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             symbol_cache_entry e_new { get_decl(fn), nullptr, false };
-            // check for boxed version first
-            if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
-                e_new.m_addr = p_boxed;
-                e_new.m_boxed = true;
-            } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
-                // if there is no boxed version, there are no unboxed parameters, so use default version
-                e_new.m_addr = p;
+            if (!m_prefer_ir || decl_tag(e_new.m_decl) == decl_kind::Extern) {
+                // check for boxed version first
+                if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
+                    e_new.m_addr = p_boxed;
+                    e_new.m_boxed = true;
+                } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
+                    // if there is no boxed version, there are no unboxed parameters, so use default version
+                    e_new.m_addr = p;
+                }
             }
             m_symbol_cache.insert(fn, e_new);
             return e_new;
@@ -801,7 +804,22 @@ class interpreter {
     static object * stub_15_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14, object * x_15) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15 }; return interpreter::stub_m_aux(args); }
     static object * stub_16_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14, object * x_15, object * x_16) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16 }; return interpreter::stub_m_aux(args); }
 
-    void * get_stub(unsigned params) {
+public:
+    explicit interpreter(environment const & env, bool prefer_ir = false) : m_env(env), m_prefer_ir(prefer_ir) {
+        m_prev_interpreter = g_interpreter;
+        g_interpreter = this;
+    }
+    ~interpreter() {
+        for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
+            if (!e.m_is_scalar) {
+                dec(e.m_val.m_obj);
+            }
+        });
+        lean_assert(g_interpreter == this);
+        g_interpreter = m_prev_interpreter;
+    }
+
+    static void * get_stub(unsigned params) {
         switch (params) {
             case 0: lean_unreachable();
             case 1: return reinterpret_cast<void *>(stub_1_aux);
@@ -822,20 +840,6 @@ class interpreter {
             case 16: return reinterpret_cast<void *>(stub_16_aux);
             default: return reinterpret_cast<void *>(stub_m_aux);
         }
-    }
-public:
-    explicit interpreter(environment const & env) : m_env(env) {
-        m_prev_interpreter = g_interpreter;
-        g_interpreter = this;
-    }
-    ~interpreter() {
-        for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
-            if (!e.m_is_scalar) {
-                dec(e.m_val.m_obj);
-            }
-        });
-        lean_assert(g_interpreter == this);
-        g_interpreter = m_prev_interpreter;
     }
 
     /** A variant of `call` designed for external uses.
@@ -991,21 +995,31 @@ class emit_const_fn {
     }
 
     void emit_closure(object * o) {
-        throw exception("cannot emit closure");
+        unsigned arity = lean_closure_arity(o);
         unsigned num_fixed = lean_closure_num_fixed(o);
+        void * fun_addr = lean_closure_fun(o);
+        std::string fun_name;
+        unsigned fixed_ignore = 0;
+        if (fun_addr == interpreter::get_stub(arity)) {
+            decl d(lean_closure_get(o, 1), true);
+            fun_name = name_mangle(decl_fun_id(d), *g_mangle_prefix).to_std_string();
+            fixed_ignore = 2;
+        } else {
+            throw exception("cannot emit closure allocated in native code");
+        }
         m_ss << "static struct { lean_closure_object m_init; lean_object * m_objs[" << num_fixed << "]; } " << get_name(o) << " = { "
              << "MK_PERSISTENT_HEADER(LeanClosure, 0), "
-             << "TODO, "
-             << lean_closure_arity(o) << ", "
-             << num_fixed << ", "
+             << fun_name << ", "
+             << arity - fixed_ignore << ", "
+             << num_fixed - fixed_ignore << ", "
              << "{} , {";  // m_init.m_objs
-        for (unsigned i = 0; i < num_fixed; i++) {
+        for (unsigned i = fixed_ignore; i < num_fixed; i++) {
             emit_use(closure_get(o, i));
             if (i + 1 != num_fixed) {
                 m_ss << ", ";
             }
         }
-        m_ss << "};";
+        m_ss << "} };";
     }
 
     void emit_array(object * o) {
@@ -1062,7 +1076,7 @@ string_ref to_c_type(type ty) {
 extern "C" object * lean_eval_emit_const(object * o_env, object * o_c) {
     environment const & env = TO_REF(environment, o_env);
     name const & c = TO_REF(name, o_c);
-    interpreter interp(env);
+    interpreter interp(env, /* prefer_ir */ true);
     type ty = decl_type(*find_ir_decl(env, c).get());
     try {
         object_ref ret = object_ref(interp.call_boxed(c, 0, nullptr));

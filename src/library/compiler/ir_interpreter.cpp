@@ -931,8 +931,7 @@ std::string c_quote_string(b_obj_arg s) {
 }
 
 class emit_const_fn {
-    std::stringstream m_ss;
-    std::vector<object*> m_todo;
+    sstream & m_ss;
     std::unordered_map<object*, std::string, std::hash<object*>, std::equal_to<object*>> m_obj_table;
     name const & m_base;
     unsigned m_idx = 0;
@@ -943,18 +942,18 @@ class emit_const_fn {
             return it->second;
         } else {
             m_idx++;
-            m_todo.push_back(o);
             return m_obj_table[o] = name_mangle(name(m_base, m_idx), *g_mangle_prefix).to_std_string();
         }
     }
 
-    void emit_use(object * o) {
+    void emit_use(object * o, sstream & ss) {
         if (is_scalar(o)) {
-            m_ss << "(lean_object*)" << o;
+            ss << "(lean_object*)" << o;
         } else {
-            m_ss << "(lean_object*)&" << get_name(o);
+            ss << "(lean_object*)&" << get_name(o);
         }
     }
+    void emit_use(object * o) { emit_use(o, m_ss); }
 
     void emit_sarray(object * o) {
         // TODO
@@ -982,6 +981,9 @@ class emit_const_fn {
         if (lean_object_byte_size(o) > sizeof(object) + num_objs * sizeof(object*)) {
             throw exception("cannot emit unboxed data");
         }
+        for (unsigned i = 0; i < num_objs; i++) {
+            emit(cnstr_get(o, i));
+        }
 
         m_ss << "static struct { lean_object m_init; lean_object * m_objs[" << num_objs << "]; } " << get_name(o) << " = { "
           << "MK_PERSISTENT_HEADER(" << num_objs << ", 0), {";
@@ -1007,6 +1009,10 @@ class emit_const_fn {
         } else {
             throw exception("cannot emit closure allocated in native code");
         }
+        for (unsigned i = fixed_ignore; i < num_fixed; i++) {
+            emit(closure_get(o, i));
+        }
+
         m_ss << "static struct { lean_closure_object m_init; lean_object * m_objs[" << num_fixed << "]; } " << get_name(o) << " = { "
              << "MK_PERSISTENT_HEADER(LeanClosure, 0), "
              << fun_name << ", "
@@ -1025,46 +1031,42 @@ class emit_const_fn {
     void emit_array(object * o) {
         // TODO
         throw exception("cannot emit array");
-        m_ss << "static TODO " << get_name(o) << ";";
         size_t sz = array_size(o);
+        for (size_t i = 0; i < sz; i++) {
+            emit(array_get(o, i));
+        }
+
+        m_ss << "static TODO " << get_name(o) << ";";
         for (size_t i = 0; i < sz; i++) {
             emit_use(array_get(o, i));
         }
     }
 
-public:
-    explicit emit_const_fn(name const & base): m_base(base) {}
-
-    std::string operator()(sstream & ss, object * o) {
-        lean_assert(m_todo.empty());
-        get_name(o);
-        std::vector<std::string> lines;
-        while (!m_todo.empty()) {
-            object * curr = m_todo.back();
-            m_todo.pop_back();
-            if (!lean_is_scalar(curr)) {
-                switch (lean_ptr_tag(curr)) {
-                    case LeanClosure:         emit_closure(curr); break;
-                    case LeanArray:           emit_array(curr); break;
-                    case LeanScalarArray:     emit_sarray(curr); break;
-                    case LeanString:          emit_string(curr); break;
-                    case LeanMPZ:             throw exception("cannot emit mpz"); break;
-                    case LeanThunk:           throw exception("cannot emit thunk"); break;
-                    case LeanTask:            throw exception("cannot emit task"); break;
-                    case LeanRef:             throw exception("cannot emit ref"); break;
-                    case LeanExternal:        throw exception("cannot emit external"); break;
-                    case LeanReserved:        lean_unreachable();
-                    default:                  emit_constructor(curr); break;
-                }
-                lines.push_back(m_ss.str());
-                m_ss = std::stringstream();
+    void emit(object * o) {
+        if (!lean_is_scalar(o) && !m_obj_table.count(o)) {
+            switch (lean_ptr_tag(o)) {
+                case LeanClosure:         emit_closure(o); break;
+                case LeanArray:           emit_array(o); break;
+                case LeanScalarArray:     emit_sarray(o); break;
+                case LeanString:          emit_string(o); break;
+                case LeanMPZ:             throw exception("cannot emit mpz"); break;
+                case LeanThunk:           throw exception("cannot emit thunk"); break;
+                case LeanTask:            throw exception("cannot emit task"); break;
+                case LeanRef:             throw exception("cannot emit ref"); break;
+                case LeanExternal:        throw exception("cannot emit external"); break;
+                case LeanReserved:        lean_unreachable();
+                default:                  emit_constructor(o); break;
             }
+            m_ss << "\n";
         }
-        for (int i = lines.size() - 1; i >= 0; i--) {
-            ss << lines[i] << "\n";
-        }
-        emit_use(o);
-        return m_ss.str();
+    }
+public:
+    explicit emit_const_fn(sstream & ss, name const & base): m_ss(ss), m_base(base) {}
+
+    std::string operator()(object * o) {
+        emit(o);
+        sstream ss; emit_use(o, ss);
+        return ss.str();
     }
 };
 
@@ -1083,8 +1085,7 @@ extern "C" object * lean_eval_emit_const(object * o_env, object * o_c) {
         sstream code;
         std::string ret_code;
         if (!type_is_scalar(ty)) {
-            emit_const_fn fn(c);
-            ret_code = fn(code, ret.raw());
+            ret_code = emit_const_fn(code, c)(ret.raw());
         }
         code << to_c_type(ty).to_std_string() << " " << name_mangle(c, *g_mangle_prefix).to_std_string() << " = ";
         if (type_is_scalar(ty)) {

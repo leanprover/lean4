@@ -263,8 +263,11 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 
 class interpreter;
 LEAN_THREAD_PTR(interpreter, g_interpreter);
+extern "C" object* lean_eval_emit_const(object*, object*);
 
 class interpreter {
+    friend object* lean_eval_emit_const(object*, object*);
+
     // stack of IR variable slots
     std::vector<value> m_arg_stack;
     // stack of join points
@@ -278,7 +281,7 @@ class interpreter {
         frame(name const & mFn, size_t mArgBp, size_t mJpBp) : m_fn(mFn), m_arg_bp(mArgBp), m_jp_bp(mJpBp) {}
     };
     std::vector<frame> m_call_stack;
-    environment const & m_env;
+    environment m_env;
     // if we were called within the execution of a different interpreter, restore the value of `g_interpreter` in the end
     interpreter * m_prev_interpreter;
     struct constant_cache_entry {
@@ -935,18 +938,25 @@ std::string c_quote_string(b_obj_arg s) {
     return string_to_std(o.raw());
 }
 
+struct ptr_cmp {
+    typedef void * type;
+    int operator()(void * p1, void * p2) const { return p1 < p2 ? -1 : (p1 == p2 ? 0 : 1); }
+};
+typedef rb_map<object*, std::string, ptr_cmp> obj_table;
+static obj_table g_obj_table;
 class emit_const_fn {
     sstream & m_ss;
-    std::unordered_map<object*, std::string, std::hash<object*>, std::equal_to<object*>> m_obj_table;
+    obj_table & m_obj_table;
     name const & m_base;
     unsigned m_idx = 0;
 
     std::string get_name(object * o) {
         auto it = m_obj_table.find(o);
-        if (it != m_obj_table.end()) {
-            return it->second;
+        if (it) {
+            return *it;
         } else {
             m_idx++;
+            inc(o);
             return m_obj_table[o] = name_mangle(name(m_base, m_idx), *g_mangle_prefix).to_std_string();
         }
     }
@@ -1080,7 +1090,7 @@ class emit_const_fn {
     }
 
     void emit(object * o) {
-        if (!lean_is_scalar(o) && !m_obj_table.count(o)) {
+        if (!lean_is_scalar(o) && !m_obj_table.find(o)) {
             switch (lean_ptr_tag(o)) {
                 case LeanClosure:         emit_closure(o); break;
                 case LeanArray:           emit_array(o); break;
@@ -1098,7 +1108,8 @@ class emit_const_fn {
         }
     }
 public:
-    explicit emit_const_fn(sstream & ss, name const & base): m_ss(ss), m_base(base) {}
+    explicit emit_const_fn(sstream & ss, obj_table & obj_table, name const & base):
+      m_ss(ss), m_obj_table(obj_table), m_base(base) {}
 
     std::string operator()(object * o) {
         emit(o);
@@ -1115,14 +1126,20 @@ string_ref to_c_type(type ty) {
 extern "C" object * lean_eval_emit_const(object * o_env, object * o_c) {
     environment const & env = TO_REF(environment, o_env);
     name const & c = TO_REF(name, o_c);
-    interpreter interp(env, /* prefer_ir */ true);
+    if (g_interpreter) {
+        g_interpreter->m_env = env;
+    } else {
+        g_interpreter = new interpreter(env, /* prefer_ir */ true);
+    }
     type ty = decl_type(*find_ir_decl(env, c).get());
     try {
-        object_ref ret = object_ref(interp.call_boxed(c, 0, nullptr));
+        object_ref ret = object_ref(g_interpreter->call_boxed(c, 0, nullptr));
         sstream code;
         std::string ret_code;
         if (!type_is_scalar(ty)) {
-            ret_code = emit_const_fn(code, c)(ret.raw());
+            auto obj_table = g_obj_table;
+            ret_code = emit_const_fn(code, obj_table, c)(ret.raw());
+            g_obj_table = obj_table;
         }
         code << to_c_type(ty).to_std_string() << " " << name_mangle(c, *g_mangle_prefix).to_std_string() << " = ";
         if (type_is_scalar(ty)) {

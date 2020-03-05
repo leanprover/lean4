@@ -21,10 +21,7 @@ namespace ShareCommon
   `PersistentHashMap` and `PersistentHashSet`.
   These maps and sets are "instantiated here using the "unsafe"
   primitives `Object.eq`, `Object.hash`, and `ptrAddrUnsafe`. -/
-
-constant ObjectPointed : PointedType := arbitrary _
-def Object : Type := ObjectPointed.type
-instance Object.inhabited : Inhabited Object := ⟨ObjectPointed.val⟩
+abbrev Object : Type := NonScalar
 
 unsafe def Object.ptrEq (a b : Object) : Bool :=
 ptrAddrUnsafe a == ptrAddrUnsafe b

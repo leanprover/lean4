@@ -636,7 +636,7 @@ end DependsOn
 (DependsOn.main mctx p e).run' {}
 
 /--
-  Similar to `exprDependsOn`, but checks the expressions in the given local declaration
+  Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
   depends on a free variable `x` s.t. `p x` is `true`. -/
 @[inline] def findLocalDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (p : FVarId → Bool) : Bool :=
 match localDecl with

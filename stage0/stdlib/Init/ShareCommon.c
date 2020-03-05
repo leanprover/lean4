@@ -29,7 +29,6 @@ lean_object* lean_object_pmap_find(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_ShareCommon_ObjectPersistentMap_insert___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_StateT_run_x27___rarg___closed__1;
 lean_object* l_PersistentHashMap_insertAux___main___at_ShareCommon_ObjectPersistentMap_insert___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ShareCommon_Object_inhabited;
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_ShareCommon_ObjectPersistentMap_insert___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,7 +91,6 @@ size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_PShareCommonT_monadShareCommon(lean_object*);
 extern lean_object* l_PersistentHashMap_empty___rarg___closed__2;
 size_t l_ShareCommon_Object_ptrHash(lean_object*);
-lean_object* l_ShareCommon_ObjectPointed;
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* lean_object_pset_insert(lean_object*, lean_object*);
@@ -157,22 +155,6 @@ lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_objec
 lean_object* l_PersistentHashMap_findEntryAux___main___at_ShareCommon_ObjectPersistentSet_find_x3f___spec__2(lean_object*, size_t, lean_object*);
 lean_object* l_PShareCommonT_withShareCommon___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l_ShareCommon_ObjectPointed() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-lean_object* _init_l_ShareCommon_Object_inhabited() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 uint8_t l_ShareCommon_Object_ptrEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2866,10 +2848,6 @@ lean_dec_ref(res);
 res = initialize_Init_Control_State(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_ShareCommon_ObjectPointed = _init_l_ShareCommon_ObjectPointed();
-lean_mark_persistent(l_ShareCommon_ObjectPointed);
-l_ShareCommon_Object_inhabited = _init_l_ShareCommon_Object_inhabited();
-lean_mark_persistent(l_ShareCommon_Object_inhabited);
 l_ShareCommon_mkObjectMap___closed__1 = _init_l_ShareCommon_mkObjectMap___closed__1();
 lean_mark_persistent(l_ShareCommon_mkObjectMap___closed__1);
 l_ShareCommon_mkObjectSet___closed__1 = _init_l_ShareCommon_mkObjectSet___closed__1();

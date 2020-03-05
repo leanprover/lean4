@@ -15,3 +15,4 @@ import Init.Lean.Meta.Tactic.Rewrite
 import Init.Lean.Meta.Tactic.Generalize
 import Init.Lean.Meta.Tactic.LocalDecl
 import Init.Lean.Meta.Tactic.Induction
+import Init.Lean.Meta.Tactic.Cases

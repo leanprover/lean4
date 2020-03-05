@@ -983,18 +983,22 @@ class emit_const_fn {
 
     void emit_constructor(object * o) {
         unsigned num_objs     = lean_ctor_num_objs(o);
-        if (lean_object_byte_size(o) > sizeof(object) + num_objs * sizeof(object*)) {
-            throw exception("cannot emit unboxed data");
-        }
+        unsigned num_words    = lean_object_byte_size(o) / sizeof(void*);
         for (unsigned i = 0; i < num_objs; i++) {
             emit(cnstr_get(o, i));
         }
 
-        m_ss << "static struct { lean_object m_init; lean_object * m_objs[" << num_objs << "]; } " << get_name(o) << " = { "
-          << "MK_PERSISTENT_HEADER(" << num_objs << ", 0), {";
+        m_ss << "static struct { lean_object m_init; lean_object * m_objs[" << num_words << "]; } " << get_name(o) << " = { "
+          << "MK_PERSISTENT_HEADER(" << (unsigned)lean_ptr_tag(o) << ", " << num_objs << "), {";
         for (unsigned i = 0; i < num_objs; i++) {
             emit_use(cnstr_get(o, i));
-            if (i + 1 != num_objs) {
+            if (i + 1 != num_words) {
+                m_ss << ", ";
+            }
+        }
+        for (unsigned i = num_objs; i < num_words; i++) {
+            m_ss << "(lean_object*)0x" << std::hex << cnstr_get_usize(o, i) << std::dec;
+            if (i + 1 != num_words) {
                 m_ss << ", ";
             }
         }

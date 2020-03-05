@@ -155,6 +155,17 @@ else do
     ctx.majorTypeIndices.any (fun index => decl.fvarId == index.fvarId!) || -- decl is one of the indices
     mctx.findLocalDeclDependsOn decl (fun fvarId => ctx.majorTypeIndices.all $ fun idx => idx.fvarId! != fvarId) -- or does not depend on any index
 
+private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array InductionSubgoal) : MetaM (Array InductionSubgoal) :=
+let indicesFVarIds := s₁.indicesFVarIds;
+s₂.mapM $ fun s => do
+  indicesFVarIds.foldlM
+    (fun s indexFVarId =>
+      let indexFVarId' := s.subst.get indexFVarId;
+      (do mvarId ← clear s.mvarId indexFVarId'; pure { mvarId := mvarId, subst := s.subst.erase indexFVarId, .. s })
+      <|>
+      (pure s))
+    s
+
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `cases;
@@ -162,12 +173,17 @@ withMVarContext mvarId $ do
   match context? with
   | none     => throwTacticEx `cases mvarId "not applicable to the given hypothesis"
   | some ctx =>
+    let ctors := ctx.inductiveVal.ctors.toArray;
+    let casesOn := mkCasesOnFor ctx.inductiveVal.name;
     condM (hasIndepIndices ctx)
       (do
-        r ← induction mvarId majorFVarId (mkCasesOnFor ctx.inductiveVal.name) givenNames useUnusedNames;
-        let ctors := ctx.inductiveVal.ctors.toArray;
-        pure $ r.mapIdx $ fun i s => { ctorName := ctors.get! i, toInductionSubgoal := s })
-      (throwTacticEx `cases mvarId "WIP")
+        s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames;
+        pure $ s.mapIdx $ fun i s => { ctorName := ctors.get! i, toInductionSubgoal := s })
+      (do
+        s₁ ← generalizeIndices mvarId majorFVarId;
+        s₂ ← induction s₁.mvarId s₁.fvarId casesOn givenNames useUnusedNames;
+        s₂ ← elimAuxIndices s₁ s₂;
+        pure $ s₂.mapIdx $ fun i s => { ctorName := ctors.get! i, toInductionSubgoal := s })
 
 end Cases
 

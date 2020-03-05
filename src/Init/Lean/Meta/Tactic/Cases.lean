@@ -166,6 +166,22 @@ s₂.mapM $ fun s => do
       (pure s))
     s
 
+private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) : Array CasesSubgoal :=
+s.mapIdx $ fun i s => { ctorName := ctorNames.get! i, toInductionSubgoal := s }
+
+private def unifyEqsAux (s : CasesSubgoal) (numEqs : Nat) : MetaM (Option CasesSubgoal) :=
+-- TODO
+pure (some s)
+
+private def unifyEqs (subgoals : Array CasesSubgoal) (numEqs : Nat) : MetaM (Array CasesSubgoal) :=
+subgoals.foldlM
+  (fun subgoals s => do
+    s? ← unifyEqsAux s numEqs;
+    match s? with
+    | none   => pure $ subgoals
+    | some s => pure $ subgoals.push s)
+  #[]
+
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `cases;
@@ -178,12 +194,13 @@ withMVarContext mvarId $ do
     condM (hasIndepIndices ctx)
       (do
         s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames;
-        pure $ s.mapIdx $ fun i s => { ctorName := ctors.get! i, toInductionSubgoal := s })
+        pure $ toCasesSubgoals s ctors)
       (do
         s₁ ← generalizeIndices mvarId majorFVarId;
         s₂ ← induction s₁.mvarId s₁.fvarId casesOn givenNames useUnusedNames;
         s₂ ← elimAuxIndices s₁ s₂;
-        pure $ s₂.mapIdx $ fun i s => { ctorName := ctors.get! i, toInductionSubgoal := s })
+        let s₂ := toCasesSubgoals s₂ ctors;
+        unifyEqs s₂ s₁.numEqs)
 
 end Cases
 

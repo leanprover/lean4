@@ -41,6 +41,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "util/option_ref.h"
 #include "util/array_ref.h"
 #include "util/nat.h"
+#include "library/compiler/export_attribute.h"
 #include "library/compiler/init_attribute.h"
 
 namespace lean {
@@ -1007,8 +1008,14 @@ class emit_const_fn {
         std::string fun_name;
         unsigned fixed_ignore = 0;
         if (fun_addr == interpreter::get_stub(arity)) {
+            environment env(lean_closure_get(o, 0), true);
             decl d(lean_closure_get(o, 1), true);
-            fun_name = name_mangle(decl_fun_id(d), *g_mangle_prefix).to_std_string();
+            name const & n = decl_fun_id(d);
+            if (optional<name> ex = get_export_name_for(env, n)) {
+                fun_name = ex->to_string();
+            } else {
+                fun_name = name_mangle(n, *g_mangle_prefix).to_std_string();
+            }
             fixed_ignore = 2;
         } else {
             throw exception("cannot emit closure allocated in native code");

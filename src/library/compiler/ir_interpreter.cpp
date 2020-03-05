@@ -1028,7 +1028,15 @@ class emit_const_fn {
             emit(closure_get(o, i));
         }
 
-        m_ss << "static struct { lean_closure_object m_init; lean_object * m_objs[" << num_fixed << "]; } " << get_name(o) << " = { "
+        m_ss << "extern lean_object* " << fun_name << "(";
+        for (unsigned i = 0; i < arity - fixed_ignore; i++) {
+            m_ss << "lean_object*";
+            if (i + 1 != arity - fixed_ignore) {
+                m_ss << ", ";
+            }
+        }
+        m_ss << ");\n";
+        m_ss << "static struct { lean_closure_object m_init; lean_object * m_objs[" << num_fixed - fixed_ignore << "]; } " << get_name(o) << " = { "
              << "MK_PERSISTENT_HEADER(LeanClosure, 0), "
              << fun_name << ", "
              << arity - fixed_ignore << ", "

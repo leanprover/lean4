@@ -49,3 +49,31 @@ begin
   case myleft  assumption;
   case myright exact h;
 end
+
+theorem tst6 {p q : Prop } (h : p ∨ q) : q ∨ p :=
+begin
+  cases h with
+  | inr h2 => Or.inl h2
+  | inl h1 => Or.inr h1
+end
+
+theorem tst7 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] :=
+begin
+  induction xs with
+  | nil          => rfl
+  | cons z zs ih => absurd rfl (h z zs)
+end
+
+theorem tst8 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] :=
+begin
+  induction xs;
+  exact rfl;
+  exact absurd rfl $ h _ _
+end
+
+theorem tst9 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] :=
+begin
+  cases xs with
+  | nil       => rfl
+  | cons z zs => absurd rfl (h z zs)
+end

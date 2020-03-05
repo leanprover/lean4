@@ -961,12 +961,20 @@ class emit_const_fn {
     void emit_use(object * o) { emit_use(o, m_ss); }
 
     void emit_sarray(object * o) {
-        // TODO
-        throw exception("cannot emit sarray");
         size_t sz        = lean_sarray_size(o);
         unsigned elem_sz = lean_sarray_elem_size(o);
-        size_t obj_sz = sizeof(lean_sarray_object) + elem_sz*sz;
-        m_ss << "static TODO " << get_name(o) << ";";
+        m_ss << "static struct { lean_sarray_object m_init; uint8_t m_data[" << sz << "]; } " << get_name(o) << " = { "
+             << "MK_PERSISTENT_HEADER(LeanScalarArray, " << elem_sz << "), "
+             << sz << ", "
+             << sz << ", " // capacity
+             << "{}, {"; // m_init.m_data
+        for (unsigned i = 0; i < sz; i++) {
+            m_ss << lean_sarray_cptr(o)[i];
+            if (i + 1 != sz) {
+                m_ss << ", ";
+            }
+        }
+        m_ss << "} };";
     }
 
     void emit_string(object * o) {
@@ -1052,17 +1060,23 @@ class emit_const_fn {
     }
 
     void emit_array(object * o) {
-        // TODO
-        throw exception("cannot emit array");
         size_t sz = array_size(o);
         for (size_t i = 0; i < sz; i++) {
             emit(array_get(o, i));
         }
 
-        m_ss << "static TODO " << get_name(o) << ";";
-        for (size_t i = 0; i < sz; i++) {
-            emit_use(array_get(o, i));
+        m_ss << "static struct { lean_array_object m_init; lean_object* m_data[" << sz << "]; } " << get_name(o) << " = { "
+             << "MK_PERSISTENT_HEADER(LeanArray, 0), "
+             << sz << ", "
+             << sz << ", " // capacity
+             << "{}, {"; // m_init.m_data
+        for (unsigned i = 0; i < sz; i++) {
+            emit_use(lean_array_get_core(o, i));
+            if (i + 1 != sz) {
+                m_ss << ", ";
+            }
         }
+        m_ss << "} };";
     }
 
     void emit(object * o) {

@@ -41,6 +41,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "util/option_ref.h"
 #include "util/array_ref.h"
 #include "util/nat.h"
+#include "library/compiler/init_attribute.h"
 
 namespace lean {
 namespace ir {
@@ -654,6 +655,9 @@ class interpreter {
         if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
             return *e;
         } else {
+            if (m_prefer_ir && get_init_fn_name_for(m_env, fn)) {
+                throw exception("cannot evaluate: depends on [init]");
+            }
             string_ref mangled = name_mangle(fn, *g_mangle_prefix);
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             symbol_cache_entry e_new { get_decl(fn), nullptr, false };

@@ -113,7 +113,7 @@ structure Context :=
 
 private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := do
 env ← getEnv;
-if !env.contains `Eq || env.contains `HEq then pure none
+if !env.contains `Eq || !env.contains `HEq then pure none
 else do
   majorDecl ← getLocalDecl majorFVarId;
   majorType ← whnf majorDecl.type;
@@ -155,13 +155,24 @@ else do
     ctx.majorTypeIndices.any (fun index => decl.fvarId == index.fvarId!) || -- decl is one of the indices
     mctx.findLocalDeclDependsOn decl (fun fvarId => ctx.majorTypeIndices.all $ fun idx => idx.fvarId! != fvarId) -- or does not depend on any index
 
-end Cases
-
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) :
-    MetaM (Array CasesSubgoal) :=
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `cases;
-  throwTacticEx `cases mvarId ("WIP " ++ Format.line ++ MessageData.ofGoal mvarId)
+  context? ← mkCasesContext? majorFVarId;
+  match context? with
+  | none     => throwTacticEx `cases mvarId "not applicable to the given hypothesis"
+  | some ctx =>
+    condM (hasIndepIndices ctx)
+      (do
+        r ← induction mvarId majorFVarId (mkCasesOnFor ctx.inductiveVal.name) givenNames useUnusedNames;
+        let ctors := ctx.inductiveVal.ctors.toArray;
+        pure $ r.mapIdx $ fun i s => { ctorName := ctors.get! i, toInductionSubgoal := s })
+      (throwTacticEx `cases mvarId "WIP")
+
+end Cases
+
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
+Cases.cases mvarId majorFVarId givenNames useUnusedNames
 
 end Meta
 end Lean

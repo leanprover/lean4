@@ -1090,6 +1090,7 @@ class emit_const_fn {
     }
 
     void emit(object * o) {
+        check_system("compile-time evaluation");
         if (!lean_is_scalar(o) && !m_obj_table.find(o)) {
             switch (lean_ptr_tag(o)) {
                 case LeanClosure:         emit_closure(o); break;
@@ -1133,6 +1134,8 @@ extern "C" object * lean_eval_emit_const(object * o_env, object * o_c) {
     }
     type ty = decl_type(*find_ir_decl(env, c).get());
     try {
+        scope_max_heartbeat smh(1000);
+        reset_heartbeat();
         object_ref ret = object_ref(g_interpreter->call_boxed(c, 0, nullptr));
         sstream code;
         std::string ret_code;
@@ -1149,7 +1152,7 @@ extern "C" object * lean_eval_emit_const(object * o_env, object * o_c) {
         }
         code << ";\n";
         return mk_cnstr(1, mk_string(code.str())).steal();
-    } catch (exception & ex) {
+    } catch (throwable & ex) {
         std::cerr << "FAIL " << c << ": " << ex.what() << "\n";
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }

@@ -694,14 +694,17 @@ def betaRev (f : Expr) (revArgs : Array Expr) : Expr :=
 if revArgs.size == 0 then f
 else betaRevAux revArgs revArgs.size f 0
 
-def isHeadBetaTarget : Expr → Bool
+def isHeadBetaTargetFn : Expr → Bool
 | Expr.lam _ _ _ _ => true
-| Expr.mdata _ b _ => isHeadBetaTarget b
+| Expr.mdata _ b _ => isHeadBetaTargetFn b
 | _                => false
 
 def headBeta (e : Expr) : Expr :=
 let f := e.getAppFn;
-if f.isHeadBetaTarget then betaRev f e.getAppRevArgs else e
+if f.isHeadBetaTargetFn then betaRev f e.getAppRevArgs else e
+
+def isHeadBetaTarget (e : Expr) : Bool :=
+e.getAppFn.isHeadBetaTargetFn
 
 private def etaExpandedBody : Expr → Nat → Nat → Option Expr
 | app f (bvar j _) _, n+1, i => if j == i then etaExpandedBody f n (i+1) else none

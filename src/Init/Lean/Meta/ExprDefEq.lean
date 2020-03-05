@@ -992,9 +992,9 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
   whenUndefDo (isDefEqQuick t s) $
   whenUndefDo (isDefEqProofIrrel t s) $
   isDefEqWHNF t s $ fun t s => do
+  condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
   whenUndefDo (isDefEqOffset t s) $ do
   whenUndefDo (isDefEqDelta t s) $
-  condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
   match t, s with
   | Expr.const c us _, Expr.const d vs _ => if c == d then isListLevelDefEqAux us vs else pure false
   | Expr.app _ _ _,    Expr.app _ _ _    =>

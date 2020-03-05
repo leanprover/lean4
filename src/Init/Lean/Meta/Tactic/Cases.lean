@@ -97,11 +97,8 @@ withMVarContext mvarId $ do
       }
     | _ => throwTacticEx `generalizeIndices mvarId "inductive type expected"
 
-structure CasesSubgoal :=
+structure CasesSubgoal extends InductionSubgoal :=
 (ctorName : Name)
-(mvarId   : MVarId)
-(fields   : Array FVarId := #[])
-(subst    : FVarSubst := {})
 
 namespace Cases
 
@@ -162,7 +159,9 @@ end Cases
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) :
     MetaM (Array CasesSubgoal) :=
-throw $ arbitrary _ -- TODO
+withMVarContext mvarId $ do
+  checkNotAssigned mvarId `cases;
+  throwTacticEx `cases mvarId ("WIP " ++ Format.line ++ MessageData.ofGoal mvarId)
 
 end Meta
 end Lean

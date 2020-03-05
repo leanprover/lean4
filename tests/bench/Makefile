@@ -43,7 +43,7 @@ all: report_lean.tex report_cross.tex report
 %.out: %
 
 %.lean.cpp: %.lean
-	$(LEAN_BIN)/lean --cpp=$@ $(LEAN_FLAGS) $<
+	LEAN_PATH=Test=. $(LEAN_BIN)/lean --cpp=$@ $(LEAN_FLAGS) $<
 %.lean.out: %.lean.cpp
 	$(LEAN_BIN)/leanc $(LEANC_FLAGS) -o $@ $<
 # Binaries x.lean.out and x.gcc.lean.out etc. are produced by the

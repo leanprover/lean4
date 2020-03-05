@@ -2,11 +2,11 @@
 
 let
   # pin Lean commit to avoid rebuilds
-  # 2019-11-07
-  lean = import (builtins.fetchGit { url = ../../.; rev = "3b6755dea1acf0a1a3196131dc3bf9cb7d1ea5c8"; }) {};
+  # 2020-03-04
+  lean = import (builtins.fetchGit { url = ../../.; rev = "21ca3709612ff7a05f0e5aa0849d776c1bc6d751"; }) {};
   # for binarytrees.hs
   ghcPackages = p: [ p.parallel ];
-  ghc = pkgs.haskell.packages.ghc881.ghcWithPackages ghcPackages; #.override { withLLVM = true; };
+  ghc = pkgs.haskell.packages.ghc883.ghcWithPackages ghcPackages; #.override { withLLVM = true; };
   ocaml = pkgs.ocaml-ng.ocamlPackages_latest.ocaml;
   # note that this will need to be compiled from source
   ocamlFlambda = ocaml.override { flambdaSupport = true; };
@@ -35,24 +35,22 @@ in pkgs.stdenv.mkDerivation rec {
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];
   LEAN_BIN = "${lean}/bin";
   #LEAN_GCC_BIN = "${lean { stdenv = pkgs.gcc9Stdenv; }}/bin";
-  bootstrapChanges = ''
-    make ''${enableParallelBuilding:+-j''${NIX_BUILD_CORES} -l''${NIX_BUILD_CORES}} SHELL=$SHELL update-stage0
-    make ''${enableParallelBuilding:+-j''${NIX_BUILD_CORES} -l''${NIX_BUILD_CORES}} SHELL=$SHELL clean-olean
-  '';
   LEAN_NO_REUSE_BIN = "${lean.overrideAttrs (attrs: {
     prePatch = ''
-      substituteInPlace library/Init/Lean/Compiler/IR.lean --replace "decls.map Decl.insertResetReuse" "decls"
+      substituteInPlace src/Init/Lean/Compiler/IR.lean --replace "decls.map Decl.insertResetReuse" "decls"
+	  substituteInPlace src/shell/CMakeLists.txt --replace "install(TARGETS lean DESTINATION bin)" "install(PROGRAMS $<TARGET_FILE:lean_stage2> DESTINATION bin RENAME lean)"
     '';
-    preBuild = bootstrapChanges;
+	buildFlags = [ "lean_stage2" ];
   })}/bin";
   LEAN_NO_BORROW_BIN = "${lean.overrideAttrs (attrs: {
     prePatch = ''
-      substituteInPlace library/Init/Lean/Compiler/IR.lean --replace "inferBorrow" "pure"
+      substituteInPlace src/Init/Lean/Compiler/IR.lean --replace "inferBorrow" "pure"
+	  substituteInPlace src/shell/CMakeLists.txt --replace "install(TARGETS lean DESTINATION bin)" "install(PROGRAMS $<TARGET_FILE:lean_stage2> DESTINATION bin RENAME lean)"
     '';
-    preBuild = bootstrapChanges;
+	buildFlags = [ "lean_stage2" ];
   })}/bin";
   LEAN_NO_ST_BIN = "${lean.overrideAttrs (attrs: { patches = [ ./disable-st.patch ]; })}/bin";
-  PARSER_TEST_FILE = lean.src + "/library/Init/Core.lean";
+  PARSER_TEST_FILE = lean.src + "/src/Init/Core.lean";
   GHC = "${ghc}/bin/ghc";
   OCAML = "${ocaml}/bin/ocamlopt.opt";
   #OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";

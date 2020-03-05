@@ -44,6 +44,7 @@ def withAlts : Parser := optional (" with " >> inductionAlts)
 def usingRec : Parser := optional (" using " >> ident)
 def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> withAlts
+@[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
 @[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"

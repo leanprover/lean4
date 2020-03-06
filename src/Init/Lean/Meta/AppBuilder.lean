@@ -94,6 +94,16 @@ else do
     u ← getLevel α; pure $ mkApp8 (mkConst `HEq.trans [u]) α β γ a b c h₁ h₂
   | _, _ => throwEx $ Exception.appBuilder `HEq.trans "heterogeneous equality proof expected" #[h₁, h₂]
 
+def mkEqOfHEq (h : Expr) : MetaM Expr := do
+hType ← infer h;
+match hType.heq? with
+| some (α, a, β, b) => do
+  unlessM (isDefEq α β) $ throwEx $ Exception.appBuilder `eqOfHEq "heterogeneous equality types are not definitionally equal" #[α, β];
+  u ← getLevel α;
+  pure $ mkApp4 (mkConst `eqOfHEq [u]) α a b h
+| _ =>
+  throwEx $ Exception.appBuilder `HEq.trans "heterogeneous equality proof expected" #[h]
+
 def mkCongrArg (f h : Expr) : MetaM Expr := do
 hType ← infer h;
 fType ← infer f;

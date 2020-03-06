@@ -616,7 +616,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
       else
         pure false;
     let useFOApprox : Unit → MetaM Bool := fun _ =>
-      if cfg.foApprox && v.isApp then
+      if cfg.foApprox then
         condM (processAssignmentFOApprox mvar args v)
           (pure true)
           (useConstApprox ())

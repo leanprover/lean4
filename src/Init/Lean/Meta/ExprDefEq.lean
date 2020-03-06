@@ -566,13 +566,16 @@ match v with
 -/
 private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) : Expr → MetaM Bool
 | v => do
-  trace! `Meta.isDefEq.foApprox (mvar ++ " " ++ args ++ " := " ++ v);
-  condM (commitWhen $ processAssignmentFOApproxAux mvar args v)
-    (pure true)
-    (do v? ← unfoldDefinition? v;
-        match v? with
-        | none   => pure false
-        | some v => processAssignmentFOApprox v)
+  cfg ← getConfig;
+  if !cfg.foApprox then pure false
+  else do
+    trace! `Meta.isDefEq.foApprox (mvar ++ " " ++ args ++ " := " ++ v);
+    condM (commitWhen $ processAssignmentFOApproxAux mvar args v)
+      (pure true)
+      (do v? ← unfoldDefinition? v;
+          match v? with
+          | none   => pure false
+          | some v => processAssignmentFOApprox v)
 
 private partial def simpAssignmentArgAux : Expr → MetaM Expr
 | Expr.mdata _ e _       => simpAssignmentArgAux e
@@ -591,62 +594,51 @@ arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
 simpAssignmentArgAux arg
 
 private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool := do
-let mvarId := mvar.mvarId!;
-v? ← checkAssignment mvarId #[] v;
-match v? with
-| none   => pure false
-| some v => do
-  mvarDecl ← getMVarDecl mvarId;
-  forallBoundedTelescope mvarDecl.type numArgs $ fun xs _ =>
-    if xs.size != numArgs then pure false
-    else do
-      v ← mkLambda xs v;
-      checkTypesAndAssign mvar v
+cfg ← getConfig;
+if cfg.constApprox || (numArgs > 0 && not v.isApp) then do
+  let mvarId := mvar.mvarId!;
+  v? ← checkAssignment mvarId #[] v;
+  match v? with
+  | none   => pure false
+  | some v => do
+    mvarDecl ← getMVarDecl mvarId;
+    forallBoundedTelescope mvarDecl.type numArgs $ fun xs _ =>
+      if xs.size != numArgs then pure false
+      else do
+        v ← mkLambda xs v;
+        checkTypesAndAssign mvar v
+else
+  pure false
 
 private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) : Nat → Array Expr → Expr → MetaM Bool
 | i, args, v => do
   cfg ← getConfig;
+  let useFOApprox (args : Array Expr) : MetaM Bool :=
+    processAssignmentFOApprox mvar args v <||> processConstApprox mvar args.size v;
   if h : i < args.size then do
     let arg := args.get ⟨i, h⟩;
     arg ← simpAssignmentArg arg;
     let args := args.set ⟨i, h⟩ arg;
-    let useConstApprox : Unit → MetaM Bool := fun _ =>
-      if cfg.constApprox || (not args.isEmpty && not v.isApp) then
-        processConstApprox mvar args.size v
-      else
-        pure false;
-    let useFOApprox : Unit → MetaM Bool := fun _ =>
-      if cfg.foApprox then
-        condM (processAssignmentFOApprox mvar args v)
-          (pure true)
-          (useConstApprox ())
-      else
-        useConstApprox ();
     match arg with
     | Expr.fvar fvarId _ =>
       if args.anyRange 0 i (fun prevArg => prevArg == arg) then
-        useFOApprox ()
+        useFOApprox args
       else if mvarDecl.lctx.contains fvarId && !cfg.quasiPatternApprox then
-        useFOApprox ()
+        useFOApprox args
       else
         processAssignmentAux (i+1) args v
     | _ =>
-      useFOApprox ()
+      useFOApprox args
   else do
     v ← instantiateMVars v; -- enforce A4
-    if cfg.foApprox && !args.isEmpty && v.getAppFn == mvar then
+    if v.getAppFn == mvar then
       -- using A6
-      processAssignmentFOApprox mvar args v
+      useFOApprox args
     else do
-      let useFOApprox : Unit → MetaM Bool := fun _ =>
-        if cfg.foApprox && !args.isEmpty then
-          processAssignmentFOApprox mvar args v
-        else
-          pure false;
       let mvarId := mvar.mvarId!;
       v? ← checkAssignment mvarId args v;
       match v? with
-      | none   => useFOApprox ()
+      | none   => useFOApprox args
       | some v => do
         trace `Meta.isDefEq.assign.beforeMkLambda $ fun _ => mvar ++ " " ++ args ++ " := " ++ v;
         v ← mkLambda args v;
@@ -656,7 +648,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
           condM (isTypeCorrect v)
             (checkTypesAndAssign mvar v)
             (do trace `Meta.isDefEq.assign.typeError $ fun _ => mvar ++ " := " ++ v;
-                useFOApprox ())
+                useFOApprox args)
         else
           checkTypesAndAssign mvar v
 

@@ -603,10 +603,10 @@ match v? with
       v ← mkLambda xs v;
       checkTypesAndAssign mvar v
 
-private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) (v : Expr) : Nat → Array Expr → MetaM Bool
-| i, args =>
+private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) : Nat → Array Expr → Expr → MetaM Bool
+| i, args, v => do
+  cfg ← getConfig;
   if h : i < args.size then do
-    cfg ← getConfig;
     let arg := args.get ⟨i, h⟩;
     arg ← simpAssignmentArg arg;
     let args := args.set ⟨i, h⟩ arg;
@@ -629,11 +629,10 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
       else if mvarDecl.lctx.contains fvarId && !cfg.quasiPatternApprox then
         useFOApprox ()
       else
-        processAssignmentAux (i+1) args
+        processAssignmentAux (i+1) args v
     | _ =>
       useFOApprox ()
   else do
-    cfg ← getConfig;
     v ← instantiateMVars v; -- enforce A4
     if cfg.foApprox && !args.isEmpty && v.getAppFn == mvar then
       -- using A6
@@ -668,7 +667,7 @@ traceCtx `Meta.isDefEq.assign $ do
   trace! `Meta.isDefEq.assign (mvarApp ++ " := " ++ v);
   let mvar := mvarApp.getAppFn;
   mvarDecl ← getMVarDecl mvar.mvarId!;
-  processAssignmentAux mvar mvarDecl v 0 mvarApp.getAppArgs
+  processAssignmentAux mvar mvarDecl 0 mvarApp.getAppArgs v
 
 private def isDeltaCandidate (t : Expr) : MetaM (Option ConstantInfo) :=
 match t.getAppFn with

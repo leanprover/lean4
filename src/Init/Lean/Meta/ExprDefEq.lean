@@ -595,7 +595,7 @@ simpAssignmentArgAux arg
 
 private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool := do
 cfg ← getConfig;
-if cfg.constApprox || (numArgs > 0 && not v.isApp) then do
+if cfg.constApprox then do
   let mvarId := mvar.mvarId!;
   v? ← checkAssignment mvarId #[] v;
   match v? with

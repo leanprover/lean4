@@ -22,7 +22,7 @@ print "----- tst1 -----";
 m1 ← mkFreshExprMVar (mkArrow nat nat);
 let lhs := mkApp m1 zero;
 let rhs := zero;
-check $ approxDefEq $ isDefEq lhs rhs;
+check $ fullApproxDefEq $ isDefEq lhs rhs;
 pure ()
 
 set_option pp.all true

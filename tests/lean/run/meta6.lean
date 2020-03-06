@@ -41,3 +41,19 @@ ps ← getParamNames `check; print (toString ps);
 pure ()
 
 #eval tst2
+
+axiom t1 : [Unit] = []
+axiom t2 : 0 > 5
+
+def tst3 : MetaM Unit := do
+env ← getEnv;
+t2  ← getConstInfo `t2;
+c   ← mkNoConfusion t2.type (mkConst `t1);
+print c;
+Meta.check c;
+cType ← inferType c;
+print cType;
+pure ()
+
+set_option pp.all true
+#eval tst3

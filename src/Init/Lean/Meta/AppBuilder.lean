@@ -218,5 +218,21 @@ mkAppM `Eq.mp #[eqProof, pr]
 def mkEqMPR (eqProof pr : Expr) : MetaM Expr :=
 mkAppM `Eq.mpr #[eqProof, pr]
 
+def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
+type ← inferType h;
+type ← whnf type;
+match type.eq? with
+| none           => throwEx $ Exception.appBuilder `noConfusion "equality expected" #[h]
+| some (α, a, b) => do
+  α ← whnf α;
+  env ← getEnv;
+  let f := α.getAppFn;
+  matchConst env f (fun _ => throwEx $ Exception.appBuilder `noConfusion "inductive type expected" #[α]) $ fun cinfo us =>
+    match cinfo with
+    | ConstantInfo.inductInfo v => do
+      u ← getLevel target;
+      pure $ mkAppN (mkConst (mkNameStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+    | _ => throwEx $ Exception.appBuilder `noConfusion "inductive type expected" #[α]
+
 end Meta
 end Lean

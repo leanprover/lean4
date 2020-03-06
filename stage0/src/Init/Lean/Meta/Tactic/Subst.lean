@@ -61,7 +61,7 @@ withMVarContext mvarId $ do
               (fun i (fvarSubst : FVarSubst) =>
                 let var      := vars.get! i;
                 let newFVar := newFVars.get! i;
-                pure $ fvarSubst.insert var (mkFVar newFVar))
+                pure $ fvarSubst.insert var newFVar)
               FVarSubst.empty;
             pure (fvarSubst, mvarId)
           };

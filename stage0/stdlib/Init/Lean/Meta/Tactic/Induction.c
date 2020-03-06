@@ -80,6 +80,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___main___at_Lean_Meta_induction___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isHeadBetaTarget(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_induction___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -151,7 +152,6 @@ lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__7___
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__3___closed__5;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 extern lean_object* l_Lean_Meta_isClassQuick___main___closed__1;
-uint8_t l_Lean_Expr_isHeadBetaTarget___main(lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__3___closed__4;
@@ -210,7 +210,7 @@ block_7:
 {
 uint8_t x_3; 
 lean_dec(x_2);
-x_3 = l_Lean_Expr_isHeadBetaTarget___main(x_1);
+x_3 = l_Lean_Expr_isHeadBetaTarget(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
@@ -667,7 +667,7 @@ x_14 = lean_nat_dec_le(x_12, x_13);
 lean_dec(x_13);
 if (x_14 == 0)
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_15 = l_Lean_Name_inhabited;
 x_16 = lean_array_get(x_15, x_1, x_12);
 x_17 = lean_nat_sub(x_12, x_3);
@@ -676,10 +676,9 @@ x_18 = lean_nat_sub(x_17, x_10);
 lean_dec(x_17);
 x_19 = lean_array_get(x_15, x_4, x_18);
 lean_dec(x_18);
-x_20 = l_Lean_mkFVar(x_19);
-x_21 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_7, x_16, x_20);
+x_20 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_7, x_16, x_19);
 x_6 = x_11;
-x_7 = x_21;
+x_7 = x_20;
 goto _start;
 }
 else
@@ -714,7 +713,7 @@ x_14 = lean_nat_dec_le(x_12, x_13);
 lean_dec(x_13);
 if (x_14 == 0)
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_15 = l_Lean_Name_inhabited;
 x_16 = lean_array_get(x_15, x_1, x_12);
 x_17 = lean_nat_sub(x_12, x_3);
@@ -723,10 +722,9 @@ x_18 = lean_nat_sub(x_17, x_10);
 lean_dec(x_17);
 x_19 = lean_array_get(x_15, x_4, x_18);
 lean_dec(x_18);
-x_20 = l_Lean_mkFVar(x_19);
-x_21 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_7, x_16, x_20);
+x_20 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_7, x_16, x_19);
 x_6 = x_11;
-x_7 = x_21;
+x_7 = x_20;
 goto _start;
 }
 else
@@ -2902,19 +2900,18 @@ return x_5;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = lean_array_fget(x_3, x_4);
 x_9 = l_Lean_Expr_fvarId_x21(x_8);
 lean_dec(x_8);
 x_10 = l_Lean_Name_inhabited;
 x_11 = lean_array_get(x_10, x_2, x_4);
-x_12 = l_Lean_mkFVar(x_11);
-x_13 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_5, x_9, x_12);
-x_14 = lean_unsigned_to_nat(1u);
-x_15 = lean_nat_add(x_4, x_14);
+x_12 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_5, x_9, x_11);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
-x_4 = x_15;
-x_5 = x_13;
+x_4 = x_14;
+x_5 = x_12;
 goto _start;
 }
 }

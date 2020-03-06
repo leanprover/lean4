@@ -4,12 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.Meta.AppBuilder
 import Init.Lean.Meta.Tactic.Induction
+import Init.Lean.Meta.Tactic.Assert
+import Init.Lean.Meta.Tactic.Subst
 
 namespace Lean
 namespace Meta
 
-private def mkEq (lhs rhs : Expr) : MetaM (Expr × Expr) := do
+private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
 lhsType ← inferType lhs;
 rhsType ← inferType rhs;
 u       ← getLevel lhsType;
@@ -22,7 +25,7 @@ private partial def withNewIndexEqsAux {α} (indices newIndices : Array Expr) (k
   if h : i < indices.size then do
     let index    := indices.get! i;
     let newIndex := newIndices.get! i;
-    (newEqType, newRefl) ← mkEq index newIndex;
+    (newEqType, newRefl) ← mkEqAndProof index newIndex;
     withLocalDecl `h newEqType BinderInfo.default $ fun newEq => do
     withNewIndexEqsAux (i+1) (newEqs.push newEq) (newRefls.push newRefl)
   else
@@ -74,7 +77,7 @@ withMVarContext mvarId $ do
       let newType := mkAppN IA newIndices;
       withLocalDecl fvarDecl.userName newType BinderInfo.default $ fun h' =>
       withNewIndexEqs indices newIndices $ fun newEqs newRefls => do
-      (newEqType, newRefl) ← mkEq fvarDecl.toExpr h';
+      (newEqType, newRefl) ← mkEqAndProof fvarDecl.toExpr h';
       let newRefls := newRefls.push newRefl;
       withLocalDecl `h newEqType BinderInfo.default $ fun newEq => do
       let newEqs := newEqs.push newEq;
@@ -87,8 +90,8 @@ withMVarContext mvarId $ do
       newMVar ← mkFreshExprMVarAt lctx localInsts auxType tag MetavarKind.syntheticOpaque;
       /- assign mvarId := newMVar indices h refls -/
       assignExprMVar mvarId (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls);
-      (indicesFVarIds, newMVarId) ← introN newMVar.mvarId! newIndices.size;
-      (fvarId, newMVarId) ← intro1 newMVarId;
+      (indicesFVarIds, newMVarId) ← introN newMVar.mvarId! newIndices.size [] false;
+      (fvarId, newMVarId) ← intro1 newMVarId false;
       pure {
         mvarId         := newMVarId,
         indicesFVarIds := indicesFVarIds,
@@ -97,11 +100,8 @@ withMVarContext mvarId $ do
       }
     | _ => throwTacticEx `generalizeIndices mvarId "inductive type expected"
 
-structure CasesSubgoal :=
+structure CasesSubgoal extends InductionSubgoal :=
 (ctorName : Name)
-(mvarId   : MVarId)
-(fields   : Array FVarId := #[])
-(subst    : FVarSubst := {})
 
 namespace Cases
 
@@ -116,7 +116,7 @@ structure Context :=
 
 private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := do
 env ← getEnv;
-if !env.contains `Eq || env.contains `HEq then pure none
+if !env.contains `Eq || !env.contains `HEq then pure none
 else do
   majorDecl ← getLocalDecl majorFVarId;
   majorType ← whnf majorDecl.type;
@@ -158,11 +158,95 @@ else do
     ctx.majorTypeIndices.any (fun index => decl.fvarId == index.fvarId!) || -- decl is one of the indices
     mctx.findLocalDeclDependsOn decl (fun fvarId => ctx.majorTypeIndices.all $ fun idx => idx.fvarId! != fvarId) -- or does not depend on any index
 
+private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array InductionSubgoal) : MetaM (Array InductionSubgoal) :=
+let indicesFVarIds := s₁.indicesFVarIds;
+s₂.mapM $ fun s => do
+  indicesFVarIds.foldlM
+    (fun s indexFVarId =>
+      let indexFVarId' := s.subst.get indexFVarId;
+      (do mvarId ← clear s.mvarId indexFVarId'; pure { mvarId := mvarId, subst := s.subst.erase indexFVarId, .. s })
+      <|>
+      (pure s))
+    s
+
+private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) : Array CasesSubgoal :=
+s.mapIdx $ fun i s => { ctorName := ctorNames.get! i, toInductionSubgoal := s }
+
+private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSubgoal)
+| 0,   s => do
+  trace! `Meta.cases ("unifyEqs " ++ MessageData.ofGoal s.mvarId);
+  pure (some s)
+| n+1, s => do
+  trace! `Meta.cases ("unifyEqs [" ++ toString (n+1) ++ "] " ++ MessageData.ofGoal s.mvarId);
+  (eqFVarId, mvarId) ← intro1 s.mvarId;
+  withMVarContext mvarId $ do
+    eqDecl ← getLocalDecl eqFVarId;
+    match eqDecl.type.heq? with
+    | some (α, a, β, b) => do
+      prf    ← mkEqOfHEq (mkFVar eqFVarId);
+      aEqb   ← mkEq a b;
+      mvarId ← assert mvarId eqDecl.userName aEqb prf;
+      mvarId ← clear mvarId eqFVarId;
+      unifyEqsAux (n+1) { mvarId := mvarId, .. s }
+    | none => match eqDecl.type.eq? with
+      | some (α, a, b) =>
+        let skip : Unit → MetaM (Option CasesSubgoal) := fun _ => do {
+          mvarId ← clear mvarId eqFVarId;
+          unifyEqsAux n { mvarId := mvarId, .. s }
+        };
+        let substEq (symm : Bool) : MetaM (Option CasesSubgoal) := do {
+          (newSubst, mvarId) ← substCore mvarId eqFVarId false true;
+          unifyEqsAux n {
+            mvarId := mvarId,
+            subst  := newSubst.compose s.subst,
+            fields := s.fields.map $ fun fvarId => newSubst.get fvarId,
+            .. s
+          }
+        };
+        condM (isDefEq a b) (skip ()) $
+        match a, b with
+        | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
+        | Expr.fvar _ _,       _                   => substEq false
+        | _,                   Expr.fvar _ _       => substEq true
+        | _,                   _                   =>
+          -- TODO
+          pure $ some { mvarId := mvarId, .. s }
+      | none => throwTacticEx `cases mvarId "equality expected"
+
+private def unifyEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
+subgoals.foldlM
+  (fun subgoals s => do
+    s? ← unifyEqsAux numEqs s;
+    match s? with
+    | none   => pure $ subgoals
+    | some s => pure $ subgoals.push s)
+  #[]
+
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
+withMVarContext mvarId $ do
+  checkNotAssigned mvarId `cases;
+  context? ← mkCasesContext? majorFVarId;
+  match context? with
+  | none     => throwTacticEx `cases mvarId "not applicable to the given hypothesis"
+  | some ctx =>
+    let ctors := ctx.inductiveVal.ctors.toArray;
+    let casesOn := mkCasesOnFor ctx.inductiveVal.name;
+    condM (hasIndepIndices ctx)
+      (do
+        s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames;
+        pure $ toCasesSubgoals s ctors)
+      (do
+        s₁ ← generalizeIndices mvarId majorFVarId;
+        trace! `Meta.cases ("after generalizeIndices" ++ Format.line ++ MessageData.ofGoal s₁.mvarId);
+        s₂ ← induction s₁.mvarId s₁.fvarId casesOn givenNames useUnusedNames;
+        s₂ ← elimAuxIndices s₁ s₂;
+        let s₂ := toCasesSubgoals s₂ ctors;
+        unifyEqs s₁.numEqs s₂)
+
 end Cases
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) :
-    MetaM (Array CasesSubgoal) :=
-throw $ arbitrary _ -- TODO
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
+Cases.cases mvarId majorFVarId givenNames useUnusedNames
 
 end Meta
 end Lean

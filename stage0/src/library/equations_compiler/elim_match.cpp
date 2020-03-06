@@ -610,6 +610,7 @@ struct elim_match_fn {
 
     hsubstitution add_subst(hsubstitution subst, expr const & src, expr const & target) {
         lean_assert(is_fvar(src));
+        lean_assert(is_fvar(target));
         if (!subst.contains(fvar_name(src)))
             subst.insert(fvar_name(src), target);
         return subst;

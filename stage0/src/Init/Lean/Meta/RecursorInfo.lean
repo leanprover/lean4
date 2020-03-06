@@ -13,6 +13,14 @@ import Init.Lean.Meta.Message
 namespace Lean
 namespace Meta
 
+def casesOnSuffix := "casesOn"
+def recOnSuffix   := "recOn"
+def brecOnSuffix  := "brecOn"
+
+def mkCasesOnFor (indDeclName : Name) : Name := mkNameStr indDeclName casesOnSuffix
+def mkRecOnFor (indDeclName : Name) : Name   := mkNameStr indDeclName recOnSuffix
+def mkBRecOnFor (indDeclName : Name) : Name  := mkNameStr indDeclName brecOnSuffix
+
 inductive RecursorUnivLevelPos
 | motive                -- marks where the universe of the motive should go
 | majorType (idx : Nat) -- marks where the #idx universe of the major premise type goes
@@ -104,12 +112,12 @@ else do
   if !isAuxRecursor env declName then pure none
   else match declName with
   | Name.str p s _ =>
-    if s != "recOn" && s != "casesOn" && s != "brecOn" then
+    if s != recOnSuffix && s != casesOnSuffix && s != brecOnSuffix then
       pure none
     else do
       recInfo ← getConstInfo (mkRecFor p);
       match recInfo with
-      | ConstantInfo.recInfo val => pure (some (val.nparams + val.nindices + (if s == "casesOn" then 1 else val.nmotives)))
+      | ConstantInfo.recInfo val => pure (some (val.nparams + val.nindices + (if s == casesOnSuffix then 1 else val.nmotives)))
       | _                        => throw $ Exception.other "unexpected recursor information"
   | _ => pure none
 

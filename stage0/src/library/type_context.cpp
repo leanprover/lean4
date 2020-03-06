@@ -1918,8 +1918,16 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
         use_fo = true;
     }
 
-    if (use_fo && (is_app(new_v) || !m_unifier_cfg.m_const_approx)) {
-        return process_assignment_fo_approx(mvar, args, new_v);
+    if (use_fo) {
+        if (is_app(new_v) || !m_unifier_cfg.m_const_approx) {
+            return process_assignment_fo_approx(mvar, args, new_v);
+        } else {
+            scope s(*this);
+            if (process_assignment_fo_approx(mvar, args, new_v)) {
+                s.commit();
+                return true;
+            }
+        }
     }
 
     if (optional<expr> new_new_v = check_assignment(locals, in_ctx_locals, mvar, new_v))

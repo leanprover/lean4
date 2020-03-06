@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Lean.Meta.RecursorInfo
 import Init.Lean.Meta.Tactic.Induction
+import Init.Lean.Meta.Tactic.Cases
 import Init.Lean.Elab.Tactic.ElabTerm
 import Init.Lean.Elab.Tactic.Generalize
 
@@ -149,6 +150,35 @@ match recInfo? with
       (fun _ => throwError ref ("invalid recursor name '" ++ baseRecName ++ "'"))
   | _ => throwError ref ("invalid recursor name '" ++ baseRecName ++ "'")
 
+/- Create `RecInfo` assuming builtin recursor -/
+private def getRecInfoDefault (ref : Syntax) (major : Expr) (withAlts : Syntax) : TacticM RecInfo := do
+indVal ← getInductiveValFromMajor ref major;
+let recName := mkRecFor indVal.name;
+if withAlts.isNone then pure { recName := recName }
+else do
+  let ctorNames := indVal.ctors;
+  let alts      := getAlts withAlts;
+  checkAltCtorNames alts ctorNames;
+  (altVars, altRHSs, remainingAlts, _) ← ctorNames.foldlM
+    (fun (result : Array (List Name) × Array Syntax × Array Syntax × Option Syntax) (ctorName : Name) => do
+      let (altVars, altRHSs, remainingAlts, prevAnonymousAlt?) := result;
+      match remainingAlts.findIdx? (fun alt => (getAltName alt).isSuffixOf ctorName) with
+      | some idx =>
+        let newAlt := remainingAlts.get! idx;
+        pure (altVars.push (getAltVarNames newAlt).toList, altRHSs.push (getAltRHS newAlt), remainingAlts.eraseIdx idx, prevAnonymousAlt?)
+      | none => match remainingAlts.findIdx? (fun alt => getAltName alt == `_) with
+        | some idx =>
+          let newAlt     := remainingAlts.get! idx;
+          pure (altVars.push (getAltVarNames newAlt).toList, altRHSs.push (getAltRHS newAlt), remainingAlts.eraseIdx idx, some newAlt)
+        | none => match prevAnonymousAlt? with
+          | some alt =>
+            pure (altVars.push (getAltVarNames alt).toList, altRHSs.push (getAltRHS alt), remainingAlts, prevAnonymousAlt?)
+          | none     => throwError ref ("alternative for constructor '" ++ toString ctorName ++ "' is missing"))
+    (#[], #[], alts, none);
+  unless remainingAlts.isEmpty $
+    throwError (remainingAlts.get! 0) "unused alternative";
+  pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
+
 /-
   Recall that
   ```
@@ -162,32 +192,7 @@ let ref         := stx;
 let usingRecStx := stx.getArg 2;
 let withAlts    := stx.getArg 4;
 if usingRecStx.isNone then do
-  indVal ← getInductiveValFromMajor ref major;
-  let recName := mkRecFor indVal.name;
-  if withAlts.isNone then pure { recName := recName }
-  else do
-    let ctorNames := indVal.ctors;
-    let alts      := getAlts withAlts;
-    checkAltCtorNames alts ctorNames;
-    (altVars, altRHSs, remainingAlts, _) ← ctorNames.foldlM
-      (fun (result : Array (List Name) × Array Syntax × Array Syntax × Option Syntax) (ctorName : Name) => do
-        let (altVars, altRHSs, remainingAlts, prevAnonymousAlt?) := result;
-        match remainingAlts.findIdx? (fun alt => (getAltName alt).isSuffixOf ctorName) with
-        | some idx =>
-          let newAlt := remainingAlts.get! idx;
-          pure (altVars.push (getAltVarNames newAlt).toList, altRHSs.push (getAltRHS newAlt), remainingAlts.eraseIdx idx, prevAnonymousAlt?)
-        | none => match remainingAlts.findIdx? (fun alt => getAltName alt == `_) with
-          | some idx =>
-            let newAlt     := remainingAlts.get! idx;
-            pure (altVars.push (getAltVarNames newAlt).toList, altRHSs.push (getAltRHS newAlt), remainingAlts.eraseIdx idx, some newAlt)
-          | none => match prevAnonymousAlt? with
-            | some alt =>
-              pure (altVars.push (getAltVarNames alt).toList, altRHSs.push (getAltRHS alt), remainingAlts, prevAnonymousAlt?)
-            | none     => throwError ref ("alternative for constructor '" ++ toString ctorName ++ "' is missing"))
-      (#[], #[], alts, none);
-    unless remainingAlts.isEmpty $
-      throwError (remainingAlts.get! 0) "unused alternative";
-    pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
+  getRecInfoDefault ref major withAlts
 else do
   let baseRecName := (usingRecStx.getIdAt 1).eraseMacroScopes;
   recInfo ← getRecFromUsing ref major baseRecName;
@@ -220,6 +225,26 @@ else do
       throwError (remainingAlts.get! 0) "unused alternative";
     pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
 
+private def processResult (ref : Syntax) (recInfo : RecInfo) (result : Array Meta.InductionSubgoal) : TacticM Unit := do
+if recInfo.altRHSs.isEmpty then
+  setGoals $ result.toList.map $ fun s => s.mvarId
+else do
+  unless (recInfo.altRHSs.size == result.size) $
+    throwError ref ("mistmatch on the number of subgoals produced (" ++ toString result.size ++ ") and " ++
+                    "alternatives provided (" ++ toString recInfo.altRHSs.size ++ ")");
+  result.size.forM $ fun i => do
+    let subgoal := result.get! i;
+    let rhs     := recInfo.altRHSs.get! i;
+    let mvarId  := subgoal.mvarId;
+    withMVarContext mvarId $ do
+      mvarDecl ← getMVarDecl mvarId;
+      val ← elabTerm rhs mvarDecl.type;
+      val ← ensureHasType rhs mvarDecl.type val;
+      assignExprMVar mvarId val;
+      gs'  ← collectMVars rhs val;
+      tagUntaggedGoals mvarDecl.userName `induction gs';
+      appendGoals gs'
+
 @[builtinTactic «induction»] def evalInduction : Tactic :=
 fun stx => focusAux stx $ do
   let h? := getAuxHypothesisName stx;
@@ -229,24 +254,20 @@ fun stx => focusAux stx $ do
   recInfo ← getRecInfo stx major;
   (mvarId, _) ← getMainGoal stx;
   result ← liftMetaM stx $ Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars;
-  if recInfo.altRHSs.isEmpty then
-    setGoals $ result.toList.map $ fun s => s.mvarId
-  else do
-    unless (recInfo.altRHSs.size == result.size) $
-      throwError stx ("mistmatch on the number of subgoals produced (" ++ toString result.size ++ ") and " ++
-                      "alternatives provided (" ++ toString recInfo.altRHSs.size ++ ")");
-    result.size.forM $ fun i => do
-      let subgoal := result.get! i;
-      let rhs     := recInfo.altRHSs.get! i;
-      let mvarId  := subgoal.mvarId;
-      withMVarContext mvarId $ do
-        mvarDecl ← getMVarDecl mvarId;
-        val ← elabTerm rhs mvarDecl.type;
-        val ← ensureHasType rhs mvarDecl.type val;
-        assignExprMVar mvarId val;
-        gs'  ← collectMVars rhs val;
-        tagUntaggedGoals mvarDecl.userName `induction gs';
-        appendGoals gs'
+  processResult stx recInfo result
+
+@[builtinTactic «cases»] def evalCases : Tactic :=
+fun stx => focusAux stx $ do
+  -- parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
+  let h? := getAuxHypothesisName stx;
+  major ← elabMajor stx h? (getMajor stx);
+  major ← generalizeMajor stx major;
+  (mvarId, _) ← getMainGoal stx;
+  let withAlts := stx.getArg 2;
+  recInfo ← getRecInfoDefault stx major withAlts;
+  result ← liftMetaM stx $ Meta.cases mvarId major.fvarId! recInfo.altVars;
+  let result := result.map (fun s => s.toInductionSubgoal);
+  processResult stx recInfo result
 
 end Tactic
 end Elab

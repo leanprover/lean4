@@ -94,6 +94,16 @@ else do
     u ← getLevel α; pure $ mkApp8 (mkConst `HEq.trans [u]) α β γ a b c h₁ h₂
   | _, _ => throwEx $ Exception.appBuilder `HEq.trans "heterogeneous equality proof expected" #[h₁, h₂]
 
+def mkEqOfHEq (h : Expr) : MetaM Expr := do
+hType ← infer h;
+match hType.heq? with
+| some (α, a, β, b) => do
+  unlessM (isDefEq α β) $ throwEx $ Exception.appBuilder `eqOfHEq "heterogeneous equality types are not definitionally equal" #[α, β];
+  u ← getLevel α;
+  pure $ mkApp4 (mkConst `eqOfHEq [u]) α a b h
+| _ =>
+  throwEx $ Exception.appBuilder `HEq.trans "heterogeneous equality proof expected" #[h]
+
 def mkCongrArg (f h : Expr) : MetaM Expr := do
 hType ← infer h;
 fType ← infer f;
@@ -207,6 +217,22 @@ mkAppM `Eq.mp #[eqProof, pr]
 
 def mkEqMPR (eqProof pr : Expr) : MetaM Expr :=
 mkAppM `Eq.mpr #[eqProof, pr]
+
+def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
+type ← inferType h;
+type ← whnf type;
+match type.eq? with
+| none           => throwEx $ Exception.appBuilder `noConfusion "equality expected" #[h]
+| some (α, a, b) => do
+  α ← whnf α;
+  env ← getEnv;
+  let f := α.getAppFn;
+  matchConst env f (fun _ => throwEx $ Exception.appBuilder `noConfusion "inductive type expected" #[α]) $ fun cinfo us =>
+    match cinfo with
+    | ConstantInfo.inductInfo v => do
+      u ← getLevel target;
+      pure $ mkAppN (mkConst (mkNameStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+    | _ => throwEx $ Exception.appBuilder `noConfusion "inductive type expected" #[α]
 
 end Meta
 end Lean

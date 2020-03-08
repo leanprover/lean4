@@ -270,7 +270,8 @@ fun ctx s =>
 def ppGoal (ref : Syntax) (mvarId : MVarId) : TermElabM Format := liftMetaM ref $ Meta.ppGoal mvarId
 def isType (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isType e
 def isTypeFormer (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isTypeFormer e
-def isDefEq (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.approxDefEq $ Meta.isDefEq t s
+def isDefEqNoConstantApprox (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.approxDefEq $ Meta.isDefEq t s
+def isDefEq (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.fullApproxDefEq $ Meta.isDefEq t s
 def inferType (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.inferType e
 def whnf (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnf e
 def whnfForall (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfForall e
@@ -500,7 +501,8 @@ match result with
   class CoeT (α : Sort u) (a : α) (β : Sort v)
   abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
   ``` -/
-def tryCoe (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
+def tryCoe (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr :=
+condM (isDefEq ref expectedType eType) (pure e) $ do
 u ← getLevel ref eType;
 v ← getLevel ref expectedType;
 let coeTInstType := mkAppN (mkConst `CoeT [u, v]) #[eType, e, expectedType];
@@ -603,7 +605,7 @@ On the other hand, TC can easily solve `[HasLiftT IO (StateT Nat IO)]`
 since this goal does not contain any metavariables. And then, we
 convert `g x` into `liftM $ g x`.
 -/
-def tryCoeAndLift (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
+def tryLiftAndCoe (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
 some ⟨n, β, monadInst⟩ ← isMonad? ref expectedType | tryCoe ref expectedType eType e f?;
 some (m, α) ← isTypeApp? ref eType | tryCoe ref expectedType eType e f?;
 condM (isDefEq ref m n) (tryCoe ref expectedType eType e f?) $
@@ -640,9 +642,45 @@ def ensureHasTypeAux (ref : Syntax) (expectedType? : Option Expr) (eType : Expr)
 match expectedType? with
 | none              => pure e
 | some expectedType =>
-  condM (isDefEq ref eType expectedType)
+  /-
+    Recall that constant approximation is used to solve constraint of the form
+    ```
+    ?m t =?= s
+    ```
+    where `t` is an arbitrary term, by assigning `?m := fun _ => s`
+    This approximation when not used carefully produces bad solutions, and may prevent coercions from being tried.
+    For example, consider the term `pure (x > 0)` with inferred type `?m Prop` and expected type `IO Bool`. In this situation, the
+    elaborator generates the unification constraint
+    ```
+    ?m Prop =?= IO Bool
+    ```
+    It is not a higher-order pattern, not first-order approximation is applicable. However, constant approximation
+    produces the bogus solution `?m := fun _ => IO Bool`, and prevents the system from using the coercion from
+    the decidable proposition `x > 0` to `Bool`.
+
+    On the other hand, the constant approximation is desirable for elaborating the term
+    ```
+    let f (x : _) := pure 0; f ()
+    ```
+    with expected type `StateT Nat Id Nat`.
+    In this example, the following unification contraint is generated.
+    ```
+    ?m () (?n ()) =?= StateT Nat Id Nat
+    ```
+    It is not a higher-order pattern, and first-order approximation fails.
+    However, constant approximation solves it by assigning
+    ```
+    ?m := fun _ => StateT Nat Id
+    ?n := fun _ => Nat
+    ```
+    Note that `f`s type is `(x : ?α) -> ?m x (?n x)`. The metavariables `?m` and `?n` may depend on `x`.
+
+    The `isDefEqNoConstantApprox` fails to unify the expected and inferred types. Then, `tryLiftAndCoe` first tries
+    the monadic extensions, and then falls back to `isDefEq` which enables all approximations.
+  -/
+  condM (isDefEqNoConstantApprox ref eType expectedType)
     (pure e)
-    (tryCoeAndLift ref expectedType eType e f?)
+    (tryLiftAndCoe ref expectedType eType e f?)
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.
@@ -1130,6 +1168,7 @@ end Term
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.postpone;
+registerTraceClass `Elab.coe;
 pure ()
 
 export Term (TermElabM)

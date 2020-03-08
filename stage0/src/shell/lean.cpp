@@ -681,9 +681,6 @@ int main(int argc, char ** argv) {
             write_module(env, olean_fn);
         }
 
-        if (!json_output)
-            display_cumulative_profiling_times(std::cerr);
-
         if (c_output && ok) {
             if (!main_module_name) {
                 std::cerr << "cannot extract code, module name of input file is not known\n";
@@ -694,9 +691,15 @@ int main(int argc, char ** argv) {
                 std::cerr << "failed to create '" << *c_output << "'\n";
                 return 1;
             }
+            time_task _("C code generation",
+                        message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
+                                        message_severity::INFORMATION));
             out << lean::ir::emit_c(env, *main_module_name).data();
             out.close();
         }
+
+        if (!json_output)
+            display_cumulative_profiling_times(std::cerr);
 
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {

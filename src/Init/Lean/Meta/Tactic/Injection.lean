@@ -54,7 +54,7 @@ withMVarContext mvarId $ do
           newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag;
           assignExprMVar mvarId (mkApp val newMVar);
           mvarId ← tryClear newMVar.mvarId! fvarId;
-          pure $ InjectionResultCore.subgoal newMVar.mvarId! aCtor.nfields
+          pure $ InjectionResultCore.subgoal mvarId aCtor.nfields
         | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
     | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
 

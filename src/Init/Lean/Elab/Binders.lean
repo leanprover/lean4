@@ -433,14 +433,6 @@ withLetDecl ref n type val $ fun x => do
   body ← instantiateMVars ref body;
   mkLet ref x body
 
-def elabLetIdDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
--- `decl` is of the form: ident bracktedBinder+ (`:` term)? `:=` term
-let n        := decl.getIdAt 0;
-let binders  := (decl.getArg 1).getArgs;
-let type     := expandOptType ref (decl.getArg 2);
-let val      := decl.getArg 4;
-elabLetDeclAux ref n binders type val body expectedType?
-
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(let $id:ident $args* := $val; $body) =>

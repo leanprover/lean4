@@ -61,3 +61,6 @@ def h (x := 10) (y := 20) : Nat := x + y
 
 #check_failure let f := fun (x : optParam Nat 10) => x + 1; f + f 1
 #check_failure (fun (x : optParam Nat 10) => x)
+
+
+#check let! x := 10; x + 1

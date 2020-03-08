@@ -417,8 +417,10 @@ if optType.isNone then
 else
   (optType.getArg 0).getArg 1
 
+/- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
+   Otherwise, we create a term of the form `(fun (x : type) => body) val` -/
 def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
-    (expectedType? : Option Expr) : TermElabM Expr := do
+    (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
 (type, val) ← elabBinders binders $ fun xs => do {
   type ← elabType typeStx;
   val  ← elabTerm valStx type;
@@ -428,22 +430,44 @@ def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (typeStx :
   pure (type, val)
 };
 trace `Elab.let.decl ref $ fun _ => n ++ " : " ++ type ++ " := " ++ val;
-withLetDecl ref n type val $ fun x => do
-  body ← elabTerm body expectedType?;
-  body ← instantiateMVars ref body;
-  mkLet ref x body
+if useLetExpr then
+  withLetDecl ref n type val $ fun x => do
+    body ← elabTerm body expectedType?;
+    body ← instantiateMVars ref body;
+    mkLet ref x body
+else do
+  f ← withLocalDecl ref n BinderInfo.default type $ fun x => do {
+    body ← elabTerm body expectedType?;
+    body ← instantiateMVars ref body;
+    mkLambda ref #[x] body
+  };
+  pure $ mkApp f val
 
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(let $id:ident $args* := $val; $body) =>
-   elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType?
+   elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType? true
 | `(let $id:ident $args* : $type := $val; $body) =>
-   elabLetDeclAux stx id.getId args type val body expectedType?
+   elabLetDeclAux stx id.getId args type val body expectedType? true
 | `(let $pat:term := $val; $body) => do
    stxNew ← `(let x := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 | `(let $pat:term : $type := $val; $body) => do
    stxNew ← `(let x : $type := $val; match x with $pat => $body);
+   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+| _ => throwUnsupportedSyntax
+
+@[builtinTermElab «let!»] def elabLetBangDecl : TermElab :=
+fun stx expectedType? => match_syntax stx with
+| `(let! $id:ident $args* := $val; $body) =>
+   elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType? false
+| `(let! $id:ident $args* : $type := $val; $body) =>
+   elabLetDeclAux stx id.getId args type val body expectedType? false
+| `(let! $pat:term := $val; $body) => do
+   stxNew ← `(let! x := $val; match x with $pat => $body);
+   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+| `(let! $pat:term : $type := $val; $body) => do
+   stxNew ← `(let! x : $type := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 | _ => throwUnsupportedSyntax
 

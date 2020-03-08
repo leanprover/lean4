@@ -22,7 +22,7 @@ withMVarContext mvarId $ fun ctx s =>
 
 def ensureAssignmentHasNoMVars (ref : Syntax) (mvarId : MVarId) : TermElabM Unit := do
 val ← instantiateMVars ref (mkMVar mvarId);
-when val.hasMVar $ throwError ref ("tactic failed, result still contain metavariables" ++ indentExpr val)
+when val.hasExprMVar $ throwError ref ("tactic failed, result still contain metavariables" ++ indentExpr val)
 
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };

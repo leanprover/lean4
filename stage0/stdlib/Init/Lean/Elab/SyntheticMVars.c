@@ -60,6 +60,7 @@ lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVa
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Init_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__4;
+uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_6__synthesizeSyntheticMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___at_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getMVarDecl___boxed(lean_object*, lean_object*, lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVa
 uint8_t l_Lean_Expr_isMVar(lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__7;
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__9;
-uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeInstMVarCore(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_4__synthesizePendingCoeInstMVar___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_log___at_Lean_Elab_Term_logTrace___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -830,7 +830,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
-x_10 = l_Lean_Expr_hasMVar(x_8);
+x_10 = l_Lean_Expr_hasExprMVar(x_8);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -863,7 +863,7 @@ x_18 = lean_ctor_get(x_6, 1);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_6);
-x_19 = l_Lean_Expr_hasMVar(x_17);
+x_19 = l_Lean_Expr_hasExprMVar(x_17);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 

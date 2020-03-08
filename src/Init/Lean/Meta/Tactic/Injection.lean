@@ -5,13 +5,14 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Meta.AppBuilder
-import Init.Lean.Meta.Tactic.Util
+import Init.Lean.Meta.Tactic.Clear
 import Init.Lean.Meta.Tactic.Assert
+import Init.Lean.Meta.Tactic.Intro
 
 namespace Lean
 namespace Meta
 
-inductive InjectionResult
+inductive InjectionResultCore
 | solved
 | subgoal (mvarId : MVarId) (numNewEqs : Nat)
 
@@ -24,7 +25,7 @@ match cinfo with
 | ConstantInfo.ctorInfo v => if e.getAppNumArgs == v.nparams + v.nfields then pure (some v) else pure none
 | _                       => pure none
 
-def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResult := do
+def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCore := do
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `injection;
   decl ← getLocalDecl fvarId;
@@ -42,7 +43,7 @@ withMVarContext mvarId $ do
       val ← mkNoConfusion target (mkFVar fvarId);
       if aCtor.name != bCtor.name then do
         assignExprMVar mvarId val;
-        pure InjectionResult.solved
+        pure InjectionResultCore.solved
       else do
         valType ← inferType val;
         valType ← whnf valType;
@@ -52,9 +53,22 @@ withMVarContext mvarId $ do
           tag ← getMVarTag mvarId;
           newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag;
           assignExprMVar mvarId (mkApp val newMVar);
-          pure $ InjectionResult.subgoal newMVar.mvarId! aCtor.nfields
+          mvarId ← tryClear newMVar.mvarId! fvarId;
+          pure $ InjectionResultCore.subgoal newMVar.mvarId! aCtor.nfields
         | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
     | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
+
+inductive InjectionResult
+| solved
+| subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
+
+def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) (useUnusedNames : Bool := true) : MetaM InjectionResult := do
+r ← injectionCore mvarId fvarId;
+match r with
+| InjectionResultCore.solved => pure InjectionResult.solved
+| InjectionResultCore.subgoal mvarId numEqs => do
+  (fvarIds, mvarId) ← introN mvarId numEqs newNames useUnusedNames;
+  pure $ InjectionResult.subgoal mvarId fvarIds (newNames.drop numEqs)
 
 end Meta
 end Lean

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Meta.Tactic.Apply
+import Init.Lean.Meta.Tactic.Assert
 import Init.Lean.Elab.Tactic.Basic
 import Init.Lean.Elab.SyntheticMVars
 
@@ -67,6 +68,29 @@ fun stx => match_syntax stx with
     -- TODO: handle optParam and autoParam
     setGoals (gs' ++ gs)
   | _ => throwUnsupportedSyntax
+
+/--
+  Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
+  Note that, the main goal is updated when `Meta.assert` is used in the second case. -/
+def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId := do
+(mvarId, others) ← getMainGoal stx;
+withMVarContext mvarId $ do
+  e ← elabTerm stx none;
+  match e with
+  | Expr.fvar fvarId _ => pure fvarId
+  | _ => do
+    type ← inferType stx e;
+    let intro (userName : Name) (useUnusedNames : Bool) : TacticM FVarId := do {
+      (fvarId, mvarId) ← liftMetaM stx $ do {
+        mvarId ← Meta.assert mvarId userName type e;
+        Meta.intro1 mvarId useUnusedNames
+      };
+      setGoals $ mvarId::others;
+      pure fvarId
+    };
+    match userName? with
+    | none          => intro `h true
+    | some userName => intro userName false
 
 end Tactic
 end Elab

@@ -163,7 +163,7 @@ else do
     x fvars
 
 @[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
-elabBinders #[binder] (fun fvars => x (fvars.get! 1))
+elabBinders #[binder] (fun fvars => x (fvars.get! 0))
 
 @[builtinTermElab «forall»] def elabForall : TermElab :=
 fun stx _ => match_syntax stx with

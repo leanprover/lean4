@@ -16,14 +16,20 @@ inductive InjectionResultCore
 | solved
 | subgoal (mvarId : MVarId) (numNewEqs : Nat)
 
-def constructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
-let f     := e.getAppFn;
-let nargs := e.getAppNumArgs;
+private def getConstructorVal (ctorName : Name) (numArgs : Nat) : MetaM (Option ConstructorVal) := do
 env ← getEnv;
-matchConst env f (fun _ => pure none) $ fun cinfo _ =>
-match cinfo with
-| ConstantInfo.ctorInfo v => if e.getAppNumArgs == v.nparams + v.nfields then pure (some v) else pure none
-| _                       => pure none
+match env.find? ctorName with
+| some (ConstantInfo.ctorInfo v) => if numArgs == v.nparams + v.nfields then pure (some v) else pure none
+| _                              => pure none
+
+def constructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
+match e with
+| Expr.lit (Literal.natVal n) _ =>
+  if n == 0 then getConstructorVal `Nat.zero 0 else getConstructorVal `Nat.succ 1
+| _ =>
+  match e.getAppFn with
+  | Expr.const n _ _ => getConstructorVal n e.getAppNumArgs
+  | _                => pure none
 
 def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCore := do
 withMVarContext mvarId $ do

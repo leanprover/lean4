@@ -207,10 +207,12 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
         let inj : Unit → MetaM (Option CasesSubgoal) := fun _ => do {
           r ← injectionCore mvarId eqFVarId;
           match r with
-          | InjectionResultCore.solved           => pure none -- this alternative has been solved
-          | InjectionResultCore.subgoal mvarId _ => unifyEqsAux n { mvarId := mvarId, .. s }
+          | InjectionResultCore.solved                => pure none -- this alternative has been solved
+          | InjectionResultCore.subgoal mvarId numEqs => unifyEqsAux (n+numEqs) { mvarId := mvarId, .. s }
         };
-        condM (isDefEq a b) (skip ()) $
+        condM (isDefEq a b) (skip ()) $ do
+        a ← whnf a;
+        b ← whnf b;
         match a, b with
         | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
         | Expr.fvar _ _,       _                   => substEq false

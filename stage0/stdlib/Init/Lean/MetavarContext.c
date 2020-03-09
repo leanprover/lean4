@@ -9538,7 +9538,7 @@ return x_247;
 block_223:
 {
 uint8_t x_198; 
-x_198 = l_Lean_Expr_hasMVar(x_196);
+x_198 = l_Lean_Expr_hasExprMVar(x_196);
 if (x_198 == 0)
 {
 lean_object* x_199; lean_object* x_200; uint8_t x_201; 

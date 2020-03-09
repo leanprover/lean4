@@ -60,15 +60,15 @@ fun stx expectedType? => match_syntax stx with
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro :=
 fun stx => match_syntax stx with
-| `(show $type from $val) => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $thisId) $val)
+| `(show $type from $val) => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $thisId)
 | _                       => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro :=
 fun stx => match_syntax stx with
-| `(have $type from $val; $body)      => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
-| `(have $type := $val; $body)        => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
-| `(have $x : $type from $val; $body) => `((fun ($x:ident : $type) => $body) $val)
-| `(have $x : $type := $val; $body)   => `((fun ($x:ident : $type) => $body) $val)
+| `(have $type from $val; $body)      => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
+| `(have $type := $val; $body)        => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
+| `(have $x : $type from $val; $body) => `(let! $x:ident : $type := $val; $body)
+| `(have $x : $type := $val; $body)   => `(let! $x:ident : $type := $val; $body)
 | _                                   => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.where] def expandWhere : Macro :=

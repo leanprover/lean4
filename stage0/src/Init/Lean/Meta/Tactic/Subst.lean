@@ -22,9 +22,10 @@ withMVarContext mvarId $ do
   hLocalDecl ← getLocalDecl hFVarId;
   match hLocalDecl.type.eq? with
   | none => throwTacticEx `subst mvarId "argument must be an equality proof"
-  | some (α, lhs, rhs) =>
+  | some (α, lhs, rhs) => do
     let a := if symm then rhs else lhs;
     let b := if symm then lhs else rhs;
+    a ← whnf a;
     match a with
     | Expr.fvar aFVarId _ => do
       mctx ← getMCtx;

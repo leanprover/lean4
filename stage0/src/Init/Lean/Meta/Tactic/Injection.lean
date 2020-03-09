@@ -16,14 +16,20 @@ inductive InjectionResultCore
 | solved
 | subgoal (mvarId : MVarId) (numNewEqs : Nat)
 
-def constructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
-let f     := e.getAppFn;
-let nargs := e.getAppNumArgs;
+private def getConstructorVal (ctorName : Name) (numArgs : Nat) : MetaM (Option ConstructorVal) := do
 env ← getEnv;
-matchConst env f (fun _ => pure none) $ fun cinfo _ =>
-match cinfo with
-| ConstantInfo.ctorInfo v => if e.getAppNumArgs == v.nparams + v.nfields then pure (some v) else pure none
-| _                       => pure none
+match env.find? ctorName with
+| some (ConstantInfo.ctorInfo v) => if numArgs == v.nparams + v.nfields then pure (some v) else pure none
+| _                              => pure none
+
+def constructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
+match e with
+| Expr.lit (Literal.natVal n) _ =>
+  if n == 0 then getConstructorVal `Nat.zero 0 else getConstructorVal `Nat.succ 1
+| _ =>
+  match e.getAppFn with
+  | Expr.const n _ _ => getConstructorVal n e.getAppNumArgs
+  | _                => pure none
 
 def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCore := do
 withMVarContext mvarId $ do
@@ -62,13 +68,37 @@ inductive InjectionResult
 | solved
 | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
+private def heqToEq (mvarId : MVarId) (fvarId : FVarId) : MetaM (FVarId × MVarId) :=
+withMVarContext mvarId $ do
+ decl ← getLocalDecl fvarId;
+ type ← whnf decl.type;
+ match type.heq? with
+ | none              => pure (fvarId, mvarId)
+ | some (α, a, β, b) => do
+   pr ← mkEqOfHEq (mkFVar fvarId);
+   eq ← mkEq a b;
+   mvarId ← assert mvarId decl.userName eq pr;
+   mvarId ← clear mvarId fvarId;
+   (fvarId, mvarId) ← intro1 mvarId false;
+   pure (fvarId, mvarId)
+
+def injectionIntro : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
+| 0, mvarId, fvarIds, remainingNames =>
+  pure $ InjectionResult.subgoal mvarId fvarIds remainingNames
+| n+1, mvarId, fvarIds, name::remainingNames => do
+  (fvarId, mvarId) ← intro mvarId name;
+  (fvarId, mvarId) ← heqToEq mvarId fvarId;
+  injectionIntro n mvarId (fvarIds.push fvarId) remainingNames
+| n+1, mvarId, fvarIds, [] => do
+  (fvarId, mvarId) ← intro1 mvarId true;
+  (fvarId, mvarId) ← heqToEq mvarId fvarId;
+  injectionIntro n mvarId (fvarIds.push fvarId) []
+
 def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) (useUnusedNames : Bool := true) : MetaM InjectionResult := do
 r ← injectionCore mvarId fvarId;
 match r with
-| InjectionResultCore.solved => pure InjectionResult.solved
-| InjectionResultCore.subgoal mvarId numEqs => do
-  (fvarIds, mvarId) ← introN mvarId numEqs newNames useUnusedNames;
-  pure $ InjectionResult.subgoal mvarId fvarIds (newNames.drop numEqs)
+| InjectionResultCore.solved                => pure InjectionResult.solved
+| InjectionResultCore.subgoal mvarId numEqs => injectionIntro numEqs mvarId #[] newNames
 
 end Meta
 end Lean

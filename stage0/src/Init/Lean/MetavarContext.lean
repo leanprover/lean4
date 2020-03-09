@@ -532,7 +532,7 @@ partial def main : Expr → M Expr
         instArgs f
       else do
         newVal ← visit main val;
-        if newVal.hasMVar then
+        if newVal.hasExprMVar then
           instArgs f
         else do
           args ← args.mapM (visit main);

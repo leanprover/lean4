@@ -16,6 +16,10 @@ private def getInjectionNewIds (stx : Syntax) : List Name :=
 if stx.isNone then []
 else (stx.getArg 1).getArgs.toList.map Syntax.getId
 
+private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit :=
+unless unusedIds.isEmpty $
+  Meta.throwTacticEx `injection mvarId ("too many identifiers provided, unused: " ++ toString unusedIds)
+
 @[builtinTactic «injection»] def evalInjection : Tactic :=
 fun stx => do
   -- parser! nonReservedSymbol "injection " >> termParser >> withIds
@@ -24,8 +28,8 @@ fun stx => do
   liftMetaTactic stx $ fun mvarId => do
     r ← Meta.injection mvarId fvarId ids (!ids.isEmpty);
     match r with
-    | Meta.InjectionResult.solved             => pure []
-    | Meta.InjectionResult.subgoal mvarId _ _ => pure [mvarId]
+    | Meta.InjectionResult.solved                      => do checkUnusedIds mvarId ids; pure []
+    | Meta.InjectionResult.subgoal mvarId' _ unusedIds => do checkUnusedIds mvarId unusedIds; pure [mvarId']
 
 end Tactic
 end Elab

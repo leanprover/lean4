@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Meta.AppBuilder
 import Init.Lean.Meta.Tactic.Induction
+import Init.Lean.Meta.Tactic.Injection
 import Init.Lean.Meta.Tactic.Assert
 import Init.Lean.Meta.Tactic.Subst
 
@@ -203,14 +204,20 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
             .. s
           }
         };
-        condM (isDefEq a b) (skip ()) $
+        let inj : Unit → MetaM (Option CasesSubgoal) := fun _ => do {
+          r ← injectionCore mvarId eqFVarId;
+          match r with
+          | InjectionResultCore.solved                => pure none -- this alternative has been solved
+          | InjectionResultCore.subgoal mvarId numEqs => unifyEqsAux (n+numEqs) { mvarId := mvarId, .. s }
+        };
+        condM (isDefEq a b) (skip ()) $ do
+        a ← whnf a;
+        b ← whnf b;
         match a, b with
         | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
         | Expr.fvar _ _,       _                   => substEq false
         | _,                   Expr.fvar _ _       => substEq true
-        | _,                   _                   =>
-          -- TODO
-          pure $ some { mvarId := mvarId, .. s }
+        | _,                   _                   => inj ()
       | none => throwTacticEx `cases mvarId "equality expected"
 
 private def unifyEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=

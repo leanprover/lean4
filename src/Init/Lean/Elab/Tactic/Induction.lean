@@ -151,10 +151,10 @@ match recInfo? with
   | _ => throwError ref ("invalid recursor name '" ++ baseRecName ++ "'")
 
 /- Create `RecInfo` assuming builtin recursor -/
-private def getRecInfoDefault (ref : Syntax) (major : Expr) (withAlts : Syntax) (allowMissingAlts : Bool) : TacticM RecInfo := do
+private def getRecInfoDefault (ref : Syntax) (major : Expr) (withAlts : Syntax) (allowMissingAlts : Bool) : TacticM (RecInfo × Array Name) := do
 indVal ← getInductiveValFromMajor ref major;
 let recName := mkRecFor indVal.name;
-if withAlts.isNone then pure { recName := recName }
+if withAlts.isNone then pure ({ recName := recName }, #[])
 else do
   let ctorNames := indVal.ctors;
   let alts      := getAlts withAlts;
@@ -181,7 +181,7 @@ else do
     (#[], #[], alts, none);
   unless remainingAlts.isEmpty $
     throwError (remainingAlts.get! 0) "unused alternative";
-  pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
+  pure ({ recName := recName, altVars := altVars, altRHSs := altRHSs }, ctorNames.toArray)
 
 /-
   Recall that
@@ -196,7 +196,8 @@ let ref         := stx;
 let usingRecStx := stx.getArg 2;
 let withAlts    := stx.getArg 4;
 if usingRecStx.isNone then do
-  getRecInfoDefault ref major withAlts false
+  (rinfo, _) ← getRecInfoDefault ref major withAlts false;
+  pure rinfo
 else do
   let baseRecName := (usingRecStx.getIdAt 1).eraseMacroScopes;
   recInfo ← getRecFromUsing ref major baseRecName;
@@ -260,6 +261,32 @@ fun stx => focusAux stx $ do
   result ← liftMetaM stx $ Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars;
   processResult stx recInfo.altRHSs result
 
+private partial def checkCasesResultAux (ref : Syntax) (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax)
+    : Nat → Nat → TacticM Unit
+| i, j =>
+  if h : j < altRHSs.size then do
+    let altRHS   := altRHSs.get ⟨j, h⟩;
+    if altRHS.isMissing then
+      checkCasesResultAux i (j+1)
+    else
+      let ctorName := ctorNames.get! j;
+      if h : i < casesResult.size then
+        let subgoal := casesResult.get ⟨i, h⟩;
+        if ctorName == subgoal.ctorName then
+          checkCasesResultAux (i+1) (j+1)
+        else
+          throwError ref ("alternative for '" ++ subgoal.ctorName ++ "' has not been provided")
+      else
+        throwError ref ("alternative for '" ++ ctorName ++ "' is not needed")
+  else if h : i < casesResult.size then
+    let subgoal := casesResult.get ⟨i, h⟩;
+    throwError ref ("alternative for '" ++ subgoal.ctorName ++ "' has not been provided")
+  else
+    pure ()
+
+private def checkCasesResult (ref : Syntax) (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax) : TacticM Unit :=
+unless altRHSs.isEmpty $ checkCasesResultAux ref casesResult ctorNames altRHSs 0 0
+
 @[builtinTactic «cases»] def evalCases : Tactic :=
 fun stx => focusAux stx $ do
   -- parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
@@ -268,8 +295,9 @@ fun stx => focusAux stx $ do
   major ← generalizeMajor stx major;
   (mvarId, _) ← getMainGoal stx;
   let withAlts := stx.getArg 2;
-  recInfo ← getRecInfoDefault stx major withAlts true;
+  (recInfo, ctorNames) ← getRecInfoDefault stx major withAlts true;
   result ← liftMetaM stx $ Meta.cases mvarId major.fvarId! recInfo.altVars;
+  checkCasesResult stx result ctorNames recInfo.altRHSs;
   let result  := result.map (fun s => s.toInductionSubgoal);
   let altRHSs := recInfo.altRHSs.filter $ fun stx => !stx.isMissing;
   processResult stx altRHSs result

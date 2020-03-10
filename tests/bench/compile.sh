@@ -15,13 +15,13 @@ if [[ "$OSTYPE" == "msys" ]]; then
     ff=$(echo $ff  | sed 's|^/\([a-z]\)/|\1:/|' | sed 's|/|\\\\|g')
 fi
 
-$LEAN --cpp="$ff".cpp "$ff"
+$LEAN --c="$ff".c "$ff"
 if [ $? -ne 0 ]; then
     echo "Failed to compile $ff into C++ file"
     exit 1
 fi
 
-$BIN_DIR/leanc -O3 -DNDEBUG -g -o "$ff.out" $ff.cpp
+$BIN_DIR/leanc -c -O3 -DNDEBUG -o "$ff.o" $ff.c && $BIN_DIR/leanc -o "$ff.out" $ff.o
 if [ $? -ne 0 ]; then
     echo "Failed to compile C++ file $ff.cpp"
     exit 1

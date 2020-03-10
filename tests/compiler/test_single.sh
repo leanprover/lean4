@@ -25,15 +25,15 @@ if diff --color --help >/dev/null 2>&1; then
   DIFF="diff --color";
 fi
 
-$LEAN --cpp="$ff".cpp "$ff"
+$LEAN --c="$ff".c "$ff"
 if [ $? -ne 0 ]; then
     echo "Failed to compile $ff into C++ file"
     exit 1
 fi
 
-$BIN_DIR/leanc -O3 -DNDEBUG -o "$ff.out" $ff.cpp
+$BIN_DIR/leanc -c -O3 -DNDEBUG -o "$ff.o" $ff.c && $BIN_DIR/leanc -o "$ff.out" $ff.c
 if [ $? -ne 0 ]; then
-    echo "Failed to compile C++ file $ff.cpp"
+    echo "Failed to compile C file $ff.c"
     exit 1
 fi
 

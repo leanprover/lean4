@@ -300,7 +300,13 @@ extern "C" b_obj_res lean_thunk_get_core(b_obj_arg t) {
            to be object stored in the constructor object.
 
            Recall that `apply_1` also consumes `c`'s RC. */
-        object * r = lean_apply_1(c, lean_box(0));
+        object *r;
+        try {
+            r = lean_apply_1(c, lean_box(0));
+        } catch (throwable const & e) {
+            lean_to_thunk(t)->m_closure = c;
+            throw;
+        }
         lean_assert(r != nullptr); /* Closure must return a valid lean object */
         lean_assert(lean_to_thunk(t)->m_value == nullptr);
         lean_to_thunk(t)->m_value = r;

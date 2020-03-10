@@ -545,13 +545,15 @@ extern "C" object* lean_add_extern(object * env, object * fn) {
 
 extern "C" object * lean_ir_emit_c(object * env, object * mod_name);
 
-string_ref emit_c(environment const & env, name const & mod_name) {
+string_ref emit_c(environment & env, name const & mod_name) {
     object * r = lean_ir_emit_c(env.to_obj_arg(), mod_name.to_obj_arg());
-    string_ref s(cnstr_get(r, 0), true);
     if (cnstr_tag(r) == 0) {
+        string_ref s(cnstr_get(r, 0), true);
         dec_ref(r);
         throw exception(s.to_std_string());
     } else {
+        string_ref s(cnstr_get(cnstr_get(r, 0), 0), true);
+        env = environment(cnstr_get(cnstr_get(r, 0), 1), true);
         dec_ref(r);
         return s;
     }

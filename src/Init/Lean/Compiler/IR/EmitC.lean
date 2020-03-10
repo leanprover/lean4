@@ -22,6 +22,22 @@ namespace EmitC
 
 def leanMainFn := "_lean_main"
 
+def regModuleInitializerExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
+registerSimplePersistentEnvExtension {
+  name            := `moduleInitializer,
+  addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
+  addEntryFn      := fun s n => s.insert n
+}
+
+@[init regModuleInitializerExtension]
+constant moduleInitializerExt : SimplePersistentEnvExtension Name NameSet := arbitrary _
+
+def registerModuleInitializer (env : Environment) (n : Name) : Environment :=
+if (moduleInitializerExt.getState env).contains n then env else moduleInitializerExt.addEntry env n
+
+def getModuleInitializers (env : Environment) : NameSet :=
+moduleInitializerExt.getState env
+
 structure Context :=
 (env        : Environment)
 (modName    : Name)
@@ -46,6 +62,9 @@ match findEnvDecl env n with
 def isDelayInit (n : Name) : M Bool := do
 st ← get;
 pure $ st.delayInit.contains n
+
+def markDelayInit (n : Name) : M Unit :=
+modify (fun st => { st with delayInit := st.delayInit.insert n })
 
 @[inline] def emit {α : Type} [HasToString α] (a : α) : M Unit :=
 modify (fun st => { st with code := st.code ++ toString a })
@@ -663,7 +682,7 @@ unless (hasInitAttr env d.name) $
     | Except.ok code => emit code
     | Except.error e => do
       -- TODO: log `e`?
-      modify (fun st => { st with delayInit := st.delayInit.insert d.name });
+      markDelayInit d.name;
       emit (toCType t);
       emit " ";
       emit ("_init_" ++ baseName ++ "()");
@@ -692,7 +711,8 @@ let n := d.name;
 if isIOUnitInitFn env n then do {
   emit "res = "; emitCName n; emitLn "(lean_io_mk_world());";
   emitLn "if (lean_io_result_is_error(res)) return res;";
-  emitLn "lean_dec_ref(res);"
+  emitLn "lean_dec_ref(res);";
+  markDelayInit n
 } else when (d.params.size == 0) $
   match getInitFnNameFor env d.name with
   | some initFn => do {
@@ -700,7 +720,8 @@ if isIOUnitInitFn env n then do {
     emitLn "if (lean_io_result_is_error(res)) return res;";
     emitCName n; emitLn " = lean_io_result_get_value(res);";
     emitMarkPersistent d n;
-    emitLn "lean_dec_ref(res);"
+    emitLn "lean_dec_ref(res);";
+    markDelayInit n
     }
   | _ => whenM (isDelayInit d.name) $ do
     emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
@@ -708,7 +729,8 @@ if isIOUnitInitFn env n then do {
 def emitInitFn : M Unit := do
 env ← getEnv;
 modName ← getModName;
-env.imports.forM $ fun imp => emitLn ("lean_object* initialize_" ++ imp.module.mangle "" ++ "(lean_object*);");
+let inits := (getModuleInitializers env).toList;
+inits.forM $ fun imp => emitLn ("lean_object* initialize_" ++ imp.mangle "" ++ "(lean_object*);");
 emitLns [
   "static bool _G_initialized = false;",
   "lean_object* initialize_" ++ modName.mangle "" ++ "(lean_object* w) {",
@@ -716,8 +738,8 @@ emitLns [
   "if (_G_initialized) return lean_mk_io_result(lean_box(0));",
   "_G_initialized = true;"
 ];
-env.imports.forM $ fun imp => emitLns [
-  "res = initialize_" ++ imp.module.mangle "" ++ "(lean_io_mk_world());",
+inits.forM $ fun imp => emitLns [
+  "res = initialize_" ++ imp.mangle "" ++ "(lean_io_mk_world());",
   "if (lean_io_result_is_error(res)) return res;",
   "lean_dec_ref(res);"];
 let decls := getDecls env;
@@ -735,9 +757,9 @@ emitFileFooter
 end EmitC
 
 @[export lean_ir_emit_c]
-def emitC (env : Environment) (modName : Name) : Except String String :=
+def emitC (env : Environment) (modName : Name) : Except String (String × Environment) :=
 match (EmitC.main { env := env, modName := modName }).run {} with
-| EStateM.Result.ok    _   s => Except.ok s.code
+| EStateM.Result.ok    _   s => Except.ok (s.code, if s.delayInit.isEmpty then env else EmitC.registerModuleInitializer env modName)
 | EStateM.Result.error err _ => Except.error err
 
 end IR

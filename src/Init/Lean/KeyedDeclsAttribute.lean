@@ -119,7 +119,7 @@ ext : Extension Value ← registerPersistentEnvExtension {
 };
 registerBuiltinAttribute {
  name  := df.builtinName,
- descr := "Builtin macro",
+ descr := "(builtin) " ++ df.descr,
  add   := fun env declName arg persistent => do {
    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString df.builtinName ++ "', must be persistent"));
    key ← IO.ofExcept $ df.evalKey env arg;

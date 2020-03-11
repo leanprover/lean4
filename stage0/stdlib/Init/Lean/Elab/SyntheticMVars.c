@@ -36,7 +36,6 @@ lean_object* l_List_find_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_PersistentArray_push___rarg(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Util_9__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -134,6 +133,7 @@ lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVa
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_8__synthesizeUsingDefault___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_instantiateMVarDeclMVars(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_10__getSomeSynthethicMVarsRef___rarg(lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Util_4__regTraceClasses___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_10__getSomeSynthethicMVarsRef___rarg___closed__1;
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -2791,7 +2791,7 @@ lean_object* _init_l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSynthe
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Elab_Util_9__regTraceClasses___closed__1;
+x_1 = l___private_Init_Lean_Elab_Util_4__regTraceClasses___closed__1;
 x_2 = l___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -2950,7 +2950,7 @@ x_9 = l_List_lengthAux___main___rarg(x_7, x_8);
 x_10 = lean_box(0);
 lean_ctor_set(x_5, 1, x_10);
 x_11 = l_List_reverse___rarg(x_7);
-x_12 = l___private_Init_Lean_Elab_Util_9__regTraceClasses___closed__1;
+x_12 = l___private_Init_Lean_Elab_Util_4__regTraceClasses___closed__1;
 x_13 = l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2(x_1, x_2, x_12, x_11, x_10, x_3, x_5);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -3165,7 +3165,7 @@ lean_ctor_set(x_73, 3, x_67);
 lean_ctor_set(x_73, 4, x_68);
 lean_ctor_set(x_73, 5, x_69);
 x_74 = l_List_reverse___rarg(x_65);
-x_75 = l___private_Init_Lean_Elab_Util_9__regTraceClasses___closed__1;
+x_75 = l___private_Init_Lean_Elab_Util_4__regTraceClasses___closed__1;
 x_76 = l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2(x_1, x_2, x_75, x_74, x_72, x_3, x_73);
 if (lean_obj_tag(x_76) == 0)
 {

@@ -16,11 +16,11 @@ extern "C" {
 lean_object* l_Lean_Elab_Tactic_withMVarContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_liftMetaTactic___closed__1;
 lean_object* l_List_toString___at_Lean_Elab_OpenDecl_HasToString___spec__2(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_monadLog___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__1;
-extern lean_object* l_Lean_Elab_Tactic_declareBuiltinTactic___closed__3;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -28,17 +28,16 @@ lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_obj
 lean_object* l___private_Init_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__2;
 lean_object* l___private_Init_Lean_Elab_Tactic_Injection_1__getInjectionNewIds(lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elab_Tactic_Injection_1__getInjectionNewIds___spec__1(lean_object*);
+extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 lean_object* l___private_Init_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__1;
 lean_object* l___private_Init_Lean_Elab_Tactic_Injection_2__checkUnusedIds___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__1;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Tactic_Injection_2__checkUnusedIds(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection(lean_object*);
-lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__2;
 lean_object* l_Lean_Meta_injection___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalInjection(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l_Lean_Elab_Tactic_addBuiltinTactic(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalInjection___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_elabAsFVar(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
@@ -49,7 +48,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Tactic_Injection_1__getInjectionNewIds___boxed(lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__2;
-lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__3;
 lean_object* l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elab_Tactic_Injection_1__getInjectionNewIds___spec__1(lean_object* x_1) {
 _start:
@@ -502,24 +500,6 @@ lean_object* _init_l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalInjection");
-return x_1;
-}
-}
-lean_object* _init_l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_declareBuiltinTactic___closed__3;
-x_2 = l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__3() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalInjection), 3, 0);
 return x_1;
 }
@@ -528,10 +508,10 @@ lean_object* l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection(lean_object* x_
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Parser_Tactic_injection___elambda__1___closed__2;
-x_3 = l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__2;
-x_4 = l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__3;
-x_5 = l_Lean_Elab_Tactic_addBuiltinTactic(x_2, x_3, x_4, x_1);
+x_2 = l_Lean_Elab_Tactic_tacticElabAttribute;
+x_3 = l_Lean_Parser_Tactic_injection___elambda__1___closed__2;
+x_4 = l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__1;
+x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -558,10 +538,6 @@ l___private_Init_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__4 = _ini
 lean_mark_persistent(l___private_Init_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__4);
 l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__1 = _init_l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__1();
 lean_mark_persistent(l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__1);
-l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__2 = _init_l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__2();
-lean_mark_persistent(l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__2);
-l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__3 = _init_l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__3();
-lean_mark_persistent(l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection___closed__3);
 res = l___regBuiltinTactic_Lean_Elab_Tactic_evalInjection(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

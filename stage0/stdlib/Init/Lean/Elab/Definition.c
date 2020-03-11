@@ -40,7 +40,6 @@ lean_object* l_Lean_Elab_Term_mkLambda(lean_object*, lean_object*, lean_object*,
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Lean_Parser_Command_declValEqns___elambda__1___closed__2;
-extern lean_object* l___private_Init_Lean_Elab_Util_9__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__1;
 lean_object* l_Lean_Elab_Command_elabDefVal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_collectUsedFVarsAtFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,6 +124,7 @@ lean_object* l_Lean_Elab_Term_elabBinders___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_Elab_Command_removeUnused___closed__1;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Util_4__regTraceClasses___closed__1;
 uint8_t l_Lean_Elab_Command_DefKind_isDefOrOpaque(uint8_t);
 lean_object* lean_task_pure(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_7__mkTermState(lean_object*);
@@ -1373,7 +1373,7 @@ lean_object* _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Elab_Util_9__regTraceClasses___closed__1;
+x_1 = l___private_Init_Lean_Elab_Util_4__regTraceClasses___closed__1;
 x_2 = l_Lean_Elab_Command_mkDef___lambda__1___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

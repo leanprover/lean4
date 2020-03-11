@@ -119,47 +119,13 @@ instance monadQuotation : MonadQuotation TacticM := {
   withFreshMacroScope := @Tactic.withFreshMacroScope
 }
 
-abbrev TacticTable := ElabFnTable Tactic
-def mkBuiltinTacticTable : IO (IO.Ref TacticTable) :=  IO.mkRef {}
-@[init mkBuiltinTacticTable] constant builtinTacticTable : IO.Ref TacticTable := arbitrary _
+unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
+mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
+@[init mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
 
+-- TODO: remove after bootstrap
 def addBuiltinTactic (k : SyntaxNodeKind) (declName : Name) (elab : Tactic) : IO Unit := do
-m ← builtinTacticTable.get;
-when (m.contains k) $
-  throw (IO.userError ("invalid builtin tactic elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
-builtinTacticTable.modify $ fun m => m.insert k elab
-
-def declareBuiltinTactic (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
-let name := `_regBuiltinTactic ++ declName;
-let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `Lean.Elab.Tactic.addBuiltinTactic) #[toExpr kind, toExpr declName, mkConst declName];
-let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
-match env.addAndCompile {} decl with
--- TODO: pretty print error
-| Except.error _ => throw (IO.userError ("failed to emit registration code for builtin tactic elaborator '" ++ toString declName ++ "'"))
-| Except.ok env  => IO.ofExcept (setInitAttr env name)
-
-@[init] def registerBuiltinTacticAttr : IO Unit :=
-registerBuiltinAttribute {
- name  := `builtinTactic,
- descr := "Builtin tactic elaborator",
- add   := fun env declName arg persistent => do {
-   unless persistent $ throw (IO.userError ("invalid attribute 'builtinTactic', must be persistent"));
-   kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Tactic arg;
-   match env.find? declName with
-   | none  => throw $ IO.userError "unknown declaration"
-   | some decl =>
-     match decl.type with
-     | Expr.const `Lean.Elab.Tactic.Tactic _ _ => declareBuiltinTactic env kind declName
-     | _ => throw (IO.userError ("unexpected tactic elaborator type at '" ++ toString declName ++ "' `Tactic` expected"))
- },
- applicationTime := AttributeApplicationTime.afterCompilation
-}
-
-abbrev TacticAttribute := ElabAttribute Tactic
-def mkTacticAttribute : IO TacticAttribute :=
-mkElabAttribute Tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic" builtinTacticTable
-@[init mkTacticAttribute] constant tacticElabAttribute : TacticAttribute := arbitrary _
+KeyedDeclsAttribute.addBuiltin tacticElabAttribute k elab
 
 def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls ref msg
 @[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls ref msg

@@ -602,6 +602,21 @@ pure ()
 @[extern "lean_eval_const"]
 unsafe constant evalConst (α) (env : @& Environment) (constName : @& Name) : Except String α := arbitrary _
 
+private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
+throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
+
+/-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
+    This function is still unsafe because it cannot guarantee that `typeName` is in fact the name of the type `α`. -/
+unsafe def evalConstCheck (α) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id α :=
+match env.find? constName with
+| none      => throw ("unknow constant '" ++ toString constName ++ "'")
+| some info =>
+  match info.type with
+  | Expr.const c _ _ =>
+    if c != typeName then throwUnexpectedType typeName constName
+    else env.evalConst α constName
+  | _ => throwUnexpectedType typeName constName
+
 end Environment
 
 /- Helper functions for accessing environment -/

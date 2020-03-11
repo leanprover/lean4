@@ -194,6 +194,7 @@ lean_object* l_Lean_mkAttributeExtension___lambda__2(lean_object*);
 lean_object* l_Lean_attributeExtension___closed__4;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Attributes_2__AttributeExtension_addImported___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_ParametricAttribute_getParam___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Environment_evalConstCheck___rarg___closed__1;
 lean_object* l_Lean_registerParametricAttribute___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
@@ -235,7 +236,6 @@ lean_object* l_AssocList_contains___main___at_Lean_registerAttributeImplBuilder_
 lean_object* l_Lean_registerTagAttribute___lambda__4___closed__2;
 lean_object* l_PersistentHashMap_insert___at_Lean_registerBuiltinAttribute___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerParametricAttribute___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkAttributeImplOfConstantUnsafe___closed__4;
 lean_object* l_Lean_ParametricAttribute_setParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerParametricAttribute___spec__6(lean_object*);
 lean_object* l_IO_ofExcept___at_Lean_mkAttributeImplOfBuilder___spec__3___boxed(lean_object*, lean_object*);
@@ -2515,14 +2515,6 @@ lean_object* _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknow constant '");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__4() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string("AttributeImpl");
 return x_1;
 }
@@ -2540,7 +2532,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 lean_dec(x_1);
 x_13 = l_Lean_Name_toString___closed__1;
 x_14 = l_Lean_Name_toStringWithSep___main(x_13, x_2);
-x_15 = l_Lean_mkAttributeImplOfConstantUnsafe___closed__3;
+x_15 = l_Lean_Environment_evalConstCheck___rarg___closed__1;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
 x_17 = l_Char_HasRepr___closed__1;
@@ -2597,7 +2589,7 @@ goto block_11;
 else
 {
 lean_object* x_30; uint8_t x_31; 
-x_30 = l_Lean_mkAttributeImplOfConstantUnsafe___closed__4;
+x_30 = l_Lean_mkAttributeImplOfConstantUnsafe___closed__3;
 x_31 = lean_string_dec_eq(x_25, x_30);
 lean_dec(x_25);
 if (x_31 == 0)
@@ -11031,8 +11023,6 @@ l_Lean_mkAttributeImplOfConstantUnsafe___closed__2 = _init_l_Lean_mkAttributeImp
 lean_mark_persistent(l_Lean_mkAttributeImplOfConstantUnsafe___closed__2);
 l_Lean_mkAttributeImplOfConstantUnsafe___closed__3 = _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__3();
 lean_mark_persistent(l_Lean_mkAttributeImplOfConstantUnsafe___closed__3);
-l_Lean_mkAttributeImplOfConstantUnsafe___closed__4 = _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__4();
-lean_mark_persistent(l_Lean_mkAttributeImplOfConstantUnsafe___closed__4);
 l_Lean_mkAttributeImplOfConstant___closed__1 = _init_l_Lean_mkAttributeImplOfConstant___closed__1();
 lean_mark_persistent(l_Lean_mkAttributeImplOfConstant___closed__1);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_mkAttributeExtension___spec__3___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkAttributeExtension___spec__3___closed__1();

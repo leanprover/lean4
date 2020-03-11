@@ -162,47 +162,13 @@ instance monadQuotation : MonadQuotation TermElabM := {
   withFreshMacroScope := @Term.withFreshMacroScope
 }
 
-abbrev TermElabTable := ElabFnTable TermElab
-def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
-@[init mkBuiltinTermElabTable] constant builtinTermElabTable : IO.Ref TermElabTable := arbitrary _
+unsafe def mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab) :=
+mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
+@[init mkTermElabAttribute] constant termElabAttribute : KeyedDeclsAttribute TermElab := arbitrary _
 
+-- TODO: remove after bootstrap
 def addBuiltinTermElab (k : SyntaxNodeKind) (declName : Name) (elab : TermElab) : IO Unit := do
-m ← builtinTermElabTable.get;
-when (m.contains k) $
-  throw (IO.userError ("invalid builtin term elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
-builtinTermElabTable.modify $ fun m => m.insert k elab
-
-def declareBuiltinTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
-let name := `_regBuiltinTermElab ++ declName;
-let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `Lean.Elab.Term.addBuiltinTermElab) #[toExpr kind, toExpr declName, mkConst declName];
-let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
-match env.addAndCompile {} decl with
--- TODO: pretty print error
-| Except.error _ => throw (IO.userError ("failed to emit registration code for builtin term elaborator '" ++ toString declName ++ "'"))
-| Except.ok env  => IO.ofExcept (setInitAttr env name)
-
-@[init] def registerBuiltinTermElabAttr : IO Unit :=
-registerBuiltinAttribute {
- name  := `builtinTermElab,
- descr := "Builtin term elaborator",
- add   := fun env declName arg persistent => do {
-   unless persistent $ throw (IO.userError ("invalid attribute 'builtinTermElab', must be persistent"));
-   kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Term arg;
-   match env.find? declName with
-   | none  => throw $ IO.userError "unknown declaration"
-   | some decl =>
-     match decl.type with
-     | Expr.const `Lean.Elab.Term.TermElab _ _ => declareBuiltinTermElab env kind declName
-     | _ => throw (IO.userError ("unexpected term elaborator type at '" ++ toString declName ++ "' `TermElab` expected"))
- },
- applicationTime := AttributeApplicationTime.afterCompilation
-}
-
-abbrev TermElabAttribute := ElabAttribute TermElab
-def mkTermElabAttribute : IO TermElabAttribute :=
-mkElabAttribute TermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" builtinTermElabTable
-@[init mkTermElabAttribute] constant termElabAttribute : TermElabAttribute := arbitrary _
+KeyedDeclsAttribute.addBuiltin termElabAttribute k elab
 
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.

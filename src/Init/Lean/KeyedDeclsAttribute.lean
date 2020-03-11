@@ -21,16 +21,14 @@ Used to register elaborators, macros, tactics, and delaborators.
 namespace Lean
 namespace KeyedDeclsAttribute
 
--- could be variable as well, but right now it's all names
+-- could be a parameter as well, but right now it's all names
 abbrev Key := Name
-
-variable (Value : Type)
 
 /--
 `KeyedDeclsAttribute` definition.
 
- Important: `mkConst valueTypeName` and `Value` must be definitionally equal. -/
-structure Def (Value : Type) :=
+ Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
+structure Def (γ : Type) :=
 (builtinName   : Name)    -- Builtin attribute name (e.g., `builtinTermElab)
 (name          : Name)    -- Attribute name (e.g., `termElab)
 (descr         : String)  -- Attribute description
@@ -45,64 +43,62 @@ structure OLeanEntry :=
 (key  : Key)
 (decl : Name) -- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`.
 
-structure AttributeEntry extends OLeanEntry :=
-/- Recall that we cannot store `Value` into .olean files because it is a closure.
-   Given `OLeanEntry.decl`, we convert it into a `Value` by using the unsafe function `evalConstCheck`. -/
-(value : Value)
+structure AttributeEntry (γ : Type) extends OLeanEntry :=
+/- Recall that we cannot store `γ` into .olean files because it is a closure.
+   Given `OLeanEntry.decl`, we convert it into a `γ` by using the unsafe function `evalConstCheck`. -/
+(value : γ)
 
-abbrev Table := SMap Key (List Value)
+abbrev Table (γ : Type) := SMap Key (List γ)
 
-structure ExtensionState :=
+structure ExtensionState (γ : Type) :=
 (newEntries : List OLeanEntry := [])
-(table      : Table Value := {})
+(table      : Table γ := {})
 
-abbrev Extension := PersistentEnvExtension OLeanEntry (AttributeEntry Value) (ExtensionState Value)
+abbrev Extension (γ : Type) := PersistentEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)
 
-structure KeyedDeclsAttribute :=
-(builtinTableRef : IO.Ref (Table Value))
-(ext             : Extension Value)
+structure KeyedDeclsAttribute (γ : Type) :=
+(builtinTableRef : IO.Ref (Table γ))
+(ext             : Extension γ)
 
-variable {Value}
-variable (df : Def Value)
-
-def Table.insert (table : Table Value) (k : Key) (v : Value) : Table Value :=
+def Table.insert {γ : Type} (table : Table γ) (k : Key) (v : γ) : Table γ :=
 match table.find? k with
 | some vs => table.insert k (v::vs)
 | none    => table.insert k [v]
 
-instance ExtensionState.inhabited : Inhabited (ExtensionState Value) :=
+instance ExtensionState.inhabited {γ} : Inhabited (ExtensionState γ) :=
 ⟨{}⟩
 
-instance inhabited : Inhabited (KeyedDeclsAttribute Value) := ⟨{ builtinTableRef := arbitrary _, ext := arbitrary _ }⟩
+instance KeyedDeclsAttribute.inhabited {γ} : Inhabited (KeyedDeclsAttribute γ) :=
+⟨{ builtinTableRef := arbitrary _, ext := arbitrary _ }⟩
 
-private def mkInitial (builtinTableRef : IO.Ref (Table Value)) : IO (ExtensionState Value) := do
+private def mkInitial {γ} (builtinTableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do
 table ← builtinTableRef.get;
 pure { table := table }
 
-private unsafe def addImported (builtinTableRef : IO.Ref (Table Value)) (env : Environment) (es : Array (Array OLeanEntry)) : IO (ExtensionState Value) := do
+private unsafe def addImported {γ} (df : Def γ) (builtinTableRef : IO.Ref (Table γ)) (env : Environment) (es : Array (Array OLeanEntry)) : IO (ExtensionState γ) := do
 table ← builtinTableRef.get;
 table ← es.foldlM
   (fun table entries =>
     entries.foldlM
-      (fun (table : Table Value) entry =>
-        match env.evalConstCheck Value df.valueTypeName entry.decl with
+      (fun (table : Table γ) entry =>
+        match env.evalConstCheck γ df.valueTypeName entry.decl with
         | Except.ok f     => pure $ table.insert entry.key f
         | Except.error ex => throw (IO.userError ex))
       table)
   table;
 pure { table := table }
 
-private def addExtensionEntry (s : ExtensionState Value) (e : AttributeEntry Value) : ExtensionState Value :=
+private def addExtensionEntry {γ} (s : ExtensionState γ) (e : AttributeEntry γ) : ExtensionState γ :=
 { table := s.table.insert e.key e.value, newEntries := e.toOLeanEntry :: s.newEntries }
 
-def addBuiltin (attr : KeyedDeclsAttribute Value) (key : Key) (val : Value) : IO Unit :=
+def addBuiltin {γ} (attr : KeyedDeclsAttribute γ) (key : Key) (val : γ) : IO Unit :=
 attr.builtinTableRef.modify $ fun m => m.insert key val
 
 /--
 def _regBuiltin$(declName) : IO Unit :=
 addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(mkConst declName)
 -/
-def declareBuiltin (attrDeclName : Name) (env : Environment) (key : Key) (declName : Name) : IO Environment :=
+def declareBuiltin {γ} (df : Def γ) (attrDeclName : Name) (env : Environment) (key : Key) (declName : Name) : IO Environment :=
 let name := `_regBuiltin ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
 let val  := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, mkConst declName];
@@ -113,9 +109,9 @@ match env.addAndCompile {} decl with
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
 /- TODO: add support for scoped attributes -/
-protected unsafe def init (attrDeclName : Name) : IO (KeyedDeclsAttribute Value) := do
-builtinTableRef : IO.Ref (Table Value) ← IO.mkRef {};
-ext : Extension Value ← registerPersistentEnvExtension {
+protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDeclsAttribute γ) := do
+builtinTableRef : IO.Ref (Table γ) ← IO.mkRef {};
+ext : Extension γ ← registerPersistentEnvExtension {
   name            := df.name,
   mkInitial       := mkInitial builtinTableRef,
   addImportedFn   := addImported df builtinTableRef,
@@ -144,7 +140,7 @@ registerBuiltinAttribute {
   name            := df.name,
   descr           := df.descr,
   add             := fun env constName arg persistent =>
-    match env.evalConstCheck Value df.valueTypeName constName with
+    match env.evalConstCheck γ df.valueTypeName constName with
     | Except.error ex => throw (IO.userError ex)
     | Except.ok v     => do
       key ← IO.ofExcept $ df.evalKey env arg;

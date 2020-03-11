@@ -438,7 +438,7 @@ bool parser::update_local_binder_info(name const & n, binder_info bi) {
     buffer<expr> old_locals;
     buffer<expr> new_locals;
     old_locals.push_back(*it);
-    expr new_l = update_local(*it, bi);
+    expr new_l = update_local_p(*it, bi);
     entries[idx-1].second = new_l;
     new_locals.push_back(new_l);
 
@@ -448,7 +448,7 @@ bool parser::update_local_binder_info(name const & n, binder_info bi) {
         if (std::any_of(old_locals.begin(), old_locals.end(), [&](expr const & l) { return depends_on(r, l); })) {
             r  = replace_locals(r, old_locals, new_locals);
             if (is_local_p(curr_e)) {
-                expr new_e = update_local(curr_e, r);
+                expr new_e = update_local_p(curr_e, r);
                 entries[i].second = new_e;
                 old_locals.push_back(curr_e);
                 new_locals.push_back(new_e);

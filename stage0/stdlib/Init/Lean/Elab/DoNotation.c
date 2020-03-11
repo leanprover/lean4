@@ -54,7 +54,6 @@ lean_object* l___private_Init_Lean_Elab_DoNotation_11__processDoElemsAux___main_
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_do___elambda__1___closed__2;
 lean_object* l___private_Init_Lean_Elab_DoNotation_5__expandLiftMethodAux___main___closed__3;
-lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabDo(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
@@ -65,6 +64,7 @@ lean_object* l_Lean_Elab_Term_getOptions(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkTermIdFromIdent___closed__2;
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Term_elabParen___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ProcessedDoElem_inhabited;
+lean_object* l___regBuiltin_Lean_Elab_Term_elabDo___closed__1;
 lean_object* l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Elab_DoNotation_4__hasLiftMethod___main(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -127,9 +127,9 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l___private_Init_Lean_Elab_DoNotation_11__processDoElemsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l___private_Init_Lean_Elab_DoNotation_13__regTraceClasses(lean_object*);
-lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabDo___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Elab_Binders_10__expandFunBindersAux___main___closed__5;
+lean_object* l___regBuiltin_Lean_Elab_Term_elabDo(lean_object*);
 lean_object* l___private_Init_Lean_Elab_DoNotation_2__extractBind(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_DoNotation_11__processDoElemsAux___main___closed__3;
@@ -5385,7 +5385,7 @@ return x_116;
 }
 }
 }
-lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabDo___closed__1() {
+lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabDo___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5393,13 +5393,13 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Term_elabDo), 4, 0);
 return x_1;
 }
 }
-lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabDo(lean_object* x_1) {
+lean_object* l___regBuiltin_Lean_Elab_Term_elabDo(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_termElabAttribute;
 x_3 = l_Lean_Parser_Term_do___elambda__1___closed__2;
-x_4 = l___regBuiltinTermElab_Lean_Elab_Term_elabDo___closed__1;
+x_4 = l___regBuiltin_Lean_Elab_Term_elabDo___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -5535,9 +5535,9 @@ l___private_Init_Lean_Elab_DoNotation_11__processDoElemsAux___main___closed__7 =
 lean_mark_persistent(l___private_Init_Lean_Elab_DoNotation_11__processDoElemsAux___main___closed__7);
 l_Lean_Elab_Term_elabDo___closed__1 = _init_l_Lean_Elab_Term_elabDo___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_elabDo___closed__1);
-l___regBuiltinTermElab_Lean_Elab_Term_elabDo___closed__1 = _init_l___regBuiltinTermElab_Lean_Elab_Term_elabDo___closed__1();
-lean_mark_persistent(l___regBuiltinTermElab_Lean_Elab_Term_elabDo___closed__1);
-res = l___regBuiltinTermElab_Lean_Elab_Term_elabDo(lean_io_mk_world());
+l___regBuiltin_Lean_Elab_Term_elabDo___closed__1 = _init_l___regBuiltin_Lean_Elab_Term_elabDo___closed__1();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_elabDo___closed__1);
+res = l___regBuiltin_Lean_Elab_Term_elabDo(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l___private_Init_Lean_Elab_DoNotation_13__regTraceClasses(lean_io_mk_world());

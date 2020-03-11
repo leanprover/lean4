@@ -23,3 +23,4 @@ import Init.Lean.Meta
 import Init.Lean.Util
 import Init.Lean.Eval
 import Init.Lean.Structure
+import Init.Lean.Delaborator

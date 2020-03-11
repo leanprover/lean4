@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean
-// Imports: Init.Lean.Compiler Init.Lean.Environment Init.Lean.Modifiers Init.Lean.ProjFns Init.Lean.Runtime Init.Lean.Attributes Init.Lean.Parser Init.Lean.ReducibilityAttrs Init.Lean.Elab Init.Lean.EqnCompiler Init.Lean.Class Init.Lean.LocalContext Init.Lean.MetavarContext Init.Lean.AuxRecursor Init.Lean.Linter Init.Lean.Meta Init.Lean.Util Init.Lean.Eval Init.Lean.Structure
+// Imports: Init.Lean.Compiler Init.Lean.Environment Init.Lean.Modifiers Init.Lean.ProjFns Init.Lean.Runtime Init.Lean.Attributes Init.Lean.Parser Init.Lean.ReducibilityAttrs Init.Lean.Elab Init.Lean.EqnCompiler Init.Lean.Class Init.Lean.LocalContext Init.Lean.MetavarContext Init.Lean.AuxRecursor Init.Lean.Linter Init.Lean.Meta Init.Lean.Util Init.Lean.Eval Init.Lean.Structure Init.Lean.Delaborator
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,6 +32,7 @@ lean_object* initialize_Init_Lean_Meta(lean_object*);
 lean_object* initialize_Init_Lean_Util(lean_object*);
 lean_object* initialize_Init_Lean_Eval(lean_object*);
 lean_object* initialize_Init_Lean_Structure(lean_object*);
+lean_object* initialize_Init_Lean_Delaborator(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean(lean_object* w) {
 lean_object * res;
@@ -92,6 +93,9 @@ res = initialize_Init_Lean_Eval(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Structure(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Delaborator(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

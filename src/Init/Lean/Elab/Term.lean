@@ -166,10 +166,6 @@ unsafe def mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab) :=
 mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
 @[init mkTermElabAttribute] constant termElabAttribute : KeyedDeclsAttribute TermElab := arbitrary _
 
--- TODO: remove after bootstrap
-def addBuiltinTermElab (k : SyntaxNodeKind) (declName : Name) (elab : TermElab) : IO Unit := do
-KeyedDeclsAttribute.addBuiltin termElabAttribute k elab
-
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.
   We represent a unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.

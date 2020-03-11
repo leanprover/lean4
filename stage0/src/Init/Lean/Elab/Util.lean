@@ -93,10 +93,6 @@ unsafe def mkMacroAttribute : IO (KeyedDeclsAttribute Macro) :=
 mkElabAttribute Macro `Lean.Elab.macroAttribute `builtinMacro `macro Name.anonymous `Lean.Macro "macro"
 @[init mkMacroAttribute] constant macroAttribute : KeyedDeclsAttribute Macro := arbitrary _
 
--- TODO: remove after bootstrap
-def addBuiltinMacro (k : SyntaxNodeKind) (elab : Macro) : IO Unit := do
-KeyedDeclsAttribute.addBuiltin macroAttribute k elab
-
 private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
 | []    => throw Macro.Exception.unsupportedSyntax
 | m::ms => m stx <|> expandMacroFns ms

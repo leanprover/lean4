@@ -133,10 +133,6 @@ unsafe def mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab) :=
 mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
 @[init mkCommandElabAttribute] constant commandElabAttribute : KeyedDeclsAttribute CommandElab := arbitrary _
 
--- TODO: remove after bootstrap
-def addBuiltinCommandElab (k : SyntaxNodeKind) (declName : Name) (elab : CommandElab) : IO Unit := do
-KeyedDeclsAttribute.addBuiltin commandElabAttribute k elab
-
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM α := do
 ctx ← read; s ← get;
 when (ctx.currRecDepth == s.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;

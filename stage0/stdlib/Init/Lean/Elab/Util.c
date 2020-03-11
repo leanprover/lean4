@@ -47,14 +47,12 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttribute___closed__3;
 size_t l_USize_shiftRight(size_t, size_t);
-lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Elab_getMacros___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* l_Lean_Syntax_truncateTrailing(lean_object*);
 lean_object* l_Lean_Elab_macroAttribute___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___main(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_addBuiltinMacro(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_Elab_addMacroStack___spec__1___closed__1;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 extern lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
@@ -1104,15 +1102,6 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_Elab_addBuiltinMacro(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Elab_macroAttribute;
-x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_4, x_1, x_2, x_3);
-return x_5;
 }
 }
 lean_object* l___private_Init_Lean_Elab_Util_3__expandMacroFns___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

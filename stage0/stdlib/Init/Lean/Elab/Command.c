@@ -148,7 +148,6 @@ lean_object* l_HashMapImp_find_x3f___at_Lean_Elab_Command_elabCommand___main___s
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEnd___closed__9;
 lean_object* l_Lean_Elab_Command_throwUnsupportedSyntax___rarg(lean_object*);
-lean_object* l_Lean_Elab_Command_addBuiltinCommandElab(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCheckFailure(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkCommandElabAttribute___closed__9;
 lean_object* l_Lean_Elab_Command_State_inhabited___closed__3;
@@ -246,7 +245,6 @@ lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Elab_Command_dbgTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_Elab_Command_sortDeclLevelParams___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__2;
-lean_object* l_Lean_Elab_Command_addBuiltinCommandElab___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkCommandElabAttribute___closed__6;
 lean_object* l_Lean_Elab_Command_CommandElabCoreM_monadState;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabSetOption(lean_object*);
@@ -3247,24 +3245,6 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_Elab_Command_addBuiltinCommandElab(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_Elab_Command_commandElabAttribute;
-x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_5, x_1, x_3, x_4);
-return x_6;
-}
-}
-lean_object* l_Lean_Elab_Command_addBuiltinCommandElab___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Elab_Command_addBuiltinCommandElab(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_5;
 }
 }
 lean_object* l_Lean_Elab_Command_withIncRecDepth___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

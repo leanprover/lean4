@@ -120,21 +120,21 @@ ext : Extension γ ← registerPersistentEnvExtension {
   statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
 };
 registerBuiltinAttribute {
- name  := df.builtinName,
- descr := "(builtin) " ++ df.descr,
- add   := fun env declName arg persistent => do {
-   unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString df.builtinName ++ "', must be persistent"));
-   key ← IO.ofExcept $ df.evalKey env arg;
-   match env.find? declName with
-   | none  => throw $ IO.userError "unknown declaration"
-   | some decl =>
-     match decl.type with
-     | Expr.const c _ _ =>
-       if c != df.valueTypeName then throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
-       else declareBuiltin df attrDeclName env key declName
-     | _ => throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
- },
- applicationTime := AttributeApplicationTime.afterCompilation
+  name  := df.builtinName,
+  descr := "(builtin) " ++ df.descr,
+  add   := fun env declName arg persistent => do {
+    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString df.builtinName ++ "', must be persistent"));
+    key ← IO.ofExcept $ df.evalKey env arg;
+    match env.find? declName with
+    | none  => throw $ IO.userError "unknown declaration"
+    | some decl =>
+      match decl.type with
+      | Expr.const c _ _ =>
+        if c != df.valueTypeName then throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
+        else declareBuiltin df attrDeclName env key declName
+      | _ => throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
+  },
+  applicationTime := AttributeApplicationTime.afterCompilation
 };
 registerBuiltinAttribute {
   name            := df.name,

@@ -26,12 +26,16 @@ abbrev Key := Name
 
 variable (Value : Type)
 
+/--
+`KeyedDeclsAttribute` definition.
+
+ Important: `mkConst valueTypeName` and `Value` must be definitionally equal. -/
 structure Def (Value : Type) :=
-(builtinName   : Name)
-(name          : Name)
-(descr         : String)
--- `Value` should be a constant of name `valueTypeName`
+(builtinName   : Name)    -- Builtin attribute name (e.g., `builtinTermElab)
+(name          : Name)    -- Attribute name (e.g., `termElab)
+(descr         : String)  -- Attribute description
 (valueTypeName : Name)
+-- Convert `Syntax` into a `Key`, the default implementation expects an identifier.
 (evalKey       : Environment → Syntax → Except String Key :=
   fun env arg => match attrParamSyntaxToIdentifier arg with
     | some id => Except.ok id
@@ -39,9 +43,11 @@ structure Def (Value : Type) :=
 
 structure OLeanEntry :=
 (key  : Key)
-(decl : Name)
+(decl : Name) -- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`.
 
 structure AttributeEntry extends OLeanEntry :=
+/- Recall that we cannot store `Value` into .olean files because it is a closure.
+   Given `OLeanEntry.decl`, we convert it into a `Value` by using the unsafe function `evalConstCheck`. -/
 (value : Value)
 
 abbrev Table := SMap Key (List Value)

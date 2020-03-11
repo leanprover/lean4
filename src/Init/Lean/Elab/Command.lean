@@ -129,47 +129,13 @@ instance CommandElabM.MonadQuotation : MonadQuotation CommandElabM := {
   withFreshMacroScope := @Command.withFreshMacroScope
 }
 
-abbrev CommandElabTable := ElabFnTable CommandElab
-def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
-@[init mkBuiltinCommandElabTable] constant builtinCommandElabTable : IO.Ref CommandElabTable := arbitrary _
+unsafe def mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab) :=
+mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
+@[init mkCommandElabAttribute] constant commandElabAttribute : KeyedDeclsAttribute CommandElab := arbitrary _
 
+-- TODO: remove after bootstrap
 def addBuiltinCommandElab (k : SyntaxNodeKind) (declName : Name) (elab : CommandElab) : IO Unit := do
-m ← builtinCommandElabTable.get;
-when (m.contains k) $
-  throw (IO.userError ("invalid builtin command elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
-builtinCommandElabTable.modify $ fun m => m.insert k elab
-
-def declareBuiltinCommandElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
-let name := `_regBuiltinCommandElab ++ declName;
-let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `Lean.Elab.Command.addBuiltinCommandElab) #[toExpr kind, toExpr declName, mkConst declName];
-let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
-match env.addAndCompile {} decl with
--- TODO: pretty print error
-| Except.error _ => throw (IO.userError ("failed to emit registration code for builtin command elaborator '" ++ toString declName ++ "'"))
-| Except.ok env  => IO.ofExcept (setInitAttr env name)
-
-@[init] def registerBuiltinCommandElabAttr : IO Unit :=
-registerBuiltinAttribute {
- name  := `builtinCommandElab,
- descr := "Builtin command elaborator",
- add   := fun env declName arg persistent => do {
-   unless persistent $ throw (IO.userError ("invalid attribute 'builtinCommandElab', must be persistent"));
-   kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Command arg;
-   match env.find? declName with
-   | none  => throw $ IO.userError "unknown declaration"
-   | some decl =>
-     match decl.type with
-     | Expr.const `Lean.Elab.Command.CommandElab _ _ => declareBuiltinCommandElab env kind declName
-     | _ => throw (IO.userError ("unexpected command elaborator type at '" ++ toString declName ++ "' `CommandElab` expected"))
- },
- applicationTime := AttributeApplicationTime.afterCompilation
-}
-
-abbrev CommandElabAttribute := ElabAttribute CommandElab
-def mkCommandElabAttribute : IO CommandElabAttribute :=
-mkElabAttribute CommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" builtinCommandElabTable
-@[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
+KeyedDeclsAttribute.addBuiltin commandElabAttribute k elab
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM α := do
 ctx ← read; s ← get;

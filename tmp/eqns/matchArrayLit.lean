@@ -36,22 +36,6 @@ def matchArrayLit.eq4 {α : Type u} (a₁ a₂ a₃ a₄ : α) : matchArrayLit #
 rfl
 end Experiment1
 
-theorem Array.ext {α : Type u} (a b : Array α) : a.size = b.size → (∀ (i : Nat) (hi₁ : i < a.size) (hi₂ : i < b.size) , a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩) → a = b :=
-match a, b with
-| ⟨sz₁, f₁⟩, ⟨sz₂, f₂⟩ =>
-  show sz₁ = sz₂ → (∀ (i : Nat) (hi₁ : i < sz₁) (hi₂ : i < sz₂) , f₁ ⟨i, hi₁⟩ = f₂ ⟨i, hi₂⟩) → Array.mk sz₁ f₁ = Array.mk sz₂ f₂ from
-  fun h₁ h₂ =>
-    match sz₁, sz₂, f₁, f₂, h₁, h₂ with
-    | sz, _, f₁, f₂, rfl, h₂ =>
-      have f₁ = f₂ from funext $ fun ⟨i, hi₁⟩ => h₂ i hi₁ hi₁;
-      congrArg _ this
-
-theorem Array.extLit {α : Type u} {n : Nat}
-  (a b : Array α)
-  (hsz₁ : a.size = n) (hsz₂ : b.size = n)
-  (h : ∀ (i : Nat) (hi : i < n), a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
-Array.ext a b (hsz₁.trans hsz₂.symm) $ fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
-
 def toListLitAux {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
 | 0,     hi, acc => acc
 | (i+1), hi, acc => toListLitAux i (Nat.leOfSuccLe hi) (a.getLit i hsz (Nat.ltOfLtOfEq (Nat.ltOfLtOfLe (Nat.ltSuccSelf i) hi) hsz) :: acc)

@@ -772,17 +772,6 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
     lean_unreachable();
 }
 
-lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
-    while (true) {
-        switch (lazy_delta_reduction_step(t_n, s_n)) {
-        case reduction_status::Continue:   break;
-        case reduction_status::DefUnknown: return l_undef;
-        case reduction_status::DefEqual:   return l_true;
-        case reduction_status::DefDiff:    return l_false;
-        }
-    }
-}
-
 inline bool is_nat_zero(expr const & t) {
     return t == *g_nat_zero || (is_nat_lit(t) && lit_value(t).is_zero());
 }
@@ -806,10 +795,25 @@ lbool type_checker::is_def_eq_offset(expr const & t, expr const & s) {
         return l_true;
     optional<expr> pred_t = is_nat_succ(t);
     optional<expr> pred_s = is_nat_succ(s);
-    if (pred_t && pred_s)
+    if (pred_t && pred_s) {
         return to_lbool(is_def_eq_core(*pred_t, *pred_s));
+    }
     /* TODO add support for Nat.add */
     return l_undef;
+}
+
+lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
+    while (true) {
+        lbool r = is_def_eq_offset(t_n, s_n);
+        if (r != l_undef) return r;
+
+        switch (lazy_delta_reduction_step(t_n, s_n)) {
+        case reduction_status::Continue:   break;
+        case reduction_status::DefUnknown: return l_undef;
+        case reduction_status::DefEqual:   return l_true;
+        case reduction_status::DefDiff:    return l_false;
+        }
+    }
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
@@ -829,9 +833,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     if (is_def_eq_proof_irrel(t_n, s_n))
         return true;
-
-    r = is_def_eq_offset(t_n, s_n);
-    if (r != l_undef) return r == l_true;
 
     r = lazy_delta_reduction(t_n, s_n);
     if (r != l_undef) return r == l_true;

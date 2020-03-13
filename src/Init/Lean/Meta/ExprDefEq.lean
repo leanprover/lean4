@@ -110,6 +110,12 @@ private partial def isDefEqArgsAux (args₁ args₂ : Array Expr) (h : args₁.s
   else
     pure true
 
+@[specialize] private def trySynthPending (e : Expr) : MetaM Bool := do
+mvarId? ← getStuckMVar? e;
+match mvarId? with
+| some mvarId => synthPending mvarId
+| none        => pure false
+
 private def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : MetaM Bool :=
 if h : args₁.size = args₂.size then do
   finfo ← getFunInfoNArgs f args₁.size;
@@ -124,8 +130,8 @@ if h : args₁.size = args₂.size then do
     let a₂   := args₂.get! i;
     let info := finfo.paramInfo.get! i;
     when info.instImplicit $ do {
-      synthPending a₁;
-      synthPending a₂;
+      trySynthPending a₁;
+      trySynthPending a₂;
       pure ()
     };
     withAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂)
@@ -892,8 +898,8 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
   condM (isDelayedAssignedHead tFn t) (do t ← instantiateMVars t; isDefEqQuick t s) $
   condM (isDelayedAssignedHead sFn s) (do s ← instantiateMVars s; isDefEqQuick t s) $
-  condM (isSynthetic tFn <&&> synthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
-  condM (isSynthetic sFn <&&> synthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
+  condM (isSynthetic tFn <&&> trySynthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
+  condM (isSynthetic sFn <&&> trySynthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
   tAssign? ← isAssignable tFn;
   sAssign? ← isAssignable sFn;
   trace! `Meta.isDefEq
@@ -957,10 +963,10 @@ else
 @[specialize] private def unstuckMVar
     (e : Expr)
     (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool := do
-s? ← WHNF.getStuckMVar getConst whnf e;
-match s? with
-| some s =>
-  condM (synthPending s)
+mvarId? ← getStuckMVar? e;
+match mvarId? with
+| some mvarId =>
+  condM (synthPending mvarId)
     (do e ← instantiateMVars e; successK e)
     failK
 | none   => failK

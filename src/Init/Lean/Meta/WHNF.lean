@@ -66,5 +66,8 @@ whnfHeadPredAux pred e
 def whnfUntil (e : Expr) (declName : Name) : MetaM Expr :=
 whnfHeadPredAux (fun e => pure $ e.isAppOf declName) e
 
+def getStuckMVar? (e : Expr) : MetaM (Option MVarId) :=
+WHNF.getStuckMVar? getConst whnf e
+
 end Meta
 end Lean

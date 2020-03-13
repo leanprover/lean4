@@ -470,8 +470,23 @@ class interpreter {
         }
     }
 
+    void check_system() {
+        try {
+            lean::check_system("interpreter");
+        } catch (stack_space_exception & ex) {
+            sstream ss;
+            ss << ex.what() << "\n";
+            ss << "interpreter stacktrace:\n";
+            for (unsigned i = 0; i < m_call_stack.size(); i++) {
+                ss << "#" << (i + 1) << " " << m_call_stack[m_call_stack.size() - i - 1].m_fn << "\n";
+            }
+            throw throwable(ss);
+        }
+    }
+
     value eval_body(fn_body const & b0) {
-        check_system("interpreter");
+        check_system();
+
         // make reference reassignable...
         std::reference_wrapper<fn_body const> b(b0);
         while (true) {
@@ -498,7 +513,7 @@ class interpreter {
                         }
                         m_arg_stack.resize(get_frame().m_arg_bp + args.size());
                         b = b0;
-                        check_system("interpreter");
+                        check_system();
                         break;
                     }
                     value v = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));

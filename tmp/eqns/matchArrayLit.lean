@@ -142,11 +142,11 @@ def matchArrayLit {α : Type u} (C : Array α → Sort v) (a : Array α)
     (h₄ : ∀ a,        C a)
     : C a :=
 if h : a.size = 0 then
-  @Eq.ndrec _ _ C (h₁ ()) _ (toArrayLitEq a 0 h).symm
+  @Eq.rec _ _ (fun x _ => C x) (h₁ ()) _ (toArrayLitEq a 0 h).symm
 else if h : a.size = 1 then
-  @Eq.ndrec _ _ C (h₂ (a.getLit 0 h (ofDecideEqTrue rfl))) _ (toArrayLitEq a 1 h).symm
+  @Eq.rec _ _ (fun x _ => C x) (h₂ (a.getLit 0 h (ofDecideEqTrue rfl))) _ (toArrayLitEq a 1 h).symm
 else if h : a.size = 3 then
-  @Eq.ndrec _ _ C (h₃ (a.getLit 0 h (ofDecideEqTrue rfl)) (a.getLit 1 h (ofDecideEqTrue rfl)) (a.getLit 2 h (ofDecideEqTrue rfl))) _ (toArrayLitEq a 3 h).symm
+  @Eq.rec _ _ (fun x _ => C x) (h₃ (a.getLit 0 h (ofDecideEqTrue rfl)) (a.getLit 1 h (ofDecideEqTrue rfl)) (a.getLit 2 h (ofDecideEqTrue rfl))) _ (toArrayLitEq a 3 h).symm
 else
   h₄ a
 

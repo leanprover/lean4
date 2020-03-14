@@ -450,8 +450,8 @@ variable {β : Type u}
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      let v   : α          := a.get idx;
-     let a                := a.set idx (@unsafeCast _ _ ⟨v⟩ ());
-     do newV ← f i v; umapMAux (i+1) (a.set idx (@unsafeCast _ _ ⟨v⟩ newV))
+     let a                := a.set idx (unsafeCast ());
+     do newV ← f i v; umapMAux (i+1) (a.set idx (unsafeCast newV))
   else
      pure (unsafeCast a)
 

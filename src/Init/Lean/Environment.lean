@@ -146,14 +146,14 @@ constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : �
 
 unsafe def getStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :=
 let s : EnvExtensionState := env.extensions.get! ext.idx;
-@unsafeCast _ _ ⟨ext.stateInh⟩ s
+unsafeCast s
 
 @[implementedBy getStateUnsafe]
 constant getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ := ext.stateInh
 
 @[inline] unsafe def modifyStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
 { extensions := env.extensions.modify ext.idx $ fun s =>
-    let s : σ := (@unsafeCast _ _ ⟨ext.stateInh⟩ s);
+    let s : σ := unsafeCast s;
     let s : σ := f s;
     unsafeCast s,
   .. env }

@@ -700,9 +700,8 @@ class interpreter {
                 case type::USize: return *static_cast<size_t *>(e.m_addr);
                 case type::Object:
                 case type::TObject:
+                case type::Irrelevant:
                     return *static_cast<object **>(e.m_addr);
-                default:
-                    throw exception("invalid type");
             }
         } else {
             push_frame(e.m_decl, m_arg_stack.size());
@@ -848,7 +847,7 @@ public:
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
-            r = load(fn, decl_type(e.m_decl)).m_obj;
+            r = box_t(load(fn, decl_type(e.m_decl)), decl_type(e.m_decl));
         } else {
             // First allocate a closure with zero fixed parameters. This is slightly wasteful in the under-application
             // case, but simpler to handle.

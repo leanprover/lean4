@@ -34,4 +34,4 @@ def c5 := reduceNat v5
 #eval checkDefEq `c5 `Nat.zero
 #eval checkDefEq `Nat.zero `c5
 
--- #eval checkDefEq `c4 `Bool.true -- It crashes due to a bug at run_boxed
+#eval checkDefEq `c4 `Bool.true

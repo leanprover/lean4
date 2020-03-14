@@ -284,6 +284,7 @@ lean_object* lean_mk_task(lean_object*);
 lean_object* l_Task_pure___boxed(lean_object*, lean_object*);
 uint8_t l_Xor_Decidable___rarg(uint8_t, uint8_t);
 lean_object* l_Not_Decidable___rarg___boxed(lean_object*);
+lean_object* l_PNonScalar_Inhabited;
 lean_object* l_Quotient_liftOn_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_map(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_indep___rarg(lean_object*, lean_object*);
@@ -2605,6 +2606,14 @@ x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
+lean_object* _init_l_PNonScalar_Inhabited() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(0u);
+return x_1;
+}
+}
 lean_object* _init_l_PointedType_Inhabited() {
 _start:
 {
@@ -3716,6 +3725,8 @@ l_Nat_Inhabited = _init_l_Nat_Inhabited();
 lean_mark_persistent(l_Nat_Inhabited);
 l_NonScalar_Inhabited = _init_l_NonScalar_Inhabited();
 lean_mark_persistent(l_NonScalar_Inhabited);
+l_PNonScalar_Inhabited = _init_l_PNonScalar_Inhabited();
+lean_mark_persistent(l_PNonScalar_Inhabited);
 l_PointedType_Inhabited = _init_l_PointedType_Inhabited();
 lean_mark_persistent(l_PointedType_Inhabited);
 l_PUnit_Inhabited = _init_l_PUnit_Inhabited();

@@ -449,7 +449,6 @@ uint8_t lean_is_class(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar___boxed(lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_umapMAux___main___rarg___closed__1;
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* l___private_Init_Lean_Meta_Basic_8__lambdaMetaTelescopeAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_Meta_mkMetaExtension___spec__1___closed__1;
@@ -39170,23 +39169,23 @@ x_6 = lean_nat_dec_lt(x_1, x_5);
 lean_dec(x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; 
+lean_object* x_7; 
 lean_dec(x_3);
 lean_dec(x_1);
-x_7 = x_2;
-x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_4);
-return x_8;
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 1, x_4);
+return x_7;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = lean_array_fget(x_2, x_1);
-x_10 = l_Array_umapMAux___main___rarg___closed__1;
-x_11 = lean_array_fset(x_2, x_1, x_10);
-x_12 = l_Lean_Expr_fvarId_x21(x_9);
-lean_dec(x_9);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_8 = lean_array_fget(x_2, x_1);
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_array_fset(x_2, x_1, x_9);
+x_11 = x_8;
+x_12 = l_Lean_Expr_fvarId_x21(x_11);
+lean_dec(x_11);
 lean_inc(x_3);
 x_13 = l_Lean_Meta_getLocalDecl(x_12, x_3, x_4);
 if (lean_obj_tag(x_13) == 0)
@@ -39202,7 +39201,7 @@ lean_dec(x_14);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_1, x_17);
 x_19 = x_16;
-x_20 = lean_array_fset(x_11, x_1, x_19);
+x_20 = lean_array_fset(x_10, x_1, x_19);
 lean_dec(x_1);
 x_1 = x_18;
 x_2 = x_20;
@@ -39212,7 +39211,7 @@ goto _start;
 else
 {
 uint8_t x_22; 
-lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_3);
 lean_dec(x_1);
 x_22 = !lean_is_exclusive(x_13);
@@ -39240,10 +39239,15 @@ return x_25;
 lean_object* l_Lean_Meta_getParamNames___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = l_Array_umapMAux___main___at_Lean_Meta_getParamNames___spec__1(x_5, x_1, x_3, x_4);
-return x_6;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = x_1;
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at_Lean_Meta_getParamNames___spec__1), 4, 2);
+lean_closure_set(x_7, 0, x_6);
+lean_closure_set(x_7, 1, x_5);
+x_8 = x_7;
+x_9 = lean_apply_2(x_8, x_3, x_4);
+return x_9;
 }
 }
 lean_object* _init_l_Lean_Meta_getParamNames___closed__1() {

@@ -445,21 +445,21 @@ section
 variables {m : Type u → Type w} [Monad m]
 variable {β : Type u}
 
-@[specialize] unsafe partial def umapMAux (f : Nat → α → m β) : Nat → Array α → m (Array β)
+@[specialize] unsafe partial def umapMAux (f : Nat → α → m β) : Nat → Array (PNonScalar.{u}) → m (Array (PNonScalar.{u}))
 | i, a =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
-     let v   : α          := a.get idx;
-     let a                := a.set idx (unsafeCast ());
-     do newV ← f i v; umapMAux (i+1) (a.set idx (unsafeCast newV))
+     let v   : PNonScalar := a.get idx;
+     let a                := a.set idx (arbitrary _);
+     do newV ← f i (unsafeCast v); umapMAux (i+1) (a.set idx (unsafeCast newV))
   else
-     pure (unsafeCast a)
+     pure a
 
 @[inline] unsafe partial def umapM (f : α → m β) (as : Array α) : m (Array β) :=
-umapMAux (fun i a => f a) 0 as
+@unsafeCast (m (Array PNonScalar.{u})) (m (Array β)) $ umapMAux (fun i a => f a) 0 (unsafeCast as)
 
 @[inline] unsafe partial def umapIdxM (f : Nat → α → m β) (as : Array α) : m (Array β) :=
-umapMAux f 0 as
+@unsafeCast (m (Array PNonScalar.{u})) (m (Array β)) $ umapMAux f 0 (unsafeCast as)
 
 @[implementedBy Array.umapM] def mapM (f : α → m β) (as : Array α) : m (Array β) :=
 as.foldlM (fun bs a => do b ← f a; pure (bs.push b)) (mkEmpty as.size)

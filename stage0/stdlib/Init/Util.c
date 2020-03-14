@@ -57,12 +57,12 @@ lean_object* l_unreachable_x21___rarg___closed__1;
 lean_object* l_withPtrAddr___rarg___boxed__const__1;
 lean_object* l_withPtrAddr___rarg(lean_object*, lean_object*);
 lean_object* l_withPtrEqResult___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage___closed__3;
 lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ptrAddrUnsafe___boxed(lean_object*, lean_object*);
-lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -89,13 +89,12 @@ x_5 = lean_dbg_sleep(x_4, x_3);
 return x_5;
 }
 }
-lean_object* l_unsafeCast___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_unsafeCast___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
-x_5 = x_4;
-lean_dec(x_3);
-return x_5;
+lean_object* x_4; 
+x_4 = x_3;
+return x_4;
 }
 }
 lean_object* l_panic___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -209,7 +208,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_unreachable_x21___rarg___closed__1;
-x_2 = lean_unsigned_to_nat(39u);
+x_2 = lean_unsigned_to_nat(40u);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_unreachable_x21___rarg___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

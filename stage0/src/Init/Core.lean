@@ -1712,7 +1712,7 @@ namespace Lean
 
 /--
   When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.
-  The kernel will produce an error message if `c` is not a constant.
+  The kernel will not use the interpreter if `c` is not a constant.
   This feature is useful for performing proofs by reflection.
 
   Remark: the Lean frontend allows terms of the from `Lean.reduceBool t` where `t` is a term not containing

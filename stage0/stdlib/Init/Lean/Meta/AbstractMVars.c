@@ -110,7 +110,7 @@ lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
 lean_object* l_Lean_Meta_abstractMVars___closed__2;
-lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_insert___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
@@ -123,6 +123,7 @@ extern lean_object* l_Lean_Expr_updateForallE_x21___closed__1;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__1;
+extern lean_object* l_Array_umapMAux___main___rarg___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
@@ -3461,37 +3462,33 @@ x_6 = lean_nat_dec_lt(x_1, x_5);
 lean_dec(x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_7; lean_object* x_8; 
 lean_dec(x_1);
-x_7 = l_Array_empty___closed__1;
-x_8 = x_2;
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_4);
-return x_9;
+x_7 = x_2;
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_4);
+return x_8;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_10 = lean_array_fget(x_2, x_1);
-x_11 = lean_box(0);
-x_12 = x_11;
-x_13 = lean_array_fset(x_2, x_1, x_12);
-x_14 = l_Lean_Meta_mkFreshLevelMVar___rarg(x_4);
-x_15 = lean_ctor_get(x_14, 0);
-lean_inc(x_15);
-x_16 = lean_ctor_get(x_14, 1);
-lean_inc(x_16);
-lean_dec(x_14);
-x_17 = lean_unsigned_to_nat(1u);
-x_18 = lean_nat_add(x_1, x_17);
-x_19 = x_15;
-lean_dec(x_10);
-x_20 = lean_array_fset(x_13, x_1, x_19);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_9 = l_Array_umapMAux___main___rarg___closed__1;
+x_10 = lean_array_fset(x_2, x_1, x_9);
+x_11 = l_Lean_Meta_mkFreshLevelMVar___rarg(x_4);
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc(x_13);
+lean_dec(x_11);
+x_14 = lean_unsigned_to_nat(1u);
+x_15 = lean_nat_add(x_1, x_14);
+x_16 = x_12;
+x_17 = lean_array_fset(x_10, x_1, x_16);
 lean_dec(x_1);
-x_1 = x_18;
-x_2 = x_20;
-x_4 = x_16;
+x_1 = x_15;
+x_2 = x_17;
+x_4 = x_13;
 goto _start;
 }
 }

@@ -506,6 +506,39 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
     }
 }
 
+static expr * g_lean_reduce_bool = nullptr;
+static expr * g_lean_reduce_nat  = nullptr;
+
+namespace ir {
+object * run_boxed(environment const & env, name const & fn, unsigned n, object **args);
+}
+
+expr mk_bool_true();
+expr mk_bool_false();
+
+optional<expr> reduce_native(environment const & env, expr const & e) {
+    if (!is_app(e)) return none_expr();
+    expr const & arg = app_arg(e);
+    if (!is_constant(arg)) return none_expr();
+    if (app_fn(e) == *g_lean_reduce_bool) {
+        object * r = ir::run_boxed(env, const_name(arg), 0, nullptr);
+        if (!lean_is_scalar(r)) {
+            lean_dec_ref(r);
+            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceBool'");
+        }
+        return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
+    }
+    if (app_fn(e) == *g_lean_reduce_nat) {
+        object * r = ir::run_boxed(env, const_name(arg), 0, nullptr);
+        if (lean_is_scalar(r) || lean_is_mpz(r)) {
+            return some_expr(mk_lit(literal(nat(r))));
+        } else {
+            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceNat'");
+        }
+    }
+    return none_expr();
+}
+
 /** \brief Put expression \c t in weak head normal form */
 expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
@@ -534,7 +567,9 @@ expr type_checker::whnf(expr const & e) {
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
-        if (auto next_t = unfold_definition(t1)) {
+        if (auto v = reduce_native(env(), t1)) {
+            return *v;
+        } else if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
             auto r = t1;
@@ -807,6 +842,12 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
         lbool r = is_def_eq_offset(t_n, s_n);
         if (r != l_undef) return r;
 
+        if (auto t_v = reduce_native(env(), t_n)) {
+            return to_lbool(is_def_eq_core(*t_v, s_n));
+        } else if (auto s_v = reduce_native(env(), s_n)) {
+            return to_lbool(is_def_eq_core(t_n, *s_v));
+        }
+
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
         case reduction_status::DefUnknown: return l_undef;
@@ -918,6 +959,8 @@ void initialize_type_checker() {
     g_kernel_fresh = new name("_kernel_fresh");
     g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
     g_nat_succ     = new expr(mk_constant(name{"Nat", "succ"}));
+    g_lean_reduce_bool = new expr(mk_constant(name{"Lean", "reduceBool"}));
+    g_lean_reduce_nat  = new expr(mk_constant(name{"Lean", "reduceNat"}));
     register_name_generator_prefix(*g_kernel_fresh);
 }
 
@@ -926,5 +969,8 @@ void finalize_type_checker() {
     delete g_id_delta;
     delete g_kernel_fresh;
     delete g_nat_succ;
-    delete g_nat_zero;}
+    delete g_nat_zero;
+    delete g_lean_reduce_bool;
+    delete g_lean_reduce_nat;
+}
 }

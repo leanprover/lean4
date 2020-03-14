@@ -1707,6 +1707,35 @@ Quot.lift f (fun a b _ => Subsingleton.elim _ _) s
 instance Squash.Subsingleton {α} : Subsingleton (Squash α) :=
 ⟨Squash.ind (fun (a : α) => Squash.ind (fun (b : α) => Quot.sound trivial))⟩
 
+namespace Lean
+/- Kernel reduction hints -/
+
+/--
+  When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.
+  The kernel will produce an error message if `c` is not a constant.
+  This feature is useful for performing proofs by reflection.
+
+  Remark: the Lean frontend allows terms of the from `Lean.reduceBool t` where `t` is a term not containing
+  free variables. The frontend automatically declares a fresh auxiliary constant `c` and replaces the term with
+  `Lean.reduceBool c`. The main motivation is that the code for `t` will be pre-compiled.
+
+  Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
+  This is extra 30k lines of code. More importantly, you will probably not be able to check your developement using
+  external type checkers (e.g., Trepplein) that do not implement this feature.
+  Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
+  So, you are mainly losing the capability of type checking your developement using external checkers. -/
+def reduceBool (b : Bool) : Bool := b
+
+/--
+  Similar to `Lean.reduceBool` for closed `Nat` terms.
+
+  Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
+  The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
+  We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection). -/
+def reduceNat (n : Nat) : Nat := n
+
+end Lean
+
 /- Classical reasoning support -/
 
 namespace Classical

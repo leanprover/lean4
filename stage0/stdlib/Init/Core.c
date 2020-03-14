@@ -23,6 +23,7 @@ lean_object* l_Subtype_sizeof(lean_object*);
 lean_object* l_Quotient_hrecOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift(lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_DecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_reduceBool(uint8_t);
 lean_object* l_inline(lean_object*);
 lean_object* l_Quotient_lift_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_condEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -42,6 +43,7 @@ lean_object* l_Quotient_lift___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Squash_mk___rarg___boxed(lean_object*);
 lean_object* l_Nat_HasOne;
 lean_object* l_idRhs___rarg___boxed(lean_object*);
+lean_object* l_Lean_reduceBool___boxed(lean_object*);
 lean_object* l_arbitrary___rarg___boxed(lean_object*);
 lean_object* l_absurd(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_sizeof___main(lean_object*);
@@ -129,6 +131,7 @@ lean_object* l_Function_const___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_setoidHasEquiv(lean_object*, lean_object*);
 lean_object* l_PUnit_sizeof(lean_object*);
 lean_object* l_Iff_Decidable(lean_object*, lean_object*);
+lean_object* l_Lean_reduceNat(lean_object*);
 lean_object* l_Nat_HasSizeof;
 lean_object* l_Squash_lift___rarg(lean_object*, lean_object*);
 lean_object* l_Ne_Decidable___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -270,6 +273,7 @@ lean_object* l_Option_HasSizeof(lean_object*);
 lean_object* l_PSum_HasSizeof(lean_object*, lean_object*);
 lean_object* l_Function_const(lean_object*, lean_object*);
 lean_object* l_PUnit_Inhabited;
+lean_object* l_Lean_reduceNat___boxed(lean_object*);
 lean_object* l_Sum_HasSizeof(lean_object*, lean_object*);
 lean_object* l_Option_sizeof___rarg(lean_object*, lean_object*);
 lean_object* l_Eq_ndrecOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3617,6 +3621,39 @@ _start:
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Squash_lift___rarg), 2, 0);
 return x_4;
+}
+}
+uint8_t l_Lean_reduceBool(uint8_t x_1) {
+_start:
+{
+return x_1;
+}
+}
+lean_object* l_Lean_reduceBool___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_Lean_reduceBool(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_reduceNat(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Lean_reduceNat___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_reduceNat(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static bool _G_initialized = false;

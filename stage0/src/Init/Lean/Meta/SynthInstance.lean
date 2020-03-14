@@ -9,6 +9,7 @@ import Init.Lean.Meta.Basic
 import Init.Lean.Meta.Instances
 import Init.Lean.Meta.LevelDefEq
 import Init.Lean.Meta.AbstractMVars
+import Init.Lean.Meta.WHNF
 
 namespace Lean
 namespace Meta
@@ -593,6 +594,26 @@ result? ← synthInstance? type;
 match result? with
 | some result => pure result
 | none        => throwEx $ Exception.synthInstance type
+
+def synthPendingImp (mvarId : MVarId) : MetaM Bool := do
+mvarDecl ← getMVarDecl mvarId;
+match mvarDecl.kind with
+| MetavarKind.synthetic => do
+  c? ← isClass mvarDecl.type;
+  match c? with
+  | none   => pure false
+  | some _ => do
+    val? ← synthInstance? mvarDecl.type;
+    match val? with
+    | none     => pure false
+    | some val =>
+      condM (isExprMVarAssigned mvarId) (pure false) $ do
+        assignExprMVar mvarId val;
+        pure true
+| _ => pure false
+
+@[init] def setSynthPendingRef : IO Unit :=
+synthPendingRef.set synthPendingImp
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.synthInstance;

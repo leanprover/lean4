@@ -292,6 +292,7 @@ uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains_
 lean_object* l_Lean_importModules___closed__1;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkTagDeclarationExtension___spec__6___closed__1;
 lean_object* l_Lean_Environment_addDecl___boxed(lean_object*, lean_object*);
+uint8_t lean_kernel_is_def_eq(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Environment_12__isNamespaceName___main(lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__1;
@@ -479,6 +480,7 @@ lean_object* l_Lean_EnvExtensionEntry_inhabited;
 lean_object* l_Lean_EnvExtension_getStateUnsafe(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_importModules___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Kernel_isDefEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_Lean_Environment_Inhabited___spec__1(lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_setState___rarg___lambda__1(lean_object*, lean_object*);
@@ -12735,6 +12737,15 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_matchConst___rarg), 4, 0);
 return x_2;
+}
+}
+lean_object* l_Lean_Kernel_isDefEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_kernel_is_def_eq(x_1, x_2, x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 lean_object* initialize_Init_System_IO(lean_object*);

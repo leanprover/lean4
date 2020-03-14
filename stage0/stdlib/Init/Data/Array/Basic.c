@@ -196,6 +196,8 @@ lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Arr
 lean_object* l_Array_findSome_x21___rarg___closed__2;
 lean_object* l_Array_mapIdx(lean_object*, lean_object*);
 lean_object* l_Array_indexOfAux___main(lean_object*);
+lean_object* l_Array_getLit___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_getLit(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_foldlFrom___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_HasRepr___rarg___closed__1;
 uint8_t l_Array_anyRange___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -275,6 +277,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Array_allM___spec__1___rarg(lean_o
 lean_object* l_Array_anyRangeMAux___main___at_Array_allRangeM___spec__1___rarg___lambda__1(lean_object*, uint8_t);
 lean_object* l_Array_iterateMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdxMAux___main(lean_object*, lean_object*);
+lean_object* l_Array_getLit___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkEmpty___boxed(lean_object*, lean_object*);
 lean_object* l_Array_findSomeMAux___main___at_Array_findSome_x21___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Array_anyRange___spec__1(lean_object*);
@@ -397,6 +400,7 @@ lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Arr
 lean_object* l_Array_findIdxAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_shrink___main___rarg___boxed(lean_object*, lean_object*);
 uint8_t l_Array_isEqv___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_getLit___boxed(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_foldl___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*, lean_object*);
@@ -886,6 +890,41 @@ lean_dec(x_2);
 return x_4;
 }
 }
+lean_object* l_Array_getLit___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_array_fget(x_1, x_2);
+return x_5;
+}
+}
+lean_object* l_Array_getLit(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Array_getLit___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+lean_object* l_Array_getLit___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Array_getLit___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* l_Array_getLit___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Array_getLit(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 lean_object* l_Array_set___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1002,7 +1041,7 @@ lean_dec(x_5);
 x_8 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3;
-x_11 = lean_unsigned_to_nat(143u);
+x_11 = lean_unsigned_to_nat(147u);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l___private_Init_Util_1__mkPanicMessage(x_10, x_11, x_12, x_9);
 lean_dec(x_9);
@@ -1033,7 +1072,7 @@ lean_dec(x_5);
 x_8 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3;
-x_11 = lean_unsigned_to_nat(143u);
+x_11 = lean_unsigned_to_nat(147u);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l___private_Init_Util_1__mkPanicMessage(x_10, x_11, x_12, x_9);
 lean_dec(x_9);
@@ -2929,7 +2968,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3;
-x_2 = lean_unsigned_to_nat(287u);
+x_2 = lean_unsigned_to_nat(291u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Array_findSome_x21___rarg___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -3118,7 +3157,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3;
-x_2 = lean_unsigned_to_nat(295u);
+x_2 = lean_unsigned_to_nat(299u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Array_findSome_x21___rarg___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -3413,7 +3452,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3;
-x_2 = lean_unsigned_to_nat(320u);
+x_2 = lean_unsigned_to_nat(324u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Array_findSome_x21___rarg___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -7988,7 +8027,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3;
-x_2 = lean_unsigned_to_nat(684u);
+x_2 = lean_unsigned_to_nat(688u);
 x_3 = lean_unsigned_to_nat(20u);
 x_4 = l_Array_insertAt___rarg___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

@@ -168,16 +168,16 @@ IO.mkRef $ fun _ _ => throw $ Exception.other "isDefEq implementation was not se
 
 @[init mkIsExprDefEqAuxRef] def isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) := arbitrary _
 
-def mkSynthPendingRef : IO (IO.Ref (Expr → MetaM Bool)) :=
+def mkSynthPendingRef : IO (IO.Ref (MVarId → MetaM Bool)) :=
 IO.mkRef $ fun _ => pure false
 
-@[init mkSynthPendingRef] def synthPendingRef : IO.Ref (Expr → MetaM Bool) := arbitrary _
+@[init mkSynthPendingRef] def synthPendingRef : IO.Ref (MVarId → MetaM Bool) := arbitrary _
 
 structure MetaExtState :=
 (whnf         : Expr → MetaM Expr)
 (inferType    : Expr → MetaM Expr)
 (isDefEqAux   : Expr → Expr → MetaM Bool)
-(synthPending : Expr → MetaM Bool)
+(synthPending : MVarId → MetaM Bool)
 
 instance MetaExtState.inhabited : Inhabited MetaExtState :=
 ⟨{ whnf := arbitrary _, inferType := arbitrary _, isDefEqAux := arbitrary _, synthPending := arbitrary _ }⟩
@@ -212,10 +212,10 @@ withIncRecDepth $ do
   env ← getEnv;
   (metaExt.getState env).isDefEqAux t s
 
-def synthPending (e : Expr) : MetaM Bool :=
+def synthPending (mvarId : MVarId) : MetaM Bool :=
 withIncRecDepth $ do
   env ← getEnv;
-  (metaExt.getState env).synthPending e
+  (metaExt.getState env).synthPending mvarId
 
 def mkFreshId : MetaM Name := do
 s ← get;

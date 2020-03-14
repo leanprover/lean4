@@ -349,6 +349,9 @@ theorem subLt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
 protected theorem ltOfLtOfLe {n m k : Nat} : n < m → m ≤ k → n < k :=
 Nat.leTrans
 
+protected theorem ltOfLtOfEq {n m k : Nat} : n < m → m = k → n < k :=
+fun h₁ h₂ => h₂ ▸ h₁
+
 protected theorem leOfEq {n m : Nat} (p : n = m) : n ≤ m :=
 p ▸ Nat.leRefl n
 

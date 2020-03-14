@@ -121,10 +121,10 @@ if h : majorIdx < recArgs.size then do
 else
   failK ()
 
-@[specialize] def isRecStuck {m : Type → Type} [Monad m]
-    (whnf    : Expr → m Expr)
-    (isStuck : Expr → m (Option Expr))
-    (rec : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
+@[specialize] def isRecStuck? {m : Type → Type} [Monad m]
+    (whnf     : Expr → m Expr)
+    (isStuck? : Expr → m (Option MVarId))
+    (rec : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option MVarId) :=
 if rec.k then
   -- TODO: improve this case
   pure none
@@ -133,7 +133,7 @@ else do
   if h : majorIdx < recArgs.size then do
     let major := recArgs.get ⟨majorIdx, h⟩;
     major ← whnf major;
-    isStuck major
+    isStuck? major
   else
     pure none
 
@@ -166,20 +166,20 @@ match rec.kind with
 | QuotKind.ind  => process 4 3
 | _             => failK ()
 
-@[specialize] def isQuotRecStuck {m : Type → Type} [Monad m]
+@[specialize] def isQuotRecStuck? {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
-    (isStuck : Expr → m (Option Expr))
-    (rec : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
-let process (majorPos : Nat) : m (Option Expr) :=
+    (isStuck? : Expr → m (Option MVarId))
+    (rec : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option MVarId) :=
+let process? (majorPos : Nat) : m (Option MVarId) :=
   if h : majorPos < recArgs.size then do
     let major := recArgs.get ⟨majorPos, h⟩;
     major ← whnf major;
-    isStuck major
+    isStuck? major
   else
     pure none;
 match rec.kind with
-| QuotKind.lift => process 5
-| QuotKind.ind  => process 4
+| QuotKind.lift => process? 5
+| QuotKind.ind  => process? 4
 | _             => pure none
 
 /- ===========================
@@ -187,22 +187,22 @@ match rec.kind with
    =========================== -/
 
 /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
-@[specialize] partial def getStuckMVar {m : Type → Type} [Monad m]
+@[specialize] partial def getStuckMVar? {m : Type → Type} [Monad m]
     (getConst : Name → m (Option ConstantInfo))
     (whnf     : Expr → m Expr)
-    : Expr → m (Option Expr)
-| Expr.mdata _ e _   => getStuckMVar e
-| Expr.proj _ _ e _  => do e ← whnf e; getStuckMVar e
-| e@(Expr.mvar _ _)  => pure (some e)
+    : Expr → m (Option MVarId)
+| Expr.mdata _ e _       => getStuckMVar? e
+| Expr.proj _ _ e _      => do e ← whnf e; getStuckMVar? e
+| e@(Expr.mvar mvarId _) => pure (some mvarId)
 | e@(Expr.app f _ _) =>
   let f := f.getAppFn;
   match f with
-  | Expr.mvar _ _            => pure (some f)
+  | Expr.mvar mvarId _       => pure (some mvarId)
   | Expr.const fName fLvls _ => do
     cinfo? ← getConst fName;
     match cinfo? with
-    | some $ ConstantInfo.recInfo rec  => isRecStuck whnf getStuckMVar rec fLvls e.getAppArgs
-    | some $ ConstantInfo.quotInfo rec => isQuotRecStuck whnf getStuckMVar rec fLvls e.getAppArgs
+    | some $ ConstantInfo.recInfo rec  => isRecStuck? whnf getStuckMVar? rec fLvls e.getAppArgs
+    | some $ ConstantInfo.quotInfo rec => isQuotRecStuck? whnf getStuckMVar? rec fLvls e.getAppArgs
     | _                                => pure none
   | _ => pure none
 | _ => pure none
@@ -320,14 +320,14 @@ else
     (whnf              : Expr → m Expr)
     (inferType         : Expr → m Expr)
     (isDefEq           : Expr → Expr → m Bool)
-    (synthesizePending : Expr → m Bool)
+    (synthesizePending : MVarId → m Bool)
     (getLocalDecl      : FVarId → m LocalDecl)
     (getMVarAssignment : MVarId → m (Option Expr))
     : Expr → m Expr
 | e => do
   e ← whnfCore getConst isAuxDef? whnf inferType isDefEq getLocalDecl getMVarAssignment e;
-  (some mvar) ← getStuckMVar getConst whnf e | pure e;
-  succeeded   ← synthesizePending mvar;
+  (some mvarId) ← getStuckMVar? getConst whnf e | pure e;
+  succeeded     ← synthesizePending mvarId;
   if succeeded then whnfCoreUnstuck e else pure e
 
 /-- Unfold definition using "smart unfolding" if possible. -/
@@ -337,7 +337,7 @@ else
     (whnf              : Expr → m Expr)
     (inferType         : Expr → m Expr)
     (isDefEq           : Expr → Expr → m Bool)
-    (synthesizePending : Expr → m Bool)
+    (synthesizePending : MVarId → m Bool)
     (getLocalDecl      : FVarId → m LocalDecl)
     (getMVarAssignment : MVarId → m (Option Expr))
     (e : Expr) : m (Option Expr) :=
@@ -379,7 +379,7 @@ match e with
     (isAuxDef?         : Name → m Bool)
     (inferType         : Expr → m Expr)
     (isDefEq           : Expr → Expr → m Bool)
-    (synthesizePending : Expr → m Bool)
+    (synthesizePending : MVarId → m Bool)
     (getLocalDecl      : FVarId → m LocalDecl)
     (getMVarAssignment : MVarId → m (Option Expr))
     : Expr → m Expr

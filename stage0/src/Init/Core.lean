@@ -1019,6 +1019,16 @@ match h with
 | (isTrue hc)   => absurd hc hnc
 | (isFalse hnc) => rfl
 
+theorem difPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
+match h with
+| (isTrue  hc)  => rfl
+| (isFalse hnc) => absurd hc hnc
+
+theorem difNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
+match h with
+| (isTrue hc)   => absurd hc hnc
+| (isFalse hnc) => rfl
+
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
 theorem difEqIf (c : Prop) [h : Decidable c] {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
 match h with

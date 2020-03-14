@@ -630,4 +630,16 @@ match e with
   | _          => failK ()
 | _ => failK ()
 
+namespace Kernel
+/- Kernel API -/
+
+/--
+  Kernel isDefEq predicate. We use it mainly for debugging purposes.
+  Recall that the Kernel type checker does not support metavariables.
+  For implementation automation, consider using the `MetaM` methods. -/
+@[extern "lean_kernel_is_def_eq"]
+constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool := arbitrary _
+
+end Kernel
+
 end Lean

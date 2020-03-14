@@ -96,6 +96,10 @@ if h : i < a.size then a.get ⟨i, h⟩ else v₀
 def getOp [Inhabited α] (self : Array α) (idx : Nat) : α :=
 self.get! idx
 
+-- auxiliary declaration used in the equation compiler when pattern matching array literals.
+abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
+a.get ⟨i, h₁.symm ▸ h₂⟩
+
 @[extern "lean_array_fset"]
 def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
@@ -685,6 +689,22 @@ if i > as.size then panic! "invalid index"
 else
   let as := as.push a;
   as.insertAtAux i as.size
+
+theorem ext {α : Type u} (a b : Array α) : a.size = b.size → (∀ (i : Nat) (hi₁ : i < a.size) (hi₂ : i < b.size) , a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩) → a = b :=
+match a, b with
+| ⟨sz₁, f₁⟩, ⟨sz₂, f₂⟩ =>
+  show sz₁ = sz₂ → (∀ (i : Nat) (hi₁ : i < sz₁) (hi₂ : i < sz₂) , f₁ ⟨i, hi₁⟩ = f₂ ⟨i, hi₂⟩) → Array.mk sz₁ f₁ = Array.mk sz₂ f₂ from
+  fun h₁ h₂ =>
+    match sz₁, sz₂, f₁, f₂, h₁, h₂ with
+    | sz, _, f₁, f₂, rfl, h₂ =>
+      have f₁ = f₂ from funext $ fun ⟨i, hi₁⟩ => h₂ i hi₁ hi₁;
+      congrArg _ this
+
+theorem extLit {α : Type u} {n : Nat}
+  (a b : Array α)
+  (hsz₁ : a.size = n) (hsz₂ : b.size = n)
+  (h : ∀ (i : Nat) (hi : i < n), a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
+Array.ext a b (hsz₁.trans hsz₂.symm) $ fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
 
 end Array
 

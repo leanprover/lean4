@@ -106,6 +106,7 @@ lean_object* l___private_Init_Lean_Meta_RecursorInfo_10__getProduceMotiveAndRecu
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_casesOnSuffix;
+lean_object* l_Array_back___at___private_Init_Lean_Meta_ExprDefEq_14__processAssignmentFOApproxAux___spec__1(lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_numParams___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___closed__2;
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__7;
@@ -197,7 +198,6 @@ lean_object* l___private_Init_Lean_Meta_RecursorInfo_7__getIndicesPos___boxed(le
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_7__getIndicesPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMajorPos_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_numIndices(lean_object*);
-lean_object* l_Array_back___at___private_Init_Lean_Meta_ExprDefEq_13__processAssignmentFOApproxAux___spec__1(lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_13__syntaxToMajorPos(lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
@@ -2417,7 +2417,7 @@ x_8 = l_Array_isEmpty___rarg(x_5);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = l_Array_back___at___private_Init_Lean_Meta_ExprDefEq_13__processAssignmentFOApproxAux___spec__1(x_5);
+x_9 = l_Array_back___at___private_Init_Lean_Meta_ExprDefEq_14__processAssignmentFOApproxAux___spec__1(x_5);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Array_findIdxAux___main___at___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___spec__2(x_9, x_3, x_10);
 if (lean_obj_tag(x_11) == 0)

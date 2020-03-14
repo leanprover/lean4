@@ -2380,7 +2380,7 @@ lean_dec(x_2);
 x_5 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__2;
 x_6 = lean_string_append(x_4, x_5);
 x_7 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3;
-x_8 = lean_unsigned_to_nat(143u);
+x_8 = lean_unsigned_to_nat(147u);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l___private_Init_Util_1__mkPanicMessage(x_7, x_8, x_9, x_6);
 lean_dec(x_6);

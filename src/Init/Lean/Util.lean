@@ -19,3 +19,4 @@ import Init.Lean.Util.Trace
 import Init.Lean.Util.WHNF
 import Init.Lean.Util.FindExpr
 import Init.Lean.Util.ReplaceExpr
+import Init.Lean.Util.FoldConsts

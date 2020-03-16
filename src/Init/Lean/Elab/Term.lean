@@ -894,6 +894,21 @@ match env.compileDecl opts decl with
 | Except.ok env    => setEnv env
 | Except.error kex => throwError ref (kex.toMessageData opts)
 
+private partial def mkAuxNameAux (env : Environment) (base : Name) : Nat → Name
+| i =>
+  let candidate := base.appendIndexAfter i;
+  if env.contains candidate then
+    mkAuxNameAux (i+1)
+  else
+    candidate
+
+def mkAuxName (ref : Syntax) (suffix : Name) : TermElabM Name := do
+env ← getEnv;
+ctx ← read;
+match ctx.declName? with
+| none          => throwError ref "auxiliary declaration cannot be created when declaration name is not available"
+| some declName => pure $ mkAuxNameAux env (declName ++ suffix) 1
+
 /- =======================================
        Builtin elaboration functions
    ======================================= -/

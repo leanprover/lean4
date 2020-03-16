@@ -3,21 +3,18 @@ def fact : Nat → Nat
 | (n+1) => (n+1)*fact n
 
 #eval fact 10
+#eval fact 100
 
 new_frontend
 
-abbrev v1 : Nat := fact 10
+theorem tst1 : fact 10 = 3628800 :=
+nativeRefl! (fact 10)
 
-theorem tst1 : Lean.reduceNat v1 = 3628800 :=
-rfl
+theorem tst2 : fact 100 = 93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000 :=
+nativeRefl! (fact 100)
 
-theorem tst2 : fact 10 = 3628800 :=
-Lean.ofReduceNat v1 3628800 rfl
+theorem tst3 : decide (10000000000000000 < 200000000000000000000) = true :=
+nativeRefl! (decide (10000000000000000 < 200000000000000000000))
 
-abbrev v2 : Bool := decide (10000000000000000 < 200000000000000000000)
-
-theorem tst3 : Lean.reduceBool v2 = true :=
-rfl
-
-theorem tst4 : decide (10000000000000000 < 200000000000000000000) = true :=
-Lean.ofReduceBool v2 true rfl
+theorem tst4 : 10000000000000000 < 200000000000000000000 :=
+ofDecideEqTrue (nativeRefl! (decide (10000000000000000 < 200000000000000000000)))

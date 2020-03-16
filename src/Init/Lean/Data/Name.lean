@@ -8,6 +8,7 @@ import Init.LeanInit
 import Init.Data.UInt
 import Init.Data.ToString
 import Init.Data.Hashable
+import Init.Data.HashSet
 import Init.Data.RBMap
 import Init.Data.RBTree
 
@@ -154,19 +155,25 @@ end NameMap
 
 def NameSet := RBTree Name Name.quickLt
 
-@[inline] def mkNameSet : NameSet := mkRBTree Name Name.quickLt
-
 namespace NameSet
-
-instance : HasEmptyc NameSet := ⟨mkNameSet⟩
-
+def empty : NameSet := mkRBTree Name Name.quickLt
+instance : HasEmptyc NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨{}⟩
-
 def insert (s : NameSet) (n : Name)  := RBTree.insert s n
-
 def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
 
 end NameSet
+
+def NameHashSet := HashSet Name
+
+namespace NameHashSet
+@[inline] def empty : NameHashSet := HashSet.empty
+instance : HasEmptyc NameHashSet := ⟨empty⟩
+instance : Inhabited NameHashSet := ⟨{}⟩
+def insert (s : NameHashSet) (n : Name) := HashSet.insert s n
+def contains (s : NameHashSet) (n : Name) : Bool := HashSet.contains s n
+end NameHashSet
+
 end Lean
 
 open Lean

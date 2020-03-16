@@ -8,6 +8,7 @@ import Init.Lean.Util.CollectLevelParams
 import Init.Lean.Util.CollectFVars
 import Init.Lean.Elab.DeclModifiers
 import Init.Lean.Elab.Binders
+import Init.ShareCommon
 
 namespace Lean
 namespace Elab
@@ -98,6 +99,12 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrOpaque $ fun vars => do
   val  ← Term.levelMVarToParam val;
   type ← Term.instantiateMVars ref type;
   val  ← Term.instantiateMVars view.val val;
+  let shareCommonTypeVal : ShareCommonM (Expr × Expr) := do {
+    type ← withShareCommon type;
+    val  ← withShareCommon val;
+    pure (type, val)
+  };
+  let (type, val) := shareCommonTypeVal.run;
   Term.trace `Elab.definition.body ref $ fun _ => val;
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;

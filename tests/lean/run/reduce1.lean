@@ -15,3 +15,9 @@ def v2 : Bool := 10000000000000000 < 200000000000000000000
 
 theorem tst2 : Lean.reduceBool v2 = true :=
 rfl
+
+theorem tst3 : v1 = 3628800 :=
+Lean.ofReduceNat v1 3628800 rfl
+
+theorem tst4 : v2 = true :=
+Lean.ofReduceBool v2 true rfl

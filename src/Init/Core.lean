@@ -1739,6 +1739,9 @@ def reduceBool (b : Bool) : Bool := b
   We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection). -/
 def reduceNat (n : Nat) : Nat := n
 
+def ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b := h
+def ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b := h
+
 end Lean
 
 /- Classical reasoning support -/

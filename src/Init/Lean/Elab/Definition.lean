@@ -107,7 +107,7 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun var
     pure (type, val)
   };
   let (type, val) := shareCommonTypeVal.run;
-  Term.trace `Elab.definition.body ref $ fun _ => val;
+  Term.trace `Elab.definition.body ref $ fun _ => declName ++ " : " ++ type ++ " :=" ++ Format.line ++ val;
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;

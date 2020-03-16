@@ -492,10 +492,14 @@ fun n => do
   runTermElabM none $ fun _ => Term.elabBinders binders $ fun _ => pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
+@[inline] def withoutModifyingEnv {α} (x : CommandElabM α) : CommandElabM α := do
+env ← getEnv;
+finally x (setEnv env)
+
 @[builtinCommandElab «check»] def elabCheck : CommandElab :=
 fun stx => do
   let term := stx.getArg 1;
-  runTermElabM none $ fun _ => do
+  withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
     e    ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
     type ← Term.inferType stx e;
@@ -533,7 +537,7 @@ fun stx => failIfSucceeds stx $ elabCheck stx
 fun stx => do
   let ref  := stx;
   let term := stx.getArg 1;
-  runTermElabM `_synth_cmd $ fun _ => do
+  withoutModifyingEnv $ runTermElabM `_synth_cmd $ fun _ => do
     inst ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
     inst ← Term.instantiateMVars ref inst;

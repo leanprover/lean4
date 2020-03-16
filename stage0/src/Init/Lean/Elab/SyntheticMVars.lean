@@ -211,6 +211,18 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
 def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
 synthesizeSyntheticMVarsAux mayPostpone ()
 
+/-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
+def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+s ← get;
+let syntheticMVars := s.syntheticMVars;
+modify $ fun s => { syntheticMVars := [], .. s };
+finally
+  (do
+     v ← elabTerm stx expectedType?;
+     synthesizeSyntheticMVars false;
+     instantiateMVars stx v)
+  (modify $ fun s => { syntheticMVars := s.syntheticMVars ++ syntheticMVars, .. s })
+
 end Term
 end Elab
 end Lean

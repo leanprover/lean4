@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Elab.Term
 import Init.Lean.Elab.Quotation
+import Init.Lean.Elab.SyntheticMVars
 
 namespace Lean
 namespace Elab
@@ -107,6 +108,43 @@ adaptExpander $ fun stx => match_syntax stx with
   | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $e)
   | none          => throwError stx "invalid `tparser!` macro, it must be used in definitions"
 | _             => throwUnsupportedSyntax
+
+private def mkNativeReflAuxDecl (ref : Syntax) (type val : Expr) : TermElabM Name := do
+auxName ← mkAuxName ref `_nativeRefl;
+let decl := Declaration.defnDecl {
+  name := auxName, lparams := [], type := type, value := val,
+  hints := ReducibilityHints.abbrev,
+  isUnsafe := false };
+addDecl ref decl;
+compileDecl ref decl;
+pure auxName
+
+@[builtinTermElab «nativeRefl»] def elabNativeRefl : TermElab :=
+fun stx _ => do
+  let arg := stx.getArg 1;
+  e ← elabTermAndSynthesize arg none;
+  when e.hasMVar $
+    throwError stx ("invalid `nativeRefl!` macro application, term contains metavariables" ++ indentExpr e);
+  when e.hasFVar $
+    throwError stx ("invalid `nativeRefl!` macro application, term contains free variables" ++ indentExpr e);
+  type ← inferType stx e;
+  type ← whnf stx type;
+  unless (type.isConstOf `Bool || type.isConstOf `Nat) $
+    throwError stx ("invalid `nativeRefl!` macro application, term must have type `Nat` or `Bool`" ++ indentExpr type);
+  auxDeclName ← mkNativeReflAuxDecl stx type e;
+  let isBool := type.isConstOf `Bool;
+  let reduceValFn := if isBool then `Lean.reduceBool else `Lean.reduceNat;
+  let reduceThm   := if isBool then `Lean.ofReduceBool else `Lean.ofReduceNat;
+  let aux         := Lean.mkConst auxDeclName;
+  let reduceVal   := mkApp (Lean.mkConst reduceValFn) aux;
+  val? ← liftMetaM stx $ Meta.reduceNative? reduceVal;
+  match val? with
+  | none     => throwError stx ("failed to reduce term at `nativeRefl!` macro application" ++ indentExpr e)
+  | some val => do
+    rflPrf ← liftMetaM stx $ Meta.mkEqRefl val;
+    let r  := mkApp3 (Lean.mkConst reduceThm) aux val rflPrf;
+    eq ← liftMetaM stx $ Meta.mkEq e val;
+    pure $ mkApp2 (Lean.mkConst `id [levelZero]) eq r
 
 def elabInfix (f : Syntax) : Macro :=
 fun stx => do

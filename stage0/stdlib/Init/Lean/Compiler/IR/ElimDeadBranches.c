@@ -190,6 +190,7 @@ lean_object* l_Lean_IR_UnreachableBranches_projValue___boxed(lean_object*, lean_
 size_t lean_usize_of_nat(lean_object*);
 uint8_t l_Lean_IR_UnreachableBranches_containsCtor(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_UnreachableBranches_inferStep___spec__1___closed__1;
 lean_object* l_Lean_IR_UnreachableBranches_Value_HasBeq___closed__1;
@@ -1809,7 +1810,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = l_Lean_IR_UnreachableBranches_Value_merge___main(x_2, x_3);
-x_5 = lean_box(0);
+x_5 = l_Lean_NameSet_empty;
 x_6 = l_Lean_IR_UnreachableBranches_Value_truncate___main(x_1, x_4, x_5);
 return x_6;
 }

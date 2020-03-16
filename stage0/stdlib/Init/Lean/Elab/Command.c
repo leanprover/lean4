@@ -66,6 +66,7 @@ lean_object* l_Lean_Elab_Command_commandElabAttribute;
 lean_object* l_Lean_Elab_Command_elabUniverse(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_identKind___closed__2;
+uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withNamespace___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_10__toCommandResult(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCheck___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -279,7 +280,6 @@ uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabExport(lean_object*);
 lean_object* l_Lean_Elab_Command_getScopes(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elbChoice(lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabExport(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_6__mkTermContext(lean_object*, lean_object*, lean_object*);
@@ -11773,7 +11773,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec(x_5);
-x_8 = l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(x_4, x_6);
+x_8 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_4, x_6);
 lean_dec(x_6);
 if (x_8 == 0)
 {
@@ -23062,7 +23062,7 @@ x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_add(x_3, x_11);
 lean_dec(x_3);
 x_13 = l_Lean_Syntax_getId(x_10);
-x_14 = l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(x_13, x_4);
+x_14 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_13, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -24134,7 +24134,7 @@ else
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_array_fget(x_2, x_3);
-x_9 = l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(x_8, x_1);
+x_9 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_8, x_1);
 lean_dec(x_8);
 if (x_9 == 0)
 {

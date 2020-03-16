@@ -27,6 +27,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getPos___at_Lean_Elab_Level_elabLevel___main___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
+uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Level_max___elambda__1___closed__1;
 lean_object* lean_array_get_size(lean_object*);
@@ -62,7 +63,6 @@ lean_object* l_Lean_Elab_Level_mkFreshId(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__3;
 lean_object* l_ReaderT_bind___at_Lean_Elab_Level_LevelElabM_MonadLog___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__1;
-uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__9;
 lean_object* l_Lean_Elab_mkMessage___at_Lean_Elab_Level_elabLevel___main___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -1170,7 +1170,7 @@ lean_dec(x_4);
 x_50 = lean_unsigned_to_nat(0u);
 x_51 = l_Lean_Syntax_getIdAt(x_1, x_50);
 x_52 = lean_ctor_get(x_2, 3);
-x_53 = l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(x_51, x_52);
+x_53 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_51, x_52);
 if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; 

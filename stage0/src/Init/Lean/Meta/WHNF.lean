@@ -21,13 +21,41 @@ Lean.WHNF.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isExprDefEq 
 def whnfCore (e : Expr) : MetaM Expr :=
 Lean.WHNF.whnfCore getConstNoEx isAuxDef? whnf inferType isExprDefEqAux getLocalDecl getExprMVarAssignment? e
 
+unsafe def reduceNativeConst (α : Type) (typeName : Name) (constName : Name) : MetaM α := do
+env ← getEnv;
+match env.evalConstCheck α typeName constName with
+| Except.error ex => throw $ Exception.other ex
+| Except.ok v     => pure v
+
+unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := reduceNativeConst Bool `Bool constName
+unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := reduceNativeConst Nat `Nat constName
+@[implementedBy reduceBoolNativeUnsafe] constant reduceBoolNative (constName : Name) : MetaM Bool := arbitrary _
+@[implementedBy reduceNatNativeUnsafe] constant reduceNatNative (constName : Name) : MetaM Nat := arbitrary _
+
+def reduceNative? (e : Expr) : MetaM (Option Expr) :=
+match e with
+| Expr.app (Expr.const fName _ _) (Expr.const argName _ _) _ =>
+  if fName == `Lean.reduceBool then do
+    b ← reduceBoolNative argName;
+    pure $ if b then some $ mkConst `Bool.true else some $ mkConst `Bool.false
+  else if fName == `Lean.reduceNat then do
+    n ← reduceNatNative argName;
+    pure $ some $ mkNatLit n
+  else
+    pure none
+| _ => pure none
+
 partial def whnfImpl : Expr → MetaM Expr
 | e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment? e $ fun e => do
   e ← whnfCore e;
-  e? ← unfoldDefinition? e;
-  match e? with
-  | some e => whnfImpl e
-  | none   => pure e
+  v? ← reduceNative? e;
+  match v? with
+  | some v => pure v
+  | none => do
+    e? ← unfoldDefinition? e;
+    match e? with
+    | some e => whnfImpl e
+    | none   => pure e
 
 @[init] def setWHNFRef : IO Unit :=
 whnfRef.set whnfImpl

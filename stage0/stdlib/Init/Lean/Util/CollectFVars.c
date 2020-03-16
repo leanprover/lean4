@@ -34,6 +34,7 @@ size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_CollectFVars_main___main(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_CollectFVars_visit(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_HashSetImp_moveEntries___main___at_Lean_CollectFVars_visit___spec__5(lean_object*, lean_object*, lean_object*);
@@ -68,11 +69,11 @@ lean_object* _init_l_Lean_CollectFVars_State_inhabited___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_CollectFVars_State_inhabited___closed__1;
+x_1 = l_Lean_CollectFVars_State_inhabited___closed__1;
+x_2 = l_Lean_NameSet_empty;
 x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }

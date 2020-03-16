@@ -17,6 +17,7 @@ extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_mkProjectionFnInfoExtension___lambda__2(lean_object*);
 lean_object* lean_add_projection_info(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
+lean_object* l_Lean_projectionFnInfoExt___closed__6;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
@@ -27,9 +28,9 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
 lean_object* l_Lean_projectionFnInfoExt___elambda__2___boxed(lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_Environment_getProjectionFnInfo___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_mkTagDeclarationExtension___closed__2;
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -51,6 +52,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__2;
 uint8_t l_Array_binSearchAux___main___at_Lean_Environment_isProjectionFn___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
@@ -66,11 +68,12 @@ lean_object* l_Lean_projectionFnInfoExt___closed__3;
 extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
-extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkTagDeclarationExtension___spec__6___closed__2;
 lean_object* l_List_redLength___main___rarg(lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1;
+lean_object* l_Lean_mkProjectionFnInfoExtension___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt;
+lean_object* l_Lean_mkProjectionFnInfoExtension___lambda__3(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkProjectionFnInfoExtension___spec__3(lean_object*, lean_object*);
@@ -92,13 +95,13 @@ lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___elambda__4(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_namespacesExt___closed__1;
 lean_object* l_Lean_projectionFnInfoExt___closed__4;
 lean_object* lean_io_initializing(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_Environment_isProjectionFn___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___closed__2;
 lean_object* l_Array_binSearchAux___main___at_Lean_Environment_getProjectionFnInfo___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__2;
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
@@ -108,6 +111,7 @@ lean_object* l_Lean_ProjectionFunctionInfo_inhabited___closed__1;
 lean_object* lean_mk_projection_info(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_mkProjectionFnInfoExtension___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkProjectionFnInfoExtension___closed__6;
 lean_object* l_Array_binSearchAux___main___at_Lean_Environment_getProjectionFnInfo___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___elambda__1___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -437,6 +441,30 @@ return x_11;
 }
 }
 }
+lean_object* _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Array_empty___closed__1;
+x_2 = l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -495,7 +523,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_array_get_size(x_15);
 lean_dec(x_15);
-x_18 = l_Lean_registerEnvExtensionUnsafe___at_Lean_mkTagDeclarationExtension___spec__6___closed__2;
+x_18 = l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__2;
 x_19 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_1);
@@ -1189,6 +1217,14 @@ return x_5;
 lean_object* l_Lean_mkProjectionFnInfoExtension___lambda__2(lean_object* x_1) {
 _start:
 {
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+}
+lean_object* l_Lean_mkProjectionFnInfoExtension___lambda__3(lean_object* x_1) {
+_start:
+{
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = l_List_redLength___main___rarg(x_1);
 x_3 = lean_mk_empty_array_with_capacity(x_2);
@@ -1234,18 +1270,26 @@ lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_mkProjectionFnInfoExtension___lambda__2), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_mkProjectionFnInfoExtension___lambda__2___boxed), 1, 0);
 return x_1;
 }
 }
 lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__5() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_mkProjectionFnInfoExtension___lambda__3), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__6() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_mkProjectionFnInfoExtension___closed__2;
 x_2 = l_Lean_mkProjectionFnInfoExtension___closed__3;
-x_3 = l_Lean_mkTagDeclarationExtension___closed__2;
-x_4 = l_Lean_mkProjectionFnInfoExtension___closed__4;
+x_3 = l_Lean_mkProjectionFnInfoExtension___closed__4;
+x_4 = l_Lean_mkProjectionFnInfoExtension___closed__5;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -1258,7 +1302,7 @@ lean_object* l_Lean_mkProjectionFnInfoExtension(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_mkProjectionFnInfoExtension___closed__5;
+x_2 = l_Lean_mkProjectionFnInfoExtension___closed__6;
 x_3 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkProjectionFnInfoExtension___spec__3(x_2, x_1);
 return x_3;
 }
@@ -1293,6 +1337,15 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_7 = lean_box(x_6);
 return x_7;
+}
+}
+lean_object* l_Lean_mkProjectionFnInfoExtension___lambda__2___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_mkProjectionFnInfoExtension___lambda__2(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_projectionFnInfoExt___elambda__1(lean_object* x_1) {
@@ -1340,16 +1393,22 @@ return x_3;
 lean_object* _init_l_Lean_projectionFnInfoExt___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__4___boxed), 2, 0);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_EnvExtension_Inhabited___rarg___closed__1;
+x_3 = l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__2;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
 }
 }
 lean_object* _init_l_Lean_projectionFnInfoExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__3___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__4___boxed), 2, 0);
 return x_1;
 }
 }
@@ -1357,7 +1416,7 @@ lean_object* _init_l_Lean_projectionFnInfoExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__2___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__3___boxed), 2, 0);
 return x_1;
 }
 }
@@ -1365,20 +1424,28 @@ lean_object* _init_l_Lean_projectionFnInfoExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__2___boxed), 1, 0);
 return x_1;
 }
 }
 lean_object* _init_l_Lean_projectionFnInfoExt___closed__5() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_projectionFnInfoExt___closed__6() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_namespacesExt___closed__1;
+x_1 = l_Lean_projectionFnInfoExt___closed__1;
 x_2 = lean_box(0);
-x_3 = l_Lean_projectionFnInfoExt___closed__1;
-x_4 = l_Lean_projectionFnInfoExt___closed__2;
-x_5 = l_Lean_projectionFnInfoExt___closed__3;
-x_6 = l_Lean_projectionFnInfoExt___closed__4;
+x_3 = l_Lean_projectionFnInfoExt___closed__2;
+x_4 = l_Lean_projectionFnInfoExt___closed__3;
+x_5 = l_Lean_projectionFnInfoExt___closed__4;
+x_6 = l_Lean_projectionFnInfoExt___closed__5;
 x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
@@ -1828,6 +1895,10 @@ l_Lean_ProjectionFunctionInfo_inhabited = _init_l_Lean_ProjectionFunctionInfo_in
 lean_mark_persistent(l_Lean_ProjectionFunctionInfo_inhabited);
 l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1 = _init_l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1();
 lean_mark_persistent(l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1);
+l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1();
+lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1);
+l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__2 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__2();
+lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__2);
 l_Lean_mkProjectionFnInfoExtension___closed__1 = _init_l_Lean_mkProjectionFnInfoExtension___closed__1();
 lean_mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__1);
 l_Lean_mkProjectionFnInfoExtension___closed__2 = _init_l_Lean_mkProjectionFnInfoExtension___closed__2();
@@ -1838,6 +1909,8 @@ l_Lean_mkProjectionFnInfoExtension___closed__4 = _init_l_Lean_mkProjectionFnInfo
 lean_mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__4);
 l_Lean_mkProjectionFnInfoExtension___closed__5 = _init_l_Lean_mkProjectionFnInfoExtension___closed__5();
 lean_mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__5);
+l_Lean_mkProjectionFnInfoExtension___closed__6 = _init_l_Lean_mkProjectionFnInfoExtension___closed__6();
+lean_mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__6);
 l_Lean_projectionFnInfoExt___closed__1 = _init_l_Lean_projectionFnInfoExt___closed__1();
 lean_mark_persistent(l_Lean_projectionFnInfoExt___closed__1);
 l_Lean_projectionFnInfoExt___closed__2 = _init_l_Lean_projectionFnInfoExt___closed__2();
@@ -1848,6 +1921,8 @@ l_Lean_projectionFnInfoExt___closed__4 = _init_l_Lean_projectionFnInfoExt___clos
 lean_mark_persistent(l_Lean_projectionFnInfoExt___closed__4);
 l_Lean_projectionFnInfoExt___closed__5 = _init_l_Lean_projectionFnInfoExt___closed__5();
 lean_mark_persistent(l_Lean_projectionFnInfoExt___closed__5);
+l_Lean_projectionFnInfoExt___closed__6 = _init_l_Lean_projectionFnInfoExt___closed__6();
+lean_mark_persistent(l_Lean_projectionFnInfoExt___closed__6);
 res = l_Lean_mkProjectionFnInfoExtension(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_projectionFnInfoExt = lean_io_result_get_value(res);

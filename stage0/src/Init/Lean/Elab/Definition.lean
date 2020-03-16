@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Init.ShareCommon
 import Init.Lean.Util.CollectLevelParams
+import Init.Lean.Util.FoldConsts
 import Init.Lean.Util.CollectFVars
 import Init.Lean.Elab.DeclModifiers
 import Init.Lean.Elab.Binders
@@ -14,15 +16,16 @@ namespace Elab
 namespace Command
 
 inductive DefKind
-| «def» | «theorem» | «example» | «opaque»
+| «def» | «theorem» | «example» | «opaque» | «abbrev»
 
 def DefKind.isTheorem : DefKind → Bool
 | DefKind.theorem => true
 | _               => false
 
-def DefKind.isDefOrOpaque : DefKind → Bool
+def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
 | DefKind.def    => true
 | DefKind.opaque => true
+| DefKind.abbrev => true
 | _              => false
 
 def DefKind.isExample : DefKind → Bool
@@ -89,7 +92,7 @@ Term.synthesizeSyntheticMVars false;
 type    ← Term.instantiateMVars ref type;
 val     ← Term.instantiateMVars view.val val;
 if view.kind.isExample then pure none
-else withUsedWhen ref vars xs val type view.kind.isDefOrOpaque $ fun vars => do
+else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars => do
   type ← Term.mkForall ref xs type;
   type ← Term.mkForall ref vars type;
   val  ← Term.mkLambda ref xs val;
@@ -98,7 +101,13 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrOpaque $ fun vars => do
   val  ← Term.levelMVarToParam val;
   type ← Term.instantiateMVars ref type;
   val  ← Term.instantiateMVars view.val val;
-  Term.trace `Elab.definition.body ref $ fun _ => val;
+  let shareCommonTypeVal : ShareCommonM (Expr × Expr) := do {
+    type ← withShareCommon type;
+    val  ← withShareCommon val;
+    pure (type, val)
+  };
+  let (type, val) := shareCommonTypeVal.run;
+  Term.trace `Elab.definition.body ref $ fun _ => declName ++ " : " ++ type ++ " :=" ++ Format.line ++ val;
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;
@@ -109,10 +118,16 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrOpaque $ fun vars => do
     pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := Task.pure val }
   | DefKind.opaque  =>
     pure $ some $ Declaration.opaqueDecl { name := declName, lparams := levelParams, type := type, value := val, isUnsafe := view.modifiers.isUnsafe }
-  | DefKind.def =>
+  | DefKind.abbrev =>
     pure $ some $ Declaration.defnDecl {
       name := declName, lparams := levelParams, type := type, value := val,
-      hints := ReducibilityHints.regular 0, -- TODO
+      hints := ReducibilityHints.abbrev,
+      isUnsafe := view.modifiers.isUnsafe }
+  | DefKind.def => do
+    env ← Term.getEnv;
+    pure $ some $ Declaration.defnDecl {
+      name := declName, lparams := levelParams, type := type, value := val,
+      hints := ReducibilityHints.regular (getMaxHeight env val + 1),
       isUnsafe := view.modifiers.isUnsafe }
   | _ => unreachable!
 

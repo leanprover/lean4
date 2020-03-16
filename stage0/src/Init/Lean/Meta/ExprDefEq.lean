@@ -36,6 +36,18 @@ if a.isLambda && !b.isLambda then do
 else
   pure false
 
+/-- Support for `Lean.reduceBool` and `Lean.reduceNat` -/
+def isDefEqNative (s t : Expr) : MetaM LBool := do
+let isDefEq (s t) : MetaM LBool := toLBoolM $ isExprDefEqAux s t;
+s? ← reduceNative? s;
+match s? with
+| some s => isDefEq s t
+| none => do
+  t? ← reduceNative? t;
+  match t? with
+  | some t => isDefEq s t
+  | none   => pure LBool.undef
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m x_1 ... x_n)`, and `?m` is unassigned.
   Remark: `n` may be 0. -/
@@ -990,6 +1002,7 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
   whenUndefDo (isDefEqProofIrrel t s) $
   isDefEqWHNF t s $ fun t s => do
   condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
+  whenUndefDo (isDefEqNative t s) $ do
   whenUndefDo (isDefEqOffset t s) $ do
   whenUndefDo (isDefEqDelta t s) $
   match t, s with

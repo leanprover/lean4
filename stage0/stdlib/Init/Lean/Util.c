@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Util
-// Imports: Init.Lean.Util.CollectFVars Init.Lean.Util.CollectLevelParams Init.Lean.Util.CollectMVars Init.Lean.Util.FindMVar Init.Lean.Util.MonadCache Init.Lean.Util.PPExt Init.Lean.Util.PPGoal Init.Lean.Util.Path Init.Lean.Util.Profile Init.Lean.Util.RecDepth Init.Lean.Util.Sorry Init.Lean.Util.Trace Init.Lean.Util.WHNF Init.Lean.Util.FindExpr Init.Lean.Util.ReplaceExpr
+// Imports: Init.Lean.Util.CollectFVars Init.Lean.Util.CollectLevelParams Init.Lean.Util.CollectMVars Init.Lean.Util.FindMVar Init.Lean.Util.MonadCache Init.Lean.Util.PPExt Init.Lean.Util.PPGoal Init.Lean.Util.Path Init.Lean.Util.Profile Init.Lean.Util.RecDepth Init.Lean.Util.Sorry Init.Lean.Util.Trace Init.Lean.Util.WHNF Init.Lean.Util.FindExpr Init.Lean.Util.ReplaceExpr Init.Lean.Util.FoldConsts
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -28,6 +28,7 @@ lean_object* initialize_Init_Lean_Util_Trace(lean_object*);
 lean_object* initialize_Init_Lean_Util_WHNF(lean_object*);
 lean_object* initialize_Init_Lean_Util_FindExpr(lean_object*);
 lean_object* initialize_Init_Lean_Util_ReplaceExpr(lean_object*);
+lean_object* initialize_Init_Lean_Util_FoldConsts(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Util(lean_object* w) {
 lean_object * res;
@@ -76,6 +77,9 @@ res = initialize_Init_Lean_Util_FindExpr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Util_ReplaceExpr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Util_FoldConsts(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

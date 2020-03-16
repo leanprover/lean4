@@ -22,7 +22,7 @@ lean_object* l_unreachable_x21___rarg(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l___private_Init_Lean_Elab_ResolveName_2__resolveUsingNamespace(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-uint8_t l_List_elem___main___at_Lean_addAliasEntry___spec__18(lean_object*, lean_object*);
+uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Elab_OpenDecl_HasToString___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveGlobalName___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -539,7 +539,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_5, 1);
 lean_inc(x_8);
 lean_dec(x_5);
-x_9 = l_List_elem___main___at_Lean_addAliasEntry___spec__18(x_2, x_8);
+x_9 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_2, x_8);
 lean_dec(x_8);
 if (x_9 == 0)
 {
@@ -657,7 +657,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = l_List_elem___main___at_Lean_addAliasEntry___spec__18(x_5, x_2);
+x_7 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_5, x_2);
 if (x_7 == 0)
 {
 lean_ctor_set(x_1, 1, x_2);
@@ -685,7 +685,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = l_List_elem___main___at_Lean_addAliasEntry___spec__18(x_10, x_2);
+x_12 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_10, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 

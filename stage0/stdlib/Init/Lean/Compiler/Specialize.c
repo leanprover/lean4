@@ -37,7 +37,6 @@ lean_object* l_Lean_Compiler_mkSpecExtension___closed__2;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__8;
 lean_object* lean_array_uget(lean_object*, size_t);
-extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Compiler_SpecState_addEntry___spec__16(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -52,7 +51,6 @@ lean_object* l_PersistentHashMap_find_x3f___at_Lean_Compiler_getCachedSpecializa
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_AssocList_replace___main___at_Lean_Compiler_SpecState_addEntry___spec__22(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Compiler_getCachedSpecialization___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecExtension___closed__1;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -88,7 +86,6 @@ lean_object* l___private_Init_Lean_Compiler_Specialize_1__hasSpecializeAttrAux__
 lean_object* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__2(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__3___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_registerTagAttribute___closed__2;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__8(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__6;
@@ -144,7 +141,9 @@ uint8_t lean_has_specialize_attribute(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__2;
 extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_HashMapImp_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__5(lean_object*, lean_object*);
+extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__7;
+extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 size_t lean_usize_modn(size_t, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 lean_object* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__12(lean_object*, lean_object*, lean_object*);
@@ -221,6 +220,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Compiler_mkSpecExtension___sp
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_cached_specialization(lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_SpecializeAttributeKind_beq(uint8_t, uint8_t);
+extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9___rarg___closed__1;
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__1(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -684,7 +684,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_array_get_size(x_15);
 lean_dec(x_15);
-x_18 = l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
+x_18 = l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9___rarg___closed__1;
 x_19 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_1);
@@ -1563,8 +1563,8 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs_
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_6 = l_Lean_registerTagAttribute___closed__1;
-x_7 = l_Lean_registerTagAttribute___closed__2;
+x_6 = l_Lean_registerParametricAttribute___rarg___closed__1;
+x_7 = l_Lean_registerParametricAttribute___rarg___closed__2;
 x_8 = l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__1;
 x_9 = l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__2;
 x_10 = l_Lean_registerEnumAttributes___rarg___closed__1;

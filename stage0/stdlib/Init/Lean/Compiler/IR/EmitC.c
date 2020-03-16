@@ -324,6 +324,7 @@ lean_object* l_Lean_IR_EmitC_emitUProj___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_IR_EmitC_emitCInitName___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitReuse___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_IR_EmitC_emitFnBody(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ensureHasDefault(lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitFnDeclAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2372,7 +2373,7 @@ lean_inc(x_5);
 lean_dec(x_3);
 x_6 = l_Lean_IR_declMapExt;
 x_7 = l_Lean_SimplePersistentEnvExtension_getEntries___rarg(x_6, x_4);
-x_8 = lean_box(0);
+x_8 = l_Lean_NameSet_empty;
 x_9 = l_List_foldl___main___at_Lean_IR_EmitC_emitFnDecls___spec__1(x_8, x_7);
 lean_inc(x_4);
 x_10 = l_List_foldl___main___at_Lean_IR_EmitC_emitFnDecls___spec__2(x_4, x_8, x_7);

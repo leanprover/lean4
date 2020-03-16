@@ -6,18 +6,18 @@ def fact : Nat → Nat
 
 new_frontend
 
-def v1 : Nat := fact 10
+abbrev v1 : Nat := fact 10
 
 theorem tst1 : Lean.reduceNat v1 = 3628800 :=
 rfl
 
-def v2 : Bool := 10000000000000000 < 200000000000000000000
-
-theorem tst2 : Lean.reduceBool v2 = true :=
-rfl
-
-theorem tst3 : v1 = 3628800 :=
+theorem tst2 : fact 10 = 3628800 :=
 Lean.ofReduceNat v1 3628800 rfl
 
-theorem tst4 : v2 = true :=
+abbrev v2 : Bool := decide (10000000000000000 < 200000000000000000000)
+
+theorem tst3 : Lean.reduceBool v2 = true :=
+rfl
+
+theorem tst4 : decide (10000000000000000 < 200000000000000000000) = true :=
 Lean.ofReduceBool v2 true rfl

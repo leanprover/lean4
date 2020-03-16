@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.Option
 import Init.Lean.Expr
+import Init.Lean.Environment
 
 namespace Lean
 namespace Expr
@@ -60,4 +61,14 @@ end FoldConstsImpl
 constant foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
 
 end Expr
+
+def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
+e.foldConsts 0 $ fun constName max =>
+  match env.find? constName with
+  | ConstantInfo.defnInfo val =>
+    match val.hints with
+    | ReducibilityHints.regular h => if h > max then h else max
+    | _                           => max
+  | _ => max
+
 end Lean

@@ -33,7 +33,7 @@ let (binders, type) := expandOptDeclSig (stx.getArg 2);
 let modifiers       := modifiers.addAttribute { name := `inline };
 let modifiers       := modifiers.addAttribute { name := `reducible };
 elabDefLike {
-  ref := stx, kind := DefKind.def, modifiers := modifiers,
+  ref := stx, kind := DefKind.abbrev, modifiers := modifiers,
   declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3
 }
 

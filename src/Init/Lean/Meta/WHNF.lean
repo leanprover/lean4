@@ -45,17 +45,61 @@ match e with
     pure none
 | _ => pure none
 
+@[inline] def withNatValue {α} (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
+a ← whnf a;
+match a with
+| Expr.const `Nat.zero _ _      => k 0
+| Expr.lit (Literal.natVal v) _ => k v
+| _                             => pure none
+
+def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
+withNatValue a $ fun a =>
+pure $ mkNatLit $ f a
+
+def reduceBinNatOp (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) :=
+withNatValue a $ fun a =>
+withNatValue b $ fun b => do
+trace `Meta.isDefEq.whnf.reduceBinOp $ fun _ => toString a ++ " op " ++ toString b;
+pure $ mkNatLit $ f a b
+
+def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
+withNatValue a $ fun a =>
+withNatValue b $ fun b =>
+pure $ some $ if f a b then mkConst `Bool.true else mkConst `Bool.false
+
+def reduceNat? (e : Expr) : MetaM (Option Expr) :=
+if e.hasFVar || e.hasMVar then
+  pure none
+else match e with
+  | Expr.app (Expr.const fn _ _) a _                  =>
+    if fn == `Nat.succ then reduceUnaryNatOp Nat.succ a
+    else pure none
+  | Expr.app (Expr.app (Expr.const fn _ _) a1 _) a2 _ =>
+    if fn == `Nat.add then reduceBinNatOp Nat.add a1 a2
+    else if fn == `Nat.sub then reduceBinNatOp Nat.sub a1 a2
+    else if fn == `Nat.mul then reduceBinNatOp Nat.mul a1 a2
+    else if fn == `Nat.div then reduceBinNatOp Nat.div a1 a2
+    else if fn == `Nat.mod then reduceBinNatOp Nat.mod a1 a2
+    else if fn == `Nat.beq then reduceBinNatPred Nat.beq a1 a2
+    else if fn == `Nat.ble then reduceBinNatPred Nat.ble a1 a2
+    else pure none
+  | _ => pure none
+
 partial def whnfImpl : Expr → MetaM Expr
 | e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment? e $ fun e => do
   e ← whnfCore e;
-  v? ← reduceNative? e;
+  v? ← reduceNat? e;
   match v? with
   | some v => pure v
-  | none => do
-    e? ← unfoldDefinition? e;
-    match e? with
-    | some e => whnfImpl e
-    | none   => pure e
+  | none   => do
+    v? ← reduceNative? e;
+    match v? with
+    | some v => pure v
+    | none => do
+      e? ← unfoldDefinition? e;
+      match e? with
+      | some e => whnfImpl e
+      | none   => pure e
 
 @[init] def setWHNFRef : IO Unit :=
 whnfRef.set whnfImpl

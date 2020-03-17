@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 namespace lean {
 /* Wrapper for manipulating Lean runtime nat values in C++. */
 class nat : public object_ref {
-    static nat wrap(object * o) { return nat(o, true); }
 public:
     nat():object_ref(box(0)) {}
     explicit nat(obj_arg o):object_ref(o) {}
@@ -58,11 +57,11 @@ public:
     friend bool operator<(nat const & a,  unsigned long b)    { return a < nat(b); }
     friend bool operator>=(nat const & a, unsigned long b)    { return a >= nat(b); }
     friend bool operator>(nat const & a,  unsigned long b)    { return a > nat(b); }
-    friend nat operator+(nat const & a, nat const & b)   { return wrap(nat_add(a.raw(), b.raw())); }
-    friend nat operator-(nat const & a, nat const & b)   { return wrap(nat_sub(a.raw(), b.raw())); }
-    friend nat operator*(nat const & a, nat const & b)   { return wrap(nat_mul(a.raw(), b.raw())); }
-    friend nat operator/(nat const & a, nat const & b)   { return wrap(nat_div(a.raw(), b.raw())); }
-    friend nat operator%(nat const & a, nat const & b)   { return wrap(nat_mod(a.raw(), b.raw())); }
+    friend nat operator+(nat const & a, nat const & b)   { return nat(nat_add(a.raw(), b.raw())); }
+    friend nat operator-(nat const & a, nat const & b)   { return nat(nat_sub(a.raw(), b.raw())); }
+    friend nat operator*(nat const & a, nat const & b)   { return nat(nat_mul(a.raw(), b.raw())); }
+    friend nat operator/(nat const & a, nat const & b)   { return nat(nat_div(a.raw(), b.raw())); }
+    friend nat operator%(nat const & a, nat const & b)   { return nat(nat_mod(a.raw(), b.raw())); }
     void serialize(serializer & s) const { s.write_object(raw()); }
     static nat deserialize(deserializer & d) { return nat(d.read_object(), true); }
 };

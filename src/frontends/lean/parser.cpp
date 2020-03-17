@@ -1287,11 +1287,10 @@ expr parser::parse_led_notation(expr left) {
    5- In a pattern (f a), f must be a constructor or a constant tagged with the
       [pattern] attribute */
 struct to_pattern_fn {
-    parser &              m_parser;
-    buffer<expr> &        m_new_locals;
-    name_map<expr>        m_locals_map; // local variable name --> its interpretation
-    expr_map<expr>        m_anonymous_vars; // for _
-
+    parser &                 m_parser;
+    buffer<expr> &           m_new_locals;
+    name_map<expr>           m_locals_map; // local variable name --> its interpretation
+    buffer<pair<expr, expr>> m_anonymous_vars; // for _
 
     to_pattern_fn(parser & p, buffer<expr> & new_locals):
         m_parser(p), m_new_locals(new_locals) {}
@@ -1394,7 +1393,8 @@ struct to_pattern_fn {
         } else if (is_placeholder(e)) {
             expr r = copy_pos(e, mk_local(m_parser.next_name(), "_x", copy_pos(e, mk_expr_placeholder()), mk_binder_info()));
             m_new_locals.push_back(r);
-            m_anonymous_vars.insert(mk_pair(e, r));
+            /* We replace it later at `visit`. */
+            m_anonymous_vars.push_back(mk_pair(e, r));
         } else if (is_as_pattern(e)) {
             // skip `collect_new_local`: we assume the lhs to always be a new local
             add_new_local(get_as_pattern_lhs(e));
@@ -1454,6 +1454,17 @@ struct to_pattern_fn {
             });
     }
 
+    expr get_anonymous_var(expr const & placeholder) {
+        /* HACK:
+           We must **not** use structural equality.
+           `expr` here is a preterm (i.e., Syntax in the new frontend). */
+        for (auto const & p : m_anonymous_vars) {
+            if (p.first.raw() == placeholder.raw())
+                return p.second;
+        }
+        lean_unreachable();
+    }
+
     expr visit(expr const & e) {
         if (is_typed_expr(e)) {
             expr new_v = visit(get_typed_expr_expr(e));
@@ -1464,7 +1475,7 @@ struct to_pattern_fn {
         } else if (is_inaccessible(e)) {
             return to_expr(e);
         } else if (is_placeholder(e)) {
-            return m_anonymous_vars.find(e)->second;
+            return get_anonymous_var(e);
         } else if (is_as_pattern(e)) {
             auto new_rhs = visit(get_as_pattern_rhs(e));
             return copy_pos(e, mk_as_pattern(get_as_pattern_lhs(e), new_rhs));

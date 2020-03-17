@@ -636,9 +636,16 @@ namespace Kernel
 /--
   Kernel isDefEq predicate. We use it mainly for debugging purposes.
   Recall that the Kernel type checker does not support metavariables.
-  For implementation automation, consider using the `MetaM` methods. -/
+  When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_is_def_eq"]
 constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool := arbitrary _
+
+/--
+  Kernel WHNF function. We use it mainly for debugging purposes.
+  Recall that the Kernel type checker does not support metavariables.
+  When implementing automation, consider using the `MetaM` methods. -/
+@[extern "lean_kernel_whnf"]
+constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr := arbitrary _
 
 end Kernel
 

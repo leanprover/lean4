@@ -318,6 +318,7 @@ lean_object* l_HashMapImp_insert___at_Lean_importModules___spec__1(lean_object*,
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkEmptyEnvironment___boxed(lean_object*, lean_object*);
+lean_object* lean_kernel_whnf(lean_object*, lean_object*, lean_object*);
 uint8_t l_PersistentHashMap_contains___at_Lean_Environment_contains___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__2___boxed(lean_object*);
@@ -354,6 +355,7 @@ lean_object* l_Lean_regModListExtension(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 lean_object* l_Lean_EnvExtension_getStateUnsafe___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___closed__3;
+lean_object* l_Lean_Kernel_whnf___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_importModules___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__1;
 extern lean_object* l_Lean_NameSet_Inhabited;
@@ -12650,6 +12652,14 @@ uint8_t x_5; lean_object* x_6;
 x_5 = lean_kernel_is_def_eq(x_1, x_2, x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+lean_object* l_Lean_Kernel_whnf___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_kernel_whnf(x_1, x_2, x_3);
+return x_4;
 }
 }
 lean_object* initialize_Init_System_IO(lean_object*);

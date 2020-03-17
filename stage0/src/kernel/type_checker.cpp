@@ -26,6 +26,13 @@ static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 static expr * g_nat_zero     = nullptr;
 static expr * g_nat_succ     = nullptr;
+static expr * g_nat_add      = nullptr;
+static expr * g_nat_sub      = nullptr;
+static expr * g_nat_mul      = nullptr;
+static expr * g_nat_mod      = nullptr;
+static expr * g_nat_div      = nullptr;
+static expr * g_nat_beq      = nullptr;
+static expr * g_nat_ble      = nullptr;
 
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
@@ -539,6 +546,58 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
     return none_expr();
 }
 
+static inline bool is_nat_lit_ext(expr const & e) { return e == *g_nat_zero || is_nat_lit(e); }
+static inline nat get_nat_val(expr const & e) {
+    lean_assert(is_nat_lit_ext(e));
+    if (e == *g_nat_zero) return nat((unsigned)0);
+    return lit_value(e).get_nat();
+}
+
+template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f, expr const & e) {
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    if (!is_nat_lit_ext(arg1)) return none_expr();
+    expr arg2 = whnf(app_arg(e));
+    if (!is_nat_lit_ext(arg2)) return none_expr();
+    nat v1 = get_nat_val(arg1);
+    nat v2 = get_nat_val(arg2);
+    return some_expr(mk_lit(literal(nat(f(v1.raw(), v2.raw())))));
+}
+
+template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & f, expr const & e) {
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    if (!is_nat_lit_ext(arg1)) return none_expr();
+    expr arg2 = whnf(app_arg(e));
+    if (!is_nat_lit_ext(arg2)) return none_expr();
+    nat v1 = get_nat_val(arg1);
+    nat v2 = get_nat_val(arg2);
+    return f(v1.raw(), v2.raw()) ? some_expr(mk_bool_true()) : some_expr(mk_bool_false());
+}
+
+optional<expr> type_checker::reduce_nat(expr const & e) {
+    if (has_fvar(e)) return none_expr();
+    unsigned nargs = get_app_num_args(e);
+    if (nargs == 1) {
+        expr const & f = app_fn(e);
+        if (f == *g_nat_succ) {
+            expr arg = whnf(app_arg(e));
+            if (!is_nat_lit_ext(arg)) return none_expr();
+            nat v = get_nat_val(arg);
+            return some_expr(mk_lit(literal(nat(v+nat(1)))));
+        }
+    } else if (nargs == 2) {
+        expr const & f = app_fn(app_fn(e));
+        if (!is_constant(f)) return none_expr();
+        if (f == *g_nat_add) return reduce_bin_nat_op(nat_add, e);
+        if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e);
+        if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e);
+        if (f == *g_nat_mod) return reduce_bin_nat_op(nat_mod, e);
+        if (f == *g_nat_div) return reduce_bin_nat_op(nat_div, e);
+        if (f == *g_nat_beq) return reduce_bin_nat_pred(nat_eq, e);
+        if (f == *g_nat_ble) return reduce_bin_nat_pred(nat_le, e);
+    }
+    return none_expr();
+}
+
 /** \brief Put expression \c t in weak head normal form */
 expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
@@ -568,6 +627,10 @@ expr type_checker::whnf(expr const & e) {
     while (true) {
         expr t1 = whnf_core(t);
         if (auto v = reduce_native(env(), t1)) {
+            m_st->m_whnf.insert(mk_pair(e, *v));
+            return *v;
+        } else if (auto v = reduce_nat(t1)) {
+            m_st->m_whnf.insert(mk_pair(e, *v));
             return *v;
         } else if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
@@ -842,6 +905,14 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
         lbool r = is_def_eq_offset(t_n, s_n);
         if (r != l_undef) return r;
 
+        if (!has_fvar(t_n) && !has_fvar(s_n)) {
+            if (auto t_v = reduce_nat(t_n)) {
+                return to_lbool(is_def_eq_core(*t_v, s_n));
+            } else if (auto s_v = reduce_nat(s_n)) {
+                return to_lbool(is_def_eq_core(t_n, *s_v));
+            }
+        }
+
         if (auto t_v = reduce_native(env(), t_n)) {
             return to_lbool(is_def_eq_core(*t_v, s_n));
         } else if (auto s_v = reduce_native(env(), s_n)) {
@@ -953,12 +1024,23 @@ extern "C" uint8 lean_kernel_is_def_eq(lean_object * env, lean_object * lctx, le
     return type_checker(environment(env), local_ctx(lctx)).is_def_eq(expr(a), expr(b));
 }
 
+extern "C" lean_object * lean_kernel_whnf(lean_object * env, lean_object * lctx, lean_object * a) {
+    return type_checker(environment(env), local_ctx(lctx)).whnf(expr(a)).steal();
+}
+
 void initialize_type_checker() {
     g_id_delta     = new name("id_delta");
     g_dont_care    = new expr(mk_const("dontcare"));
     g_kernel_fresh = new name("_kernel_fresh");
     g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
     g_nat_succ     = new expr(mk_constant(name{"Nat", "succ"}));
+    g_nat_add      = new expr(mk_constant(name{"Nat", "add"}));
+    g_nat_sub      = new expr(mk_constant(name{"Nat", "sub"}));
+    g_nat_mul      = new expr(mk_constant(name{"Nat", "mul"}));
+    g_nat_div      = new expr(mk_constant(name{"Nat", "div"}));
+    g_nat_mod      = new expr(mk_constant(name{"Nat", "mod"}));
+    g_nat_beq      = new expr(mk_constant(name{"Nat", "beq"}));
+    g_nat_ble      = new expr(mk_constant(name{"Nat", "ble"}));
     g_lean_reduce_bool = new expr(mk_constant(name{"Lean", "reduceBool"}));
     g_lean_reduce_nat  = new expr(mk_constant(name{"Lean", "reduceNat"}));
     register_name_generator_prefix(*g_kernel_fresh);
@@ -970,6 +1052,13 @@ void finalize_type_checker() {
     delete g_kernel_fresh;
     delete g_nat_succ;
     delete g_nat_zero;
+    delete g_nat_add;
+    delete g_nat_sub;
+    delete g_nat_mul;
+    delete g_nat_div;
+    delete g_nat_mod;
+    delete g_nat_beq;
+    delete g_nat_ble;
     delete g_lean_reduce_bool;
     delete g_lean_reduce_nat;
 }

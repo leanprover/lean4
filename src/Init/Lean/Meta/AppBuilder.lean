@@ -31,6 +31,12 @@ else
 
 namespace Meta
 
+/-- Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, return
+    term `@id expectedType e`. -/
+def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
+u ← getLevel expectedType;
+pure $ mkApp2 (mkConst `id [u]) expectedType e
+
 def mkEq (a b : Expr) : MetaM Expr := do
 aType ← inferType a;
 u ← getLevel aType;

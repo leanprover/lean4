@@ -255,6 +255,7 @@ def mkLambda (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := lif
 def mkLet (ref : Syntax) (x : Expr) (e : Expr) : TermElabM Expr := mkLambda ref #[x] e
 def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
 def mkAppM (ref : Syntax) (constName : Name) (args : Array Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkAppM constName args
+def mkExpectedTypeHint (ref : Syntax) (e : Expr) (expectedType : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkExpectedTypeHint e expectedType
 def decLevel? (ref : Syntax) (u : Level) : TermElabM (Option Level) := liftMetaM ref $ Meta.decLevel? u
 
 def decLevel (ref : Syntax) (u : Level) : TermElabM Level := do

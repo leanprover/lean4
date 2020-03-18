@@ -896,7 +896,6 @@ lbool type_checker::is_def_eq_offset(expr const & t, expr const & s) {
     if (pred_t && pred_s) {
         return to_lbool(is_def_eq_core(*pred_t, *pred_s));
     }
-    /* TODO add support for Nat.add */
     return l_undef;
 }
 

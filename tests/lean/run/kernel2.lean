@@ -28,9 +28,26 @@ def v2  := 3628801
 #eval checkDefEq `c3 `v2
 #eval checkDefEq `c1 `c2
 
-set_option pp.all true
-
 def c4 := decide (100000000 < 20000000000)
 
 #eval whnf `c4
 #eval checkDefEq `c4 `Bool.true
+
+def c5 := "h".length
+def c6 := 1
+set_option pp.all true
+
+#eval whnf `c5
+#eval checkDefEq `c5 `c6
+
+def c7 := decide ("hello" = "world")
+#eval whnf `c7
+
+def c8 := "hello".length
+
+#eval whnf `c8
+
+def c9  : String := "hello" ++ "world"
+def c10 : String := "helloworld"
+
+#eval checkDefEq `c9 `c10

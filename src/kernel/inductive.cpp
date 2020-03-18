@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "runtime/sstream.h"
+#include "runtime/utf8.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
@@ -1108,8 +1109,12 @@ environment environment::add_inductive(declaration const & d) const {
     }
 }
 
-static expr * g_nat_zero = nullptr;
-static expr * g_nat_succ = nullptr;
+static expr * g_nat_zero       = nullptr;
+static expr * g_nat_succ       = nullptr;
+static expr * g_string_mk      = nullptr;
+static expr * g_list_cons_char = nullptr;
+static expr * g_list_nil_char  = nullptr;
+static expr * g_char_of_nat    = nullptr;
 
 expr nat_lit_to_constructor(expr const & e) {
     lean_assert(is_nat_lit(e));
@@ -1120,12 +1125,32 @@ expr nat_lit_to_constructor(expr const & e) {
         return mk_app(*g_nat_succ, mk_lit(literal(v - nat(1))));
 }
 
+expr string_lit_to_constructor(expr const & e) {
+    lean_assert(is_str_lit(e));
+    string_ref const & s = lit_value(e).get_string();
+    buffer<unsigned> cs;
+    utf8_decode(s.to_std_string(), cs);
+    expr r = *g_list_nil_char;
+    unsigned i = cs.size();
+    while (i > 0) {
+        i--;
+        r = mk_app(*g_list_cons_char, mk_app(*g_char_of_nat, mk_lit(literal(cs[i]))), r);
+    }
+    return mk_app(*g_string_mk, r);
+}
+
+
 void initialize_inductive() {
-    g_nested        = new name("_nested");
-    g_ind_fresh     = new name("_ind_fresh");
-    g_nested_fresh  = new name("_nested_fresh");
-    g_nat_zero      = new expr(mk_constant(name{"Nat", "zero"}));
-    g_nat_succ      = new expr(mk_constant(name{"Nat", "succ"}));
+    g_nested         = new name("_nested");
+    g_ind_fresh      = new name("_ind_fresh");
+    g_nested_fresh   = new name("_nested_fresh");
+    g_nat_zero       = new expr(mk_constant(name{"Nat", "zero"}));
+    g_nat_succ       = new expr(mk_constant(name{"Nat", "succ"}));
+    g_string_mk      = new expr(mk_constant(name{"String", "mk"}));
+    expr char_type   = mk_constant(name{"Char"});
+    g_list_cons_char = new expr(mk_app(mk_constant(name{"List", "cons"}, {level()}), char_type));
+    g_list_nil_char  = new expr(mk_app(mk_constant(name{"List", "nil"}, {level()}), char_type));
+    g_char_of_nat    = new expr(mk_constant(name{"Char", "ofNat"}));
     register_name_generator_prefix(*g_ind_fresh);
     register_name_generator_prefix(*g_nested_fresh);
 }
@@ -1136,5 +1161,8 @@ void finalize_inductive() {
     delete g_nested_fresh;
     delete g_nat_succ;
     delete g_nat_zero;
+    delete g_string_mk;
+    delete g_list_cons_char;
+    delete g_list_nil_char;
 }
 }

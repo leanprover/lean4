@@ -52,7 +52,7 @@ match type.getAppFn with
   pure $ mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
 | _ => pure none
 
-private def toCtorIfLit : Expr → Expr
+def toCtorIfLit : Expr → Expr
 | Expr.lit (Literal.natVal v) _ =>
   if v == 0 then mkConst `Nat.zero
   else mkApp (mkConst `Nat.succ) (mkNatLit (v-1))

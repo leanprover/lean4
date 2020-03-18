@@ -27,3 +27,6 @@ rfl
 
 theorem tst7 : "helloworld".length = 10 :=
 rfl
+
+theorem tst8 : "hello" ++ "world" = "helloworld" :=
+rfl

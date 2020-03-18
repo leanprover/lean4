@@ -150,27 +150,39 @@ fun stx _ => do
     eq ← liftMetaM stx $ Meta.mkEq e val;
     mkExpectedTypeHint stx r eq
 
-@[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab :=
-fun stx _ => do
-  let arg  := stx.getArg 1;
+private def getPropToDecide (ref : Syntax) (arg : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+if arg.isOfKind `Lean.Parser.Term.hole then do
+  tryPostponeIfNoneOrMVar expectedType?;
+  match expectedType? with
+  | none => throwError ref "invalid macro, expected type is not available"
+  | some expectedType => do
+    expectedType ← instantiateMVars ref expectedType;
+    when (expectedType.hasFVar || expectedType.hasMVar) $
+      throwError ref ("expected type must not contain free or meta variables" ++ indentExpr expectedType);
+    pure expectedType
+else
   let prop := mkSort levelZero;
-  e ← elabClosedTerm arg prop;
-  d ← mkAppM stx `Decidable.decide #[e];
+  elabClosedTerm arg prop
+
+@[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab :=
+fun stx expectedType? => do
+  let arg  := stx.getArg 1;
+  p ← getPropToDecide stx arg expectedType?;
+  d ← mkAppM stx `Decidable.decide #[p];
   auxDeclName ← mkNativeReflAuxDecl stx (Lean.mkConst `Bool) d;
   rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
   let r   := mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf;
-  mkExpectedTypeHint stx r e
+  mkExpectedTypeHint stx r p
 
 @[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab :=
-fun stx _ => do
+fun stx expectedType? => do
   let arg  := stx.getArg 1;
-  let prop := mkSort levelZero;
-  e ← elabClosedTerm arg prop;
-  d ← mkAppM stx `Decidable.decide #[e];
+  p ← getPropToDecide stx arg expectedType?;
+  d ← mkAppM stx `Decidable.decide #[p];
   d ← instantiateMVars stx d;
   let s := d.appArg!; -- get instance from `d`
   rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
-  pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) e s rflPrf
+  pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) p s rflPrf
 
 def elabInfix (f : Syntax) : Macro :=
 fun stx => do

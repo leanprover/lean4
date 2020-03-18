@@ -61,6 +61,16 @@ else do
   | none,   some t => isDefEq s t
   | none,   none   => pure LBool.undef
 
+/-- Support for constraints of the form `("..." =?= String.mk cs)` -/
+def isDefEqStringLit (s t : Expr) : MetaM LBool := do
+let isDefEq (s t) : MetaM LBool := toLBoolM $ isExprDefEqAux s t;
+if s.isStringLit && t.isAppOf `String.mk then
+  isDefEq (WHNF.toCtorIfLit s) t
+else if s.isAppOf `String.mk && t.isStringLit then
+  isDefEq s (WHNF.toCtorIfLit t)
+else
+  pure LBool.undef
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m x_1 ... x_n)`, and `?m` is unassigned.
   Remark: `n` may be 0. -/
@@ -1026,7 +1036,9 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
     condM (commitWhen (isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs))
       (pure true)
       (isDefEqOnFailure t s)
-  | _, _ => isDefEqOnFailure t s
+  | _, _ =>
+    whenUndefDo (isDefEqStringLit t s) $
+    isDefEqOnFailure t s
 
 @[init] def setIsExprDefEqAuxRef : IO Unit :=
 isExprDefEqAuxRef.set isExprDefEqAuxImpl

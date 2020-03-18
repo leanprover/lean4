@@ -364,7 +364,6 @@ lean_object* l_Lean_Parser_Command_noncomputable___elambda__1(lean_object*, lean
 lean_object* l_Lean_Parser_Command_resolve__name___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_variables___closed__5;
 lean_object* l_Lean_Parser_Command_attributes___elambda__1___closed__3;
-extern lean_object* l_Lean_Parser_Term_cons___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_synth;
 lean_object* l_Lean_Parser_Command_openHiding___elambda__1___closed__7;
 extern lean_object* l_Lean_Parser_Term_binderDefault;
@@ -892,6 +891,7 @@ lean_object* l_Lean_Parser_Command_universes___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Command_synth___closed__5;
 lean_object* l_Lean_Parser_Command_openOnly___closed__2;
 extern lean_object* l_Lean_Parser_unicodeSymbolFn___closed__1;
+extern lean_object* l_Lean_Parser_Term_cons___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_stxQuot___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_structureTk___elambda__1___closed__4;
 extern lean_object* l_Lean_Parser_Term_structInstArrayRef___elambda__1___closed__5;
@@ -18285,7 +18285,7 @@ lean_object* _init_l_Lean_Parser_Command_structCtor___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_cons___elambda__1___closed__3;
+x_1 = l_Lean_Parser_Term_cons___elambda__1___closed__2;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

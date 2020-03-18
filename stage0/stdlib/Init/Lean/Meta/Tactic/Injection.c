@@ -28,9 +28,9 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_WHNF_toCtorIfLit___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
-extern lean_object* l___private_Init_Lean_Util_WHNF_3__toCtorIfLit___closed__2;
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,6 +47,7 @@ extern lean_object* l_Lean_Expr_heq_x3f___closed__2;
 lean_object* l_Lean_Meta_injectionCore(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Tactic_Injection_1__getConstructorVal___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_WHNF_toCtorIfLit___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_constructorApp_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +74,6 @@ lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__3;
 lean_object* l_Lean_Meta_constructorApp_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Util_WHNF_3__toCtorIfLit___closed__5;
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__5;
 lean_object* l_Lean_Meta_injection(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__2;
@@ -238,7 +238,7 @@ x_7 = lean_nat_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l___private_Init_Lean_Util_WHNF_3__toCtorIfLit___closed__2;
+x_8 = l_Lean_WHNF_toCtorIfLit___closed__2;
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = l___private_Init_Lean_Meta_Tactic_Injection_1__getConstructorVal(x_8, x_9, x_2, x_3);
 return x_10;
@@ -246,7 +246,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = l___private_Init_Lean_Util_WHNF_3__toCtorIfLit___closed__5;
+x_11 = l_Lean_WHNF_toCtorIfLit___closed__5;
 x_12 = l___private_Init_Lean_Meta_Tactic_Injection_1__getConstructorVal(x_11, x_6, x_2, x_3);
 return x_12;
 }

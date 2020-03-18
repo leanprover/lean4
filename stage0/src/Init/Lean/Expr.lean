@@ -428,6 +428,18 @@ def isMData : Expr → Bool
 | mdata _ _ _ => true
 | _           => false
 
+def isLit : Expr → Bool
+| lit _ _ => true
+| _       => false
+
+def isNatLit : Expr → Bool
+| lit (Literal.natVal _) _ => true
+| _                        => false
+
+def isStringLit : Expr → Bool
+| lit (Literal.strVal _) _ => true
+| _                        => false
+
 def getAppFn : Expr → Expr
 | app f a _ => getAppFn f
 | e         => e

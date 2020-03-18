@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.ToExpr
 import Init.Lean.Declaration
 import Init.Lean.LocalContext
 
@@ -51,10 +52,12 @@ match type.getAppFn with
   pure $ mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
 | _ => pure none
 
-private def toCtorIfLit : Expr → Expr
+def toCtorIfLit : Expr → Expr
 | Expr.lit (Literal.natVal v) _ =>
   if v == 0 then mkConst `Nat.zero
   else mkApp (mkConst `Nat.succ) (mkNatLit (v-1))
+| Expr.lit (Literal.strVal v) _ =>
+  mkApp (mkConst `String.mk) (toExpr v.toList)
 | e => e
 
 private def getRecRuleFor (rec : RecursorVal) (major : Expr) : Option RecursorRule :=

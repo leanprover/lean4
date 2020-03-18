@@ -137,7 +137,9 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def liftMethod := parser! leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser! symbol "do " leadPrec >> (bracketedDoSeq <|> doSeq)
 
-@[builtinTermParser] def nativeRefl := parser! "nativeRefl! " >> termParser appPrec
+@[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser appPrec
+@[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser appPrec
+@[builtinTermParser] def decide       := parser! "decide! " >> termParser appPrec
 
 @[builtinTermParser] def not    := parser! symbol "¬" appPrec >> termParser 40
 @[builtinTermParser] def bnot   := parser! symbol "!" appPrec >> termParser 40

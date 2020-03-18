@@ -21,3 +21,9 @@ rfl
 
 theorem tst5 : 100000000001 < 300000000000 :=
 ofDecideEqTrue rfl
+
+theorem tst6 : "hello".length = 5 :=
+rfl
+
+theorem tst7 : "helloworld".length = 10 :=
+rfl

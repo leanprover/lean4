@@ -161,6 +161,17 @@ fun stx _ => do
   let r   := mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf;
   mkExpectedTypeHint stx r e
 
+@[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab :=
+fun stx _ => do
+  let arg  := stx.getArg 1;
+  let prop := mkSort levelZero;
+  e ← elabClosedTerm arg prop;
+  d ← mkAppM stx `Decidable.decide #[e];
+  d ← instantiateMVars stx d;
+  let s := d.appArg!; -- get instance from `d`
+  rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
+  pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) e s rflPrf
+
 def elabInfix (f : Syntax) : Macro :=
 fun stx => do
   -- term `op` term

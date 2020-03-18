@@ -119,14 +119,18 @@ addDecl ref decl;
 compileDecl ref decl;
 pure auxName
 
+private def elabClosedTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+e ← elabTermAndSynthesize stx expectedType?;
+when e.hasMVar $
+  throwError stx ("invalid macro application, term contains metavariables" ++ indentExpr e);
+when e.hasFVar $
+  throwError stx ("invalid macro application, term contains free variables" ++ indentExpr e);
+pure e
+
 @[builtinTermElab «nativeRefl»] def elabNativeRefl : TermElab :=
 fun stx _ => do
   let arg := stx.getArg 1;
-  e ← elabTermAndSynthesize arg none;
-  when e.hasMVar $
-    throwError stx ("invalid `nativeRefl!` macro application, term contains metavariables" ++ indentExpr e);
-  when e.hasFVar $
-    throwError stx ("invalid `nativeRefl!` macro application, term contains free variables" ++ indentExpr e);
+  e ← elabClosedTerm arg none;
   type ← inferType stx e;
   type ← whnf stx type;
   unless (type.isConstOf `Bool || type.isConstOf `Nat) $
@@ -144,7 +148,18 @@ fun stx _ => do
     rflPrf ← liftMetaM stx $ Meta.mkEqRefl val;
     let r  := mkApp3 (Lean.mkConst reduceThm) aux val rflPrf;
     eq ← liftMetaM stx $ Meta.mkEq e val;
-    pure $ mkApp2 (Lean.mkConst `id [levelZero]) eq r
+    mkExpectedTypeHint stx r eq
+
+@[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab :=
+fun stx _ => do
+  let arg  := stx.getArg 1;
+  let prop := mkSort levelZero;
+  e ← elabClosedTerm arg prop;
+  d ← mkAppM stx `Decidable.decide #[e];
+  auxDeclName ← mkNativeReflAuxDecl stx (Lean.mkConst `Bool) d;
+  rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
+  let r   := mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf;
+  mkExpectedTypeHint stx r e
 
 def elabInfix (f : Syntax) : Macro :=
 fun stx => do

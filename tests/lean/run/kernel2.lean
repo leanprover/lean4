@@ -55,3 +55,7 @@ def c10 : String := "helloworld"
 def c11 : Bool := decide ('a' = 'b')
 
 #eval whnf `c11
+
+def c12 : Nat := 'a'.toNat
+
+#eval whnf `c12

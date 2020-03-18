@@ -85,21 +85,46 @@ else match e with
     else pure none
   | _ => pure none
 
+
+@[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
+-- We cache only consed terms
+if e.hasFVar then pure false
+else do
+  ctx ← read;
+  pure $ ctx.config.transparency == TransparencyMode.default
+
+@[inline] private def cached? (useCache : Bool) (e : Expr) : MetaM (Option Expr) := do
+if useCache then do
+  s ← get;
+  pure $ s.cache.whnfDefault.find? e
+else
+  pure none
+
+private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
+when useCache $
+  modify $ fun s => { cache := { whnfDefault := s.cache.whnfDefault.insert e r, .. s.cache }, .. s };
+pure r
+
 partial def whnfImpl : Expr → MetaM Expr
 | e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment? e $ fun e => do
-  e ← whnfCore e;
-  v? ← reduceNat? e;
-  match v? with
-  | some v => pure v
-  | none   => do
-    v? ← reduceNative? e;
+  useCache ← useWHNFCache e;
+  e? ← cached? useCache e;
+  match e? with
+  | some e' => pure e'
+  | none    => do
+    e' ← whnfCore e;
+    v? ← reduceNat? e';
     match v? with
-    | some v => pure v
-    | none => do
-      e? ← unfoldDefinition? e;
-      match e? with
-      | some e => whnfImpl e
-      | none   => pure e
+    | some v => cache useCache e v
+    | none   => do
+      v? ← reduceNative? e';
+      match v? with
+      | some v => cache useCache e v
+      | none => do
+        e? ← unfoldDefinition? e';
+        match e? with
+        | some e => whnfImpl e
+        | none   => cache useCache e e'
 
 @[init] def setWHNFRef : IO Unit :=
 whnfRef.set whnfImpl

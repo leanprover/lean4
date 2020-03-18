@@ -51,3 +51,7 @@ def c9  : String := "hello" ++ "world"
 def c10 : String := "helloworld"
 
 #eval checkDefEq `c9 `c10
+
+def c11 : Bool := decide ('a' = 'b')
+
+#eval whnf `c11

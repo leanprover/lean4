@@ -41,6 +41,7 @@ inline optional<expr> to_cnstr_when_K(environment const & env, recursor_val cons
 optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major);
 
 expr nat_lit_to_constructor(expr const & e);
+expr string_lit_to_constructor(expr const & e);
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
 inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
@@ -63,6 +64,8 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     major = whnf(major);
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
+    if (is_string_lit(major))
+        major = string_lit_to_constructor(major);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

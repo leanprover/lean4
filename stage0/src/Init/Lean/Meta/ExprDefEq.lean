@@ -40,13 +40,26 @@ else
 def isDefEqNative (s t : Expr) : MetaM LBool := do
 let isDefEq (s t) : MetaM LBool := toLBoolM $ isExprDefEqAux s t;
 s? ← reduceNative? s;
-match s? with
-| some s => isDefEq s t
-| none => do
-  t? ← reduceNative? t;
-  match t? with
-  | some t => isDefEq s t
-  | none   => pure LBool.undef
+t? ← reduceNative? t;
+match s?, t? with
+| some s, some t => isDefEq s t
+| some s, none   => isDefEq s t
+| none,   some t => isDefEq s t
+| none,   none   => pure LBool.undef
+
+/-- Support for reducing Nat basic operations. -/
+def isDefEqNat (s t : Expr) : MetaM LBool := do
+let isDefEq (s t) : MetaM LBool := toLBoolM $ isExprDefEqAux s t;
+if s.hasFVar || s.hasMVar || t.hasFVar || t.hasMVar then
+  pure LBool.undef
+else do
+  s? ← reduceNat? s;
+  t? ← reduceNat? t;
+  match s?, t? with
+  | some s, some t => isDefEq s t
+  | some s, none   => isDefEq s t
+  | none,   some t => isDefEq s t
+  | none,   none   => pure LBool.undef
 
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m x_1 ... x_n)`, and `?m` is unassigned.
@@ -1003,6 +1016,7 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
   isDefEqWHNF t s $ fun t s => do
   condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
   whenUndefDo (isDefEqNative t s) $ do
+  whenUndefDo (isDefEqNat t s) $ do
   whenUndefDo (isDefEqOffset t s) $ do
   whenUndefDo (isDefEqDelta t s) $
   match t, s with

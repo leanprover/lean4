@@ -896,7 +896,6 @@ lbool type_checker::is_def_eq_offset(expr const & t, expr const & s) {
     if (pred_t && pred_s) {
         return to_lbool(is_def_eq_core(*pred_t, *pred_s));
     }
-    /* TODO add support for Nat.add */
     return l_undef;
 }
 
@@ -926,6 +925,21 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
         case reduction_status::DefDiff:    return l_false;
         }
     }
+}
+
+static expr * g_string_mk = nullptr;
+
+lbool type_checker::try_string_lit_expansion_core(expr const & t, expr const & s) {
+    if (is_string_lit(t) && is_app(s) && app_fn(s) == *g_string_mk) {
+        return to_lbool(is_def_eq_core(string_lit_to_constructor(t), s));
+    }
+    return l_undef;
+}
+
+lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
+    lbool r = try_string_lit_expansion_core(t, s);
+    if (r != l_undef) return r;
+    return try_string_lit_expansion_core(s, t);
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
@@ -965,6 +979,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     if (try_eta_expansion(t_n, s_n))
         return true;
+
+    r = try_string_lit_expansion(t_n, s_n);
+    if (r != l_undef) return r == l_true;
 
     return false;
 }
@@ -1041,6 +1058,7 @@ void initialize_type_checker() {
     g_nat_mod      = new expr(mk_constant(name{"Nat", "mod"}));
     g_nat_beq      = new expr(mk_constant(name{"Nat", "beq"}));
     g_nat_ble      = new expr(mk_constant(name{"Nat", "ble"}));
+    g_string_mk    = new expr(mk_constant(name{"String", "mk"}));
     g_lean_reduce_bool = new expr(mk_constant(name{"Lean", "reduceBool"}));
     g_lean_reduce_nat  = new expr(mk_constant(name{"Lean", "reduceNat"}));
     register_name_generator_prefix(*g_kernel_fresh);
@@ -1059,6 +1077,7 @@ void finalize_type_checker() {
     delete g_nat_mod;
     delete g_nat_beq;
     delete g_nat_ble;
+    delete g_string_mk;
     delete g_lean_reduce_bool;
     delete g_lean_reduce_nat;
 }

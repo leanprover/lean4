@@ -78,6 +78,8 @@ private:
     bool try_eta_expansion(expr const & t, expr const & s) {
         return try_eta_expansion_core(t, s) || try_eta_expansion_core(s, t);
     }
+    lbool try_string_lit_expansion_core(expr const & t, expr const & s);
+    lbool try_string_lit_expansion(expr const & t, expr const & s);
     bool is_def_eq_app(expr const & t, expr const & s);
     bool is_def_eq_proof_irrel(expr const & t, expr const & s);
     bool failed_before(expr const & t, expr const & s) const;
@@ -91,7 +93,6 @@ private:
     template<typename F> optional<expr> reduce_bin_nat_op(F const & f, expr const & e);
     template<typename F> optional<expr> reduce_bin_nat_pred(F const & f, expr const & e);
     optional<expr> reduce_nat(expr const & e);
-
 public:
     type_checker(state & st, local_ctx const & lctx, bool safe_only = true);
     type_checker(state & st, bool safe_only = true):type_checker(st, local_ctx(), safe_only) {}

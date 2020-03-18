@@ -37,10 +37,10 @@ match e with
 | Expr.app (Expr.const fName _ _) (Expr.const argName _ _) _ =>
   if fName == `Lean.reduceBool then do
     b ← reduceBoolNative argName;
-    pure $ if b then some $ mkConst `Bool.true else some $ mkConst `Bool.false
+    pure $ toExpr b
   else if fName == `Lean.reduceNat then do
     n ← reduceNatNative argName;
-    pure $ some $ mkNatLit n
+    pure $ toExpr n
   else
     pure none
 | _ => pure none
@@ -65,7 +65,7 @@ pure $ mkNatLit $ f a b
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
 withNatValue a $ fun a =>
 withNatValue b $ fun b =>
-pure $ some $ if f a b then mkConst `Bool.true else mkConst `Bool.false
+pure $ toExpr $ f a b
 
 def reduceNat? (e : Expr) : MetaM (Option Expr) :=
 if e.hasFVar || e.hasMVar then

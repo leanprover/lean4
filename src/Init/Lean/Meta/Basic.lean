@@ -810,8 +810,9 @@ mctx' ← getMCtx;
 modify $ fun s => { mctx := mctx, .. s };
 finally x (modify $ fun s => { mctx := mctx', .. s })
 
-@[init] private def regTraceClasses : IO Unit :=
-registerTraceClass `Meta
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta;
+registerTraceClass `Meta.debug
 
 def run {α} (env : Environment) (x : MetaM α) (maxRecDepth := 10000) : Except Exception α :=
 match x { maxRecDepth := maxRecDepth, currRecDepth := 0 } { env := env } with

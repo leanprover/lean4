@@ -203,6 +203,12 @@ when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
 def logDbgTrace (msg : MessageData) : TermElabM Unit := do
 trace `Elab.debug Syntax.missing $ fun _ => msg
 
+/-- For testing `TermElabM` methods. The #eval command will sign the error. -/
+def throwErrorIfErrors : TermElabM Unit := do
+s ← get;
+when s.messages.hasErrors $
+  throwError Syntax.missing "Error(s)"
+
 @[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 trace cls Syntax.missing msg
 

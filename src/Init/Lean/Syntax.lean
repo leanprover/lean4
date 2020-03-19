@@ -281,9 +281,14 @@ partial def reprint : Syntax → Option String
 
 open Lean.Format
 
-partial def formatStxAux (maxDepth : Option Nat) : Nat → Syntax → Format
-| _,     atom info val     => format $ repr val
-| _,     ident _ _ val pre => format "`" ++ format val
+private def formatInfo (showPos : Bool) (info : Option SourceInfo) : Format :=
+match info, showPos with
+| some info, true => ":" ++ toString info.pos
+| _,         _    => ""
+
+partial def formatStxAux (maxDepth : Option Nat) (showPos : Bool) : Nat → Syntax → Format
+| _,     atom info val     => format (repr val) ++ formatInfo showPos info
+| _,     ident info _ val pre => format "`" ++ format val ++ formatInfo showPos info
 | _,     missing           => "<missing>"
 | depth, node kind args    =>
   let depth := depth + 1;
@@ -300,8 +305,8 @@ partial def formatStxAux (maxDepth : Option Nat) : Nat → Syntax → Format
       if depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
     paren $ joinSep (header :: body) line
 
-def formatStx (stx : Syntax) (maxDepth : Option Nat := none) : Format :=
-formatStxAux maxDepth 0 stx
+def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showPos := false) : Format :=
+formatStxAux maxDepth showPos 0 stx
 
 instance : HasFormat (Syntax)   := ⟨formatStx⟩
 instance : HasToString (Syntax) := ⟨toString ∘ format⟩

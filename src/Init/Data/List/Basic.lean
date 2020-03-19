@@ -201,6 +201,16 @@ eraseDupsAux as []
 @[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
 spanAux p as []
 
+@[specialize] def groupByAux (eq : α → α → Bool) : List α → List (List α) → List (List α)
+| a::as, (ag::g)::gs => match eq a ag with
+  | true  => groupByAux as ((a::ag::g)::gs)
+  | false => groupByAux as ([a]::(ag::g).reverse::gs)
+| _, gs => gs.reverse
+
+@[specialize] def groupBy (p : α → α → Bool) : List α → List (List α)
+| []    => []
+| a::as => groupByAux p as [[a]]
+
 def lookup [HasBeq α] : α → List (α × β) → Option β
 | _, []        => none
 | a, (k,b)::es => match a == k with

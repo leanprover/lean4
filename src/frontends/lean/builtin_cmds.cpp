@@ -349,12 +349,12 @@ static environment eval_cmd(parser & p) {
     } catch (exception &) {}
 
     if (meta_eval_instance) {
-        /* Modify the 'program' to (fun env opts => MetaHasEval.eval env opts e) */
+        /* Modify the 'program' to (fun env opts => MetaHasEval.eval (hideUnit := false) env opts e) */
         expr env = tc.push_local("env", mk_const({"Lean", "Environment"}));
         expr opts = tc.push_local("opts", mk_const({"Lean", "Options"}));
         e = tc.mk_lambda(env, tc.mk_lambda(opts,
-                                           mk_app(tc, {"Lean", "MetaHasEval", "eval"}, 5,
-                                                  {type, *meta_eval_instance, env, opts, e})));
+                                           mk_app(tc, {"Lean", "MetaHasEval", "eval"}, 6,
+                                                  {type, *meta_eval_instance, env, opts, e, mk_bool_false()})));
         // run `Environment -> Options -> IO Unit`
         args = { p.env().to_obj_arg(), p.get_options().to_obj_arg(), io_mk_world() };
     } else {
@@ -365,8 +365,8 @@ static environment eval_cmd(parser & p) {
         } catch (exception &) {}
 
         if (eval_instance) {
-            /* Modify the 'program' to (HasEval.eval e) */
-            e = mk_app(tc, {"Lean", "HasEval", "eval"}, 3, type, *eval_instance, e);
+            /* Modify the 'program' to (HasEval.eval (hideUnit := false) e) */
+            e = mk_app(tc, {"Lean", "HasEval", "eval"}, 4, {type, *eval_instance, e, mk_bool_false()});
             // run `IO Unit`
             args = { io_mk_world() };
         } else {

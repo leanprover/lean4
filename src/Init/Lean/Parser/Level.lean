@@ -15,6 +15,8 @@ registerBuiltinParserAttribute `builtinLevelParser `level
 @[inline] def levelParser (rbp : Nat := 0) : Parser :=
 categoryParser `level rbp
 
+@[termParser] def levelStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(level|" appPrec >> levelParser >> ")"
+
 namespace Level
 
 @[builtinLevelParser] def paren  := parser! symbol "(" appPrec >> levelParser >> ")"

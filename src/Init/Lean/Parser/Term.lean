@@ -97,6 +97,7 @@ def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" leadPrec >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
 
 def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
+@[termParser] def funBinderStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(funBinder|" appPrec >> funBinder >> ")"
 @[builtinTermParser] def «fun» := parser! unicodeSymbol "λ" "fun" leadPrec >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=

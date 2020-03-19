@@ -23,7 +23,7 @@ theorem matchString.Eq1 (C : String → Sort v)
     (h₂ : Unit → C "world")
     (h₃ : ∀ s,   C s)
     : matchString C "hello" h₁ h₂ h₃ = h₁ () :=
-ifPos rfl
+difPos rfl
 
 axiom neg1 : "world" ≠ "hello"
 

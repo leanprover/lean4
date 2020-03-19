@@ -517,7 +517,7 @@ max a b
 f {x : a} -> b
 failed as expected, error: <input>:1:10 expected parentheses around dependent arrow
 (x := 20)
-failed as expected, error: <input>:1:3 expected ':' or ')'
+failed as expected, error: <input>:1:3 expected ')' or ':'
 let x 10; x
 failed as expected, error: <input>:1:6 expected '|'
 let x := y

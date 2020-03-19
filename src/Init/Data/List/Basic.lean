@@ -192,6 +192,17 @@ def eraseDupsAux {α} [HasBeq α] : List α → List α → List α
 def eraseDups {α} [HasBeq α] (as : List α) : List α :=
 eraseDupsAux as []
 
+def eraseRepsAux {α} [HasBeq α] : α → List α → List α → List α
+| a, [], rs => (a::rs).reverse
+| a, a'::as, rs => match a == a' with
+  | true  => eraseRepsAux a as rs
+  | false => eraseRepsAux a' as (a::rs)
+
+/-- Erase repeated adjacent elements. -/
+def eraseReps {α} [HasBeq α] : List α → List α
+| []    => []
+| a::as => eraseRepsAux a as []
+
 @[specialize] def spanAux (p : α → Bool) : List α → List α → List α × List α
 | [],    rs => (rs.reverse, [])
 | a::as, rs => match p a with

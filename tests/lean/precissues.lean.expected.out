@@ -1,7 +1,7 @@
-precissues.lean:3:10: error: unexpected token; expected longestMatch: empty list or '('
-precissues.lean:7:11: error: unexpected token; expected longestMatch: empty list or '('
+precissues.lean:3:10: error: unexpected token; expected '(' or longestMatch: empty list
+precissues.lean:7:11: error: unexpected token; expected '(' or longestMatch: empty list
 f 1 (λ (x : Nat), x) : Nat
-precissues.lean:11:10: error: unexpected token; expected longestMatch: empty list or '('
+precissues.lean:11:10: error: unexpected token; expected '(' or longestMatch: empty list
 1 : Nat
 id ((λ (this : True), this) True.intro) : True
 0=(λ (this : Nat), this) 1 : Prop

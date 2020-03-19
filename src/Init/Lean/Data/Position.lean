@@ -74,7 +74,13 @@ private partial def toPositionAux (str : String) (ps : Array Nat) (lines : Array
     else toPositionAux b m
 
 def toPosition : FileMap → String.Pos → Position
-| { source := str, positions := ps, lines := lines }, pos => toPositionAux str ps lines pos 0 (ps.size-1)
+| { source := str, positions := ps, lines := lines }, pos =>
+  if ps.size >= 2 && pos <= ps.back then
+    toPositionAux str ps lines pos 0 (ps.size-1)
+  else
+    -- Some systems like the delaborator use synthetic positions without an input file,
+    -- which would violate `toPositionAux`'s invariant
+    ⟨1, pos⟩
 
 end FileMap
 end Lean

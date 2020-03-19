@@ -200,6 +200,9 @@ logInfo ref $
 opts ← getOptions;
 when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
 
+def logDbgTrace (msg : MessageData) : TermElabM Unit := do
+trace `Elab.debug Syntax.missing $ fun _ => msg
+
 @[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 trace cls Syntax.missing msg
 
@@ -1142,11 +1145,40 @@ fun stx _ =>
   | some val => pure $ toExpr val
   | none     => throwError stx "ill-formed syntax"
 
+instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
+⟨fun env opts x => do
+  let ctx : Context := {
+    config        := { opts := opts },
+    fileName      := "<TermElabM>",
+    fileMap       := arbitrary _,
+    cmdPos        := 0,
+    currNamespace := Name.anonymous,
+    currRecDepth  := 0,
+    maxRecDepth   := getMaxRecDepth opts
+  };
+  let showMessages (s : State) : IO Unit := do {
+    s.messages.forM $ fun m => IO.println $ format m
+  };
+  match x ctx { env := env } with
+  | EStateM.Result.ok a s => do
+    showMessages s;
+    MetaHasEval.eval s.env opts a
+  | EStateM.Result.error (Exception.ex (Elab.Exception.error err)) s => do
+    showMessages s;
+    throw (IO.userError (toString (format err)))
+  | EStateM.Result.error (Exception.ex Elab.Exception.unsupportedSyntax) s => do
+    showMessages s;
+    throw (IO.userError "error: unsupported syntax")
+  | EStateM.Result.error Exception.postpone s => do
+    showMessages s;
+    throw (IO.userError "error: elaborator posponed")⟩
+
 end Term
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.postpone;
 registerTraceClass `Elab.coe;
+registerTraceClass `Elab.debug;
 pure ()
 
 export Term (TermElabM)

@@ -253,11 +253,14 @@ match setHeadInfoAux info stx with
 | some stx => stx
 | none     => stx
 
-partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
+def setInfo (info : SourceInfo) : Syntax → Syntax
 | atom _ val             => atom info val
 | ident _ rawVal val pre => ident info rawVal val pre
-| node k args            => node k $ args.map replaceInfo
 | stx                    => stx
+
+partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
+| node k args => node k $ args.map replaceInfo
+| stx         => setInfo info stx
 
 private def reprintLeaf : Option SourceInfo → String → String
 -- no source info => add gracious amounts of whitespace to definitely separate tokens

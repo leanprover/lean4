@@ -1152,7 +1152,7 @@ fun stx _ =>
   | none     => throwError stx "ill-formed syntax"
 
 instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
-⟨fun env opts x => do
+⟨fun env opts x _ => do
   let ctx : Context := {
     config        := { opts := opts },
     fileName      := "<TermElabM>",
@@ -1177,7 +1177,7 @@ instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
     throw (IO.userError "error: unsupported syntax")
   | EStateM.Result.error Exception.postpone s => do
     showMessages s;
-    throw (IO.userError "error: elaborator posponed")⟩
+    throw (IO.userError "error: elaborator postponed")⟩
 
 end Term
 

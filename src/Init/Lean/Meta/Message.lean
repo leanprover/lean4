@@ -85,7 +85,7 @@ def toMessageData : Exception → MessageData
 end Exception
 
 instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x => do
+⟨fun env opts x _ => do
    match x { config := { opts := opts }, currRecDepth := 0, maxRecDepth := getMaxRecDepth opts } { env := env } with
    | EStateM.Result.ok a s    => do
      s.traceState.traces.forM $ fun m => IO.println $ format m;

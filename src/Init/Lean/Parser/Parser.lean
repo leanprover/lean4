@@ -110,7 +110,10 @@ private def expectedToString : List String → String
 
 protected def toString (e : Error) : String :=
 let unexpected := if e.unexpected == "" then [] else [e.unexpected];
-let expected   := if e.expected == [] then [] else ["expected " ++ expectedToString e.expected];
+let expected   := if e.expected == [] then [] else
+  let expected := e.expected.toArray.qsort (fun e e' => e < e');
+  let expected := expected.toList.eraseReps;
+  ["expected " ++ expectedToString expected];
 "; ".intercalate $ unexpected ++ expected
 
 instance : HasToString Error := ⟨Error.toString⟩

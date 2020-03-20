@@ -73,7 +73,7 @@ structure Context :=
 -- In contrast to other systems like the elaborator, we do not pass the current term explicitly as a
 -- parameter, but store it in the monad so that we can keep it in sync with `pos`.
 (expr           : Expr)
-(pos            : Nat)
+(pos            : Nat := 1)
 (defaultOptions : Options)
 (optionsPerPos  : OptionsPerPos)
 
@@ -152,17 +152,24 @@ def whenNotPPOption (opt : Options → Bool) (d : Delab) : Delab := do
 b ← getPPOption opt;
 if b then failure else d
 
-/-- Descend into subterm `child`, the `childIdex`-th out of `numChildren` subterms, and update position. -/
-def descend {α} (child : Expr) (childIdx numChildren : Nat) (d : DelabM α) : DelabM α :=
-adaptReader (fun (cfg : Context) => { cfg with expr := child, pos := (cfg.pos + childIdx) * numChildren }) d
+/--
+Descend into `child`, the `childIdx`-th subterm of the current term, and update position.
+
+Because `childIdx < 3` in the case of `Expr`, we can injectively map a path
+`childIdxs` to a natural number by computing the value of the 3-ary representation
+`1 :: childIdxs`, since n-ary representations without leading zeros are unique.
+Note that `pos` is initialized to `1` (case `childIdxs == []`).
+-/
+def descend {α} (child : Expr) (childIdx : Nat) (d : DelabM α) : DelabM α :=
+adaptReader (fun (cfg : Context) => { cfg with expr := child, pos := cfg.pos * 3 + childIdx }) d
 
 def withAppFn {α} (d : DelabM α) : DelabM α := do
 Expr.app fn _ _ ← getExpr | unreachable!;
-descend fn 0 2 d
+descend fn 0 d
 
 def withAppArg {α} (d : DelabM α) : DelabM α := do
 Expr.app _ arg _ ← getExpr | unreachable!;
-descend arg 1 2 d
+descend arg 1 d
 
 partial def withAppFnArgs {α} : DelabM α → (α → DelabM α) → DelabM α
 | fnD, argD => do
@@ -172,13 +179,13 @@ partial def withAppFnArgs {α} : DelabM α → (α → DelabM α) → DelabM α
 
 def withBindingDomain {α} (d : DelabM α) : DelabM α := do
 e ← getExpr;
-descend e.bindingDomain! 0 2 d
+descend e.bindingDomain! 0 d
 
 def withBindingBody {α} (n : Name) (d : DelabM α) : DelabM α := do
 e ← getExpr;
 fun ctx => withLocalDecl n e.bindingDomain! e.binderInfo $ fun fvar =>
   let b := e.bindingBody!.instantiate1 fvar;
-  descend b 1 2 d ctx
+  descend b 1 d ctx
 
 def infoForPos (pos : Nat) : SourceInfo :=
 { leading := " ".toSubstring, pos := pos, trailing := " ".toSubstring }
@@ -364,7 +371,7 @@ end Delaborator
 
 /-- "Delaborate" the given term into surface-level syntax using the given general and subterm-specific options. -/
 def delab (e : Expr) (defaultOptions : Options) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
-some stx ← Delaborator.delab { expr := e, pos := 1, defaultOptions := defaultOptions, optionsPerPos := optionsPerPos }
+some stx ← Delaborator.delab { expr := e, defaultOptions := defaultOptions, optionsPerPos := optionsPerPos }
   | unreachable!;
 pure stx
 

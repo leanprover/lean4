@@ -88,24 +88,35 @@ else
   else
     throwUnsupportedSyntax
 
+private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
+ids.getArgs.mapM $ fun id =>
+  let k := id.getKind;
+  if k == identKind || k == `Lean.Parser.Term.hole then
+    pure id
+  else if k == `Lean.Parser.Term.id && id.getArgs.size == 2 && (id.getArg 1).isNone then
+    -- The parser never generates this case, but it is convenient when writting macros.
+    pure (id.getArg 0)
+  else
+    throwError id "identifier or `_` expected"
+
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 match stx with
 | Syntax.node k args =>
-  if k == `Lean.Parser.Term.simpleBinder then
+  if k == `Lean.Parser.Term.simpleBinder then do
     -- binderIdent+
-    let ids  := (args.get! 0).getArgs;
+    ids ← getBinderIds (args.get! 0);
     let type := mkHole stx;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.explicitBinder then do
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
-    let ids         := (args.get! 1).getArgs;
+    ids ← getBinderIds (args.get! 1);
     let type        := expandBinderType (args.get! 2);
     let optModifier := args.get! 3;
     type ← expandBinderModifier type optModifier;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
-  else if k == `Lean.Parser.Term.implicitBinder then
+  else if k == `Lean.Parser.Term.implicitBinder then do
     -- `{` binderIdent+ binderType `}`
-    let ids  := (args.get! 1).getArgs;
+    ids ← getBinderIds (args.get! 1);
     let type := expandBinderType (args.get! 2);
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.implicit }
   else if k == `Lean.Parser.Term.instBinder then do

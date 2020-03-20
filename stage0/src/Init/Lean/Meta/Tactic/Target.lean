@@ -16,12 +16,12 @@ namespace Meta
 def replaceTargetEq (mvarId : MVarId) (newTarget : Expr) (eqProof : Expr) : MetaM MVarId := do
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `replaceTarget;
-  tag     ← getMVarTag mvarId;
-  newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag;
-  target  ← getMVarType mvarId;
-  u       ← getLevel target;
-  eq      ← mkEq target newTarget;
-  let newProof := mkApp2 (mkConst `id [levelZero]) eq eqProof; -- checkpoint for eqProof
+  tag      ← getMVarTag mvarId;
+  newMVar  ← mkFreshExprSyntheticOpaqueMVar newTarget tag;
+  target   ← getMVarType mvarId;
+  u        ← getLevel target;
+  eq       ← mkEq target newTarget;
+  newProof ← mkExpectedTypeHint eqProof eq;
   let newVal := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, newTarget, eqProof, newMVar];
   assignExprMVar mvarId newMVar;
   pure newMVar.mvarId!
@@ -41,8 +41,7 @@ withMVarContext mvarId $ do
   else do
     tag     ← getMVarTag mvarId;
     newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag;
-    u       ← getLevel target;
-    let newVal := mkApp2 (Lean.mkConst `id [u]) target newMVar;
+    newVal  ← mkExpectedTypeHint newMVar target;
     assignExprMVar mvarId newMVar;
     pure newMVar.mvarId!
 

@@ -3,33 +3,17 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Init.Lean.Util.Recognizers
 import Init.Lean.Meta.SynthInstance
 
 namespace Lean
-
-@[inline] def Expr.eq? (p : Expr) : Option (Expr × Expr × Expr) :=
-if p.isAppOfArity `Eq 3 then
-  some (p.getArg! 0, p.getArg! 1, p.getArg! 2)
-else
-  none
-
-@[inline] def Expr.iff? (p : Expr) : Option (Expr × Expr) :=
-if p.isAppOfArity `Iff 2 then
-  some (p.getArg! 0, p.getArg! 1)
-else
-  none
-
-@[inline] def Expr.heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
-if p.isAppOfArity `HEq 4 then
-  some (p.getArg! 0, p.getArg! 1, p.getArg! 2, p.getArg! 4)
-else
-  none
-
-@[inline] def Expr.arrow? : Expr → Option (Expr × Expr)
-| Expr.forallE _ α β _ => if β.hasLooseBVars then none else some (α, β)
-| _                    => none
-
 namespace Meta
+
+/-- Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, return
+    term `@id expectedType e`. -/
+def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
+u ← getLevel expectedType;
+pure $ mkApp2 (mkConst `id [u]) expectedType e
 
 def mkEq (a b : Expr) : MetaM Expr := do
 aType ← inferType a;

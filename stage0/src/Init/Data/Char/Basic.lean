@@ -39,10 +39,23 @@ UInt32.decLt _ _
 instance decLe (a b : Char) : Decidable (a ≤ b) :=
 UInt32.decLe _ _
 
-axiom isValidChar0 : isValidChar 0
+abbrev isValidCharNat (n : Nat) : Prop :=
+n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
+
+theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < uint32Sz :=
+sorry -- TODO: waiting for new frontend
+
+theorem isValidCharOfValidNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
+sorry -- TODO: waiting for new frontend
+
+theorem isValidChar0 : isValidChar 0 :=
+sorry -- TODO: waiting for new frontend
 
 @[noinline, matchPattern] def ofNat (n : Nat) : Char :=
-if h : isValidChar n.toUInt32 then {val := n.toUInt32, valid := h} else {val := 0, valid := isValidChar0}
+if h : isValidCharNat n then
+  { val := UInt32.ofNat' n (isValidUInt32 n h), valid := isValidCharOfValidNat n h }
+else
+  { val := 0, valid := isValidChar0 }
 
 @[inline] def toNat (c : Char) : Nat :=
 c.val.toNat

@@ -119,14 +119,18 @@ addDecl ref decl;
 compileDecl ref decl;
 pure auxName
 
+private def elabClosedTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+e ← elabTermAndSynthesize stx expectedType?;
+when e.hasMVar $
+  throwError stx ("invalid macro application, term contains metavariables" ++ indentExpr e);
+when e.hasFVar $
+  throwError stx ("invalid macro application, term contains free variables" ++ indentExpr e);
+pure e
+
 @[builtinTermElab «nativeRefl»] def elabNativeRefl : TermElab :=
 fun stx _ => do
   let arg := stx.getArg 1;
-  e ← elabTermAndSynthesize arg none;
-  when e.hasMVar $
-    throwError stx ("invalid `nativeRefl!` macro application, term contains metavariables" ++ indentExpr e);
-  when e.hasFVar $
-    throwError stx ("invalid `nativeRefl!` macro application, term contains free variables" ++ indentExpr e);
+  e ← elabClosedTerm arg none;
   type ← inferType stx e;
   type ← whnf stx type;
   unless (type.isConstOf `Bool || type.isConstOf `Nat) $
@@ -144,7 +148,41 @@ fun stx _ => do
     rflPrf ← liftMetaM stx $ Meta.mkEqRefl val;
     let r  := mkApp3 (Lean.mkConst reduceThm) aux val rflPrf;
     eq ← liftMetaM stx $ Meta.mkEq e val;
-    pure $ mkApp2 (Lean.mkConst `id [levelZero]) eq r
+    mkExpectedTypeHint stx r eq
+
+private def getPropToDecide (ref : Syntax) (arg : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+if arg.isOfKind `Lean.Parser.Term.hole then do
+  tryPostponeIfNoneOrMVar expectedType?;
+  match expectedType? with
+  | none => throwError ref "invalid macro, expected type is not available"
+  | some expectedType => do
+    expectedType ← instantiateMVars ref expectedType;
+    when (expectedType.hasFVar || expectedType.hasMVar) $
+      throwError ref ("expected type must not contain free or meta variables" ++ indentExpr expectedType);
+    pure expectedType
+else
+  let prop := mkSort levelZero;
+  elabClosedTerm arg prop
+
+@[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab :=
+fun stx expectedType? => do
+  let arg  := stx.getArg 1;
+  p ← getPropToDecide stx arg expectedType?;
+  d ← mkAppM stx `Decidable.decide #[p];
+  auxDeclName ← mkNativeReflAuxDecl stx (Lean.mkConst `Bool) d;
+  rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
+  let r   := mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf;
+  mkExpectedTypeHint stx r p
+
+@[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab :=
+fun stx expectedType? => do
+  let arg  := stx.getArg 1;
+  p ← getPropToDecide stx arg expectedType?;
+  d ← mkAppM stx `Decidable.decide #[p];
+  d ← instantiateMVars stx d;
+  let s := d.appArg!; -- get instance from `d`
+  rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
+  pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) p s rflPrf
 
 def elabInfix (f : Syntax) : Macro :=
 fun stx => do

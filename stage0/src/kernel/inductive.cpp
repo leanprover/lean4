@@ -1126,7 +1126,7 @@ expr nat_lit_to_constructor(expr const & e) {
 }
 
 expr string_lit_to_constructor(expr const & e) {
-    lean_assert(is_str_lit(e));
+    lean_assert(is_string_lit(e));
     string_ref const & s = lit_value(e).get_string();
     buffer<unsigned> cs;
     utf8_decode(s.to_std_string(), cs);

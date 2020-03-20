@@ -136,6 +136,8 @@ structure UInt32 :=
 
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
+@[extern "lean_uint32_of_nat"]
+def UInt32.ofNat' (n : Nat) (h : n < uint32Sz) : UInt32 := ⟨⟨n, h⟩⟩
 abbrev Nat.toUInt32 := UInt32.ofNat
 @[extern "lean_uint32_to_nat"]
 def UInt32.toNat (n : UInt32) : Nat := n.val.val

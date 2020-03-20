@@ -56,8 +56,14 @@ structure ElimResult :=
 (elim      : Expr) -- The eliminator. It is not just `Expr.const elimName` because the type of the major premises may contain free variables.
 (altMap    : AltToMinorsMap) -- each alternative may be "expanded" into multiple minor premise
 
-def mkElim (elimName : Name) (xs : List FVarId) (lhss : List AltLHS) : MetaM ElimResult :=
-throw $ arbitrary _
+private def checkNumPatterns (majors : List Expr) (lhss : List AltLHS) : MetaM Unit :=
+let num := majors.length;
+when (lhss.any (fun lhs => lhs.patterns.length != num)) $
+  throw $ Exception.other "incorrect number of patterns"
+
+def mkElim (elimName : Name) (majors : List Expr) (lhss : List AltLHS) : MetaM ElimResult := do
+checkNumPatterns majors lhss;
+pure { numMinors := 0, numEqs := 0, elim := arbitrary _, altMap := {} } -- TODO
 
 end DepElim
 end Meta
@@ -131,13 +137,13 @@ partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
       lhss ← decodeAltLHSs lhss;
       pure (lhs ++ lhss)
 
-def mkDepElimFrom (declName : Name) (numPats : Nat) : MetaM (List FVarId × List AltLHS) := do
+def mkDepElimFrom (declName : Name) (numPats : Nat) : MetaM (List Expr × List AltLHS) := do
 cinfo ← getConstInfo declName;
 forallTelescopeReducing cinfo.type $ fun args body =>
   if args.size < numPats then
     throw $ Exception.other "insufficient number of parameters"
   else do
-    let xs := (args.extract (args.size - numPats) args.size).toList.map Expr.fvarId!;
+    let xs := (args.extract (args.size - numPats) args.size).toList;
     alts ← decodeAltLHSs body;
     pure (xs, alts)
 
@@ -159,8 +165,9 @@ def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 set_option trace.Meta.debug true
 
 def tst1 : MetaM Unit := do
-(xs, alts) ← mkDepElimFrom `ex1 2;
+(majors, alts) ← mkDepElimFrom `ex1 2;
 printAltLHS alts;
+mkElim `test majors alts;
 pure ()
 
 #eval tst1

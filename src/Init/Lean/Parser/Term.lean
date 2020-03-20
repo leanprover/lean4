@@ -210,7 +210,9 @@ def checkIsSort := checkStackTop (fun stx => stx.isOfKind `Lean.Parser.Term.type
 @[builtinTermParser] def tacticBlock := parser! symbol "begin " appPrec >> Tactic.seq >> "end"
 @[builtinTermParser] def byTactic    := parser! symbol "by " leadPrec >> Tactic.nonEmptySeq
 -- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.stxQuot`
-@[builtinTermParser] def tacticStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(tactic|" appPrec >> sepBy1 tacticParser "; " true true >> ")"
+@[builtinTermParser] def tacticStxQuot    : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(tactic|" appPrec >> sepBy1 tacticParser "; " true true >> ")"
+@[builtinTermParser] def levelStxQuot     : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(level|" appPrec >> levelParser >> ")"
+@[builtinTermParser] def funBinderStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(funBinder|" appPrec >> funBinder >> ")"
 
 end Term
 end Parser

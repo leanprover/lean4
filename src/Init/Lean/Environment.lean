@@ -8,9 +8,10 @@ import Init.System.IO
 import Init.Util
 import Init.Data.ByteArray
 import Init.Lean.Data.SMap
-import Init.Lean.Util.Path
 import Init.Lean.Declaration
 import Init.Lean.LocalContext
+import Init.Lean.Util.Path
+import Init.Lean.Util.FindExpr
 
 namespace Lean
 /- Opaque environment extension state. It is essentially the Lean version of a C `void *`
@@ -616,6 +617,15 @@ match env.find? constName with
     if c != typeName then throwUnexpectedType typeName constName
     else env.evalConst α constName
   | _ => throwUnexpectedType typeName constName
+
+def hasUnsafe (env : Environment) (e : Expr) : Bool :=
+let c? := e.find? $ fun e => match e with
+  | Expr.const c _ _ =>
+    match env.find? c with
+    | some cinfo => cinfo.isUnsafe
+    | none       => false
+  | _ => false;
+c?.isSome
 
 end Environment
 

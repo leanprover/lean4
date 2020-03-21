@@ -295,7 +295,7 @@ xs.size.foldRev (fun i b =>
       let val := val.abstractRange i xs;
       mkLet n ty val b
     else
-      b
+      b.lowerLooseBVars 1 1
   | none => panic! "unknown free variable") b
 
 def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=

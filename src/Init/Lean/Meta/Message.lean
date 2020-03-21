@@ -7,10 +7,6 @@ prelude
 import Init.Lean.Meta.Basic
 
 namespace Lean
-
-def indentExpr (msg : MessageData) : MessageData :=
-MessageData.nest 2 (Format.line ++ msg)
-
 namespace Meta
 namespace Exception
 
@@ -79,6 +75,7 @@ def toMessageData : Exception → MessageData
 | appBuilder op msg args ctx      => mkCtx ctx $ "application builder failure " ++ op ++ " " ++ args ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ "failed to synthesize" ++ indentExpr inst
 | tactic tacName mvarId msg ctx   => mkCtx ctx $ "tactic '" ++ tacName ++ "' failed, " ++ msg ++ Format.line ++ MessageData.ofGoal mvarId
+| kernel ex opts                  => ex.toMessageData opts
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 
@@ -95,38 +92,4 @@ instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
      throw (IO.userError (toString (format err.toMessageData)))⟩
 
 end Meta
-
-namespace KernelException
-
-private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
-
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
-match e with
-| unknownConstant env constName       => mkCtx env {} opts $ "(kernel) unknown constant " ++ constName
-| alreadyDeclared env constName       => mkCtx env {} opts $ "(kernel) constant has already been declared " ++ constName
-| declTypeMismatch env decl givenType =>
-  let process (n : Name) (expectedType : Expr) : MessageData :=
-    "(kernel) declaration type mismatch " ++ n
-    ++ Format.line ++ "has type" ++ indentExpr givenType
-    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
-  match decl with
-  | Declaration.defnDecl { name := n, type := type, .. } => process n type
-  | Declaration.thmDecl { name := n, type := type, .. }  => process n type
-  | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
-| declHasMVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has metavariables " ++ constName
-| declHasFVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has free variables " ++ constName
-| funExpected env lctx e              => mkCtx env lctx opts $ "(kernel) function expected" ++ indentExpr e
-| typeExpected env lctx e             => mkCtx env lctx opts $ "(kernel) type expected" ++ indentExpr e
-| letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts $ "(kernel) let-declaration type mismatch " ++ n
-| exprTypeMismatch env lctx e _       => mkCtx env lctx opts $ "(kernel) type mismatch at " ++ indentExpr e
-| appTypeMismatch  env lctx e _ _     =>
-  match e with
-  | Expr.app f a _ => "(kernel) " ++ Meta.Exception.mkAppTypeMismatchMessage f a { env := env, lctx := lctx, mctx := {}, opts := opts }
-  | _              => "(kernel) application type mismatch at" ++ indentExpr e
-| invalidProj env lctx e              => mkCtx env lctx opts $ "(kernel) invalid projection" ++ indentExpr e
-| other msg                           => "(kernel) " ++ msg
-
-end KernelException
-
 end Lean

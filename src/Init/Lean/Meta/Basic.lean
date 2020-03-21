@@ -11,6 +11,7 @@ import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs
 import Init.Lean.Util.Trace
 import Init.Lean.Util.RecDepth
+import Init.Lean.Util.Closure
 import Init.Lean.Meta.Exception
 import Init.Lean.Meta.DiscrTreeTypes
 import Init.Lean.Eval
@@ -153,6 +154,9 @@ s ← get; pure s.mctx
 
 @[inline] def getEnv : MetaM Environment := do
 s ← get; pure s.env
+
+@[inline] def setEnv (env : Environment) : MetaM Unit := do
+modify $ fun s => { env := env, .. s }
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throw $ Exception.other "whnf implementation was not set"
@@ -810,6 +814,27 @@ withLocalContext mvarDecl.lctx mvarDecl.localInstances x
 mctx' ← getMCtx;
 modify $ fun s => { mctx := mctx, .. s };
 finally x (modify $ fun s => { mctx := mctx', .. s })
+
+/--
+  Create an auxiliary definition with the given name, type and value.
+  The parameters `type` and `value` may contain free and meta variables.
+  A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
+  returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
+  and `t_j`s are free and meta variables `type` and `value` depend on. -/
+def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM Expr := do
+env  ← getEnv;
+opts ← getOptions;
+mctx ← getMCtx;
+lctx ← getLCtx;
+match Lean.mkAuxDefinition env opts mctx lctx name type value with
+| Except.error ex    => throw $ Exception.kernel ex opts
+| Except.ok (e, env) => do setEnv env; pure e
+
+/-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
+def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do
+type ← inferType value;
+let type := type.headBeta;
+mkAuxDefinition name type value
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta;

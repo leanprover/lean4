@@ -107,10 +107,6 @@ mode ++ bin
 
 @[extern "lean_io_prim_put_str"]
 constant putStr (s: @& String) : IO Unit := arbitrary _
-@[extern "lean_io_prim_read_text_file"]
-constant readTextFile (s : @& String) : IO String := arbitrary _
-@[extern "lean_io_prim_get_line"]
-constant getLine : IO String := arbitrary _
 @[extern "lean_io_prim_handle_mk"]
 constant Handle.mk (s : @& String) (mode : @& String) : IO Handle := arbitrary _
 @[extern "lean_io_prim_handle_is_eof"]
@@ -156,7 +152,6 @@ Prim.liftIO ∘ Prim.putStr
 
 def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
 def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
-def readTextFile : String → m String := Prim.liftIO ∘ Prim.readTextFile
 def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
 def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
 def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
@@ -199,32 +194,34 @@ def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
 h.putStr s *> h.putStr "\n"
 
 -- TODO: support for binary files
-partial def Handle.readToEndAux {ε} [MonadExcept ε m] (h : Handle) : String → m String
+partial def Handle.readToEndAux (h : Handle) : String → m String
 | s => do
-  catch
-   (do l ← h.getLine; Handle.readToEndAux (s ++ l))
-   (fun _ => pure s)
+  line ← h.getLine;
+  if line.length == 0 then pure s
+  else Handle.readToEndAux (s ++ line)
 
 -- TODO: support for binary files
-def Handle.readToEnd {ε} [MonadExcept ε m] (h : Handle) : m String :=
+def Handle.readToEnd (h : Handle) : m String :=
 Handle.readToEndAux h ""
 
 -- TODO: support for binary files
-def readFile {ε} [MonadExcept ε m] (fname : String) : m String := do
+def readFile (fname : String) : m String := do
 h ← Handle.mk fname Mode.read false;
 h.readToEnd
 
-partial def linesAux {ε} [MonadExcept ε m] (h : Handle) : Array String → m (Array String)
+partial def linesAux (h : Handle) : Array String → m (Array String)
 | lines => do
-  catch
-    (do
-      line ← h.getLine;
-      if line.length == 0 then linesAux (lines.push line)
-      else if line.back == '\n' then linesAux (lines.push $ line.dropRight 1)
-      else linesAux (lines.push line))
-    (fun _ => pure lines)
+  line ← h.getLine;
+  if line.length == 0 then
+    pure lines
+  else if line.back == '\n' then
+    let line := line.dropRight 1;
+    let line := if System.Platform.isWindows && line.back == '\x0d' then line.dropRight 1 else line;
+    linesAux $ lines.push line
+  else
+    pure $ lines.push line
 
-def lines {ε} [MonadExcept ε m] (fname : String) : m (Array String) := do
+def lines (fname : String) : m (Array String) := do
 h ← Handle.mk fname Mode.read false;
 linesAux h #[]
 

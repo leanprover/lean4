@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Basic
-// Imports: Init.Data.Nat.Basic Init.Data.Fin.Basic Init.Data.List.Basic Init.Data.Char.Basic Init.Data.String.Basic Init.Data.Option.Basic Init.Data.UInt Init.Data.Repr Init.Data.ToString
+// Imports: Init.Data.Nat.Basic Init.Data.Fin.Basic Init.Data.List.Basic Init.Data.Char.Basic Init.Data.String.Basic Init.Data.Option.Basic Init.Data.UInt Init.Data.Repr Init.Data.ToString Init.Data.String.Extra
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 lean_object* initialize_Init_Data_UInt(lean_object*);
 lean_object* initialize_Init_Data_Repr(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Data_String_Extra(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Basic(lean_object* w) {
 lean_object * res;
@@ -52,6 +53,9 @@ res = initialize_Init_Data_Repr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Extra(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

@@ -73,12 +73,14 @@ match defValue with
   else if key == "false" then pure $ opts.setBool key false
   else throw $ IO.userError ("invalid Bool option value '" ++ val ++ "'")
 | DataValue.ofName v   => pure $ opts.setName key val.toName
-| DataValue.ofNat v    => do
-  unless val.isNat $ throw (IO.userError ("invalid Nat option value '" ++ val ++ "'"));
-  pure $ opts.setNat key val.toNat
-| DataValue.ofInt v    => do
-  unless val.isInt $ throw (IO.userError ("invalid Int option value '" ++ val ++ "'"));
-  pure $ opts.setInt key val.toInt
+| DataValue.ofNat v    =>
+  match val.toNat? with
+  | none   => throw (IO.userError ("invalid Nat option value '" ++ val ++ "'"))
+  | some v => pure $ opts.setNat key v
+| DataValue.ofInt v    =>
+  match val.toInt? with
+  | none   => throw (IO.userError ("invalid Int option value '" ++ val ++ "'"))
+  | some v => pure $ opts.setInt key v
 
 @[init] def verboseOption : IO Unit :=
 registerOption `verbose { defValue := true, group := "", descr := "disable/enable verbose messages" }

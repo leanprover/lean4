@@ -342,7 +342,7 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
         return set_io_error(g_io_error_eof);
     }
     const int buf_sz = 64;
-    char buf_str[buf_sz];
+    char buf_str[buf_sz]; // NOLINT
     std::string result;
     bool first = true;
     while (true) {

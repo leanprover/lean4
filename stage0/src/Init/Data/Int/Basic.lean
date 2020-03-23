@@ -29,6 +29,7 @@ protected def one  : Int := ofNat 1
 
 instance : HasZero Int := ⟨Int.zero⟩
 instance : HasOne Int  := ⟨Int.one⟩
+instance : Inhabited Int := ⟨ofNat 0⟩
 
 def negOfNat : Nat → Int
 | 0      => 0
@@ -157,16 +158,22 @@ end Int
 
 namespace String
 
-def toInt (s : String) : Int :=
-if s.get 0 = '-' then
- - Int.ofNat (s.toSubstring.drop 1).toNat
+def toInt? (s : String) : Option Int :=
+if s.get 0 = '-' then do
+  v ← (s.toSubstring.drop 1).toNat?;
+  pure $ - Int.ofNat v
 else
- Int.ofNat s.toNat
+ Int.ofNat <$> s.toNat?
 
 def isInt (s : String) : Bool :=
 if s.get 0 = '-' then
   (s.toSubstring.drop 1).isNat
 else
   s.isNat
+
+def toInt! (s : String) : Int :=
+match s.toInt? with
+| some v => v
+| none   => panic! "Int expected"
 
 end String

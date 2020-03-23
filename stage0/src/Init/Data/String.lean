@@ -5,3 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.String.Basic
+import Init.Data.String.Extra

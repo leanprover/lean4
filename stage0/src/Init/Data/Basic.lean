@@ -13,3 +13,4 @@ import Init.Data.Option.Basic
 import Init.Data.UInt
 import Init.Data.Repr
 import Init.Data.ToString
+import Init.Data.String.Extra

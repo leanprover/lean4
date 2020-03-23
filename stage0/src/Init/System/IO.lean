@@ -198,20 +198,35 @@ Prim.liftIO $ Prim.Handle.putStr h s
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
 h.putStr s *> h.putStr "\n"
 
-def Handle.readToEnd (h : Handle) : m String :=
-Prim.liftIO $ Prim.iterate "" $ fun r => do
-  done ← h.isEof;
-  if done
-  then pure (Sum.inr r) -- stop
-  else do
-    -- HACK: use less efficient `getLine` while `read` is broken
-    c ← h.getLine;
-    pure $ Sum.inl (r ++ c) -- continue
+-- TODO: support for binary files
+partial def Handle.readToEndAux {ε} [MonadExcept ε m] (h : Handle) : String → m String
+| s => do
+  catch
+   (do l ← h.getLine; Handle.readToEndAux (s ++ l))
+   (fun _ => pure s)
 
-def readFile (fname : String) (bin := false) : m String := do
-h ← Handle.mk fname Mode.read bin;
-r ← h.readToEnd;
-pure r
+-- TODO: support for binary files
+def Handle.readToEnd {ε} [MonadExcept ε m] (h : Handle) : m String :=
+Handle.readToEndAux h ""
+
+-- TODO: support for binary files
+def readFile {ε} [MonadExcept ε m] (fname : String) : m String := do
+h ← Handle.mk fname Mode.read false;
+h.readToEnd
+
+partial def linesAux {ε} [MonadExcept ε m] (h : Handle) : Array String → m (Array String)
+| lines => do
+  catch
+    (do
+      line ← h.getLine;
+      if line.length == 0 then linesAux (lines.push line)
+      else if line.back == '\n' then linesAux (lines.push $ line.dropRight 1)
+      else linesAux (lines.push line))
+    (fun _ => pure lines)
+
+def lines {ε} [MonadExcept ε m] (fname : String) : m (Array String) := do
+h ← Handle.mk fname Mode.read false;
+linesAux h #[]
 
 end FS
 

@@ -14,14 +14,12 @@
 extern "C" {
 #endif
 extern lean_object* l_Lean_Name_toString___closed__1;
-uint8_t l_String_isInt(lean_object*);
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_verboseOption___closed__3;
-lean_object* l_String_toNat(lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -29,6 +27,7 @@ lean_object* l_Lean_maxMemoryOption(lean_object*);
 lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecls(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_String_toInt_x3f(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_String_splitOn(lean_object*, lean_object*);
@@ -50,7 +49,6 @@ extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* lean_get_option_decls_array(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setInt(lean_object*, lean_object*, lean_object*);
-uint8_t l_String_isNat(lean_object*);
 lean_object* l_Lean_verboseOption___closed__4;
 lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_setOptionFromString___closed__5;
@@ -73,8 +71,8 @@ lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 lean_object* l_Lean_maxMemoryOption___closed__2;
-lean_object* l_String_toInt(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__2;
+lean_object* l_String_toNat_x3f(lean_object*);
 lean_object* l_Lean_timeoutOption___closed__3;
 lean_object* l_Lean_Options_HasEmptyc;
 lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(lean_object*, lean_object*);
@@ -993,11 +991,11 @@ lean_dec(x_17);
 x_80 = !lean_is_exclusive(x_16);
 if (x_80 == 0)
 {
-lean_object* x_81; uint8_t x_82; 
+lean_object* x_81; lean_object* x_82; 
 x_81 = lean_ctor_get(x_16, 0);
 lean_dec(x_81);
-x_82 = l_String_isNat(x_14);
-if (x_82 == 0)
+x_82 = l_String_toNat_x3f(x_14);
+if (lean_obj_tag(x_82) == 0)
 {
 lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
 lean_dec(x_13);
@@ -1016,23 +1014,25 @@ return x_16;
 else
 {
 lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; 
-x_88 = lean_box(0);
-x_89 = lean_name_mk_string(x_88, x_13);
-x_90 = l_String_toNat(x_14);
 lean_dec(x_14);
-x_91 = l_Lean_KVMap_setNat(x_1, x_89, x_90);
+x_88 = lean_ctor_get(x_82, 0);
+lean_inc(x_88);
+lean_dec(x_82);
+x_89 = lean_box(0);
+x_90 = lean_name_mk_string(x_89, x_13);
+x_91 = l_Lean_KVMap_setNat(x_1, x_90, x_88);
 lean_ctor_set(x_16, 0, x_91);
 return x_16;
 }
 }
 else
 {
-lean_object* x_92; uint8_t x_93; 
+lean_object* x_92; lean_object* x_93; 
 x_92 = lean_ctor_get(x_16, 1);
 lean_inc(x_92);
 lean_dec(x_16);
-x_93 = l_String_isNat(x_14);
-if (x_93 == 0)
+x_93 = l_String_toNat_x3f(x_14);
+if (lean_obj_tag(x_93) == 0)
 {
 lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; 
 lean_dec(x_13);
@@ -1052,11 +1052,13 @@ return x_99;
 else
 {
 lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; 
-x_100 = lean_box(0);
-x_101 = lean_name_mk_string(x_100, x_13);
-x_102 = l_String_toNat(x_14);
 lean_dec(x_14);
-x_103 = l_Lean_KVMap_setNat(x_1, x_101, x_102);
+x_100 = lean_ctor_get(x_93, 0);
+lean_inc(x_100);
+lean_dec(x_93);
+x_101 = lean_box(0);
+x_102 = lean_name_mk_string(x_101, x_13);
+x_103 = l_Lean_KVMap_setNat(x_1, x_102, x_100);
 x_104 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_104, 0, x_103);
 lean_ctor_set(x_104, 1, x_92);
@@ -1071,12 +1073,12 @@ lean_dec(x_17);
 x_105 = !lean_is_exclusive(x_16);
 if (x_105 == 0)
 {
-lean_object* x_106; uint8_t x_107; 
+lean_object* x_106; lean_object* x_107; 
 x_106 = lean_ctor_get(x_16, 0);
 lean_dec(x_106);
 lean_inc(x_14);
-x_107 = l_String_isInt(x_14);
-if (x_107 == 0)
+x_107 = l_String_toInt_x3f(x_14);
+if (lean_obj_tag(x_107) == 0)
 {
 lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; 
 lean_dec(x_13);
@@ -1095,23 +1097,26 @@ return x_16;
 else
 {
 lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; 
-x_113 = lean_box(0);
-x_114 = lean_name_mk_string(x_113, x_13);
-x_115 = l_String_toInt(x_14);
-x_116 = l_Lean_KVMap_setInt(x_1, x_114, x_115);
+lean_dec(x_14);
+x_113 = lean_ctor_get(x_107, 0);
+lean_inc(x_113);
+lean_dec(x_107);
+x_114 = lean_box(0);
+x_115 = lean_name_mk_string(x_114, x_13);
+x_116 = l_Lean_KVMap_setInt(x_1, x_115, x_113);
 lean_ctor_set(x_16, 0, x_116);
 return x_16;
 }
 }
 else
 {
-lean_object* x_117; uint8_t x_118; 
+lean_object* x_117; lean_object* x_118; 
 x_117 = lean_ctor_get(x_16, 1);
 lean_inc(x_117);
 lean_dec(x_16);
 lean_inc(x_14);
-x_118 = l_String_isInt(x_14);
-if (x_118 == 0)
+x_118 = l_String_toInt_x3f(x_14);
+if (lean_obj_tag(x_118) == 0)
 {
 lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; 
 lean_dec(x_13);
@@ -1131,10 +1136,13 @@ return x_124;
 else
 {
 lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; 
-x_125 = lean_box(0);
-x_126 = lean_name_mk_string(x_125, x_13);
-x_127 = l_String_toInt(x_14);
-x_128 = l_Lean_KVMap_setInt(x_1, x_126, x_127);
+lean_dec(x_14);
+x_125 = lean_ctor_get(x_118, 0);
+lean_inc(x_125);
+lean_dec(x_118);
+x_126 = lean_box(0);
+x_127 = lean_name_mk_string(x_126, x_13);
+x_128 = l_Lean_KVMap_setInt(x_1, x_127, x_125);
 x_129 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_129, 0, x_128);
 lean_ctor_set(x_129, 1, x_117);

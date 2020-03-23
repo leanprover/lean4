@@ -496,10 +496,10 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
   else match_syntax f with
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!;
-    elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
+    elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
   | `($(e).$field:ident) =>
     let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName (toString n));
-    elabAppFn (f.getArg 0) (newLVals ++ lvals) namedArgs args expectedType? explicit acc
+    elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit acc
   | `($e[$idx]) =>
     elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
   | `($id:ident$us:explicitUniv*) => do

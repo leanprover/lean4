@@ -27,8 +27,8 @@ The delaborator is extensible via the `[delab]` attribute.
 
 prelude
 import Init.Lean.KeyedDeclsAttribute
-import Init.Lean.Parser.Level  -- for level quotations
-import Init.Lean.Elab
+import Init.Lean.ProjFns
+import Init.Lean.Syntax
 
 namespace Lean
 
@@ -54,6 +54,7 @@ end Level
 
 def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
 def getPPExplicit (o : Options) : Bool := o.get `pp.explicit false
+def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections true
 def getPPUniverses (o : Options) : Bool := o.get `pp.universes false
 def getPPAll (o : Options) : Bool := o.get `pp.all false
 
@@ -186,6 +187,10 @@ e ← getExpr;
 fun ctx => withLocalDecl n e.bindingDomain! e.binderInfo $ fun fvar =>
   let b := e.bindingBody!.instantiate1 fvar;
   descend b 1 d ctx
+
+def withProj {α} (d : DelabM α) : DelabM α := do
+Expr.app fn _ _ ← getExpr | unreachable!;
+descend fn 0 d
 
 def infoForPos (pos : Nat) : SourceInfo :=
 { leading := " ".toSubstring, pos := pos, trailing := " ".toSubstring }
@@ -366,6 +371,39 @@ Expr.lit l _ ← getExpr | unreachable!;
 match l with
 | Literal.natVal n => pure $ quote n
 | Literal.strVal s => pure $ quote s
+
+/--
+Delaborate a projection primitive. These do not usually occur in
+user code, but are pretty-printed when e.g. `#print`ing a projection
+function.
+-/
+@[builtinDelab proj]
+def delabProj : Delab := do
+Expr.proj _ idx e _ ← getExpr | unreachable!;
+e ← withProj delab;
+-- not perfectly authentic: elaborates to the `idx`-th named projection
+-- function (e.g. `e.1` is `Prod.fst e`), which unfolds to the actual
+-- `proj`.
+`($(e).$(mkStxNumLitAux idx):fieldIdx)
+
+/-- Delaborate a call to a projection function such as `Prod.fst`. -/
+@[builtinDelab app]
+def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
+e@(Expr.app fn _ _) ← getExpr | failure;
+Expr.const c@(Name.str _ f _) _ _ ← pure fn.getAppFn | failure;
+env ← liftM getEnv;
+some info ← pure $ env.getProjectionFnInfo c | failure;
+-- can't use with classes since the instance parameter is implicit
+assert (!info.fromClass);
+-- projection function should be fully applied (#struct params + 1 instance parameter)
+-- TODO: support over-application
+assert $ e.getAppNumArgs == info.nparams + 1;
+-- If pp.explicit is true, and the structure has parameters, we should not
+-- use field notation because we will not be able to see the parameters.
+expl ← getPPOption getPPExplicit;
+assert $ !expl || info.nparams == 0;
+appStx ← withAppArg delab;
+`($(appStx).$(mkIdent f):ident)
 
 end Delaborator
 

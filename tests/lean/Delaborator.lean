@@ -49,3 +49,5 @@ end
 #eval check `(1)
 #eval check `(42)
 #eval check `("hi")
+
+#eval check `((1,2).fst)

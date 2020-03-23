@@ -90,3 +90,11 @@
 (Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "1"))))
 (Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "42"))))
 (Term.str (strLit "\"hi\""))
+(Term.proj
+ (Term.app
+  (Term.id `Prod.mk (null))
+  (null
+   (Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "1"))))
+   (Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "2"))))))
+ "."
+ `fst)

@@ -107,10 +107,6 @@ mode ++ bin
 
 @[extern "lean_io_prim_put_str"]
 constant putStr (s: @& String) : IO Unit := arbitrary _
-@[extern "lean_io_prim_read_text_file"]
-constant readTextFile (s : @& String) : IO String := arbitrary _
-@[extern "lean_io_prim_get_line"]
-constant getLine : IO String := arbitrary _
 @[extern "lean_io_prim_handle_mk"]
 constant Handle.mk (s : @& String) (mode : @& String) : IO Handle := arbitrary _
 @[extern "lean_io_prim_handle_is_eof"]
@@ -156,7 +152,6 @@ Prim.liftIO ∘ Prim.putStr
 
 def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
 def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
-def readTextFile : String → m String := Prim.liftIO ∘ Prim.readTextFile
 def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
 def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
 def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir

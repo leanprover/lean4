@@ -104,17 +104,6 @@ static obj_res mk_file_not_found_error(b_obj_arg fname) {
     return set_io_error(lean_mk_io_error_no_file_or_directory(fname, errnum, details));
 }
 
-extern "C" obj_res lean_io_prim_read_text_file(b_obj_arg fname, obj_arg) {
-    std::ifstream in(string_cstr(fname), std::ifstream::binary);
-    if (!in.good()) {
-        return mk_file_not_found_error(fname);
-    } else {
-        std::stringstream buf;
-        buf << in.rdbuf();
-        return set_io_result(mk_string(buf.str()));
-    }
-}
-
 extern "C" obj_res lean_io_initializing(obj_arg) {
     return set_io_result(box(g_initializing));
 }
@@ -122,11 +111,6 @@ extern "C" obj_res lean_io_initializing(obj_arg) {
 extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg) {
     std::cout << string_to_std(s); // TODO(Leo): use out handle
     return set_io_result(box(0));
-}
-
-extern "C" obj_res lean_io_prim_get_line(obj_arg /* w */) {
-    // not implemented yet
-    lean_unreachable();
 }
 
 static lean_external_class * g_io_handle_external_class = nullptr;

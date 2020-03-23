@@ -59,21 +59,23 @@ withFile fn2 Mode.write $ fun h => do
   h.putStrLn xs₁;
   pure () };
 ys ← withFile fn2 Mode.read $ fun h => h.getLine;
+IO.println ys;
 check_eq "1" (xs₀ ++ xs₀ ++ "\n") ys;
+IO.println ys;
 withFile fn2 Mode.append $ fun h => do
 { h.putStrLn xs₁;
   pure () };
 ys ← withFile fn2 Mode.read $ fun h => do
-  { ys ← (List.iota 5).mapM $ fun i => do
+  { ys ← (List.iota 4).mapM $ fun i => do
     { ln ← h.getLine;
-      -- IO.println ∘ repr $ ln;
+      IO.println i;
+      IO.println ∘ repr $ ln;
       b  ← h.isEof;
       unless (i == 1 || !b) (throw $ IO.userError "isEof");
       pure ln };
-    b ← h.isEof;
-    unless b (throw $ IO.userError "not isEof");
     pure ys };
-let rs := [xs₀ ++ xs₀ ++ "\n", xs₂ ++ "\n", xs₁ ++ "\n", xs₁ ++ "\n", ""];
+IO.println ys;
+let rs := [xs₀ ++ xs₀ ++ "\n", xs₂ ++ "\n", xs₁ ++ "\n", xs₁ ++ "\n"];
 check_eq "2" rs ys;
 ys ← readFile fn2;
 check_eq "3" (String.join rs) ys;

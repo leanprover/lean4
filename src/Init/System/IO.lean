@@ -198,18 +198,20 @@ Prim.liftIO $ Prim.Handle.putStr h s
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
 h.putStr s *> h.putStr "\n"
 
-def Handle.readToEnd (h : Handle) : m String :=
-Prim.liftIO $ Prim.iterate "" $ fun r => do
-  done ← h.isEof;
-  if done
-  then pure (Sum.inr r) -- stop
-  else do
-    -- HACK: use less efficient `getLine` while `read` is broken
-    c ← h.getLine;
-    pure $ Sum.inl (r ++ c) -- continue
+-- TODO: support for binary files
+partial def Handle.readToEndAux {ε} [MonadExcept ε m] (h : Handle) : String → m String
+| s => do
+  catch
+   (do l ← h.getLine; Handle.readToEndAux (s ++ l))
+   (fun _ => pure s)
 
-def readFile (fname : String) (bin := false) : m String := do
-h ← Handle.mk fname Mode.read bin;
+-- TODO: support for binary files
+def Handle.readToEnd {ε} [MonadExcept ε m] (h : Handle) : m String :=
+Handle.readToEndAux h ""
+
+-- TODO: support for binary files
+def readFile {ε} [MonadExcept ε m] (fname : String) : m String := do
+h ← Handle.mk fname Mode.read false;
 r ← h.readToEnd;
 pure r
 

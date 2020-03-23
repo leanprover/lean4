@@ -382,7 +382,7 @@ match s with
 
 @[inline] def dropRight : Substring → Nat → Substring
 | ⟨s, b, e⟩, n =>
-  if e - n ≤ e then "".toSubstring
+  if e - n ≤ b then "".toSubstring
   else ⟨s, b, e - n⟩
 
 @[inline] def take : Substring → Nat → Substring

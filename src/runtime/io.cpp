@@ -338,8 +338,7 @@ static object * g_io_error_getline = nullptr;
 extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (feof(fp)) {
-        std::cout << "get_line eof " << g_io_error_eof << std::endl;
-        return set_io_error(g_io_error_eof);
+        return set_io_result(mk_string(""));
     }
     const int buf_sz = 64;
     char buf_str[buf_sz]; // NOLINT
@@ -357,7 +356,7 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
                 }
             }
             result.append(out);
-        } else if (!first && std::feof(fp)) {
+        } else if (std::feof(fp)) {
             return set_io_result(mk_string(result));
         } else {
             return set_io_error(g_io_error_getline);

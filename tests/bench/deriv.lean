@@ -91,7 +91,7 @@ do
 
 unsafe def main : List String → IO UInt32
 | [s] => do
-  let n := s.toNat;
+  let n := s.toNat!;
   let x := Var "x";
   let f := pow x x;
   nest deriv n f;

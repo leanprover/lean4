@@ -325,11 +325,14 @@ s.any (fun a => a == c)
 @[inline] def map (f : Char → Char) (s : String) : String :=
 mapAux f 0 s
 
-def toNat (s : String) : Nat :=
-s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
-
 def isNat (s : String) : Bool :=
 s.all $ fun c => c.isDigit
+
+def toNat? (s : String) : Option Nat :=
+if s.isNat then
+  some $ s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
+else
+  none
 
 partial def isPrefixOfAux (p s : String) : Pos → Bool
 | i =>
@@ -478,11 +481,14 @@ s.dropRightWhile Char.isWhitespace
   let e := takeRightWhileAux s b Char.isWhitespace e;
   ⟨s, b, e⟩
 
-def toNat (s : Substring) : Nat :=
-s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
-
 def isNat (s : Substring) : Bool :=
 s.all $ fun c => c.isDigit
+
+def toNat? (s : Substring) : Option Nat :=
+if s.isNat then
+  some $ s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
+else
+  none
 
 end Substring
 

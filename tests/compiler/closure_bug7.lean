@@ -19,4 +19,4 @@ let x17 := x + 17;
 (x, fun y => toString [x1, x2, x3, x4, x5, x6, x7])
 
 def main (xs : List String) : IO Unit :=
-IO.println ((f (xs.headD "0").toNat).2 (xs.headD "0").toNat)
+IO.println ((f (xs.headD "0").toNat!).2 (xs.headD "0").toNat!)

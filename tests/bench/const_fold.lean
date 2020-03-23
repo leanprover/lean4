@@ -67,7 +67,7 @@ def eval : Expr → Nat
 
 unsafe def main : List String → IO UInt32
 | [s] => do
-  let n := s.toNat;
+  let n := s.toNat!;
   let e  := (mkExpr n 1);
   let v₁ := eval e;
   let v₂ := eval (constFolding (reassoc e));

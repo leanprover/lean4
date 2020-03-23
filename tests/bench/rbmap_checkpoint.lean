@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Option.Basic
 import Init.Data.List.BasicAux
+import Init.Data.String
 import Init.System.IO
 
 universes u v w w'
@@ -83,8 +84,8 @@ def myLen : List Tree → Nat → Nat
 
 def main (xs : List String) : IO UInt32 := do
 [n, freq] ← pure xs | throw $ IO.userError "invalid input";
-let n     := n.toNat;
-let freq  := freq.toNat;
+let n     := n.toNat!;
+let freq  := freq.toNat!;
 let freq  := if freq == 0 then 1 else freq;
 let mList := mkMap n freq;
 let v     := fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) mList.head! 0;

@@ -40,7 +40,7 @@ partial def depth : Nat -> Nat -> List (Nat × Nat × Task UInt32)
 
 def main : List String → IO UInt32
 | [s] => do
-  let n := s.toNat;
+  let n := s.toNat!;
   let maxN := Nat.max (minN + 2) n;
   let stretchN := maxN + 1;
 

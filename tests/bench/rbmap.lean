@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Option.Basic
 import Init.Data.List.BasicAux
+import Init.Data.String
 import Init.System.IO
 
 universes u v w w'
@@ -72,7 +73,7 @@ def mkMap (n : Nat) :=
 mkMapAux n Leaf
 
 def main (xs : List String) : IO UInt32 :=
-let m := mkMap xs.head!.toNat;
+let m := mkMap xs.head!.toNat!;
 let v := fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) m 0;
 IO.println (toString v) *>
 pure 0

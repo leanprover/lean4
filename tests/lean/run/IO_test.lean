@@ -82,3 +82,27 @@ check_eq "3" (String.join rs) ys;
 pure ()
 
 #eval test2
+
+def test3 : IO Unit := do
+let fn3 := "foo3.txt";
+let xs₀ := "abc";
+let xs₁ := "";
+let xs₂ := "hello";
+let xs₃ := "world";
+withFile fn3 Mode.write $ fun h => do {
+  pure ()
+};
+ys ← lines fn3;
+IO.println $ repr ys;
+check_eq "1" ys #[];
+withFile fn3 Mode.write $ fun h => do
+{ h.putStrLn xs₀;
+  h.putStrLn xs₁;
+  h.putStrLn xs₂;
+  h.putStrLn xs₃ };
+ys ← lines fn3;
+IO.println $ repr ys;
+check_eq "2" ys #[xs₀, xs₁, xs₂, xs₃];
+pure ()
+
+#eval test3

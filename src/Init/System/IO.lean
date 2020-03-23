@@ -212,8 +212,21 @@ Handle.readToEndAux h ""
 -- TODO: support for binary files
 def readFile {ε} [MonadExcept ε m] (fname : String) : m String := do
 h ← Handle.mk fname Mode.read false;
-r ← h.readToEnd;
-pure r
+h.readToEnd
+
+partial def linesAux {ε} [MonadExcept ε m] (h : Handle) : Array String → m (Array String)
+| lines => do
+  catch
+    (do
+      line ← h.getLine;
+      if line.length == 0 then linesAux (lines.push line)
+      else if line.back == '\n' then linesAux (lines.push $ line.dropRight 1)
+      else linesAux (lines.push line))
+    (fun _ => pure lines)
+
+def lines {ε} [MonadExcept ε m] (fname : String) : m (Array String) := do
+h ← Handle.mk fname Mode.read false;
+linesAux h #[]
 
 end FS
 

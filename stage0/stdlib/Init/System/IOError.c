@@ -89,7 +89,7 @@ lean_object* l_IO_Error_fopenErrorToString___closed__2;
 lean_object* l_IO_Error_toString___closed__10;
 lean_object* lean_mk_io_error_no_such_thing(uint32_t, lean_object*);
 lean_object* lean_mk_io_error_inappropriate_type(uint32_t, lean_object*);
-lean_object* lean_mk_io_error_eof;
+lean_object* lean_mk_io_error_eof(lean_object*);
 lean_object* l_IO_Error_toString___closed__13;
 lean_object* l_IO_Error_mkIllegalOperation___boxed(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -105,12 +105,13 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_lean_mk_io_error_eof() {
+lean_object* lean_mk_io_error_eof(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_box(17);
-return x_1;
+lean_object* x_2; 
+lean_dec(x_1);
+x_2 = lean_box(17);
+return x_2;
 }
 }
 lean_object* lean_mk_io_error_inappropriate_type_file(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
@@ -1317,8 +1318,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-lean_mk_io_error_eof = _init_lean_mk_io_error_eof();
-lean_mark_persistent(lean_mk_io_error_eof);
 l___private_Init_System_IOError_1__downCaseFirst___closed__1 = _init_l___private_Init_System_IOError_1__downCaseFirst___closed__1();
 lean_mark_persistent(l___private_Init_System_IOError_1__downCaseFirst___closed__1);
 l_IO_Error_fopenErrorToString___closed__1 = _init_l_IO_Error_fopenErrorToString___closed__1();

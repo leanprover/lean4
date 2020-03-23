@@ -233,6 +233,16 @@ def toConstantVal : ConstantInfo → ConstantVal
 | ctorInfo     {toConstantVal := d, ..} => d
 | recInfo      {toConstantVal := d, ..} => d
 
+def isUnsafe : ConstantInfo → Bool
+| defnInfo   v => v.isUnsafe
+| axiomInfo  v => v.isUnsafe
+| thmInfo    v => false
+| opaqueInfo v => v.isUnsafe
+| quotInfo   v => false
+| inductInfo v => v.isUnsafe
+| ctorInfo   v => v.isUnsafe
+| recInfo    v => v.isUnsafe
+
 def name (d : ConstantInfo) : Name :=
 d.toConstantVal.name
 

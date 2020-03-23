@@ -2613,6 +2613,7 @@ x_52 = l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__
 x_53 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_51);
+lean_inc(x_6);
 lean_inc(x_19);
 x_54 = l_Lean_Elab_Term_logTrace(x_19, x_21, x_53, x_6, x_49);
 x_55 = lean_ctor_get(x_54, 1);
@@ -2703,6 +2704,7 @@ if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 x_34 = l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__3;
+lean_inc(x_6);
 x_35 = l_Lean_Elab_Term_logTrace(x_19, x_21, x_34, x_6, x_28);
 lean_dec(x_21);
 x_36 = lean_ctor_get(x_35, 1);
@@ -2717,6 +2719,7 @@ else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
 x_38 = l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__6;
+lean_inc(x_6);
 x_39 = l_Lean_Elab_Term_logTrace(x_19, x_21, x_38, x_6, x_28);
 lean_dec(x_21);
 x_40 = lean_ctor_get(x_39, 1);
@@ -2915,6 +2918,7 @@ x_115 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_115, 0, x_113);
 lean_ctor_set(x_115, 1, x_114);
 x_116 = lean_box(0);
+lean_inc(x_3);
 x_117 = l_Lean_Elab_Term_logTrace(x_105, x_116, x_115, x_3, x_104);
 x_118 = lean_ctor_get(x_117, 1);
 lean_inc(x_118);
@@ -2930,6 +2934,7 @@ x_120 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_120, 0, x_113);
 lean_ctor_set(x_120, 1, x_119);
 x_121 = lean_box(0);
+lean_inc(x_3);
 x_122 = l_Lean_Elab_Term_logTrace(x_105, x_121, x_120, x_3, x_104);
 x_123 = lean_ctor_get(x_122, 1);
 lean_inc(x_123);
@@ -4181,7 +4186,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_List_forM___main___at___private_Init_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;

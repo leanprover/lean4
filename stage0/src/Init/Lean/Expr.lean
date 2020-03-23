@@ -543,8 +543,8 @@ def bindingName! : Expr → Name
 | _               => panic! "binding expected"
 
 def bindingDomain! : Expr → Expr
-| forallE _ _ d _ => d
-| lam _ _ d _     => d
+| forallE _ d _ _ => d
+| lam _ d _ _     => d
 | _               => panic! "binding expected"
 
 def bindingBody! : Expr → Expr

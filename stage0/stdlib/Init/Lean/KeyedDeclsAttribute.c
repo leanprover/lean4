@@ -79,6 +79,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_init(lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___spec__1___closed__2;
 lean_object* l_Lean_SMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__9___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
+lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__7;
 extern lean_object* l___private_Init_Lean_Environment_14__throwUnexpectedType___rarg___closed__3;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
@@ -118,7 +119,6 @@ lean_object* l_PersistentHashMap_insertAux___main___at_Lean_KeyedDeclsAttribute_
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__6;
 lean_object* l_Lean_KeyedDeclsAttribute_ExtensionState_inhabited___closed__1;
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
-extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__3;
 lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited(lean_object*);
@@ -182,6 +182,7 @@ extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5;
 lean_object* l_Lean_ParametricAttribute_setParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__21___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_HashMapImp_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__14(lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__9(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__7;
@@ -2874,11 +2875,19 @@ return x_4;
 lean_object* _init_l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__6() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__4;
 x_2 = lean_box(0);
 x_3 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
-x_4 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
+x_4 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5;
 x_5 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 x_7 = lean_alloc_ctor(0, 6, 0);
@@ -2891,12 +2900,12 @@ lean_ctor_set(x_7, 5, x_6);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__6() {
+lean_object* _init_l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5;
+x_2 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__6;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2907,7 +2916,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited(lean_objec
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__6;
+x_2 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__7;
 return x_2;
 }
 }
@@ -5284,6 +5293,8 @@ l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5 = _init_l_L
 lean_mark_persistent(l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5);
 l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__6 = _init_l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__6();
 lean_mark_persistent(l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__6);
+l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__7 = _init_l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__7();
+lean_mark_persistent(l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__7);
 l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__1 = _init_l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__1();
 lean_mark_persistent(l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__1);
 l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__2 = _init_l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__2();

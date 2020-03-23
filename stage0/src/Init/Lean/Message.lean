@@ -178,4 +178,41 @@ def toList (log : MessageLog) : List Message :=
 (log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
 
 end MessageLog
+
+def indentExpr (msg : MessageData) : MessageData :=
+MessageData.nest 2 (Format.line ++ msg)
+
+namespace KernelException
+
+private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
+MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+
+def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+match e with
+| unknownConstant env constName       => mkCtx env {} opts $ "(kernel) unknown constant " ++ constName
+| alreadyDeclared env constName       => mkCtx env {} opts $ "(kernel) constant has already been declared " ++ constName
+| declTypeMismatch env decl givenType =>
+  let process (n : Name) (expectedType : Expr) : MessageData :=
+    "(kernel) declaration type mismatch " ++ n
+    ++ Format.line ++ "has type" ++ indentExpr givenType
+    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
+  match decl with
+  | Declaration.defnDecl { name := n, type := type, .. } => process n type
+  | Declaration.thmDecl { name := n, type := type, .. }  => process n type
+  | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
+| declHasMVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has metavariables " ++ constName
+| declHasFVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has free variables " ++ constName
+| funExpected env lctx e              => mkCtx env lctx opts $ "(kernel) function expected" ++ indentExpr e
+| typeExpected env lctx e             => mkCtx env lctx opts $ "(kernel) type expected" ++ indentExpr e
+| letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts $ "(kernel) let-declaration type mismatch " ++ n
+| exprTypeMismatch env lctx e _       => mkCtx env lctx opts $ "(kernel) type mismatch at " ++ indentExpr e
+| appTypeMismatch  env lctx e fnType argType =>
+  mkCtx env lctx opts $
+    "application type mismatch" ++ indentExpr e
+    ++ "argument has type" ++ indentExpr argType
+    ++ "but function has type" ++ indentExpr fnType
+| invalidProj env lctx e              => mkCtx env lctx opts $ "(kernel) invalid projection" ++ indentExpr e
+| other msg                           => "(kernel) " ++ msg
+
+end KernelException
 end Lean

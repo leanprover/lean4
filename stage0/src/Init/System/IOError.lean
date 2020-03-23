@@ -59,7 +59,7 @@ IO.Error.userError s
 namespace IO.Error
 
 @[export lean_mk_io_error_eof]
-def mkEofError : IO.Error := unexpectedEof
+def mkEofError : Unit → IO.Error := fun _ => unexpectedEof
 
 @[export lean_mk_io_error_inappropriate_type_file]
 def mkInappropriateTypeFile : String → UInt32 → String → IO.Error :=

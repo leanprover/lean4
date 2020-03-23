@@ -20069,7 +20069,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Lean_Meta_SynthInstance_4__preprocessArgs___main___closed__1;
-x_2 = lean_alloc_ctor(20, 1, 0);
+x_2 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

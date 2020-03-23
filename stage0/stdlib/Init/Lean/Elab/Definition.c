@@ -61,7 +61,6 @@ lean_object* l_Lean_Elab_Command_mkDeclName(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Elab_Command_collectUsedFVarsAtFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_ShareCommonT_withShareCommon___at_Lean_Elab_Command_mkDef___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_collectUsedFVarsAtFVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam(lean_object*, lean_object*, lean_object*);
@@ -1348,14 +1347,6 @@ lean_dec(x_1);
 return x_10;
 }
 }
-lean_object* l_ShareCommonT_withShareCommon___at_Lean_Elab_Command_mkDef___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_state_sharecommon(x_2, x_1);
-return x_3;
-}
-}
 lean_object* _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__1() {
 _start:
 {
@@ -1551,6 +1542,7 @@ lean_ctor_set(x_117, 0, x_43);
 x_118 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_118, 0, x_116);
 lean_ctor_set(x_118, 1, x_117);
+lean_inc(x_11);
 x_119 = l_Lean_Elab_Term_logTrace(x_106, x_1, x_118, x_11, x_105);
 x_120 = lean_ctor_get(x_119, 1);
 lean_inc(x_120);

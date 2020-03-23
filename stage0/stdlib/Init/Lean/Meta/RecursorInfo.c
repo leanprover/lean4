@@ -80,6 +80,7 @@ lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString__
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_1__mkRecursorInfoForKernelRec___closed__1;
 lean_object* l_RBNode_find___main___at_Lean_Meta_getMajorPos_x3f___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_2__getMajorPosIfAuxRecursor_x3f___closed__2;
+lean_object* l_Lean_Meta_recursorAttribute___closed__3;
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_1__mkRecursorInfoForKernelRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_RecursorInfo_10__getProduceMotiveAndRecursive___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_auxRecExt;
@@ -89,16 +90,17 @@ lean_object* l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_Recurso
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_2__getMajorPosIfAuxRecursor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_AttributeImpl_inhabited___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__2;
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_4__getNumParams___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_ParametricAttribute_Inhabited___closed__3;
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__6;
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__8;
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_2__getMajorPosIfAuxRecursor_x3f___closed__1;
+extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__4;
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_10__getProduceMotiveAndRecursive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
@@ -110,6 +112,7 @@ lean_object* l___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___closed__2;
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__7;
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 lean_object* l_Array_binSearchAux___main___at_Lean_Meta_getMajorPos_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_recursorAttribute___closed__2;
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__13;
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* l_Lean_Meta_brecOnSuffix;
@@ -137,6 +140,7 @@ lean_object* l_Lean_Meta_RecursorUnivLevelPos_hasToString(lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString___spec__2(uint8_t, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_mkRecursorAttr___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_fold___main___at_Lean_Meta_mkRecursorAttr___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_recursorAttribute___closed__1;
 lean_object* l_Nat_foldMAux___main___at___private_Init_Lean_Meta_RecursorInfo_10__getProduceMotiveAndRecursive___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux___main___at___private_Init_Lean_Meta_RecursorInfo_6__getParamsPos___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -197,10 +201,12 @@ lean_object* l___private_Init_Lean_Meta_RecursorInfo_7__getIndicesPos(lean_objec
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__4;
 lean_object* l_Lean_Meta_getMajorPos_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_numIndices(lean_object*);
+extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_13__syntaxToMajorPos(lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
 lean_object* l_Array_qsortAux___main___at_Lean_Meta_mkRecursorAttr___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkRecursorInfo(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_11__checkMotiveResultType___closed__1;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Meta_mkRecursorAttr___spec__4___closed__1;
@@ -274,6 +280,7 @@ lean_object* l_Nat_foldMAux___main___at___private_Init_Lean_Meta_RecursorInfo_7_
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_6__getParamsPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__10;
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_4__getNumParams___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_ParametricAttribute_Inhabited___closed__1;
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_Meta_getMajorPos_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_11__checkMotiveResultType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_13__syntaxToMajorPos___closed__2;
@@ -295,6 +302,7 @@ lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_RecursorI
 lean_object* l_Array_findIdxMAux___main___at___private_Init_Lean_Meta_RecursorInfo_7__getIndicesPos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_RecursorInfo_13__syntaxToMajorPos___closed__1;
 lean_object* l_Lean_Meta_mkRecursorAttr___closed__2;
+extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__1___lambda__1___boxed(lean_object**);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_mkRecursorAttr___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_recOnSuffix___closed__1;
@@ -1491,7 +1499,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Lean_Meta_RecursorInfo_1__mkRecursorInfoForKernelRec___closed__1;
-x_2 = lean_alloc_ctor(20, 1, 0);
+x_2 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1812,7 +1820,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Lean_Meta_RecursorInfo_2__getMajorPosIfAuxRecursor_x3f___closed__1;
-x_2 = lean_alloc_ctor(20, 1, 0);
+x_2 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2171,7 +2179,7 @@ x_11 = l___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___closed__3;
 x_14 = lean_string_append(x_12, x_13);
-x_15 = lean_alloc_ctor(20, 1, 0);
+x_15 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -2207,7 +2215,7 @@ x_26 = l___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___closed__2;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = l___private_Init_Lean_Meta_RecursorInfo_3__checkMotive___closed__3;
 x_29 = lean_string_append(x_27, x_28);
-x_30 = lean_alloc_ctor(20, 1, 0);
+x_30 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -2429,7 +2437,7 @@ x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
 x_16 = l_Char_HasRepr___closed__1;
 x_17 = lean_string_append(x_15, x_16);
-x_18 = lean_alloc_ctor(20, 1, 0);
+x_18 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -2471,7 +2479,7 @@ x_32 = l___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__4
 x_33 = lean_string_append(x_31, x_32);
 x_34 = l___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
 x_35 = lean_string_append(x_33, x_34);
-x_36 = lean_alloc_ctor(20, 1, 0);
+x_36 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
 x_37 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
@@ -2495,7 +2503,7 @@ x_43 = lean_string_append(x_42, x_41);
 lean_dec(x_41);
 x_44 = l___private_Init_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__7;
 x_45 = lean_string_append(x_43, x_44);
-x_46 = lean_alloc_ctor(20, 1, 0);
+x_46 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_46, 0, x_45);
 x_47 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_47, 0, x_46);
@@ -2731,7 +2739,7 @@ x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
 x_31 = l_Nat_foldMAux___main___at___private_Init_Lean_Meta_RecursorInfo_6__getParamsPos___spec__2___closed__1;
 x_32 = lean_string_append(x_30, x_31);
-x_33 = lean_alloc_ctor(20, 1, 0);
+x_33 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set_tag(x_21, 1);
 lean_ctor_set(x_21, 0, x_33);
@@ -2772,7 +2780,7 @@ x_43 = lean_string_append(x_42, x_41);
 lean_dec(x_41);
 x_44 = l_Nat_foldMAux___main___at___private_Init_Lean_Meta_RecursorInfo_6__getParamsPos___spec__2___closed__1;
 x_45 = lean_string_append(x_43, x_44);
-x_46 = lean_alloc_ctor(20, 1, 0);
+x_46 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_46, 0, x_45);
 x_47 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_47, 0, x_46);
@@ -3124,7 +3132,7 @@ x_28 = lean_string_append(x_27, x_26);
 lean_dec(x_26);
 x_29 = l_Nat_foldMAux___main___at___private_Init_Lean_Meta_RecursorInfo_7__getIndicesPos___spec__2___closed__1;
 x_30 = lean_string_append(x_28, x_29);
-x_31 = lean_alloc_ctor(20, 1, 0);
+x_31 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set_tag(x_21, 1);
 lean_ctor_set(x_21, 0, x_31);
@@ -3143,7 +3151,7 @@ x_36 = lean_string_append(x_35, x_34);
 lean_dec(x_34);
 x_37 = l_Nat_foldMAux___main___at___private_Init_Lean_Meta_RecursorInfo_7__getIndicesPos___spec__2___closed__1;
 x_38 = lean_string_append(x_36, x_37);
-x_39 = lean_alloc_ctor(20, 1, 0);
+x_39 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 x_40 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_40, 0, x_39);
@@ -3365,7 +3373,7 @@ x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = l___private_Init_Lean_Meta_RecursorInfo_8__getMotiveLevel___closed__1;
 x_11 = lean_string_append(x_9, x_10);
-x_12 = lean_alloc_ctor(20, 1, 0);
+x_12 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -3477,7 +3485,7 @@ x_22 = lean_string_append(x_20, x_21);
 lean_dec(x_21);
 x_23 = l_Char_HasRepr___closed__1;
 x_24 = lean_string_append(x_22, x_23);
-x_25 = lean_alloc_ctor(20, 1, 0);
+x_25 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -4719,7 +4727,7 @@ x_14 = l___private_Init_Lean_Meta_RecursorInfo_11__checkMotiveResultType___close
 x_15 = lean_string_append(x_13, x_14);
 x_16 = l___private_Init_Lean_Meta_RecursorInfo_11__checkMotiveResultType___closed__3;
 x_17 = lean_string_append(x_15, x_16);
-x_18 = lean_alloc_ctor(20, 1, 0);
+x_18 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -4748,7 +4756,7 @@ x_29 = l___private_Init_Lean_Meta_RecursorInfo_11__checkMotiveResultType___close
 x_30 = lean_string_append(x_28, x_29);
 x_31 = l___private_Init_Lean_Meta_RecursorInfo_11__checkMotiveResultType___closed__3;
 x_32 = lean_string_append(x_30, x_31);
-x_33 = lean_alloc_ctor(20, 1, 0);
+x_33 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 x_34 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
@@ -5219,7 +5227,7 @@ x_50 = lean_string_append(x_49, x_48);
 lean_dec(x_48);
 x_51 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__1___closed__1;
 x_52 = lean_string_append(x_50, x_51);
-x_53 = lean_alloc_ctor(20, 1, 0);
+x_53 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_53, 0, x_52);
 x_54 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_54, 0, x_53);
@@ -5383,7 +5391,7 @@ x_41 = lean_string_append(x_40, x_39);
 lean_dec(x_39);
 x_42 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_43 = lean_string_append(x_41, x_42);
-x_44 = lean_alloc_ctor(20, 1, 0);
+x_44 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
 if (lean_is_scalar(x_18)) {
  x_45 = lean_alloc_ctor(1, 2, 0);
@@ -5598,7 +5606,7 @@ x_91 = lean_string_append(x_90, x_89);
 lean_dec(x_89);
 x_92 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_93 = lean_string_append(x_91, x_92);
-x_94 = lean_alloc_ctor(20, 1, 0);
+x_94 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_94, 0, x_93);
 if (lean_is_scalar(x_68)) {
  x_95 = lean_alloc_ctor(1, 2, 0);
@@ -5813,7 +5821,7 @@ x_141 = lean_string_append(x_140, x_139);
 lean_dec(x_139);
 x_142 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_143 = lean_string_append(x_141, x_142);
-x_144 = lean_alloc_ctor(20, 1, 0);
+x_144 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_144, 0, x_143);
 if (lean_is_scalar(x_118)) {
  x_145 = lean_alloc_ctor(1, 2, 0);
@@ -6028,7 +6036,7 @@ x_191 = lean_string_append(x_190, x_189);
 lean_dec(x_189);
 x_192 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_193 = lean_string_append(x_191, x_192);
-x_194 = lean_alloc_ctor(20, 1, 0);
+x_194 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_194, 0, x_193);
 if (lean_is_scalar(x_168)) {
  x_195 = lean_alloc_ctor(1, 2, 0);
@@ -6243,7 +6251,7 @@ x_241 = lean_string_append(x_240, x_239);
 lean_dec(x_239);
 x_242 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_243 = lean_string_append(x_241, x_242);
-x_244 = lean_alloc_ctor(20, 1, 0);
+x_244 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_244, 0, x_243);
 if (lean_is_scalar(x_218)) {
  x_245 = lean_alloc_ctor(1, 2, 0);
@@ -6475,7 +6483,7 @@ x_297 = lean_string_append(x_296, x_295);
 lean_dec(x_295);
 x_298 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_299 = lean_string_append(x_297, x_298);
-x_300 = lean_alloc_ctor(20, 1, 0);
+x_300 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_300, 0, x_299);
 if (lean_is_scalar(x_274)) {
  x_301 = lean_alloc_ctor(1, 2, 0);
@@ -6690,7 +6698,7 @@ x_347 = lean_string_append(x_346, x_345);
 lean_dec(x_345);
 x_348 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_349 = lean_string_append(x_347, x_348);
-x_350 = lean_alloc_ctor(20, 1, 0);
+x_350 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_350, 0, x_349);
 if (lean_is_scalar(x_324)) {
  x_351 = lean_alloc_ctor(1, 2, 0);
@@ -6905,7 +6913,7 @@ x_397 = lean_string_append(x_396, x_395);
 lean_dec(x_395);
 x_398 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_399 = lean_string_append(x_397, x_398);
-x_400 = lean_alloc_ctor(20, 1, 0);
+x_400 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_400, 0, x_399);
 if (lean_is_scalar(x_374)) {
  x_401 = lean_alloc_ctor(1, 2, 0);
@@ -7120,7 +7128,7 @@ x_447 = lean_string_append(x_446, x_445);
 lean_dec(x_445);
 x_448 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_449 = lean_string_append(x_447, x_448);
-x_450 = lean_alloc_ctor(20, 1, 0);
+x_450 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_450, 0, x_449);
 if (lean_is_scalar(x_424)) {
  x_451 = lean_alloc_ctor(1, 2, 0);
@@ -7335,7 +7343,7 @@ x_497 = lean_string_append(x_496, x_495);
 lean_dec(x_495);
 x_498 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_499 = lean_string_append(x_497, x_498);
-x_500 = lean_alloc_ctor(20, 1, 0);
+x_500 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_500, 0, x_499);
 if (lean_is_scalar(x_474)) {
  x_501 = lean_alloc_ctor(1, 2, 0);
@@ -7550,7 +7558,7 @@ x_547 = lean_string_append(x_546, x_545);
 lean_dec(x_545);
 x_548 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_549 = lean_string_append(x_547, x_548);
-x_550 = lean_alloc_ctor(20, 1, 0);
+x_550 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_550, 0, x_549);
 if (lean_is_scalar(x_524)) {
  x_551 = lean_alloc_ctor(1, 2, 0);
@@ -7765,7 +7773,7 @@ x_597 = lean_string_append(x_596, x_595);
 lean_dec(x_595);
 x_598 = l_Lean_Expr_withAppAux___main___at___private_Init_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2___closed__1;
 x_599 = lean_string_append(x_597, x_598);
-x_600 = lean_alloc_ctor(20, 1, 0);
+x_600 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_600, 0, x_599);
 if (lean_is_scalar(x_574)) {
  x_601 = lean_alloc_ctor(1, 2, 0);
@@ -9472,6 +9480,46 @@ lean_dec(x_1);
 return x_4;
 }
 }
+lean_object* _init_l_Lean_Meta_recursorAttribute___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Meta_recursorAttribute___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_1 = l_Lean_ParametricAttribute_Inhabited___closed__1;
+x_2 = lean_box(0);
+x_3 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
+x_4 = l_Lean_Meta_recursorAttribute___closed__1;
+x_5 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
+x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
+x_7 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set(x_7, 4, x_5);
+lean_ctor_set(x_7, 5, x_6);
+return x_7;
+}
+}
+lean_object* _init_l_Lean_Meta_recursorAttribute___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_AttributeImpl_inhabited___closed__2;
+x_2 = l_Lean_Meta_recursorAttribute___closed__2;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 lean_object* l_RBNode_find___main___at_Lean_Meta_getMajorPos_x3f___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -9947,6 +9995,12 @@ l_Lean_Meta_mkRecursorAttr___closed__4 = _init_l_Lean_Meta_mkRecursorAttr___clos
 lean_mark_persistent(l_Lean_Meta_mkRecursorAttr___closed__4);
 l_Lean_Meta_mkRecursorAttr___closed__5 = _init_l_Lean_Meta_mkRecursorAttr___closed__5();
 lean_mark_persistent(l_Lean_Meta_mkRecursorAttr___closed__5);
+l_Lean_Meta_recursorAttribute___closed__1 = _init_l_Lean_Meta_recursorAttribute___closed__1();
+lean_mark_persistent(l_Lean_Meta_recursorAttribute___closed__1);
+l_Lean_Meta_recursorAttribute___closed__2 = _init_l_Lean_Meta_recursorAttribute___closed__2();
+lean_mark_persistent(l_Lean_Meta_recursorAttribute___closed__2);
+l_Lean_Meta_recursorAttribute___closed__3 = _init_l_Lean_Meta_recursorAttribute___closed__3();
+lean_mark_persistent(l_Lean_Meta_recursorAttribute___closed__3);
 res = l_Lean_Meta_mkRecursorAttr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_recursorAttribute = lean_io_result_get_value(res);

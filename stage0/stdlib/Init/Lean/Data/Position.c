@@ -39,6 +39,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Position_Lean_HasFormat(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Data_Position_3__toPositionAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1___boxed(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Data_Position_3__toPositionAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
@@ -52,6 +53,8 @@ lean_object* l___private_Init_Lean_Data_Position_2__toColumnAux___boxed(lean_obj
 lean_object* l___private_Init_Lean_Data_Position_1__ofStringAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Position_Lean_HasFormat___closed__1;
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1(lean_object*);
 lean_object* l___private_Init_Lean_Data_Position_2__toColumnAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Position_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Data_Position_2__toColumnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -532,20 +535,77 @@ lean_dec(x_1);
 return x_7;
 }
 }
+lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = lean_array_get_size(x_1);
+x_3 = lean_unsigned_to_nat(1u);
+x_4 = lean_nat_sub(x_2, x_3);
+lean_dec(x_2);
+x_5 = l_Nat_Inhabited;
+x_6 = lean_array_get(x_5, x_1, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
 lean_object* l_Lean_FileMap_toPosition(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_1, 2);
 x_6 = lean_array_get_size(x_4);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_6, x_7);
+x_7 = lean_unsigned_to_nat(2u);
+x_8 = lean_nat_dec_le(x_7, x_6);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
 lean_dec(x_6);
-x_9 = lean_unsigned_to_nat(0u);
-x_10 = l___private_Init_Lean_Data_Position_3__toPositionAux___main(x_3, x_4, x_5, x_2, x_9, x_8);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_10, 1, x_2);
 return x_10;
+}
+else
+{
+lean_object* x_11; uint8_t x_12; 
+x_11 = l_Array_back___at_Lean_FileMap_toPosition___spec__1(x_4);
+x_12 = lean_nat_dec_le(x_2, x_11);
+lean_dec(x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_2);
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_unsigned_to_nat(1u);
+x_16 = lean_nat_sub(x_6, x_15);
+lean_dec(x_6);
+x_17 = lean_unsigned_to_nat(0u);
+x_18 = l___private_Init_Lean_Data_Position_3__toPositionAux___main(x_3, x_4, x_5, x_2, x_17, x_16);
+lean_dec(x_2);
+return x_18;
+}
+}
+}
+}
+lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Array_back___at_Lean_FileMap_toPosition___spec__1(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_FileMap_toPosition___boxed(lean_object* x_1, lean_object* x_2) {
@@ -553,7 +613,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_FileMap_toPosition(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }

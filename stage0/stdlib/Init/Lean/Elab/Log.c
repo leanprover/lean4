@@ -86,6 +86,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_dec(x_4);
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec(x_1);
@@ -93,6 +94,8 @@ x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 0);
+lean_inc(x_11);
+lean_dec(x_2);
 x_12 = l_Lean_FileMap_toPosition(x_3, x_11);
 x_13 = lean_apply_2(x_10, lean_box(0), x_12);
 return x_13;
@@ -145,9 +148,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_getPosition___rarg___lambda__1(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -198,7 +199,10 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_dec(x_9);
 x_16 = lean_ctor_get(x_3, 0);
+lean_inc(x_16);
+lean_dec(x_3);
 x_17 = l_Lean_FileMap_toPosition(x_4, x_16);
 x_18 = lean_box(x_7);
 x_19 = lean_alloc_closure((void*)(l_Lean_Elab_mkMessageAt___rarg___lambda__1___boxed), 5, 4);
@@ -298,9 +302,7 @@ uint8_t x_10; lean_object* x_11;
 x_10 = lean_unbox(x_7);
 lean_dec(x_7);
 x_11 = l_Lean_Elab_mkMessageAt___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_10, x_8, x_9);
-lean_dec(x_9);
 lean_dec(x_4);
-lean_dec(x_3);
 return x_11;
 }
 }

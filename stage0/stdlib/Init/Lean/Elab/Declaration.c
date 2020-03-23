@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Elab_Command_elabDeclaration(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__3;
 lean_object* l_Lean_Elab_Term_mkForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 extern lean_object* l_Lean_Parser_Command_abbrev___elambda__1___closed__2;
@@ -75,7 +74,6 @@ lean_object* l_Lean_Elab_Command_elabConstant(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandOptDeclSig(lean_object*);
 extern lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__1;
-extern lean_object* l___private_Init_Lean_Elab_Quotation_11__letBindRhss___main___closed__11;
 extern lean_object* l_Lean_Meta_registerInstanceAttr___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object*, lean_object*, lean_object*);
@@ -111,6 +109,7 @@ lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_Lean_Elab_Command_elabInductive___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_12__addScopes___main(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabAbbrev___closed__2;
+extern lean_object* l___private_Init_Lean_Elab_Quotation_8__letBindRhss___main___closed__11;
 lean_object* l_Lean_Elab_Command_elabStructure(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_addAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*);
@@ -144,6 +143,7 @@ lean_object* l_Lean_Elab_Command_elabAbbrev___closed__4;
 lean_object* l_Lean_CollectLevelParams_main___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___spec__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__3;
 extern lean_object* l_Lean_Parser_Command_constant___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Command_theorem___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabClassInductive___rarg(lean_object*);
@@ -477,13 +477,13 @@ x_30 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_30, 0, x_29);
 lean_ctor_set(x_30, 1, x_28);
 x_31 = lean_array_push(x_25, x_30);
-x_32 = l___private_Init_Lean_Elab_Quotation_11__letBindRhss___main___closed__11;
+x_32 = l___private_Init_Lean_Elab_Quotation_8__letBindRhss___main___closed__11;
 x_33 = lean_array_push(x_31, x_32);
 x_34 = l_Lean_mkAppStx___closed__8;
 x_35 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_33);
-x_36 = l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__3;
+x_36 = l___private_Init_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__3;
 x_37 = l_Lean_mkAtomFrom(x_2, x_36);
 x_38 = l_Lean_mkAppStx___closed__9;
 x_39 = lean_array_push(x_38, x_37);

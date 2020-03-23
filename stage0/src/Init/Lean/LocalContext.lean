@@ -131,6 +131,16 @@ lctx.fvarIdToDecl.contains fvarId
 def containsFVar (lctx : LocalContext) (e : Expr) : Bool :=
 lctx.contains e.fvarId!
 
+def getFVarIds (lctx : LocalContext) : Array FVarId :=
+lctx.decls.foldl
+  (fun (r : Array FVarId) decl? => match decl? with
+    | some decl => r.push decl.fvarId
+    | none      => r)
+  #[]
+
+def getFVars (lctx : LocalContext) : Array Expr :=
+lctx.getFVarIds.map mkFVar
+
 private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Option LocalDecl)
 | a =>
   if a.size == 0 then a
@@ -285,7 +295,7 @@ xs.size.foldRev (fun i b =>
       let val := val.abstractRange i xs;
       mkLet n ty val b
     else
-      b
+      b.lowerLooseBVars 1 1
   | none => panic! "unknown free variable") b
 
 def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=

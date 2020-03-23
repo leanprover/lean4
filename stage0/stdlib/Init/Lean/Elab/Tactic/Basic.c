@@ -32,7 +32,6 @@ lean_object* l_PersistentHashMap_find_x3f___at_Lean_Elab_Tactic_evalTactic___mai
 lean_object* l_Lean_Elab_Tactic_monadLog___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find_x3f___main___at_Lean_Elab_Tactic_evalTactic___main___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadQuotation;
-extern lean_object* l_Lean_Meta_SynthInstance_inferTCGoalsLRAttr___closed__1;
 lean_object* l_Lean_Elab_Tactic_withMainMVarContext(lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 extern lean_object* l_Lean_nullKind;
@@ -272,6 +271,7 @@ extern lean_object* l_Lean_Parser_Tactic_case___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Tactic_forEachVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_Elab_Tactic_monadLog___lambda__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5;
 lean_object* l_Lean_Elab_Tactic_evalRevert(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalAssumption___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftMetaTactic___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -279,7 +279,6 @@ lean_object* l_PersistentHashMap_empty___at_Lean_Elab_Tactic_tacticElabAttribute
 lean_object* l_Lean_Elab_Tactic_evalIntros___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_erase___main___at_Lean_Elab_Tactic_evalCase___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_appendGoals(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_traceAtCmdPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSubst___closed__1;
 lean_object* l_Lean_Elab_Tactic_throwUnsupportedSyntax(lean_object*);
 lean_object* l_Lean_Elab_Tactic_withLCtx(lean_object*);
@@ -302,6 +301,7 @@ lean_object* l_Lean_Elab_Tactic_liftMetaTactic(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Tactic_evalTactic___main___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalNestedTacticBlock(lean_object*);
 lean_object* l_AssocList_find_x3f___main___at_Lean_Elab_Tactic_evalTactic___main___spec__6(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_traceAtCmdPos(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalTraceState___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalTactic___main___lambda__1___boxed(lean_object*, lean_object*);
@@ -3053,7 +3053,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Elab_Tactic_tacticElabAttribute___closed__3;
 x_2 = lean_box(0);
 x_3 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
-x_4 = l_Lean_Meta_SynthInstance_inferTCGoalsLRAttr___closed__1;
+x_4 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5;
 x_5 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 x_7 = lean_alloc_ctor(0, 6, 0);
@@ -3106,7 +3106,7 @@ lean_object* l_Lean_Elab_Tactic_traceAtCmdPos(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_alloc_closure((void*)(l_Lean_Elab_Term_traceAtCmdPos___boxed), 4, 2);
+x_5 = lean_alloc_closure((void*)(l_Lean_Elab_Term_traceAtCmdPos), 4, 2);
 lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_2);
 x_6 = l_Lean_Elab_Tactic_liftTermElabM___rarg(x_5, x_3, x_4);
@@ -13013,7 +13013,6 @@ x_9 = lean_ctor_get(x_6, 3);
 lean_inc(x_9);
 lean_dec(x_6);
 x_10 = l_Lean_FileMap_toPosition(x_7, x_9);
-lean_dec(x_9);
 lean_dec(x_7);
 x_11 = l_Lean_Elab_Tactic_addContext(x_1, x_4, x_5);
 if (lean_obj_tag(x_11) == 0)
@@ -13095,6 +13094,8 @@ x_29 = lean_ctor_get(x_27, 1);
 lean_inc(x_29);
 lean_dec(x_27);
 x_30 = lean_ctor_get(x_3, 0);
+lean_inc(x_30);
+lean_dec(x_3);
 x_31 = l_Lean_FileMap_toPosition(x_28, x_30);
 lean_dec(x_28);
 x_32 = l_Lean_Elab_Tactic_addContext(x_1, x_4, x_5);
@@ -13175,7 +13176,6 @@ lean_object* x_6; lean_object* x_7;
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_1);
 x_7 = l_Lean_Elab_mkMessageAt___at_Lean_Elab_Tactic_evalTraceState___spec__4(x_3, x_2, x_6, x_4, x_5);
-lean_dec(x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
@@ -13453,7 +13453,6 @@ uint8_t x_6; lean_object* x_7;
 x_6 = lean_unbox(x_2);
 lean_dec(x_2);
 x_7 = l_Lean_Elab_mkMessageAt___at_Lean_Elab_Tactic_evalTraceState___spec__4(x_1, x_6, x_3, x_4, x_5);
-lean_dec(x_3);
 return x_7;
 }
 }

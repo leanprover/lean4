@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Option_getD___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Option_all___rarg(lean_object*, lean_object*);
 lean_object* l_Option_Monad___closed__10;
 lean_object* l_Option_Alternative___lambda__1(lean_object*);
 lean_object* l_Option_bind(lean_object*, lean_object*);
@@ -31,6 +32,7 @@ lean_object* l_Option_bind___rarg(lean_object*, lean_object*);
 lean_object* l_Option_Monad___closed__3;
 lean_object* l_Option_toBool(lean_object*);
 lean_object* l_Option_Monad___closed__5;
+lean_object* l_Option_all(lean_object*);
 lean_object* l_Option_Monad___closed__2;
 uint8_t l_Option_isSome___rarg(lean_object*);
 lean_object* l_Option_isSome(lean_object*);
@@ -47,8 +49,10 @@ lean_object* l_Option_toMonad___boxed(lean_object*, lean_object*);
 lean_object* l_Option_Monad;
 lean_object* l_Option_HasLess___boxed(lean_object*, lean_object*);
 lean_object* l_Option_HasLess(lean_object*, lean_object*);
+lean_object* l_Option_any(lean_object*);
 lean_object* l_Option_Alternative___closed__2;
 lean_object* l_Option_isNone(lean_object*);
+lean_object* l_Option_any___rarg(lean_object*, lean_object*);
 lean_object* l_Option_orelse___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Option_Monad___lambda__2(lean_object*, lean_object*);
 lean_object* l_Option_Alternative___closed__1;
@@ -643,6 +647,66 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Option_filter___rarg), 2, 0);
+return x_2;
+}
+}
+lean_object* l_Option_all___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_3; lean_object* x_4; 
+lean_dec(x_1);
+x_3 = 1;
+x_4 = lean_box(x_3);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_apply_1(x_1, x_5);
+return x_6;
+}
+}
+}
+lean_object* l_Option_all(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_all___rarg), 2, 0);
+return x_2;
+}
+}
+lean_object* l_Option_any___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_3; lean_object* x_4; 
+lean_dec(x_1);
+x_3 = 0;
+x_4 = lean_box(x_3);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_apply_1(x_1, x_5);
+return x_6;
+}
+}
+}
+lean_object* l_Option_any(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_any___rarg), 2, 0);
 return x_2;
 }
 }

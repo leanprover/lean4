@@ -37,6 +37,7 @@ inductive Exception
 | appBuilder           (op : Name) (msg : String) (args : Array Expr) (ctx : ExceptionContext)
 | synthInstance        (inst : Expr) (ctx : ExceptionContext)
 | tactic               (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ctx : ExceptionContext)
+| kernel               (ex : KernelException) (opts : Options)
 | bug                  (b : Bug) (ctx : ExceptionContext)
 | other                (msg : String)
 
@@ -64,6 +65,7 @@ def toStr : Exception → String
 | appBuilder _ _ _ _            => "application builder failure"
 | synthInstance _ _             => "type class instance synthesis failed"
 | tactic tacName _ _ _          => "tactic '" ++ toString tacName ++ "' failed"
+| kernel _ _                    => "kernel exception"
 | bug _ _                       => "bug"
 | other s                       => s
 
@@ -93,6 +95,7 @@ def toTraceMessageData : Exception → MessageData
 | appBuilder op msg args ctx      => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ `synthInstance ++ " " ++ inst
 | tactic tacName mvarId msg ctx   => mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg
+| kernel ex opts                  => ex.toMessageData opts
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

@@ -6264,14 +6264,14 @@ switch (lean_obj_tag(x_1)) {
 case 6:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 2);
+x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
 return x_2;
 }
 case 7:
 {
 lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 2);
+x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 return x_3;
 }

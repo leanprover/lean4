@@ -24,6 +24,7 @@ lean_object* l_Lean_ConstantVal_inhabited___closed__1;
 lean_object* lean_mk_reducibility_hints_regular(uint32_t);
 uint8_t lean_opaque_val_is_unsafe(lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantVal_inhabited___closed__2;
 lean_object* lean_mk_inductive_decl(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -103,6 +104,7 @@ lean_object* l_Lean_InductiveVal_isReflexiveEx___boxed(lean_object*);
 uint32_t lean_reducibility_hints_get_height(lean_object*);
 lean_object* l_Lean_mkInductiveValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_get(lean_object*);
+lean_object* l_Lean_ConstantInfo_isUnsafe___boxed(lean_object*);
 lean_object* l_Lean_mkRecFor(lean_object*);
 lean_object* l_Lean_ConstantInfo_type___boxed(lean_object*);
 uint8_t l_Lean_ReducibilityHints_lt(lean_object*, lean_object*);
@@ -791,6 +793,71 @@ lean_dec(x_1);
 return x_2;
 }
 }
+uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get_uint8(x_2, sizeof(void*)*1);
+return x_3;
+}
+case 1:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*3);
+return x_5;
+}
+case 3:
+{
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*2);
+return x_7;
+}
+case 5:
+{
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*5 + 1);
+return x_9;
+}
+case 6:
+{
+lean_object* x_10; uint8_t x_11; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get_uint8(x_10, sizeof(void*)*5);
+return x_11;
+}
+case 7:
+{
+lean_object* x_12; uint8_t x_13; 
+x_12 = lean_ctor_get(x_1, 0);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*7 + 1);
+return x_13;
+}
+default: 
+{
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
+}
+}
+}
+}
+lean_object* l_Lean_ConstantInfo_isUnsafe___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_ConstantInfo_isUnsafe(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_ConstantInfo_name(lean_object* x_1) {
 _start:
 {
@@ -949,7 +1016,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_ConstantInfo_value_x21___closed__1;
-x_2 = lean_unsigned_to_nat(258u);
+x_2 = lean_unsigned_to_nat(268u);
 x_3 = lean_unsigned_to_nat(31u);
 x_4 = l_Lean_ConstantInfo_value_x21___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

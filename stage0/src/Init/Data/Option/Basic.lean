@@ -51,6 +51,14 @@ instance : Monad Option :=
 | some a => if p a then some a else none
 | none   => none
 
+@[inline] protected def all {α} (p : α → Bool) : Option α → Bool
+| some a => p a
+| none   => true
+
+@[inline] protected def any {α} (p : α → Bool) : Option α → Bool
+| some a => p a
+| none   => false
+
 @[macroInline] protected def orelse {α : Type u} : Option α → Option α → Option α
 | some a, _ => some a
 | none,   b => b

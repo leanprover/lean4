@@ -192,6 +192,17 @@ def eraseDupsAux {α} [HasBeq α] : List α → List α → List α
 def eraseDups {α} [HasBeq α] (as : List α) : List α :=
 eraseDupsAux as []
 
+def eraseRepsAux {α} [HasBeq α] : α → List α → List α → List α
+| a, [], rs => (a::rs).reverse
+| a, a'::as, rs => match a == a' with
+  | true  => eraseRepsAux a as rs
+  | false => eraseRepsAux a' as (a::rs)
+
+/-- Erase repeated adjacent elements. -/
+def eraseReps {α} [HasBeq α] : List α → List α
+| []    => []
+| a::as => eraseRepsAux a as []
+
 @[specialize] def spanAux (p : α → Bool) : List α → List α → List α × List α
 | [],    rs => (rs.reverse, [])
 | a::as, rs => match p a with
@@ -200,6 +211,16 @@ eraseDupsAux as []
 
 @[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
 spanAux p as []
+
+@[specialize] def groupByAux (eq : α → α → Bool) : List α → List (List α) → List (List α)
+| a::as, (ag::g)::gs => match eq a ag with
+  | true  => groupByAux as ((a::ag::g)::gs)
+  | false => groupByAux as ([a]::(ag::g).reverse::gs)
+| _, gs => gs.reverse
+
+@[specialize] def groupBy (p : α → α → Bool) : List α → List (List α)
+| []    => []
+| a::as => groupByAux p as [[a]]
 
 def lookup [HasBeq α] : α → List (α × β) → Option β
 | _, []        => none

@@ -11076,7 +11076,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9;
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_alloc_ctor(20, 1, 0);
+x_8 = lean_alloc_ctor(21, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_8);

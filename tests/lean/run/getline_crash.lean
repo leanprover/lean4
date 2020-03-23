@@ -29,26 +29,19 @@ IO.FS.withFile path IO.FS.Mode.read $ λ (h : IO.FS.Handle) => do
   unless (str2'.trim == str2) $
     throw (IO.userError ("unexpected result: " ++ str2'))
 
-def tstGetLineFailure1 (str : String) : IO Unit := do
+def tstGetLine3 (str : String) : IO Unit := do
 let path := "tmp_file";
 IO.FS.withFile path IO.FS.Mode.write $ λ (h : IO.FS.Handle) => do {
   h.putStrLn str
 };
 IO.FS.withFile path IO.FS.Mode.read $ λ (h : IO.FS.Handle) => do
-  whenM (catch (do (h.getLine >>= IO.println); (h.getLine >>= IO.println); (h.getLine >>= IO.println); pure true) (fun _ => pure false)) $
-    throw $ IO.userError "unexpected success"
+  (h.getLine >>= IO.println);
+  (h.getLine >>= IO.println);
+  (h.getLine >>= IO.println);
+  IO.print "done";
+  pure ()
 
-def tstGetLineFailure2 (str : String) : IO Unit := do
-let path := "tmp_file";
-IO.FS.withFile path IO.FS.Mode.write $ λ (h : IO.FS.Handle) => do {
-  h.putStrLn str
-};
-IO.FS.withFile path IO.FS.Mode.read $ λ (h : IO.FS.Handle) => do
-  whenM (catch (do (h.getLine >>= IO.println); (h.getLine >>= IO.println); pure true) (fun _ => pure false)) $
-    throw $ IO.userError "unexpected success"
-
-#eval tstGetLineFailure1 "abc"
-#eval tstGetLineFailure2 "abc"
+#eval tstGetLine3 "abc"
 
 #eval tstGetLine ("".pushn 'α' 40)
 #eval tstGetLine "a"

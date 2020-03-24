@@ -51,3 +51,5 @@ end
 #eval check `("hi")
 
 #eval check `((1,2).fst)
+
+#eval check `(1 < 2 || true)

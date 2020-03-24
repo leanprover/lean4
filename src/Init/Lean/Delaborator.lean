@@ -53,6 +53,7 @@ instance HasQuote : HasQuote Level := ⟨Level.quote⟩
 end Level
 
 def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
+def getPPCoercions (o : Options) : Bool := o.get `pp.coercions true
 def getPPExplicit (o : Options) : Bool := o.get `pp.explicit false
 def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections true
 def getPPUniverses (o : Options) : Bool := o.get `pp.universes false
@@ -372,6 +373,12 @@ match l with
 | Literal.natVal n => pure $ quote n
 | Literal.strVal s => pure $ quote s
 
+-- `ofNat 0` ~> `0`
+@[builtinDelab app.HasOfNat.ofNat]
+def delabOfNat : Delab := whenPPOption getPPCoercions $ do
+e@(Expr.app _ (Expr.lit (Literal.natVal n) _) _) ← getExpr | failure;
+pure $ quote n
+
 /--
 Delaborate a projection primitive. These do not usually occur in
 user code, but are pretty-printed when e.g. `#print`ing a projection
@@ -404,6 +411,25 @@ expl ← getPPOption getPPExplicit;
 assert $ !expl || info.nparams == 0;
 appStx ← withAppArg delab;
 `($(appStx).$(mkIdent f):ident)
+
+-- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
+@[builtinDelab app.coe]
+def delabCoe : Delab := whenPPOption getPPCoercions $ do
+e ← getExpr;
+assert $ e.getAppNumArgs >= 4;
+-- delab as application, then discard function
+stx ← delabAppImplicit;
+match_syntax stx with
+| `($fn $args*) =>
+  if args.size == 1 then
+    pure $ args.get! 0
+  else
+    `($(args.get! 0) $(args.eraseIdx 0)*)
+| _             => failure
+
+-- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
+@[builtinDelab app.coeFun]
+def delabCoeFun : Delab := delabCoe
 
 end Delaborator
 

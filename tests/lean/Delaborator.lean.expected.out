@@ -86,15 +86,13 @@
     (Term.id `Bool.true (null)))
    (null))
   ")"))
-(Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "0"))))
-(Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "1"))))
-(Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "42"))))
+(Term.num (numLit "0"))
+(Term.num (numLit "1"))
+(Term.num (numLit "42"))
 (Term.str (strLit "\"hi\""))
-(Term.proj
- (Term.app
-  (Term.id `Prod.mk (null))
-  (null
-   (Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "1"))))
-   (Term.app (Term.id `HasOfNat.ofNat (null)) (null (Term.id `Nat (null)) (Term.num (numLit "2"))))))
- "."
- `fst)
+(Term.proj (Term.app (Term.id `Prod.mk (null)) (null (Term.num (numLit "1")) (Term.num (numLit "2")))) "." `fst)
+(Term.app
+ (Term.id `or (null))
+ (null
+  (Term.app (Term.id `HasLess.Less (null)) (null (Term.num (numLit "1")) (Term.num (numLit "2"))))
+  (Term.id `Bool.true (null))))

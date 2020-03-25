@@ -40,7 +40,7 @@ Required Packages: CMake, GMP
     brew install gmp
 
 
-Optional Packages: ninja
-------------------------
+Recommended Packages: CCache
+----------------------------
 
-    brew install ninja
+    brew install ccache

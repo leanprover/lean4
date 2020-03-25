@@ -8,12 +8,11 @@ Requirements
 Platform-Specific Setup
 -----------------------
 
-- [Linux (Ubuntu)](ubuntu-16.04.md)
+- [Linux (Ubuntu)](ubuntu.md)
 - [Windows (msys2)](msys2.md)
 - [Windows (Visual Studio)](msvc.md)
 - [macOS (homebrew)](osx-10.9.md)
-- Linux/macOS ([Nix](https://nixos.org/nix/)): call `nix-shell` in the project root
-- [Emscripten: lean.js](emscripten.md)
+- Linux/macOS ([Nix](https://nixos.org/nix/)): Call `nix-shell` in the project root. That's it.
 
 Generic Build Instructions
 --------------------------

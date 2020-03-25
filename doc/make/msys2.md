@@ -6,7 +6,7 @@ Lean for Windows
 
 A native Lean binary for Windows can be generated using [msys2].
 It is easy to install all dependencies, it produces native
-64/32-binaries, and supports a C++11 compiler.
+64/32-binaries, and supports a C++14 compiler.
 
 
 ## Installing dependencies
@@ -18,7 +18,7 @@ It has a package management system, [pacman][pacman], which is used in Arch Linu
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake python make git
+pacman -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache git
 ```
 
 Then follow the [generic build instructions](index.md) in the [msys2] shell, using

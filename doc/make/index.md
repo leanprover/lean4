@@ -12,7 +12,7 @@ Platform-Specific Setup
 - [Windows (msys2)](msys2.md)
 - [Windows (Visual Studio)](msvc.md)
 - [macOS (homebrew)](osx-10.9.md)
-- Linux/macOS ([Nix](https://nixos.org/nix/)): Call `nix-shell` in the project root. That's it.
+- Linux/macOS/WSL ([Nix](https://nixos.org/nix/)): Call `nix-shell` in the project root. That's it.
 
 Generic Build Instructions
 --------------------------

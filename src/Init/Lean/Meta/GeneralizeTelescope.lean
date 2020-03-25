@@ -24,8 +24,6 @@ partial def updateTypes (e newE : Expr) : Array Entry → Nat → MetaM (Array E
       typeAbst ← kabstract type e;
       if typeAbst.hasLooseBVars then do
         let typeNew := typeAbst.instantiate1 newE;
-        unlessM (isTypeCorrect typeNew) $
-          throwEx $ Exception.generalizeTelescope (entries.map Entry.expr);
         let entries := entries.set ⟨i, h⟩ { type := typeNew, modified := true, .. entry };
         updateTypes entries (i+1)
       else
@@ -34,21 +32,24 @@ partial def updateTypes (e newE : Expr) : Array Entry → Nat → MetaM (Array E
     pure entries
 
 partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array FVarId → MetaM α) : Array Entry → Nat → Nat → Array FVarId → MetaM α
-| es, i, nextVarIdx, fvarIds =>
-  if h : i < es.size then
+| entries, i, nextVarIdx, fvarIds =>
+  if h : i < entries.size then
     let replace (e : Expr) (type : Expr) : MetaM α := do {
       let userName := prefixForNewVars.appendIndexAfter nextVarIdx;
       withLocalDecl userName type BinderInfo.default $ fun x => do
-        es ← updateTypes e x es (i+1);
-        generalizeTelescopeAux es (i+1) (nextVarIdx+1) (fvarIds.push x.fvarId!)
+        entries ← updateTypes e x entries (i+1);
+        generalizeTelescopeAux entries (i+1) (nextVarIdx+1) (fvarIds.push x.fvarId!)
     };
-    match es.get ⟨i, h⟩ with
+    match entries.get ⟨i, h⟩ with
     | ⟨e@(Expr.fvar fvarId _), type, false⟩ => do
       localDecl ← getLocalDecl fvarId;
       match localDecl with
-      | LocalDecl.cdecl _ _ _ _ _ => generalizeTelescopeAux es (i+1) nextVarIdx (fvarIds.push fvarId)
+      | LocalDecl.cdecl _ _ _ _ _ => generalizeTelescopeAux entries (i+1) nextVarIdx (fvarIds.push fvarId)
       | LocalDecl.ldecl _ _ _ _ _ => replace e type
-    | ⟨e, type, _⟩ => replace e type
+    | ⟨e, type, modified⟩ => do
+      when modified $ unlessM (isTypeCorrect type) $
+        throwEx $ Exception.generalizeTelescope (entries.map Entry.expr);
+      replace e type
   else
     k fvarIds
 

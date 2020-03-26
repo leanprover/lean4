@@ -285,3 +285,19 @@ def adapt {m m' σ σ'} {n n' : Type → Type} [MonadFunctor m m' n n'] [MonadSt
 ⟨fun split join => monadMap (adaptState split join : m α → m' α)⟩
 
 -/
+
+syntax "fn" (term:max)+ "=>" term : term
+
+macro_rules
+| `(fn $xs* => $b) => `(fun $xs* => $b)
+
+set_option pp.all false
+
+#check fn x => x+1
+
+#check fn α (a : α) => a
+
+def tst1 : {α : Type} → α → α :=
+@(fn α a => a)
+
+#check @tst1

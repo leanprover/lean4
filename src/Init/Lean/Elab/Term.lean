@@ -812,6 +812,9 @@ match implicit? with
 | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
 | none              => elabTermAux expectedType? catchExPostpone stx
 
+def elabTermWithoutImplicitLambdas (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
+elabTermAux expectedType? catchExPostpone stx
+
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
 fun stx expectedType? => do

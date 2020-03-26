@@ -508,6 +508,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     elabAppFnId ref id us lvals namedArgs args expectedType? explicit acc
   | `(@$id:id) =>
     elabAppFn id lvals namedArgs args expectedType? true acc
+  | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
   | _ => do
     s ← observing $ do {
       f ← elabTerm f none;
@@ -586,29 +587,10 @@ fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 
 @[builtinTermElab explicit] def elabExplicit : TermElab :=
 fun stx expectedType? => match_syntax stx with
-  | `(@$f:fun)           => elabFun f expectedType? -- This rule is just a convenience for macro writers, the LHS cannot be built by the parser
-  | `(@($f:fun))         => elabFun f expectedType? -- Elaborate lambda abstraction `f`.
-  | `(@($f:fun : $type)) => do  -- Elaborate lambda abstraction `f` using `type` as the expected type.
-    type ← elabType type;
-    f ← elabFun f type;
-    ensureHasType stx type f
-  | `(@$id:id)          => elabAtom stx expectedType?
-  /- Remark: we may support other occurrences `@` in the future, but we did not find compelling applications for them yet.
-     One instance we considered that is barely useful: applications. We found the behavior counterintuitive.
-     Example:
-     ```lean
-     def g1 {α} (a₁ a₂ : α) {β} (b : β) : α × α × β :=
-     (a₁, a₂, b)
-     #check @(g1 true) -- α → {β : Type} → β → α × α × β
-     ```
-     The example above is reasonable, but we say this feautre would produce counterintuitive because of the following small variant
-     ```lean
-     def g2 {α} (a : α) {β} (b : β) : α × β :=
-     (a, b)
-     #check @(g2 true) -- ?β → α × ?β
-     ```
-     That is, `g2 true` "consumed" the arguments `{α} (a : α) {β}` as expected. -/
-  | _                   => throwUnsupportedSyntax
+  | `(@$id:id) => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@($t))   => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
+  | `(@$t)     => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
+  | _          => throwUnsupportedSyntax
 
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom

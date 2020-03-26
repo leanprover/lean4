@@ -301,3 +301,18 @@ def tst1 : {α : Type} → α → α :=
 @(fn α a => a)
 
 #check @tst1
+
+syntax ident "==>" term : term
+
+macro_rules
+| `($x:ident ==> $b) => `(fn $x => $b)
+
+#check x ==> x+1
+
+def tst2 : {α : Type} → α → α :=
+@(α ==> a ==> a)
+
+#check @tst2
+
+def tst3 : {α : Type} → {β : Type} → α → β → α × β :=
+@(α ==> @(β ==> a ==> b ==> (a, b)))

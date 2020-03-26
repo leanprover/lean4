@@ -39,10 +39,9 @@ The unification constraint is easily solved
 #check foo id true  -- works
 #check foo @id true -- works
 #check foo (fun b => b) true -- works
-#check foo (fun {β} b => b) true -- works
+#check foo @(fun β b => b) true -- works
 #check_failure foo @(fun b => b) true     -- fails as expected, and error message is clear
 #check foo @(fun β b => b) true   -- works (implicit lambdas were disabled)
-#check foo @(fun {β} b => b) true -- works (implicit lambdas were disabled)
 
 
 set_option pp.all true

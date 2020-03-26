@@ -20,7 +20,7 @@ def tst2 : TermElabM Unit := do
 opt ← getOptions;
 let a := mkTermId `a;
 let b := mkTermId `b;
-stx ← `((fun {$a : Type} (x : $a) => @id $a x) 1);
+stx ← `((fun ($a : Type) (x : $a) => @id $a x) _ 1);
 e ← elabTermAndSynthesize stx none;
 logDbgTrace (">>> " ++ e);
 throwErrorIfErrors

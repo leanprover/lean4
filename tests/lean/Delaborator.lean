@@ -41,8 +41,8 @@ end
 #eval check `(fun (a : Nat) => a)
 #eval check `(fun (a b : Nat) => a)
 #eval check `(fun (a : Nat) (b : Bool) => a)
-#eval check `(@(fun {a b : Nat} => a))
-#eval check `(@(fun {α} [HasToString α] => true))
+#eval check `(@(fun (a b : Nat) => a))
+#eval check `(@(fun α (s : HasToString α) => true))
 
 -- TODO: hide `ofNat`
 #eval check `(0)

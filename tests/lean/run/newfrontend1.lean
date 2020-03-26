@@ -250,16 +250,16 @@ def id4 : {α : Type} → α → α :=
 fun x => id1 x
 
 def id5 : {α : Type} → α → α :=
-@(fun α x => id1 x)
+fun {α} x => id1 x
 
 def id6 : {α : Type} → α → α :=
-@(fun α x => id1 x)
+@(fun {α} x => id1 x)
 
 def id7 : {α : Type} → α → α :=
-@(fun α x => @id α x)
+fun {α} x => @id α x
 
 def id8 : {α : Type} → α → α :=
-@(fun α x => id (@id α x))
+fun {α} x => id (@id α x)
 
 def altTst1 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 ⟨StateT.failure, StateT.orelse⟩
@@ -268,7 +268,7 @@ def altTst2 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 ⟨@(fun α => StateT.failure), @(fun α => StateT.orelse)⟩
 
 def altTst3 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
-⟨@(fun α => StateT.failure), @(fun α => StateT.orelse)⟩
+⟨fun {α} => StateT.failure, fun {α} => StateT.orelse⟩
 
 def altTst4 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 ⟨@StateT.failure _ _ _ _, @StateT.orelse _ _ _ _⟩
@@ -308,18 +308,28 @@ def tst1 : {α : Type} → α → α :=
 
 syntax ident "==>" term : term
 
+syntax "{" ident "}" "==>" term : term
+
 macro_rules
-| `($x:ident ==> $b) => `(fn $x => $b)
+| `($x:ident ==> $b)   => `(fn $x => $b)
+| `({$x:ident} ==> $b) => `(fun {$x:ident} => $b)
 
 #check x ==> x+1
 
-def tst2 : {α : Type} → α → α :=
+def tst2a : {α : Type} → α → α :=
 @(α ==> a ==> a)
 
-#check @tst2
+def tst2b : {α : Type} → α → α :=
+{α} ==> a ==> a
 
-def tst3 : {α : Type} → {β : Type} → α → β → α × β :=
+#check @tst2a
+#check @tst2b
+
+def tst3a : {α : Type} → {β : Type} → α → β → α × β :=
 @(α ==> @(β ==> a ==> b ==> (a, b)))
+
+def tst3b : {α : Type} → {β : Type} → α → β → α × β :=
+{α} ==> {β} ==> a ==> b ==> (a, b)
 
 syntax "function" (term:max)+ "=>" term : term
 

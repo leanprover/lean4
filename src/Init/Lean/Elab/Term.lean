@@ -751,10 +751,18 @@ private def isExplicitApp (stx : Syntax) : Bool :=
 stx.getKind == `Lean.Parser.Term.app && isExplicit (stx.getArg 0)
 
 /--
+  Return true if `stx` if a lambda abstraction containing a `{}` or `[]` binder annotation.
+  Example: `fun {α} (a : α) => a` -/
+private def isLambdaWithImplicit (stx : Syntax) : Bool :=
+match_syntax stx with
+| `(fun $binders* => $body) => binders.any $ fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
+| _                         => false
+
+/--
   Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β`, and
   `stx` is not `@f` nor `@f arg1 ...` -/
 def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) (implicitLambda : Bool) : TermElabM (Option Expr) :=
-if !implicitLambda || isExplicit stx || isExplicitApp stx then pure none
+if !implicitLambda || isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx then pure none
 else match expectedType? with
   | some expectedType => do
     expectedType ← whnfForall stx expectedType;

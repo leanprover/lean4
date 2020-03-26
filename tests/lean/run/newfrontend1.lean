@@ -220,8 +220,12 @@ rfl
 
 set_option pp.all true
 
-#check fun α (a : α) => a
+#check fun {α} (a : α) => a
 #check @(fun α (a : α) => a)
+
+#check
+  let myid := fun {α} (a : α) => a;
+  myid [myid 1]
 
 -- In the following example, we need `@` otherwise we will try to insert mvars for α and [HasAdd α],
 -- and will fail to generate instance for [HasAdd α]

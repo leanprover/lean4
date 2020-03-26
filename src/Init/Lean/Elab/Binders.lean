@@ -232,6 +232,8 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
       pure (binders, newBody)
     };
     match binder with
+    | Syntax.node `Lean.Parser.Term.implicitBinder _ => expandFunBindersAux body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.instBinder _     => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.hole _ => do
       ident ← mkFreshAnonymousIdent binder;
       let type := binder;

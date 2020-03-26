@@ -316,3 +316,11 @@ def tst2 : {α : Type} → α → α :=
 
 def tst3 : {α : Type} → {β : Type} → α → β → α × β :=
 @(α ==> @(β ==> a ==> b ==> (a, b)))
+
+syntax "function" (term:max)+ "=>" term : term
+
+macro_rules
+| `(function $xs* => $b) => `(@(fun $xs* => $b))
+
+def tst4 : {α : Type} → {β : Type} → α → β → α × β :=
+function α β a b => (a, b)

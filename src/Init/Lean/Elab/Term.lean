@@ -696,7 +696,7 @@ pure mvar
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
-private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
+private def elabUsingElabFnsAux (s : State) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
 | []                => do
   let refFmt := stx.prettyPrint;
@@ -704,7 +704,7 @@ private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Exp
 | (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with
     | Exception.ex (Elab.Exception.error errMsg)    => do ctx ← read; if ctx.errToSorry then exceptionToSorry stx errMsg expectedType? else throw ex
-    | Exception.ex Elab.Exception.unsupportedSyntax => do set s; elabTermUsing elabFns
+    | Exception.ex Elab.Exception.unsupportedSyntax => do set s; elabUsingElabFnsAux elabFns
     | Exception.postpone          =>
       if catchExPostpone then do
         /- If `elab` threw `Exception.postpone`, we reset any state modifications.
@@ -726,6 +726,14 @@ private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Exp
         else
           throw ex)
 
+def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
+s ← get;
+let table := (termElabAttribute.ext.getState s.env).table;
+let k := stx.getKind;
+match table.find? k with
+| some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
+| none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+
 instance : MonadMacroAdapter TermElabM :=
 { getEnv                 := getEnv,
   getCurrMacroScope      := getCurrMacroScope,
@@ -733,25 +741,6 @@ instance : MonadMacroAdapter TermElabM :=
   setNextMacroScope      := fun next => modify $ fun s => { nextMacroScope := next, .. s },
   throwError             := @throwError,
   throwUnsupportedSyntax := @throwUnsupportedSyntax}
-
-/- Main loop for `elabTerm` -/
-partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) : Syntax → TermElabM Expr
-| stx => withFreshMacroScope $ withIncRecDepth stx $ do
-  trace `Elab.step stx $ fun _ => expectedType? ++ " " ++ stx;
-  s ← get;
-  stxNew? ← catch
-    (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
-    (fun ex => match ex with
-      | Exception.ex Elab.Exception.unsupportedSyntax => pure none
-      | _                                             => throw ex);
-  match stxNew? with
-  | some stxNew => withMacroExpansion stx stxNew $ elabTermAux stxNew
-  | _ =>
-    let table := (termElabAttribute.ext.getState s.env).table;
-    let k := stx.getKind;
-    match table.find? k with
-    | some elabFns => elabTermUsing s stx expectedType? catchExPostpone elabFns
-    | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 private def isExplicit (stx : Syntax) : Bool :=
 match_syntax stx with
@@ -764,8 +753,8 @@ stx.getKind == `Lean.Parser.Term.app && isExplicit (stx.getArg 0)
 /--
   Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β`, and
   `stx` is not `@f` nor `@f arg1 ...` -/
-def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
-if isExplicit stx || isExplicitApp stx then pure none
+def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) (implicitLambda : Bool) : TermElabM (Option Expr) :=
+if !implicitLambda || isExplicit stx || isExplicitApp stx then pure none
 else match expectedType? with
   | some expectedType => do
     expectedType ← whnfForall stx expectedType;
@@ -775,7 +764,7 @@ else match expectedType? with
   | _         => pure $ none
 
 def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
-body ← elabTermAux expectedType catchExPostpone stx;
+body ← elabUsingElabFns stx expectedType catchExPostpone;
 -- body ← ensureHasType stx expectedType body;
 r ← mkLambda stx fvars body;
 trace `Elab.implicitForall stx $ fun _ => r;
@@ -793,6 +782,24 @@ partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr �
 | type, fvars =>
   elabImplicitLambdaAux stx catchExPostpone type fvars
 
+/- Main loop for `elabTerm` -/
+partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
+| stx => withFreshMacroScope $ withIncRecDepth stx $ do
+  trace `Elab.step stx $ fun _ => expectedType? ++ " " ++ stx;
+  s ← get;
+  stxNew? ← catch
+    (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
+    (fun ex => match ex with
+      | Exception.ex Elab.Exception.unsupportedSyntax => pure none
+      | _                                             => throw ex);
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabTermAux stxNew
+  | _ => do
+    implicit? ← useImplicitLambda? stx expectedType? implicitLambda;
+    match implicit? with
+    | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
+    | none              => elabUsingElabFns stx expectedType? catchExPostpone
+
 /--
   Main function for elaborating terms.
   It extracts the elaboration methods from the environment using the node kind.
@@ -806,14 +813,11 @@ partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr �
   and returned.
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
-implicit? ← useImplicitLambda? stx expectedType?;
-match implicit? with
-| some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
-| none              => elabTermAux expectedType? catchExPostpone stx
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
+elabTermAux expectedType? catchExPostpone true stx
 
 def elabTermWithoutImplicitLambdas (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
-elabTermAux expectedType? catchExPostpone stx
+elabTermAux expectedType? catchExPostpone false stx
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=

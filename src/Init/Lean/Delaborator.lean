@@ -321,11 +321,11 @@ match e with
 | Expr.forallE _ _ e'@(Expr.forallE _ _ _ _) _ => go e'
 | _ => pure false
 
-private partial def delabLamAux : Array Syntax → Array Syntax → Delab
--- Accumulate finished binder groups `(a b : Nat) (c : Bool) ...` and names
--- (`Syntax.ident`s with position information) of the current, unfinished
--- binder group `(d e ...)`.
-| binderGroups, curNames => do
+private partial def delabLamAux : Array Syntax → Delab
+-- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
+-- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
+-- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
+| curNames => do
   ppTypes ← getPPOption getPPBinderTypes;
   e@(Expr.lam n t body _) ← getExpr | unreachable!;
   lctx ← liftM $ getLCtx;
@@ -334,7 +334,7 @@ private partial def delabLamAux : Array Syntax → Array Syntax → Delab
   let curNames := curNames.push stxN;
   condM shouldGroupWithNext
     -- group with nested binder => recurse immediately
-    (withBindingBody n $ delabLamAux binderGroups curNames) $
+    (withBindingBody n $ delabLamAux curNames) $
     -- don't group => finish current binder group
     do
       stxT ← withBindingDomain delab;
@@ -352,17 +352,14 @@ private partial def delabLamAux : Array Syntax → Array Syntax → Delab
         -- here `curNames == #[stxN]`
         | BinderInfo.instImplicit, _     => `(funBinder| ($stxN : $stxT))
         | _                      , _     => unreachable!;
-      let binderGroups := binderGroups.push group;
-      withBindingBody n $
-        if body.isLambda then
-          delabLamAux binderGroups #[]
-        else do
-          stxBody ← delab;
-          `(@(fun $binderGroups* => $stxBody))
+      stxBody ← withBindingBody n delab;
+      match_syntax stxBody with
+      | `(@(fun $binderGroups* => $stxBody)) => `(@(fun $group $binderGroups* => $stxBody))
+      | _                                    => `(@(fun $group => $stxBody))
 
 @[builtinDelab lam]
 def delabExplicitLam : Delab :=
-delabLamAux #[] #[]
+delabLamAux #[]
 
 -- TODO: implicit lambdas
 

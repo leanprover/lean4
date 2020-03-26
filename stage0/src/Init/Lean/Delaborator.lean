@@ -347,10 +347,10 @@ private partial def delabLamAux : Array Syntax → Array Syntax → Delab
             else pure $ curNames.get! 0;
           `(funBinder| ($stxCurNames : $stxT))
         | BinderInfo.default,     false  => pure $ mkTermIdFromIdent stxN  -- here `curNames == #[stxN]`
-        | BinderInfo.implicit,    true   => `(funBinder| {$curNames* : $stxT})
-        | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
+        | BinderInfo.implicit,    true   => `(funBinder| ($curNames* : $stxT))
+        | BinderInfo.implicit,    false  => `(funBinder| ($curNames*))
         -- here `curNames == #[stxN]`
-        | BinderInfo.instImplicit, _     => `(funBinder| [$stxN : $stxT])
+        | BinderInfo.instImplicit, _     => `(funBinder| ($stxN : $stxT))
         | _                      , _     => unreachable!;
       let binderGroups := binderGroups.push group;
       withBindingBody n $

@@ -27,8 +27,8 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabMatch(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___closed__1;
 lean_object* l_Lean_Elab_Term_throwUnsupportedSyntax___rarg(lean_object*);
-lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___closed__3;
+lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_let___elambda__1___closed__2;
 extern lean_object* l_Lean_nullKind___closed__2;
@@ -159,7 +159,7 @@ lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_30);
 lean_ctor_set(x_6, 8, x_32);
 x_33 = 1;
-x_34 = l_Lean_Elab_Term_elabTerm(x_28, x_5, x_33, x_6, x_11);
+x_34 = l_Lean_Elab_Term_elabTermAux___main(x_5, x_33, x_33, x_28, x_6, x_11);
 return x_34;
 }
 else
@@ -211,7 +211,7 @@ lean_ctor_set_uint8(x_50, sizeof(void*)*10, x_45);
 lean_ctor_set_uint8(x_50, sizeof(void*)*10 + 1, x_46);
 lean_ctor_set_uint8(x_50, sizeof(void*)*10 + 2, x_47);
 x_51 = 1;
-x_52 = l_Lean_Elab_Term_elabTerm(x_28, x_5, x_51, x_50, x_11);
+x_52 = l_Lean_Elab_Term_elabTermAux___main(x_5, x_51, x_51, x_28, x_50, x_11);
 return x_52;
 }
 }
@@ -296,7 +296,7 @@ lean_ctor_set(x_40, 0, x_39);
 lean_ctor_set(x_40, 1, x_38);
 lean_ctor_set(x_7, 8, x_40);
 x_41 = 1;
-x_42 = l_Lean_Elab_Term_elabTerm(x_36, x_6, x_41, x_7, x_12);
+x_42 = l_Lean_Elab_Term_elabTermAux___main(x_6, x_41, x_41, x_36, x_7, x_12);
 return x_42;
 }
 else
@@ -348,7 +348,7 @@ lean_ctor_set_uint8(x_58, sizeof(void*)*10, x_53);
 lean_ctor_set_uint8(x_58, sizeof(void*)*10 + 1, x_54);
 lean_ctor_set_uint8(x_58, sizeof(void*)*10 + 2, x_55);
 x_59 = 1;
-x_60 = l_Lean_Elab_Term_elabTerm(x_36, x_6, x_59, x_58, x_12);
+x_60 = l_Lean_Elab_Term_elabTermAux___main(x_6, x_59, x_59, x_36, x_58, x_12);
 return x_60;
 }
 }

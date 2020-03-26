@@ -71,12 +71,12 @@ lean_object* l_Lean_Elab_Term_throwUnsupportedSyntax___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_DefKind_isTheorem___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_expandDeclId(lean_object*);
 uint8_t l_Lean_Elab_Command_DefKind_isDefOrAbbrevOrOpaque(uint8_t);
-lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_declValSimple___elambda__1___closed__2;
 extern lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__7;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__1;
+lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_logTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabDefLike___spec__4(lean_object*, lean_object*, lean_object*);
@@ -2185,7 +2185,7 @@ lean_dec(x_1);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_2);
 x_16 = 1;
-x_17 = l_Lean_Elab_Term_elabTerm(x_14, x_15, x_16, x_3, x_4);
+x_17 = l_Lean_Elab_Term_elabTermAux___main(x_15, x_16, x_16, x_14, x_3, x_4);
 return x_17;
 }
 }

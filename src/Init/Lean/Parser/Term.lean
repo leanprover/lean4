@@ -96,7 +96,7 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" leadPrec >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
 
-def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
+def funBinder : Parser := termParser appPrec
 @[builtinTermParser] def «fun» := parser! unicodeSymbol "λ" "fun" leadPrec >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=

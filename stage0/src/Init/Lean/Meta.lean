@@ -20,3 +20,4 @@ import Init.Lean.Meta.Tactic
 import Init.Lean.Meta.Message
 import Init.Lean.Meta.KAbstract
 import Init.Lean.Meta.RecursorInfo
+import Init.Lean.Meta.GeneralizeTelescope

@@ -75,6 +75,7 @@ def toMessageData : Exception → MessageData
 | appBuilder op msg args ctx      => mkCtx ctx $ "application builder failure " ++ op ++ " " ++ args ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ "failed to synthesize" ++ indentExpr inst
 | tactic tacName mvarId msg ctx   => mkCtx ctx $ "tactic '" ++ tacName ++ "' failed, " ++ msg ++ Format.line ++ MessageData.ofGoal mvarId
+| generalizeTelescope es ctx      => mkCtx ctx $ "failed to create telescope generalizing " ++ es
 | kernel ex opts                  => ex.toMessageData opts
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s

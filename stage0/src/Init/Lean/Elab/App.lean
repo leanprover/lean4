@@ -496,10 +496,10 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
   else match_syntax f with
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!;
-    elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
+    elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
   | `($(e).$field:ident) =>
     let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName (toString n));
-    elabAppFn (f.getArg 0) (newLVals ++ lvals) namedArgs args expectedType? explicit acc
+    elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit acc
   | `($e[$idx]) =>
     elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
   | `($id:ident$us:explicitUniv*) => do
@@ -586,11 +586,11 @@ fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
 
 @[builtinTermElab explicit] def elabExplicit : TermElab :=
 fun stx expectedType? => match_syntax stx with
-  | `(@$f:fun)           => elabFunCore f expectedType? true -- This rule is just a convenience for macro writers, the LHS cannot be built by the parser
-  | `(@($f:fun))         => elabFunCore f expectedType? true -- Elaborate lambda abstraction `f` pretending all binders are explicit.
-  | `(@($f:fun : $type)) => do  -- Elaborate lambda abstraction `f` using `type` as the expected type, and pretending all binders are explicit.
+  | `(@$f:fun)           => elabFun f expectedType? -- This rule is just a convenience for macro writers, the LHS cannot be built by the parser
+  | `(@($f:fun))         => elabFun f expectedType? -- Elaborate lambda abstraction `f`.
+  | `(@($f:fun : $type)) => do  -- Elaborate lambda abstraction `f` using `type` as the expected type.
     type ← elabType type;
-    f ← elabFunCore f type true;
+    f ← elabFun f type;
     ensureHasType stx type f
   | `(@$id:id)          => elabAtom stx expectedType?
   /- Remark: we may support other occurrences `@` in the future, but we did not find compelling applications for them yet.

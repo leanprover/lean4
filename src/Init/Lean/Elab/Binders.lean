@@ -161,7 +161,7 @@ private partial def elabBindersAux (binders : Array Syntax)
     pure (fvars, lctx, localInsts)
 
 /--
-  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracktedBinder`),
+  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
   execute `x` with the updated context. -/
 def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α :=
@@ -191,7 +191,7 @@ adaptExpander $ fun stx => match_syntax stx with
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
 fun stx _ =>
-  -- bracktedBinder `->` term
+  -- bracketedBinder `->` term
   let binder := stx.getArg 0;
   let term   := stx.getArg 2;
   elabBinders #[binder] $ fun xs => do

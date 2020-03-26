@@ -42,8 +42,8 @@ def «unsafe»         := parser! "unsafe "
 def «partial»        := parser! "partial "
 def declModifiers    := parser! optional docComment >> optional «attributes» >> optional visibility >> optional «noncomputable» >> optional «unsafe» >> optional «partial»
 def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-def declSig          := parser! many Term.bracktedBinder >> Term.typeSpec
-def optDeclSig       := parser! many Term.bracktedBinder >> Term.optType
+def declSig          := parser! many Term.bracketedBinder >> Term.typeSpec
+def optDeclSig       := parser! many Term.bracketedBinder >> Term.optType
 def declValSimple    := parser! " := " >> termParser
 def declValEqns      := parser! Term.matchAlts false
 def declVal          := declValSimple <|> declValEqns
@@ -68,7 +68,7 @@ def structCtor           := parser! ident >> optional inferMod >> " :: "
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
-def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracktedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
+def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
 
 @[builtinCommandParser] def declaration := parser!
 declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
@@ -76,8 +76,8 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def «section»      := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := parser! "namespace " >> ident
 @[builtinCommandParser] def «end»          := parser! "end " >> optional ident
-@[builtinCommandParser] def «variable»     := parser! "variable " >> Term.bracktedBinder
-@[builtinCommandParser] def «variables»    := parser! "variables " >> many1 Term.bracktedBinder
+@[builtinCommandParser] def «variable»     := parser! "variable " >> Term.bracketedBinder
+@[builtinCommandParser] def «variables»    := parser! "variables " >> many1 Term.bracketedBinder
 @[builtinCommandParser] def «universe»     := parser! "universe " >> ident
 @[builtinCommandParser] def «universes»    := parser! "universes " >> many1 ident
 @[builtinCommandParser] def check          := parser! "#check " >> termParser

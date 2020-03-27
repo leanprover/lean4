@@ -125,14 +125,14 @@ match hType₁.eq?, hType₂.eq? with
   | _ => throwEx $ Exception.appBuilder `congr "non-dependent function expected" #[h₁, h₂]
 | _, _ => throwEx $ Exception.appBuilder `congr "equality proof expected" #[h₁, h₂]
 
-private def mkAppMFinal (f : Expr) (args : Array Expr) (instMVars : Array MVarId) : MetaM Expr := do
+private def mkAppMFinal (methodName : Name) (f : Expr) (args : Array Expr) (instMVars : Array MVarId) : MetaM Expr := do
 instMVars.forM $ fun mvarId => do {
   mvarDecl ← getMVarDecl mvarId;
   mvarVal  ← synthInstance mvarDecl.type;
   assignExprMVar mvarId mvarVal
 };
 result ← instantiateMVars (mkAppN f args);
-whenM (hasAssignableMVar result) $ throwEx $ Exception.appBuilder `mkAppM "result contains metavariables" #[result];
+whenM (hasAssignableMVar result) $ throwEx $ Exception.appBuilder methodName "result contains metavariables" #[result];
 pure result
 
 private partial def mkAppMAux (f : Expr) (xs : Array Expr) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr
@@ -149,24 +149,74 @@ private partial def mkAppMAux (f : Expr) (xs : Array Expr) : Nat → Array Expr 
         (mkAppMAux (i+1) (args.push x) j instMVars b)
         (throwEx $ Exception.appTypeMismatch (mkAppN f args) x)
     else
-      mkAppMFinal f args instMVars
+      mkAppMFinal `mkAppM f args instMVars
 | i, args, j, instMVars, type => do
   let type := type.instantiateRevRange j args.size args;
   type ← whnfD type;
   if type.isForall then
     mkAppMAux i args args.size instMVars type
   else if i == xs.size then
-    mkAppMFinal f args instMVars
+    mkAppMFinal `mkAppM f args instMVars
   else
     throwEx $ Exception.appBuilder `mkAppM "too many explicit arguments provided" (#[f] ++ xs)
 
+private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
+cinfo ← getConstInfo constName;
+us ← cinfo.lparams.mapM $ fun _ => mkFreshLevelMVar;
+let f := mkConst constName us;
+let fType := cinfo.instantiateTypeLevelParams us;
+pure (f, fType)
+
 def mkAppM (constName : Name) (xs : Array Expr) : MetaM Expr :=
 traceCtx `Meta.appBuilder $ withNewMCtxDepth $ do
-  cinfo ← getConstInfo constName;
-  us ← cinfo.lparams.mapM $ fun _ => mkFreshLevelMVar;
-  let f := mkConst constName us;
-  let fType := cinfo.instantiateTypeLevelParams us;
+  (f, fType) ← mkFun constName;
   mkAppMAux f xs 0 #[] 0 #[] fType
+
+private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr
+| i, args, j, instMVars, Expr.forallE n d b c => do
+  let d  := d.instantiateRevRange j args.size args;
+  if h : i < xs.size then do
+    match xs.get ⟨i, h⟩ with
+    | none =>
+      match c.binderInfo with
+      | BinderInfo.instImplicit => do mvar ← mkFreshExprMVar d n MetavarKind.synthetic; mkAppOptMAux (i+1) (args.push mvar) j (instMVars.push mvar.mvarId!) b
+      | _                       => do mvar ← mkFreshExprMVar d n; mkAppOptMAux (i+1) (args.push mvar) j instMVars b
+    | some x => do
+      xType ← inferType x;
+        condM (isDefEq d xType)
+          (mkAppOptMAux (i+1) (args.push x) j instMVars b)
+          (throwEx $ Exception.appTypeMismatch (mkAppN f args) x)
+  else
+    mkAppMFinal `mkAppOptM f args instMVars
+| i, args, j, instMVars, type => do
+  let type := type.instantiateRevRange j args.size args;
+  type ← whnfD type;
+  if type.isForall then
+    mkAppOptMAux i args args.size instMVars type
+  else if i == xs.size then
+    mkAppMFinal `mkAppOptM f args instMVars
+  else do
+    let xs : Array Expr := xs.foldl (fun r x? => match x? with | none => r | some x => r.push x) #[];
+    throwEx $ Exception.appBuilder `mkAppOptM "too many arguments provided" (#[f] ++ xs)
+
+/--
+  Similar to `mkAppM`, but it allows us to specify which arguments are provided explicitly using `Option` type.
+  Example:
+  Given `HasPure.pure {m : Type u → Type v} [HasPure m] {α : Type u} (a : α) : m α`,
+  ```
+  mkAppOptM `HasPure.pure #[m, none, none, a]
+  ```
+  returns a `HasPure.pure` application if the instance `HasPure m` can be synthesized, and the universes match.
+  Note that,
+  ```
+  mkAppM `HasPure.pure #[a]
+  ```
+  fails because the only explicit argument `(a : α)` is not sufficient for inferring the remaining arguments,
+  we would need the expected type. -/
+def mkAppOptM (constName : Name) (xs : Array (Option Expr)) : MetaM Expr :=
+traceCtx `Meta.appBuilder $ withNewMCtxDepth $ do
+  (f, fType) ← mkFun constName;
+  mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 def mkEqNDRec (motive h1 h2 : Expr) : MetaM Expr :=
 if h2.isAppOf `Eq.refl then pure h1
@@ -217,6 +267,9 @@ match type.eq? with
       u ← getLevel target;
       pure $ mkAppN (mkConst (mkNameStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
     | _ => throwEx $ Exception.appBuilder `noConfusion "inductive type expected" #[α]
+
+def mkPure (m : Expr) (e : Expr) : MetaM Expr := do
+mkAppOptM `HasPure.pure #[m, none, none, e]
 
 end Meta
 end Lean

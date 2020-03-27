@@ -2,6 +2,7 @@ import Init.Lean
 open Lean
 open Lean.Elab
 open Lean.Elab.Term
+open Lean.Format
 
 def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
 stx ← stx;
@@ -11,7 +12,7 @@ stx' ← liftMetaM stx $ delab e opts optionsPerPos;
 dbgTrace $ toString stx';
 e' ← elabTermAndSynthesize stx' none <* throwErrorIfErrors;
 unlessM (isDefEq stx e e') $
-  throwError stx "failed to round-trip"
+  throwError stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
 -- #eval check `(?m)  -- fails round-trip
 
@@ -38,11 +39,18 @@ section
 end
 #eval check `(id (id Nat)) (RBMap.empty.insert 4 $ KVMap.empty.insert `pp.explicit true)
 
+-- specify the expected type of `a` in a way that is not erased by the delaborator
+def typeAs.{u} (α : Type u) (a : α) := ()
+
 #eval check `(fun (a : Nat) => a)
 #eval check `(fun (a b : Nat) => a)
 #eval check `(fun (a : Nat) (b : Bool) => a)
-#eval check `(@(fun (a b : Nat) => a))
-#eval check `(@(fun α (s : HasToString α) => true))
+#eval check `(fun {a b : Nat} => a)
+-- implicit lambdas work as long as the expected type is preserved
+#eval check `(typeAs ({α : Type} → (a : α) → α) (fun a => a))
+section set_option pp.explicit true
+  #eval check `(fun {α : Type} [HasToString α] (a : α) => toString a)
+end
 
 #eval check `((α : Type) → α)
 #eval check `((α β : Type) → α)  -- group

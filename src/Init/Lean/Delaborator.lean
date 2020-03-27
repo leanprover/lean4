@@ -29,6 +29,7 @@ prelude
 import Init.Lean.KeyedDeclsAttribute
 import Init.Lean.ProjFns
 import Init.Lean.Syntax
+import Init.Lean.Elab.Term
 
 namespace Lean
 
@@ -348,29 +349,36 @@ private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab
     (withBindingBody n delab >>= delabGroup curNames)
 
 @[builtinDelab lam]
-def delabExplicitLam : Delab :=
+def delabLam : Delab :=
 delabBinders $ fun curNames stxBody => do
   e ← getExpr | unreachable!;
   stxT ← withBindingDomain delab;
   ppTypes ← getPPOption getPPBinderTypes;
-  group ← match e.binderInfo, ppTypes with
-    | BinderInfo.default,     true   => do
-      -- "default" binder group is the only one that expects binder names
-      -- as a term, i.e. a single `Term.id` or an application thereof
-      let curNames := curNames.map mkTermIdFromIdent;
-      stxCurNames ← if curNames.size > 1 then `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
-        else pure $ curNames.get! 0;
-      `(funBinder| ($stxCurNames : $stxT))
-    | BinderInfo.default,     false  => pure $ mkTermIdFromIdent curNames.back  -- here `curNames.size == 1`
-    | BinderInfo.implicit,    true   => `(funBinder| {$curNames* : $stxT})
-    | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
-    | BinderInfo.instImplicit, _     => `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
-    | _                      , _     => unreachable!;
-  match_syntax stxBody with
-  | `(@(fun $binderGroups* => $stxBody)) => `(@(fun $group $binderGroups* => $stxBody))
-  | _                                    => `(@(fun $group => $stxBody))
-
--- TODO: implicit lambdas
+  expl ← getPPOption getPPExplicit;
+  -- leave lambda implicit if possible
+  let blockImplicitLambda := expl ||
+    e.binderInfo == BinderInfo.default ||
+    Elab.Term.blockImplicitLambda stxBody ||
+    curNames.any (fun n => hasIdent n.getId stxBody);
+  if !blockImplicitLambda then
+    pure stxBody
+  else do
+    group ← match e.binderInfo, ppTypes with
+      | BinderInfo.default,     true   => do
+        -- "default" binder group is the only one that expects binder names
+        -- as a term, i.e. a single `Term.id` or an application thereof
+        let curNames := curNames.map mkTermIdFromIdent;
+        stxCurNames ← if curNames.size > 1 then `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
+          else pure $ curNames.get! 0;
+        `(funBinder| ($stxCurNames : $stxT))
+      | BinderInfo.default,     false  => pure $ mkTermIdFromIdent curNames.back  -- here `curNames.size == 1`
+      | BinderInfo.implicit,    true   => `(funBinder| {$curNames* : $stxT})
+      | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
+      | BinderInfo.instImplicit, _     => `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
+      | _                      , _     => unreachable!;
+    match_syntax stxBody with
+    | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
+    | _                                 => `(fun $group => $stxBody)
 
 @[builtinDelab forallE]
 def delabForall : Delab :=

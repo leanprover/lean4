@@ -758,11 +758,15 @@ match_syntax stx with
 | `(fun $binders* => $body) => binders.any $ fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
 | _                         => false
 
+/-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
+def blockImplicitLambda (stx : Syntax) : Bool :=
+isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx
+
 /--
-  Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β`, and
-  `stx` is not `@f` nor `@f arg1 ...` -/
-def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) (implicitLambda : Bool) : TermElabM (Option Expr) :=
-if !implicitLambda || isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx then pure none
+  Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and
+  `blockImplicitLambda stx` is not true, else return `none`. -/
+def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
+if blockImplicitLambda stx then pure none
 else match expectedType? with
   | some expectedType => do
     expectedType ← whnfForall stx expectedType;
@@ -803,7 +807,7 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (
   match stxNew? with
   | some stxNew => withMacroExpansion stx stxNew $ elabTermAux stxNew
   | _ => do
-    implicit? ← useImplicitLambda? stx expectedType? implicitLambda;
+    implicit? ← if implicitLambda then useImplicitLambda? stx expectedType? else pure none;
     match implicit? with
     | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
     | none              => elabUsingElabFns stx expectedType? catchExPostpone

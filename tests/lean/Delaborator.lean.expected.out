@@ -18,86 +18,56 @@
 (Term.app
  (Term.id `id (null))
  (null (Term.app (Term.explicit "@" (Term.id `id (null))) (null (Term.type "Type") (Term.id `Nat (null))))))
-(Term.explicit
- "@"
- (Term.paren
-  "("
-  (null
-   (Term.fun
-    "fun"
-    (null (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `Nat (null))))) ")"))
-    "=>"
-    (Term.id `a (null)))
-   (null))
-  ")"))
-(Term.explicit
- "@"
- (Term.paren
-  "("
-  (null
-   (Term.fun
-    "fun"
-    (null
-     (Term.paren
-      "("
-      (null (Term.app (Term.id `a (null)) (null (Term.id `b (null)))) (null (Term.typeAscription ":" (Term.id `Nat (null)))))
-      ")"))
-    "=>"
-    (Term.id `a (null)))
-   (null))
-  ")"))
-(Term.explicit
- "@"
- (Term.paren
-  "("
-  (null
-   (Term.fun
-    "fun"
-    (null
-     (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `Nat (null))))) ")")
-     (Term.paren "(" (null (Term.id `b (null)) (null (Term.typeAscription ":" (Term.id `Bool (null))))) ")"))
-    "=>"
-    (Term.id `a (null)))
-   (null))
-  ")"))
-(Term.explicit
- "@"
- (Term.paren
-  "("
-  (null
-   (Term.fun
-    "fun"
-    (null
-     (Term.paren
-      "("
-      (null (Term.app (Term.id `a (null)) (null (Term.id `b (null)))) (null (Term.typeAscription ":" (Term.id `Nat (null)))))
-      ")"))
-    "=>"
-    (Term.id `a (null)))
-   (null))
-  ")"))
-(Term.explicit
- "@"
- (Term.paren
-  "("
-  (null
-   (Term.fun
-    "fun"
-    (null
-     (Term.paren
-      "("
-      (null (Term.id `α (null)) (null (Term.typeAscription ":" (Term.sortApp (Term.type "Type") (Level.hole "_")))))
-      ")")
-     (Term.paren
-      "("
-      (null
-       (Term.id `s (null))
-       (null (Term.typeAscription ":" (Term.app (Term.id `HasToString (null)) (null (Term.id `α (null)))))))
-      ")"))
-    "=>"
-    (Term.id `Bool.true (null)))
-   (null))
-  ")"))
+(Term.fun
+ "fun"
+ (null (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `Nat (null))))) ")"))
+ "=>"
+ (Term.id `a (null)))
+(Term.fun
+ "fun"
+ (null
+  (Term.paren
+   "("
+   (null (Term.app (Term.id `a (null)) (null (Term.id `b (null)))) (null (Term.typeAscription ":" (Term.id `Nat (null)))))
+   ")"))
+ "=>"
+ (Term.id `a (null)))
+(Term.fun
+ "fun"
+ (null
+  (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `Nat (null))))) ")")
+  (Term.paren "(" (null (Term.id `b (null)) (null (Term.typeAscription ":" (Term.id `Bool (null))))) ")"))
+ "=>"
+ (Term.id `a (null)))
+(Term.fun
+ "fun"
+ (null (Term.implicitBinder "{" (null `a `b) (null ":" (Term.id `Nat (null))) "}"))
+ "=>"
+ (Term.id `a (null)))
+(Term.app
+ (Term.id `typeAs (null))
+ (null
+  (Term.depArrow
+   (Term.implicitBinder "{" (null `α) (null ":" (Term.type "Type")) "}")
+   "→"
+   (Term.arrow (Term.id `α (null)) "→" (Term.id `α (null))))
+  (Term.fun
+   "fun"
+   (null
+    (Term.implicitBinder "{" (null `α) (null ":" (Term.type "Type")) "}")
+    (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `α (null))))) ")"))
+   "=>"
+   (Term.id `a (null)))))
+(Term.fun
+ "fun"
+ (null
+  (Term.implicitBinder "{" (null `α) (null ":" (Term.type "Type")) "}")
+  (Term.instBinder "[" (null `_inst_1 ":") (Term.app (Term.id `HasToString (null)) (null (Term.id `α (null)))) "]")
+  (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `α (null))))) ")"))
+ "=>"
+ (Term.app
+  (Term.explicit "@" (Term.id `HasToString.toString (null)))
+  (null (Term.id `α (null)) (Term.id `_inst_1 (null)) (Term.id `a (null)))))
 (Term.depArrow (Term.explicitBinder "(" (null `α) (null ":" (Term.type "Type")) (null) ")") "→" (Term.id `α (null)))
 (Term.depArrow (Term.explicitBinder "(" (null `α `β) (null ":" (Term.type "Type")) (null) ")") "→" (Term.id `α (null)))
 (Term.arrow (Term.type "Type") "→" (Term.arrow (Term.type "Type") "→" (Term.type "Type")))

@@ -298,6 +298,16 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit $ do
 if argStxs.isEmpty then pure fnStx else `($fnStx $argStxs*)
 
 /--
+Check for a `Syntax.ident` of the given name anywhere in the tree.
+This is usually a bad idea since it does not check for shadowing bindings,
+but in the delaborator we assume that bindings are never shadowed.
+-/
+partial def hasIdent (id : Name) : Syntax → Bool
+| Syntax.ident _ _ id' _ => id == id'
+| Syntax.node _ args     => args.any hasIdent
+| _                      => false
+
+/--
 Return `true` iff current binder should be merged with the nested
 binder, if any, into a single binder group:
 * both binders must have same binder info and domain
@@ -321,47 +331,66 @@ match e with
 | Expr.forallE _ _ e'@(Expr.forallE _ _ _ _) _ => go e'
 | _ => pure false
 
-private partial def delabLamAux : Array Syntax → Delab
+private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : optParam (Array Syntax) #[] → Delab
 -- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
 -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
 -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
 | curNames => do
-  ppTypes ← getPPOption getPPBinderTypes;
-  e@(Expr.lam n t body _) ← getExpr | unreachable!;
   lctx ← liftM $ getLCtx;
-  let n := lctx.getUnusedName n;
+  e ← getExpr;
+  let n := lctx.getUnusedName e.bindingName!;
   stxN ← annotateCurPos (mkIdent n);
   let curNames := curNames.push stxN;
   condM shouldGroupWithNext
     -- group with nested binder => recurse immediately
-    (withBindingBody n $ delabLamAux curNames) $
-    -- don't group => finish current binder group
-    do
-      stxT ← withBindingDomain delab;
-      group ← match e.binderInfo, ppTypes with
-        | BinderInfo.default,     true   => do
-          -- "default" binder group is the only one that expects binder names
-          -- as a term, i.e. a single `Term.id` or an application thereof
-          let curNames := curNames.map mkTermIdFromIdent;
-          stxCurNames ← if curNames.size > 1 then `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
-            else pure $ curNames.get! 0;
-          `(funBinder| ($stxCurNames : $stxT))
-        | BinderInfo.default,     false  => pure $ mkTermIdFromIdent stxN  -- here `curNames == #[stxN]`
-        | BinderInfo.implicit,    true   => `(funBinder| ($curNames* : $stxT))
-        | BinderInfo.implicit,    false  => `(funBinder| ($curNames*))
-        -- here `curNames == #[stxN]`
-        | BinderInfo.instImplicit, _     => `(funBinder| ($stxN : $stxT))
-        | _                      , _     => unreachable!;
-      stxBody ← withBindingBody n delab;
-      match_syntax stxBody with
-      | `(@(fun $binderGroups* => $stxBody)) => `(@(fun $group $binderGroups* => $stxBody))
-      | _                                    => `(@(fun $group => $stxBody))
+    (withBindingBody n $ delabBinders curNames)
+    -- don't group => delab body and prepend current binder group
+    (withBindingBody n delab >>= delabGroup curNames)
 
 @[builtinDelab lam]
 def delabExplicitLam : Delab :=
-delabLamAux #[]
+delabBinders $ fun curNames stxBody => do
+  e ← getExpr | unreachable!;
+  stxT ← withBindingDomain delab;
+  ppTypes ← getPPOption getPPBinderTypes;
+  group ← match e.binderInfo, ppTypes with
+    | BinderInfo.default,     true   => do
+      -- "default" binder group is the only one that expects binder names
+      -- as a term, i.e. a single `Term.id` or an application thereof
+      let curNames := curNames.map mkTermIdFromIdent;
+      stxCurNames ← if curNames.size > 1 then `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
+        else pure $ curNames.get! 0;
+      `(funBinder| ($stxCurNames : $stxT))
+    | BinderInfo.default,     false  => pure $ mkTermIdFromIdent curNames.back  -- here `curNames.size == 1`
+    | BinderInfo.implicit,    true   => `(funBinder| {$curNames* : $stxT})
+    | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
+    | BinderInfo.instImplicit, _     => `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
+    | _                      , _     => unreachable!;
+  match_syntax stxBody with
+  | `(@(fun $binderGroups* => $stxBody)) => `(@(fun $group $binderGroups* => $stxBody))
+  | _                                    => `(@(fun $group => $stxBody))
 
 -- TODO: implicit lambdas
+
+@[builtinDelab forallE]
+def delabForall : Delab :=
+delabBinders $ fun curNames stxBody => do
+  e ← getExpr;
+  stxT ← withBindingDomain delab;
+  match e.binderInfo with
+  | BinderInfo.default      =>
+    -- heuristic: use non-dependent arrows only if possible for whole group to avoid
+    -- noisy mix like `(α : Type) → Type → (γ : Type) → ...`.
+    let dependent := curNames.any $ fun n => hasIdent n.getId stxBody;
+    -- NOTE: non-dependent arrows are available only for the default binder info
+    if dependent then do
+      `(($curNames* : $stxT) → $stxBody)
+    else
+      curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
+  | BinderInfo.implicit     => `({$curNames* : $stxT} → $stxBody)
+  -- here `curNames.size == 1`
+  | BinderInfo.instImplicit => `([$curNames.back : $stxT] → $stxBody)
+  | _                       => unreachable!
 
 @[builtinDelab lit]
 def delabLit : Delab := do

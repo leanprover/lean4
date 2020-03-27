@@ -98,6 +98,28 @@
     (Term.id `Bool.true (null)))
    (null))
   ")"))
+(Term.depArrow (Term.explicitBinder "(" (null `α) (null ":" (Term.type "Type")) (null) ")") "→" (Term.id `α (null)))
+(Term.depArrow (Term.explicitBinder "(" (null `α `β) (null ":" (Term.type "Type")) (null) ")") "→" (Term.id `α (null)))
+(Term.arrow (Term.type "Type") "→" (Term.arrow (Term.type "Type") "→" (Term.type "Type")))
+(Term.depArrow
+ (Term.explicitBinder "(" (null `α) (null ":" (Term.type "Type")) (null) ")")
+ "→"
+ (Term.arrow (Term.id `α (null)) "→" (Term.id `α (null))))
+(Term.depArrow
+ (Term.explicitBinder "(" (null `α) (null ":" (Term.type "Type")) (null) ")")
+ "→"
+ (Term.depArrow
+  (Term.explicitBinder "(" (null `a) (null ":" (Term.id `α (null))) (null) ")")
+  "→"
+  (Term.app (Term.id `Eq (null)) (null (Term.id `a (null)) (Term.id `a (null))))))
+(Term.depArrow (Term.implicitBinder "{" (null `α) (null ":" (Term.type "Type")) "}") "→" (Term.id `α (null)))
+(Term.depArrow
+ (Term.implicitBinder "{" (null `α) (null ":" (Term.type "Type")) "}")
+ "→"
+ (Term.depArrow
+  (Term.instBinder "[" (null `_inst_1 ":") (Term.app (Term.id `HasToString (null)) (null (Term.id `α (null)))) "]")
+  "→"
+  (Term.id `α (null))))
 (Term.num (numLit "0"))
 (Term.num (numLit "1"))
 (Term.num (numLit "42"))

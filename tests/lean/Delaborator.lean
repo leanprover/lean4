@@ -44,6 +44,14 @@ end
 #eval check `(@(fun (a b : Nat) => a))
 #eval check `(@(fun α (s : HasToString α) => true))
 
+#eval check `((α : Type) → α)
+#eval check `((α β : Type) → α)  -- group
+#eval check `((α β : Type) → Type)  -- don't group
+#eval check `((α : Type) → (a : α) → α)
+#eval check `((α : Type) → (a : α) → a = a)
+#eval check `({α : Type} → α)
+#eval check `({α : Type} → [HasToString α] → α)
+
 -- TODO: hide `ofNat`
 #eval check `(0)
 #eval check `(1)

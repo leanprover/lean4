@@ -602,6 +602,7 @@ let i := s.next i;
 if c == '\\' then pure ('\\', i)
 else if c = '\"' then pure ('\"', i)
 else if c = '\'' then pure ('\'', i)
+else if c = 'r'  then pure ('\r', i)
 else if c = 'n'  then pure ('\n', i)
 else if c = 't'  then pure ('\t', i)
 else if c = 'x'  then do

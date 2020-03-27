@@ -79,7 +79,7 @@ instance : Inhabited Char :=
 ⟨'A'⟩
 
 def isWhitespace (c : Char) : Bool :=
-c = ' ' || c = '\t' || c = '\n'
+c = ' ' || c = '\t' || c = '\r' || c = '\n'
 
 def isUpper (c : Char) : Bool :=
 c.val ≥ 65 && c.val ≤ 90

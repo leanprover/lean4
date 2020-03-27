@@ -104,9 +104,13 @@ void scanner::read_quoted_char(char const * error_msg, std::string & r) {
     next();
     check_not_eof(error_msg);
     uchar c = curr();
-    if (c != '\\' && c != '\"' && c != 'n' && c != 't' && c != '\'' && c != 'x' && c != 'u')
+    if (c != '\\' && c != '\"' && c != 'r' && c != 'n' && c != 't' && c != '\'' && c != 'x' && c != 'u')
         throw_exception("invalid escape sequence");
-    if (c == 'n') {
+    if (c == 'r') {
+        next();
+        r += '\r';
+        return;
+    } else if (c == 'n') {
         next();
         r += '\n';
         return;

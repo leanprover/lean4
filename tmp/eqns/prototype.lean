@@ -1,5 +1,6 @@
 prelude
 import Init.Lean.Meta.Tactic.Cases
+import Init.Lean.Meta.GeneralizeTelescope
 
 namespace Lean
 namespace Meta
@@ -61,8 +62,25 @@ let num := majors.length;
 when (lhss.any (fun lhs => lhs.patterns.length != num)) $
   throw $ Exception.other "incorrect number of patterns"
 
-def mkElim (elimName : Name) (majors : List Expr) (lhss : List AltLHS) : MetaM ElimResult := do
+private def mkElimSort (inProp : Bool) : MetaM Expr :=
+if inProp then
+  pure $ mkSort $ levelZero
+else do
+  vId ← mkFreshId;
+  pure $ mkSort $ mkLevelParam vId
+
+private def withMotive {α} (majors : Array Expr) (sortv : Expr) (k : Expr → MetaM α) : MetaM α := do
+type ← mkForall majors sortv;
+trace! `Meta.debug type;
+withLocalDecl `motive type BinderInfo.default k
+
+def mkElim (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
 checkNumPatterns majors lhss;
+generalizeTelescope majors.toArray `_d $ fun majors => do
+sortv ← mkElimSort inProp;
+withMotive majors sortv $ fun motive => do
+motiveType ← inferType motive;
+trace! `Meta.debug motiveType;
 pure { numMinors := 0, numEqs := 0, elim := arbitrary _, altMap := {} } -- TODO
 
 end DepElim
@@ -137,15 +155,15 @@ partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
       lhss ← decodeAltLHSs lhss;
       pure (lhs ++ lhss)
 
-def mkDepElimFrom (declName : Name) (numPats : Nat) : MetaM (List Expr × List AltLHS) := do
+def withDepElimFrom {α} (declName : Name) (numPats : Nat) (k : List FVarId → List AltLHS → MetaM α) : MetaM α := do
 cinfo ← getConstInfo declName;
 forallTelescopeReducing cinfo.type $ fun args body =>
   if args.size < numPats then
     throw $ Exception.other "insufficient number of parameters"
   else do
-    let xs := (args.extract (args.size - numPats) args.size).toList;
+    let xs := (args.extract (args.size - numPats) args.size).toList.map $ Expr.fvarId!;
     alts ← decodeAltLHSs body;
-    pure (xs, alts)
+    k xs alts
 
 inductive Pat {α : Sort u} (a : α) : Type u
 | mk {} : Pat
@@ -164,10 +182,12 @@ def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 
 set_option trace.Meta.debug true
 
-def tst1 : MetaM Unit := do
-(majors, alts) ← mkDepElimFrom `ex1 2;
-printAltLHS alts;
-mkElim `test majors alts;
-pure ()
+def tst1 : MetaM Unit :=
+withDepElimFrom `ex1 2 $ fun majors alts => do
+  let majors := majors.map mkFVar;
+  trace! `Meta.debug majors.toArray;
+  printAltLHS alts;
+  mkElim `test majors alts;
+  pure ()
 
 #eval tst1

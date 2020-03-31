@@ -170,7 +170,7 @@ export MonadExceptAdapter (adaptExcept)
 section
 variables {ε ε' : Type u} {m m' : Type u → Type v}
 
-instance monadExceptAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadExceptAdapter ε ε' m m'] : MonadExceptAdapter ε ε' n n' :=
+instance monadExceptAdapterTrans {n n' : Type u → Type v} [MonadExceptAdapter ε ε' m m'] [MonadFunctor m m' n n'] : MonadExceptAdapter ε ε' n n' :=
 ⟨fun α f => monadMap (fun α => (adaptExcept f : m α → m' α))⟩
 
 instance [Monad m] : MonadExceptAdapter ε ε' (ExceptT ε m) (ExceptT ε' m) :=

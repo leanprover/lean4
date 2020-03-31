@@ -17,7 +17,6 @@ let n1    := mkApp succ n;
 let vecN1 := mkApp2 (mkConst `Vec) nat n1;
 withLocalDecl `xs vecN1 BinderInfo.default $ fun xs => do
 generalizeTelescope #[n1, xs] `aux $ fun ys => do
-let ys := (ys.map mkFVar);
 t ← mkLambda ys ys.back;
 trace! `Meta.debug t;
 pure ()
@@ -33,7 +32,6 @@ let vecN1 := mkApp2 (mkConst `Vec) nat n1;
 withLocalDecl `xs vecN1 BinderInfo.default $ fun xs => do
 e ← mkEqRefl xs;
 generalizeTelescope #[n1, xs, e] `aux $ fun ys => do
-let ys := (ys.map mkFVar);
 t ← mkLambda ys ys.back;
 trace! `Meta.debug t;
 pure ()
@@ -52,7 +50,6 @@ withLocalDecl `xs vecN1 BinderInfo.default $ fun xs => do
 e ← mkEqRefl xs;
 failIfSuccess $ do {
   generalizeTelescope #[n1, e] `aux $ fun ys => do
-  let ys := (ys.map mkFVar);
   t ← mkLambda ys ys.back;
   trace! `Meta.debug t;
   pure ()

@@ -524,6 +524,18 @@ match result with
 | LOption.undef    => throwError ref ("failed to synthesize instance" ++ indentExpr type)
 | LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
 
+/--
+  Try to coerce `a : α` into `m β` by first coercing `a : α` into ‵β`, and then using `pure`.
+  The method is only applied if the head of `α` nor ‵β` is not a metavariable. -/
+private def tryPureCoe? (ref : Syntax) (m β α a : Expr) : TermElabM (Option Expr) :=
+if β.getAppFn.isMVar || α.getAppFn.isMVar then pure none
+else catch
+ (do
+   aNew ← tryCoe ref β α a none;
+   aNew ← liftMetaM ref $ Meta.mkPure m aNew;
+   pure $ some aNew)
+ (fun _ => pure none)
+
 /-
 Try coercions and monad lifts to make sure `e` has type `expectedType`.
 
@@ -532,7 +544,11 @@ Otherwise, we just use the basic `tryCoe`.
 
 Extensions for monads.
 
-Given an expected type of the form `n β` and a given type `eType` is of the form `m α`. We use the following approaches.
+Given an expected type of the form `n β`, if `eType` is of the form `α`
+
+1 - Try to coerce ‵α` into ‵β`, and use `pure` to lift it to `n α`.
+
+If `eType` is of the form `m α`. We use the following approaches.
 
 1- Try to unify `n` and `m`. If it succeeds, then we rely on `tryCoe`, and
    the instances
@@ -578,7 +594,13 @@ since this goal does not contain any metavariables. And then, we
 convert `g x` into `liftM $ g x`.
 -/
 def tryLiftAndCoe (ref : Syntax) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
+eType ← instantiateMVars ref eType;
 some ⟨n, β, monadInst⟩ ← isMonad? ref expectedType | tryCoe ref expectedType eType e f?;
+β ← instantiateMVars ref β;
+eNew? ← tryPureCoe? ref n β eType e;
+match eNew? with
+| some eNew => pure eNew
+| none      => do
 some (m, α) ← isTypeApp? ref eType | tryCoe ref expectedType eType e f?;
 condM (isDefEq ref m n) (tryCoe ref expectedType eType e f?) $
   catch
@@ -751,10 +773,22 @@ private def isExplicitApp (stx : Syntax) : Bool :=
 stx.getKind == `Lean.Parser.Term.app && isExplicit (stx.getArg 0)
 
 /--
-  Return true with `expectedType` is of the form `{a : α} → β` or `[a : α] → β`, and
-  `stx` is not `@f` nor `@f arg1 ...` -/
-def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) (implicitLambda : Bool) : TermElabM (Option Expr) :=
-if !implicitLambda || isExplicit stx || isExplicitApp stx then pure none
+  Return true if `stx` if a lambda abstraction containing a `{}` or `[]` binder annotation.
+  Example: `fun {α} (a : α) => a` -/
+private def isLambdaWithImplicit (stx : Syntax) : Bool :=
+match_syntax stx with
+| `(fun $binders* => $body) => binders.any $ fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
+| _                         => false
+
+/-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
+def blockImplicitLambda (stx : Syntax) : Bool :=
+isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx
+
+/--
+  Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and
+  `blockImplicitLambda stx` is not true, else return `none`. -/
+def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
+if blockImplicitLambda stx then pure none
 else match expectedType? with
   | some expectedType => do
     expectedType ← whnfForall stx expectedType;
@@ -795,7 +829,7 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (
   match stxNew? with
   | some stxNew => withMacroExpansion stx stxNew $ elabTermAux stxNew
   | _ => do
-    implicit? ← useImplicitLambda? stx expectedType? implicitLambda;
+    implicit? ← if implicitLambda then useImplicitLambda? stx expectedType? else pure none;
     match implicit? with
     | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
     | none              => elabUsingElabFns stx expectedType? catchExPostpone

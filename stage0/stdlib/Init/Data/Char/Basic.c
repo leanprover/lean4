@@ -309,9 +309,25 @@ return x_1;
 uint8_t l_Char_isWhitespace(uint32_t x_1) {
 _start:
 {
-uint32_t x_2; uint8_t x_3; 
+uint32_t x_2; uint8_t x_3; uint8_t x_14; 
 x_2 = 32;
-x_3 = x_1 == x_2;
+x_14 = x_1 == x_2;
+if (x_14 == 0)
+{
+uint8_t x_15; 
+x_15 = 0;
+x_3 = x_15;
+goto block_13;
+}
+else
+{
+uint8_t x_16; 
+x_16 = 1;
+x_3 = x_16;
+goto block_13;
+}
+block_13:
+{
 if (x_3 == 0)
 {
 uint32_t x_4; uint8_t x_5; 
@@ -320,22 +336,35 @@ x_5 = x_1 == x_4;
 if (x_5 == 0)
 {
 uint32_t x_6; uint8_t x_7; 
-x_6 = 10;
+x_6 = 13;
 x_7 = x_1 == x_6;
-return x_7;
-}
-else
+if (x_7 == 0)
 {
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
-}
-}
-else
-{
-uint8_t x_9; 
-x_9 = 1;
+uint32_t x_8; uint8_t x_9; 
+x_8 = 10;
+x_9 = x_1 == x_8;
 return x_9;
+}
+else
+{
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
+}
+}
+else
+{
+uint8_t x_11; 
+x_11 = 1;
+return x_11;
+}
+}
+else
+{
+uint8_t x_12; 
+x_12 = 1;
+return x_12;
+}
 }
 }
 }

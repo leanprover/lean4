@@ -12,7 +12,7 @@ namespace Elab
 namespace Command
 
 def expandOptDeclSig (stx : Syntax) : Syntax × Option Syntax :=
--- many Term.bracktedBinder >> Term.optType
+-- many Term.bracketedBinder >> Term.optType
 let binders := stx.getArg 0;
 let optType := stx.getArg 1; -- optional (parser! " : " >> termParser)
 if optType.isNone then
@@ -22,7 +22,7 @@ else
   (binders, some $ typeSpec.getArg 1)
 
 def expandDeclSig (stx : Syntax) : Syntax × Syntax :=
--- many Term.bracktedBinder >> Term.typeSpec
+-- many Term.bracketedBinder >> Term.typeSpec
 let binders := stx.getArg 0;
 let typeSpec := stx.getArg 1;
 (binders, typeSpec.getArg 1)

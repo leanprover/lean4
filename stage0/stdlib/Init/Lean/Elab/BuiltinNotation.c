@@ -53,7 +53,6 @@ lean_object* l_Lean_Elab_Term_elabModN___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabNativeRefl___closed__1;
 lean_object* l_Lean_Elab_Term_elabAnonymousCtor___closed__2;
 lean_object* l_Lean_Elab_Term_elabBOr___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Term_8__exceptionToSorry___closed__1;
 lean_object* l___private_Init_Lean_Syntax_7__quoteName___main(lean_object*);
 lean_object* l_Lean_Elab_Term_elabInfix(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabParserMacro___lambda__1___closed__5;
@@ -542,6 +541,7 @@ lean_object* l_Lean_Elab_Term_elabBEq___closed__2;
 lean_object* l_Lean_Elab_Term_elabBNe___closed__1;
 lean_object* l___private_Init_Lean_Elab_BuiltinNotation_3__getPropToDecide___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabBEq___closed__1;
+extern lean_object* l___private_Init_Lean_Elab_Term_9__exceptionToSorry___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabMod___closed__1;
 lean_object* l_Lean_Elab_Term_elabBNe___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabMapConst(lean_object*);
@@ -6404,7 +6404,7 @@ x_24 = lean_ctor_get(x_3, 0);
 lean_inc(x_24);
 x_25 = l_Lean_TraceState_Inhabited___closed__1;
 lean_ctor_set(x_20, 4, x_25);
-x_26 = l___private_Init_Lean_Elab_Term_8__exceptionToSorry___closed__1;
+x_26 = l___private_Init_Lean_Elab_Term_9__exceptionToSorry___closed__1;
 x_27 = l_Lean_Meta_mkEqRefl(x_26, x_24, x_20);
 if (lean_obj_tag(x_27) == 0)
 {
@@ -6484,7 +6484,7 @@ lean_ctor_set(x_53, 2, x_47);
 lean_ctor_set(x_53, 3, x_48);
 lean_ctor_set(x_53, 4, x_52);
 lean_ctor_set(x_53, 5, x_50);
-x_54 = l___private_Init_Lean_Elab_Term_8__exceptionToSorry___closed__1;
+x_54 = l___private_Init_Lean_Elab_Term_9__exceptionToSorry___closed__1;
 x_55 = l_Lean_Meta_mkEqRefl(x_54, x_51, x_53);
 if (lean_obj_tag(x_55) == 0)
 {

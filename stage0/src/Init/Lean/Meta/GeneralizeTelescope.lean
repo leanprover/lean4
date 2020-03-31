@@ -31,27 +31,27 @@ partial def updateTypes (e newE : Expr) : Array Entry → Nat → MetaM (Array E
   else
     pure entries
 
-partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array FVarId → MetaM α) : Array Entry → Nat → Nat → Array FVarId → MetaM α
-| entries, i, nextVarIdx, fvarIds =>
+partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Expr → MetaM α) : Array Entry → Nat → Nat → Array Expr → MetaM α
+| entries, i, nextVarIdx, fvars =>
   if h : i < entries.size then
     let replace (e : Expr) (type : Expr) : MetaM α := do {
       let userName := prefixForNewVars.appendIndexAfter nextVarIdx;
       withLocalDecl userName type BinderInfo.default $ fun x => do
         entries ← updateTypes e x entries (i+1);
-        generalizeTelescopeAux entries (i+1) (nextVarIdx+1) (fvarIds.push x.fvarId!)
+        generalizeTelescopeAux entries (i+1) (nextVarIdx+1) (fvars.push x)
     };
     match entries.get ⟨i, h⟩ with
     | ⟨e@(Expr.fvar fvarId _), type, false⟩ => do
       localDecl ← getLocalDecl fvarId;
       match localDecl with
-      | LocalDecl.cdecl _ _ _ _ _ => generalizeTelescopeAux entries (i+1) nextVarIdx (fvarIds.push fvarId)
+      | LocalDecl.cdecl _ _ _ _ _ => generalizeTelescopeAux entries (i+1) nextVarIdx (fvars.push e)
       | LocalDecl.ldecl _ _ _ _ _ => replace e type
     | ⟨e, type, modified⟩ => do
       when modified $ unlessM (isTypeCorrect type) $
         throwEx $ Exception.generalizeTelescope (entries.map Entry.expr);
       replace e type
   else
-    k fvarIds
+    k fvars
 
 end GeneralizeTelescope
 
@@ -88,7 +88,7 @@ open GeneralizeTelescope
     (aux_1 : Nat) (xs : Vec Nat n) (aux_2 : Vec Nat aux_1)
   ```
   and the type for the new variable abstracting `h` is `xs = aux_2` which is not type correct. -/
-def generalizeTelescope {α} (es : Array Expr) (prefixForNewVars : Name) (k : Array FVarId → MetaM α) : MetaM α := do
+def generalizeTelescope {α} (es : Array Expr) (prefixForNewVars : Name) (k : Array Expr → MetaM α) : MetaM α := do
 es ← es.mapM $ fun e => do {
   type ← inferType e;
   type ← instantiateMVars type;

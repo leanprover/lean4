@@ -478,7 +478,7 @@ fun n => do
 
 @[builtinCommandElab «variable»] def elabVariable : CommandElab :=
 fun n => do
-  -- `variable` bracktedBinder
+  -- `variable` bracketedBinder
   let binder := n.getArg 1;
   -- Try to elaborate `binder` for sanity checking
   runTermElabM none $ fun _ => Term.elabBinder binder $ fun _ => pure ();
@@ -486,7 +486,7 @@ fun n => do
 
 @[builtinCommandElab «variables»] def elabVariables : CommandElab :=
 fun n => do
-  -- `variables` bracktedBinder+
+  -- `variables` bracketedBinder+
   let binders := (n.getArg 1).getArgs;
   -- Try to elaborate `binders` for sanity checking
   runTermElabM none $ fun _ => Term.elabBinders binders $ fun _ => pure ();

@@ -161,7 +161,7 @@ private partial def elabBindersAux (binders : Array Syntax)
     pure (fvars, lctx, localInsts)
 
 /--
-  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracktedBinder`),
+  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
   execute `x` with the updated context. -/
 def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α :=
@@ -191,7 +191,7 @@ adaptExpander $ fun stx => match_syntax stx with
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
 fun stx _ =>
-  -- bracktedBinder `->` term
+  -- bracketedBinder `->` term
   let binder := stx.getArg 0;
   let term   := stx.getArg 2;
   elabBinders #[binder] $ fun xs => do
@@ -232,6 +232,8 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
       pure (binders, newBody)
     };
     match binder with
+    | Syntax.node `Lean.Parser.Term.implicitBinder _ => expandFunBindersAux body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.instBinder _     => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.hole _ => do
       ident ← mkFreshAnonymousIdent binder;
       let type := binder;
@@ -266,7 +268,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
 /--
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
   ```
-  def funBinder : Parser := termParser appPrec
+  def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
   parser! unicodeSymbol "λ" "fun" >> many1 funBinder >> unicodeSymbol "⇒" "=>" >> termParser
   ```
   to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.

@@ -86,7 +86,7 @@ class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) :=
 export MonadReader (read)
 
 instance monadReaderTrans {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w}
-  [HasMonadLift m n] [MonadReader ρ m] : MonadReader ρ n :=
+  [MonadReader ρ m] [HasMonadLift m n] : MonadReader ρ n :=
 ⟨monadLift (MonadReader.read : m ρ)⟩
 
 instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReader ρ (ReaderT ρ m) :=
@@ -110,7 +110,7 @@ export MonadReaderAdapter (adaptReader)
 section
 variables {ρ ρ' : Type u} {m m' : Type u → Type v}
 
-instance monadReaderAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadReaderAdapter ρ ρ' m m'] : MonadReaderAdapter ρ ρ' n n' :=
+instance monadReaderAdapterTrans {n n' : Type u → Type v} [MonadReaderAdapter ρ ρ' m m'] [MonadFunctor m m' n n'] : MonadReaderAdapter ρ ρ' n n' :=
 ⟨fun α f => monadMap (fun α => (adaptReader f : m α → m' α))⟩
 
 instance [Monad m] : MonadReaderAdapter ρ ρ' (ReaderT ρ m) (ReaderT ρ' m) :=
@@ -127,7 +127,7 @@ export MonadReaderRunner (runReader)
 section
 variables {ρ ρ' : Type u} {m m' : Type u → Type u}
 
-instance monadReaderRunnerTrans {n n' : Type u → Type u} [MonadFunctor m m' n n'] [MonadReaderRunner ρ m m'] : MonadReaderRunner ρ n n' :=
+instance monadReaderRunnerTrans {n n' : Type u → Type u} [MonadReaderRunner ρ m m'] [MonadFunctor m m' n n'] : MonadReaderRunner ρ n n' :=
 ⟨fun α x r => monadMap (fun (α) (y : m α) => (runReader y r : m' α)) x⟩
 
 instance ReaderT.MonadStateRunner [Monad m] : MonadReaderRunner ρ (ReaderT ρ m) m :=

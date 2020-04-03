@@ -1,4 +1,5 @@
 prelude
+import Init.Lean.Meta.Check
 import Init.Lean.Meta.Tactic.Cases
 import Init.Lean.Meta.GeneralizeTelescope
 
@@ -31,11 +32,22 @@ structure AltLHS :=
 (fvarDecls : List LocalDecl) -- Free variables used in the patterns.
 (patterns  : List Pattern)   -- We use `List Pattern` since we have nary match-expressions.
 
-namespace AltLHS
+structure MinorsRange :=
+(firstMinorPos : Nat)
+(numMinors     : Nat)
 
-instance : Inhabited AltLHS := ⟨⟨[], []⟩⟩
+abbrev AltToMinorsMap := PersistentHashMap Nat MinorsRange
 
-partial def toMessageData (alt : AltLHS) : MetaM MessageData := do
+structure Alt :=
+(idx       : Nat) -- for generating error messages
+(fvarDecls : List LocalDecl)
+(patterns  : List Pattern)
+
+namespace Alt
+
+instance : Inhabited Alt := ⟨⟨0, [], []⟩⟩
+
+partial def toMessageData (alt : Alt) : MetaM MessageData := do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 let lctx := alt.fvarDecls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) lctx;
@@ -43,13 +55,22 @@ withLocalContext lctx localInsts $ do
   let msg : MessageData := "⟦" ++ MessageData.joinSep (alt.patterns.map Pattern.toMessageData) ", " ++ "⟧";
   addContext msg
 
-end AltLHS
+end Alt
 
-structure MinorsRange :=
-(firstMinorPos : Nat)
-(numMinors     : Nat)
+structure Problem :=
+(goal : Expr)
+(vars : List Expr)
+(alts : List Alt)
 
-abbrev AltToMinorsMap := PersistentHashMap Nat MinorsRange
+namespace Problem
+
+instance : Inhabited Problem := ⟨⟨arbitrary _, [], []⟩⟩
+
+def toMessageData (p : Problem) : MetaM MessageData := do
+alts ← p.alts.mapM Alt.toMessageData;
+pure $ "vars " ++ p.vars.toArray ++ Format.line ++ MessageData.joinSep alts Format.line
+
+end Problem
 
 structure ElimResult :=
 (numMinors : Nat)  -- It is the number of alternatives (Reason: support for overlapping equations)
@@ -74,13 +95,27 @@ type ← mkForall majors sortv;
 trace! `Meta.debug type;
 withLocalDecl `motive type BinderInfo.default k
 
+private def mkAlts (lhss : List AltLHS) : List Alt :=
+let alts : List Alt := lhss.foldl
+  (fun result lhs => { idx := result.length, fvarDecls := lhs.fvarDecls, patterns := lhs.patterns } :: result)
+  [];
+alts.reverse
+
+private def process : Problem → MetaM Unit
+| p => withIncRecDepth $ do
+  traceM `Meta.debug p.toMessageData;
+  pure ()
+
 def mkElim (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
 checkNumPatterns majors lhss;
 generalizeTelescope majors.toArray `_d $ fun majors => do
 sortv ← mkElimSort inProp;
 withMotive majors sortv $ fun motive => do
-motiveType ← inferType motive;
-trace! `Meta.debug motiveType;
+let target  := mkAppN motive majors;
+goal ← mkFreshExprMVar target;
+let alts    := mkAlts lhss;
+let problem := { Problem . goal := goal, vars := majors.toList, alts := alts };
+process problem;
 pure { numMinors := 0, numEqs := 0, elim := arbitrary _, altMap := {} } -- TODO
 
 end DepElim
@@ -92,10 +127,6 @@ open Lean.Meta
 open Lean.Meta.DepElim
 
 /- Infrastructure for testing -/
-
-def printAltLHS (alts : List AltLHS) : MetaM Unit := do
-msgs ← alts.mapM AltLHS.toMessageData;
-trace! `Meta.debug (Format.line ++ (MessageData.joinSep msgs Format.line))
 
 universes u v
 
@@ -180,13 +211,15 @@ def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 × LHS (forall (as : List α) (bs : List β), Pat as × Pat bs)
 := arbitrary _
 
+@[init] def register : IO Unit :=
+registerTraceClass `Meta.mkElim
+
 set_option trace.Meta.debug true
 
 def tst1 : MetaM Unit :=
 withDepElimFrom `ex1 2 $ fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug majors.toArray;
-  printAltLHS alts;
   mkElim `test majors alts;
   pure ()
 

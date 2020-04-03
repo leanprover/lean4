@@ -311,7 +311,7 @@ emit "lean_ctor_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitL
 
 def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit := do
 match t with
-| IRType.float  => throw "floats are not supported yet"
+| IRType.float  => emit "lean_ctor_set_float"
 | IRType.uint8  => emit "lean_ctor_set_uint8"
 | IRType.uint16 => emit "lean_ctor_set_uint16"
 | IRType.uint32 => emit "lean_ctor_set_uint32"
@@ -386,7 +386,7 @@ emitLhs z; emit "lean_ctor_get_usize("; emit x; emit ", "; emit i; emitLn ");"
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit := do
 emitLhs z;
 match t with
-| IRType.float  => throw "floats are not supported yet"
+| IRType.float  => emit "lean_ctor_get_float"
 | IRType.uint8  => emit "lean_ctor_get_uint8"
 | IRType.uint16 => emit "lean_ctor_get_uint16"
 | IRType.uint32 => emit "lean_ctor_get_uint32"
@@ -447,7 +447,7 @@ match xType with
 | IRType.usize  => emit "lean_box_usize"
 | IRType.uint32 => emit "lean_box_uint32"
 | IRType.uint64 => emit "lean_box_uint64"
-| IRType.float  => throw "floats are not supported yet"
+| IRType.float  => emit "lean_box_float"
 | other         => emit "lean_box"
 
 def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit := do
@@ -459,7 +459,7 @@ match t with
 | IRType.usize  => emit "lean_unbox_usize"
 | IRType.uint32 => emit "lean_unbox_uint32"
 | IRType.uint64 => emit "lean_unbox_uint64"
-| IRType.float  => throw "floats are not supported yet"
+| IRType.float  => emit "lean_unbox_float"
 | other         => emit "lean_unbox";
 emit "("; emit x; emitLn ");"
 

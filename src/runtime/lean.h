@@ -703,6 +703,11 @@ static inline uint64_t lean_ctor_get_uint64(b_lean_obj_arg o, unsigned offset) {
     return *((uint64_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
 }
 
+static inline double lean_ctor_get_float(b_lean_obj_arg o, unsigned offset) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    return *((double*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
+}
+
 static inline void lean_ctor_set_usize(b_lean_obj_arg o, unsigned i, size_t v) {
     assert(i >= lean_ctor_num_objs(o));
     *((size_t*)(lean_ctor_obj_cptr(o) + i)) = v;
@@ -726,6 +731,11 @@ static inline void lean_ctor_set_uint32(b_lean_obj_arg o, unsigned offset, uint3
 static inline void lean_ctor_set_uint64(b_lean_obj_arg o, unsigned offset, uint64_t v) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     *((uint64_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
+}
+
+static inline void lean_ctor_set_float(b_lean_obj_arg o, unsigned offset, double v) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    *((double*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
 }
 
 /* Closures */
@@ -1612,6 +1622,11 @@ static inline uint8_t lean_usize_dec_lt(size_t a1, size_t a2) { return a1 < a2; 
 static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2; }
 size_t lean_usize_mix_hash(size_t a1, size_t a2);
 
+/* Float */
+
+double lean_float_of_nat(b_lean_obj_arg a);
+lean_obj_res lean_float_to_string(double a);
+
 /* Boxing primitives */
 
 static inline lean_obj_res lean_box_uint32(uint32_t v) {
@@ -1654,6 +1669,16 @@ static inline lean_obj_res lean_box_usize(size_t v) {
 
 static inline size_t lean_unbox_usize(b_lean_obj_arg o) {
     return lean_ctor_get_usize(o, 0);
+}
+
+static inline lean_obj_res lean_box_float(double v) {
+    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(double));
+    lean_ctor_set_float(r, 0, v);
+    return r;
+}
+
+static inline uint64_t lean_unbox_float(b_lean_obj_arg o) {
+    return lean_ctor_get_float(o, 0);
 }
 
 /* Debugging helper functions */

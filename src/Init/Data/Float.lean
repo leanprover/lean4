@@ -30,11 +30,11 @@ constant floatSpec : FloatSpec := {
 def Float : Type := floatSpec.float
 instance : Inhabited Float := ⟨floatSpec.val⟩
 
-@[extern "lean_float_of_nat"] constant Float.ofNat : (@& Nat) → Float := arbitrary _
-@[extern "lean_float_add"]    constant Float.add : Float → Float → Float := arbitrary _
-@[extern "lean_float_sub"]    constant Float.sub : Float → Float → Float := arbitrary _
-@[extern "lean_float_mul"]    constant Float.mul : Float → Float → Float := arbitrary _
-@[extern "lean_float_div"]    constant Float.div : Float → Float → Float := arbitrary _
+/- @[extern "lean_float_of_nat"] -/ constant Float.ofNat : (@& Nat) → Float := arbitrary _
+/- @[extern c inline "#1 + #2"] -/  constant Float.add : Float → Float → Float := arbitrary _
+/- @[extern c inline "#1 - #2"] -/  constant Float.sub : Float → Float → Float := arbitrary _
+/- @[extern c inline "#1 * #2"] -/  constant Float.mul : Float → Float → Float := arbitrary _
+/- @[extern c inline "#1 / #2"] -/  constant Float.div : Float → Float → Float := arbitrary _
 
 def Float.lt  : Float → Float → Prop := floatSpec.lt
 def Float.le  : Float → Float → Prop := floatSpec.le
@@ -49,10 +49,10 @@ instance : HasDiv Float    := ⟨Float.div⟩
 instance : HasLess Float   := ⟨Float.lt⟩
 instance : HasLessEq Float := ⟨Float.le⟩
 
-@[extern "lean_float_eq"] constant Float.decEq (a b : Float) : Decidable (a = b) := floatSpec.decEq a b
-@[extern "lean_float_lt"] constant Float.decLt (a b : Float) : Decidable (a < b) := floatSpec.decLt a b
-@[extern "lean_float_le"] constant Float.decLe (a b : Float) : Decidable (a ≤ b) := floatSpec.decLe a b
+/- @[extern c inline "#1 == #2"] -/ constant Float.decEq (a b : Float) : Decidable (a = b) := floatSpec.decEq a b
+/- @[extern c inline "#1 < #2"]  -/  constant Float.decLt (a b : Float) : Decidable (a < b) := floatSpec.decLt a b
+/- @[extern c inline "#1 <= #2"] -/ constant Float.decLe (a b : Float) : Decidable (a ≤ b) := floatSpec.decLe a b
 
-@[extern "lean_float_to_string"] constant Float.toString : Float → String := arbitrary _
+/- @[extern "lean_float_to_string"] -/ constant Float.toString : Float → String := arbitrary _
 
 instance : HasToString Float := ⟨Float.toString⟩

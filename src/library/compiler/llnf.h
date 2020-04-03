@@ -22,8 +22,10 @@ bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & nusize, unsigned 
 bool is_llnf_reset(expr const & e, unsigned & n);
 bool is_llnf_proj(expr const & e, unsigned & idx);
 bool is_llnf_sproj(expr const & e, unsigned & sz, unsigned & n, unsigned & offset);
+bool is_llnf_fproj(expr const & e, unsigned & n, unsigned & offset);
 bool is_llnf_uproj(expr const & e, unsigned & idx);
 bool is_llnf_sset(expr const & e, unsigned & sz, unsigned & n, unsigned & offset);
+bool is_llnf_fset(expr const & e, unsigned & n, unsigned & offset);
 bool is_llnf_uset(expr const & e, unsigned & n);
 bool is_llnf_jmp(expr const & e);
 bool is_llnf_unbox(expr const & e, unsigned & n);
@@ -37,8 +39,10 @@ inline bool is_llnf_reuse(expr const & e) { unsigned d1, d2, d3; bool u; return 
 inline bool is_llnf_reset(expr const & e) { unsigned i; return is_llnf_reset(e, i); }
 inline bool is_llnf_proj(expr const & e) { unsigned d; return is_llnf_proj(e, d); }
 inline bool is_llnf_sproj(expr const & e) { unsigned d1, d2, d3; return is_llnf_sproj(e, d1, d2, d3); }
+inline bool is_llnf_fproj(expr const & e) { unsigned d1, d2; return is_llnf_fproj(e, d1, d2); }
 inline bool is_llnf_uproj(expr const & e) { unsigned d; return is_llnf_uproj(e, d); }
 inline bool is_llnf_sset(expr const & e) { unsigned d1, d2, d3; return is_llnf_sset(e, d1, d2, d3); }
+inline bool is_llnf_fset(expr const & e) { unsigned d1, d2; return is_llnf_fset(e, d1, d2); }
 inline bool is_llnf_uset(expr const & e) { unsigned d; return is_llnf_uset(e, d); }
 inline bool is_llnf_box(expr const & e) { unsigned n; return is_llnf_box(e, n); }
 inline bool is_llnf_unbox(expr const & e) { unsigned n; return is_llnf_unbox(e, n); }
@@ -61,6 +65,7 @@ struct field_info {
     field_info(unsigned sz, unsigned num, unsigned offset, expr const & type):
         m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type) {}
     expr get_type() const { return m_type; }
+    bool is_float() const { return is_constant(m_type, get_float_name()); }
     static field_info mk_irrelevant() { return field_info(); }
     static field_info mk_object(unsigned idx) { return field_info(idx); }
     static field_info mk_usize() { return field_info(0, true); }

@@ -117,8 +117,10 @@ static ir::type to_ir_type(expr const & e) {
             return ir::type::UInt64;
         } else if (const_name(e) == get_usize_name()) {
             return ir::type::USize;
+        } else if (const_name(e) == get_float_name()) {
+            return ir::type::Float;
         }
-    } else if (is_pi(e)) {
+     } else if (is_pi(e)) {
         return ir::type::Object;
     }
     throw exception("IR unsupported type");
@@ -334,6 +336,16 @@ class to_ir_fn {
         return ir::mk_sset(to_var_id(args[0]), n, offset, to_var_id(args[1]), size_to_ir_type(sz), b);
     }
 
+    ir::fn_body visit_fset(local_decl const & decl, ir::fn_body const & b) {
+        expr val = *decl.get_value();
+        buffer<expr> args;
+        expr const & fn = get_app_args(val, args);
+        lean_assert(args.size() == 2);
+        unsigned n, offset;
+        lean_verify(is_llnf_fset(fn, n, offset));
+        return ir::mk_sset(to_var_id(args[0]), n, offset, to_var_id(args[1]), ir::type::Float, b);
+    }
+
     ir::fn_body visit_uset(local_decl const & decl, ir::fn_body const & b) {
         expr val = *decl.get_value();
         buffer<expr> args;
@@ -356,6 +368,14 @@ class to_ir_fn {
         expr val = *decl.get_value();
         unsigned sz, n, offset;
         lean_verify(is_llnf_sproj(get_app_fn(val), sz, n, offset));
+        ir::expr v = ir::mk_sproj(n, offset, to_var_id(app_arg(val)));
+        return mk_vdecl(decl, v, b);
+    }
+
+    ir::fn_body visit_fproj(local_decl const & decl, ir::fn_body const & b) {
+        expr val = *decl.get_value();
+        unsigned n, offset;
+        lean_verify(is_llnf_fproj(get_app_fn(val), n, offset));
         ir::expr v = ir::mk_sproj(n, offset, to_var_id(app_arg(val)));
         return mk_vdecl(decl, v, b);
     }
@@ -391,12 +411,16 @@ class to_ir_fn {
                 return visit_papp(decl, b);
             else if (is_llnf_sset(fn))
                 return visit_sset(decl, b);
+            else if (is_llnf_fset(fn))
+                return visit_fset(decl, b);
             else if (is_llnf_uset(fn))
                 return visit_uset(decl, b);
             else if (is_llnf_proj(fn))
                 return visit_proj(decl, b);
             else if (is_llnf_sproj(fn))
                 return visit_sproj(decl, b);
+            else if (is_llnf_fproj(fn))
+                return visit_fproj(decl, b);
             else if (is_llnf_uproj(fn))
                 return visit_uproj(decl, b);
             else if (is_constant(fn))

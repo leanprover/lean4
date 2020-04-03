@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <deque>
+#include <cmath>
 #include "runtime/object.h"
 #include "runtime/thread.h"
 #include "runtime/utf8.h"
@@ -1444,6 +1445,22 @@ extern "C" usize lean_usize_mix_hash(usize a1, usize a2) {
     else
         return hash(static_cast<uint32>(a1), static_cast<uint32>(a2));
 }
+
+// =======================================
+// Float
+
+extern "C" double lean_float_of_nat(b_lean_obj_arg a) {
+    if (lean_is_scalar(a)) {
+        return (double)lean_unbox(a);
+    } else {
+        return std::nan(""); // TODO(Leo): improve
+    }
+}
+
+lean_obj_res lean_float_to_string(double a) {
+    return mk_string(std::to_string(a));
+}
+
 
 // =======================================
 // Strings

@@ -14,6 +14,7 @@ import Init.Data.Array
 import Init.Data.ByteArray
 import Init.Data.Fin
 import Init.Data.UInt
+import Init.Data.Float
 import Init.Data.RBTree
 import Init.Data.RBMap
 import Init.Data.Option

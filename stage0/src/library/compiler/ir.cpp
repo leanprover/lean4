@@ -445,7 +445,7 @@ class to_ir_fn {
                 expr new_fvar   = m_lctx.mk_local_decl(ngen(), n, type, val);
                 fvars.push_back(new_fvar);
                 expr const & op = get_app_fn(val);
-                if (is_llnf_sset(op) || is_llnf_uset(op)) {
+                if (is_llnf_sset(op) || is_llnf_fset(op) || is_llnf_uset(op)) {
                     /* In the Lean IR, sset and uset are instructions that perform destructive updates. */
                     subst.push_back(app_arg(app_fn(val)));
                 } else {

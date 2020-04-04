@@ -68,6 +68,13 @@ match a, b with
 match a, b with
 | ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
 
+instance floatDecEq : DecidableEq Float := Float.decEq
+instance floatDecLt (a b : Float) : Decidable (a < b) := Float.decLt a b
+instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
+
 @[extern "lean_float_to_string"] constant Float.toString : Float → String := arbitrary _
 
 instance : HasToString Float := ⟨Float.toString⟩
+
+abbrev Nat.toFloat (n : Nat) : Float :=
+Float.ofNat n

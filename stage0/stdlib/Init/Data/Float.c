@@ -13,8 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_floatDecLe(double, double);
 uint8_t l_floatSpec___elambda__1(lean_object*, lean_object*);
 double lean_float_of_nat(lean_object*);
+double l_Nat_toFloat(lean_object*);
 lean_object* l_Float_HasDiv___closed__1;
 lean_object* l_Float_HasLessEq;
 double l_Float_HasOne;
@@ -44,21 +46,27 @@ lean_object* l_floatSpec___elambda__1___boxed(lean_object*, lean_object*);
 double l_Float_add(double, double);
 lean_object* l_floatSpec___closed__3;
 double l_Float_HasOne___closed__1;
+lean_object* l_floatDecEq___boxed(lean_object*, lean_object*);
 lean_object* l_Float_HasToString___closed__1;
 lean_object* l_Float_HasSub;
 lean_object* l_Float_HasSub___closed__1;
 lean_object* l_Float_HasLess;
+lean_object* l_Nat_toFloat___boxed(lean_object*);
 lean_object* l_Float_HasDiv;
 lean_object* l_Float_decLe___boxed(lean_object*, lean_object*);
 lean_object* l_Float_sub___boxed(lean_object*, lean_object*);
+uint8_t l_floatDecLt(double, double);
 lean_object* l_floatSpec;
+lean_object* l_floatDecLe___boxed(lean_object*, lean_object*);
 lean_object* l_Float_toString___boxed(lean_object*);
 lean_object* l_Float_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Float_HasAdd___closed__1;
 double l_Float_HasZero;
 lean_object* l_Float_HasMul___closed__1;
 lean_object* l_Float_add___boxed(lean_object*, lean_object*);
+lean_object* l_floatDecLt___boxed(lean_object*, lean_object*);
 lean_object* l_Float_Inhabited___closed__1;
+uint8_t l_floatDecEq(double, double);
 double l_Float_mul(double, double);
 uint8_t l_floatSpec___elambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -386,6 +394,69 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
+uint8_t l_floatDecEq(double x_1, double x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = x_1 == x_2;
+return x_3;
+}
+}
+lean_object* l_floatDecEq___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+double x_3; double x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_float(x_2);
+lean_dec(x_2);
+x_5 = l_floatDecEq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+uint8_t l_floatDecLt(double x_1, double x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = x_1 < x_2;
+return x_3;
+}
+}
+lean_object* l_floatDecLt___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+double x_3; double x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_float(x_2);
+lean_dec(x_2);
+x_5 = l_floatDecLt(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+uint8_t l_floatDecLe(double x_1, double x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = x_1 <= x_2;
+return x_3;
+}
+}
+lean_object* l_floatDecLe___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+double x_3; double x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_float(x_2);
+lean_dec(x_2);
+x_5 = l_floatDecLe(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
 lean_object* l_Float_toString___boxed(lean_object* x_1) {
 _start:
 {
@@ -410,6 +481,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Float_HasToString___closed__1;
 return x_1;
+}
+}
+double l_Nat_toFloat(lean_object* x_1) {
+_start:
+{
+double x_2; 
+x_2 = lean_float_of_nat(x_1);
+return x_2;
+}
+}
+lean_object* l_Nat_toFloat___boxed(lean_object* x_1) {
+_start:
+{
+double x_2; lean_object* x_3; 
+x_2 = l_Nat_toFloat(x_1);
+lean_dec(x_1);
+x_3 = lean_box_float(x_2);
+return x_3;
 }
 }
 lean_object* initialize_Init_Core(lean_object*);

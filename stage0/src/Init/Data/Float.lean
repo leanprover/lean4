@@ -32,11 +32,11 @@ structure Float :=
 
 instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 
-/- @[extern "lean_float_of_nat"] -/ constant Float.ofNat : (@& Nat) → Float := arbitrary _
-/- @[extern c inline "#1 + #2"] -/  constant Float.add : Float → Float → Float := arbitrary _
-/- @[extern c inline "#1 - #2"] -/  constant Float.sub : Float → Float → Float := arbitrary _
-/- @[extern c inline "#1 * #2"] -/  constant Float.mul : Float → Float → Float := arbitrary _
-/- @[extern c inline "#1 / #2"] -/  constant Float.div : Float → Float → Float := arbitrary _
+@[extern "lean_float_of_nat"] constant Float.ofNat : (@& Nat) → Float := arbitrary _
+@[extern c inline "#1 + #2"]  constant Float.add : Float → Float → Float := arbitrary _
+@[extern c inline "#1 - #2"]  constant Float.sub : Float → Float → Float := arbitrary _
+@[extern c inline "#1 * #2"]  constant Float.mul : Float → Float → Float := arbitrary _
+@[extern c inline "#1 / #2"]  constant Float.div : Float → Float → Float := arbitrary _
 
 def Float.lt  : Float → Float → Prop :=
 fun a b => match a, b with
@@ -68,6 +68,6 @@ match a, b with
 match a, b with
 | ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
 
-/- @[extern "lean_float_to_string"] -/ constant Float.toString : Float → String := arbitrary _
+@[extern "lean_float_to_string"] constant Float.toString : Float → String := arbitrary _
 
 instance : HasToString Float := ⟨Float.toString⟩

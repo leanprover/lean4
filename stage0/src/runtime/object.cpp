@@ -1457,7 +1457,7 @@ extern "C" double lean_float_of_nat(b_lean_obj_arg a) {
     }
 }
 
-lean_obj_res lean_float_to_string(double a) {
+extern "C" lean_obj_res lean_float_to_string(double a) {
     return mk_string(std::to_string(a));
 }
 

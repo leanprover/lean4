@@ -27,8 +27,10 @@ constant floatSpec : FloatSpec := {
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
 
-def Float : Type := floatSpec.float
-instance : Inhabited Float := ⟨floatSpec.val⟩
+structure Float :=
+(val : floatSpec.float)
+
+instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 
 /- @[extern "lean_float_of_nat"] -/ constant Float.ofNat : (@& Nat) → Float := arbitrary _
 /- @[extern c inline "#1 + #2"] -/  constant Float.add : Float → Float → Float := arbitrary _
@@ -36,8 +38,11 @@ instance : Inhabited Float := ⟨floatSpec.val⟩
 /- @[extern c inline "#1 * #2"] -/  constant Float.mul : Float → Float → Float := arbitrary _
 /- @[extern c inline "#1 / #2"] -/  constant Float.div : Float → Float → Float := arbitrary _
 
-def Float.lt  : Float → Float → Prop := floatSpec.lt
-def Float.le  : Float → Float → Prop := floatSpec.le
+def Float.lt  : Float → Float → Prop :=
+fun a b => match a, b with
+| ⟨a⟩, ⟨b⟩ => floatSpec.lt a b
+
+def Float.le  : Float → Float → Prop := fun a b => floatSpec.le a.val b.val
 
 instance : HasZero Float   := ⟨Float.ofNat 0⟩
 instance : HasOne Float    := ⟨Float.ofNat 1⟩
@@ -49,9 +54,19 @@ instance : HasDiv Float    := ⟨Float.div⟩
 instance : HasLess Float   := ⟨Float.lt⟩
 instance : HasLessEq Float := ⟨Float.le⟩
 
-/- @[extern c inline "#1 == #2"] -/ constant Float.decEq (a b : Float) : Decidable (a = b) := floatSpec.decEq a b
-/- @[extern c inline "#1 < #2"]  -/  constant Float.decLt (a b : Float) : Decidable (a < b) := floatSpec.decLt a b
-/- @[extern c inline "#1 <= #2"] -/ constant Float.decLe (a b : Float) : Decidable (a ≤ b) := floatSpec.decLe a b
+@[extern c inline "#1 == #2"] constant Float.decEq (a b : Float) : Decidable (a = b) :=
+match a, b with
+| ⟨a⟩, ⟨b⟩ => match floatSpec.decEq a b with
+  | isTrue h  => isTrue (congrArg Float.mk h)
+  | isFalse h => isFalse (fun h₁ => Float.noConfusion h₁ (fun h₁ => absurd h₁ h))
+
+@[extern c inline "#1 < #2"]   constant Float.decLt (a b : Float) : Decidable (a < b) :=
+match a, b with
+| ⟨a⟩, ⟨b⟩ => floatSpec.decLt a b
+
+@[extern c inline "#1 <= #2"] constant Float.decLe (a b : Float) : Decidable (a ≤ b) :=
+match a, b with
+| ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
 
 /- @[extern "lean_float_to_string"] -/ constant Float.toString : Float → String := arbitrary _
 

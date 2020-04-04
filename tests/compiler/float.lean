@@ -27,8 +27,15 @@ let foo := mkFoo x;
 IO.println foo.y;
 IO.println foo.z
 
+@[noinline] def fMap (f : Float → Float) (xs : List Float) :=
+xs.map f
+
+def tst3 (xs : List Float) (y : Float) : IO Unit :=
+IO.println (fMap (fun x => x / y) xs)
+
 def main : IO Unit := do
 tst1;
 IO.println "-----";
 tst2 7;
+tst3 [3, 4, 7, 8, 9, 11] 2;
 pure ()

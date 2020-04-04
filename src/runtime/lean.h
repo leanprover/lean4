@@ -1677,7 +1677,7 @@ static inline lean_obj_res lean_box_float(double v) {
     return r;
 }
 
-static inline uint64_t lean_unbox_float(b_lean_obj_arg o) {
+static inline double lean_unbox_float(b_lean_obj_arg o) {
     return lean_ctor_get_float(o, 0);
 }
 

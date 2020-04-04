@@ -1672,12 +1672,12 @@ static inline size_t lean_unbox_usize(b_lean_obj_arg o) {
 }
 
 static inline lean_obj_res lean_box_float(double v) {
-    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(double));
+    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(double)); // NOLINT
     lean_ctor_set_float(r, 0, v);
     return r;
 }
 
-static inline uint64_t lean_unbox_float(b_lean_obj_arg o) {
+static inline double lean_unbox_float(b_lean_obj_arg o) {
     return lean_ctor_get_float(o, 0);
 }
 

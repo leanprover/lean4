@@ -11,7 +11,7 @@ It is based on the one from AngularJS project([doc][angularjs-doc],
 Format of the commit message
 ----------------------------
 
-    <type>(<scope>): <subject>
+    <type>: <subject>
     <NEWLINE>
     <body>
     <NEWLINE>
@@ -27,13 +27,6 @@ Format of the commit message
  - test (when adding missing tests)
  - chore (maintain, ex: travis-ci)
  - perf (performance improvement, optimization, ...)
-
-``<scope>`` is a name of module or a directory which contains changed modules. For instance,
-it could be
-
- - kernel/expr
- - kernel
- - library/rewrite
 
 ``<subject>`` has the following constraints:
 
@@ -60,7 +53,7 @@ it could be
 Examples
 --------
 
-fix(kernel): add declarations for operator<<(std::ostream&, expr const&) and operator<<(std::ostream&, context const&) in the kernel
+fix: add declarations for operator<<(std::ostream&, expr const&) and operator<<(std::ostream&, context const&) in the kernel
 
 The actual implementation of these two operators is outside of the
 kernel. They are implemented in the file 'library/printer.cpp'. We
@@ -76,16 +69,3 @@ but contains
 The compiler does not generate an error message. It silently uses the
 operator bool() to coerce the expression into a Boolean. This produces
 counter-intuitive behavior, and may confuse developers.
-
-"Prepare commit message" git hook
-=================================
-
-Execute the following in the project root directory
-to activate a little script that tries to synthesize
-the first part of the commit message:
-
-```bash
-ln -s ../../script/prepare-commit-msg .git/hooks
-```
-
-Currently, it will only activate if just a single file has changed.

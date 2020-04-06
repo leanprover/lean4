@@ -1453,7 +1453,7 @@ extern "C" double lean_float_of_nat(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
         return static_cast<double>(lean_unbox(a));
     } else {
-        return std::nan(""); // TODO(Leo): improve
+        return mpz_value(a).get_double();
     }
 }
 

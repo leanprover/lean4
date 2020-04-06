@@ -23,7 +23,7 @@ categoryParser `tactic rbp
 def Tactic.seq : Parser         := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
 def Tactic.nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
 
-def darrow : Parser := unicodeSymbol "⇒" "=>"
+def darrow : Parser := "=>"
 
 namespace Term
 

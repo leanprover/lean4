@@ -26,4 +26,4 @@
 "`a._@.UnhygienicMain._hyg.1"
 "(Term.id `a._@.UnhygienicMain._hyg.1 (null (Term.explicitUniv \".{\" (null (Level.num (numLit \"0\"))) \"}\")))"
 "#[]"
-StxQuot.lean:40:74: error: expected '⇒', '=>'
+StxQuot.lean:40:74: error: expected '=>'

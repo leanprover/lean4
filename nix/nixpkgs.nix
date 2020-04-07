@@ -1,7 +1,7 @@
 import (builtins.fetchTarball {
-  name = "nixpkgs-unstable-2019-10-07";
-  # Commit hash from `git ls-remote https://github.com/nixos/nixpkgs-channels nixos-unstable`
-  url = https://github.com/nixos/nixpkgs/archive/795b1555a88627f0739188081527f23259fcc1d2.tar.gz;
+  name = "nixpkgs-unstable-2020-04-08";
+  # Commit hash from `git ls-remote https://github.com/nixos/nixpkgs-channels nixpgs-unstable`
+  url = https://github.com/nixos/nixpkgs/archive/40dcac87f4afb452f7882c6102eded87169a6134.tar.gz;
   # Hash obtained using `nix-prefetch-url --unpack <url>`
-  sha256 = "0lx1snxgankwv18h3jrzz99fmhk036a2gng4xp92c04nx8mcjlgc";
+  sha256 = "0x2zmh8mz6bi7cxx62macmyan4cdxplnpvfm50fmhrp34a2scbm3";
 }) {}

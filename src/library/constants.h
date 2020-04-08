@@ -60,6 +60,7 @@ name const & get_eq_true_intro_name();
 name const & get_eq_false_intro_name();
 name const & get_eq_self_iff_true_name();
 name const & get_float_name();
+name const & get_float_array_name();
 name const & get_lean_message_data_name();
 name const & get_lean_monad_tracer_trace_name();
 name const & get_false_name();

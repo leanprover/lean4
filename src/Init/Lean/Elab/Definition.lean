@@ -145,6 +145,7 @@ def elabDefLike (view : DefView) : CommandElabM Unit :=
 let ref := view.ref;
 withDeclId view.declId $ fun name => do
   declName          ← mkDeclName view.modifiers name;
+  checkNotAlreadyDeclared ref declName;
   applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
   explictLevelNames ← getLevelNames;
   decl? ← runTermElabM declName $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>

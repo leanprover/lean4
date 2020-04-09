@@ -116,6 +116,11 @@ match modifiers.visibility with
   pure declName
 | _                  => pure declName
 
+def checkNotAlreadyDeclared (ref : Syntax) (declName : Name) : CommandElabM Unit := do
+env ← getEnv;
+when (env.contains declName) $
+  throwError ref ("'" ++ declName ++ "' has already been declared")
+
 def applyAttributes (ref : Syntax) (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
 attrs.forM $ fun attr => do
  env ← getEnv;

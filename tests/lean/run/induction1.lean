@@ -82,3 +82,11 @@ begin
   induction h₁ using Iff.elim with
   | _ h _ => exact h h₂
 end
+
+def Iff2 (m p q : Prop) := p ↔ q
+
+theorem tst11 {p q r : Prop } (h₁ : Iff2 r p q) (h₂ : p) : q :=
+begin
+  induction h₁ using Iff.elim with
+  | _ h _ => exact h h₂
+end

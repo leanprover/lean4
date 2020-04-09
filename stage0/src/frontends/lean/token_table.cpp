@@ -136,7 +136,6 @@ void init_token_table(token_table & t) {
     }
     t = add_token(t, "→", "->", get_arrow_prec());
     t = add_token(t, "←", "<-", 0);
-    t = add_token(t, "⇒", "=>", 0);
 
     auto it4 = cmd_aliases;
     while (it4->first) {

@@ -442,24 +442,24 @@ instance [HasToString α] : HasToString (Array α) :=
 ⟨fun a => "#" ++ toString a.toList⟩
 
 section
-variables {m : Type u → Type w} [Monad m]
-variable {β : Type u}
+variables {m : Type v → Type w} [Monad m]
+variable {β : Type v}
 
-@[specialize] unsafe partial def umapMAux (f : Nat → α → m β) : Nat → Array (PNonScalar.{u}) → m (Array (PNonScalar.{u}))
+@[specialize] unsafe partial def umapMAux (f : Nat → α → m β) : Nat → Array NonScalar → m (Array PNonScalar.{v})
 | i, a =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
-     let v   : PNonScalar := a.get idx;
+     let v   : NonScalar  := a.get idx;
      let a                := a.set idx (arbitrary _);
      do newV ← f i (unsafeCast v); umapMAux (i+1) (a.set idx (unsafeCast newV))
   else
-     pure a
+     pure (unsafeCast a)
 
 @[inline] unsafe partial def umapM (f : α → m β) (as : Array α) : m (Array β) :=
-@unsafeCast (m (Array PNonScalar.{u})) (m (Array β)) $ umapMAux (fun i a => f a) 0 (unsafeCast as)
+@unsafeCast (m (Array PNonScalar.{v})) (m (Array β)) $ umapMAux (fun i a => f a) 0 (unsafeCast as)
 
 @[inline] unsafe partial def umapIdxM (f : Nat → α → m β) (as : Array α) : m (Array β) :=
-@unsafeCast (m (Array PNonScalar.{u})) (m (Array β)) $ umapMAux f 0 (unsafeCast as)
+@unsafeCast (m (Array PNonScalar.{v})) (m (Array β)) $ umapMAux f 0 (unsafeCast as)
 
 @[implementedBy Array.umapM] def mapM (f : α → m β) (as : Array α) : m (Array β) :=
 as.foldlM (fun bs a => do b ← f a; pure (bs.push b)) (mkEmpty as.size)
@@ -470,7 +470,6 @@ end
 
 section
 variables {m : Type u → Type v} [Monad m]
-variable {β : Type u}
 
 @[inline] def modifyM [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) :=
 if h : i < a.size then do
@@ -485,7 +484,7 @@ else
 end
 
 section
-variable {β : Type u}
+variable {β : Type v}
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
 Id.run $ a.modifyM i f
@@ -501,11 +500,11 @@ Id.run $ mapM f as
 end
 
 section
-variables {m : Type u → Type v} [Monad m]
-variable {β : Type u}
+variables {m : Type v → Type w} [Monad m]
+variable {β : Type v}
 
 @[specialize]
-partial def forMAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : Nat → m PUnit
+partial def forMAux (f : α → m β) (a : Array α) : Nat → m PUnit
 | i =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
@@ -514,11 +513,11 @@ partial def forMAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α)
   else
      pure ⟨⟩
 
-@[inline] def forM {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : m PUnit :=
+@[inline] def forM (f : α → m β) (a : Array α) : m PUnit :=
 a.forMAux f 0
 
 @[specialize]
-partial def forRevMAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : forall (i : Nat), i ≤ a.size → m PUnit
+partial def forRevMAux (f : α → m β) (a : Array α) : forall (i : Nat), i ≤ a.size → m PUnit
 | i, h =>
   if hLt : 0 < i then
     have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
@@ -529,7 +528,7 @@ partial def forRevMAux {α : Type w} {β : Type u} (f : α → m β) (a : Array 
   else
      pure ⟨⟩
 
-@[inline] def forRevM {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : m PUnit :=
+@[inline] def forRevM (f : α → m β) (a : Array α) : m PUnit :=
 a.forRevMAux f a.size (Nat.leRefl _)
 
 end

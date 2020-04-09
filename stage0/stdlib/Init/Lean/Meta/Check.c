@@ -27,7 +27,7 @@ lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Check_7__regTraceClasses(lean_object*);
-lean_object* l_Array_forMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_forMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_Meta_isTypeCorrect___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -470,7 +470,7 @@ x_6 = lean_alloc_closure((void*)(l___private_Init_Lean_Meta_Check_2__checkLambda
 lean_closure_set(x_6, 0, x_1);
 x_7 = l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_forMAux___main___rarg(x_7, lean_box(0), lean_box(0), x_6, x_2, x_8);
+x_9 = l_Array_forMAux___main___rarg(x_7, lean_box(0), x_6, x_2, x_8);
 lean_inc(x_4);
 x_10 = lean_apply_2(x_9, x_4, x_5);
 if (lean_obj_tag(x_10) == 0)
@@ -617,7 +617,7 @@ x_6 = lean_alloc_closure((void*)(l___private_Init_Lean_Meta_Check_3__checkForall
 lean_closure_set(x_6, 0, x_1);
 x_7 = l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_forMAux___main___rarg(x_7, lean_box(0), lean_box(0), x_6, x_2, x_8);
+x_9 = l_Array_forMAux___main___rarg(x_7, lean_box(0), x_6, x_2, x_8);
 lean_inc(x_4);
 x_10 = lean_apply_2(x_9, x_4, x_5);
 if (lean_obj_tag(x_10) == 0)

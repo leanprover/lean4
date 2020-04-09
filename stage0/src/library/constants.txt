@@ -53,6 +53,7 @@ eqTrueIntro
 eqFalseIntro
 eqSelfIffTrue
 Float
+FloatArray
 Lean.MessageData
 Lean.MonadTracer.trace
 False

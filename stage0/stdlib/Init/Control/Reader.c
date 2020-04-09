@@ -649,7 +649,7 @@ lean_object* l_monadReaderTrans___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_apply_2(x_1, lean_box(0), x_2);
+x_3 = lean_apply_2(x_2, lean_box(0), x_1);
 return x_3;
 }
 }
@@ -683,9 +683,9 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_alloc_closure((void*)(l_monadFunctorTTrans___rarg___lambda__1), 4, 2);
-lean_closure_set(x_6, 0, x_2);
+lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_4);
-x_7 = lean_apply_3(x_1, lean_box(0), x_6, x_5);
+x_7 = lean_apply_3(x_2, lean_box(0), x_6, x_5);
 return x_7;
 }
 }
@@ -753,9 +753,9 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_alloc_closure((void*)(l_monadReaderRunnerTrans___rarg___lambda__1), 4, 2);
-lean_closure_set(x_6, 0, x_2);
+lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_5);
-x_7 = lean_apply_3(x_1, lean_box(0), x_6, x_4);
+x_7 = lean_apply_3(x_2, lean_box(0), x_6, x_4);
 return x_7;
 }
 }

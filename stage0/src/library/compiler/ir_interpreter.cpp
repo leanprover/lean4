@@ -200,17 +200,25 @@ union value {
     // NOTE: the IR type system guarantees that we always access the active union member
     uint64   m_num; // big enough for any unboxed integral type
     static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
+    double   m_float;
     object * m_obj;
 
     value() {}
     // too convenient to make explicit
     value(uint64 num): m_num(num) {}
     value(object * o): m_obj(o) {}
+
+    // would overlap with `value(uint64)` as a constructor
+    static value from_float(double f) {
+        value v;
+        v.m_float = f;
+        return v;
+    }
 };
 
 object * box_t(value v, type t) {
     switch (t) {
-        case type::Float: throw exception("floats are not supported yet");
+        case type::Float: return box_float(v.m_float);
         case type::UInt8: return box(v.m_num);
         case type::UInt16: return box(v.m_num);
         case type::UInt32: return box_uint32(v.m_num);
@@ -225,19 +233,21 @@ object * box_t(value v, type t) {
 
 value unbox_t(object * o, type t) {
     switch (t) {
-        case type::Float: throw exception("floats are not supported yet");
+        case type::Float: return value::from_float(unbox_float(o));
         case type::UInt8: return unbox(o);
         case type::UInt16: return unbox(o);
-        case type::UInt32: { return unbox_uint32(o); }
-        case type::UInt64: { return unbox_uint64(o); }
-        case type::USize: { return unbox_size_t(o); }
+        case type::UInt32: return unbox_uint32(o);
+        case type::UInt64: return unbox_uint64(o);
+        case type::USize: return unbox_size_t(o);
         default: lean_unreachable();
     }
 }
 
 /** \pre Very simple debug output of arbitrary values, should be extended. */
 void print_value(io_state_stream const & ios, value const & v, type t) {
-    if (type_is_scalar(t)) {
+    if (t == type::Float) {
+        ios << v.m_float;
+    } else if (type_is_scalar(t)) {
         ios << v.m_num;
     } else {
         if (is_scalar(v.m_obj)) {
@@ -391,7 +401,7 @@ class interpreter {
                                 expr_sproj_offset(e).get_small_value();
                 object * o = var(expr_sproj_obj(e)).m_obj;
                 switch (t) {
-                    case type::Float: throw exception("floats are not supported yet");
+                    case type::Float: return value::from_float(cnstr_get_float(o, offset));
                     case type::UInt8: return cnstr_get_uint8(o, offset);
                     case type::UInt16: return cnstr_get_uint16(o, offset);
                     case type::UInt32: return cnstr_get_uint32(o, offset);
@@ -442,7 +452,8 @@ class interpreter {
                     case lit_val_kind::Num: {
                         nat const & n = lit_val_num(expr_lit_val(e));
                         switch (t) {
-                            case type::Float: throw exception("floats are not supported yet");
+                            case type::Float:
+                                return value::from_float(lean_float_of_nat(n.raw()));
                             case type::UInt8:
                             case type::UInt16:
                             case type::UInt32:
@@ -562,14 +573,14 @@ class interpreter {
                     object * o = var(fn_body_sset_target(b)).m_obj;
                     size_t offset = fn_body_sset_idx(b).get_small_value() * sizeof(void *) +
                                     fn_body_sset_offset(b).get_small_value();
-                    uint64 v = var(fn_body_sset_source(b)).m_num;
+                    value v = var(fn_body_sset_source(b));
                     lean_assert(is_exclusive(o));
                     switch (fn_body_sset_type(b)) {
-                        case type::Float: throw exception("floats are not supported yet");
-                        case type::UInt8: cnstr_set_uint8(o, offset, v); break;
-                        case type::UInt16: cnstr_set_uint16(o, offset, v); break;
-                        case type::UInt32: cnstr_set_uint32(o, offset, v); break;
-                        case type::UInt64: cnstr_set_uint64(o, offset, v); break;
+                        case type::Float: cnstr_set_float(o, offset, v.m_float); break;
+                        case type::UInt8: cnstr_set_uint8(o, offset, v.m_num); break;
+                        case type::UInt16: cnstr_set_uint16(o, offset, v.m_num); break;
+                        case type::UInt32: cnstr_set_uint32(o, offset, v.m_num); break;
+                        case type::UInt64: cnstr_set_uint64(o, offset, v.m_num); break;
                         default: throw exception(sstream() << "invalid instruction");
                     }
                     b = fn_body_sset_cont(b);
@@ -707,7 +718,7 @@ class interpreter {
         if (e.m_addr) {
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
-                case type::Float: throw exception("floats are not supported yet");
+                case type::Float: return value::from_float(*static_cast<double *>(e.m_addr));
                 case type::UInt8: return *static_cast<uint8 *>(e.m_addr);
                 case type::UInt16: return *static_cast<uint16 *>(e.m_addr);
                 case type::UInt32: return *static_cast<uint32 *>(e.m_addr);

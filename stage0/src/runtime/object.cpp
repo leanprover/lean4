@@ -1453,7 +1453,7 @@ extern "C" double lean_float_of_nat(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
         return static_cast<double>(lean_unbox(a));
     } else {
-        return std::nan(""); // TODO(Leo): improve
+        return mpz_value(a).get_double();
     }
 }
 
@@ -1784,7 +1784,7 @@ extern "C" usize lean_string_hash(b_obj_arg s) {
 }
 
 // =======================================
-// ByteArray
+// ByteArray & FloatArray
 
 extern "C" obj_res lean_copy_sarray(obj_arg a, bool expand) {
     unsigned esz   = lean_sarray_elem_size(a);
@@ -1845,6 +1845,55 @@ extern "C" obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     size_t & sz  = lean_to_sarray(r)->m_size;
     uint8 * it   = lean_sarray_cptr(r) + sz;
     *it = b;
+    sz++;
+    return r;
+}
+
+extern "C" obj_res lean_copy_float_array(obj_arg a) {
+    return lean_copy_sarray(a, false);
+}
+
+extern "C" obj_res lean_float_array_mk(obj_arg a) {
+    usize sz      = lean_array_size(a);
+    obj_res r     = lean_alloc_sarray(sizeof(double), sz, sz); // NOLINT
+    object ** it  = lean_array_cptr(a);
+    object ** end = it + sz;
+    double * dest = reinterpret_cast<double*>(lean_sarray_cptr(r));
+    for (; it != end; ++it, ++dest) {
+        *dest = lean_unbox_float(*it);
+    }
+    lean_dec(a);
+    return r;
+}
+
+extern "C" obj_res lean_float_array_data(obj_arg a) {
+    usize sz       = lean_sarray_size(a);
+    obj_res r      = lean_alloc_array(sz, sz);
+    double * it    = reinterpret_cast<double*>(lean_sarray_cptr(a));
+    double * end   = it+sz;
+    object ** dest = lean_array_cptr(r);
+    for (; it != end; ++it, ++dest) {
+        lean_dec(*dest);
+        *dest = lean_box_float(*it);
+    }
+    lean_dec(a);
+    return r;
+}
+
+extern "C" obj_res lean_float_array_push(obj_arg a, double d) {
+    object * r;
+    if (lean_is_exclusive(a)) {
+        if (lean_sarray_capacity(a) > lean_sarray_size(a))
+            r = a;
+        else
+            r = lean_copy_sarray(a, true);
+    } else {
+        r = lean_copy_sarray(a, lean_sarray_capacity(a) < 2*lean_sarray_size(a) + 1);
+    }
+    lean_assert(lean_sarray_capacity(r) > lean_sarray_size(r));
+    size_t & sz  = lean_to_sarray(r)->m_size;
+    double * it  = reinterpret_cast<double*>(lean_sarray_cptr(r)) + sz;
+    *it = d;
     sz++;
     return r;
 }

@@ -12,7 +12,6 @@ structure FloatSpec :=
 (val   : float)
 (lt    : float → float → Prop)
 (le    : float → float → Prop)
-(decEq : DecidableEq float)
 (decLt : DecidableRel lt)
 (decLe : DecidableRel le)
 
@@ -22,7 +21,6 @@ constant floatSpec : FloatSpec := {
   val   := (),
   lt    := fun _ _ => True,
   le    := fun _ _ => True,
-  decEq := inferInstanceAs (DecidableEq Unit),
   decLt := fun _ _ => inferInstanceAs (Decidable True),
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
@@ -54,11 +52,9 @@ instance : HasDiv Float    := ⟨Float.div⟩
 instance : HasLess Float   := ⟨Float.lt⟩
 instance : HasLessEq Float := ⟨Float.le⟩
 
-@[extern c inline "#1 == #2"] constant Float.decEq (a b : Float) : Decidable (a = b) :=
-match a, b with
-| ⟨a⟩, ⟨b⟩ => match floatSpec.decEq a b with
-  | isTrue h  => isTrue (congrArg Float.mk h)
-  | isFalse h => isFalse (fun h₁ => Float.noConfusion h₁ (fun h₁ => absurd h₁ h))
+@[extern c inline "#1 == #2"] constant Float.beq (a b : Float) : Bool := arbitrary _
+
+instance : HasBeq Float := ⟨Float.beq⟩
 
 @[extern c inline "#1 < #2"]   constant Float.decLt (a b : Float) : Decidable (a < b) :=
 match a, b with
@@ -68,7 +64,6 @@ match a, b with
 match a, b with
 | ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
 
-instance floatDecEq : DecidableEq Float := Float.decEq
 instance floatDecLt (a b : Float) : Decidable (a < b) := Float.decLt a b
 instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 
@@ -78,3 +73,27 @@ instance : HasToString Float := ⟨Float.toString⟩
 
 abbrev Nat.toFloat (n : Nat) : Float :=
 Float.ofNat n
+
+@[extern "sin"] constant Float.sin : Float → Float := arbitrary _
+@[extern "cos"] constant Float.cos : Float → Float := arbitrary _
+@[extern "tan"] constant Float.tan : Float → Float := arbitrary _
+@[extern "asin"] constant Float.asin : Float → Float := arbitrary _
+@[extern "acos"] constant Float.acos : Float → Float := arbitrary _
+@[extern "atan"] constant Float.atan : Float → Float := arbitrary _
+@[extern "atan2"] constant Float.atan2 : Float → Float → Float := arbitrary _
+@[extern "sinh"] constant Float.sinh : Float → Float := arbitrary _
+@[extern "cosh"] constant Float.cosh : Float → Float := arbitrary _
+@[extern "tanh"] constant Float.tanh : Float → Float := arbitrary _
+@[extern "asinh"] constant Float.asinh : Float → Float := arbitrary _
+@[extern "acosh"] constant Float.acosh : Float → Float := arbitrary _
+@[extern "atanh"] constant Float.atanh : Float → Float := arbitrary _
+@[extern "exp"] constant Float.exp : Float → Float := arbitrary _
+@[extern "exp2"] constant Float.exp2 : Float → Float := arbitrary _
+@[extern "log"] constant Float.log : Float → Float := arbitrary _
+@[extern "log2"] constant Float.log2 : Float → Float := arbitrary _
+@[extern "log10"] constant Float.log10 : Float → Float := arbitrary _
+@[extern "pow"] constant Float.pow : Float → Float → Float := arbitrary _
+@[extern "sqrt"] constant Float.sqrt : Float → Float := arbitrary _
+@[extern "cbrt"] constant Float.cbrt : Float → Float := arbitrary _
+
+instance : HasPow Float Float := ⟨Float.pow⟩

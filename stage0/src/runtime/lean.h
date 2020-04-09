@@ -1016,6 +1016,70 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
     }
 }
 
+/* FloatArray (special case of Array of Scalars) */
+
+lean_obj_res lean_float_array_mk(lean_obj_arg a);
+lean_obj_res lean_float_array_data(lean_obj_arg a);
+lean_obj_res lean_copy_float_array(lean_obj_arg a);
+
+static inline lean_obj_res lean_mk_empty_float_array(b_lean_obj_arg capacity) {
+    if (!lean_is_scalar(capacity)) lean_panic_out_of_memory();
+    return lean_alloc_sarray(sizeof(double), 0, lean_unbox(capacity)); // NOLINT
+}
+
+static inline lean_obj_res lean_float_array_size(b_lean_obj_arg a) {
+    return lean_box(lean_sarray_size(a));
+}
+
+static inline double * lean_float_array_cptr(b_lean_obj_arg a) {
+    return (double*)(lean_sarray_cptr(a)); // NOLINT
+}
+
+static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
+    if (lean_is_scalar(i)) {
+        size_t idx = lean_unbox(i);
+        return idx < lean_sarray_size(a) ? lean_float_array_cptr(a)[idx] : 0.0;
+    } else {
+        /* The index must be out of bounds. Otherwise we would be out of memory. */
+        return 0.0;
+    }
+}
+
+lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
+
+static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i, double d) {
+    if (!lean_is_scalar(i)) {
+        return a;
+    } else {
+        size_t idx = lean_unbox(i);
+        if (idx >= lean_sarray_size(a)) {
+            return a;
+        } else {
+            lean_obj_res r;
+            if (lean_is_exclusive(a)) r = a;
+            else r = lean_copy_float_array(a);
+            double * it = lean_float_array_cptr(r) + idx;
+            *it = d;
+            return r;
+        }
+    }
+}
+
+static inline double lean_float_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
+    size_t idx = lean_unbox(i);
+    return lean_float_array_cptr(a)[idx];
+}
+
+static inline lean_obj_res lean_float_array_fset(lean_obj_arg a, b_lean_obj_arg i, double d) {
+    size_t idx = lean_unbox(i);
+    lean_obj_res r;
+    if (lean_is_exclusive(a)) r = a;
+    else r = lean_copy_float_array(a);
+    double * it = lean_float_array_cptr(r) + idx;
+    *it = d;
+    return r;
+}
+
 /* Strings */
 
 static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {

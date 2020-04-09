@@ -298,6 +298,15 @@ fun stx => evalChoiceAux stx.getArgs 0
 @[builtinTactic skip] def evalSkip : Tactic :=
 fun stx => pure ()
 
+@[builtinTactic failIfSuccess] def evalFailIfSuccess : Tactic :=
+fun stx =>
+  let tactic := stx.getArg 1;
+  whenM
+    (catch
+      (do evalTactic tactic; pure true)
+      (fun _ => pure false))
+    (throwError stx ("tactic succeeded"))
+
 @[builtinTactic traceState] def evalTraceState : Tactic :=
 fun stx => do
   gs ← getUnsolvedGoals;

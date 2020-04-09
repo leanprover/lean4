@@ -76,3 +76,9 @@ begin
   | nil       => exact rfl
   | cons z zs => exact absurd rfl (h z zs)
 end
+
+theorem tst10 {p q : Prop } (h₁ : p ↔ q) (h₂ : p) : q :=
+begin
+  induction h₁ using Iff.elim with
+  | _ h _ => exact h h₂
+end

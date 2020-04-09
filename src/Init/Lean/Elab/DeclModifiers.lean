@@ -110,16 +110,22 @@ let declName := currNamespace ++ atomicName;
 match modifiers.visibility with
 | Visibility.private => do
   env ← getEnv;
-  let (env, declName) := mkPrivateName env declName;
-  setEnv env;
-  -- TODO: alias?
-  pure declName
+  pure $ mkPrivateName env declName
 | _                  => pure declName
 
 def checkNotAlreadyDeclared (ref : Syntax) (declName : Name) : CommandElabM Unit := do
 env ← getEnv;
 when (env.contains declName) $
-  throwError ref ("'" ++ declName ++ "' has already been declared")
+  match privateToUserName? declName with
+  | none          => throwError ref ("'" ++ declName ++ "' has already been declared")
+  | some declName => throwError ref ("private declaration '" ++ declName ++ "' has already been declared");
+when (env.contains (mkPrivateName env declName)) $
+  throwError ref ("a private declaration '" ++ declName ++ "' has already been declared");
+match privateToUserName? declName with
+| none => pure ()
+| some declName =>
+  when (env.contains declName) $
+    throwError ref ("a non-private declaration '" ++ declName ++ "' has already been declared")
 
 def applyAttributes (ref : Syntax) (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
 attrs.forM $ fun attr => do

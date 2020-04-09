@@ -14,22 +14,22 @@ end
 theorem tst1 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 begin
   induction h with
-  | inr h2 => Or.inl h2
-  | inl h1 => Or.inr h1
+  | inr h2 => exact Or.inl h2
+  | inl h1 => exact Or.inr h1
 end
 
 theorem tst2 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 begin
   induction h using elim2 with
-  | left _  => Or.inr $ by assumption
-  | right _ => Or.inl $ by assumption
+  | left _  => { apply Or.inr; assumption }
+  | right _ => { apply Or.inl; assumption }
 end
 
 theorem tst3 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 begin
   induction h using elim2 with
-  | right h => Or.inl h
-  | left h  => Or.inr h
+  | right h => exact Or.inl h
+  | left h  => exact Or.inr h
 end
 
 theorem tst4 {p q : Prop } (h : p ∨ q) : q ∨ p :=
@@ -44,24 +44,23 @@ end
 theorem tst5 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 begin
   induction h using elim2 with
-  | right h => Or.inl ?myright
-  | left h  => Or.inr ?myleft;
-  case myleft  assumption;
-  case myright exact h;
+  | right h => _
+  | left h  => { refine Or.inr _; exact h };
+  case right { exact Or.inl h }
 end
 
 theorem tst6 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 begin
   cases h with
-  | inr h2 => Or.inl h2
-  | inl h1 => Or.inr h1
+  | inr h2 => exact Or.inl h2
+  | inl h1 => exact Or.inr h1
 end
 
 theorem tst7 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] :=
 begin
   induction xs with
-  | nil          => rfl
-  | cons z zs ih => absurd rfl (h z zs)
+  | nil          => exact rfl
+  | cons z zs ih => exact absurd rfl (h z zs)
 end
 
 theorem tst8 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] :=
@@ -74,6 +73,6 @@ end
 theorem tst9 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] :=
 begin
   cases xs with
-  | nil       => rfl
-  | cons z zs => absurd rfl (h z zs)
+  | nil       => exact rfl
+  | cons z zs => exact absurd rfl (h z zs)
 end

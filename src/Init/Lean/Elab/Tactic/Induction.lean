@@ -186,7 +186,8 @@ else do
 /-
   Recall that
   ```
-  inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> termParser
+  inductionAlt  : Parser :=
+    nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> (hole <|> namedHole <|> tacticParser)
   inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
   withAlts : Parser := optional (" with " >> inductionAlts)
   usingRec : Parser := optional (" using " >> ident)
@@ -230,6 +231,10 @@ else do
       throwError (remainingAlts.get! 0) "unused alternative";
     pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
 
+-- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
+private def isTermRHS (rhs : Syntax) : Bool :=
+rhs.isOfKind `Lean.Parser.Term.namedHole || rhs.isOfKind `Lean.Parser.Term.hole
+
 private def processResult (ref : Syntax) (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) : TacticM Unit := do
 if altRHSs.isEmpty then
   setGoals $ result.toList.map $ fun s => s.mvarId
@@ -237,18 +242,27 @@ else do
   unless (altRHSs.size == result.size) $
     throwError ref ("mistmatch on the number of subgoals produced (" ++ toString result.size ++ ") and " ++
                     "alternatives provided (" ++ toString altRHSs.size ++ ")");
-  result.size.forM $ fun i => do
-    let subgoal := result.get! i;
-    let rhs     := altRHSs.get! i;
-    let mvarId  := subgoal.mvarId;
-    withMVarContext mvarId $ do
-      mvarDecl ← getMVarDecl mvarId;
-      val ← elabTerm rhs mvarDecl.type;
-      val ← ensureHasType rhs mvarDecl.type val;
-      assignExprMVar mvarId val;
-      gs'  ← collectMVars rhs val;
-      tagUntaggedGoals mvarDecl.userName `induction gs';
-      appendGoals gs'
+  gs ← result.size.foldM
+    (fun i gs => do
+      let subgoal := result.get! i;
+      let rhs     := altRHSs.get! i;
+      let ref     := rhs;
+      let mvarId  := subgoal.mvarId;
+      if isTermRHS rhs then withMVarContext mvarId $ do
+        mvarDecl ← getMVarDecl mvarId;
+        val ← elabTerm rhs mvarDecl.type;
+        val ← ensureHasType rhs mvarDecl.type val;
+        assignExprMVar mvarId val;
+        gs'  ← collectMVars rhs val;
+        tagUntaggedGoals mvarDecl.userName `induction gs';
+        pure (gs ++ gs')
+      else do
+        setGoals [mvarId];
+        evalTactic rhs;
+        done ref;
+        pure gs)
+    [];
+  setGoals gs
 
 @[builtinTactic «induction»] def evalInduction : Tactic :=
 fun stx => focusAux stx $ do

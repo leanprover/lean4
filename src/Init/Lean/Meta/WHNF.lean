@@ -160,8 +160,10 @@ match e.getAppFn with
 def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : MetaM Expr :=
 whnfHeadPredAux pred e
 
-def whnfUntil (e : Expr) (declName : Name) : MetaM Expr :=
-whnfHeadPredAux (fun e => pure $ !e.isAppOf declName) e
+def whnfUntil (e : Expr) (declName : Name) : MetaM (Option Expr) := do
+e ← whnfHeadPredAux (fun e => pure $ !e.isAppOf declName) e;
+if e.isAppOf declName then pure e
+else pure none
 
 def getStuckMVar? (e : Expr) : MetaM (Option MVarId) :=
 WHNF.getStuckMVar? getConst whnf e

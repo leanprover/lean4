@@ -90,3 +90,10 @@ begin
   induction h₁ using Iff.elim with
   | _ h _ => exact h h₂
 end
+
+theorem tst12 {p q : Prop } (h₁ : p ∨ q) (h₂ : p ↔ q) (h₃ : p) : q :=
+begin
+  failIfSuccess (induction h₁ using Iff.elim);
+  induction h₂ using Iff.elim with
+  | _ h _ => exact h h₃
+end

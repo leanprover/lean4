@@ -236,8 +236,8 @@ t.val.depth f
 @[inline] def mfold {m : Type w → Type w'} [Monad m] (f : σ → α → β → m σ) : σ → RBMap α β lt → m σ
 | b, ⟨t, _⟩ => t.mfold f b
 
-@[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m σ) (t : RBMap α β lt) : m PUnit :=
-t.mfold (fun _ k v =>  f k v *> pure ⟨⟩) ⟨⟩
+@[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m PUnit) (t : RBMap α β lt) : m PUnit :=
+t.mfold (fun _ k v => f k v) ⟨⟩
 
 @[inline] def isEmpty : RBMap α β lt → Bool
 | ⟨leaf, _⟩ => true

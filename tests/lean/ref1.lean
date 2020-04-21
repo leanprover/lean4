@@ -10,7 +10,7 @@ n.forM $ fun i => do
 def showArrayRef (r : IO.Ref (Array Nat)) : IO Unit :=
 do a ← r.swap ∅;
    a.size.forM (fun i => IO.println ("[" ++ toString i ++ "]: " ++ toString (a.get! i)));
-   r.swap a;
+   _ ← r.swap a;
    pure ()
 
 def tst (n : Nat) : IO Unit :=

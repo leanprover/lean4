@@ -1842,7 +1842,7 @@ categoryParserFnRef.set categoryParserFnImpl
 def addToken (env : Environment) (tk : TokenConfig) : Except String Environment := do
 -- Recall that `ParserExtension.addEntry` is pure, and assumes `addTokenConfig` does not fail.
 -- So, we must run it here to handle exception.
-addTokenConfig (parserExtension.getState env).tokens tk;
+_ ← addTokenConfig (parserExtension.getState env).tokens tk;
 pure $ parserExtension.addEntry env $ ParserExtensionEntry.token tk
 
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=

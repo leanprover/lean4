@@ -94,6 +94,6 @@ unsafe def main : List String → IO UInt32
   let n := s.toNat!;
   let x := Var "x";
   let f := pow x x;
-  nest deriv n f;
+  _ ← nest deriv n f;
   pure 0
 | _ => pure 1

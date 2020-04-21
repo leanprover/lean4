@@ -222,10 +222,10 @@ lctx.decls.foldlM (fun b decl => match decl with
   | some decl => f b decl)
   b
 
-@[specialize] def forM (lctx : LocalContext) (f : LocalDecl → m β) : m PUnit :=
+@[specialize] def forM (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
 lctx.decls.forM $ fun decl => match decl with
   | none      => pure PUnit.unit
-  | some decl => f decl *> pure PUnit.unit
+  | some decl => f decl
 
 @[specialize] def findDeclM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
 lctx.decls.findSomeM? $ fun decl => match decl with

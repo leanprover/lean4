@@ -400,7 +400,7 @@ ys.toList.map argToCString
 def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit := do
 emit f; emit "(";
 -- We must remove irrelevant arguments to extern calls.
-ys.size.foldM
+_ ← ys.size.foldM
   (fun i (first : Bool) =>
     if (ps.get! i).ty.isIrrelevant then
       pure first

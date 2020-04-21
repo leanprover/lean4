@@ -254,9 +254,9 @@ def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
 
 /-- Execute `x` only in debugging mode. -/
-@[inline] private def whenDebugging {α} (x : MetaM α) : MetaM Unit := do
+@[inline] private def whenDebugging (x : MetaM Unit) : MetaM Unit := do
 ctx ← read;
-when ctx.config.debug (do x; pure ())
+when ctx.config.debug x
 
 @[inline] def shouldReduceAll : MetaM Bool := do
 ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all

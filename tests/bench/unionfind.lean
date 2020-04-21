@@ -80,7 +80,7 @@ do r₁ ← findEntry n₁;
 
 def mkNodes : Nat → M Unit
 | 0   => pure ()
-| n+1 => mk *> mkNodes n
+| n+1 => do _ ← mk; mkNodes n
 
 def checkEq (n₁ n₂ : Node) : M Unit :=
 do r₁ ← find n₁; r₂ ← find n₂;

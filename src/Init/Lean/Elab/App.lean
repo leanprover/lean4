@@ -180,7 +180,7 @@ unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
     | some eTypeBody =>
       unless eTypeBody.hasLooseBVars $
       when (hasTypeMVar ctx eTypeBody && hasOnlyTypeMVar ctx eTypeBody) $ do
-        isDefEq ctx.ref expectedType eTypeBody;
+        _ ← isDefEq ctx.ref expectedType eTypeBody;
         pure ()
 
 private def nextArgIsHole (ctx : ElabAppArgsCtx) : Bool :=
@@ -201,7 +201,7 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
     | none              => pure ()
     | some expectedType => do {
       -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
-      isDefEq ctx.ref expectedType eType;
+      _ ← isDefEq ctx.ref expectedType eType;
       pure ()
     };
     synthesizeAppInstMVars ctx.ref ctx.instMVars;

@@ -1166,7 +1166,7 @@ fun stx expectedType? => do
   typeMVar ← mkFreshTypeMVar ref MetavarKind.synthetic;
   registerSyntheticMVar ref typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat));
   match expectedType? with
-  | some expectedType => do isDefEq ref expectedType typeMVar; pure ()
+  | some expectedType => do _ ← isDefEq ref expectedType typeMVar; pure ()
   | _                 => pure ();
   u ← getLevel ref typeMVar;
   u ← decLevel ref u;

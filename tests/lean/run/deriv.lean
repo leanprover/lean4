@@ -92,5 +92,5 @@ do
 unsafe def main : IO Unit :=
 do let x := Var "x";
    let f := pow x x;
-   nest deriv 9 f;
+   _ ← nest deriv 9 f;
    pure ()

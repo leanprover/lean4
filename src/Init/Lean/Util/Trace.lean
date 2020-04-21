@@ -58,7 +58,7 @@ whenM (isTracingEnabledFor cls) (do msg ← mkMsg; addTrace cls msg)
 
 @[inline] def traceCtx (cls : Name) (ctx : m α) : m α := do
 b ← isTracingEnabledFor cls;
-if !b then do old ← enableTracing false; a ← ctx; enableTracing old; pure a
+if !b then do old ← enableTracing false; a ← ctx; _ ← enableTracing old; pure a
 else do
   oldCurrTraces ← getResetTraces;
   a ← ctx;
@@ -78,8 +78,8 @@ b ← isTracingEnabledFor cls;
 if !b then do
   old ← enableTracing false;
   catch
-    (do a ← ctx; enableTracing old; pure a)
-    (fun e => do enableTracing old; throw e)
+    (do a ← ctx; _ ← enableTracing old; pure a)
+    (fun e => do _ ← enableTracing old; throw e)
 else do
   oldCurrTraces ← getResetTraces;
   catch

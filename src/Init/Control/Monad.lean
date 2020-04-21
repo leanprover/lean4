@@ -25,8 +25,8 @@ infixr `>=>` := mcomp
 class Monad (m : Type u → Type v) extends Applicative m, HasBind m : Type (max (u+1) v) :=
 (map      := fun α β f x => x >>= pure ∘ f)
 (seq      := fun α β f x => f >>= (fun y => y <$> x))
-(seqLeft  := fun α β x y => x >>= fun a => y >>= fun _ => pure a)
-(seqRight := fun α β x y => x >>= fun _ => y)
+(seqLeft  := fun α x y => x >>= fun a => y >>= fun _ => pure a)
+(seqRight := fun β x y => x >>= fun _ => y)
 
 instance monadInhabited' {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) :=
 ⟨pure⟩

@@ -504,7 +504,7 @@ variables {m : Type v → Type w} [Monad m]
 variable {β : Type v}
 
 @[specialize]
-partial def forMAux (f : α → m β) (a : Array α) : Nat → m PUnit
+partial def forMAux (f : α → m PUnit) (a : Array α) : Nat → m PUnit
 | i =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
@@ -513,11 +513,11 @@ partial def forMAux (f : α → m β) (a : Array α) : Nat → m PUnit
   else
      pure ⟨⟩
 
-@[inline] def forM (f : α → m β) (a : Array α) : m PUnit :=
+@[inline] def forM (f : α → m PUnit) (a : Array α) : m PUnit :=
 a.forMAux f 0
 
 @[specialize]
-partial def forRevMAux (f : α → m β) (a : Array α) : forall (i : Nat), i ≤ a.size → m PUnit
+partial def forRevMAux (f : α → m PUnit) (a : Array α) : forall (i : Nat), i ≤ a.size → m PUnit
 | i, h =>
   if hLt : 0 < i then
     have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
@@ -528,7 +528,7 @@ partial def forRevMAux (f : α → m β) (a : Array α) : forall (i : Nat), i �
   else
      pure ⟨⟩
 
-@[inline] def forRevM (f : α → m β) (a : Array α) : m PUnit :=
+@[inline] def forRevM (f : α → m PUnit) (a : Array α) : m PUnit :=
 a.forRevMAux f a.size (Nat.leRefl _)
 
 end

@@ -107,7 +107,7 @@ def main (xs : List String) : IO UInt32 :=
 do let x := Var "x";
    let f := add x (mul x (mul x (add x x)));
    IO.println f;
-   nest deriv 3 f;
+   _ ← nest deriv 3 f;
    pure 0
 
 -- setOption profiler True

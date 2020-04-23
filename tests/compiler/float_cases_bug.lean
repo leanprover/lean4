@@ -19,15 +19,15 @@ partial def foo : MyState -> Term -> Term -> List Term
 
     match t with
     | const _  => pure ()
-    | app _   => emit (const 1) *> pure () ;
+    | app _   => emit (const 1);
 
     match t, u with
-    | app _,  app _   => emit (app []) *> pure ()
+    | app _,  app _   => emit (app [])
     | _, _ => pure () ;
 
     match t, u with
-    | app _,  app _   => emit (app []) *> pure ()
-    | _, _ => emit (const 2) *> pure ()
+    | app _,  app _   => emit (app [])
+    | _, _ => emit (const 2)
 
   } ;
 

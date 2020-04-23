@@ -25,8 +25,11 @@ partial def formatMap : Node Nat Nat → Format
       | Entry.entry k v => Format.paren (format k ++ " => " ++ format v))
     Format.nil
 
-def main : IO Unit :=
-do
+def checkState (m : Map) : IO Unit := do
+unless (m.stats.maxDepth == 1) (IO.println "unexpected max depth");
+unless (m.stats.numCollisions == 0) (IO.println "unexpected number of collisions")
+
+def main : IO Unit := do
 let m : Map := PersistentHashMap.empty;
 let m := m.insert 1 1;
 let m := m.insert (32^5 + 1) 2;
@@ -42,6 +45,5 @@ let m := m.erase (32^(max+2) + 1);
 let m := m.erase (32^max + 1);
 unless (m.stats.maxDepth == PersistentHashMap.maxDepth.toNat - 1) (IO.println "unexpected max depth");
 let m := m.erase (32^5 + 1);
-unless (m.stats.maxDepth == 1) (IO.println "unexpected max depth");
-unless (m.stats.numCollisions == 0) (IO.println "unexpected number of collisions");
+checkState m;
 IO.println m.stats

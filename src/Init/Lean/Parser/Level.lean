@@ -20,7 +20,7 @@ namespace Level
 @[builtinLevelParser] def paren  := parser! symbol "(" appPrec >> levelParser >> ")"
 @[builtinLevelParser] def max    := parser! nonReservedSymbol "max " true  >> many1 (levelParser appPrec)
 @[builtinLevelParser] def imax   := parser! "imax" >> many1 (levelParser appPrec)
-@[builtinLevelParser] def hole   := parser! "_"
+@[builtinLevelParser] def hole   := parser! symbol "_" appPrec
 @[builtinLevelParser] def num    := parser! numLit
 @[builtinLevelParser] def ident  := parser! ident
 @[builtinLevelParser] def addLit := tparser! symbol "+" (65:Nat) >> numLit

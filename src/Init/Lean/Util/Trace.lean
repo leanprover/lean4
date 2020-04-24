@@ -99,6 +99,13 @@ instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [Mon
   trace    := @MonadTracerAdapter.trace _ _ _,
   traceM   := @MonadTracerAdapter.traceM _ _ _ }
 
+instance liftMonadTracerAdapter {m n : Type → Type} [MonadTracerAdapter n] [HasMonadLift n m] : MonadTracerAdapter m :=
+{ isTracingEnabledFor := fun cls => liftM (MonadTracerAdapter.isTracingEnabledFor cls : n _),
+  addContext := fun msg => liftM (MonadTracerAdapter.addContext msg : n _),
+  enableTracing := fun b => liftM (MonadTracerAdapter.enableTracing b : n _),
+  getTraces := liftM (MonadTracerAdapter.getTraces : n _),
+  modifyTraces := fun f => liftM (MonadTracerAdapter.modifyTraces f : n _) }
+
 structure TraceState :=
 (enabled : Bool := true)
 (traces  : PersistentArray MessageData := {})

@@ -780,8 +780,14 @@ match_syntax stx with
 | `(fun $binders* => $body) => binders.any $ fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
 | _                         => false
 
+partial def dropTermParens : Syntax → Syntax | stx =>
+match_syntax stx with
+| `(($stx)) => dropTermParens stx
+| _         => stx
+
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=
+let stx := dropTermParens stx;
 isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx
 
 /--

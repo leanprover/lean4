@@ -700,7 +700,10 @@ theorem powLePowOfLeRight {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j �
 theorem posPowOfPos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
 powLePowOfLeRight h (Nat.zeroLe _)
 
-/- Max -/
+/- min/max -/
+
+protected def min (n m : Nat) : Nat :=
+if n ≤ m then n else m
 
 protected def max (n m : Nat) : Nat :=
 if n ≤ m then m else n

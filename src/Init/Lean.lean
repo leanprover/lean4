@@ -24,3 +24,4 @@ import Init.Lean.Util
 import Init.Lean.Eval
 import Init.Lean.Structure
 import Init.Lean.Delaborator
+import Init.Lean.PrettyPrinter

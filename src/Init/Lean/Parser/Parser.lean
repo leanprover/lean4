@@ -297,7 +297,7 @@ fun c s =>
 { info := andthenInfo p.info q.info,
   fn   := andthenFn p.fn q.fn }
 
-instance hashAndthen : HasAndthen Parser :=
+instance hasAndthen : HasAndthen Parser :=
 ⟨andthen⟩
 
 @[inline] def nodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn
@@ -1026,7 +1026,7 @@ fun c s =>
     s.mkError errorMsg
 
 @[inline] def symbolNoWsFn (sym : String) : ParserFn :=
-symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespaces around it")
+symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespace around it")
 
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
 @[inline] def symbolNoWsAux (sym : String) (lbp : Option Nat) : Parser :=

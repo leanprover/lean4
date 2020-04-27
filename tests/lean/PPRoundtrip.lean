@@ -9,6 +9,7 @@ stx ← stx;
 opts ← getOptions;
 e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
 stx' ← liftMetaM stx $ delab e opts optionsPerPos;
+stx' ← liftMetaM stx' $ PrettyPrinter.parenthesizeTerm stx';
 dbgTrace $ toString stx';
 e' ← elabTermAndSynthesize stx' none <* throwErrorIfErrors;
 unlessM (isDefEq stx e e') $

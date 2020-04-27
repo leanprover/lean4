@@ -521,6 +521,10 @@ def constName! : Expr → Name
 | const n _ _ => n
 | _           => panic! "constant expected"
 
+def constName? : Expr → Option Name
+| const n _ _ => some n
+| _           => none
+
 def constLevels! : Expr → List Level
 | const _ ls _ => ls
 | _            => panic! "constant expected"

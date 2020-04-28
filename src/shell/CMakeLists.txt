@@ -11,16 +11,16 @@ if(NOT STAGE0)
   set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
   add_custom_target(make_stdlib
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
-    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=Init=." $(MAKE) "${CMAKE_BINARY_DIR}/stage1/Init/libleanstdlib.a"
+    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=Init=Init" $(MAKE) "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
       "LEAN=$<TARGET_FILE:lean_stage0>"
       "LEANC_OPTS=${LEANC_OPTS}"
-      "OUT=${CMAKE_BINARY_DIR}/stage1/Init"
+      "OUT=${CMAKE_BINARY_DIR}/stage1"
       # share .c files between different build configurations
-      "C_OUT=${LEAN_SOURCE_DIR}/stage1/Init"
+      "C_OUT=${LEAN_SOURCE_DIR}/stage1"
     DEPENDS stage0)
   set_target_properties(leanstdlib PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/Init/libleanstdlib.a"
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
     IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
   add_dependencies(leanstdlib make_stdlib)
   install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
@@ -28,11 +28,11 @@ if(NOT STAGE0)
   set(PREV_LEAN "$<TARGET_FILE:lean>")
   foreach(STAGE RANGE 2 3)
     add_custom_target(make_stdlib_stage${STAGE}
-      COMMAND cd "${LEAN_SOURCE_DIR}/Init" && find . '\(' -name Makefile -o -name relative.py -o -name '*.lean' '\)' -exec "${CMAKE_COMMAND}" -E copy_if_different '{}' ${CMAKE_BINARY_DIR}/stage${STAGE}/Init/'{}' '\;'
-      COMMAND cd "${CMAKE_BINARY_DIR}/stage${STAGE}/Init" && LEAN_PATH=Init=. $(MAKE) ./libleanstdlib.a
+      COMMAND cd "${LEAN_SOURCE_DIR}" && find . '\(' -name Makefile -o -name relative.py -o -name '*.lean' '\)' -exec "${CMAKE_COMMAND}" -E copy_if_different '{}' ${CMAKE_BINARY_DIR}/stage${STAGE}/'{}' '\;'
+      COMMAND cd "${CMAKE_BINARY_DIR}/stage${STAGE}" && LEAN_PATH=Init=Init $(MAKE) ./libleanstdlib.a
         "LEAN=${PREV_LEAN}"
         "LEANC=${LEAN_SOURCE_DIR}/../bin/leanc"
-        "LEAN_ROOT=${LEAN_SOURCE_DIR}/Init"
+        "LEAN_ROOT=${LEAN_SOURCE_DIR}"
         "LEANC_OPTS=${LEANC_OPTS}"
         "OUT=."
         # recreate everything if the previous compiler has changed
@@ -40,7 +40,7 @@ if(NOT STAGE0)
     )
     add_library(leanstdlib_stage${STAGE} STATIC IMPORTED)
     set_target_properties(leanstdlib_stage${STAGE} PROPERTIES
-      IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage${STAGE}/Init/libleanstdlib.a"
+      IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage${STAGE}/libleanstdlib.a"
       IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
     add_dependencies(leanstdlib_stage${STAGE} make_stdlib_stage${STAGE})
     add_executable(lean_stage${STAGE} EXCLUDE_FROM_ALL lean.cpp)
@@ -54,10 +54,10 @@ if(NOT STAGE0)
 
   add_custom_target(update-stage0
     COMMAND make update-stage0
-      "OUT=${CMAKE_BINARY_DIR}/stage1/Init"
-      "C_OUT=${LEAN_SOURCE_DIR}/stage1/Init"
+      "OUT=${CMAKE_BINARY_DIR}/stage1"
+      "C_OUT=${LEAN_SOURCE_DIR}/stage1"
     DEPENDS leanstdlib
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Init")
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
 
 add_executable(lean lean.cpp)

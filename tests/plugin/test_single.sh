@@ -5,7 +5,7 @@ if [ $# -ne 2 -a $# -ne 1 ]; then
 fi
 ulimit -s 8192
 BIN_DIR=../../bin
-export LEAN_PATH=Init=../../src/Init:Test=.
+export LEAN_PATH=Init=../../src/Init
 if [ $# -ne 2 ]; then
     INTERACTIVE=no
 else
@@ -31,14 +31,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# NOTE: out name has to match package name in LEAN_PATH above
-$BIN_DIR/leanc -O3 -DNDEBUG -shared -o "Test.so" $ff.c
+$BIN_DIR/leanc -O3 -DNDEBUG -shared -o "${ff%.lean}.so" "$ff.c"
 if [ $? -ne 0 ]; then
     echo "Failed to compile C file $ff.c"
     exit 1
 fi
 
-$BIN_DIR/lean --plugin="Test.so" "$ff" 2>&1 | sed "s|^$ff|$f|" > "$f.produced.out"
+$BIN_DIR/lean --plugin="${ff%.lean}.so" "$ff" 2>&1 | sed "s|^$ff|$f|" > "$f.produced.out"
 if test -f "$f.expected.out"; then
     if $DIFF -u --ignore-all-space -I "executing external script" "$f.expected.out" "$f.produced.out"; then
         echo "-- checked"

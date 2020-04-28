@@ -110,23 +110,24 @@ match results with
 | []    => pure none
    | _     => throw (IO.userError ("file '" ++ fname ++ "' is contained in multiple packages: " ++ ", ".intercalate (results.map Prod.fst)))
 
+/-- Infer module name of source file name, assuming that `lean` is called from the package source root. -/
 @[export lean_module_name_of_file]
-def moduleNameOfFileName (fname : String) : IO (Option Name) := do
-some (pkg, path) ← findAtSearchPath fname
-  | pure none;
+def moduleNameOfFileName (fname : String) : IO Name := do
 fname ← realPathNormalized fname;
-let fnameSuffix := fname.drop path.length;
+root ← IO.currentDir >>= realPathNormalized;
+when (!root.isPrefixOf fname) $
+  throw $ IO.userError $ "input file '" ++ fname ++ "' must be contained in current directory (" ++ root ++ ")";
+let fnameSuffix := fname.drop root.length;
 let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
 some extPos ← pure (fnameSuffix.revPosOf '.')
-  | throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, extension is missing"));
+  | throw (IO.userError ("failed to convert file name '" ++ fname ++ "' to module name, extension is missing"));
 let modNameStr := fnameSuffix.extract 0 extPos;
 let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
 let parts      := modNameStr.splitOn pathSep;
-let modName    := parts.foldl mkNameStr pkg;
+let modName    := parts.foldl mkNameStr Name.anonymous;
 pure modName
 
 -- normalize `A` to `A.Default`
-@[export lean_normalize_module_name]
 def normalizeModuleName : Name → Name
 | Name.str Name.anonymous pkg _ => mkNameSimple pkg ++ "Default"
 | m                             => m

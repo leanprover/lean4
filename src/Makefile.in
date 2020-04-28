@@ -1,8 +1,8 @@
 # Copyright (c) 2018 Simon Hudon. All rights reserved.
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Simon Hudon, Sebastian Ullrich, Leonardo de Moura
-LEAN ?= ../../bin/lean
-LEANC ?= ../../bin/leanc
+LEAN ?= ../bin/lean
+LEANC ?= ../bin/leanc
 LEAN_ROOT ?= .
 # Even though we copy the sources into a new directory for stage2/3, we
 # read the list of files to compile from the original directory to avoid
@@ -10,14 +10,14 @@ LEAN_ROOT ?= .
 SRCS = $(shell cd $(LEAN_ROOT); find . -name '*.lean')
 DEPS = $(addprefix $(LEAN_ROOT)/,$(SRCS:.lean=.depend))
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
-STAGE0_DIR = ../../stage0
+STAGE0_DIR = ../stage0
 C_OUT ?= .
 ifndef OUT
 $(error "`OUT` must be set (use cmake)")
 endif
 OBJS = $(SRCS:.lean=.olean)
 # ensure deterministic ordering
-CS_CORE=$(addprefix Init/,$(sort $(SRCS:.lean=.c)))
+CS_CORE=$(sort $(SRCS:.lean=.c))
 
 SHELL = /usr/bin/env bash -eo pipefail
 
@@ -55,10 +55,10 @@ $(OUT)/libleanstdlib.a: $(addprefix $(OUT)/,$(SRCS:.lean=.o))
 update-stage0:
 	-rm -r $(STAGE0_DIR)
 	-mkdir -p $(STAGE0_DIR)/stdlib
-	for f in $(SRCS:.lean=.c); do mkdir -p `dirname $(STAGE0_DIR)/stdlib/Init/$$f`; cp $(C_OUT)/$$f $(STAGE0_DIR)/stdlib/Init/$$f; done
+	for f in $(SRCS:.lean=.c); do mkdir -p `dirname $(STAGE0_DIR)/stdlib/$$f`; cp $(C_OUT)/$$f $(STAGE0_DIR)/stdlib/$$f; done
 	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/stdlib/CMakeLists.txt
 # don't copy untracked crap
-	cd ..; git ls-files -z . | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
+	git ls-files -z . | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
 	-git add $(STAGE0_DIR)
 
 .PRECIOUS: %.depend $(C_OUT)/%.c

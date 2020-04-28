@@ -304,7 +304,7 @@ void load_plugin(std::string path) {
     // we never want to look up plugins using the system library search
     path = lrealpath(path);
     std::string pkg = stem(path);
-    std::string sym = "initialize_" + pkg + "_Default";
+    std::string sym = "initialize_" + pkg;
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(path.c_str());
     if (!h) {
@@ -354,8 +354,13 @@ void init_search_path() {
 }
 
 extern "C" object* lean_module_name_of_file(object* fname, object* w);
-optional<name> module_name_of_file(std::string const & fname) {
-    return get_io_result<option_ref<name>>(lean_module_name_of_file(mk_string(fname), io_mk_world())).get();
+optional<name> module_name_of_file(std::string const & fname, bool optional) {
+    object * o = lean_module_name_of_file(mk_string(fname), io_mk_world());
+    if (io_result_is_error(o) && optional) {
+        return lean::optional<name>();
+    } else {
+        return some(get_io_result<name>(o));
+    }
 }
 
 /* def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) */
@@ -597,7 +602,7 @@ int main(int argc, char ** argv) {
             }
             mod_fn = lrealpath(argv[optind++]);
             contents = read_file(mod_fn);
-            main_module_name = module_name_of_file(mod_fn);
+            main_module_name = module_name_of_file(mod_fn, /* optional */ !olean_fn && !c_output);
         }
 
         bool ok = true;
@@ -682,10 +687,6 @@ int main(int argc, char ** argv) {
         }
 
         if (c_output && ok) {
-            if (!main_module_name) {
-                std::cerr << "cannot extract code, module name of input file is not known\n";
-                return 1;
-            }
             std::ofstream out(*c_output);
             if (out.fail()) {
                 std::cerr << "failed to create '" << *c_output << "'\n";

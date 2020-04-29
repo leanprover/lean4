@@ -25,10 +25,14 @@ if diff --color --help >/dev/null 2>&1; then
   DIFF="diff --color";
 fi
 
-$LEAN --run "$ff" > "$ff.interp.produced.out"
-if [ $? -ne 0 ]; then
-   echo "Failed to execute $ff"
-   exit 1
+expected_ret=0
+if [ -f "$ff.expected.ret" ]; then
+    expected_ret=$(< "$ff.expected.ret")
+fi
+$LEAN --run "$ff" > "$ff.interp.produced.out" 2>&1
+if [ $? -ne $expected_ret ]; then
+    echo "Unexpected return code $? executing $ff; expected $expected_ret"
+    exit 1
 fi
 
 if test -f "$ff.expected.out"; then

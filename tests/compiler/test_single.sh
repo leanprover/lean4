@@ -37,10 +37,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-"./$ff.out" > "$ff.produced.out"
-if [ $? -ne 0 ]; then
-   echo "Failed to execute $ff.out"
-   exit 1
+expected_ret=0
+if [ -f "$ff.expected.ret" ]; then
+    expected_ret=$(< "$ff.expected.ret")
+fi
+ret=0
+"./$ff.out" > "$ff.produced.out" 2>&1 || ret=$?
+if [ -n $expected_ret ] && [ $ret -ne $expected_ret ]; then
+    echo "Unexpected return code $ret executing $ff.out; expected $expected_ret.\nOutput:"
+    cat "$ff.produced.out"
+    exit 1
 fi
 
 if test -f "$ff.expected.out"; then

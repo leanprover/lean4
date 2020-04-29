@@ -186,21 +186,6 @@ FOREACH(T ${LEANNEWFRONTENDTESTS})
   endif()
 ENDFOREACH(T)
 
-# LEAN FAIL TESTS
-file(GLOB LEANFAILTESTS "${LEAN_SOURCE_DIR}/../tests/lean/fail/*.lean")
-FOREACH(T ${LEANFAILTESTS})
-    if(NOT T MATCHES "\\.#")
-        GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-        # test twice, once with runner, and once without
-        add_test(NAME "leanfailtest_${T_NAME}"
-                WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
-                COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-        add_test(NAME "leanfailtest2_${T_NAME}"
-                WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
-                COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-    endif()
-ENDFOREACH(T)
-
 # LEAN COMPILER TESTS
 file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 FOREACH(T ${LEANCOMPTESTS})

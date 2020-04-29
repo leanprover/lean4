@@ -23,10 +23,10 @@ Now, suppose `bad_class.lean` test is broken. We can see the problem by going to
 executing
 
 ```
-./test_single.sh ../../bin/lean bad_class.lean yes
+./test_single.sh -i bad_class.lean
 ```
 
-When the `yes` option is provided, `meld` is automatically invoked
+When the `-i` option is provided, `meld` is automatically invoked
 whenever there is discrepancy between the produced and expected
 outputs. `meld` can also be used to repair the problems.
 

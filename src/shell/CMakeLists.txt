@@ -143,15 +143,6 @@ add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
 # add_test(lean_new_frontend "${LEAN_SOURCE_DIR}/../bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
-if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
-  # The following test cannot be executed on Windows because of the
-  # bash script timeout.sh
-
-  # We need to cache failures at type_context to be able to process the following test in a reasonable amount of time
-  # add_test(NAME "normalizer_perf"
-  #          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-  #          COMMAND bash "./timeout.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "1" "slow1.lean")
-endif()
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
@@ -160,7 +151,7 @@ FOREACH(T ${LEANTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leantest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-             COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+             COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -171,7 +162,7 @@ FOREACH(T ${LEANRUNTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leanruntest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
-             COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+             COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -182,7 +173,7 @@ FOREACH(T ${LEANNEWFRONTENDTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leannewfrontendtest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/newfrontend"
-             COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+             COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -192,7 +183,7 @@ FOREACH(T ${LEANCOMPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leancomptest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+           COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
 # LEAN INTERPRETER TESTS
@@ -202,7 +193,7 @@ FOREACH(T ${LEANINTERPTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leaninterptest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-             COMMAND bash "./test_single_interpret.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+             COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single_interpret.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -214,7 +205,7 @@ FOREACH(T_OUT ${LEANBENCHTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanbenchtest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
-           COMMAND bash "./test_single.sh" ${T_NAME})
+           COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T_OUT)
 
 # LEAN PLUGIN TESTS
@@ -223,7 +214,7 @@ FOREACH(T ${LEANINTERPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanplugintest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
-           COMMAND bash "./test_single.sh" ${T_NAME})
+           COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
 # LEAN TESTS using --trust=0
@@ -232,56 +223,5 @@ FOREACH(T ${LEANT0TESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leant0test_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust0"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 0")
+           COMMAND bash -c "PATH=${LEAN_SOURCE_DIR}/../bin:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
-
-# LEAN TESTS using --trust=10
-file(GLOB LEANT0TESTS "${LEAN_SOURCE_DIR}/../tests/lean/trust10/*.lean")
-FOREACH(T ${LEANT0TESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leant10test_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust10"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 10")
-ENDFOREACH(T)
-
-if("${MULTI_THREAD}" MATCHES "ON")
-# LEAN INTERACTIVE TESTS
-file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input" "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
-FOREACH(T ${LEANITTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanittest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
-endif()
-
-# LEAN SLOW TESTS
-file(GLOB LEANSLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lean/slow/*.lean")
-FOREACH(T ${LEANSLOWTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanslowtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/slow"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-  set_tests_properties("leanslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
-ENDFOREACH(T)
-
-# file(GLOB LEANNATIVETESTS "${LEAN_SOURCE_DIR}/../tests/lean/native_run/*.lean")
-# FOREACH(T ${LEANNATIVETESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leannativetest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/native_run"
-#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-# ENDFOREACH(T)
-
-
-# # Create the script lean.sh
-# # This is used to create a soft dependency on the Lean executable
-# # Some rules can only be applied if the lean executable exists,
-# # but we don't want a dependency on the executable because
-# # the rules would be applied whenever the executable is rebuilt.
-# # These are the rules for automatically generating .olean files and
-# # C++/Lean interface files.
-# add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/lean.sh
-#     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mk_lean_sh.sh ${CMAKE_CURRENT_BINARY_DIR}
-#     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/lean)
-# add_custom_target(lean_sh DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/lean.sh)

@@ -12,8 +12,6 @@
 (defun lean4-diff-test-file ()
   "Use interactive ./test_input.sh on file of current buffer"
   (interactive)
-  (message (shell-command-to-string (format "yes | ./test_single.sh \"%s\" \"%s\" yes"
-                                            (lean4-get-executable "lean")
-                                            (f-filename (buffer-file-name))))))
+  (message (shell-command-to-string (format "yes | ./test_single.sh -i \"%s\"" (f-filename (buffer-file-name))))))
 
 (provide 'lean4-dev)

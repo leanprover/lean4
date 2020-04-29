@@ -600,7 +600,7 @@ int main(int argc, char ** argv) {
                 display_help(std::cerr);
                 return 1;
             }
-            mod_fn = lrealpath(argv[optind++]);
+            mod_fn = argv[optind++];
             contents = read_file(mod_fn);
             main_module_name = module_name_of_file(mod_fn, /* optional */ !olean_fn && !c_output);
         }

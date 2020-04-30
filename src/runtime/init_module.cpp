@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/object.h"
 #include "runtime/io.h"
+#include "runtime/stack_overflow.h"
 
 namespace lean {
 extern "C" void lean_initialize_runtime_module() {
@@ -19,11 +20,13 @@ extern "C" void lean_initialize_runtime_module() {
     initialize_io();
     initialize_serializer();
     initialize_thread();
+    initialize_stack_overflow();
 }
 void initialize_runtime_module() {
     lean_initialize_runtime_module();
 }
 void finalize_runtime_module() {
+    finalize_stack_overflow();
     finalize_thread();
     finalize_serializer();
     finalize_io();

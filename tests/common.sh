@@ -21,8 +21,8 @@ shift
 [ $# -eq 0 ] || fail "Usage: test_single.sh [-i] test-file.lean"
 
 function compile_lean {
-    lean --cpp="$f.cpp" "$f" || fail "Failed to compile $f into C++ file"
-    leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.cpp" || fail "Failed to compile C++ file $f.cpp"
+    lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
+    leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
 }
 
 function exec_check {

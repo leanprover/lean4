@@ -42,9 +42,9 @@ all: report_lean.tex report_cross.tex report
 %.lean:
 %.out: %
 
-%.lean.cpp: %.lean
-	LEAN_PATH=Test=. $(LEAN_BIN)/lean --cpp=$@ $(LEAN_FLAGS) $<
-%.lean.out: %.lean.cpp
+%.lean.c: %.lean
+	LEAN_PATH=Test=. $(LEAN_BIN)/lean --c=$@ $(LEAN_FLAGS) $<
+%.lean.out: %.lean.c
 	$(LEAN_BIN)/leanc $(LEANC_FLAGS) -o $@ $<
 # Binaries x.lean.out and x.gcc.lean.out etc. are produced by the
 # same rules and x.lean source file by copying the latter to
@@ -52,10 +52,10 @@ all: report_lean.tex report_cross.tex report
 # files of the two binaries.
 %.gcc.lean.out: LEAN_BIN = $(LEAN_GCC_BIN)
 %.gcc.lean: %.lean; ln -f $< $@
-%.no_reuse.lean.cpp: LEAN_BIN = $(LEAN_NO_REUSE_BIN)
+%.no_reuse.lean.c: LEAN_BIN = $(LEAN_NO_REUSE_BIN)
 %.no_reuse.lean.out: LEAN_BIN = $(LEAN_NO_REUSE_BIN)
 %.no_reuse.lean: %.lean; ln -f $< $@
-%.no_borrow.lean.cpp: LEAN_BIN = $(LEAN_NO_BORROW_BIN)
+%.no_borrow.lean.c: LEAN_BIN = $(LEAN_NO_BORROW_BIN)
 %.no_borrow.lean.out: LEAN_BIN = $(LEAN_NO_BORROW_BIN)
 %.no_borrow.lean: %.lean; ln -f $< $@
 %.no_st.lean.out: LEAN_BIN = $(LEAN_NO_ST_BIN)

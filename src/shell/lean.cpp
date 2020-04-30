@@ -194,8 +194,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
     std::cout << "  --make             create olean file\n";
-    std::cout << "  --cpp=fname -c     name of the C++ output file\n"; // TODO(Leo): delete
-    std::cout << "  --c=fname -C       name of the C output file\n";
+    std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
               << "                     and type check all imported modules\n";
@@ -239,8 +238,7 @@ static struct option g_long_options[] = {
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
     {"timeout",      optional_argument, 0, 'T'},
-    {"cpp",          optional_argument, 0, 'c'},
-    {"c",            optional_argument, 0, 'C'},
+    {"c",            optional_argument, 0, 'c'},
     {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
@@ -474,10 +472,6 @@ int main(int argc, char ** argv) {
                 check_optarg("c");
                 c_output = optarg;
                 break;
-            case 'C':
-                check_optarg("C");
-                c_output = optarg;
-                break;
             case 's':
                 lean::lthread::set_thread_stack_size(
                         static_cast<size_t>((atoi(optarg) / 4) * 4) * static_cast<size_t>(1024));
@@ -602,7 +596,7 @@ int main(int argc, char ** argv) {
             }
             mod_fn = argv[optind++];
             contents = read_file(mod_fn);
-            main_module_name = module_name_of_file(mod_fn, /* optional */ !olean_fn && !c_output);
+            main_module_name = module_name_of_file(mod_fn, /* optional */ !c_output);
         }
 
         bool ok = true;

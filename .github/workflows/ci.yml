@@ -29,7 +29,7 @@ jobs:
             # do one sanitized build of the stdlib
             build-stage2: true
             # turn off custom allocator to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS="-fsanitize=address,undefined -O1" -DLEANC_EXTRA_FLAGS="-fsanitize=address,undefined -O1" -DSMALL_ALLOCATOR=OFF
           - name: Linux LLVM=ON
             os: ubuntu-latest
             CMAKE_OPTIONS: -DLLVM=ON

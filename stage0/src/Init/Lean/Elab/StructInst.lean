@@ -521,7 +521,7 @@ match expectedType? with
     | none           => pure ()
     | some typeBody =>
       unless typeBody.hasLooseBVars $ do
-        isDefEq ref expectedType typeBody;
+        _ ← isDefEq ref expectedType typeBody;
         pure ()
 
 private def mkCtorHeader (ref : Syntax) (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do

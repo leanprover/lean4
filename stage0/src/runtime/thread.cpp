@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
 #include "runtime/alloc.h"
+#include "runtime/stack_overflow.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb
@@ -108,6 +109,7 @@ struct lthread::imp {
     bool                      m_joined = false;
 
     static void * _main(void * p) {
+        stack_guard guard;
         thread_main(p);
         return nullptr;
     }

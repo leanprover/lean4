@@ -52,7 +52,7 @@ lean_object* l_List_forM___main___at_Lean_Elab_printDeps___spec__1(lean_object*,
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_asNode(lean_object*);
 extern lean_object* l_Lean_getBuiltinSearchPath___closed__3;
-lean_object* lean_normalize_module_name(lean_object*);
+lean_object* l_Lean_normalizeModuleName(lean_object*);
 lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1) {
 _start:
 {
@@ -78,7 +78,7 @@ lean_dec(x_7);
 x_9 = lean_unsigned_to_nat(2u);
 x_10 = l_Lean_Syntax_getIdAt(x_4, x_9);
 lean_dec(x_4);
-x_11 = lean_normalize_module_name(x_10);
+x_11 = l_Lean_normalizeModuleName(x_10);
 x_12 = l_List_map___main___at_Lean_Elab_headerToImports___spec__1(x_5);
 if (x_8 == 0)
 {
@@ -118,7 +118,7 @@ lean_dec(x_20);
 x_22 = lean_unsigned_to_nat(2u);
 x_23 = l_Lean_Syntax_getIdAt(x_17, x_22);
 lean_dec(x_17);
-x_24 = lean_normalize_module_name(x_23);
+x_24 = l_Lean_normalizeModuleName(x_23);
 x_25 = l_List_map___main___at_Lean_Elab_headerToImports___spec__1(x_18);
 if (x_21 == 0)
 {

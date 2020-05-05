@@ -388,12 +388,9 @@ static environment eval_cmd(parser & p) {
     object_ref r;
 
     try {
-        if (p.profiling()) {
-            timeit timer(out.get_text_stream().get_stream(), "eval time");
-            r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
-        } else {
-            r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
-        }
+        time_task t("#eval execution",
+                    message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+        r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
     } catch (exception & ex) {
         std::cout.rdbuf(saved_cout);
         out.report();

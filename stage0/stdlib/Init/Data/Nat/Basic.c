@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Prod_foldI___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_min___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_HasPow___closed__1;
@@ -77,6 +78,7 @@ uint8_t l_Nat_anyAux___main___at_Prod_allI___spec__1(lean_object*, lean_object*,
 lean_object* l_Nat_foldRevAux___main(lean_object*);
 lean_object* l_Nat_foldAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Nat_anyAux(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_min(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux(lean_object*);
 lean_object* l_Nat_ble___boxed(lean_object*, lean_object*);
@@ -641,6 +643,33 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+lean_object* l_Nat_min(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = lean_nat_dec_le(x_1, x_2);
+if (x_3 == 0)
+{
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+}
+lean_object* l_Nat_min___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Nat_min(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* l_Nat_max(lean_object* x_1, lean_object* x_2) {

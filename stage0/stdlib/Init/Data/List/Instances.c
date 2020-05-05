@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 lean_object* l_List_Monad___closed__5;
-lean_object* l_List_Monad___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_map___main___at_List_Monad___spec__3(lean_object*, lean_object*);
+lean_object* l_List_Monad___lambda__4(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__3(lean_object*);
 lean_object* l_List_Monad___closed__7;
 lean_object* l_List_Alternative___lambda__1(lean_object*);
 lean_object* l_List_map___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_Alternative___closed__2;
-lean_object* l_List_map___main___at_List_Monad___spec__4(lean_object*, lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__4(lean_object*);
 lean_object* l_List_Monad___closed__3;
 lean_object* l_List_Monad;
 lean_object* l_List_pure(lean_object*);
@@ -40,14 +40,14 @@ lean_object* l_List_Monad___closed__8;
 lean_object* l_List_join___main___rarg(lean_object*);
 lean_object* l_List_map___main___at_List_Monad___spec__4___rarg(lean_object*, lean_object*);
 lean_object* l_List_Alternative;
-lean_object* l_List_Monad___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_Monad___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_Monad___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_List_Monad___spec__1(lean_object*, lean_object*);
 lean_object* l_List_bind(lean_object*, lean_object*);
 lean_object* l_List_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_Monad___closed__6;
 lean_object* l_List_Monad___closed__2;
-lean_object* l_List_map___main___at_List_Monad___spec__5(lean_object*, lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__5(lean_object*);
 lean_object* l_List_Alternative___closed__1;
 lean_object* l_List_map___main___at_List_Monad___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -202,12 +202,12 @@ return x_14;
 }
 }
 }
-lean_object* l_List_map___main___at_List_Monad___spec__3(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_map___main___at_List_Monad___spec__3(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_map___main___at_List_Monad___spec__3___rarg), 2, 0);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_map___main___at_List_Monad___spec__3___rarg), 2, 0);
+return x_2;
 }
 }
 lean_object* l_List_map___main___at_List_Monad___spec__4___rarg(lean_object* x_1, lean_object* x_2) {
@@ -257,12 +257,12 @@ return x_15;
 }
 }
 }
-lean_object* l_List_map___main___at_List_Monad___spec__4(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_map___main___at_List_Monad___spec__4(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_map___main___at_List_Monad___spec__4___rarg), 2, 0);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_map___main___at_List_Monad___spec__4___rarg), 2, 0);
+return x_2;
 }
 }
 lean_object* l_List_map___main___at_List_Monad___spec__5___rarg(lean_object* x_1, lean_object* x_2) {
@@ -307,12 +307,12 @@ return x_10;
 }
 }
 }
-lean_object* l_List_map___main___at_List_Monad___spec__5(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_map___main___at_List_Monad___spec__5(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_map___main___at_List_Monad___spec__5___rarg), 2, 0);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_map___main___at_List_Monad___spec__5___rarg), 2, 0);
+return x_2;
 }
 }
 lean_object* l_List_Monad___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -332,22 +332,22 @@ x_6 = l_List_join___main___rarg(x_5);
 return x_6;
 }
 }
-lean_object* l_List_Monad___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_List_Monad___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = l_List_map___main___at_List_Monad___spec__4___rarg(x_4, x_3);
-x_6 = l_List_join___main___rarg(x_5);
-return x_6;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_List_map___main___at_List_Monad___spec__4___rarg(x_3, x_2);
+x_5 = l_List_join___main___rarg(x_4);
+return x_5;
 }
 }
-lean_object* l_List_Monad___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_List_Monad___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = l_List_map___main___at_List_Monad___spec__5___rarg(x_4, x_3);
-x_6 = l_List_join___main___rarg(x_5);
-return x_6;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_List_map___main___at_List_Monad___spec__5___rarg(x_3, x_2);
+x_5 = l_List_join___main___rarg(x_4);
+return x_5;
 }
 }
 lean_object* _init_l_List_Monad___closed__1() {
@@ -398,7 +398,7 @@ lean_object* _init_l_List_Monad___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_List_Monad___lambda__3), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_List_Monad___lambda__3), 3, 0);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ lean_object* _init_l_List_Monad___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_List_Monad___lambda__4), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_List_Monad___lambda__4), 3, 0);
 return x_1;
 }
 }

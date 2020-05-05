@@ -15,7 +15,7 @@ namespace Lean
 namespace Meta
 
 private def ensureType (e : Expr) : MetaM Unit := do
-getLevel e; pure ()
+_ ← getLevel e; pure ()
 
 @[specialize] private def checkLambdaLet
     (check   : Expr → MetaM Unit)

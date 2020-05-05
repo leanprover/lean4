@@ -33,7 +33,7 @@ lean_object* l_RBMap_min___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_RBNode_min___rarg___boxed(lean_object*);
 lean_object* l_RBMap_lowerBound(lean_object*, lean_object*);
-lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_any___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_RBNode_max___main___rarg___boxed(lean_object*);
 lean_object* l_RBNode_ins___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -104,7 +104,7 @@ extern lean_object* l_List_repr___rarg___closed__2;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_RBMap_max(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_max___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_mfor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_mfor(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_size___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_depth___rarg(lean_object*, lean_object*);
 lean_object* l_RBNode_erase___rarg(lean_object*, lean_object*, lean_object*);
@@ -114,7 +114,7 @@ lean_object* l_RBNode_min___main___rarg(lean_object*);
 lean_object* l_RBMap_findCore_x3f(lean_object*, lean_object*);
 lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_mfold___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_mfor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_mfor___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_rbmapOf___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_RBNode_any___main___rarg(lean_object*, lean_object*);
 lean_object* l_RBMap_max___rarg___boxed(lean_object*);
@@ -22913,25 +22913,15 @@ return x_5;
 lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_8, 4);
-lean_inc(x_9);
-lean_inc(x_2);
-x_10 = lean_apply_2(x_2, x_3, x_4);
-x_11 = lean_ctor_get(x_8, 1);
-lean_inc(x_11);
-lean_dec(x_8);
-x_12 = lean_box(0);
-x_13 = lean_apply_2(x_11, lean_box(0), x_12);
-x_14 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_13);
-x_15 = lean_alloc_closure((void*)(l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg___lambda__1), 4, 3);
-lean_closure_set(x_15, 0, x_1);
-lean_closure_set(x_15, 1, x_2);
-lean_closure_set(x_15, 2, x_5);
-x_16 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_14, x_15);
-return x_16;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_inc(x_1);
+x_8 = lean_apply_2(x_1, x_2, x_3);
+x_9 = lean_alloc_closure((void*)(l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg___lambda__1), 4, 3);
+lean_closure_set(x_9, 0, x_4);
+lean_closure_set(x_9, 1, x_1);
+lean_closure_set(x_9, 2, x_5);
+x_10 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_8, x_9);
+return x_10;
 }
 }
 lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -22969,10 +22959,10 @@ lean_inc(x_1);
 x_13 = l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg(x_1, x_2, x_3, x_8);
 lean_inc(x_12);
 x_14 = lean_alloc_closure((void*)(l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg___lambda__2___boxed), 7, 6);
-lean_closure_set(x_14, 0, x_1);
-lean_closure_set(x_14, 1, x_2);
-lean_closure_set(x_14, 2, x_9);
-lean_closure_set(x_14, 3, x_10);
+lean_closure_set(x_14, 0, x_2);
+lean_closure_set(x_14, 1, x_9);
+lean_closure_set(x_14, 2, x_10);
+lean_closure_set(x_14, 3, x_1);
 lean_closure_set(x_14, 4, x_11);
 lean_closure_set(x_14, 5, x_12);
 x_15 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_13, x_14);
@@ -22980,12 +22970,12 @@ return x_15;
 }
 }
 }
-lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg), 4, 0);
-return x_5;
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg), 4, 0);
+return x_4;
 }
 }
 lean_object* l_RBMap_mfor___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -22997,12 +22987,12 @@ x_5 = l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg(x_1, x_2, x_4, x_3)
 return x_5;
 }
 }
-lean_object* l_RBMap_mfor(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_RBMap_mfor(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_RBMap_mfor___rarg), 3, 0);
-return x_6;
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_RBMap_mfor___rarg), 3, 0);
+return x_5;
 }
 }
 lean_object* l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -23014,13 +23004,13 @@ lean_dec(x_7);
 return x_8;
 }
 }
-lean_object* l_RBMap_mfor___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_RBMap_mfor___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l_RBMap_mfor(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
-return x_6;
+lean_object* x_5; 
+x_5 = l_RBMap_mfor(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 uint8_t l_RBMap_isEmpty___rarg(lean_object* x_1) {

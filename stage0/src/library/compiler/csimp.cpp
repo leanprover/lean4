@@ -1526,7 +1526,14 @@ class csimp_fn {
             }
             args[minor_idx] = result_minor;
         }
-        if (all_equal_opt && a_minor) {
+        if (all_equal_opt && a_minor && !is_join_point_app(*a_minor)) {
+            /*
+               Remark: we must make sure `a_minor` is not a joint-point. Otherwise, we would break our joint point application invariant.
+               In the current implementation, this may seen as a hack or temporary workaround.
+               Since the joint point inside of a non-terminal casesOn should not be
+               allowed in the first place. When we reimplement this module in Lean,
+               we should make sure this kind of term is not created by previous steps.
+            */
             return *a_minor;
         }
         expr r = mk_app(c, args);

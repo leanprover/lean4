@@ -477,6 +477,16 @@ extern "C" obj_res lean_io_app_dir(obj_arg) {
 #endif
 }
 
+extern "C" obj_res lean_io_current_dir(obj_arg) {
+    char buffer[PATH_MAX];
+    char * cwd = getcwd(buffer, sizeof(buffer));
+    if (cwd) {
+        return set_io_result(mk_string(cwd));
+    } else {
+        return set_io_error("failed to retrieve current working directory");
+    }
+}
+
 // =======================================
 // IO ref primitives
 extern "C" obj_res lean_io_mk_ref(obj_arg a, obj_arg) {

@@ -305,7 +305,7 @@ match s.expectedType? with
   expectedType ← whnfForall ref expectedType;
   match expectedType with
   | Expr.forallE _ d b _ => do
-    isDefEq ref fvarType d;
+    _ ← isDefEq ref fvarType d;
     checkNoOptAutoParam ref fvarType;
     let b := b.instantiate1 fvar;
     pure { expectedType? := some b, .. s }

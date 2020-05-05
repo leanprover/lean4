@@ -22,8 +22,10 @@ uint8_t l_Lean_isPrivateName___main(lean_object*);
 lean_object* l_Lean_protectedExt___closed__5;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_privateHeader;
+lean_object* lean_mk_private_name(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
+lean_object* lean_private_to_user_name(lean_object*);
 lean_object* l_Lean_protectedExt___elambda__1___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -35,12 +37,12 @@ lean_object* l_Lean_privateExt___closed__2;
 lean_object* l_Lean_isPrivateName___main___boxed(lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_mk_private_prefix(lean_object*);
 lean_object* l_Lean_EnvExtension_setStateUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_privateExt___closed__1;
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* lean_add_protected(lean_object*, lean_object*);
+lean_object* lean_mk_private_prefix(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt;
 extern lean_object* l_IO_Error_Inhabited___closed__1;
@@ -53,8 +55,7 @@ lean_object* l_Lean_isPrivateNameExport___boxed(lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 lean_object* l_Lean_protectedExt___elambda__2___boxed(lean_object*);
 lean_object* l_Lean_mkPrivateExtension(lean_object*);
-lean_object* lean_mk_private_name(lean_object*, lean_object*);
-lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Modifiers_2__privatePrefixAux___main(lean_object*);
 lean_object* l___private_Init_Lean_Modifiers_1__privateToUserNameAux___main(lean_object*);
 lean_object* l_Lean_mkProtectedExtension(lean_object*);
@@ -338,23 +339,23 @@ lean_ctor_set(x_19, 2, x_18);
 x_20 = lean_io_ref_get(x_13, x_16);
 if (lean_obj_tag(x_20) == 0)
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
-x_23 = lean_io_ref_reset(x_13, x_22);
-if (lean_obj_tag(x_23) == 0)
-{
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_24 = lean_ctor_get(x_23, 1);
-lean_inc(x_24);
-lean_dec(x_23);
 lean_inc(x_19);
-x_25 = x_19;
-x_26 = lean_array_push(x_21, x_25);
-x_27 = lean_io_ref_set(x_13, x_26, x_24);
+x_23 = x_19;
+x_24 = lean_array_push(x_21, x_23);
+x_25 = lean_io_ref_reset(x_13, x_22);
+if (lean_obj_tag(x_25) == 0)
+{
+lean_object* x_26; lean_object* x_27; 
+x_26 = lean_ctor_get(x_25, 1);
+lean_inc(x_26);
+lean_dec(x_25);
+x_27 = lean_io_ref_set(x_13, x_24, x_26);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; 
@@ -406,21 +407,21 @@ return x_35;
 else
 {
 uint8_t x_36; 
-lean_dec(x_21);
+lean_dec(x_24);
 lean_dec(x_19);
-x_36 = !lean_is_exclusive(x_23);
+x_36 = !lean_is_exclusive(x_25);
 if (x_36 == 0)
 {
-return x_23;
+return x_25;
 }
 else
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_37 = lean_ctor_get(x_23, 0);
-x_38 = lean_ctor_get(x_23, 1);
+x_37 = lean_ctor_get(x_25, 0);
+x_38 = lean_ctor_get(x_25, 1);
 lean_inc(x_38);
 lean_inc(x_37);
-lean_dec(x_23);
+lean_dec(x_25);
 x_39 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
@@ -631,6 +632,20 @@ lean_ctor_set(x_10, 0, x_7);
 lean_ctor_set(x_10, 1, x_9);
 return x_10;
 }
+}
+}
+lean_object* l_Lean_mkPrivateName(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_3 = lean_environment_main_module(x_1);
+x_4 = l_Lean_privateHeader;
+x_5 = l_Lean_Name_append___main(x_4, x_3);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_name_mk_numeral(x_5, x_6);
+x_8 = l_Lean_Name_append___main(x_7, x_2);
+lean_dec(x_7);
+return x_8;
 }
 }
 uint8_t l_Lean_isPrivateName___main(lean_object* x_1) {

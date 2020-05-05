@@ -435,14 +435,14 @@ Expr.const c@(Name.str _ f _) _ _ ← pure fn.getAppFn | failure;
 env ← liftM getEnv;
 some info ← pure $ env.getProjectionFnInfo c | failure;
 -- can't use with classes since the instance parameter is implicit
-assert (!info.fromClass);
+guard $ !info.fromClass;
 -- projection function should be fully applied (#struct params + 1 instance parameter)
 -- TODO: support over-application
-assert $ e.getAppNumArgs == info.nparams + 1;
+guard $ e.getAppNumArgs == info.nparams + 1;
 -- If pp.explicit is true, and the structure has parameters, we should not
 -- use field notation because we will not be able to see the parameters.
 expl ← getPPOption getPPExplicit;
-assert $ !expl || info.nparams == 0;
+guard $ !expl || info.nparams == 0;
 appStx ← withAppArg delab;
 `($(appStx).$(mkIdent f):ident)
 
@@ -450,7 +450,7 @@ appStx ← withAppArg delab;
 @[builtinDelab app.coe]
 def delabCoe : Delab := whenPPOption getPPCoercions $ do
 e ← getExpr;
-assert $ e.getAppNumArgs >= 4;
+guard $ e.getAppNumArgs >= 4;
 -- delab as application, then discard function
 stx ← delabAppImplicit;
 match_syntax stx with

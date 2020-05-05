@@ -375,59 +375,59 @@ if (lean_obj_tag(x_13) == 1)
 {
 if (x_15 == 0)
 {
-lean_object* x_57; lean_object* x_58; 
-x_57 = lean_ctor_get(x_13, 0);
-lean_inc(x_57);
+lean_object* x_55; lean_object* x_56; 
+x_55 = lean_ctor_get(x_13, 0);
+lean_inc(x_55);
 lean_inc(x_7);
-x_58 = l_Lean_Meta_getLocalDecl(x_57, x_7, x_8);
-if (lean_obj_tag(x_58) == 0)
+x_56 = l_Lean_Meta_getLocalDecl(x_55, x_7, x_8);
+if (lean_obj_tag(x_56) == 0)
 {
-lean_object* x_59; 
-x_59 = lean_ctor_get(x_58, 0);
-lean_inc(x_59);
-if (lean_obj_tag(x_59) == 0)
+lean_object* x_57; 
+x_57 = lean_ctor_get(x_56, 0);
+lean_inc(x_57);
+if (lean_obj_tag(x_57) == 0)
 {
-lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
-lean_dec(x_59);
+lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
+lean_dec(x_57);
 lean_dec(x_14);
-x_60 = lean_ctor_get(x_58, 1);
-lean_inc(x_60);
-lean_dec(x_58);
-x_61 = lean_unsigned_to_nat(1u);
-x_62 = lean_nat_add(x_4, x_61);
+x_58 = lean_ctor_get(x_56, 1);
+lean_inc(x_58);
+lean_dec(x_56);
+x_59 = lean_unsigned_to_nat(1u);
+x_60 = lean_nat_add(x_4, x_59);
 lean_dec(x_4);
-x_63 = lean_array_push(x_6, x_13);
-x_4 = x_62;
-x_6 = x_63;
-x_8 = x_60;
+x_61 = lean_array_push(x_6, x_13);
+x_4 = x_60;
+x_6 = x_61;
+x_8 = x_58;
 goto _start;
 }
 else
 {
-lean_object* x_65; lean_object* x_66; lean_object* x_67; uint8_t x_68; lean_object* x_69; 
-lean_dec(x_59);
-x_65 = lean_ctor_get(x_58, 1);
-lean_inc(x_65);
-lean_dec(x_58);
+lean_object* x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; lean_object* x_67; 
+lean_dec(x_57);
+x_63 = lean_ctor_get(x_56, 1);
+lean_inc(x_63);
+lean_dec(x_56);
 lean_inc(x_5);
 lean_inc(x_1);
-x_66 = l_Lean_Name_appendIndexAfter(x_1, x_5);
-x_67 = lean_alloc_closure((void*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___lambda__1___boxed), 10, 7);
-lean_closure_set(x_67, 0, x_4);
-lean_closure_set(x_67, 1, x_13);
-lean_closure_set(x_67, 2, x_3);
-lean_closure_set(x_67, 3, x_5);
-lean_closure_set(x_67, 4, x_6);
-lean_closure_set(x_67, 5, x_1);
-lean_closure_set(x_67, 6, x_2);
-x_68 = 0;
-x_69 = l_Lean_Meta_withLocalDecl___rarg(x_66, x_14, x_68, x_67, x_7, x_65);
-return x_69;
+x_64 = l_Lean_Name_appendIndexAfter(x_1, x_5);
+x_65 = lean_alloc_closure((void*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___lambda__1___boxed), 10, 7);
+lean_closure_set(x_65, 0, x_4);
+lean_closure_set(x_65, 1, x_13);
+lean_closure_set(x_65, 2, x_3);
+lean_closure_set(x_65, 3, x_5);
+lean_closure_set(x_65, 4, x_6);
+lean_closure_set(x_65, 5, x_1);
+lean_closure_set(x_65, 6, x_2);
+x_66 = 0;
+x_67 = l_Lean_Meta_withLocalDecl___rarg(x_64, x_14, x_66, x_65, x_7, x_63);
+return x_67;
 }
 }
 else
 {
-uint8_t x_70; 
+uint8_t x_68; 
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_7);
@@ -437,50 +437,49 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_70 = !lean_is_exclusive(x_58);
-if (x_70 == 0)
+x_68 = !lean_is_exclusive(x_56);
+if (x_68 == 0)
 {
-return x_58;
+return x_56;
 }
 else
 {
-lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_71 = lean_ctor_get(x_58, 0);
-x_72 = lean_ctor_get(x_58, 1);
-lean_inc(x_72);
-lean_inc(x_71);
-lean_dec(x_58);
-x_73 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_73, 0, x_71);
-lean_ctor_set(x_73, 1, x_72);
-return x_73;
+lean_object* x_69; lean_object* x_70; lean_object* x_71; 
+x_69 = lean_ctor_get(x_56, 0);
+x_70 = lean_ctor_get(x_56, 1);
+lean_inc(x_70);
+lean_inc(x_69);
+lean_dec(x_56);
+x_71 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_71, 0, x_69);
+lean_ctor_set(x_71, 1, x_70);
+return x_71;
 }
-}
-}
-else
-{
-lean_object* x_74; 
-x_74 = lean_box(0);
-x_16 = x_74;
-goto block_56;
 }
 }
 else
 {
-lean_object* x_75; 
-x_75 = lean_box(0);
-x_16 = x_75;
-goto block_56;
+lean_object* x_72; 
+x_72 = lean_box(0);
+x_16 = x_72;
+goto block_54;
 }
-block_56:
+}
+else
 {
+lean_object* x_73; 
+x_73 = lean_box(0);
+x_16 = x_73;
+goto block_54;
+}
+block_54:
+{
+lean_object* x_17; lean_object* x_18; 
 lean_dec(x_16);
-if (x_15 == 0)
-{
-lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
 lean_inc(x_5);
 lean_inc(x_1);
 x_17 = l_Lean_Name_appendIndexAfter(x_1, x_5);
+lean_inc(x_3);
 x_18 = lean_alloc_closure((void*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___lambda__1___boxed), 10, 7);
 lean_closure_set(x_18, 0, x_4);
 lean_closure_set(x_18, 1, x_13);
@@ -489,6 +488,10 @@ lean_closure_set(x_18, 3, x_5);
 lean_closure_set(x_18, 4, x_6);
 lean_closure_set(x_18, 5, x_1);
 lean_closure_set(x_18, 6, x_2);
+if (x_15 == 0)
+{
+uint8_t x_19; lean_object* x_20; 
+lean_dec(x_3);
 x_19 = 0;
 x_20 = l_Lean_Meta_withLocalDecl___rarg(x_17, x_14, x_19, x_18, x_7, x_8);
 return x_20;
@@ -506,13 +509,9 @@ lean_dec(x_22);
 if (x_23 == 0)
 {
 uint8_t x_24; 
+lean_dec(x_18);
+lean_dec(x_17);
 lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
 x_24 = !lean_is_exclusive(x_21);
 if (x_24 == 0)
 {
@@ -586,24 +585,14 @@ return x_50;
 }
 else
 {
-lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; lean_object* x_55; 
+lean_object* x_51; uint8_t x_52; lean_object* x_53; 
+lean_dec(x_3);
 x_51 = lean_ctor_get(x_21, 1);
 lean_inc(x_51);
 lean_dec(x_21);
-lean_inc(x_5);
-lean_inc(x_1);
-x_52 = l_Lean_Name_appendIndexAfter(x_1, x_5);
-x_53 = lean_alloc_closure((void*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___lambda__1___boxed), 10, 7);
-lean_closure_set(x_53, 0, x_4);
-lean_closure_set(x_53, 1, x_13);
-lean_closure_set(x_53, 2, x_3);
-lean_closure_set(x_53, 3, x_5);
-lean_closure_set(x_53, 4, x_6);
-lean_closure_set(x_53, 5, x_1);
-lean_closure_set(x_53, 6, x_2);
-x_54 = 0;
-x_55 = l_Lean_Meta_withLocalDecl___rarg(x_52, x_14, x_54, x_53, x_7, x_51);
-return x_55;
+x_52 = 0;
+x_53 = l_Lean_Meta_withLocalDecl___rarg(x_17, x_14, x_52, x_18, x_7, x_51);
+return x_53;
 }
 }
 }

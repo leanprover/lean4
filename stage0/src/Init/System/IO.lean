@@ -139,6 +139,8 @@ constant isDir (fname : @& String) : IO Bool := arbitrary _
 constant fileExists (fname : @& String) : IO Bool := arbitrary _
 @[extern "lean_io_app_dir"]
 constant appPath : IO String := arbitrary _
+@[extern "lean_io_current_dir"]
+constant currentDir : IO String := arbitrary _
 
 @[inline] def liftIO {m : Type → Type} {α : Type} [MonadIO m] (x : IO α) : m α :=
 monadLift x
@@ -157,6 +159,7 @@ def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
 def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
 def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
 def appPath : m String := Prim.liftIO Prim.appPath
+def currentDir : m String := Prim.liftIO Prim.currentDir
 
 def appDir : m String := do
 p ← appPath;

@@ -102,7 +102,7 @@ fun s => match x s with
   | Result.ok a s    => Result.ok (f a) s
   | Result.error e s => Result.error e s
 
-@[inline] protected def seqRight (x : EStateM ε σ α) (y : EStateM ε σ β) : EStateM ε σ β :=
+@[inline] protected def seqRight (x : EStateM ε σ PUnit) (y : EStateM ε σ β) : EStateM ε σ β :=
 fun s => match x s with
   | Result.ok _ s    => y s
   | Result.error e s => Result.error e s

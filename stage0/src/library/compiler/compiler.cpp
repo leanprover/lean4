@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/max_sharing.h"
 #include "library/trace.h"
 #include "library/sorry.h"
+#include "library/time_task.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/find_jp.h"
@@ -183,6 +184,9 @@ environment compile(environment const & env, options const & opts, names cs) {
         if (!cinfo.is_definition() && !cinfo.is_opaque()) return env;
         if (has_synthetic_sorry(cinfo)) return env;
     }
+
+    time_task t("compilation",
+                message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
 
     comp_decls ds = to_comp_decls(env, cs);
     csimp_cfg cfg(opts);

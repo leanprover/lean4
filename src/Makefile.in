@@ -34,7 +34,7 @@ depends: $(DEPS)
 %.olean: %.lean %.depend $(MORE_DEPS)
 	@echo "[    ] Building $<"
 	@mkdir -p $(C_OUT)/$(*D)
-	$(LEAN) $(OPTS) --make --c="$(C_OUT)/$*.c.tmp" $<
+	$(LEAN) $(OPTS) -o "$@" --c="$(C_OUT)/$*.c.tmp" $<
 # create the .c file atomically
 	mv "$(C_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles

@@ -193,7 +193,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
-    std::cout << "  --make             create olean file\n";
+    std::cout << "  --o=oname -o        create olean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
@@ -228,7 +228,7 @@ static struct option g_long_options[] = {
     {"help",         no_argument,       0, 'h'},
     {"githash",      no_argument,       0, 'g'},
     {"run",          no_argument,       0, 'r'},
-    {"make",         optional_argument, 0, 'm'},
+    {"o",            optional_argument, 0, 'o'},
     {"stdin",        no_argument,       0, 'i'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
@@ -256,7 +256,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:m::c:C:qgvht:012j:012rM:012T:012ap:e"
+    "PdD:o:c:C:qgvht:012j:012rM:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -373,14 +373,6 @@ extern "C" object* lean_print_deps(object* deps, object* w);
 void print_deps(object_ref const & deps) {
     consume_io_result(lean_print_deps(deps.to_obj_arg(), io_mk_world()));
 }
-
-std::string olean_of_lean(std::string const & lean_fn) {
-    if (lean_fn.size() > 5 && lean_fn.substr(lean_fn.size() - 5) == ".lean") {
-        return lean_fn.substr(0, lean_fn.size() - 5) + ".olean";
-    } else {
-        throw exception(sstream() << "not a .lean file: " << lean_fn);
-    }
-}
 }
 
 void check_optarg(char const * option_name) {
@@ -418,8 +410,7 @@ int main(int argc, char ** argv) {
     ::initializer init;
     second_duration init_time = std::chrono::steady_clock::now() - init_start;
     bool run = false;
-    bool make_mode = false;
-    std::string olean_fn;
+    optional<std::string> olean_fn;
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
@@ -482,11 +473,8 @@ int main(int argc, char ** argv) {
             case 'r':
                 run = true;
                 break;
-            case 'm':
-                make_mode = true;
-                if (optarg) {
-                    olean_fn = optarg;
-                }
+            case 'o':
+                olean_fn = optarg;
                 break;
             case 'M':
                 check_optarg("M");
@@ -596,7 +584,7 @@ int main(int argc, char ** argv) {
             }
             mod_fn = argv[optind++];
             contents = read_file(mod_fn);
-            main_module_name = module_name_of_file(mod_fn, /* optional */ !c_output);
+            main_module_name = module_name_of_file(mod_fn, /* optional */ !olean_fn && !c_output);
         }
 
         bool ok = true;
@@ -670,14 +658,11 @@ int main(int argc, char ** argv) {
         if (run && ok) {
             return ir::run_main(env, argc - optind, argv + optind);
         }
-        if (make_mode && ok) {
-            if (olean_fn.empty()) {
-                olean_fn = olean_of_lean(mod_fn);
-            }
+        if (olean_fn && ok) {
             time_task t(".olean serialization",
                         message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
                                         message_severity::INFORMATION));
-            write_module(env, olean_fn);
+            write_module(env, *olean_fn);
         }
 
         if (c_output && ok) {

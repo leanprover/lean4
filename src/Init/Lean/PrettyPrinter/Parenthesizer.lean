@@ -30,12 +30,12 @@ produced by `p rbp` if
 
 Note that in case 2, it is also sufficient to parenthesize a *parent* node as long as the offending token is still to
 the right of that node. For example, imagine the tree structure of `(f $ fun x => x) y` without parentheses. We need to
-insert *some* parentheses between `x` and `y` since the lambda body is parse with precedence 0, while `y` as an
+insert *some* parentheses between `x` and `y` since the lambda body is parsed with precedence 0, while `y` as an
 identifier has precedence `appPrec`. But we need to parenthesize the `$` node anyway since the precedence of its
 RHS (0) again is smaller than that of `y`. So it's better to only parenthesize the outer node than ending up with
 `(f $ (fun x => x)) y`.
 
-Unfortunately, we cannot determine the precedence of a token just by looking at the syntax tree because it can actually
+Unfortunately, we cannot determine the precedence of a token just by looking at the token table because it can actually
 have different precedences in different contexts (e.g. because of whitespace sensitivity). Thus we need to look at the
 parser that produced the token as well.
 

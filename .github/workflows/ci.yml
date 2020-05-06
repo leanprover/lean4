@@ -94,7 +94,7 @@ jobs:
         shell: cmd
         if: matrix.os == 'windows-latest'
       - name: Build Stage 2
-        run: nix-shell --run "cd build; make -j4 lean_stage2"
+        run: nix-shell --run "cd build; make -j4 stage2"
         if: matrix.build-stage2 || matrix.check-stage3
       - name: Check Stage 3
         run: nix-shell --run "cd build; make -j4 check-stage3"

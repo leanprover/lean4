@@ -5,7 +5,6 @@ endif()
 if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
   message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
 endif()
-include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 0)
@@ -508,7 +507,7 @@ add_subdirectory(frontends/lean)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
 add_subdirectory(initialize)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
-if(STAGE0)
+if(${STAGE} EQUAL 0)
   add_subdirectory(../stdlib stdlib)
 endif()
 if(EMSCRIPTEN)
@@ -517,36 +516,34 @@ else()
    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
 
-if(NOT STAGE0)
-  ExternalProject_add(stage0
-    SOURCE_DIR "${LEAN_SOURCE_DIR}/../stage0"
-    SOURCE_SUBDIR src
-    BINARY_DIR stage0
-    CMAKE_ARGS
-      -DSTAGE0=ON
-      -DCCACHE=${CCACHE}
-      -DCHECK_OLEAN_VERSION=${CHECK_OLEAN_VERSION}
-      "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-      "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-    BUILD_COMMAND $(MAKE)  # build executable only
-    BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
-    INSTALL_COMMAND ""  # skip install
-  )
+if(LEANSTATIC)
+  add_library(leanstatic STATIC IMPORTED)
+  set_target_properties(leanstatic PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstdlib.a"
+    IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
+  add_custom_target(copy-leanstatic
+    COMMAND cp "${LEANSTATIC}" "$<TARGET_FILE:leanstatic>")
+else()
+  add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+  set_target_properties(leanstatic PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+  target_link_libraries(leanstatic ${EXTRA_LIBS})
 endif()
-
-add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-target_link_libraries(leanstatic ${EXTRA_LIBS})
-set_target_properties(leanstatic PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 if(LLVM)
   target_link_libraries(leanstatic ${llvm_libs})
 endif()
 
-if(STAGE0)
+if(${STAGE} EQUAL 0)
   add_library(leanstdlib STATIC $<TARGET_OBJECTS:stage0>)
 else()
   add_library(leanstdlib STATIC IMPORTED)
 endif()
+
+add_custom_target(update-stage0
+  COMMAND make update-stage0 -f ${CMAKE_BINARY_DIR}/share/lean/Makefile
+    "OUT=${CMAKE_BINARY_DIR}/lib"
+  DEPENDS leanstdlib
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"

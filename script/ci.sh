@@ -2,6 +2,6 @@
 set -e
 mkdir build
 cd build
-eval cmake ../src $CMAKE_OPTIONS
-cmake --build . -j4
-cpack
+eval cmake .. $CMAKE_OPTIONS
+make
+(cd stage1; cpack)

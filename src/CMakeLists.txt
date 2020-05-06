@@ -487,66 +487,67 @@ configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/conf
 install(FILES "${LEAN_SOURCE_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
 configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
 
-include_directories("${LEAN_BINARY_DIR}")
-add_subdirectory(runtime)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
-add_subdirectory(util)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
-add_subdirectory(kernel)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:kernel>)
-add_subdirectory(library)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
-add_subdirectory(library/tactic)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:tactic>)
-add_subdirectory(library/constructions)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:constructions>)
-add_subdirectory(library/equations_compiler)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:equations_compiler>)
-add_subdirectory(library/compiler)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
-add_subdirectory(frontends/lean)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
-add_subdirectory(initialize)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
-if(STAGE0)
-  add_subdirectory(../stdlib stdlib)
-endif()
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
 else()
    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
 
-if(NOT STAGE0)
-  ExternalProject_add(stage0
-    SOURCE_DIR "${LEAN_SOURCE_DIR}/../stage0"
-    SOURCE_SUBDIR src
-    BINARY_DIR stage0
-    CMAKE_ARGS
-      -DSTAGE0=ON
-      -DCCACHE=${CCACHE}
-      -DCHECK_OLEAN_VERSION=${CHECK_OLEAN_VERSION}
-      "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-      "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-    BUILD_COMMAND $(MAKE)  # build executable only
-    BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
-    INSTALL_COMMAND ""  # skip install
-  )
-endif()
+include_directories("${LEAN_BINARY_DIR}")
 
-add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-target_link_libraries(leanstatic ${EXTRA_LIBS})
-set_target_properties(leanstatic PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+if(LEANSTATIC)
+  add_library(leanstatic STATIC IMPORTED)
+  set_target_properties(leanstatic PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstatic.a")
+  target_link_libraries(leanstatic INTERFACE ${EXTRA_LIBS})
+  add_custom_target(copy-leanstatic
+    COMMAND cmake -E copy_if_different "${LEANSTATIC}" "${CMAKE_BINARY_DIR}/lib/libleanstatic.a")
+  add_dependencies(leanstatic copy-leanstatic)
+else()
+  add_subdirectory(runtime)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
+  add_subdirectory(util)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
+  add_subdirectory(kernel)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:kernel>)
+  add_subdirectory(library)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
+  add_subdirectory(library/tactic)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:tactic>)
+  add_subdirectory(library/constructions)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:constructions>)
+  add_subdirectory(library/equations_compiler)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:equations_compiler>)
+  add_subdirectory(library/compiler)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
+  add_subdirectory(frontends/lean)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
+  add_subdirectory(initialize)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
+  if(${STAGE} EQUAL 0)
+    add_subdirectory(../stdlib stdlib)
+  endif()
+
+  add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+  set_target_properties(leanstatic PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+  target_link_libraries(leanstatic ${EXTRA_LIBS})
+endif()
 
 if(LLVM)
   target_link_libraries(leanstatic ${llvm_libs})
 endif()
 
-if(STAGE0)
+if(${STAGE} EQUAL 0)
   add_library(leanstdlib STATIC $<TARGET_OBJECTS:stage0>)
 else()
   add_library(leanstdlib STATIC IMPORTED)
 endif()
+
+add_custom_target(update-stage0
+  COMMAND make update-stage0 -f ${CMAKE_BINARY_DIR}/share/lean/Makefile
+    "OUT=${CMAKE_BINARY_DIR}/lib"
+  DEPENDS leanstdlib
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"

@@ -1,75 +1,56 @@
 if(NOT STAGE0)
-  add_executable(lean_stage0 IMPORTED)
-  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage0/shell/lean${CMAKE_EXECUTABLE_SUFFIX}")
-
-  ADD_CUSTOM_TARGET(bin_lean_stage0
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0${CMAKE_EXECUTABLE_SUFFIX}"
-    DEPENDS stage0
-  )
-
   string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
   set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
   add_custom_target(make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=Init=Init" $(MAKE) "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
-      "LEAN=$<TARGET_FILE:lean_stage0>"
-      "LEANC_OPTS=${LEANC_OPTS}"
-      "OUT=${CMAKE_BINARY_DIR}/stage1"
-      # share .c files between different build configurations
-      "C_OUT=${LEAN_SOURCE_DIR}/stage1"
+    COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/stage0/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile OUT=${CMAKE_BINARY_DIR}/lib"
     DEPENDS stage0)
   set_target_properties(leanstdlib PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstdlib.a"
     IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
   add_dependencies(leanstdlib make_stdlib)
   install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
 
-  set(PREV_LEAN "$<TARGET_FILE:lean>")
+  set(PREV_STAGE_DIR "${CMAKE_BINARY_DIR}")
+  set(PREV_STAGE_TARGET lean)
   foreach(STAGE RANGE 2 3)
     add_custom_target(make_stdlib_stage${STAGE}
-      COMMAND cd "${LEAN_SOURCE_DIR}" && find . '\(' -name Makefile -o -name relative.py -o -name '*.lean' '\)' -exec "${CMAKE_COMMAND}" -E copy_if_different '{}' ${CMAKE_BINARY_DIR}/stage${STAGE}/'{}' '\;'
-      COMMAND cd "${CMAKE_BINARY_DIR}/stage${STAGE}" && LEAN_PATH=Init=Init $(MAKE) ./libleanstdlib.a
-        "LEAN=${PREV_LEAN}"
-        "LEANC=${LEAN_SOURCE_DIR}/../bin/leanc"
-        "LEAN_ROOT=${LEAN_SOURCE_DIR}"
-        "LEANC_OPTS=${LEANC_OPTS}"
-        "OUT=."
-        # recreate everything if the previous compiler has changed
-        "MORE_DEPS=${PREV_LEAN}"
-    )
+      WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
+      # recreate everything if the previous compiler has changed
+      COMMAND bash -c "PATH=${PREV_STAGE_DIR}/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile OUT=${CMAKE_BINARY_DIR}/stage${STAGE}/lib MORE_DEPS=${PREV_STAGE_DIR}/bin/lean"
+      DEPENDS ${PREV_STAGE_TARGET})
     add_library(leanstdlib_stage${STAGE} STATIC IMPORTED)
     set_target_properties(leanstdlib_stage${STAGE} PROPERTIES
-      IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage${STAGE}/libleanstdlib.a"
+      IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage${STAGE}/lib/libleanstdlib.a"
       IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
     add_dependencies(leanstdlib_stage${STAGE} make_stdlib_stage${STAGE})
     add_executable(lean_stage${STAGE} EXCLUDE_FROM_ALL lean.cpp)
     # see `target_link_libraries(lean ...)` below
     target_link_libraries(lean_stage${STAGE} leanstatic leanstdlib_stage${STAGE} leanstatic leanstdlib_stage${STAGE})
-    set(PREV_LEAN "$<TARGET_FILE:lean_stage${STAGE}>")
+    set(PREV_STAGE_DIR "${CMAKE_BINARY_DIR}/stage${STAGE}")
+    set(PREV_STAGE_TARGET lean_stage${STAGE})
   endforeach()
 
   add_custom_target(check-stage3
     COMMAND diff "$<TARGET_FILE:lean_stage2>" "$<TARGET_FILE:lean_stage3>")
 
   add_custom_target(update-stage0
-    COMMAND make update-stage0
-      "OUT=${CMAKE_BINARY_DIR}/stage1"
-      "C_OUT=${LEAN_SOURCE_DIR}/stage1"
+    COMMAND make update-stage0 -f ${CMAKE_BINARY_DIR}/share/lean/Makefile
+      "OUT=${CMAKE_BINARY_DIR}/lib"
     DEPENDS leanstdlib
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
 
 add_executable(lean lean.cpp)
-if(STAGE0)
-  target_link_libraries(lean leanstatic)
-else()
-  # `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
-  # We use the approach described at
-  # https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
-  # We don't want to add leanstdlib as a direct dependency of leanstatic since this is only true for stage 1.
-  target_link_libraries(lean leanstatic leanstdlib leanstatic leanstdlib)
-endif()
+set_target_properties(lean PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+# `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
+# We use the approach described at
+# https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
+# We don't want to add leanstdlib as a direct dependency of leanstatic since this is only true for stage 1.
+target_link_libraries(lean leanstatic leanstdlib leanstatic leanstdlib)
+
 # create import library on Windows to link plugins against
 set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -78,23 +59,22 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 install(TARGETS lean DESTINATION bin)
 
-if(NOT STAGE0)
-  if(${EMSCRIPTEN})
+if(NOT STAGE0 AND EMSCRIPTEN)
       set(NODE_JS "node --stack_size=8192")
 
-      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
-              "#!/bin/sh\nLEAN_PATH=Init=${CMAKE_CURRENT_SOURCE_DIR}/.. ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
-      execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
+      file(WRITE $<TARGET_FILE:lean>_with_path
+              "#!/bin/sh\nLEAN_PATH=Init=${CMAKE_CURRENT_SOURCE_DIR}/.. ${NODE_JS} $<TARGET_FILE:lean>.js \"$@\"\n")
+      execute_process(COMMAND chmod +x $<TARGET_FILE:lean>_with_path)
 
       ADD_CUSTOM_TARGET(bin_lean ALL
-          COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-          COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean_with_path" "${LEAN_SOURCE_DIR}/../bin/lean"
+          COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_BINARY_DIR}/bin"
+          COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:lean>_with_path" "${CMAKE_BINARY_DIR}/bin/lean"
           DEPENDS lean
           )
 
-      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean
-              "#!/bin/sh\n${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
-      execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean)
+      file(WRITE $<TARGET_FILE:lean>
+              "#!/bin/sh\n${NODE_JS} $<TARGET_FILE:lean>.js \"$@\"\n")
+      execute_process(COMMAND chmod +x $<TARGET_FILE:lean>)
 
       # legacy code for mkleanbook
       # copy olean files from the library into build/emscripten/shell/library/...
@@ -111,41 +91,24 @@ if(NOT STAGE0)
                -s \"BINARYEN_METHOD='native-wasm,asmjs'\"")
       add_dependencies(lean_js lean_js_library)
       set_target_properties(lean_js PROPERTIES COMPILE_FLAGS --bind -s NO_EXIT_RUNTIME=1)
-
-  else()
-    if (MSVC)
-      ADD_CUSTOM_TARGET(bin_lean ALL
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_FILE_DIR:lean>/mpir.dll" "${LEAN_SOURCE_DIR}/../bin/"
-        DEPENDS bin_lean_stage0
-      )
-    else()
-      ADD_CUSTOM_TARGET(bin_lean ALL
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_LINKER_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
-        DEPENDS bin_lean_stage0
-      )
-      ADD_CUSTOM_TARGET(bin_lean_stage2
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage2>" "${LEAN_SOURCE_DIR}/../bin/"
-      )
-    endif()
-  endif()
 endif()
 
-# add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
-# add_test(lean_export ${CMAKE_CURRENT_BINARY_DIR}/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
-add_test(lean_help1    "${CMAKE_CURRENT_BINARY_DIR}/lean" --help)
-add_test(lean_help2    "${CMAKE_CURRENT_BINARY_DIR}/lean" -h)
-add_test(lean_version1 "${CMAKE_CURRENT_BINARY_DIR}/lean" --version)
+# add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_BINARY_DIR}/bin/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
+# add_test(lean_export ${CMAKE_BINARY_DIR}/bin/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
+add_test(lean_help1    "${CMAKE_BINARY_DIR}/bin/lean" --help)
+add_test(lean_help2    "${CMAKE_BINARY_DIR}/bin/lean" -h)
+add_test(lean_version1 "${CMAKE_BINARY_DIR}/bin/lean" --version)
 if (NOT ${EMSCRIPTEN})
-add_test(lean_version2 "${CMAKE_CURRENT_BINARY_DIR}/lean" --v)
+add_test(lean_version2 "${CMAKE_BINARY_DIR}/bin/lean" --v)
 endif()
-add_test(lean_ghash1   "${CMAKE_CURRENT_BINARY_DIR}/lean" -g)
-add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
-# add_test(lean_new_frontend "${LEAN_SOURCE_DIR}/../bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
-add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
-add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
+add_test(lean_ghash1   "${CMAKE_BINARY_DIR}/bin/lean" -g)
+add_test(lean_ghash2   "${CMAKE_BINARY_DIR}/bin/lean" --githash)
+# add_test(lean_new_frontend "${CMAKE_BINARY_DIR}/bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
+add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "-z")
+add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "boofoo.lean")
 
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
-string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${LEAN_SOURCE_DIR}/../bin")
+string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

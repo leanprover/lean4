@@ -459,8 +459,8 @@ if(USE_GITHASH)
   get_git_head_revision(GIT_REFSPEC GIT_SHA1)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
-    if(EXISTS "${LEAN_SOURCE_DIR}/../bin/package_version")
-      file(STRINGS "${LEAN_SOURCE_DIR}/../bin/package_version" LEAN_PACKAGE_VERSION)
+    if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
+      file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
       message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
     endif()
   else()
@@ -468,8 +468,8 @@ if(USE_GITHASH)
   endif()
 else()
   set(GIT_SHA1 "GITDIR-NOTFOUND")
-  if(EXISTS "${LEAN_SOURCE_DIR}/../bin/package_version")
-    file(STRINGS "${LEAN_SOURCE_DIR}/../bin/package_version" LEAN_PACKAGE_VERSION)
+  if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
+    file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
     message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
   endif()
 endif()
@@ -483,14 +483,9 @@ endif ()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
-# Remark: we did not put `config.h` in `${LEAN_BINARY_DIR}` because `leanc` depends on this file.
-# Note that, `leanc` already had problems with multiple configurations before we added `config.h`.
-# For example, it uses binary files located in the `bin` directory.
-configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_SOURCE_DIR}/config.h")
-install(FILES "${LEAN_SOURCE_DIR}/config.h" DESTINATION "${INCLUDE_DIR}")
-if(NOT STAGE0)
-  configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_SOURCE_DIR}/Makefile")
-endif()
+configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/config.h")
+install(FILES "${LEAN_SOURCE_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
+configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
 
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(runtime)
@@ -515,7 +510,6 @@ add_subdirectory(initialize)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
 if(STAGE0)
   add_subdirectory(../stdlib stdlib)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
 endif()
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
@@ -534,7 +528,7 @@ if(NOT STAGE0)
       -DCHECK_OLEAN_VERSION=${CHECK_OLEAN_VERSION}
       "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
       "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-    BUILD_COMMAND $(MAKE) lean  # build executable only
+    BUILD_COMMAND $(MAKE)  # build executable only
     BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
     INSTALL_COMMAND ""  # skip install
   )
@@ -542,42 +536,36 @@ endif()
 
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
 target_link_libraries(leanstatic ${EXTRA_LIBS})
+set_target_properties(leanstatic PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 if(LLVM)
   target_link_libraries(leanstatic ${llvm_libs})
 endif()
 
-if(NOT STAGE0)
+if(STAGE0)
+  add_library(leanstdlib STATIC $<TARGET_OBJECTS:stage0>)
+else()
   add_library(leanstdlib STATIC IMPORTED)
-  ADD_CUSTOM_TARGET(bin_lib ALL
-     COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-     COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "$<TARGET_FILE:leanstdlib>" "$<TARGET_FILE:leanstatic>" "${LEAN_SOURCE_DIR}/../bin"
-  )
-  # Configure leanc
-  configure_file("${LEAN_SOURCE_DIR}/../bin/leanc.in" "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc")
-  file(COPY "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc"
-    DESTINATION "${LEAN_SOURCE_DIR}/../bin"
-    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-  install(FILES "${LEAN_SOURCE_DIR}/../bin/leanc"
-    DESTINATION bin
-    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
-  add_custom_target(bin ALL)
-  add_dependencies(bin bin_lib bin_lean)
 endif()
 
-# The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
-# For some strange reason, it contains a copy of pthread_equal.
-# Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
-if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
-  if ("${STATIC}" MATCHES "OFF")
-    add_library(leanshared SHARED shared/init.cpp)
-    # see `target_link_libraries(lean ...)`
-    target_link_libraries(leanshared leanstatic leanstdlib leanstatic leanstdlib)
-    install(TARGETS leanshared DESTINATION lib)
-  endif()
-  install(TARGETS leanstatic DESTINATION lib)
-endif()
+configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
+install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
+  DESTINATION bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+# shared library deactivated until we figure out the leanstatic/leanstdlib story
+# # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
+# # For some strange reason, it contains a copy of pthread_equal.
+# # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
+# if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
+#   if ("${STATIC}" MATCHES "OFF")
+#     add_library(leanshared SHARED shared/init.cpp)
+#     # see `target_link_libraries(lean ...)`
+#     target_link_libraries(leanshared leanstatic leanstdlib leanstatic leanstdlib)
+#     install(TARGETS leanshared DESTINATION lib)
+#   endif()
+#   install(TARGETS leanstatic DESTINATION lib)
+# endif()
 
 add_subdirectory(shell)
 
@@ -618,24 +606,23 @@ add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cma
 endif()
 
 add_custom_target(clean-stdlib
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
-  COMMAND find . -name '*.olean' -delete
-  COMMAND find . -name '*.depend' -delete
-  COMMAND rm -rf ../stage1 "${CMAKE_BINARY_DIR}/stage2" "${CMAKE_BINARY_DIR}/stage3" || true
-  )
+  COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" "${CMAKE_BINARY_DIR}/stage2" "${CMAKE_BINARY_DIR}/stage3" || true)
 
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
+        FILES_MATCHING
+        PATTERN "*.olean")
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean/src"
         FILES_MATCHING
         PATTERN "*.lean"
-        PATTERN "*.olean"
         PATTERN "*.md")
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/runtime" DESTINATION "${INCLUDE_DIR}"
-        FILES_MATCHING
-        PATTERN "*.h")
+add_custom_target(include_runtime ALL
+  COMMAND cmake -E copy_directory "${CMAKE_SOURCE_DIR}/runtime" "${CMAKE_BINARY_DIR}/include/runtime")
+install(FILES "${CMAKE_SOURCE_DIR}/runtime/lean.h" DESTINATION "${INCLUDE_DIR}/runtime")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
   # TODO(Leo): do not use hardlinks to required DLLs.

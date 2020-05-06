@@ -21,7 +21,7 @@
 (defvar-local lean4-default-executable-name
   (cl-case system-type
     ('windows-nt   "lean.exe")
-    (t             "lean_wrapped"))
+    (t             "lean"))
   "Default executable name of Lean")
 
 (defcustom lean4-rootdir nil

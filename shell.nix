@@ -14,9 +14,6 @@ let attribs = rec {
     recipe = pkgs.writeText "recipe" ''
       (lean4-mode :repo "leanprover/lean4" :fetcher github :files ("*.el"))
     '';
-    patchPhase = ''
-      sed -i 's/lean_wrapped/lean/' *.el
-    '';
     fileSpecs = [ "*.el" ];
   };
   emacs = pkgs.emacsWithPackages (epkgs:

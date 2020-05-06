@@ -1,21 +1,15 @@
 # Copyright (c) 2018 Simon Hudon. All rights reserved.
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Simon Hudon, Sebastian Ullrich, Leonardo de Moura
-LEAN ?= ../bin/lean
-LEANC ?= ../bin/leanc
-LEAN_ROOT ?= .
-# Even though we copy the sources into a new directory for stage2/3, we
-# read the list of files to compile from the original directory to avoid
-# issues with stale copied files
-SRCS = $(shell cd $(LEAN_ROOT); find . -name '*.lean')
-DEPS = $(addprefix $(LEAN_ROOT)/,$(SRCS:.lean=.depend))
+SRCS = $(shell find Init -name '*.lean')
+DEPS = $(addprefix $(OUT)/temp/,$(SRCS:.lean=.depend))
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 STAGE0_DIR = ../stage0
-C_OUT ?= .
 ifndef OUT
 $(error "`OUT` must be set (use cmake)")
 endif
-OBJS = $(SRCS:.lean=.olean)
+export LEAN_PATH=Init=$(OUT)/lean/Init
+OBJS = $(addprefix $(OUT)/lean/, $(SRCS:.lean=.olean))
 # ensure deterministic ordering
 CS_CORE=$(sort $(SRCS:.lean=.c))
 
@@ -23,44 +17,49 @@ SHELL = /usr/bin/env bash -eo pipefail
 
 .PHONY: all clean
 
-all: $(OBJS)
+all: $(OBJS) $(OUT)/libleanstdlib.a
 
 depends: $(DEPS)
 
-%.depend: %.lean
-# use separate assignment to ensure failure propagation
-	@deps=`$(LEAN) --deps $< | python relative.py`; echo $(<:.lean=.olean): $$deps > $@
+$(OUT)/lean/Init:
+	@mkdir -p "$@"
 
-%.olean: %.lean %.depend $(MORE_DEPS)
+$(OUT)/temp/%.depend: %.lean | $(OUT)/lean/Init
+	@mkdir -p "$(OUT)/temp/$(*D)"
+# use separate assignment to ensure failure propagation
+# convert file separators and newlines on Windows
+	@deps=`lean --deps $< | sed 's!\\\\!/!g;s/\\r//'`; echo $(OUT)/lean/$(<:.lean=.olean): $$deps > $@
+
+$(OUT)/lean/%.olean: %.lean $(OUT)/temp/%.depend $(MORE_DEPS)
 	@echo "[    ] Building $<"
-	@mkdir -p $(C_OUT)/$(*D)
-	$(LEAN) $(OPTS) -o "$@" --c="$(C_OUT)/$*.c.tmp" $<
+	@mkdir -p $(OUT)/lean/$(*D)
+	lean $(OPTS) -o "$@" --c="$(OUT)/temp/$*.c.tmp" $<
 # create the .c file atomically
-	mv "$(C_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
+	mv "$(OUT)/temp/$*.c.tmp" "$(OUT)/temp/$*.c"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
 	@touch $@
 
-$(C_OUT)/%.c: %.olean
+$(OUT)/temp/%.c: $(OUT)/lean/%.olean
 	@
 
-$(OUT)/%.o: $(C_OUT)/%.c
+$(OUT)/temp/%.o: $(OUT)/temp/%.c
 	@echo "[    ] Building $<"
 	@mkdir -p "$(@D)"
-	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
+	leanc -c -o $@ $< $(LEANC_OPTS)
 
-$(OUT)/libleanstdlib.a: $(addprefix $(OUT)/,$(SRCS:.lean=.o))
+$(OUT)/libleanstdlib.a: $(addprefix $(OUT)/temp/,$(SRCS:.lean=.o))
 	@rm -f $@
 	@ar rcs $@ $^
 
 update-stage0:
 	-rm -r $(STAGE0_DIR)
 	-mkdir -p $(STAGE0_DIR)/stdlib
-	for f in $(SRCS:.lean=.c); do mkdir -p `dirname $(STAGE0_DIR)/stdlib/$$f`; cp $(C_OUT)/$$f $(STAGE0_DIR)/stdlib/$$f; done
+	for f in $(SRCS:.lean=.c); do mkdir -p `dirname $(STAGE0_DIR)/stdlib/$$f`; cp $(OUT)/$$f $(STAGE0_DIR)/stdlib/$$f; done
 	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/stdlib/CMakeLists.txt
 # don't copy untracked crap
 	git ls-files -z . | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
 	-git add $(STAGE0_DIR)
 
-.PRECIOUS: %.depend $(C_OUT)/%.c
+.PRECIOUS: %.depend $(OUT)/temp/%.c
 
 include $(DEPS)

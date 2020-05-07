@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <windows.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
+#include <unistd.h>
 #else
 // Linux include files
 #include <unistd.h>

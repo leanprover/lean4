@@ -11,7 +11,7 @@
     <<: *time
     cwd: ../../src
     cmd: |
-      bash -c "find . -name '*.lean' -exec ../bin/lean --stats -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
+      bash -c "find . -name '*.lean' -exec lean --stats -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
     max_runs: 3
     parse_output: true
 - attributes:
@@ -25,7 +25,7 @@
       echo -n 'lines: ' &&
       find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean: ' &&
-      find src -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find $(dirname $(which lean))/../lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C++: ' &&
       find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       "
@@ -38,7 +38,7 @@
     cmd: |
       set -eu
       echo -n 'binary size: '
-      wc -c ../../bin/lean | cut -d' ' -f 1
+      wc -c $(which lean) | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:
@@ -62,7 +62,7 @@
       set -euxo pipefail
       ulimit -s unlimited
       for f in *.args; do
-        ../../bin/lean --run ${f%.args} $(cat $f)
+        lean --run ${f%.args} $(cat $f)
       done
       '
     max_runs: 5

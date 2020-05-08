@@ -2,9 +2,21 @@ if(PREV_STAGE)
   string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
   set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
+  # MSYS2 bash usually handles absolute Windows paths relatively well, but not when putting them in the PATH
+  file(RELATIVE_PATH PREV_STAGE_REL ${LEAN_SOURCE_DIR} ${PREV_STAGE})
+  # ...and Make doesn't like absolute Windows paths either
+  file(RELATIVE_PATH OUT ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
+
   add_custom_target(make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
-    COMMAND bash -c "PATH=${PREV_STAGE}/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile OUT=${CMAKE_BINARY_DIR}/lib MORE_DEPS=${PREV_STAGE}/bin/lean")
+    # fun: we use `bash -c` to set the `PATH`, but then pass other arguments outside so we don't have to escape them
+    COMMAND bash -c 'PATH=${PREV_STAGE_REL}/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile \"$$@\"'
+      # `$0`, ignored by `$@`
+      bash
+      "OUT=${OUT}"
+      "LEANC_OPTS=${LEANC_OPTS}"
+      # recreate everything if the previous compiler has changed
+      MORE_DEPS=${PREV_STAGE_REL}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})
   set_target_properties(leanstdlib PROPERTIES
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstdlib.a"
     IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)

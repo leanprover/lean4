@@ -424,6 +424,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 find_package(PythonInterp)
 
 include_directories(${LEAN_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR}/include)
 
 # export all symbols for the interpreter
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")

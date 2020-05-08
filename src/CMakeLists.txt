@@ -424,7 +424,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 # Python
 find_package(PythonInterp)
 
-include_directories(${LEAN_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR}/include)
 
 # export all symbols for the interpreter
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -493,7 +493,9 @@ else()
    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
 
-include_directories("${LEAN_BINARY_DIR}")
+include_directories(${LEAN_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
+include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
 if(LEANSTATIC)
   add_library(leanstatic STATIC IMPORTED)

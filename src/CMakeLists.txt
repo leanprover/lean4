@@ -484,8 +484,9 @@ endif ()
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/config.h")
-install(FILES "${LEAN_SOURCE_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
+install(FILES "${LEAN_BINARY_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
 configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
+install(FILES "${LEAN_BINARY_DIR}/share/lean/Makefile" DESTINATION "share/lean")
 
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
@@ -614,17 +615,16 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
+install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.olean")
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean/src"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.md")
 
-add_custom_target(include_runtime ALL
-  COMMAND cmake -E copy_directory "${CMAKE_SOURCE_DIR}/runtime" "${CMAKE_BINARY_DIR}/include/runtime")
+file(COPY ${CMAKE_SOURCE_DIR}/runtime/lean.h DESTINATION ${CMAKE_BINARY_DIR}/include/runtime)
 install(FILES "${CMAKE_SOURCE_DIR}/runtime/lean.h" DESTINATION "${INCLUDE_DIR}/runtime")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")

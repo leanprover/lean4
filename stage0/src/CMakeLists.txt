@@ -618,8 +618,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean/src"
         PATTERN "*.lean"
         PATTERN "*.md")
 
-add_custom_target(include_runtime ALL
-  COMMAND cmake -E copy_directory "${CMAKE_SOURCE_DIR}/runtime" "${CMAKE_BINARY_DIR}/include/runtime")
+file(COPY ${CMAKE_SOURCE_DIR}/runtime/lean.h DESTINATION ${CMAKE_BINARY_DIR}/include/runtime)
 install(FILES "${CMAKE_SOURCE_DIR}/runtime/lean.h" DESTINATION "${INCLUDE_DIR}/runtime")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")

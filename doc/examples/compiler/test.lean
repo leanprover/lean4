@@ -1,3 +1,3 @@
-def main (n : list string) : io uint32 :=
-do io.println' (to_string n),
+def main (n : List String) : IO UInt32 :=
+do IO.println (toString n);
    pure 0

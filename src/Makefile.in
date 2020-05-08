@@ -1,53 +1,66 @@
 # Copyright (c) 2018 Simon Hudon. All rights reserved.
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Simon Hudon, Sebastian Ullrich, Leonardo de Moura
-SRCS = $(shell find Init -name '*.lean')
-DEPS = $(addprefix $(OUT)/temp/,$(SRCS:.lean=.depend))
-OPTS = @LEAN_EXTRA_MAKE_OPTS@
-ifndef OUT
-$(error "`OUT` must be set (use cmake)")
-endif
-export LEAN_PATH=Init=$(OUT)/lean/Init
-OBJS = $(addprefix $(OUT)/lean/, $(SRCS:.lean=.olean))
+OUT = build
+OLEAN_OUT = $(OUT)
+TEMP_OUT = $(OUT)/temp
+BIN_OUT = $(OUT)/bin
+LIB_OUT = $(OUT)/lib
+BIN_NAME = $(PKG)
+STATIC_LIB_NAME = lib$(PKG).a
+LEAN_OPTS = @LEAN_EXTRA_MAKE_OPTS@
+LEANC_OPTS = -O3 -DNDEBUG
+
+SRCS = $(shell find $(PKG) -name '*.lean' || true; find $(PKG).lean 2> /dev/null)
+DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
+export LEAN_PATH=$(PKG)=$(OLEAN_OUT)/$(PKG)
+OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 
 SHELL = /usr/bin/env bash -eo pipefail
 
-.PHONY: all clean
+.PHONY: all bin depends
 
-all: $(OBJS) $(OUT)/libleanstdlib.a
+all: $(OBJS)
+
+bin: $(BIN_OUT)/$(PKG)
 
 depends: $(DEPS)
 
-$(OUT)/lean/Init:
+# `lean --deps` complains if the `LEAN_PATH` doesn't point at anything
+$(OLEAN_OUT)/$(PKG) $(LIB_OUT) $(BIN_OUT):
 	@mkdir -p "$@"
 
-$(OUT)/temp/%.depend: %.lean | $(OUT)/lean/Init
-	@mkdir -p "$(OUT)/temp/$(*D)"
+$(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
+	@mkdir -p "$(TEMP_OUT)/$(*D)"
 # use separate assignment to ensure failure propagation
 # convert file separators and newlines on Windows
-	@deps=`lean --deps $< | sed 's!\\\\!/!g;s/\\r//'`; echo $(OUT)/lean/$(<:.lean=.olean): $$deps > $@
+	@deps=`lean --deps $< | sed 's!\\\\!/!g;s/\\r//'`; echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
 
-$(OUT)/lean/%.olean: %.lean $(OUT)/temp/%.depend $(MORE_DEPS)
+$(OLEAN_OUT)/%.olean: %.lean $(TEMP_OUT)/%.depend $(MORE_DEPS)
 	@echo "[    ] Building $<"
-	@mkdir -p $(OUT)/lean/$(*D)
-	lean $(OPTS) -o "$@" --c="$(OUT)/temp/$*.c.tmp" $<
+	@mkdir -p $(OLEAN_OUT)/$(*D)
+	lean $(LEAN_OPTS) -o "$@" --c="$(TEMP_OUT)/$*.c.tmp" $<
 # create the .c file atomically
-	mv "$(OUT)/temp/$*.c.tmp" "$(OUT)/temp/$*.c"
+	mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
 	@touch $@
 
-$(OUT)/temp/%.c: $(OUT)/lean/%.olean
+$(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean
 	@
 
-$(OUT)/temp/%.o: $(OUT)/temp/%.c
+$(TEMP_OUT)/%.o: $(TEMP_OUT)/%.c
 	@echo "[    ] Building $<"
 	@mkdir -p "$(@D)"
 	leanc -c -o $@ $< $(LEANC_OPTS)
 
-$(OUT)/libleanstdlib.a: $(addprefix $(OUT)/temp/,$(SRCS:.lean=.o))
+$(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(BIN_OUT)
+	@echo "[    ] Linking $@"
+	leanc -o "$@" -x none $^
+
+$(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)
 	@rm -f $@
 	@ar rcs $@ $^
 
-.PRECIOUS: $(OUT)/temp/%.c
+.PRECIOUS: $(TEMP_OUT)/%.c
 
 include $(DEPS)

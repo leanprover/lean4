@@ -10,11 +10,15 @@ if(PREV_STAGE)
   add_custom_target(make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
     # fun: we use `bash -c` to set the `PATH`, but then pass other arguments outside so we don't have to escape them
-    COMMAND bash -c 'PATH=${PREV_STAGE_REL}/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile \"$$@\"'
+    COMMAND bash -c 'PATH=${PREV_STAGE_REL}/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile ${OUT}/libleanstdlib.a \"$$@\"'
       # `$0`, ignored by `$@`
       bash
-      "OUT=${OUT}"
-      "LEANC_OPTS=${LEANC_OPTS}"
+      PKG=Init
+      OUT=${OUT}
+      OLEAN_OUT=${OUT}/lean
+      LIB_OUT=${OUT}
+      STATIC_LIB_NAME=libleanstdlib.a
+      LEANC_OPTS=${LEANC_OPTS}
       # recreate everything if the previous compiler has changed
       MORE_DEPS=${PREV_STAGE_REL}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})
   set_target_properties(leanstdlib PROPERTIES

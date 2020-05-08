@@ -4,14 +4,11 @@
 SRCS = $(shell find Init -name '*.lean')
 DEPS = $(addprefix $(OUT)/temp/,$(SRCS:.lean=.depend))
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
-STAGE0_DIR = ../stage0
 ifndef OUT
 $(error "`OUT` must be set (use cmake)")
 endif
 export LEAN_PATH=Init=$(OUT)/lean/Init
 OBJS = $(addprefix $(OUT)/lean/, $(SRCS:.lean=.olean))
-# ensure deterministic ordering
-CS_CORE=$(sort $(SRCS:.lean=.c))
 
 SHELL = /usr/bin/env bash -eo pipefail
 
@@ -51,15 +48,6 @@ $(OUT)/libleanstdlib.a: $(addprefix $(OUT)/temp/,$(SRCS:.lean=.o))
 	@rm -f $@
 	@ar rcs $@ $^
 
-update-stage0:
-	-rm -r $(STAGE0_DIR)
-	-mkdir -p $(STAGE0_DIR)/stdlib
-	for f in $(SRCS:.lean=.c); do mkdir -p `dirname $(STAGE0_DIR)/stdlib/$$f`; cp $(OUT)/$$f $(STAGE0_DIR)/stdlib/$$f; done
-	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/stdlib/CMakeLists.txt
-# don't copy untracked crap
-	git ls-files -z . | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
-	-git add $(STAGE0_DIR)
-
-.PRECIOUS: %.depend $(OUT)/temp/%.c
+.PRECIOUS: $(OUT)/temp/%.c
 
 include $(DEPS)

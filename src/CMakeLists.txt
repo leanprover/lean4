@@ -547,10 +547,9 @@ else()
 endif()
 
 add_custom_target(update-stage0
-  COMMAND make update-stage0 -f ${CMAKE_BINARY_DIR}/share/lean/Makefile
-    "OUT=${CMAKE_BINARY_DIR}/lib"
+  COMMAND cmake -E env OUT=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
   DEPENDS leanstdlib
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+bindir=$(dirname $0)
+make -f "$bindir/../share/lean/Makefile" "$@"

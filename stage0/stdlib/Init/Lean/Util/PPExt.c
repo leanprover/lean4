@@ -164,23 +164,23 @@ lean_ctor_set(x_19, 2, x_18);
 x_20 = lean_io_ref_get(x_13, x_16);
 if (lean_obj_tag(x_20) == 0)
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
-x_23 = lean_io_ref_reset(x_13, x_22);
-if (lean_obj_tag(x_23) == 0)
-{
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_24 = lean_ctor_get(x_23, 1);
-lean_inc(x_24);
-lean_dec(x_23);
 lean_inc(x_19);
-x_25 = x_19;
-x_26 = lean_array_push(x_21, x_25);
-x_27 = lean_io_ref_set(x_13, x_26, x_24);
+x_23 = x_19;
+x_24 = lean_array_push(x_21, x_23);
+x_25 = lean_io_ref_reset(x_13, x_22);
+if (lean_obj_tag(x_25) == 0)
+{
+lean_object* x_26; lean_object* x_27; 
+x_26 = lean_ctor_get(x_25, 1);
+lean_inc(x_26);
+lean_dec(x_25);
+x_27 = lean_io_ref_set(x_13, x_24, x_26);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; 
@@ -232,21 +232,21 @@ return x_35;
 else
 {
 uint8_t x_36; 
-lean_dec(x_21);
+lean_dec(x_24);
 lean_dec(x_19);
-x_36 = !lean_is_exclusive(x_23);
+x_36 = !lean_is_exclusive(x_25);
 if (x_36 == 0)
 {
-return x_23;
+return x_25;
 }
 else
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_37 = lean_ctor_get(x_23, 0);
-x_38 = lean_ctor_get(x_23, 1);
+x_37 = lean_ctor_get(x_25, 0);
+x_38 = lean_ctor_get(x_25, 1);
 lean_inc(x_38);
 lean_inc(x_37);
-lean_dec(x_23);
+lean_dec(x_25);
 x_39 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);

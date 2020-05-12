@@ -147,7 +147,16 @@ match d with
      emitLn "void lean_initialize();"
   else
      emitLn "void lean_initialize_runtime_module();";
-  emitLn "int main(int argc, char ** argv) {\nlean_object* in; lean_object* res;";
+  emitLn "
+#if defined(WIN32) || defined(_WIN32)
+#include <windows.h>
+#endif
+
+int main(int argc, char ** argv) {
+#if defined(WIN32) || defined(_WIN32)
+SetErrorMode(SEM_FAILCRITICALERRORS);
+#endif
+lean_object* in; lean_object* res;";
   if usesLeanAPI then
     emitLn "lean_initialize();"
   else
@@ -400,7 +409,7 @@ ys.toList.map argToCString
 def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit := do
 emit f; emit "(";
 -- We must remove irrelevant arguments to extern calls.
-ys.size.foldM
+_ ← ys.size.foldM
   (fun i (first : Bool) =>
     if (ps.get! i).ty.isIrrelevant then
       pure first

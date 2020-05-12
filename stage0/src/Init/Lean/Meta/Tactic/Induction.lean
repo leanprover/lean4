@@ -127,13 +127,16 @@ recType ← inferType rec;
 let numMinors := recInfo.produceMotive.length;
 finalizeAux mvarId givenNames recInfo reverted major initialArity indices numMinors baseSubst (recInfo.paramsPos.length + 1) 0 rec recType false #[]
 
+private def throwUnexpectedMajorType {α} (mvarId : MVarId) (majorType : Expr) : MetaM α :=
+throwTacticEx `induction mvarId ("unexpected major premise type " ++ indentExpr majorType)
+
 def induction (mvarId : MVarId) (majorFVarId : FVarId) (recName : Name) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) :
     MetaM (Array InductionSubgoal) :=
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `induction;
   majorLocalDecl ← getLocalDecl majorFVarId;
   recInfo ← mkRecursorInfo recName;
-  majorType ← whnfUntil majorLocalDecl.type recInfo.typeName;
+  some majorType ← whnfUntil majorLocalDecl.type recInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type;
   majorType.withApp $ fun _ majorTypeArgs => do
     recInfo.paramsPos.forM $ fun paramPos? => do {
       match paramPos? with
@@ -179,7 +182,7 @@ withMVarContext mvarId $ do
       target ← getMVarType mvarId;
       targetLevel ← getLevel target;
       majorLocalDecl ← getLocalDecl majorFVarId;
-      majorType ← whnfUntil majorLocalDecl.type recInfo.typeName;
+      some majorType ← whnfUntil majorLocalDecl.type recInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type;
       majorType.withApp $ fun majorTypeFn majorTypeArgs => do
         match majorTypeFn with
         | Expr.const majorTypeFnName majorTypeFnLevels _ => do

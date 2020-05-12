@@ -34,10 +34,15 @@ n.replacePrefix rootNamespace Name.anonymous
 
 /- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
-let resolvedId  := ns ++ id;
-let resolvedIds := getAliases env resolvedId;
+let resolvedId    := ns ++ id;
+let resolvedIds   := getAliases env resolvedId;
 if env.contains resolvedId && (!id.isAtomic || !isProtected env resolvedId) then resolvedId :: resolvedIds
-else resolvedIds
+else
+  -- Check whether environment contains the private version. That is, `_private.<module_name>.ns.id`.
+  let resolvedIdPrv := mkPrivateName env resolvedId;
+  if env.contains resolvedIdPrv then resolvedIdPrv :: resolvedIds
+  else resolvedIds
+
 
 /- Check surrounding namespaces -/
 private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name
@@ -52,7 +57,13 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
 if id.isAtomic then none
 else
   let resolvedId := id.replacePrefix rootNamespace Name.anonymous;
-  if env.contains resolvedId then some resolvedId else none
+  if env.contains resolvedId then some resolvedId
+  else
+    -- We also allow `_root` when accessing private declarations.
+    -- If we change our minds, we should just replace `resolvedId` with `id`
+    let resolvedIdPrv := mkPrivateName env resolvedId;
+    if env.contains resolvedIdPrv then some resolvedIdPrv
+    else none
 
 /- Check open namespaces -/
 private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl → List Name → List Name

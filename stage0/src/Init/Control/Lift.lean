@@ -44,7 +44,7 @@ instance hasMonadLiftTRefl (m) : HasMonadLiftT m m :=
 theorem monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α) = id := rfl
 
 
-/-- A Functor in the control of monads. Can be used to lift Monad-transforming functions.
+/-- A functor in the category of monads. Can be used to lift monad-transforming functions.
     Based on pipes' [MFunctor](https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html),
     but not restricted to monad transformers.
     Alternatively, an implementation of [MonadTransFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor).

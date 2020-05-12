@@ -72,6 +72,7 @@ lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__9;
 uint8_t l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Compiler_foldUIntSub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldUIntSub___closed__1;
+lean_object* l_Lean_Compiler_foldCharOfNat___closed__3;
 lean_object* l_Lean_Compiler_foldNatPow___rarg(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_getBoolLit___closed__3;
@@ -3693,136 +3694,183 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+lean_object* _init_l_Lean_Compiler_foldCharOfNat___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Compiler_foldCharOfNat(uint8_t x_1, lean_object* x_2) {
 _start:
 {
+lean_object* x_3; lean_object* x_4; lean_object* x_29; 
+x_29 = l_Lean_Compiler_getNumLit___main(x_2);
 if (x_1 == 0)
 {
-lean_object* x_3; 
-x_3 = l_Lean_Compiler_getNumLit___main(x_2);
-if (lean_obj_tag(x_3) == 0)
+if (lean_obj_tag(x_29) == 0)
 {
-lean_object* x_4; 
-x_4 = lean_box(0);
-return x_4;
+lean_object* x_30; 
+x_30 = lean_box(0);
+return x_30;
 }
 else
 {
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
+lean_object* x_31; lean_object* x_32; 
+x_31 = lean_ctor_get(x_29, 0);
+lean_inc(x_31);
+lean_dec(x_29);
+x_32 = l_Lean_Compiler_foldCharOfNat___closed__3;
+x_3 = x_32;
+x_4 = x_31;
+goto block_28;
+}
+}
+else
 {
-lean_object* x_6; uint32_t x_7; uint32_t x_8; uint8_t x_9; 
-x_6 = lean_ctor_get(x_3, 0);
-x_7 = lean_uint32_of_nat(x_6);
-x_8 = 55296;
-x_9 = x_7 < x_8;
+if (lean_obj_tag(x_29) == 0)
+{
+lean_object* x_33; 
+x_33 = lean_box(0);
+return x_33;
+}
+else
+{
+lean_object* x_34; lean_object* x_35; 
+x_34 = lean_ctor_get(x_29, 0);
+lean_inc(x_34);
+lean_dec(x_29);
+x_35 = lean_box(0);
+x_3 = x_35;
+x_4 = x_34;
+goto block_28;
+}
+}
+block_28:
+{
+uint32_t x_5; uint32_t x_6; uint8_t x_7; 
+x_5 = lean_uint32_of_nat(x_4);
+x_6 = 55296;
+x_7 = x_5 < x_6;
+if (x_7 == 0)
+{
+uint32_t x_8; uint8_t x_9; 
+x_8 = 57343;
+x_9 = x_8 < x_5;
 if (x_9 == 0)
 {
-uint32_t x_10; uint8_t x_11; 
-x_10 = 57343;
-x_11 = x_10 < x_7;
-if (x_11 == 0)
+lean_dec(x_4);
+if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_12; 
-lean_free_object(x_3);
-lean_dec(x_6);
-x_12 = l_Lean_Compiler_foldCharOfNat___closed__2;
-return x_12;
+lean_object* x_10; 
+x_10 = lean_box(0);
+return x_10;
 }
 else
 {
-uint32_t x_13; uint8_t x_14; 
-x_13 = 1114112;
-x_14 = x_7 < x_13;
-if (x_14 == 0)
+lean_object* x_11; 
+lean_dec(x_3);
+x_11 = l_Lean_Compiler_foldCharOfNat___closed__2;
+return x_11;
+}
+}
+else
+{
+uint32_t x_12; uint8_t x_13; 
+x_12 = 1114112;
+x_13 = x_5 < x_12;
+if (x_13 == 0)
+{
+lean_dec(x_4);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_14; 
+x_14 = lean_box(0);
+return x_14;
+}
+else
 {
 lean_object* x_15; 
-lean_free_object(x_3);
-lean_dec(x_6);
+lean_dec(x_3);
 x_15 = l_Lean_Compiler_foldCharOfNat___closed__2;
 return x_15;
 }
+}
 else
+{
+if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_16; 
-x_16 = l_Lean_Compiler_mkUInt32Lit(x_6);
-lean_dec(x_6);
-lean_ctor_set(x_3, 0, x_16);
-return x_3;
-}
-}
+lean_dec(x_4);
+x_16 = lean_box(0);
+return x_16;
 }
 else
 {
-lean_object* x_17; 
-x_17 = l_Lean_Compiler_mkUInt32Lit(x_6);
-lean_dec(x_6);
-lean_ctor_set(x_3, 0, x_17);
-return x_3;
-}
-}
-else
+uint8_t x_17; 
+x_17 = !lean_is_exclusive(x_3);
+if (x_17 == 0)
 {
-lean_object* x_18; uint32_t x_19; uint32_t x_20; uint8_t x_21; 
+lean_object* x_18; lean_object* x_19; 
 x_18 = lean_ctor_get(x_3, 0);
-lean_inc(x_18);
-lean_dec(x_3);
-x_19 = lean_uint32_of_nat(x_18);
-x_20 = 55296;
-x_21 = x_19 < x_20;
-if (x_21 == 0)
+lean_dec(x_18);
+x_19 = l_Lean_Compiler_mkUInt32Lit(x_4);
+lean_dec(x_4);
+lean_ctor_set(x_3, 0, x_19);
+return x_3;
+}
+else
 {
-uint32_t x_22; uint8_t x_23; 
-x_22 = 57343;
-x_23 = x_22 < x_19;
+lean_object* x_20; lean_object* x_21; 
+lean_dec(x_3);
+x_20 = l_Lean_Compiler_mkUInt32Lit(x_4);
+lean_dec(x_4);
+x_21 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_21, 0, x_20);
+return x_21;
+}
+}
+}
+}
+}
+else
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_22; 
+lean_dec(x_4);
+x_22 = lean_box(0);
+return x_22;
+}
+else
+{
+uint8_t x_23; 
+x_23 = !lean_is_exclusive(x_3);
 if (x_23 == 0)
 {
-lean_object* x_24; 
-lean_dec(x_18);
-x_24 = l_Lean_Compiler_foldCharOfNat___closed__2;
-return x_24;
+lean_object* x_24; lean_object* x_25; 
+x_24 = lean_ctor_get(x_3, 0);
+lean_dec(x_24);
+x_25 = l_Lean_Compiler_mkUInt32Lit(x_4);
+lean_dec(x_4);
+lean_ctor_set(x_3, 0, x_25);
+return x_3;
 }
 else
 {
-uint32_t x_25; uint8_t x_26; 
-x_25 = 1114112;
-x_26 = x_19 < x_25;
-if (x_26 == 0)
-{
-lean_object* x_27; 
-lean_dec(x_18);
-x_27 = l_Lean_Compiler_foldCharOfNat___closed__2;
+lean_object* x_26; lean_object* x_27; 
+lean_dec(x_3);
+x_26 = l_Lean_Compiler_mkUInt32Lit(x_4);
+lean_dec(x_4);
+x_27 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_27, 0, x_26);
 return x_27;
 }
-else
-{
-lean_object* x_28; lean_object* x_29; 
-x_28 = l_Lean_Compiler_mkUInt32Lit(x_18);
-lean_dec(x_18);
-x_29 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_29, 0, x_28);
-return x_29;
 }
 }
-}
-else
-{
-lean_object* x_30; lean_object* x_31; 
-x_30 = l_Lean_Compiler_mkUInt32Lit(x_18);
-lean_dec(x_18);
-x_31 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_31, 0, x_30);
-return x_31;
-}
-}
-}
-}
-else
-{
-lean_object* x_32; 
-x_32 = lean_box(0);
-return x_32;
 }
 }
 }
@@ -4662,6 +4710,8 @@ l_Lean_Compiler_foldCharOfNat___closed__1 = _init_l_Lean_Compiler_foldCharOfNat_
 lean_mark_persistent(l_Lean_Compiler_foldCharOfNat___closed__1);
 l_Lean_Compiler_foldCharOfNat___closed__2 = _init_l_Lean_Compiler_foldCharOfNat___closed__2();
 lean_mark_persistent(l_Lean_Compiler_foldCharOfNat___closed__2);
+l_Lean_Compiler_foldCharOfNat___closed__3 = _init_l_Lean_Compiler_foldCharOfNat___closed__3();
+lean_mark_persistent(l_Lean_Compiler_foldCharOfNat___closed__3);
 l_List_foldl___main___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1 = _init_l_List_foldl___main___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1();
 lean_mark_persistent(l_List_foldl___main___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1);
 l_Lean_Compiler_uintFoldToNatFns___closed__1 = _init_l_Lean_Compiler_uintFoldToNatFns___closed__1();

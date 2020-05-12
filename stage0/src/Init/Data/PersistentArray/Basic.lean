@@ -231,11 +231,11 @@ else do
   b ← foldlFromMAux f t.root (USize.ofNat ini) t.shift b;
   t.tail.foldlM f b
 
-@[specialize] partial def forMAux (f : α → m β) : PersistentArrayNode α → m PUnit
+@[specialize] partial def forMAux (f : α → m PUnit) : PersistentArrayNode α → m PUnit
 | node cs => cs.forM (fun c => forMAux c)
 | leaf vs => vs.forM f
 
-@[specialize] def forM (t : PersistentArray α) (f : α → m β) : m PUnit :=
+@[specialize] def forM (t : PersistentArray α) (f : α → m PUnit) : m PUnit :=
 forMAux f t.root *> t.tail.forM f
 
 end

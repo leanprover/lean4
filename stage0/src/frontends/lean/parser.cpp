@@ -866,15 +866,10 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
             optional<binder_info> bi = parse_optional_binder_info(cfg.m_simple_only);
             if (bi) {
                 if (first && cfg.m_infer_kind != nullptr) {
-                    /* Parse {} or () prefix */
+                    /* Parse {} prefix */
                     if (is_implicit(*bi) && curr_is_token(get_rcurly_tk())) {
                         next();
                         *cfg.m_infer_kind = implicit_infer_kind::RelaxedImplicit;
-                        first             = false;
-                        continue;
-                    } else if (is_explicit(*bi) && curr_is_token(get_rparen_tk())) {
-                        next();
-                        *cfg.m_infer_kind = implicit_infer_kind::None;
                         first             = false;
                         continue;
                     } else {

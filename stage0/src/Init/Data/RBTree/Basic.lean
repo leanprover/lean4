@@ -34,8 +34,8 @@ RBMap.revFold (fun r a _ => f r a) b t
 @[inline] def mfold {m : Type v → Type w} [Monad m] (f : β → α → m β) (b : β) (t : RBTree α lt) : m β :=
 RBMap.mfold (fun r a _ => f r a) b t
 
-@[inline] def mfor {m : Type v → Type w} [Monad m] (f : α → m β) (t : RBTree α lt) : m PUnit :=
-t.mfold (fun _ a => f a *> pure ⟨⟩) ⟨⟩
+@[inline] def mfor {m : Type v → Type w} [Monad m] (f : α → m PUnit) (t : RBTree α lt) : m PUnit :=
+t.mfold (fun _ a => f a) ⟨⟩
 
 @[inline] def isEmpty (t : RBTree α lt) : Bool :=
 RBMap.isEmpty t

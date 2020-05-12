@@ -180,7 +180,7 @@ unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
     | some eTypeBody =>
       unless eTypeBody.hasLooseBVars $
       when (hasTypeMVar ctx eTypeBody && hasOnlyTypeMVar ctx eTypeBody) $ do
-        isDefEq ctx.ref expectedType eTypeBody;
+        _ ← isDefEq ctx.ref expectedType eTypeBody;
         pure ()
 
 private def nextArgIsHole (ctx : ElabAppArgsCtx) : Bool :=
@@ -201,7 +201,7 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
     | none              => pure ()
     | some expectedType => do {
       -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
-      isDefEq ctx.ref expectedType eType;
+      _ ← isDefEq ctx.ref expectedType eType;
       pure ()
     };
     synthesizeAppInstMVars ctx.ref ctx.instMVars;
@@ -321,8 +321,13 @@ match eType.getAppFn, lval with
   let searchEnv (fullName : Name) : TermElabM LValResolution := do {
     match env.find? fullName with
     | some _ => pure $ LValResolution.const structName fullName
-    | none   => throwLValError ref e eType $
-      "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"
+    | none   =>
+      let fullNamePrv := mkPrivateName env fullName;
+      match env.find? fullNamePrv with
+      | some _ => pure $ LValResolution.const structName fullNamePrv
+      | none   =>
+        throwLValError ref e eType $
+        "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"
   };
   -- search local context first, then environment
   let searchCtx : Unit → TermElabM LValResolution := fun _ => do {

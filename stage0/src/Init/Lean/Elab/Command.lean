@@ -509,7 +509,7 @@ fun stx => do
 def hasNoErrorMessages : CommandElabM Bool := do
 s ← get; pure $ !s.messages.hasErrors
 
-def failIfSucceeds {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM Unit := do
+def failIfSucceeds (ref : Syntax) (x : CommandElabM Unit) : CommandElabM Unit := do
 let resetMessages : CommandElabM MessageLog := do {
   s ← get;
   let messages := s.messages;

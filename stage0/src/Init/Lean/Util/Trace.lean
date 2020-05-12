@@ -58,7 +58,7 @@ whenM (isTracingEnabledFor cls) (do msg ← mkMsg; addTrace cls msg)
 
 @[inline] def traceCtx (cls : Name) (ctx : m α) : m α := do
 b ← isTracingEnabledFor cls;
-if !b then do old ← enableTracing false; a ← ctx; enableTracing old; pure a
+if !b then do old ← enableTracing false; a ← ctx; _ ← enableTracing old; pure a
 else do
   oldCurrTraces ← getResetTraces;
   a ← ctx;
@@ -78,8 +78,8 @@ b ← isTracingEnabledFor cls;
 if !b then do
   old ← enableTracing false;
   catch
-    (do a ← ctx; enableTracing old; pure a)
-    (fun e => do enableTracing old; throw e)
+    (do a ← ctx; _ ← enableTracing old; pure a)
+    (fun e => do _ ← enableTracing old; throw e)
 else do
   oldCurrTraces ← getResetTraces;
   catch
@@ -98,6 +98,13 @@ instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [Mon
 { traceCtx := @MonadTracerAdapter.traceCtxExcept _ _ _ _ _,
   trace    := @MonadTracerAdapter.trace _ _ _,
   traceM   := @MonadTracerAdapter.traceM _ _ _ }
+
+instance liftMonadTracerAdapter {m n : Type → Type} [MonadTracerAdapter n] [HasMonadLift n m] : MonadTracerAdapter m :=
+{ isTracingEnabledFor := fun cls => liftM (MonadTracerAdapter.isTracingEnabledFor cls : n _),
+  addContext := fun msg => liftM (MonadTracerAdapter.addContext msg : n _),
+  enableTracing := fun b => liftM (MonadTracerAdapter.enableTracing b : n _),
+  getTraces := liftM (MonadTracerAdapter.getTraces : n _),
+  modifyTraces := fun f => liftM (MonadTracerAdapter.modifyTraces f : n _) }
 
 structure TraceState :=
 (enabled : Bool := true)

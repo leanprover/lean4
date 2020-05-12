@@ -22,3 +22,8 @@ infixr `$>`  := Functor.mapConstRev
 @[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
 fun a f => f <$> a
 infixl `<&>` := Functor.mapRev
+
+def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
+PUnit.unit <$ x
+
+export Functor (discard)

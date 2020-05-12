@@ -62,22 +62,22 @@ def mapA₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type 
 | _,     _     => pure []
 
 @[specialize]
-def forM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
+def forM {m : Type u → Type v} [Monad m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
 | []     => pure ⟨⟩
 | h :: t => do f h; forM t
 
 @[specialize]
-def forM₂ {m : Type u → Type v} [Monad m] {α : Type u₁} {β : Type u₂} {γ : Type u} (f : α → β → m γ) : List α → List β → m PUnit
+def forM₂ {m : Type u → Type v} [Monad m] {α : Type u₁} {β : Type u₂} (f : α → β → m PUnit) : List α → List β → m PUnit
 | a::as, b::bs => do f a b; forM₂ as bs
 | _,     _     => pure ⟨⟩
 
 @[specialize]
-def forA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
+def forA {m : Type u → Type v} [Applicative m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
 | []     => pure ⟨⟩
 | h :: t => f h *> forA t
 
 @[specialize]
-def forA₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type u₂} {γ : Type u} (f : α → β → m γ) : List α → List β → m PUnit
+def forA₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type u₂} (f : α → β → m PUnit) : List α → List β → m PUnit
 | a::as, b::bs => f a b *> forA₂ as bs
 | _,     _     => pure ⟨⟩
 

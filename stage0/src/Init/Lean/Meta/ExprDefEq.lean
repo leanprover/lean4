@@ -165,8 +165,8 @@ if h : args₁.size = args₂.size then do
     let a₂   := args₂.get! i;
     let info := finfo.paramInfo.get! i;
     when info.instImplicit $ do {
-      trySynthPending a₁;
-      trySynthPending a₂;
+      _ ← trySynthPending a₁;
+      _ ← trySynthPending a₂;
       pure ()
     };
     withAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂)

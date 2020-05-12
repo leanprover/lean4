@@ -77,7 +77,7 @@ end ReaderT
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadReader (ρ : outParam (Type u)) (n : Type u → Type u) :=
-    (lift {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α)
+    (lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α)
     ```
     -/
 class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) :=
@@ -100,7 +100,7 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReader ρ (Reade
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadReaderFunctor (ρ ρ' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α → ReaderT ρ' m α) → n α → n' α)
+    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α → ReaderT ρ' m α) → n α → n' α)
     ```
     -/
 class MonadReaderAdapter (ρ ρ' : outParam (Type u)) (m m' : Type u → Type v) :=

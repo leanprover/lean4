@@ -149,7 +149,7 @@ end
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadStateFunctor (σ σ' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], StateT σ m α → StateT σ' m α) → n α → n' α)
+    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], StateT σ m α → StateT σ' m α) → n α → n' α)
     ```
     which better describes the intent of "we can map a `StateT` anywhere in the Monad stack".
     If we look at the unfolded Type of the first argument `∀ m [Monad m], (σ → m (α × σ)) → σ' → m (α × σ')`, we see that it has the lens Type `∀ f [Functor f], (α → f α) → β → f β` with `f` specialized to `fun σ => m (α × σ)` (exercise: show that this is a lawful Functor). We can build all lenses we are insterested in from the functions `split` and `join` as

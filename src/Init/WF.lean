@@ -160,8 +160,8 @@ variable  (rb  : β → β → Prop)
 
 -- Lexicographical order based on ra and rb
 inductive Lex : α × β → α × β → Prop
-| left  {} {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
-| right {} (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
+| left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
+| right (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
 
 -- relational product based on ra and rb
 inductive Rprod : α × β → α × β → Prop
@@ -189,7 +189,7 @@ def lexWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) 
 
 -- relational product is a Subrelation of the Lex
 def rprodSubLex : ∀ a b, Rprod ra rb a b → Lex ra rb a b :=
-@Prod.Rprod.rec _ _ ra rb (fun a b _ => Lex ra rb a b) (fun a₁ b₁ a₂ b₂ h₁ h₂ => Lex.left rb b₁ b₂ h₁)
+@Prod.Rprod.rec _ _ ra rb (fun a b _ => Lex ra rb a b) (fun a₁ b₁ a₂ b₂ h₁ h₂ => Lex.left b₁ b₂ h₁)
 
 -- The relational product of well founded relations is well-founded
 def rprodWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Rprod ra rb) :=
@@ -262,8 +262,8 @@ variables {α : Sort u} {β : Sort v}
 
 -- Reverse lexicographical order based on r and s
 inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop
-| left  {} : ∀ {a₁ a₂ : α} (b : β), r a₁ a₂ → RevLex ⟨a₁, b⟩ ⟨a₂, b⟩
-| right {} : ∀ (a₁ : α) {b₁ : β} (a₂ : α) {b₂ : β}, s b₁ b₂ → RevLex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
+| left  : ∀ {a₁ a₂ : α} (b : β), r a₁ a₂ → RevLex ⟨a₁, b⟩ ⟨a₂, b⟩
+| right : ∀ (a₁ : α) {b₁ : β} (a₂ : α) {b₂ : β}, s b₁ b₂ → RevLex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 end
 
 section
@@ -301,7 +301,7 @@ def skipLeftWf (α : Type u) {β : Type v} {s : β → β → Prop} (hb : WellFo
 revLexWf emptyWf hb
 
 def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : skipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
-RevLex.right _ _ _ h
+RevLex.right _ _ h
 end
 
 instance HasWellFounded {α : Type u} {β : α → Type v} [s₁ : HasWellFounded α] [s₂ : ∀ a, HasWellFounded (β a)] : HasWellFounded (PSigma β) :=

@@ -160,7 +160,7 @@ instance (ε) : MonadExcept ε (Except ε) :=
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadExceptFunctor (ε ε' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ExceptT ε m α → ExceptT ε' m α) → n α → n' α)
+    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ExceptT ε m α → ExceptT ε' m α) → n α → n' α)
     ```
 -/
 class MonadExceptAdapter (ε ε' : outParam (Type u)) (m m' : Type u → Type v) :=

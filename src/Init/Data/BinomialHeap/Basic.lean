@@ -94,8 +94,8 @@ partial def toList (lt : α → α → Bool) : Heap α → List α
   | some a => a :: toList (tail lt h)
 
 inductive WellFormed (lt : α → α → Bool) : Heap α → Prop
-| emptyWff {}               : WellFormed Heap.empty
-| singletonWff {} (a : α)   : WellFormed (singleton a)
+| emptyWff               : WellFormed Heap.empty
+| singletonWff (a : α)   : WellFormed (singleton a)
 | mergeWff (h₁ h₂ : Heap α) : WellFormed h₁ → WellFormed h₂ → WellFormed (merge lt h₁ h₂)
 | tailWff (h : Heap α)      : WellFormed h → WellFormed (tail lt h)
 
@@ -106,7 +106,7 @@ open BinomialHeapImp
 def BinomialHeap (α : Type u) (lt : α → α → Bool) := { h : Heap α // WellFormed lt h }
 
 @[inline] def mkBinomialHeap (α : Type u) (lt : α → α → Bool) : BinomialHeap α lt :=
-⟨Heap.empty, WellFormed.emptyWff lt⟩
+⟨Heap.empty, WellFormed.emptyWff⟩
 
 namespace BinomialHeap
 variables {α : Type u} {lt : α → α → Bool}
@@ -119,7 +119,7 @@ mkBinomialHeap α lt
 
 /- O(1) -/
 @[inline] def singleton (a : α) : BinomialHeap α lt :=
-⟨BinomialHeapImp.singleton a, WellFormed.singletonWff lt a⟩
+⟨BinomialHeapImp.singleton a, WellFormed.singletonWff a⟩
 
 /- O(log n) -/
 @[inline] def merge : BinomialHeap α lt → BinomialHeap α lt → BinomialHeap α lt

@@ -199,7 +199,7 @@ variable (lt : α → α → Bool)
 end Membership
 
 inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop
-| leafWff {} : WellFormed leaf
+| leafWff : WellFormed leaf
 | insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed n → n' = insert lt n k v → WellFormed n'
 | eraseWff {n n' : RBNode α β} {k : α} : WellFormed n → n' = erase lt k n → WellFormed n'
 
@@ -213,7 +213,7 @@ def RBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : Type (max u v)
 {t : RBNode α (fun _ => β) // t.WellFormed lt }
 
 @[inline] def mkRBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : RBMap α β lt :=
-⟨leaf, WellFormed.leafWff lt⟩
+⟨leaf, WellFormed.leafWff⟩
 
 @[inline] def RBMap.empty {α : Type u} {β : Type v} {lt : α → α → Bool} : RBMap α β lt :=
 mkRBMap _ _ _

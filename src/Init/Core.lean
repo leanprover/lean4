@@ -1353,7 +1353,7 @@ fun a b => isTrue (punitEq a b)
 /- Setoid -/
 
 class Setoid (α : Sort u) :=
-mk {} :: (r : α → α → Prop) (iseqv : Equivalence r)
+(r : α → α → Prop) (iseqv {} : Equivalence r)
 
 instance setoidHasEquiv {α : Sort u} [Setoid α] : HasEquiv α :=
 ⟨Setoid.r⟩

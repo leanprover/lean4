@@ -82,6 +82,6 @@ theorem monadMapRefl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {
     ```
     -/
 class MonadRun (out : outParam $ Type u → Type v) (m : Type u → Type v) :=
-(run {} {α : Type u} : m α → out α)
+(run {α : Type u} : m α → out α)
 
 export MonadRun (run)

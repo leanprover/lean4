@@ -101,8 +101,8 @@ def k : String := "hello"
 universes u
 
 class Monoid (α : Type u) :=
-(one {} : α)
-(mul    : α → α → α)
+(one : α)
+(mul : α → α → α)
 
 def m : Monoid Nat :=
 { one := 1, mul := Nat.mul }

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 universes u v w
 
 inductive LazyList (α : Type u)
-| nil {}                        : LazyList
+| nil                           : LazyList
 | cons (hd : α) (tl : LazyList) : LazyList
 | delayed (t : Thunk LazyList)  : LazyList
 

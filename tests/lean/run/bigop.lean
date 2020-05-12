@@ -18,7 +18,7 @@ def iota : Nat → Nat → List Nat
 def index_iota (m n : Nat) := iota m (n - m)
 
 class Enumerable (α : Type) :=
-(elems : List α)
+(elems {} : List α)
 
 instance : Enumerable Bool :=
 { elems := [false, true] }

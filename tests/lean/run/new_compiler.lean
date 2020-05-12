@@ -62,8 +62,8 @@ def bla' (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
 @And.casesOn _ _ (fun _ => Nat) h (fun h₁ h₂ => aux i h₁ + aux i h₁)
 
 inductive vec (α : Type u) : Nat → Type u
-| nil {}  : vec 0
-| cons    : ∀ {n}, α → vec n → vec (Nat.succ n)
+| nil   : vec 0
+| cons  : ∀ {n}, α → vec n → vec (Nat.succ n)
 
 def vec.map {α β σ : Type u} (f : α → β → σ) : ∀ {n : Nat}, vec α n → vec β n → vec σ n
 | _, vec.nil, vec.nil                 => vec.nil

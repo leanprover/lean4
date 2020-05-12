@@ -1,5 +1,5 @@
 class HasElems (α : Type) : Type := (elems : Array α)
-def elems (α : Type) [HasElems α] : Array α := HasElems.elems α
+def elems (α : Type) [HasElems α] : Array α := HasElems.elems
 
 inductive Foo : Type
 | mk1 : Bool → Foo

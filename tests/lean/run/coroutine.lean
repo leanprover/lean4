@@ -1,8 +1,8 @@
 universes u v w r s
 
 inductive coroutineResultCore (coroutine : Type (max u v w)) (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w)
-| done     {} : β → coroutineResultCore
-| yielded {}  : δ → coroutine → coroutineResultCore
+| done     : β → coroutineResultCore
+| yielded  : δ → coroutine → coroutineResultCore
 
 /--
    Asymmetric coroutines `coroutine α δ β` takes inputs of Type `α`, yields elements of Type `δ`,
@@ -15,7 +15,7 @@ inductive coroutineResultCore (coroutine : Type (max u v w)) (α : Type u) (δ :
    a calling routine.
  -/
 inductive coroutine (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w)
-| mk    {} : (α → coroutineResultCore coroutine α δ β) → coroutine
+| mk    : (α → coroutineResultCore coroutine α δ β) → coroutine
 
 abbrev coroutineResult (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w) :=
 coroutineResultCore (coroutine α δ β) α δ β
@@ -133,7 +133,7 @@ end coroutine
 
 /-- Auxiliary class for lifiting `yield` -/
 class monadCoroutine (α : outParam (Type u)) (δ : outParam (Type v)) (m : Type w → Type r) :=
-(yield {} : δ → m PUnit)
+(yield : δ → m PUnit)
 
 instance (α : Type u) (δ : Type v) : monadCoroutine α δ (coroutine α δ) :=
 { yield  := coroutine.yield }
@@ -149,8 +149,8 @@ open coroutine
 namespace ex1
 
 inductive tree (α : Type u)
-| leaf {} : tree
-| Node    : tree → α → tree → tree
+| leaf  : tree
+| Node  : tree → α → tree → tree
 
 /-- Coroutine as generators/iterators -/
 unsafe def visit {α : Type v} : tree α → coroutine Unit α Unit

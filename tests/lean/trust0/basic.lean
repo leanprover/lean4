@@ -11,7 +11,7 @@ notation `ℕ` := Nat
 namespace Nat
 
 inductive lessThanOrEqual (a : ℕ) : ℕ → Prop
-| refl : lessThanOrEqual a
+| refl {} : lessThanOrEqual a
 | step : ∀ {b}, lessThanOrEqual b → lessThanOrEqual (succ b)
 
 @[elabAsEliminator]

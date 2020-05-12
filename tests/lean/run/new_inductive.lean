@@ -42,7 +42,7 @@ with tst2 : Type
 namespace test
 
 inductive Rbnode (α : Type u)
-| leaf  {}                                                 : Rbnode
+| leaf                                                    : Rbnode
 | redNode   (lchild : Rbnode) (val : α) (rchild : Rbnode) : Rbnode
 | blackNode (lchild : Rbnode) (val : α) (rchild : Rbnode) : Rbnode
 

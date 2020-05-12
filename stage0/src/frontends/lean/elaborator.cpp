@@ -3510,8 +3510,7 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
 }
 
 static expr mk_emptyc(expr const & src) {
-    return copy_pos(src, mk_app(copy_pos(src, mk_constant(get_has_emptyc_emptyc_name())),
-                                copy_pos(src, mk_expr_placeholder())));
+    return copy_pos(src, mk_constant(get_has_emptyc_emptyc_name()));
 }
 
 expr elaborator::visit_emptyc_or_emptys(expr const & e, optional<expr> const & expected_type) {

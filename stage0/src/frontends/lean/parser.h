@@ -156,8 +156,8 @@ struct parser : public abstract_parser {
           If m_infer_kind != nullptr, then a sequence of binders can be prefixed with '{}'
           Moreover, *m_infer_kind will be updated with
 
-          - implicit_infer_kind::RelaxedImplicit if prefix is '{}'
-          - implicit_infer_kind::Implicit, otherwise. */
+          - implicit_infer_kind::Implicit if prefix is '{}'
+          - implicit_infer_kind::RelaxedImplicit, otherwise. */
         implicit_infer_kind * m_infer_kind{nullptr};
         /* (output) It is set to true if the last binder is surrounded
            with some kind of bracket (e.g., '()', '{}', '[]'). */

@@ -4151,7 +4151,7 @@ lean_inc(x_2);
 x_8 = l___private_Init_Lean_Meta_AppBuilder_1__infer(x_2, x_3, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_27; lean_object* x_28; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_27; lean_object* x_28; lean_object* x_96; lean_object* x_97; uint8_t x_98; uint8_t x_99; 
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
@@ -4167,19 +4167,19 @@ if (lean_is_exclusive(x_8)) {
 x_96 = l_Lean_Expr_eq_x3f___closed__2;
 x_97 = lean_unsigned_to_nat(3u);
 x_98 = l_Lean_Expr_isAppOfArity___main(x_6, x_96, x_97);
+x_99 = l_Lean_Expr_isAppOfArity___main(x_9, x_96, x_97);
 if (x_98 == 0)
 {
-lean_object* x_99; 
+lean_object* x_100; 
 lean_dec(x_9);
 lean_dec(x_6);
-x_99 = lean_box(0);
-x_12 = x_99;
+x_100 = lean_box(0);
+x_12 = x_100;
 goto block_26;
 }
 else
 {
-uint8_t x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; 
-x_100 = l_Lean_Expr_isAppOfArity___main(x_9, x_96, x_97);
+lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; 
 x_101 = l_Lean_Expr_appFn_x21(x_6);
 x_102 = l_Lean_Expr_appFn_x21(x_101);
 x_103 = l_Lean_Expr_appArg_x21(x_102);
@@ -4194,7 +4194,7 @@ lean_ctor_set(x_106, 1, x_105);
 x_107 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_107, 0, x_103);
 lean_ctor_set(x_107, 1, x_106);
-if (x_100 == 0)
+if (x_99 == 0)
 {
 lean_object* x_108; 
 lean_dec(x_9);

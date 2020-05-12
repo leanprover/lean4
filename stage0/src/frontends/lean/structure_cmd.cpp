@@ -227,7 +227,7 @@ struct structure_cmd_fn {
         bool                m_has_new_default; // if true, (re-)declare default value in this structure
 
         field_decl(expr const & local, optional<expr> const & default_val, field_kind kind,
-                   implicit_infer_kind infer_kind = implicit_infer_kind::Implicit):
+                   implicit_infer_kind infer_kind = implicit_infer_kind::RelaxedImplicit):
                 m_local(local), m_default_val(default_val), m_kind(kind), m_infer_kind(infer_kind),
                 m_has_new_default(default_val && kind == field_kind::new_field) {}
 
@@ -783,7 +783,7 @@ struct structure_cmd_fn {
         expr type;
         expr default_value;
         bool default_value_initialized = false;
-        implicit_infer_kind kind = implicit_infer_kind::Implicit;
+        implicit_infer_kind kind = implicit_infer_kind::RelaxedImplicit;
         {
             parser::local_scope scope(m_p);
             buffer<expr> params;
@@ -1065,7 +1065,7 @@ struct structure_cmd_fn {
             if (!m_subobjects || field.m_kind != field_kind::from_parent) {
                 proj_names.push_back(m_name + local_name_p(field.m_local));
                 infer_kinds.push_back(
-                        field.m_infer_kind != implicit_infer_kind::Implicit ? field.m_infer_kind : m_mk_infer);
+                    field.m_infer_kind != implicit_infer_kind::RelaxedImplicit ? field.m_infer_kind : m_mk_infer);
             }
         }
         m_env = mk_projections(m_env, m_name, proj_names, infer_kinds, m_meta_info.m_attrs.has_class());
@@ -1277,7 +1277,7 @@ struct structure_cmd_fn {
             if (m_p.curr_is_token(get_lparen_tk()) || m_p.curr_is_token(get_lcurly_tk()) ||
                 m_p.curr_is_token(get_lbracket_tk())) {
                 m_mk_short = LEAN_DEFAULT_STRUCTURE_INTRO;
-                m_mk_infer = implicit_infer_kind::Implicit;
+                m_mk_infer = implicit_infer_kind::RelaxedImplicit;
             } else {
                 m_mk_short = m_p.check_atomic_id_next("invalid 'structure', atomic identifier expected");
                 m_mk_infer = parse_implicit_infer_modifier(m_p);
@@ -1289,7 +1289,7 @@ struct structure_cmd_fn {
         } else {
             m_mk_pos   = m_name_pos;
             m_mk_short = LEAN_DEFAULT_STRUCTURE_INTRO;
-            m_mk_infer = implicit_infer_kind::Implicit;
+            m_mk_infer = implicit_infer_kind::RelaxedImplicit;
             m_mk       = m_name + m_mk_short;
             process_empty_new_fields();
         }

@@ -869,11 +869,11 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
                     /* Parse {} prefix */
                     if (is_implicit(*bi) && curr_is_token(get_rcurly_tk())) {
                         next();
-                        *cfg.m_infer_kind = implicit_infer_kind::RelaxedImplicit;
+                        *cfg.m_infer_kind = implicit_infer_kind::Implicit;
                         first             = false;
                         continue;
                     } else {
-                        *cfg.m_infer_kind = implicit_infer_kind::Implicit;
+                        *cfg.m_infer_kind = implicit_infer_kind::RelaxedImplicit;
                     }
                 }
                 unsigned rbp = 0;

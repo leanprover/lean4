@@ -11,15 +11,15 @@ namespace Lean
 
 class MonadTracer (m : Type → Type u) :=
 (traceCtx {α} : Name → m α → m α)
-(trace {}  : Name → (Unit → MessageData) → m PUnit)
-(traceM {} : Name → m MessageData → m PUnit)
+(trace  : Name → (Unit → MessageData) → m PUnit)
+(traceM : Name → m MessageData → m PUnit)
 
 class MonadTracerAdapter (m : Type → Type) :=
-(isTracingEnabledFor {} : Name → m Bool)
-(addContext {} : MessageData → m MessageData)
-(enableTracing {} : Bool → m Bool)
-(getTraces {} : m (PersistentArray MessageData))
-(modifyTraces {} : (PersistentArray MessageData → PersistentArray MessageData) → m Unit)
+(isTracingEnabledFor : Name → m Bool)
+(addContext          : MessageData → m MessageData)
+(enableTracing       : Bool → m Bool)
+(getTraces           : m (PersistentArray MessageData))
+(modifyTraces        : (PersistentArray MessageData → PersistentArray MessageData) → m Unit)
 
 private def checkTraceOptionAux (opts : Options) : Name → Bool
 | n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
@@ -128,10 +128,10 @@ instance : HasToString TraceState := ⟨toString ∘ fmt⟩
 end TraceState
 
 class SimpleMonadTracerAdapter (m : Type → Type) :=
-(getOptions {}       : m Options)
-(modifyTraceState {} : (TraceState → TraceState) → m Unit)
-(getTraceState {}    : m TraceState)
-(addContext {}       : MessageData → m MessageData)
+(getOptions        : m Options)
+(modifyTraceState  : (TraceState → TraceState) → m Unit)
+(getTraceState     : m TraceState)
+(addContext        : MessageData → m MessageData)
 
 namespace SimpleMonadTracerAdapter
 variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]

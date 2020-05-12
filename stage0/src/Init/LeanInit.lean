@@ -175,10 +175,10 @@ abbrev SyntaxNodeKind := Name
 /- Syntax AST -/
 
 inductive Syntax
-| missing {} : Syntax
+| missing : Syntax
 | node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
-| atom   {} (info : Option SourceInfo) (val : String) : Syntax
-| ident  {} (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Name × List String)) : Syntax
+| atom   (info : Option SourceInfo) (val : String) : Syntax
+| ident  (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Name × List String)) : Syntax
 
 instance Syntax.inhabited : Inhabited Syntax :=
 ⟨Syntax.missing⟩
@@ -247,8 +247,8 @@ def firstFrontendMacroScope := reservedMacroScope + 1
     elaboration). -/
 class MonadQuotation (m : Type → Type) :=
 -- Get the fresh scope of the current macro invocation
-(getCurrMacroScope {} : m MacroScope)
-(getMainModule {}     : m Name)
+(getCurrMacroScope : m MacroScope)
+(getMainModule     : m Name)
 /- Execute action in a new macro invocation context. This transformer should be
    used at all places that morally qualify as the beginning of a "macro call",
    e.g. `elabCommand` and `elabTerm` in the case of the elaborator. However, it

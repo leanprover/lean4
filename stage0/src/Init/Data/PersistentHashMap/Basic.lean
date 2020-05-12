@@ -11,9 +11,9 @@ universes u v w w'
 namespace PersistentHashMap
 
 inductive Entry (α : Type u) (β : Type v) (σ : Type w)
-| entry {} (key : α) (val : β) : Entry
-| ref   {} (node : σ) : Entry
-| null  {} : Entry
+| entry (key : α) (val : β) : Entry
+| ref   (node : σ) : Entry
+| null  : Entry
 
 instance Entry.inhabited {α β σ} : Inhabited (Entry α β σ) := ⟨Entry.null⟩
 

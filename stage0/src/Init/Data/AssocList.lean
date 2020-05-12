@@ -9,7 +9,7 @@ universes u v w
 
 /- List-like type to avoid extra level of indirection -/
 inductive AssocList (α : Type u) (β : Type v)
-| nil {} : AssocList
+| nil : AssocList
 | cons (key : α) (value : β) (tail : AssocList) : AssocList
 
 namespace AssocList

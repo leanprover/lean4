@@ -91,14 +91,14 @@ end StateT
     automatically from `monadLift`. -/
 class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 /- Obtain the top-most State of a Monad stack. -/
-(get {} : m σ)
+(get : m σ)
 /- Set the top-most State of a Monad stack. -/
-(set {} : σ → m PUnit)
+(set : σ → m PUnit)
 /- Map the top-most State of a Monad stack.
 
    Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
    because the latter does not use the State linearly (without sufficient inlining). -/
-(modifyGet {} {α : Type u} : (σ → α × σ) → m α)
+(modifyGet {α : Type u} : (σ → α × σ) → m α)
 
 export MonadState (get set modifyGet)
 
@@ -149,7 +149,7 @@ end
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadStateFunctor (σ σ' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], StateT σ m α → StateT σ' m α) → n α → n' α)
+    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], StateT σ m α → StateT σ' m α) → n α → n' α)
     ```
     which better describes the intent of "we can map a `StateT` anywhere in the Monad stack".
     If we look at the unfolded Type of the first argument `∀ m [Monad m], (σ → m (α × σ)) → σ' → m (α × σ')`, we see that it has the lens Type `∀ f [Functor f], (α → f α) → β → f β` with `f` specialized to `fun σ => m (α × σ)` (exercise: show that this is a lawful Functor). We can build all lenses we are insterested in from the functions `split` and `join` as
@@ -159,7 +159,7 @@ end
     ```
     -/
 class MonadStateAdapter (σ σ' : outParam (Type u)) (m m' : Type u → Type v) :=
-(adaptState {} {σ'' α : Type u} (split : σ' → σ × σ'') (join : σ → σ'' → σ') : m α → m' α)
+(adaptState {σ'' α : Type u} (split : σ' → σ × σ'') (join : σ → σ'' → σ') : m α → m' α)
 export MonadStateAdapter (adaptState)
 
 section
@@ -180,7 +180,7 @@ instance (σ : Type u) (m out : Type u → Type v) [MonadRun out m] [Functor m] 
 ⟨fun α x => run ∘ StateT.run' x⟩
 
 class MonadStateRunner (σ : Type u) (m m' : Type u → Type u) :=
-(runState {} {α : Type u} : m α → σ → m' α)
+(runState {α : Type u} : m α → σ → m' α)
 export MonadStateRunner (runState)
 
 section

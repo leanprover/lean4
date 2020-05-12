@@ -119,4 +119,4 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α :=
   Reason: `HasOfNat` is for implementing polymorphic numeric literals, and we may
   want to have numberic literals for a type α and **no** coercion from `Nat` to `α`. -/
 instance hasOfNatOfCoe {α : Type u} {β : Type v} [HasOfNat α] [Coe α β] : HasOfNat β :=
-{ ofNat := fun (n : Nat) => coe (HasOfNat.ofNat α n) }
+{ ofNat := fun (n : Nat) => coe (HasOfNat.ofNat n : α) }

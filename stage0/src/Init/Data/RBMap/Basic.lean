@@ -13,7 +13,7 @@ inductive Rbcolor
 | red | black
 
 inductive RBNode (α : Type u) (β : α → Type v)
-| leaf  {}                                                                            : RBNode
+| leaf                                                                                : RBNode
 | node  (color : Rbcolor) (lchild : RBNode) (key : α) (val : β key) (rchild : RBNode) : RBNode
 
 namespace RBNode
@@ -213,7 +213,7 @@ def RBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : Type (max u v)
 {t : RBNode α (fun _ => β) // t.WellFormed lt }
 
 @[inline] def mkRBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : RBMap α β lt :=
-⟨leaf, WellFormed.leafWff lt⟩
+⟨leaf, WellFormed.leafWff⟩
 
 @[inline] def RBMap.empty {α : Type u} {β : Type v} {lt : α → α → Bool} : RBMap α β lt :=
 mkRBMap _ _ _

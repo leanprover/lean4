@@ -155,7 +155,7 @@ class isKVMapVal (α : Type) :=
 
 export isKVMapVal (set)
 
-@[inline] def get {α : Type} [isKVMapVal α] (m : KVMap) (k : Name) (defVal := isKVMapVal.defVal α) : α :=
+@[inline] def get {α : Type} [isKVMapVal α] (m : KVMap) (k : Name) (defVal := isKVMapVal.defVal) : α :=
 isKVMapVal.get m k defVal
 
 instance boolVal : isKVMapVal Bool :=

@@ -11,8 +11,8 @@ import Init.Control.Except
 namespace Lean
 
 inductive Quickparse.Result (α : Type)
-| success {} (pos : String.Iterator) (res : α) : Quickparse.Result
-| error {} (pos : String.Iterator) (err : String) : Quickparse.Result
+| success (pos : String.Iterator) (res : α) : Quickparse.Result
+| error (pos : String.Iterator) (err : String) : Quickparse.Result
 
 def Quickparse (α : Type) : Type := String.Iterator → Quickparse.Result α
 
@@ -38,7 +38,7 @@ protected def pure {α : Type} (a : α) : Quickparse α | it =>
 success it a
 
 @[inline]
-protected def bind {α β : Type} (f : Quickparse α) (g : α → Quickparse β) : Quickparse β | it => 
+protected def bind {α β : Type} (f : Quickparse α) (g : α → Quickparse β) : Quickparse β | it =>
 match f it with
 | success rem a => g a rem
 | error pos msg => error pos msg
@@ -137,7 +137,7 @@ else do
   ec ←
     if c = '\\' then
       escapedChar
-    -- as to whether c.val > 0xffff should be split up and encoded with multiple \u, 
+    -- as to whether c.val > 0xffff should be split up and encoded with multiple \u,
     -- the JSON standard is not definite: both directly printing the character
     -- and encoding it with multiple \u is allowed. we choose the former.
     else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then

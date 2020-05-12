@@ -77,11 +77,11 @@ end ReaderT
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadReader (ρ : outParam (Type u)) (n : Type u → Type u) :=
-    (lift {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α)
+    (lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α)
     ```
     -/
 class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) :=
-(read {} : m ρ)
+(read : m ρ)
 
 export MonadReader (read)
 
@@ -100,11 +100,11 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReader ρ (Reade
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadReaderFunctor (ρ ρ' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α → ReaderT ρ' m α) → n α → n' α)
+    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α → ReaderT ρ' m α) → n α → n' α)
     ```
     -/
 class MonadReaderAdapter (ρ ρ' : outParam (Type u)) (m m' : Type u → Type v) :=
-(adaptReader {} {α : Type u} : (ρ' → ρ) → m α → m' α)
+(adaptReader {α : Type u} : (ρ' → ρ) → m α → m' α)
 export MonadReaderAdapter (adaptReader)
 
 section
@@ -121,7 +121,7 @@ instance (ρ : Type u) (m out) [MonadRun out m] : MonadRun (fun α => ρ → out
 ⟨fun α x => run ∘ x⟩
 
 class MonadReaderRunner (ρ : Type u) (m m' : Type u → Type u) :=
-(runReader {} {α : Type u} : m α → ρ → m' α)
+(runReader {α : Type u} : m α → ρ → m' α)
 export MonadReaderRunner (runReader)
 
 section

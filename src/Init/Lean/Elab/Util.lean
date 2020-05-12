@@ -106,12 +106,12 @@ fun stx =>
   | none          => throw Macro.Exception.unsupportedSyntax
 
 class MonadMacroAdapter (m : Type → Type) :=
-(getEnv {}                            : m Environment)
-(getCurrMacroScope {}                 : m MacroScope)
-(getNextMacroScope {}                 : m MacroScope)
-(setNextMacroScope {}                 : MacroScope → m Unit)
-(throwError {} {α : Type}             : Syntax → MessageData → m α)
-(throwUnsupportedSyntax {} {α : Type} : m α)
+(getEnv                             : m Environment)
+(getCurrMacroScope                  : m MacroScope)
+(getNextMacroScope                  : m MacroScope)
+(setNextMacroScope                  : MacroScope → m Unit)
+(throwError  {α : Type}             : Syntax → MessageData → m α)
+(throwUnsupportedSyntax  {α : Type} : m α)
 
 @[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : MacroM α) : m α := do
 scp  ← MonadMacroAdapter.getCurrMacroScope;

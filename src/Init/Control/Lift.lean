@@ -19,13 +19,13 @@ universes u v w
     but `n` does not have to be a monad transformer.
     Alternatively, an implementation of [MonadLayer](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer) without `layerInvmap` (so far). -/
 class HasMonadLift (m : Type u → Type v) (n : Type u → Type w) :=
-(monadLift {} : ∀ {α}, m α → n α)
+(monadLift : ∀ {α}, m α → n α)
 
 /-- The reflexive-transitive closure of `HasMonadLift`.
     `monadLift` is used to transitively lift monadic computations such as `StateT.get` or `StateT.put s`.
     Corresponds to [MonadLift](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift). -/
 class HasMonadLiftT (m : Type u → Type v) (n : Type u → Type w) :=
-(monadLift {} : ∀ {α}, m α → n α)
+(monadLift : ∀ {α}, m α → n α)
 
 export HasMonadLiftT (monadLift)
 
@@ -53,13 +53,13 @@ theorem monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α)
     Remark: other libraries equate `m` and `m'`, and `n` and `n'`. We need to distinguish them to be able to implement
     gadgets such as `MonadStateAdapter` and `MonadReaderAdapter`. -/
 class MonadFunctor (m m' : Type u → Type v) (n n' : Type u → Type w) :=
-(monadMap {} {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
+(monadMap {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
 
 /-- The reflexive-transitive closure of `MonadFunctor`.
     `monadMap` is used to transitively lift Monad morphisms such as `StateT.zoom`.
     A generalization of [MonadLiftFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadLiftFunctor), which can only lift endomorphisms (i.e. m = m', n = n'). -/
 class MonadFunctorT (m m' : Type u → Type v) (n n' : Type u → Type w) :=
-(monadMap {} {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
+(monadMap {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
 
 export MonadFunctorT (monadMap)
 

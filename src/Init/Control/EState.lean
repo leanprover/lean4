@@ -11,8 +11,8 @@ universes u v
 namespace EStateM
 
 inductive Result (ε σ α : Type u)
-| ok    {} : α → σ → Result
-| error {} : ε → σ → Result
+| ok    : α → σ → Result
+| error : ε → σ → Result
 
 variables {ε σ α : Type u}
 

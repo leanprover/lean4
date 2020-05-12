@@ -18,8 +18,7 @@ instance alternativeHasOrelse (f : Type u → Type v) (α : Type u) [Alternative
 section
 variables {f : Type u → Type v} [Alternative f] {α : Type u}
 
-@[inline] def failure : f α :=
-Alternative.failure f
+export Alternative (failure)
 
 @[inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
 if p then pure () else failure

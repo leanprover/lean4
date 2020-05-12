@@ -91,14 +91,14 @@ end StateT
     automatically from `monadLift`. -/
 class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 /- Obtain the top-most State of a Monad stack. -/
-(get {} : m σ)
+(get : m σ)
 /- Set the top-most State of a Monad stack. -/
-(set {} : σ → m PUnit)
+(set : σ → m PUnit)
 /- Map the top-most State of a Monad stack.
 
    Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
    because the latter does not use the State linearly (without sufficient inlining). -/
-(modifyGet {} {α : Type u} : (σ → α × σ) → m α)
+(modifyGet {α : Type u} : (σ → α × σ) → m α)
 
 export MonadState (get set modifyGet)
 
@@ -159,7 +159,7 @@ end
     ```
     -/
 class MonadStateAdapter (σ σ' : outParam (Type u)) (m m' : Type u → Type v) :=
-(adaptState {} {σ'' α : Type u} (split : σ' → σ × σ'') (join : σ → σ'' → σ') : m α → m' α)
+(adaptState {σ'' α : Type u} (split : σ' → σ × σ'') (join : σ → σ'' → σ') : m α → m' α)
 export MonadStateAdapter (adaptState)
 
 section
@@ -180,7 +180,7 @@ instance (σ : Type u) (m out : Type u → Type v) [MonadRun out m] [Functor m] 
 ⟨fun α x => run ∘ StateT.run' x⟩
 
 class MonadStateRunner (σ : Type u) (m m' : Type u → Type u) :=
-(runState {} {α : Type u} : m α → σ → m' α)
+(runState {α : Type u} : m α → σ → m' α)
 export MonadStateRunner (runState)
 
 section

@@ -10,9 +10,9 @@ universes u
 namespace Lean
 
 inductive LOption (α : Type u)
-| none  {} : LOption
-| some     : α → LOption
-| undef {} : LOption
+| none  : LOption
+| some  : α → LOption
+| undef : LOption
 
 namespace LOption
 variables {α : Type u}

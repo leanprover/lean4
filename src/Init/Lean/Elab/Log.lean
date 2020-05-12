@@ -11,15 +11,15 @@ namespace Lean
 namespace Elab
 
 class MonadPosInfo (m : Type → Type) :=
-(getFileMap  {} : m FileMap)
-(getFileName {} : m String)
-(getCmdPos   {} : m String.Pos)
-(addContext  {} : MessageData → m MessageData)
+(getFileMap   : m FileMap)
+(getFileName  : m String)
+(getCmdPos    : m String.Pos)
+(addContext   : MessageData → m MessageData)
 
 export MonadPosInfo (getFileMap getFileName getCmdPos)
 
 class MonadLog (m : Type → Type) extends MonadPosInfo m :=
-(logMessage  {} : Message → m Unit)
+(logMessage   : Message → m Unit)
 
 export MonadLog (logMessage)
 

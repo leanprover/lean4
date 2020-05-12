@@ -13,7 +13,7 @@ namespace Lean
 universes u
 
 class HasFromJson (α : Type u) :=
-(fromJson? {} : Json → Option α)
+(fromJson? : Json → Option α)
 export HasFromJson (fromJson?)
 
 class HasToJson (α : Type u) :=

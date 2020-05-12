@@ -220,9 +220,9 @@ instance FieldLHS.hasFormat : HasFormat FieldLHS :=
   | FieldLHS.modifyOp _ i   => "[" ++ i.prettyPrint ++ "]"⟩
 
 inductive FieldVal (σ : Type)
-| term {} (stx : Syntax) : FieldVal
-| nested (s : σ)         : FieldVal
-| default {}             : FieldVal -- mark that field must be synthesized using default value
+| term  (stx : Syntax) : FieldVal
+| nested (s : σ)       : FieldVal
+| default              : FieldVal -- mark that field must be synthesized using default value
 
 structure Field (σ : Type) :=
 mk {} :: (ref : Syntax) (lhs : List FieldLHS) (val : FieldVal σ) (expr? : Option Expr := none)

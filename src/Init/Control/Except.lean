@@ -12,8 +12,8 @@ import Init.Data.ToString
 universes u v w
 
 inductive Except (ε : Type u) (α : Type v)
-| error {} : ε → Except
-| ok {} : α → Except
+| error : ε → Except
+| ok    : α → Except
 
 attribute [unbox] Except
 
@@ -127,8 +127,8 @@ end ExceptT
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
 class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
-(throw {} {α : Type v} : ε → m α)
-(catch {} {α : Type v} : m α → (ε → m α) → m α)
+(throw {α : Type v} : ε → m α)
+(catch {α : Type v} : m α → (ε → m α) → m α)
 
 namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
@@ -164,7 +164,7 @@ instance (ε) : MonadExcept ε (Except ε) :=
     ```
 -/
 class MonadExceptAdapter (ε ε' : outParam (Type u)) (m m' : Type u → Type v) :=
-(adaptExcept {} {α : Type u} : (ε → ε') → m α → m' α)
+(adaptExcept {α : Type u} : (ε → ε') → m α → m' α)
 export MonadExceptAdapter (adaptExcept)
 
 section

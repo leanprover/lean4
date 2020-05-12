@@ -13,7 +13,7 @@ inductive Rbcolor
 | red | black
 
 inductive RBNode (α : Type u) (β : α → Type v)
-| leaf  {}                                                                            : RBNode
+| leaf                                                                                : RBNode
 | node  (color : Rbcolor) (lchild : RBNode) (key : α) (val : β key) (rchild : RBNode) : RBNode
 
 namespace RBNode
@@ -199,7 +199,7 @@ variable (lt : α → α → Bool)
 end Membership
 
 inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop
-| leafWff : WellFormed leaf
+| leafWff {} : WellFormed leaf
 | insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed n → n' = insert lt n k v → WellFormed n'
 | eraseWff {n n' : RBNode α β} {k : α} : WellFormed n → n' = erase lt k n → WellFormed n'
 

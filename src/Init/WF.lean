@@ -160,8 +160,8 @@ variable  (rb  : β → β → Prop)
 
 -- Lexicographical order based on ra and rb
 inductive Lex : α × β → α × β → Prop
-| left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
-| right (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
+| left  {} {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
+| right {} (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
 
 -- relational product based on ra and rb
 inductive Rprod : α × β → α × β → Prop
@@ -262,8 +262,8 @@ variables {α : Sort u} {β : Sort v}
 
 -- Reverse lexicographical order based on r and s
 inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop
-| left  : ∀ {a₁ a₂ : α} (b : β), r a₁ a₂ → RevLex ⟨a₁, b⟩ ⟨a₂, b⟩
-| right : ∀ (a₁ : α) {b₁ : β} (a₂ : α) {b₂ : β}, s b₁ b₂ → RevLex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
+| left  {} : ∀ {a₁ a₂ : α} (b : β), r a₁ a₂ → RevLex ⟨a₁, b⟩ ⟨a₂, b⟩
+| right {} : ∀ (a₁ : α) {b₁ : β} (a₂ : α) {b₂ : β}, s b₁ b₂ → RevLex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 end
 
 section

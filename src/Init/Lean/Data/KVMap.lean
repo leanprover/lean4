@@ -149,9 +149,9 @@ subset m₁ m₂ && subset m₂ m₁
 instance : HasBeq KVMap := ⟨eqv⟩
 
 class isKVMapVal (α : Type) :=
-(defVal : α)
-(set    : KVMap → Name → α → KVMap)
-(get    : KVMap → Name → α → α)
+(defVal {} : α)
+(set       : KVMap → Name → α → KVMap)
+(get       : KVMap → Name → α → α)
 
 export isKVMapVal (set)
 

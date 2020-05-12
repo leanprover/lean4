@@ -180,7 +180,7 @@ def Not (a : Prop) : Prop := a → False
 prefix `¬` := Not
 
 inductive Eq {α : Sort u} (a : α) : α → Prop
-| refl : Eq a
+| refl {} : Eq a
 
 @[elabAsEliminator, inline, reducible]
 def Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {C : α → Sort u1} (m : C a) {b : α} (h : Eq a b) : C b :=
@@ -206,7 +206,7 @@ constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} 
 init_quot
 
 inductive HEq {α : Sort u} (a : α) : ∀ {β : Sort u}, β → Prop
-| refl : HEq a
+| refl {} : HEq a
 
 structure Prod (α : Type u) (β : Type v) :=
 (fst : α) (snd : β)
@@ -254,16 +254,16 @@ show (Eq.ndrecOn (Eq.refl α) a : α) = a' from
   this α a' h (Eq.refl α)
 
 inductive Sum (α : Type u) (β : Type v)
-| inl {} (val : α) : Sum
-| inr {} (val : β) : Sum
+| inl (val : α) : Sum
+| inr (val : β) : Sum
 
 inductive PSum (α : Sort u) (β : Sort v)
-| inl {} (val : α) : PSum
-| inr {} (val : β) : PSum
+| inl (val : α) : PSum
+| inr (val : β) : PSum
 
 inductive Or (a b : Prop) : Prop
-| inl {} (h : a) : Or
-| inr {} (h : b) : Or
+| inl (h : a) : Or
+| inr (h : b) : Or
 
 def Or.introLeft {a : Prop} (b : Prop) (ha : a) : Or a b :=
 Or.inl ha
@@ -307,7 +307,7 @@ def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (a = b) :=
 s a b
 
 inductive Option (α : Type u)
-| none {} : Option
+| none : Option
 | some (val : α) : Option
 
 attribute [unbox] Option
@@ -316,7 +316,7 @@ export Option (none some)
 export Bool (false true)
 
 inductive List (T : Type u)
-| nil {} : List
+| nil : List
 | cons (hd : T) (tl : List) : List
 
 infixr `::` := List.cons
@@ -332,8 +332,8 @@ axiom sorryAx (α : Sort u) (synthetic := true) : α
 
 /- Declare builtin and reserved notation -/
 
-class HasZero     (α : Type u) := (zero : α)
-class HasOne      (α : Type u) := (one : α)
+class HasZero     (α : Type u) := mk {} :: (zero : α)
+class HasOne      (α : Type u) := mk {} :: (one : α)
 class HasAdd      (α : Type u) := (add : α → α → α)
 class HasMul      (α : Type u) := (mul : α → α → α)
 class HasNeg      (α : Type u) := (neg : α → α)
@@ -365,7 +365,7 @@ infix `≤`        := HasLessEq.LessEq
 infix `<`        := HasLess.Less
 infix `==`       := HasBeq.beq
 infix `++`       := HasAppend.append
-notation `∅`   := HasEmptyc.emptyc _
+notation `∅`     := HasEmptyc.emptyc
 infix `≈`        := HasEquiv.Equiv
 infixr `^`       := HasPow.pow
 infixr `/\`      := And
@@ -446,7 +446,7 @@ inductive PNonScalar : Type u
 
 /- For numeric literals notation -/
 class HasOfNat (α : Type u) :=
-(ofNat : Nat → α)
+mk {} :: (ofNat : Nat → α)
 
 export HasOfNat (ofNat)
 
@@ -1080,7 +1080,7 @@ structure PointedType :=
 /- Inhabited -/
 
 class Inhabited (α : Sort u) :=
-(default : α)
+mk {} :: (default : α)
 
 constant arbitrary (α : Sort u) [Inhabited α] : α :=
 Inhabited.default α
@@ -1353,7 +1353,7 @@ fun a b => isTrue (punitEq a b)
 /- Setoid -/
 
 class Setoid (α : Sort u) :=
-(r : α → α → Prop) (iseqv : Equivalence r)
+mk {} :: (r : α → α → Prop) (iseqv : Equivalence r)
 
 instance setoidHasEquiv {α : Sort u} [Setoid α] : HasEquiv α :=
 ⟨Setoid.r⟩
@@ -1600,10 +1600,10 @@ variable {α : Type u}
 variable (r : α → α → Prop)
 
 inductive EqvGen : α → α → Prop
-| rel {} : ∀ x y, r x y → EqvGen x y
-| refl {} : ∀ x, EqvGen x x
-| symm {} : ∀ x y, EqvGen x y → EqvGen y x
-| trans {} : ∀ x y z, EqvGen x y → EqvGen y z → EqvGen x z
+| rel   : ∀ x y, r x y → EqvGen x y
+| refl  : ∀ x, EqvGen x x
+| symm  : ∀ x y, EqvGen x y → EqvGen y x
+| trans : ∀ x y z, EqvGen x y → EqvGen y z → EqvGen x z
 
 theorem EqvGen.isEquivalence : Equivalence (@EqvGen α r) :=
 mkEquivalence _ EqvGen.refl EqvGen.symm EqvGen.trans

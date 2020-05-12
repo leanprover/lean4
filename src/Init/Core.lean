@@ -446,7 +446,7 @@ inductive PNonScalar : Type u
 
 /- For numeric literals notation -/
 class HasOfNat (α : Type u) :=
-mk {} :: (ofNat : Nat → α)
+(ofNat : Nat → α)
 
 export HasOfNat (ofNat)
 

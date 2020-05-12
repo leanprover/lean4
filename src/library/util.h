@@ -284,7 +284,7 @@ expr beta_reduce(expr t);
 expr eta_reduce(expr t);
 expr beta_eta_reduce(expr t);
 
-enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
+enum class implicit_infer_kind { Implicit, RelaxedImplicit };
 
 /** \brief Infer implicit parameter annotations for the first \c nparams using mode
     specified by \c k. */

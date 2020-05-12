@@ -153,10 +153,9 @@ struct parser : public abstract_parser {
         */
         bool     m_explicit_delimiters{false};
         /* (input and output)
-          If m_infer_kind != nullptr, then a sequence of binders can be prefixed with '{}' or '()'
+          If m_infer_kind != nullptr, then a sequence of binders can be prefixed with '{}'
           Moreover, *m_infer_kind will be updated with
 
-          - implicit_infer_kind::None if prefix is '()'
           - implicit_infer_kind::RelaxedImplicit if prefix is '{}'
           - implicit_infer_kind::Implicit, otherwise. */
         implicit_infer_kind * m_infer_kind{nullptr};

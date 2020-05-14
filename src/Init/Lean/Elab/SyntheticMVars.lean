@@ -27,7 +27,7 @@ when val.hasExprMVar $ throwError ref ("tactic failed, result still contain meta
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };
 remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
-let tailRef := ref.getTailWithInfo.getD ref;
+let tailRef := ref.getTailWithPos.getD ref;
 unless remainingGoals.isEmpty (reportUnsolvedGoals tailRef remainingGoals);
 ensureAssignmentHasNoMVars tailRef mvarId
 

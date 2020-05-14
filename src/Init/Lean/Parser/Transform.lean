@@ -15,12 +15,12 @@ match stx with
     let prevArg := newArgs.back;
     match prevArg.getTailInfo with
     | some info =>
-      let prevArg := prevArg.setTailInfo info.truncateTrailing;
+      let prevArg := prevArg.setTailInfo { trailing := none };
       let newArgs := newArgs.set! (newArgs.size - 1) prevArg;
       let newArgs := newArgs.push (atom info sepTk);
       newArgs.push arg
     | none =>
-      let newArgs := newArgs.push (atom none sepTk);
+      let newArgs := newArgs.push (atom {} sepTk);
       newArgs.push arg)
     #[args.get! 0]
     1;
@@ -35,10 +35,10 @@ stx.ifNodeKind `Lean.Parser.Term.paren
     else if (body.getArg 1).isNone then
       let body := body.getArg 0;
       match stx.getArg 2, body.getTailInfo with
-      | atom (some info) ")", some bodyInfo =>
-        let bodyInfoTrail := bodyInfo.trailing.toString ++ "  ";      -- add whithespaces for removed parentheses
-        let bodyInfoTrail := bodyInfoTrail ++ info.trailing.toString; -- add close paren trailing spaces
-        body.setTailInfo (some { trailing := bodyInfoTrail.toSubstring, .. bodyInfo })
+      | atom { trailing := some outer } ")", some bodyInfo@{ trailing := some inner } =>
+        let bodyInfoTrail := inner.toString ++ "  ";  -- add whithespaces for removed parentheses
+        let bodyInfoTrail := bodyInfoTrail ++ outer.toString; -- add close paren trailing spaces
+        body.setTailInfo { trailing := bodyInfoTrail.toSubstring, .. bodyInfo }
       | _, _ => stx.val
     else stx.val)
   (fun _ => stx)

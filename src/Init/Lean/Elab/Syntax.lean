@@ -335,7 +335,7 @@ else
 def expandMacroHeadIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.identPrec then
-  let info := stx.getHeadInfo;
+  let info := stx.getHeadInfo.getD {};
   let id   := (stx.getArg 0).getId;
   pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit (toString id) info, stx.getArg 1]
 else

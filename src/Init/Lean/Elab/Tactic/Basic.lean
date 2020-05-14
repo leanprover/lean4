@@ -20,7 +20,7 @@ def goalsToMessageData (goals : List MVarId) : MessageData :=
 MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
 
 def Term.reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
-let tailRef := ref.getTailWithInfo.getD ref;
+let tailRef := ref.getTailWithPos.getD ref;
 Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
 
 namespace Tactic

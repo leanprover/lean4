@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura and Sebastian Ullrich
 -/
 prelude
+import Init.Data.Option.BasicAux
 import Init.Data.String.Basic
 import Init.Data.Array.Basic
 import Init.Data.UInt
@@ -161,14 +162,19 @@ abbrev TrailingParserDescr := ParserDescr
 
 /- Syntax -/
 
+/--
+  Source information of syntax atoms. All information is generally set for unquoted syntax and unset for syntax in
+  syntax quotations, but syntax transformations might want to invalidate only one side to make the pretty printer
+  reformat it. In the special case of the delaborator, we also use purely synthetic position information without
+  whitespace information. -/
 structure SourceInfo :=
 /- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
    it is not at all clear what the preceding token was, especially with backtracking. -/
-(leading  : Substring)
-(pos      : String.Pos)
-(trailing : Substring)
+(leading  : Option Substring  := none)
+(pos      : Option String.Pos := none)
+(trailing : Option Substring  := none)
 
-instance SourceInfo.inhabited : Inhabited SourceInfo := ⟨⟨"".toSubstring, arbitrary _, "".toSubstring⟩⟩
+instance SourceInfo.inhabited : Inhabited SourceInfo := ⟨{}⟩
 
 abbrev SyntaxNodeKind := Name
 
@@ -177,8 +183,8 @@ abbrev SyntaxNodeKind := Name
 inductive Syntax
 | missing : Syntax
 | node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
-| atom   (info : Option SourceInfo) (val : String) : Syntax
-| ident  (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Name × List String)) : Syntax
+| atom   (info : SourceInfo) (val : String) : Syntax
+| ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Name × List String)) : Syntax
 
 instance Syntax.inhabited : Inhabited Syntax :=
 ⟨Syntax.missing⟩
@@ -412,7 +418,7 @@ abbrev Macro := Syntax → MacroM Syntax
   Create an identifier using `SourceInfo` from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
 def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
-let info := src.getHeadInfo;
+let info := src.getHeadInfo.getD {};
 Syntax.ident info (toString val).toSubstring val []
 
 /--
@@ -420,13 +426,13 @@ Syntax.ident info (toString val).toSubstring val []
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
 def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
-let info := src.getHeadInfo;
+let info := src.getHeadInfo.getD {};
 -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
 let id   := addMacroScope `_internal c reservedMacroScope;
 Syntax.ident info (toString id).toSubstring id [(c, [])]
 
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-let info := src.getHeadInfo;
+let info := src.getHeadInfo.getD {};
 Syntax.atom info val
 
 def Syntax.identToAtom (stx : Syntax) : Syntax :=
@@ -436,7 +442,7 @@ match stx with
 
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Syntax :=
-Syntax.ident none (toString val).toSubstring val []
+Syntax.ident {} (toString val).toSubstring val []
 
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
 Syntax.node nullKind args
@@ -488,14 +494,14 @@ mkCTermIdFrom Syntax.missing c
 def mkCAppStx (fn : Name) (args : Array Syntax) : Syntax :=
 mkAppStx (mkCTermId fn) args
 
-def mkStxLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
+def mkStxLit (kind : SyntaxNodeKind) (val : String) (info : SourceInfo := {}) : Syntax :=
 let atom : Syntax := Syntax.atom info val;
 Syntax.node kind #[atom]
 
-def mkStxStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+def mkStxStrLit (val : String) (info : SourceInfo := {}) : Syntax :=
 mkStxLit strLitKind (repr val) info
 
-def mkStxNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+def mkStxNumLit (val : String) (info : SourceInfo := {}) : Syntax :=
 mkStxLit numLitKind val info
 
 namespace Syntax
@@ -696,7 +702,7 @@ match stx with
 def strLitToAtom (stx : Syntax) : Syntax :=
 match stx.isStrLit? with
 | none     => stx
-| some val => Syntax.atom stx.getHeadInfo val
+| some val => Syntax.atom stx.getHeadInfo.get! val
 
 def isAtom : Syntax → Bool
 | atom _ _ => true

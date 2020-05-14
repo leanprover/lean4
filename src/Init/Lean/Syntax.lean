@@ -11,19 +11,8 @@ import Init.Lean.Data.Format
 namespace Lean
 namespace SourceInfo
 
-def updateTrailing (info : SourceInfo) (trailing : Substring) : SourceInfo :=
+def updateTrailing (info : SourceInfo) (trailing : Option Substring) : SourceInfo :=
 { trailing := trailing, .. info }
-
-def truncateTrailing (info : SourceInfo) : SourceInfo :=
-{ trailing := { stopPos := info.trailing.startPos, .. info.trailing }, .. info }
-
-/- Update `info₁.trailing.stopPos` to `info₂.trailing.stopPos` -/
-def appendToTrailing (info₁ info₂ : SourceInfo) : SourceInfo :=
-{ trailing := { stopPos := info₂.trailing.stopPos, .. info₁.trailing }, .. info₁ }
-
-/- Update `info₁.leading.startPos` to `info₂.leading.startPos` -/
-def appendToLeading (info₁ info₂ : SourceInfo) : SourceInfo :=
-{ leading := { startPos := info₂.leading.startPos, .. info₁.leading }, .. info₁ }
 
 end SourceInfo
 
@@ -140,23 +129,24 @@ def getIdAt (stx : Syntax) (i : Nat) : Name :=
 Id.run $ stx.mrewriteBottomUp fn
 
 private def updateInfo : SourceInfo → String.Pos → SourceInfo
-| {leading := {str := s, startPos := _, stopPos := _}, pos := pos, trailing := trailing}, last =>
-  {leading := {str := s, startPos := last, stopPos := pos}, pos := pos, trailing := trailing}
+| {leading := some {str := s, startPos := _, stopPos := _}, pos := some pos, trailing := trailing}, last =>
+  {leading := some {str := s, startPos := last, stopPos := pos}, pos := some pos, trailing := trailing}
+| info, _ => info
 
 /- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
-| atom (some info) val   => do
+| atom info@{trailing := some trail, ..} val => do
   last ← get;
-  set info.trailing.stopPos;
+  set trail.stopPos;
   let newInfo := updateInfo info last;
-  pure $ some (atom (some newInfo) val)
-| ident (some info) rawVal val pre   => do
+  pure $ some (atom newInfo val)
+| ident info@{trailing := some trail, ..} rawVal val pre   => do
   last ← get;
-  set info.trailing.stopPos;
+  set trail.stopPos;
   let newInfo := updateInfo info last;
-  pure $ some (ident (some newInfo) rawVal val pre)
+  pure $ some (ident newInfo rawVal val pre)
 | _ => pure none
 
 /-- Set `SourceInfo.leading` according to the trailing stop of the preceding token.
@@ -173,9 +163,9 @@ private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
 def updateLeading : Syntax → Syntax :=
 fun stx => (mreplace updateLeadingAux stx).run' 0
 
-partial def updateTrailing (trailing : Substring) : Syntax → Syntax
-| Syntax.atom (some info) val               => Syntax.atom (some (info.updateTrailing trailing)) val
-| Syntax.ident (some info) rawVal val pre   => Syntax.ident (some (info.updateTrailing trailing)) rawVal val pre
+partial def updateTrailing (trailing : Option Substring) : Syntax → Syntax
+| Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
+| Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
 | n@(Syntax.node k args)                    =>
   if args.size == 0 then n
   else
@@ -186,13 +176,13 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
 | s => s
 
 def getPos (stx : Syntax) : Option String.Pos :=
-SourceInfo.pos <$> stx.getHeadInfo
+stx.getHeadInfo >>= SourceInfo.pos
 
-partial def getTailWithInfo : Syntax → Option Syntax
-| stx@(atom (some _) _)      => some stx
-| stx@(ident (some _) _ _ _) => some stx
-| node _ args                => args.findSomeRev? getTailWithInfo
-| _                          => none
+partial def getTailWithPos : Syntax → Option Syntax
+| stx@(atom { pos := some _, .. } _)      => some stx
+| stx@(ident { pos := some _, .. } _ _ _) => some stx
+| node _ args                             => args.findSomeRev? getTailWithPos
+| _                                       => none
 
 partial def getTailInfo : Syntax → Option SourceInfo
 | atom info _      => info
@@ -210,7 +200,7 @@ partial def getTailInfo : Syntax → Option SourceInfo
     | some v => some $ a.set! i v
     | none   => updateLast i
 
-partial def setTailInfoAux (info : Option SourceInfo) : Syntax → Option Syntax
+partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
 | atom _ val             => some $ atom info val
 | ident _ rawVal val pre => some $ ident info rawVal val pre
 | node k args            =>
@@ -219,7 +209,7 @@ partial def setTailInfoAux (info : Option SourceInfo) : Syntax → Option Syntax
   | none      => none
 | stx                    => none
 
-def setTailInfo (stx : Syntax) (info : Option SourceInfo) : Syntax :=
+def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
 match setTailInfoAux info stx with
 | some stx => stx
 | none     => stx
@@ -227,7 +217,7 @@ match setTailInfoAux info stx with
 def truncateTrailing (stx : Syntax) : Syntax :=
 match stx.getTailInfo with
 | none      => stx
-| some info => stx.setTailInfo info.truncateTrailing
+| some info => stx.setTailInfo { info with trailing := none }
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) : Nat → Option (Array α)
 | i =>
@@ -239,7 +229,7 @@ match stx.getTailInfo with
   else
     none
 
-partial def setHeadInfoAux (info : Option SourceInfo) : Syntax → Option Syntax
+partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
 | atom _ val             => some $ atom info val
 | ident _ rawVal val pre => some $ ident info rawVal val pre
 | node k args            =>
@@ -248,7 +238,7 @@ partial def setHeadInfoAux (info : Option SourceInfo) : Syntax → Option Syntax
   | noxne      => none
 | stx                    => none
 
-def setHeadInfo (stx : Syntax) (info : Option SourceInfo) : Syntax :=
+def setHeadInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
 match setHeadInfoAux info stx with
 | some stx => stx
 | none     => stx
@@ -262,13 +252,12 @@ partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
 | node k args => node k $ args.map replaceInfo
 | stx         => setInfo info stx
 
-private def reprintLeaf : Option SourceInfo → String → String
+private def reprintLeaf (info : SourceInfo) (val : String) : String :=
 -- no source info => add gracious amounts of whitespace to definitely separate tokens
 -- Note that the proper pretty printer does not use this function.
 -- The parser as well always produces source info, so round-tripping is still
 -- guaranteed.
-| none,      val => " " ++ val ++ " "
-| some info, val => info.leading.toString ++ val ++ info.trailing.toString
+(Substring.toString <$> info.leading).getD " " ++ val ++ (Substring.toString <$> info.trailing).getD " "
 
 partial def reprint : Syntax → Option String
 | atom info val           => reprintLeaf info val
@@ -327,14 +316,14 @@ end SyntaxNode
 
 @[export lean_mk_syntax_atom]
 def mkSimpleAtom (val : String) : Syntax :=
-Syntax.atom none val
+Syntax.atom {} val
 
 @[export lean_mk_syntax_list]
 def mkListNode (args : Array Syntax) : Syntax :=
 Syntax.node nullKind args
 
 def mkAtom (val : String) : Syntax :=
-Syntax.atom none val
+Syntax.atom {} val
 
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
 Syntax.node k args

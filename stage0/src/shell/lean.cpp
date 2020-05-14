@@ -194,8 +194,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
     std::cout << "  --make             create olean file\n";
-    std::cout << "  --cpp=fname -c     name of the C++ output file\n"; // TODO(Leo): delete
-    std::cout << "  --c=fname -C       name of the C output file\n";
+    std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
               << "                     and type check all imported modules\n";
@@ -239,8 +238,7 @@ static struct option g_long_options[] = {
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
     {"timeout",      optional_argument, 0, 'T'},
-    {"cpp",          optional_argument, 0, 'c'},
-    {"c",            optional_argument, 0, 'C'},
+    {"c",            optional_argument, 0, 'c'},
     {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
@@ -304,7 +302,7 @@ void load_plugin(std::string path) {
     // we never want to look up plugins using the system library search
     path = lrealpath(path);
     std::string pkg = stem(path);
-    std::string sym = "initialize_" + pkg + "_Default";
+    std::string sym = "initialize_" + pkg;
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(path.c_str());
     if (!h) {
@@ -354,8 +352,13 @@ void init_search_path() {
 }
 
 extern "C" object* lean_module_name_of_file(object* fname, object* w);
-optional<name> module_name_of_file(std::string const & fname) {
-    return get_io_result<option_ref<name>>(lean_module_name_of_file(mk_string(fname), io_mk_world())).get();
+optional<name> module_name_of_file(std::string const & fname, bool optional) {
+    object * o = lean_module_name_of_file(mk_string(fname), io_mk_world());
+    if (io_result_is_error(o) && optional) {
+        return lean::optional<name>();
+    } else {
+        return some(get_io_result<name>(o));
+    }
 }
 
 /* def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) */
@@ -467,10 +470,6 @@ int main(int argc, char ** argv) {
                 return 0;
             case 'c':
                 check_optarg("c");
-                c_output = optarg;
-                break;
-            case 'C':
-                check_optarg("C");
                 c_output = optarg;
                 break;
             case 's':
@@ -595,9 +594,9 @@ int main(int argc, char ** argv) {
                 display_help(std::cerr);
                 return 1;
             }
-            mod_fn = lrealpath(argv[optind++]);
+            mod_fn = argv[optind++];
             contents = read_file(mod_fn);
-            main_module_name = module_name_of_file(mod_fn);
+            main_module_name = module_name_of_file(mod_fn, /* optional */ !c_output);
         }
 
         bool ok = true;
@@ -682,10 +681,6 @@ int main(int argc, char ** argv) {
         }
 
         if (c_output && ok) {
-            if (!main_module_name) {
-                std::cerr << "cannot extract code, module name of input file is not known\n";
-                return 1;
-            }
             std::ofstream out(*c_output);
             if (out.fail()) {
                 std::cerr << "failed to create '" << *c_output << "'\n";

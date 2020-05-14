@@ -2158,12 +2158,6 @@ void parser::parse_new_frontend_cmd() {
 #endif
 
 
-extern "C" object* lean_normalize_module_name(object* m);
-
-name normalize_module_name(name m) {
-    return name(lean_normalize_module_name(m.to_obj_arg()));
-}
-
 void parser::process_imports() {
     // we assume the Lean parser has already imported the modules into `m_env`
 

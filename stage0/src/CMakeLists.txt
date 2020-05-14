@@ -489,7 +489,7 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_SOURCE_DIR}/config.h")
 install(FILES "${LEAN_SOURCE_DIR}/config.h" DESTINATION "${INCLUDE_DIR}")
 if(NOT STAGE0)
-  configure_file("${LEAN_SOURCE_DIR}/Init/Makefile.in" "${LEAN_SOURCE_DIR}/Init/Makefile")
+  configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_SOURCE_DIR}/Makefile")
 endif()
 
 include_directories("${LEAN_BINARY_DIR}")
@@ -618,7 +618,7 @@ add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cma
 endif()
 
 add_custom_target(clean-stdlib
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
   COMMAND find . -name '*.olean' -delete
   COMMAND find . -name '*.depend' -delete
   COMMAND rm -rf ../stage1 "${CMAKE_BINARY_DIR}/stage2" "${CMAKE_BINARY_DIR}/stage3" || true
@@ -627,7 +627,7 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/Init" DESTINATION "${LIBRARY_DIR}"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.olean"

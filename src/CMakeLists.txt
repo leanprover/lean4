@@ -602,20 +602,6 @@ file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
-
-function(escape_regex OUT_NAME INPUT)
-    foreach(CHAR IN ITEMS ^ $ . [ ] - + * \( \) )
-        string(REPLACE "${CHAR}" "\\${CHAR}" INPUT ${INPUT})
-    endforeach(CHAR)
-    set(${OUT_NAME} ${INPUT} PARENT_SCOPE)
-endfunction()
-escape_regex(LEAN_SOURCE_DIR_REGEX_SAFE ${LEAN_SOURCE_DIR})
-
-foreach(SOURCE ${LEAN_SOURCES})
-  if(${SOURCE} MATCHES "${LEAN_SOURCE_DIR_REGEX_SAFE}/stage./.*")
-    LIST(REMOVE_ITEM LEAN_SOURCES ${SOURCE})
-  endif()
-endforeach()
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()

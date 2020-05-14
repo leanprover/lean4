@@ -6,7 +6,7 @@ open Lean
 
 macro_rules [mycheck]
 | `(#check $es*) =>
-  let cmds := es.getSepElems.map $ fun e => Syntax.node `Lean.Parser.Command.check #[Syntax.atom none "#check", e];
+  let cmds := es.getSepElems.map $ fun e => Syntax.node `Lean.Parser.Command.check #[Syntax.atom {} "#check", e];
   pure $ mkNullNode cmds
 
 #check true

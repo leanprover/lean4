@@ -194,11 +194,8 @@ def withProj {α} (d : DelabM α) : DelabM α := do
 Expr.app fn _ _ ← getExpr | unreachable!;
 descend fn 0 d
 
-def infoForPos (pos : Nat) : SourceInfo :=
-{ leading := " ".toSubstring, pos := pos, trailing := " ".toSubstring }
-
 partial def annotatePos (pos : Nat) : Syntax → Syntax
-| stx@(Syntax.ident _ _ _ _)                   => stx.setInfo (infoForPos pos)
+| stx@(Syntax.ident _ _ _ _)                   => stx.setInfo { pos := pos }
 -- Term.ids => annotate ident
 -- TODO: universes?
 | stx@(Syntax.node `Lean.Parser.Term.id args)  => stx.modifyArg 0 annotatePos
@@ -206,7 +203,7 @@ partial def annotatePos (pos : Nat) : Syntax → Syntax
 | stx@(Syntax.node `Lean.Parser.Term.app args) => stx.modifyArg 0 annotatePos
 -- otherwise, annotate first direct child token if any
 | stx => match stx.getArgs.findIdx? Syntax.isAtom with
-  | some idx => stx.modifyArg idx (Syntax.setInfo (infoForPos pos))
+  | some idx => stx.modifyArg idx (Syntax.setInfo { pos := pos })
   | none     => stx
 
 def annotateCurPos (stx : Syntax) : Delab := do

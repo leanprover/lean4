@@ -5,7 +5,7 @@ open Lean
 syntax [myintro] "intros" (sepBy ident ",") : tactic
 
 macro_rules [myintro]
-| `(tactic| intros $x*) => pure $ Syntax.node `Lean.Parser.Tactic.intros #[Syntax.atom none "intros", mkNullNode x.getSepElems]
+| `(tactic| intros $x*) => pure $ Syntax.node `Lean.Parser.Tactic.intros #[Syntax.atom {} "intros", mkNullNode x.getSepElems]
 
 theorem tst1 {p q : Prop} : p → q → p :=
 begin

@@ -11,7 +11,7 @@ import Init.Lean.KeyedDeclsAttribute
 namespace Lean
 
 def Syntax.prettyPrint (stx : Syntax) : Format :=
-match stx.truncateTrailing.reprint with -- TODO use syntax pretty printer
+match stx.unsetTrailing.reprint with -- TODO use syntax pretty printer
 | some str => format str.toFormat
 | none     => format stx
 

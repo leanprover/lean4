@@ -4,7 +4,7 @@ Installation
 To use `lean4-mode` in Emacs, add the following to your `init.el`:
 ```
 ;; You need to modify the following line
-(setq lean4-rootdir "/path/to/lean4-checkout")
+(setq load-path (cons (concat lean4-rootdir "/path/to/lean4-mode") load-path))
 
 (setq lean4-mode-required-packages '(dash dash-functional f flycheck s))
 
@@ -19,7 +19,6 @@ To use `lean4-mode` in Emacs, add the following to your `init.el`:
         (setq need-to-refresh nil))
       (package-install p))))
 
-(setq load-path (cons (concat lean4-rootdir "/lean4-mode") load-path))
 (require 'lean4-mode)
 ```
 

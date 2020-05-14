@@ -214,7 +214,7 @@ match setTailInfoAux info stx with
 | some stx => stx
 | none     => stx
 
-def truncateTrailing (stx : Syntax) : Syntax :=
+def unsetTrailing (stx : Syntax) : Syntax :=
 match stx.getTailInfo with
 | none      => stx
 | some info => stx.setTailInfo { info with trailing := none }

@@ -1,49 +1,32 @@
-if(PREV_STAGE)
-  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-  set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
-
-  # MSYS2 bash usually handles absolute Windows paths relatively well, but not when putting them in the PATH
-  file(RELATIVE_PATH PREV_STAGE_REL ${LEAN_SOURCE_DIR} ${PREV_STAGE})
-  # ...and Make doesn't like absolute Windows paths either
-  file(RELATIVE_PATH OUT ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
-
-  add_custom_target(make_stdlib
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
-    # fun: we use `bash -c` to set the `PATH`, but then pass other arguments outside so we don't have to escape them
-    COMMAND bash -c 'PATH=${PREV_STAGE_REL}/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile ${OUT}/libleanstdlib.a \"$$@\"'
-      # `$0`, ignored by `$@`
-      bash
-      PKG=Init
-      OUT=${OUT}
-      OLEAN_OUT=${OUT}/lean
-      LIB_OUT=${OUT}
-      STATIC_LIB_NAME=libleanstdlib.a
-      LEANC_OPTS=${LEANC_OPTS}
-      # recreate everything if the previous compiler has changed
-      MORE_DEPS=${PREV_STAGE_REL}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})
-  set_target_properties(leanstdlib PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstdlib.a"
-    IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
-  add_dependencies(leanstdlib make_stdlib)
-  install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
-endif()
-
 add_executable(lean lean.cpp)
 set_target_properties(lean PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-
-# `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
-# We use the approach described at
-# https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
-# We don't want to add leanstdlib as a direct dependency of leanstatic since this is only true for stage 1.
-target_link_libraries(lean leanstatic leanstdlib leanstatic leanstdlib)
+target_link_libraries(lean leancpp Init)
 
 # create import library on Windows to link plugins against
 set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # https://github.com/msys2/MINGW-packages/issues/5952
-  target_link_options(lean PRIVATE "-Wl,--out-implib,$<TARGET_LINKER_FILE:lean>")
+  target_link_options(lean PRIVATE "-Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/lean.exe.a")
 endif()
 install(TARGETS lean DESTINATION bin)
+
+string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
+string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
+# ...and Make doesn't like absolute Windows paths either
+# (also looks nicer in the build log)
+file(RELATIVE_PATH LIB ${LIB_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
+
+configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
+add_custom_target(make_stdlib ALL
+  WORKING_DIRECTORY ${LIB_SOURCE_DIR}
+  # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
+  # for a parallelized nested build, but CMake doesn't let us do that.
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make
+  DEPENDS lean)
+install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libInit.a DESTINATION lib)
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_BINARY_DIR}/bin/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_BINARY_DIR}/bin/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
@@ -58,9 +41,6 @@ add_test(lean_ghash2   "${CMAKE_BINARY_DIR}/bin/lean" --githash)
 # add_test(lean_new_frontend "${CMAKE_BINARY_DIR}/bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "boofoo.lean")
-
-# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
-string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

@@ -5,7 +5,9 @@ endif()
 if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
   message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
 endif()
-include(ExternalProject)
+if(NOT (DEFINED STAGE))
+  message(FATAL_ERROR "STAGE must be set; use the CMakeLists.txt in the root folder")
+endif()
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 0)
@@ -440,8 +442,8 @@ endif()
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # import library created by the `lean` target (and copied by `bin_lean`)
-  set(LEANC_SHARED_LINKER_FLAGS "$bindir/liblean.dll.a")
+  # import library created by the `lean` target
+  set(LEANC_SHARED_LINKER_FLAGS "$bindir/lean.exe.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,-undefined,dynamic_lookup")
 endif()
@@ -498,14 +500,13 @@ include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
-if(LEANSTATIC)
-  add_library(leanstatic STATIC IMPORTED)
-  set_target_properties(leanstatic PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstatic.a")
-  target_link_libraries(leanstatic INTERFACE ${EXTRA_LIBS})
-  add_custom_target(copy-leanstatic
-    COMMAND cmake -E copy_if_different "${LEANSTATIC}" "${CMAKE_BINARY_DIR}/lib/libleanstatic.a")
-  add_dependencies(leanstatic copy-leanstatic)
+if(LEANCPP)
+  add_library(leancpp STATIC IMPORTED)
+  set_target_properties(leancpp PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+  add_custom_target(copy-leancpp
+    COMMAND cmake -E copy_if_different "${LEANCPP}" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+  add_dependencies(leancpp copy-leancpp)
 else()
   add_subdirectory(runtime)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
@@ -531,25 +532,33 @@ else()
     add_subdirectory(../stdlib stdlib)
   endif()
 
-  add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-  set_target_properties(leanstatic PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-  target_link_libraries(leanstatic ${EXTRA_LIBS})
+  add_library(leancpp ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+  set_target_properties(leancpp PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean"
+    OUTPUT_NAME leancpp)
 endif()
-
-if(LLVM)
-  target_link_libraries(leanstatic ${llvm_libs})
-endif()
+install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
 if(${STAGE} EQUAL 0)
-  add_library(leanstdlib STATIC $<TARGET_OBJECTS:stage0>)
+  add_library(Init STATIC $<TARGET_OBJECTS:stage0>)
 else()
-  add_library(leanstdlib STATIC IMPORTED)
+# created by the previous stage
+  add_library(Init STATIC IMPORTED)
+  set_target_properties(Init PROPERTIES
+    IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libInit.a")
+endif()
+# leancpp and Init are cyclically dependent
+target_link_libraries(Init INTERFACE leancpp)
+target_link_libraries(leancpp INTERFACE Init ${EXTRA_LIBS})
+
+if(LLVM)
+  target_link_libraries(leancpp INTERFACE ${llvm_libs})
 endif()
 
 add_custom_target(update-stage0
-  COMMAND cmake -E env OUT=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
-  DEPENDS leanstdlib
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+  COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
+  DEPENDS Init
+  WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
@@ -560,7 +569,7 @@ install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-# shared library deactivated until we figure out the leanstatic/leanstdlib story
+# shared library deactivated until we figure out the leancpp/Init story
 # # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # # For some strange reason, it contains a copy of pthread_equal.
 # # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
@@ -568,10 +577,9 @@ install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
 #   if ("${STATIC}" MATCHES "OFF")
 #     add_library(leanshared SHARED shared/init.cpp)
 #     # see `target_link_libraries(lean ...)`
-#     target_link_libraries(leanshared leanstatic leanstdlib leanstatic leanstdlib)
+#     target_link_libraries(leanshared leancpp Init leancpp Init)
 #     install(TARGETS leanshared DESTINATION lib)
 #   endif()
-#   install(TARGETS leanstatic DESTINATION lib)
 # endif()
 
 add_subdirectory(shell)
@@ -618,9 +626,7 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION "${LIBRARY_DIR}"
-        FILES_MATCHING
-        PATTERN "*.olean")
+install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION "${LIBRARY_DIR}")
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
         FILES_MATCHING

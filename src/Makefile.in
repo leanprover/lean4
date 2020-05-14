@@ -18,11 +18,13 @@ OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 
 SHELL = /usr/bin/env bash -eo pipefail
 
-.PHONY: all bin depends
+.PHONY: all bin lib depends
 
 all: $(OBJS)
 
 bin: $(BIN_OUT)/$(PKG)
+
+lib: $(LIB_OUT)/$(STATIC_LIB_NAME)
 
 depends: $(DEPS)
 

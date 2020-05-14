@@ -26,8 +26,6 @@ jobs:
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
           - name: Linux fsanitize
             os: ubuntu-latest
-            # do one sanitized build of the stdlib
-            build-stage2: true
             # turn off custom allocator to make LSAN do its magic
             CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
           - name: Linux LLVM=ON
@@ -87,10 +85,10 @@ jobs:
         run: msys2do ./script/ci.sh
         if: matrix.os == 'windows-latest'
       - name: Test
-        run: nix-shell --run "cd build; ctest -j4 --output-on-failure < /dev/null"
+        run: nix-shell --run "cd build/stage0.5; ctest -j4 --output-on-failure < /dev/null"
         if: matrix.os != 'windows-latest'
       - name: Test
-        run: msys2do cd build; ctest -j4 --output-on-failure ^< /dev/null
+        run: msys2do cd build/stage0.5; ctest -j4 --output-on-failure ^< /dev/null
         shell: cmd
         if: matrix.os == 'windows-latest'
       - name: Build Stage 2
@@ -100,7 +98,7 @@ jobs:
         run: nix-shell --run "cd build; make -j4 check-stage3"
         if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
-        run: PATH=$(realpath build/stage1/bin):$PATH nix-shell --run 'cd tests/bench; temci exec --config speedcenter.yaml --runs 1'
+        run: PATH=$(realpath build/stage0.5/bin):$PATH nix-shell --run 'cd tests/bench; temci exec --config speedcenter.yaml --runs 1'
         if: matrix.test-speedcenter
       - name: CCache stats
         run: nix-shell --run "ccache -s"

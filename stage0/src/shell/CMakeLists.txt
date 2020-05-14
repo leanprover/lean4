@@ -1,25 +1,6 @@
-if(PREV_STAGE)
-  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-  set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
-
-  add_custom_target(make_stdlib
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
-    COMMAND bash -c "PATH=${PREV_STAGE}/bin:$$PATH $(MAKE) -f ${CMAKE_BINARY_DIR}/share/lean/Makefile OUT=${CMAKE_BINARY_DIR}/lib MORE_DEPS=${PREV_STAGE}/bin/lean")
-  set_target_properties(leanstdlib PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstdlib.a"
-    IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
-  add_dependencies(leanstdlib make_stdlib)
-  install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
-endif()
-
 add_executable(lean lean.cpp)
 set_target_properties(lean PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-
-# `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
-# We use the approach described at
-# https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
-# We don't want to add leanstdlib as a direct dependency of leanstatic since this is only true for stage 1.
-target_link_libraries(lean leanstatic leanstdlib leanstatic leanstdlib)
+target_link_libraries(lean leancpp Init)
 
 # create import library on Windows to link plugins against
 set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
@@ -28,6 +9,24 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   target_link_options(lean PRIVATE "-Wl,--out-implib,$<TARGET_LINKER_FILE:lean>")
 endif()
 install(TARGETS lean DESTINATION bin)
+
+string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
+string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
+# ...and Make doesn't like absolute Windows paths either
+# (also looks nicer in the build log)
+file(RELATIVE_PATH LIB ${LIB_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
+
+configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
+add_custom_target(make_stdlib ALL
+  WORKING_DIRECTORY ${LIB_SOURCE_DIR}
+  # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
+  # for a parallelized nested build, but CMake doesn't let us do that.
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make
+  DEPENDS lean)
+install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libInit.a DESTINATION lib)
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_BINARY_DIR}/bin/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_BINARY_DIR}/bin/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
@@ -50,7 +49,7 @@ FOREACH(T ${LEANTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leantest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-             COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single.sh ${T_NAME}")
+             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -61,7 +60,7 @@ FOREACH(T ${LEANRUNTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leanruntest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
-             COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single.sh ${T_NAME}")
+             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -72,7 +71,7 @@ FOREACH(T ${LEANNEWFRONTENDTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leannewfrontendtest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/newfrontend"
-             COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single.sh ${T_NAME}")
+             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -82,7 +81,7 @@ FOREACH(T ${LEANCOMPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leancomptest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-           COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
 # LEAN INTERPRETER TESTS
@@ -92,7 +91,7 @@ FOREACH(T ${LEANINTERPTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leaninterptest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-             COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single_interpret.sh ${T_NAME}")
+             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single_interpret.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -104,7 +103,7 @@ FOREACH(T_OUT ${LEANBENCHTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanbenchtest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
-           COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T_OUT)
 
 # LEAN PLUGIN TESTS
@@ -113,7 +112,7 @@ FOREACH(T ${LEANINTERPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanplugintest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
-           COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
 # LEAN TESTS using --trust=0
@@ -122,5 +121,5 @@ FOREACH(T ${LEANT0TESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leant0test_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust0"
-           COMMAND bash -c "PATH=${CMAKE_BINARY_DIR}/bin:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)

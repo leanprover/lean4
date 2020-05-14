@@ -12,8 +12,8 @@
 set -e
 bindir=$(dirname $0)
 
-# NOTE: leanstatic and leanstdlib are cyclically dependent
-linker_flags="-lleanstatic -lleanstdlib -lleanstatic -lleanstdlib"
+# NOTE: libleancpp and libInit are cyclically dependent
+linker_flags="-lleancpp -lInit -lleancpp -lInit"
 for arg in "$@"; do
     [[ $arg == "-shared" ]] && linker_flags="@LEANC_SHARED_LINKER_FLAGS@"
 done
@@ -27,4 +27,4 @@ done
 [ -f $LEAN_CXX ] || command -v $LEAN_CXX || error "no suitable C++ compiler found!"
 
 # Note the `-x c` for treating all input as C code
-@CMAKE_CXX_COMPILER_LAUNCHER@ $LEAN_CXX -x c -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" $linker_flags -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+@CMAKE_CXX_COMPILER_LAUNCHER@ $LEAN_CXX -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" -x c "$@" -x none "-L$bindir/../lib/lean" $linker_flags -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument

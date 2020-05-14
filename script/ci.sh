@@ -4,4 +4,4 @@ mkdir build
 cd build
 eval cmake .. $CMAKE_OPTIONS
 make
-(cd stage1; cpack)
+(cd stage0.5; cpack)

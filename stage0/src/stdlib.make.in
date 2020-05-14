@@ -1,0 +1,20 @@
+SHELL := /usr/bin/env bash
+
+stdlib:
+# (I don't know how to add comments inside a multiline rule, so all comments go first)
+# Use `+` to use the Make jobserver with `leanmake` for parallelized builds
+# In the case of stage 0.5, we simply hardlink .olean files and libInit.a from stage 0 (but not libleancpp.a,
+# which is different from stage 0).
+# Otherwise, we build the library with `leanmake`. We rebuild it (`MORE_DEPS`) whenever the compiler has changed.
+	+if [ ${STAGE} == 0.5 ]; then\
+    mkdir -p "${LIB}/lean";\
+    cp -rlf $$(find "${PREV_STAGE}/lib/lean" -mindepth 1 -maxdepth 1 -not -name libleancpp.a) "${LIB}/lean";\
+  else\
+    "${LEAN_BIN}/leanmake" lib\
+      PKG=Init\
+      "OUT=${LIB}"\
+      "LIB_OUT=${LIB}/lean"\
+      "OLEAN_OUT=${LIB}/lean"\
+      "LEANC_OPTS=${LEANC_OPTS}"\
+      "MORE_DEPS=${LEAN_BIN}/lean${CMAKE_EXECUTABLE_SUFFIX}";\
+  fi

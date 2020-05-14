@@ -5,6 +5,9 @@ endif()
 if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
   message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
 endif()
+if(NOT (DEFINED STAGE))
+  message(FATAL_ERROR "STAGE must be set; use the CMakeLists.txt in the root folder")
+endif()
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 0)
@@ -423,7 +426,6 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 # Python
 find_package(PythonInterp)
 
-include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR}/include)
 
 # export all symbols for the interpreter
@@ -440,7 +442,7 @@ endif()
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # import library created by the `lean` target (and copied by `bin_lean`)
+  # import library created by the `lean` target
   set(LEANC_SHARED_LINKER_FLAGS "$bindir/liblean.dll.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,-undefined,dynamic_lookup")
@@ -484,74 +486,90 @@ endif ()
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/config.h")
-install(FILES "${LEAN_SOURCE_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
+install(FILES "${LEAN_BINARY_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
 configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
+install(FILES "${LEAN_BINARY_DIR}/share/lean/Makefile" DESTINATION "share/lean")
 
-include_directories("${LEAN_BINARY_DIR}")
-add_subdirectory(runtime)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
-add_subdirectory(util)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
-add_subdirectory(kernel)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:kernel>)
-add_subdirectory(library)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
-add_subdirectory(library/tactic)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:tactic>)
-add_subdirectory(library/constructions)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:constructions>)
-add_subdirectory(library/equations_compiler)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:equations_compiler>)
-add_subdirectory(library/compiler)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
-add_subdirectory(frontends/lean)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
-add_subdirectory(initialize)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
-if(${STAGE} EQUAL 0)
-  add_subdirectory(../stdlib stdlib)
-endif()
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
 else()
    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
 
-if(LEANSTATIC)
-  add_library(leanstatic STATIC IMPORTED)
-  set_target_properties(leanstatic PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/libleanstdlib.a"
-    IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
-  add_custom_target(copy-leanstatic
-    COMMAND cp "${LEANSTATIC}" "$<TARGET_FILE:leanstatic>")
-else()
-  add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-  set_target_properties(leanstatic PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-  target_link_libraries(leanstatic ${EXTRA_LIBS})
-endif()
+include_directories(${LEAN_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
+include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
-if(LLVM)
-  target_link_libraries(leanstatic ${llvm_libs})
+if(LEANCPP)
+  add_library(leancpp STATIC IMPORTED)
+  set_target_properties(leancpp PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+  add_custom_target(copy-leancpp
+    COMMAND cmake -E copy_if_different "${LEANCPP}" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+  add_dependencies(leancpp copy-leancpp)
+else()
+  add_subdirectory(runtime)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
+  add_subdirectory(util)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
+  add_subdirectory(kernel)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:kernel>)
+  add_subdirectory(library)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
+  add_subdirectory(library/tactic)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:tactic>)
+  add_subdirectory(library/constructions)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:constructions>)
+  add_subdirectory(library/equations_compiler)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:equations_compiler>)
+  add_subdirectory(library/compiler)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
+  add_subdirectory(frontends/lean)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
+  add_subdirectory(initialize)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
+  if(${STAGE} EQUAL 0)
+    add_subdirectory(../stdlib stdlib)
+  endif()
+
+  add_library(leancpp ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+  set_target_properties(leancpp PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean"
+    OUTPUT_NAME leancpp)
 endif()
+install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
 if(${STAGE} EQUAL 0)
-  add_library(leanstdlib STATIC $<TARGET_OBJECTS:stage0>)
+  add_library(Init STATIC $<TARGET_OBJECTS:stage0>)
 else()
-  add_library(leanstdlib STATIC IMPORTED)
+# created by the previous stage
+  add_library(Init STATIC IMPORTED)
+  set_target_properties(Init PROPERTIES
+    IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libInit.a")
+endif()
+# leancpp and Init are cyclically dependent
+target_link_libraries(Init INTERFACE leancpp)
+target_link_libraries(leancpp INTERFACE Init ${EXTRA_LIBS})
+
+if(LLVM)
+  target_link_libraries(leancpp INTERFACE ${llvm_libs})
 endif()
 
 add_custom_target(update-stage0
-  COMMAND make update-stage0 -f ${CMAKE_BINARY_DIR}/share/lean/Makefile
-    "OUT=${CMAKE_BINARY_DIR}/lib"
-  DEPENDS leanstdlib
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+  COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
+  DEPENDS Init
+  WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
+  DESTINATION bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-# shared library deactivated until we figure out the leanstatic/leanstdlib story
+# shared library deactivated until we figure out the leancpp/Init story
 # # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # # For some strange reason, it contains a copy of pthread_equal.
 # # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
@@ -559,10 +577,9 @@ install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
 #   if ("${STATIC}" MATCHES "OFF")
 #     add_library(leanshared SHARED shared/init.cpp)
 #     # see `target_link_libraries(lean ...)`
-#     target_link_libraries(leanshared leanstatic leanstdlib leanstatic leanstdlib)
+#     target_link_libraries(leanshared leancpp Init leancpp Init)
 #     install(TARGETS leanshared DESTINATION lib)
 #   endif()
-#   install(TARGETS leanstatic DESTINATION lib)
 # endif()
 
 add_subdirectory(shell)
@@ -585,20 +602,6 @@ file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
-
-function(escape_regex OUT_NAME INPUT)
-    foreach(CHAR IN ITEMS ^ $ . [ ] - + * \( \) )
-        string(REPLACE "${CHAR}" "\\${CHAR}" INPUT ${INPUT})
-    endforeach(CHAR)
-    set(${OUT_NAME} ${INPUT} PARENT_SCOPE)
-endfunction()
-escape_regex(LEAN_SOURCE_DIR_REGEX_SAFE ${LEAN_SOURCE_DIR})
-
-foreach(SOURCE ${LEAN_SOURCES})
-  if(${SOURCE} MATCHES "${LEAN_SOURCE_DIR_REGEX_SAFE}/stage./.*")
-    LIST(REMOVE_ITEM LEAN_SOURCES ${SOURCE})
-  endif()
-endforeach()
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
@@ -609,11 +612,9 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
-        FILES_MATCHING
-        PATTERN "*.olean")
+install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION "${LIBRARY_DIR}")
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean/src"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.md")

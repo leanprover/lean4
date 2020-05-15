@@ -239,10 +239,17 @@ trailRbp' ← if rbp > lbp' || (match trailRbp', lbp with some trailRbp', some l
     -- the original node, we must first move to the right, except if we already were at the left-most child in the first
     -- place.
     when (idx > 0) goRight;
-    setCur (mkParen stx);
+    match stx.getHeadInfo, stx.getTailInfo with
+    | some hi, some ti =>
+      -- Move leading/trailing whitespace of `stx` outside of parentheses
+      let stx := (stx.setHeadInfo { hi with leading := "".toSubstring }).setTailInfo { ti with trailing := "".toSubstring };
+      let stx := mkParen stx;
+      let stx := (stx.setHeadInfo { hi with trailing := "".toSubstring }).setTailInfo { ti with leading := "".toSubstring };
+      setCur stx
+    | _, _ => setCur (mkParen stx);
     goLeft;
     -- after parenthesization, there is no more trailing parser
-    pure none
+    pure (none : Option Nat)
   else pure trailRbp';
 -- If we already had a token at this level (`lbp ≠ none`), keep the trailing parser. Otherwise, use the minimum of
 -- `rbp` and `trailRbp'`.

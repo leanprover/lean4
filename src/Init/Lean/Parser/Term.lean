@@ -78,7 +78,7 @@ def structInstField  := parser! structInstLVal >> " := " >> termParser
 @[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
-@[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
+@[builtinTermParser] def subtype := parser! symbol "{" appPrec >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def listLit := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def arrayLit := parser! symbol "#[" appPrec >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def explicit := parser! symbol "@" appPrec >> termParser appPrec

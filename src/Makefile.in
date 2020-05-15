@@ -35,8 +35,8 @@ $(OLEAN_OUT)/$(PKG) $(LIB_OUT) $(BIN_OUT):
 $(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
 	@mkdir -p "$(TEMP_OUT)/$(*D)"
 # use separate assignment to ensure failure propagation
-# convert file separators and newlines on Windows
-	@deps=`lean --deps $< | sed 's!\\\\!/!g;s/\\r//'`; echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
+# convert path separators and newlines on Windows
+	@deps=`lean --deps $< | tr '\\\\' / | tr -d '\\r'`; echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
 
 $(OLEAN_OUT)/%.olean: %.lean $(TEMP_OUT)/%.depend $(MORE_DEPS)
 	@echo "[    ] Building $<"

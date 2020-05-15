@@ -131,15 +131,17 @@ on test programs whose compilation *will* be influenced by the changes.
 Finally, when we want to use new language features in the library, we need to
 update the stage 0 compiler, which can be done via `make -C stageN update-stage0`.
 Note: you cannot do this for stage 0.5 because the extracted C files are not
-copied over from stage 0 to that stage, so just use stage 0 instead. If updating
+copied over from stage 0 to that stage, so just use stage 0 instead.
+`make update-stage0` without `-C` defaults to stage0 for this reason. If updating
 stage 0 from stage 0 sounds wrong to you, just remember that the stage 0 build
 directory contains the *output* of the stage 0 compiler!
 
 Development Setup
 -----------------
 
-After building a stage, you can invoke `ctest` (or, even better, `ctest -j`)
-inside the stage build directory to run the Lean test suite. While the Lean tests
+After building a stage, you can invoke `make -C stageN test` (or, even better,
+`make -C stageN ARGS=-j` to make `ctest` parallel) to run the Lean test suite.
+`make test` without `-C` defaults to stage 0.5. While the Lean tests
 will automatically use that stage's corresponding Lean executables, for running
 tests or compiling Lean programs manually, you need to put them into your `PATH`
 yourself. A simple option for doing that is to register them as custom toolchains

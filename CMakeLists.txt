@@ -67,6 +67,14 @@ ExternalProject_add(stage3
   EXCLUDE_FROM_ALL ON
 )
 
+add_custom_target(update-stage0
+  COMMAND $(MAKE) -C stage0 update-stage0
+  DEPENDS stage0)
+
+add_custom_target(test
+  COMMAND $(MAKE) -C stage0.5 test
+  DEPENDS stage0.5)
+
 add_custom_target(check-stage3
   COMMAND diff "stage2/bin/lean" "stage3/bin/lean"
   DEPENDS stage3)

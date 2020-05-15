@@ -144,26 +144,48 @@ After building a stage, you can invoke `make -C stageN test` (or, even better,
 `make test` without `-C` defaults to stage 0.5. While the Lean tests
 will automatically use that stage's corresponding Lean executables, for running
 tests or compiling Lean programs manually, you need to put them into your `PATH`
-yourself. A simple option for doing that is to register them as custom toolchains
-in [`elan`](https://github.com/Kha/elan):
-```
-# in the Lean rootdir
-elan toolchain link lean4 build/release/stage0.5
-# make `lean` etc. point to the given build in the rootdir and subdirs
-elan override set lean4
-```
-You can also use the `+toolchain` shorthand (e.g. `lean +lean4-debug`) to switch
-toolchains on the spot.
+yourself. A simple option for doing that is to use
+[`elan`](https://github.com/Kha/elan), see the next section.
 
 The only currently supported editor is Emacs, see `lean4-mode/README.md` for
 basic setup. You can set `lean4-rootdir` manually to tell it what stage to use,
-but `elan` again makes it simple to do that automatically, e.g. using stage 0
-for editing the stdlib while using a different stage for all other files:
+but `elan` again makes it simple to do that automatically.
+
+Dev setup using elan
+--------------------
+
+You can use [`elan`](https://github.com/Kha/elan) to easily switch between
+stages and build configurations based on the current directory, both for the
+`lean/leanc/leanmake` binaries in your shell's PATH and inside Emacs.
+
+If you haven't already installed elan, you can do so, without installing a
+default version of Lean, using
+```bash
+curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
 ```
+You can use `elan toolchain link` to give a specific stage build directory a
+reference name, then use `elan override set` to associate such a name to the
+current directory. We usually want to use `stage0` for editing files in `src`
+and `stage0.5` for everything else (e.g. tests).
+```
+# in the Lean rootdir
+elan toolchain link lean4 build/release/stage0.5
 elan toolchain link lean4-stage0 build/release/stage0
+# make `lean` etc. point to stage0.5 in the rootdir and subdirs
+elan override set lean4
 cd src
+# make `lean` etc. point to stage0 anywhere inside `src`
 elan override set lean4-stage0
 ```
+You can also use the `+toolchain` shorthand (e.g. `lean +lean4-debug`) to switch
+toolchains on the spot. `lean4-mode` will automatically use the `lean` executable
+associated with the directory of the current file as long as `lean4-rootdir` is
+unset and `~/.elan/bin` is in your `exec-path`.
+
+You might find that debugging through elan, e.g. via `gdb lean`, disables some
+things like symbol autocompletion because at first only the elan proxy binary
+is loaded. You can instead pass the explicit path to `bin/lean` in your build
+folder to gdb, or use `gdb $(elan which lean)`.
 
 Troubleshooting
 ---------------

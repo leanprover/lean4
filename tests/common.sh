@@ -27,7 +27,7 @@ function compile_lean {
 
 function exec_check {
     ret=0
-    [ -v expected_ret ] || expected_ret=0
+    [ -n "${expected_ret+x}" ] || expected_ret=0
     [ -f "$f.expected.ret" ] && expected_ret=$(< "$f.expected.ret")
     "$@" > "$f.produced.out" 2>&1 || ret=$?
     if [ -n "$expected_ret" ] && [ $ret -ne $expected_ret ]; then

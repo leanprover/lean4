@@ -314,6 +314,11 @@ def levelParser.parenthesizer : Parenthesizer | p => do
 lbp ← evalNat p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(level|($stx))) lbp
 
+@[builtinParenthesizer commandParser]
+def commandParser.parenthesizer : Parenthesizer | p => do
+stx ← getCur;
+visit (mkConst stx.getKind)
+
 @[builtinParenthesizer withAntiquot]
 def withAntiquot.parenthesizer : Parenthesizer | p =>
 visit (p.getArg! 1)
@@ -367,9 +372,9 @@ evalOptPrec p.appArg! >>= visitToken
 @[builtinParenthesizer symbolNoWsAux] def symbolNoWsAux.parenthesizer := symbolAux.parenthesizer
 @[builtinParenthesizer unicodeSymbol] def unicodeSymbol.parenthesizer := symbolAux.parenthesizer
 
-@[builtinParenthesizer identNoAntiquot]
-def identNoAntiquot.parenthesizer : Parenthesizer | p =>
-visitToken appPrec
+@[builtinParenthesizer identNoAntiquot] def identNoAntiquot.parenthesizer : Parenthesizer | p => visitToken appPrec
+@[builtinParenthesizer rawIdent] def rawIdent.parenthesizer : Parenthesizer | p => visitToken appPrec
+@[builtinParenthesizer nonReservedSymbol] def nonReservedSymbol.parenthesizer : Parenthesizer | p => visitToken appPrec
 
 @[builtinParenthesizer charLitNoAntiquot] def charLitNoAntiquot.parenthesizer := identNoAntiquot.parenthesizer
 @[builtinParenthesizer strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := identNoAntiquot.parenthesizer
@@ -409,11 +414,20 @@ catch (visit (p.getArg! 0)) $ fun e => match e with
   | Exception.other "BACKTRACK" => set st *> visit (p.getArg! 1)
   | _                           => throw e
 
+@[builtinParenthesizer withPosition] def withPosition.parenthesizer : Parenthesizer | p => do
+-- call closure with dummy position
+visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
+
 @[builtinParenthesizer checkStackTop] def checkStackTop.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkTailWs] def checkTailWs.parenthesizer : Parenthesizer | p => pure ()
+@[builtinParenthesizer checkColGe] def checkColGe.parenthesizer : Parenthesizer | p => pure ()
 
+open Lean.Parser.Command
+@[builtinParenthesizer commentBody] def commentBody.parenthesizer : Parenthesizer | p => goLeft
+@[builtinParenthesizer quotedSymbol] def quotedSymbol.parenthesizer : Parenthesizer | p => goLeft
+@[builtinParenthesizer unquotedSymbol] def unquotedSymbol.parenthesizer : Parenthesizer | p => goLeft
 
 section
 open Lean.Parser.Term
@@ -442,6 +456,8 @@ def parenthesize (parser : Expr) (stx : Syntax) : MetaM Syntax := do
 pure st.stxTrav.cur
 
 def parenthesizeTerm := parenthesize (mkApp (mkConst `Lean.Parser.termParser) (mkNatLit 0))
+
+def parenthesizeCommand := parenthesize (mkApp (mkConst `Lean.Parser.commandParser) (mkNatLit 0))
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter.parenthesize;

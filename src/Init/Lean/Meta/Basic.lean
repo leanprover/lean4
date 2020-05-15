@@ -853,7 +853,13 @@ open Lean
 open Lean.Meta
 
 /-- Helper function for running `MetaM` methods in attributes -/
-@[inline] def IO.runMeta {α} (x : MetaM α) (env : Environment) (cfg : Config := {}) : IO (α × Environment) :=
+@[inline] def IO.runMeta {α} (x : MetaM α) (env : Environment) (cfg : Config := {}) (printTraces := true) : IO (α × Environment) :=
 match (x { config := cfg, currRecDepth := 0, maxRecDepth := defaultMaxRecDepth }).run { env := env } with
-| EStateM.Result.ok a s     => pure (a, s.env)
-| EStateM.Result.error ex _ => throw (IO.userError (toString ex))
+| EStateM.Result.ok a s     => do
+  when printTraces $
+    s.traceState.traces.forM $ fun msg => IO.println (fmt msg);
+  pure (a, s.env)
+| EStateM.Result.error ex s => do
+  when printTraces $
+    s.traceState.traces.forM $ fun msg => IO.println (fmt msg);
+  throw (IO.userError (toString ex))

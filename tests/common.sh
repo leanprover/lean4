@@ -25,6 +25,7 @@ function compile_lean {
     leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
 }
 
+# Remark: `${var+x}` is a parameter expansion which evaluates to nothing if `var` is unset, and substitutes the string `x` otherwise.
 function exec_check {
     ret=0
     [ -n "${expected_ret+x}" ] || expected_ret=0

@@ -233,9 +233,9 @@ partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
 | atom _ val             => some $ atom info val
 | ident _ rawVal val pre => some $ ident info rawVal val pre
 | node k args            =>
-  match updateFirst args setHeadInfoAux args.size with
+  match updateFirst args setHeadInfoAux 0 with
   | some args => some $ node k args
-  | noxne      => none
+  | noxne     => none
 | stx                    => none
 
 def setHeadInfo (stx : Syntax) (info : SourceInfo) : Syntax :=

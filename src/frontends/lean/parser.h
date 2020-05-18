@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include "runtime/exception.h"
-#include "runtime/flet.h"
+#include <lean/runtime/exception.h>
+#include <lean/runtime/flet.h>
 #include "util/name_map.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"

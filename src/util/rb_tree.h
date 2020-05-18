@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #endif
 #include <utility>
 #include <algorithm>
-#include "runtime/optional.h"
-#include "runtime/debug.h"
+#include <lean/runtime/optional.h>
+#include <lean/runtime/debug.h>
 #include "util/rc.h"
 #include "util/buffer.h"
 

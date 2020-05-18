@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <iostream>
-#include "runtime/exception.h"
+#include <lean/runtime/exception.h>
 #include "util/bitap_fuzzy_search.h"
 
 namespace lean {

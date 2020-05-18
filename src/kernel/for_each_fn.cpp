@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <utility>
-#include "runtime/memory.h"
-#include "runtime/interrupt.h"
-#include "runtime/flet.h"
+#include <lean/runtime/memory.h>
+#include <lean/runtime/interrupt.h>
+#include <lean/runtime/flet.h>
 #include "kernel/for_each_fn.h"
 #include "kernel/cache_stack.h"
 

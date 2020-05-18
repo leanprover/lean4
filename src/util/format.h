@@ -12,7 +12,7 @@ Author: Soonho Kong
 #include <utility>
 #include <string>
 #include <vector>
-#include "runtime/debug.h"
+#include <lean/runtime/debug.h>
 #include "util/object_ref.h"
 #include "util/name.h"
 #include "util/pair.h"

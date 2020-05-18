@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include "runtime/serializer.h"
+#include <lean/runtime/serializer.h>
 
 namespace lean {
 template<typename T1, typename T2>

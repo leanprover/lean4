@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include <unordered_set>
-#include "runtime/flet.h"
-#include "runtime/sstream.h"
+#include <lean/runtime/flet.h>
+#include <lean/runtime/sstream.h>
 #include "util/name_hash_set.h"
 #include "util/name_hash_map.h"
 #include "kernel/instantiate.h"

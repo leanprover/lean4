@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include "library/export_decl.h"
-#include "runtime/sstream.h"
+#include <lean/runtime/sstream.h>
 #include "util/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"

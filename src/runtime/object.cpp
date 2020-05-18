@@ -9,14 +9,14 @@ Author: Leonardo de Moura
 #include <vector>
 #include <deque>
 #include <cmath>
-#include "runtime/object.h"
-#include "runtime/thread.h"
-#include "runtime/utf8.h"
-#include "runtime/alloc.h"
-#include "runtime/debug.h"
-#include "runtime/hash.h"
-#include "runtime/flet.h"
-#include "runtime/interrupt.h"
+#include <lean/runtime/object.h>
+#include <lean/runtime/thread.h>
+#include <lean/runtime/utf8.h>
+#include <lean/runtime/alloc.h>
+#include <lean/runtime/debug.h>
+#include <lean/runtime/hash.h>
+#include <lean/runtime/flet.h>
+#include <lean/runtime/interrupt.h>
 #include "util/buffer.h" // move to runtime
 
 #define LEAN_MAX_PRIO 8

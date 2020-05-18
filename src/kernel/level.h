@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <algorithm>
 #include <utility>
-#include "runtime/optional.h"
+#include <lean/runtime/optional.h>
 #include "util/name.h"
 #include "util/list_ref.h"
 #include "util/options.h"

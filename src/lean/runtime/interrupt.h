@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include "runtime/thread.h"
-#include "runtime/stackinfo.h"
-#include "runtime/exception.h"
-#include "runtime/flet.h"
+#include <lean/runtime/thread.h>
+#include <lean/runtime/stackinfo.h>
+#include <lean/runtime/exception.h>
+#include <lean/runtime/flet.h>
 
 namespace lean {
 /** \brief Increment thread local counter for approximating elapsed time. */

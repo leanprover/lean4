@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <sstream>
-#include "runtime/exception.h"
-#include "runtime/thread.h"
-#include "runtime/sstream.h"
+#include <lean/runtime/exception.h>
+#include <lean/runtime/thread.h>
+#include <lean/runtime/sstream.h>
 
 namespace lean {
 throwable::throwable(char const * msg):m_msg(msg) {}

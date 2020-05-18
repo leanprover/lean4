@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <iterator>
-#include "runtime/debug.h"
-#include "runtime/serializer.h"
-#include "runtime/optional.h"
+#include <lean/runtime/debug.h>
+#include <lean/runtime/serializer.h>
+#include <lean/runtime/optional.h>
 #include "util/rc.h"
 #include "util/buffer.h"
 

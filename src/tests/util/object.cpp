@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/test.h" // <<< comment this list for performance experiments
 #include "util/timeit.h"
-#include "runtime/stackinfo.h"
-#include "runtime/thread.h"
-#include "runtime/serializer.h"
-#include "runtime/sstream.h"
+#include <lean/runtime/stackinfo.h>
+#include <lean/runtime/thread.h>
+#include <lean/runtime/serializer.h>
+#include <lean/runtime/sstream.h>
 #include "util/object_ref.h"
 #include "util/array_ref.h"
 #include "util/init_module.h"

@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "runtime/thread.h"
-#include "runtime/mpq.h"
-#include "runtime/sstream.h"
+#include <lean/runtime/thread.h>
+#include <lean/runtime/mpq.h>
+#include <lean/runtime/sstream.h>
 
 namespace lean {
 MK_THREAD_LOCAL_GET_DEF(mpz, get_tlocal1);

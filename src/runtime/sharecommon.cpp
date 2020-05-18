@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include "runtime/object.h"
-#include "runtime/hash.h"
+#include <lean/runtime/object.h>
+#include <lean/runtime/hash.h>
 
 namespace lean {
 

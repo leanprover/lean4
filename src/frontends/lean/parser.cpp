@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <vector>
-#include "runtime/interrupt.h"
-#include "runtime/sstream.h"
-#include "runtime/flet.h"
-#include "runtime/utf8.h"
+#include <lean/runtime/interrupt.h>
+#include <lean/runtime/sstream.h>
+#include <lean/runtime/flet.h>
+#include <lean/runtime/utf8.h>
 #include "util/option_declarations.h"
 #include "util/io.h"
 #include "kernel/for_each_fn.h"

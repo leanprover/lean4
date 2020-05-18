@@ -23,10 +23,10 @@ Author: Leonardo de Moura
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
-#include "runtime/utf8.h"
-#include "runtime/object.h"
-#include "runtime/thread.h"
-#include "runtime/allocprof.h"
+#include <lean/runtime/utf8.h>
+#include <lean/runtime/object.h>
+#include <lean/runtime/thread.h>
+#include <lean/runtime/allocprof.h>
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)

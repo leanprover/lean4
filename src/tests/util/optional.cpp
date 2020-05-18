@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <string>
-#include "runtime/optional.h"
+#include <lean/runtime/optional.h>
 #include "util/test.h"
 using namespace lean;
 

@@ -26,7 +26,6 @@ add_custom_target(make_stdlib ALL
   # for a parallelized nested build, but CMake doesn't let us do that.
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make
   DEPENDS lean)
-install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libInit.a DESTINATION lib)
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_BINARY_DIR}/bin/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_BINARY_DIR}/bin/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")

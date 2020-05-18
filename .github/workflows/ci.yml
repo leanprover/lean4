@@ -56,7 +56,7 @@ jobs:
         if: matrix.os == 'windows-latest'
       # binaries segfault without this step (?!), must be separate step because it might update the MSYS2 runtime
       - name: Update MSYS2
-        run: msys2do pacman -Sy pacman --noconfirm; msys2do pacman -Syu --noconfirm
+        run: msys2do pacman -Sy pacman --noconfirm; msys2do pacman -Syu --noconfirm; msys2do pacman -Su --noconfirm
         if: matrix.os == 'windows-latest'
       - name: Cache
         uses: actions/cache@v1

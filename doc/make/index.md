@@ -148,8 +148,14 @@ yourself. A simple option for doing that is to use
 [`elan`](https://github.com/Kha/elan), see the next section.
 
 The only currently supported editor is Emacs, see `lean4-mode/README.md` for
-basic setup. You can set `lean4-rootdir` manually to tell it what stage to use,
-but `elan` again makes it simple to do that automatically.
+basic setup. You can set `lean4-rootdir` manually to tell it what stage to use:
+```
+# while editing the Lean library
+M-x set-variable lean4-rootdir RET ".../build/release/stage0" RET
+# while testing, using a Lean that includes your changes
+M-x set-variable lean4-rootdir RET ".../build/release/stage0.5" RET
+```
+but `elan` again makes it simple to do that automatically, see below.
 
 Dev setup using elan
 --------------------
@@ -180,7 +186,9 @@ elan override set lean4-stage0
 You can also use the `+toolchain` shorthand (e.g. `lean +lean4-debug`) to switch
 toolchains on the spot. `lean4-mode` will automatically use the `lean` executable
 associated with the directory of the current file as long as `lean4-rootdir` is
-unset and `~/.elan/bin` is in your `exec-path`.
+unset and `~/.elan/bin` is in your `exec-path`. Where Emacs sources the
+`exec-path` from can be a bit unclear depending on your configuration, so
+alternatively you can also set `lean4-rootdir` to `"~/.elan"` explicitly.
 
 You might find that debugging through elan, e.g. via `gdb lean`, disables some
 things like symbol autocompletion because at first only the elan proxy binary

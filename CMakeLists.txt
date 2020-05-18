@@ -67,6 +67,8 @@ ExternalProject_add(stage3
   EXCLUDE_FROM_ALL ON
 )
 
+# targets forwarded to appropriate stages
+
 add_custom_target(update-stage0
   COMMAND $(MAKE) -C stage0 update-stage0
   DEPENDS stage0)
@@ -74,6 +76,8 @@ add_custom_target(update-stage0
 add_custom_target(test
   COMMAND $(MAKE) -C stage0.5 test
   DEPENDS stage0.5)
+
+install(CODE "execute_process(COMMAND make -C stage0.5 install)")
 
 add_custom_target(check-stage3
   COMMAND diff "stage2/bin/lean" "stage3/bin/lean"

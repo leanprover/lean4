@@ -18,7 +18,7 @@ OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 
 SHELL = /usr/bin/env bash -eo pipefail
 
-.PHONY: all bin lib depends
+.PHONY: all bin lib depends clean
 
 all: $(OBJS)
 
@@ -62,6 +62,9 @@ $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(BIN_OUT)
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)
 	@rm -f $@
 	@ar rcs $@ $^
+
+clean:
+	rm -rf $(OUT)
 
 .PRECIOUS: $(TEMP_OUT)/%.c
 

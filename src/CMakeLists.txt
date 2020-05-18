@@ -502,7 +502,7 @@ if(LEANCPP)
     COMMAND cmake -E copy_if_different "${LEANCPP}" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   add_dependencies(leancpp copy-leancpp)
 else()
-  add_subdirectory(runtime)
+  add_subdirectory(lean/runtime)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
   add_subdirectory(util)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
@@ -613,7 +613,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         PATTERN "*.lean"
         PATTERN "*.md")
 
-file(COPY ${CMAKE_SOURCE_DIR}/runtime DESTINATION ${CMAKE_BINARY_DIR}/include/lean
+file(COPY ${CMAKE_SOURCE_DIR}/lean/runtime DESTINATION ${CMAKE_BINARY_DIR}/include/lean
   FILES_MATCHING PATTERN "*.h")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")

@@ -12,10 +12,7 @@ llvmPackages.stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   preConfigure = ''
-    cd src
-  '';
-  postConfigure = ''
-    patchShebangs ../../bin
+    patchShebangs stage0/src/bin src/bin
   '';
 
   meta = with llvmPackages.stdenv.lib; {

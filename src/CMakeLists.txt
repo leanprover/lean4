@@ -76,8 +76,6 @@ option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
-# library dir
-set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 set(INCLUDE_DIR           "include"                    CACHE STRING "include dir")
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
@@ -173,9 +171,6 @@ endif()
 if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
 endif()
-
-message(STATUS "Lean library will be installed at "
-  "${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR}")
 
 if("${CMAKE_C_COMPILER}" MATCHES "emcc")
     set(EMSCRIPTEN ON)
@@ -612,9 +607,9 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION "${LIBRARY_DIR}")
+install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION lib)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.md")

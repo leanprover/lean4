@@ -27,4 +27,4 @@ done
 [ -f $LEAN_CXX ] || command -v $LEAN_CXX || error "no suitable C++ compiler found!"
 
 # Note the `-x c` for treating all input as C code
-@CMAKE_CXX_COMPILER_LAUNCHER@ $LEAN_CXX -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" -x c "$@" -x none "-L$bindir/../lib/lean" $linker_flags -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+@CMAKE_CXX_COMPILER_LAUNCHER@ $LEAN_CXX -D LEAN_MULTI_THREAD "-I$bindir/../include" -x c "$@" -x none "-L$bindir/../lib/lean" $linker_flags -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument

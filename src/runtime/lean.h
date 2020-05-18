@@ -24,7 +24,7 @@ extern "C" {
 #include <stdatomic.h>
 #define  LEAN_USING_STD
 #endif
-#include "config.h" // NOLINT
+#include <lean/config.h>
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8

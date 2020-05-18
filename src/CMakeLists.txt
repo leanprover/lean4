@@ -76,7 +76,6 @@ option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
-set(INCLUDE_DIR           "include"                    CACHE STRING "include dir")
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
 
@@ -480,10 +479,10 @@ endif ()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
-configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/config.h")
-install(FILES "${LEAN_BINARY_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
+configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
+install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
 configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
-install(FILES "${LEAN_BINARY_DIR}/share/lean/Makefile" DESTINATION "share/lean")
+install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
 
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
@@ -614,8 +613,8 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         PATTERN "*.lean"
         PATTERN "*.md")
 
-file(COPY ${CMAKE_SOURCE_DIR}/runtime/lean.h DESTINATION ${CMAKE_BINARY_DIR}/include/runtime)
-install(FILES "${CMAKE_SOURCE_DIR}/runtime/lean.h" DESTINATION "${INCLUDE_DIR}/runtime")
+file(COPY ${CMAKE_SOURCE_DIR}/runtime DESTINATION ${CMAKE_BINARY_DIR}/include/lean
+  FILES_MATCHING PATTERN "*.h")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
   # TODO(Leo): do not use hardlinks to required DLLs.

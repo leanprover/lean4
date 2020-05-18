@@ -481,7 +481,7 @@ endif ()
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
 install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
-configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
+configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
 install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
 
 if(EMSCRIPTEN)

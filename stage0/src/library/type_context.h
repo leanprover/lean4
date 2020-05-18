@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <vector>
 #include <algorithm>
-#include "runtime/flet.h"
+#include <lean/runtime/flet.h>
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"

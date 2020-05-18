@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Basic
 // Imports: Init.Control.Reader Init.Lean.Data.LOption Init.Lean.Environment Init.Lean.Class Init.Lean.ReducibilityAttrs Init.Lean.Util.Trace Init.Lean.Util.RecDepth Init.Lean.Util.Closure Init.Lean.Meta.Exception Init.Lean.Meta.DiscrTreeTypes Init.Lean.Eval
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

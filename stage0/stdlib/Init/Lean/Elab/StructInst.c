@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.StructInst
 // Imports: Init.Lean.Util.FindExpr Init.Lean.Elab.App Init.Lean.Elab.Binders Init.Lean.Elab.Quotation
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

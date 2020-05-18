@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
-#include "runtime/serializer.h"
-#include "runtime/sstream.h"
-#include "runtime/compact.h"
+#include <lean/runtime/serializer.h>
+#include <lean/runtime/sstream.h>
+#include <lean/runtime/compact.h>
 #include "util/object_ref.h"
 #include "util/name.h"
 #include "util/init_module.h"

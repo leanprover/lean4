@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.List
 // Imports: Init.Data.List.Basic Init.Data.List.BasicAux Init.Data.List.Instances Init.Data.List.Control
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

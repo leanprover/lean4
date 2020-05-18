@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "runtime/sstream.h"
+#include <lean/runtime/sstream.h>
 #include "util/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"

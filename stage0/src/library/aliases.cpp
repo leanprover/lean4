@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <algorithm>
-#include "runtime/sstream.h"
+#include <lean/runtime/sstream.h>
 #include "util/rb_map.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"

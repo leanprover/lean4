@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "runtime/mpz.h"
+#include <lean/runtime/mpz.h>
 #include "kernel/expr.h"
 
 namespace lean {

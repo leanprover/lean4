@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Tactic.Injection
 // Imports: Init.Lean.Meta.AppBuilder Init.Lean.Meta.Tactic.Clear Init.Lean.Meta.Tactic.Assert Init.Lean.Meta.Tactic.Intro
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

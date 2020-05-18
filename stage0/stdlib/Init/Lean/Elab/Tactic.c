@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Tactic
 // Imports: Init.Lean.Elab.Term Init.Lean.Elab.Tactic.Basic Init.Lean.Elab.Tactic.ElabTerm Init.Lean.Elab.Tactic.Induction Init.Lean.Elab.Tactic.Generalize Init.Lean.Elab.Tactic.Injection
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

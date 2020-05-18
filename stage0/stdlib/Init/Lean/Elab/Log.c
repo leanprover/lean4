@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Log
 // Imports: Init.Lean.Elab.Util Init.Lean.Elab.Exception
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

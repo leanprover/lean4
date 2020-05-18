@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Data.Options
 // Imports: Init.System.IO Init.Data.Array Init.Data.ToString Init.Lean.Data.KVMap
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

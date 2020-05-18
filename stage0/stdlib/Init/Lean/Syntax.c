@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Syntax
 // Imports: Init.Data.Array Init.Lean.Data.Name Init.Lean.Data.Format
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

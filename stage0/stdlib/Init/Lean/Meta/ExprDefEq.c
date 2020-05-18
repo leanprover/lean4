@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.ExprDefEq
 // Imports: Init.Lean.ProjFns Init.Lean.Meta.WHNF Init.Lean.Meta.InferType Init.Lean.Meta.FunInfo Init.Lean.Meta.LevelDefEq Init.Lean.Meta.Check Init.Lean.Meta.Offset
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

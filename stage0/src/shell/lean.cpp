@@ -13,12 +13,12 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <set>
-#include "runtime/stackinfo.h"
-#include "runtime/interrupt.h"
-#include "runtime/memory.h"
-#include "runtime/thread.h"
-#include "runtime/debug.h"
-#include "runtime/sstream.h"
+#include <lean/runtime/stackinfo.h>
+#include <lean/runtime/interrupt.h>
+#include <lean/runtime/memory.h>
+#include <lean/runtime/thread.h>
+#include <lean/runtime/debug.h>
+#include <lean/runtime/sstream.h>
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
@@ -584,7 +584,7 @@ int main(int argc, char ** argv) {
             }
             mod_fn = argv[optind++];
             contents = read_file(mod_fn);
-            main_module_name = module_name_of_file(mod_fn, /* optional */ !c_output);
+            main_module_name = module_name_of_file(mod_fn, /* optional */ !olean_fn && !c_output);
         }
 
         bool ok = true;

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.EmitC
 // Imports: Init.Control.Conditional Init.Lean.Runtime Init.Lean.Compiler.NameMangling Init.Lean.Compiler.ExportAttr Init.Lean.Compiler.InitAttr Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.EmitUtil Init.Lean.Compiler.IR.NormIds Init.Lean.Compiler.IR.SimpCase Init.Lean.Compiler.IR.Boxing
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -3791,7 +3791,7 @@ lean_object* _init_l_Lean_IR_EmitC_emitFileHeader___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#include \"runtime/lean.h\"");
+x_1 = lean_mk_string("#include <lean/runtime/lean.h>");
 return x_1;
 }
 }

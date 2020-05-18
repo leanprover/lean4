@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <string>
-#include "runtime/sstream.h"
+#include <lean/runtime/sstream.h>
 #include "util/list_fn.h"
 #include "library/scoped_ext.h"
 #include "frontends/lean/parser_config.h"

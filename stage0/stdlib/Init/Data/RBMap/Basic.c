@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.RBMap.Basic
 // Imports: Init.Data.Repr Init.Data.Option.Basic
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

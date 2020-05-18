@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Util.Path
 // Imports: Init.System.IO Init.System.FilePath Init.Data.Array Init.Data.List.Control Init.Data.HashMap Init.Data.Nat.Control Init.Lean.Data.Name
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

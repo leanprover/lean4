@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <functional>
 #include <cmath>
-#include "runtime/debug.h"
+#include <lean/runtime/debug.h>
 #include "util/test.h"
 #include "util/list.h"
 #include "util/name.h"

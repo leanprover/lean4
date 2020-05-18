@@ -6,7 +6,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "runtime/sstream.h"
+#include <lean/runtime/sstream.h>
 #include "util/name_map.h"
 #include "util/fresh_name.h"
 #include "kernel/replace_fn.h"

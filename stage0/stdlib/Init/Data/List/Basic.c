@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.List.Basic
 // Imports: Init.Core Init.Data.Nat.Basic
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

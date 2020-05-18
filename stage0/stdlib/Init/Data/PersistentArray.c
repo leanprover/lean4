@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.PersistentArray
 // Imports: Init.Data.PersistentArray.Basic
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

@@ -209,7 +209,7 @@ emitLn ("// Module: " ++ toString modName);
 emit "// Imports:";
 env.imports.forM $ fun m => emit (" " ++ toString m);
 emitLn "";
-emitLn "#include \"runtime/lean.h\"";
+emitLn "#include <lean/runtime/lean.h>";
 emitLns [
   "#if defined(__clang__)",
   "#pragma clang diagnostic ignored \"-Wunused-parameter\"",

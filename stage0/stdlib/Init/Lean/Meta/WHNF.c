@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.WHNF
 // Imports: Init.Lean.AuxRecursor Init.Lean.Util.WHNF Init.Lean.Meta.Basic Init.Lean.Meta.LevelDefEq
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

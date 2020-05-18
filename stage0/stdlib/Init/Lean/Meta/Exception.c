@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Exception
 // Imports: Init.Lean.Environment Init.Lean.MetavarContext Init.Lean.Message Init.Lean.Util.PPGoal
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

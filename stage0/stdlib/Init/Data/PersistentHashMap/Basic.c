@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.PersistentHashMap.Basic
 // Imports: Init.Data.Array Init.Data.Hashable
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

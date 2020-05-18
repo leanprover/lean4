@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.ExternAttr
 // Imports: Init.Data.Option.Basic Init.Lean.Expr Init.Lean.Environment Init.Lean.Attributes Init.Lean.ProjFns
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

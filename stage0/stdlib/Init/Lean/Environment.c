@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Environment
 // Imports: Init.System.IO Init.Util Init.Data.ByteArray Init.Lean.Data.SMap Init.Lean.Declaration Init.Lean.LocalContext Init.Lean.Util.Path Init.Lean.Util.FindExpr
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

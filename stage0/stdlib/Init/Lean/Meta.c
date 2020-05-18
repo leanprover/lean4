@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta
 // Imports: Init.Lean.Meta.Basic Init.Lean.Meta.LevelDefEq Init.Lean.Meta.WHNF Init.Lean.Meta.InferType Init.Lean.Meta.FunInfo Init.Lean.Meta.ExprDefEq Init.Lean.Meta.DiscrTree Init.Lean.Meta.Reduce Init.Lean.Meta.Instances Init.Lean.Meta.AbstractMVars Init.Lean.Meta.SynthInstance Init.Lean.Meta.AppBuilder Init.Lean.Meta.Tactic Init.Lean.Meta.Message Init.Lean.Meta.KAbstract Init.Lean.Meta.RecursorInfo Init.Lean.Meta.GeneralizeTelescope
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

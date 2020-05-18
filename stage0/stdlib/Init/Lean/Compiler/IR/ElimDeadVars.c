@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.ElimDeadVars
 // Imports: Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.FreeVars
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

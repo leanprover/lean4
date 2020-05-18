@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.ShareCommon
 // Imports: Init.Util Init.Data.HashMap Init.Data.HashSet Init.Data.PersistentHashSet Init.Data.PersistentHashMap Init.Control.State
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

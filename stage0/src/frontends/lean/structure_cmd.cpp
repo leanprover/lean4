@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include <string>
-#include "runtime/sstream.h"
+#include <lean/runtime/sstream.h>
 #include "util/fresh_name.h"
 #include "util/option_declarations.h"
 #include "kernel/instantiate.h"

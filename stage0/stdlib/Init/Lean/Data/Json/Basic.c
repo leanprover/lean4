@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Data.Json.Basic
 // Imports: Init.System.IO Init.Data.String Init.Data.Int Init.Data.RBMap
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Tactic.LocalDecl
 // Imports: Init.Lean.Meta.AppBuilder Init.Lean.Meta.Tactic.Util Init.Lean.Meta.Tactic.Assert Init.Lean.Meta.Tactic.Intro Init.Lean.Meta.Tactic.Clear
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

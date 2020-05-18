@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.MetavarContext
 // Imports: Init.Control.Reader Init.Data.Nat Init.Data.Option Init.Lean.Util.MonadCache Init.Lean.LocalContext
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

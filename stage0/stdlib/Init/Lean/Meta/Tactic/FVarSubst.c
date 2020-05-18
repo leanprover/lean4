@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Tactic.FVarSubst
 // Imports: Init.Lean.Expr Init.Lean.Util.ReplaceExpr
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

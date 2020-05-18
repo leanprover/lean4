@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Util.Closure
 // Imports: Init.Default Init.Lean.MetavarContext Init.Lean.Environment Init.Lean.Util.FoldConsts
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

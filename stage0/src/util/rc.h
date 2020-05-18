@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 
 // Goodies for reference counting
-#include "runtime/thread.h"
-#include "runtime/debug.h"
+#include <lean/runtime/thread.h>
+#include <lean/runtime/debug.h>
 
 #define MK_LEAN_RC()                                                    \
 private:                                                                \

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Control
 // Imports: Init.Control.Applicative Init.Control.Functor Init.Control.Alternative Init.Control.Monad Init.Control.Lift Init.Control.State Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Conditional
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

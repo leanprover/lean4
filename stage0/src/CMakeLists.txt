@@ -76,9 +76,6 @@ option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
-# library dir
-set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
-set(INCLUDE_DIR           "include"                    CACHE STRING "include dir")
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
 
@@ -173,9 +170,6 @@ endif()
 if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
 endif()
-
-message(STATUS "Lean library will be installed at "
-  "${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR}")
 
 if("${CMAKE_C_COMPILER}" MATCHES "emcc")
     set(EMSCRIPTEN ON)
@@ -443,7 +437,7 @@ endif()
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import library created by the `lean` target
-  set(LEANC_SHARED_LINKER_FLAGS "$bindir/liblean.dll.a")
+  set(LEANC_SHARED_LINKER_FLAGS "$bindir/lean.exe.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,-undefined,dynamic_lookup")
 endif()
@@ -485,10 +479,10 @@ endif ()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
-configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/config.h")
-install(FILES "${LEAN_BINARY_DIR}/include/config.h" DESTINATION "${INCLUDE_DIR}")
+configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
+install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
 configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
-install(FILES "${LEAN_BINARY_DIR}/share/lean/Makefile" DESTINATION "share/lean")
+install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
 
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
@@ -508,7 +502,7 @@ if(LEANCPP)
     COMMAND cmake -E copy_if_different "${LEANCPP}" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   add_dependencies(leancpp copy-leancpp)
 else()
-  add_subdirectory(runtime)
+  add_subdirectory(lean/runtime)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
   add_subdirectory(util)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
@@ -612,15 +606,15 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION "${LIBRARY_DIR}")
+install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION lib)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION "${LIBRARY_DIR}/lean"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.md")
 
-file(COPY ${CMAKE_SOURCE_DIR}/runtime/lean.h DESTINATION ${CMAKE_BINARY_DIR}/include/runtime)
-install(FILES "${CMAKE_SOURCE_DIR}/runtime/lean.h" DESTINATION "${INCLUDE_DIR}/runtime")
+file(COPY ${CMAKE_SOURCE_DIR}/lean/runtime DESTINATION ${CMAKE_BINARY_DIR}/include/lean
+  FILES_MATCHING PATTERN "*.h")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
   # TODO(Leo): do not use hardlinks to required DLLs.

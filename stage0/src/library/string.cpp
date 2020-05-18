@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <algorithm>
-#include "runtime/utf8.h"
+#include <lean/runtime/utf8.h>
 #include "library/string.h"
 #include "library/util.h"
 #include "library/constants.h"

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <limits>
-#include "runtime/mpz.h"
+#include <lean/runtime/mpz.h>
 #include "util/pair.h"
 #include "util/name_map.h"
 #include "util/name_set.h"

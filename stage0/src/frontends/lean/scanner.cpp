@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <cctype>
 #include <string>
-#include "runtime/exception.h"
-#include "runtime/utf8.h"
+#include <lean/runtime/exception.h>
+#include <lean/runtime/utf8.h>
 #include "util/name.h"
 #include "library/type_context.h"
 #include "library/message_builder.h"

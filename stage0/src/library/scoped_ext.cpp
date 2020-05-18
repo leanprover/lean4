@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <memory>
 #include <string>
-#include "runtime/sstream.h"
+#include <lean/runtime/sstream.h>
 #include "util/io.h"
 #include "library/scoped_ext.h"
 

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Term
 // Imports: Init.Lean.Util.Sorry Init.Lean.Structure Init.Lean.Meta.ExprDefEq Init.Lean.Meta.AppBuilder Init.Lean.Meta.SynthInstance Init.Lean.Meta.Tactic.Util Init.Lean.Hygiene Init.Lean.Util.RecDepth Init.Lean.Elab.Log Init.Lean.Elab.Alias Init.Lean.Elab.ResolveName Init.Lean.Elab.Level
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

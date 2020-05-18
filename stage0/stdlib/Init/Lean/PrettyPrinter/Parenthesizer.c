@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.PrettyPrinter.Parenthesizer
 // Imports: Init.Lean.Parser Init.Lean.Elab.Command Init.Lean.Delaborator
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

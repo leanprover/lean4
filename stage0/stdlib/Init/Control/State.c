@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Control.State
 // Imports: Init.Control.Alternative Init.Control.Lift Init.Control.Id Init.Control.Except
-#include "runtime/lean.h"
+#include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

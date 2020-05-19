@@ -1,5 +1,5 @@
-#include "runtime/object.h"
-#include "runtime/io.h"
+#include <lean/runtime/object.h>
+#include <lean/runtime/io.h>
 
 struct S {
     unsigned    m_x;

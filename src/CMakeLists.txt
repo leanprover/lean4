@@ -554,7 +554,7 @@ add_custom_target(update-stage0
   DEPENDS Init
   WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
-configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
+configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

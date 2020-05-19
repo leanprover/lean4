@@ -8,14 +8,22 @@
 #
 # Interesting options:
 # * `-U LEAN_MULTI_THREAD` can be used to optimize programs not making use of multi-threading
+# * `-print-cflags`: print C compiler flags necessary for building against the Lean runtime and abort
+# * `-print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and abort
 
 set -e
 bindir=$(dirname $0)
 
+cflags=("-I$bindir/../include")
+ldflags=("-L$bindir/../lib/lean" "-lgmp" @LEANC_EXTRA_FLAGS@)
+# static linker flags
 # NOTE: libleancpp and libInit are cyclically dependent
-linker_flags="-lleancpp -lInit -lleancpp -lInit"
+ldflags_ext=("-lleancpp" "-lInit" "-lleancpp" "-lInit")
 for arg in "$@"; do
-    [[ $arg == "-shared" ]] && linker_flags="@LEANC_SHARED_LINKER_FLAGS@"
+    # passed -shared ~> switch to shared linker flags
+    [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)
+    [[ $arg == "-print-cflags" ]] && echo "${cflags[@]} ${cflags_ext[@]}" && exit
+    [[ $arg == "-print-ldflags" ]] && echo "${ldflags_ext[@]} ${ldflags[@]}" && exit
 done
 
 # Check C++ compiler
@@ -27,4 +35,4 @@ done
 [ -f $LEAN_CXX ] || command -v $LEAN_CXX || error "no suitable C++ compiler found!"
 
 # Note the `-x c` for treating all input as C code
-@CMAKE_CXX_COMPILER_LAUNCHER@ $LEAN_CXX -D LEAN_MULTI_THREAD "-I$bindir/../include" -x c "$@" -x none "-L$bindir/../lib/lean" $linker_flags -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+@CMAKE_CXX_COMPILER_LAUNCHER@ $LEAN_CXX -D LEAN_MULTI_THREAD "${cflags[@]}" -x c "$@" -x none "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument

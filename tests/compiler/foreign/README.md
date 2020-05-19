@@ -6,18 +6,10 @@ The file `main.lean` contains a small Lean program that uses the exported primit
 Build instructions
 =====
 
-The command
-```
-LEAN_ROOT=<your lean4 directory> make
-```
-creates the executable `out/test`.
+Assuming the Lean `bin/` directory (e.g. from `build/release/stage0.5`) is in your `PATH`,
+executing `leanmake` will create the executable `build/bin/test`.
 
-Example:
-```
-LEAN_ROOT=/Users/leonardodemoura/projects/lean4 make
-```
-
-The executable `out/test` should produce the output
+The executable `build/bin/test` should produce the output
 ```
 30
 hello

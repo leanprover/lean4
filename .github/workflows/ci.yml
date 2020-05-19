@@ -96,6 +96,9 @@ jobs:
       - name: Test Speedcenter Benchmarks
         run: PATH=$(realpath build/stage0.5/bin):$PATH nix-shell --run 'cd tests/bench; temci exec --config speedcenter.yaml --runs 1'
         if: matrix.test-speedcenter
+      - name: Check rebootstrap
+        run: nix-shell --run "cd build; make update-stage0 && make -j4"
+        if: matrix.name == 'Linux'
       - name: CCache stats
         run: nix-shell --run "ccache -s"
         if: matrix.os != 'windows-latest'

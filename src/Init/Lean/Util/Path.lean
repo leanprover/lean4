@@ -48,19 +48,13 @@ pure sp
 
 def getBuiltinSearchPath : IO SearchPath := do
 appDir ← IO.appDir;
-let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "src" ++ pathSep ++ "Init";
-libDirExists ← IO.isDir libDir;
-if libDirExists then do
-  path ← realPathNormalized libDir;
+let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
+installedLibDirExists ← IO.isDir installedLibDir;
+if installedLibDirExists then do
+  path ← realPathNormalized installedLibDir;
   pure $ HashMap.empty.insert "Init" path
-else do
-  let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
-  installedLibDirExists ← IO.isDir installedLibDir;
-  if installedLibDirExists then do
-    path ← realPathNormalized installedLibDir;
-    pure $ HashMap.empty.insert "Init" path
-  else
-    pure ∅
+else
+  pure ∅
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
 val ← IO.getEnv "LEAN_PATH";

@@ -5,10 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 
 Management of the Lean search path (`LEAN_PATH`), which is a list of
 `pkg=path` mappings from package name to root path. An import `A.B.C`
-given an `A=path` entry resolves to `path/B/C.olean`. A package-only
-import `A` is normalized to `A.Default`. For the input file, we also
-need the reverse direction of finding a (unique) module path from a
-file path.
+given an `A=path` entry resolves to `path/B/C.olean`, and just `A` to
+`path.olean` (meaning that `path` should probably end with `/A`).
 -/
 prelude
 import Init.System.IO
@@ -72,7 +70,6 @@ match path with
   searchPathRef.set sp
 
 def modPathToFilePath : Name → String
-| Name.str Name.anonymous h _ => h
 | Name.str p h _              => modPathToFilePath p ++ pathSep ++ h
 | Name.anonymous              => ""
 | Name.num p _ _              => panic! "ill-formed import"
@@ -90,7 +87,7 @@ sp ← searchPathRef.get;
 let (pkg, path) := splitAtRoot mod;
 some root ← pure $ sp.find? pkg
   | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
-let fname := root ++ pathSep ++ modPathToFilePath path ++ ".olean";
+let fname := root ++ modPathToFilePath path ++ ".olean";
 pure fname
 
 def findAtSearchPath (fname : String) : IO (Option (String × String)) := do
@@ -120,10 +117,5 @@ let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
 let parts      := modNameStr.splitOn pathSep;
 let modName    := parts.foldl mkNameStr Name.anonymous;
 pure modName
-
--- normalize `A` to `A.Default`
-def normalizeModuleName : Name → Name
-| Name.str Name.anonymous pkg _ => mkNameSimple pkg ++ "Default"
-| m                             => m
 
 end Lean

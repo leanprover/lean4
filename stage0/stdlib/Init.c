@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Default
+// Module: Init
 // Imports: Init.Core Init.Control Init.Data.Basic Init.WF Init.Data Init.System Init.Util Init.Fix Init.LeanInit Init.ShareCommon
 #include <lean/runtime/lean.h>
 #if defined(__clang__)
@@ -24,7 +24,7 @@ lean_object* initialize_Init_Fix(lean_object*);
 lean_object* initialize_Init_LeanInit(lean_object*);
 lean_object* initialize_Init_ShareCommon(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Default(lean_object* w) {
+lean_object* initialize_Init(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

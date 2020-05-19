@@ -250,7 +250,7 @@ if(LLVM)
   #   that we wish to use and define llvm_libs
   llvm_map_components_to_libnames(llvm_libs nativecodegen)
 else()
-  message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
+  #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
 endif()
 
 if(STATIC)

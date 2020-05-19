@@ -342,6 +342,7 @@ lean_object* l___private_Init_Lean_Elab_Term_11__elabUsingElabFnsAux(lean_object
 lean_object* l_Lean_Elab_Term_mkFreshInstanceName(lean_object*);
 lean_object* l_Lean_Elab_Term_elabChar___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
+extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
 lean_object* l_Lean_Elab_Term_synthesizeInstMVarCore___closed__3;
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 extern lean_object* l_Lean_Parser_Term_quotedName___elambda__1___closed__2;
@@ -536,7 +537,6 @@ lean_object* l_Lean_Elab_Term_mkConst(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Lean_Elab_Term_mkConst___closed__3;
 lean_object* l_Lean_Elab_Term_resolveName___closed__4;
 extern lean_object* l_Lean_nullKind___closed__2;
-extern lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5;
 lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg___closed__2;
 lean_object* l_Lean_Elab_Term_elabNamedHole___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeInst___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2953,7 +2953,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Elab_Term_termElabAttribute___closed__3;
 x_2 = lean_box(0);
 x_3 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
-x_4 = l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__5;
+x_4 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
 x_5 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 x_7 = lean_alloc_ctor(0, 6, 0);

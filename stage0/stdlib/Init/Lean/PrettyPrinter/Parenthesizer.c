@@ -37,7 +37,6 @@ lean_object* l_Lean_Syntax_MonadTraverser_getCur___at_Lean_PrettyPrinter_Parenth
 extern lean_object* l_Lean_Parser_Syntax_try___elambda__1___closed__1;
 extern lean_object* l_Lean_Parser_Syntax_many1___elambda__1___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_SynthInstance_inferTCGoalsLRAttr___closed__1;
 lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute___closed__1;
 extern lean_object* l_Lean_nullKind;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__1;
@@ -218,6 +217,7 @@ lean_object* l_Lean_Syntax_MonadTraverser_getIdx(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_numLitNoAntiquot_parenthesizer___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkNoWsBefore_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_visitArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_PrettyPrinter_Parenthesizer_visit___main___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat___main(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_monadQuotation___closed__1;
@@ -1384,7 +1384,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_PrettyPrinter_parenthesizerAttribute___closed__3;
 x_2 = lean_box(0);
 x_3 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
-x_4 = l_Lean_Meta_SynthInstance_inferTCGoalsLRAttr___closed__1;
+x_4 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
 x_5 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 x_7 = lean_alloc_ctor(0, 6, 0);

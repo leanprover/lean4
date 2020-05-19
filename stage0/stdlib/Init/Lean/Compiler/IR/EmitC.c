@@ -416,6 +416,7 @@ lean_object* l_Lean_IR_EmitC_emitProj___boxed(lean_object*, lean_object*, lean_o
 uint8_t l_Lean_IR_EmitC_overwriteParam(lean_object*, lean_object*);
 uint8_t l_Lean_isIOUnitInitFn(lean_object*, lean_object*);
 lean_object* l_Lean_getExternEntryFor(lean_object*, lean_object*);
+extern lean_object* l_Lean_getBuiltinSearchPath___closed__4;
 lean_object* l_Lean_IR_EmitC_emitNumLit___closed__1;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__26;
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitFnDeclAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -509,7 +510,6 @@ lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitReuse___closed__1;
 lean_object* l_List_forM___main___at_Lean_IR_EmitC_emitLns___spec__1(lean_object*);
 extern lean_object* l_HashMap_Inhabited___closed__1;
-extern lean_object* l_Lean_getBuiltinSearchPath___closed__3;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__18;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__15;
 lean_object* l_List_forM___main___at_Lean_IR_EmitC_emitLns___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2496,7 +2496,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_getBuiltinSearchPath___closed__3;
+x_2 = l_Lean_getBuiltinSearchPath___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

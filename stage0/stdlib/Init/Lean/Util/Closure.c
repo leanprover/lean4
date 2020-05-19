@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Util.Closure
-// Imports: Init.Default Init.Lean.MetavarContext Init.Lean.Environment Init.Lean.Util.FoldConsts
+// Imports: Init.ShareCommon Init.Lean.MetavarContext Init.Lean.Environment Init.Lean.Util.FoldConsts
 #include <lean/runtime/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6775,7 +6775,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* initialize_Init_Default(lean_object*);
+lean_object* initialize_Init_ShareCommon(lean_object*);
 lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 lean_object* initialize_Init_Lean_Util_FoldConsts(lean_object*);
@@ -6784,7 +6784,7 @@ lean_object* initialize_Init_Lean_Util_Closure(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Default(lean_io_mk_world());
+res = initialize_Init_ShareCommon(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_MetavarContext(lean_io_mk_world());

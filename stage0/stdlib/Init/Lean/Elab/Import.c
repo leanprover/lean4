@@ -43,6 +43,7 @@ lean_object* lean_import_modules(lean_object*, uint32_t, lean_object*);
 extern lean_object* l_Lean_Syntax_inhabited;
 extern lean_object* l_Lean_normalizeModuleName___closed__1;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
+extern lean_object* l_Lean_getBuiltinSearchPath___closed__4;
 lean_object* lean_parse_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
@@ -51,7 +52,6 @@ lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at_Lean_Elab_printDeps___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_asNode(lean_object*);
-extern lean_object* l_Lean_getBuiltinSearchPath___closed__3;
 lean_object* l_Lean_normalizeModuleName(lean_object*);
 lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1) {
 _start:
@@ -153,7 +153,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_getBuiltinSearchPath___closed__3;
+x_2 = l_Lean_getBuiltinSearchPath___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

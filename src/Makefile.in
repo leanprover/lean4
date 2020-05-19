@@ -11,7 +11,7 @@ STATIC_LIB_NAME = lib$(PKG).a
 LEAN_OPTS = @LEAN_EXTRA_MAKE_OPTS@
 LEANC_OPTS = -O3 -DNDEBUG
 
-SRCS = $(shell find $(PKG) -name '*.lean' || true; find $(PKG).lean 2> /dev/null)
+SRCS = $(shell find $(PKG) -name '*.lean' 2> /dev/null || true; find $(PKG).lean 2> /dev/null)
 DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
 export LEAN_PATH=$(PKG)=$(OLEAN_OUT)/$(PKG)
 OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))

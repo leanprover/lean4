@@ -52,11 +52,10 @@ jobs:
         uses: cachix/install-nix-action@v8
         if: matrix.os != 'windows-latest'
       - name: Install MSYS2
-        uses: numworks/setup-msys2@v1
-        if: matrix.os == 'windows-latest'
-      # binaries segfault without this step (?!), must be separate step because it might update the MSYS2 runtime
-      - name: Update MSYS2
-        run: msys2do pacman -Sy pacman --noconfirm; msys2do pacman -Syu --noconfirm; tasklist; taskkill /IM gpg-agent.exe /F; msys2do pacman -Su --noconfirm
+        uses: eine/setup-msys2@v0
+        with:
+          update: true
+          install: 'make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils'
         if: matrix.os == 'windows-latest'
       - name: Cache
         uses: actions/cache@v1
@@ -71,9 +70,6 @@ jobs:
           # open shell once for initial setup
           nix-shell --run true
         if: matrix.os != 'windows-latest'
-      - name: Setup
-        run: msys2do pacman --noconfirm -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
-        if: matrix.os == 'windows-latest'
       # remove problematic tests for sanitized build
       - name: Pre build
         run: rm tests/compiler/StackOverflow.lean tests/compiler/StackOverflowTask.lean

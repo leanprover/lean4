@@ -75,8 +75,7 @@ def haveAssign := parser! " := " >> termParser
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
-def structInstSource := parser! ".." >> optional termParser
-@[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (ident >> checkWsBefore "expected space '.'" >> " . ")) >> sepBy (structInstField <|> structInstSource) ", " true >> "}"
+@[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"

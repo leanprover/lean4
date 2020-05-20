@@ -74,7 +74,7 @@ do r₁ ← findEntry n₁;
      if r₁.rank < r₂.rank then s.set! r₁.find { find := r₂.find }
      else if r₁.rank = r₂.rank then
         let s₁ := s.set! r₁.find { find := r₂.find };
-        s₁.set! r₂.find { rank := r₂.rank + 1, .. r₂}
+        s₁.set! r₂.find { r₂ with rank := r₂.rank + 1 }
      else s.set! r₂.find { find := r₁.find }
 
 

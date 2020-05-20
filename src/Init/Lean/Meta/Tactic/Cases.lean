@@ -165,7 +165,7 @@ s₂.mapM $ fun s => do
   indicesFVarIds.foldlM
     (fun s indexFVarId =>
       let indexFVarId' := s.subst.get indexFVarId;
-      (do mvarId ← clear s.mvarId indexFVarId'; pure { mvarId := mvarId, subst := s.subst.erase indexFVarId, .. s })
+      (do mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
       <|>
       (pure s))
     s
@@ -188,27 +188,27 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
       aEqb   ← mkEq a b;
       mvarId ← assert mvarId eqDecl.userName aEqb prf;
       mvarId ← clear mvarId eqFVarId;
-      unifyEqsAux (n+1) { mvarId := mvarId, .. s }
+      unifyEqsAux (n+1) { s with mvarId := mvarId }
     | none => match eqDecl.type.eq? with
       | some (α, a, b) =>
         let skip : Unit → MetaM (Option CasesSubgoal) := fun _ => do {
           mvarId ← clear mvarId eqFVarId;
-          unifyEqsAux n { mvarId := mvarId, .. s }
+          unifyEqsAux n { s with mvarId := mvarId }
         };
         let substEq (symm : Bool) : MetaM (Option CasesSubgoal) := do {
           (newSubst, mvarId) ← substCore mvarId eqFVarId false true;
           unifyEqsAux n {
+            s with
             mvarId := mvarId,
             subst  := newSubst.compose s.subst,
-            fields := s.fields.map $ fun fvarId => newSubst.get fvarId,
-            .. s
+            fields := s.fields.map $ fun fvarId => newSubst.get fvarId
           }
         };
         let inj : Unit → MetaM (Option CasesSubgoal) := fun _ => do {
           r ← injectionCore mvarId eqFVarId;
           match r with
           | InjectionResultCore.solved                => pure none -- this alternative has been solved
-          | InjectionResultCore.subgoal mvarId numEqs => unifyEqsAux (n+numEqs) { mvarId := mvarId, .. s }
+          | InjectionResultCore.subgoal mvarId numEqs => unifyEqsAux (n+numEqs) { s with mvarId := mvarId }
         };
         condM (isDefEq a b) (skip ()) $ do
         a ← whnf a;

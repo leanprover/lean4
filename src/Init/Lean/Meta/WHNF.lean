@@ -102,7 +102,7 @@ else
 
 private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
 when useCache $
-  modify $ fun s => { cache := { whnfDefault := s.cache.whnfDefault.insert e r, .. s.cache }, .. s };
+  modify $ fun s => { s with cache := { s.cache with whnfDefault := s.cache.whnfDefault.insert e r } };
 pure r
 
 partial def whnfImpl : Expr → MetaM Expr

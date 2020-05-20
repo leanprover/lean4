@@ -125,11 +125,11 @@ instance : Inhabited NameGenerator := ⟨{}⟩
 mkNameNum g.namePrefix g.idx
 
 @[inline] def next (g : NameGenerator) : NameGenerator :=
-{ idx := g.idx + 1, .. g }
+{ g with idx := g.idx + 1 }
 
 @[inline] def mkChild (g : NameGenerator) : NameGenerator × NameGenerator :=
 ({ namePrefix := mkNameNum g.namePrefix g.idx, idx := 1 },
- { idx := g.idx + 1, .. g })
+ { g with idx := g.idx + 1 })
 
 end NameGenerator
 
@@ -363,7 +363,7 @@ if n.hasMacroScopes then
   if view.mainModule == mainModule then
     mkNameNum n scp
   else
-    { imported := view.scopes.foldl mkNameNum (view.imported ++ view.mainModule), mainModule := mainModule, scopes := [scp], .. view }.review
+    { view with imported := view.scopes.foldl mkNameNum (view.imported ++ view.mainModule), mainModule := mainModule, scopes := [scp] }.review
 else
   mkNameNum (mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg") scp
 
@@ -398,7 +398,7 @@ throw $ Macro.Exception.error ref msg
 
 @[inline] protected def Macro.withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
 fresh ← modifyGet (fun s => (s, s+1));
-adaptReader (fun (ctx : Macro.Context) => { currMacroScope := fresh, .. ctx }) x
+adaptReader (fun (ctx : Macro.Context) => { ctx with currMacroScope := fresh }) x
 
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,

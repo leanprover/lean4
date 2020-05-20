@@ -43,9 +43,9 @@ namespace OptionT
   (pure none : m (Option α))
 
   instance : Alternative (OptionT m) :=
-  { failure := @OptionT.fail m _,
-    orelse  := @OptionT.orelse m _,
-    ..OptionT.Monad }
+  { OptionT.Monad with
+    failure := @OptionT.fail m _,
+    orelse  := @OptionT.orelse m _ }
 
   @[inline] protected def lift (ma : m α) : OptionT m α :=
   (some <$> ma : m (Option α))

@@ -51,9 +51,9 @@ fun s => x₁ s <|> x₂ s
 fun s => failure
 
 instance [Alternative m] : Alternative (StateT σ m) :=
-{ failure := @StateT.failure _ _ _ _,
-  orelse  := @StateT.orelse _ _ _ _,
-  .. StateT.Monad }
+{ StateT.Monad with
+  failure := @StateT.failure _ _ _ _,
+  orelse  := @StateT.orelse _ _ _ _ }
 
 @[inline] protected def get : StateT σ m σ :=
 fun s => pure (s, s)

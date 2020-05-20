@@ -55,7 +55,7 @@ instance : Inhabited Environment :=
 ⟨{ const2ModIdx := {}, constants := {}, extensions := #[] }⟩
 
 def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
-{ constants := env.constants.insert cinfo.name cinfo, .. env }
+{ env with constants := env.constants.insert cinfo.name cinfo }
 
 @[export lean_environment_find]
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
@@ -73,7 +73,7 @@ env.header.moduleNames
 
 @[export lean_environment_set_main_module]
 def setMainModule (env : Environment) (m : Name) : Environment :=
-{ header := { mainModule := m, .. env.header }, .. env }
+{ env with header := { env.header with mainModule := m } }
 
 @[export lean_environment_main_module]
 def mainModule (env : Environment) : Name :=
@@ -81,7 +81,7 @@ env.header.mainModule
 
 @[export lean_environment_mark_quot_init]
 private def markQuotInit (env : Environment) : Environment :=
-{ header := { quotInit := true, .. env.header } , .. env }
+{ env with header := { env.header with quotInit := true } }
 
 @[export lean_environment_quot_init]
 private def isQuotInit (env : Environment) : Bool :=
@@ -140,7 +140,7 @@ structure EnvExtension (σ : Type) :=
 
 namespace EnvExtension
 unsafe def setStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-{ extensions := env.extensions.set! ext.idx (unsafeCast s), .. env }
+{ env with extensions := env.extensions.set! ext.idx (unsafeCast s) }
 
 @[implementedBy setStateUnsafe]
 constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := arbitrary _
@@ -153,11 +153,11 @@ unsafeCast s
 constant getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ := ext.stateInh
 
 @[inline] unsafe def modifyStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
-{ extensions := env.extensions.modify ext.idx $ fun s =>
+{ env with
+  extensions := env.extensions.modify ext.idx $ fun s =>
     let s : σ := unsafeCast s;
     let s : σ := f s;
-    unsafeCast s,
-  .. env }
+    unsafeCast s }
 
 @[implementedBy modifyStateUnsafe]
 constant modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := arbitrary _
@@ -260,16 +260,16 @@ def getModuleEntries {α β σ : Type} (ext : PersistentEnvExtension α β σ) (
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
 ext.toEnvExtension.modifyState env $ fun s =>
   let state   := ext.addEntryFn s.state b;
-  { state := state, .. s }
+  { s with state := state }
 
 def getState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
 (ext.toEnvExtension.getState env).state
 
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
-ext.toEnvExtension.modifyState env $ fun ps => { state := s, .. ps }
+ext.toEnvExtension.modifyState env $ fun ps => { ps with  state := s }
 
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
-ext.toEnvExtension.modifyState env $ fun ps => { state := f (ps.state), .. ps }
+ext.toEnvExtension.modifyState env $ fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -504,15 +504,14 @@ pure $ mods.iterate env $ fun _ mod env =>
   pExtDescrs.iterate env $ fun _ extDescr env =>
     let entries := getEntriesFor mod extDescr.name 0;
     extDescr.toEnvExtension.modifyState env $ fun s =>
-      { importedEntries := s.importedEntries.push entries,
-        .. s }
+      { s with importedEntries := s.importedEntries.push entries }
 
 private def finalizePersistentExtensions (env : Environment) : IO Environment := do
 pExtDescrs ← persistentEnvExtensionsRef.get;
 pExtDescrs.iterateM env $ fun _ extDescr env => do
   let s := extDescr.toEnvExtension.getState env;
   newState ← extDescr.addImportedFn env s.importedEntries;
-  pure $ extDescr.toEnvExtension.setState env { state := newState, .. s }
+  pure $ extDescr.toEnvExtension.setState env { s with state := newState }
 
 @[export lean_import_modules]
 def importModules (imports : List Import) (trustLevel : UInt32 := 0) : IO Environment := do

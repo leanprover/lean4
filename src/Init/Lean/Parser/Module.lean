@@ -16,10 +16,10 @@ def «import»   := parser! "import " >> optional "runtime" >> ident
 def header     := parser! optional «prelude» >> many «import»
 
 def updateTokens (c : ParserContext) : ParserContext :=
-{ tokens := match addParserTokens c.tokens header.info with
+{ c with
+  tokens := match addParserTokens c.tokens header.info with
     | Except.ok tables => tables
-    | Except.error _   => unreachable!,
-  .. c }
+    | Except.error _   => unreachable! }
 
 end Module
 

@@ -27,7 +27,7 @@ let i := h % size;
 let k := s.visitedTerms.uget i lcProof;
 if ptrAddrUnsafe k == h then pure true
 else do
-  modify $ fun s => { visitedTerms := s.visitedTerms.uset i e lcProof, .. s };
+  modify $ fun s => { s with visitedTerms := s.visitedTerms.uset i e lcProof };
   pure false
 
 @[specialize] unsafe partial def fold {α : Type} (f : Name → α → α) (size : USize) : Expr → α → FoldM α
@@ -43,7 +43,7 @@ else do
     s ← get;
     if s.visitedConsts.contains c then pure acc
     else do
-      modify $ fun s => { visitedConsts := s.visitedConsts.insert c, .. s };
+      modify $ fun s => { s with visitedConsts := s.visitedConsts.insert c };
       pure $ f c acc
   | _                      => pure acc
 

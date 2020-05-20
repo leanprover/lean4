@@ -291,18 +291,18 @@ structure Stats :=
 
 partial def collectStats : Node α β → Stats → Nat → Stats
 | Node.collision keys _ _, stats, depth =>
-  { numNodes      := stats.numNodes + 1,
+  { stats with
+    numNodes      := stats.numNodes + 1,
     numCollisions := stats.numCollisions + keys.size - 1,
-    maxDepth      := Nat.max stats.maxDepth depth,
-    .. stats }
+    maxDepth      := Nat.max stats.maxDepth depth }
 | Node.entries entries, stats, depth =>
   let stats :=
-    { numNodes      := stats.numNodes + 1,
-      maxDepth      := Nat.max stats.maxDepth depth,
-      .. stats };
+    { stats with
+      numNodes      := stats.numNodes + 1,
+      maxDepth      := Nat.max stats.maxDepth depth };
   entries.foldl (fun stats entry =>
     match entry with
-    | Entry.null      => { numNull := stats.numNull + 1, .. stats }
+    | Entry.null      => { stats with numNull := stats.numNull + 1 }
     | Entry.ref node  => collectStats node stats (depth + 1)
     | Entry.entry _ _ => stats)
     stats

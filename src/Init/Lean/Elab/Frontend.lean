@@ -46,7 +46,7 @@ def setParserState (ps : Parser.ModuleParserState) : FrontendM Unit :=
 fun ctx => liftIOCore! $ ctx.parserStateRef.set ps
 
 def setMessages (msgs : MessageLog) : FrontendM Unit :=
-fun ctx => liftIOCore! $ ctx.commandStateRef.modify $ fun s => { messages := msgs, .. s }
+fun ctx => liftIOCore! $ ctx.commandStateRef.modify $ fun s => { s with messages := msgs }
 
 def getInputContext : FrontendM Parser.InputContext := do
 ctx ← read; pure ctx.inputCtx

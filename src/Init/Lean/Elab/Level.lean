@@ -33,12 +33,12 @@ instance LevelElabM.MonadLog : MonadPosInfo LevelElabM :=
 def mkFreshId : LevelElabM Name := do
 s ← get;
 let id := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
+modify $ fun s => { s with ngen := s.ngen.next };
 pure id
 
 def mkFreshLevelMVar : LevelElabM Level := do
 mvarId ← mkFreshId;
-modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s};
+modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
 
 partial def elabLevel : Syntax → LevelElabM Level

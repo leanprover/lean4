@@ -12,7 +12,7 @@ namespace Lean
 namespace SourceInfo
 
 def updateTrailing (info : SourceInfo) (trailing : Option Substring) : SourceInfo :=
-{ trailing := trailing, .. info }
+{ info with trailing := trailing }
 
 end SourceInfo
 

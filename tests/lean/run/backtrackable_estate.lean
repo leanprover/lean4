@@ -9,15 +9,15 @@ instance : HasRepr MyState :=
 
 instance : EStateM.Backtrackable Nat MyState :=
 { save    := fun s => s.bs,
-  restore := fun s d => { bs := d, .. s }  }
+  restore := fun s d => { s with bs := d }  }
 
 abbrev M := EStateM String MyState
 
 def bInc : M Unit := -- increment backtrackble counter
-modify $ fun s => { bs := s.bs + 1, .. s }
+modify $ fun s => { s with bs := s.bs + 1 }
 
 def pInc : M Unit := -- increment nonbacktrackable counter
-modify $ fun s => { ps := s.ps + 1, .. s }
+modify $ fun s => { s with ps := s.ps + 1 }
 
 def tst : M MyState :=
 do bInc;

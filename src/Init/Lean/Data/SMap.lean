@@ -67,7 +67,7 @@ match m.find? a with
 
 /- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=
-if m.stage₁ then { stage₁ := false, .. m } else m
+if m.stage₁ then { m with stage₁ := false } else m
 
 @[inline] def foldStage2 {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β) : σ :=
 m.map₂.foldl f s

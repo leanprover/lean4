@@ -44,10 +44,10 @@ abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateT Bool TermElabM)
 private def markAsTrailingParser : ToParserDescrM Unit := set true
 
 @[inline] private def withNotFirst {α} (x : ToParserDescrM α) : ToParserDescrM α :=
-adaptReader (fun (ctx : ToParserDescrContext) => { first := false, .. ctx }) x
+adaptReader (fun (ctx : ToParserDescrContext) => { ctx with first := false }) x
 
 @[inline] private def withoutLeftRec {α} (x : ToParserDescrM α) : ToParserDescrM α :=
-adaptReader (fun (ctx : ToParserDescrContext) => { leftRec := false, .. ctx }) x
+adaptReader (fun (ctx : ToParserDescrContext) => { ctx with leftRec := false }) x
 
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
 ctx ← read;

@@ -66,9 +66,9 @@ instance : Monad Option :=
 /- Remark: when using the polymorphic notation `a <|> b` is not a `[macroInline]`.
    Thus, `a <|> b` will make `Option.orelse` to behave like it was marked as `[inline]`. -/
 instance : Alternative Option :=
-{ failure := @none,
-  orelse  := @Option.orelse,
-  ..Option.Monad }
+{ Option.Monad with
+  failure := @none,
+  orelse  := @Option.orelse }
 
 @[inline] protected def lt {α : Type u} (r : α → α → Prop) : Option α → Option α → Prop
 | none, some x     => True

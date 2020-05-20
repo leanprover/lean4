@@ -34,7 +34,7 @@ args ← args.mapM $ fun arg =>
     else
       let optSource := arg.getArg 1;
       if optSource.isNone then do
-        modify $ fun s => { found := true, .. s };
+        modify $ fun s => { s with found := true };
         pure arg
       else do
         let source := optSource.getArg 0;
@@ -42,11 +42,11 @@ args ← args.mapM $ fun arg =>
         match fvar? with
         | some _ => do
           -- it is already a local variable
-          modify $ fun s => { found := true, .. s };
+          modify $ fun s => { s with found := true };
           pure arg
         | none => do
           src ← `(src);
-          modify $ fun s => { found := true, source? := source, .. s };
+          modify $ fun s => { s with found := true, source? := source };
           let optSource := optSource.setArg 0 src;
           let arg := arg.setArg 1 optSource;
           pure arg
@@ -335,7 +335,7 @@ s.modifyFields $ fun fields => fields.map $ fun field => match field with
   | { lhs := FieldLHS.fieldName ref (Name.str Name.anonymous _ _) :: rest, .. } => field
   | { lhs := FieldLHS.fieldName ref n@(Name.str _ _ _) :: rest, .. } =>
     let newEntries := n.components.map $ FieldLHS.fieldName ref;
-    { lhs := newEntries ++ rest, .. field }
+    { field with lhs := newEntries ++ rest }
   | _ => field
 
 private def expandNumLitFields (s : Struct) : TermElabM Struct :=
@@ -346,7 +346,7 @@ s.modifyFieldsM $ fun fields => do
     | { lhs := FieldLHS.fieldIndex ref idx :: rest, .. } =>
       if idx == 0 then throwError ref "invalid field index, index must be greater than 0"
       else if idx > fieldNames.size then throwError ref ("invalid field index, structure has only #" ++ toString fieldNames.size ++ " fields")
-      else pure { lhs := FieldLHS.fieldName ref (fieldNames.get! $ idx - 1) :: rest, .. field }
+      else pure { field with lhs := FieldLHS.fieldName ref (fieldNames.get! $ idx - 1) :: rest }
     | _ => pure field
 
 /- For example, consider the following structures:
@@ -377,7 +377,7 @@ s.modifyFieldsM $ fun fields => fields.mapM $ fun field => match field with
           let path := path.map $ fun funName => match funName with
             | Name.str _ s _ => FieldLHS.fieldName ref (mkNameSimple s)
             | _              => unreachable!;
-          pure { lhs := path ++ field.lhs, .. field }
+          pure { field with lhs := path ++ field.lhs }
         | _ => throwError ref ("failed to access field '" ++ fieldName ++ "' in parent structure")
   | _ => pure field
 
@@ -427,14 +427,14 @@ s.modifyFieldsM $ fun fields => do
     match isSimpleField? fields with
     | some field => pure field
     | none => do
-      let substructFields := fields.map $ fun field => { lhs := field.lhs.tail!, .. field };
+      let substructFields := fields.map $ fun field => { field with lhs := field.lhs.tail! };
       substructSource ← mkSubstructSource s.ref s.structName fieldNames fieldName s.source;
       let field := fields.head!;
       match Lean.isSubobjectField? env s.structName fieldName with
       | some substructName => do
         let substruct := Struct.mk s.ref substructName substructFields substructSource;
         substruct ← expandStruct substruct;
-        pure { lhs := [field.lhs.head!], val := FieldVal.nested substruct, .. field }
+        pure { field with lhs := [field.lhs.head!], val := FieldVal.nested substruct }
       | none => do
         -- It is not a substructure field. Thus, we wrap fields using `Syntax`, and use `elabTerm` to process them.
         let valStx := s.ref; -- construct substructure syntax using s.ref as template
@@ -442,7 +442,7 @@ s.modifyFieldsM $ fun fields => do
         let args   := substructFields.toArray.map $ Field.toSyntax;
         let args   := substructSource.addSyntax args;
         let valStx := valStx.setArg 2 (mkSepStx args (mkAtomFrom s.ref ","));
-        pure { lhs := [field.lhs.head!], val := FieldVal.term valStx, .. field }
+        pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
 fields.find? $ fun field =>
@@ -558,12 +558,12 @@ private partial def elabStruct : Struct → Option Expr → TermElabM (Expr × S
           let continue (val : Expr) (field : Field Struct) : TermElabM (Expr × Expr × Fields) := do {
             let e     := mkApp e val;
             let type  := b.instantiate1 val;
-            let field := { expr? := some val, .. field };
+            let field := { field with expr? := some val };
             pure (e, type, field::fields)
           };
           match field.val with
           | FieldVal.term stx => do val ← elabTerm stx (some d); val ← ensureHasType stx d val; continue val field
-          | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); val ← ensureHasType s.ref d val; continue val { val := FieldVal.nested sNew, .. field }
+          | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); val ← ensureHasType s.ref d val; continue val { field with val := FieldVal.nested sNew }
           | FieldVal.default  => do val ← mkFreshExprMVar field.ref (some d); continue (markDefaultMissing val) field
         | _ => throwFailedToElabField field.ref fieldName s.structName ("unexpected constructor type" ++ indentExpr type)
       | _ => throwError field.ref "unexpected unexpanded structure field")
@@ -766,7 +766,7 @@ def tryToSynthesizeDefault (ref : Syntax) (structs : Array Struct) (allStructNam
 tryToSynthesizeDefaultAux ref structs allStructNames maxDistance fieldName mvarId 0 0
 
 partial def step : Struct → M Unit
-| struct => unlessM isRoundDone $ adaptReader (fun (ctx : Context) => { structs := ctx.structs.push struct, .. ctx }) $ do
+| struct => unlessM isRoundDone $ adaptReader (fun (ctx : Context) => { ctx with structs := ctx.structs.push struct }) $ do
   struct.fields.forM $ fun field =>
     match field.val with
     | FieldVal.nested struct => step struct
@@ -777,7 +777,7 @@ partial def step : Struct → M Unit
           unlessM (liftM $ isExprMVarAssigned mvarId) $ do
             ctx ← read;
             whenM (liftM $ tryToSynthesizeDefault field.ref ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) $ do
-              modify $ fun s => { progress := true, .. s }
+              modify $ fun s => { s with progress := true }
         | _ => pure ()
 
 partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
@@ -788,8 +788,8 @@ partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
   | some field =>
     if d > hierarchyDepth then
       liftM $ throwError field.ref ("field '" ++ getFieldName field ++ "' is missing")
-    else adaptReader (fun (ctx : Context) => { maxDistance := d, .. ctx }) $ do
-      modify $ fun (s : State) => { progress := false, .. s};
+    else adaptReader (fun (ctx : Context) => { ctx with maxDistance := d }) $ do
+      modify $ fun (s : State) => { s with progress := false };
       step struct;
       s ← get;
       if s.progress then do

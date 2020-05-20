@@ -302,21 +302,20 @@ def addExprMVarDecl (mctx : MetavarContext)
     (lctx : LocalContext)
     (localInstances : LocalInstances)
     (type : Expr) (kind : MetavarKind := MetavarKind.natural) : MetavarContext :=
-{ decls := mctx.decls.insert mvarId {
+{ mctx with
+  decls := mctx.decls.insert mvarId {
     userName       := userName,
     lctx           := lctx,
     localInstances := localInstances,
     type           := type,
     depth          := mctx.depth,
-    kind           := kind },
-  .. mctx }
+    kind           := kind } }
 
 /- Low level API for adding/declaring universe level metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
 def addLevelMVarDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-{ lDepth := mctx.lDepth.insert mvarId mctx.depth,
-  .. mctx }
+{ mctx with lDepth := mctx.lDepth.insert mvarId mctx.depth }
 
 @[export lean_metavar_ctx_find_decl]
 def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
@@ -329,11 +328,11 @@ match mctx.decls.find? mvarId with
 
 def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) : MetavarContext :=
 let decl := mctx.getDecl mvarId;
-{ decls := mctx.decls.insert mvarId { kind := kind, .. decl }, .. mctx }
+{ mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
 
 def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
 let decl := mctx.getDecl mvarId;
-{ decls := mctx.decls.insert mvarId { userName := userName, .. decl }, .. mctx }
+{ mctx with decls := mctx.decls.insert mvarId { decl with userName := userName } }
 
 def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
 mctx.lDepth.find? mvarId
@@ -351,22 +350,22 @@ match mctx.findDecl? mvarId with
 def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (newUserName : Name) : MetavarContext :=
 match mctx.findDecl? mvarId with
 | none          => panic! "unknown metavariable"
-| some mvarDecl => { decls := mctx.decls.insert mvarId { userName := newUserName, .. mvarDecl }, .. mctx }
+| some mvarDecl => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with userName := newUserName } }
 
 @[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : MVarId) (val : Level) : MetavarContext :=
-{ lAssignment := m.lAssignment.insert mvarId val, .. m }
+{ m with lAssignment := m.lAssignment.insert mvarId val }
 
 @[export lean_metavar_ctx_assign_expr]
 def assignExprCore (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-{ eAssignment := m.eAssignment.insert mvarId val, .. m }
+{ m with eAssignment := m.eAssignment.insert mvarId val }
 
 def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-{ eAssignment := m.eAssignment.insert mvarId val, .. m }
+{ m with eAssignment := m.eAssignment.insert mvarId val }
 
 @[export lean_metavar_ctx_assign_delayed]
 def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : MetavarContext :=
-{ dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val }, .. m }
+{ m with dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val } }
 
 @[export lean_metavar_ctx_get_level_assignment]
 def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
@@ -394,7 +393,7 @@ m.dAssignment.contains mvarId
 
 @[export lean_metavar_ctx_erase_delayed]
 def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-{ dAssignment := m.dAssignment.erase mvarId, .. m }
+{ m with dAssignment := m.dAssignment.erase mvarId }
 
 def isLevelAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
 match mctx.lDepth.find? mvarId with
@@ -406,7 +405,7 @@ let decl := mctx.getDecl mvarId;
 decl.depth == mctx.depth
 
 def incDepth (mctx : MetavarContext) : MetavarContext :=
-{ depth := mctx.depth + 1, .. mctx }
+{ mctx with depth := mctx.depth + 1 }
 
 /-- Return true iff the given level contains an assigned metavariable. -/
 def hasAssignedLevelMVar (mctx : MetavarContext) : Level → Bool
@@ -487,7 +486,7 @@ if !e.hasMVar then pure e else checkCache e f
 s ← get; pure s.state
 
 @[inline] private def modifyCtx (f : MetavarContext → MetavarContext) : M Unit :=
-modify $ fun s => { state := f s.state, .. s }
+modify $ fun s => { s with state := f s.state }
 
 /-- instantiateExprMVars main function -/
 partial def main : Expr → M Expr
@@ -585,7 +584,7 @@ def instantiateMVarDeclMVars (mctx : MetavarContext) (mvarId : MVarId) : Metavar
 let mvarDecl     := mctx.getDecl mvarId;
 let (lctx, mctx) := mctx.instantiateLCtxMVars mvarDecl.lctx;
 let (type, mctx) := mctx.instantiateMVars mvarDecl.type;
-{ decls := mctx.decls.insert mvarId { lctx := lctx, type := type, .. mvarDecl }, .. mctx }
+{ mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx := lctx, type := type } }
 
 namespace DependsOn
 
@@ -680,7 +679,7 @@ def preserveOrder : M Bool := read
 
 instance : MonadHashMapCacheAdapter Expr Expr M :=
 { getCache    := do s ← get; pure s.cache,
-  modifyCache := fun f => modify $ fun s => { cache := f s.cache, .. s } }
+  modifyCache := fun f => modify $ fun s => { s with cache := f s.cache } }
 
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
 private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl :=
@@ -756,9 +755,9 @@ xs.foldl
 
 /-- Execute `x` with an empty cache, and then restore the original cache. -/
 @[inline] private def withFreshCache {α} (x : M α) : M α := do
-cache ← modifyGet $ fun s => (s.cache, { cache := {}, .. s });
+cache ← modifyGet $ fun s => (s.cache, { s with cache := {} });
 a ← x;
-modify $ fun s => { cache := cache, .. s };
+modify $ fun s => { s with cache := cache };
 pure a
 
 @[inline] private def abstractRangeAux (elimMVarDeps : Expr → M Expr) (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
@@ -801,7 +800,7 @@ xs.foldl
 private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) : M MVarId := do
 s ← get;
 let mvarId := s.ngen.curr;
-modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type kind, ngen := s.ngen.next, .. s };
+modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type kind, ngen := s.ngen.next };
 pure mvarId
 
 /-- Return true iff some `e` in `es` depends on `fvarId` -/
@@ -857,9 +856,9 @@ private partial def elimMVarDepsApp (elimMVarDepsAux : Expr → M Expr) (xs : Ar
             let result  := mkMVarApp mvarLCtx newMVar toRevert newMVarKind;
             match newMVarKind with
             | MetavarKind.syntheticOpaque =>
-              modify $ fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN f nestedFVars), .. s }
+              modify $ fun s => { s with mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN f nestedFVars) }
             | _                           =>
-              modify $ fun s => { mctx := assignExpr s.mctx mvarId result, .. s };
+              modify $ fun s => { s with mctx := assignExpr s.mctx mvarId result };
             pure (mkAppN result args)
         };
         if !mvarDecl.kind.isSyntheticOpaque then
@@ -991,10 +990,10 @@ partial def mkParamName : Unit → M Name
   s ← get;
   let newParamName := ctx.paramNamePrefix.appendIndexAfter s.nextParamIdx;
   if ctx.alreadyUsedPred newParamName then do
-    modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, .. s};
+    modify $ fun s => { s with nextParamIdx := s.nextParamIdx + 1 };
     mkParamName ()
   else do
-    modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, paramNames := s.paramNames.push newParamName, .. s};
+    modify $ fun s => { s with nextParamIdx := s.nextParamIdx + 1, paramNames := s.paramNames.push newParamName };
     pure newParamName
 
 partial def visitLevel : Level → M Level
@@ -1010,7 +1009,7 @@ partial def visitLevel : Level → M Level
   | none   => do
     p ← mkParamName ();
     let p := mkLevelParam p;
-    modify $ fun s => { mctx := s.mctx.assignLevel mvarId p, .. s };
+    modify $ fun s => { s with mctx := s.mctx.assignLevel mvarId p };
     pure p
 
 @[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=

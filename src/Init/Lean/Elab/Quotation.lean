@@ -351,7 +351,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
       let lctx := lctx.mkLocalDecl n n ty;
       let params := params.eraseIdx 0;
       stx ← `(fun $params* => $body);
-      adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
+      adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $ do
         e ← toPreterm stx;
         pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let => do
@@ -362,7 +362,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
     val ← toPreterm val;
     lctx ← getLCtx;
     let lctx := lctx.mkLetDecl n n exprPlaceholder val;
-    adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
+    adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $ do
       e ← toPreterm $ body;
       pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.app => do
@@ -397,7 +397,7 @@ def oldParseExpr (env : Environment) (input : String) (pos : String.Pos) : Excep
 let c := Parser.mkParserContext env (Parser.mkInputContext input "<foo>");
 let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
-let s := (Parser.termParser Parser.appPrec : Parser.Parser).fn { rbp := Parser.appPrec, .. c } s;
+let s := (Parser.termParser Parser.appPrec : Parser.Parser).fn { c with rbp := Parser.appPrec } s;
 let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>

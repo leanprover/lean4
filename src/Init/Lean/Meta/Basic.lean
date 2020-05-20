@@ -138,7 +138,7 @@ instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 @[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
 ctx ← read;
 when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.other maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
+adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
 
 @[inline] def getLCtx : MetaM LocalContext := do
 ctx ← read; pure ctx.lctx
@@ -156,7 +156,7 @@ s ← get; pure s.mctx
 s ← get; pure s.env
 
 @[inline] def setEnv (env : Environment) : MetaM Unit := do
-modify $ fun s => { env := env, .. s }
+modify $ fun s => { s with env := env }
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throw $ Exception.other "whnf implementation was not set"
@@ -225,14 +225,14 @@ withIncRecDepth $ do
 def mkFreshId : MetaM Name := do
 s ← get;
 let id := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
+modify $ fun s => { s with ngen := s.ngen.next };
 pure id
 
 def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
     : MetaM Expr := do
 mvarId ← mkFreshId;
-modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind, .. s };
+modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind };
 pure $ mkMVar mvarId
 
 def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
@@ -242,13 +242,13 @@ mkFreshExprMVarAt lctx localInsts type userName kind
 
 def mkFreshLevelMVar : MetaM Level := do
 mvarId ← mkFreshId;
-modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s};
+modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
 
 @[inline] def throwEx {α} (f : ExceptionContext → Exception) : MetaM α := do
 ctx ← read;
 s ← get;
-throw (f {env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts })
+throw (f { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts })
 
 def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
@@ -276,11 +276,11 @@ ctx ← read; pure ctx.config.opts
 env ← getEnv; pure $ isReducible env constName
 
 @[inline] def withConfig {α} (f : Config → Config) (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { config := f ctx.config, .. ctx }) x
+adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config }) x
 
 /-- While executing `x`, ensure the given transparency mode is used. -/
 @[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
-withConfig (fun config => { transparency := mode, .. config }) x
+withConfig (fun config => { config with transparency := mode }) x
 
 @[inline] def withReducible {α} (x : MetaM α) : MetaM α :=
 withTransparency TransparencyMode.reducible x
@@ -290,7 +290,7 @@ withConfig
   (fun config =>
     let oldMode := config.transparency;
     let mode    := if oldMode.lt mode then mode else oldMode;
-    { transparency := mode, .. config })
+    { config with transparency := mode })
   x
 
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
@@ -300,7 +300,7 @@ match mctx.findDecl? mvarId with
 | none   => throwEx $ Exception.unknownExprMVar mvarId
 
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
-modify $ fun s => { mctx := s.mctx.setMVarKind mvarId kind, .. s}
+modify $ fun s => { s with mctx := s.mctx.setMVarKind mvarId kind }
 
 def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
 mvarDecl ← getMVarDecl mvarId;
@@ -322,7 +322,7 @@ match mctx.findLevelDepth? mvarId with
 | _          => throwEx $ Exception.unknownLevelMVar mvarId
 
 def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
-modify $ fun s => { mctx := s.mctx.renameMVar mvarId newUserName, .. s }
+modify $ fun s => { s with mctx := s.mctx.renameMVar mvarId newUserName }
 
 @[inline] def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
@@ -333,7 +333,7 @@ mctx ← getMCtx; pure (mctx.getExprAssignment? mvarId)
 
 def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit := do
 whenDebugging $ whenM (isExprMVarAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
-modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
+modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
 
 def isDelayedAssigned (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
@@ -358,7 +358,7 @@ instance tracer : SimpleMonadTracerAdapter MetaM :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   addContext       := addContext,
-  modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
+  modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
 
 def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
@@ -399,7 +399,7 @@ def instantiateMVars (e : Expr) : MetaM Expr :=
 if e.hasMVar then
   modifyGet $ fun s =>
     let (e, mctx) := s.mctx.instantiateMVars e;
-    (e, { mctx := mctx, .. s })
+    (e, { s with mctx := mctx })
 else
   pure e
 
@@ -407,11 +407,11 @@ else
 fun ctx s =>
   match x ctx.lctx { mctx := s.mctx, ngen := s.ngen } with
   | EStateM.Result.ok e newS      =>
-    EStateM.Result.ok e { mctx := newS.mctx, ngen := newS.ngen, .. s}
+    EStateM.Result.ok e { s with mctx := newS.mctx, ngen := newS.ngen }
   | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) newS =>
     EStateM.Result.error
       (Exception.revertFailure toRevert decl { lctx := lctx, mctx := mctx, env := s.env, opts := ctx.config.opts })
-      { mctx := newS.mctx, ngen := newS.ngen, .. s }
+      { s with mctx := newS.mctx, ngen := newS.ngen }
 
 def mkForall (xs : Array Expr) (e : Expr) : MetaM Expr :=
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkForall xs e
@@ -429,7 +429,7 @@ if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e
 @[inline] def savingCache {α} (x : MetaM α) : MetaM α := do
 s ← get;
 let savedCache := s.cache;
-finally x (modify $ fun s => { cache := savedCache, .. s })
+finally x (modify $ fun s => { s with cache := savedCache })
 
 def isClassQuickConst (constName : Name) : MetaM (LOption Name) := do
 env ← getEnv;
@@ -468,8 +468,8 @@ partial def isClassQuick : Expr → MetaM (LOption Name)
 @[inline] def resettingSynthInstanceCache {α} (x : MetaM α) : MetaM α := do
 s ← get;
 let savedSythInstance        := s.cache.synthInstance;
-modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s };
-finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+modify $ fun s => { s with cache := { s.cache with synthInstance := {} } };
+finally x (modify $ fun s => { s with cache := { s.cache with synthInstance := savedSythInstance } })
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`.
@@ -477,9 +477,7 @@ finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, ..
 @[inline] def withNewLocalInstance {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
 resettingSynthInstanceCache $
   adaptReader
-    (fun (ctx : Context) => {
-      localInstances := ctx.localInstances.push { className := className, fvar := fvar },
-      .. ctx })
+    (fun (ctx : Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
     k
 
 /--
@@ -555,12 +553,12 @@ resettingSynthInstanceCache $
       process ()
     else
       let type := type.instantiateRevRange j fvars.size fvars;
-      adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+      adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
         withNewLocalInstances isClassExpensive fvars j $
           k fvars type
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstances isClassExpensive fvars j $
       if reducing? then do
         newType ← whnf type;
@@ -646,7 +644,7 @@ private partial def lambdaTelescopeAux {α}
   lambdaTelescopeAux lctx (fvars.push fvar) j b
 | lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstances isClassExpensive fvars j $ do
       k fvars e
 
@@ -728,17 +726,17 @@ lambdaMetaTelescopeAux maxMVars? #[] #[] 0 e
 @[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;
-  EStateM.Result.ok a { mctx := mctx, .. s }
+  EStateM.Result.ok a { s with mctx := mctx }
 
 def instantiateLevelMVars (lvl : Level) : MetaM Level :=
 liftStateMCtx $ MetavarContext.instantiateLevelMVars lvl
 
 def assignLevelMVar (mvarId : MVarId) (lvl : Level) : MetaM Unit :=
-modify $ fun s => { mctx := MetavarContext.assignLevel s.mctx mvarId lvl, .. s }
+modify $ fun s => { s with mctx := MetavarContext.assignLevel s.mctx mvarId lvl }
 
 def mkFreshLevelMVarId : MetaM MVarId := do
 mvarId ← mkFreshId;
-modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s };
+modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure mvarId
 
 def whnfD : Expr → MetaM Expr :=
@@ -746,7 +744,7 @@ fun e => withTransparency TransparencyMode.default $ whnf e
 
 /-- Execute `x` using approximate unification: `foApprox`, `ctxApprox` and `quasiPatternApprox`.  -/
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
+adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true} })
   x
 
 /--
@@ -757,7 +755,7 @@ adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox :=
   as `?m := fun _ => IO Bool` using `constApprox`, but this spurious solution would generate a failure when we try to
   solve `[HasPure (fun _ => IO Bool)]` -/
 @[inline] def fullApproxDefEq {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true, .. ctx.config }, .. ctx })
+adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true } })
   x
 
 @[inline] private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
@@ -771,7 +769,7 @@ fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
 let fvar := mkFVar fvarId;
-adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
 def withLocalDeclD {α} (n : Name) (type : Expr) (k : Expr → MetaM α) : MetaM α :=
@@ -782,7 +780,7 @@ fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLetDecl fvarId n type val;
 let fvar := mkFVar fvarId;
-adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
 /--
@@ -791,12 +789,12 @@ adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
 @[inline] def withNewMCtxDepth {α} (x : MetaM α) : MetaM α := do
 s ← get;
 let savedMCtx  := s.mctx;
-modify $ fun s => { mctx := s.mctx.incDepth, .. s };
-finally x (modify $ fun s => { mctx := savedMCtx, .. s })
+modify $ fun s => { s with mctx := s.mctx.incDepth };
+finally x (modify $ fun s => { s with mctx := savedMCtx })
 
 def withLocalContext {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
 localInstsCurr ← getLocalInstances;
-adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) $
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) $
   if localInsts == localInstsCurr then
     x
   else
@@ -812,8 +810,8 @@ withLocalContext mvarDecl.lctx mvarDecl.localInstances x
 
 @[inline] def withMCtx {α} (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
 mctx' ← getMCtx;
-modify $ fun s => { mctx := mctx, .. s };
-finally x (modify $ fun s => { mctx := mctx', .. s })
+modify $ fun s => { s with mctx := mctx };
+finally x (modify $ fun s => { s with mctx := mctx' })
 
 /--
   Create an auxiliary definition with the given name, type and value.

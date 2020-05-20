@@ -65,7 +65,7 @@ namespace WithHashMapCache
 s ← get; pure s.cache
 
 @[inline] def modifyCache {α β σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : StateM (WithHashMapCache α β σ) Unit :=
-modify $ fun s => { cache := f s.cache, .. s }
+modify $ fun s => { s with cache := f s.cache }
 
 instance stateAdapter (α β σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (StateM (WithHashMapCache α β σ)) :=
 { getCache    := WithHashMapCache.getCache,
@@ -75,7 +75,7 @@ instance stateAdapter (α β σ : Type) [HasBeq α] [Hashable α] : MonadHashMap
 s ← get; pure s.cache
 
 @[inline] def modifyCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : EStateM ε (WithHashMapCache α β σ) Unit :=
-modify $ fun s => { cache := f s.cache, .. s }
+modify $ fun s => { s with cache := f s.cache }
 
 instance estateAdapter (α β ε σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (EStateM ε (WithHashMapCache α β σ)) :=
 { getCache    := WithHashMapCache.getCacheE,

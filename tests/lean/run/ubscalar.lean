@@ -9,7 +9,7 @@ structure Foo :=
 set_option trace.compiler.ir.init true
 
 def f (s : Foo) : Foo :=
-{ x := s.x + 1, .. s }
+{ s with x := s.x + 1 }
 
 def g (flag : Bool) : Foo :=
 let s : Foo := { x := 10, flag := flag };

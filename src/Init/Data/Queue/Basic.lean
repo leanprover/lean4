@@ -25,14 +25,14 @@ def isEmpty (q : Queue α) : Bool :=
 q.dList.isEmpty && q.eList.isEmpty
 
 def enqueue (v : α) (q : Queue α) : Queue α :=
-{ eList := v::q.eList, .. q }
+{ q with eList := v::q.eList }
 
 def enqueueAll (vs : List α) (q : Queue α) : Queue α :=
-{ eList := vs ++ q.eList, .. q }
+{ q with eList := vs ++ q.eList }
 
 def dequeue? (q : Queue α) : Option (α × Queue α) :=
 match q.dList with
-| d::ds => some (d, { dList := ds, .. q })
+| d::ds => some (d, { q with dList := ds })
 | []    =>
   match q.eList.reverse with
   | []    => none

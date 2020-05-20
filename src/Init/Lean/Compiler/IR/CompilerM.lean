@@ -39,7 +39,7 @@ structure CompilerState :=
 abbrev CompilerM := ReaderT Options (EStateM String CompilerState)
 
 def log (entry : LogEntry) : CompilerM Unit :=
-modify $ fun s => { log := s.log.push entry, .. s }
+modify $ fun s => { s with log := s.log.push entry }
 
 def tracePrefixOptionName := `trace.compiler.ir
 
@@ -66,7 +66,7 @@ logMessageIfAux (tracePrefixOptionName ++ cls) a
 logMessageIfAux tracePrefixOptionName a
 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
-modify $ fun s => { env := f s.env, .. s }
+modify $ fun s => { s with env := f s.env }
 
 abbrev DeclMap := SMap Name Decl
 

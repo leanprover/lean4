@@ -82,8 +82,8 @@ instance : Inhabited SpecState := ⟨{}⟩
 
 def addEntry (s : SpecState) (e : SpecEntry) : SpecState :=
 match e with
-| SpecEntry.info name info => { specInfo := s.specInfo.insert name info, .. s }
-| SpecEntry.cache key fn   => { cache    := s.cache.insert key fn, .. s }
+| SpecEntry.info name info => { s with specInfo := s.specInfo.insert name info }
+| SpecEntry.cache key fn   => { s with cache    := s.cache.insert key fn }
 
 def switch : SpecState → SpecState
 | ⟨m₁, m₂⟩ => ⟨m₁.switch, m₂.switch⟩

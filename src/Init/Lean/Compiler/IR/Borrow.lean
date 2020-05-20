@@ -70,7 +70,7 @@ instance : HasToString ParamMap := ⟨fun m => Format.pretty (format m)⟩
 namespace InitParamMap
 /- Mark parameters that take a reference as borrow -/
 def initBorrow (ps : Array Param) : Array Param :=
-ps.map $ fun p => { borrow := p.ty.isObj, .. p }
+ps.map $ fun p => { p with borrow := p.ty.isObj }
 
 /- We do perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
@@ -158,14 +158,14 @@ ctx ← read;
 pure ctx.currFn
 
 def markModified : M Unit :=
-modify $ fun s => { modified := true, .. s }
+modify $ fun s => { s with modified := true }
 
 def ownVar (x : VarId) : M Unit := do
 -- dbgTrace ("ownVar " ++ toString x) $ fun _ =>
 currFn ← getCurrFn;
 modify $ fun s =>
   if s.owned.contains (currFn, x.idx) then s
-  else { owned := s.owned.insert (currFn, x.idx), modified := true, .. s }
+  else { s with owned := s.owned.insert (currFn, x.idx), modified := true }
 
 def ownArg (x : Arg) : M Unit :=
 match x with
@@ -189,9 +189,9 @@ match s.paramMap.find? k with
   ps ← ps.mapM $ fun (p : Param) =>
    if !p.borrow then pure p
    else condM (isOwned p.x)
-     (do markModified; pure { borrow := false, .. p })
+     (do markModified; pure { p with borrow := false })
      (pure p);
-  modify $ fun s => { paramMap := s.paramMap.insert k ps, .. s }
+  modify $ fun s => { s with paramMap := s.paramMap.insert k ps }
 | none    => pure ()
 
 def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
@@ -268,7 +268,7 @@ match v, b with
 | _, _ => pure ()
 
 def updateParamSet (ctx : BorrowInfCtx) (ps : Array Param) : BorrowInfCtx :=
-{ paramSet := ps.foldl (fun s p => s.insert p.x.idx) ctx.paramSet, .. ctx }
+{ ctx with paramSet := ps.foldl (fun s p => s.insert p.x.idx) ctx.paramSet }
 
 partial def collectFnBody : FnBody → M Unit
 | FnBody.jdecl j ys v b => do
@@ -287,14 +287,14 @@ partial def collectFnBody : FnBody → M Unit
 
 partial def collectDecl : Decl → M Unit
 | Decl.fdecl f ys _ b   =>
-  adaptReader (fun ctx => let ctx := updateParamSet ctx ys; { currFn := f, .. ctx }) $ do
+  adaptReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) $ do
     collectFnBody b;
     updateParamMap (ParamMap.Key.decl f)
 | _ => pure ()
 
 @[specialize] partial def whileModifingAux (x : M Unit) : Unit → M Unit
 | _ => do
-  modify $ fun s => { modified := false, .. s };
+  modify $ fun s => { s with modified := false };
   -- s ← get;
   -- dbgTrace (toString s.map) $ fun _ => do
   x;

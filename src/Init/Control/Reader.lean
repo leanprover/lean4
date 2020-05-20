@@ -60,9 +60,10 @@ fun s => x₁ s <|> x₂ s
 fun s => failure
 
 instance [Alternative m] : Alternative (ReaderT ρ m) :=
-{ failure := @ReaderT.failure _ _ _ _,
-  orelse  := @ReaderT.orelse _ _ _ _,
-  ..ReaderT.Monad }
+{ ReaderT.Monad with
+  failure := @ReaderT.failure _ _ _ _,
+  orelse  := @ReaderT.orelse _ _ _ _ }
+
 
 instance (ε) [Monad m] [MonadExcept ε m] : MonadExcept ε (ReaderT ρ m) :=
 { throw := fun α => ReaderT.lift ∘ throw,

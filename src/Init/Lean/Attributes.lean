@@ -117,7 +117,7 @@ map ← es.foldlM
 pure { map := map }
 
 private def AttributeExtension.addEntry (s : AttributeExtensionState) (e : AttributeExtensionOLeanEntry × AttributeImpl) : AttributeExtensionState :=
-{ map := s.map.insert e.2.name e.2, newEntries := e.1 :: s.newEntries, .. s }
+{ s with map := s.map.insert e.2.name e.2, newEntries := e.1 :: s.newEntries }
 
 def mkAttributeExtension : IO AttributeExtension :=
 registerPersistentEnvExtension {

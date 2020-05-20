@@ -35,13 +35,13 @@ instance : Inhabited ClassState := ⟨{}⟩
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
 match entry with
 | ClassEntry.«class» clsName hasOutParam =>
-  { hasOutParam := s.hasOutParam.insert clsName hasOutParam, .. s }
+  { s with hasOutParam := s.hasOutParam.insert clsName hasOutParam }
 | ClassEntry.«instance» instName clsName =>
-  { instances        := s.instances.insert instName (),
+  { s with
+    instances        := s.instances.insert instName (),
     classToInstances := match s.classToInstances.find? clsName with
       | some insts => s.classToInstances.insert clsName (instName :: insts)
-      | none       => s.classToInstances.insert clsName [instName],
-    .. s }
+      | none       => s.classToInstances.insert clsName [instName] }
 
 def switch : ClassState → ClassState
 | ⟨m₁, m₂, m₃⟩ => ⟨m₁.switch, m₂.switch, m₃.switch⟩

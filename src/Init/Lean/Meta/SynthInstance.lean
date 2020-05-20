@@ -94,7 +94,7 @@ partial def normLevel : Level → M Level
       | some u' => pure u'
       | none    => do
         let u' := mkLevelParam $ mkNameNum `_tc s.nextIdx;
-        modify $ fun s => { nextIdx := s.nextIdx + 1, lmap := s.lmap.insert mvarId u', .. s };
+        modify $ fun s => { s with nextIdx := s.nextIdx + 1, lmap := s.lmap.insert mvarId u' };
         pure u'
   | u                   => pure u
 
@@ -118,7 +118,7 @@ partial def normExpr : Expr → M Expr
       | some e' => pure e'
       | none    => do
         let e' := mkFVar $ mkNameNum `_tc s.nextIdx;
-        modify $ fun s => { nextIdx := s.nextIdx + 1, emap := s.emap.insert mvarId e', .. s };
+        modify $ fun s => { s with nextIdx := s.nextIdx + 1, emap := s.emap.insert mvarId e' };
         pure e'
   | _ => pure e
 
@@ -166,17 +166,17 @@ instance tracer : SimpleMonadTracerAdapter SynthM :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   addContext       := addContext,
-  modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
+  modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
 
 @[inline] def liftMeta {α} (x : MetaM α) : SynthM α :=
-adaptState (fun (s : State) => (s.toState, s)) (fun s' s => { toState := s', .. s }) x
+adaptState (fun (s : State) => (s.toState, s)) (fun s' s => { s with toState := s' }) x
 
 instance meta2Synth {α} : HasCoe (MetaM α) (SynthM α) := ⟨liftMeta⟩
 
 @[inline] def withMCtx {α} (mctx : MetavarContext) (x : SynthM α) : SynthM α := do
 mctx' ← getMCtx;
-modify $ fun s => { mctx := mctx, .. s };
-finally x (modify $ fun s => { mctx := mctx', .. s })
+modify $ fun s => { s with mctx := mctx };
+finally x (modify $ fun s => { s with mctx := mctx' })
 
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) :=
@@ -217,9 +217,9 @@ withMCtx mctx $ do
     };
     let entry : TableEntry := { waiters := #[waiter] };
     modify $ fun s =>
-     { generatorStack := s.generatorStack.push node,
-       tableEntries   := s.tableEntries.insert key entry,
-       .. s }
+     { s with
+       generatorStack := s.generatorStack.push node,
+       tableEntries   := s.tableEntries.insert key entry }
 
 def findEntry? (key : Expr) : SynthM (Option TableEntry) := do
 s ← get;
@@ -294,7 +294,7 @@ match inst.getAppFn with
 | Expr.const constName _ _ => do
   env ← getEnv;
   if hasInferTCGoalsLRAttribute env constName then
-    pure { subgoals := result.subgoals.reverse, .. result }
+    pure { result with subgoals := result.subgoals.reverse }
   else
     pure result
 | _ => pure result
@@ -339,12 +339,12 @@ withMCtx mctx $ do
 def wakeUp (answer : Answer) : Waiter → SynthM Unit
 | Waiter.root               =>
   if answer.result.paramNames.isEmpty && answer.result.numMVars == 0 then do
-    modify $ fun s => { result := answer.result.expr, .. s }
+    modify $ fun s => { s with result := answer.result.expr }
   else do
     (_, _, answerExpr) ← openAbstractMVarsResult answer.result;
     trace! `Meta.synthInstance ("skip answer containing metavariables " ++ answerExpr);
     pure ()
-| Waiter.consumerNode cNode => modify $ fun s => { resumeStack := s.resumeStack.push (cNode, answer), .. s }
+| Waiter.consumerNode cNode => modify $ fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
 
 def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
 oldAnswers.all $ fun oldAnswer => do
@@ -368,8 +368,8 @@ answer ← withMCtx cNode.mctx $ do {
 let key := cNode.key;
 entry ← getEntry key;
 when (isNewAnswer entry.answers answer) $  do
-  let newEntry := { answers := entry.answers.push answer, .. entry };
-  modify $ fun s => { tableEntries := s.tableEntries.insert key newEntry, .. s };
+  let newEntry := { entry with answers := entry.answers.push answer };
+  modify $ fun s => { s with tableEntries := s.tableEntries.insert key newEntry };
   entry.waiters.forM (wakeUp answer)
 
 /-- Process the next subgoal in the given consumer node. -/
@@ -383,21 +383,21 @@ match cNode.subgoals with
    match entry? with
    | none       => newSubgoal cNode.mctx key mvar waiter
    | some entry => modify $ fun s =>
-     { resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-       tableEntries := s.tableEntries.insert key { waiters := entry.waiters.push waiter, .. entry },
-       .. s }
+     { s with
+       resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+       tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode := do
 s ← get; pure s.generatorStack.back
 
 @[inline] def modifyTop (f : GeneratorNode → GeneratorNode) : SynthM Unit :=
-modify $ fun s => { generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f, .. s }
+modify $ fun s => { s with generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f }
 
 /-- Try the next instance in the node on the top of the generator stack. -/
 def generate : SynthM Unit := do
 gNode ← getTop;
 if gNode.currInstanceIdx == 0  then
-  modify $ fun s => { generatorStack := s.generatorStack.pop, .. s }
+  modify $ fun s => { s with generatorStack := s.generatorStack.pop }
 else do
   let key  := gNode.key;
   let idx  := gNode.currInstanceIdx - 1;
@@ -405,7 +405,7 @@ else do
   let mctx := gNode.mctx;
   let mvar := gNode.mvar;
   trace! `Meta.synthInstance.generate ("instance " ++ inst);
-  modifyTop $ fun gNode => { currInstanceIdx := idx, .. gNode };
+  modifyTop $ fun gNode => { gNode with currInstanceIdx := idx };
   result? ← tryResolve mctx mvar inst;
   match result? with
   | none                  => pure ()
@@ -414,7 +414,7 @@ else do
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
 s ← get;
 let r := s.resumeStack.back;
-modify $ fun s => { resumeStack := s.resumeStack.pop, .. s };
+modify $ fun s => { s with resumeStack := s.resumeStack.pop };
 pure r
 
 /--
@@ -465,7 +465,7 @@ traceCtx `Meta.synthInstance $ do
    mvar ← mkFreshExprMVar type;
    mctx ← getMCtx;
    let key := mkTableKey mctx type;
-   adaptState' (fun (s : Meta.State) => { State . .. s }) (fun (s : State) => s.toState) $ do {
+   adaptState' (fun (s : Meta.State) => { State . toState := s }) (fun (s : State) => s.toState) $ do {
      newSubgoal mctx key mvar Waiter.root;
      synth fuel
    }
@@ -542,7 +542,7 @@ def synthInstance? (type : Expr) : MetaM (Option Expr) := do
 opts ← getOptions;
 let fuel := getMaxSteps opts;
 inputConfig ← getConfig;
-withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox := true, ctxApprox := true, .. config }) $ do
+withConfig (fun config => { config with transparency := TransparencyMode.reducible, foApprox := true, ctxApprox := true }) $ do
   type ← instantiateMVars type;
   type ← preprocess type;
   s ← get;
@@ -575,14 +575,14 @@ withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox
     if type.hasMVar then
       pure result?
     else do
-      modify $ fun s => { cache := { synthInstance := s.cache.synthInstance.insert type result?, .. s.cache }, .. s };
+      modify $ fun s => { s with cache := { s.cache with synthInstance := s.cache.synthInstance.insert type result? } };
       pure result?
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
 def trySynthInstance (type : Expr) : MetaM (LOption Expr) :=
-adaptReader (fun (ctx : Context) => { config := { isDefEqStuckEx := true, .. ctx.config }, .. ctx }) $
+adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with isDefEqStuckEx := true } }) $
   catch
     (toLOptionM $ synthInstance? type)
     (fun ex => match ex with

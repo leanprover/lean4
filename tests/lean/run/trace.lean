@@ -12,7 +12,7 @@ instance : SimpleMonadTracerAdapter M :=
 { getOptions       := read,
   getTraceState    := MyState.traceState <$> get,
   addContext       := pure,
-  modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
+  modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
 
 def tst1 : M Unit :=
 do trace! `module ("hello" ++ MessageData.nest 9 (Format.line ++ "world"));

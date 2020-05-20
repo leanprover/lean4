@@ -45,7 +45,7 @@ result? ← decAux? u;
 match result? with
 | some v => pure $ some v
 | none   => do
-  modify $ fun s => { mctx := mctx, .. s };
+  modify $ fun s => { s with mctx := mctx };
   pure none
 
 private def strictOccursMaxAux (lvl : Level) : Level → Bool
@@ -73,7 +73,7 @@ n ← mkFreshLevelMVar;
 assignLevelMVar mvarId $ mkMaxArgsDiff mvarId v n
 
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
-modify $ fun s => { postponed := s.postponed.push { lhs := lhs, rhs := rhs }, .. s }
+modify $ fun s => { s with postponed := s.postponed.push { lhs := lhs, rhs := rhs } }
 
 inductive LevelConstraintKind
 | mvarEq         -- ?m =?= l         where ?m does not occur in l
@@ -150,7 +150,7 @@ s ← get; pure s.postponed.size
 private def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
 s ← get;
 let ps := s.postponed;
-modify $ fun s => { postponed := {}, .. s };
+modify $ fun s => { s with postponed := {} };
 pure ps
 
 private def processPostponedStep : MetaM Bool :=
@@ -190,7 +190,7 @@ if numPostponed == 0 then pure true
 else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
 
 def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
-modify $ fun s => { env := env, mctx := mctx, postponed := postponed, .. s }
+modify $ fun s => { s with env := env, mctx := mctx, postponed := postponed }
 
 /--
   `commitWhen x` executes `x` and process all postponed universe level constraints produced by `x`.
@@ -203,7 +203,7 @@ s ← get;
 let env       := s.env;
 let mctx      := s.mctx;
 let postponed := s.postponed;
-modify $ fun s => { postponed := {}, .. s };
+modify $ fun s => { s with postponed := {} };
 catch
   (condM x
     (condM processPostponed

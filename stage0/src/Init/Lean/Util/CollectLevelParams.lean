@@ -22,20 +22,20 @@ abbrev Visitor := State → State
 @[inline] def visitLevel (f : Level → Visitor) (u : Level) : Visitor :=
 fun s =>
   if !u.hasParam || s.visitedLevel.contains u then s
-  else f u { visitedLevel := s.visitedLevel.insert u, .. s }
+  else f u { s with visitedLevel := s.visitedLevel.insert u }
 
 partial def collect : Level → Visitor
 | Level.succ v _    => visitLevel collect v
 | Level.max u v _   => visitLevel collect v ∘ visitLevel collect u
 | Level.imax u v _  => visitLevel collect v ∘ visitLevel collect u
-| Level.param n _   => fun s => { params := s.params.push n, .. s }
+| Level.param n _   => fun s => { s with params := s.params.push n }
 | _                 => id
 
 @[inline] def visitExpr (f : Expr → Visitor) (e : Expr) : Visitor :=
 fun s =>
   if !e.hasLevelParam then s
   else if s.visitedExpr.contains e then s
-  else f e { visitedExpr := s.visitedExpr.insert e, .. s }
+  else f e { s with visitedExpr := s.visitedExpr.insert e }
 
 partial def main : Expr → Visitor
 | Expr.proj _ _ s _    => visitExpr main s

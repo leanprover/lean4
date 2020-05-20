@@ -218,7 +218,7 @@ private partial def isDefEqBindingAux : LocalContext → Array Expr → Expr →
   | Expr.forallE n d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | Expr.lam     n d₁ b₁ _, Expr.lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | _,                      _                      =>
-    adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+    adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
       isDefEqBindingDomain fvars ds₂ 0 $
         isExprDefEqAux (e₁.instantiateRev fvars) (e₂.instantiateRev fvars)
 
@@ -372,15 +372,15 @@ private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
 s ← get; pure $ s.checkCache.find? e
 
 private def cache (e r : Expr) : CheckAssignmentM Unit :=
-modify $ fun s => { checkCache := s.checkCache.insert e r, .. s }
+modify $ fun s => { s with checkCache := s.checkCache.insert e r }
 
 instance : MonadCache Expr Expr CheckAssignmentM :=
 { findCached? := findCached?, cache := cache }
 
 def liftMetaM {α} (x : MetaM α) : CheckAssignmentM α :=
 fun ctx s => match x ctx.toContext s.toState with
-  | EStateM.Result.ok a newS     => EStateM.Result.ok a { toState := newS, .. s }
-  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { toState := newS, .. s }
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a { s with toState := newS }
+  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { s with toState := newS }
 
 @[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
 if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
@@ -402,7 +402,7 @@ s ← get; pure s.mctx
 def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) : CheckAssignmentM Expr := do
 s ← get;
 let mvarId := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type, .. s };
+modify $ fun s => { s with ngen := s.ngen.next, mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type };
 pure (mkMVar mvarId)
 
 @[specialize] def checkMVar (check : Expr → CheckAssignmentM Expr) (mvar : Expr) : CheckAssignmentM Expr := do
@@ -428,7 +428,7 @@ else match mctx.getExprAssignment? mvarId with
            Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
            a metavariable that we also need to reduce the context. -/
         newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-        modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+        modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar };
         pure newMVar
       else
         pure mvar

@@ -23,7 +23,7 @@ abbrev M := ReaderT CheckerContext (ExceptT String (StateT CheckerState Id))
 def markIndex (i : Index) : M Unit := do
 s ← get;
 when (s.foundVars.contains i) $ throw ("variable / joinpoint index " ++ toString i ++ " has already been used");
-modify $ fun s => { foundVars := s.foundVars.insert i, .. s }
+modify $ fun s => { s with foundVars := s.foundVars.insert i }
 
 def markVar (x : VarId) : M Unit :=
 markIndex x.idx
@@ -120,19 +120,19 @@ ctx ← read;
 localCtx ← ps.foldlM (fun (ctx : LocalContext) p => do
    markVar p.x;
    pure $ ctx.addParam p) ctx.localCtx;
-adaptReader (fun _ => { localCtx := localCtx, .. ctx }) k
+adaptReader (fun _ => { ctx with localCtx := localCtx }) k
 
 partial def checkFnBody : FnBody → M Unit
 | FnBody.vdecl x t v b    => do
   checkExpr t v;
   markVar x;
   ctx ← read;
-  adaptReader (fun (ctx : CheckerContext) => { localCtx := ctx.localCtx.addLocal x t v, .. ctx }) (checkFnBody b)
+  adaptReader (fun (ctx : CheckerContext) => { ctx with localCtx := ctx.localCtx.addLocal x t v }) (checkFnBody b)
 | FnBody.jdecl j ys v b => do
   markJP j;
   withParams ys (checkFnBody v);
   ctx ← read;
-  adaptReader (fun (ctx : CheckerContext) => { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
+  adaptReader (fun (ctx : CheckerContext) => { ctx with localCtx := ctx.localCtx.addJP j ys v }) (checkFnBody b)
 | FnBody.set x _ y b      => checkVar x *> checkArg y *> checkFnBody b
 | FnBody.uset x _ y b     => checkVar x *> checkVar y *> checkFnBody b
 | FnBody.sset x _ _ y _ b => checkVar x *> checkVar y *> checkFnBody b

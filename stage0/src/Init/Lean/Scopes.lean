@@ -27,7 +27,7 @@ namespace ScopeManagerState
 instance : Inhabited ScopeManagerState := ⟨{}⟩
 
 def saveNamespace (s : ScopeManagerState) (n : Name) : ScopeManagerState :=
-{ allNamespaces := s.allNamespaces.insert n, .. s }
+{ s with allNamespaces := s.allNamespaces.insert n }
 
 end ScopeManagerState
 
@@ -35,7 +35,7 @@ def regScopeManagerExtension : IO (SimplePersistentEnvExtension Name ScopeManage
 registerSimplePersistentEnvExtension {
   name            := `scopes,
   addImportedFn   := fun as => mkStateFromImportedEntries ScopeManagerState.saveNamespace {} as,
-  addEntryFn      := fun s n => { allNamespaces := s.allNamespaces.insert n, .. s },
+  addEntryFn      := fun s n => { s with allNamespaces := s.allNamespaces.insert n },
 }
 
 @[init regScopeManagerExtension]
@@ -101,19 +101,19 @@ let ns    := env.getNamespace;
 let newNs := if isNamespace then ns ++ header else ns;
 let env   := env.registerNamespaceAux newNs;
 let env   := scopeManagerExt.modifyState env $ fun s =>
-  { headers     := header :: s.headers,
+  { s with
+    headers     := header :: s.headers,
     namespaces  := newNs :: s.namespaces,
-    isNamespace := isNamespace :: s.isNamespace,
-    .. s };
+    isNamespace := isNamespace :: s.isNamespace };
 env
 
 def popScopeCore (env : Environment) : Environment :=
 if env.getNamespaces.isEmpty then env
 else scopeManagerExt.modifyState env $ fun s =>
-  { headers     := s.headers.tail!,
+  { s with
+    headers     := s.headers.tail!,
     namespaces  := s.namespaces.tail!,
-    isNamespace := s.isNamespace.tail!,
-    .. s }
+    isNamespace := s.isNamespace.tail! }
 
 end Environment
 end Lean

@@ -81,7 +81,7 @@ private def resolveGlobalNameAux (env : Environment) (ns : Name) (openDecls : Li
     (scpView : MacroScopesView) : Name → List String → List (Name × List String)
 | id@(Name.str p s _), projs =>
   -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
-  let id := { name := id, .. scpView }.review;
+  let id := { scpView with name := id }.review;
   match resolveUsingNamespace env id ns with
   | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map $ fun id => (id, projs)
   | [] =>

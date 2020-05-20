@@ -65,10 +65,10 @@ FnBody.dec x 1 true info.persistent b
 private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : Context :=
 if c.isRef then ctx
 else let m := ctx.varMap;
-  { varMap := match m.find? x with
-    | some info => m.insert x { ref := false, .. info } -- I really want a Lenses library + notation
-    | none      => m,
-    .. ctx }
+  { ctx with
+    varMap := match m.find? x with
+    | some info => m.insert x { info with ref := false } -- I really want a Lenses library + notation
+    | none      => m }
 
 private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet) (b : FnBody) : FnBody :=
 caseLiveVars.fold
@@ -181,11 +181,11 @@ match v with
 | _ => false
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
-{ varMap := ctx.varMap.insert x {
+{ ctx with
+  varMap := ctx.varMap.insert x {
       ref := t.isObj && !isScalarBoxedInTaggedPtr v,
       persistent := isPersistent v,
-      consume := consumeExpr ctx.varMap v },
-  .. ctx }
+      consume := consumeExpr ctx.varMap v } }
 
 private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 if mustConsume ctx x && !bLiveVars.contains x then addDec ctx x b else b
@@ -219,7 +219,7 @@ let liveVars := liveVars.erase z;
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
 let m := ps.foldl (fun (m : VarMap) p => m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }) ctx.varMap;
-{ varMap := m, .. ctx }
+{ ctx with varMap := m }
 
 partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
 | FnBody.vdecl x t v b,      ctx =>
@@ -229,7 +229,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
 | FnBody.jdecl j xs v b,     ctx =>
   let (v, vLiveVars) := visitFnBody v (updateVarInfoWithParams ctx xs);
   let v   := addDecForDeadParams ctx xs v vLiveVars;
-  let ctx := { jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap, .. ctx };
+  let ctx := { ctx with jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap };
   let (b, bLiveVars) := visitFnBody b ctx;
   (FnBody.jdecl j xs v b, bLiveVars)
 | FnBody.uset x i y b,       ctx =>

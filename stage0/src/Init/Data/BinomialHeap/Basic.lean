@@ -35,9 +35,9 @@ Heap.heap [{ val := a, rank := 1, children := [] }]
 
 @[specialize] def combine (lt : α → α → Bool) (n₁ n₂ : HeapNode α) : HeapNode α :=
 if lt n₂.val n₁.val then
-   { rank := n₂.rank + 1, children := n₂.children ++ [Heap.heap [n₁]], .. n₂ }
+   { n₂ with rank := n₂.rank + 1, children := n₂.children ++ [Heap.heap [n₁]] }
 else
-   { rank := n₁.rank + 1, children := n₁.children ++ [Heap.heap [n₂]], .. n₁ }
+   { n₁ with rank := n₁.rank + 1, children := n₁.children ++ [Heap.heap [n₂]] }
 
 @[specialize] partial def mergeNodes (lt : α → α → Bool) : List (HeapNode α) → List (HeapNode α) → List (HeapNode α)
 | [], h  => h

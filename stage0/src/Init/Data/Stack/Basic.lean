@@ -24,7 +24,7 @@ def isEmpty (s : Stack α) : Bool :=
 s.vals.isEmpty
 
 def push (v : α) (s : Stack α) : Stack α :=
-{ vals := s.vals.push v, .. s }
+{ s with vals := s.vals.push v }
 
 def peek? (s : Stack α) : Option α :=
 if s.vals.isEmpty then none else s.vals.get? (s.vals.size-1)
@@ -33,9 +33,9 @@ def peek! [Inhabited α] (s : Stack α) : α :=
 s.vals.back
 
 def pop [Inhabited α] (s : Stack α) : Stack α :=
-{ vals := s.vals.pop, .. s }
+{ s with vals := s.vals.pop }
 
 def modify [Inhabited α] (s : Stack α) (f : α → α) : Stack α :=
-{ vals := s.vals.modify (s.vals.size-1) f, .. s }
+{ s with vals := s.vals.modify (s.vals.size-1) f }
 
 end Stack

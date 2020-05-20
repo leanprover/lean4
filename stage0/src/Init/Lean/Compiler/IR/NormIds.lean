@@ -91,7 +91,7 @@ fun m => do
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
 fun m => do
   m ← ps.foldlM (fun (m : IndexRenaming) p => do n ← getModify (fun n => n + 1); pure $ m.insert p.x.idx n) m;
-  let ps := ps.map $ fun p => { x := normVar p.x m, .. p };
+  let ps := ps.map $ fun p => { p with x := normVar p.x m };
   k ps m
 
 instance MtoN {α} : HasCoe (M α) (N α) :=

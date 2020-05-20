@@ -15,6 +15,6 @@ instance : Monad List :=
 { pure := @List.pure, map := @List.map, bind := @List.bind }
 
 instance : Alternative List :=
-{ failure := @List.nil,
-  orelse  := @List.append,
-  ..List.Monad }
+{ List.Monad with
+  failure := @List.nil,
+  orelse  := @List.append }

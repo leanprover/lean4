@@ -128,7 +128,7 @@ structure BoxingState :=
 abbrev M := ReaderT BoxingContext (StateT BoxingState Id)
 
 def mkFresh : M VarId := do
-oldS ← getModify (fun s => { nextIdx := s.nextIdx + 1, .. s });
+oldS ← getModify (fun s => { s with nextIdx := s.nextIdx + 1 });
 pure { idx := oldS.nextIdx }
 
 def getEnv : M Environment := BoxingContext.env <$> read
@@ -154,13 +154,13 @@ match findEnvDecl' ctx.env fid ctx.decls with
 | none      => pure (arbitrary _) -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
-adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addParams xs, .. ctx }) k
+adaptReader (fun (ctx : BoxingContext) => { ctx with localCtx := ctx.localCtx.addParams xs }) k
 
 @[inline] def withVDecl {α : Type} (x : VarId) (ty : IRType) (v : Expr) (k : M α) : M α :=
-adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addLocal x ty v, .. ctx }) k
+adaptReader (fun (ctx : BoxingContext) => { ctx with localCtx := ctx.localCtx.addLocal x ty v }) k
 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
-adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
+adaptReader (fun (ctx : BoxingContext) => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
 
 /- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
@@ -206,10 +206,10 @@ match opt? with
     let auxConst := Expr.fap auxName #[];
     let auxDecl  := Decl.fdecl auxName #[] expectedType body;
     modify $ fun s => {
+     s with
      auxDecls     := s.auxDecls.push auxDecl,
      auxDeclCache := s.auxDeclCache.cons body auxConst,
-     nextAuxId    := s.nextAuxId + 1,
-     .. s
+     nextAuxId    := s.nextAuxId + 1
     };
     pure auxConst
 | none => pure $ if xType.isScalar then Expr.box xType x else Expr.unbox x
@@ -328,7 +328,7 @@ let decls := decls.foldl (fun (newDecls : Array Decl) (decl : Decl) =>
   match decl with
   | Decl.fdecl f xs t b =>
     let nextIdx  := decl.maxIndex + 1;
-    let (b, s)   := (withParams xs (visitFnBody b) { f := f, resultType := t, .. ctx }).run { nextIdx := nextIdx };
+    let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx };
     let newDecls := newDecls ++ s.auxDecls;
     let newDecl  := Decl.fdecl f xs t b;
     let newDecl  := newDecl.elimDead;

@@ -144,7 +144,7 @@ match arg with
 def updateVarAssignment (x : VarId) (v : Value) : M Unit := do
 v' ← findVarValue x;
 ctx ← read;
-modify $ fun s => { assignments := s.assignments.modify ctx.currFnIdx $ fun a => a.insert x (merge v v'), .. s }
+modify $ fun s => { s with assignments := s.assignments.modify ctx.currFnIdx $ fun a => a.insert x (merge v v') }
 
 partial def projValue : Value → Nat → Value
 | ctor _ vs, i => vs.getD i bot
@@ -174,7 +174,7 @@ partial def containsCtor : Value → CtorInfo → Bool
 def updateCurrFnSummary (v : Value) : M Unit := do
 ctx ← read;
 let currFnIdx := ctx.currFnIdx;
-modify $ fun s => { funVals := s.funVals.modify currFnIdx (fun v' => widening ctx.env v v'), .. s }
+modify $ fun s => { s with funVals := s.funVals.modify currFnIdx (fun v' => widening ctx.env v v') }
 
 /-- Return true if the assignment of at least one parameter has been updated. -/
 def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
@@ -189,7 +189,7 @@ ys.size.foldM
     let newVal := merge yVal xVal;
     if newVal == yVal then pure r
     else do
-      modify $ fun s => { assignments := s.assignments.modify currFnIdx $ fun a => a.insert y.x newVal, .. s };
+      modify $ fun s => { s with assignments := s.assignments.modify currFnIdx $ fun a => a.insert y.x newVal };
       pure true)
   false
 
@@ -199,7 +199,7 @@ partial def interpFnBody : FnBody → M Unit
   updateVarAssignment x v;
   interpFnBody b
 | FnBody.jdecl j ys v b =>
-  adaptReader (fun (ctx : InterpContext) => { lctx := ctx.lctx.addJP j ys v, .. ctx }) $
+  adaptReader (fun (ctx : InterpContext) => { ctx with lctx := ctx.lctx.addJP j ys v }) $
     interpFnBody b
 | FnBody.case _ x _ alts => do
   v ← findVarValue x;
@@ -221,14 +221,14 @@ partial def interpFnBody : FnBody → M Unit
 
 def inferStep : M Bool := do
 ctx ← read;
-modify $ fun s => { assignments := ctx.decls.map $ fun _ => {}, .. s };
+modify $ fun s => { s with assignments := ctx.decls.map $ fun _ => {} };
 ctx.decls.size.foldM (fun idx modified => do
   match ctx.decls.get! idx with
   | Decl.fdecl fid ys _ b => do
     s ← get;
     -- dbgTrace (">> " ++ toString fid) $ fun _ =>
     let currVals := s.funVals.get! idx;
-    adaptReader (fun (ctx : InterpContext) => { currFnIdx := idx, .. ctx }) $ do
+    adaptReader (fun (ctx : InterpContext) => { ctx with currFnIdx := idx }) $ do
       ys.forM $ fun y => updateVarAssignment y.x top;
       interpFnBody b;
     s ← get;
@@ -282,7 +282,7 @@ modify $ fun s =>
     -- dbgTrace (">> " ++ toString (decls.get! i).name ++ " " ++ toString (funVals.get! i)) $ fun _ =>
     addFunctionSummary env (decls.get! i).name (funVals.get! i))
     s.env;
-  { env := env, .. s };
+  { s with env := env };
 pure $ decls.mapIdx $ fun i decl => elimDead (assignments.get! i) decl
 
 end IR

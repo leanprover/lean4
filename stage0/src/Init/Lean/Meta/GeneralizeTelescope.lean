@@ -24,7 +24,7 @@ partial def updateTypes (e newE : Expr) : Array Entry → Nat → MetaM (Array E
       typeAbst ← kabstract type e;
       if typeAbst.hasLooseBVars then do
         let typeNew := typeAbst.instantiate1 newE;
-        let entries := entries.set ⟨i, h⟩ { type := typeNew, modified := true, .. entry };
+        let entries := entries.set ⟨i, h⟩ { entry with type := typeNew, modified := true };
         updateTypes entries (i+1)
       else
         updateTypes entries (i+1)

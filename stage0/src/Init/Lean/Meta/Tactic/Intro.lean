@@ -14,7 +14,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
     : Nat → LocalContext → Array Expr → Nat → σ → Expr → MetaM (Array Expr × MVarId)
 | 0, lctx, fvars, j, _, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstances isClassExpensive fvars j $ do
       tag     ← getMVarTag mvarId;
       let type := type.headBeta;
@@ -44,7 +44,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
   introNCoreAux i lctx fvars j s body
 | (i+1), lctx, fvars, j, s, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstances isClassExpensive fvars j $ do
       newType ← whnf type;
       if newType.isForall then

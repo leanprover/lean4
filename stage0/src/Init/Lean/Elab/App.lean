@@ -216,14 +216,14 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
       let namedArgs := ctx.namedArgs.eraseIdx idx;
       argElab ← elabArg ctx.ref e arg.val d;
       propagateExpectedType ctx eType;
-      elabAppArgsAux { foundExplicit := true, namedArgs := namedArgs, .. ctx } (mkApp e argElab) (b.instantiate1 argElab)
+      elabAppArgsAux { ctx with foundExplicit := true, namedArgs := namedArgs } (mkApp e argElab) (b.instantiate1 argElab)
     | none =>
       let processExplictArg : Unit → TermElabM Expr := fun _ => do {
         propagateExpectedType ctx eType;
-        let ctx := { foundExplicit := true, .. ctx };
+        let ctx := { ctx with foundExplicit := true };
         if h : ctx.argIdx < ctx.args.size then do
           argElab ← elabArg ctx.ref e (ctx.args.get ⟨ctx.argIdx, h⟩) d;
-          elabAppArgsAux { argIdx := ctx.argIdx + 1, .. ctx } (mkApp e argElab) (b.instantiate1 argElab)
+          elabAppArgsAux { ctx with argIdx := ctx.argIdx + 1 } (mkApp e argElab) (b.instantiate1 argElab)
         else match ctx.explicit, d.getOptParamDefault?, d.getAutoParamTactic? with
           | false, some defVal, _                      => elabAppArgsAux ctx (mkApp e defVal) (b.instantiate1 defVal)
           | false, _, some (Expr.const tacticDecl _ _) => do
@@ -255,19 +255,19 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
           else do
             a ← mkFreshExprMVar ctx.ref d;
             typeMVars ← condM (isTypeFormer ctx.ref a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
-            elabAppArgsAux { typeMVars := typeMVars, .. ctx } (mkApp e a) (b.instantiate1 a)
+            elabAppArgsAux { ctx with typeMVars := typeMVars } (mkApp e a) (b.instantiate1 a)
 
         | BinderInfo.instImplicit =>
           if ctx.explicit && nextArgIsHole ctx then do
             /- Recall that if '@' has been used, and the argument is '_', then we still use
                type class resolution -/
             a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
-            elabAppArgsAux { argIdx := ctx.argIdx + 1, instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
+            elabAppArgsAux { ctx with argIdx := ctx.argIdx + 1, instMVars := ctx.instMVars.push a.mvarId! } (mkApp e a) (b.instantiate1 a)
           else if ctx.explicit then
             processExplictArg ()
           else do
             a ← mkFreshExprMVar ctx.ref d MetavarKind.synthetic;
-            elabAppArgsAux { instMVars := ctx.instMVars.push a.mvarId!, .. ctx } (mkApp e a) (b.instantiate1 a)
+            elabAppArgsAux { ctx with instMVars := ctx.instMVars.push a.mvarId! } (mkApp e a) (b.instantiate1 a)
         | _ =>
           processExplictArg ()
   | _ =>

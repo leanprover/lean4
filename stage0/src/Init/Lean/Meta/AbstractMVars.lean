@@ -37,7 +37,7 @@ abbrev M := ReaderT MetavarContext (StateM State)
 def mkFreshId : M Name := do
 s ← get;
 let fresh := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
+modify $ fun s => { s with ngen := s.ngen.next };
 pure fresh
 
 @[inline] private def visitLevel (f : Level → M Level) (u : Level) : M Level :=
@@ -65,7 +65,7 @@ private partial def abstractLevelMVars : Level → M Level
     | none   => do
       let paramId := mkNameNum `_abstMVar s.nextParamIdx;
       let u := mkLevelParam paramId;
-      modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId, .. s };
+      modify $ fun s => { s with nextParamIdx := s.nextParamIdx + 1, lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId };
       pure u
 
 partial def abstractExprMVars : Expr → M Expr
@@ -94,10 +94,10 @@ partial def abstractExprMVars : Expr → M Expr
       let fvar := mkFVar fvarId;
       let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter s.fvars.size else decl.userName;
       modify $ fun s => {
+        s with
         emap  := s.emap.insert mvarId fvar,
         fvars := s.fvars.push fvar,
-        lctx  := s.lctx.mkLocalDecl fvarId userName type,
-        .. s };
+        lctx  := s.lctx.mkLocalDecl fvarId userName type };
       pure fvar
 | Expr.localE _ _ _ _    => unreachable!
 
@@ -126,7 +126,7 @@ e ← instantiateMVars e;
 s ← get;
 lctx ← getLCtx;
 let (e, s) := AbstractMVars.abstractExprMVars e s.mctx { lctx := lctx, ngen := s.ngen };
-modify $ fun s => { ngen := s.ngen, .. s };
+modify $ fun s => { s with ngen := s.ngen };
 let e := s.lctx.mkLambda s.fvars e;
 pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
 

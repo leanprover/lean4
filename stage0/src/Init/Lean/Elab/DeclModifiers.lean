@@ -34,7 +34,7 @@ structure Modifiers :=
 (attrs           : Array Attribute := #[])
 
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
-{ attrs := modifiers.attrs.push attr, .. modifiers }
+{ modifiers with attrs := modifiers.attrs.push attr }
 
 instance Modifiers.hasFormat : HasFormat Modifiers :=
 ⟨fun m =>

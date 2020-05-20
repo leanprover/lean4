@@ -38,7 +38,7 @@ stx.ifNodeKind `Lean.Parser.Term.paren
       | atom { trailing := some outer } ")", some bodyInfo@{ trailing := some inner } =>
         let bodyInfoTrail := inner.toString ++ "  ";  -- add whithespaces for removed parentheses
         let bodyInfoTrail := bodyInfoTrail ++ outer.toString; -- add close paren trailing spaces
-        body.setTailInfo { trailing := bodyInfoTrail.toSubstring, .. bodyInfo }
+        body.setTailInfo { bodyInfo with trailing := bodyInfoTrail.toSubstring }
       | _, _ => stx.val
     else stx.val)
   (fun _ => stx)

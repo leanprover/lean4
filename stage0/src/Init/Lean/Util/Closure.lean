@@ -39,13 +39,13 @@ else do
   | some v => pure v
   | none   => do
     v ← f u;
-    modify $ fun s => { visitedLevel := s.visitedLevel.insert u v, .. s };
+    modify $ fun s => { s with visitedLevel := s.visitedLevel.insert u v };
     pure v
 
 def mkNewLevelParam (u : Level) : ClosureM Level := do
 s ← get;
 let p := (`u).appendIndexAfter s.nextLevelIdx;
-modify $ fun s => { levelParams := s.levelParams.push p, nextLevelIdx := s.nextLevelIdx + 1, levelClosure := s.levelClosure.push u, .. s };
+modify $ fun s => { s with levelParams := s.levelParams.push p, nextLevelIdx := s.nextLevelIdx + 1, levelClosure := s.levelClosure.push u };
 pure $ mkLevelParam p
 
 partial def collectLevelAux : Level → ClosureM Level
@@ -62,7 +62,7 @@ visitLevel collectLevelAux u
 def mkFreshFVarId : ClosureM FVarId := do
 s ← get;
 let id := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
+modify $ fun s => { s with ngen := s.ngen.next };
 pure id
 
 /--
@@ -72,7 +72,7 @@ pure id
 def mkNextUserName : ClosureM Name := do
 s ← get;
 let n := (`_x).appendIndexAfter s.nextExprIdx;
-modify $ fun s => { nextExprIdx := s.nextExprIdx + 1, .. s };
+modify $ fun s => { s with nextExprIdx := s.nextExprIdx + 1 };
 pure n
 
 def getUserName (userName? : Option Name) : ClosureM Name :=
@@ -83,12 +83,12 @@ match userName? with
 def mkLocalDecl (userName? : Option Name) (type : Expr) : ClosureM Expr := do
 userName ← getUserName userName?;
 fvarId   ← mkFreshFVarId;
-modify $ fun s => { lctxOutput := s.lctxOutput.mkLocalDecl fvarId userName type, .. s };
+modify $ fun s => { s with lctxOutput := s.lctxOutput.mkLocalDecl fvarId userName type };
 pure $ mkFVar fvarId
 
 def mkLetDecl (userName : Name) (type : Expr) (value : Expr) : ClosureM Expr := do
 fvarId   ← mkFreshFVarId;
-modify $ fun s => { lctxOutput := s.lctxOutput.mkLetDecl fvarId userName type value, .. s };
+modify $ fun s => { s with lctxOutput := s.lctxOutput.mkLetDecl fvarId userName type value };
 pure $ mkFVar fvarId
 
 @[inline] def visitExpr (f : Expr → ClosureM Expr) (e : Expr) : ClosureM Expr :=
@@ -99,7 +99,7 @@ else do
   | some r => pure r
   | none   => do
     r ← f e;
-    modify $ fun s => { visitedExpr := s.visitedExpr.insert e r, .. s };
+    modify $ fun s => { s with visitedExpr := s.visitedExpr.insert e r };
     pure r
 
 partial def collectExprAux : Expr → ClosureM Expr
@@ -121,7 +121,7 @@ partial def collectExprAux : Expr → ClosureM Expr
     | some mvarDecl => do
       type ← collect mvarDecl.type;
       x    ← mkLocalDecl none type;
-      modify $ fun s => { exprClosure := s.exprClosure.push e, .. s };
+      modify $ fun s => { s with exprClosure := s.exprClosure.push e };
       pure x
   | Expr.fvar fvarId _ => do
     ctx ← read;
@@ -130,7 +130,7 @@ partial def collectExprAux : Expr → ClosureM Expr
     | some (LocalDecl.cdecl _ _ userName type _) => do
       type ← collect type;
       x    ← mkLocalDecl userName type;
-      modify $ fun s => { exprClosure := s.exprClosure.push e, .. s };
+      modify $ fun s => { s with exprClosure := s.exprClosure.push e };
       pure x
     | some (LocalDecl.ldecl _ _ userName type value) => do
       type  ← collect type;

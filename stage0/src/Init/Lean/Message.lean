@@ -169,7 +169,7 @@ log.msgs.any $ fun m => match m.severity with
 | _                     => false
 
 def errorsToWarnings (log : MessageLog) : MessageLog :=
-{ msgs := log.msgs.map (fun m => match m.severity with | MessageSeverity.error => { severity := MessageSeverity.warning, .. m} | _ => m) }
+{ msgs := log.msgs.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
 log.msgs.forM f

@@ -148,17 +148,17 @@ else checkTraceOptionM cls
 @[inline] def enableTracing (b : Bool) : m Bool := do
 s ← getTraceState;
 let oldEnabled := s.enabled;
-modifyTraceState $ fun s => { enabled := b, .. s };
+modifyTraceState $ fun s => { s with enabled := b };
 pure oldEnabled
 
 @[inline] def getTraces : m (PersistentArray MessageData) := do
 s ← getTraceState; pure s.traces
 
 @[inline] def modifyTraces (f : PersistentArray MessageData → PersistentArray MessageData) : m Unit :=
-modifyTraceState $ fun s => { traces := f s.traces, .. s }
+modifyTraceState $ fun s => { s with traces := f s.traces }
 
 @[inline] def setTrace (f : PersistentArray MessageData → PersistentArray MessageData) : m Unit :=
-modifyTraceState $ fun s => { traces := f s.traces, .. s }
+modifyTraceState $ fun s => { s with traces := f s.traces }
 
 @[inline] def setTraceState (s : TraceState) : m Unit :=
 modifyTraceState $ fun _ => s

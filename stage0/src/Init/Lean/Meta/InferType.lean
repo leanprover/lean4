@@ -100,7 +100,7 @@ lambdaTelescope e $ fun xs e => do
 @[inline] private def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α :=
 savingCache $ do
   fvarId ← mkFreshId;
-  adaptReader (fun (ctx : Context) => { lctx := ctx.lctx.mkLocalDecl fvarId name type bi, .. ctx }) $
+  adaptReader (fun (ctx : Context) => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) $
     x (mkFVar fvarId)
 
 private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
@@ -121,7 +121,7 @@ match s.cache.inferType.find? e with
 | some type => pure type
 | none => do
   type ← inferType;
-  modify $ fun s => { cache := { inferType := s.cache.inferType.insert e type, .. s.cache }, .. s };
+  modify $ fun s => { s with cache := { s.cache with inferType := s.cache.inferType.insert e type } };
   pure type
 
 private partial def inferTypeAux : Expr → MetaM Expr

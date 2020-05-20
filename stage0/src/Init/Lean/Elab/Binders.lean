@@ -308,8 +308,8 @@ match s.expectedType? with
     _ ← isDefEq ref fvarType d;
     checkNoOptAutoParam ref fvarType;
     let b := b.instantiate1 fvar;
-    pure { expectedType? := some b, .. s }
-  | _ => pure { expectedType? := none, .. s }
+    pure { s with expectedType? := some b }
+  | _ => pure { s with expectedType? := none }
 
 private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat → State → TermElabM State
 | i, s =>
@@ -320,7 +320,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
       checkNoOptAutoParam binderView.type type;
       fvarId ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
-      let s     := { fvars := s.fvars.push fvar, .. s };
+      let s     := { s with fvars := s.fvars.push fvar };
       -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
       /-
         We do **not** want to support default and auto arguments in lambda abstractions.
@@ -329,14 +329,14 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
       -/
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
       s ← propagateExpectedType binderView.id fvar type s;
-      let s := { lctx := lctx, .. s };
+      let s := { s with lctx := lctx };
       className? ← isClass binderView.type type;
       match className? with
       | none           => elabFunBinderViews (i+1) s
       | some className => do
         resetSynthInstanceCache;
         let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId };
-        elabFunBinderViews (i+1) { localInsts := localInsts, .. s }
+        elabFunBinderViews (i+1) { s with localInsts := localInsts }
   else
     pure s
 

@@ -17,7 +17,7 @@ match s.cache.funInfo.find? ⟨t, fn, maxArgs?⟩ with
 | some finfo => pure finfo
 | none       => do
   finfo ← k;
-  modify $ fun s => { cache := { funInfo := s.cache.funInfo.insert ⟨t, fn, maxArgs?⟩ finfo, .. s.cache }, .. s };
+  modify $ fun s => { s with cache := { s.cache with funInfo := s.cache.funInfo.insert ⟨t, fn, maxArgs?⟩ finfo } };
   pure finfo
 
 @[inline] private def whenHasVar {α} (e : Expr) (deps : α) (k : α → α) : α :=
@@ -49,7 +49,7 @@ else
   pinfo.mapIdx $ fun i info =>
     if info.hasFwdDeps then info
     else if backDeps.contains i then
-      { hasFwdDeps := true, .. info }
+      { info with hasFwdDeps := true }
     else
       info
 

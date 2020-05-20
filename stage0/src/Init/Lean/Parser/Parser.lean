@@ -144,25 +144,25 @@ s.errorMsg != none
 s.stxStack.size
 
 def restore (s : ParserState) (iniStackSz : Nat) (iniPos : Nat) : ParserState :=
-{ stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos, .. s}
+{ s with stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos }
 
 def setPos (s : ParserState) (pos : Nat) : ParserState :=
-{ pos := pos, .. s }
+{ s with pos := pos }
 
 def setCache (s : ParserState) (cache : ParserCache) : ParserState :=
-{ cache := cache, .. s }
+{ s with cache := cache }
 
 def pushSyntax (s : ParserState) (n : Syntax) : ParserState :=
-{ stxStack := s.stxStack.push n, .. s }
+{ s with stxStack := s.stxStack.push n }
 
 def popSyntax (s : ParserState) : ParserState :=
-{ stxStack := s.stxStack.pop, .. s }
+{ s with stxStack := s.stxStack.pop }
 
 def shrinkStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
-{ stxStack := s.stxStack.shrink iniStackSz, .. s }
+{ s with stxStack := s.stxStack.shrink iniStackSz }
 
 def next (s : ParserState) (input : String) (pos : Nat) : ParserState :=
-{ pos := input.next pos, .. s }
+{ s with pos := input.next pos }
 
 def toErrorMsg (ctx : ParserContext) (s : ParserState) : String :=
 match s.errorMsg with
@@ -1383,7 +1383,7 @@ def categoryParserFn (catName : Name) : ParserFn :=
 fun ctx s => categoryParserFnExtension.getState ctx.env catName ctx s
 
 def categoryParser (catName : Name) (rbp : Nat) : Parser :=
-{ fn := fun c s => categoryParserFn catName { rbp := rbp, .. c } s }
+{ fn := fun c s => categoryParserFn catName { c with rbp := rbp } s }
 
 -- Define `termParser` here because we need it for antiquotations
 @[inline] def termParser (rbp : Nat := 0) : Parser :=
@@ -1497,7 +1497,7 @@ fun ctx s =>
     | _ => s.mkUnexpectedError ("failed to determine parser category using syntax stack, the specified element on the stack is not an identifier")
 
 def categoryParserOfStack (offset : Nat) (rbp : Nat := 0) : Parser :=
-{ fn := fun c s => categoryParserOfStackFn offset { rbp := rbp, .. c } s }
+{ fn := fun c s => categoryParserOfStackFn offset { c with rbp := rbp } s }
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
@@ -1632,7 +1632,7 @@ else match tokens.find tk.val with
   | some oldTk => do
     lbp     ← mergePrecendences "" tk.val oldTk.lbp tk.lbp;
     lbpNoWs ← mergePrecendences "(no whitespace) " tk.val oldTk.lbpNoWs tk.lbpNoWs;
-    pure $ tokens.insert tk.val { lbp := lbp, lbpNoWs := lbpNoWs, .. tk }
+    pure $ tokens.insert tk.val { tk with lbp := lbp, lbpNoWs := lbpNoWs }
 
 def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 throw ("unknown parser category '" ++ toString catName ++ "'")
@@ -1644,28 +1644,28 @@ match categories.find? catName with
 | some cat =>
   let addTokens (tks : List TokenConfig) : Except String ParserCategories :=
     let tks    := tks.map $ fun tk => mkNameSimple tk.val;
-    let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { leadingTable := tables.leadingTable.insert tk p, .. tables }) cat.tables;
-    pure $ categories.insert catName { tables := tables, .. cat };
+    let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with leadingTable := tables.leadingTable.insert tk p }) cat.tables;
+    pure $ categories.insert catName { cat with tables := tables };
   match p.info.firstTokens with
   | FirstTokens.tokens tks    => addTokens tks
   | FirstTokens.optTokens tks => addTokens tks
   | _ =>
-    let tables := { leadingParsers := p :: cat.tables.leadingParsers, .. cat.tables };
-    pure $ categories.insert catName { tables := tables, .. cat }
+    let tables := { cat.tables with leadingParsers := p :: cat.tables.leadingParsers };
+    pure $ categories.insert catName { cat with tables := tables }
 
 private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) : PrattParsingTables :=
 let addTokens (tks : List TokenConfig) : PrattParsingTables :=
   let tks := tks.map $ fun tk => mkNameSimple tk.val;
-  tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { trailingTable := tables.trailingTable.insert tk p, .. tables }) tables;
+  tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with trailingTable := tables.trailingTable.insert tk p }) tables;
 match p.info.firstTokens with
 | FirstTokens.tokens tks    => addTokens tks
 | FirstTokens.optTokens tks => addTokens tks
-| _                         => { trailingParsers := p :: tables.trailingParsers, .. tables }
+| _                         => { tables with trailingParsers := p :: tables.trailingParsers }
 
 def addTrailingParser (categories : ParserCategories) (catName : Name) (p : TrailingParser) : Except String ParserCategories :=
 match categories.find? catName with
 | none     => throwUnknownParserCategory catName
-| some cat => pure $ categories.insert catName { tables := addTrailingParserAux cat.tables p, .. cat }
+| some cat => pure $ categories.insert catName { cat with tables := addTrailingParserAux cat.tables p }
 
 def addParser (categories : ParserCategories) (catName : Name) (declName : Name) (leading : Bool) (p : Parser) : Except String ParserCategories :=
 match leading, p with
@@ -1699,17 +1699,18 @@ private def ParserExtension.addEntry (s : ParserExtensionState) (e : ParserExten
 match e with
 | ParserExtensionEntry.token tk =>
   match addTokenConfig s.tokens tk with
-  | Except.ok tokens => { tokens := tokens, newEntries := ParserExtensionOleanEntry.token tk :: s.newEntries, .. s }
+  | Except.ok tokens => { s with tokens := tokens, newEntries := ParserExtensionOleanEntry.token tk :: s.newEntries }
   | _                => unreachable!
 | ParserExtensionEntry.kind k =>
-  { kinds := s.kinds.insert k, newEntries := ParserExtensionOleanEntry.kind k :: s.newEntries, .. s }
+  { s with kinds := s.kinds.insert k, newEntries := ParserExtensionOleanEntry.kind k :: s.newEntries  }
 | ParserExtensionEntry.category catName leadingIdentAsSymbol =>
   if s.categories.contains catName then s
-  else { categories := s.categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol },
-         newEntries := ParserExtensionOleanEntry.category catName leadingIdentAsSymbol :: s.newEntries, .. s }
+  else { s with
+         categories := s.categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol },
+         newEntries := ParserExtensionOleanEntry.category catName leadingIdentAsSymbol :: s.newEntries }
 | ParserExtensionEntry.parser catName declName leading parser =>
   match addParser s.categories catName declName leading parser with
-  | Except.ok categories => { categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName :: s.newEntries, .. s }
+  | Except.ok categories => { s with categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName :: s.newEntries }
   | _ => unreachable!
 
 def compileParserDescr (categories : ParserCategories) : ParserDescr → Except String (Parser)
@@ -1770,17 +1771,17 @@ es.foldlM
        match entry with
        | ParserExtensionOleanEntry.token tk => do
          tokens ← IO.ofExcept (addTokenConfig s.tokens tk);
-         pure { tokens := tokens, .. s }
+         pure { s with tokens := tokens }
        | ParserExtensionOleanEntry.kind k =>
-         pure { kinds := s.kinds.insert k, .. s }
+         pure { s with kinds := s.kinds.insert k }
        | ParserExtensionOleanEntry.category catName leadingIdentAsSymbol => do
          categories ← IO.ofExcept (addParserCategoryCore s.categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol});
-         pure { categories := categories, .. s }
+         pure { s with categories := categories }
        | ParserExtensionOleanEntry.parser catName declName =>
          match mkParserOfConstant env s.categories declName with
         | Except.ok p     =>
           match addParser s.categories catName declName p.1 p.2 with
-          | Except.ok categories => pure { categories := categories, .. s }
+          | Except.ok categories => pure { s with categories := categories }
           | Except.error ex      => throw (IO.userError ex)
         | Except.error ex => throw (IO.userError ex))
       s)

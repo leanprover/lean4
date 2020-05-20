@@ -5,3 +5,5 @@ structure S :=
 
 
 #check { x := 10, y := true, z := "hello" : S }
+
+#check { fst := "hello", snd := "world" : Prod _ _ }

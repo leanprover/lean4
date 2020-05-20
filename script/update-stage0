@@ -3,7 +3,7 @@ set -euo pipefail
 
 rm -r stage0 || true
 mkdir -p stage0/
-c_files="$(cd src; find . -name '*.lean' | sed s/.lean/.c/ | sort | tr '\n' ' ')"
+c_files="$(cd src; find . -name '*.lean' | sed s/.lean/.c/ | LC_ALL=C sort | tr '\n' ' ')"
 for f in $c_files; do mkdir -p $(dirname stage0/stdlib/$f); cp $LIB/temp/$f stage0/stdlib/$f; done
 # ensure deterministic ordering
 echo "add_library (stage0 OBJECT $c_files)" > stage0/stdlib/CMakeLists.txt

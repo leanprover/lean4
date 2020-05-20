@@ -92,7 +92,7 @@ def generalizeTelescope {α} (es : Array Expr) (prefixForNewVars : Name) (k : Ar
 es ← es.mapM $ fun e => do {
   type ← inferType e;
   type ← instantiateMVars type;
-  pure { Entry . expr := e, type := type, modified := false }
+  pure { expr := e, type := type, modified := false : Entry }
 };
 generalizeTelescopeAux prefixForNewVars k es 0 1 #[]
 

@@ -82,6 +82,8 @@ static expr parse_structure_instance_core(parser & p, optional<expr> const & src
             p.next();
             catchall = true;
             break;
+        } else if (p.curr_is_token(get_colon_tk())) {
+            break;
         } else if (!read_source) {
             fns.push_back(p.check_id_next("invalid structure instance, identifier expected"));
             p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
@@ -175,6 +177,8 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
         p.check_token_next(get_rcurly_tk(), "invalid empty structure instance, '}' expected");
         return p.save_pos(mk_structure_instance(), pos);
     } else if (p.curr_is_token(get_dotdot_tk())) {
+        return parse_structure_instance_core(p);
+    } else if (p.curr_is_token(get_colon_tk())) {
         return parse_structure_instance_core(p);
     } else {
         e = p.parse_expr();

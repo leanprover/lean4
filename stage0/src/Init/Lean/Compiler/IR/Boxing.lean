@@ -53,7 +53,7 @@ let ps := decl.params;
 
 def mkBoxedVersionAux (decl : Decl) : N Decl := do
 let ps := decl.params;
-qs ← ps.mapM (fun _ => do x ← mkFresh; pure { Param . x := x, ty := IRType.object, borrow := false });
+qs ← ps.mapM (fun _ => do x ← mkFresh; pure { x := x, ty := IRType.object, borrow := false : Param });
 (newVDecls, xs) ← qs.size.foldM
   (fun i (r : Array FnBody × Array Arg) =>
      let (newVDecls, xs) := r;

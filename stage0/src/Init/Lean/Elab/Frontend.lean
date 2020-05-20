@@ -88,7 +88,7 @@ EIO.adaptExcept (fun (ex : Empty) => Empty.rec _ ex) $
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 let fileName   := fileName.getD "<input>";
 let inputCtx   := Parser.mkInputContext input fileName;
-parserStateRef ← IO.mkRef { Parser.ModuleParserState . };
+parserStateRef ← IO.mkRef ({} : Parser.ModuleParserState);
 cmdStateRef    ← IO.mkRef $ Command.mkState env {} opts;
 IO.processCommands inputCtx parserStateRef cmdStateRef;
 cmdState ← cmdStateRef.get;

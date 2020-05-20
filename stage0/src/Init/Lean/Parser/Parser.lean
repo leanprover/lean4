@@ -580,7 +580,7 @@ private def rawAux (startPos : Nat) (trailingWs : Bool) : ParserFn
   if trailingWs then
     let s        := whitespace c s;
     let stopPos' := s.pos;
-    let trailing := { Substring . str := input, startPos := stopPos, stopPos := stopPos' };
+    let trailing := { str := input, startPos := stopPos, stopPos := stopPos' : Substring };
     let atom     := mkAtom { leading := leading, pos := startPos, trailing := trailing } val;
     s.pushSyntax atom
   else
@@ -637,8 +637,8 @@ let leading   := mkEmptySubstringAt input startPos;
 let val       := input.extract startPos stopPos;
 let s         := whitespace c s;
 let wsStopPos := s.pos;
-let trailing  := { Substring . str := input, startPos := stopPos, stopPos := wsStopPos };
-let info      := { SourceInfo . leading := leading, pos := startPos, trailing := trailing };
+let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring };
+let info      := { leading := leading, pos := startPos, trailing := trailing : SourceInfo };
 s.pushSyntax (mkStxLit n val info)
 
 def charLitFnAux (startPos : Nat) : ParserFn
@@ -760,7 +760,7 @@ match tk with
   let s         := s.setPos stopPos;
   let s         := whitespace c s;
   let wsStopPos := s.pos;
-  let trailing  := { Substring . str := input, startPos := stopPos, stopPos := wsStopPos };
+  let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring };
   let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } val;
   s.pushSyntax atom
 
@@ -771,12 +771,12 @@ if isToken startPos stopPos tk then
   mkTokenAndFixPos startPos tk c s
 else
   let input           := c.input;
-  let rawVal          := { Substring . str := input, startPos := startPos, stopPos := stopPos };
+  let rawVal          := { str := input, startPos := startPos, stopPos := stopPos  : Substring };
   let s               := whitespace c s;
   let trailingStopPos := s.pos;
   let leading         := mkEmptySubstringAt input startPos;
-  let trailing        := { Substring . str := input, startPos := stopPos, stopPos := trailingStopPos };
-  let info            := { SourceInfo . leading := leading, trailing := trailing, pos := startPos };
+  let trailing        := { str := input, startPos := stopPos, stopPos := trailingStopPos : Substring };
+  let info            := { leading := leading, trailing := trailing, pos := startPos : SourceInfo };
   let atom            := mkIdent info rawVal val;
   s.pushSyntax atom
 

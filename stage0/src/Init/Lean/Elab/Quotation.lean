@@ -84,7 +84,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   let preresolved := r ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
-  `(Syntax.ident none $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
+  `(Syntax.ident (SourceInfo.mk none none none) $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k _) =>
   if isAntiquot stx && !isEscapedAntiquot stx then
@@ -104,7 +104,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
         `(Array.push $args $arg)) empty;
     `(Syntax.node $(quote k) $args)
 | Syntax.atom info val =>
-  `(Syntax.atom none $(quote val))
+  `(Syntax.atom (SourceInfo.mk none none none) $(quote val))
 | Syntax.missing => unreachable!
 
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do

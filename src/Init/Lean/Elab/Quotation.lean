@@ -168,7 +168,7 @@ def HeadInfo.generalizes : HeadInfo → HeadInfo → Bool
 
 private def getHeadInfo (alt : Alt) : HeadInfo :=
 let pat := alt.fst.head!;
-let unconditional (rhsFn) := { HeadInfo . rhsFn := rhsFn };
+let unconditional (rhsFn) := ({ rhsFn := rhsFn } : HeadInfo );
 -- variable pattern
 if pat.isOfKind `Lean.Parser.Term.id then unconditional $ fun rhs => `(let $pat := discr; $rhs)
 -- wildcard pattern

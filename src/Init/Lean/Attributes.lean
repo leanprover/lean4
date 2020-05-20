@@ -383,17 +383,18 @@ ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← register
     r.qsort (fun a b => Name.quickLt a.1 b.1),
   statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
 };
-let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
+let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => {
   name            := name,
   descr           := descr,
   applicationTime := applicationTime,
-  add             := fun env decl args persistent => do
+  add             := (fun env decl args persistent => do
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor? decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match validate env decl val with
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | _                => pure $ ext.addEntry env (decl, val)
+    | _                => pure $ ext.addEntry env (decl, val))
+  : AttributeImpl
 };
 attrs.forM registerBuiltinAttribute;
 pure { ext := ext, attrs := attrs }

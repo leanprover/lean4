@@ -14,7 +14,7 @@ namespace Lean
 def Options := KVMap
 
 namespace Options
-def empty : Options  := {KVMap .}
+def empty : Options  := ({} : KVMap)
 instance : HasEmptyc Options := ⟨empty⟩
 instance : Inhabited Options := ⟨empty⟩
 instance : HasToString Options := inferInstanceAs (HasToString KVMap)

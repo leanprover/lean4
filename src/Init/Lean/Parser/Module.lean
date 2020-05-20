@@ -44,7 +44,7 @@ let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>
   let msg := mkErrorMessage ctx s.pos (toString errorMsg);
-  (stx, { pos := s.pos, recovering := true }, { MessageLog . }.add msg)
+  (stx, { pos := s.pos, recovering := true }, ({} : MessageLog).add msg)
 | none =>
   (stx, { pos := s.pos }, {})
 
@@ -71,7 +71,7 @@ partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleP
     (mkEOI pos, s, messages)
   else
     let c  := mkParserContext env inputCtx;
-    let s  := { ParserState . cache := initCacheForInput c.input, pos := pos };
+    let s  := { cache := initCacheForInput c.input, pos := pos : ParserState };
     let s  := whitespace c s;
     let s  := (commandParser : Parser).fn c s;
     match s.errorMsg with

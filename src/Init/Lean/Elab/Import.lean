@@ -11,7 +11,7 @@ namespace Elab
 
 def headerToImports (header : Syntax) : List Import :=
 let header  := header.asNode;
-let imports := if (header.getArg 0).isNone then [{Import . module := `Init}] else [];
+let imports := if (header.getArg 0).isNone then [({ module := `Init } : Import)] else [];
 imports ++ (header.getArg 1).getArgs.toList.map (fun stx =>
   -- `stx` is of the form `(Module.import "import" "runtime"? id)
   let runtime := !(stx.getArg 1).isNone;

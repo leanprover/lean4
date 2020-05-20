@@ -49,7 +49,7 @@ def dirName (fname : String) : String :=
 let fname := normalizePath fname;
 match fname.revPosOf pathSeparator with
 | none => "."
-| some pos => { Substring . str := fname, startPos := 0, stopPos := pos }.toString
+| some pos => { str := fname, startPos := 0, stopPos := pos : Substring }.toString
 
 end FilePath
 

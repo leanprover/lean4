@@ -362,7 +362,7 @@ answer ← withMCtx cNode.mctx $ do {
   val ← instantiateMVars cNode.mvar;
   result ← abstractMVars val; -- assignable metavariables become parameters
   resultType ← inferType result.expr;
-  pure { Answer . result := result, resultType := resultType }
+  pure { result := result, resultType := resultType : Answer }
 };
 -- Remark: `answer` does not contain assignable or assigned metavariables.
 let key := cNode.key;
@@ -465,7 +465,7 @@ traceCtx `Meta.synthInstance $ do
    mvar ← mkFreshExprMVar type;
    mctx ← getMCtx;
    let key := mkTableKey mctx type;
-   adaptState' (fun (s : Meta.State) => { State . toState := s }) (fun (s : State) => s.toState) $ do {
+   adaptState' (fun (s : Meta.State) => ( { toState := s } : State )) (fun (s : State) => s.toState) $ do {
      newSubgoal mctx key mvar Waiter.root;
      synth fuel
    }

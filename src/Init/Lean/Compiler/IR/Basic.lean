@@ -48,7 +48,7 @@ end JoinPointId
 
 abbrev MData := KVMap
 namespace MData
-abbrev empty : MData := ({} : KVMap)
+abbrev empty : MData := { : KVMap }
 instance : HasEmptyc MData := ⟨empty⟩
 end MData
 

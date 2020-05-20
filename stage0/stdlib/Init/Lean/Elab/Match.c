@@ -35,6 +35,7 @@ extern lean_object* l_Lean_nullKind___closed__2;
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 lean_object* l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___closed__2;
 extern lean_object* l_Lean_Parser_Term_match___elambda__1___closed__2;
+extern lean_object* l_Lean_SourceInfo_inhabited___closed__1;
 extern lean_object* l_Lean_Parser_Term_let___elambda__1___closed__1;
 lean_object* l___private_Init_Lean_Elab_Match_2__expandSimpleMatchWithType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -54,7 +55,7 @@ lean_object* _init_l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_SourceInfo_inhabited___closed__1;
 x_2 = l_Lean_Parser_Term_let___elambda__1___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -84,7 +85,7 @@ lean_object* _init_l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_SourceInfo_inhabited___closed__1;
 x_2 = l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___closed__3;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -104,7 +105,7 @@ lean_object* _init_l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_SourceInfo_inhabited___closed__1;
 x_2 = l___private_Init_Lean_Elab_Match_1__expandSimpleMatch___closed__5;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -220,7 +221,7 @@ lean_object* _init_l___private_Init_Lean_Elab_Match_2__expandSimpleMatchWithType
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_SourceInfo_inhabited___closed__1;
 x_2 = l___private_Init_Util_1__mkPanicMessage___closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

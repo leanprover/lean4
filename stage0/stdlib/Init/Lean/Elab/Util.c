@@ -49,7 +49,6 @@ lean_object* l_Lean_Elab_mkMacroAttribute___closed__3;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Elab_getMacros___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
-lean_object* l_Lean_Syntax_truncateTrailing(lean_object*);
 lean_object* l_Lean_Elab_macroAttribute___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___main(lean_object*, lean_object*, lean_object*);
@@ -103,6 +102,7 @@ lean_object* l___private_Init_Lean_Elab_Util_1__evalSyntaxConstantUnsafe(lean_ob
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_unsetTrailing(lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__1;
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_Elab_getMacros___spec__2(lean_object*, lean_object*);
@@ -158,7 +158,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 lean_inc(x_1);
-x_2 = l_Lean_Syntax_truncateTrailing(x_1);
+x_2 = l_Lean_Syntax_unsetTrailing(x_1);
 x_3 = l_Lean_Syntax_reprint___main(x_2);
 lean_dec(x_2);
 if (lean_obj_tag(x_3) == 0)

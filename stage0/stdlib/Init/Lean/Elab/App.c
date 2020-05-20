@@ -278,6 +278,7 @@ lean_object* l___private_Init_Lean_Elab_App_13__resolveLValAux___boxed(lean_obje
 lean_object* l_Lean_Elab_Term_elabSortApp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21___main(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
+extern lean_object* l_Lean_SourceInfo_inhabited___closed__1;
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_App_13__resolveLValAux___closed__27;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -2961,7 +2962,7 @@ lean_object* _init_l___private_Init_Lean_Elab_App_10__elabAppArgsAux___main___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_SourceInfo_inhabited___closed__1;
 x_2 = l___private_Init_Lean_Elab_App_10__elabAppArgsAux___main___closed__13;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2983,7 +2984,7 @@ lean_object* _init_l___private_Init_Lean_Elab_App_10__elabAppArgsAux___main___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_SourceInfo_inhabited___closed__1;
 x_2 = l_Lean_Parser_Term_tacticBlock___elambda__1___closed__7;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

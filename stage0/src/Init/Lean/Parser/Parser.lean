@@ -23,7 +23,7 @@ abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
 Syntax.atom info val
 
 abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
-Syntax.ident (some info) rawVal val []
+Syntax.ident info rawVal val []
 
 /- Return character after position `pos` -/
 def getNext (input : String) (pos : Nat) : Char :=
@@ -619,7 +619,7 @@ def quotedCharFn : ParserFn
   if input.atEnd i then s.mkEOIError
   else
     let curr := input.get i;
-    if curr == '\\' || curr == '\"' || curr == '\'' || curr == 'n' || curr == 't' then
+    if curr == '\\' || curr == '\"' || curr == '\'' || curr == 'r' || curr == 'n' || curr == 't' then
       s.next input i
     else if curr == 'x' then
       andthenFn hexDigitFn hexDigitFn c (s.next input i)
@@ -639,7 +639,7 @@ let s         := whitespace c s;
 let wsStopPos := s.pos;
 let trailing  := { Substring . str := input, startPos := stopPos, stopPos := wsStopPos };
 let info      := { SourceInfo . leading := leading, pos := startPos, trailing := trailing };
-s.pushSyntax (mkStxLit n val (some info))
+s.pushSyntax (mkStxLit n val info)
 
 def charLitFnAux (startPos : Nat) : ParserFn
 | c, s =>
@@ -973,8 +973,8 @@ partial def strAux (sym : String) (errorMsg : String) : Nat → ParserFn
 
 def checkTailWs (prev : Syntax) : Bool :=
 match prev.getTailInfo with
-| some info => info.trailing.stopPos > info.trailing.startPos
-| none      => false
+| some { trailing := some trailing, .. } => trailing.stopPos > trailing.startPos
+| _                                      => false
 
 def checkWsBeforeFn (errorMsg : String) : ParserFn :=
 fun c s =>
@@ -987,8 +987,8 @@ def checkWsBefore (errorMsg : String) : Parser :=
 
 def checkTailNoWs (prev : Syntax) : Bool :=
 match prev.getTailInfo with
-| some info => info.trailing.stopPos == info.trailing.startPos
-| none      => false
+| some { trailing := some trailing, .. } => trailing.stopPos == trailing.startPos
+| _                                      => false
 
 private def pickNonNone (stack : Array Syntax) : Syntax :=
 match stack.findRev? $ fun stx => !stx.isNone with

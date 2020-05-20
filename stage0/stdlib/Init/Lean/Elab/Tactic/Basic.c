@@ -144,7 +144,6 @@ lean_object* l_Lean_Meta_intro(lean_object*, lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Elab_Tactic_tagUntaggedGoals___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalAssumption(lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftMetaTactic___closed__1;
-lean_object* l_Lean_Syntax_getTailWithInfo___main(lean_object*);
 lean_object* l_List_findM_x3f___main___at_Lean_Elab_Tactic_evalCase___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_isEqvAux___main___at_Lean_Elab_Tactic_withMVarContext___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Tactic_Basic_3__getIntrosSize___main(lean_object*);
@@ -381,6 +380,7 @@ lean_object* l_Lean_Elab_Tactic_monadLog___lambda__3(lean_object*, lean_object*,
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTraceState___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getTailWithPos___main(lean_object*);
 lean_object* l_Lean_Elab_Tactic_tacticElabAttribute___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalIntro(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntro___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -574,7 +574,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_inc(x_1);
-x_5 = l_Lean_Syntax_getTailWithInfo___main(x_1);
+x_5 = l_Lean_Syntax_getTailWithPos___main(x_1);
 x_6 = l_Lean_Elab_goalsToMessageData(x_2);
 x_7 = l_Lean_Elab_Term_reportUnsolvedGoals___closed__4;
 x_8 = lean_alloc_ctor(9, 2, 0);

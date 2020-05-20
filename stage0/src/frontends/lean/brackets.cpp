@@ -79,14 +79,8 @@ static expr parse_structure_instance_core(parser & p, optional<expr> const & src
     while (!p.curr_is_token(get_rcurly_tk())) {
         if (p.curr_is_token(get_dotdot_tk())) {
             p.next();
-            if (p.curr_is_token(get_rcurly_tk())) {
-                // ", ...}"
-                catchall = true;
-                break;
-            }
-            // ", ...src"
-            sources.push_back(p.parse_expr());
-            read_source = true;
+            catchall = true;
+            break;
         } else if (!read_source) {
             fns.push_back(p.check_id_next("invalid structure instance, identifier expected"));
             p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");

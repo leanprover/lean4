@@ -43137,7 +43137,7 @@ x_51 = lean_ctor_get(x_50, 3);
 lean_inc(x_51);
 if (lean_obj_tag(x_51) == 0)
 {
-lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
+lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 lean_inc_n(x_6, 2);
 lean_inc(x_46);
 x_52 = lean_alloc_ctor(0, 3, 0);
@@ -43151,17 +43151,21 @@ x_55 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_55, 0, x_46);
 lean_ctor_set(x_55, 1, x_54);
 lean_ctor_set(x_55, 2, x_54);
-x_56 = lean_alloc_ctor(0, 3, 0);
+x_56 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_56, 0, x_52);
-lean_ctor_set(x_56, 1, x_6);
-lean_ctor_set(x_56, 2, x_55);
 x_57 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_57, 0, x_56);
-x_58 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_58, 0, x_57);
-lean_ctor_set(x_58, 1, x_47);
-x_59 = l_Lean_Parser_ParserState_pushSyntax(x_50, x_58);
-x_8 = x_59;
+lean_ctor_set(x_57, 0, x_6);
+x_58 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_58, 0, x_55);
+x_59 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_59, 0, x_56);
+lean_ctor_set(x_59, 1, x_57);
+lean_ctor_set(x_59, 2, x_58);
+x_60 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_60, 0, x_59);
+lean_ctor_set(x_60, 1, x_47);
+x_61 = l_Lean_Parser_ParserState_pushSyntax(x_50, x_60);
+x_8 = x_61;
 goto block_40;
 }
 else
@@ -43583,7 +43587,7 @@ x_49 = lean_ctor_get(x_48, 3);
 lean_inc(x_49);
 if (lean_obj_tag(x_49) == 0)
 {
-lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
+lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 lean_inc_n(x_4, 2);
 lean_inc(x_44);
 x_50 = lean_alloc_ctor(0, 3, 0);
@@ -43597,17 +43601,21 @@ x_53 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_53, 0, x_44);
 lean_ctor_set(x_53, 1, x_52);
 lean_ctor_set(x_53, 2, x_52);
-x_54 = lean_alloc_ctor(0, 3, 0);
+x_54 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_54, 0, x_50);
-lean_ctor_set(x_54, 1, x_4);
-lean_ctor_set(x_54, 2, x_53);
 x_55 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_55, 0, x_54);
-x_56 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_56, 0, x_55);
-lean_ctor_set(x_56, 1, x_45);
-x_57 = l_Lean_Parser_ParserState_pushSyntax(x_48, x_56);
-x_6 = x_57;
+lean_ctor_set(x_55, 0, x_4);
+x_56 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_56, 0, x_53);
+x_57 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_57, 0, x_54);
+lean_ctor_set(x_57, 1, x_55);
+lean_ctor_set(x_57, 2, x_56);
+x_58 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_58, 0, x_57);
+lean_ctor_set(x_58, 1, x_45);
+x_59 = l_Lean_Parser_ParserState_pushSyntax(x_48, x_58);
+x_6 = x_59;
 goto block_38;
 }
 else

@@ -44,7 +44,6 @@ lean_object* l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMV
 uint8_t l___private_Init_Lean_Elab_SyntheticMVars_10__getSomeSynthethicMVarsRef___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Elab_Term_getOptions(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_repr___main___closed__13;
-lean_object* l_Lean_Syntax_getTailWithInfo___main(lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_8__synthesizeUsingDefault___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
@@ -124,6 +123,7 @@ lean_object* l_Lean_Elab_Term_instantiateMVars___boxed(lean_object*, lean_object
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__5;
 lean_object* l___private_Init_Lean_Elab_SyntheticMVars_1__resumeElabTerm___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_reportUnsolvedGoals(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getTailWithPos___main(lean_object*);
 lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Init_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__7;
@@ -970,7 +970,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 lean_inc(x_1);
-x_15 = l_Lean_Syntax_getTailWithInfo___main(x_1);
+x_15 = l_Lean_Syntax_getTailWithPos___main(x_1);
 x_16 = l_List_isEmpty___rarg(x_13);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -1115,7 +1115,7 @@ x_45 = lean_ctor_get(x_43, 1);
 lean_inc(x_45);
 lean_dec(x_43);
 lean_inc(x_1);
-x_46 = l_Lean_Syntax_getTailWithInfo___main(x_1);
+x_46 = l_Lean_Syntax_getTailWithPos___main(x_1);
 x_47 = l_List_isEmpty___rarg(x_44);
 if (lean_obj_tag(x_46) == 0)
 {
@@ -1301,7 +1301,7 @@ x_84 = lean_ctor_get(x_82, 1);
 lean_inc(x_84);
 lean_dec(x_82);
 lean_inc(x_1);
-x_85 = l_Lean_Syntax_getTailWithInfo___main(x_1);
+x_85 = l_Lean_Syntax_getTailWithPos___main(x_1);
 x_86 = l_List_isEmpty___rarg(x_83);
 if (lean_obj_tag(x_85) == 0)
 {

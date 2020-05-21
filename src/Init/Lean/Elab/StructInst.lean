@@ -787,6 +787,10 @@ fun stx expectedType? => do
       | some _,        _                        => throwError stx ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
       | _,             _                        => elabStructInstAux stx expectedType? sourceView
 
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab.struct;
+pure ()
+
 end StructInst
 end Term
 end Elab

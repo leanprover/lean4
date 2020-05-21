@@ -138,6 +138,8 @@ fun (Prod.mk x y) => f y x
   (Term.structInstField `x (null) ":=" (Term.num (numLit "10")))
   ","
   (Term.structInstField `y (null) ":=" (Term.num (numLit "20"))))
+ (null)
+ (null)
  "}")
 { x := 10, y := 20, }
 (Term.structInst
@@ -148,6 +150,8 @@ fun (Prod.mk x y) => f y x
   ","
   (Term.structInstField `y (null) ":=" (Term.num (numLit "20")))
   ",")
+ (null)
+ (null)
  "}")
 { x // p x 10 }
 (Term.subtype "{" `x (null) "//" (Term.app (Term.id `p (null)) (null (Term.id `x (null)) (Term.num (numLit "10")))) "}")
@@ -160,12 +164,14 @@ fun (Prod.mk x y) => f y x
  (Term.app (Term.id `p (null)) (null (Term.id `x (null)) (Term.num (numLit "10"))))
  "}")
 { .. }
-(Term.structInst "{" (null) (null (Term.structInstSource ".." (null))) "}")
-{ Prod . fst := 10, .. }
+(Term.structInst "{" (null) (null) (null "..") (null) "}")
+{ fst := 10, .. : Nat × Nat }
 (Term.structInst
  "{"
- (null `Prod ".")
- (null (Term.structInstField `fst (null) ":=" (Term.num (numLit "10"))) "," (Term.structInstSource ".." (null)))
+ (null)
+ (null (Term.structInstField `fst (null) ":=" (Term.num (numLit "10"))) ",")
+ (null "..")
+ (null ":" (Term.prod (Term.id `Nat (null)) "×" (Term.id `Nat (null))))
  "}")
 a[i]
 (Term.arrayRef (Term.id `a (null)) "[" (Term.id `i (null)) "]")
@@ -382,7 +388,9 @@ let { fst := x, .. } := f 10; x + x
   (Term.structInst
    "{"
    (null)
-   (null (Term.structInstField `fst (null) ":=" (Term.id `x (null))) "," (Term.structInstSource ".." (null)))
+   (null (Term.structInstField `fst (null) ":=" (Term.id `x (null))) ",")
+   (null "..")
+   (null)
    "}")
   (null)
   (null)

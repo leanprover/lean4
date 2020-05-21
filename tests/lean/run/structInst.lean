@@ -51,31 +51,31 @@ new_frontend
 
 namespace Ex1
 
-#check { B . y := 1 }
-#check { C . z := 1 }
+#check { y := 1 : B }
+#check { z := 1 : C }
 
 end Ex1
 
 namespace Ex2
 
-#check { B . x := 1 }
+#check { x := 1 : B }
 
 end Ex2
 
 namespace Ex3
 
-#check { C . x := 1 }
-#check { C . y := 1 }
-#check { C . z := 1 }
+#check { x := 1 : C }
+#check { y := 1 : C }
+#check { z := 1 : C }
 
 end Ex3
 
 namespace Ex4
 
-#check { C . x := 1 } -- works
-#check { C . y := 1 } -- works
-#check { C . z := 1 } -- works
-#check { C . z := 1, x := 2 } -- works
-#check { B . y := 1 } -- works
+#check { x := 1 : C } -- works
+#check { y := 1 : C } -- works
+#check { z := 1 : C } -- works
+#check { z := 1, x := 2 : C } -- works
+#check { y := 1 : B } -- works
 
 end Ex4

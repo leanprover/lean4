@@ -18,10 +18,10 @@ open Ex1
 
 def c1 : C Nat := { x := 1 }
 
-#check { z := 2, .. c1 }
+#check { c1 with z := 2 }
 
 def c2 : C (Nat × Nat) := { z := (1, 1) }
 
-#check { x.fst := 2, .. c2 }
+#check { c2 with x.fst := 2 }
 
-#check { x.1 := 3, .. c2 }
+#check { c2 with x.1 := 3 }

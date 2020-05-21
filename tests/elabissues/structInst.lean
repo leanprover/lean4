@@ -9,8 +9,8 @@ structure B extends A :=
 structure C extends B :=
 (z : Nat) (x := z + 10)
 
-#check { B . y := 1 } -- works
-#check { C . z := 1 } -- doesn't work, expected { z := 1, x := 1 + 10, y := (1 + 10) + 2 }
+#check { y := 1 : B } -- works
+#check { z := 1 : C } -- doesn't work, expected { z := 1, x := 1 + 10, y := (1 + 10) + 2 }
 
 end Ex1
 
@@ -24,7 +24,7 @@ structure B extends A :=
 
 #print B.y._default
 
-#check { B . x := 1 } -- works, but reduced a `HasAdd.add` into `Nat.add`:  `{toA := {x := 1, y := Nat.add (1+1) 1}, z := 1+1} : B`.
+#check { x := 1 : B } -- works, but reduced a `HasAdd.add` into `Nat.add`:  `{toA := {x := 1, y := Nat.add (1+1) 1}, z := 1+1} : B`.
 
 end Ex2
 
@@ -39,9 +39,9 @@ structure B extends A :=
 structure C extends B :=
 (z : Nat := 2*y) (x := z + 2) (y := z + 3)
 
-#check { C . x := 1 } -- doesn't work, should be { x := 1, y := 1+2, z := 2*(1+2) }
-#check { C . y := 1 } -- doesn't work, should be { y := 1, z := 2*1, x := 2*1 + 2 }
-#check { C . z := 1 } -- doesn't work, should be { z := 1, x := 1 + 2, y := 1 + 3 }
+#check { x := 1 : C } -- doesn't work, should be { x := 1, y := 1+2, z := 2*(1+2) }
+#check { y := 1 : C } -- doesn't work, should be { y := 1, z := 2*1, x := 2*1 + 2 }
+#check { z := 1 : C } -- doesn't work, should be { z := 1, x := 1 + 2, y := 1 + 3 }
 
 end Ex3
 
@@ -56,10 +56,10 @@ structure B extends A :=
 structure C extends B :=
 (z : Nat := 2*y) (x := z + 3)
 
-#check { C . x := 1 } -- works
-#check { C . y := 1 } -- doesn't work, should be { y := 1, z := 2*1, x := 2*1 + 3 }
-#check { C . z := 1 } -- doesn't work, should be { z := 1, x := 1 + 3, y := (1 + 3) + 1 }
-#check { C . z := 1, x := 2 } -- works
-#check { B . y := 1 } -- works, but reduced a `HasAdd.add` into `Nat.add`
+#check { x := 1 : C } -- works
+#check { y := 1 : C } -- doesn't work, should be { y := 1, z := 2*1, x := 2*1 + 3 }
+#check { z := 1 : C } -- doesn't work, should be { z := 1, x := 1 + 3, y := (1 + 3) + 1 }
+#check { z := 1, x := 2 : C } -- works
+#check { y := 1 : B } -- works, but reduced a `HasAdd.add` into `Nat.add`
 
 end Ex4

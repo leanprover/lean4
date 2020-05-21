@@ -465,7 +465,7 @@ traceCtx `Meta.synthInstance $ do
    mvar ← mkFreshExprMVar type;
    mctx ← getMCtx;
    let key := mkTableKey mctx type;
-   adaptState' (fun (s : Meta.State) => ( { toState := s } : State )) (fun (s : State) => s.toState) $ do {
+   adaptState' (fun (s : Meta.State) => { toState := s : State }) (fun (s : State) => s.toState) $ do {
      newSubgoal mctx key mvar Waiter.root;
      synth fuel
    }

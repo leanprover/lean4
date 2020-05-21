@@ -44,7 +44,7 @@ let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>
   let msg := mkErrorMessage ctx s.pos (toString errorMsg);
-  (stx, { pos := s.pos, recovering := true }, ({} : MessageLog).add msg)
+  (stx, { pos := s.pos, recovering := true }, { : MessageLog }.add msg)
 | none =>
   (stx, { pos := s.pos }, {})
 

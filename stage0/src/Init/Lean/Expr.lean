@@ -79,7 +79,7 @@ protected def BinderInfo.beq : BinderInfo → BinderInfo → Bool
 instance BinderInfo.hasBeq : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
 
 abbrev MData := KVMap
-abbrev MData.empty : MData := ({} : KVMap)
+abbrev MData.empty : MData := { : KVMap }
 instance MVData.hasEmptc : HasEmptyc MData := ⟨MData.empty⟩
 
 /--

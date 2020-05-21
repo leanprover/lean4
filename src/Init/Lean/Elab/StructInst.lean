@@ -358,7 +358,7 @@ private def mkSubstructSource (ref : Syntax) (structName : Name) (fieldNames : A
 match src with
 | Source.explicit stx src => do
   idx ← getFieldIdx ref structName fieldNames fieldName;
-  let stx := stx.modifyArg 1 $ fun stx => stx.modifyArg 0 $ fun stx => mkProjStx stx fieldName;
+  let stx := stx.modifyArg 0 $ fun stx => mkProjStx stx fieldName;
   pure $ Source.explicit stx (mkProj structName idx src)
 | s => pure s
 

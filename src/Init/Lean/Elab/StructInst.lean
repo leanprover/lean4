@@ -762,19 +762,30 @@ match mkStructView stx structName source with
   DefaultFields.propagate struct;
   pure r
 
+private def expandStructInstExpectedType (stx : Syntax) : MacroM (Option Syntax) :=
+let expectedArg := stx.getArg 4;
+if expectedArg.isNone then pure none
+else
+  let expected := expectedArg.getArg 1;
+  let stxNew   := stx.setArg 4 mkNullNode;
+  `(($stxNew : $expected))
+
 @[builtinTermElab structInst] def elabStructInst : TermElab :=
 fun stx expectedType? => do
-  -- TODO: expand expected type syntax at structurInst
-  stxNew? ← expandNonAtomicExplicitSource stx;
+  stxNew? ← liftMacroM $ expandStructInstExpectedType stx;
   match stxNew? with
   | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-  | none => do
-    sourceView ← getStructSource stx;
-    modifyOp?  ← isModifyOp? stx;
-    match modifyOp?, sourceView with
-    | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
-    | some _,        _                        => throwError stx ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
-    | _,             _                        => elabStructInstAux stx expectedType? sourceView
+  | none        => do
+    stxNew? ← expandNonAtomicExplicitSource stx;
+    match stxNew? with
+    | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+    | none => do
+      sourceView ← getStructSource stx;
+      modifyOp?  ← isModifyOp? stx;
+      match modifyOp?, sourceView with
+      | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
+      | some _,        _                        => throwError stx ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
+      | _,             _                        => elabStructInstAux stx expectedType? sourceView
 
 end StructInst
 end Term

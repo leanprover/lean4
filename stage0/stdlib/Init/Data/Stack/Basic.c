@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.Stack.Basic
 // Imports: Init.Data.Array Init.Data.Int
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Util
 // Imports: Init.Lean.Util.CollectFVars Init.Lean.Util.CollectLevelParams Init.Lean.Util.CollectMVars Init.Lean.Util.FindMVar Init.Lean.Util.MonadCache Init.Lean.Util.PPExt Init.Lean.Util.PPGoal Init.Lean.Util.Path Init.Lean.Util.Profile Init.Lean.Util.RecDepth Init.Lean.Util.Sorry Init.Lean.Util.Trace Init.Lean.Util.WHNF Init.Lean.Util.FindExpr Init.Lean.Util.ReplaceExpr Init.Lean.Util.FoldConsts
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

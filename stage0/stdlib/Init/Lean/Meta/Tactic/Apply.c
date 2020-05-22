@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Tactic.Apply
 // Imports: Init.Lean.Util.FindMVar Init.Lean.Meta.Message Init.Lean.Meta.ExprDefEq Init.Lean.Meta.SynthInstance Init.Lean.Meta.Tactic.Util
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

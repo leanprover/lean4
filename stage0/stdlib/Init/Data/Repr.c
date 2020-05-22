@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.Repr
 // Imports: Init.Data.String.Basic Init.Data.UInt Init.Data.Nat.Div
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

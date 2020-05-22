@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.Boxing
 // Imports: Init.Control.EState Init.Control.Reader Init.Data.AssocList Init.Data.Nat Init.Lean.Runtime Init.Lean.Compiler.ClosedTermCache Init.Lean.Compiler.ExternAttr Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.FreeVars Init.Lean.Compiler.IR.ElimDeadVars
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

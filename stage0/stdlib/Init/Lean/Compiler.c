@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler
 // Imports: Init.Lean.Compiler.InlineAttrs Init.Lean.Compiler.Specialize Init.Lean.Compiler.ConstFolding Init.Lean.Compiler.ClosedTermCache Init.Lean.Compiler.ExternAttr Init.Lean.Compiler.ImplementedByAttr Init.Lean.Compiler.NeverExtractAttr Init.Lean.Compiler.IR
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

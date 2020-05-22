@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.ElimDeadBranches
 // Imports: Init.Control.Reader Init.Data.Option Init.Data.Nat Init.Lean.Compiler.IR.Format Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

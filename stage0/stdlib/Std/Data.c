@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Std.Data
 // Imports: Init Std.Data.BinomialHeap
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

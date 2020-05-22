@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Basic
 // Imports: Init.Data.Nat.Div Init.Data.Nat.Bitwise
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

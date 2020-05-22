@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Delaborator
 // Imports: Init.Lean.KeyedDeclsAttribute Init.Lean.ProjFns Init.Lean.Syntax Init.Lean.Elab.Term
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.RecursorInfo
 // Imports: Init.Data.Nat.Control Init.Lean.AuxRecursor Init.Lean.Util.FindExpr Init.Lean.Meta.ExprDefEq Init.Lean.Meta.Message
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

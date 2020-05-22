@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.ExpandResetReuse
 // Imports: Init.Control.State Init.Control.Reader Init.Data.Nat Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.NormIds Init.Lean.Compiler.IR.FreeVars
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

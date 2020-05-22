@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Data.Option
 // Imports: Init.Data.Option.Basic Init.Data.Option.BasicAux Init.Data.Option.Instances
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

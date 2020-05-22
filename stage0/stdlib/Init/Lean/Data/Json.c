@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Data.Json
 // Imports: Init.Lean.Data.Json.Printer Init.Lean.Data.Json.Parser Init.Lean.Data.Json.FromToJson
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

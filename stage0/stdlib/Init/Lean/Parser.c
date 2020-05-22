@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Parser
 // Imports: Init.Lean.Parser.Parser Init.Lean.Parser.Level Init.Lean.Parser.Term Init.Lean.Parser.Tactic Init.Lean.Parser.Command Init.Lean.Parser.Module Init.Lean.Parser.Syntax
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Tactic.Generalize
 // Imports: Init.Lean.Meta.Tactic.Generalize Init.Lean.Meta.Check Init.Lean.Meta.Tactic.Intro Init.Lean.Elab.Tactic.ElabTerm
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

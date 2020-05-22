@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Elab
 // Imports: Init.Lean.Elab.Import Init.Lean.Elab.Exception Init.Lean.Elab.StrategyAttrs Init.Lean.Elab.Command Init.Lean.Elab.Term Init.Lean.Elab.App Init.Lean.Elab.Binders Init.Lean.Elab.Quotation Init.Lean.Elab.Frontend Init.Lean.Elab.BuiltinNotation Init.Lean.Elab.Declaration Init.Lean.Elab.Tactic Init.Lean.Elab.Syntax Init.Lean.Elab.Match Init.Lean.Elab.DoNotation Init.Lean.Elab.StructInst
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.AppBuilder
 // Imports: Init.Lean.Util.Recognizers Init.Lean.Meta.SynthInstance
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean
 // Imports: Init.Lean.Compiler Init.Lean.Environment Init.Lean.Modifiers Init.Lean.ProjFns Init.Lean.Runtime Init.Lean.Attributes Init.Lean.Parser Init.Lean.ReducibilityAttrs Init.Lean.Elab Init.Lean.EqnCompiler Init.Lean.Class Init.Lean.LocalContext Init.Lean.MetavarContext Init.Lean.AuxRecursor Init.Lean.Linter Init.Lean.Meta Init.Lean.Util Init.Lean.Eval Init.Lean.Structure Init.Lean.Delaborator Init.Lean.PrettyPrinter
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

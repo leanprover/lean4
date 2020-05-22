@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.HasCoe
 // Imports: Init.Data.List.Basic
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

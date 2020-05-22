@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init
 // Imports: Init.Core Init.Control Init.Data.Basic Init.WF Init.Data Init.System Init.Util Init.Fix Init.LeanInit Init.ShareCommon
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

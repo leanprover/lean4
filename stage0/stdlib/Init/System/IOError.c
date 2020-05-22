@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.System.IOError
 // Imports: Init.Core Init.Data.UInt Init.Data.ToString Init.Data.String.Basic
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

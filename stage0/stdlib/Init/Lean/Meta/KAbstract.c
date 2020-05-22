@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.KAbstract
 // Imports: Init.Lean.Data.Occurrences Init.Lean.HeadIndex Init.Lean.Meta.ExprDefEq
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

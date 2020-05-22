@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Quotation
 // Imports: Init.Lean.Syntax Init.Lean.Elab.ResolveName Init.Lean.Elab.Term Init.Lean.Parser
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

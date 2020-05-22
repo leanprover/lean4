@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.EmitC
 // Imports: Init.Control.Conditional Init.Lean.Runtime Init.Lean.Compiler.NameMangling Init.Lean.Compiler.ExportAttr Init.Lean.Compiler.InitAttr Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.EmitUtil Init.Lean.Compiler.IR.NormIds Init.Lean.Compiler.IR.SimpCase Init.Lean.Compiler.IR.Boxing
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

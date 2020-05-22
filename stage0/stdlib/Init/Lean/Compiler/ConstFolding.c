@@ -1,7 +1,7 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.ConstFolding
 // Imports: Init.System.Platform Init.Lean.Expr Init.Lean.Compiler.Util
-#include <lean/runtime/lean.h>
+#include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"

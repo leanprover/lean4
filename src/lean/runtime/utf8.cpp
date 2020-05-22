@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <cstdlib>
 #include <string>
-#include <lean/runtime/debug.h>
-#include <lean/runtime/optional.h>
-#include <lean/runtime/utf8.h>
+#include <lean/debug.h>
+#include <lean/optional.h>
+#include <lean/utf8.h>
 
 namespace lean {
 bool is_utf8_next(unsigned char c) { return (c & 0xC0) == 0x80; }

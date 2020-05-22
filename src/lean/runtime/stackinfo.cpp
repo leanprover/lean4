@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <memory.h>
 #include <iostream>
-#include <lean/runtime/thread.h>
-#include <lean/runtime/exception.h>
+#include <lean/thread.h>
+#include <lean/exception.h>
 
 #if !defined(LEAN_USE_SPLIT_STACK)
 #if defined(LEAN_WINDOWS)

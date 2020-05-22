@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <algorithm>
-#include <lean/runtime/sstream.h>
+#include <lean/sstream.h>
 #include "util/fresh_name.h"
 #include "util/timeit.h"
 #include "kernel/abstract.h"

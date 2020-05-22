@@ -33,9 +33,9 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #else
 #include <dlfcn.h>
 #endif
-#include <lean/runtime/flet.h>
-#include <lean/runtime/apply.h>
-#include <lean/runtime/interrupt.h>
+#include <lean/flet.h>
+#include <lean/apply.h>
+#include <lean/interrupt.h>
 #include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "util/option_ref.h"

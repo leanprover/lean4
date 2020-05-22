@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include <algorithm>
-#include <lean/runtime/sstream.h>
+#include <lean/sstream.h>
 #include "util/name_generator.h"
 #include "util/name_set.h"
 

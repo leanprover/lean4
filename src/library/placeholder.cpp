@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/runtime/thread.h>
+#include <lean/thread.h>
 #include "kernel/find_fn.h"
 #include "library/placeholder.h"
 #include "library/pos_info_provider.h"

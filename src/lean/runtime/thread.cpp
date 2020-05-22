@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 #include <pthread.h>
 #endif
 #include <lean/config.h>
-#include <lean/runtime/thread.h>
-#include <lean/runtime/interrupt.h>
-#include <lean/runtime/exception.h>
-#include <lean/runtime/alloc.h>
-#include <lean/runtime/stack_overflow.h>
+#include <lean/thread.h>
+#include <lean/interrupt.h>
+#include <lean/exception.h>
+#include <lean/alloc.h>
+#include <lean/stack_overflow.h>
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb

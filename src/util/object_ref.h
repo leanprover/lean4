@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include <string>
-#include <lean/runtime/object.h>
-#include <lean/runtime/optional.h>
-#include <lean/runtime/serializer.h>
+#include <lean/object.h>
+#include <lean/optional.h>
+#include <lean/serializer.h>
 
 namespace lean {
 /* Smart point for Lean objects. It is useful for writing C++ code that manipulates Lean objects.  */

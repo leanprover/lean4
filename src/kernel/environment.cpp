@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <limits>
-#include <lean/runtime/sstream.h>
-#include <lean/runtime/thread.h>
+#include <lean/sstream.h>
+#include <lean/thread.h>
 #include "util/map_foreach.h"
 #include "util/io.h"
 #include "kernel/environment.h"

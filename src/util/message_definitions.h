@@ -7,7 +7,7 @@ Author: Gabriel Ebner
 #pragma once
 #include <utility>
 #include <string>
-#include <lean/runtime/int64.h>
+#include <lean/int64.h>
 #include "util/name.h"
 
 namespace lean {

@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <utility>
 #include <limits>
 #include <string>
-#include <lean/runtime/sstream.h>
-#include <lean/runtime/utf8.h>
+#include <lean/sstream.h>
+#include <lean/utf8.h>
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "library/explicit.h"

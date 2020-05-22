@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include <lean/runtime/stackinfo.h>
+#include <lean/stackinfo.h>
 #include "util/test.h"
 using namespace lean;
 

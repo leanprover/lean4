@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include <lean/runtime/hash.h>
+#include <lean/hash.h>
 #include "library/expr_lt.h"
 
 namespace lean {

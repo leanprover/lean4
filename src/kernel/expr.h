@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 #include <utility>
 #include <tuple>
 #include <string>
-#include <lean/runtime/optional.h>
-#include <lean/runtime/thread.h>
-#include <lean/runtime/serializer.h>
-#include <lean/runtime/hash.h>
+#include <lean/optional.h>
+#include <lean/thread.h>
+#include <lean/serializer.h>
+#include <lean/hash.h>
 #include "util/name.h"
 #include "util/nat.h"
 #include "util/buffer.h"

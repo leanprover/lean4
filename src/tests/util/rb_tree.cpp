@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include <ctime>
 #include <unordered_set>
 #include <sstream>
-#include <lean/runtime/thread.h>
+#include <lean/thread.h>
 #include "util/test.h"
 #include "util/buffer.h"
 #include "util/rb_tree.h"

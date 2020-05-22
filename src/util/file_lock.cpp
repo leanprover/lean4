@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <cstring>
 #include <errno.h>
 #include <fcntl.h>
-#include <lean/runtime/exception.h>
-#include <lean/runtime/sstream.h>
+#include <lean/exception.h>
+#include <lean/sstream.h>
 #include "util/file_lock.h"
 
 #if defined(LEAN_WINDOWS)

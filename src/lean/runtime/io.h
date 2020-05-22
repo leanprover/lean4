@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include <lean/runtime/object.h>
+#include <lean/object.h>
 namespace lean {
 obj_res set_io_result(obj_arg a);
 obj_res set_io_error(obj_arg e);

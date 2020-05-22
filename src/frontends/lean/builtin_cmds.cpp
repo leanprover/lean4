@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <lean/runtime/sstream.h>
-#include <lean/runtime/compact.h>
+#include <lean/sstream.h>
+#include <lean/compact.h>
 #include "util/timeit.h"
 #include "util/io.h"
 #include "util/option_declarations.h"

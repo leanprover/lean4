@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
-#include <lean/runtime/sstream.h>
+#include <lean/sstream.h>
 #include "kernel/environment.h"
 #include "library/metavar_context.h"
 #include "library/type_context.h"

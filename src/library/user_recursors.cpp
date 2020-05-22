@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include <lean/runtime/sstream.h>
+#include <lean/sstream.h>
 #include "kernel/find_fn.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"

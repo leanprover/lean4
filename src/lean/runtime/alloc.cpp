@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include <lean/runtime/thread.h>
-#include <lean/runtime/debug.h>
-#include <lean/runtime/alloc.h>
-#include <lean/runtime/lean.h>
+#include <lean/thread.h>
+#include <lean/debug.h>
+#include <lean/alloc.h>
+#include <lean/lean.h>
 
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb

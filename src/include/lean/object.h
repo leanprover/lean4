@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include <lean/runtime/lean.h>
-#include <lean/runtime/mpz.h>
+#include <lean/lean.h>
+#include <lean/mpz.h>
 
 namespace lean {
 typedef uint8_t  uint8;

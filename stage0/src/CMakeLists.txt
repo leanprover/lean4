@@ -535,15 +535,21 @@ install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
 if(${STAGE} EQUAL 0)
   add_library(Init STATIC $<TARGET_OBJECTS:stage0>)
+  add_library(Std STATIC $<TARGET_OBJECTS:stage0>)
 else()
 # created by the previous stage
   add_library(Init STATIC IMPORTED)
   set_target_properties(Init PROPERTIES
     IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libInit.a")
+
+  add_library(Std STATIC IMPORTED)
+  set_target_properties(Std PROPERTIES
+    IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libStd.a")
 endif()
 # leancpp and Init are cyclically dependent
 target_link_libraries(Init INTERFACE leancpp)
-target_link_libraries(leancpp INTERFACE Init ${EXTRA_LIBS})
+target_link_libraries(Std INTERFACE leancpp)
+target_link_libraries(leancpp INTERFACE Init Std ${EXTRA_LIBS})
 
 if(LLVM)
   target_link_libraries(leancpp INTERFACE ${llvm_libs})
@@ -551,7 +557,7 @@ endif()
 
 add_custom_target(update-stage0
   COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
-  DEPENDS Init
+  DEPENDS Init Std
   WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)

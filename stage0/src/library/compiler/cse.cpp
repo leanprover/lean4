@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <vector>
-#include <lean/runtime/flet.h>
+#include <lean/flet.h>
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"

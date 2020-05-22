@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include <string>
-#include <lean/runtime/optional.h>
+#include <lean/optional.h>
 #include "util/rb_map.h"
 #include "util/buffer.h"
 

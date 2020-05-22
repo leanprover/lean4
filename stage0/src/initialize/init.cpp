@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/runtime/stackinfo.h>
-#include <lean/runtime/thread.h>
-#include <lean/runtime/init_module.h>
+#include <lean/stackinfo.h>
+#include <lean/thread.h>
+#include <lean/init_module.h>
 #include "util/init_module.h"
 #include "util/io.h"
 #include "kernel/init_module.h"

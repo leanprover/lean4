@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <lean/runtime/hash.h>
-#include <lean/runtime/lean.h>
-#include <lean/runtime/compact.h>
+#include <lean/hash.h>
+#include <lean/lean.h>
+#include <lean/compact.h>
 
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
 #define LEAN_MAX_SHARING_TABLE_INITIAL_SIZE 1024*1024

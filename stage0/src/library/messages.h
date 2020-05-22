@@ -9,7 +9,7 @@ Author: Gabriel Ebner
 #include "util/message_definitions.h"
 #include "util/parser_exception.h"
 #include "util/option_ref.h"
-#include <lean/runtime/flet.h>
+#include <lean/flet.h>
 
 namespace lean {
 /*

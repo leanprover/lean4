@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include <lean/runtime/flet.h>
+#include <lean/flet.h>
 #include "util/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"

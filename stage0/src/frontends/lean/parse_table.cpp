@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <utility>
-#include <lean/runtime/sstream.h>
+#include <lean/sstream.h>
 #include "util/rb_map.h"
 #include "kernel/replace_fn.h"
 #include "library/io_state_stream.h"

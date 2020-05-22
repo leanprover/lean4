@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #include <functional>
 #include <unordered_map>
 #include <cstring>
-#include <lean/runtime/object.h>
-#include <lean/runtime/optional.h>
+#include <lean/object.h>
+#include <lean/optional.h>
 
 namespace lean {
 class serializer {

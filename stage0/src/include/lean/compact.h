@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include <vector>
 #include <unordered_map>
-#include <lean/runtime/object.h>
+#include <lean/object.h>
 
 namespace lean {
 typedef lean_object * object_offset;

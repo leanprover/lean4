@@ -619,7 +619,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         PATTERN "*.lean"
         PATTERN "*.md")
 
-file(COPY ${CMAKE_SOURCE_DIR}/lean/runtime DESTINATION ${CMAKE_BINARY_DIR}/include/lean
+file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")

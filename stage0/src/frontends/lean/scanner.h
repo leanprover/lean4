@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include <iostream>
-#include <lean/runtime/mpq.h>
-#include <lean/runtime/flet.h>
-#include <lean/runtime/utf8.h>
+#include <lean/mpq.h>
+#include <lean/flet.h>
+#include <lean/utf8.h>
 #include "util/name.h"
 #include "kernel/environment.h"
 #include "library/pos_info_provider.h"

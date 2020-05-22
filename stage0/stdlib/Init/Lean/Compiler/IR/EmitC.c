@@ -3791,7 +3791,7 @@ lean_object* _init_l_Lean_IR_EmitC_emitFileHeader___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#include <lean/runtime/lean.h>");
+x_1 = lean_mk_string("#include <lean/lean.h>");
 return x_1;
 }
 }

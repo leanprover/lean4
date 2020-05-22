@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <vector>
-#include <lean/runtime/thread.h>
-#include <lean/runtime/debug.h>
+#include <lean/thread.h>
+#include <lean/debug.h>
 namespace lean {
 /*
    TODO(Leo): remove this file after we finish converting the code to `object`.

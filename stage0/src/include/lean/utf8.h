@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include <lean/runtime/optional.h>
+#include <lean/optional.h>
 #include "util/buffer.h"
 
 namespace lean {

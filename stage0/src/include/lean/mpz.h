@@ -10,9 +10,9 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include <limits>
-#include <lean/runtime/int64.h>
-#include <lean/runtime/debug.h>
-#include <lean/runtime/lean.h>
+#include <lean/int64.h>
+#include <lean/debug.h>
+#include <lean/lean.h>
 
 namespace lean {
 

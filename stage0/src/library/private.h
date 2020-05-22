@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include <lean/runtime/optional.h>
+#include <lean/optional.h>
 #include "kernel/environment.h"
 
 namespace lean {

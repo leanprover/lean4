@@ -10,8 +10,8 @@ Author: Leonardo de Moura
 #include <functional>
 #include <algorithm>
 #include <utility>
-#include <lean/runtime/optional.h>
-#include <lean/runtime/serializer.h>
+#include <lean/optional.h>
+#include <lean/serializer.h>
 #include "util/buffer.h"
 #include "util/pair.h"
 #include "util/nat.h"

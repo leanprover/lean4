@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <tuple>
 #include <unordered_set>
 #include <functional>
-#include <lean/runtime/interrupt.h>
+#include <lean/interrupt.h>
 #include "util/buffer.h"
 #include "library/max_sharing.h"
 

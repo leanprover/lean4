@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include <cstring>
-#include <lean/runtime/debug.h>
-#include <lean/runtime/optional.h>
+#include <lean/debug.h>
+#include <lean/optional.h>
 
 namespace lean {
 /**

@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <unordered_set>
-#include <lean/runtime/debug.h>
-#include <lean/runtime/interrupt.h>
-#include <lean/runtime/hash.h>
+#include <lean/debug.h>
+#include <lean/interrupt.h>
+#include <lean/hash.h>
 #include "util/buffer.h"
 #include "util/list.h"
 #include "kernel/level.h"

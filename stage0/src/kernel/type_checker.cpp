@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
-#include <lean/runtime/interrupt.h>
-#include <lean/runtime/sstream.h>
-#include <lean/runtime/flet.h>
+#include <lean/interrupt.h>
+#include <lean/sstream.h>
+#include <lean/flet.h>
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "kernel/type_checker.h"

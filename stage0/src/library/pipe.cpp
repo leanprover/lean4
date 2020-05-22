@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch
 */
-#include <lean/runtime/exception.h>
+#include <lean/exception.h>
 #include "library/pipe.h"
 
 #if !defined(LEAN_WINDOWS)

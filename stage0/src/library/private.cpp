@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <string>
-#include <lean/runtime/sstream.h>
-#include <lean/runtime/hash.h>
+#include <lean/sstream.h>
+#include <lean/hash.h>
 #include "library/private.h"
 #include "library/module.h"
 

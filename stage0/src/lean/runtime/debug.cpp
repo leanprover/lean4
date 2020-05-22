@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 // Support for pid
 #include<unistd.h>
 #endif
-#include <lean/runtime/debug.h>
+#include <lean/debug.h>
 
 namespace lean {
 static volatile bool           g_has_violations     = false;

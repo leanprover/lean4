@@ -250,7 +250,7 @@ if(LLVM)
   #   that we wish to use and define llvm_libs
   llvm_map_components_to_libnames(llvm_libs nativecodegen)
 else()
-  message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
+  #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
 endif()
 
 if(STATIC)
@@ -481,7 +481,7 @@ endif ()
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
 install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
-configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_BINARY_DIR}/share/lean/Makefile")
+configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
 install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
 
 if(EMSCRIPTEN)
@@ -554,7 +554,7 @@ add_custom_target(update-stage0
   DEPENDS Init
   WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
-configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc")
+configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

@@ -7,6 +7,17 @@
 (Term.id `Nat (null))
 (Term.app (Term.id `List (null)) (null (Term.id `Nat (null))))
 (Term.app (Term.id `id (null)) (null (Term.id `Nat (null))))
+(Term.app
+ (Term.id `id (null))
+ (null
+  (Term.paren
+   "("
+   (null
+    (Term.app
+     (Term.id `id (null))
+     (null (Term.paren "(" (null (Term.app (Term.id `id (null)) (null (Term.id `Nat (null)))) (null)) ")")))
+    (null))
+   ")")))
 (Term.app (Term.id `List (null)) (null (Term.id `Nat (null))))
 (Term.app (Term.explicit "@" (Term.id `id (null))) (null (Term.type "Type") (Term.id `Nat (null))))
 (Term.app

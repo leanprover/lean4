@@ -28,6 +28,7 @@ unlessM (isDefEq stx e e') $
 #eval check `(Nat)
 #eval check `(List Nat)
 #eval check `(id Nat)
+#eval check `(id (id (id Nat)))
 section
   set_option pp.explicit true
   #eval check `(List Nat)

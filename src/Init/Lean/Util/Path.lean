@@ -55,7 +55,7 @@ match val with
 | some val => parseSearchPath val sp
 
 @[export lean_init_search_path]
-def initSearchPath (path : Option String := "") : IO Unit :=
+def initSearchPath (path : Option String := none) : IO Unit :=
 match path with
 | some path => parseSearchPath path >>= searchPathRef.set
 | none      => do

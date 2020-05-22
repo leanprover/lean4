@@ -1,4 +1,6 @@
-import Init.Data.BinomialHeap
+import Std.Data.BinomialHeap
+
+open Std
 
 abbrev Heap := BinomialHeap Nat (fun a b => a < b)
 

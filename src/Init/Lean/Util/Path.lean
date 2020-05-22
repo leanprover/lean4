@@ -49,8 +49,11 @@ appDir ← IO.appDir;
 let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
 installedLibDirExists ← IO.isDir installedLibDir;
 if installedLibDirExists then do
-  path ← realPathNormalized installedLibDir;
-  pure $ HashMap.empty.insert "Init" path
+  initPath ← realPathNormalized installedLibDir;
+  let map := HashMap.empty.insert "Init" initPath;
+  let stdDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Std";
+  stdPath ← realPathNormalized stdDir;
+  pure $ map.insert "Std" stdPath
 else
   pure ∅
 

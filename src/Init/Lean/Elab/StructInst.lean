@@ -105,10 +105,12 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
 let continue (val : Syntax) : TermElabM Expr := do {
   let lval := modifyOp.getArg 0;
   let idx  := lval.getArg 1;
-  let self := (source.getArg 1).getArg 0;
+  let self := source.getArg 0;
   stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val));
+  trace `Elab.struct.modifyOp stx $ fun _ => stx ++ "\n===>\n" ++ stxNew;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-};
+}; do
+trace `Elab.struct.modifyOp stx $ fun _ => modifyOp ++ "\nSource: " ++ source;
 let rest := modifyOp.getArg 1;
 if rest.isNone then do
   continue (modifyOp.getArg 3)
@@ -120,9 +122,10 @@ else do
   let valRest   := mkNullNode (restArgs.extract 1 restArgs.size);
   let valField  := modifyOp.setArg 0 valFirst;
   let valField  := valField.setArg 1 valRest;
-  let valSource := source.modifyArg 1 $ fun stx => stx.modifyArg 0 $ fun _ => s;
-  let val       := stx.setArg 1 mkNullNode;
-  let val       := val.setArg 2 $ mkNullNode #[valField, mkAtomFrom stx ", ", valSource];
+  let valSource := source.modifyArg 0 $ fun _ => s;
+  let val       := stx.setArg 1 valSource;
+  let val       := val.setArg 2 $ mkNullNode #[valField];
+  trace `Elab.struct.modifyOp stx $ fun _ => stx ++ "\nval: " ++ val;
   continue val
 
 /- Get structure name and elaborate explicit source (if available) -/

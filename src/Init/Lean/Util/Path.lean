@@ -84,17 +84,6 @@ some root ← pure $ sp.find? pkg
 let fname := root ++ modPathToFilePath path ++ ".olean";
 pure fname
 
-def findAtSearchPath (fname : String) : IO (Option (String × String)) := do
-fname ← realPathNormalized fname;
-sp ← searchPathRef.get;
-results ← sp.foldM (fun results pkg path => do
-  path ← realPathNormalized path;
-  pure $ if String.isPrefixOf path fname then (pkg, path) :: results else results) [];
-match results with
-| [res] => pure res
-| []    => pure none
-   | _     => throw (IO.userError ("file '" ++ fname ++ "' is contained in multiple packages: " ++ ", ".intercalate (results.map Prod.fst)))
-
 /-- Infer module name of source file name, assuming that `lean` is called from the package source root. -/
 @[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : String) : IO Name := do

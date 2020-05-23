@@ -316,6 +316,11 @@ def termParser.parenthesizer : Parenthesizer | p => do
 lbp ← evalNat p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(($stx))) lbp
 
+@[builtinParenthesizer tacticParser]
+def tacticParser.parenthesizer : Parenthesizer | p => do
+lbp ← evalNat p.appArg!;
+visitParenthesizable (fun stx => Unhygienic.run `(tactic|($stx))) lbp
+
 @[builtinParenthesizer levelParser]
 def levelParser.parenthesizer : Parenthesizer | p => do
 lbp ← evalNat p.appArg!;

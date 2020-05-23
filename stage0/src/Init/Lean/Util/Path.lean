@@ -36,23 +36,17 @@ constant searchPathRef : IO.Ref SearchPath := arbitrary _
 def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath := do
 let ps := System.FilePath.splitSearchPath path;
 sp ← ps.foldlM (fun (sp : SearchPath) s => match s.splitOn "=" with
-  | [pkg, path] => do
-    condM (IO.isDir path)
-      (pure $ sp.insert pkg path)
-      (throw $ IO.userError $ "invalid search path, '" ++ path ++ "' is not a directory")
+  | [pkg, path] => pure $ sp.insert pkg path
   | _           => throw $ IO.userError $ "ill-formed search path entry '" ++ s ++ "', should be of form 'pkg=path'")
   sp;
 pure sp
 
 def getBuiltinSearchPath : IO SearchPath := do
 appDir ← IO.appDir;
-let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
-installedLibDirExists ← IO.isDir installedLibDir;
-if installedLibDirExists then do
-  path ← realPathNormalized installedLibDir;
-  pure $ HashMap.empty.insert "Init" path
-else
-  pure ∅
+let map := HashMap.empty;
+let map := map.insert "Init" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
+let map := map.insert "Std" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Std";
+pure map
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
 val ← IO.getEnv "LEAN_PATH";
@@ -89,17 +83,6 @@ some root ← pure $ sp.find? pkg
   | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
 let fname := root ++ modPathToFilePath path ++ ".olean";
 pure fname
-
-def findAtSearchPath (fname : String) : IO (Option (String × String)) := do
-fname ← realPathNormalized fname;
-sp ← searchPathRef.get;
-results ← sp.foldM (fun results pkg path => do
-  path ← realPathNormalized path;
-  pure $ if String.isPrefixOf path fname then (pkg, path) :: results else results) [];
-match results with
-| [res] => pure res
-| []    => pure none
-   | _     => throw (IO.userError ("file '" ++ fname ++ "' is contained in multiple packages: " ++ ", ".intercalate (results.map Prod.fst)))
 
 /-- Infer module name of source file name, assuming that `lean` is called from the package source root. -/
 @[export lean_module_name_of_file]

@@ -437,7 +437,6 @@ lean_object* l_Lean_Elab_Term_Quotation_oldParseExpr___closed__1;
 lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_4__getHeadInfo___lambda__3___closed__2;
 extern lean_object* l_Lean_mkHole___closed__1;
-extern lean_object* l_List_foldlM___main___at_Lean_parseSearchPath___spec__8___closed__3;
 lean_object* l_ReaderT_bind___at___private_Init_Lean_Elab_Quotation_5__explodeHeadPat___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_categoryParser___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_2__quoteSyntax___main___closed__12;
@@ -494,6 +493,7 @@ lean_object* l___private_Init_Lean_Elab_Quotation_2__quoteSyntax___main___closed
 extern lean_object* l_Lean_mkHole___closed__2;
 extern lean_object* l_Lean_Parser_Term_stxQuot___elambda__1___closed__3;
 lean_object* l___private_Init_Lean_Elab_Quotation_2__quoteSyntax___main___closed__46;
+extern lean_object* l_List_foldlM___main___at_Lean_parseSearchPath___spec__7___closed__3;
 lean_object* l___private_Init_Lean_Elab_Quotation_2__quoteSyntax___main___closed__34;
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabStxQuot(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_8__letBindRhss___main___closed__15;
@@ -7527,7 +7527,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l_List_foldlM___main___at_Lean_parseSearchPath___spec__8___closed__3;
+x_2 = l_List_foldlM___main___at_Lean_parseSearchPath___spec__7___closed__3;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

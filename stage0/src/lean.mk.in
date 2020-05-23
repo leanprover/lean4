@@ -28,11 +28,10 @@ lib: $(LIB_OUT)/$(STATIC_LIB_NAME)
 
 depends: $(DEPS)
 
-# `lean --deps` complains if the `LEAN_PATH` doesn't point at anything
-$(OLEAN_OUT)/$(PKG) $(LIB_OUT) $(BIN_OUT):
+$(LIB_OUT) $(BIN_OUT):
 	@mkdir -p "$@"
 
-$(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
+$(TEMP_OUT)/%.depend: %.lean
 	@mkdir -p "$(TEMP_OUT)/$(*D)"
 # use separate assignment to ensure failure propagation
 # convert path separators and newlines on Windows

@@ -1,4 +1,4 @@
-SHELL := /usr/bin/env bash
+SHELL := /usr/bin/env bash -euo pipefail
 
 stdlib:
 # (I don't know how to add comments inside a multiline rule, so all comments go first)

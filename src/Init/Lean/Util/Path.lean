@@ -36,27 +36,17 @@ constant searchPathRef : IO.Ref SearchPath := arbitrary _
 def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath := do
 let ps := System.FilePath.splitSearchPath path;
 sp ← ps.foldlM (fun (sp : SearchPath) s => match s.splitOn "=" with
-  | [pkg, path] => do
-    condM (IO.isDir path)
-      (pure $ sp.insert pkg path)
-      (throw $ IO.userError $ "invalid search path, '" ++ path ++ "' is not a directory")
+  | [pkg, path] => pure $ sp.insert pkg path
   | _           => throw $ IO.userError $ "ill-formed search path entry '" ++ s ++ "', should be of form 'pkg=path'")
   sp;
 pure sp
 
 def getBuiltinSearchPath : IO SearchPath := do
 appDir ← IO.appDir;
-let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
-installedLibDirExists ← IO.isDir installedLibDir;
-if installedLibDirExists then do
-  initPath ← realPathNormalized installedLibDir;
-  let map := HashMap.empty.insert "Init" initPath;
-  -- let stdDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Std";
-  -- stdPath ← realPathNormalized stdDir;
-  -- let map := map.insert "Std" stdPath;
-  pure map
-else
-  pure ∅
+let map := HashMap.empty;
+let map := map.insert "Init" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
+let map := map.insert "Std" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Std";
+pure map
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
 val ← IO.getEnv "LEAN_PATH";

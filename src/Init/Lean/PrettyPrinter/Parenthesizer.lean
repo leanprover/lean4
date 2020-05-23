@@ -410,7 +410,7 @@ visitArgs $ visit (p.getArg! 0)
 @[builtinParenthesizer sepBy]
 def sepBy.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
-visitArgs $ (List.range stx.getArgs.size).forM $ fun i => visit (p.getArg! (i % 2))
+visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => visit (p.getArg! (i % 2))
 
 @[builtinParenthesizer sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
 

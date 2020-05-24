@@ -1423,8 +1423,8 @@ def pushNone : Parser :=
 { fn := fun c s => s.pushSyntax mkNullNode }
 
 -- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-private def antiquotNestedExpr : Parser := node `antiquotNestedExpr ("(" >> termParser >> ")")
-private def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
+def antiquotNestedExpr : Parser := node `antiquotNestedExpr ("(" >> termParser >> ")")
+def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 /--
   Define parser for `$e` (if anonymous == true) and `$e:name`. Both

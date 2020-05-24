@@ -76,6 +76,7 @@ the left. `visitArgs x` executes `x` on the right-most child of the current node
 prelude
 import Init.Lean.Parser
 import Init.Lean.Elab.Command
+import Init.Lean.Elab.Quotation
 import Init.Lean.Delaborator
 
 namespace Lean
@@ -195,6 +196,13 @@ instance ParenthesizerM.monadTraverser : Syntax.MonadTraverser ParenthesizerM :=
 
 open Syntax.MonadTraverser
 
+/-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
+def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
+stx ← getCur;
+when (stx.getArgs.size > 0) $
+  goDown (stx.getArgs.size - 1) *> x <* goUp;
+goLeft
+
 /--
   Call an appropriate `[parenthesizer]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
   should be to the left of all nodes produced by `p`, or at the left-most child if there are no other nodes left. -/
@@ -224,6 +232,17 @@ instance monadQuotation : MonadQuotation ParenthesizerM := {
   getMainModule       := pure $ arbitrary _,
   withFreshMacroScope := fun α x => x,
 }
+
+def visitAntiquot : ParenthesizerM Unit := do
+stx ← getCur;
+if Elab.Term.Quotation.isAntiquot stx then visitArgs $ do
+  -- antiquot syntax is, simplified, `"$" "$"* antiquotExpr ":" (nonReservedSymbol name) "*"?`
+  goLeft; goLeft; goLeft; -- now on `antiquotExpr`
+  visit (mkConst `Lean.Parser.antiquotExpr);
+  -- set precedence; see special case in `currLbp`
+  modify (fun st => { st with firstLbp := Parser.appPrec, minLbp := Parser.appPrec })
+else
+  throw $ Exception.other $ "not an antiquotation"
 
 /-- Recurse using `visit`, and parenthesize the result using `mkParen` if necessary. -/
 def visitParenthesizable (mkParen : Syntax → Syntax) (rbp : Nat) : ParenthesizerM Unit := do
@@ -271,13 +290,6 @@ def visitToken (lbp : Nat) : ParenthesizerM Unit := do
 modify (fun st => { st with firstLbp := lbp });
 goLeft
 
-/-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
-def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
-stx ← getCur;
-when (stx.getArgs.size > 0) $
-  goDown (stx.getArgs.size - 1) *> x <* goUp;
-goLeft
-
 def evalNat (e : Expr) : ParenthesizerM Nat := do
 e ← liftM $ whnf e;
 some n ← pure $ Meta.evalNat e
@@ -317,23 +329,23 @@ lbp ← evalNat p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(($stx))) lbp
 
 @[builtinParenthesizer tacticParser]
-def tacticParser.parenthesizer : Parenthesizer | p => do
+def tacticParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
 lbp ← evalNat p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(tactic|($stx))) lbp
 
 @[builtinParenthesizer levelParser]
-def levelParser.parenthesizer : Parenthesizer | p => do
+def levelParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
 lbp ← evalNat p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(level|($stx))) lbp
 
-@[builtinParenthesizer commandParser]
-def commandParser.parenthesizer : Parenthesizer | p => do
+@[builtinParenthesizer categoryParser]
+def categoryParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
 stx ← getCur;
 visit (mkConst stx.getKind)
 
 @[builtinParenthesizer withAntiquot]
 def withAntiquot.parenthesizer : Parenthesizer | p =>
-visit (p.getArg! 1)
+visitAntiquot <|> visit (p.getArg! 1)
 
 @[builtinParenthesizer try]
 def try.parenthesizer : Parenthesizer | p =>
@@ -374,7 +386,7 @@ visitArgs $ do {
     | panic! "trailingNode.parenthesizer: visited a trailing term without tokens?!";
   { mkParen := some mkParen, .. } ← read
     | panic! "trailingNode.parenthesizer called outside of visitParenthesizable call";
-  visitParenthesizable mkParen 0;
+  visitAntiquot <|> visitParenthesizable mkParen 0;
   modify $ fun st => { st with minLbp := Nat.min (st.minLbp.getD (lbp - 1)) (lbp - 1) }
 }
 

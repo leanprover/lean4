@@ -55,12 +55,12 @@ syntax "_big" "[" term "," term "]" "(" index ")" term : term
 macro_rules
 | `(_big [$op, $idx] ($i:ident <- $r | $p) $F) => `(bigop $idx $r (fun $i:ident => ($i:ident, $op, $p, $F)))
 | `(_big [$op, $idx] ($i:ident <- $r) $F) => `(bigop $idx $r (fun $i:ident => ($i:ident, $op, true, $F)))
-| `(_big [$op, $idx] ($lower ≤ $i:ident < $upper) $F) => `(bigop $idx (index_iota $lower $upper) (fun $i:ident => ($i:ident, $op, true, $F)))
-| `(_big [$op, $idx] ($lower ≤ $i:ident < $upper | $p) $F) => `(bigop $idx (index_iota $lower $upper) (fun $i:ident => ($i:ident, $op, $p, $F)))
+| `(_big [$op, $idx] ($lower:term ≤ $i:ident < $upper) $F) => `(bigop $idx (index_iota $lower $upper) (fun $i:ident => ($i:ident, $op, true, $F)))
+| `(_big [$op, $idx] ($lower:term ≤ $i:ident < $upper | $p) $F) => `(bigop $idx (index_iota $lower $upper) (fun $i:ident => ($i:ident, $op, $p, $F)))
 
 -- Define `Sum`
 syntax "Sum" "(" index ")" term : term
-macro_rules `(Sum ($idx:index) $F:term) => `(_big [HasAdd.add, 0] ($idx:index) $F:term)
+macro_rules `(Sum ($idx) $F) => `(_big [HasAdd.add, 0] ($idx) $F)
 
 -- We can already use `Sum` with the different kinds of index.
 #check Sum (i <- [0, 2, 4] | i != 2) i
@@ -69,7 +69,7 @@ macro_rules `(Sum ($idx:index) $F:term) => `(_big [HasAdd.add, 0] ($idx:index) $
 
 -- Define `Prod`
 syntax "Prod" "(" index ")" term : term
-macro_rules `(Prod ($idx:index) $F:term) => `(_big [HasMul.mul, 1] ($idx:index) $F:term)
+macro_rules `(Prod ($idx) $F) => `(_big [HasMul.mul, 1] ($idx) $F)
 
 -- The examples above now also work for `Prod`
 #check Prod (i <- [0, 2, 4] | i != 2) i
@@ -97,7 +97,7 @@ def myPred (x : Fin 10) : Bool := true
 
 -- We can easily create alternative syntax for any big operator.
 syntax "Σ" index "=>" term : term
-macro_rules `(Σ $idx:index => $F:term) => `(Prod ($idx:index) $F)
+macro_rules `(Σ $idx => $F) => `(Prod ($idx) $F)
 
 #check Σ 10 ≤ i < 20 => i+1
 
@@ -105,7 +105,7 @@ macro_rules `(Σ $idx:index => $F:term) => `(Prod ($idx:index) $F)
 syntax "def_bigop" str term:max term:max : command
 macro_rules
 | `(def_bigop $head:strLit $op $unit) =>
-   `(macro $head:strLit "(" idx:index ")" F:term : term => `(_big [$op, $unit] ($$idx:index) $$F))
+   `(macro $head:strLit "(" idx:index ")" F:term : term => `(_big [$op, $unit] ($$idx) $$F))
 
 def_bigop "SUM" Nat.add 0
 #check SUM (i <- [0, 1, 2]) i+1

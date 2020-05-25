@@ -324,7 +324,7 @@ else
   throw $ Exception.other $ "failed to evaluate Name argument: " ++ toString e
 
 @[builtinParenthesizer termParser]
-def termParser.parenthesizer : Parenthesizer | p => do
+def termParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
 lbp ← evalNat p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(($stx))) lbp
 

@@ -1822,12 +1822,7 @@ private def catNameToString : Name → String
 | n                           => n.toString
 
 @[inline] def mkCategoryAntiquotParser (kind : Name) : ParserFn :=
--- allow "anonymous" antiquotations `$x` for the `term` category only
--- TODO: make customizable
--- one good example for a category that should not be anonymous is
--- `index` in `tests/lean/run/bigop.lean`.
-let anonAntiquot := kind == `term;
-(mkAntiquot (catNameToString kind) none anonAntiquot).fn
+(mkAntiquot (catNameToString kind) none).fn
 
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>

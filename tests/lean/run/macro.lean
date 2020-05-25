@@ -20,11 +20,11 @@ syntax ident ":" term : index
 syntax "{" index " | " term "}" : term
 
 macro_rules
-| `({$l ≤ $x:ident < $u | $p}) => `(setOf (fun $x:ident => $l ≤ $x:ident ∧ $x:ident < $u ∧ $p))
+| `({$l:term ≤ $x:ident < $u | $p}) => `(setOf (fun $x:ident => $l ≤ $x:ident ∧ $x:ident < $u ∧ $p))
 | `({$x:ident : $t | $p}) => `(setOf (fun ($x:ident : $t) => $p))
-| `({$x ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
-| `({$x ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
-| `({$b      | $r}) => `(setOf (fun $b => $r))
+| `({$x:term ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
+| `({$x:term ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
+| `({$b:term      | $r}) => `(setOf (fun $b => $r))
 
 #check { 1 ≤ x < 10 | x ≠ 5 }
 #check { f : Nat → Nat | f 1  > 0 }
@@ -32,7 +32,7 @@ macro_rules
 syntax "⋃ " term ", " term : term
 
 macro_rules
-| `(⋃ $b, $r) => `(Union {$b | $r})
+| `(⋃ $b, $r) => `(Union {$b:term | $r})
 
 #check ⋃ x,              x = x
 #check ⋃ (x : Set Unit), x = x

@@ -325,8 +325,13 @@ else
 
 @[builtinParenthesizer termParser]
 def termParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
-lbp ← evalNat p.appArg!;
-visitParenthesizable (fun stx => Unhygienic.run `(($stx))) lbp
+stx ← getCur;
+-- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
+if stx.getKind == nullKind then
+  throw $ Exception.other "BACKTRACK"
+else do
+  lbp ← evalNat p.appArg!;
+  visitParenthesizable (fun stx => Unhygienic.run `(($stx))) lbp
 
 @[builtinParenthesizer tacticParser]
 def tacticParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do

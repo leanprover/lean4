@@ -217,11 +217,17 @@ match c >>= (parenthesizerAttribute.ext.getState env).table.find? with
 | some (f::_) => do
   -- call first matching parenthesizer
   f p
-| _           => do
-  -- (try to) unfold definition and recurse
-  some p' ← liftM $ unfoldDefinition? p
-    | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
-  visit p'
+| _           =>
+  -- `choice` is not an actual parser, so special-case it here
+  if c == some `choice then
+    visitArgs $ stx.getArgs.size.forM $ fun _ => do
+      stx ← getCur;
+      visit (mkConst stx.getKind)
+  else do
+    -- (try to) unfold definition and recurse
+    some p' ← liftM $ unfoldDefinition? p
+      | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
+    visit p'
 
 open Lean.Parser
 

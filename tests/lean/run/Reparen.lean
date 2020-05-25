@@ -35,15 +35,16 @@ def main (args : List String) : IO Unit := do
 initSearchPath none;
 env ← importModules [{module := `Init.Lean.Parser}];
 stx ← Lean.Parser.parseFile env args.head!;
-(stx', env) ← IO.runMeta (do
-    let cmds := stx.getArgs.extract 1 stx.getArgs.size;
-    args ← cmds.mapM $ PrettyPrinter.parenthesizeCommand ∘ unparen;
-    pure $ stx.setArgs (#[stx.getArgs.get! 0] ++ args)
-  )
-  -- change to `true` for trace output
-  env { opts := KVMap.insert {} `trace.PrettyPrinter.parenthesize false };
-some s ← pure stx'.reprint | throw $ IO.userError "reprint failed";
-true ← Parser.testModuleParser env s | throw $ IO.userError "reparse failed";
-IO.print s
+let header := stx.getArg 0;
+some s ← pure header.reprint | throw $ IO.userError "header reprint failed";
+IO.print s;
+let cmds := stx.getArgs.extract 1 stx.getArgs.size;
+cmds.forM $ fun cmd => do
+  let cmd := unparen cmd;
+  (cmd, _) ← IO.runMeta (PrettyPrinter.parenthesizeCommand cmd)
+    -- change to `true` for trace output
+    env { opts := KVMap.insert {} `trace.PrettyPrinter.parenthesize false };
+  some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
+  IO.print s
 
 #eval main ["../../../src/Init/Core.lean"]

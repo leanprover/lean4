@@ -32,6 +32,10 @@ partial def unparen : Syntax → Syntax
   | _ => stx.modifyArgs $ Array.map unparen
 
 def main (args : List String) : IO Unit := do
+let (debug, f) : Bool × String := match args with
+  | [f, "-d"] => (true, f)
+  | [f]       => (false, f)
+  | _         => panic! "usage: file [-d]";
 initSearchPath none;
 env ← importModules [{module := `Init.Lean.Parser}];
 stx ← Lean.Parser.parseFile env args.head!;
@@ -42,8 +46,7 @@ let cmds := stx.getArgs.extract 1 stx.getArgs.size;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
   (cmd, _) ← IO.runMeta (PrettyPrinter.parenthesizeCommand cmd)
-    -- change to `true` for trace output
-    env { opts := KVMap.insert {} `trace.PrettyPrinter.parenthesize false };
+    env { opts := KVMap.insert {} `trace.PrettyPrinter.parenthesize debug };
   some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 

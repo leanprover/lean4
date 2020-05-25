@@ -264,7 +264,7 @@ adaptReader (fun (ctx : Context) => { ctx with mkParen := some mkParen }) $
   | panic! "visitParenthesizable: visited a term without tokens?!";
 trace! `PrettyPrinter.parenthesize ("...precedences are " ++ fmt rbp ++ " >? " ++ fmt minLbpP ++ ", " ++ fmt trailRbpP ++ " <? " ++ fmt st.firstLbp);
 -- Should we parenthesize?
-trailRbpP ← if rbp > minLbpP || (match trailRbpP, st.firstLbp with some trailRbpP, some firstLbp => trailRbpP < firstLbp | _, _ => false) then do
+when (rbp > minLbpP || match trailRbpP, st.firstLbp with some trailRbpP, some firstLbp => trailRbpP < firstLbp | _, _ => false) $ do {
     -- The recursive `visit` call, by the invariant, has moved to the next node to the left. In order to parenthesize
     -- the original node, we must first move to the right, except if we already were at the left-most child in the first
     -- place.
@@ -281,8 +281,9 @@ trailRbpP ← if rbp > minLbpP || (match trailRbpP, st.firstLbp with some trailR
     stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none);
     goLeft;
     -- after parenthesization, there is no more trailing parser
-    pure (none : Option Nat)
-  else pure trailRbpP;
+    modify (fun st => { st with minLbp := appPrec, firstLbp := appPrec, trailRbp := none })
+};
+{ trailRbp := trailRbpP, .. } ← get;
 -- If we already had a token at this level (`st.firstLbp ≠ none`), keep the trailing parser. Otherwise, use the minimum of
 -- `rbp` and `trailRbpP`.
 let trailRbp := match trailRbpP, st.firstLbp with

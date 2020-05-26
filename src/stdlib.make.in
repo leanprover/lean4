@@ -24,4 +24,11 @@ stdlib:
       "OLEAN_OUT=${LIB}/lean"\
       "LEANC_OPTS=${LEANC_OPTS}"\
       "MORE_DEPS=${LEAN_BIN}/lean${CMAKE_EXECUTABLE_SUFFIX}";\
+    "${LEAN_BIN}/leanmake" lib\
+      PKG=Lean\
+      "OUT=${LIB}"\
+      "LIB_OUT=${LIB}/lean"\
+      "OLEAN_OUT=${LIB}/lean"\
+      "LEANC_OPTS=${LEANC_OPTS}"\
+      "MORE_DEPS=${LEAN_BIN}/lean${CMAKE_EXECUTABLE_SUFFIX}";\
   fi

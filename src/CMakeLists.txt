@@ -553,8 +553,8 @@ else()
 endif()
 # leancpp and Init are cyclically dependent
 target_link_libraries(Init INTERFACE leancpp)
-target_link_libraries(Std INTERFACE leancpp)
-target_link_libraries(Lean INTERFACE leancpp Std)
+target_link_libraries(Std INTERFACE leancpp Init)
+target_link_libraries(Lean INTERFACE leancpp Std Init)
 target_link_libraries(leancpp INTERFACE Init Std Lean ${EXTRA_LIBS})
 
 if(LLVM)
@@ -563,7 +563,7 @@ endif()
 
 add_custom_target(update-stage0
   COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
-  DEPENDS Init Std
+  DEPENDS Init Std Lean
   WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)

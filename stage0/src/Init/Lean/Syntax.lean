@@ -233,9 +233,9 @@ partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
 | atom _ val             => some $ atom info val
 | ident _ rawVal val pre => some $ ident info rawVal val pre
 | node k args            =>
-  match updateFirst args setHeadInfoAux args.size with
+  match updateFirst args setHeadInfoAux 0 with
   | some args => some $ node k args
-  | noxne      => none
+  | noxne     => none
 | stx                    => none
 
 def setHeadInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
@@ -273,14 +273,17 @@ partial def reprint : Syntax → Option String
 
 open Lean.Format
 
-private def formatInfo (showPos : Bool) (info : Option SourceInfo) : Format :=
-match info, showPos with
-| some info, true => ":" ++ toString info.pos
-| _,         _    => ""
+private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Format :=
+if showInfo then
+  (match info.leading with some ss => repr ss.toString ++ ":" | _ => "") ++
+  f ++
+  (match info.pos with some pos => ":" ++ toString info.pos | _ => "") ++
+  (match info.trailing with some ss => ":" ++ repr ss.toString | _ => "")
+else f
 
-partial def formatStxAux (maxDepth : Option Nat) (showPos : Bool) : Nat → Syntax → Format
-| _,     atom info val     => format (repr val) ++ formatInfo showPos info
-| _,     ident info _ val pre => format "`" ++ format val ++ formatInfo showPos info
+partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syntax → Format
+| _,     atom info val     => formatInfo showInfo info $ format (repr val)
+| _,     ident info _ val pre => formatInfo showInfo info $ format "`" ++ format val
 | _,     missing           => "<missing>"
 | depth, node kind args    =>
   let depth := depth + 1;
@@ -297,8 +300,8 @@ partial def formatStxAux (maxDepth : Option Nat) (showPos : Bool) : Nat → Synt
       if depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
     paren $ joinSep (header :: body) line
 
-def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showPos := false) : Format :=
-formatStxAux maxDepth showPos 0 stx
+def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false) : Format :=
+formatStxAux maxDepth showInfo 0 stx
 
 instance : HasFormat (Syntax)   := ⟨formatStx⟩
 instance : HasToString (Syntax) := ⟨toString ∘ format⟩

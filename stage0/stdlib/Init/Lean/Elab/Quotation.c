@@ -336,6 +336,7 @@ extern lean_object* l_Lean_Expr_listLitAux___main___closed__4;
 uint8_t l_Lean_Elab_Term_Quotation_isAntiquot(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__2;
 lean_object* l_Lean_mkFVar(lean_object*);
+extern lean_object* l_Lean_optionToExpr___rarg___lambda__1___closed__3;
 lean_object* l___private_Init_Lean_Elab_Quotation_6__compileStxMatch___main___closed__37;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Quotation_2__quoteSyntax___main___spec__1___closed__4;
 lean_object* l_Lean_Elab_Term_TermElabM_inhabited___boxed(lean_object*, lean_object*);
@@ -578,7 +579,6 @@ extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Quotation_2__quoteSyntax___main___spec__1___closed__5;
 lean_object* l_Lean_Elab_Term_Quotation_unescapeAntiquot(lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_HeadInfo_generalizes___boxed(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Syntax_9__quoteOption___rarg___closed__3;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__19;
 lean_object* l___private_Init_Lean_Elab_Quotation_4__getHeadInfo___boxed(lean_object*);
@@ -2011,7 +2011,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Init_Lean_Syntax_9__quoteOption___rarg___closed__3;
+x_2 = l_Lean_optionToExpr___rarg___lambda__1___closed__3;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

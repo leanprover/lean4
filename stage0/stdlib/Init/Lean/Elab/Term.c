@@ -541,7 +541,6 @@ lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg___closed__2;
 lean_object* l_Lean_Elab_Term_elabNamedHole___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeInst___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_termElabAttribute;
-lean_object* l_IO_println___at_Lean_Meta_MetaHasEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandCDot_x3f___closed__1;
 lean_object* l_Lean_Elab_Term_elabArrayLit___closed__10;
 lean_object* l_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___closed__2;
@@ -882,6 +881,7 @@ lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkAuxName___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabStr___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_IO_println___at_IO_runMeta___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___closed__6;
 lean_object* l_Lean_Elab_Term_tryLiftAndCoe___closed__3;
 lean_object* l_Lean_Elab_Term_decLevel___closed__6;
@@ -28701,7 +28701,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lean_Message_toString(x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
-x_5 = l_IO_println___at_Lean_Meta_MetaHasEval___spec__1(x_4, x_2);
+x_5 = l_IO_println___at_IO_runMeta___spec__1(x_4, x_2);
 return x_5;
 }
 }

@@ -1423,8 +1423,8 @@ def pushNone : Parser :=
 { fn := fun c s => s.pushSyntax mkNullNode }
 
 -- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-private def antiquotNestedExpr : Parser := node `antiquotNestedExpr ("(" >> termParser >> ")")
-private def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
+def antiquotNestedExpr : Parser := node `antiquotNestedExpr ("(" >> termParser >> ")")
+def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 /--
   Define parser for `$e` (if anonymous == true) and `$e:name`. Both
@@ -1822,12 +1822,7 @@ private def catNameToString : Name → String
 | n                           => n.toString
 
 @[inline] def mkCategoryAntiquotParser (kind : Name) : ParserFn :=
--- allow "anonymous" antiquotations `$x` for the `term` category only
--- TODO: make customizable
--- one good example for a category that should not be anonymous is
--- `index` in `tests/lean/run/bigop.lean`.
-let anonAntiquot := kind == `term;
-(mkAntiquot (catNameToString kind) none anonAntiquot).fn
+(mkAntiquot (catNameToString kind) none).fn
 
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>

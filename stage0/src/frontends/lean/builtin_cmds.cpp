@@ -384,6 +384,7 @@ static environment eval_cmd(parser & p) {
     out.set_caption("eval result");
     scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
     std::streambuf * saved_cout = std::cout.rdbuf(out.get_text_stream().get_stream().rdbuf());
+    std::streambuf * saved_cerr = std::cerr.rdbuf(out.get_text_stream().get_stream().rdbuf());
 
     object_ref r;
 
@@ -393,11 +394,13 @@ static environment eval_cmd(parser & p) {
         r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
     } catch (exception & ex) {
         std::cout.rdbuf(saved_cout);
+        std::cerr.rdbuf(saved_cerr);
         out.report();
         throw ex;
     }
 
     std::cout.rdbuf(saved_cout);
+    std::cerr.rdbuf(saved_cerr);
     out.report();
     if (io_result_is_error(r.raw())) {
         message_builder msg = p.mk_message(p.cmd_pos(), p.pos(), ERROR);

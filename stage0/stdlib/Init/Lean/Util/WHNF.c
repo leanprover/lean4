@@ -32,6 +32,7 @@ lean_object* l_Lean_WHNF_whnfEasyCases___main___rarg(lean_object*, lean_object*,
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_WHNF_matchConstAux(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_WHNF_1__getFirstCtor___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_optionToExpr___rarg___lambda__1___closed__4;
 lean_object* l___private_Init_Lean_Util_WHNF_4__toCtorWhenK___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_WHNF_toCtorIfLit___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -83,7 +84,6 @@ extern lean_object* l_Lean_charToExpr___lambda__1___closed__5;
 lean_object* l___private_Init_Lean_Util_WHNF_7__deltaDefinition___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_listToExpr___rarg___closed__5;
 lean_object* l___private_Init_Lean_Util_WHNF_4__toCtorWhenK___rarg___lambda__4___closed__1;
 lean_object* l_Lean_WHNF_toCtorIfLit___closed__8;
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
@@ -728,7 +728,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Lean_Syntax_8__quoteList___main___rarg___closed__4;
-x_2 = l_Lean_listToExpr___rarg___closed__5;
+x_2 = l_Lean_optionToExpr___rarg___lambda__1___closed__4;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
@@ -748,7 +748,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Lean_Syntax_8__quoteList___main___rarg___closed__7;
-x_2 = l_Lean_listToExpr___rarg___closed__5;
+x_2 = l_Lean_optionToExpr___rarg___lambda__1___closed__4;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }

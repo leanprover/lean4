@@ -48,6 +48,13 @@ instance nameToExpr : ToExpr Name :=
 { toExpr     := Name.toExprAux,
   toTypeExpr := mkConst `Name }
 
+instance optionToExpr {α : Type} [ToExpr α] : ToExpr (Option α) :=
+let type := toTypeExpr α;
+{ toExpr     := fun o => match o with
+    | none   => mkApp (mkConst `Option.none [levelZero]) type
+    | some a => mkApp2 (mkConst `Option.cons [levelZero]) type (toExpr a),
+  toTypeExpr := mkApp (mkConst `Option [levelZero]) type }
+
 def List.toExprAux {α} [ToExpr α] (nilFn : Expr) (consFn : Expr) : List α → Expr
 | []    => nilFn
 | a::as => mkApp2 consFn (toExpr a) (List.toExprAux as)

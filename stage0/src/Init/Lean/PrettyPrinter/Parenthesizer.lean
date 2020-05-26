@@ -24,8 +24,9 @@ Recall that a Pratt parser greedily parses a leading token with precedence at le
 by zero or more trailing tokens with precedence *higher* than `rbp`. Thus we should parenthesize a syntax node `stx`
 produced by `p rbp` if
 
-1. the left-most token in `stx` has precedence < `rbp`, or
-2. the left-most token to *the right of* `stx` has precedence > `rbp` (because without parentheses, `p rbp` would have
+1. the leading/any trailing token in `stx` has precedence < `rbp`/<= `rbp`, respectively (because without parentheses,
+   `p rbp` would not have parsed all of `stx`), or
+2. the token to *the right of* `stx`, if any, has precedence > `rbp` (because without parentheses, `p rbp` would have
    parsed it as well and made it a part of `stx`).
 
 Note that in case 2, it is also sufficient to parenthesize a *parent* node as long as the offending token is still to
@@ -43,10 +44,12 @@ parser that produced the token as well.
 
 We transform the syntax tree and collect the necessary precedence information for that in a single traversal over the
 syntax tree and the parser (as a `Lean.Expr`) that produced it. The traversal is right-to-left to cover case 2. More
-specifically, for every Pratt parser call, we store as monadic state the precedence of the (currently) last visited
-token (`lbp`), if any, and the precedence of the nested trailing Pratt parser call (`trailRbp`), if any. If `stP` is the
-state resulting from the traversal of a Pratt parser call `p rbp`, and `st` is the state of the surrounding call, we
-parenthesize if `rbp > stP.lbp` (case 1) or if `stP.trailRbp < st.lbp` (case 2).
+specifically, for every Pratt parser call, we store as monadic state the (current) first and minimum precedence of any
+token (`firstLbp`/`minLbp`) in this call, if any, and the precedence of the nested trailing Pratt parser call
+(`trailRbp`), if any. We subtract 1 from the precedence of trailing tokens so that we don't have to differentiate
+between leading and trailing tokens in `minLbp`. If `stP` is the state resulting from the traversal of a Pratt
+parser call `p rbp`, and `st` is the state of the surrounding call, we parenthesize if `rbp > stP.minLbp` (case 1) or if
+`stP.trailRbp < st.firstLbp` (case 2).
 
 The primary traversal is over the parser `Expr`. The `visit` function takes such a parser and, if it is the application
 of a constant `c`, looks for a `[parenthesizer c]` declaration. If it exists, we run it, which might again call `visit`.
@@ -65,14 +68,15 @@ the left-most child being processed multiple times.
 
 Ultimately, most parenthesizers are implemented via three primitives that do all the actual syntax traversal:
 `visitParenthesizable mkParen rbp` recurses on the current node and afterwards transforms it with `mkParen` if the above
-condition for `p rbp` is fulfilled. `visitToken lbp` does not recurse but updates the current `lbp` and advances one
-node to the left. `visitArgs x` executes `x` on the right-most child of the current node and then advances one node
-to the left (of the original current node).
+condition for `p rbp` is fulfilled. `visitToken lbp` does not recurse but updates `firstLbp` and advances one node to
+the left. `visitArgs x` executes `x` on the right-most child of the current node and then advances one node to the left
+(of the original current node).
 -/
 
 prelude
 import Init.Lean.Parser
 import Init.Lean.Elab.Command
+import Init.Lean.Elab.Quotation
 import Init.Lean.Delaborator
 
 namespace Lean
@@ -151,8 +155,10 @@ structure Context :=
 
 structure State :=
 (stxTrav : Syntax.Traverser)
--- precedence of the current left-most token if any; see module doc for details
-(lbp      : Option Nat := none)
+-- precedence of the current left-most token, if any; see module doc for details
+(firstLbp : Option Nat := none)
+-- current minimum precedence of tokens, if any; see module doc for details
+(minLbp : Option Nat := none)
 -- precedence of the trailing Pratt parser call if any; see module doc for details
 (trailRbp : Option Nat := none)
 
@@ -190,6 +196,13 @@ instance ParenthesizerM.monadTraverser : Syntax.MonadTraverser ParenthesizerM :=
 
 open Syntax.MonadTraverser
 
+/-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
+def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
+stx ← getCur;
+when (stx.getArgs.size > 0) $
+  goDown (stx.getArgs.size - 1) *> x <* goUp;
+goLeft
+
 /--
   Call an appropriate `[parenthesizer]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
   should be to the left of all nodes produced by `p`, or at the left-most child if there are no other nodes left. -/
@@ -204,11 +217,17 @@ match c >>= (parenthesizerAttribute.ext.getState env).table.find? with
 | some (f::_) => do
   -- call first matching parenthesizer
   f p
-| _           => do
-  -- (try to) unfold definition and recurse
-  some p' ← liftM $ unfoldDefinition? p
-    | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
-  visit p'
+| _           =>
+  -- `choice` is not an actual parser, so special-case it here
+  if c == some `choice then
+    visitArgs $ stx.getArgs.size.forM $ fun _ => do
+      stx ← getCur;
+      visit (mkConst stx.getKind)
+  else do
+    -- (try to) unfold definition and recurse
+    some p' ← liftM $ unfoldDefinition? p
+      | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
+    visit p'
 
 open Lean.Parser
 
@@ -220,48 +239,62 @@ instance monadQuotation : MonadQuotation ParenthesizerM := {
   withFreshMacroScope := fun α x => x,
 }
 
+def visitAntiquot : ParenthesizerM Unit := do
+stx ← getCur;
+if Elab.Term.Quotation.isAntiquot stx then visitArgs $ do
+  -- antiquot syntax is, simplified, `"$" "$"* antiquotExpr ":" (nonReservedSymbol name) "*"?`
+  goLeft; goLeft; goLeft; -- now on `antiquotExpr`
+  visit (mkConst `Lean.Parser.antiquotExpr);
+  -- set precedence; see special case in `currLbp`
+  modify (fun st => { st with firstLbp := Parser.appPrec, minLbp := Parser.appPrec })
+else
+  throw $ Exception.other $ "not an antiquotation"
+
 /-- Recurse using `visit`, and parenthesize the result using `mkParen` if necessary. -/
 def visitParenthesizable (mkParen : Syntax → Syntax) (rbp : Nat) : ParenthesizerM Unit := do
 stx ← getCur;
 idx ← getIdx;
-⟨t, lbp, trailRbp⟩ ← get;
+st ← get;
 -- reset lbp/rbp and store `mkParen` for the recursive call
-set { stxTrav := t };
+set { stxTrav := st.stxTrav };
 adaptReader (fun (ctx : Context) => { ctx with mkParen := some mkParen }) $
   -- we assume that each node kind is produced by a 0-ary parser of the same name
   visit (mkConst stx.getKind);
-⟨_, some lbp', trailRbp'⟩ ← get
+{ minLbp := some minLbpP, trailRbp := trailRbpP, .. } ← get
   | panic! "visitParenthesizable: visited a term without tokens?!";
-trace! `PrettyPrinter.parenthesize ("...precedences are " ++ fmt rbp ++ " >? " ++ fmt lbp' ++ ", " ++ fmt trailRbp' ++ " <? " ++ fmt lbp);
+trace! `PrettyPrinter.parenthesize ("...precedences are " ++ fmt rbp ++ " >? " ++ fmt minLbpP ++ ", " ++ fmt trailRbpP ++ " <? " ++ fmt st.firstLbp);
 -- Should we parenthesize?
-trailRbp' ← if rbp > lbp' || (match trailRbp', lbp with some trailRbp', some lbp => trailRbp' < lbp | _, _ => false) then do
+when (rbp > minLbpP || match trailRbpP, st.firstLbp with some trailRbpP, some firstLbp => trailRbpP < firstLbp | _, _ => false) $ do {
     -- The recursive `visit` call, by the invariant, has moved to the next node to the left. In order to parenthesize
     -- the original node, we must first move to the right, except if we already were at the left-most child in the first
     -- place.
     when (idx > 0) goRight;
-    setCur (mkParen stx);
+    stx ← getCur;
+    match stx.getHeadInfo, stx.getTailInfo with
+    | some hi, some ti =>
+      -- Move leading/trailing whitespace of `stx` outside of parentheses
+      let stx := (stx.setHeadInfo { hi with leading := "".toSubstring }).setTailInfo { ti with trailing := "".toSubstring };
+      let stx := mkParen stx;
+      let stx := (stx.setHeadInfo { hi with trailing := "".toSubstring }).setTailInfo { ti with leading := "".toSubstring };
+      setCur stx
+    | _, _ => setCur (mkParen stx);
+    stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none);
     goLeft;
     -- after parenthesization, there is no more trailing parser
-    pure none
-  else pure trailRbp';
--- If we already had a token at this level (`lbp ≠ none`), keep the trailing parser. Otherwise, use the minimum of
--- `rbp` and `trailRbp'`.
-let trailRbp := match trailRbp', lbp with
-  | _,              some _ => trailRbp
-  | some trailRbp', _      => some (Nat.min trailRbp' rbp)
+    modify (fun st => { st with minLbp := appPrec, firstLbp := appPrec, trailRbp := none })
+};
+{ trailRbp := trailRbpP, .. } ← get;
+-- If we already had a token at this level (`st.firstLbp ≠ none`), keep the trailing parser. Otherwise, use the minimum of
+-- `rbp` and `trailRbpP`.
+let trailRbp := match trailRbpP, st.firstLbp with
+  | _,              some _ => st.trailRbp
+  | some trailRbpP, _      => some (Nat.min trailRbpP rbp)
   | _,              _      => some rbp;
-modify (fun st => { st with lbp := lbp' <|> lbp, trailRbp := trailRbp })
+modify (fun stP => { stP with trailRbp := trailRbp })
 
 /-- Set token precedence and advance to the left. -/
 def visitToken (lbp : Nat) : ParenthesizerM Unit := do
-modify (fun st => { st with lbp := lbp });
-goLeft
-
-/-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
-def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
-stx ← getCur;
-when (stx.getArgs.size > 0) $
-  goDown (stx.getArgs.size - 1) *> x <* goUp;
+modify (fun st => { st with firstLbp := lbp });
 goLeft
 
 def evalNat (e : Expr) : ParenthesizerM Nat := do
@@ -298,18 +331,33 @@ else
   throw $ Exception.other $ "failed to evaluate Name argument: " ++ toString e
 
 @[builtinParenthesizer termParser]
-def termParser.parenthesizer : Parenthesizer | p => do
+def termParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
+stx ← getCur;
+-- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
+if stx.getKind == nullKind then
+  throw $ Exception.other "BACKTRACK"
+else do
+  lbp ← evalNat p.appArg!;
+  visitParenthesizable (fun stx => Unhygienic.run `(($stx))) lbp
+
+@[builtinParenthesizer tacticParser]
+def tacticParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
 lbp ← evalNat p.appArg!;
-visitParenthesizable (fun stx => Unhygienic.run `(($stx))) lbp
+visitParenthesizable (fun stx => Unhygienic.run `(tactic|($stx))) lbp
 
 @[builtinParenthesizer levelParser]
-def levelParser.parenthesizer : Parenthesizer | p => do
+def levelParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
 lbp ← evalNat p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(level|($stx))) lbp
 
+@[builtinParenthesizer categoryParser]
+def categoryParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
+stx ← getCur;
+visit (mkConst stx.getKind)
+
 @[builtinParenthesizer withAntiquot]
 def withAntiquot.parenthesizer : Parenthesizer | p =>
-visit (p.getArg! 1)
+visitAntiquot <|> visit (p.getArg! 1)
 
 @[builtinParenthesizer try]
 def try.parenthesizer : Parenthesizer | p =>
@@ -323,34 +371,35 @@ visit (p.getArg! 1) *> visit (p.getArg! 0)
 def node.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
 k ← evalName $ p.getArg! 0;
-when (k != stx.getKind) $
-  --throw $ Exception.other $ "unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'";
+when (k != stx.getKind) $ do {
+  trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw $ Exception.other "BACKTRACK";
-visitArgs $ visit p.appArg!
+  throw $ Exception.other "BACKTRACK"
+};
+visitArgs $ visit p.appArg!;
+modify $ fun st => { st with minLbp := st.firstLbp }
 
 @[builtinParenthesizer trailingNode]
 def trailingNode.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
 k ← evalName $ p.getArg! 0;
-when (k != stx.getKind) $
-  --throw $ Exception.other $ "unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'";
+when (k != stx.getKind) $ do {
+  trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw $ Exception.other "BACKTRACK";
+  throw $ Exception.other "BACKTRACK"
+};
 visitArgs $ do {
   visit p.appArg!;
-  -- After visiting the node actually produced by the parser passed to `trailingNode`, we are positioned on the
+  -- After visiting the nodes actually produced by the parser passed to `trailingNode`, we are positioned on the
   -- left-most child, which is the term injected by `trailingNode` in place of the recursion. Left recursion is not an
   -- issue for the parenthesizer, so we can think of this child being produced by `termParser 0`, or whichever Pratt
-  -- parser is calling us; we only need to know its `mkParen`, which we retrieve from the context. Since the left-most
-  -- child was not actually part of the input to this parser, we should reset the `lbp` after processing it. We also
-  -- need to decrement it by 1 to acommodate the difference between handling of leading and trailing tokens.
-  some lbp ← State.lbp <$> get
+  -- parser is calling us; we only need to know its `mkParen`, which we retrieve from the context.
+  some lbp ← State.firstLbp <$> get  -- the trailing token's precedence; subtract 1 as described above
     | panic! "trailingNode.parenthesizer: visited a trailing term without tokens?!";
   { mkParen := some mkParen, .. } ← read
     | panic! "trailingNode.parenthesizer called outside of visitParenthesizable call";
-  visitParenthesizable mkParen 0;
-  modify (fun st => { st with lbp := some (lbp - 1) })
+  visitAntiquot <|> visitParenthesizable mkParen 0;
+  modify $ fun st => { st with minLbp := Nat.min (st.minLbp.getD (lbp - 1)) (lbp - 1) }
 }
 
 @[builtinParenthesizer symbolAux]
@@ -360,9 +409,9 @@ evalOptPrec p.appArg! >>= visitToken
 @[builtinParenthesizer symbolNoWsAux] def symbolNoWsAux.parenthesizer := symbolAux.parenthesizer
 @[builtinParenthesizer unicodeSymbol] def unicodeSymbol.parenthesizer := symbolAux.parenthesizer
 
-@[builtinParenthesizer identNoAntiquot]
-def identNoAntiquot.parenthesizer : Parenthesizer | p =>
-visitToken appPrec
+@[builtinParenthesizer identNoAntiquot] def identNoAntiquot.parenthesizer : Parenthesizer | p => visitToken appPrec
+@[builtinParenthesizer rawIdent] def rawIdent.parenthesizer : Parenthesizer | p => visitToken appPrec
+@[builtinParenthesizer nonReservedSymbol] def nonReservedSymbol.parenthesizer : Parenthesizer | p => visitToken appPrec
 
 @[builtinParenthesizer charLitNoAntiquot] def charLitNoAntiquot.parenthesizer := identNoAntiquot.parenthesizer
 @[builtinParenthesizer strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := identNoAntiquot.parenthesizer
@@ -390,7 +439,7 @@ visitArgs $ visit (p.getArg! 0)
 @[builtinParenthesizer sepBy]
 def sepBy.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
-visitArgs $ (List.range stx.getArgs.size).forM $ fun i => visit (p.getArg! (i % 2))
+visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => visit (p.getArg! (i % 2))
 
 @[builtinParenthesizer sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
 
@@ -402,11 +451,20 @@ catch (visit (p.getArg! 0)) $ fun e => match e with
   | Exception.other "BACKTRACK" => set st *> visit (p.getArg! 1)
   | _                           => throw e
 
+@[builtinParenthesizer withPosition] def withPosition.parenthesizer : Parenthesizer | p => do
+-- call closure with dummy position
+visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
+
 @[builtinParenthesizer checkStackTop] def checkStackTop.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkTailWs] def checkTailWs.parenthesizer : Parenthesizer | p => pure ()
+@[builtinParenthesizer checkColGe] def checkColGe.parenthesizer : Parenthesizer | p => pure ()
 
+open Lean.Parser.Command
+@[builtinParenthesizer commentBody] def commentBody.parenthesizer : Parenthesizer | p => goLeft
+@[builtinParenthesizer quotedSymbol] def quotedSymbol.parenthesizer : Parenthesizer | p => goLeft
+@[builtinParenthesizer unquotedSymbol] def unquotedSymbol.parenthesizer : Parenthesizer | p => goLeft
 
 section
 open Lean.Parser.Term
@@ -425,7 +483,7 @@ end
 @[builtinParenthesizer Term.depArrow]
 def depArrow.parenthesizer : Parenthesizer | p => do
 visit (mkConst `Lean.PrettyPrinter.Parenthesizer.depArrow');
-modify $ fun st => { st with lbp := some 25 }
+modify $ fun st => { st with firstLbp := some 25, minLbp := some 25 }
 
 end Parenthesizer
 
@@ -435,6 +493,8 @@ def parenthesize (parser : Expr) (stx : Syntax) : MetaM Syntax := do
 pure st.stxTrav.cur
 
 def parenthesizeTerm := parenthesize (mkApp (mkConst `Lean.Parser.termParser) (mkNatLit 0))
+
+def parenthesizeCommand := parenthesize (mkApp (mkConst `Lean.Parser.commandParser) (mkNatLit 0))
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter.parenthesize;

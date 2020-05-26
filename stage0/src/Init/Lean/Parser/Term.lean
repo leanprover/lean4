@@ -78,7 +78,7 @@ def structInstField  := parser! structInstLVal >> " := " >> termParser
 @[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
-@[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
+@[builtinTermParser] def subtype := parser! symbol "{" appPrec >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def listLit := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def arrayLit := parser! symbol "#[" appPrec >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def explicit := parser! symbol "@" appPrec >> termParser appPrec
@@ -142,7 +142,8 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 
 @[builtinTermParser] def not    := parser! symbol "¬" appPrec >> termParser 40
 @[builtinTermParser] def bnot   := parser! symbol "!" appPrec >> termParser 40
-@[builtinTermParser] def uminus := parser! "-" >> termParser 100
+-- symbol precedence should be higher, but must match the one of `sub` below
+@[builtinTermParser] def uminus := parser! symbol "-" 65 >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def app      := tparser! many1 (namedArgument <|> termParser appPrec)

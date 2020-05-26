@@ -46,6 +46,7 @@ appDir ← IO.appDir;
 let map := HashMap.empty;
 let map := map.insert "Init" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
 let map := map.insert "Std" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Std";
+let map := map.insert "Lean" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Lean";
 pure map
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do

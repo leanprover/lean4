@@ -1,6 +1,6 @@
 add_executable(lean lean.cpp)
 set_target_properties(lean PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-target_link_libraries(lean leancpp Init Std)
+target_link_libraries(lean leancpp Init Std Lean)
 
 # create import library on Windows to link plugins against
 set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)

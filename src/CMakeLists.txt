@@ -536,6 +536,7 @@ install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 if(${STAGE} EQUAL 0)
   add_library(Init STATIC $<TARGET_OBJECTS:stage0>)
   add_library(Std STATIC $<TARGET_OBJECTS:stage0>)
+  add_library(Lean STATIC $<TARGET_OBJECTS:stage0>)
 else()
 # created by the previous stage
   add_library(Init STATIC IMPORTED)
@@ -545,11 +546,16 @@ else()
   add_library(Std STATIC IMPORTED)
   set_target_properties(Std PROPERTIES
     IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libStd.a")
+
+  add_library(Lean STATIC IMPORTED)
+  set_target_properties(Lean PROPERTIES
+    IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libLean.a")
 endif()
 # leancpp and Init are cyclically dependent
 target_link_libraries(Init INTERFACE leancpp)
 target_link_libraries(Std INTERFACE leancpp)
-target_link_libraries(leancpp INTERFACE Init Std ${EXTRA_LIBS})
+target_link_libraries(Lean INTERFACE leancpp Std)
+target_link_libraries(leancpp INTERFACE Init Std Lean ${EXTRA_LIBS})
 
 if(LLVM)
   target_link_libraries(leancpp INTERFACE ${llvm_libs})

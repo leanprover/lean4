@@ -1,4 +1,4 @@
-import Init.Lean
+import Lean
 
 namespace Lean
 open Lean.Elab

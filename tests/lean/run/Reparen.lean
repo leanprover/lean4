@@ -39,7 +39,7 @@ let (debug, f) : Bool × String := match args with
   | [f]       => (false, f)
   | _         => panic! "usage: file [-d]";
 initSearchPath none;
-env ← importModules [{module := `Init.Lean.Parser}];
+env ← importModules [{module := `Lean.Parser}];
 stx ← Lean.Parser.parseFile env args.head!;
 let header := stx.getArg 0;
 some s ← pure header.reprint | throw $ IO.userError "header reprint failed";

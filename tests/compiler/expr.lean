@@ -1,4 +1,4 @@
-import Lean.Expr
+import Lean
 open Lean
 
 def main : IO UInt32 :=

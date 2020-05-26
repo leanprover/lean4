@@ -1,4 +1,4 @@
-import Init.Lean
+import Lean
 open Lean
 
 def checkDefEq (a b : Name) : MetaIO Unit := do

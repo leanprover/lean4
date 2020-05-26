@@ -1,4 +1,4 @@
-import Init.Lean
+import Lean
 open Lean
 
 def x := 10

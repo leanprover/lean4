@@ -1,4 +1,4 @@
-import Init.Lean.Parser
+import Lean.Parser
 
 def test : IO Unit :=
 if System.Platform.isWindows then

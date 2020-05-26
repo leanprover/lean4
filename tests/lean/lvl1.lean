@@ -1,4 +1,4 @@
-import Init.Lean.Level
+import Lean.Level
 
 namespace Lean
 namespace Level

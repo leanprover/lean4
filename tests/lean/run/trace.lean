@@ -1,4 +1,4 @@
-import Init.Lean.Util.Trace
+import Lean.Util.Trace
 open Lean
 
 structure MyState :=

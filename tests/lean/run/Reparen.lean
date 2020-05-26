@@ -1,5 +1,5 @@
 /-! Reprint file after removing all parentheses and then passing it through the parenthesizer -/
-import Init.Lean.PrettyPrinter.Parenthesizer
+import Lean.PrettyPrinter.Parenthesizer
 
 open Lean
 open Lean.Elab

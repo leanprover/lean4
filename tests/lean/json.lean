@@ -1,5 +1,5 @@
-import Init.Lean.Data.Json.Parser
-import Init.Lean.Data.Json.Printer
+import Lean.Data.Json.Parser
+import Lean.Data.Json.Printer
 
 def test (s : String) : String :=
 match Lean.Json.parse s with

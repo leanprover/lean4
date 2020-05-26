@@ -1,4 +1,4 @@
-import Init.Lean.Format
+import Lean.Format
 open Lean
 
 def List.insert {α} [HasBeq α] (as : List α) (a : α) : List α :=

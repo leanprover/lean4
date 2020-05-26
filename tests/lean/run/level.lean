@@ -1,4 +1,4 @@
-import Init.Lean.Level
+import Lean.Level
 open Lean
 
 #eval levelZero == levelZero

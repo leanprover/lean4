@@ -1,4 +1,4 @@
-import Init.Lean.MetavarContext
+import Lean.MetavarContext
 open Lean
 
 def mkLambdaTest (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)

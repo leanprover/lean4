@@ -1,4 +1,4 @@
-import Init.Lean.MetavarContext
+import Lean.MetavarContext
 open Lean
 
 def check (b : Bool) : IO Unit :=

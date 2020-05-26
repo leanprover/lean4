@@ -1,4 +1,4 @@
-import Init.Lean.Elab
+import Lean.Elab
 open Lean
 open Lean.Elab
 

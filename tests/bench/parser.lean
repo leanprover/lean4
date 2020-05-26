@@ -1,4 +1,4 @@
-import Init.Lean.Parser
+import Lean.Parser
 
 def main : List String → IO Unit
 | [fname, n] => do

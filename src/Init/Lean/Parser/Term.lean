@@ -142,7 +142,8 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 
 @[builtinTermParser] def not    := parser! symbol "¬" appPrec >> termParser 40
 @[builtinTermParser] def bnot   := parser! symbol "!" appPrec >> termParser 40
-@[builtinTermParser] def uminus := parser! "-" >> termParser 100
+-- symbol precedence should be higher, but must match the one of `sub` below
+@[builtinTermParser] def uminus := parser! symbol "-" 65 >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def app      := tparser! many1 (namedArgument <|> termParser appPrec)

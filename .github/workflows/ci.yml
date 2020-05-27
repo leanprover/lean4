@@ -14,28 +14,24 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # NOTE: must list all targets in `include` here to activate them
-        name: [Linux, "Linux Debug", "Linux fsanitize", "Linux LLVM=ON", macOS, Windows]
         include:
           - name: Linux
             os: ubuntu-latest
+            CMAKE_OPTIONS: -DSTATIC=ON
             check-stage3: true
             test-speedcenter: true
           - name: Linux Debug
             os: ubuntu-latest
-            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
+            CMAKE_OPTIONS: -DSTATIC=ON -DCMAKE_BUILD_TYPE=Debug
           - name: Linux fsanitize
             os: ubuntu-latest
             # turn off custom allocator to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
-          - name: Linux LLVM=ON
-            os: ubuntu-latest
-            CMAKE_OPTIONS: -DLLVM=ON
+            CMAKE_OPTIONS: -DSTATIC=ON -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
           - name: macOS
             os: macos-latest
           - name: Windows
             os: windows-latest
-            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
       # complete all jobs
       fail-fast: false
     env:
@@ -80,6 +76,10 @@ jobs:
       - name: Build
         run: msys2do ./script/ci.sh
         if: matrix.os == 'windows-latest'
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ matrix.name }}
+          path: build/stage0.5/lean-*
       - name: Test
         run: nix-shell --run "cd build/stage0.5; ctest -j4 --output-on-failure < /dev/null"
         if: matrix.os != 'windows-latest'

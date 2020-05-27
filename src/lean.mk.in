@@ -13,7 +13,7 @@ LEANC_OPTS = -O3 -DNDEBUG
 
 SRCS = $(shell find $(PKG) -name '*.lean' 2> /dev/null || true; find $(PKG).lean 2> /dev/null)
 DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
-export LEAN_PATH=$(OLEAN_OUT)
+export LEAN_PATH += :$(OLEAN_OUT)
 OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 
 SHELL = /usr/bin/env bash -eo pipefail

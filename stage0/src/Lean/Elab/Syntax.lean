@@ -102,6 +102,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
       if ctx.leadingIdentAsSymbol && rbp?.isNone then
         `(ParserDescr.nonReservedSymbol $(quote atom) false)
       else
+        -- TODO: fix (quote rbp?)
         `(ParserDescr.symbol $(quote atom) $(quote rbp?))
     | none => liftM throwUnsupportedSyntax
   else if kind == `Lean.Parser.Syntax.num then

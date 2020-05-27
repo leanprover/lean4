@@ -207,6 +207,7 @@ extern lean_object* l_Lean_Parser_Command_strLitPrec___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Syntax_num___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_Syntax_8__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_Term_throwUnsupportedSyntax___rarg(lean_object*);
+extern lean_object* l_Lean_Parser_antiquotNestedExpr___closed__1;
 extern lean_object* l_Lean_Expr_isSyntheticSorry___closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__87;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__68;
@@ -559,7 +560,6 @@ lean_object* l_Array_umapMAux___main___at_Lean_Elab_Command_expandMacro___spec__
 lean_object* l_Lean_Elab_Command_elabSyntax___closed__31;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__31;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabSyntax___closed__1;
-extern lean_object* l_Lean_Parser_Level_paren___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__8;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -587,7 +587,7 @@ lean_dec(x_6);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
-x_9 = l_Lean_Parser_Level_paren___closed__1;
+x_9 = l_Lean_Parser_antiquotNestedExpr___closed__1;
 return x_9;
 }
 else

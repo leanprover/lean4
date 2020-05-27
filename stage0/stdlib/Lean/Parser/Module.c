@@ -168,6 +168,7 @@ uint8_t l_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_obj
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__3;
 lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__9;
+extern lean_object* l_Lean_Syntax_decodeNatLitVal___closed__1;
 lean_object* l_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_readToEndAux___main___at_Lean_Parser_parseFile___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_mk___at_IO_FS_withFile___spec__1(lean_object*, uint8_t, uint8_t, lean_object*);
@@ -493,9 +494,9 @@ lean_object* _init_l_Lean_Parser_Module_prelude___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Module_prelude___elambda__1___closed__7;
-x_3 = l_Lean_Parser_symbolInfo(x_2, x_1);
+x_1 = l_Lean_Parser_Module_prelude___elambda__1___closed__7;
+x_2 = l_Lean_Syntax_decodeNatLitVal___closed__1;
+x_3 = l_Lean_Parser_symbolInfo(x_1, x_2);
 return x_3;
 }
 }
@@ -1236,9 +1237,9 @@ lean_object* _init_l_Lean_Parser_Module_import___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Module_import___elambda__1___closed__6;
-x_3 = l_Lean_Parser_symbolInfo(x_2, x_1);
+x_1 = l_Lean_Parser_Module_import___elambda__1___closed__6;
+x_2 = l_Lean_Syntax_decodeNatLitVal___closed__1;
+x_3 = l_Lean_Parser_symbolInfo(x_1, x_2);
 return x_3;
 }
 }
@@ -1246,9 +1247,9 @@ lean_object* _init_l_Lean_Parser_Module_import___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Module_import___elambda__1___closed__8;
-x_3 = l_Lean_Parser_symbolInfo(x_2, x_1);
+x_1 = l_Lean_Parser_Module_import___elambda__1___closed__8;
+x_2 = l_Lean_Syntax_decodeNatLitVal___closed__1;
+x_3 = l_Lean_Parser_symbolInfo(x_1, x_2);
 return x_3;
 }
 }

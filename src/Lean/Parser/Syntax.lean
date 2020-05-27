@@ -23,7 +23,7 @@ def «precedence» := parser! ":" >> precedenceLit
 def optPrecedence := optional (try «precedence»)
 
 namespace Syntax
-@[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
+@[builtinSyntaxParser] def paren     := parser! symbol "(" appPrec >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def cat       := parser! ident >> optPrecedence
 @[builtinSyntaxParser] def atom      := parser! strLit >> optPrecedence
 @[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
@@ -38,7 +38,7 @@ namespace Syntax
 @[builtinSyntaxParser] def optional  := tparser! symbolAux "?" none
 @[builtinSyntaxParser] def many      := tparser! symbolAux "*" none
 @[builtinSyntaxParser] def many1     := tparser! symbolAux "+" none
-@[builtinSyntaxParser] def orelse    := tparser! " <|> " >> syntaxParser 1
+@[builtinSyntaxParser] def orelse    := tparser! symbol " <|> " 2 >> syntaxParser 1
 
 end Syntax
 
@@ -59,7 +59,7 @@ def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
 def strLitPrec := parser! strLit >> optPrecedence
 def identPrec  := parser! ident >> optPrecedence
 
-def optKind : Parser := optional ("[" >> ident >> "]")
+def optKind : Parser := optional (symbol "[" appPrec >> ident >> "]")
 -- TODO: remove " := " after old frontend is gone
 @[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> (" := " <|> darrow) >> termParser
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts
@@ -69,9 +69,9 @@ def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> 
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> macroArgType
 def macroArg  := try strLitPrec <|> try macroArgSimple
 def macroHead := macroArg <|> try identPrec
-def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >>  "`(" >> sepBy1 tacticParser "; " true true >> ")"
-def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> "`(" >> many1 commandParser true >> ")"
-def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> (("`(" >> categoryParserOfStack 2 >> ")") <|> termParser)
+def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> symbol "`(" appPrec >> sepBy1 tacticParser "; " true true >> ")"
+def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> symbol "`(" appPrec >> many1 commandParser true >> ")"
+def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> ((symbol "`(" appPrec >> categoryParserOfStack 2 >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
 @[builtinCommandParser] def «macro»       := parser! "macro " >> macroHead >> many macroArg >> macroTail
 

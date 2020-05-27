@@ -1153,7 +1153,7 @@ def unquotedSymbol : Parser :=
 { fn := unquotedSymbolFn }
 
 instance stringToParserCoe : HasCoe String Parser :=
-⟨symbolAux⟩
+⟨fun s => symbol s 0⟩
 
 namespace ParserState
 
@@ -1423,7 +1423,7 @@ def pushNone : Parser :=
 { fn := fun c s => s.pushSyntax mkNullNode }
 
 -- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-def antiquotNestedExpr : Parser := node `antiquotNestedExpr ("(" >> termParser >> ")")
+def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbol "(" appPrec >> termParser >> ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 /--
@@ -1444,7 +1444,7 @@ node kind $ try $
   many (checkNoWsBefore "" >> dollarSymbol) >>
   checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
   nameP >>
-  optional (checkNoWsBefore "" >> "*")
+  optional (checkNoWsBefore "" >> symbolAux "*" none)
 
 def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
 let (s, stx?) := peekToken c s;

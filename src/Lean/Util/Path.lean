@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 
 Management of the Lean search path (`LEAN_PATH`), which is a list of
-`pkg=path` mappings from package name to root path. An import `A.B.C`
-given an `A=path` entry resolves to `path/B/C.olean`, and just `A` to
-`path.olean` (meaning that `path` should probably end with `/A`).
+paths containing package roots: an import `A.B.C` resolves to
+`path/A/B/C.olean` for the first entry `path` in `LEAN_PATH`
+with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
 prelude
 import Init.System.IO
@@ -25,7 +25,7 @@ def realPathNormalized (fname : String) : IO String := do
 fname ← IO.realPath fname;
 pure (System.FilePath.normalizePath fname)
 
-abbrev SearchPath := HashMap String String
+abbrev SearchPath := List String
 
 def mkSearchPathRef : IO (IO.Ref SearchPath) :=
 IO.mkRef ∅
@@ -33,21 +33,12 @@ IO.mkRef ∅
 @[init mkSearchPathRef]
 constant searchPathRef : IO.Ref SearchPath := arbitrary _
 
-def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath := do
-let ps := System.FilePath.splitSearchPath path;
-sp ← ps.foldlM (fun (sp : SearchPath) s => match s.splitOn "=" with
-  | [pkg, path] => pure $ sp.insert pkg path
-  | _           => throw $ IO.userError $ "ill-formed search path entry '" ++ s ++ "', should be of form 'pkg=path'")
-  sp;
-pure sp
+def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath :=
+pure $ System.FilePath.splitSearchPath path ++ sp
 
 def getBuiltinSearchPath : IO SearchPath := do
 appDir ← IO.appDir;
-let map := HashMap.empty;
-let map := map.insert "Init" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Init";
-let map := map.insert "Std" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Std";
-let map := map.insert "Lean" $ appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "Lean";
-pure map
+pure [appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean"]
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
 val ← IO.getEnv "LEAN_PATH";
@@ -69,21 +60,12 @@ def modPathToFilePath : Name → String
 | Name.anonymous              => ""
 | Name.num p _ _              => panic! "ill-formed import"
 
-/- Given `A.B.C, return ("A", `B.C). -/
-def splitAtRoot : Name → String × Name
-| Name.str Name.anonymous s _ => (s, Name.anonymous)
-| Name.str n s _ =>
-  let (pkg, path) := splitAtRoot n;
-  (pkg, mkNameStr path s)
-| _              => panic! "ill-formed import"
-
 def findOLean (mod : Name) : IO String := do
 sp ← searchPathRef.get;
-let (pkg, path) := splitAtRoot mod;
-some root ← pure $ sp.find? pkg
+let pkg := mod.getRoot.toString;
+some root ← sp.findM? (fun path => IO.isDir $ path ++ pathSep ++ pkg)
   | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
-let fname := root ++ modPathToFilePath path ++ ".olean";
-pure fname
+pure $ root ++ modPathToFilePath mod ++ ".olean"
 
 /-- Infer module name of source file name, assuming that `lean` is called from the package source root. -/
 @[export lean_module_name_of_file]

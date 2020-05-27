@@ -13,7 +13,7 @@ LEANC_OPTS = -O3 -DNDEBUG
 
 SRCS = $(shell find $(PKG) -name '*.lean' 2> /dev/null || true; find $(PKG).lean 2> /dev/null)
 DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
-export LEAN_PATH=$(PKG)=$(OLEAN_OUT)/$(PKG)
+export LEAN_PATH=$(OLEAN_OUT)
 OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 
 SHELL = /usr/bin/env bash -eo pipefail
@@ -28,10 +28,12 @@ lib: $(LIB_OUT)/$(STATIC_LIB_NAME)
 
 depends: $(DEPS)
 
-$(LIB_OUT) $(BIN_OUT):
+$(OLEAN_OUT)/$(PKG) $(LIB_OUT) $(BIN_OUT):
 	@mkdir -p "$@"
 
-$(TEMP_OUT)/%.depend: %.lean
+# Make sure the .olean output directory exists so that `lean --deps` knows where this package's
+# .olean files will be located even before any of them are actually built.
+$(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
 	@mkdir -p "$(TEMP_OUT)/$(*D)"
 # use separate assignment to ensure failure propagation
 # convert path separators and newlines on Windows

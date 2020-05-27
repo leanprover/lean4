@@ -8678,7 +8678,6 @@ lean_dec(x_14);
 x_15 = lean_box(0);
 lean_inc(x_10);
 x_16 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_8, x_10, x_15);
-lean_inc(x_10);
 x_17 = l_Lean_findOLean(x_10, x_3);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -8929,7 +8928,6 @@ lean_dec(x_2);
 x_81 = lean_box(0);
 lean_inc(x_10);
 x_82 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_8, x_10, x_81);
-lean_inc(x_10);
 x_83 = l_Lean_findOLean(x_10, x_3);
 if (lean_obj_tag(x_83) == 0)
 {

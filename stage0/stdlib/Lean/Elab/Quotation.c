@@ -436,6 +436,7 @@ extern lean_object* l_Lean_Parser_Term_paren___elambda__1___closed__1;
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Quotation_6__compileStxMatch___main___spec__8___closed__3;
 lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__8;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+extern lean_object* l_Lean_setOptionFromString___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__28;
 extern lean_object* l___private_Lean_Elab_Term_17__mkPairsAux___main___closed__4;
 lean_object* l_ReaderT_pure___at_Lean_Elab_Term_Quotation_HeadInfo_Inhabited___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -507,7 +508,6 @@ extern lean_object* l___private_Lean_Elab_Util_1__evalSyntaxConstantUnsafe___clo
 extern lean_object* l_Lean_mkHole___closed__2;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__24;
 extern lean_object* l_Lean_Parser_Term_stxQuot___elambda__1___closed__3;
-extern lean_object* l_List_foldlM___main___at_Lean_parseSearchPath___spec__7___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabStxQuot(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_5__explodeHeadPat___closed__3;
 lean_object* l___private_Lean_Syntax_8__quoteList___main___at___private_Lean_Elab_Quotation_2__quoteSyntax___main___spec__3___closed__1;
@@ -7527,7 +7527,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l_List_foldlM___main___at_Lean_parseSearchPath___spec__7___closed__3;
+x_2 = l_Lean_setOptionFromString___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

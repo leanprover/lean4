@@ -1725,7 +1725,7 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | ParserDescr.node k d                            => node k <$> compileParserDescr d
 | ParserDescr.trailingNode k d                    => trailingNode k <$> compileParserDescr d
-| ParserDescr.symbol tk lbp                       => pure $ symbolAux tk lbp
+| ParserDescr.symbol tk lbp                       => pure $ symbol tk lbp
 | ParserDescr.numLit                              => pure $ numLit
 | ParserDescr.strLit                              => pure $ strLit
 | ParserDescr.charLit                             => pure $ charLit

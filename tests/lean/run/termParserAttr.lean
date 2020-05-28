@@ -18,10 +18,10 @@ open Lean.Parser
 @[termParser] def boo : ParserDescr :=
 ParserDescr.node `boo
   (ParserDescr.andthen
-    (ParserDescr.symbol "[|" (some 0))
+    (ParserDescr.symbol "[|" 0)
     (ParserDescr.andthen
       (ParserDescr.parser `term 0)
-      (ParserDescr.symbol "|]" (some 0))))
+      (ParserDescr.symbol "|]" 0)))
 
 open Lean.Elab.Term
 
@@ -54,7 +54,7 @@ declare_syntax_cat foo
 
 syntax "⟨|" term "|⟩" : foo
 syntax term : foo
-syntax term ">>>" term : foo
+syntax term:1 ">>>":1 term : foo
 
 syntax [tst3] "FOO " foo : term
 

@@ -1855,6 +1855,12 @@ kinds.foldl (fun ks k _ => k::ks) []
 def getTokenTable (env : Environment) : TokenTable :=
 (parserExtension.getState env).tokens
 
+def getTokenLbp? (env : Environment) (sym : String) : Option Nat :=
+let tokens := getTokenTable env;
+match tokens.matchPrefix sym 0 with
+  | (_, some tk) => tk.lbp
+  | _            => none
+
 def mkInputContext (input : String) (fileName : String) : InputContext :=
 { input    := input,
   fileName := fileName,

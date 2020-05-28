@@ -1,6 +1,7 @@
 { llvmPackages, bash, cmake, ccache, python, gmp }:
 
-llvmPackages.stdenv.mkDerivation rec {
+let gmp-static = gmp.override { withStatic = true; };
+in llvmPackages.stdenv.mkDerivation rec {
   name = "lean-${version}";
   version = "local";
 
@@ -8,7 +9,7 @@ llvmPackages.stdenv.mkDerivation rec {
   src = if builtins.pathExists ../.git then builtins.fetchGit { url = ../.; } else ../.;
 
   nativeBuildInputs = [ bash cmake python ];
-  buildInputs = [ gmp llvmPackages.llvm ];
+  buildInputs = [ gmp-static llvmPackages.llvm ];
   enableParallelBuilding = true;
 
   preConfigure = ''

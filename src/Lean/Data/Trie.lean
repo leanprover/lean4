@@ -50,7 +50,7 @@ private partial def insertAux (s : String) (val : α) : Trie α → String.Pos �
 def insert (t : Trie α) (s : String) (val : α) : Trie α :=
 insertAux s val t 0
 
-private partial def findAux (s : String) : Trie α → String.Pos → Option α
+private partial def findAux? (s : String) : Trie α → String.Pos → Option α
 | Trie.Node val m, i =>
   match s.atEnd i with
   | true  => val
@@ -59,10 +59,10 @@ private partial def findAux (s : String) : Trie α → String.Pos → Option α
     let i := s.next i;
     match RBNode.find Char.lt m c with
     | none   => none
-    | some t => findAux t i
+    | some t => findAux? t i
 
-def find (t : Trie α) (s : String) : Option α :=
-findAux s t 0
+def find? (t : Trie α) (s : String) : Option α :=
+findAux? s t 0
 
 private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
 match v, acc with

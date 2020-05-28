@@ -1627,7 +1627,7 @@ private def mergePrecendences (msgPreamble : String) (sym : String) : Option Nat
 
 private def addTokenConfig (tokens : TokenTable) (tk : TokenConfig) : Except String TokenTable := do
 if tk.val == "" then throw "invalid empty symbol"
-else match tokens.find tk.val with
+else match tokens.find? tk.val with
   | none       => pure $ tokens.insert tk.val tk
   | some oldTk => do
     lbp     ← mergePrecendences "" tk.val oldTk.lbp tk.lbp;
@@ -1855,11 +1855,10 @@ kinds.foldl (fun ks k _ => k::ks) []
 def getTokenTable (env : Environment) : TokenTable :=
 (parserExtension.getState env).tokens
 
-def getTokenLbp? (env : Environment) (sym : String) : Option Nat :=
+def getTokenLbp? (env : Environment) (sym : String) : Option Nat := do
 let tokens := getTokenTable env;
-match tokens.matchPrefix sym 0 with
-  | (_, some tk) => tk.lbp
-  | _            => none
+tk ← tokens.find? sym;
+tk.lbp
 
 def mkInputContext (input : String) (fileName : String) : InputContext :=
 { input    := input,

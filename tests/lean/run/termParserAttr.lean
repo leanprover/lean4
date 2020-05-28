@@ -54,7 +54,7 @@ declare_syntax_cat foo
 
 syntax "⟨|" term "|⟩" : foo
 syntax term : foo
-syntax term:1 ">>>":1 term : foo
+syntax term ">>>" term : foo
 
 syntax [tst3] "FOO " foo : term
 

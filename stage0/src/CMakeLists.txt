@@ -254,11 +254,16 @@ else()
 endif()
 
 if(STATIC)
-  message(STATUS "Creating a static executable")
-  if (MULTI_THREAD AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+  # Creating a fully static executable is a bad idea in general when linking against libc and specifically
+  # with our dlopen shenanigans
+  message(STATUS "Linking libraries statically where possible")
+  if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static-libgcc -static-libstdc++")
   endif()
-  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static")
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  if (MULTI_THREAD AND ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive,-Bdynamic")
+  endif()
 endif()
 
 # Set Module Path

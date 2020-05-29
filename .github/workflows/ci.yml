@@ -18,18 +18,22 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux
+          # portable release build: link most libraries statically and use channel with older glibc (2.27; LLVM 7)
+          - name: Linux release
             os: ubuntu-latest
             CMAKE_OPTIONS: -DSTATIC=ON
+            shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euo pipefail {0}"
+          - name: Linux
+            os: ubuntu-latest
             check-stage3: true
             test-speedcenter: true
           - name: Linux Debug
             os: ubuntu-latest
-            CMAKE_OPTIONS: -DSTATIC=ON -DCMAKE_BUILD_TYPE=Debug
+            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
           - name: Linux fsanitize
             os: ubuntu-latest
             # turn off custom allocator to make LSAN do its magic
-            CMAKE_OPTIONS: -DSTATIC=ON -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
           - name: macOS
             os: macos-latest
             CMAKE_OPTIONS: -DSTATIC=ON
@@ -80,6 +84,9 @@ jobs:
           cd build
           cmake .. ${{ matrix.CMAKE_OPTIONS }}
           make -j4
+      - name: Patch
+        run: patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage0.5/bin/lean
+        if: matrix.name == 'Linux release'
       - name: Pack
         run: cd build/stage0.5; cpack
       - uses: actions/upload-artifact@v2

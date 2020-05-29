@@ -3,6 +3,56 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+
+/-!
+# Basic Lean parser infrastructure
+
+The Lean parser was developed with the following primary goals in mind:
+
+* flexibility: Lean's grammar is complex and includes indentation and other whitespace sensitivity. It should be
+  possible to introduce such custom "tweaks" locally without having to adjust the fundamental parsing approach.
+* extensibility: Lean's grammar can be extended on the fly within a Lean file, and with Lean 4 we want to extend this
+  to cover embedding domain-specific languages that may look nothing like Lean, down to using a separate set of tokens.
+* losslessness: The parser should produce a concrete syntax tree that preserves all whitespace and other "sub-token"
+  information for the use in tooling.
+* performance: The overhead of the parser building blocks, and the overall parser performance on average-complexity
+  input, should be comparable with that of the previous parser hand-written in C++. No fancy optimizations should be
+  necessary for this.
+
+Given these constraints, we decided to implement a combinatoric, non-monadic, lexer-less, memoizing recursive-descent
+parser. Using combinators instead of some more formal and introspectible grammar representation ensures ultimate
+flexibility as well as efficient extensibility: there is (almost) no pre-processing necessary when extending the grammar
+with a new parser. However, because the all results the combinators produce are of the homogeneous `Syntax` type, the
+basic parser type is not actually a monad but a monomorphic linear function `ParserState → ParserState`, avoiding
+constructing and deconstructing countless monadic return values. Instead of explicitly returning syntax objects, parsers
+push (zero or more of) them onto a syntax stack inside the linear state. Chaining parsers via `>>` accumulates their
+output on the stack. Combinators such as `node` then pop off all syntax objects produced during their invocation and
+wrap them in a single `Syntax.node` object that is again pushed on this stack. Instead of calling `node` directly, we
+usually use the macro `parser! p`, which unfolds to `node k p` where the new syntax node kind `k` is the name of the
+declaration being defined.
+
+The lack of a dedicated lexer ensures we can modify and replace the lexical grammar at any point, and simplifies
+detecting and propagating whitespace. The parser still has a concept of "tokens", however, and caches the most recent
+one for performance: when `tokenFn` is called twice at the same position in the input, it will reuse the result of the
+first call. `tokenFn` recognizes some built-in variable-length tokens such as identifiers as well as any fixed token in
+the `ParserContext`'s `TokenTable` (a trie); however, the same cache field and strategy could be reused by custom token
+parsers. Tokens also play a central role in the `prattParser` combinator, which selects a *leading* parser followed by
+zero or more *trailing* parsers based on the current token (via `peekToken`) and its associated precedence; see the
+documentation of `prattParser` for more details. Token precedences are specified via the `symbol` parser, or with
+`symbolNoWs` for tokens that should not be preceded by whitespace. The `Parser` type is extended with additional
+metadata over the mere parsing function to propagate token information: `collectTokens` collects all tokens within a
+parser for registering. `firstTokens` holds information about the "FIRST" token set used to speed up parser selection in
+`prattParser`. If multiple parsers accept the same current token, `prattParser` tries all of them using the backtracking
+`longestMatchFn` combinator. This is the only case where standard parsers might execute arbitrary backtracking. At the
+moment there is no memoization shared by these parallel parsers apart from the first token, though we might change this
+in the future if the need arises.
+
+Finally, error reporting follows the standard combinatoric approach of collecting a single unexpected token/... and zero
+or more expected tokens (see `Error` below). Expected tokens are e.g. set by `symbol` and merged by `<|>`. Combinators
+running multiple parsers should check if an error message is set in the parser state (`hasError`) and act accordingly.
+Error recovery is left to the designer of the specific language; for example, Lean's top-level `parseCommand` loop skips
+tokens until the next command keyword on error.
+-/
 prelude
 import Lean.Data.Trie
 import Lean.Data.Position
@@ -1548,7 +1598,22 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
         trailingLoop s
 
 /--
-  Implements a recursive precedence parser according to Pratt's algorithm.
+
+  Implements a recursive precedence parser according to Pratt's algorithm: select a parser (or more, via
+  `longestMatchFn`) from `leadingTable` based on the current token (falling back to unindexed `leadingParsers` such as
+  application), then chain with parsers from `trailingTable`/`trailingParsers` as long as the precedence of the current
+  token is higher than `rbp` of the parser state.
+
+  As an extension of the original algorithm, we also check the current token's precedence before calling the leading
+  parser(s). We do this so we can define an n-ary application parser:
+  ```
+  @[builtinTermParser] def app := tparser! many1 (namedArgument <|> termParser appPrec)
+  ```
+  If the nested `termParser appPrec` did not check the precedence of the first token, we would accept bogus input such as
+  `f x fun y => y` because we would never check the precedence of `fun`. Note that, in contrast to trailing tokens, a
+  leading token is accepted if its precedence is *at least* `rbp`. This is necessary so that `f x y` is not parsed as
+  `f (x y)`: the nested `termParser` call must accept the leading token `x` but not the trailing token `y`. But both have
+  the same precedence as identifiers, so we must use different comparisons.
 
   `antiquotParser` should be a `mkAntiquot` parser (or always fail) and is tried before all other parsers.
   It should not be added to the regular leading parsers because it would heavily

@@ -604,14 +604,6 @@ fun stx expectedType? => match_syntax stx with
    but it is nice to have a handler for them because it allows `macros` to insert them into terms. -/
 @[builtinTermElab ident] def elabRawIdent : TermElab := elabAtom
 
-@[builtinTermElab sortApp] def elabSortApp : TermElab :=
-fun stx _ => do
-  u ← elabLevel (stx.getArg 1);
-  if (stx.getArg 0).getKind == `Lean.Parser.Term.sort then do
-    pure $ mkSort u
-  else
-    pure $ mkSort (mkLevelSucc u)
-
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.app;
 pure ()

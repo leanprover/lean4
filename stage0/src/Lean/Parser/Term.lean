@@ -52,8 +52,8 @@ def namedPattern := checkNoWsBefore "no space before '@'" >> parser! symbol "@" 
 @[builtinTermParser] def num : Parser := parser! numLit
 @[builtinTermParser] def str : Parser := parser! strLit
 @[builtinTermParser] def char : Parser := parser! charLit
-@[builtinTermParser] def type := parser! symbol "Type" appPrec
-@[builtinTermParser] def sort := parser! symbol "Sort" appPrec
+@[builtinTermParser] def type := parser! symbol "Type" appPrec >> optional (checkRbpLt appPrec >> levelParser appPrec)
+@[builtinTermParser] def sort := parser! symbol "Sort" appPrec >> optional (checkRbpLt appPrec >> levelParser appPrec)
 @[builtinTermParser] def prop := parser! symbol "Prop" appPrec
 @[builtinTermParser] def hole := parser! symbol "_" appPrec
 @[builtinTermParser] def namedHole := parser! symbol "?" appPrec >> ident
@@ -91,7 +91,7 @@ def explicitBinder (requireType := false) := parser! symbol "(" appPrec >> many1
 def implicitBinder (requireType := false) := parser! symbol "{" appPrec >> many1 binderIdent >> binderType requireType >> "}"
 def instBinder := parser! symbol "[" appPrec >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
-@[builtinTermParser] def depArrow := parser! bracketedBinder true >> checkRBPGreater 25 "expected parentheses around dependent arrow" >> unicodeSymbol " → " " -> " >> termParser
+@[builtinTermParser] def depArrow := parser! bracketedBinder true >> checkRbpLe 25 "expected parentheses around dependent arrow" >> unicodeSymbol " → " " -> " >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" leadPrec >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
@@ -149,7 +149,6 @@ def namedArgument  := parser! try (symbol "(" appPrec >> ident >> " := ") >> ter
 @[builtinTermParser] def app      := tparser! many1 (namedArgument <|> termParser appPrec)
 
 def checkIsSort := checkStackTop (fun stx => stx.isOfKind `Lean.Parser.Term.type || stx.isOfKind `Lean.Parser.Term.sort)
-@[builtinTermParser] def sortApp  := tparser! checkIsSort >> levelParser appPrec
 @[builtinTermParser] def proj     := tparser! symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def arrayRef := tparser! symbolNoWs "[" (appPrec+1) >> termParser >>"]"

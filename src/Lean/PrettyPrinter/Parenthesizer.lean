@@ -460,6 +460,7 @@ visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
 @[builtinParenthesizer checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkTailWs] def checkTailWs.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkColGe] def checkColGe.parenthesizer : Parenthesizer | p => pure ()
+@[builtinParenthesizer checkRbpLt] def checkRbpLt.parenthesizer : Parenthesizer | p => pure ()
 
 open Lean.Parser.Command
 @[builtinParenthesizer commentBody] def commentBody.parenthesizer : Parenthesizer | p => goLeft
@@ -474,10 +475,10 @@ end
 /-
   `depArrow` is defined as
   ```
-  parser! bracketedBinder true >> checkRBPGreater 25 "expected parentheses around dependent arrow" >> unicodeSymbol " → " " -> " >> termParser
+  parser! bracketedBinder true >> checkRbpLe 25 "expected parentheses around dependent arrow" >> unicodeSymbol " → " " -> " >> termParser
   ```
-  There is no generally sensible parenthesizer implementation for `checkRBPGreater`, so we special-case the entire
-  parser by ignoring `checkRBPGreater` and lowering the result LBP to 25 (instead of the LBP of `bracketedBinder`, i.e.
+  There is no generally sensible parenthesizer implementation for `checkRbpLe`, so we special-case the entire
+  parser by ignoring `checkRbpLe` and lowering the result LBP to 25 (instead of the LBP of `bracketedBinder`, i.e.
   `appPrec`). Thus terms such as `f ((a : _) -> b)` will be reparenthesized correctly since the new LBP is now lower than
   the surrounding RBP (`appPrec`). -/
 @[builtinParenthesizer Term.depArrow]

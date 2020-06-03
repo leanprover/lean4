@@ -974,11 +974,21 @@ match ctx.declName? with
 @[builtinTermElab «prop»] def elabProp : TermElab :=
 fun _ _ => pure $ mkSort levelZero
 
+private def elabOptLevel (stx : Syntax) : TermElabM Level :=
+if stx.isNone then
+  pure levelZero
+else
+  elabLevel $ stx.getArg 0
+
 @[builtinTermElab «sort»] def elabSort : TermElab :=
-fun _ _ => pure $ mkSort levelZero
+fun stx _ => do
+  u ← elabOptLevel $ stx.getArg 1;
+  pure $ mkSort u
 
 @[builtinTermElab «type»] def elabTypeStx : TermElab :=
-fun _ _ => pure $ mkSort levelOne
+fun stx _ => do
+  u ← elabOptLevel $ stx.getArg 1;
+  pure $ mkSort (mkLevelSucc u)
 
 @[builtinTermElab «hole»] def elabHole : TermElab :=
 fun stx expectedType? => mkFreshExprMVar stx expectedType?

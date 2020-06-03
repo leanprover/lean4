@@ -109,11 +109,6 @@ extern "C" obj_res lean_io_initializing(obj_arg) {
     return set_io_result(box(g_initializing));
 }
 
-extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg) {
-    std::cout << string_to_std(s); // TODO(Leo): use out handle
-    return set_io_result(box(0));
-}
-
 static lean_external_class * g_io_handle_external_class = nullptr;
 
 static void io_handle_finalizer(void * h) {
@@ -125,6 +120,28 @@ static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
 
 static lean_object * io_wrap_handle(FILE *hfile) {
     return lean_alloc_external(g_io_handle_external_class, hfile);
+}
+
+static object * g_handle_stdin  = nullptr;
+static object * g_handle_stdout = nullptr;
+static object * g_handle_stderr = nullptr;
+
+/* stdin : IO FS.Handle */
+extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
+    inc_ref(g_handle_stdin);
+    return set_io_result(g_handle_stdin);
+}
+
+/* stdout : IO FS.Handle */
+extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
+    inc_ref(g_handle_stdout);
+    return set_io_result(g_handle_stdout);
+}
+
+/* stderr : IO FS.Handle */
+extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
+    inc_ref(g_handle_stderr);
+    return set_io_result(g_handle_stderr);
 }
 
 static FILE * io_get_handle(lean_object * hfile) {
@@ -606,6 +623,12 @@ void initialize_io() {
     g_io_error_eof = lean_mk_io_error_eof(lean_box(0));
     mark_persistent(g_io_error_eof);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
+    g_handle_stdout = io_wrap_handle(stdout);
+    mark_persistent(g_handle_stdout);
+    g_handle_stderr = io_wrap_handle(stderr);
+    mark_persistent(g_handle_stderr);
+    g_handle_stdin  = io_wrap_handle(stdin);
+    mark_persistent(g_handle_stdin);
 }
 
 void finalize_io() {

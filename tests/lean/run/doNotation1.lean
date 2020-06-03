@@ -41,15 +41,15 @@ pure (s+a)
 def myPrint {α} [HasToString α] (a : α) : IO Unit :=
 IO.println (">> " ++ toString a)
 
-def h₂ (x : Nat) : ExceptT String (StateT Nat IO) Nat := do
+def h₂ (x : Nat) : StateT Nat IO Nat := do
 a ← h 1;        -- liftM inserted here
 IO.println x;
 b ← g1 a;       -- liftM inserted here
-when (a > 100) $ throw "Error";
+when (a > 100) $ throw $ IO.userError "Error";
 myPrint b.1;    -- liftM inserted here
 pure (a + 1)
 
-def h₃ (x : Nat) : ExceptT String (StateT Nat IO) Nat := do
+def h₃ (x : Nat) : StateT Nat IO Nat := do
 let m1 := do {  -- Type inferred from application below
   g x;          -- liftM inserted here
   IO.println 1
@@ -61,7 +61,7 @@ let m2 (y : Nat) := do {  -- Type inferred from application below
 a ← h 1;        -- liftM inserted here
 IO.println x;
 b ← g1 a;       -- liftM inserted here
-when (a > 100) $ throw "Error";
+when (a > 100) $ throw $ IO.userError "Error";
 myPrint b.1;    -- liftM inserted here
 m1;
 m2 a;

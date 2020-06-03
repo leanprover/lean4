@@ -133,11 +133,6 @@ constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray := arbitrar
 @[extern "lean_io_prim_handle_write"]
 constant Handle.write (h : @& Handle) (buffer : @& ByteArray) : IO Unit := arbitrary _
 
-@[extern "lean_io_prim_handle_read_byte"]
-constant Handle.getByte  (h : @& Handle) : IO UInt8 := arbitrary _
-@[extern "lean_io_prim_handle_write_byte"]
-constant Handle.putByte (h : @& Handle) (c : UInt8) : IO Unit := arbitrary _
-
 @[extern "lean_io_prim_handle_get_line"]
 constant Handle.getLine (h : @& Handle) : IO String := arbitrary _
 @[extern "lean_io_prim_handle_put_str"]
@@ -178,8 +173,6 @@ def Handle.isEof : Handle → m Bool := Prim.liftIO ∘ Prim.Handle.isEof
 def Handle.flush : Handle → m Unit := Prim.liftIO ∘ Prim.Handle.flush
 def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := Prim.liftIO (Prim.Handle.read h (USize.ofNat bytes))
 def Handle.write (h : Handle) (s : ByteArray) : m Unit := Prim.liftIO (Prim.Handle.write h s)
-def Handle.getByte (h : Handle) : m UInt8 := Prim.liftIO (Prim.Handle.getByte h)
-def Handle.putByte (h : Handle) (b : UInt8) : m Unit := Prim.liftIO (Prim.Handle.putByte h b)
 
 def Handle.getLine : Handle → m String := Prim.liftIO ∘ Prim.Handle.getLine
 

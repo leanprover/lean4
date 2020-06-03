@@ -275,27 +275,6 @@ extern "C" obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /* w */) {
     }
 }
 
-/* Handle.readByte : (@& Handle) → IO UInt8 */
-extern "C" obj_res lean_io_prim_handle_read_byte(b_obj_arg h, obj_arg /* w */) {
-    FILE * fp = io_get_handle(h);
-    int c = std::fgetc(fp);
-    if (c != EOF) {
-        return set_io_result(box(c));
-    } else {
-        return set_io_error(decode_io_error(errno, nullptr));
-    }
-}
-
-/* Handle.writeByte : (@& Handle) → UInt8 → IO unit */
-extern "C" obj_res lean_io_prim_handle_write_byte(b_obj_arg h, uint8 c, obj_arg /* w */) {
-    FILE * fp = io_get_handle(h);
-    if (std::fputc(c, fp) != EOF) {
-        return set_io_result(box(0));
-    } else {
-        return set_io_error(decode_io_error(errno, nullptr));
-    }
-}
-
 static object * g_io_error_eof = nullptr;
 
 /* Handle.read : (@& Handle) → USize → IO ByteArray */

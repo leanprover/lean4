@@ -313,6 +313,7 @@ lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___close
 lean_object* l_List_map___main___at_Lean_Elab_Term_Quotation_oldExpandMatchSyntax___spec__1(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__41;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__13;
+extern lean_object* l___private_Lean_Elab_Term_18__mkPairsAux___main___closed__4;
 lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -438,7 +439,6 @@ lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__8;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l_Lean_setOptionFromString___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__28;
-extern lean_object* l___private_Lean_Elab_Term_17__mkPairsAux___main___closed__4;
 lean_object* l_ReaderT_pure___at_Lean_Elab_Term_Quotation_HeadInfo_Inhabited___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__30;
 lean_object* l___private_Lean_Elab_Quotation_6__compileStxMatch___main___closed__11;
@@ -1568,7 +1568,7 @@ x_9 = l___private_Lean_Syntax_8__quoteList___main___at___private_Lean_Elab_Quota
 x_10 = l_Lean_mkAppStx___closed__9;
 x_11 = lean_array_push(x_10, x_8);
 x_12 = lean_array_push(x_11, x_9);
-x_13 = l___private_Lean_Elab_Term_17__mkPairsAux___main___closed__4;
+x_13 = l___private_Lean_Elab_Term_18__mkPairsAux___main___closed__4;
 x_14 = l_Lean_mkCAppStx(x_13, x_12);
 x_15 = lean_array_push(x_10, x_14);
 x_16 = lean_array_push(x_15, x_5);

@@ -20,6 +20,7 @@ lean_object* l_Lean_extractMacroScopes(lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__7;
 lean_object* l_Lean_Elab_Command_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Elab_Term_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,6 +29,7 @@ lean_object* l_Lean_Elab_Term_inferType(lean_object*, lean_object*, lean_object*
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_collectUsedFVarsAtFVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabDefLike___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Command_withUsedWhen_x27___rarg___closed__1;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabDefLike___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__4;
@@ -86,7 +88,6 @@ lean_object* l_Lean_Elab_Command_mkDef___lambda__1___boxed(lean_object*, lean_ob
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen(lean_object*);
 lean_object* l_Lean_Elab_Term_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_elabTypeStx___rarg___closed__1;
 lean_object* l_Lean_Elab_Command_collectUsedFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__1;
@@ -137,6 +138,7 @@ uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_ShareCommon_State_empty;
 lean_object* lean_state_sharecommon(lean_object*, lean_object*);
+extern lean_object* l_Lean_levelOne;
 lean_object* lean_task_pure(lean_object*);
 lean_object* l___private_Lean_Elab_Command_12__addScopes___main(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_main___main(lean_object*, lean_object*);
@@ -1319,11 +1321,20 @@ lean_dec(x_1);
 return x_11;
 }
 }
+lean_object* _init_l_Lean_Elab_Command_withUsedWhen_x27___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_levelOne;
+x_2 = l_Lean_mkSort(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Elab_Command_withUsedWhen_x27___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Lean_Elab_Term_elabTypeStx___rarg___closed__1;
+x_9 = l_Lean_Elab_Command_withUsedWhen_x27___rarg___closed__1;
 x_10 = l_Lean_Elab_Command_withUsedWhen___rarg(x_1, x_2, x_3, x_4, x_9, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -6885,6 +6896,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_removeUnused___closed__1 = _init_l_Lean_Elab_Command_removeUnused___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_removeUnused___closed__1);
+l_Lean_Elab_Command_withUsedWhen_x27___rarg___closed__1 = _init_l_Lean_Elab_Command_withUsedWhen_x27___rarg___closed__1();
+lean_mark_persistent(l_Lean_Elab_Command_withUsedWhen_x27___rarg___closed__1);
 l_Lean_Elab_Command_mkDef___lambda__1___closed__1 = _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_mkDef___lambda__1___closed__1);
 l_Lean_Elab_Command_mkDef___lambda__1___closed__2 = _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__2();

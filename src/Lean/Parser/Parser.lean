@@ -1106,15 +1106,19 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym lbp,
   fn   := unicodeSymbolFn sym asciiSym }
 
-/- Succeeds if RBP > lower -/
-def checkRBPGreaterFn (lower : Nat) (errorMsg : String) : ParserFn :=
+/- Succeeds if RBP < upper -/
+def checkRbpLtFn (upper : Nat) (errorMsg : String) : ParserFn :=
 fun c s =>
-  if c.rbp > lower then s.mkUnexpectedError errorMsg
-  else s
+  if c.rbp < upper then s
+  else s.mkUnexpectedError errorMsg
 
-def checkRBPGreater (lower : Nat) (errorMsg : String) : Parser :=
+def checkRbpLt (lower : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
 { info := epsilonInfo,
-  fn   := checkRBPGreaterFn lower errorMsg }
+  fn   := checkRbpLtFn lower errorMsg }
+
+/- Succeeds if RBP <= upper -/
+def checkRbpLe (upper : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
+checkRbpLt (upper + 1) errorMsg
 
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ { val := k } ] }

@@ -1091,12 +1091,12 @@ fun c s =>
   if c.rbp < upper then s
   else s.mkUnexpectedError errorMsg
 
-def checkRbpLt (lower : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
+@[inline] def checkRbpLt (upper : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
 { info := epsilonInfo,
-  fn   := checkRbpLtFn lower errorMsg }
+  fn   := checkRbpLtFn upper errorMsg }
 
 /- Succeeds if RBP <= upper -/
-def checkRbpLe (upper : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
+@[inline] def checkRbpLe (upper : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
 checkRbpLt (upper + 1) errorMsg
 
 /- Version of `leadingNode` which uses `checkRbpLe` -/

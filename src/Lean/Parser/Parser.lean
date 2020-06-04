@@ -30,9 +30,6 @@ output on the stack. Combinators such as `node` then pop off all syntax objects 
 wrap them in a single `Syntax.node` object that is again pushed on this stack. Instead of calling `node` directly, we
 usually use the macro `parser! p`, which unfolds to `node k p` where the new syntax node kind `k` is the name of the
 declaration being defined.
-We remark the design is inspired by the "Arrow"-approach described at the paper "Generalizing Monads to Arrows", and
-used at the Swierstra and Duponcheel's parsing library (SDPL). As in SDPL, a parser is a combination of static information
-(`ParserInfo`) which is computed before parsing begins, and the parsing function `ParserState → ParserState`.
 
 The lack of a dedicated lexer ensures we can modify and replace the lexical grammar at any point, and simplifies
 detecting and propagating whitespace. The parser still has a concept of "tokens", however, and caches the most recent
@@ -45,10 +42,11 @@ documentation of `prattParser` for more details. Token precedences are specified
 `symbolNoWs` for tokens that should not be preceded by whitespace. The `Parser` type is extended with additional
 metadata over the mere parsing function to propagate token information: `collectTokens` collects all tokens within a
 parser for registering. `firstTokens` holds information about the "FIRST" token set used to speed up parser selection in
-`prattParser`. If multiple parsers accept the same current token, `prattParser` tries all of them using the backtracking
-`longestMatchFn` combinator. This is the only case where standard parsers might execute arbitrary backtracking. At the
-moment there is no memoization shared by these parallel parsers apart from the first token, though we might change this
-in the future if the need arises.
+`prattParser`. This approach of combining static and dynamic information in the parser type is inspired by the paper
+"Deterministic, Error-Correcting Combinator Parsers" by Swierstra and Duponcheel. If multiple parsers accept the same
+current token, `prattParser` tries all of them using the backtracking `longestMatchFn` combinator. This is the only case
+where standard parsers might execute arbitrary backtracking. At the moment there is no memoization shared by these
+parallel parsers apart from the first token, though we might change this in the future if the need arises.
 
 Finally, error reporting follows the standard combinatoric approach of collecting a single unexpected token/... and zero
 or more expected tokens (see `Error` below). Expected tokens are e.g. set by `symbol` and merged by `<|>`. Combinators

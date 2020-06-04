@@ -126,14 +126,14 @@ def letDecl              := letIdDecl <|> letPatDecl <|> letEqnsDecl
 @[builtinTermParser] def «let!» := parser! [leadPrec] "let! " >> letDecl >> "; " >> termParser
 
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
-def doLet  := parser! [leadPrec] "let ">> letDecl
+def doLet  := parser! "let ">> letDecl
 def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
 def doSeq  := sepBy1 doElem "; "
 def bracketedDoSeq := parser! [appPrec] "{" >> doSeq >> "}"
-@[builtinTermParser] def liftMethod := parser! leftArrow >> termParser
+@[builtinTermParser] def liftMethod := parser! [0] leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser! [leadPrec] "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser appPrec

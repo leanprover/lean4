@@ -104,7 +104,7 @@ structure ParserCache :=
 def initCacheForInput (input : String) : ParserCache :=
 { tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/} }
 
-abbrev TokenTable := Trie Unit
+abbrev TokenTable := Trie Token
 
 abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
 
@@ -876,8 +876,8 @@ private def tokenFnAux : ParserFn
   else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
     nameLitAux i c s
   else
-    let (_, _) := c.tokens.matchPrefix input i;
-    identFnAux i input Name.anonymous c s
+    let (_, tk) := c.tokens.matchPrefix input i;
+    identFnAux i tk Name.anonymous c s
 
 private def updateCache (startPos : Nat) (s : ParserState) : ParserState :=
 match s with
@@ -1665,7 +1665,7 @@ private def mergePrecendences (msgPreamble : String) (sym : String) : Option Nat
 private def addTokenConfig (tokens : TokenTable) (tk : Token) : Except String TokenTable := do
 if tk == "" then throw "invalid empty symbol"
 else match tokens.find? tk with
-  | none   => pure $ tokens.insert tk ()
+  | none   => pure $ tokens.insert tk tk
   | some _ => pure tokens
 
 def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=

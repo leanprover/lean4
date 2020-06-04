@@ -1597,7 +1597,7 @@ fun c s =>
   let iniPos := s.pos;
   let s := leadingParser kind tables leadingIdentAsSymbol antiquotParser c s;
   if s.hasError then
-    if s.pos == iniPos then s.restore iniSz iniPos else s
+    s
   else
     trailingLoop tables c s
 

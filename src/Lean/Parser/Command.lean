@@ -23,7 +23,7 @@ categoryParser `command rbp
   `($x $y) will be parsed as an application, not two commands. Use `($x:command $y:command) instead.
   Multiple command will be put in a `null node, but a single command will not (so that you can directly
   match against a quotation in a command kind's elaborator). -/
-@[builtinTermParser] def Term.stxQuot := parser! symbol "`(" appPrec >> (termParser <|> many1 commandParser true) >> ")"
+@[builtinTermParser] def Term.stxQuot := parser! [appPrec] "`(" >> (termParser <|> many1 commandParser true) >> ")"
 
 namespace Command
 def commentBody : Parser :=
@@ -54,15 +54,15 @@ def «constant»       := parser! "constant " >> declId >> declSig >> optional d
 def «instance»       := parser! "instance " >> optional declId >> declSig >> declVal
 def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
-def inferMod         := parser! try (symbol "{" appPrec >> "}")
+def inferMod         := parser! try ("{" >> "}")
 def introRule        := parser! " | " >> ident >> optional inferMod >> optDeclSig
 def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> many introRule
 def classInductive   := parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many introRule
-def structExplicitBinder := parser! symbol "(" appPrec >> many ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
-def structImplicitBinder := parser! symbol "{" appPrec >> many ident >> optional inferMod >> optDeclSig >> "}"
-def structInstBinder     := parser! symbol "[" appPrec >> many ident >> optional inferMod >> optDeclSig >> "]"
+def structExplicitBinder := parser! "(" >> many ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structImplicitBinder := parser! "{" >> many ident >> optional inferMod >> optDeclSig >> "}"
+def structInstBinder     := parser! "[" >> many ident >> optional inferMod >> optDeclSig >> "]"
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
-def structCtor           := parser! ident >> optional inferMod >> symbol " :: " 67
+def structCtor           := parser! ident >> optional inferMod >> " :: "
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
@@ -85,12 +85,12 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
-@[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> symbol "[" appPrec >> sepBy1 attrInstance ", " >> "]" >> many1 ident
-@[builtinCommandParser] def «export»       := parser! "export " >> ident >> symbol "(" appPrec >> many1 ident >> ")"
+@[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 attrInstance ", " >> "]" >> many1 ident
+@[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
 def openHiding       := parser! try (ident >> "hiding") >> many1 ident
 def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
 def openRenaming     := parser! try (ident >> "renaming") >> sepBy1 openRenamingItem ", "
-def openOnly         := parser! try (ident >> symbol "(" appPrec) >> many1 ident >> ")"
+def openOnly         := parser! try (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 

@@ -92,28 +92,7 @@ input.get (input.next pos)
       (e.g., a list). -/
 def appPrec : Nat := 1024
 
-structure TokenConfig :=
-(val     : String)
-(lbp     : Option Nat := none)
-(lbpNoWs : Option Nat := none) -- optional left-binding power when there is not whitespace before the token.
-
-namespace TokenConfig
-
-def beq : TokenConfig → TokenConfig → Bool
-| ⟨val₁, lbp₁, lbpnws₁⟩, ⟨val₂, lbp₂, lbpnws₂⟩ => val₁ == val₂ && lbp₁ == lbp₂ && lbpnws₁ == lbpnws₂
-
-instance : HasBeq TokenConfig :=
-⟨beq⟩
-
-def toStr : TokenConfig → String
-| ⟨val, some lbp, some lbpnws⟩ => val ++ ":" ++ toString lbp ++ ":" ++ toString lbpnws
-| ⟨val, some lbp, none⟩        => val ++ ":" ++ toString lbp
-| ⟨val, none, some lbpnws⟩     => val ++ ":none:" ++ toString lbpnws
-| ⟨val, none, none⟩            => val
-
-instance : HasToString TokenConfig := ⟨toStr⟩
-
-end TokenConfig
+abbrev Token := String
 
 structure TokenCacheEntry :=
 (startPos stopPos : String.Pos := 0)
@@ -125,7 +104,7 @@ structure ParserCache :=
 def initCacheForInput (input : String) : ParserCache :=
 { tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/} }
 
-abbrev TokenTable := Trie TokenConfig
+abbrev TokenTable := Trie Unit
 
 abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
 
@@ -277,8 +256,8 @@ instance ParserFn.inhabited : Inhabited ParserFn := ⟨fun _ => id⟩
 inductive FirstTokens
 | epsilon   : FirstTokens
 | unknown   : FirstTokens
-| tokens    : List TokenConfig → FirstTokens
-| optTokens : List TokenConfig → FirstTokens
+| tokens    : List Token → FirstTokens
+| optTokens : List Token → FirstTokens
 
 namespace FirstTokens
 
@@ -312,7 +291,7 @@ instance : HasToString FirstTokens := ⟨toStr⟩
 end FirstTokens
 
 structure ParserInfo :=
-(collectTokens : List TokenConfig → List TokenConfig   := id)
+(collectTokens : List Token → List Token := id)
 (collectKinds  : SyntaxNodeKindSet → SyntaxNodeKindSet := id)
 (firstTokens   : FirstTokens                           := FirstTokens.unknown)
 
@@ -794,31 +773,30 @@ def isIdCont : String → ParserState → Bool
   else
     false
 
-private def isToken (idStartPos idStopPos : Nat) (tk : Option TokenConfig) : Bool :=
+private def isToken (idStartPos idStopPos : Nat) (tk : Option Token) : Bool :=
 match tk with
 | none    => false
 | some tk =>
    -- if a token is both a symbol and a valid identifier (i.e. a keyword),
    -- we want it to be recognized as a symbol
-  tk.val.bsize ≥ idStopPos - idStartPos
+  tk.bsize ≥ idStopPos - idStartPos
 
-def mkTokenAndFixPos (startPos : Nat) (tk : Option TokenConfig) : ParserFn :=
+def mkTokenAndFixPos (startPos : Nat) (tk : Option Token) : ParserFn :=
 fun c s =>
 match tk with
 | none    => s.mkErrorAt "token" startPos
 | some tk =>
   let input     := c.input;
   let leading   := mkEmptySubstringAt input startPos;
-  let val       := tk.val;
-  let stopPos   := startPos + val.bsize;
+  let stopPos   := startPos + tk.bsize;
   let s         := s.setPos stopPos;
   let s         := whitespace c s;
   let wsStopPos := s.pos;
   let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring };
-  let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } val;
+  let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } tk;
   s.pushSyntax atom
 
-def mkIdResult (startPos : Nat) (tk : Option TokenConfig) (val : Name) : ParserFn :=
+def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn :=
 fun c s =>
 let stopPos           := s.pos;
 if isToken startPos stopPos tk then
@@ -834,7 +812,7 @@ else
   let atom            := mkIdent info rawVal val;
   s.pushSyntax atom
 
-partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → ParserFn
+partial def identFnAux (startPos : Nat) (tk : Option Token) : Name → ParserFn
 | r, c, s =>
   let input := c.input;
   let i     := s.pos;
@@ -898,8 +876,8 @@ private def tokenFnAux : ParserFn
   else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
     nameLitAux i c s
   else
-    let (_, tk) := c.tokens.matchPrefix input i;
-    identFnAux i tk Name.anonymous c s
+    let (_, _) := c.tokens.matchPrefix input i;
+    identFnAux i input Name.anonymous c s
 
 private def updateCache (startPos : Nat) (s : ParserState) : ParserState :=
 match s with
@@ -962,20 +940,20 @@ fun c s =>
 @[inline] def symbolFnAux (sym : String) (errorMsg : String) : ParserFn :=
 satisfySymbolFn (fun s => s == sym) [errorMsg]
 
-def symbolInfo (sym : String) (lbp : Option Nat) : ParserInfo :=
-{ collectTokens := fun tks => { val := sym, lbp := lbp } :: tks,
-  firstTokens   := FirstTokens.tokens [ { val := sym, lbp := lbp } ] }
+def symbolInfo (sym : String) : ParserInfo :=
+{ collectTokens := fun tks => sym :: tks,
+  firstTokens   := FirstTokens.tokens [ sym ] }
 
 @[inline] def symbolFn (sym : String) : ParserFn :=
 symbolFnAux sym ("'" ++ sym ++ "'")
 
-@[inline] def symbolAux (sym : String) (lbp : Option Nat := none) : Parser :=
+@[inline] def symbolAux (sym : String) : Parser :=
 let sym := sym.trim;
-{ info := symbolInfo sym lbp,
+{ info := symbolInfo sym,
   fn   := symbolFn sym }
 
-@[inline] def symbol (sym : String) (lbp : Nat) : Parser :=
-symbolAux sym lbp
+@[inline] def symbol (sym : String) : Parser :=
+symbolAux sym
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
@@ -1007,9 +985,9 @@ nonReservedSymbolFnAux sym ("'" ++ sym ++ "'")
 def nonReservedSymbolInfo (sym : String) (includeIdent : Bool) : ParserInfo :=
 { firstTokens  :=
   if includeIdent then
-    FirstTokens.tokens [ { val := sym }, { val := "ident" } ]
+    FirstTokens.tokens [ sym, "ident" ]
   else
-    FirstTokens.tokens [ { val := sym } ] }
+    FirstTokens.tokens [ sym ] }
 
 @[inline] def nonReservedSymbol (sym : String) (includeIdent := false) : Parser :=
 let sym := sym.trim;
@@ -1058,9 +1036,9 @@ def checkNoWsBefore (errorMsg : String) : Parser :=
 { info := epsilonInfo,
   fn   := checkNoWsBeforeFn errorMsg }
 
-def symbolNoWsInfo (sym : String) (lbpNoWs : Option Nat) : ParserInfo :=
-{ collectTokens := fun tks => { val := sym, lbpNoWs := lbpNoWs } :: tks,
-  firstTokens   := FirstTokens.tokens [ { val := sym, lbpNoWs := lbpNoWs } ] }
+def symbolNoWsInfo (sym : String) : ParserInfo :=
+{ collectTokens := fun tks => sym :: tks,
+  firstTokens   := FirstTokens.tokens [ sym ] }
 
 @[inline] def symbolNoWsFnAux (sym : String) (errorMsg : String) : ParserFn :=
 fun c s =>
@@ -1083,28 +1061,28 @@ fun c s =>
 symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespace around it")
 
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
-@[inline] def symbolNoWsAux (sym : String) (lbp : Option Nat) : Parser :=
+@[inline] def symbolNoWsAux (sym : String) : Parser :=
 let sym := sym.trim;
-{ info := symbolNoWsInfo sym lbp,
+{ info := symbolNoWsInfo sym,
   fn   := symbolNoWsFn sym }
 
-@[inline] def symbolNoWs (sym : String) (lbp : Nat) : Parser :=
-symbolNoWsAux sym lbp
+@[inline] def symbolNoWs (sym : String) : Parser :=
+symbolNoWsAux sym
 
 def unicodeSymbolFnAux (sym asciiSym : String) (expected : List String) : ParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) expected
 
-def unicodeSymbolInfo (sym asciiSym : String) (lbp : Option Nat) : ParserInfo :=
-{ collectTokens := fun tks => { val := sym, lbp := lbp } :: { val := asciiSym, lbp := lbp } :: tks,
-  firstTokens   := FirstTokens.tokens [ { val := sym, lbp := lbp }, { val := asciiSym, lbp := lbp } ] }
+def unicodeSymbolInfo (sym asciiSym : String) : ParserInfo :=
+{ collectTokens := fun tks => sym :: asciiSym :: tks,
+  firstTokens   := FirstTokens.tokens [ sym, asciiSym ] }
 
 @[inline] def unicodeSymbolFn (sym asciiSym : String) : ParserFn :=
 unicodeSymbolFnAux sym asciiSym ["'" ++ sym ++ "', '" ++ asciiSym ++ "'"]
 
-@[inline] def unicodeSymbol (sym asciiSym : String) (lbp : Option Nat := none) : Parser :=
+@[inline] def unicodeSymbol (sym asciiSym : String) : Parser :=
 let sym := sym.trim;
 let asciiSym := asciiSym.trim;
-{ info := unicodeSymbolInfo sym asciiSym lbp,
+{ info := unicodeSymbolInfo sym asciiSym,
   fn   := unicodeSymbolFn sym asciiSym }
 
 /- Succeeds if RBP < upper -/
@@ -1131,7 +1109,7 @@ checkRbpLe prec >> leadingNode n p
 checkRbpLt prec >> trailingNode n p
 
 def mkAtomicInfo (k : String) : ParserInfo :=
-{ firstTokens := FirstTokens.tokens [ { val := k } ] }
+{ firstTokens := FirstTokens.tokens [ k ] }
 
 def numLitFn : ParserFn :=
 fun c s =>
@@ -1220,7 +1198,7 @@ def unquotedSymbol : Parser :=
 { fn := unquotedSymbolFn }
 
 instance stringToParserCoe : HasCoe String Parser :=
-⟨fun s => symbol s 0⟩
+⟨fun s => symbol s ⟩
 
 namespace ParserState
 
@@ -1391,27 +1369,6 @@ instance ParserCategory.inhabited : Inhabited ParserCategory := ⟨{ tables := {
 
 abbrev ParserCategories := PersistentHashMap Name ParserCategory
 
-def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
-let (s, stx?) := peekToken c s;
-match stx? with
-| some stx@(Syntax.atom _ sym) =>
-  if sym == "$" && checkTailNoWs stx then (s, appPrec) -- TODO: split `lbpNoWs` into "before" and "after", and set right lbp for '$' in antiquotations
-  else match c.tokens.matchPrefix sym 0 with
-  | (_, some tk) => match tk.lbp, tk.lbpNoWs with
-    | some lbp, none         => (s, lbp)
-    | none, some lbpNoWs     => (s, lbpNoWs)
-    | some lbp, some lbpNoWs => if checkTailNoWs left then (s, lbpNoWs) else (s, lbp)
-    | none, none             => (s, 0)
-  | _            => (s, 0)
-| some (Syntax.ident _ _ _ _) => (s, appPrec)
--- TODO(Leo): add support for associating lbp with syntax node kinds.
-| some (Syntax.node k _)      =>
-  if isLitKind k || k == fieldIdxKind then
-    (s, appPrec)
-  else
-    (s, 0)
-| _                           => (s, 0)
-
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (leadingIdentAsSymbol : Bool) : ParserState × List α :=
 let (s, stx) := peekToken c s;
 let find (n : Name) : ParserState × List α :=
@@ -1460,7 +1417,7 @@ categoryParser `term rbp
 /- Antiquotations -/
 /- ============== -/
 
-def dollarSymbol : Parser := symbol "$" 1
+def dollarSymbol : Parser := symbol "$"
 
 /-- Fail if previous token is immediately followed by ':'. -/
 private def noImmediateColon : Parser :=
@@ -1490,7 +1447,7 @@ def pushNone : Parser :=
 { fn := fun c s => s.pushSyntax mkNullNode }
 
 -- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbol "(" appPrec >> termParser >> ")")
+def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbol "(" >> termParser >> ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 /--
@@ -1501,7 +1458,7 @@ def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
   produces the syntax tree for `$e`. -/
 def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
-let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux ":" >> nonReservedSymbol name;
+let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name;
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
@@ -1511,7 +1468,7 @@ node kind $ try $
   many (checkNoWsBefore "" >> dollarSymbol) >>
   checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
   nameP >>
-  optional (checkNoWsBefore "" >> symbolAux "*" none)
+  optional (checkNoWsBefore "" >> symbol "*")
 
 def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
 let (s, stx?) := peekToken c s;
@@ -1598,22 +1555,20 @@ s.pushSyntax result
 
 partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : ParserState → ParserState
 | s =>
-  let left := s.stxStack.back;
-  let (s, lbp) := currLbp left c s;
-  if c.rbp ≥ lbp then s
+  let identAsSymbol := false;
+  let (s, ps)       := indexed tables.trailingTable c s identAsSymbol;
+  if ps.isEmpty && tables.trailingParsers.isEmpty then
+    s -- no available trailing parser
   else
     let c             := { c with left := s.stxStack.back };
-    let iniSz         := s.stackSize;
-    let identAsSymbol := false;
-    let (s, ps)       := indexed tables.trailingTable c s identAsSymbol;
-    if ps.isEmpty && tables.trailingParsers.isEmpty then
-      s -- no available trailing parser
+    let iniSz  := s.stackSize;
+    let iniPos := s.pos;
+    let s := trailingLoopStep tables ps c s;
+    if s.hasError then
+      if s.pos == iniPos then s.restore iniSz iniPos else s
     else
-      let s := trailingLoopStep tables ps c s;
-      if s.hasError then s
-      else
-        let s := mkTrailingResult s iniSz;
-        trailingLoop s
+      let s := mkTrailingResult s iniSz;
+      trailingLoop s
 
 /--
 
@@ -1638,14 +1593,13 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   overlap with antiquotation parsers nested inside them. -/
 @[inline] def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
 fun c s =>
-  let left := s.stxStack.back;
-  let (s, lbp) := currLbp left c s;
-  if c.rbp > lbp then s.mkUnexpectedError "unexpected token"
+  let iniSz  := s.stackSize;
+  let iniPos := s.pos;
+  let s := leadingParser kind tables leadingIdentAsSymbol antiquotParser c s;
+  if s.hasError then
+    if s.pos == iniPos then s.restore iniSz iniPos else s
   else
-    let s := leadingParser kind tables leadingIdentAsSymbol antiquotParser c s;
-    if s.hasError then s
-    else
-      trailingLoop tables c s
+    trailingLoop tables c s
 
 def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 @[init mkBuiltinTokenTable] constant builtinTokenTable : IO.Ref TokenTable := arbitrary _
@@ -1673,13 +1627,13 @@ categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables :
 builtinParserCategoriesRef.set categories
 
 inductive ParserExtensionOleanEntry
-| token     (val : TokenConfig) : ParserExtensionOleanEntry
+| token     (val : Token) : ParserExtensionOleanEntry
 | kind      (val : SyntaxNodeKind) : ParserExtensionOleanEntry
 | category  (catName : Name) (leadingIdentAsSymbol : Bool)
 | parser    (catName : Name) (declName : Name) : ParserExtensionOleanEntry
 
 inductive ParserExtensionEntry
-| token     (val : TokenConfig) : ParserExtensionEntry
+| token     (val : Token) : ParserExtensionEntry
 | kind      (val : SyntaxNodeKind) : ParserExtensionEntry
 | category  (catName : Name) (leadingIdentAsSymbol : Bool)
 | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) : ParserExtensionEntry
@@ -1708,14 +1662,11 @@ private def mergePrecendences (msgPreamble : String) (sym : String) : Option Nat
   else
     throw $ msgPreamble ++ "precedence mismatch for '" ++ toString sym ++ "', previous: " ++ toString a ++ ", new: " ++ toString b
 
-private def addTokenConfig (tokens : TokenTable) (tk : TokenConfig) : Except String TokenTable := do
-if tk.val == "" then throw "invalid empty symbol"
-else match tokens.find? tk.val with
-  | none       => pure $ tokens.insert tk.val tk
-  | some oldTk => do
-    lbp     ← mergePrecendences "" tk.val oldTk.lbp tk.lbp;
-    lbpNoWs ← mergePrecendences "(no whitespace) " tk.val oldTk.lbpNoWs tk.lbpNoWs;
-    pure $ tokens.insert tk.val { tk with lbp := lbp, lbpNoWs := lbpNoWs }
+private def addTokenConfig (tokens : TokenTable) (tk : Token) : Except String TokenTable := do
+if tk == "" then throw "invalid empty symbol"
+else match tokens.find? tk with
+  | none   => pure $ tokens.insert tk ()
+  | some _ => pure tokens
 
 def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 throw ("unknown parser category '" ++ toString catName ++ "'")
@@ -1725,8 +1676,8 @@ match categories.find? catName with
 | none     =>
   throwUnknownParserCategory catName
 | some cat =>
-  let addTokens (tks : List TokenConfig) : Except String ParserCategories :=
-    let tks    := tks.map $ fun tk => mkNameSimple tk.val;
+  let addTokens (tks : List Token) : Except String ParserCategories :=
+    let tks    := tks.map $ fun tk => mkNameSimple tk;
     let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with leadingTable := tables.leadingTable.insert tk p }) cat.tables;
     pure $ categories.insert catName { cat with tables := tables };
   match p.info.firstTokens with
@@ -1737,8 +1688,8 @@ match categories.find? catName with
     pure $ categories.insert catName { cat with tables := tables }
 
 private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) : PrattParsingTables :=
-let addTokens (tks : List TokenConfig) : PrattParsingTables :=
-  let tks := tks.map $ fun tk => mkNameSimple tk.val;
+let addTokens (tks : List Token) : PrattParsingTables :=
+  let tks := tks.map $ fun tk => mkNameSimple tk;
   tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with trailingTable := tables.trailingTable.insert tk p }) tables;
 match p.info.firstTokens with
 | FirstTokens.tokens tks    => addTokens tks
@@ -1808,7 +1759,7 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | ParserDescr.node k d                            => node k <$> compileParserDescr d
 | ParserDescr.trailingNode k d                    => trailingNode k <$> compileParserDescr d
-| ParserDescr.symbol tk lbp                       => pure $ symbol tk lbp
+| ParserDescr.symbol tk _                         => pure $ symbol tk
 | ParserDescr.numLit                              => pure $ numLit
 | ParserDescr.strLit                              => pure $ strLit
 | ParserDescr.charLit                             => pure $ charLit
@@ -1918,7 +1869,7 @@ fun ctx s =>
 @[init] def setCategoryParserFnRef : IO Unit :=
 categoryParserFnRef.set categoryParserFnImpl
 
-def addToken (env : Environment) (tk : TokenConfig) : Except String Environment := do
+def addToken (env : Environment) (tk : Token) : Except String Environment := do
 -- Recall that `ParserExtension.addEntry` is pure, and assumes `addTokenConfig` does not fail.
 -- So, we must run it here to handle exception.
 _ ← addTokenConfig (parserExtension.getState env).tokens tk;
@@ -1937,11 +1888,6 @@ kinds.foldl (fun ks k _ => k::ks) []
 
 def getTokenTable (env : Environment) : TokenTable :=
 (parserExtension.getState env).tokens
-
-def getTokenLbp? (env : Environment) (sym : String) : Option Nat := do
-let tokens := getTokenTable env;
-tk ← tokens.find? sym;
-tk.lbp
 
 def mkInputContext (input : String) (fileName : String) : InputContext :=
 { input    := input,

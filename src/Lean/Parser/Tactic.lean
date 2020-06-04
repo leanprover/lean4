@@ -37,7 +37,7 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticParser
-@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize" >> optional (try (ident >> " : ")) >> termParser 50 >> symbol " = " 50 >> ident
+@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize" >> optional (try (ident >> " : ")) >> termParser 50 >> " = " >> ident
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> (Term.hole <|> Term.namedHole <|> tacticParser)
 def inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
@@ -48,10 +48,10 @@ def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
 def withIds : Parser := optional (" with " >> many1 ident')
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
-@[builtinTacticParser] def paren        := parser! symbol "(" appPrec  >> nonEmptySeq >> ")"
-@[builtinTacticParser] def nestedTacticBlock := parser! symbol "begin " appPrec >> seq >> "end"
-@[builtinTacticParser] def nestedTacticBlockCurly := parser! symbol "{" appPrec >> seq >> "}"
-@[builtinTacticParser] def orelse := tparser! symbol " <|> " 2 >> tacticParser 1
+@[builtinTacticParser] def paren        := parser! [appPrec] "(" >> nonEmptySeq >> ")"
+@[builtinTacticParser] def nestedTacticBlock := parser! [appPrec] "begin " >> seq >> "end"
+@[builtinTacticParser] def nestedTacticBlockCurly := parser! [appPrec] "{" >> seq >> "}"
+@[builtinTacticParser] def orelse := tparser! [2] " <|> " >> tacticParser 1
 
 end Tactic
 end Parser

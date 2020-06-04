@@ -1105,7 +1105,7 @@ checkRbpLt (upper + 1) errorMsg
 checkRbpLe prec >> leadingNode n p
 
 /- Version of `trailingNode` which uses `checkRbpLt` -/
-@[inline] def trailingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
+@[inline] def trailingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
 checkRbpLt prec >> trailingNode n p
 
 def mkAtomicInfo (k : String) : ParserInfo :=

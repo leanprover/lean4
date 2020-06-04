@@ -1120,6 +1120,15 @@ def checkRbpLt (lower : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
 def checkRbpLe (upper : Nat) (errorMsg : String := "unexpected RBP") : Parser :=
 checkRbpLt (upper + 1) errorMsg
 
+/- Version of `leadingNode` which uses `checkRbpLe` -/
+@[inline] def leadingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
+-- TODO: Make sure leading and trailing parsers use the same check (i.e., `checkRbpLt`). We need to change the precedence of identiers and literals.
+checkRbpLe prec >> leadingNode n p
+
+/- Version of `trailingNode` which uses `checkRbpLt` -/
+@[inline] def trailingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
+checkRbpLt prec >> trailingNode n p
+
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ { val := k } ] }
 

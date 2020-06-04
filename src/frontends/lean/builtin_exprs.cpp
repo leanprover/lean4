@@ -784,10 +784,22 @@ expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info c
 }
 
 static expr parse_parser(parser & p, bool leading, pos_info const & pos) {
-    name kind = get_curr_declaration_name();
+    name kind     = get_curr_declaration_name();
+    optional<expr> prec;
+    if (p.curr_is_token(get_lbracket_tk())) {
+        p.next();
+        prec = p.parse_expr();
+        p.check_token_next(get_rbracket_tk(), "`]` expected");
+    }
     expr e = p.parse_expr();
-    name n = leading ? get_lean_parser_leading_node_name() : get_lean_parser_trailing_node_name();
-    expr r = mk_app(mk_constant(n), quote(kind), e);
+    expr r;
+    if (prec) {
+        name n = leading ? get_lean_parser_leading_node_prec_name() : get_lean_parser_trailing_node_prec_name();
+        r = mk_app(mk_constant(n), quote(kind), *prec, e);
+    } else {
+        name n = leading ? get_lean_parser_leading_node_name() : get_lean_parser_trailing_node_name();
+        r = mk_app(mk_constant(n), quote(kind), e);
+    }
     if (leading && kind.is_string()) {
         r = mk_app(mk_constant({"Lean", "Parser", "withAntiquot"}),
                    mk_app(mk_constant({"Lean", "Parser", "mkAntiquot"}),

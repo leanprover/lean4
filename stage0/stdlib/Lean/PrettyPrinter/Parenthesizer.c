@@ -102,6 +102,7 @@ lean_object* l_Lean_Syntax_MonadTraverser_goRight(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_depArrow_x27___closed__2;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_PrettyPrinter_Parenthesizer_visitParenthesizable___spec__4(lean_object*);
+extern lean_object* l_Lean_Parser_unquotedSymbolFn___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___at_Lean_PrettyPrinter_Parenthesizer_visitArgs___spec__4___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_ParenthesizerM_monadTraverser___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_tacticParser_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -437,7 +438,6 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_quotedSymbol_parent
 lean_object* l_ReaderT_bind___at_Lean_Level_quote___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_appPrec;
 lean_object* l_AssocList_find_x3f___main___at_Lean_PrettyPrinter_Parenthesizer_visit___main___spec__7___boxed(lean_object*, lean_object*);
-lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_visitAntiquot___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkRbpLt_parenthesizer___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goRight___at_Lean_PrettyPrinter_Parenthesizer_visitParenthesizable___spec__3___rarg(lean_object*, lean_object*, lean_object*);
@@ -10366,22 +10366,14 @@ return x_6;
 lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("symbolAux");
-return x_1;
-}
-}
-lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__4;
-x_2 = l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__1;
+x_2 = l_Lean_Parser_unquotedSymbolFn___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__3() {
+lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -10394,8 +10386,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__2;
-x_4 = l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__3;
+x_3 = l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__1;
+x_4 = l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__2;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -13512,8 +13504,6 @@ l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed
 lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__1);
 l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__2 = _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__2();
 lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__2);
-l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__3 = _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer___closed__3);
 res = l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_symbolAux_parenthesizer(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

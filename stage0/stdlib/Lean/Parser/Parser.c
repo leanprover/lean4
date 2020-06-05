@@ -33,7 +33,6 @@ lean_object* l_Lean_Parser_charLit___closed__1;
 lean_object* l_IO_ofExcept___at___private_Lean_Parser_Parser_23__ParserExtension_addImported___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_ofExcept___at___private_Lean_Parser_Parser_23__ParserExtension_addImported___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthenInfo___elambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_symbolAux___boxed(lean_object*);
 lean_object* l_Lean_Parser_hashOrelse;
 lean_object* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__7___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -672,7 +671,6 @@ lean_object* l_PersistentHashMap_empty___at_Lean_Parser_mkBuiltinParserCategorie
 lean_object* l_Lean_Parser_ParserState_restore___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___closed__21;
 lean_object* l_Lean_Parser_ParserState_restore(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_symbolAux(lean_object*);
 lean_object* l_Lean_Parser_isValidSyntaxNodeKind___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_antiquotNestedExpr___closed__3;
 lean_object* l_Lean_Parser_sepBy1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9520,30 +9518,6 @@ lean_object* x_4;
 x_4 = l_Lean_Parser_symbolFn(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
-}
-}
-lean_object* l_Lean_Parser_symbolAux(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_String_trim(x_1);
-lean_inc(x_2);
-x_3 = l_Lean_Parser_symbolInfo(x_2);
-x_4 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_2);
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_Parser_symbolAux___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Parser_symbolAux(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_Parser_symbol(lean_object* x_1) {

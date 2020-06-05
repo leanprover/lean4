@@ -148,16 +148,17 @@ inductive ParserDescr
 | sepBy1            : ParserDescr → ParserDescr → ParserDescr
 | node              : Name → ParserDescr → ParserDescr
 | trailingNode      : Name → ParserDescr → ParserDescr
-| symbol            : String → Nat → ParserDescr
+| symbol            : String → ParserDescr
 | nonReservedSymbol : String → Bool → ParserDescr
 | numLit            : ParserDescr
 | strLit            : ParserDescr
 | charLit           : ParserDescr
 | nameLit           : ParserDescr
 | ident             : ParserDescr
+| rbpLt             : Nat → ParserDescr
 | parser            : Name → Nat → ParserDescr
 
-instance ParserDescr.inhabited : Inhabited ParserDescr := ⟨ParserDescr.symbol "" 0⟩
+instance ParserDescr.inhabited : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
 abbrev TrailingParserDescr := ParserDescr
 
 /- Syntax -/

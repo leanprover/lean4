@@ -1764,7 +1764,7 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.charLit                             => pure $ charLit
 | ParserDescr.nameLit                             => pure $ nameLit
 | ParserDescr.ident                               => pure $ ident
-| ParserDescr.rbpLt prec                          => pure $ checkRbpLt prec
+| ParserDescr.prec prec                           => pure $ checkRbpLt prec
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
 | ParserDescr.parser catName rbp =>
   match categories.find? catName with

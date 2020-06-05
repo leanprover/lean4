@@ -1058,13 +1058,10 @@ fun c s =>
 symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespace around it")
 
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
-@[inline] def symbolNoWsAux (sym : String) : Parser :=
+@[inline] def symbolNoWs (sym : String) : Parser :=
 let sym := sym.trim;
 { info := symbolNoWsInfo sym,
   fn   := symbolNoWsFn sym }
-
-@[inline] def symbolNoWs (sym : String) : Parser :=
-symbolNoWsAux sym
 
 def unicodeSymbolFnAux (sym asciiSym : String) (expected : List String) : ParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) expected

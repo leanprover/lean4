@@ -403,11 +403,11 @@ visitArgs $ do {
 }
 
 @[builtinParenthesizer symbol]
-def symbolAux.parenthesizer : Parenthesizer | p =>
+def symbol.parenthesizer : Parenthesizer | p =>
 evalOptPrec p.appArg! >>= visitToken
 
-@[builtinParenthesizer symbolNoWsAux] def symbolNoWsAux.parenthesizer := symbolAux.parenthesizer
-@[builtinParenthesizer unicodeSymbol] def unicodeSymbol.parenthesizer := symbolAux.parenthesizer
+@[builtinParenthesizer symbolNoWs] def symbolNoWs.parenthesizer := symbol.parenthesizer
+@[builtinParenthesizer unicodeSymbol] def unicodeSymbol.parenthesizer := symbol.parenthesizer
 
 @[builtinParenthesizer identNoAntiquot] def identNoAntiquot.parenthesizer : Parenthesizer | p => visitToken appPrec
 @[builtinParenthesizer rawIdent] def rawIdent.parenthesizer : Parenthesizer | p => visitToken appPrec

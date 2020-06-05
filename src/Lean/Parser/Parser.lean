@@ -947,13 +947,10 @@ def symbolInfo (sym : String) : ParserInfo :=
 @[inline] def symbolFn (sym : String) : ParserFn :=
 symbolFnAux sym ("'" ++ sym ++ "'")
 
-@[inline] def symbolAux (sym : String) : Parser :=
+@[inline] def symbol (sym : String) : Parser :=
 let sym := sym.trim;
 { info := symbolInfo sym,
   fn   := symbolFn sym }
-
-@[inline] def symbol (sym : String) : Parser :=
-symbolAux sym
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have

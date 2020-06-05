@@ -402,7 +402,7 @@ visitArgs $ do {
   modify $ fun st => { st with minLbp := Nat.min (st.minLbp.getD (lbp - 1)) (lbp - 1) }
 }
 
-@[builtinParenthesizer symbolAux]
+@[builtinParenthesizer symbol]
 def symbolAux.parenthesizer : Parenthesizer | p =>
 evalOptPrec p.appArg! >>= visitToken
 

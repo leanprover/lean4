@@ -17,7 +17,7 @@ Expand `optional «precedence»` where
  «precedence» := parser! " : " >> precedenceLit
  precedenceLit : Parser := numLit <|> maxPrec
  maxPrec := parser! nonReservedSymbol "max" -/
-private def expandOptPrecedence (stx : Syntax) : Option Nat :=
+def expandOptPrecedence (stx : Syntax) : Option Nat :=
 if stx.isNone then none
 else match ((stx.getArg 0).getArg 1).isNatLit? with
   | some v => some v
@@ -54,8 +54,8 @@ ctx ← read;
 if ctx.first && stx.getKind == `Lean.Parser.Syntax.cat then do
   let cat := (stx.getIdAt 0).eraseMacroScopes;
   if cat == ctx.catName then do
-    let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
-    unless rbp?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
+    let prec? : Option Nat  := expandOptPrecedence (stx.getArg 1);
+    unless prec?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
     unless ctx.leftRec $ liftM $
       throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion");
     markAsTrailingParser; -- mark as trailing par
@@ -89,17 +89,16 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     if ctx.first && cat == ctx.catName then
       liftM $ throwError stx "invalid atomic left recursive syntax"
     else do
-      let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
+      let prec? : Option Nat  := expandOptPrecedence (stx.getArg 1);
       env ← liftM getEnv;
       unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
-      let rbp := rbp?.getD 0;
-      `(ParserDescr.parser $(quote cat) $(quote rbp))
+      let prec := prec?.getD 0;
+      `(ParserDescr.parser $(quote cat) $(quote prec))
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
     | some atom => do
-      let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
       ctx ← read;
-      if ctx.leadingIdentAsSymbol && rbp?.isNone then
+      if ctx.leadingIdentAsSymbol then
         `(ParserDescr.nonReservedSymbol $(quote atom) false)
       else
         `(ParserDescr.symbol $(quote atom))
@@ -185,14 +184,24 @@ else
     currNamespace ← getCurrNamespace;
     pure (currNamespace ++ kind)
 
+def addOptPrecCheck (prec? : Option Nat) (parserDescr : Syntax) : MacroM Syntax :=
+match prec? with
+| none      => pure parserDescr
+| some prec => `(ParserDescr.andthen (ParserDescr.prec $(quote prec)) $parserDescr)
+
+/-
+def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
+-/
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab :=
 fun stx => do
   env ← getEnv;
-  let cat := (stx.getIdAt 4).eraseMacroScopes;
-  unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 4) ("unknown category '" ++ cat ++ "'");
-  kind ← elabKind (stx.getArg 1) cat;
+  let cat := (stx.getIdAt 5).eraseMacroScopes;
+  unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
+  let prec? := Term.expandOptPrecedence (stx.getArg 1);
+  kind ← elabKind (stx.getArg 2) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
-  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2) cat;
+  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) cat;
+  val ← liftMacroM $ addOptPrecCheck prec? val;
   d ←
     if trailingParser then
       `(@[$catParserId:ident] def myParser : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $val)

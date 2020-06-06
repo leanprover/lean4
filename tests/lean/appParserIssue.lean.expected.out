@@ -2,5 +2,4 @@ f 1 : (Nat → Nat) → Nat
 appParserIssue.lean:5:11: error: expected command
 f 1 (λ (x : Nat), x) : Nat
 f 1 (λ (x : Nat), x) : Nat
-appParserIssue.lean:12:13: error: unexpected token at this precedence level; consider parenthesizing the term
-f 1 (λ (x : Nat), x) : Nat
+appParserIssue.lean:13:13: error: unexpected token at this precedence level; consider parenthesizing the term

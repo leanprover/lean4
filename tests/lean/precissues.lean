@@ -2,9 +2,13 @@ new_frontend
 
 #check id fun x => x -- should fail
 
+#check 0
+
 def f (x : Nat) (g : Nat → Nat) := g x
 
 #check f 1 fun x => x -- should fail
+
+#check 0
 
 #check f 1 (fun x => x)
 

@@ -56,10 +56,10 @@ jobs:
         uses: cachix/install-nix-action@v9
         if: matrix.os != 'windows-latest'
       - name: Install MSYS2
-        uses: eine/setup-msys2@v0
+        uses: eine/setup-msys2@v1
         with:
-          update: true
-          install: 'make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils'
+          cache: true
+          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
         if: matrix.os == 'windows-latest'
       - name: Cache
         uses: actions/cache@v1

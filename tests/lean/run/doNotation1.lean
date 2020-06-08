@@ -104,7 +104,7 @@ if x > 10 then pure x else pure none
 def tst6 (x : Nat) : StateT Nat IO (Option Nat) :=
 if x > 10 then g x else pure none
 
-syntax [doHash] "#":max : term
+syntax:max [doHash] "#" : term
 
 def tst7 : StateT (Nat × Nat) IO Unit := do
 if #.1 == 0 then

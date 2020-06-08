@@ -1,7 +1,7 @@
 new_frontend
 
-syntax term "+!+":65 term:65 : term
-syntax term "*!*":70 term:70 : term
+syntax:65 term "+!+" term:65 : term
+syntax:70 term "*!*" term:70 : term
 
 macro_rules
 | `($a +!+ $b) => `($a + $b)

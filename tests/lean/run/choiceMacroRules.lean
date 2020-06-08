@@ -1,7 +1,7 @@
 new_frontend
 
-syntax [myAdd1] term "+++":65 term:65 : term
-syntax [myAdd2] term "+++":65 term:65 : term
+syntax:65 [myAdd1] term "+++" term:65 : term
+syntax:65 [myAdd2] term "+++" term:65 : term
 
 macro_rules [myAdd1]
 | `($a +++ $b) => `($a + $b)
@@ -21,7 +21,7 @@ rfl
 theorem tst2 : ([1, 2] +++ [3, 4]) = [1, 2] ++ [3, 4] :=
 rfl
 
-syntax [myAdd3] term "++":65 term:65 : term
+syntax:65 [myAdd3] term "++" term:65 : term
 
 macro_rules [myAdd3]
 | `($a ++ $b) => `($a + $b)

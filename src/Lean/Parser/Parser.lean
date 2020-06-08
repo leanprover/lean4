@@ -145,6 +145,7 @@ instance InputContext.inhabited : Inhabited InputContext :=
 
 structure ParserContext extends InputContext :=
 (rbp      : Nat)
+(left     : Syntax := Syntax.missing)
 (env      : Environment)
 (tokens   : TokenTable)
 
@@ -236,10 +237,10 @@ match s with
     let stack   := stack.push newNode;
     ⟨stack, pos, cache, err⟩
 
-def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
+def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (left : Syntax) (iniStackSz : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, err⟩ =>
-  let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size);
+  let newNode := Syntax.node k (#[left] ++ stack.extract iniStackSz stack.size);
   let stack   := stack.shrink iniStackSz;
   let stack   := stack.push newNode;
   ⟨stack, pos, cache, err⟩
@@ -363,7 +364,7 @@ instance hasAndthen : HasAndthen Parser :=
 | c, s =>
   let iniSz := s.stackSize;
   let s     := p c s;
-  s.mkTrailingNode n iniSz
+  s.mkTrailingNode n c.left iniSz
 
 @[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens,
@@ -1601,6 +1602,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   let (s, lbp) := currLbp left c s;
   if c.rbp ≥ lbp then s
   else
+    let c             := { c with left := s.stxStack.back };
     let iniSz         := s.stackSize;
     let identAsSymbol := false;
     let (s, ps)       := indexed tables.trailingTable c s identAsSymbol;

@@ -52,8 +52,8 @@ def «infixr»   := parser! "infixr"
 def «postfix»  := parser! "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
 -- TODO delete reserve after old frontend is gone
-@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> optPrecedence >> quotedSymbol
-def mixfixSymbol := quotedSymbol <|> unquotedSymbol
+@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbol >> optPrecedence
+def mixfixSymbol := (quotedSymbol >> optPrecedence /- TODO: remove precedence after we delete old precedence -/) <|> unquotedSymbol
 def identPrec  := parser! ident >> optPrecedence
 -- TODO: remove " := " after old frontend is gone
 @[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> mixfixSymbol >> (" := " <|> darrow) >> termParser

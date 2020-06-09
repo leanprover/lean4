@@ -8,7 +8,8 @@ notation, basic datatypes and type classes
 prelude
 
 notation `Prop` := Sort 0
-notation f ` $ `:1 a:0 := f a
+reserve infixr ` $ `:1
+notation f ` $ ` a := f a
 
 /- Logical operations and relations -/
 

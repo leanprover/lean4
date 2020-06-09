@@ -1,10 +1,13 @@
 id : ?m_1 → ?m_1
 precissues.lean:3:10: error: expected command
+0 : Nat
 f 1 : (Nat → Nat) → Nat
 precissues.lean:9:11: error: expected command
+0 : Nat
 f 1 (λ (x : Nat), x) : Nat
 id : ?m_1 → ?m_1
 precissues.lean:15:10: error: expected command
+1 : Nat
 id ((λ (this : True), this) True.intro) : True
 0=(λ (this : Nat), this) 1 : Prop
 0=let x : Nat := 0 in x : Prop

@@ -50,7 +50,7 @@ reserve infix ` ≤ `:50
 reserve infix ` < `:50
 reserve infix ` >= `:50
 reserve infix ` ≥ `:50
- reserve infix ` > `:50
+reserve infix ` > `:50
 
 /- boolean operations -/
 

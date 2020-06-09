@@ -1,12 +1,13 @@
 new_frontend
 
-notation a `**`:50 b:50 => b * a * b
+notation:50 a `**` b:50 => b * a * b
 notation "~" a => a+a
+
 namespace Foo
 notation "~~" a => a+a
 end Foo
 
-syntax term "+++":60 term:59 : term
+syntax:60 term "+++" term:59 : term
 
 syntax "<|" term "|>" : term
 

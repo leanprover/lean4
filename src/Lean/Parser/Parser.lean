@@ -67,6 +67,9 @@ import Lean.Message
 import Lean.Compiler.InitAttr
 
 namespace Lean
+
+def quotedSymbolKind := `quotedSymbol
+
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
@@ -1175,7 +1178,7 @@ fun c s =>
   info := mkAtomicInfo "ident" }
 
 def quotedSymbolFn : ParserFn :=
-nodeFn `quotedSymbol (andthenFn (andthenFn (chFn '`') (rawFn (takeUntilFn (fun c => c == '`')))) (chFn '`' true))
+nodeFn quotedSymbolKind (andthenFn (andthenFn (chFn '`') (rawFn (takeUntilFn (fun c => c == '`')))) (chFn '`' true))
 
 -- TODO: remove after old frontend is gone
 def quotedSymbol : Parser :=

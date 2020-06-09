@@ -280,17 +280,17 @@ def expandNotationItemIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.identPrec then
   pure $ Syntax.node `Lean.Parser.Syntax.cat #[mkIdentFrom stx `term,  stx.getArg 1]
-else if k == `Lean.Parser.Command.quotedSymbolPrec then
-  match (stx.getArg 0).getArg 1 with
-  | Syntax.atom info val => pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit val info, stx.getArg 1]
+else if k == quotedSymbolKind then
+  match stx.getArg 1 with
+  | Syntax.atom info val => pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit val info]
   | _                    => Macro.throwUnsupported
-else if k == `Lean.Parser.Command.strLitPrec then
-  pure $ Syntax.node `Lean.Parser.Syntax.atom stx.getArgs
+else if k == strLitKind then
+  pure $ Syntax.node `Lean.Parser.Syntax.atom #[stx]
 else
   Macro.throwUnsupported
 
-def strLitPrecToPattern (stx: Syntax) : MacroM Syntax :=
-match (stx.getArg 0).isStrLit? with
+def strLitToPattern (stx: Syntax) : MacroM Syntax :=
+match stx.isStrLit? with
 | some str => pure $ mkAtomFrom stx str
 | none     => Macro.throwUnsupported
 
@@ -300,27 +300,33 @@ let k := stx.getKind;
 if k == `Lean.Parser.Command.identPrec then
   let item := stx.getArg 0;
   pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, item, mkNullNode, mkNullNode]
-else if k == `Lean.Parser.Command.quotedSymbolPrec then
-  pure $ (stx.getArg 0).getArg 1
-else if k == `Lean.Parser.Command.strLitPrec then
-  strLitPrecToPattern stx
+else if k == quotedSymbolKind then
+  pure $ stx.getArg 1
+else if k == strLitKind then
+  strLitToPattern stx
 else
   Macro.throwUnsupported
 
+private def expandNotationAux (ref : Syntax) (prec? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
+kind ← Macro.mkFreshKind `term;
+-- build parser
+syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem;
+let cat := mkIdentFrom ref `term;
+-- build macro rules
+let vars := items.filter $ fun item => item.getKind == `Lean.Parser.Command.identPrec;
+let vars := vars.map $ fun var => var.getArg 0;
+let rhs := antiquote vars rhs;
+patArgs ← items.mapM expandNotationItemIntoPattern;
+let pat := Syntax.node kind patArgs;
+match prec? with
+| none      => `(syntax [$(mkIdentFrom ref kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
+| some prec => `(syntax:$prec [$(mkIdentFrom ref kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
+
 @[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro :=
-fun stx => match_syntax stx with
-| `(notation $items* => $rhs) => do
-  kind ← Macro.mkFreshKind `term;
-  -- build parser
-  syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem;
-  let cat := mkIdentFrom stx `term;
-  -- build macro rules
-  let vars := items.filter $ fun item => item.getKind == `Lean.Parser.Command.identPrec;
-  let vars := vars.map $ fun var => var.getArg 0;
-  let rhs := antiquote vars rhs;
-  patArgs ← items.mapM expandNotationItemIntoPattern;
-  let pat := Syntax.node kind patArgs;
-  `(syntax [$(mkIdentFrom stx kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
+fun stx =>
+match_syntax stx with
+| `(notation:$prec $items* => $rhs)    => expandNotationAux stx prec items rhs
+| `(notation $noprec* $items* => $rhs) => expandNotationAux stx none items rhs
 | _ => Macro.throwUnsupported
 
 /- Convert `macro` argument into a `syntax` command item -/
@@ -356,8 +362,8 @@ let k := stx.getKind;
 if k == `Lean.Parser.Command.macroArgSimple then
   let item := stx.getArg 0;
   pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, item, mkNullNode, mkNullNode]
-else if k == `Lean.Parser.Command.strLitPrec then
-  strLitPrecToPattern stx
+else if k == `Lean.Parser.Command.strLit then
+  strLitToPattern stx
 else
   Macro.throwUnsupported
 

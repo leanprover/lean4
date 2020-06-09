@@ -375,7 +375,7 @@ else
 
 @[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro :=
 fun stx => do
-  let prec := stx.getArg 1;
+  let prec := (stx.getArg 1).getArgs;
   let head := stx.getArg 2;
   let args := (stx.getArg 3).getArgs;
   let cat  := stx.getArg 5;
@@ -391,11 +391,11 @@ fun stx => do
   if stx.getArgs.size == 8 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
     let rhs := stx.getArg 7;
-    `(syntax $prec [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => $rhs)
+    `(syntax $prec* [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => $rhs)
   else
     -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
     let rhsBody := stx.getArg 8;
-    `(syntax $prec [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => `($rhsBody))
+    `(syntax $prec* [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => `($rhsBody))
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.syntax;

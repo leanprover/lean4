@@ -67,12 +67,12 @@ def optKind : Parser := optional ("[" >> ident >> "]")
 def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> nonReservedSymbol "str" <|> nonReservedSymbol "char" <|> ident
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> macroArgType
 def macroArg  := try strLit <|> try macroArgSimple
-def macroHead := macroArg <|> try identPrec
+def macroHead := macroArg <|> try ident
 def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> "`(" >> sepBy1 tacticParser "; " true true >> ")"
 def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> "`(" >> many1 commandParser true >> ")"
 def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> (("`(" >> categoryParserOfStack 2 >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
-@[builtinCommandParser] def «macro»       := parser! "macro " >> optPrecedence <|> macroHead >> many macroArg >> macroTail
+@[builtinCommandParser] def «macro»       := parser! "macro " >> optPrecedence >> macroHead >> many macroArg >> macroTail
 
 end Command
 

@@ -67,6 +67,9 @@ import Lean.Message
 import Lean.Compiler.InitAttr
 
 namespace Lean
+
+def quotedSymbolKind := `quotedSymbol
+
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
@@ -123,7 +126,8 @@ instance InputContext.inhabited : Inhabited InputContext :=
 ⟨{ input := "", fileName := "", fileMap := arbitrary _ }⟩
 
 structure ParserContext extends InputContext :=
-(rbp      : Nat)
+(prec     : Nat)
+(left     : Syntax := Syntax.missing)
 (env      : Environment)
 (tokens   : TokenTable)
 
@@ -215,10 +219,10 @@ match s with
     let stack   := stack.push newNode;
     ⟨stack, pos, cache, err⟩
 
-def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
+def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (left : Syntax) (iniStackSz : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, err⟩ =>
-  let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size);
+  let newNode := Syntax.node k (#[left] ++ stack.extract iniStackSz stack.size);
   let stack   := stack.shrink iniStackSz;
   let stack   := stack.push newNode;
   ⟨stack, pos, cache, err⟩
@@ -342,7 +346,7 @@ instance hasAndthen : HasAndthen Parser :=
 | c, s =>
   let iniSz := s.stackSize;
   let s     := p c s;
-  s.mkTrailingNode n iniSz
+  s.mkTrailingNode n c.left iniSz
 
 @[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens,
@@ -1057,13 +1061,10 @@ fun c s =>
 symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespace around it")
 
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
-@[inline] def symbolNoWsAux (sym : String) : Parser :=
+@[inline] def symbolNoWs (sym : String) : Parser :=
 let sym := sym.trim;
 { info := symbolNoWsInfo sym,
   fn   := symbolNoWsFn sym }
-
-@[inline] def symbolNoWs (sym : String) : Parser :=
-symbolNoWsAux sym
 
 def unicodeSymbolFnAux (sym asciiSym : String) (expected : List String) : ParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) expected
@@ -1081,30 +1082,25 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym,
   fn   := unicodeSymbolFn sym asciiSym }
 
-/- Succeeds if RBP < upper -/
-def checkRbpLtFn (upper : Nat) (errorMsg : String) : ParserFn :=
+/- Succeeds if prec <= upper -/
+def checkPrecFn (upper : Nat) (errorMsg : String) : ParserFn :=
 fun c s =>
-  if c.rbp < upper then s
+  if c.prec <= upper then s
   else s.mkUnexpectedError errorMsg
 
 private def precErrorMsg := "unexpected token at this precedence level; consider parenthesizing the term"
 
-@[inline] def checkRbpLt (upper : Nat) (errorMsg : String := precErrorMsg) : Parser :=
+@[inline] def checkPrec (upper : Nat) (errorMsg : String := precErrorMsg) : Parser :=
 { info := epsilonInfo,
-  fn   := checkRbpLtFn upper errorMsg }
+  fn   := checkPrecFn upper errorMsg }
 
-/- Succeeds if RBP <= upper -/
-@[inline] def checkRbpLe (upper : Nat) (errorMsg : String := precErrorMsg) : Parser :=
-checkRbpLt (upper + 1) errorMsg
-
-/- Version of `leadingNode` which uses `checkRbpLe` -/
+/- Version of `leadingNode` which uses `checkPrec` -/
 @[inline] def leadingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
--- TODO: Make sure leading and trailing parsers use the same check (i.e., `checkRbpLt`). We need to change the precedence of identiers and literals.
-checkRbpLe prec >> leadingNode n p
+checkPrec prec >> leadingNode n p
 
-/- Version of `trailingNode` which uses `checkRbpLt` -/
+/- Version of `trailingNode` which uses `checkPrec` -/
 @[inline] def trailingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
-checkRbpLt prec >> trailingNode n p
+checkPrec prec >> trailingNode n p
 
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ k ] }
@@ -1177,7 +1173,7 @@ fun c s =>
   info := mkAtomicInfo "ident" }
 
 def quotedSymbolFn : ParserFn :=
-nodeFn `quotedSymbol (andthenFn (andthenFn (chFn '`') (rawFn (takeUntilFn (fun c => c == '`')))) (chFn '`' true))
+nodeFn quotedSymbolKind (andthenFn (andthenFn (chFn '`') (rawFn (takeUntilFn (fun c => c == '`')))) (chFn '`' true))
 
 -- TODO: remove after old frontend is gone
 def quotedSymbol : Parser :=
@@ -1404,12 +1400,12 @@ def categoryParserFnExtension : EnvExtension CategoryParserFn := arbitrary _
 def categoryParserFn (catName : Name) : ParserFn :=
 fun ctx s => categoryParserFnExtension.getState ctx.env catName ctx s
 
-def categoryParser (catName : Name) (rbp : Nat) : Parser :=
-{ fn := fun c s => categoryParserFn catName { c with rbp := rbp } s }
+def categoryParser (catName : Name) (prec : Nat) : Parser :=
+{ fn := fun c s => categoryParserFn catName { c with prec := prec } s }
 
 -- Define `termParser` here because we need it for antiquotations
-@[inline] def termParser (rbp : Nat := 0) : Parser :=
-categoryParser `term rbp
+@[inline] def termParser (prec : Nat := 0) : Parser :=
+categoryParser `term prec
 
 /- ============== -/
 /- Antiquotations -/
@@ -1518,8 +1514,8 @@ fun ctx s =>
     | Syntax.ident _ _ catName _ => categoryParserFn catName ctx s
     | _ => s.mkUnexpectedError ("failed to determine parser category using syntax stack, the specified element on the stack is not an identifier")
 
-def categoryParserOfStack (offset : Nat) (rbp : Nat := 0) : Parser :=
-{ fn := fun c s => categoryParserOfStackFn offset { c with rbp := rbp } s }
+def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
+{ fn := fun c s => categoryParserOfStackFn offset { c with prec := prec } s }
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
@@ -1541,6 +1537,7 @@ withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol
 
 def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
 fun c s =>
+  -- del anyOfFn ---> merge `ps` and `tables.trailingParsers`
   orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) c s
 
 private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
@@ -1558,6 +1555,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   if ps.isEmpty && tables.trailingParsers.isEmpty then
     s -- no available trailing parser
   else
+    let c             := { c with left := s.stxStack.back };
     let iniSz  := s.stackSize;
     let iniPos := s.pos;
     let s := trailingLoopStep tables ps c s;
@@ -1572,7 +1570,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   Implements a recursive precedence parser according to Pratt's algorithm: select a parser (or more, via
   `longestMatchFn`) from `leadingTable` based on the current token (falling back to unindexed `leadingParsers` such as
   application), then chain with parsers from `trailingTable`/`trailingParsers` as long as the precedence of the current
-  token is higher than `rbp` of the parser state.
+  token is higher than `prec` of the parser state.
 
   As an extension of the original algorithm, we also check the current token's precedence before calling the leading
   parser(s). We do this so we can define an n-ary application parser:
@@ -1581,7 +1579,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   ```
   If the nested `termParser appPrec` did not check the precedence of the first token, we would accept bogus input such as
   `f x fun y => y` because we would never check the precedence of `fun`. Note that, in contrast to trailing tokens, a
-  leading token is accepted if its precedence is *at least* `rbp`. This is necessary so that `f x y` is not parsed as
+  leading token is accepted if its precedence is *at least* `prec`. This is necessary so that `f x y` is not parsed as
   `f (x y)`: the nested `termParser` call must accept the leading token `x` but not the trailing token `y`. But both have
   the same precedence as identifiers, so we must use different comparisons.
 
@@ -1762,11 +1760,11 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.charLit                             => pure $ charLit
 | ParserDescr.nameLit                             => pure $ nameLit
 | ParserDescr.ident                               => pure $ ident
-| ParserDescr.prec prec                           => pure $ checkRbpLt prec
+| ParserDescr.prec prec                           => pure $ checkPrec prec
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
-| ParserDescr.parser catName rbp =>
+| ParserDescr.parser catName prec =>
   match categories.find? catName with
-  | some _ => pure $ categoryParser catName rbp
+  | some _ => pure $ categoryParser catName prec
   | none   => throwUnknownParserCategory catName
 
 unsafe def mkParserOfConstantUnsafe (env : Environment) (categories : ParserCategories) (constName : Name) : Except String (Bool × Parser) :=
@@ -1893,7 +1891,7 @@ def mkInputContext (input : String) (fileName : String) : InputContext :=
   fileMap  := input.toFileMap }
 
 def mkParserContext (env : Environment) (ctx : InputContext) : ParserContext :=
-{ rbp            := 0,
+{ prec           := 0,
   toInputContext := ctx,
   env            := env,
   tokens         := getTokenTable env }

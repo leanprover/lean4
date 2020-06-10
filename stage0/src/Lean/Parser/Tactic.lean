@@ -37,7 +37,7 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticParser
-@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize" >> optional (try (ident >> " : ")) >> termParser 50 >> " = " >> ident
+@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize" >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> (Term.hole <|> Term.namedHole <|> tacticParser)
 def inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")

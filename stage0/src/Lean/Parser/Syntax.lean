@@ -52,8 +52,8 @@ def «infixr»   := parser! "infixr"
 def «postfix»  := parser! "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
 -- TODO delete reserve after old frontend is gone
-@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> optPrecedence >> quotedSymbol
-def mixfixSymbol := quotedSymbol <|> unquotedSymbol
+@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbol >> optPrecedence
+def mixfixSymbol := (quotedSymbol >> optPrecedence /- TODO: remove precedence after we delete old precedence -/) <|> unquotedSymbol
 def identPrec  := parser! ident >> optPrecedence
 -- TODO: remove " := " after old frontend is gone
 @[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> mixfixSymbol >> (" := " <|> darrow) >> termParser
@@ -64,15 +64,15 @@ def optKind : Parser := optional ("[" >> ident >> "]")
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
-def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> nonReservedSymbol "str" <|> nonReservedSymbol "char" <|> ident
+def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> nonReservedSymbol "str" <|> nonReservedSymbol "char" <|> (ident >> optPrecedence)
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> macroArgType
 def macroArg  := try strLit <|> try macroArgSimple
-def macroHead := macroArg <|> try identPrec
+def macroHead := macroArg <|> try ident
 def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> "`(" >> sepBy1 tacticParser "; " true true >> ")"
 def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> "`(" >> many1 commandParser true >> ")"
 def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> (("`(" >> categoryParserOfStack 2 >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
-@[builtinCommandParser] def «macro»       := parser! "macro " >> optPrecedence <|> macroHead >> many macroArg >> macroTail
+@[builtinCommandParser] def «macro»       := parser! "macro " >> optPrecedence >> macroHead >> many macroArg >> macroTail
 
 end Command
 

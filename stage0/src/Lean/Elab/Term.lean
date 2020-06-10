@@ -35,6 +35,13 @@ structure Context extends Meta.Context :=
    The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
    the list of pending synthetic metavariables, and returns `?m`. -/
 (mayPostpone     : Bool            := true)
+/- When `errToSorry` is set to true, the method `elabTerm` catches
+   exceptions and converts them into synthetic `sorry`s.
+   The implementation of choice nodes and overloaded symbols rely on the fact
+   that when `errToSorry` is set to false for an elaboration function `F`, then
+   `errToSorry` remains `false` for all elaboration functions invoked by `F`.
+   That is, it is safe to transition `errToSorry` from `true` to `false`, but
+   we must not set `errToSorry` to `true` when it is currently set to `false`. -/
 (errToSorry      : Bool            := true)
 /- If `macroStackAtErr == true`, we include it in error messages. -/
 (macroStackAtErr : Bool            := true)

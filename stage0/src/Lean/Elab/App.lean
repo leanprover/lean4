@@ -476,18 +476,41 @@ lvls.foldSepRevArgsM
     pure (lvl::lvls))
   []
 
+/-
+Interaction between `errToSorry` and `observing`.
+
+- The method `elabTerm` catches exceptions, log them, and returns a synthetic sorry (IF `ctx.errToSorry` == true).
+
+- When we elaborate choice nodes (and overloaded identifiers), we track multiple results using the `observing x` combinator.
+  The `observing x` executes `x` and returns a `TermElabResult`.
+
+`observing `x does not check for synthetic sorry's, just an exception. Thus, it may think `x` worked when it didn't
+if a synthetic sorry was introduced. We decided that checking for synthetic sorrys at `observing` is not a good solution
+because it would not be clear to decide what the "main" error message for the alternative is. When the result contains
+a synthetic `sorry`, it is not clear which error message corresponds to the `sorry`. Moreover, while executing `x`, many
+error messages may have been logged. Recall that we need an error per alternative at `mergeFailures`.
+
+Thus, we decided to set `errToSorry` to `false` whenever processing choice nodes and overloaded symbols.
+
+Important: we rely on the property that after `errToSorry` is set to
+false, no elaboration function executed by `x` will reset it to
+`true`.
+-/
+
 private partial def elabAppFnId (ref : Syntax) (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool) (acc : Array TermElabResult)
     : TermElabM (Array TermElabResult) :=
 match fIdent with
 | Syntax.ident _ _ n preresolved => do
   funLVals ← resolveName fIdent n preresolved fExplicitUnivs;
-  funLVals.foldlM
-    (fun acc ⟨f, fields⟩ => do
-      let lvals' := fields.map LVal.fieldName;
-      s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
-      pure $ acc.push s)
-    acc
+  -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
+  adaptReader (fun (ctx : Context) => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) $
+    funLVals.foldlM
+      (fun acc ⟨f, fields⟩ => do
+        let lvals' := fields.map LVal.fieldName;
+        s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
+        pure $ acc.push s)
+      acc
 | _ => throwUnsupportedSyntax
 
 private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array NamedArg → Array Arg → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
@@ -497,7 +520,9 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     -- We handle it here to make macro development more comfortable.
     elabAppFnId ref f [] lvals namedArgs args expectedType? explicit acc
   else if f.getKind == choiceKind then
-    f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
+    -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
+    adaptReader (fun (ctx : Context) => { ctx with errToSorry := false }) $
+      f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
   else match_syntax f with
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!;

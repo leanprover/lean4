@@ -1832,7 +1832,7 @@ x_2 = !lean_is_exclusive(x_1);
 if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 3);
+x_3 = lean_ctor_get(x_1, 4);
 x_4 = l_Lean_Parser_Module_header;
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
@@ -1843,7 +1843,7 @@ lean_object* x_7; lean_object* x_8;
 lean_dec(x_6);
 x_7 = l_Lean_Parser_Module_updateTokens___closed__1;
 x_8 = l_unreachable_x21___rarg(x_7);
-lean_ctor_set(x_1, 3, x_8);
+lean_ctor_set(x_1, 4, x_8);
 return x_1;
 }
 else
@@ -1852,51 +1852,55 @@ lean_object* x_9;
 x_9 = lean_ctor_get(x_6, 0);
 lean_inc(x_9);
 lean_dec(x_6);
-lean_ctor_set(x_1, 3, x_9);
+lean_ctor_set(x_1, 4, x_9);
 return x_1;
 }
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_1, 1);
 x_12 = lean_ctor_get(x_1, 2);
 x_13 = lean_ctor_get(x_1, 3);
+x_14 = lean_ctor_get(x_1, 4);
+lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_14 = l_Lean_Parser_Module_header;
-x_15 = lean_ctor_get(x_14, 0);
-lean_inc(x_15);
-x_16 = l_Lean_Parser_addParserTokens(x_13, x_15);
-if (lean_obj_tag(x_16) == 0)
+x_15 = l_Lean_Parser_Module_header;
+x_16 = lean_ctor_get(x_15, 0);
+lean_inc(x_16);
+x_17 = l_Lean_Parser_addParserTokens(x_14, x_16);
+if (lean_obj_tag(x_17) == 0)
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_16);
-x_17 = l_Lean_Parser_Module_updateTokens___closed__1;
-x_18 = l_unreachable_x21___rarg(x_17);
-x_19 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_19, 0, x_10);
-lean_ctor_set(x_19, 1, x_11);
-lean_ctor_set(x_19, 2, x_12);
-lean_ctor_set(x_19, 3, x_18);
-return x_19;
+lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_dec(x_17);
+x_18 = l_Lean_Parser_Module_updateTokens___closed__1;
+x_19 = l_unreachable_x21___rarg(x_18);
+x_20 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_20, 0, x_10);
+lean_ctor_set(x_20, 1, x_11);
+lean_ctor_set(x_20, 2, x_12);
+lean_ctor_set(x_20, 3, x_13);
+lean_ctor_set(x_20, 4, x_19);
+return x_20;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_16, 0);
-lean_inc(x_20);
-lean_dec(x_16);
-x_21 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_21, 0, x_10);
-lean_ctor_set(x_21, 1, x_11);
-lean_ctor_set(x_21, 2, x_12);
-lean_ctor_set(x_21, 3, x_20);
-return x_21;
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_ctor_get(x_17, 0);
+lean_inc(x_21);
+lean_dec(x_17);
+x_22 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_22, 0, x_10);
+lean_ctor_set(x_22, 1, x_11);
+lean_ctor_set(x_22, 2, x_12);
+lean_ctor_set(x_22, 3, x_13);
+lean_ctor_set(x_22, 4, x_21);
+return x_22;
 }
 }
 }

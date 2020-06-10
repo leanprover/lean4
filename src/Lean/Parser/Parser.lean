@@ -126,7 +126,7 @@ instance InputContext.inhabited : Inhabited InputContext :=
 ⟨{ input := "", fileName := "", fileMap := arbitrary _ }⟩
 
 structure ParserContext extends InputContext :=
-(rbp      : Nat)
+(prec     : Nat)
 (left     : Syntax := Syntax.missing)
 (env      : Environment)
 (tokens   : TokenTable)
@@ -1082,10 +1082,10 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym,
   fn   := unicodeSymbolFn sym asciiSym }
 
-/- Succeeds if RBP <= upper -/
+/- Succeeds if prec <= upper -/
 def checkPrecFn (upper : Nat) (errorMsg : String) : ParserFn :=
 fun c s =>
-  if c.rbp <= upper then s
+  if c.prec <= upper then s
   else s.mkUnexpectedError errorMsg
 
 private def precErrorMsg := "unexpected token at this precedence level; consider parenthesizing the term"
@@ -1400,12 +1400,12 @@ def categoryParserFnExtension : EnvExtension CategoryParserFn := arbitrary _
 def categoryParserFn (catName : Name) : ParserFn :=
 fun ctx s => categoryParserFnExtension.getState ctx.env catName ctx s
 
-def categoryParser (catName : Name) (rbp : Nat) : Parser :=
-{ fn := fun c s => categoryParserFn catName { c with rbp := rbp } s }
+def categoryParser (catName : Name) (prec : Nat) : Parser :=
+{ fn := fun c s => categoryParserFn catName { c with prec := prec } s }
 
 -- Define `termParser` here because we need it for antiquotations
-@[inline] def termParser (rbp : Nat := 0) : Parser :=
-categoryParser `term rbp
+@[inline] def termParser (prec : Nat := 0) : Parser :=
+categoryParser `term prec
 
 /- ============== -/
 /- Antiquotations -/
@@ -1514,8 +1514,8 @@ fun ctx s =>
     | Syntax.ident _ _ catName _ => categoryParserFn catName ctx s
     | _ => s.mkUnexpectedError ("failed to determine parser category using syntax stack, the specified element on the stack is not an identifier")
 
-def categoryParserOfStack (offset : Nat) (rbp : Nat := 0) : Parser :=
-{ fn := fun c s => categoryParserOfStackFn offset { c with rbp := rbp } s }
+def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
+{ fn := fun c s => categoryParserOfStackFn offset { c with prec := prec } s }
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
@@ -1570,7 +1570,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   Implements a recursive precedence parser according to Pratt's algorithm: select a parser (or more, via
   `longestMatchFn`) from `leadingTable` based on the current token (falling back to unindexed `leadingParsers` such as
   application), then chain with parsers from `trailingTable`/`trailingParsers` as long as the precedence of the current
-  token is higher than `rbp` of the parser state.
+  token is higher than `prec` of the parser state.
 
   As an extension of the original algorithm, we also check the current token's precedence before calling the leading
   parser(s). We do this so we can define an n-ary application parser:
@@ -1579,7 +1579,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   ```
   If the nested `termParser appPrec` did not check the precedence of the first token, we would accept bogus input such as
   `f x fun y => y` because we would never check the precedence of `fun`. Note that, in contrast to trailing tokens, a
-  leading token is accepted if its precedence is *at least* `rbp`. This is necessary so that `f x y` is not parsed as
+  leading token is accepted if its precedence is *at least* `prec`. This is necessary so that `f x y` is not parsed as
   `f (x y)`: the nested `termParser` call must accept the leading token `x` but not the trailing token `y`. But both have
   the same precedence as identifiers, so we must use different comparisons.
 
@@ -1762,9 +1762,9 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.ident                               => pure $ ident
 | ParserDescr.prec prec                           => pure $ checkPrec prec
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
-| ParserDescr.parser catName rbp =>
+| ParserDescr.parser catName prec =>
   match categories.find? catName with
-  | some _ => pure $ categoryParser catName rbp
+  | some _ => pure $ categoryParser catName prec
   | none   => throwUnknownParserCategory catName
 
 unsafe def mkParserOfConstantUnsafe (env : Environment) (categories : ParserCategories) (constName : Name) : Except String (Bool × Parser) :=
@@ -1891,7 +1891,7 @@ def mkInputContext (input : String) (fileName : String) : InputContext :=
   fileMap  := input.toFileMap }
 
 def mkParserContext (env : Environment) (ctx : InputContext) : ParserContext :=
-{ rbp            := 0,
+{ prec           := 0,
   toInputContext := ctx,
   env            := env,
   tokens         := getTokenTable env }

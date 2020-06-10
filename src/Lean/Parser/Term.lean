@@ -29,17 +29,17 @@ namespace Term
 
 /- Helper functions for defining simple parsers -/
 
-def unicodeInfixR (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-checkPrec lbp >> unicodeSymbol sym asciiSym >> termParser lbp
+def unicodeInfixR (sym : String) (asciiSym : String) (prec : Nat) : TrailingParser :=
+checkPrec prec >> unicodeSymbol sym asciiSym >> termParser prec
 
-def infixR (sym : String) (lbp : Nat) : TrailingParser :=
-checkPrec lbp >> symbol sym >> termParser lbp
+def infixR (sym : String) (prec : Nat) : TrailingParser :=
+checkPrec prec >> symbol sym >> termParser prec
 
-def unicodeInfixL (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-checkPrec lbp >> unicodeSymbol sym asciiSym >> termParser (lbp+1)
+def unicodeInfixL (sym : String) (asciiSym : String) (prec : Nat) : TrailingParser :=
+checkPrec prec >> unicodeSymbol sym asciiSym >> termParser (prec+1)
 
-def infixL (sym : String) (lbp : Nat) : TrailingParser :=
-checkPrec lbp >> symbol sym >> termParser (lbp+1)
+def infixL (sym : String) (prec : Nat) : TrailingParser :=
+checkPrec prec >> symbol sym >> termParser (prec+1)
 
 def leadPrec := appPrec - 1
 

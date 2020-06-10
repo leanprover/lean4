@@ -357,12 +357,25 @@ instance hasAndthen : HasAndthen Parser :=
 { info := nodeInfo n p.info,
   fn   := nodeFn n p.fn }
 
-@[inline] def leadingNode (n : SyntaxNodeKind) (p : Parser) : Parser :=
-node n p
+/- Succeeds if `c.prec <= prec` -/
+def checkPrecFn (prec : Nat) : ParserFn :=
+fun c s =>
+  if c.prec <= prec then s
+  else s.mkUnexpectedError "unexpected token at this precedence level; consider parenthesizing the term"
 
-@[inline] def trailingNode (n : SyntaxNodeKind) (p : Parser) : TrailingParser :=
+@[inline] def checkPrec (prec : Nat) : Parser :=
+{ info := epsilonInfo,
+  fn   := checkPrecFn prec }
+
+@[inline] def leadingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
+checkPrec prec >> node n p
+
+@[inline] def trailingNodeAux (n : SyntaxNodeKind) (p : Parser) : TrailingParser :=
 { info := nodeInfo n p.info,
   fn   := trailingNodeFn n p.fn }
+
+@[inline] def trailingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
+checkPrec prec >> trailingNodeAux n p
 
 @[inline] def group (p : Parser) : Parser :=
 node nullKind p
@@ -1082,23 +1095,11 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym,
   fn   := unicodeSymbolFn sym asciiSym }
 
-/- Succeeds if `c.prec <= prec` -/
-def checkPrecFn (prec : Nat) : ParserFn :=
-fun c s =>
-  if c.prec <= prec then s
-  else s.mkUnexpectedError "unexpected token at this precedence level; consider parenthesizing the term"
-
-@[inline] def checkPrec (prec : Nat) : Parser :=
-{ info := epsilonInfo,
-  fn   := checkPrecFn prec }
-
-/- Version of `leadingNode` which uses `checkPrec` -/
 @[inline] def leadingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
-checkPrec prec >> leadingNode n p
+leadingNode n prec p
 
-/- Version of `trailingNode` which uses `checkPrec` -/
 @[inline] def trailingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
-checkPrec prec >> trailingNode n p
+trailingNode n prec p
 
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ k ] }

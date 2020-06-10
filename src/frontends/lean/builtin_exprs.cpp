@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/prenum.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/brackets.h"
@@ -784,22 +785,16 @@ expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info c
 }
 
 static expr parse_parser(parser & p, bool leading, pos_info const & pos) {
-    name kind     = get_curr_declaration_name();
-    optional<expr> prec;
+    name kind = get_curr_declaration_name();
+    expr prec = save_pos(mk_prenum(mpz(get_max_prec())), pos);
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         prec = p.parse_expr();
         p.check_token_next(get_rbracket_tk(), "`]` expected");
     }
     expr e = p.parse_expr();
-    expr r;
-    if (prec) {
-        name n = leading ? get_lean_parser_leading_node_prec_name() : get_lean_parser_trailing_node_prec_name();
-        r = mk_app(mk_constant(n), quote(kind), *prec, e);
-    } else {
-        name n = leading ? get_lean_parser_leading_node_name() : get_lean_parser_trailing_node_name();
-        r = mk_app(mk_constant(n), quote(kind), e);
-    }
+    name n = leading ? get_lean_parser_leading_node_prec_name() : get_lean_parser_trailing_node_prec_name();
+    expr r = mk_app(mk_constant(n), quote(kind), prec, e);
     if (leading && kind.is_string()) {
         r = mk_app(mk_constant({"Lean", "Parser", "withAntiquot"}),
                    mk_app(mk_constant({"Lean", "Parser", "mkAntiquot"}),

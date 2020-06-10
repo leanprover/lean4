@@ -146,8 +146,8 @@ inductive ParserDescr
 | many1             : ParserDescr → ParserDescr
 | sepBy             : ParserDescr → ParserDescr → ParserDescr
 | sepBy1            : ParserDescr → ParserDescr → ParserDescr
-| node              : Name → ParserDescr → ParserDescr
-| trailingNode      : Name → ParserDescr → ParserDescr
+| node              : Name → Nat → ParserDescr → ParserDescr
+| trailingNode      : Name → Nat → ParserDescr → ParserDescr
 | symbol            : String → ParserDescr
 | nonReservedSymbol : String → Bool → ParserDescr
 | numLit            : ParserDescr
@@ -155,7 +155,6 @@ inductive ParserDescr
 | charLit           : ParserDescr
 | nameLit           : ParserDescr
 | ident             : ParserDescr
-| prec              : Nat → ParserDescr
 | parser            : Name → Nat → ParserDescr
 
 instance ParserDescr.inhabited : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩

@@ -1750,15 +1750,14 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.many1 d                             => many1 <$> compileParserDescr d
 | ParserDescr.sepBy d₁ d₂                         => sepBy <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
-| ParserDescr.node k d                            => node k <$> compileParserDescr d
-| ParserDescr.trailingNode k d                    => trailingNode k <$> compileParserDescr d
+| ParserDescr.node k prec d                       => leadingNodePrec k prec <$> compileParserDescr d
+| ParserDescr.trailingNode k prec d               => trailingNodePrec k prec <$> compileParserDescr d
 | ParserDescr.symbol tk                           => pure $ symbol tk
 | ParserDescr.numLit                              => pure $ numLit
 | ParserDescr.strLit                              => pure $ strLit
 | ParserDescr.charLit                             => pure $ charLit
 | ParserDescr.nameLit                             => pure $ nameLit
 | ParserDescr.ident                               => pure $ ident
-| ParserDescr.prec prec                           => pure $ checkPrec prec
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
 | ParserDescr.parser catName prec =>
   match categories.find? catName with

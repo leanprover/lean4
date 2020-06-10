@@ -793,7 +793,7 @@ static expr parse_parser(parser & p, bool leading, pos_info const & pos) {
         p.check_token_next(get_rbracket_tk(), "`]` expected");
     }
     expr e = p.parse_expr();
-    name n = leading ? get_lean_parser_leading_node_prec_name() : get_lean_parser_trailing_node_prec_name();
+    name n = leading ? get_lean_parser_leading_node_name() : get_lean_parser_trailing_node_name();
     expr r = mk_app(mk_constant(n), quote(kind), prec, e);
     if (leading && kind.is_string()) {
         r = mk_app(mk_constant({"Lean", "Parser", "withAntiquot"}),

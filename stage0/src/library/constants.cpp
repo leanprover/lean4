@@ -124,8 +124,6 @@ name const * g_lean_mk_name_num = nullptr;
 name const * g_lean_mk_name_str = nullptr;
 name const * g_lean_parser_leading_node = nullptr;
 name const * g_lean_parser_trailing_node = nullptr;
-name const * g_lean_parser_leading_node_prec = nullptr;
-name const * g_lean_parser_trailing_node_prec = nullptr;
 name const * g_mut_quot = nullptr;
 name const * g_nat = nullptr;
 name const * g_nat_succ = nullptr;
@@ -318,8 +316,6 @@ void initialize_constants() {
     g_lean_mk_name_str = new name{"Lean", "mkNameStr"};
     g_lean_parser_leading_node = new name{"Lean", "Parser", "leadingNode"};
     g_lean_parser_trailing_node = new name{"Lean", "Parser", "trailingNode"};
-    g_lean_parser_leading_node_prec = new name{"Lean", "Parser", "leadingNodePrec"};
-    g_lean_parser_trailing_node_prec = new name{"Lean", "Parser", "trailingNodePrec"};
     g_mut_quot = new name{"MutQuot"};
     g_nat = new name{"Nat"};
     g_nat_succ = new name{"Nat", "succ"};
@@ -513,8 +509,6 @@ void finalize_constants() {
     delete g_lean_mk_name_str;
     delete g_lean_parser_leading_node;
     delete g_lean_parser_trailing_node;
-    delete g_lean_parser_leading_node_prec;
-    delete g_lean_parser_trailing_node_prec;
     delete g_mut_quot;
     delete g_nat;
     delete g_nat_succ;
@@ -707,8 +701,6 @@ name const & get_lean_mk_name_num_name() { return *g_lean_mk_name_num; }
 name const & get_lean_mk_name_str_name() { return *g_lean_mk_name_str; }
 name const & get_lean_parser_leading_node_name() { return *g_lean_parser_leading_node; }
 name const & get_lean_parser_trailing_node_name() { return *g_lean_parser_trailing_node; }
-name const & get_lean_parser_leading_node_prec_name() { return *g_lean_parser_leading_node_prec; }
-name const & get_lean_parser_trailing_node_prec_name() { return *g_lean_parser_trailing_node_prec; }
 name const & get_mut_quot_name() { return *g_mut_quot; }
 name const & get_nat_name() { return *g_nat; }
 name const & get_nat_succ_name() { return *g_nat_succ; }

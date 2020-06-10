@@ -109,8 +109,9 @@ withPosition $ fun pos =>
 
 @[builtinTermParser] def «match» := parser!:leadPrec "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch»  := parser!:leadPrec "nomatch " >> termParser
-@[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> termParser -- TODO optional prec
-@[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> termParser
+def optExprPrecedence := optional (try ":" >> termParser appPrec)
+@[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
+@[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def borrowed   := parser! "@&" >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! nameLit
 -- NOTE: syntax quotations are defined in Init.Lean.Parser.Command

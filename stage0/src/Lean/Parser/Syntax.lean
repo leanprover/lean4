@@ -18,8 +18,8 @@ registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 categoryParser `syntax rbp
 
 -- TODO: `max` is a bad precedence name. Find a new one.
-def maxPrec := parser! nonReservedSymbol "max" true
-def precedenceLit : Parser := numLit <|> maxPrec
+def maxSymbol := parser! nonReservedSymbol "max" true
+def precedenceLit : Parser := numLit <|> maxSymbol
 def «precedence» := parser! ":" >> precedenceLit
 def optPrecedence := optional (try «precedence»)
 
@@ -31,10 +31,10 @@ namespace Syntax
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
 @[builtinSyntaxParser] def ident     := parser! nonReservedSymbol "ident"
-@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser appPrec
-@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser appPrec
-@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser appPrec >> syntaxParser appPrec
-@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser appPrec >> syntaxParser appPrec
+@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser maxPrec >> syntaxParser maxPrec
+@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser maxPrec >> syntaxParser maxPrec
 
 @[builtinSyntaxParser] def optional  := tparser! "?"
 @[builtinSyntaxParser] def many      := tparser! "*"
@@ -50,6 +50,7 @@ def «infix»    := parser! "infix"
 def «infixl»   := parser! "infixl"
 def «infixr»   := parser! "infixr"
 def «postfix»  := parser! "postfix"
+
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
 -- TODO delete reserve after old frontend is gone
 @[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbol >> optPrecedence
@@ -59,8 +60,9 @@ def identPrec  := parser! ident >> optPrecedence
 @[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> mixfixSymbol >> (" := " <|> darrow) >> termParser
 
 def optKind : Parser := optional ("[" >> ident >> "]")
+def notationItem := withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> quotedSymbol <|> identPrec)
 -- TODO: remove " := " after old frontend is gone
-@[builtinCommandParser] def «notation»    := parser! "notation" >> optPrecedence >> many (strLit <|> quotedSymbol <|> identPrec) >> (" := " <|> darrow) >> termParser
+@[builtinCommandParser] def «notation»    := parser! "notation" >> optPrecedence >> many notationItem >> (" := " <|> darrow) >> termParser
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident

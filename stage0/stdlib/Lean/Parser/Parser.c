@@ -578,6 +578,7 @@ extern lean_object* l_List_repr___rarg___closed__2;
 extern lean_object* l_Lean_charLitKind;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_hexNumberFn___spec__3___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_maxPrec;
 lean_object* l_Lean_Parser_TokenMap_Inhabited(lean_object*);
 lean_object* l_Lean_Parser_categoryParserFnExtension___elambda__1___rarg___boxed(lean_object*);
 lean_object* l_Lean_Parser_regTermParserAttribute___closed__2;
@@ -743,7 +744,6 @@ lean_object* l_Lean_Parser_noFirstTokenInfo___elambda__1(lean_object*, lean_obje
 lean_object* l_Lean_Parser_ident___elambda__1___closed__1;
 lean_object* l___private_Lean_Parser_Parser_26__registerParserAttributeImplBuilder(lean_object*);
 lean_object* l_Lean_Parser_declareLeadingBuiltinParser(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_appPrec;
 lean_object* l_Lean_Parser_checkColGeFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_registerParserCategory(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Parser_charLitFnAux___boxed(lean_object*, lean_object*, lean_object*);
@@ -1264,7 +1264,7 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_appPrec() {
+lean_object* _init_l_Lean_Parser_maxPrec() {
 _start:
 {
 lean_object* x_1; 
@@ -36352,8 +36352,8 @@ l_Lean_quotedSymbolKind___closed__2 = _init_l_Lean_quotedSymbolKind___closed__2(
 lean_mark_persistent(l_Lean_quotedSymbolKind___closed__2);
 l_Lean_quotedSymbolKind = _init_l_Lean_quotedSymbolKind();
 lean_mark_persistent(l_Lean_quotedSymbolKind);
-l_Lean_Parser_appPrec = _init_l_Lean_Parser_appPrec();
-lean_mark_persistent(l_Lean_Parser_appPrec);
+l_Lean_Parser_maxPrec = _init_l_Lean_Parser_maxPrec();
+lean_mark_persistent(l_Lean_Parser_maxPrec);
 l_Lean_Parser_InputContext_inhabited___closed__1 = _init_l_Lean_Parser_InputContext_inhabited___closed__1();
 lean_mark_persistent(l_Lean_Parser_InputContext_inhabited___closed__1);
 l_Lean_Parser_InputContext_inhabited = _init_l_Lean_Parser_InputContext_inhabited();

@@ -272,6 +272,7 @@ lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Syntax_1__mkPar
 lean_object* l_Lean_Elab_Command_elabNoKindMacroRulesAux___closed__1;
 lean_object* l_Lean_Elab_Term_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__33;
+extern lean_object* l_Lean_Parser_maxPrec;
 extern lean_object* l_Lean_Elab_Term_mkExplicitBinder___closed__5;
 extern lean_object* l___private_Lean_Elab_Term_5__expandCDot___main___closed__4;
 lean_object* l_Lean_Elab_Command_elabSyntax___closed__22;
@@ -354,7 +355,6 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__7;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__71;
 extern lean_object* l_Lean_mkAppStx___closed__3;
 lean_object* l_Lean_Elab_Command_inferMacroRulesAltKind(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_appPrec;
 uint8_t l_Lean_Name_hasMacroScopes___main(lean_object*);
 lean_object* l_Lean_Parser_registerParserCategory(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__63;
@@ -570,7 +570,7 @@ lean_object* _init_l_Lean_Elab_Term_expandOptPrecedence___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_appPrec;
+x_1 = l_Lean_Parser_maxPrec;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -8203,7 +8203,7 @@ lean_object* x_17;
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_416; 
-x_416 = l_Lean_Parser_appPrec;
+x_416 = l_Lean_Parser_maxPrec;
 x_17 = x_416;
 goto block_415;
 }

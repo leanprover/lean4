@@ -333,6 +333,7 @@ lean_object* l_PersistentHashMap_find_x3f___at_Lean_PrettyPrinter_Parenthesizer_
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_PrettyPrinter_Parenthesizer_visit___main___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(lean_object*);
+extern lean_object* l_Lean_Parser_maxPrec;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_ParenthesizerM_monadTraverser___lambda__1(lean_object*);
 extern lean_object* l___private_Lean_Elab_Term_5__expandCDot___main___closed__4;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_addLbp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -428,7 +429,6 @@ lean_object* l_Lean_Syntax_getHeadInfo___main(lean_object*);
 lean_object* l_StateT_get___at_Lean_PrettyPrinter_Parenthesizer_ParenthesizerM_monadTraverser___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_quotedSymbol_parenthesizer___closed__2;
 lean_object* l_ReaderT_bind___at_Lean_Level_quote___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_appPrec;
 lean_object* l_AssocList_find_x3f___main___at_Lean_PrettyPrinter_Parenthesizer_visit___main___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_visitAntiquot___closed__1;
 extern lean_object* l_Lean_quotedSymbolKind___closed__1;
@@ -4130,7 +4130,7 @@ lean_dec(x_14);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = l_Lean_Parser_appPrec;
+x_18 = l_Lean_Parser_maxPrec;
 x_19 = l_Lean_PrettyPrinter_Parenthesizer_addLbp(x_18, x_2, x_17, x_4, x_16);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -4523,7 +4523,7 @@ lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_visitParenthesizable___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_appPrec;
+x_1 = l_Lean_Parser_maxPrec;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

@@ -268,7 +268,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
 /--
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
   ```
-  def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
+  def funBinder : Parser := implicitBinder <|> instBinder <|> termParser maxPrec
   parser! unicodeSymbol "λ" "fun" >> many1 funBinder >> "=>" >> termParser
   ```
   to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.

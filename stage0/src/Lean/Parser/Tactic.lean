@@ -51,7 +51,7 @@ def withIds : Parser := optional (" with " >> many1 ident')
 @[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
-@[builtinTacticParser] def orelse := tparser! [2] " <|> " >> tacticParser 1
+@[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1
 
 end Tactic
 end Parser

@@ -91,7 +91,7 @@ def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >>
 def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
 def instBinder := parser! "[" >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
-@[builtinTermParser] def depArrow := parser! [appPrec] bracketedBinder true >> checkPrec 25 "expected parentheses around dependent arrow" >> unicodeSymbol " → " " -> " >> termParser
+@[builtinTermParser] def depArrow := parser! [appPrec] bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! [leadPrec] unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 

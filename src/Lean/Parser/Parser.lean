@@ -1082,17 +1082,15 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym,
   fn   := unicodeSymbolFn sym asciiSym }
 
-/- Succeeds if prec <= upper -/
-def checkPrecFn (upper : Nat) (errorMsg : String) : ParserFn :=
+/- Succeeds if `c.prec <= prec` -/
+def checkPrecFn (prec : Nat) : ParserFn :=
 fun c s =>
-  if c.prec <= upper then s
-  else s.mkUnexpectedError errorMsg
+  if c.prec <= prec then s
+  else s.mkUnexpectedError "unexpected token at this precedence level; consider parenthesizing the term"
 
-private def precErrorMsg := "unexpected token at this precedence level; consider parenthesizing the term"
-
-@[inline] def checkPrec (upper : Nat) (errorMsg : String := precErrorMsg) : Parser :=
+@[inline] def checkPrec (prec : Nat) : Parser :=
 { info := epsilonInfo,
-  fn   := checkPrecFn upper errorMsg }
+  fn   := checkPrecFn prec }
 
 /- Version of `leadingNode` which uses `checkPrec` -/
 @[inline] def leadingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=

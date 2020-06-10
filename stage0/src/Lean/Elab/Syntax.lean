@@ -320,7 +320,7 @@ match prec? with
 fun stx =>
 match_syntax stx with
 | `(notation:$prec $items* => $rhs)    => expandNotationAux stx prec items rhs
-| `(notation $noprec* $items* => $rhs) => expandNotationAux stx none items rhs
+| `(notation $items:notationItem* => $rhs) => expandNotationAux stx none items rhs
 | _ => Macro.throwUnsupported
 
 /- Convert `macro` argument into a `syntax` command item -/

@@ -1082,30 +1082,25 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym,
   fn   := unicodeSymbolFn sym asciiSym }
 
-/- Succeeds if RBP < upper -/
-def checkRbpLtFn (upper : Nat) (errorMsg : String) : ParserFn :=
+/- Succeeds if RBP <= upper -/
+def checkPrecFn (upper : Nat) (errorMsg : String) : ParserFn :=
 fun c s =>
-  if c.rbp < upper then s
+  if c.rbp <= upper then s
   else s.mkUnexpectedError errorMsg
 
 private def precErrorMsg := "unexpected token at this precedence level; consider parenthesizing the term"
 
-@[inline] def checkRbpLt (upper : Nat) (errorMsg : String := precErrorMsg) : Parser :=
+@[inline] def checkPrec (upper : Nat) (errorMsg : String := precErrorMsg) : Parser :=
 { info := epsilonInfo,
-  fn   := checkRbpLtFn upper errorMsg }
+  fn   := checkPrecFn upper errorMsg }
 
-/- Succeeds if RBP <= upper -/
-@[inline] def checkRbpLe (upper : Nat) (errorMsg : String := precErrorMsg) : Parser :=
-checkRbpLt (upper + 1) errorMsg
-
-/- Version of `leadingNode` which uses `checkRbpLe` -/
+/- Version of `leadingNode` which uses `checkPrec` -/
 @[inline] def leadingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
--- TODO: Make sure leading and trailing parsers use the same check (i.e., `checkRbpLt`). We need to change the precedence of identiers and literals.
-checkRbpLe prec >> leadingNode n p
+checkPrec prec >> leadingNode n p
 
-/- Version of `trailingNode` which uses `checkRbpLt` -/
+/- Version of `trailingNode` which uses `checkPrec` -/
 @[inline] def trailingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
-checkRbpLt prec >> trailingNode n p
+checkPrec prec >> trailingNode n p
 
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ k ] }
@@ -1542,6 +1537,7 @@ withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol
 
 def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
 fun c s =>
+  -- del anyOfFn ---> merge `ps` and `tables.trailingParsers`
   orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) c s
 
 private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
@@ -1764,7 +1760,7 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.charLit                             => pure $ charLit
 | ParserDescr.nameLit                             => pure $ nameLit
 | ParserDescr.ident                               => pure $ ident
-| ParserDescr.prec prec                           => pure $ checkRbpLt prec
+| ParserDescr.prec prec                           => pure $ checkPrec prec
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
 | ParserDescr.parser catName rbp =>
   match categories.find? catName with

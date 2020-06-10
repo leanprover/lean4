@@ -44,8 +44,8 @@ new_frontend
 
 -- Declare a new syntax category for "indexing" big operators
 declare_syntax_cat index
-syntax:50 term:50 "≤" ident "<" term : index
-syntax:50 term:50 "≤" ident "<" term "|" term : index
+syntax term:51 "≤" ident "<" term : index
+syntax term:51 "≤" ident "<" term "|" term : index
 syntax ident "<-" term : index
 syntax ident "<-" term "|" term : index
 -- Primitive notation for big operators

@@ -378,8 +378,8 @@ when (k != stx.getKind) $ do {
 };
 visitArgs $ visit p.appArg!
 
-@[builtinParenthesizer checkRbpLe]
-def checkRbpLe.parenthesizer : Parenthesizer | p => do
+@[builtinParenthesizer checkPrec]
+def checkPrec.parenthesizer : Parenthesizer | p => do
 prec ← evalNat $ p.getArg! 0;
 addLbp prec
 
@@ -403,11 +403,6 @@ visitArgs $ do {
   visitAntiquot <|> visitParenthesizable mkParen 0 trailLbp;
   visit p.appArg!
 }
-
-@[builtinParenthesizer checkRbpLt]
-def checkRbpLt.parenthesizer : Parenthesizer | p => do
-prec ← evalNat $ p.getArg! 0;
-addLbp (prec - 1)
 
 @[builtinParenthesizer symbol] def symbol.parenthesizer := visitToken
 @[builtinParenthesizer symbolNoWs] def symbolNoWs.parenthesizer := visitToken

@@ -48,9 +48,9 @@ def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
 def withIds : Parser := optional (" with " >> many1 ident')
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
-@[builtinTacticParser] def paren        := parser! [appPrec] "(" >> nonEmptySeq >> ")"
-@[builtinTacticParser] def nestedTacticBlock := parser! [appPrec] "begin " >> seq >> "end"
-@[builtinTacticParser] def nestedTacticBlockCurly := parser! [appPrec] "{" >> seq >> "}"
+@[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
+@[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
+@[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
 @[builtinTacticParser] def orelse := tparser! [2] " <|> " >> tacticParser 1
 
 end Tactic

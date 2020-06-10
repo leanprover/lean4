@@ -24,9 +24,9 @@ def «precedence» := parser! ":" >> precedenceLit
 def optPrecedence := optional (try «precedence»)
 
 namespace Syntax
-@[builtinSyntaxParser] def paren     := parser! [appPrec] "(" >> many1 syntaxParser >> ")"
-@[builtinSyntaxParser] def cat       := parser! [appPrec] ident >> optPrecedence
-@[builtinSyntaxParser] def atom      := parser! [appPrec] strLit
+@[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
+@[builtinSyntaxParser] def cat       := parser! ident >> optPrecedence
+@[builtinSyntaxParser] def atom      := parser! strLit
 @[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"

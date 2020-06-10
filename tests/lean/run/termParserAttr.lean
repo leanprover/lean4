@@ -16,7 +16,7 @@ open Lean.Parser
 @[termParser] def tst := parser! "(|" >> termParser >> optional (symbol ", " >> termParser) >> "|)"
 
 @[termParser] def boo : ParserDescr :=
-ParserDescr.node `boo
+ParserDescr.node `boo 10
   (ParserDescr.andthen
     (ParserDescr.symbol "[|")
     (ParserDescr.andthen

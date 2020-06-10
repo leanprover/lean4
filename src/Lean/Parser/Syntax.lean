@@ -39,7 +39,7 @@ namespace Syntax
 @[builtinSyntaxParser] def optional  := tparser! "?"
 @[builtinSyntaxParser] def many      := tparser! "*"
 @[builtinSyntaxParser] def many1     := tparser! "+"
-@[builtinSyntaxParser] def orelse    := tparser! [2] " <|> " >> syntaxParser 1
+@[builtinSyntaxParser] def orelse    := tparser!:2 " <|> " >> syntaxParser 1
 
 end Syntax
 

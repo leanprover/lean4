@@ -787,10 +787,9 @@ expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info c
 static expr parse_parser(parser & p, bool leading, pos_info const & pos) {
     name kind = get_curr_declaration_name();
     expr prec = save_pos(mk_prenum(mpz(get_max_prec())), pos);
-    if (p.curr_is_token(get_lbracket_tk())) {
+    if (p.curr_is_token(get_colon_tk())) {
         p.next();
-        prec = p.parse_expr();
-        p.check_token_next(get_rbracket_tk(), "`]` expected");
+        prec = p.parse_expr(get_max_prec());
     }
     expr e = p.parse_expr();
     name n = leading ? get_lean_parser_leading_node_name() : get_lean_parser_trailing_node_name();

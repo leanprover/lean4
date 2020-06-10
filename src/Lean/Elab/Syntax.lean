@@ -15,13 +15,13 @@ namespace Term
 /-
 Expand `optional «precedence»` where
  «precedence» := parser! " : " >> precedenceLit
- precedenceLit : Parser := numLit <|> maxPrec
- maxPrec := parser! nonReservedSymbol "max" -/
+ precedenceLit : Parser := numLit <|> maxSymbol
+ maxSymbol := parser! nonReservedSymbol "max" -/
 def expandOptPrecedence (stx : Syntax) : Option Nat :=
 if stx.isNone then none
 else match ((stx.getArg 0).getArg 1).isNatLit? with
   | some v => some v
-  | _      => some Parser.appPrec
+  | _      => some Parser.maxPrec
 
 private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax :=
 if ds.size == 0 then
@@ -192,7 +192,7 @@ fun stx => do
   env ← getEnv;
   let cat := (stx.getIdAt 5).eraseMacroScopes;
   unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
-  let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD Parser.appPrec;
+  let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD Parser.maxPrec;
   kind ← elabKind (stx.getArg 2) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
   (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) cat;

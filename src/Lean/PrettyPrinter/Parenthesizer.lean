@@ -33,7 +33,7 @@ initial call to `checkRbpLe/Lt`, respectively. Thus we should parenthesize a syn
 Note that in case 2, it is also sufficient to parenthesize a *parent* node as long as the offending parser is still to
 the right of that node. For example, imagine the tree structure of `(f $ fun x => x) y` without parentheses. We need to
 insert *some* parentheses between `x` and `y` since the lambda body is parsed with precedence 0, while the identifier
-parser for `y` has precedence `appPrec`. But we need to parenthesize the `$` node anyway since the precedence of its
+parser for `y` has precedence `maxPrec`. But we need to parenthesize the `$` node anyway since the precedence of its
 RHS (0) again is smaller than that of `y`. So it's better to only parenthesize the outer node than ending up with
 `(f $ (fun x => x)) y`.
 
@@ -246,10 +246,10 @@ instance monadQuotation : MonadQuotation ParenthesizerM := {
 def visitAntiquot : ParenthesizerM Unit := do
 stx ← getCur;
 if Elab.Term.Quotation.isAntiquot stx then visitArgs $ do
-  -- antiquot syntax is, simplified, `syntax:appPrec "$" "$"* antiquotExpr ":" (nonReservedSymbol name) "*"?`
+  -- antiquot syntax is, simplified, `syntax:maxPrec "$" "$"* antiquotExpr ":" (nonReservedSymbol name) "*"?`
   goRight; goRight; -- now on `antiquotExpr`
   visit (mkConst `Lean.Parser.antiquotExpr);
-  addLbp appPrec
+  addLbp maxPrec
 else
   throw $ Exception.other $ "not an antiquotation"
 
@@ -282,7 +282,7 @@ when (rbp > minLbpP || match trailRbpP, trailLbp with some trailRbpP, some trail
     stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none);
     goRight;
     -- after parenthesization, there is no more trailing parser
-    modify (fun st => { st with minLbp := appPrec, trailRbp := none })
+    modify (fun st => { st with minLbp := maxPrec, trailRbp := none })
 };
 modify $ fun stP => { stP with
   minLbp := match trailLbp with

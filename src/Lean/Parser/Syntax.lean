@@ -18,8 +18,8 @@ registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 categoryParser `syntax rbp
 
 -- TODO: `max` is a bad precedence name. Find a new one.
-def maxPrec := parser! nonReservedSymbol "max" true
-def precedenceLit : Parser := numLit <|> maxPrec
+def maxSymbol := parser! nonReservedSymbol "max" true
+def precedenceLit : Parser := numLit <|> maxSymbol
 def «precedence» := parser! ":" >> precedenceLit
 def optPrecedence := optional (try «precedence»)
 
@@ -31,10 +31,10 @@ namespace Syntax
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
 @[builtinSyntaxParser] def ident     := parser! nonReservedSymbol "ident"
-@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser appPrec
-@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser appPrec
-@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser appPrec >> syntaxParser appPrec
-@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser appPrec >> syntaxParser appPrec
+@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser maxPrec >> syntaxParser maxPrec
+@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser maxPrec >> syntaxParser maxPrec
 
 @[builtinSyntaxParser] def optional  := tparser! "?"
 @[builtinSyntaxParser] def many      := tparser! "*"

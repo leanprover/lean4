@@ -86,14 +86,14 @@ def getNext (input : String) (pos : Nat) : Char :=
 input.get (input.next pos)
 
 /- Function application precedence.
-   In the standard lean language, only two tokens have precedence higher that `appPrec`.
-   - The token `.` has precedence `appPrec+1`. Thus, field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
+   In the standard lean language, only two tokens have precedence higher that `maxPrec`.
+   - The token `.` has precedence `maxPrec+1`. Thus, field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
      not `(g (h x)).f`
-   - The token `[` when not preceded with whitespace has precedence `appPrec+1`. If there is whitespace before
-     `[`, then its precedence is `appPrec`. Thus, `f a[i]` is parsed as `f (a[i])` where `a[i]` is an "find-like operation"
+   - The token `[` when not preceded with whitespace has precedence `maxPrec+1`. If there is whitespace before
+     `[`, then its precedence is `maxPrec`. Thus, `f a[i]` is parsed as `f (a[i])` where `a[i]` is an "find-like operation"
       (e.g., array access, map access, etc.). `f a [i]` is parsed as `(f a) [i]` where `[i]` is a singleton collection
       (e.g., a list). -/
-def appPrec : Nat := 1024
+def maxPrec : Nat := 1024
 
 abbrev Token := String
 
@@ -1568,9 +1568,9 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   As an extension of the original algorithm, we also check the current token's precedence before calling the leading
   parser(s). We do this so we can define an n-ary application parser:
   ```
-  @[builtinTermParser] def app := tparser! many1 (namedArgument <|> termParser appPrec)
+  @[builtinTermParser] def app := tparser! many1 (namedArgument <|> termParser maxPrec)
   ```
-  If the nested `termParser appPrec` did not check the precedence of the first token, we would accept bogus input such as
+  If the nested `termParser maxPrec` did not check the precedence of the first token, we would accept bogus input such as
   `f x fun y => y` because we would never check the precedence of `fun`. Note that, in contrast to trailing tokens, a
   leading token is accepted if its precedence is *at least* `prec`. This is necessary so that `f x y` is not parsed as
   `f (x y)`: the nested `termParser` call must accept the leading token `x` but not the trailing token `y`. But both have

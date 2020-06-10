@@ -99,7 +99,7 @@ match extractMacroScopes declName with
 
 @[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(parser! $e)         => elabParserMacroAux stx (quote Parser.appPrec) e
+| `(parser! $e)         => elabParserMacroAux stx (quote Parser.maxPrec) e
 | `(parser! : $prec $e) => elabParserMacroAux stx prec e
 | _                     => throwUnsupportedSyntax
 
@@ -111,7 +111,7 @@ match declName? with
 
 @[builtinTermElab «tparser!»] def elabTParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(tparser! $e)         => elabTParserMacroAux stx (quote Parser.appPrec) e
+| `(tparser! $e)         => elabTParserMacroAux stx (quote Parser.maxPrec) e
 | `(tparser! : $prec $e) => elabTParserMacroAux stx prec e
 | _                      => throwUnsupportedSyntax
 

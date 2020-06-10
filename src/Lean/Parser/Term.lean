@@ -41,19 +41,19 @@ checkPrec prec >> unicodeSymbol sym asciiSym >> termParser (prec+1)
 def infixL (sym : String) (prec : Nat) : TrailingParser :=
 checkPrec prec >> symbol sym >> termParser (prec+1)
 
-def leadPrec := appPrec - 1
+def leadPrec := maxPrec - 1
 
 /- Built-in parsers -/
 -- NOTE: `checkNoWsBefore` should be used *before* `parser!` so that it is also applied to the generated
 -- antiquotation.
 def explicitUniv := checkNoWsBefore "no space before '.{'" >> parser! ".{" >> sepBy1 levelParser ", " >> "}"
-def namedPattern := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser appPrec
+def namedPattern := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser maxPrec
 @[builtinTermParser] def id := parser! ident >> optional (explicitUniv <|> namedPattern)
 @[builtinTermParser] def num : Parser := parser! numLit
 @[builtinTermParser] def str : Parser := parser! strLit
 @[builtinTermParser] def char : Parser := parser! charLit
-@[builtinTermParser] def type := parser! "Type" >> optional (checkPrec (appPrec-1) >> levelParser appPrec)
-@[builtinTermParser] def sort := parser! "Sort" >> optional (checkPrec (appPrec-1) >> levelParser appPrec)
+@[builtinTermParser] def type := parser! "Type" >> optional (checkPrec (maxPrec-1) >> levelParser maxPrec)
+@[builtinTermParser] def sort := parser! "Sort" >> optional (checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def prop := parser! "Prop"
 @[builtinTermParser] def hole := parser! "_"
 @[builtinTermParser] def namedHole := parser! "?" >> ident
@@ -81,7 +81,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def listLit := parser! "[" >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def arrayLit := parser! "#[" >> sepBy termParser "," true >> "]"
-@[builtinTermParser] def explicit := parser! "@" >> termParser appPrec
+@[builtinTermParser] def explicit := parser! "@" >> termParser maxPrec
 @[builtinTermParser] def inaccessible := parser! ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
@@ -95,7 +95,7 @@ def bracketedBinder (requireType := false) := explicitBinder requireType <|> imp
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
-def funBinder : Parser := implicitBinder <|> instBinder <|> termParser appPrec
+def funBinder : Parser := implicitBinder <|> instBinder <|> termParser maxPrec
 @[builtinTermParser] def «fun» := parser!:leadPrec unicodeSymbol "λ" "fun" >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=
@@ -109,10 +109,10 @@ withPosition $ fun pos =>
 
 @[builtinTermParser] def «match» := parser!:leadPrec "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch»  := parser!:leadPrec "nomatch " >> termParser
-def optExprPrecedence := optional (try ":" >> termParser appPrec)
+def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser
-@[builtinTermParser] def borrowed   := parser! "@&" >> termParser (appPrec - 1)
+@[builtinTermParser] def borrowed   := parser! "@&" >> termParser (maxPrec - 1)
 @[builtinTermParser] def quotedName := parser! nameLit
 -- NOTE: syntax quotations are defined in Init.Lean.Parser.Command
 @[builtinTermParser] def «match_syntax» := parser!:leadPrec "match_syntax" >> termParser >> " with " >> matchAlts
@@ -137,9 +137,9 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser!:leadPrec "do " >> (bracketedDoSeq <|> doSeq)
 
-@[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser appPrec
-@[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser appPrec
-@[builtinTermParser] def decide       := parser! "decide! " >> termParser appPrec
+@[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
+@[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec
+@[builtinTermParser] def decide       := parser! "decide! " >> termParser maxPrec
 
 @[builtinTermParser] def not    := parser! "¬" >> termParser 40
 @[builtinTermParser] def bnot   := parser! "!" >> termParser 40
@@ -147,7 +147,7 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser!:65 "-" >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser!:(appPrec-1) many1 (namedArgument <|> termParser appPrec)
+@[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 (namedArgument <|> termParser maxPrec)
 
 @[builtinTermParser] def proj     := tparser! symbolNoWs "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
@@ -210,11 +210,11 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def byTactic    := parser!:leadPrec "by " >> Tactic.nonEmptySeq
 -- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.stxQuot`
 @[builtinTermParser] def tacticStxQuot    : Parser :=
-checkPrec appPrec >> (node `Lean.Parser.Term.stxQuot $ "`(tactic|" >> sepBy1 tacticParser "; " true true >> ")")
+checkPrec maxPrec >> (node `Lean.Parser.Term.stxQuot $ "`(tactic|" >> sepBy1 tacticParser "; " true true >> ")")
 @[builtinTermParser] def levelStxQuot     : Parser :=
-checkPrec appPrec >> (node `Lean.Parser.Term.stxQuot $ "`(level|" >> levelParser >> ")")
+checkPrec maxPrec >> (node `Lean.Parser.Term.stxQuot $ "`(level|" >> levelParser >> ")")
 @[builtinTermParser] def funBinderStxQuot : Parser :=
-checkPrec appPrec >> (node `Lean.Parser.Term.stxQuot $ "`(funBinder|"  >> funBinder >> ")")
+checkPrec maxPrec >> (node `Lean.Parser.Term.stxQuot $ "`(funBinder|"  >> funBinder >> ")")
 
 end Term
 end Parser

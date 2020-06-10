@@ -184,11 +184,6 @@ else
     currNamespace ← getCurrNamespace;
     pure (currNamespace ++ kind)
 
-def addOptPrecCheck (prec? : Option Nat) (parserDescr : Syntax) : MacroM Syntax :=
-match prec? with
-| none      => pure parserDescr
-| some prec => `(ParserDescr.andthen (ParserDescr.prec $(quote prec)) $parserDescr)
-
 /-
 def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
 -/
@@ -197,16 +192,15 @@ fun stx => do
   env ← getEnv;
   let cat := (stx.getIdAt 5).eraseMacroScopes;
   unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
-  let prec? := Term.expandOptPrecedence (stx.getArg 1);
+  let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD Parser.appPrec;
   kind ← elabKind (stx.getArg 2) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
   (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) cat;
-  val ← liftMacroM $ addOptPrecCheck prec? val;
   d ←
     if trailingParser then
-      `(@[$catParserId:ident] def myParser : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $val)
+      `(@[$catParserId:ident] def myParser : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
     else
-      `(@[$catParserId:ident] def myParser : Lean.ParserDescr := ParserDescr.node $(quote kind) $val);
+      `(@[$catParserId:ident] def myParser : Lean.ParserDescr := ParserDescr.node $(quote kind) $(quote prec) $val);
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 

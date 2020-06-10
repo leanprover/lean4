@@ -764,7 +764,6 @@ lean_object* l_Lean_Parser_Command_set__option___closed__9;
 lean_object* l_Lean_Parser_Term_stxQuot___closed__5;
 lean_object* l_Lean_Parser_Command_universe___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_declValEqns___closed__3;
-extern lean_object* l_Lean_Parser_appPrec;
 lean_object* l_Lean_Parser_Command_openRenamingItem___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Command_universe___closed__4;
 lean_object* l_Lean_Parser_Command_declModifiers___closed__10;
@@ -1446,7 +1445,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_4);
-x_6 = l_Lean_Parser_appPrec;
+x_6 = lean_unsigned_to_nat(1024u);
 x_7 = l_Lean_Parser_checkPrecFn(x_6, x_1, x_2);
 x_8 = lean_ctor_get(x_7, 3);
 lean_inc(x_8);
@@ -1784,7 +1783,7 @@ lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103;
 lean_inc(x_94);
 x_100 = l_Lean_Parser_ParserState_restore(x_95, x_93, x_94);
 lean_dec(x_93);
-x_101 = l_Lean_Parser_appPrec;
+x_101 = lean_unsigned_to_nat(1024u);
 x_102 = l_Lean_Parser_checkPrecFn(x_101, x_1, x_100);
 x_103 = lean_ctor_get(x_102, 3);
 lean_inc(x_103);

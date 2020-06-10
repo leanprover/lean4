@@ -402,7 +402,6 @@ lean_object* l_Lean_Parser_Tactic_withIds___elambda__1(lean_object*, lean_object
 extern lean_object* l_Lean_Parser_Term_tacticBlock___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Tactic_generalize___elambda__1___closed__7;
-extern lean_object* l_Lean_Parser_appPrec;
 lean_object* l_Lean_Parser_nodeWithAntiquot(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ident___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_underscoreFn(lean_object*, lean_object*);
@@ -11800,7 +11799,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_4);
-x_6 = l_Lean_Parser_appPrec;
+x_6 = lean_unsigned_to_nat(1024u);
 x_7 = l_Lean_Parser_checkPrecFn(x_6, x_1, x_2);
 x_8 = lean_ctor_get(x_7, 3);
 lean_inc(x_8);
@@ -12015,7 +12014,7 @@ lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67;
 lean_inc(x_58);
 x_64 = l_Lean_Parser_ParserState_restore(x_59, x_57, x_58);
 lean_dec(x_57);
-x_65 = l_Lean_Parser_appPrec;
+x_65 = lean_unsigned_to_nat(1024u);
 x_66 = l_Lean_Parser_checkPrecFn(x_65, x_1, x_64);
 x_67 = lean_ctor_get(x_66, 3);
 lean_inc(x_67);
@@ -12352,7 +12351,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_4);
-x_6 = l_Lean_Parser_appPrec;
+x_6 = lean_unsigned_to_nat(1024u);
 x_7 = l_Lean_Parser_checkPrecFn(x_6, x_1, x_2);
 x_8 = lean_ctor_get(x_7, 3);
 lean_inc(x_8);
@@ -12567,7 +12566,7 @@ lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67;
 lean_inc(x_58);
 x_64 = l_Lean_Parser_ParserState_restore(x_59, x_57, x_58);
 lean_dec(x_57);
-x_65 = l_Lean_Parser_appPrec;
+x_65 = lean_unsigned_to_nat(1024u);
 x_66 = l_Lean_Parser_checkPrecFn(x_65, x_1, x_64);
 x_67 = lean_ctor_get(x_66, 3);
 lean_inc(x_67);
@@ -12882,7 +12881,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_4);
-x_6 = l_Lean_Parser_appPrec;
+x_6 = lean_unsigned_to_nat(1024u);
 x_7 = l_Lean_Parser_checkPrecFn(x_6, x_1, x_2);
 x_8 = lean_ctor_get(x_7, 3);
 lean_inc(x_8);
@@ -13097,7 +13096,7 @@ lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67;
 lean_inc(x_58);
 x_64 = l_Lean_Parser_ParserState_restore(x_59, x_57, x_58);
 lean_dec(x_57);
-x_65 = l_Lean_Parser_appPrec;
+x_65 = lean_unsigned_to_nat(1024u);
 x_66 = l_Lean_Parser_checkPrecFn(x_65, x_1, x_64);
 x_67 = lean_ctor_get(x_66, 3);
 lean_inc(x_67);

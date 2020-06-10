@@ -23,7 +23,7 @@ categoryParser `command rbp
   `($x $y) will be parsed as an application, not two commands. Use `($x:command $y:command) instead.
   Multiple command will be put in a `null node, but a single command will not (so that you can directly
   match against a quotation in a command kind's elaborator). -/
-@[builtinTermParser] def Term.stxQuot := parser! [appPrec] "`(" >> (termParser <|> many1 commandParser true) >> ")"
+@[builtinTermParser] def Term.stxQuot := parser! "`(" >> (termParser <|> many1 commandParser true) >> ")"
 
 namespace Command
 def commentBody : Parser :=

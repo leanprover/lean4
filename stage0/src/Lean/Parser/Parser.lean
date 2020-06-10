@@ -1095,12 +1095,6 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym,
   fn   := unicodeSymbolFn sym asciiSym }
 
-@[inline] def leadingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
-leadingNode n prec p
-
-@[inline] def trailingNodePrec (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
-trailingNode n prec p
-
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ k ] }
 
@@ -1751,8 +1745,8 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.many1 d                             => many1 <$> compileParserDescr d
 | ParserDescr.sepBy d₁ d₂                         => sepBy <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
-| ParserDescr.node k prec d                       => leadingNodePrec k prec <$> compileParserDescr d
-| ParserDescr.trailingNode k prec d               => trailingNodePrec k prec <$> compileParserDescr d
+| ParserDescr.node k prec d                       => leadingNode k prec <$> compileParserDescr d
+| ParserDescr.trailingNode k prec d               => trailingNode k prec <$> compileParserDescr d
 | ParserDescr.symbol tk                           => pure $ symbol tk
 | ParserDescr.numLit                              => pure $ numLit
 | ParserDescr.strLit                              => pure $ strLit

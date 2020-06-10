@@ -81,33 +81,39 @@ fun stx => match_syntax stx with
     body
 | _                      => Macro.throwUnsupported
 
+private def elabParserMacroAux (ref : Syntax) (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
+some declName ← getDeclName?
+  | throwError ref "invalid `parser!` macro, it must be used in definitions";
+match extractMacroScopes declName with
+| { name := Name.str _ s _, scopes :=  scps, .. } => do
+  let kind := quote declName;
+  let s    := quote s;
+  p ← `(Lean.Parser.leadingNode $kind $prec $e);
+  if scps == [] then
+    -- TODO simplify the following quotation as soon as we have coercions
+    `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s (some $kind)) $p)
+  else
+    -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
+    `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s none) $p)
+| _  => throwError ref "invalid `parser!` macro, unexpected declaration name"
+
 @[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(parser! $e) => do
-  some declName ← getDeclName?
-    | throwError stx "invalid `parser!` macro, it must be used in definitions";
-  match extractMacroScopes declName with
-  | { name := Name.str _ s _, scopes :=  scps, .. } => do
-    let kind := quote declName;
-    let s    := quote s;
-    p ← `(Lean.Parser.leadingNode $kind $e);
-    if scps == [] then
-      -- TODO simplify the following quotation as soon as we have coercions
-      `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s (some $kind)) $p)
-    else
-      -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
-      `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s none) $p)
-  | _             => throwError stx "invalid `parser!` macro, unexpected declaration name"
-| _             => throwUnsupportedSyntax
+| `(parser! $e)         => elabParserMacroAux stx (quote Parser.appPrec) e
+| `(parser! : $prec $e) => elabParserMacroAux stx prec e
+| _                     => throwUnsupportedSyntax
+
+private def elabTParserMacroAux (ref : Syntax) (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
+declName? ← getDeclName?;
+match declName? with
+| some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $prec $e)
+| none          => throwError ref "invalid `tparser!` macro, it must be used in definitions"
 
 @[builtinTermElab «tparser!»] def elabTParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(tparser! $e) => do
-  declName? ← getDeclName?;
-  match declName? with
-  | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $e)
-  | none          => throwError stx "invalid `tparser!` macro, it must be used in definitions"
-| _             => throwUnsupportedSyntax
+| `(tparser! $e)         => elabTParserMacroAux stx (quote Parser.appPrec) e
+| `(tparser! : $prec $e) => elabTParserMacroAux stx prec e
+| _                      => throwUnsupportedSyntax
 
 private def mkNativeReflAuxDecl (ref : Syntax) (type val : Expr) : TermElabM Name := do
 auxName ← mkAuxName ref `_nativeRefl;

@@ -200,6 +200,7 @@ f a
 #eval run "def x : Nat := Nat.zero #check x"
 #eval run "def x := Nat.zero #check x"
 #eval run "open Lean.Parser def x := parser! symbol \"foo\" #check x"
+#eval run "open Lean.Parser def x := parser!:50 symbol \"foo\" #check x"
 #eval run "open Lean.Parser def x := tparser! symbol \"foo\" #check x"
 #eval run "def x : Nat := 1 #check x"
 

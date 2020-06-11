@@ -1237,11 +1237,15 @@ s.keepLatest startStackSize
 
 end ParserState
 
+def invalidLongestMatchParser (s : ParserState) : ParserState :=
+s.mkError "longestMatch parsers must generate exactly one Syntax node"
+
 /--
  Auxiliary function used to execute parsers provided to `longestMatchFn`.
  Push `left?` into the stack if it is not `none`, and execute `p`.
- After executing `p`, remove `left` and combine `p` results.
+ After executing `p`, remove `left`.
 
+ Remark: `p` must produce exactly one syntax node.
  Remark: the `left?` is not none when we are processing trailing parsers. -/
 @[inline] def runLongestMatchParser (left? : Option Syntax) (p : ParserFn) : ParserFn :=
 fun c s =>
@@ -1251,37 +1255,24 @@ fun c s =>
     let s := p c s;
     if s.hasError then s
     else
-      -- stack contains `[..., result_1, ... result_n ]` we must combine the different result nodes
-      let currSize := s.stackSize;
-      if currSize == startSize + 1 then
-        -- `p` created one node
+      -- stack contains `[..., result ]`
+      if s.stackSize == startSize + 1 then
         s
       else
-        -- `p` created more than one node, we combine them into a single node
-        let r := Syntax.node nullKind (s.stxStack.extract startSize currSize);
-        let s := s.shrinkStack startSize;
-        s.pushSyntax r
+        invalidLongestMatchParser s
   | some left =>
     let s         := s.pushSyntax left;
     let s         := p c s;
     if s.hasError then s
     else
-      -- stack contains `[..., left, result_1, ... result_n ]` we must remove `left`, and combine the different result nodes
-      let currSize := s.stackSize;
-      if currSize == startSize + 1 then
-        -- `p` did not create any node, then we just remove `left` and add `Syntax.missing`
-        let s := s.shrinkStack startSize;
-        s.pushSyntax Syntax.missing
-      else if currSize == startSize + 2 then
+      -- stack contains `[..., left, result ]` we must remove `left`
+      if s.stackSize == startSize + 2 then
         -- `p` created one node, then we just remove `left` and keep it
         let r := s.stxStack.back;
         let s := s.shrinkStack startSize; -- remove `r` and `left`
         s.pushSyntax r -- add `r` back
       else
-        -- `p` created more than one node, we combine them into a single node
-        let r := Syntax.node nullKind (s.stxStack.extract (startSize+1) currSize);
-        let s := s.shrinkStack startSize;
-        s.pushSyntax r
+        invalidLongestMatchParser s
 
 def longestMatchStep (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) (p : ParserFn) : ParserFn :=
 fun c s =>

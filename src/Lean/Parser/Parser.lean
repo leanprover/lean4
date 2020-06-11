@@ -37,15 +37,15 @@ one for performance: when `tokenFn` is called twice at the same position in the 
 first call. `tokenFn` recognizes some built-in variable-length tokens such as identifiers as well as any fixed token in
 the `ParserContext`'s `TokenTable` (a trie); however, the same cache field and strategy could be reused by custom token
 parsers. Tokens also play a central role in the `prattParser` combinator, which selects a *leading* parser followed by
-zero or more *trailing* parsers based on the current token (via `peekToken`) and its associated precedence; see the
-documentation of `prattParser` for more details. Token precedences are specified via the `symbol` parser, or with
-`symbolNoWs` for tokens that should not be preceded by whitespace. The `Parser` type is extended with additional
-metadata over the mere parsing function to propagate token information: `collectTokens` collects all tokens within a
-parser for registering. `firstTokens` holds information about the "FIRST" token set used to speed up parser selection in
-`prattParser`. This approach of combining static and dynamic information in the parser type is inspired by the paper
-"Deterministic, Error-Correcting Combinator Parsers" by Swierstra and Duponcheel. If multiple parsers accept the same
-current token, `prattParser` tries all of them using the backtracking `longestMatchFn` combinator. This is the only case
-where standard parsers might execute arbitrary backtracking. At the moment there is no memoization shared by these
+zero or more *trailing* parsers based on the current token (via `peekToken`); see the documentation of `prattParser`
+for more details. Tokens are specified via the `symbol` parser, or with `symbolNoWs` for tokens that should not be preceded by whitespace.
+
+The `Parser` type is extended with additional metadata over the mere parsing function to propagate token information:
+`collectTokens` collects all tokens within a parser for registering. `firstTokens` holds information about the "FIRST"
+token set used to speed up parser selection in `prattParser`. This approach of combining static and dynamic information
+in the parser type is inspired by the paper "Deterministic, Error-Correcting Combinator Parsers" by Swierstra and Duponcheel.
+If multiple parsers accept the same current token, `prattParser` tries all of them using the backtracking `longestMatchFn` combinator.
+This is the only case where standard parsers might execute arbitrary backtracking. At the moment there is no memoization shared by these
 parallel parsers apart from the first token, though we might change this in the future if the need arises.
 
 Finally, error reporting follows the standard combinatoric approach of collecting a single unexpected token/... and zero
@@ -83,14 +83,11 @@ Syntax.ident info rawVal val []
 def getNext (input : String) (pos : Nat) : Char :=
 input.get (input.next pos)
 
-/- Function application precedence.
-   In the standard lean language, only two tokens have precedence higher that `maxPrec`.
-   - The token `.` has precedence `maxPrec+1`. Thus, field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
-     not `(g (h x)).f`
-   - The token `[` when not preceded with whitespace has precedence `maxPrec+1`. If there is whitespace before
-     `[`, then its precedence is `maxPrec`. Thus, `f a[i]` is parsed as `f (a[i])` where `a[i]` is an "find-like operation"
-      (e.g., array access, map access, etc.). `f a [i]` is parsed as `(f a) [i]` where `[i]` is a singleton collection
-      (e.g., a list). -/
+/- Maximal (and function application) precedence.
+   In the standard lean language, no parser has precedence higher than `maxPrec`.
+
+   Note that nothing prevents users from using a higher precedence, but we strongly
+   discourage them from doing it. -/
 def maxPrec : Nat := 1024
 
 abbrev Token := String
@@ -1344,7 +1341,7 @@ structure PrattParsingTables :=
 instance PrattParsingTables.inhabited : Inhabited PrattParsingTables := ⟨{}⟩
 
 /--
-  Each parser category is implemented using Pratt's parser.
+  Each parser category is implemented using a Pratt's parser.
   The system comes equipped with the following categories: `level`, `term`, `tactic`, and `command`.
   Users and plugins may define extra categories.
 
@@ -1362,7 +1359,16 @@ instance PrattParsingTables.inhabited : Inhabited PrattParsingTables := ⟨{}⟩
   use this approach to avoid creating a reserved symbol for each
   builtin tactic (e.g., `apply`, `assumption`, etc.).  That is, users
   may still use these symbols as identifiers (e.g., naming a
-  function). -/
+  function).
+
+  The method
+  ```
+  categoryParser `term prec
+  ```
+  executes the Pratt's parser for category `term` with precedence `prec`.
+  That is, only parsers with precedence at least `prec` are considered.
+  The method `termParser prec` is equivalent to the method above.
+-/
 structure ParserCategory :=
 (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool)
 
@@ -1572,21 +1578,21 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
 
 /--
 
-  Implements a recursive precedence parser according to Pratt's algorithm: select a parser (or more, via
-  `longestMatchFn`) from `leadingTable` based on the current token (falling back to unindexed `leadingParsers` such as
-  application), then chain with parsers from `trailingTable`/`trailingParsers` as long as the precedence of the current
-  token is higher than `prec` of the parser state.
+  Implements a variant of Pratt's algorithm. In Pratt's algorithms tokens have a right and left binding power.
+  In our implementation, parsers have precedence instead. This method selects a parser (or more, via
+  `longestMatchFn`) from `leadingTable` based on the current token. Note that the unindexed `leadingParsers` parsers
+  are also tried. We have the unidexed `leadingParsers` because some parsers do not have a "first token". Example:
+  ```
+  syntax term:51 "≤" ident "<" term "|" term : index
+  ```
+  Example, in principle, the set of first tokens for this parser is any token that can start a term, but this set
+  is always changing. Thus, this parsing rule is stored as an unindexed leading parser at `leadingParsers`.
+  After processing the leading parser, we chain with parsers from `trailingTable`/`trailingParsers` that have precedence
+  at least `c.prec` where `c` is the `ParsingContext`. Recall that `c.prec` is set by `categoryParser`.
 
-  As an extension of the original algorithm, we also check the current token's precedence before calling the leading
-  parser(s). We do this so we can define an n-ary application parser:
-  ```
-  @[builtinTermParser] def app := tparser! many1 (namedArgument <|> termParser maxPrec)
-  ```
-  If the nested `termParser maxPrec` did not check the precedence of the first token, we would accept bogus input such as
-  `f x fun y => y` because we would never check the precedence of `fun`. Note that, in contrast to trailing tokens, a
-  leading token is accepted if its precedence is *at least* `prec`. This is necessary so that `f x y` is not parsed as
-  `f (x y)`: the nested `termParser` call must accept the leading token `x` but not the trailing token `y`. But both have
-  the same precedence as identifiers, so we must use different comparisons.
+  Note that in the original Pratt's algorith, precedences are only checked before calling trailing parsers. In our
+  implementation, leading *and* trailing parsers check the precendece. We claim our algorithm is more flexible,
+  modular and easier to understand.
 
   `antiquotParser` should be a `mkAntiquot` parser (or always fail) and is tried before all other parsers.
   It should not be added to the regular leading parsers because it would heavily

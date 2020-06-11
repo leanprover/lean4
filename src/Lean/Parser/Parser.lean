@@ -1078,27 +1078,6 @@ let sym := sym.trim;
 { info := symbolNoWsInfo sym,
   fn   := symbolNoWsFn sym }
 
-def checkWsBeforeIfSymbolFn (sym : String) (errorMsg : String) : ParserFn :=
-fun c s =>
-  let left := s.stxStack.back;
-  if checkTailNoWs left then
-    let iniSz  := s.stackSize;
-    let iniPos := s.pos;
-    let s := strAux sym "" 0 c s;
-    if s.hasError then
-      -- next token is not `sym`
-      s.restore iniSz iniPos
-    else
-      let s := s.restore iniSz iniPos;
-      s.mkError errorMsg
-  else
-    s -- there whitespace before `sym`
-
--- This parser fails if the next token is `sym`, but there is no space before it.
-def checkWsBeforeIfSymbol (sym : String) (errorMsg : String) : Parser :=
-{ info := epsilonInfo,
-  fn   := checkWsBeforeIfSymbolFn sym errorMsg }
-
 def unicodeSymbolFnAux (sym asciiSym : String) (expected : List String) : ParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) expected
 

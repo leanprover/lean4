@@ -96,7 +96,7 @@ def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
 def funBinder : Parser := implicitBinder <|> instBinder <|> termParser maxPrec
-@[builtinTermParser] def «fun» := parser!:leadPrec unicodeSymbol "λ" "fun" >> many1 funBinder >> darrow >> termParser
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
@@ -135,7 +135,7 @@ def doElem := doLet <|> doId <|> doPat <|> doExpr
 def doSeq  := sepBy1 doElem "; "
 def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
-@[builtinTermParser] def «do»  := parser!:leadPrec "do " >> (bracketedDoSeq <|> doSeq)
+@[builtinTermParser] def «do»  := parser!:maxPrec "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec

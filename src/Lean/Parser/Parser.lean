@@ -127,7 +127,6 @@ instance InputContext.inhabited : Inhabited InputContext :=
 
 structure ParserContext extends InputContext :=
 (prec     : Nat)
-(left     : Syntax := Syntax.missing)
 (env      : Environment)
 (tokens   : TokenTable)
 
@@ -219,10 +218,10 @@ match s with
     let stack   := stack.push newNode;
     ⟨stack, pos, cache, err⟩
 
-def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (left : Syntax) (iniStackSz : Nat) : ParserState :=
+def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, err⟩ =>
-  let newNode := Syntax.node k (#[left] ++ stack.extract iniStackSz stack.size);
+  let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size);
   let stack   := stack.shrink iniStackSz;
   let stack   := stack.push newNode;
   ⟨stack, pos, cache, err⟩
@@ -346,7 +345,7 @@ instance hasAndthen : HasAndthen Parser :=
 | c, s =>
   let iniSz := s.stackSize;
   let s     := p c s;
-  s.mkTrailingNode n c.left iniSz
+  s.mkTrailingNode n iniSz
 
 @[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens,
@@ -1079,6 +1078,27 @@ let sym := sym.trim;
 { info := symbolNoWsInfo sym,
   fn   := symbolNoWsFn sym }
 
+def checkWsBeforeIfSymbolFn (sym : String) (errorMsg : String) : ParserFn :=
+fun c s =>
+  let left := s.stxStack.back;
+  if checkTailNoWs left then
+    let iniSz  := s.stackSize;
+    let iniPos := s.pos;
+    let s := strAux sym "" 0 c s;
+    if s.hasError then
+      -- next token is not `sym`
+      s.restore iniSz iniPos
+    else
+      let s := s.restore iniSz iniPos;
+      s.mkError errorMsg
+  else
+    s -- there whitespace before `sym`
+
+-- This parser fails if the next token is `sym`, but there is no space before it.
+def checkWsBeforeIfSymbol (sym : String) (errorMsg : String) : Parser :=
+{ info := epsilonInfo,
+  fn   := checkWsBeforeIfSymbolFn sym errorMsg }
+
 def unicodeSymbolFnAux (sym asciiSym : String) (expected : List String) : ParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) expected
 
@@ -1204,17 +1224,6 @@ match s with
   else ⟨stack.shrink oldStackSize, pos, cache, some (oldError.merge err)⟩
 | other                         => other
 
-def mkLongestNodeAlt (s : ParserState) (startSize : Nat) : ParserState :=
-match s with
-| ⟨stack, pos, cache, _⟩ =>
-  if stack.size == startSize then ⟨stack.push Syntax.missing, pos, cache, none⟩ -- parser did not create any node, then we just add `Syntax.missing`
-  else if stack.size == startSize + 1 then s
-  else
-    -- parser created more than one node, combine them into a single node
-    let node := Syntax.node nullKind (stack.extract startSize stack.size);
-    let stack := stack.shrink startSize;
-    ⟨stack.push node, pos, cache, none⟩
-
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, _⟩ =>
@@ -1223,24 +1232,69 @@ match s with
   let stack := stack.push node;
   ⟨stack, pos, cache, none⟩
 
-def replaceLongest (s : ParserState) (startStackSize : Nat) (prevStackSize : Nat) : ParserState :=
-let s := s.mkLongestNodeAlt prevStackSize;
+def replaceLongest (s : ParserState) (startStackSize : Nat) : ParserState :=
 s.keepLatest startStackSize
 
 end ParserState
 
-def longestMatchStep (startSize : Nat) (startPos : String.Pos) (p : ParserFn) : ParserFn :=
+/--
+ Auxiliary function used to execute parsers provided to `longestMatchFn`.
+ Push `left?` into the stack if it is not `none`, and execute `p`.
+ After executing `p`, remove `left` and combine `p` results.
+
+ Remark: the `left?` is not none when we are processing trailing parsers. -/
+@[inline] def runLongestMatchParser (left? : Option Syntax) (p : ParserFn) : ParserFn :=
+fun c s =>
+  let startSize := s.stackSize;
+  match left? with
+  | none      =>
+    let s := p c s;
+    if s.hasError then s
+    else
+      -- stack contains `[..., result_1, ... result_n ]` we must combine the different result nodes
+      let currSize := s.stackSize;
+      if currSize == startSize + 1 then
+        -- `p` created one node
+        s
+      else
+        -- `p` created more than one node, we combine them into a single node
+        let r := Syntax.node nullKind (s.stxStack.extract startSize currSize);
+        let s := s.shrinkStack startSize;
+        s.pushSyntax r
+  | some left =>
+    let s         := s.pushSyntax left;
+    let s         := p c s;
+    if s.hasError then s
+    else
+      -- stack contains `[..., left, result_1, ... result_n ]` we must remove `left`, and combine the different result nodes
+      let currSize := s.stackSize;
+      if currSize == startSize + 1 then
+        -- `p` did not create any node, then we just remove `left` and add `Syntax.missing`
+        let s := s.shrinkStack startSize;
+        s.pushSyntax Syntax.missing
+      else if currSize == startSize + 2 then
+        -- `p` created one node, then we just remove `left` and keep it
+        let r := s.stxStack.back;
+        let s := s.shrinkStack startSize; -- remove `r` and `left`
+        s.pushSyntax r -- add `r` back
+      else
+        -- `p` created more than one node, we combine them into a single node
+        let r := Syntax.node nullKind (s.stxStack.extract (startSize+1) currSize);
+        let s := s.shrinkStack startSize;
+        s.pushSyntax r
+
+def longestMatchStep (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) (p : ParserFn) : ParserFn :=
 fun c s =>
 let prevErrorMsg  := s.errorMsg;
 let prevStopPos   := s.pos;
 let prevSize      := s.stackSize;
 let s             := s.restore prevSize startPos;
-let s             := p c s;
+let s             := runLongestMatchParser left? p c s;
 match prevErrorMsg, s.errorMsg with
 | none, none   => -- both succeeded
-  if s.pos > prevStopPos      then s.replaceLongest startSize prevSize -- replace
-  else if s.pos < prevStopPos then s.restore prevSize prevStopPos      -- keep prev
-  else s.mkLongestNodeAlt prevSize                                     -- keep both
+  if s.pos > prevStopPos      then s.replaceLongest startSize
+  else if s.pos < prevStopPos then s.restore prevSize prevStopPos -- keep prev
+  else s
 | none, some _ => -- prev succeeded, current failed
   s.restore prevSize prevStopPos
 | some oldError, some _ => -- both failed
@@ -1248,7 +1302,6 @@ match prevErrorMsg, s.errorMsg with
   else if s.pos < prevStopPos then s.keepPrevError prevSize prevStopPos prevErrorMsg
   else s.mergeErrors prevSize oldError
 | some _, none => -- prev failed, current succeeded
-  let s           := s.mkLongestNodeAlt prevSize; -- create successful alternative on the top of the stack
   let successNode := s.stxStack.back;
   let s           := s.shrinkStack startSize; -- restore stack to initial size to make sure (failure) nodes are removed from the stack
   s.pushSyntax successNode -- put successNode back on the stack
@@ -1256,31 +1309,24 @@ match prevErrorMsg, s.errorMsg with
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
 if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
-def longestMatchFnAux (startSize : Nat) (startPos : String.Pos) : List Parser → ParserFn
+def longestMatchFnAux (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) : List Parser → ParserFn
 | []    => fun _ s => longestMatchMkResult startSize s
 | p::ps => fun c s =>
-   let s := longestMatchStep startSize startPos p.fn c s;
+   let s := longestMatchStep left? startSize startPos p.fn c s;
    longestMatchFnAux ps c s
 
-def longestMatchFn₁ (p : ParserFn) : ParserFn :=
-fun c s =>
-let startSize := s.stackSize;
-let s := p c s;
-if s.hasError then s else s.mkLongestNodeAlt startSize
-
-def longestMatchFn : List Parser → ParserFn
+def longestMatchFn (left? : Option Syntax) : List Parser → ParserFn
 | []    => fun _ s => s.mkError "longestMatch: empty list"
-| [p]   => longestMatchFn₁ p.fn
+| [p]   => runLongestMatchParser left? p.fn
 | p::ps => fun c s =>
   let startSize := s.stackSize;
   let startPos  := s.pos;
-  let s         := p.fn c s;
+  let s         := runLongestMatchParser left? p.fn c s;
   if s.hasError then
     let s := s.shrinkStack startSize;
-    longestMatchFnAux startSize startPos ps c s
+    longestMatchFnAux left? startSize startPos ps c s
   else
-    let s := s.mkLongestNodeAlt startSize;
-    longestMatchFnAux startSize startPos ps c s
+    longestMatchFnAux left? startSize startPos ps c s
 
 def anyOfFn : List Parser → ParserFn
 | [],    _, s => s.mkError "anyOf: empty list"
@@ -1522,16 +1568,14 @@ fun c s =>
   if ps.isEmpty then
     s.mkError (toString kind)
   else
-    let s := longestMatchFn ps c s;
+    let s := longestMatchFn none ps c s;
     mkResult s iniSz
 
 @[inline] def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
 withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol)
 
-def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
-fun c s =>
-  -- del anyOfFn ---> merge `ps` and `tables.trailingParsers`
-  orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) c s
+def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List Parser) : ParserFn :=
+fun c s => longestMatchFn left (ps ++ tables.trailingParsers) c s
 
 private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
 let s := mkResult s iniSz;
@@ -1548,10 +1592,10 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   if ps.isEmpty && tables.trailingParsers.isEmpty then
     s -- no available trailing parser
   else
-    let c             := { c with left := s.stxStack.back };
+    let left   := s.stxStack.back;
     let iniSz  := s.stackSize;
     let iniPos := s.pos;
-    let s := trailingLoopStep tables ps c s;
+    let s      := trailingLoopStep tables left ps c s;
     if s.hasError then
       if s.pos == iniPos then s.restore iniSz iniPos else s
     else

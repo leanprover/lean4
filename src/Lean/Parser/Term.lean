@@ -147,13 +147,13 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser!:65 "-" >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 (namedArgument <|> termParser maxPrec)
+@[builtinTermParser] def app      := tparser!:(maxPrec-1) checkWsBeforeIfSymbol "[" "expected space before '['" >> many1 (namedArgument <|> termParser maxPrec)
 
 @[builtinTermParser] def proj     := tparser! symbolNoWs "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def arrayRef := tparser! symbolNoWs "[" >> termParser >>"]"
 
-@[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "space expected") >> termParser 0
+@[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 "$." >> (fieldIdx <|> ident)
 
 @[builtinTermParser] def «where»    := tparser!:0 " where " >> sepBy1 letDecl (group ("; " >> symbol " where "))

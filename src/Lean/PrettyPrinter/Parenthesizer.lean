@@ -387,6 +387,7 @@ addLbp prec
 def trailingNode.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
 k ← evalName $ p.getArg! 0;
+prec ← evalNat $ p.getArg! 1;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
@@ -399,8 +400,7 @@ visitArgs $ do {
   -- parser is calling us; we only need to know its `mkParen`, which we retrieve from the context.
   { mkParen := some mkParen, .. } ← read
     | panic! "trailingNode.parenthesizer called outside of visitParenthesizable call";
-  { minLbp := trailLbp, .. } ← get;
-  visitAntiquot <|> visitParenthesizable mkParen 0 trailLbp;
+  visitAntiquot <|> visitParenthesizable mkParen 0 prec;
   visit p.appArg!
 }
 

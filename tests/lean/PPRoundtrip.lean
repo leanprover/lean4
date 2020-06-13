@@ -49,7 +49,7 @@ def typeAs.{u} (α : Type u) (a : α) := ()
 #eval check `(fun (a : Nat) (b : Bool) => a)
 #eval check `(fun {a b : Nat} => a)
 -- implicit lambdas work as long as the expected type is preserved
-#eval check `(typeAs ({α : Type} → (a : α) → α) (fun a => a))
+#eval check `(typeAs ({α : Type} → (a : α) → α) fun a => a)
 section set_option pp.explicit true
   #eval check `(fun {α : Type} [HasToString α] (a : α) => toString a)
 end

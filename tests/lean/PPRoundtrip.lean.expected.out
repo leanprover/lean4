@@ -71,18 +71,13 @@
      (Term.arrow (Term.id `α (null)) "→" (Term.id `α (null))))
     (null))
    ")")
-  (Term.paren
-   "("
+  (Term.fun
+   "fun"
    (null
-    (Term.fun
-     "fun"
-     (null
-      (Term.implicitBinder "{" (null `α) (null ":" (Term.type "Type" (null))) "}")
-      (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `α (null))))) ")"))
-     "=>"
-     (Term.id `a (null)))
-    (null))
-   ")")))
+    (Term.implicitBinder "{" (null `α) (null ":" (Term.type "Type" (null))) "}")
+    (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `α (null))))) ")"))
+   "=>"
+   (Term.id `a (null)))))
 (Term.fun
  "fun"
  (null

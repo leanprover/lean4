@@ -1,8 +1,6 @@
-id : ?m_1 → ?m_1
-precissues.lean:3:10: error: expected command
+id (λ (x : ?m_1), x) : ?m_1 → ?m_1
 0 : Nat
-f 1 : (Nat → Nat) → Nat
-precissues.lean:9:11: error: expected command
+f 1 (λ (x : Nat), x) : Nat
 0 : Nat
 f 1 (λ (x : Nat), x) : Nat
 id : ?m_1 → ?m_1

@@ -203,8 +203,6 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def seqLeft     := tparser! infixL " <* "  60
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
-@[builtinTermParser] def mapConst    := tparser! infixR " <$ "  100
-@[builtinTermParser] def mapConstRev := tparser! infixR " $> "  100
 
 @[builtinTermParser] def tacticBlock := parser! "begin " >> Tactic.seq >> "end"
 @[builtinTermParser] def byTactic    := parser!:leadPrec "by " >> Tactic.nonEmptySeq

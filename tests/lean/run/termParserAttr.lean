@@ -15,6 +15,8 @@ open Lean.Parser
 
 @[termParser] def tst := parser! "(|" >> termParser >> optional (symbol ", " >> termParser) >> "|)"
 
+def tst2 : Parser := symbol "(||" >> termParser >> symbol "||)"
+
 @[termParser] def boo : ParserDescr :=
 ParserDescr.node `boo 10
   (ParserDescr.andthen
@@ -22,6 +24,9 @@ ParserDescr.node `boo 10
     (ParserDescr.andthen
       (ParserDescr.cat `term 0)
       (ParserDescr.symbol "|]")))
+
+@[termParser] def boo2 : ParserDescr :=
+ParserDescr.node `boo2 10 (ParserDescr.parser `tst2)
 
 open Lean.Elab.Term
 
@@ -34,8 +39,16 @@ adaptExpander $ fun stx => match_syntax stx with
 fun stx expected? =>
   elabTerm (stx.getArg 1) expected?
 
+@[termElab boo2] def elabBool2 : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+ | `((|| $e ||)) => `($e + 1)
+ | _             => throwUnsupportedSyntax
+
 #eval run "#check [| @id.{1} Nat |]"
 #eval run "#check (| id 1 |)"
+#eval run "#check (|| id 1 ||)"
+
+
 -- #eval run "#check (| id 1, id 1 |)" -- it will fail
 
 @[termElab tst] def elabTst2 : TermElab :=

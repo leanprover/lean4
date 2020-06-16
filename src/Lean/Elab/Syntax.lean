@@ -111,7 +111,9 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
          let candidates := candidates.map fun ⟨c, _⟩ => c;
          match candidates with
          | []  => liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "' or parser declaration")
-         | [c] => `(ParserDescr.parser $(quote c))
+         | [c] => do
+           unless prec?.isNone $ liftM $ throwError (stx.getArg 3) "unexpected precedence";
+           `(ParserDescr.parser $(quote c))
          | cs  => liftM $ throwError (stx.getArg 3) ("ambiguous parser declaration " ++ toString cs)
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with

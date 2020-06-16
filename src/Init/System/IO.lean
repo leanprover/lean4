@@ -103,6 +103,10 @@ constant stdout : IO FS.Handle := arbitrary _
 @[extern "lean_get_stderr"]
 constant stderr : IO FS.Handle := arbitrary _
 
+/-- Run action with `stdin` closed and `stdout+stderr` captured into a `String`. -/
+@[extern "lean_with_isolated_streams"]
+constant withIsolatedStreams {α : Type} : IO α → IO (String × Except IO.Error α) := arbitrary _
+
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
   v ← f a;

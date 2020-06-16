@@ -20,7 +20,7 @@ ParserDescr.node `boo 10
   (ParserDescr.andthen
     (ParserDescr.symbol "[|")
     (ParserDescr.andthen
-      (ParserDescr.parser `term 0)
+      (ParserDescr.cat `term 0)
       (ParserDescr.symbol "|]")))
 
 open Lean.Elab.Term

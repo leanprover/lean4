@@ -156,6 +156,7 @@ inductive ParserDescr
 | nameLit           : ParserDescr
 | ident             : ParserDescr
 | cat               : Name → Nat → ParserDescr
+| parser            : Name → ParserDescr
 
 instance ParserDescr.inhabited : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
 abbrev TrailingParserDescr := ParserDescr

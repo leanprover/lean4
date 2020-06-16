@@ -1753,7 +1753,38 @@ match e with
   | Except.ok categories => { s with categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName :: s.newEntries }
   | _ => unreachable!
 
-def compileParserDescr (categories : ParserCategories) : ParserDescr → Except String (Parser)
+unsafe def mkParserOfConstantUnsafe
+    (env : Environment) (categories : ParserCategories) (constName : Name)
+    (compileParserDescr : ParserDescr → Except String Parser)
+    : Except String (Bool × Parser) :=
+match env.find? constName with
+| none      => throw ("unknow constant '" ++ toString constName ++ "'")
+| some info =>
+  match info.type with
+  | Expr.const `Lean.Parser.TrailingParser _ _ => do
+    p ← env.evalConst Parser constName;
+    pure ⟨false, p⟩
+  | Expr.const `Lean.Parser.Parser _ _ => do
+    p ← env.evalConst Parser constName;
+    pure ⟨true, p⟩
+  | Expr.const `Lean.ParserDescr _ _ => do
+    d ← env.evalConst ParserDescr constName;
+    p ← compileParserDescr d;
+    pure ⟨true, p⟩
+  | Expr.const `Lean.TrailingParserDescr _ _ => do
+    d ← env.evalConst TrailingParserDescr constName;
+    p ← compileParserDescr d;
+    pure ⟨false, p⟩
+  | _ => throw ("unexpected parser type at '" ++ toString constName ++ "' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected")
+
+@[implementedBy mkParserOfConstantUnsafe]
+constant mkParserOfConstantAux
+    (env : Environment) (categories : ParserCategories) (constName : Name)
+    (compileParserDescr : ParserDescr → Except String Parser)
+    : Except String (Bool × Parser) :=
+arbitrary _
+
+partial def compileParserDescr (env : Environment) (categories : ParserCategories) : ParserDescr → Except String Parser
 | ParserDescr.andthen d₁ d₂                       => andthen <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | ParserDescr.orelse d₁ d₂                        => orelse <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | ParserDescr.optional d                          => optional <$> compileParserDescr d
@@ -1772,35 +1803,16 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.nameLit                             => pure $ nameLit
 | ParserDescr.ident                               => pure $ ident
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
+| ParserDescr.parser constName                    => do
+  (_, p) ← mkParserOfConstantAux env categories constName compileParserDescr;
+  pure p
 | ParserDescr.cat catName prec                    =>
   match categories.find? catName with
   | some _ => pure $ categoryParser catName prec
   | none   => throwUnknownParserCategory catName
 
-unsafe def mkParserOfConstantUnsafe (env : Environment) (categories : ParserCategories) (constName : Name) : Except String (Bool × Parser) :=
-match env.find? constName with
-| none      => throw ("unknow constant '" ++ toString constName ++ "'")
-| some info =>
-  match info.type with
-  | Expr.const `Lean.Parser.TrailingParser _ _ => do
-    p ← env.evalConst Parser constName;
-    pure ⟨false, p⟩
-  | Expr.const `Lean.Parser.Parser _ _ => do
-    p ← env.evalConst Parser constName;
-    pure ⟨true, p⟩
-  | Expr.const `Lean.ParserDescr _ _ => do
-    d ← env.evalConst ParserDescr constName;
-    p ← compileParserDescr categories d;
-    pure ⟨true, p⟩
-  | Expr.const `Lean.TrailingParserDescr _ _ => do
-    d ← env.evalConst TrailingParserDescr constName;
-    p ← compileParserDescr categories d;
-    pure ⟨false, p⟩
-  | _ => throw ("unexpected parser type at '" ++ toString constName ++ "' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected")
-
-@[implementedBy mkParserOfConstantUnsafe]
-constant mkParserOfConstant (env : Environment) (categories : ParserCategories) (constName : Name) : Except String (Bool × Parser) :=
-arbitrary _
+def mkParserOfConstant (env : Environment) (categories : ParserCategories) (constName : Name) : Except String (Bool × Parser) :=
+mkParserOfConstantAux env categories constName (compileParserDescr env categories)
 
 private def ParserExtension.addImported (env : Environment) (es : Array (Array ParserExtensionOleanEntry)) : IO ParserExtensionState := do
 s ← ParserExtension.mkInitial;

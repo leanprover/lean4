@@ -7,6 +7,7 @@
 # * `leanmake PKG=Foo`  # compile package Foo into .olean files (in `build/Foo`, by default)
 # * `leanmake bin PKG=Foo`  # build the binary `build/bin/Foo`
 # * `leanmake lib PKG=Foo`  # build the library `build/lib/libFoo.a`
+# If there is exactly one .lean file in the current directory, you can omit `PKG`
 
 set -euo pipefail
 

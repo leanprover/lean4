@@ -73,8 +73,6 @@ reserve infixl ` <* ` :60
 reserve infixr ` *> ` :60
 reserve infixr ` >> ` :60
 reserve infixr ` <$> `:100
-reserve infixr ` <$ ` :100
-reserve infixr ` $> ` :100
 reserve infixl ` <&> `:100
 
 universes u v w

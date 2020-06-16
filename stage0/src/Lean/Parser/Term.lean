@@ -96,7 +96,7 @@ def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
 def funBinder : Parser := implicitBinder <|> instBinder <|> termParser maxPrec
-@[builtinTermParser] def «fun» := parser!:leadPrec unicodeSymbol "λ" "fun" >> many1 funBinder >> darrow >> termParser
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
@@ -135,7 +135,7 @@ def doElem := doLet <|> doId <|> doPat <|> doExpr
 def doSeq  := sepBy1 doElem "; "
 def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
-@[builtinTermParser] def «do»  := parser!:leadPrec "do " >> (bracketedDoSeq <|> doSeq)
+@[builtinTermParser] def «do»  := parser!:maxPrec "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec
@@ -147,13 +147,13 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser!:65 "-" >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 (namedArgument <|> termParser maxPrec)
+@[builtinTermParser] def app      := tparser!:(maxPrec-1) checkWsBefore "expected space" >> many1 (namedArgument <|> termParser maxPrec)
 
 @[builtinTermParser] def proj     := tparser! symbolNoWs "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def arrayRef := tparser! symbolNoWs "[" >> termParser >>"]"
 
-@[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "space expected") >> termParser 0
+@[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 "$." >> (fieldIdx <|> ident)
 
 @[builtinTermParser] def «where»    := tparser!:0 " where " >> sepBy1 letDecl (group ("; " >> symbol " where "))
@@ -203,8 +203,6 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def seqLeft     := tparser! infixL " <* "  60
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
-@[builtinTermParser] def mapConst    := tparser! infixR " <$ "  100
-@[builtinTermParser] def mapConstRev := tparser! infixR " $> "  100
 
 @[builtinTermParser] def tacticBlock := parser! "begin " >> Tactic.seq >> "end"
 @[builtinTermParser] def byTactic    := parser!:leadPrec "by " >> Tactic.nonEmptySeq

@@ -1,6 +1,15 @@
 # Copyright (c) 2018 Simon Hudon. All rights reserved.
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Simon Hudon, Sebastian Ullrich, Leonardo de Moura
+
+# We compile all source files in $PKG/ as well as $PKG.lean. $PKG is also used for naming binary files.
+ifndef PKG
+  PKG = $(strip $(subst .lean,, $(wildcard *.lean)))
+  ifneq ($(words $(PKG)), 1)
+    $(error no unique .lean file found in current directory, please specify PKG)
+  endif
+endif
+
 OUT = build
 OLEAN_OUT = $(OUT)
 TEMP_OUT = $(OUT)/temp

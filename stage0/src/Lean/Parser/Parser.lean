@@ -30,9 +30,6 @@ output on the stack. Combinators such as `node` then pop off all syntax objects 
 wrap them in a single `Syntax.node` object that is again pushed on this stack. Instead of calling `node` directly, we
 usually use the macro `parser! p`, which unfolds to `node k p` where the new syntax node kind `k` is the name of the
 declaration being defined.
-We remark the design is inspired by the "Arrow"-approach described at the paper "Generalizing Monads to Arrows", and
-used at the Swierstra and Duponcheel's parsing library (SDPL). As in SDPL, a parser is a combination of static information
-(`ParserInfo`) which is computed before parsing begins, and the parsing function `ParserState → ParserState`.
 
 The lack of a dedicated lexer ensures we can modify and replace the lexical grammar at any point, and simplifies
 detecting and propagating whitespace. The parser still has a concept of "tokens", however, and caches the most recent
@@ -40,15 +37,16 @@ one for performance: when `tokenFn` is called twice at the same position in the 
 first call. `tokenFn` recognizes some built-in variable-length tokens such as identifiers as well as any fixed token in
 the `ParserContext`'s `TokenTable` (a trie); however, the same cache field and strategy could be reused by custom token
 parsers. Tokens also play a central role in the `prattParser` combinator, which selects a *leading* parser followed by
-zero or more *trailing* parsers based on the current token (via `peekToken`) and its associated precedence; see the
-documentation of `prattParser` for more details. Token precedences are specified via the `symbol` parser, or with
-`symbolNoWs` for tokens that should not be preceded by whitespace. The `Parser` type is extended with additional
-metadata over the mere parsing function to propagate token information: `collectTokens` collects all tokens within a
-parser for registering. `firstTokens` holds information about the "FIRST" token set used to speed up parser selection in
-`prattParser`. If multiple parsers accept the same current token, `prattParser` tries all of them using the backtracking
-`longestMatchFn` combinator. This is the only case where standard parsers might execute arbitrary backtracking. At the
-moment there is no memoization shared by these parallel parsers apart from the first token, though we might change this
-in the future if the need arises.
+zero or more *trailing* parsers based on the current token (via `peekToken`); see the documentation of `prattParser`
+for more details. Tokens are specified via the `symbol` parser, or with `symbolNoWs` for tokens that should not be preceded by whitespace.
+
+The `Parser` type is extended with additional metadata over the mere parsing function to propagate token information:
+`collectTokens` collects all tokens within a parser for registering. `firstTokens` holds information about the "FIRST"
+token set used to speed up parser selection in `prattParser`. This approach of combining static and dynamic information
+in the parser type is inspired by the paper "Deterministic, Error-Correcting Combinator Parsers" by Swierstra and Duponcheel.
+If multiple parsers accept the same current token, `prattParser` tries all of them using the backtracking `longestMatchFn` combinator.
+This is the only case where standard parsers might execute arbitrary backtracking. At the moment there is no memoization shared by these
+parallel parsers apart from the first token, though we might change this in the future if the need arises.
 
 Finally, error reporting follows the standard combinatoric approach of collecting a single unexpected token/... and zero
 or more expected tokens (see `Error` below). Expected tokens are e.g. set by `symbol` and merged by `<|>`. Combinators
@@ -85,14 +83,11 @@ Syntax.ident info rawVal val []
 def getNext (input : String) (pos : Nat) : Char :=
 input.get (input.next pos)
 
-/- Function application precedence.
-   In the standard lean language, only two tokens have precedence higher that `maxPrec`.
-   - The token `.` has precedence `maxPrec+1`. Thus, field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
-     not `(g (h x)).f`
-   - The token `[` when not preceded with whitespace has precedence `maxPrec+1`. If there is whitespace before
-     `[`, then its precedence is `maxPrec`. Thus, `f a[i]` is parsed as `f (a[i])` where `a[i]` is an "find-like operation"
-      (e.g., array access, map access, etc.). `f a [i]` is parsed as `(f a) [i]` where `[i]` is a singleton collection
-      (e.g., a list). -/
+/- Maximal (and function application) precedence.
+   In the standard lean language, no parser has precedence higher than `maxPrec`.
+
+   Note that nothing prevents users from using a higher precedence, but we strongly
+   discourage them from doing it. -/
 def maxPrec : Nat := 1024
 
 abbrev Token := String
@@ -127,7 +122,6 @@ instance InputContext.inhabited : Inhabited InputContext :=
 
 structure ParserContext extends InputContext :=
 (prec     : Nat)
-(left     : Syntax := Syntax.missing)
 (env      : Environment)
 (tokens   : TokenTable)
 
@@ -219,10 +213,10 @@ match s with
     let stack   := stack.push newNode;
     ⟨stack, pos, cache, err⟩
 
-def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (left : Syntax) (iniStackSz : Nat) : ParserState :=
+def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, err⟩ =>
-  let newNode := Syntax.node k (#[left] ++ stack.extract iniStackSz stack.size);
+  let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size);
   let stack   := stack.shrink iniStackSz;
   let stack   := stack.push newNode;
   ⟨stack, pos, cache, err⟩
@@ -346,7 +340,7 @@ instance hasAndthen : HasAndthen Parser :=
 | c, s =>
   let iniSz := s.stackSize;
   let s     := p c s;
-  s.mkTrailingNode n c.left iniSz
+  s.mkTrailingNode n iniSz
 
 @[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens,
@@ -1204,17 +1198,6 @@ match s with
   else ⟨stack.shrink oldStackSize, pos, cache, some (oldError.merge err)⟩
 | other                         => other
 
-def mkLongestNodeAlt (s : ParserState) (startSize : Nat) : ParserState :=
-match s with
-| ⟨stack, pos, cache, _⟩ =>
-  if stack.size == startSize then ⟨stack.push Syntax.missing, pos, cache, none⟩ -- parser did not create any node, then we just add `Syntax.missing`
-  else if stack.size == startSize + 1 then s
-  else
-    -- parser created more than one node, combine them into a single node
-    let node := Syntax.node nullKind (stack.extract startSize stack.size);
-    let stack := stack.shrink startSize;
-    ⟨stack.push node, pos, cache, none⟩
-
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, _⟩ =>
@@ -1223,24 +1206,60 @@ match s with
   let stack := stack.push node;
   ⟨stack, pos, cache, none⟩
 
-def replaceLongest (s : ParserState) (startStackSize : Nat) (prevStackSize : Nat) : ParserState :=
-let s := s.mkLongestNodeAlt prevStackSize;
+def replaceLongest (s : ParserState) (startStackSize : Nat) : ParserState :=
 s.keepLatest startStackSize
 
 end ParserState
 
-def longestMatchStep (startSize : Nat) (startPos : String.Pos) (p : ParserFn) : ParserFn :=
+def invalidLongestMatchParser (s : ParserState) : ParserState :=
+s.mkError "longestMatch parsers must generate exactly one Syntax node"
+
+/--
+ Auxiliary function used to execute parsers provided to `longestMatchFn`.
+ Push `left?` into the stack if it is not `none`, and execute `p`.
+ After executing `p`, remove `left`.
+
+ Remark: `p` must produce exactly one syntax node.
+ Remark: the `left?` is not none when we are processing trailing parsers. -/
+@[inline] def runLongestMatchParser (left? : Option Syntax) (p : ParserFn) : ParserFn :=
+fun c s =>
+  let startSize := s.stackSize;
+  match left? with
+  | none      =>
+    let s := p c s;
+    if s.hasError then s
+    else
+      -- stack contains `[..., result ]`
+      if s.stackSize == startSize + 1 then
+        s
+      else
+        invalidLongestMatchParser s
+  | some left =>
+    let s         := s.pushSyntax left;
+    let s         := p c s;
+    if s.hasError then s
+    else
+      -- stack contains `[..., left, result ]` we must remove `left`
+      if s.stackSize == startSize + 2 then
+        -- `p` created one node, then we just remove `left` and keep it
+        let r := s.stxStack.back;
+        let s := s.shrinkStack startSize; -- remove `r` and `left`
+        s.pushSyntax r -- add `r` back
+      else
+        invalidLongestMatchParser s
+
+def longestMatchStep (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) (p : ParserFn) : ParserFn :=
 fun c s =>
 let prevErrorMsg  := s.errorMsg;
 let prevStopPos   := s.pos;
 let prevSize      := s.stackSize;
 let s             := s.restore prevSize startPos;
-let s             := p c s;
+let s             := runLongestMatchParser left? p c s;
 match prevErrorMsg, s.errorMsg with
 | none, none   => -- both succeeded
-  if s.pos > prevStopPos      then s.replaceLongest startSize prevSize -- replace
-  else if s.pos < prevStopPos then s.restore prevSize prevStopPos      -- keep prev
-  else s.mkLongestNodeAlt prevSize                                     -- keep both
+  if s.pos > prevStopPos      then s.replaceLongest startSize
+  else if s.pos < prevStopPos then s.restore prevSize prevStopPos -- keep prev
+  else s
 | none, some _ => -- prev succeeded, current failed
   s.restore prevSize prevStopPos
 | some oldError, some _ => -- both failed
@@ -1248,7 +1267,6 @@ match prevErrorMsg, s.errorMsg with
   else if s.pos < prevStopPos then s.keepPrevError prevSize prevStopPos prevErrorMsg
   else s.mergeErrors prevSize oldError
 | some _, none => -- prev failed, current succeeded
-  let s           := s.mkLongestNodeAlt prevSize; -- create successful alternative on the top of the stack
   let successNode := s.stxStack.back;
   let s           := s.shrinkStack startSize; -- restore stack to initial size to make sure (failure) nodes are removed from the stack
   s.pushSyntax successNode -- put successNode back on the stack
@@ -1256,31 +1274,24 @@ match prevErrorMsg, s.errorMsg with
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
 if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
-def longestMatchFnAux (startSize : Nat) (startPos : String.Pos) : List Parser → ParserFn
+def longestMatchFnAux (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) : List Parser → ParserFn
 | []    => fun _ s => longestMatchMkResult startSize s
 | p::ps => fun c s =>
-   let s := longestMatchStep startSize startPos p.fn c s;
+   let s := longestMatchStep left? startSize startPos p.fn c s;
    longestMatchFnAux ps c s
 
-def longestMatchFn₁ (p : ParserFn) : ParserFn :=
-fun c s =>
-let startSize := s.stackSize;
-let s := p c s;
-if s.hasError then s else s.mkLongestNodeAlt startSize
-
-def longestMatchFn : List Parser → ParserFn
+def longestMatchFn (left? : Option Syntax) : List Parser → ParserFn
 | []    => fun _ s => s.mkError "longestMatch: empty list"
-| [p]   => longestMatchFn₁ p.fn
+| [p]   => runLongestMatchParser left? p.fn
 | p::ps => fun c s =>
   let startSize := s.stackSize;
   let startPos  := s.pos;
-  let s         := p.fn c s;
+  let s         := runLongestMatchParser left? p.fn c s;
   if s.hasError then
     let s := s.shrinkStack startSize;
-    longestMatchFnAux startSize startPos ps c s
+    longestMatchFnAux left? startSize startPos ps c s
   else
-    let s := s.mkLongestNodeAlt startSize;
-    longestMatchFnAux startSize startPos ps c s
+    longestMatchFnAux left? startSize startPos ps c s
 
 def anyOfFn : List Parser → ParserFn
 | [],    _, s => s.mkError "anyOf: empty list"
@@ -1330,7 +1341,7 @@ structure PrattParsingTables :=
 instance PrattParsingTables.inhabited : Inhabited PrattParsingTables := ⟨{}⟩
 
 /--
-  Each parser category is implemented using Pratt's parser.
+  Each parser category is implemented using a Pratt's parser.
   The system comes equipped with the following categories: `level`, `term`, `tactic`, and `command`.
   Users and plugins may define extra categories.
 
@@ -1348,7 +1359,16 @@ instance PrattParsingTables.inhabited : Inhabited PrattParsingTables := ⟨{}⟩
   use this approach to avoid creating a reserved symbol for each
   builtin tactic (e.g., `apply`, `assumption`, etc.).  That is, users
   may still use these symbols as identifiers (e.g., naming a
-  function). -/
+  function).
+
+  The method
+  ```
+  categoryParser `term prec
+  ```
+  executes the Pratt's parser for category `term` with precedence `prec`.
+  That is, only parsers with precedence at least `prec` are considered.
+  The method `termParser prec` is equivalent to the method above.
+-/
 structure ParserCategory :=
 (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool)
 
@@ -1522,16 +1542,14 @@ fun c s =>
   if ps.isEmpty then
     s.mkError (toString kind)
   else
-    let s := longestMatchFn ps c s;
+    let s := longestMatchFn none ps c s;
     mkResult s iniSz
 
 @[inline] def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
 withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol)
 
-def trailingLoopStep (tables : PrattParsingTables) (ps : List Parser) : ParserFn :=
-fun c s =>
-  -- del anyOfFn ---> merge `ps` and `tables.trailingParsers`
-  orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) c s
+def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List Parser) : ParserFn :=
+fun c s => longestMatchFn left (ps ++ tables.trailingParsers) c s
 
 private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
 let s := mkResult s iniSz;
@@ -1548,10 +1566,10 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
   if ps.isEmpty && tables.trailingParsers.isEmpty then
     s -- no available trailing parser
   else
-    let c             := { c with left := s.stxStack.back };
+    let left   := s.stxStack.back;
     let iniSz  := s.stackSize;
     let iniPos := s.pos;
-    let s := trailingLoopStep tables ps c s;
+    let s      := trailingLoopStep tables left ps c s;
     if s.hasError then
       if s.pos == iniPos then s.restore iniSz iniPos else s
     else
@@ -1560,21 +1578,21 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) : Par
 
 /--
 
-  Implements a recursive precedence parser according to Pratt's algorithm: select a parser (or more, via
-  `longestMatchFn`) from `leadingTable` based on the current token (falling back to unindexed `leadingParsers` such as
-  application), then chain with parsers from `trailingTable`/`trailingParsers` as long as the precedence of the current
-  token is higher than `prec` of the parser state.
+  Implements a variant of Pratt's algorithm. In Pratt's algorithms tokens have a right and left binding power.
+  In our implementation, parsers have precedence instead. This method selects a parser (or more, via
+  `longestMatchFn`) from `leadingTable` based on the current token. Note that the unindexed `leadingParsers` parsers
+  are also tried. We have the unidexed `leadingParsers` because some parsers do not have a "first token". Example:
+  ```
+  syntax term:51 "≤" ident "<" term "|" term : index
+  ```
+  Example, in principle, the set of first tokens for this parser is any token that can start a term, but this set
+  is always changing. Thus, this parsing rule is stored as an unindexed leading parser at `leadingParsers`.
+  After processing the leading parser, we chain with parsers from `trailingTable`/`trailingParsers` that have precedence
+  at least `c.prec` where `c` is the `ParsingContext`. Recall that `c.prec` is set by `categoryParser`.
 
-  As an extension of the original algorithm, we also check the current token's precedence before calling the leading
-  parser(s). We do this so we can define an n-ary application parser:
-  ```
-  @[builtinTermParser] def app := tparser! many1 (namedArgument <|> termParser maxPrec)
-  ```
-  If the nested `termParser maxPrec` did not check the precedence of the first token, we would accept bogus input such as
-  `f x fun y => y` because we would never check the precedence of `fun`. Note that, in contrast to trailing tokens, a
-  leading token is accepted if its precedence is *at least* `prec`. This is necessary so that `f x y` is not parsed as
-  `f (x y)`: the nested `termParser` call must accept the leading token `x` but not the trailing token `y`. But both have
-  the same precedence as identifiers, so we must use different comparisons.
+  Note that in the original Pratt's algorith, precedences are only checked before calling trailing parsers. In our
+  implementation, leading *and* trailing parsers check the precendece. We claim our algorithm is more flexible,
+  modular and easier to understand.
 
   `antiquotParser` should be a `mkAntiquot` parser (or always fail) and is tried before all other parsers.
   It should not be added to the regular leading parsers because it would heavily

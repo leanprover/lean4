@@ -41,9 +41,11 @@ lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_2__updateLeadingAux(lean_object*, lean_object*);
 lean_object* l_Lean_Substring_HasQuote___closed__4;
 lean_object* l_Lean_Syntax_HasToString;
+lean_object* l_Lean_Syntax_getAtomVal_x21___closed__2;
 lean_object* l___private_Lean_Syntax_8__quoteList___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Array_hasQuote___rarg___closed__2;
 lean_object* l___private_Lean_Syntax_8__quoteList___rarg(lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_7__quoteName(lean_object*);
 lean_object* l_Lean_SyntaxNode_withArgs(lean_object*);
 lean_object* l___private_Lean_Syntax_3__updateLast(lean_object*);
@@ -51,10 +53,12 @@ lean_object* l___private_Lean_Syntax_8__quoteList___main___rarg___closed__1;
 lean_object* l_Lean_Substring_HasQuote(lean_object*);
 lean_object* l_Lean_Substring_HasQuote___closed__2;
 lean_object* l_Lean_Substring_HasQuote___closed__1;
+lean_object* l_Lean_Syntax_getAtomVal_x21___boxed(lean_object*);
 lean_object* l_Lean_Substring_HasQuote___boxed(lean_object*);
 lean_object* l_Lean_Syntax_reprint___main(lean_object*);
 lean_object* l___private_Lean_Syntax_8__quoteList___main___rarg___closed__2;
 lean_object* l_Lean_Syntax_mrewriteBottomUp___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getAtomVal_x21___closed__1;
 lean_object* l_Lean_Syntax_mrewriteBottomUp(lean_object*);
 lean_object* l_Lean_Syntax_ifNodeKind(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -161,6 +165,7 @@ extern lean_object* l_String_Iterator_HasRepr___closed__2;
 lean_object* l_Lean_List_hasQuote(lean_object*);
 lean_object* l___private_Lean_Syntax_8__quoteList___main___rarg___closed__7;
 lean_object* l_Lean_Syntax_getTailInfo___main___boxed(lean_object*);
+lean_object* l_Lean_Syntax_getAtomVal_x21___closed__3;
 lean_object* l_Lean_Syntax_ifNode___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_asNode___boxed(lean_object*);
 lean_object* l_Lean_Syntax_mreplace___main___at_Lean_Syntax_updateLeading___spec__1(lean_object*, lean_object*);
@@ -202,6 +207,7 @@ lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Syntax_HasToString___closed__2;
 lean_object* l_Lean_Syntax_mrewriteBottomUp___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_withArgs___rarg(lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__1;
 lean_object* l___private_Lean_Syntax_8__quoteList(lean_object*);
 lean_object* l_Lean_List_hasQuote___rarg(lean_object*);
@@ -260,12 +266,14 @@ lean_object* l_Lean_Prod_hasQuote___rarg(lean_object*, lean_object*, lean_object
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_HasQuote;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getAtomVal_x21(lean_object*);
 lean_object* l_Lean_Syntax_mrewriteBottomUp___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_6__formatInfo___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Prod_hasQuote(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_ifNodeKind___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_4__updateFirst___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__2;
+extern lean_object* l_String_Inhabited;
 lean_object* l___private_Lean_Syntax_9__quoteOption___rarg___closed__1;
 lean_object* l_Lean_Syntax_modifyArgs(lean_object*, lean_object*);
 lean_object* l_Lean_mkNode(lean_object*, lean_object*);
@@ -499,6 +507,63 @@ lean_ctor_set(x_9, 0, x_6);
 lean_ctor_set(x_9, 1, x_8);
 return x_9;
 }
+}
+}
+lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.Syntax");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("getAtomVal!: not an atom");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Syntax_getAtomVal_x21___closed__1;
+x_2 = lean_unsigned_to_nat(72u);
+x_3 = lean_unsigned_to_nat(16u);
+x_4 = l_Lean_Syntax_getAtomVal_x21___closed__2;
+x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_Syntax_getAtomVal_x21(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 2)
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 1);
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = l_String_Inhabited;
+x_4 = l_Lean_Syntax_getAtomVal_x21___closed__3;
+x_5 = lean_panic_fn(x_3, x_4);
+return x_5;
+}
+}
+}
+lean_object* l_Lean_Syntax_getAtomVal_x21___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Syntax_getAtomVal_x21(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_Syntax_setAtomVal(lean_object* x_1, lean_object* x_2) {
@@ -5219,6 +5284,12 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Syntax_getAtomVal_x21___closed__1 = _init_l_Lean_Syntax_getAtomVal_x21___closed__1();
+lean_mark_persistent(l_Lean_Syntax_getAtomVal_x21___closed__1);
+l_Lean_Syntax_getAtomVal_x21___closed__2 = _init_l_Lean_Syntax_getAtomVal_x21___closed__2();
+lean_mark_persistent(l_Lean_Syntax_getAtomVal_x21___closed__2);
+l_Lean_Syntax_getAtomVal_x21___closed__3 = _init_l_Lean_Syntax_getAtomVal_x21___closed__3();
+lean_mark_persistent(l_Lean_Syntax_getAtomVal_x21___closed__3);
 l_Lean_Syntax_reprint___main___closed__1 = _init_l_Lean_Syntax_reprint___main___closed__1();
 lean_mark_persistent(l_Lean_Syntax_reprint___main___closed__1);
 l___private_Lean_Syntax_6__formatInfo___closed__1 = _init_l___private_Lean_Syntax_6__formatInfo___closed__1();

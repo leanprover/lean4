@@ -95,7 +95,13 @@ mkElabAttribute Macro `Lean.Elab.macroAttribute `builtinMacro `macro Name.anonym
 
 private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
 | []    => throw Macro.Exception.unsupportedSyntax
-| m::ms => m stx <|> expandMacroFns ms
+| m::ms =>
+  catch
+    (m stx)
+    (fun ex =>
+      match ex with
+      | Macro.Exception.unsupportedSyntax => expandMacroFns ms
+      | ex                                => throw ex)
 
 def getMacros (env : Environment) : Macro :=
 fun stx =>

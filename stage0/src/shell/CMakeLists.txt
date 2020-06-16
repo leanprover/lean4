@@ -88,7 +88,7 @@ add_test(NAME leancomptest_foreign
          COMMAND bash -c "${LEAN_BIN}/leanmake && ./build/bin/test")
 add_test(NAME leancomptest_doc_example
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples/compiler"
-         COMMAND bash -c "${LEAN_BIN}/leanmake bin PKG=test && ./build/bin/test hello world")
+         COMMAND bash -c "${LEAN_BIN}/leanmake bin && ./build/bin/test hello world")
 
 # LEAN INTERPRETER TESTS
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")

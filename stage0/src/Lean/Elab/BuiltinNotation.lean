@@ -241,8 +241,6 @@ fun stx => elabInfix (mkCTermIdFrom (stx.getArg 1) op) stx
 
 @[builtinMacro Lean.Parser.Term.map] def elabMap : Macro := elabInfixOp `Functor.map
 @[builtinMacro Lean.Parser.Term.mapRev] def elabMapRev : Macro := elabInfixOp `Functor.mapRev
-@[builtinMacro Lean.Parser.Term.mapConst] def elabMapConst : Macro := elabInfixOp `Functor.mapConst
-@[builtinMacro Lean.Parser.Term.mapConstRev] def elabMapConstRev : Macro := elabInfixOp `Functor.mapConstRev
 
 @[builtinMacro Lean.Parser.Term.orelse] def elabOrElse : Macro := elabInfixOp `HasOrelse.orelse
 @[builtinMacro Lean.Parser.Term.orM] def elabOrM : Macro := elabInfixOp `orM

@@ -1139,12 +1139,44 @@ return x_9;
 else
 {
 lean_object* x_10; 
-x_10 = lean_ctor_get(x_9, 1);
+x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
+if (lean_obj_tag(x_10) == 0)
+{
+uint8_t x_11; 
+lean_dec(x_8);
+lean_dec(x_3);
+lean_dec(x_1);
+x_11 = !lean_is_exclusive(x_9);
+if (x_11 == 0)
+{
+lean_object* x_12; 
+x_12 = lean_ctor_get(x_9, 0);
+lean_dec(x_12);
+return x_9;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_ctor_get(x_9, 1);
+lean_inc(x_13);
+lean_dec(x_9);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_10);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
+}
+}
+else
+{
+lean_object* x_15; 
+x_15 = lean_ctor_get(x_9, 1);
+lean_inc(x_15);
 lean_dec(x_9);
 x_2 = x_8;
-x_4 = x_10;
+x_4 = x_15;
 goto _start;
+}
 }
 }
 }

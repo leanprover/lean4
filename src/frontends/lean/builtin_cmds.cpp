@@ -7,11 +7,6 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <vector>
-#ifndef LEAN_WINDOWS
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#endif
 #include <unistd.h>
 #include <lean/sstream.h>
 #include <lean/compact.h>
@@ -336,6 +331,8 @@ environment hide_cmd(parser & p) {
     return new_env;
 }
 
+void with_isolated_streams(std::string & streams_out, std::function<void()> fn);
+
 static environment eval_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     auto pos = p.pos();
@@ -388,74 +385,23 @@ static environment eval_cmd(parser & p) {
 
     auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     out.set_caption("eval result");
-    scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
 
-    // Now for the fun part: we want to temporarily close stdin and capture stdout/stderr of the evaluated program
-    // so it doesn't interfere with the server I/O. We could do this on the Lean API level (i.e. `IO.getLine/putStr`),
-    // but that wouldn't affect direct access to `IO.stdin/...` nor FFI-called code. Instead, we directly work on file
-    // descriptors.
-    // Create a fresh file descriptor we can point stdout/stderr to
-#if defined(__linux__)
-    // On Linux, we can simply open an anonymous file in memory
-    int buf_fd = memfd_create("lean-eval", 0);
-#elif 0
-    // On macOS, we can open exclusive shared memory object, guessing a hopefully unique name
-    // ...or at least we should be able to, but it doesn't work for some reason.
-    // NOTE: what doesn't work: `funopen` returns a `FILE *` stream without a file descriptor
-    std::string shm_name = (sstream() << "lean-eval-" << getpid()).str();
-    int buf_fd = shm_open(shm_name.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRWXU);
-    lean_always_assert(shm_unlink(shm_name.c_str()) == 0);
-#else
-    // On Windows we can open an actual file I guess
-    FILE * buf_f = tmpfile(); lean_always_assert(buf_f != nullptr);
-    int buf_fd = fileno(buf_f);
-#endif
-    lean_always_assert(buf_fd >= 0);
-    // NOTE: what doesn't work: `pipe` creates file descriptors, but we would need a separate consumer thread so
-    // the evaluated program doesn't block on a full pipe
-
-    // make sure to drain user-level buffers
-    fflush(stdout); fflush(stderr);
-    // copy stdout/stderr, then set them to `buf_fd`
-#ifdef __linux__
-    // On Linux, we also redirect stdin so it appears as empty. This doesn't seem to work on other platforms.
-    // NOTE: Since we can't flush stdin, this only really works if we are on a line ending (assuming stdin is line buffered).
-    // This should be the case for the server, which is line-based.
-    int old_stdin  = dup(STDIN_FILENO);  lean_always_assert(old_stdin  >= 0); lean_always_assert(dup2(buf_fd, STDIN_FILENO)  >= 0);
-#endif
-    int old_stdout = dup(STDOUT_FILENO); lean_always_assert(old_stdout >= 0); lean_always_assert(dup2(buf_fd, STDOUT_FILENO) >= 0);
-    int old_stderr = dup(STDERR_FILENO); lean_always_assert(old_stderr >= 0); lean_always_assert(dup2(buf_fd, STDERR_FILENO) >= 0);
-
-    std::function<void()> report_buf = [&]() {
-        fflush(stdout); fflush(stderr);
-        // restore old streams
-#ifdef __linux__
-        lean_always_assert(dup2(old_stdin,  STDIN_FILENO)  >= 0); lean_always_assert(close(old_stdin) == 0);
-#endif
-        lean_always_assert(dup2(old_stdout, STDOUT_FILENO) >= 0); lean_always_assert(close(old_stdout) == 0);
-        lean_always_assert(dup2(old_stderr, STDERR_FILENO) >= 0); lean_always_assert(close(old_stderr) == 0);
-        // write `buf_fd` contents to `out`
-        off_t buf_sz = lseek(buf_fd, 0, SEEK_CUR);
-        lseek(buf_fd, 0, SEEK_SET);
-        std::string buf_s(buf_sz, '\0');
-        lean_always_assert(read(buf_fd, static_cast<void *>(&buf_s[0]), buf_sz) == buf_sz);
-        lean_always_assert(close(buf_fd) == 0);
-        out << buf_s;
-        out.report();
-    };
-
+    std::string streams_out;
     object_ref r;
-
     try {
-        time_task t("#eval execution",
-                    message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-        r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
-    } catch (exception & ex) {
-        report_buf();
-        throw ex;
+        with_isolated_streams(streams_out, [&]() {
+            scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
+            time_task t("#eval execution",
+                        message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+            r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
+        });
+    } catch (exception &) {
+        out << streams_out;
+        out.report();
+        throw;
     }
-
-    report_buf();
+    out << streams_out;
+    out.report();
 
     if (io_result_is_error(r.raw())) {
         message_builder msg = p.mk_message(p.cmd_pos(), p.pos(), ERROR);

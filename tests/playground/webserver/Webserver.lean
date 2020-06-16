@@ -100,10 +100,6 @@ def pathLiteral : Parser := {
 
 end Prelim
 
--- HACK: get `text` into `syntax` world
-declare_syntax_cat text
-@[textParser] def text := Prelim.text
-
 declare_syntax_cat pathLiteral
 @[pathLiteralParser] def pathLiteral := Prelim.pathLiteral
 
@@ -115,9 +111,9 @@ declare_syntax_cat child
 syntax "<" ident "/>" : element
 syntax "<" ident ">" child* "</" ident ">" : element
 
-syntax text : child
-syntax element : child
 syntax "{" term "}" : child
+syntax element      : child
+syntax Prelim.text  : child
 
 syntax element : term
 
@@ -126,9 +122,9 @@ macro_rules
 | `(<$n>$cs*</$m>) =>
   if n.getId == m.getId then do
     cs ← cs.mapM fun c => match_syntax c with
-      | `(child|$t:text)    => pure $ mkStxStrLit (t.getArg 0).getAtomVal!
       | `(child|{$t})       => pure t
       | `(child|$e:element) => `($e:element)
+      | `(child|$t)         => mkStxStrLit ((t.getArg 0).getArg 0).getAtomVal!
       | _                   => unreachable!;
     let cs := cs.push (mkStxStrLit ("</" ++ toString m.getId ++ ">"));
     cs.foldlM (fun s e => `($s ++ $e)) (mkStxStrLit ("<" ++ toString n.getId ++ ">"))

@@ -91,9 +91,28 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     else do
       let prec? : Option Nat  := expandOptPrecedence (stx.getArg 1);
       env ← liftM getEnv;
-      unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
-      let prec := prec?.getD 0;
-      `(ParserDescr.cat $(quote cat) $(quote prec))
+      if Parser.isParserCategory env cat then
+        let prec := prec?.getD 0;
+        `(ParserDescr.cat $(quote cat) $(quote prec))
+      else do
+        -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
+        candidates ← liftM $ resolveGlobalName cat;
+        let candidates := candidates.filter fun ⟨c, ps⟩ =>
+          ps.isEmpty &&
+            match env.find? c with
+            | none      => false
+            | some info =>
+              match info.type with
+              | Expr.const `Lean.Parser.TrailingParser _ _ => true
+              | Expr.const `Lean.Parser.Parser _ _         => true
+              | Expr.const `Lean.ParserDescr _ _           => true
+              | Expr.const `Lean.TrailingParserDescr _ _   => true
+              | _                                          => false;
+         let candidates := candidates.map fun ⟨c, _⟩ => c;
+         match candidates with
+         | []  => liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "' or parser declaration")
+         | [c] => `(ParserDescr.parser $(quote c))
+         | cs  => liftM $ throwError (stx.getArg 3) ("ambiguous parser declaration " ++ toString cs)
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
     | some atom => do

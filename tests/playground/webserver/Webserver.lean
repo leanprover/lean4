@@ -78,13 +78,6 @@ open Lean
 namespace Prelim
 open Lean.Parser
 
--- for declaring simple parsers I can still use within other `syntax`
-@[commandParser] def syntaxAbbrev := parser! symbol "syntax " >> ident >> symbol " := " >> many1 syntaxParser
-@[macro Prelim.syntaxAbbrev] def elabSyntaxAbbrev : Macro :=
-fun stx => match_syntax stx with
-| `(syntax $id := $p*) => `(declare_syntax_cat $id  syntax:0 $p* : $id)
-| _ => Macro.throwUnsupported
-
 -- "JSXTextCharacter : SourceCharacter but not one of {, <, > or }"
 def text : Parser := {
   fn := fun c s =>
@@ -155,7 +148,7 @@ syntax "POST" : verb
 
 macro v:verb p:path " => " t:term : command => do
   t ← `(do checkPathConsumed; $t:term);
-  t ← (p.getArg 0).getArgs.foldrM (fun pi t => match_syntax pi with
+  t ← p.getArgs.foldrM (fun pi t => match_syntax pi with
     | `(pathItem|$l:pathLiteral) => `(do checkPathLiteral $(mkStxStrLit (l.getArg 0).getAtomVal!); $t:term)
     | `(pathItem|{$id}) => `(do $id:ident ← getPathPart; $t:term)
     | _ => unreachable!) t;

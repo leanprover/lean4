@@ -236,6 +236,16 @@ fun stx => do
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 
+/-
+def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
+-/
+@[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab :=
+fun stx => do
+  let declName := stx.getArg 1;
+  (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) Name.anonymous;
+  stx' ← `(def $declName : Lean.ParserDescr := $val);
+  withMacroExpansion stx stx' $ elabCommand stx'
+
 def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
 alts ← alts.mapSepElemsM $ fun alt => do {
   let lhs := alt.getArg 0;

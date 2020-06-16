@@ -32,7 +32,6 @@ ctx ← read; pure ctx.2
 instance MetaIO.metaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaIO α) :=
 ⟨fun env opts x _ => x (env, opts) >>= MetaHasEval.eval env opts⟩
 
-instance MetaIO.monadIO : MonadIO MetaIO :=
-⟨fun _ x _ => x⟩
+instance MetaIO.monadIO : MonadIO MetaIO := {}
 
 end Lean

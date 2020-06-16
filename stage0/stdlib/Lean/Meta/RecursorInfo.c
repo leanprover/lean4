@@ -97,6 +97,7 @@ lean_object* l___private_Lean_Meta_RecursorInfo_1__mkRecursorInfoForKernelRec___
 lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__4;
 lean_object* l___private_Lean_Meta_RecursorInfo_1__mkRecursorInfoForKernelRec___closed__2;
+extern lean_object* l_IO_FS_Handle_putStrLn___rarg___closed__1;
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_casesOnSuffix;
@@ -170,7 +171,6 @@ lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_HasToString___spec__7__
 lean_object* l_Array_back___at___private_Lean_Meta_ExprDefEq_14__processAssignmentFOApproxAux___spec__1(lean_object*);
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__3;
-extern lean_object* l_IO_println___rarg___closed__1;
 lean_object* l_Lean_Meta_RecursorInfo_HasToString(lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString___spec__8___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_10__getProduceMotiveAndRecursive___closed__1;
@@ -1158,7 +1158,7 @@ x_4 = l_Lean_Name_toStringWithSep___main(x_3, x_2);
 x_5 = l_Lean_Meta_RecursorInfo_HasToString___closed__3;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
-x_7 = l_IO_println___rarg___closed__1;
+x_7 = l_IO_FS_Handle_putStrLn___rarg___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Lean_Meta_RecursorInfo_HasToString___closed__4;
 x_10 = lean_string_append(x_8, x_9);

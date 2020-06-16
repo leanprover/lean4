@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <unistd.h>
 #include <lean/sstream.h>
 #include <lean/compact.h>
 #include "util/timeit.h"
@@ -330,6 +331,8 @@ environment hide_cmd(parser & p) {
     return new_env;
 }
 
+void with_isolated_streams(std::string & streams_out, std::function<void()> fn);
+
 static environment eval_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     auto pos = p.pos();
@@ -382,26 +385,24 @@ static environment eval_cmd(parser & p) {
 
     auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     out.set_caption("eval result");
-    scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
-    std::streambuf * saved_cout = std::cout.rdbuf(out.get_text_stream().get_stream().rdbuf());
-    std::streambuf * saved_cerr = std::cerr.rdbuf(out.get_text_stream().get_stream().rdbuf());
 
+    std::string streams_out;
     object_ref r;
-
     try {
-        time_task t("#eval execution",
-                    message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-        r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
-    } catch (exception & ex) {
-        std::cout.rdbuf(saved_cout);
-        std::cerr.rdbuf(saved_cerr);
+        with_isolated_streams(streams_out, [&]() {
+            scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
+            time_task t("#eval execution",
+                        message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+            r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
+        });
+    } catch (exception &) {
+        out << streams_out;
         out.report();
-        throw ex;
+        throw;
     }
-
-    std::cout.rdbuf(saved_cout);
-    std::cerr.rdbuf(saved_cerr);
+    out << streams_out;
     out.report();
+
     if (io_result_is_error(r.raw())) {
         message_builder msg = p.mk_message(p.cmd_pos(), p.pos(), ERROR);
         object * err = io_result_get_error(r.raw());

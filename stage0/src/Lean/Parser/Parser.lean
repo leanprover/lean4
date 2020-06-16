@@ -1772,7 +1772,7 @@ def compileParserDescr (categories : ParserCategories) : ParserDescr → Except 
 | ParserDescr.nameLit                             => pure $ nameLit
 | ParserDescr.ident                               => pure $ ident
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
-| ParserDescr.parser catName prec =>
+| ParserDescr.cat catName prec                    =>
   match categories.find? catName with
   | some _ => pure $ categoryParser catName prec
   | none   => throwUnknownParserCategory catName

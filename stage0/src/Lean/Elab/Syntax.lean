@@ -93,7 +93,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
       env ← liftM getEnv;
       unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
       let prec := prec?.getD 0;
-      `(ParserDescr.parser $(quote cat) $(quote prec))
+      `(ParserDescr.cat $(quote cat) $(quote prec))
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
     | some atom => do
@@ -154,13 +154,24 @@ end Term
 
 namespace Command
 
+private def getCatSuffix (catName : Name) : String :=
+match catName with
+| Name.str _ s _ => s
+| _              => unreachable!
+
+private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := do
+let quotSymbol := "`(" ++ getCatSuffix catName ++ "|";
+cmd ← `(@[termParser] def catStxQuot : Lean.ParserDescr := Lean.ParserDescr.node `Lean.Parser.Term.stxQuot $(quote Lean.Parser.maxPrec) (Lean.ParserDescr.andthen (Lean.ParserDescr.symbol $(quote quotSymbol)) (Lean.ParserDescr.andthen (Lean.ParserDescr.cat $(quote catName) 0) (Lean.ParserDescr.symbol ")"))));
+elabCommand cmd
+
 @[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab :=
 fun stx => do
   let catName  := stx.getIdAt 1;
   let attrName := catName.appendAfter "Parser";
   env ← getEnv;
   env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
-  setEnv env
+  setEnv env;
+  declareSyntaxCatQuotParser catName
 
 def mkKindName (catName : Name) : Name :=
 `_kind ++ catName

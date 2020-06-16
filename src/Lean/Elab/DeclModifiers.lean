@@ -64,6 +64,8 @@ env ← getEnv;
 unless (isAttribute env attrName) $
   throwError stx ("unknown attribute [" ++ attrName ++ "]");
 let args := stx.getArg 1;
+-- the old frontend passes Syntax.missing for empty args, for reasons
+let args := if args.getNumArgs == 0 then Syntax.missing else args;
 pure { name := attrName, args := args }
 
 def elabAttrs (stx : Syntax) : CommandElabM (Array Attribute) :=

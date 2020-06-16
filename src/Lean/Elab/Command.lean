@@ -534,6 +534,58 @@ when succeeded $
 @[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab :=
 fun stx => failIfSucceeds stx $ elabCheck stx
 
+def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.addDecl ref decl
+def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.compileDecl ref decl
+
+unsafe def elabEvalUnsafe : CommandElab :=
+fun stx => withoutModifyingEnv do
+  let ref  := stx;
+  let term := stx.getArg 1;
+  let n := `_eval;
+  ctx ← read;
+  env ← getEnv;
+  let addAndCompile := fun value => do {
+    type ← Term.inferType ref value;
+    let decl := Declaration.defnDecl { name := n, lparams := [], type := type,
+      value := value, hints := ReducibilityHints.opaque, isUnsafe := true };
+    Term.addDecl ref decl;
+    Term.compileDecl ref decl
+  };
+  act ← runTermElabM (some n) fun _ => do {
+    e    ← Term.elabTerm term none;
+    Term.synthesizeSyntheticMVars false;
+    if env.contains `Lean.MetaHasEval then do
+      -- modify `e` to `fun env opts => MetaHasEval.eval (hideUnit := false) env opts e`
+      e ← Term.withLocalDecl ref `env BinderInfo.default (mkConst `Lean.Environment) fun env =>
+        Term.withLocalDecl ref `opts BinderInfo.default (mkConst `Lean.Options) fun opts => do {
+          e ← Term.mkAppM ref `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
+          Term.mkLambda ref #[env, opts] e
+        };
+      addAndCompile e;
+      env ← Term.getEnv;
+      opts ← Term.getOptions;
+      match env.evalConst (Environment → Options → IO Unit) n with
+      | Except.error e => Term.throwError ref e
+      | Except.ok act  => pure $ act env opts
+    else do
+      -- fall back to non-meta eval if MetaHasEval hasn't been defined yet
+      -- modify e to `HasEval.eval (hideUnit := false) e`
+      e ← Term.mkAppM ref `Lean.HasEval.eval #[e, toExpr false];
+      addAndCompile e;
+      env ← Term.getEnv;
+      match env.evalConst (IO Unit) n with
+      | Except.error e => Term.throwError ref e
+      | Except.ok act  => pure act
+  };
+  (out, res) ← liftIO ref $ IO.Prim.withIsolatedStreams act;
+  logInfo ref out;
+  match res with
+  | Except.error e => throw $ Exception.error $ ioErrorToMessage ctx ref e
+  | Except.ok _    => pure ()
+
+@[builtinCommandElab «eval», implementedBy elabEvalUnsafe]
+constant elabEval : CommandElab := arbitrary _
+
 @[builtinCommandElab «synth»] def elabSynth : CommandElab :=
 fun stx => do
   let ref  := stx;
@@ -627,9 +679,6 @@ let result := explicitParams.foldl (fun result levelName => if usedParams.elem l
 let remaining := usedParams.filter (fun levelParam => !explicitParams.elem levelParam);
 let remaining := remaining.qsort Name.lt;
 result ++ remaining.toList
-
-def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.addDecl ref decl
-def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.compileDecl ref decl
 
 end Command
 end Elab

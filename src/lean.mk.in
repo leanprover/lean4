@@ -49,7 +49,9 @@ $(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
 	@deps=`lean --deps $< | tr '\\\\' / | tr -d '\\r'`; echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
 
 $(OLEAN_OUT)/%.olean: %.lean $(TEMP_OUT)/%.depend $(MORE_DEPS)
+ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
+endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
 	lean $(LEAN_OPTS) -o "$@" --c="$(TEMP_OUT)/$*.c.tmp" $<
 # create the .c file atomically
@@ -61,12 +63,16 @@ $(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean
 	@
 
 $(TEMP_OUT)/%.o: $(TEMP_OUT)/%.c
+ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
+endif
 	@mkdir -p "$(@D)"
 	leanc -c -o $@ $< $(LEANC_OPTS)
 
 $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(BIN_OUT)
+ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
+endif
 	leanc -o "$@" -x none $^
 
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)

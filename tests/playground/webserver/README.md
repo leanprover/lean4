@@ -10,7 +10,7 @@ Content-Length: 19
 
 <h1>Hello, me!</h1>
 ```
-Use with e.g. GNU netcat to test in a browser:
+Use with netcat to test in a browser at http://localhost:1234:
 ```bash
-$ nix-shell -p netcat-gnu --run "nc -lp 1234 -e ./build/bin/Webserver"
+bash -c 'coproc nc -lp 1234; ./build/bin/Webserver <&${COPROC[0]} >&${COPROC[1]}'
 ```

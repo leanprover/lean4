@@ -1,4 +1,7 @@
+-- -*- origami-fold-style: triple-braces -*-
 import Lean
+
+-- namespace Webserver {{{
 namespace Webserver
 
 structure State :=
@@ -58,6 +61,7 @@ partial def run : IO.FS.Handle → IO.FS.Handle → IO Unit
   when (line != "") do
     [verb, path, proto] ← pure $ line.splitOn " "
       | panic! "failed to parse request: " ++ line;
+    stderr ← IO.stderr; stderr.putStrLn $ "=> " ++ verb ++ " " ++ path;
     headers ← parseHeaders hIn;
     handler::handlers ← handlersRef.get | panic! "no handlers";
     (out, st) ← handlers.foldl (fun h₁ h₂ => h₁ <|> h₂) handler { verb := verb, path := path };
@@ -71,13 +75,13 @@ partial def run : IO.FS.Handle → IO.FS.Handle → IO Unit
     run hIn hOut
 
 end Webserver
+--}}}
 
 new_frontend
 open Lean
 open Lean.Parser
 
-namespace LX
-
+-- declare_syntax_cat element {{{
 declare_syntax_cat element
 declare_syntax_cat child
 
@@ -85,21 +89,22 @@ syntax "<" ident "/>" : element
 syntax "<" ident ">" child* "</" ident ">" : element
 
 -- "JSXTextCharacter : SourceCharacter but not one of {, <, > or }"
-def text : Parser := withAntiquot (mkAntiquot "text" `LX.text) {
-  fn := fun c s =>
-    let startPos := s.pos;
-    let s := takeWhile1Fn (fun c => not ("{<>}$".contains c)) "HTML text" c s;
-    mkNodeToken `LX.text startPos c s }
+def text : Parser := -- {{{
+  withAntiquot (mkAntiquot "text" `LX.text) {
+    fn := fun c s =>
+      let startPos := s.pos;
+      let s := takeWhile1Fn (fun c => not ("{<>}$".contains c)) "HTML text" c s;
+      mkNodeToken `LX.text startPos c s } -- }}}
 
+syntax text         : child
 syntax "{" term "}" : child
 syntax element      : child
-syntax text         : child
 
 syntax element : term
 
 macro_rules
 | `(<$n/>) => mkStxStrLit ("<" ++ toString n.getId ++ ">")
-| `(<$n>$cs*</$m>) =>
+| `(<$n>$cs*</$m>) => -- {{{
   if n.getId == m.getId then do
     cs ← cs.mapM fun c => match_syntax c with
       | `(child|$t:text)    => pure $ mkStxStrLit (t.getArg 0).getAtomVal!
@@ -109,20 +114,13 @@ macro_rules
     let cs := cs.push (mkStxStrLit ("</" ++ toString m.getId ++ ">"));
     cs.foldlM (fun s e => `($s ++ $e)) (mkStxStrLit ("<" ++ toString n.getId ++ ">"))
   else Macro.throwError m ("expected </" ++ toString n.getId ++ ">")
+-- }}}
+-- }}}
 
-end LX
-
-#eval
-  let name := "PLDI";
-  <html>
-    <h1>Hello, {name}!</h1>
-    <button/>
-  </html>
-
---#eval <h1>oh no</h2>
-
+-- open Webserver {{{
 open Webserver
 
+-- declare_syntax_cat pathItem {{{
 declare_syntax_cat pathItem
 declare_syntax_cat verb
 
@@ -139,22 +137,22 @@ syntax path := pathItem*
 syntax "GET" : verb
 syntax "POST" : verb
 
-macro v:verb p:path " => " t:term : command => do
+macro v:verb p:path " => " t:term : command => do -- {{{
   t ← `(do checkPathConsumed; $t:term);
   t ← p.getArgs.foldrM (fun pi t => match_syntax pi with
     | `(pathItem|$l:pathLiteral) => `(do checkPathLiteral $(mkStxStrLit (l.getArg 0).getAtomVal!); $t:term)
     | `(pathItem|{$id}) => `(do $id:ident ← getPathPart; $t:term)
     | _ => unreachable!) t;
-  `(
-def handler : Handler := do
-checkVerb $(mkStxStrLit (v.getArg 0).getAtomVal!);
-$t:term
+  `(def handler : Handler := do
+    checkVerb $(mkStxStrLit (v.getArg 0).getAtomVal!);
+    $t:term
 
-@[init] def reg : IO Unit := registerHandler handler
-  )
+    @[init] def reg : IO Unit := registerHandler handler)
+-- }}}
+-- }}}
 
-GET / =>
-  redirect "/greet/stranger"
+GET / => redirect "/greet/stranger"
+
 GET /greet/{name} => pure
   <html>
     <h1>Hello, {name}!</h1>
@@ -164,3 +162,7 @@ def main : IO Unit := do
   hIn ← IO.stdin;
   hOut ← IO.stdout;
   Webserver.run hIn hOut
+-- }}}
+
+#eval let name := "PLDI"; <h1>Hello, {name ++ name}!</h1>
+#eval <h1>hi</h2>

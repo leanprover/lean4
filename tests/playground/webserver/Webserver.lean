@@ -74,27 +74,7 @@ end Webserver
 
 new_frontend
 open Lean
-
-namespace Prelim
 open Lean.Parser
-
--- "JSXTextCharacter : SourceCharacter but not one of {, <, > or }"
-def text : Parser := {
-  fn := fun c s =>
-    let startPos := s.pos;
-    let s := takeWhile1Fn (fun c => not ("{<>}$".contains c)) "HTML text" c s;
-    mkNodeToken `LX.text startPos c s }
-
-def pathLiteral : Parser := {
-  fn := fun c s =>
-    let startPos := s.pos;
-    let s := takeWhile1Fn (fun c => c == '/' || c.isAlphanum) "URL path" c s;
-    mkNodeToken `pathLiteral startPos c s }
-
-end Prelim
-
-declare_syntax_cat pathLiteral
-@[pathLiteralParser] def pathLiteral := Prelim.pathLiteral
 
 namespace LX
 
@@ -104,9 +84,16 @@ declare_syntax_cat child
 syntax "<" ident "/>" : element
 syntax "<" ident ">" child* "</" ident ">" : element
 
+-- "JSXTextCharacter : SourceCharacter but not one of {, <, > or }"
+def text : Parser := withAntiquot (mkAntiquot "text" `LX.text) {
+  fn := fun c s =>
+    let startPos := s.pos;
+    let s := takeWhile1Fn (fun c => not ("{<>}$".contains c)) "HTML text" c s;
+    mkNodeToken `LX.text startPos c s }
+
 syntax "{" term "}" : child
 syntax element      : child
-syntax Prelim.text  : child
+syntax text         : child
 
 syntax element : term
 
@@ -115,9 +102,9 @@ macro_rules
 | `(<$n>$cs*</$m>) =>
   if n.getId == m.getId then do
     cs ← cs.mapM fun c => match_syntax c with
+      | `(child|$t:text)    => pure $ mkStxStrLit (t.getArg 0).getAtomVal!
       | `(child|{$t})       => pure t
       | `(child|$e:element) => `($e:element)
-      | `(child|$t)         => mkStxStrLit ((t.getArg 0).getArg 0).getAtomVal!
       | _                   => unreachable!;
     let cs := cs.push (mkStxStrLit ("</" ++ toString m.getId ++ ">"));
     cs.foldlM (fun s e => `($s ++ $e)) (mkStxStrLit ("<" ++ toString n.getId ++ ">"))
@@ -138,6 +125,12 @@ open Webserver
 
 declare_syntax_cat pathItem
 declare_syntax_cat verb
+
+def pathLiteral : Parser := withAntiquot (mkAntiquot "pathLiteral" `pathLiteral) {
+  fn := fun c s =>
+    let startPos := s.pos;
+    let s := takeWhile1Fn (fun c => c == '/' || c.isAlphanum) "URL path" c s;
+    mkNodeToken `pathLiteral startPos c s }
 
 syntax pathLiteral : pathItem
 syntax "{" ident "}" : pathItem

@@ -12,7 +12,7 @@
     "unsafe" "partial" "renaming" "hiding" "exposing" "begin" "constant"
     "variable" "variables" "theorem" "example" "abbreviation" "abbrev"
     "open" "export" "axiom" "inductive" "coinductive" "with" "without"
-    "structure" "universe" "universes" "hide"
+    "structure" "universe" "universes" "hide" "new_frontend"
     "precedence" "reserve"
     "match_syntax" "match" "nomatch" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "end" "this" "using" "using_well_founded" "namespace" "section"

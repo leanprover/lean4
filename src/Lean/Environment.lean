@@ -14,13 +14,11 @@ import Lean.Util.Path
 import Lean.Util.FindExpr
 
 namespace Lean
-/- Opaque environment extension state. It is essentially the Lean version of a C `void *`
-   TODO: mark opaque -/
+/- Opaque environment extension state. It is essentially the Lean version of a C `void *` -/
 def EnvExtensionState : Type := NonScalar
 
 instance EnvExtensionState.inhabited : Inhabited EnvExtensionState := inferInstanceAs (Inhabited NonScalar)
 
-/- TODO: mark opaque. -/
 def ModuleIdx := Nat
 
 instance ModuleIdx.inhabited : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
@@ -42,7 +40,6 @@ structure EnvironmentHeader :=
 (imports      : Array Import := #[]) -- direct imports
 (moduleNames  : NameSet      := {})  -- all imported .lean modules
 
-/- TODO: mark opaque. -/
 structure Environment :=
 (const2ModIdx : HashMap Name ModuleIdx)
 (constants    : ConstMap)
@@ -131,8 +128,7 @@ compileDecl env opt decl
 
 end Environment
 
-/- "Raw" environment extension.
-   TODO: mark opaque. -/
+/- "Raw" environment extension. -/
 structure EnvExtension (σ : Type) :=
 (idx       : Nat)
 (mkInitial : IO σ)

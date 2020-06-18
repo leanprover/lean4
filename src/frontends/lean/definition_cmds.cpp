@@ -480,7 +480,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
         lean_assert(io_result_is_ok(r.raw()));
         array_ref<object *> linters(io_result_get_value(r.raw()), true);
         for (object * const & linter : linters) {
-            object * r2 = apply_3(linter, new_env.to_obj_arg(), local_name_p(fn).to_obj_arg(), io_mk_world());
+            object * r2 = apply_4(linter, new_env.to_obj_arg(), local_name_p(fn).to_obj_arg(), lean_box(0) /* Syntax.missing */, io_mk_world());
             consume_io_result(r2);
         }
 

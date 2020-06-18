@@ -11,7 +11,7 @@ import Lean.Message
 
 namespace Lean
 
-def Linter := Environment → Name → /-Syntax → -/IO MessageLog
+def Linter := Environment → Name → Syntax → IO MessageLog
 
 def mkLintersRef : IO (IO.Ref (Array Linter)) :=
 IO.mkRef #[]

@@ -5,7 +5,7 @@ open Lean
 def oh_no : Nat := 0
 
 def snakeLinter : Linter :=
-fun env n =>
+fun env n stx =>
   -- TODO(Sebastian): return actual message with position from syntax tree
   if n.toString.contains '_' then throw $ IO.userError "SNAKES!!"
   else pure MessageLog.empty

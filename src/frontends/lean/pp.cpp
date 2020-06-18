@@ -828,9 +828,10 @@ auto pretty_fn::pp_lambda(expr const & e) -> result {
         locals.push_back(p.second);
         b = p.first;
     }
-    format r = m_unicode ? *g_lambda_n_fmt : *g_lambda_fmt;
+    // format r = m_unicode ? *g_lambda_n_fmt : *g_lambda_fmt;
+    format r = *g_lambda_fmt;
     r += pp_binders(locals);
-    r += group(compose(format(","), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
+    r += group(compose(format(" =>"), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
     return result(0, r);
 }
 

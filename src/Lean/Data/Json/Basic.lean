@@ -97,6 +97,10 @@ inductive Json
 
 namespace Json
 
+-- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
+def mkObj (o : List (String × Json)) : Json :=
+obj (o.foldr (fun ⟨k, v⟩ acc => acc.insert strLt k v) RBNode.leaf)
+
 instance natToJson : HasCoe Nat Json := ⟨fun n => Json.num n⟩
 instance intToJson : HasCoe Int Json := ⟨fun n => Json.num n⟩
 instance stringToJson : HasCoe String Json := ⟨Json.str⟩

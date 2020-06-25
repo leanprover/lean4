@@ -3,8 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-prelude
-import Init.Data.List.Basic
+namespace Std
 universes u
 /--
 A difference List is a Function that, given a List, returns the original
@@ -60,3 +59,4 @@ instance : HasAppend (DList α) :=
 ⟨DList.append⟩
 
 end DList
+end Std

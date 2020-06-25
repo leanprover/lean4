@@ -110,7 +110,7 @@ functionSummariesExt.addEntry env (fid, v)
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
 (functionSummariesExt.getState env).find? fid
 
-abbrev Assignment := HashMap VarId Value
+abbrev Assignment := Std.HashMap VarId Value
 
 structure InterpContext :=
 (currFnIdx : Nat := 0)

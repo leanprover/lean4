@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Std.Data.HashMap
 import Lean.Data.SMap
 import Lean.Declaration
 import Lean.LocalContext
@@ -35,6 +36,8 @@ structure EnvironmentHeader :=
 (mainModule   : Name         := arbitrary _)
 (imports      : Array Import := #[]) -- direct imports
 (moduleNames  : NameSet      := {})  -- all imported .lean modules
+
+open Std (HashMap)
 
 structure Environment :=
 (const2ModIdx : HashMap Name ModuleIdx)

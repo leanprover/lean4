@@ -272,7 +272,7 @@ structure DelayedMetavarAssignment :=
 (fvars    : Array Expr)
 (val      : Expr)
 
-open Std (PersistentHashMap)
+open Std (HashMap PersistentHashMap)
 
 structure MetavarContext :=
 (depth       : Nat := 0)

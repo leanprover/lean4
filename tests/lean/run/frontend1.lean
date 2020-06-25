@@ -88,7 +88,7 @@ structure S (α : Type) :=
 (field3 : α)
 (field4 : List α × Nat := ([], 0))
 (vec : Array (α × α) := #[])
-(map : HashMap String α := {})
+(map : Std.HashMap String α := {})
 
 inductive D (α : Type)
 | mk (a : α) (s : S4) : D

@@ -15,6 +15,8 @@ namespace Lean
 namespace Meta
 namespace SynthInstance
 
+open Std (HashMap)
+
 def mkInferTCGoalsLRAttr : IO TagAttribute :=
 registerTagAttribute `inferTCGoalsLR "instruct type class resolution procedure to solve goals from left to right for this instance"
 

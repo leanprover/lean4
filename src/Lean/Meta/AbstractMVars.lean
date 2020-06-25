@@ -22,6 +22,8 @@ instance AbstractMVarsResult.hasBeq : HasBeq AbstractMVarsResult := ⟨AbstractM
 
 namespace AbstractMVars
 
+open Std (HashMap)
+
 structure State :=
 (ngen         : NameGenerator)
 (lctx         : LocalContext)

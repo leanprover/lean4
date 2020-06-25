@@ -3,11 +3,8 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-prelude
-import Init.Data.Array.Basic
-import Init.Data.AssocList
-import Init.Data.Option.Basic
-import Init.Data.Hashable
+import Init.Data.AssocList -- TODO
+namespace Std
 universes u v w
 
 def HashMapBucket (α : Type u) (β : Type v) :=
@@ -126,7 +123,7 @@ end HashMapImp
 def HashMap (α : Type u) (β : Type v) [HasBeq α] [Hashable α] :=
 { m : HashMapImp α β // m.WellFormed }
 
-open HashMapImp
+open Std.HashMapImp
 
 def mkHashMap {α : Type u} {β : Type v} [HasBeq α] [Hashable α] (nbuckets := 8) : HashMap α β :=
 ⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
@@ -199,3 +196,4 @@ def numBuckets (m : HashMap α β) : Nat :=
 m.val.buckets.val.size
 
 end HashMap
+end Std

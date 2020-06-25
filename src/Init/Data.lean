@@ -20,5 +20,4 @@ import Init.Data.Float
 import Init.Data.RBTree
 import Init.Data.RBMap
 import Init.Data.Option
-import Init.Data.HashMap
 import Init.Data.Random

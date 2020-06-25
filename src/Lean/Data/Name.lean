@@ -3,7 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import Init.Data.HashSet -- TODO
+import Std.Data.HashSet
 namespace Lean
 
 instance stringToName : HasCoe String Name :=
@@ -156,14 +156,14 @@ def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
 
 end NameSet
 
-def NameHashSet := HashSet Name
+def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
-@[inline] def empty : NameHashSet := HashSet.empty
+@[inline] def empty : NameHashSet := Std.HashSet.empty
 instance : HasEmptyc NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
-def insert (s : NameHashSet) (n : Name) := HashSet.insert s n
-def contains (s : NameHashSet) (n : Name) : Bool := HashSet.contains s n
+def insert (s : NameHashSet) (n : Name) := s.insert n
+def contains (s : NameHashSet) (n : Name) : Bool := s.contains n
 end NameHashSet
 
 end Lean

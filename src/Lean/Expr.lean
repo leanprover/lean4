@@ -635,7 +635,7 @@ mkAppB (mkConst `Decidable.isTrue) pred proof
 def mkDecIsFalse (pred proof : Expr) :=
 mkAppB (mkConst `Decidable.isFalse) pred proof
 
-open Std (PHashMap PHashSet)
+open Std (HashMap HashSet PHashMap PHashSet)
 
 abbrev ExprMap (α : Type)  := HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α

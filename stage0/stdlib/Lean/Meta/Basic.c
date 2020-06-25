@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Basic
-// Imports: Init.Control.Reader Lean.Data.LOption Lean.Environment Lean.Class Lean.ReducibilityAttrs Lean.Util.Trace Lean.Util.RecDepth Lean.Util.Closure Lean.Meta.Exception Lean.Meta.DiscrTreeTypes Lean.Eval
+// Imports: Init Lean.Data.LOption Lean.Environment Lean.Class Lean.ReducibilityAttrs Lean.Util.Trace Lean.Util.RecDepth Lean.Util.Closure Lean.Meta.Exception Lean.Meta.DiscrTreeTypes Lean.Eval
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -50846,7 +50846,7 @@ x_7 = l_IO_runMeta___rarg(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
 }
-lean_object* initialize_Init_Control_Reader(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_LOption(lean_object*);
 lean_object* initialize_Lean_Environment(lean_object*);
 lean_object* initialize_Lean_Class(lean_object*);
@@ -50862,7 +50862,7 @@ lean_object* initialize_Lean_Meta_Basic(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Reader(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_LOption(lean_io_mk_world());

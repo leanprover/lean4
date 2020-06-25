@@ -4,11 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
-prelude
-import Init.System.IO
-import Init.Data.String
-import Init.Data.Int
-import Init.Data.RBMap
 
 namespace Lean
 

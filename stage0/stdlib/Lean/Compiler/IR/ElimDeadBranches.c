@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.ElimDeadBranches
-// Imports: Init.Control.Reader Init.Data.Option Init.Data.Nat Lean.Compiler.IR.Format Lean.Compiler.IR.Basic Lean.Compiler.IR.CompilerM
+// Imports: Init Lean.Compiler.IR.Format Lean.Compiler.IR.Basic Lean.Compiler.IR.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -742,7 +742,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2;
-x_2 = lean_unsigned_to_nat(46u);
+x_2 = lean_unsigned_to_nat(42u);
 x_3 = lean_unsigned_to_nat(10u);
 x_4 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__3;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -7509,9 +7509,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Control_Reader(lean_object*);
-lean_object* initialize_Init_Data_Option(lean_object*);
-lean_object* initialize_Init_Data_Nat(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Format(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Basic(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(lean_object*);
@@ -7520,13 +7518,7 @@ lean_object* initialize_Lean_Compiler_IR_ElimDeadBranches(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Reader(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Option(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Format(lean_io_mk_world());

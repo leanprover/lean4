@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.MetavarContext
-// Imports: Init.Control.Reader Init.Data.Nat Init.Data.Option Lean.Util.MonadCache Lean.LocalContext
+// Imports: Init Lean.Util.MonadCache Lean.LocalContext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* l_List_foldr___main___at_Lean_MetavarContext_hasAssignedMVar___main
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_8__dep___main___at_Lean_MetavarContext_localDeclDependsOn___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_InstantiateExprMVars_main(lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Array_umapMAux___main___at___private_Lean_MetavarContext_21__elimMVarDepsApp___main___spec__14(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -636,7 +637,6 @@ lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_11__reduceLocalContext___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getLevelDepth___closed__1;
 extern lean_object* l_Nat_Inhabited;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_MetavarContext_findLocalDeclDependsOn(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_22__elimMVarDepsAux(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_ReaderT_lift___at_Lean_MetavarContext_MkBinding_Lean_MonadHashMapCacheAdapter___spec__1___rarg(lean_object*, uint8_t, lean_object*);
@@ -2270,7 +2270,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(327u);
+x_2 = lean_unsigned_to_nat(323u);
 x_3 = lean_unsigned_to_nat(15u);
 x_4 = l_Lean_MetavarContext_getDecl___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -2724,7 +2724,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(343u);
+x_2 = lean_unsigned_to_nat(339u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Lean_MetavarContext_getDecl___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -2803,7 +2803,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(352u);
+x_2 = lean_unsigned_to_nat(348u);
 x_3 = lean_unsigned_to_nat(19u);
 x_4 = l_Lean_MetavarContext_getDecl___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -6292,7 +6292,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(401u);
+x_2 = lean_unsigned_to_nat(397u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Lean_MetavarContext_isLevelAssignable___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -24890,7 +24890,7 @@ x_11 = l_Lean_LocalContext_getFVar_x21(x_1, x_10);
 lean_dec(x_10);
 x_12 = l_Lean_LocalDecl_userName(x_11);
 lean_dec(x_11);
-x_13 = l_System_FilePath_dirName___closed__1;
+x_13 = l_Lean_Name_toString___closed__1;
 x_14 = l_Lean_Name_toStringWithSep___main(x_13, x_12);
 x_15 = l_Char_HasRepr___closed__1;
 x_16 = lean_string_append(x_15, x_14);
@@ -25051,7 +25051,7 @@ x_15 = l_Lean_MetavarContext_MkBinding_Exception_toString___closed__2;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Lean_LocalDecl_userName(x_4);
 lean_dec(x_4);
-x_18 = l_System_FilePath_dirName___closed__1;
+x_18 = l_Lean_Name_toString___closed__1;
 x_19 = l_Lean_Name_toStringWithSep___main(x_18, x_17);
 x_20 = lean_string_append(x_16, x_19);
 x_21 = l_Lean_MetavarContext_MkBinding_Exception_toString___closed__3;
@@ -42814,9 +42814,7 @@ lean_ctor_set(x_14, 3, x_11);
 return x_14;
 }
 }
-lean_object* initialize_Init_Control_Reader(lean_object*);
-lean_object* initialize_Init_Data_Nat(lean_object*);
-lean_object* initialize_Init_Data_Option(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_MonadCache(lean_object*);
 lean_object* initialize_Lean_LocalContext(lean_object*);
 static bool _G_initialized = false;
@@ -42824,13 +42822,7 @@ lean_object* initialize_Lean_MetavarContext(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Reader(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Option(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_MonadCache(lean_io_mk_world());

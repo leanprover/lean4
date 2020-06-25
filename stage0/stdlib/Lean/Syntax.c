@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Syntax
-// Imports: Init.Data.Array Lean.Data.Name Lean.Data.Format
+// Imports: Init Lean.Data.Name Lean.Data.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Syntax_reprint___main___closed__1;
 lean_object* l_Lean_Syntax_formatStxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Prod_hasQuote___rarg___closed__1;
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Syntax_reprint___main___boxed(lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_hasQuote___closed__1;
@@ -260,7 +261,6 @@ lean_object* l_Lean_mkCTermIdFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_asNode(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_unreachIsNodeIdent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Prod_hasQuote___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -530,7 +530,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Syntax_getAtomVal_x21___closed__1;
-x_2 = lean_unsigned_to_nat(72u);
+x_2 = lean_unsigned_to_nat(70u);
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Lean_Syntax_getAtomVal_x21___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -4122,7 +4122,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = l_Lean_mkAppStx___closed__4;
 x_13 = lean_box(0);
 x_14 = l_Lean_Name_replacePrefix___main(x_6, x_12, x_13);
-x_15 = l_System_FilePath_dirName___closed__1;
+x_15 = l_Lean_Name_toString___closed__1;
 x_16 = l_Lean_Name_toStringWithSep___main(x_15, x_14);
 x_17 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -4366,7 +4366,7 @@ lean_inc(x_105);
 x_106 = lean_ctor_get(x_4, 2);
 lean_inc(x_106);
 lean_dec(x_4);
-x_107 = l_System_FilePath_dirName___closed__1;
+x_107 = l_Lean_Name_toString___closed__1;
 x_108 = l_Lean_Name_toStringWithSep___main(x_107, x_106);
 x_109 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_109, 0, x_108);
@@ -5267,7 +5267,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Option_hasQuote___rarg), 1, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_Array(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Name(lean_object*);
 lean_object* initialize_Lean_Data_Format(lean_object*);
 static bool _G_initialized = false;
@@ -5275,7 +5275,7 @@ lean_object* initialize_Lean_Syntax(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Name(lean_io_mk_world());

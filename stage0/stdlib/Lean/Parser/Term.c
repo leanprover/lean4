@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Term
-// Imports: Lean.Parser.Parser Lean.Parser.Level
+// Imports: Init Lean.Parser.Parser Lean.Parser.Level
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -595,6 +595,7 @@ lean_object* l_Lean_Parser_Term_byTactic___elambda__1___closed__9;
 extern lean_object* l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_arrayLit___closed__6;
 lean_object* l_Lean_Parser_Term_str;
+extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_Parser_Term_decide___closed__5;
 lean_object* l_Lean_Parser_Term_structInstLVal___closed__5;
 lean_object* l___private_Lean_Parser_Parser_2__sepByFnAux___main___at_Lean_Parser_Term_listLit___elambda__1___spec__2___closed__3;
@@ -1505,7 +1506,6 @@ lean_object* l_Lean_Parser_Term_structInstArrayRef___closed__8;
 lean_object* l_Lean_Parser_Term_sub___closed__2;
 lean_object* l_Lean_Parser_Term_byTactic___elambda__1___closed__5;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_proj(lean_object*);
-extern lean_object* l_PersistentArray_Stats_toString___closed__4;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_band(lean_object*);
 extern lean_object* l_Lean_Parser_Level_paren___elambda__1___closed__3;
 lean_object* l_Lean_Parser_numLit___elambda__1(lean_object*, lean_object*);
@@ -3597,7 +3597,7 @@ lean_object* _init_l_Lean_Parser_Term_explicitUniv___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentArray_Stats_toString___closed__4;
+x_1 = l_PersistentHashMap_Stats_toString___closed__5;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -55479,6 +55479,7 @@ x_6 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Parser_Parser(lean_object*);
 lean_object* initialize_Lean_Parser_Level(lean_object*);
 static bool _G_initialized = false;
@@ -55486,6 +55487,9 @@ lean_object* initialize_Lean_Parser_Term(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Parser_Parser(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

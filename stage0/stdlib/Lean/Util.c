@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util
-// Imports: Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.PPGoal Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.Sorry Lean.Util.Trace Lean.Util.WHNF Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.FoldConsts
+// Imports: Init Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.PPGoal Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.Sorry Lean.Util.Trace Lean.Util.WHNF Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.FoldConsts
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_CollectFVars(lean_object*);
 lean_object* initialize_Lean_Util_CollectLevelParams(lean_object*);
 lean_object* initialize_Lean_Util_CollectMVars(lean_object*);
@@ -34,6 +35,9 @@ lean_object* initialize_Lean_Util(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Util_CollectFVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Delaborator
-// Imports: Lean.KeyedDeclsAttribute Lean.ProjFns Lean.Syntax Lean.Elab.Term
+// Imports: Init Lean.KeyedDeclsAttribute Lean.ProjFns Lean.Syntax Lean.Elab.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -148,6 +148,7 @@ extern lean_object* l_Lean_mkAppStx___closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_sort___elambda__1___closed__5;
 uint8_t l_Lean_getPPBinderTypes(lean_object*);
+extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_Delaborator_delabAppImplicit(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_failure___at_Lean_Delaborator_DelabM_inhabited___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_getExprKind___closed__32;
@@ -332,7 +333,6 @@ lean_object* l_Lean_Delaborator_delabFor(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Delaborator_getPPOption___closed__1;
 extern lean_object* l_Lean_mkAppStx___closed__5;
 lean_object* l_Lean_Level_quote___main___lambda__1___closed__4;
-extern lean_object* l_PersistentArray_Stats_toString___closed__4;
 uint8_t l_Lean_BinderInfo_beq(uint8_t, uint8_t);
 lean_object* l_Lean_Delaborator_mkDelabAttribute___closed__2;
 lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
@@ -8652,7 +8652,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l_PersistentArray_Stats_toString___closed__4;
+x_2 = l_PersistentHashMap_Stats_toString___closed__5;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -18595,6 +18595,7 @@ return x_23;
 }
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_KeyedDeclsAttribute(lean_object*);
 lean_object* initialize_Lean_ProjFns(lean_object*);
 lean_object* initialize_Lean_Syntax(lean_object*);
@@ -18604,6 +18605,9 @@ lean_object* initialize_Lean_Delaborator(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_KeyedDeclsAttribute(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.ResolveName
-// Imports: Lean.Hygiene Lean.Modifiers Lean.Elab.Alias
+// Imports: Init Lean.Hygiene Lean.Modifiers Lean.Elab.Alias
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Elab_resolveNamespaceUsingScope(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Elab_ResolveName_5__resolveGlobalNameAux___main___spec__4(lean_object*, lean_object*);
@@ -74,7 +75,6 @@ lean_object* l_Lean_Elab_OpenDecl_HasToString(lean_object*);
 lean_object* l_Lean_Elab_resolveNamespaceUsingOpenDecls___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveNamespaceUsingOpenDecls___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_OpenDecl_HasToString___closed__1;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_List_beq___main___at_Lean_Elab_OpenDecl_HasToString___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_isNamespace(lean_object*, lean_object*);
@@ -170,7 +170,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = l_System_FilePath_dirName___closed__1;
+x_6 = l_Lean_Name_toString___closed__1;
 x_7 = l_Lean_Name_toStringWithSep___main(x_6, x_4);
 x_8 = l_List_reprAux___main___rarg___closed__1;
 x_9 = lean_string_append(x_8, x_7);
@@ -197,7 +197,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_2, 1);
 lean_inc(x_14);
 lean_dec(x_2);
-x_15 = l_System_FilePath_dirName___closed__1;
+x_15 = l_Lean_Name_toString___closed__1;
 x_16 = l_Lean_Name_toStringWithSep___main(x_15, x_13);
 x_17 = 0;
 x_18 = l_List_toStringAux___main___at_Lean_Elab_OpenDecl_HasToString___spec__3(x_17, x_14);
@@ -258,7 +258,7 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l_System_FilePath_dirName___closed__1;
+x_4 = l_Lean_Name_toString___closed__1;
 x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_2);
 x_6 = lean_box(0);
 x_7 = l_List_beq___main___at_Lean_Elab_OpenDecl_HasToString___spec__1(x_3, x_6);
@@ -290,7 +290,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_1, 1);
 lean_inc(x_15);
 lean_dec(x_1);
-x_16 = l_System_FilePath_dirName___closed__1;
+x_16 = l_Lean_Name_toString___closed__1;
 x_17 = l_Lean_Name_toStringWithSep___main(x_16, x_14);
 x_18 = l_Lean_Elab_OpenDecl_HasToString___closed__2;
 x_19 = lean_string_append(x_17, x_18);
@@ -1242,6 +1242,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Hygiene(lean_object*);
 lean_object* initialize_Lean_Modifiers(lean_object*);
 lean_object* initialize_Lean_Elab_Alias(lean_object*);
@@ -1250,6 +1251,9 @@ lean_object* initialize_Lean_Elab_ResolveName(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Hygiene(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

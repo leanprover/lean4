@@ -3,7 +3,6 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
 import Lean.Elab.Command
 import Lean.Elab.Quotation
 
@@ -369,14 +368,7 @@ match_syntax stx with
 def expandMacroArgIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.macroArgSimple then
-  let argType := stx.getArg 2;
-  match argType with
-  | Syntax.atom _ "ident" => pure $ Syntax.node `Lean.Parser.Syntax.ident #[argType]
-  | Syntax.atom _ "num"   => pure $ Syntax.node `Lean.Parser.Syntax.num #[argType]
-  | Syntax.atom _ "str"   => pure $ Syntax.node `Lean.Parser.Syntax.str #[argType]
-  | Syntax.atom _ "char"  => pure $ Syntax.node `Lean.Parser.Syntax.char #[argType]
-  | Syntax.ident _ _ _ _  => pure $ Syntax.node `Lean.Parser.Syntax.cat #[stx.getArg 2,  stx.getArg 3]
-  | _                     => Macro.throwUnsupported
+  pure $ stx.getArg 2
 else if k == strLitKind then
   pure $ Syntax.node `Lean.Parser.Syntax.atom #[stx]
 else
@@ -436,6 +428,53 @@ fun stx => do
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.syntax;
 pure ()
+
+@[inline] def withExpectedType (ref : Syntax) (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
+Term.tryPostponeIfNoneOrMVar expectedType?;
+some expectedType ← pure expectedType?
+  | Term.throwError ref "expected type must be known";
+x expectedType
+
+/-
+def elabTail := try (" : " >> ident) >> darrow >> termParser
+parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
+-/
+@[builtinMacro Lean.Parser.Command.elab] def expandElab : Macro :=
+fun stx => do
+  let ref := stx;
+  let prec    := (stx.getArg 1).getArgs;
+  let head    := stx.getArg 2;
+  let args    := (stx.getArg 3).getArgs;
+  let cat     := stx.getArg 5;
+  let expectedTypeSpec := stx.getArg 6;
+  let rhs     := stx.getArg 8;
+  let catName := cat.getId;
+  kind ← Macro.mkFreshKind catName.eraseMacroScopes;
+  -- build parser
+  stxPart  ← expandMacroHeadIntoSyntaxItem head;
+  stxParts ← args.mapM expandMacroArgIntoSyntaxItem;
+  let stxParts := #[stxPart] ++ stxParts;
+  -- build pattern for `martch_syntax
+  patHead ← expandMacroHeadIntoPattern head;
+  patArgs ← args.mapM expandMacroArgIntoPattern;
+  let pat := Syntax.node kind (#[patHead] ++ patArgs);
+  let kindId    := mkIdentFrom ref kind;
+  if expectedTypeSpec.hasArgs then
+    if catName == `term then
+      let expId := expectedTypeSpec.getArg 1;
+      `(syntax $prec* [$kindId] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx expectedType? => match_syntax stx with | `($pat) => Lean.Elab.Command.withExpectedType stx expectedType? fun $expId => $rhs | _ => Lean.Elab.Term.throwUnsupportedSyntax)
+    else
+      Macro.throwError expectedTypeSpec ("syntax category '" ++ toString catName ++ "' does not support expected type specification")
+  else if catName == `term then
+    `(syntax $prec* [$kindId] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx _ => match_syntax stx with | `($pat) => $rhs | _ => Lean.Elab.Term.throwUnsupportedSyntax)
+  else if catName == `command then
+    `(syntax $prec* [$kindId] $stxParts* : $cat @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab := fun stx => match_syntax stx with | `($pat) => $rhs | _ => Lean.Elab.Command.throwUnsupportedSyntax)
+  else if catName == `tactic then
+    `(syntax $prec* [$kindId] $stxParts* : $cat @[tactic $kindId:ident] def elabFn : Lean.Elab.Tactic.Tactic := fun stx => match_syntax stx with | `(tactic|$pat) => $rhs | _ => Lean.Elab.Tactic.throwUnsupportedSyntax)
+  else
+    -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
+    -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
+    Macro.throwError ref ("unsupported syntax category '" ++ toString catName ++ "'")
 
 end Command
 end Elab

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclModifiers
-// Imports: Lean.Elab.Command
+// Imports: Init Lean.Elab.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -45,6 +45,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__11;
+extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared___closed__2;
 lean_object* l_Lean_Elab_Command_mkDeclName(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,7 +98,6 @@ extern lean_object* l_Lean_HasRepr___closed__1;
 lean_object* l_Lean_Elab_Command_Visibility_hasToString___closed__1;
 extern lean_object* l_Lean_Parser_Command_noncomputable___elambda__1___closed__1;
 uint8_t l_Lean_isAttribute(lean_object*, lean_object*);
-extern lean_object* l_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabAttr___closed__3;
@@ -458,7 +458,7 @@ lean_object* _init_l_Lean_Elab_Command_Modifiers_hasFormat___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentArray_Stats_toString___closed__4;
+x_1 = l_PersistentHashMap_Stats_toString___closed__5;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -2901,12 +2901,16 @@ lean_dec(x_1);
 return x_8;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Elab_Command(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_DeclModifiers(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

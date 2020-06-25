@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Structure
-// Imports: Lean.Environment Lean.ProjFns
+// Imports: Init Lean.Environment Lean.ProjFns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -300,7 +300,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = lean_unsigned_to_nat(40u);
+x_2 = lean_unsigned_to_nat(39u);
 x_3 = lean_unsigned_to_nat(7u);
 x_4 = l_Lean_getStructureCtor___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -320,7 +320,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = lean_unsigned_to_nat(39u);
+x_2 = lean_unsigned_to_nat(38u);
 x_3 = lean_unsigned_to_nat(9u);
 x_4 = l_Lean_getStructureCtor___closed__4;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -558,7 +558,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = lean_unsigned_to_nat(61u);
+x_2 = lean_unsigned_to_nat(60u);
 x_3 = lean_unsigned_to_nat(11u);
 x_4 = l___private_Lean_Structure_2__isSubobjectFieldAux___main___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -1288,6 +1288,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Environment(lean_object*);
 lean_object* initialize_Lean_ProjFns(lean_object*);
 static bool _G_initialized = false;
@@ -1295,6 +1296,9 @@ lean_object* initialize_Lean_Structure(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Environment(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

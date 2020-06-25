@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ToExpr
-// Imports: Lean.Expr
+// Imports: Init Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1308,12 +1308,16 @@ x_3 = lean_alloc_closure((void*)(l_Lean_prodToExpr___rarg), 2, 0);
 return x_3;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Expr(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_ToExpr(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Expr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

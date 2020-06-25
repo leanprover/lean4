@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.SynthInstance
-// Imports: Lean.Meta.Basic Lean.Meta.Instances Lean.Meta.LevelDefEq Lean.Meta.AbstractMVars Lean.Meta.WHNF
+// Imports: Init Lean.Meta.Basic Lean.Meta.Instances Lean.Meta.LevelDefEq Lean.Meta.AbstractMVars Lean.Meta.WHNF
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3613,7 +3613,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
-x_2 = lean_unsigned_to_nat(192u);
+x_2 = lean_unsigned_to_nat(191u);
 x_3 = lean_unsigned_to_nat(13u);
 x_4 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -6015,7 +6015,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
-x_2 = lean_unsigned_to_nat(231u);
+x_2 = lean_unsigned_to_nat(230u);
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Lean_Meta_SynthInstance_getEntry___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -16202,7 +16202,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
-x_2 = lean_unsigned_to_nat(426u);
+x_2 = lean_unsigned_to_nat(425u);
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Lean_Meta_SynthInstance_resume___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -24671,6 +24671,7 @@ return x_38;
 }
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Meta_Basic(lean_object*);
 lean_object* initialize_Lean_Meta_Instances(lean_object*);
 lean_object* initialize_Lean_Meta_LevelDefEq(lean_object*);
@@ -24681,6 +24682,9 @@ lean_object* initialize_Lean_Meta_SynthInstance(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Environment
-// Imports: Init.System.IO Init.Util Init.Data.ByteArray Lean.Data.SMap Lean.Declaration Lean.LocalContext Lean.Util.Path Lean.Util.FindExpr
+// Imports: Init Lean.Data.SMap Lean.Declaration Lean.LocalContext Lean.Util.Path Lean.Util.FindExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -329,6 +329,7 @@ lean_object* lean_kernel_whnf(lean_object*, lean_object*, lean_object*);
 uint8_t l_PersistentHashMap_contains___at_Lean_Environment_contains___spec__3(lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_5__envExtensionsRef;
 lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 size_t l_USize_mod(size_t, size_t);
 lean_object* l_Lean_namespacesExt___elambda__2___boxed(lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f___main___at_Lean_Environment_hasUnsafe___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -479,7 +480,6 @@ lean_object* l_Lean_registerPersistentEnvExtension___boxed(lean_object*, lean_ob
 lean_object* l_HashMapImp_contains___at_Lean_Environment_contains___spec__2___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_isNamespace(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
-lean_object* l_ExceptT_Monad___rarg___lambda__8___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_Lean_mkTagDeclarationExtension___closed__3;
 lean_object* l_Array_iterateMAux___main___at_Lean_Environment_displayStats___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3535,7 +3535,7 @@ lean_object* _init_l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ExceptT_Monad___rarg___lambda__8___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 0);
 return x_1;
 }
 }
@@ -13248,9 +13248,7 @@ x_4 = lean_kernel_whnf(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_System_IO(lean_object*);
-lean_object* initialize_Init_Util(lean_object*);
-lean_object* initialize_Init_Data_ByteArray(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_SMap(lean_object*);
 lean_object* initialize_Lean_Declaration(lean_object*);
 lean_object* initialize_Lean_LocalContext(lean_object*);
@@ -13261,13 +13259,7 @@ lean_object* initialize_Lean_Environment(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Util(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_SMap(lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Trace
-// Imports: Lean.Message
+// Imports: Init Lean.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -100,6 +100,7 @@ size_t lean_usize_of_nat(lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_MonadTracerAdapter_trace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_3__getResetTraces___rarg___lambda__1(lean_object*);
+lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_HasRepr___closed__1;
 lean_object* l_Lean_MonadTracerAdapter_traceCtx___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Util_Trace_3__getResetTraces(lean_object*);
@@ -146,7 +147,6 @@ lean_object* l_Lean_SimpleMonadTracerAdapter_setTrace___rarg(lean_object*, lean_
 lean_object* l_Lean_MonadTracerAdapter_traceCtxExcept___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkTraceOption___closed__2;
 lean_object* l_Lean_MonadTracerAdapter_traceCtxExcept(lean_object*, lean_object*);
-lean_object* l_ExceptT_Monad___rarg___lambda__8___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_trace(lean_object*);
 lean_object* l_Lean_liftMonadTracerAdapter(lean_object*, lean_object*);
 lean_object* l_Lean_SimpleMonadTracerAdapter_enableTracing___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1741,7 +1741,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = lean_alloc_closure((void*)(l_ExceptT_Monad___rarg___lambda__8___boxed), 2, 1);
+x_4 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_4, 0, x_2);
 x_5 = lean_apply_1(x_3, x_4);
 return x_5;
@@ -1849,12 +1849,16 @@ x_6 = lean_register_option(x_4, x_5, x_2);
 return x_6;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Message(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Util_Trace(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Message(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

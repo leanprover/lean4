@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Format
-// Imports: Lean.Data.Format Lean.Compiler.IR.Basic
+// Imports: Init Lean.Data.Format Lean.Compiler.IR.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -72,6 +72,7 @@ lean_object* l_Lean_IR_formatArray___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__2;
 lean_object* l_Lean_IR_declHasFormat___closed__1;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__23;
+extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_IR_formatFnBody___main___closed__4;
 lean_object* l___private_Lean_Compiler_IR_Format_5__formatIRType___main___closed__10;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__1;
@@ -137,7 +138,6 @@ lean_object* l_Lean_IR_fnBodyHasToString(lean_object*);
 lean_object* l_Lean_IR_formatFnBodyHead___closed__25;
 lean_object* l___private_Lean_Compiler_IR_Format_4__formatExpr___closed__4;
 lean_object* lean_ir_format_fn_body_head(lean_object*);
-extern lean_object* l_PersistentArray_Stats_toString___closed__4;
 lean_object* l___private_Lean_Compiler_IR_Format_4__formatExpr___closed__9;
 lean_object* l___private_Lean_Compiler_IR_Format_4__formatExpr___closed__27;
 lean_object* l_Lean_IR_formatAlt___closed__3;
@@ -1668,7 +1668,7 @@ lean_object* _init_l___private_Lean_Compiler_IR_Format_5__formatIRType___main___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentArray_Stats_toString___closed__4;
+x_1 = l_PersistentHashMap_Stats_toString___closed__5;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -4193,6 +4193,7 @@ x_1 = l_Lean_IR_declHasToString___closed__1;
 return x_1;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Format(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Basic(lean_object*);
 static bool _G_initialized = false;
@@ -4200,6 +4201,9 @@ lean_object* initialize_Lean_Compiler_IR_Format(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Data_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

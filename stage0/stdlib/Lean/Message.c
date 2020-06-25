@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Message
-// Imports: Init.Data.ToString Lean.Data.Position Lean.Syntax Lean.MetavarContext Lean.Environment Lean.Util.PPExt Lean.Util.PPGoal
+// Imports: Init Lean.Data.Position Lean.Syntax Lean.MetavarContext Lean.Environment Lean.Util.PPExt Lean.Util.PPGoal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3279,7 +3279,7 @@ return x_124;
 }
 }
 }
-lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Position(lean_object*);
 lean_object* initialize_Lean_Syntax(lean_object*);
 lean_object* initialize_Lean_MetavarContext(lean_object*);
@@ -3291,7 +3291,7 @@ lean_object* initialize_Lean_Message(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ToString(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Position(lean_io_mk_world());

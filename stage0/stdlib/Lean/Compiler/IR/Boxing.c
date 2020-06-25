@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Boxing
-// Imports: Init.Control.EState Init.Control.Reader Init.Data.AssocList Init.Data.Nat Lean.Runtime Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.IR.Basic Lean.Compiler.IR.CompilerM Lean.Compiler.IR.FreeVars Lean.Compiler.IR.ElimDeadVars
+// Imports: Init Lean.Runtime Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.IR.Basic Lean.Compiler.IR.CompilerM Lean.Compiler.IR.FreeVars Lean.Compiler.IR.ElimDeadVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7380,10 +7380,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Control_EState(lean_object*);
-lean_object* initialize_Init_Control_Reader(lean_object*);
-lean_object* initialize_Init_Data_AssocList(lean_object*);
-lean_object* initialize_Init_Data_Nat(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Runtime(lean_object*);
 lean_object* initialize_Lean_Compiler_ClosedTermCache(lean_object*);
 lean_object* initialize_Lean_Compiler_ExternAttr(lean_object*);
@@ -7396,16 +7393,7 @@ lean_object* initialize_Lean_Compiler_IR_Boxing(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_EState(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Reader(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_AssocList(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Runtime(lean_io_mk_world());

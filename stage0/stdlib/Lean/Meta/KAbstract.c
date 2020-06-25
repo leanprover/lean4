@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.KAbstract
-// Imports: Lean.Data.Occurrences Lean.HeadIndex Lean.Meta.ExprDefEq
+// Imports: Init Lean.Data.Occurrences Lean.HeadIndex Lean.Meta.ExprDefEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4490,6 +4490,7 @@ lean_dec(x_3);
 return x_6;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Occurrences(lean_object*);
 lean_object* initialize_Lean_HeadIndex(lean_object*);
 lean_object* initialize_Lean_Meta_ExprDefEq(lean_object*);
@@ -4498,6 +4499,9 @@ lean_object* initialize_Lean_Meta_KAbstract(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Data_Occurrences(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

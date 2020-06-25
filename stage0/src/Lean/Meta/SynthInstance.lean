@@ -5,7 +5,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 
 Type class instance synthesizer using tabled resolution.
 -/
-prelude
 import Lean.Meta.Basic
 import Lean.Meta.Instances
 import Lean.Meta.LevelDefEq

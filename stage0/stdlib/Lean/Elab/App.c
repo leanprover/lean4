@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.App
-// Imports: Lean.Util.FindMVar Lean.Elab.Term Lean.Elab.Binders
+// Imports: Init Lean.Util.FindMVar Lean.Elab.Term Lean.Elab.Binders
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Elab_Term_addNamedArg___closed__5;
 lean_object* l_Lean_Elab_Term_getEnv___rarg(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l___private_Lean_Elab_App_7__hasOnlyTypeMVar___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_18__elabAppLValsAux___main___closed__2;
 extern lean_object* l_Lean_fieldIdxKind;
@@ -365,7 +366,6 @@ lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_objec
 lean_object* l___private_Lean_Elab_App_13__resolveLValAux___closed__26;
 extern lean_object* l_Nat_Inhabited;
 lean_object* l___private_Lean_Elab_App_24__mergeFailures___rarg___closed__2;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l___private_Lean_Elab_App_25__elabAppAux___closed__3;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_11__elabAppArgs___closed__9;
@@ -461,7 +461,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_System_FilePath_dirName___closed__1;
+x_3 = l_Lean_Name_toString___closed__1;
 x_4 = l_Lean_Name_toStringWithSep___main(x_3, x_2);
 x_5 = l_Prod_HasRepr___rarg___closed__1;
 x_6 = lean_string_append(x_5, x_4);
@@ -647,7 +647,7 @@ lean_dec(x_9);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
-x_12 = l_System_FilePath_dirName___closed__1;
+x_12 = l_Lean_Name_toString___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_11);
 x_14 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -14583,7 +14583,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
-x_6 = l_System_FilePath_dirName___closed__1;
+x_6 = l_Lean_Name_toString___closed__1;
 x_7 = l_Lean_Name_toStringWithSep___main(x_6, x_4);
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -14600,7 +14600,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = l_System_FilePath_dirName___closed__1;
+x_12 = l_Lean_Name_toString___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_10);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -18126,6 +18126,7 @@ return x_13;
 }
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_FindMVar(lean_object*);
 lean_object* initialize_Lean_Elab_Term(lean_object*);
 lean_object* initialize_Lean_Elab_Binders(lean_object*);
@@ -18134,6 +18135,9 @@ lean_object* initialize_Lean_Elab_App(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Util_FindMVar(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Level
-// Imports: Init.Data.Option.Basic Init.Data.HashMap Init.Data.PersistentHashMap Init.Data.HashSet Init.Data.PersistentHashSet Lean.Data.Name Lean.Data.Format
+// Imports: Init Lean.Data.Name Lean.Data.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Level_dec(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 uint8_t l_Lean_Level_isNeverZero(lean_object*);
 lean_object* l_Lean_Level_normalize___main(lean_object*);
 lean_object* l_Lean_Level_isMax___boxed(lean_object*);
@@ -233,7 +234,6 @@ lean_object* l_Lean_Level_instantiateParams(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isSucc(lean_object*);
 uint8_t l___private_Lean_Level_7__isExplicitSubsumedAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_isExplicit(lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Level_updateSucc_x21___closed__1;
 uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
@@ -439,7 +439,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Level_mkData___closed__2;
-x_2 = lean_unsigned_to_nat(47u);
+x_2 = lean_unsigned_to_nat(41u);
 x_3 = lean_unsigned_to_nat(33u);
 x_4 = l_Lean_Level_mkData___closed__3;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -1374,7 +1374,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Level_mkData___closed__2;
-x_2 = lean_unsigned_to_nat(159u);
+x_2 = lean_unsigned_to_nat(153u);
 x_3 = lean_unsigned_to_nat(19u);
 x_4 = l_Lean_Level_mvarId_x21___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -3854,7 +3854,7 @@ lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___main___spec__1(
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_System_FilePath_dirName___closed__1;
+x_2 = l_Lean_Name_toString___closed__1;
 x_3 = l_Lean_Name_toStringWithSep___main(x_2, x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -4007,7 +4007,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Level_mkData___closed__2;
-x_2 = lean_unsigned_to_nat(437u);
+x_2 = lean_unsigned_to_nat(431u);
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Lean_Level_updateSucc_x21___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -4056,7 +4056,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Level_mkData___closed__2;
-x_2 = lean_unsigned_to_nat(446u);
+x_2 = lean_unsigned_to_nat(440u);
 x_3 = lean_unsigned_to_nat(19u);
 x_4 = l_Lean_Level_updateMax_x21___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -4106,7 +4106,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Level_mkData___closed__2;
-x_2 = lean_unsigned_to_nat(455u);
+x_2 = lean_unsigned_to_nat(449u);
 x_3 = lean_unsigned_to_nat(20u);
 x_4 = l_Lean_Level_updateIMax_x21___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -4262,11 +4262,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_Option_Basic(lean_object*);
-lean_object* initialize_Init_Data_HashMap(lean_object*);
-lean_object* initialize_Init_Data_PersistentHashMap(lean_object*);
-lean_object* initialize_Init_Data_HashSet(lean_object*);
-lean_object* initialize_Init_Data_PersistentHashSet(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Name(lean_object*);
 lean_object* initialize_Lean_Data_Format(lean_object*);
 static bool _G_initialized = false;
@@ -4274,19 +4270,7 @@ lean_object* initialize_Lean_Level(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_HashMap(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_PersistentHashMap(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_HashSet(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_PersistentHashSet(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Name(lean_io_mk_world());

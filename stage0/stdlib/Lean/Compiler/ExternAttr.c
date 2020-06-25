@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.ExternAttr
-// Imports: Init.Data.Option.Basic Lean.Expr Lean.Environment Lean.Attributes Lean.ProjFns
+// Imports: Init Lean.Expr Lean.Environment Lean.Attributes Lean.ProjFns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_string_push(lean_object*, uint32_t);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_getExternEntryForAux(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -146,7 +147,6 @@ lean_object* l_Lean_getExternEntryForAux___main___boxed(lean_object*, lean_objec
 lean_object* l_String_Iterator_remainingBytes(lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__1;
 lean_object* l_Lean_getExternEntryForAux___main(lean_object*, lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1489,7 +1489,7 @@ lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean
 x_51 = lean_ctor_get(x_1, 0);
 lean_inc(x_51);
 lean_dec(x_1);
-x_52 = l_System_FilePath_dirName___closed__1;
+x_52 = l_Lean_Name_toString___closed__1;
 x_53 = l_Lean_Name_toStringWithSep___main(x_52, x_51);
 x_54 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_55 = lean_string_append(x_54, x_53);
@@ -1709,7 +1709,7 @@ lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 x_103 = lean_ctor_get(x_1, 0);
 lean_inc(x_103);
 lean_dec(x_1);
-x_104 = l_System_FilePath_dirName___closed__1;
+x_104 = l_Lean_Name_toString___closed__1;
 x_105 = l_Lean_Name_toStringWithSep___main(x_104, x_103);
 x_106 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_107 = lean_string_append(x_106, x_105);
@@ -2958,7 +2958,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Option_Basic(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Expr(lean_object*);
 lean_object* initialize_Lean_Environment(lean_object*);
 lean_object* initialize_Lean_Attributes(lean_object*);
@@ -2968,7 +2968,7 @@ lean_object* initialize_Lean_Compiler_ExternAttr(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Expr(lean_io_mk_world());

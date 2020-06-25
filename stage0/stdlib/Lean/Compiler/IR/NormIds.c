@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.NormIds
-// Imports: Init.Control.Reader Init.Control.Conditional Lean.Compiler.IR.Basic
+// Imports: Init Lean.Compiler.IR.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6949,18 +6949,14 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init_Control_Reader(lean_object*);
-lean_object* initialize_Init_Control_Conditional(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Compiler_IR_NormIds(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Reader(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Conditional(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Basic(lean_io_mk_world());

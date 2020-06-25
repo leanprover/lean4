@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.ResetReuse
-// Imports: Init.Control.State Init.Control.Reader Lean.Compiler.IR.Basic Lean.Compiler.IR.LiveVars Lean.Compiler.IR.Format
+// Imports: Init Lean.Compiler.IR.Basic Lean.Compiler.IR.LiveVars Lean.Compiler.IR.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2262,8 +2262,7 @@ return x_1;
 }
 }
 }
-lean_object* initialize_Init_Control_State(lean_object*);
-lean_object* initialize_Init_Control_Reader(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Basic(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_LiveVars(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Format(lean_object*);
@@ -2272,10 +2271,7 @@ lean_object* initialize_Lean_Compiler_IR_ResetReuse(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_State(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Reader(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Basic(lean_io_mk_world());

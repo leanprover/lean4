@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Match
-// Imports: Lean.Elab.Term
+// Imports: Init Lean.Elab.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1660,12 +1660,16 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Elab_Term(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_Match(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Elab_Term(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

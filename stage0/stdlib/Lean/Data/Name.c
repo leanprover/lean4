@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Name
-// Imports: Init.LeanInit Init.Data.UInt Init.Data.ToString Init.Data.Hashable Init.Data.HashSet Init.Data.RBMap Init.Data.RBTree
+// Imports: Init
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9300,37 +9300,13 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_LeanInit(lean_object*);
-lean_object* initialize_Init_Data_UInt(lean_object*);
-lean_object* initialize_Init_Data_ToString(lean_object*);
-lean_object* initialize_Init_Data_Hashable(lean_object*);
-lean_object* initialize_Init_Data_HashSet(lean_object*);
-lean_object* initialize_Init_Data_RBMap(lean_object*);
-lean_object* initialize_Init_Data_RBTree(lean_object*);
+lean_object* initialize_Init(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Data_Name(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_LeanInit(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ToString(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Hashable(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_HashSet(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_RBMap(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_RBTree(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_stringToName___closed__1 = _init_l_Lean_stringToName___closed__1();

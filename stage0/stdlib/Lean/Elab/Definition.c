@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Definition
-// Imports: Init.ShareCommon Lean.Util.CollectLevelParams Lean.Util.FoldConsts Lean.Util.CollectFVars Lean.Elab.DeclModifiers Lean.Elab.Binders
+// Imports: Init Lean.Util.CollectLevelParams Lean.Util.FoldConsts Lean.Util.CollectFVars Lean.Elab.DeclModifiers Lean.Elab.Binders
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6865,7 +6865,7 @@ return x_13;
 }
 }
 }
-lean_object* initialize_Init_ShareCommon(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_CollectLevelParams(lean_object*);
 lean_object* initialize_Lean_Util_FoldConsts(lean_object*);
 lean_object* initialize_Lean_Util_CollectFVars(lean_object*);
@@ -6876,7 +6876,7 @@ lean_object* initialize_Lean_Elab_Definition(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_ShareCommon(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_CollectLevelParams(lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Basic
-// Imports: Lean.Util.CollectMVars Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Subst Lean.Elab.Util Lean.Elab.Term
+// Imports: Init Lean.Util.CollectMVars Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Subst Lean.Elab.Util Lean.Elab.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Tactic_evalTactic___main___spec
 lean_object* l_Lean_Elab_logAt___at_Lean_Elab_Tactic_evalTraceState___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_withIncRecDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadLog;
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Elab_Tactic_getLocalInsts___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMVarContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -408,7 +409,6 @@ lean_object* l_Lean_Elab_Tactic_withMacroExpansion(lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resetSynthInstanceCache___boxed(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Lean_Elab_MonadMacroAdapter;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Elab_Tactic_monadLog___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_regBuiltinTacticParserAttr___closed__4;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -3583,7 +3583,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 lean_dec(x_1);
 lean_inc(x_2);
 x_6 = l_Lean_Syntax_getKind(x_2);
-x_7 = l_System_FilePath_dirName___closed__1;
+x_7 = l_Lean_Name_toString___closed__1;
 x_8 = l_Lean_Name_toStringWithSep___main(x_7, x_6);
 x_9 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -4409,7 +4409,7 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_getKind(x_1);
-x_6 = l_System_FilePath_dirName___closed__1;
+x_6 = l_Lean_Name_toString___closed__1;
 x_7 = l_Lean_Name_toStringWithSep___main(x_6, x_5);
 x_8 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -14142,7 +14142,7 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_Syntax_getId(x_1);
-x_11 = l_System_FilePath_dirName___closed__1;
+x_11 = l_Lean_Name_toString___closed__1;
 x_12 = l_Lean_Name_toStringWithSep___main(x_11, x_10);
 x_13 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -15466,6 +15466,7 @@ return x_13;
 }
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_CollectMVars(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Assumption(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Intro(lean_object*);
@@ -15479,6 +15480,9 @@ lean_object* initialize_Lean_Elab_Tactic_Basic(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Util_CollectMVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

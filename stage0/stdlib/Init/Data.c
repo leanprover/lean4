@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data
-// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.Float Init.Data.RBTree Init.Data.RBMap Init.Data.Option Init.Data.HashMap Init.Data.Random Init.Data.Queue Init.Data.Stack
+// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.PersistentArray Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.Float Init.Data.RBTree Init.Data.RBMap Init.Data.Option Init.Data.HashMap Init.Data.Random Init.Data.Queue Init.Data.Stack
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* initialize_Init_Data_String(lean_object*);
 lean_object* initialize_Init_Data_List(lean_object*);
 lean_object* initialize_Init_Data_Int(lean_object*);
 lean_object* initialize_Init_Data_Array(lean_object*);
+lean_object* initialize_Init_Data_PersistentArray(lean_object*);
 lean_object* initialize_Init_Data_ByteArray(lean_object*);
 lean_object* initialize_Init_Data_FloatArray(lean_object*);
 lean_object* initialize_Init_Data_Fin(lean_object*);
@@ -56,6 +57,9 @@ res = initialize_Init_Data_Int(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_PersistentArray(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray(lean_io_mk_world());

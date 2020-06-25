@@ -11,6 +11,7 @@ import Init.Data.String
 import Init.Data.List
 import Init.Data.Int
 import Init.Data.Array
+import Init.Data.PersistentArray
 import Init.Data.ByteArray
 import Init.Data.FloatArray
 import Init.Data.Fin

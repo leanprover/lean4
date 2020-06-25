@@ -25,7 +25,6 @@ back to the subterm.
 The delaborator is extensible via the `[delab]` attribute.
 -/
 
-prelude
 import Lean.KeyedDeclsAttribute
 import Lean.ProjFns
 import Lean.Syntax

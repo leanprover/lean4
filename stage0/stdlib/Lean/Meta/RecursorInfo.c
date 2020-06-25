@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.RecursorInfo
-// Imports: Init.Data.Nat.Control Lean.AuxRecursor Lean.Util.FindExpr Lean.Meta.ExprDefEq Lean.Meta.Message
+// Imports: Init Lean.AuxRecursor Lean.Util.FindExpr Lean.Meta.ExprDefEq Lean.Meta.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -89,6 +89,7 @@ lean_object* l___private_Lean_Meta_RecursorInfo_13__syntaxToMajorPos___closed__2
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__2;
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
+extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 extern lean_object* l_Lean_ParametricAttribute_Inhabited___closed__3;
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__6;
 lean_object* l_Lean_Meta_RecursorInfo_HasToString___closed__8;
@@ -220,7 +221,6 @@ extern lean_object* l_Bool_HasRepr___closed__1;
 extern lean_object* l_Lean_Syntax_inhabited;
 size_t lean_ptr_addr(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
-extern lean_object* l_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -1289,7 +1289,7 @@ x_82 = lean_string_append(x_80, x_81);
 x_83 = lean_string_append(x_82, x_40);
 lean_dec(x_40);
 x_84 = lean_string_append(x_83, x_7);
-x_85 = l_PersistentArray_Stats_toString___closed__4;
+x_85 = l_PersistentHashMap_Stats_toString___closed__5;
 x_86 = lean_string_append(x_84, x_85);
 return x_86;
 }
@@ -9806,7 +9806,7 @@ return x_21;
 }
 }
 }
-lean_object* initialize_Init_Data_Nat_Control(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_AuxRecursor(lean_object*);
 lean_object* initialize_Lean_Util_FindExpr(lean_object*);
 lean_object* initialize_Lean_Meta_ExprDefEq(lean_object*);
@@ -9816,7 +9816,7 @@ lean_object* initialize_Lean_Meta_RecursorInfo(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Control(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_AuxRecursor(lean_io_mk_world());

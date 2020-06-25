@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Basic
-// Imports: Init.Data.Array Lean.Data.KVMap Lean.Data.Name Lean.Data.Format Lean.Compiler.ExternAttr
+// Imports: Init Lean.Data.KVMap Lean.Data.Name Lean.Data.Format Lean.Compiler.ExternAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13268,7 +13268,7 @@ lean_ctor_set(x_13, 3, x_10);
 return x_13;
 }
 }
-lean_object* initialize_Init_Data_Array(lean_object*);
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_KVMap(lean_object*);
 lean_object* initialize_Lean_Data_Name(lean_object*);
 lean_object* initialize_Lean_Data_Format(lean_object*);
@@ -13278,7 +13278,7 @@ lean_object* initialize_Lean_Compiler_IR_Basic(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array(lean_io_mk_world());
+res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_KVMap(lean_io_mk_world());

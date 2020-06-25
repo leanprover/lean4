@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Generalize
-// Imports: Lean.Meta.KAbstract Lean.Meta.Tactic.Util
+// Imports: Init Lean.Meta.KAbstract Lean.Meta.Tactic.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -537,6 +537,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
+lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Meta_KAbstract(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Util(lean_object*);
 static bool _G_initialized = false;
@@ -544,6 +545,9 @@ lean_object* initialize_Lean_Meta_Tactic_Generalize(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_KAbstract(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

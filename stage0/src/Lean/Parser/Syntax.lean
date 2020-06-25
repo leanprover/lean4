@@ -3,7 +3,6 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-prelude
 import Lean.Parser.Command
 import Lean.Parser.Tactic
 
@@ -67,8 +66,7 @@ def notationItem := withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
-def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> nonReservedSymbol "str" <|> nonReservedSymbol "char" <|> (ident >> optPrecedence)
-def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> macroArgType
+def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec
 def macroArg  := try strLit <|> try macroArgSimple
 def macroHead := macroArg <|> try ident
 def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> ("`(" >> sepBy1 tacticParser "; " true true >> ")" <|> termParser)
@@ -80,7 +78,7 @@ def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
 @[builtinCommandParser] def «elab_rules» := parser! "elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts
 def elabHead := macroHead
 def elabArg  := macroArg
-def elabTail := try (" : " >> ident) >> darrow >> termParser
+def elabTail := try (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
 @[builtinCommandParser] def «elab»       := parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
 
 end Command

@@ -1,5 +1,5 @@
-import Init.Data.PersistentHashMap
-
+import Std.Data.PersistentHashMap
+open Std
 def m : PersistentHashMap Nat Nat :=
 let m : PersistentHashMap Nat Nat := {};
 m.insert 1 1

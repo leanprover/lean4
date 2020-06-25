@@ -54,7 +54,6 @@ running multiple parsers should check if an error message is set in the parser s
 Error recovery is left to the designer of the specific language; for example, Lean's top-level `parseCommand` loop skips
 tokens until the next command keyword on error.
 -/
-prelude
 import Lean.Data.Trie
 import Lean.Data.Position
 import Lean.Syntax

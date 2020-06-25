@@ -3,11 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.FreeVars
-import Init.Control.Reader
-import Init.Control.Conditional
 
 namespace Lean
 namespace IR

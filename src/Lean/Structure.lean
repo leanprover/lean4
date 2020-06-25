@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 
 Helper functions for retrieving structure information.
 -/
-prelude
 import Lean.Environment
 import Lean.ProjFns
 

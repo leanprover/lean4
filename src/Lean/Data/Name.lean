@@ -3,14 +3,6 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-prelude
-import Init.LeanInit
-import Init.Data.UInt
-import Init.Data.ToString
-import Init.Data.Hashable
-import Init.Data.HashSet
-import Init.Data.RBMap
-import Init.Data.RBTree
 
 namespace Lean
 

@@ -8,13 +8,6 @@ paths containing package roots: an import `A.B.C` resolves to
 `path/A/B/C.olean` for the first entry `path` in `LEAN_PATH`
 with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
-prelude
-import Init.System.IO
-import Init.System.FilePath
-import Init.Data.Array
-import Init.Data.List.Control
-import Init.Data.HashMap
-import Init.Data.Nat.Control
 import Lean.Data.Name
 
 namespace Lean

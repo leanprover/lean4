@@ -71,7 +71,6 @@ condition for `p rbp` is fulfilled. `goRight` advances to the next syntax siblin
 
 -/
 
-prelude
 import Lean.Parser
 import Lean.Elab.Command
 import Lean.Elab.Quotation

@@ -3,9 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
-import Init.Data.Array
-import Init.Data.Hashable
+namespace Std
 universes u v w w'
 
 namespace PersistentHashMap
@@ -317,3 +315,4 @@ def Stats.toString (s : Stats) : String :=
 instance : HasToString Stats := ⟨Stats.toString⟩
 
 end PersistentHashMap
+end Std

@@ -7,3 +7,5 @@ import Std.Data.BinomialHeap
 import Std.Data.DList
 import Std.Data.Stack
 import Std.Data.Queue
+import Std.Data.PersistentHashMap
+import Std.Data.PersistentHashSet

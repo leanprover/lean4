@@ -40,6 +40,8 @@ structure AttributeImpl :=
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
 ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure env }⟩
 
+open Std (PersistentHashMap)
+
 def mkAttributeMapRef : IO (IO.Ref (PersistentHashMap Name AttributeImpl)) :=
 IO.mkRef {}
 

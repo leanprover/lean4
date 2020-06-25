@@ -103,7 +103,7 @@ def initCacheForInput (input : String) : ParserCache :=
 
 abbrev TokenTable := Trie Token
 
-abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
+abbrev SyntaxNodeKindSet := Std.PersistentHashMap SyntaxNodeKind Unit
 
 def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : SyntaxNodeKindSet :=
 s.insert k ()
@@ -1373,7 +1373,7 @@ structure ParserCategory :=
 
 instance ParserCategory.inhabited : Inhabited ParserCategory := ⟨{ tables := {}, leadingIdentAsSymbol := false }⟩
 
-abbrev ParserCategories := PersistentHashMap Name ParserCategory
+abbrev ParserCategories := Std.PersistentHashMap Name ParserCategory
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (leadingIdentAsSymbol : Bool) : ParserState × List α :=
 let (s, stx) := peekToken c s;

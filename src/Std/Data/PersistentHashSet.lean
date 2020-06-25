@@ -3,9 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-prelude
-import Init.Data.PersistentHashMap
+import Std.Data.PersistentHashMap
 
+namespace Std
 universes u v
 
 structure PersistentHashSet (α : Type u) [HasBeq α] [Hashable α] :=
@@ -53,3 +53,4 @@ s.set.foldlM (fun d a _ => f d a) d
 Id.run $ s.foldM f d
 
 end PersistentHashSet
+end Std

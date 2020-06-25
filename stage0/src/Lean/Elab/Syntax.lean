@@ -111,7 +111,9 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
          let candidates := candidates.map fun ⟨c, _⟩ => c;
          match candidates with
          | []  => liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "' or parser declaration")
-         | [c] => `(ParserDescr.parser $(quote c))
+         | [c] => do
+           unless prec?.isNone $ liftM $ throwError (stx.getArg 3) "unexpected precedence";
+           `(ParserDescr.parser $(quote c))
          | cs  => liftM $ throwError (stx.getArg 3) ("ambiguous parser declaration " ++ toString cs)
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
@@ -233,6 +235,16 @@ fun stx => do
       `(@[$catParserId:ident] def myParser : Lean.ParserDescr := ParserDescr.node $(quote kind) $(quote prec) $val);
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx d $ elabCommand d
+
+/-
+def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
+-/
+@[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab :=
+fun stx => do
+  let declName := stx.getArg 1;
+  (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) Name.anonymous;
+  stx' ← `(def $declName : Lean.ParserDescr := $val);
+  withMacroExpansion stx stx' $ elabCommand stx'
 
 def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
 alts ← alts.mapSepElemsM $ fun alt => do {

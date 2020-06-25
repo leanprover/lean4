@@ -3,8 +3,8 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
-import Init.Data.RBMap.Basic
+import Std.Data.RBMap
+namespace Std
 universes u v w
 
 def RBTree (α : Type u) (lt : α → α → Bool) : Type u :=
@@ -13,7 +13,7 @@ RBMap α Unit lt
 @[inline] def mkRBTree (α : Type u) (lt : α → α → Bool) : RBTree α lt :=
 mkRBMap α Unit lt
 
-instance (α : Type u) (lt : α → α → Bool) : HasEmptyc (RBTree α lt) :=
+instance RBTree.hasEmptyc (α : Type u) (lt : α → α → Bool) : HasEmptyc (RBTree α lt) :=
 ⟨mkRBTree α lt⟩
 
 namespace RBTree
@@ -93,3 +93,4 @@ end RBTree
 
 def rbtreeOf {α : Type u} (l : List α) (lt : α → α → Bool) : RBTree α lt :=
 RBTree.fromList l lt
+end Std

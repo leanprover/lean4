@@ -1315,6 +1315,8 @@ fun c s =>
 @[inline] def many1Indent (p : Parser) (errorMsg : String) : Parser :=
 withPosition $ fun pos => many1 (checkColGe pos.column errorMsg >> p)
 
+open Std (RBMap RBMap.empty)
+
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
 def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
 

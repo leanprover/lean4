@@ -16,7 +16,5 @@ import Init.Data.FloatArray
 import Init.Data.Fin
 import Init.Data.UInt
 import Init.Data.Float
-import Init.Data.RBTree
-import Init.Data.RBMap
 import Init.Data.Option
 import Init.Data.Random

@@ -13,3 +13,5 @@ import Std.Data.PersistentArray
 import Std.Data.PersistentHashMap
 import Std.Data.PersistentHashSet
 import Std.Data.AssocList
+import Std.Data.RBTree
+import Std.Data.RBMap

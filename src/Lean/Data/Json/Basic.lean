@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
-
+import Std.Data.RBTree
 namespace Lean
 
 -- mantissa * 10^-exponent
@@ -81,6 +81,8 @@ instance jsonNumberHasRepr : HasRepr JsonNumber :=
 end JsonNumber
 
 def strLt (a b : String) := Decidable.decide (a < b)
+
+open Std (RBNode)
 
 inductive Json
 | null

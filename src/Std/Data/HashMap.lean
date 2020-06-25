@@ -131,10 +131,10 @@ def mkHashMap {α : Type u} {β : Type v} [HasBeq α] [Hashable α] (nbuckets :=
 namespace HashMap
 variables {α : Type u} {β : Type v} [HasBeq α] [Hashable α]
 
-instance : Inhabited (HashMap α β) :=
+instance inhabited : Inhabited (HashMap α β) :=
 ⟨mkHashMap⟩
 
-instance : HasEmptyc (HashMap α β) :=
+instance hasEmptyc : HasEmptyc (HashMap α β) :=
 ⟨mkHashMap⟩
 
 @[inline] def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=

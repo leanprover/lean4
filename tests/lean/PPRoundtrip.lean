@@ -39,7 +39,7 @@ section
   #eval check `(List Nat)
   #eval check `(id Nat)
 end
-#eval check `(id (id Nat)) (RBMap.empty.insert 4 $ KVMap.empty.insert `pp.explicit true)
+#eval check `(id (id Nat)) (Std.RBMap.empty.insert 4 $ KVMap.empty.insert `pp.explicit true)
 
 -- specify the expected type of `a` in a way that is not erased by the delaborator
 def typeAs.{u} (α : Type u) (a : α) := ()

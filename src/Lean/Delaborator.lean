@@ -66,7 +66,7 @@ registerOption `pp.explicit { defValue := false, group := "pp", descr := "(prett
 pure ()
 
 /-- Associate pretty printer options to a specific subterm using a synthetic position. -/
-abbrev OptionsPerPos := RBMap Nat Options (fun a b => a < b)
+abbrev OptionsPerPos := Std.RBMap Nat Options (fun a b => a < b)
 
 namespace Delaborator
 open Lean.Meta

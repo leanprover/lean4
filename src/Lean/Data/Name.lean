@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import Std.Data.HashSet
+import Std.Data.RBMap
+import Std.Data.RBTree
 namespace Lean
 
 instance stringToName : HasCoe String Name :=
@@ -126,9 +128,11 @@ def isAnonymous : Name → Bool
 
 end Name
 
-def NameMap (α : Type) := RBMap Name α Name.quickLt
+open Std (RBMap RBTree mkRBMap mkRBTree)
 
-@[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α Name.quickLt
+def NameMap (α : Type) := Std.RBMap Name α Name.quickLt
+
+@[inline] def mkNameMap (α : Type) : NameMap α := Std.mkRBMap Name α Name.quickLt
 
 namespace NameMap
 variable {α : Type}
@@ -137,11 +141,11 @@ instance (α : Type) : HasEmptyc (NameMap α) := ⟨mkNameMap α⟩
 
 instance (α : Type) : Inhabited (NameMap α) := ⟨{}⟩
 
-def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
+def insert (m : NameMap α) (n : Name) (a : α) := Std.RBMap.insert m n a
 
-def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
+def contains (m : NameMap α) (n : Name) : Bool := Std.RBMap.contains m n
 
-@[inline] def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
+@[inline] def find? (m : NameMap α) (n : Name) : Option α := Std.RBMap.find? m n
 
 end NameMap
 
@@ -151,8 +155,8 @@ namespace NameSet
 def empty : NameSet := mkRBTree Name Name.quickLt
 instance : HasEmptyc NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨{}⟩
-def insert (s : NameSet) (n : Name)  := RBTree.insert s n
-def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
+def insert (s : NameSet) (n : Name)  := Std.RBTree.insert s n
+def contains (s : NameSet) (n : Name) : Bool := Std.RBMap.contains s n
 
 end NameSet
 

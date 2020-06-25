@@ -3,10 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
-import Init.Data.Repr
-import Init.Data.Option.Basic
-
+namespace Std
 universes u v w w'
 
 inductive Rbcolor
@@ -19,7 +16,7 @@ inductive RBNode (α : Type u) (β : α → Type v)
 namespace RBNode
 variables {α : Type u} {β : α → Type v} {σ : Type w}
 
-open Rbcolor Nat
+open Std.Rbcolor Nat
 
 def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
 | leaf           => 0
@@ -205,7 +202,7 @@ inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop
 
 end RBNode
 
-open RBNode
+open Std.RBNode
 
 /- TODO(Leo): define dRBMap -/
 
@@ -303,7 +300,24 @@ m.fold (fun sz _ _ => sz+1) 0
 def maxDepth (t : RBMap α β lt) : Nat :=
 t.val.depth Nat.max
 
+@[inline] def min! [Inhabited α] [Inhabited β] (t : RBMap α β lt) : α × β :=
+match t.min with
+| some p => p
+| none   => panic! "map is empty"
+
+@[inline] def max! [Inhabited α] [Inhabited β] (t : RBMap α β lt) : α × β :=
+match t.max with
+| some p => p
+| none   => panic! "map is empty"
+
+@[inline] def find! [Inhabited β] (t : RBMap α β lt) (k : α) : β :=
+match t.find? k with
+| some b => b
+| none   => panic! "key is not in the map"
+
 end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=
 RBMap.fromList l lt
+
+end Std

@@ -1,3 +1,6 @@
+import Std
+open Std
+
 def check (b : Bool) : IO Unit :=
 unless b $ IO.println "ERROR"
 

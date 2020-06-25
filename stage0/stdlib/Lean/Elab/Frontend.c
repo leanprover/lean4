@@ -29,7 +29,6 @@ lean_object* l_Lean_Elab_Frontend_runCommandElabM___closed__1;
 lean_object* l___private_Lean_Elab_Command_3__setState(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM(lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos___closed__1;
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
@@ -40,7 +39,6 @@ lean_object* l_Lean_Elab_Frontend_setParserState___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseCommand___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___boxed(lean_object*);
-extern lean_object* l_PersistentArray_empty___closed__3;
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Parser_Module_4__testModuleParserAux___main___closed__1;
 lean_object* l_Lean_Elab_Command_elabCommand___main(lean_object*, lean_object*, lean_object*);
@@ -51,10 +49,13 @@ lean_object* l_Lean_Elab_Frontend_processCommandsAux___main(lean_object*);
 lean_object* l___private_Lean_Elab_Command_2__getState(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_liftIOCore_x21___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_ModuleParserState_inhabited;
+lean_object* l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_run_frontend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main___boxed(lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux(lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_PersistentArray_empty___closed__3;
 lean_object* l_Lean_Elab_Frontend_processCommand___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 lean_object* l_Lean_Elab_Frontend_getInputContext(lean_object*, lean_object*);
@@ -72,9 +73,8 @@ lean_object* l_Lean_Elab_Frontend_updateCmdPos___closed__2;
 uint8_t l_Lean_Parser_isEOI(lean_object*);
 lean_object* l_Lean_Elab_Frontend_setMessages(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_setMessages___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
+uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 extern lean_object* l_Nat_Inhabited;
-lean_object* l_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_getParserState___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_process(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
@@ -433,7 +433,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_28 = lean_ctor_get(x_25, 1);
-x_29 = l_PersistentArray_push___rarg(x_28, x_23);
+x_29 = l_Std_PersistentArray_push___rarg(x_28, x_23);
 lean_ctor_set(x_25, 1, x_29);
 x_30 = l___private_Lean_Elab_Command_3__setState(x_25, x_15, x_26);
 if (lean_obj_tag(x_30) == 0)
@@ -504,7 +504,7 @@ lean_inc(x_45);
 lean_inc(x_44);
 lean_inc(x_43);
 lean_dec(x_25);
-x_48 = l_PersistentArray_push___rarg(x_44, x_23);
+x_48 = l_Std_PersistentArray_push___rarg(x_44, x_23);
 x_49 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_49, 0, x_43);
 lean_ctor_set(x_49, 1, x_48);
@@ -741,7 +741,7 @@ if (x_104 == 0)
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; 
 x_105 = lean_ctor_get(x_102, 1);
-x_106 = l_PersistentArray_push___rarg(x_105, x_100);
+x_106 = l_Std_PersistentArray_push___rarg(x_105, x_100);
 lean_ctor_set(x_102, 1, x_106);
 x_107 = l___private_Lean_Elab_Command_3__setState(x_102, x_92, x_103);
 if (lean_obj_tag(x_107) == 0)
@@ -812,7 +812,7 @@ lean_inc(x_122);
 lean_inc(x_121);
 lean_inc(x_120);
 lean_dec(x_102);
-x_125 = l_PersistentArray_push___rarg(x_121, x_100);
+x_125 = l_Std_PersistentArray_push___rarg(x_121, x_100);
 x_126 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_126, 0, x_120);
 lean_ctor_set(x_126, 1, x_125);
@@ -2232,7 +2232,7 @@ x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 lean_dec(x_7);
 x_11 = l_Lean_Parser_mkInputContext(x_1, x_8);
-x_12 = l_PersistentArray_empty___closed__3;
+x_12 = l_Std_PersistentArray_empty___closed__3;
 x_13 = l_Lean_Elab_Command_mkState(x_2, x_12, x_3);
 x_14 = lean_io_mk_ref(x_13, x_10);
 if (lean_obj_tag(x_14) == 0)
@@ -2945,14 +2945,14 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_8, 1);
 lean_inc(x_11);
 lean_dec(x_8);
-x_12 = l_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_11);
+x_12 = l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_10);
 x_14 = l___private_Lean_Parser_Module_4__testModuleParserAux___main___closed__1;
-x_15 = l_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(x_14, x_11, x_9);
+x_15 = l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(x_14, x_11, x_9);
 lean_dec(x_11);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -3008,7 +3008,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26;
 lean_dec(x_10);
 x_24 = lean_box(0);
 x_25 = l___private_Lean_Parser_Module_4__testModuleParserAux___main___closed__1;
-x_26 = l_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(x_25, x_11, x_9);
+x_26 = l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(x_25, x_11, x_9);
 lean_dec(x_11);
 if (lean_obj_tag(x_26) == 0)
 {

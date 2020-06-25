@@ -20,7 +20,7 @@ structure VarInfo :=
 (persistent : Bool := false) -- true if the variable is statically known to be marked a Persistent at runtime
 (consume    : Bool := false) -- true if the variable RC must be "consumed"
 
-abbrev VarMap := RBMap VarId VarInfo (fun x y => x.idx < y.idx)
+abbrev VarMap := Std.RBMap VarId VarInfo (fun x y => x.idx < y.idx)
 
 structure Context :=
 (env            : Environment)

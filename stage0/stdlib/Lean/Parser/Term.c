@@ -595,7 +595,6 @@ lean_object* l_Lean_Parser_Term_byTactic___elambda__1___closed__9;
 extern lean_object* l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_arrayLit___closed__6;
 lean_object* l_Lean_Parser_Term_str;
-extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_Parser_Term_decide___closed__5;
 lean_object* l_Lean_Parser_Term_structInstLVal___closed__5;
 lean_object* l___private_Lean_Parser_Parser_2__sepByFnAux___main___at_Lean_Parser_Term_listLit___elambda__1___spec__2___closed__3;
@@ -990,6 +989,7 @@ lean_object* l_Lean_Parser_Term_tupleTail___closed__7;
 lean_object* l_Lean_Parser_Term_fromTerm___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_structInst___closed__14;
 lean_object* l_Lean_Parser_Term_depArrow___closed__4;
+extern lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_Parser_Term_subtype___closed__5;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_bindOp(lean_object*);
 lean_object* l_Lean_Parser_Term_nativeDecide___closed__4;
@@ -3597,7 +3597,7 @@ lean_object* _init_l_Lean_Parser_Term_explicitUniv___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentHashMap_Stats_toString___closed__5;
+x_1 = l_Std_PersistentArray_Stats_toString___closed__4;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

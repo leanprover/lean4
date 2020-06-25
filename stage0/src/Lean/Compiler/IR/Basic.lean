@@ -425,6 +425,8 @@ end Decl
 @[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
 Decl.extern f xs ty e
 
+open Std (RBTree RBTree.empty RBMap)
+
 /-- Set of variable and join point names -/
 abbrev IndexSet := RBTree Index Index.lt
 instance vsetInh : Inhabited IndexSet := ⟨{}⟩

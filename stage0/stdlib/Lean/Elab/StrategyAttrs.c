@@ -25,11 +25,11 @@ lean_object* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__8(lea
 uint8_t l_Lean_ElaboratorStrategy_inhabited;
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__12;
 extern lean_object* l_Array_empty___closed__1;
-lean_object* l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___lambda__1___closed__1;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___closed__1;
+lean_object* l_Std_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__4;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -38,14 +38,13 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkElaboratorS
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_mkElaboratorStrategyAttrs___lambda__1(lean_object*, lean_object*, uint8_t);
-lean_object* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_elaboratorStrategyAttrs;
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__21;
+lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
 lean_object* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__3;
-lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__7;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -56,7 +55,10 @@ lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__10;
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__20;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(lean_object*, lean_object*);
+lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__11;
+lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__19;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
@@ -66,7 +68,6 @@ lean_object* lean_get_elaborator_strategy(lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_getElaboratorStrategy___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__6;
-lean_object* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__2;
 extern lean_object* l___private_Lean_Environment_5__envExtensionsRef;
@@ -106,7 +107,6 @@ lean_object* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__8___b
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__9;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-lean_object* l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__8___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__4;
@@ -123,7 +123,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -137,7 +137,7 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_ctor_get(x_2, 3);
-x_7 = l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(x_1, x_3);
+x_7 = l_Std_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(x_1, x_3);
 lean_inc(x_5);
 lean_inc(x_4);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -1310,7 +1310,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec(x_2);
-x_5 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_1, x_3, x_4);
+x_5 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_1, x_3, x_4);
 return x_5;
 }
 }
@@ -1319,7 +1319,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = l_Array_empty___closed__1;
-x_3 = l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(x_2, x_1);
+x_3 = l_Std_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(x_2, x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
@@ -1697,11 +1697,11 @@ x_6 = l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__
 return x_6;
 }
 }
-lean_object* l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(x_1, x_2);
+x_3 = l_Std_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -1792,7 +1792,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1926,7 +1926,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_Lean_PersistentEnvExtension_getState___rarg(x_5, x_2);
-x_7 = l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(x_6, x_3);
+x_7 = l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(x_6, x_3);
 lean_dec(x_3);
 lean_dec(x_6);
 return x_7;
@@ -2000,11 +2000,11 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(x_1, x_2);
+x_3 = l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

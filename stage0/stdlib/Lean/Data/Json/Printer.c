@@ -25,12 +25,12 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Json_render___main(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 extern lean_object* l_String_quote___closed__1;
+lean_object* l_Std_RBNode_fold___main___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Id_monad;
 lean_object* l_Lean_Json_escape___boxed(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Json_jsonHasFormat;
 extern lean_object* l_Lean_Format_sbracket___closed__2;
-extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_Json_render___main___lambda__2___closed__1;
 lean_object* l_Lean_Json_jsonHasToString(lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
@@ -48,7 +48,6 @@ lean_object* l_Lean_Json_renderString___boxed(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
 lean_object* l_Lean_Format_joinSep___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBNode_fold___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_render___main___closed__5;
 extern lean_object* l_Lean_nullKind___closed__1;
 extern lean_object* l_Lean_Format_sbracket___closed__3;
@@ -74,6 +73,7 @@ lean_object* l_Lean_Json_render___main___closed__2;
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 lean_object* l___private_Lean_Data_Json_Printer_1__escapeAux___closed__2;
 extern lean_object* l_Lean_Format_repr___main___closed__16;
+lean_object* l_Lean_Json_render___main___closed__9;
 lean_object* l___private_Lean_Data_Json_Printer_1__escapeAux___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Json_Printer_1__escapeAux___closed__1;
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -442,8 +442,16 @@ return x_2;
 lean_object* _init_l_Lean_Json_render___main___closed__8() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("}");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Json_render___main___closed__9() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentHashMap_Stats_toString___closed__5;
+x_1 = l_Lean_Json_render___main___closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -543,7 +551,7 @@ lean_inc(x_31);
 lean_dec(x_1);
 x_32 = lean_box(0);
 x_33 = l_Lean_Json_render___main___closed__5;
-x_34 = l_RBNode_fold___main___rarg(x_33, x_32, x_31);
+x_34 = l_Std_RBNode_fold___main___rarg(x_33, x_32, x_31);
 x_35 = l_Lean_formatHasFormat;
 x_36 = l_Lean_Json_render___main___closed__4;
 x_37 = l_Lean_Format_joinSep___main___rarg(x_35, x_34, x_36);
@@ -553,7 +561,7 @@ x_40 = lean_alloc_ctor(4, 2, 1);
 lean_ctor_set(x_40, 0, x_39);
 lean_ctor_set(x_40, 1, x_37);
 lean_ctor_set_uint8(x_40, sizeof(void*)*2, x_38);
-x_41 = l_Lean_Json_render___main___closed__8;
+x_41 = l_Lean_Json_render___main___closed__9;
 x_42 = lean_alloc_ctor(4, 2, 1);
 lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
@@ -667,6 +675,8 @@ l_Lean_Json_render___main___closed__7 = _init_l_Lean_Json_render___main___closed
 lean_mark_persistent(l_Lean_Json_render___main___closed__7);
 l_Lean_Json_render___main___closed__8 = _init_l_Lean_Json_render___main___closed__8();
 lean_mark_persistent(l_Lean_Json_render___main___closed__8);
+l_Lean_Json_render___main___closed__9 = _init_l_Lean_Json_render___main___closed__9();
+lean_mark_persistent(l_Lean_Json_render___main___closed__9);
 l_Lean_Json_jsonHasFormat___closed__1 = _init_l_Lean_Json_jsonHasFormat___closed__1();
 lean_mark_persistent(l_Lean_Json_jsonHasFormat___closed__1);
 l_Lean_Json_jsonHasFormat = _init_l_Lean_Json_jsonHasFormat();

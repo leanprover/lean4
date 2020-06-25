@@ -146,6 +146,8 @@ def isListLevelDefEqAux : List Level → List Level → MetaM Bool
 private def getNumPostponed : MetaM Nat := do
 s ← get; pure s.postponed.size
 
+open Std (PersistentArray)
+
 private def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
 s ← get;
 let ps := s.postponed;

@@ -40,6 +40,8 @@ structure AttributeImpl :=
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
 ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure env }⟩
 
+open Std (PersistentHashMap)
+
 def mkAttributeMapRef : IO (IO.Ref (PersistentHashMap Name AttributeImpl)) :=
 IO.mkRef {}
 
@@ -55,7 +57,7 @@ unless initializing $ throw (IO.userError ("failed to register attribute, attrib
 attributeMapRef.modify (fun m => m.insert attr.name attr)
 
 abbrev AttributeImplBuilder := List DataValue → Except String AttributeImpl
-abbrev AttributeImplBuilderTable := HashMap Name AttributeImplBuilder
+abbrev AttributeImplBuilderTable := Std.HashMap Name AttributeImplBuilder
 
 def mkAttributeImplBuilderTable : IO (IO.Ref AttributeImplBuilderTable) := IO.mkRef {}
 @[init mkAttributeImplBuilderTable] constant attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable := arbitrary _

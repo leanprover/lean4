@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Definition
-// Imports: Init Lean.Util.CollectLevelParams Lean.Util.FoldConsts Lean.Util.CollectFVars Lean.Elab.DeclModifiers Lean.Elab.Binders
+// Imports: Init Std.ShareCommon Lean.Util.CollectLevelParams Lean.Util.FoldConsts Lean.Util.CollectFVars Lean.Elab.DeclModifiers Lean.Elab.Binders
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -41,6 +41,7 @@ extern lean_object* l___private_Lean_Elab_SyntheticMVars_2__resumePostponed___la
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Command_6__mkTermContext(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__2;
+extern lean_object* l_Std_ShareCommon_State_empty;
 lean_object* l_Lean_Elab_Command_compileDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverseAux___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Command_3__setState(lean_object*, lean_object*, lean_object*);
@@ -68,6 +69,7 @@ lean_object* l_Lean_Elab_Command_elabDefLike___lambda__2(lean_object*, lean_obje
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_collectUsedFVarsAtFVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_state_sharecommon(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabDefLike___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -105,10 +107,10 @@ uint8_t l_Lean_Elab_Command_DefKind_isTheorem(uint8_t);
 extern lean_object* l_Lean_Elab_Command_withDeclId___closed__3;
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_Elab_Command_sortDeclLevelParams(lean_object*, lean_object*);
-extern lean_object* l_HashSet_Inhabited___closed__1;
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__3;
 lean_object* l___private_Lean_Elab_Command_2__getState(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabDefLike___spec__3(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_HashSet_Inhabited___closed__1;
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_drop___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -136,8 +138,6 @@ lean_object* l_Lean_Elab_Term_elabBinders___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_Elab_Command_removeUnused___closed__1;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-extern lean_object* l_ShareCommon_State_empty;
-lean_object* lean_state_sharecommon(lean_object*, lean_object*);
 extern lean_object* l_Lean_levelOne;
 lean_object* lean_task_pure(lean_object*);
 lean_object* l___private_Lean_Elab_Command_12__addScopes___main(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -859,7 +859,7 @@ lean_object* _init_l_Lean_Elab_Command_removeUnused___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_HashSet_Inhabited___closed__1;
+x_1 = l_Std_HashSet_Inhabited___closed__1;
 x_2 = l_Lean_NameSet_empty;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1399,7 +1399,7 @@ lean_object* _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_HashSet_Inhabited___closed__1;
+x_1 = l_Std_HashSet_Inhabited___closed__1;
 x_2 = l_Array_empty___closed__1;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1499,7 +1499,7 @@ if (lean_is_exclusive(x_34)) {
  lean_dec_ref(x_34);
  x_37 = lean_box(0);
 }
-x_38 = l_ShareCommon_State_empty;
+x_38 = l_Std_ShareCommon_State_empty;
 x_39 = lean_state_sharecommon(x_38, x_32);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
@@ -6866,6 +6866,7 @@ return x_13;
 }
 }
 lean_object* initialize_Init(lean_object*);
+lean_object* initialize_Std_ShareCommon(lean_object*);
 lean_object* initialize_Lean_Util_CollectLevelParams(lean_object*);
 lean_object* initialize_Lean_Util_FoldConsts(lean_object*);
 lean_object* initialize_Lean_Util_CollectFVars(lean_object*);
@@ -6877,6 +6878,9 @@ lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_ShareCommon(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_CollectLevelParams(lean_io_mk_world());

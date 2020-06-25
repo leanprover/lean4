@@ -8,6 +8,8 @@ universe u
 
 namespace Lean
 
+open Std (PersistentArray)
+
 class MonadTracer (m : Type → Type u) :=
 (traceCtx {α} : Name → m α → m α)
 (trace  : Name → (Unit → MessageData) → m PUnit)

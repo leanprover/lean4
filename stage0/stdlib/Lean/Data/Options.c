@@ -15,8 +15,8 @@ extern "C" {
 #endif
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
-lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+lean_object* l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_verboseOption___closed__3;
@@ -32,6 +32,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Options_2__optionDeclsRef;
+lean_object* l_Std_RBNode_find___main___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecl___closed__1;
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_HasToString(lean_object*);
@@ -39,11 +40,10 @@ lean_object* l_Lean_Options_HasToString___closed__1;
 lean_object* l_Lean_timeoutOption___closed__4;
 lean_object* l_Lean_registerOption___closed__1;
 lean_object* l_Lean_registerOption___closed__2;
-lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toName(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__4;
 lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
-lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Options_Inhabited;
 lean_object* l_Lean_Options_HasToString;
 extern lean_object* l_Char_HasRepr___closed__1;
@@ -54,6 +54,7 @@ lean_object* l_Lean_verboseOption___closed__4;
 lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_setOptionFromString___closed__5;
 lean_object* l_Lean_maxMemoryOption___closed__5;
+lean_object* l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_maxMemoryOption___closed__3;
 lean_object* l_Lean_KVMap_setName(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__1;
@@ -68,15 +69,14 @@ lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_verboseOption___closed__1;
 lean_object* l_Lean_timeoutOption___closed__1;
 lean_object* l_Lean_maxMemoryOption___closed__1;
+lean_object* l_Std_RBNode_find___main___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 lean_object* l_Lean_maxMemoryOption___closed__2;
 lean_object* l_Lean_setOptionFromString___closed__2;
 lean_object* l_String_toNat_x3f(lean_object*);
 lean_object* l_Lean_timeoutOption___closed__3;
 lean_object* l_Lean_Options_HasEmptyc;
-lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_verboseOption___closed__5;
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
@@ -172,7 +172,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_free_object(x_5);
-x_10 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_7, x_1, x_2);
+x_10 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_7, x_1, x_2);
 x_11 = lean_io_ref_set(x_4, x_10, x_8);
 return x_11;
 }
@@ -207,7 +207,7 @@ x_21 = l_Lean_NameMap_contains___rarg(x_19, x_1);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
-x_22 = l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_19, x_1, x_2);
+x_22 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_19, x_1, x_2);
 x_23 = lean_io_ref_set(x_4, x_22, x_20);
 return x_23;
 }
@@ -267,7 +267,7 @@ x_3 = lean_io_ref_get(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -281,7 +281,7 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_ctor_get(x_2, 3);
-x_7 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_1, x_3);
+x_7 = l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_1, x_3);
 lean_inc(x_5);
 lean_inc(x_4);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -309,7 +309,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = l_Array_empty___closed__1;
-x_7 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_6, x_5);
+x_7 = l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_6, x_5);
 lean_dec(x_5);
 lean_ctor_set(x_3, 0, x_7);
 return x_3;
@@ -323,7 +323,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_dec(x_3);
 x_10 = l_Array_empty___closed__1;
-x_11 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_10, x_8);
+x_11 = l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_10, x_8);
 lean_dec(x_8);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
@@ -355,16 +355,16 @@ return x_16;
 }
 }
 }
-lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_1, x_2);
+x_3 = l_Std_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___main___at_Lean_getOptionDecl___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -429,7 +429,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_4, 0);
-x_7 = l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(x_6, x_1);
+x_7 = l_Std_RBNode_find___main___at_Lean_getOptionDecl___spec__1(x_6, x_1);
 lean_dec(x_6);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -466,7 +466,7 @@ x_17 = lean_ctor_get(x_4, 1);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_4);
-x_18 = l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(x_16, x_1);
+x_18 = l_Std_RBNode_find___main___at_Lean_getOptionDecl___spec__1(x_16, x_1);
 lean_dec(x_16);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -524,11 +524,11 @@ return x_32;
 }
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___main___at_Lean_getOptionDecl___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(x_1, x_2);
+x_3 = l_Std_RBNode_find___main___at_Lean_getOptionDecl___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

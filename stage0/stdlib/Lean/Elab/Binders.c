@@ -90,7 +90,6 @@ lean_object* l___private_Lean_Elab_Binders_9__getFunBinderIdsAux_x3f___main(uint
 lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Term_quoteAutoTactic___main___spec__1___closed__2;
 lean_object* l___private_Lean_Elab_Binders_3__expandOptIdent___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_Elab_Term_mkFreshAnonymousIdent(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_binderTactic___elambda__1___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabArrow(lean_object*);
@@ -277,6 +276,7 @@ lean_object* l___private_Lean_Elab_Binders_8__elabBindersAux___main___boxed(lean
 lean_object* l_Lean_mkTermIdFrom(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_matchAlt___closed__2;
 extern lean_object* l_Lean_Parser_Term_binderDefault___elambda__1___closed__2;
+extern lean_object* l_Std_PersistentHashMap_Stats_toString___closed__5;
 extern lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__22;
 extern lean_object* l_Lean_Expr_Inhabited;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_Binders_5__getBinderIds___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -770,7 +770,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l_PersistentHashMap_Stats_toString___closed__5;
+x_2 = l_Std_PersistentHashMap_Stats_toString___closed__5;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

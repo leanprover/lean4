@@ -45,7 +45,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__11;
-extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared___closed__2;
 lean_object* l_Lean_Elab_Command_mkDeclName(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,6 +63,7 @@ extern lean_object* l_Lean_Elab_Command_throwAlreadyDeclaredUniverseLevel___rarg
 lean_object* l_Lean_Elab_Command_elabModifiers___closed__4;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__9;
 extern lean_object* l_Lean_Format_join___closed__1;
+extern lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l___private_Lean_Elab_Command_1__ioErrorToMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -458,7 +458,7 @@ lean_object* _init_l_Lean_Elab_Command_Modifiers_hasFormat___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentHashMap_Stats_toString___closed__5;
+x_1 = l_Std_PersistentArray_Stats_toString___closed__4;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

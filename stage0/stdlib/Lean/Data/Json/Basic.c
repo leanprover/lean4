@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Basic
-// Imports: Init
+// Imports: Init Std.Data.RBTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,7 +29,6 @@ extern lean_object* l_Sigma_HasRepr___rarg___closed__1;
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_shiftr___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_fromInt(lean_object*);
-lean_object* l_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
@@ -56,7 +55,6 @@ extern lean_object* l_Int_zero___closed__1;
 lean_object* l_Lean_Json_stringToJson(lean_object*);
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 lean_object* l_Lean_Json_getInt_x3f(lean_object*);
-lean_object* l_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Json_Basic_1__countDigitsAux___main(lean_object*, lean_object*);
@@ -79,6 +77,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Json_Basic_1__countDigitsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getBool_x3f___boxed(lean_object*);
+lean_object* l_Std_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getArr_x3f(lean_object*);
@@ -100,6 +99,7 @@ lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_intToJsonNumber___closed__1;
 lean_object* l_Lean_Json_getObjVal_x3f___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+lean_object* l_Std_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux___main___at_Lean_JsonNumber_toString___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_JsonNumber_decEq(lean_object* x_1, lean_object* x_2) {
@@ -911,7 +911,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -961,7 +961,7 @@ if (lean_obj_tag(x_1) == 5)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = l_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(x_3, x_2);
+x_4 = l_Std_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(x_3, x_2);
 return x_4;
 }
 else
@@ -972,11 +972,11 @@ return x_5;
 }
 }
 }
-lean_object* l_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(x_1, x_2);
+x_3 = l_Std_RBNode_find___main___at_Lean_Json_getObjVal_x3f___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -1052,12 +1052,16 @@ return x_3;
 }
 }
 lean_object* initialize_Init(lean_object*);
+lean_object* initialize_Std_Data_RBTree(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Data_Json_Basic(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_RBTree(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_JsonNumber_natToJsonNumber___closed__1 = _init_l_Lean_JsonNumber_natToJsonNumber___closed__1();

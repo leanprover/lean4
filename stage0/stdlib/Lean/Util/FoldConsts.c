@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Expr_FoldConstsImpl_fold___main___at_Lean_getMaxHeight___spec__1(lean_object*, size_t, lean_object*, uint32_t, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+uint8_t l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_fold___main___rarg(lean_object*, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t l_Lean_Expr_FoldConstsImpl_cacheSize;
@@ -30,8 +31,9 @@ uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_Lean_Expr_FoldConstsImpl_initCache___closed__1;
 lean_object* l_Lean_Expr_foldConsts___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getMaxHeight(lean_object*, lean_object*);
-extern lean_object* l_HashSet_Inhabited___closed__1;
+lean_object* l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_foldConsts___boxed(lean_object*, lean_object*);
+extern lean_object* l_Std_HashSet_Inhabited___closed__1;
 size_t l_USize_mod(size_t, size_t);
 size_t lean_ptr_addr(lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_fold(lean_object*);
@@ -40,9 +42,7 @@ lean_object* l_Lean_Expr_FoldConstsImpl_initCache;
 lean_object* l_Lean_Expr_FoldConstsImpl_fold___main___at_Lean_getMaxHeight___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe(lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_visited___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_foldConsts___rarg(lean_object*, lean_object*);
 size_t _init_l_Lean_Expr_FoldConstsImpl_cacheSize() {
 _start:
@@ -200,7 +200,7 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
-x_11 = l_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(x_10, x_8);
+x_11 = l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(x_10, x_8);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -214,7 +214,7 @@ x_14 = lean_ctor_get(x_7, 0);
 lean_dec(x_14);
 lean_inc(x_8);
 x_15 = lean_apply_2(x_1, x_8, x_4);
-x_16 = l_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
+x_16 = l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
 lean_ctor_set(x_7, 1, x_16);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
@@ -227,7 +227,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21;
 lean_dec(x_7);
 lean_inc(x_8);
 x_18 = lean_apply_2(x_1, x_8, x_4);
-x_19 = l_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
+x_19 = l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_9);
 lean_ctor_set(x_20, 1, x_19);
@@ -433,7 +433,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Expr_FindImpl_initCache___closed__1;
-x_2 = l_HashSet_Inhabited___closed__1;
+x_2 = l_Std_HashSet_Inhabited___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -576,7 +576,7 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
-x_11 = l_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(x_10, x_8);
+x_11 = l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(x_10, x_8);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -590,7 +590,7 @@ x_14 = lean_ctor_get(x_7, 0);
 lean_dec(x_14);
 lean_inc(x_8);
 x_15 = lean_environment_find(x_1, x_8);
-x_16 = l_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
+x_16 = l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
 lean_ctor_set(x_7, 1, x_16);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -670,7 +670,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34;
 lean_dec(x_7);
 lean_inc(x_8);
 x_32 = lean_environment_find(x_1, x_8);
-x_33 = l_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
+x_33 = l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(x_10, x_8);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_9);
 lean_ctor_set(x_34, 1, x_33);

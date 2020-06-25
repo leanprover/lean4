@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-
+import Std.Data.HashMap
 namespace Lean
 /-- Interface for caching results.  -/
 class MonadCache (α β : Type) (m : Type → Type) :=
@@ -28,6 +28,8 @@ instance readerLift {α β ρ : Type} {m : Type → Type} [MonadCache α β m] :
 instance exceptLift {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) :=
 { findCached? := fun a   => ExceptT.lift $ MonadCache.findCached? a,
   cache       := fun a b => ExceptT.lift $ MonadCache.cache a b }
+
+open Std (HashMap)
 
 /-- Adapter for implementing `MonadCache` interface using `HashMap`s.
     We just have to specify how to extract/modify the `HashMap`. -/

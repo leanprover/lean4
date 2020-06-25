@@ -8,6 +8,8 @@ import Lean.Data.Json.Basic
 
 namespace Lean
 
+open Std (RBNode RBNode.singleton RBNode.leaf)
+
 inductive Quickparse.Result (α : Type)
 | success (pos : String.Iterator) (res : α) : Quickparse.Result
 | error (pos : String.Iterator) (err : String) : Quickparse.Result

@@ -43,7 +43,6 @@ lean_object* l_Lean_Elab_Term_getMVarDecl(lean_object*, lean_object*, lean_objec
 lean_object* l_List_find_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_2__resumePostponed___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
-lean_object* l_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_3__synthesizePendingInstMVar___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__1;
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars(uint8_t, lean_object*, lean_object*);
@@ -102,6 +101,7 @@ lean_object* l_List_forM___main___at___private_Lean_Elab_SyntheticMVars_9__repor
 lean_object* l_Lean_Elab_Term_isDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Lean_Elab_SyntheticMVars_9__reportStuckSyntheticMVars___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__3;
+lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__5;
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__6;
 uint8_t l_Lean_Expr_isMVar(lean_object*);
@@ -1811,7 +1811,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; 
 x_13 = lean_ctor_get(x_9, 2);
-x_14 = l_PersistentArray_push___rarg(x_13, x_11);
+x_14 = l_Std_PersistentArray_push___rarg(x_13, x_11);
 lean_ctor_set(x_9, 2, x_14);
 x_15 = 1;
 x_16 = lean_box(x_15);
@@ -1836,7 +1836,7 @@ lean_inc(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_9);
-x_24 = l_PersistentArray_push___rarg(x_20, x_11);
+x_24 = l_Std_PersistentArray_push___rarg(x_20, x_11);
 x_25 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_25, 0, x_18);
 lean_ctor_set(x_25, 1, x_19);
@@ -1981,7 +1981,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_9, 2);
-x_14 = l_PersistentArray_push___rarg(x_13, x_11);
+x_14 = l_Std_PersistentArray_push___rarg(x_13, x_11);
 lean_ctor_set(x_9, 2, x_14);
 x_15 = 1;
 x_16 = lean_box(x_15);
@@ -2005,7 +2005,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_9);
-x_23 = l_PersistentArray_push___rarg(x_19, x_11);
+x_23 = l_Std_PersistentArray_push___rarg(x_19, x_11);
 x_24 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_24, 0, x_17);
 lean_ctor_set(x_24, 1, x_18);
@@ -2054,7 +2054,7 @@ if (lean_is_exclusive(x_27)) {
  lean_dec_ref(x_27);
  x_35 = lean_box(0);
 }
-x_36 = l_PersistentArray_push___rarg(x_31, x_28);
+x_36 = l_Std_PersistentArray_push___rarg(x_31, x_28);
 if (lean_is_scalar(x_35)) {
  x_37 = lean_alloc_ctor(0, 6, 0);
 } else {

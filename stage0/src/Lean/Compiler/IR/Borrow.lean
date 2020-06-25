@@ -23,7 +23,7 @@ def getHash : Key → USize
 instance : Hashable Key := ⟨getHash⟩
 end OwnedSet
 
-abbrev OwnedSet := HashMap OwnedSet.Key Unit
+abbrev OwnedSet := Std.HashMap OwnedSet.Key Unit
 def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := s.insert k ()
 def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool := s.contains k
 
@@ -51,7 +51,7 @@ def getHash : Key → USize
 instance : Hashable Key := ⟨getHash⟩
 end ParamMap
 
-abbrev ParamMap := HashMap ParamMap.Key (Array Param)
+abbrev ParamMap := Std.HashMap ParamMap.Key (Array Param)
 
 def ParamMap.fmt (map : ParamMap) : Format :=
 let fmts := map.fold (fun fmt k ps =>

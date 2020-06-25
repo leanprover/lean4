@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_IR_FnBody_elimDead(lean_object*);
-lean_object* l_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_Inhabited;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1___boxed(lean_object*);
@@ -37,6 +36,7 @@ lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec_
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead___main(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_collectFreeIndices(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(lean_object* x_1) {
@@ -103,7 +103,7 @@ goto _start;
 block_16:
 {
 lean_object* x_13; 
-x_13 = l_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_3, x_12);
+x_13 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_3, x_12);
 lean_dec(x_12);
 if (lean_obj_tag(x_13) == 0)
 {

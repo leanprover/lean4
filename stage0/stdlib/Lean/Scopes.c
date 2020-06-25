@@ -18,6 +18,7 @@ extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1;
 lean_object* l_Lean_Environment_isNamespace___boxed(lean_object*, lean_object*);
 lean_object* l_List_tail_x21___rarg(lean_object*);
+lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_is_namespace(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2;
 lean_object* l_Lean_Environment_registerNamespace___main(lean_object*, lean_object*);
@@ -73,7 +74,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spe
 lean_object* l_Lean_regScopeManagerExtension___lambda__2(lean_object*);
 lean_object* l_Lean_scopeManagerExt___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_scopeManagerExt___closed__6;
-lean_object* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7(lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* lean_get_scope_header(lean_object*);
@@ -150,7 +150,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_box(0);
-x_6 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_4, x_2, x_5);
+x_6 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_4, x_2, x_5);
 lean_ctor_set(x_1, 0, x_6);
 return x_1;
 }
@@ -167,7 +167,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_dec(x_1);
 x_11 = lean_box(0);
-x_12 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_7, x_2, x_11);
+x_12 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_7, x_2, x_11);
 x_13 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_8);
@@ -1049,7 +1049,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_box(0);
-x_6 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_4, x_2, x_5);
+x_6 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_4, x_2, x_5);
 lean_ctor_set(x_1, 0, x_6);
 return x_1;
 }
@@ -1066,7 +1066,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_dec(x_1);
 x_11 = lean_box(0);
-x_12 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_7, x_2, x_11);
+x_12 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_7, x_2, x_11);
 x_13 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_8);

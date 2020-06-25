@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.MonadCache
-// Imports: Init
+// Imports: Init Std.Data.HashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,11 +18,10 @@ lean_object* l_Lean_WithHashMapCache_fromState___rarg(lean_object*, lean_object*
 lean_object* l_Lean_WithHashMapCache_getCache(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromState(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_readerLift___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Lean_WithHashMapCache_modifyCache(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_getCache___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_readerLift___rarg(lean_object*);
-lean_object* l_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_ExceptT_lift___rarg___closed__1;
 lean_object* l_Lean_readerLift___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -33,6 +32,7 @@ lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_MonadCache(lean_object*, lean_
 lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCache___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_readerLift___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_toEState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,8 +65,8 @@ lean_object* l_Lean_MonadHashMapCacheAdapter_cache(lean_object*, lean_object*, l
 lean_object* l_Lean_WithHashMapCache_toState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_MonadCache___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCacheE(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_estateAdapter(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_HashMap_Inhabited___closed__1;
 lean_object* l_Lean_exceptLift___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromEState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_exceptLift___rarg(lean_object*, lean_object*);
@@ -300,7 +300,7 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = l_HashMapImp_find_x3f___rarg(x_2, x_3, x_5, x_4);
+x_8 = l_Std_HashMapImp_find_x3f___rarg(x_2, x_3, x_5, x_4);
 x_9 = lean_apply_2(x_7, lean_box(0), x_8);
 return x_9;
 }
@@ -344,7 +344,7 @@ lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__1(lean_objec
 _start:
 {
 lean_object* x_6; 
-x_6 = l_HashMapImp_insert___rarg(x_1, x_2, x_5, x_3, x_4);
+x_6 = l_Std_HashMapImp_insert___rarg(x_1, x_2, x_5, x_3, x_4);
 return x_6;
 }
 }
@@ -723,7 +723,7 @@ lean_object* l_Lean_WithHashMapCache_toState___rarg(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_5 = l_HashMap_Inhabited___closed__1;
+x_5 = l_Std_HashMap_inhabited___closed__1;
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
@@ -928,7 +928,7 @@ lean_object* l_Lean_WithHashMapCache_toEState___rarg(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_HashMap_Inhabited___closed__1;
+x_5 = l_Std_HashMap_inhabited___closed__1;
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
@@ -1016,12 +1016,16 @@ return x_5;
 }
 }
 lean_object* initialize_Init(lean_object*);
+lean_object* initialize_Std_Data_HashMap(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Util_MonadCache(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1 = _init_l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1();

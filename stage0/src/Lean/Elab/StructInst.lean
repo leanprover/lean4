@@ -13,6 +13,8 @@ namespace Elab
 namespace Term
 namespace StructInst
 
+open Std (HashMap)
+
 /- parser! "{" >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}" -/
 
 /-

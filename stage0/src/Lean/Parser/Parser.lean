@@ -103,7 +103,7 @@ def initCacheForInput (input : String) : ParserCache :=
 
 abbrev TokenTable := Trie Token
 
-abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
+abbrev SyntaxNodeKindSet := Std.PersistentHashMap SyntaxNodeKind Unit
 
 def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : SyntaxNodeKindSet :=
 s.insert k ()
@@ -1315,6 +1315,8 @@ fun c s =>
 @[inline] def many1Indent (p : Parser) (errorMsg : String) : Parser :=
 withPosition $ fun pos => many1 (checkColGe pos.column errorMsg >> p)
 
+open Std (RBMap RBMap.empty)
+
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
 def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
 
@@ -1373,7 +1375,7 @@ structure ParserCategory :=
 
 instance ParserCategory.inhabited : Inhabited ParserCategory := ⟨{ tables := {}, leadingIdentAsSymbol := false }⟩
 
-abbrev ParserCategories := PersistentHashMap Name ParserCategory
+abbrev ParserCategories := Std.PersistentHashMap Name ParserCategory
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (leadingIdentAsSymbol : Bool) : ParserState × List α :=
 let (s, stx) := peekToken c s;

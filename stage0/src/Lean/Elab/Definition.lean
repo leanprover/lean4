@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+import Std.ShareCommon
 import Lean.Util.CollectLevelParams
 import Lean.Util.FoldConsts
 import Lean.Util.CollectFVars
@@ -99,9 +100,9 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun var
   val  ← Term.levelMVarToParam val;
   type ← Term.instantiateMVars ref type;
   val  ← Term.instantiateMVars view.val val;
-  let shareCommonTypeVal : ShareCommonM (Expr × Expr) := do {
-    type ← withShareCommon type;
-    val  ← withShareCommon val;
+  let shareCommonTypeVal : Std.ShareCommonM (Expr × Expr) := do {
+    type ← Std.withShareCommon type;
+    val  ← Std.withShareCommon val;
     pure (type, val)
   };
   let (type, val) := shareCommonTypeVal.run;

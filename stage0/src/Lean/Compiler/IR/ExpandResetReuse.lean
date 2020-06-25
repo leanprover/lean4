@@ -11,7 +11,7 @@ namespace Lean
 namespace IR
 namespace ExpandResetReuse
 /- Mapping from variable to projections -/
-abbrev ProjMap  := HashMap VarId Expr
+abbrev ProjMap  := Std.HashMap VarId Expr
 namespace CollectProjMap
 abbrev Collector := ProjMap → ProjMap
 @[inline] def collectVDecl (x : VarId) (v : Expr) : Collector :=

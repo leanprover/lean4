@@ -52,7 +52,6 @@ lean_object* l_Lean_Compiler_natFoldFns___closed__18;
 lean_object* l_Lean_Compiler_foldNatDiv___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__6;
 lean_object* l_Lean_Compiler_foldStrictAnd(uint8_t);
-extern lean_object* l_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Lean_Compiler_getBoolLit___closed__2;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns;
 lean_object* l_Lean_Compiler_foldStrictAnd___boxed(lean_object*);
@@ -261,6 +260,7 @@ extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Lean_Compiler_mkNatLe___closed__1;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__2;
 lean_object* l_Lean_Compiler_mkNatLe___closed__4;
+extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Lean_Compiler_foldNatMod___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldUIntDiv___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkNatLt___closed__6;
@@ -2286,7 +2286,7 @@ lean_object* _init_l_Lean_Compiler_mkNatLt___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_PersistentHashMap_mkCollisionNode___rarg___closed__1;
+x_1 = l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 x_2 = l_Lean_Compiler_mkNatEq___closed__5;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;

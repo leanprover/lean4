@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Std.Data.HashMap
+import Std.Data.PersistentHashMap
 universes u v w w'
 
 namespace Lean
+
+open Std (HashMap PHashMap)
 
 /- Staged map for implementing the Environment. The idea is to store
    imported entries into a hashtable and local entries into a persistent hashtable.

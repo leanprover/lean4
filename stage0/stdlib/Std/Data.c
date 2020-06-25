@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data
-// Imports: Init Std.Data.BinomialHeap
+// Imports: Init Std.Data.BinomialHeap Std.Data.DList Std.Data.Stack Std.Data.Queue Std.Data.HashMap Std.Data.HashSet Std.Data.PersistentArray Std.Data.PersistentHashMap Std.Data.PersistentHashSet Std.Data.AssocList Std.Data.RBTree Std.Data.RBMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,17 @@ extern "C" {
 #endif
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Std_Data_BinomialHeap(lean_object*);
+lean_object* initialize_Std_Data_DList(lean_object*);
+lean_object* initialize_Std_Data_Stack(lean_object*);
+lean_object* initialize_Std_Data_Queue(lean_object*);
+lean_object* initialize_Std_Data_HashMap(lean_object*);
+lean_object* initialize_Std_Data_HashSet(lean_object*);
+lean_object* initialize_Std_Data_PersistentArray(lean_object*);
+lean_object* initialize_Std_Data_PersistentHashMap(lean_object*);
+lean_object* initialize_Std_Data_PersistentHashSet(lean_object*);
+lean_object* initialize_Std_Data_AssocList(lean_object*);
+lean_object* initialize_Std_Data_RBTree(lean_object*);
+lean_object* initialize_Std_Data_RBMap(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Std_Data(lean_object* w) {
 lean_object * res;
@@ -24,6 +35,39 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_BinomialHeap(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_DList(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Stack(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Queue(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashSet(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_PersistentArray(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_PersistentHashMap(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_PersistentHashSet(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_AssocList(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_RBTree(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_RBMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

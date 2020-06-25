@@ -6,9 +6,7 @@ Authors: Daniel Selsam
 Simple queue implemented using two lists.
 Note: this is only a temporary placeholder.
 -/
-prelude
-import Init.Data.Array
-import Init.Data.Int
+namespace Std
 universes u v w
 
 structure Queue (α : Type u) :=
@@ -39,3 +37,4 @@ match q.dList with
   | d::ds => some (d, { eList := [], dList := ds })
 
 end Queue
+end Std

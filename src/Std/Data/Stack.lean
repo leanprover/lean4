@@ -5,9 +5,7 @@ Authors: Daniel Selsam
 
 Simple stack API implemented using an array.
 -/
-prelude
-import Init.Data.Array
-import Init.Data.Int
+namespace Std
 universes u v w
 
 structure Stack (α : Type u) :=
@@ -39,3 +37,4 @@ def modify [Inhabited α] (s : Stack α) (f : α → α) : Stack α :=
 { s with vals := s.vals.modify (s.vals.size-1) f }
 
 end Stack
+end Std

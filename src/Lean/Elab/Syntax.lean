@@ -430,6 +430,12 @@ fun stx => do
 registerTraceClass `Elab.syntax;
 pure ()
 
+@[inline] def withExpectedType (ref : Syntax) (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
+Term.tryPostponeIfNoneOrMVar expectedType?;
+some expectedType ← pure expectedType?
+  | Term.throwError ref "expected type must be known";
+x expectedType
+
 /-
 def elabTail := try (" : " >> ident) >> darrow >> termParser
 parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
@@ -441,7 +447,8 @@ fun stx => do
   let head    := stx.getArg 2;
   let args    := (stx.getArg 3).getArgs;
   let cat     := stx.getArg 5;
-  let rhs     := stx.getArg 7;
+  let expectedTypeSpec := stx.getArg 6;
+  let rhs     := stx.getArg 8;
   let catName := cat.getId;
   kind ← Macro.mkFreshKind catName.eraseMacroScopes;
   -- build parser
@@ -453,7 +460,13 @@ fun stx => do
   patArgs ← args.mapM expandMacroArgIntoPattern;
   let pat := Syntax.node kind (#[patHead] ++ patArgs);
   let kindId    := mkIdentFrom ref kind;
-  if catName == `term then
+  if expectedTypeSpec.hasArgs then
+    if catName == `term then
+      let expId := expectedTypeSpec.getArg 1;
+      `(syntax $prec* [$kindId] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx expectedType? => match_syntax stx with | `($pat) => Lean.Elab.Command.withExpectedType stx expectedType? fun $expId => $rhs | _ => Lean.Elab.Term.throwUnsupportedSyntax)
+    else
+      Macro.throwError expectedTypeSpec ("syntax category '" ++ toString catName ++ "' does not support expected type specification")
+  else if catName == `term then
     `(syntax $prec* [$kindId] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx _ => match_syntax stx with | `($pat) => $rhs | _ => Lean.Elab.Term.throwUnsupportedSyntax)
   else if catName == `command then
     `(syntax $prec* [$kindId] $stxParts* : $cat @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab := fun stx => match_syntax stx with | `($pat) => $rhs | _ => Lean.Elab.Command.throwUnsupportedSyntax)

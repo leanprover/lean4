@@ -79,7 +79,7 @@ def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
 @[builtinCommandParser] def «elab_rules» := parser! "elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts
 def elabHead := macroHead
 def elabArg  := macroArg
-def elabTail := try (" : " >> ident) >> darrow >> termParser
+def elabTail := try (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
 @[builtinCommandParser] def «elab»       := parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
 
 end Command

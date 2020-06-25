@@ -67,8 +67,7 @@ def notationItem := withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
-def macroArgType   := nonReservedSymbol "ident" <|> nonReservedSymbol "num" <|> nonReservedSymbol "str" <|> nonReservedSymbol "char" <|> (ident >> optPrecedence)
-def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> macroArgType
+def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec
 def macroArg  := try strLit <|> try macroArgSimple
 def macroHead := macroArg <|> try ident
 def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> ("`(" >> sepBy1 tacticParser "; " true true >> ")" <|> termParser)

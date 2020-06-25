@@ -9,6 +9,7 @@ import Std.Data.Stack
 import Std.Data.Queue
 import Std.Data.HashMap
 import Std.Data.HashSet
+import Std.Data.PersistentArray
 import Std.Data.PersistentHashMap
 import Std.Data.PersistentHashSet
 import Std.Data.AssocList

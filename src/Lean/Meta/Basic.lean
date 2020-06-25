@@ -103,7 +103,7 @@ instance : HasBeq InfoCacheKey :=
 ⟨fun ⟨t₁, e₁, n₁⟩ ⟨t₂, e₂, n₂⟩ => t₁ == t₂ && n₁ == n₂ && e₁ == e₂⟩
 end InfoCacheKey
 
-open Std (PersistentHashMap)
+open Std (PersistentArray PersistentHashMap)
 
 structure Cache :=
 (inferType     : PersistentExprStructMap Expr := {})

@@ -142,7 +142,7 @@ instance : HasToString Message :=
 end Message
 
 structure MessageLog :=
-(msgs : PersistentArray Message := {})
+(msgs : Std.PersistentArray Message := {})
 
 namespace MessageLog
 def empty : MessageLog := ⟨{}⟩

@@ -3,10 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
-import Init.Control.Conditional
-import Init.Data.Array
 universes u v w
+
+namespace Std
 
 inductive PersistentArrayNode (α : Type u)
 | node (cs : Array PersistentArrayNode) : PersistentArrayNode
@@ -42,7 +41,7 @@ namespace PersistentArray
 /- TODO: use proofs for showing that array accesses are not out of bounds.
    We can do it after we reimplement the tactic framework. -/
 variables {α : Type u}
-open PersistentArrayNode
+open Std.PersistentArrayNode
 
 def empty : PersistentArray α :=
 {}
@@ -322,6 +321,16 @@ instance : HasToString Stats := ⟨Stats.toString⟩
 
 end PersistentArray
 
+def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
+n.fold (fun i p => p.push v) PersistentArray.empty
+
+@[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
+mkPersistentArray n v
+
+end Std
+
+open Std (PersistentArray PersistentArray.empty)
+
 def List.toPersistentArrayAux {α : Type u} : List α → PersistentArray α → PersistentArray α
 | [],    t => t
 | x::xs, t => List.toPersistentArrayAux xs (t.push x)
@@ -334,9 +343,3 @@ xs.foldl (fun p x => p.push x) PersistentArray.empty
 
 @[inline] def Array.toPArray {α : Type u} (xs : Array α) : PersistentArray α :=
 xs.toPersistentArray
-
-def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
-n.fold (fun i p => p.push v) PersistentArray.empty
-
-@[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
-mkPersistentArray n v

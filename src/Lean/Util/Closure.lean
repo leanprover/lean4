@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Std.ShareCommon
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.FoldConsts
@@ -148,9 +149,9 @@ structure MkClosureResult :=
 (exprClosure  : Array Expr)
 
 def mkClosure (mctx : MetavarContext) (lctx : LocalContext) (type : Expr) (value : Expr) : Except String MkClosureResult :=
-let shareCommonTypeValue : ShareCommonM (Expr × Expr) := do {
-  type  ← withShareCommon type;
-  value ← withShareCommon value;
+let shareCommonTypeValue : Std.ShareCommonM (Expr × Expr) := do {
+  type  ← Std.withShareCommon type;
+  value ← Std.withShareCommon value;
   pure (type, value)
 };
 let (type, value) := shareCommonTypeValue.run;

@@ -3,14 +3,10 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
-import Init.Util
-import Init.Data.HashMap
 import Init.Data.HashSet
-import Init.Data.PersistentHashSet
 import Init.Data.PersistentHashMap
-import Init.Control.State
-
+import Init.Data.PersistentHashSet
+namespace Std
 universes u v
 
 namespace ShareCommon
@@ -118,7 +114,7 @@ end ShareCommon
 class MonadShareCommon (m : Type u → Type v) :=
 (withShareCommon {α : Type u} : α → m α)
 
-export MonadShareCommon (withShareCommon)
+abbrev withShareCommon := @MonadShareCommon.withShareCommon
 
 abbrev shareCommonM {α : Type u} {m : Type u → Type v} [MonadShareCommon m] (a : α) : m α :=
 withShareCommon a
@@ -148,3 +144,5 @@ x.run' ShareCommon.PersistentState.empty
 
 def shareCommon {α} (a : α) : α :=
 (withShareCommon a : ShareCommonM α).run
+
+end Std

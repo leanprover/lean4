@@ -437,6 +437,40 @@ fun stx => do
 registerTraceClass `Elab.syntax;
 pure ()
 
+/-
+def elabTail := try (" : " >> ident) >> darrow >> termParser
+parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
+-/
+@[builtinMacro Lean.Parser.Command.elab] def expandElab : Macro :=
+fun stx => do
+  let ref := stx;
+  let prec    := (stx.getArg 1).getArgs;
+  let head    := stx.getArg 2;
+  let args    := (stx.getArg 3).getArgs;
+  let cat     := stx.getArg 5;
+  let rhs     := stx.getArg 7;
+  let catName := cat.getId;
+  kind ← Macro.mkFreshKind catName.eraseMacroScopes;
+  -- build parser
+  stxPart  ← expandMacroHeadIntoSyntaxItem head;
+  stxParts ← args.mapM expandMacroArgIntoSyntaxItem;
+  let stxParts := #[stxPart] ++ stxParts;
+  -- build pattern for `martch_syntax
+  patHead ← expandMacroHeadIntoPattern head;
+  patArgs ← args.mapM expandMacroArgIntoPattern;
+  let pat := Syntax.node kind (#[patHead] ++ patArgs);
+  let kindId    := mkIdentFrom ref kind;
+  if catName == `term then
+    `(syntax $prec* [$kindId] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx _ => match_syntax stx with | `($pat) => $rhs | _ => Lean.Elab.Term.throwUnsupportedSyntax)
+  else if catName == `command then
+    `(syntax $prec* [$kindId] $stxParts* : $cat @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab := fun stx => match_syntax stx with | `($pat) => $rhs | _ => Lean.Elab.Command.throwUnsupportedSyntax)
+  else if catName == `tactic then
+    `(syntax $prec* [$kindId] $stxParts* : $cat @[tactic $kindId:ident] def elabFn : Lean.Elab.Tactic.Tactic := fun stx => match_syntax stx with | `(tactic|$pat) => $rhs | _ => Lean.Elab.Tactic.throwUnsupportedSyntax)
+  else
+    -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
+    -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
+    Macro.throwError ref ("unsupported syntax category '" ++ toString catName ++ "'")
+
 end Command
 end Elab
 end Lean

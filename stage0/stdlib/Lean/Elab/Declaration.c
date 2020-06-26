@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Declaration
-// Imports: Init Lean.Util.CollectLevelParams Lean.Elab.Definition
+// Imports: Init Lean.Util.CollectLevelParams Lean.Elab.Definition Lean.Elab.Inductive
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33,6 +33,7 @@ uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, 
 lean_object* l_Lean_Elab_Command_elabAbbrev(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabExample___closed__1;
 lean_object* l_Lean_Elab_Command_elabConstant___closed__1;
+lean_object* l_Lean_Elab_Command_elabInductiveCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabAxiom___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Command_6__mkTermContext(lean_object*, lean_object*, lean_object*);
@@ -52,7 +53,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_obj
 lean_object* l_Lean_Elab_Command_elabAxiom___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts___main(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration___closed__1;
-lean_object* l_Lean_Elab_Command_elabInductive___rarg(lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__8;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__3;
@@ -77,7 +77,7 @@ lean_object* l_Lean_Elab_Command_elabAxiom___lambda__1(lean_object*, lean_object
 lean_object* l_Lean_Elab_Command_expandOptDeclSig(lean_object*);
 extern lean_object* l_Lean_Meta_registerInstanceAttr___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___spec__4(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_Term_5__expandCDot___main___closed__4;
@@ -88,12 +88,13 @@ lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___
 lean_object* l_Lean_Elab_Command_elabTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_modifyScope___closed__1;
 lean_object* l_Lean_Elab_Command_elabDef(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_registerClassAttr___closed__2;
 extern lean_object* l_Lean_Elab_Command_withDeclId___closed__3;
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_sortDeclLevelParams(lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Command_2__getState(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_elabClassInductive___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Command_elabClassInductive___closed__1;
 extern lean_object* l_Lean_mkReducibilityAttrs___closed__4;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__11;
@@ -110,7 +111,7 @@ lean_object* l_Lean_Elab_Command_elabInstance___closed__3;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
-lean_object* l_Lean_Elab_Command_elabInductive___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Command_elabInductive___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabAbbrev___closed__2;
 lean_object* l_Lean_Elab_Command_elabStructure(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_addAttribute(lean_object*, lean_object*);
@@ -135,7 +136,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__2;
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabConstant___closed__5;
-lean_object* l_Lean_Elab_Command_elabInductive(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Command_elabInductive(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__1;
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__3;
 lean_object* l_Lean_Elab_Command_elabConstant___closed__3;
@@ -148,7 +149,6 @@ extern lean_object* l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_constant___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Command_theorem___elambda__1___closed__2;
-lean_object* l_Lean_Elab_Command_elabClassInductive___rarg(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_declId___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_expandOptDeclSig(lean_object* x_1) {
@@ -5234,64 +5234,80 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_Elab_Command_elabInductive___rarg(lean_object* x_1) {
+lean_object* l_Lean_Elab_Command_elabInductive(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_5 = lean_unsigned_to_nat(2u);
+x_6 = l_Lean_Syntax_getArg(x_2, x_5);
+x_7 = l_Lean_Elab_Command_expandOptDeclSig(x_6);
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_7, 1);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = lean_unsigned_to_nat(1u);
+x_11 = l_Lean_Syntax_getArg(x_2, x_10);
+x_12 = lean_unsigned_to_nat(3u);
+x_13 = l_Lean_Syntax_getArg(x_2, x_12);
+x_14 = l_Lean_Syntax_getArgs(x_13);
+lean_dec(x_13);
+x_15 = l_Lean_Elab_Command_elabInductiveCore(x_2, x_1, x_11, x_8, x_9, x_14, x_3, x_4);
+lean_dec(x_14);
+lean_dec(x_9);
+lean_dec(x_11);
+return x_15;
+}
+}
+lean_object* l_Lean_Elab_Command_elabInductive___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_Command_elabInductive(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* _init_l_Lean_Elab_Command_elabClassInductive___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_registerClassAttr___closed__2;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_Elab_Command_elabInductive(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_Elab_Command_elabInductive___rarg), 1, 0);
-return x_4;
-}
-}
-lean_object* l_Lean_Elab_Command_elabInductive___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Elab_Command_elabInductive(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_Lean_Elab_Command_elabClassInductive___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_Elab_Command_elabClassInductive___rarg), 1, 0);
-return x_4;
-}
-}
-lean_object* l_Lean_Elab_Command_elabClassInductive___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Elab_Command_elabClassInductive(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_5 = lean_unsigned_to_nat(3u);
+x_6 = l_Lean_Syntax_getArg(x_2, x_5);
+x_7 = l_Lean_Elab_Command_expandOptDeclSig(x_6);
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_7, 1);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = l_Lean_Elab_Command_elabClassInductive___closed__1;
+x_11 = l_Lean_Elab_Command_Modifiers_addAttribute(x_1, x_10);
+x_12 = lean_unsigned_to_nat(2u);
+x_13 = l_Lean_Syntax_getArg(x_2, x_12);
+x_14 = lean_unsigned_to_nat(4u);
+x_15 = l_Lean_Syntax_getArg(x_2, x_14);
+x_16 = l_Lean_Syntax_getArgs(x_15);
+lean_dec(x_15);
+x_17 = l_Lean_Elab_Command_elabInductiveCore(x_2, x_11, x_13, x_8, x_9, x_16, x_3, x_4);
+lean_dec(x_16);
+lean_dec(x_9);
+lean_dec(x_13);
+lean_dec(x_11);
+return x_17;
 }
 }
 lean_object* l_Lean_Elab_Command_elabStructure___rarg(lean_object* x_1) {
@@ -5419,8 +5435,6 @@ x_26 = lean_name_eq(x_12, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; uint8_t x_28; 
-lean_dec(x_11);
-lean_dec(x_8);
 x_27 = l_Lean_Parser_Command_inductive___elambda__1___closed__2;
 x_28 = lean_name_eq(x_12, x_27);
 if (x_28 == 0)
@@ -5431,6 +5445,8 @@ x_30 = lean_name_eq(x_12, x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; uint8_t x_32; 
+lean_dec(x_11);
+lean_dec(x_8);
 x_31 = l_Lean_Parser_Command_structure___elambda__1___closed__2;
 x_32 = lean_name_eq(x_12, x_31);
 lean_dec(x_12);
@@ -5455,20 +5471,19 @@ else
 {
 lean_object* x_36; 
 lean_dec(x_12);
-lean_dec(x_2);
-x_36 = lean_box(0);
-lean_ctor_set(x_6, 0, x_36);
-return x_6;
+lean_free_object(x_6);
+x_36 = l_Lean_Elab_Command_elabClassInductive(x_8, x_11, x_2, x_9);
+return x_36;
 }
 }
 else
 {
 lean_object* x_37; 
 lean_dec(x_12);
-lean_dec(x_2);
-x_37 = lean_box(0);
-lean_ctor_set(x_6, 0, x_37);
-return x_6;
+lean_free_object(x_6);
+x_37 = l_Lean_Elab_Command_elabInductive(x_8, x_11, x_2, x_9);
+lean_dec(x_8);
+return x_37;
 }
 }
 else
@@ -5582,8 +5597,6 @@ x_63 = lean_name_eq(x_49, x_62);
 if (x_63 == 0)
 {
 lean_object* x_64; uint8_t x_65; 
-lean_dec(x_48);
-lean_dec(x_45);
 x_64 = l_Lean_Parser_Command_inductive___elambda__1___closed__2;
 x_65 = lean_name_eq(x_49, x_64);
 if (x_65 == 0)
@@ -5594,6 +5607,8 @@ x_67 = lean_name_eq(x_49, x_66);
 if (x_67 == 0)
 {
 lean_object* x_68; uint8_t x_69; 
+lean_dec(x_48);
+lean_dec(x_45);
 x_68 = l_Lean_Parser_Command_structure___elambda__1___closed__2;
 x_69 = lean_name_eq(x_49, x_68);
 lean_dec(x_49);
@@ -5617,25 +5632,35 @@ return x_73;
 }
 else
 {
-lean_object* x_74; lean_object* x_75; 
+lean_object* x_74; 
 lean_dec(x_49);
-lean_dec(x_2);
-x_74 = lean_box(0);
-x_75 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_75, 0, x_74);
-lean_ctor_set(x_75, 1, x_46);
+x_74 = l_Lean_Elab_Command_elabClassInductive(x_45, x_48, x_2, x_46);
+return x_74;
+}
+}
+else
+{
+lean_object* x_75; 
+lean_dec(x_49);
+x_75 = l_Lean_Elab_Command_elabInductive(x_45, x_48, x_2, x_46);
+lean_dec(x_45);
 return x_75;
 }
 }
 else
 {
-lean_object* x_76; lean_object* x_77; 
+lean_object* x_76; 
 lean_dec(x_49);
-lean_dec(x_2);
-x_76 = lean_box(0);
-x_77 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_77, 0, x_76);
-lean_ctor_set(x_77, 1, x_46);
+x_76 = l_Lean_Elab_Command_elabExample(x_45, x_48, x_2, x_46);
+return x_76;
+}
+}
+else
+{
+lean_object* x_77; 
+lean_dec(x_49);
+x_77 = l_Lean_Elab_Command_elabAxiom(x_45, x_48, x_2, x_46);
+lean_dec(x_48);
 return x_77;
 }
 }
@@ -5643,7 +5668,7 @@ else
 {
 lean_object* x_78; 
 lean_dec(x_49);
-x_78 = l_Lean_Elab_Command_elabExample(x_45, x_48, x_2, x_46);
+x_78 = l_Lean_Elab_Command_elabInstance(x_45, x_48, x_2, x_46);
 return x_78;
 }
 }
@@ -5651,8 +5676,7 @@ else
 {
 lean_object* x_79; 
 lean_dec(x_49);
-x_79 = l_Lean_Elab_Command_elabAxiom(x_45, x_48, x_2, x_46);
-lean_dec(x_48);
+x_79 = l_Lean_Elab_Command_elabConstant(x_45, x_48, x_2, x_46);
 return x_79;
 }
 }
@@ -5660,7 +5684,7 @@ else
 {
 lean_object* x_80; 
 lean_dec(x_49);
-x_80 = l_Lean_Elab_Command_elabInstance(x_45, x_48, x_2, x_46);
+x_80 = l_Lean_Elab_Command_elabTheorem(x_45, x_48, x_2, x_46);
 return x_80;
 }
 }
@@ -5668,7 +5692,7 @@ else
 {
 lean_object* x_81; 
 lean_dec(x_49);
-x_81 = l_Lean_Elab_Command_elabConstant(x_45, x_48, x_2, x_46);
+x_81 = l_Lean_Elab_Command_elabDef(x_45, x_48, x_2, x_46);
 return x_81;
 }
 }
@@ -5676,48 +5700,32 @@ else
 {
 lean_object* x_82; 
 lean_dec(x_49);
-x_82 = l_Lean_Elab_Command_elabTheorem(x_45, x_48, x_2, x_46);
+x_82 = l_Lean_Elab_Command_elabAbbrev(x_45, x_48, x_2, x_46);
 return x_82;
 }
 }
-else
-{
-lean_object* x_83; 
-lean_dec(x_49);
-x_83 = l_Lean_Elab_Command_elabDef(x_45, x_48, x_2, x_46);
-return x_83;
-}
 }
 else
 {
-lean_object* x_84; 
-lean_dec(x_49);
-x_84 = l_Lean_Elab_Command_elabAbbrev(x_45, x_48, x_2, x_46);
-return x_84;
-}
-}
-}
-else
-{
-uint8_t x_85; 
+uint8_t x_83; 
 lean_dec(x_2);
-x_85 = !lean_is_exclusive(x_6);
-if (x_85 == 0)
+x_83 = !lean_is_exclusive(x_6);
+if (x_83 == 0)
 {
 return x_6;
 }
 else
 {
-lean_object* x_86; lean_object* x_87; lean_object* x_88; 
-x_86 = lean_ctor_get(x_6, 0);
-x_87 = lean_ctor_get(x_6, 1);
-lean_inc(x_87);
-lean_inc(x_86);
+lean_object* x_84; lean_object* x_85; lean_object* x_86; 
+x_84 = lean_ctor_get(x_6, 0);
+x_85 = lean_ctor_get(x_6, 1);
+lean_inc(x_85);
+lean_inc(x_84);
 lean_dec(x_6);
-x_88 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_88, 0, x_86);
-lean_ctor_set(x_88, 1, x_87);
-return x_88;
+x_86 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_86, 0, x_84);
+lean_ctor_set(x_86, 1, x_85);
+return x_86;
 }
 }
 }
@@ -5753,6 +5761,7 @@ return x_5;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_CollectLevelParams(lean_object*);
 lean_object* initialize_Lean_Elab_Definition(lean_object*);
+lean_object* initialize_Lean_Elab_Inductive(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_Declaration(lean_object* w) {
 lean_object * res;
@@ -5765,6 +5774,9 @@ res = initialize_Lean_Util_CollectLevelParams(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Definition(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Inductive(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_elabAbbrev___closed__1 = _init_l_Lean_Elab_Command_elabAbbrev___closed__1();
@@ -5799,6 +5811,8 @@ l_Lean_Elab_Command_elabExample___closed__1 = _init_l_Lean_Elab_Command_elabExam
 lean_mark_persistent(l_Lean_Elab_Command_elabExample___closed__1);
 l_Lean_Elab_Command_elabExample___closed__2 = _init_l_Lean_Elab_Command_elabExample___closed__2();
 lean_mark_persistent(l_Lean_Elab_Command_elabExample___closed__2);
+l_Lean_Elab_Command_elabClassInductive___closed__1 = _init_l_Lean_Elab_Command_elabClassInductive___closed__1();
+lean_mark_persistent(l_Lean_Elab_Command_elabClassInductive___closed__1);
 l_Lean_Elab_Command_elabDeclaration___closed__1 = _init_l_Lean_Elab_Command_elabDeclaration___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_elabDeclaration___closed__1);
 l_Lean_Elab_Command_elabDeclaration___closed__2 = _init_l_Lean_Elab_Command_elabDeclaration___closed__2();

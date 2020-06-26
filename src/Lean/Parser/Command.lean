@@ -66,9 +66,10 @@ def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
 def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
-
 @[builtinCommandParser] def declaration := parser!
 declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
+
+@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 «declaration» >> "end"
 
 @[builtinCommandParser] def «section»      := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := parser! "namespace " >> ident

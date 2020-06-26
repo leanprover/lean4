@@ -119,18 +119,27 @@ withDeclId declId $ fun name => do
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> many introRule
--/
-def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-let (binders, type?) := expandOptDeclSig (stx.getArg 2);
-elabInductiveCore stx modifiers (stx.getArg 1) binders type? (stx.getArg 3).getArgs
-
-/-
 parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many introRule
+
+Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
 -/
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : InductiveView :=
+let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
+{ ref        := decl,
+  modifiers  := modifiers,
+  declId     := decl.getArg numTokens,
+  binders    := binders,
+  type?      := type?,
+  introRules := (decl.getArg (numTokens + 2)).getArgs }
+
+private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : InductiveView :=
+inductiveSyntaxToView modifiers decl 2
+
+def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
+elabInductiveCore #[inductiveSyntaxToView modifiers stx]
+
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-let (binders, type?) := expandOptDeclSig (stx.getArg 3);
-let modifiers        := modifiers.addAttribute { name := `class };
-elabInductiveCore stx modifiers (stx.getArg 2) binders type? (stx.getArg 4).getArgs
+elabInductiveCore #[classInductiveSyntaxToView modifiers stx]
 
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO
@@ -163,6 +172,28 @@ fun stx => do
     elabStructure modifiers decl
   else
     throwError stx "unexpected declaration"
+
+/- Return true if all elements of the mutual-block are inductive declarations. -/
+private def isMutualInductive (stx : Syntax) : Bool :=
+(stx.getArg 1).getArgs.all $ fun elem =>
+  let decl     := elem.getArg 1;
+  let declKind := decl.getKind;
+  declKind == `Lean.Parser.Command.inductive
+
+private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
+views ← elems.mapM $ fun stx => do {
+   modifiers ← elabModifiers (stx.getArg 0);
+   pure $ inductiveSyntaxToView modifiers (stx.getArg 1)
+};
+elabInductiveCore views
+
+@[builtinCommandElab «mutual»]
+def elabMutual : CommandElab :=
+fun stx =>
+  if isMutualInductive stx then
+    elabMutualInductive (stx.getArg 1).getArgs
+  else
+    throwError stx "not supported"
 
 end Command
 end Elab

@@ -19,3 +19,4 @@ import Lean.Elab.Syntax
 import Lean.Elab.Match
 import Lean.Elab.DoNotation
 import Lean.Elab.StructInst
+import Lean.Elab.Inductive

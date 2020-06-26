@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectLevelParams
 import Lean.Elab.Definition
+import Lean.Elab.Inductive
 
 namespace Lean
 namespace Elab
@@ -116,11 +117,20 @@ withDeclId declId $ fun name => do
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
+/-
+parser! "inductive " >> declId >> optDeclSig >> many introRule
+-/
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-pure () -- TODO
+let (binders, type?) := expandOptDeclSig (stx.getArg 2);
+elabInductiveCore stx modifiers (stx.getArg 1) binders type? (stx.getArg 3).getArgs
 
+/-
+parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many introRule
+-/
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-pure () -- TODO
+let (binders, type?) := expandOptDeclSig (stx.getArg 3);
+let modifiers        := modifiers.addAttribute { name := `class };
+elabInductiveCore stx modifiers (stx.getArg 2) binders type? (stx.getArg 4).getArgs
 
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO

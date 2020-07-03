@@ -523,6 +523,7 @@ else()
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
   if(${STAGE} EQUAL 0)
     add_subdirectory(../stdlib stdlib)
+    set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
   endif()
 
   add_library(leancpp ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
@@ -532,12 +533,8 @@ else()
 endif()
 install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
-if(${STAGE} EQUAL 0)
-  add_library(Init STATIC $<TARGET_OBJECTS:stage0>)
-  add_library(Std STATIC $<TARGET_OBJECTS:stage0>)
-  add_library(Lean STATIC $<TARGET_OBJECTS:stage0>)
-else()
-# created by the previous stage
+if(NOT(${STAGE} EQUAL 0))
+  # created by the previous stage
   add_library(Init STATIC IMPORTED)
   set_target_properties(Init PROPERTIES
     IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libInit.a")
@@ -549,21 +546,18 @@ else()
   add_library(Lean STATIC IMPORTED)
   set_target_properties(Lean PROPERTIES
     IMPORTED_LOCATION "${PREV_STAGE}/lib/lean/libLean.a")
-endif()
-# leancpp and Init are cyclically dependent
-target_link_libraries(Init INTERFACE leancpp)
-target_link_libraries(Std INTERFACE leancpp Init)
-target_link_libraries(Lean INTERFACE leancpp Std Init)
-target_link_libraries(leancpp INTERFACE Init Std Lean ${EXTRA_LIBS})
 
+  # leancpp and the Lean libs are cyclically dependent
+  target_link_libraries(Init INTERFACE leancpp)
+  target_link_libraries(Std INTERFACE leancpp Init)
+  target_link_libraries(Lean INTERFACE leancpp Std Init)
+  target_link_libraries(leancpp INTERFACE Init Std Lean)
+endif()
+
+target_link_libraries(leancpp INTERFACE ${EXTRA_LIBS})
 if(LLVM)
   target_link_libraries(leancpp INTERFACE ${llvm_libs})
 endif()
-
-add_custom_target(update-stage0
-  COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
-  DEPENDS Init Std Lean
-  WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"

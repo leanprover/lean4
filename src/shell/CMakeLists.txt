@@ -1,6 +1,6 @@
 add_executable(lean lean.cpp)
 set_target_properties(lean PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-target_link_libraries(lean leancpp Init Std Lean)
+target_link_libraries(lean leancpp)
 
 # create import library on Windows to link plugins against
 set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
@@ -26,6 +26,11 @@ add_custom_target(make_stdlib ALL
   # for a parallelized nested build, but CMake doesn't let us do that.
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make
   DEPENDS lean)
+
+add_custom_target(update-stage0
+  COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
+  DEPENDS make_stdlib
+  WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_BINARY_DIR}/bin/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_BINARY_DIR}/bin/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")

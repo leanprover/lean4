@@ -232,12 +232,18 @@ Prim.liftIO Prim.stdout
 def stderr : m FS.Handle :=
 Prim.liftIO Prim.stderr
 
-private def putStr (s : String) : m Unit := do
+def print {α} [HasToString α] (s : α) : m Unit := do
 out ← stdout;
-out.putStr s
+out.putStr $ toString s
 
-def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
-def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
+def println {α} [HasToString α] (s : α) : m Unit := print s *> print "\n"
+
+def eprint {α} [HasToString α] (s : α) : m Unit := do
+out ← stderr;
+out.putStr $ toString s
+
+def eprintln {α} [HasToString α] (s : α) : m Unit := eprint s *> eprint "\n"
+
 def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
 def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
 def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir

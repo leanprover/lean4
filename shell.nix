@@ -2,7 +2,7 @@
 
 let attribs = rec {
   lean = import ./default.nix args;
-  temci = (import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "4cae802606b871021394e250a280a2154b92f44b"; }) { inherit pkgs; }).override {
+  temci = (import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "f7f95fc35579bd27b6d48173c3a99b1a318926d3"; }) {}).override {
     doCheck = false;
   };
   lean4-mode = pkgs.emacsPackages.melpaBuild {

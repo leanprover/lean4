@@ -38,7 +38,7 @@ match Parser.parseHeader envNul inputCtx with
 | (header, parserState, messages) => do
   (env, messages) ← processHeader header messages inputCtx;
   parserStateRef ← IO.mkRef parserState;
-  cmdStateRef    ← IO.mkRef $ Command.mkState env messages {};
+  cmdStateRef ← IO.mkRef $ Command.mkState env messages {};
   IO.processCommands inputCtx parserStateRef cmdStateRef;
   cmdState ← cmdStateRef.get;
   pure (env, cmdState.env, cmdState.messages)
@@ -52,9 +52,13 @@ cmdState ← cmdStateRef.get;
 pure (cmdState.env, cmdState.messages)
 
 def msgToDiagnostic (text : DocumentText) (m : Lean.Message) : Diagnostic :=
-let low : Lsp.Position := ⟨m.pos.line, (text.get! m.pos.line).codepointPosToUtf16Pos m.pos.column⟩;
+-- Lean Message line numbers are 1-based while LSP Positions are 0-based.
+let lowLn := m.pos.line - 1;
+let low : Lsp.Position := ⟨lowLn, (text.get! lowLn).codepointPosToUtf16Pos m.pos.column⟩;
 let high : Lsp.Position := match m.endPos with
-| some endPos => ⟨endPos.line, (text.get! endPos.line).codepointPosToUtf16Pos endPos.column⟩
+| some endPos =>
+  let highLn := endPos.line - 1;
+  ⟨highLn, (text.get! highLn).codepointPosToUtf16Pos endPos.column⟩
 | none        => low;
 let range : Range := ⟨low, high⟩;
 let severity := match m.severity with
@@ -143,7 +147,7 @@ def initialize (i o : FS.Handle) : IO Unit := do
 -- ignore InitializeParams for MWE
 r ← readLspRequestAs i "initialize" InitializeParams;
 writeLspResponse o r.id ({ capabilities := mkLeanServerCapabilities
-                          , serverInfo? := some { name := "Lean 4 server"
+                         , serverInfo? := some { name := "Lean 4 server"
                                                 , version? := "0.0.1" }} : InitializeResult);
 _ ← readLspRequestNotificationAs i "initialized" Initialized;
 openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);

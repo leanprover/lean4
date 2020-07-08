@@ -115,7 +115,7 @@ match Parser.parseHeader env inputCtx with
   pure (cmdState.env, cmdState.messages)
 
 @[export lean_run_frontend]
-def runFrontentExport (env : Environment) (input : String) (fileName : String) (opts : Options) : IO (Option Environment) := do
+def runFrontendExport (env : Environment) (input : String) (fileName : String) (opts : Options) : IO (Option Environment) := do
 (env, messages) ← runFrontend env input opts (some fileName);
 messages.forM $ fun msg => IO.println msg;
 if messages.hasErrors then

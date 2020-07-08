@@ -29,13 +29,24 @@ structure Import :=
 instance : HasToString Import :=
 ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
 
+/--
+  A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
+  Objects inside the region do not have reference counters and cannot be freed individually. The contents of .olean
+  files are compacted regions. -/
+def CompactedRegion := USize
+
+/-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
+@[extern 2 "lean_compacted_region_free"]
+unsafe constant CompactedRegion.free : CompactedRegion → IO Unit := arbitrary _
+
 /- Environment fields that are not used often. -/
 structure EnvironmentHeader :=
 (trustLevel   : UInt32       := 0)
 (quotInit     : Bool         := false)
 (mainModule   : Name         := arbitrary _)
 (imports      : Array Import := #[]) -- direct imports
-(moduleNames  : NameSet      := {})  -- all imported .lean modules
+(regions      : Array CompactedRegion := #[]) -- compacted regions of all imported modules
+(moduleNames  : NameSet      := {})  -- names of all imported modules
 
 open Std (HashMap)
 
@@ -447,7 +458,29 @@ instance ModuleData.inhabited : Inhabited ModuleData :=
 @[extern 3 "lean_save_module_data"]
 constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit := arbitrary _
 @[extern 2 "lean_read_module_data"]
-constant readModuleData (fname : @& String) : IO ModuleData := arbitrary _
+constant readModuleData (fname : @& String) : IO (ModuleData × CompactedRegion) := arbitrary _
+
+/--
+  Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
+  particular, `env` should be the last reference to any `Environment` derived from these imports. -/
+@[noinline, export lean_environment_free_regions]
+unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
+/-
+  NOTE: This assumes `env` is not inferred as a borrowed parameter, and is freed after extracting the `header` field.
+  Otherwise, we would encounter undefined behavior when the constant map in `env`, which may reference objects in
+  compacted regions, is freed after the regions.
+
+  In the currently produced IR, we indeed see:
+  ```
+    def Lean.Environment.freeRegions (x_1 : obj) (x_2 : obj) : obj :=
+      let x_3 : obj := proj[3] x_1;
+      inc x_3;
+      dec x_1;
+      ...
+  ```
+
+  TODO: statically check for this. -/
+env.header.regions.forM CompactedRegion.free
 
 def mkModuleData (env : Environment) : IO ModuleData := do
 pExts ← persistentEnvExtensionsRef.get;
@@ -470,20 +503,21 @@ pure {
 def writeModule (env : Environment) (fname : String) : IO Unit := do
 modData ← mkModuleData env; saveModuleData fname modData
 
-partial def importModulesAux : List Import → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
+partial def importModulesAux : List Import → (NameSet × Array ModuleData × Array CompactedRegion) → IO (NameSet × Array ModuleData × Array CompactedRegion)
 | [],    r         => pure r
-| i::is, (s, mods) =>
+| i::is, (s, mods, regions) =>
   if i.runtimeOnly || s.contains i.module then
-    importModulesAux is (s, mods)
+    importModulesAux is (s, mods, regions)
   else do
     let s := s.insert i.module;
     mFile ← findOLean i.module;
     unlessM (IO.fileExists mFile) $
       throw $ IO.userError $ "object file '" ++ mFile ++ "' of module " ++ toString i.module ++ " does not exist";
-    mod ← readModuleData mFile;
-    (s, mods) ← importModulesAux mod.imports.toList (s, mods);
+    (mod, region) ← readModuleData mFile;
+    (s, mods, regions) ← importModulesAux mod.imports.toList (s, mods, regions);
     let mods := mods.push mod;
-    importModulesAux is (s, mods)
+    let regions := regions.push region;
+    importModulesAux is (s, mods, regions)
 
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
 | i =>
@@ -510,7 +544,7 @@ pExtDescrs.iterateM env $ fun _ extDescr env => do
 
 @[export lean_import_modules]
 def importModules (imports : List Import) (trustLevel : UInt32 := 0) : IO Environment := do
-(moduleNames, mods) ← importModulesAux imports ({}, #[]);
+(moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[]);
 let const2ModIdx := mods.iterate {} $ fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
   mod.constants.iterate m $ fun _ cinfo m =>
     m.insert cinfo.name modIdx.val;
@@ -529,6 +563,7 @@ let env : Environment := {
     quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
     trustLevel   := trustLevel,
     imports      := imports.toArray,
+    regions      := regions,
     moduleNames  := moduleNames
   }
 };

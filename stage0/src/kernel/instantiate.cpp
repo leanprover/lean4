@@ -6,14 +6,9 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <limits>
-#include <vector>
 #include "kernel/replace_fn.h"
 #include "kernel/declaration.h"
 #include "kernel/instantiate.h"
-
-#ifndef LEAN_INST_UNIV_CACHE_SIZE
-#define LEAN_INST_UNIV_CACHE_SIZE 1023
-#endif
 
 namespace lean {
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
@@ -233,62 +228,12 @@ expr instantiate_lparams(expr const & e, names const & lps, levels const & ls) {
         });
 }
 
-class instantiate_univ_cache {
-    typedef std::tuple<constant_info, levels, expr> entry;
-    unsigned                     m_capacity;
-    std::vector<optional<entry>> m_cache;
-public:
-    instantiate_univ_cache(unsigned capacity):m_capacity(capacity) {
-        if (m_capacity == 0)
-            m_capacity++;
-    }
-
-    optional<expr> is_cached(constant_info const & d, levels const & ls) {
-        if (m_cache.empty())
-            return none_expr();
-        lean_assert(m_cache.size() == m_capacity);
-        unsigned idx = d.get_name().hash() % m_capacity;
-        if (auto it = m_cache[idx]) {
-            constant_info info_c; levels ls_c; expr r_c;
-            std::tie(info_c, ls_c, r_c) = *it;
-            if (!is_eqp(info_c, d))
-                return none_expr();
-            if (ls == ls_c)
-                return some_expr(r_c);
-            else
-                return none_expr();
-        }
-        return none_expr();
-    }
-
-    void save(constant_info const & d, levels const & ls, expr const & r) {
-        if (m_cache.empty())
-            m_cache.resize(m_capacity);
-        lean_assert(m_cache.size() == m_capacity);
-        unsigned idx = d.get_name().hash() % m_cache.size();
-        m_cache[idx] = entry(d, ls, r);
-    }
-
-    void clear() {
-        m_cache.clear();
-        lean_assert(m_cache.empty());
-    }
-};
-
-MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_type_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
-MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_value_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
-
 expr instantiate_type_lparams(constant_info const & info, levels const & ls) {
     if (info.get_num_lparams() != length(ls))
         lean_panic("#universes mismatch at instantiateTypeLevelParams");
     if (is_nil(ls) || !has_param_univ(info.get_type()))
         return info.get_type();
-    instantiate_univ_cache & cache = get_type_univ_cache();
-    if (auto r = cache.is_cached(info, ls))
-        return *r;
-    expr r = instantiate_lparams(info.get_type(), info.get_lparams(), ls);
-    cache.save(info, ls, r);
-    return r;
+    return instantiate_lparams(info.get_type(), info.get_lparams(), ls);
 }
 
 expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
@@ -298,12 +243,7 @@ expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
         lean_panic("definition/theorem expected at instantiateValueLevelParams");
     if (is_nil(ls) || !has_param_univ(info.get_value()))
         return info.get_value();
-    instantiate_univ_cache & cache = get_value_univ_cache();
-    if (auto r = cache.is_cached(info, ls))
-        return *r;
-    expr r = instantiate_lparams(info.get_value(), info.get_lparams(), ls);
-    cache.save(info, ls, r);
-    return r;
+    return instantiate_lparams(info.get_value(), info.get_lparams(), ls);
 }
 
 extern "C" object * lean_instantiate_type_lparams(b_obj_arg info, b_obj_arg ls) {
@@ -312,10 +252,5 @@ extern "C" object * lean_instantiate_type_lparams(b_obj_arg info, b_obj_arg ls) 
 
 extern "C" object * lean_instantiate_value_lparams(b_obj_arg info, b_obj_arg ls) {
     return instantiate_value_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
-}
-
-void clear_instantiate_cache() {
-    get_type_univ_cache().clear();
-    get_value_univ_cache().clear();
 }
 }

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/constants.h"
-#include "library/cache_helper.h"
 #include "library/app_builder.h"
 
 namespace lean {
@@ -41,86 +40,6 @@ static unsigned get_nargs(unsigned mask_sz, bool const * mask) {
     return nargs;
 }
 
-class app_builder_cache {
-    struct entry {
-        unsigned             m_num_umeta;
-        unsigned             m_num_emeta;
-        expr                 m_app;
-        list<optional<expr>> m_inst_args; // "mask" of implicit instance arguments
-        list<expr>           m_expl_args; // metavars for explicit arguments
-        /*
-          IMPORTANT: for m_inst_args we store the arguments in reverse order.
-          For example, the first element in the list indicates whether the last argument
-          is an instance implicit argument or not. If it is not none, then the element
-          is the associated metavariable
-
-          m_expl_args are also stored in reverse order
-        */
-    };
-
-    struct key {
-        name       m_name;
-        unsigned   m_num_expl;
-        unsigned   m_hash;
-        // If nil, then the mask is composed of the last m_num_expl arguments.
-        // If nonnil, then the mask is NOT of the form [false*, true*]
-        list<bool> m_mask;
-
-        key(name const & c, unsigned n):
-            m_name(c), m_num_expl(n),
-            m_hash(::lean::hash(c.hash(), n)) {
-        }
-
-        key(name const & c, list<bool> const & m):
-            m_name(c), m_num_expl(length(m)) {
-            m_hash = ::lean::hash(c.hash(), m_num_expl);
-            m_mask = m;
-            for (bool b : m) {
-                if (b)
-                    m_hash = ::lean::hash(m_hash, 17u);
-                else
-                    m_hash = ::lean::hash(m_hash, 31u);
-            }
-        }
-
-        bool check_invariant() const {
-            lean_assert(empty(m_mask) || length(m_mask) == m_num_expl);
-            return true;
-        }
-
-        unsigned hash() const { return m_hash; }
-        friend bool operator==(key const & k1, key const & k2) {
-            return k1.m_name == k2.m_name && k1.m_num_expl == k2.m_num_expl && k1.m_mask == k2.m_mask;
-        }
-    };
-
-    struct key_hash_fn {
-        unsigned operator()(key const & k) const { return k.hash(); }
-    };
-
-    typedef std::unordered_map<key, entry, key_hash_fn> map;
-
-    environment          m_env;
-    map                  m_map;
-    friend class app_builder;
-public:
-    app_builder_cache(environment const & env):
-        m_env(env) {
-    }
-
-    environment const & env() const { return m_env; }
-};
-
-typedef cache_compatibility_helper<app_builder_cache> app_builder_cache_helper;
-
-/* CACHE_RESET: YES */
-MK_THREAD_LOCAL_GET_DEF(app_builder_cache_helper, get_abch);
-
-/** Return an app_builder_cache for the transparency_mode in ctx, and compatible with the environment. */
-app_builder_cache & get_app_builder_cache_for(type_context_old const & ctx) {
-    return get_abch().get_cache_for(ctx);
-}
-
 static level get_level_ap(type_context_old & ctx, expr const & A) {
     try {
         return get_level(ctx, A);
@@ -146,9 +65,22 @@ static level get_level_ap(type_context_old & ctx, expr const & A) {
 */
 class app_builder {
     type_context_old &      m_ctx;
-    app_builder_cache & m_cache;
-    typedef app_builder_cache::key   key;
-    typedef app_builder_cache::entry entry;
+
+    struct entry {
+        unsigned             m_num_umeta;
+        unsigned             m_num_emeta;
+        expr                 m_app;
+        list<optional<expr>> m_inst_args; // "mask" of implicit instance arguments
+        list<expr>           m_expl_args; // metavars for explicit arguments
+        /*
+          IMPORTANT: for m_inst_args we store the arguments in reverse order.
+          For example, the first element in the list indicates whether the last argument
+          is an instance implicit argument or not. If it is not none, then the element
+          is the associated metavariable
+
+          m_expl_args are also stored in reverse order
+        */
+    };
 
     environment const & env() const { return m_ctx.env(); }
 
@@ -173,8 +105,6 @@ class app_builder {
     }
 
     optional<entry> get_entry(name const & c, unsigned nargs) {
-        key k(c, nargs);
-        lean_assert(k.check_invariant());
         if (optional<constant_info> info = env().find(c)) {
             buffer<expr> mvars;
             buffer<optional<expr>> inst_args;
@@ -219,8 +149,6 @@ class app_builder {
     }
 
     optional<entry> get_entry(name const & c, unsigned mask_sz, bool const * mask) {
-        key k(c, to_list(mask, mask+mask_sz));
-        lean_assert(k.check_invariant());
         if (auto d = env().find(c)) {
             buffer<expr> mvars;
             buffer<optional<expr>> inst_args;
@@ -289,7 +217,7 @@ class app_builder {
     }
 
 public:
-    app_builder(type_context_old & ctx):m_ctx(ctx), m_cache(get_app_builder_cache_for(ctx)) {}
+    app_builder(type_context_old & ctx):m_ctx(ctx) {}
 
     level get_level(expr const & A) {
         return get_level_ap(m_ctx, A);
@@ -1044,7 +972,6 @@ expr mk_iff_mp(type_context_old & ctx, expr const & h1, expr const & h2) {
 
 void initialize_app_builder() {
     register_trace_class("app_builder");
-    register_thread_local_reset_fn([]() { get_abch().clear(); });
 }
 void finalize_app_builder() {}
 }

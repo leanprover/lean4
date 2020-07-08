@@ -6,34 +6,9 @@ namespace Lean.Lsp
 open Lean
 open Lean.Json
 
-structure ClientInfo := (name : String) (version? : Option String := none)
-
-inductive Trace
-| messages
-| verbose
-
-structure InitializeParams :=
--- id of parent process, none if no parent process
-(processId? : Option Int := none)
-(clientInfo? : Option ClientInfo := none)
--- we don't support the deprecated rootPath
--- none: no folder is open
-(rootUri? : Option String := none) 
-(initializationOptions? : Option Json := none)
-(capabilities : ClientCapabilities)
-(trace? : Option Trace := none) -- none: no trace
---(workspaceFolders? : Option Unit) TODO
-
-inductive Initialized
-| mk
-
-structure ServerInfo :=
+structure ClientInfo :=
 (name : String)
 (version? : Option String := none)
-
-structure InitializeResult :=
-(capabilities : ServerCapabilities)
-(serverInfo? : Option String := none)
 
 instance clientInfoHasFromJson : HasFromJson ClientInfo :=
 ⟨fun j => do
@@ -41,11 +16,28 @@ instance clientInfoHasFromJson : HasFromJson ClientInfo :=
   let version? := j.getObjValAs? String "version";
   pure ⟨name, version?⟩⟩
 
+inductive Trace
+| messages
+| verbose
+
 instance traceHasFromJson : HasFromJson Trace :=
 ⟨fun j => match j.getStr? with
-  | some "messages" => Trace.messages
-  | some "verbose" => Trace.verbose
-  | _ => none⟩
+| some "messages" => Trace.messages
+| some "verbose" => Trace.verbose
+| _ => none⟩
+
+structure InitializeParams :=
+-- id of parent process, none if no parent process
+(processId? : Option Int := none)
+(clientInfo? : Option ClientInfo := none)
+/- We don't support the deprecated rootPath
+(rootPath? : Option String)-/
+-- none: no folder is open
+(rootUri? : Option String := none)
+(initializationOptions? : Option Json := none)
+(capabilities : ClientCapabilities)
+(trace? : Option Trace := none) -- none: no trace
+--(workspaceFolders? : Option Unit) TODO
 
 instance initializeParamsHasFromJson : HasFromJson InitializeParams :=
 ⟨fun j => do
@@ -64,15 +56,26 @@ instance initializeParamsHasFromJson : HasFromJson InitializeParams :=
   let trace? := j.getObjValAs? Trace "trace";
   pure ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace?⟩⟩
 
+inductive Initialized
+| mk
+
 instance initializedHasFromJson : HasFromJson Initialized :=
 ⟨fun j => Initialized.mk⟩
 
+structure ServerInfo :=
+(name : String)
+(version? : Option String := none)
+
 instance serverInfoHasToJson : HasToJson ServerInfo :=
 ⟨fun o => mkObj $
-  ⟨"name", o.name⟩ :: opt "version" o.version? ++ []⟩
+  ⟨"name", o.name⟩ :: opt "version" o.version?⟩
+
+structure InitializeResult :=
+(capabilities : ServerCapabilities)
+(serverInfo? : Option ServerInfo := none)
 
 instance initializeResultHasToJson : HasToJson InitializeResult :=
 ⟨fun o => mkObj $
-  ⟨"capabilities", toJson o.capabilities⟩ :: opt "serverInfo" o.serverInfo? ++ []⟩
+  ⟨"capabilities", toJson o.capabilities⟩ :: opt "serverInfo" o.serverInfo?⟩
 
 end Lean.Lsp

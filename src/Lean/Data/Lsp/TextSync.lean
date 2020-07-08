@@ -7,18 +7,29 @@ open Lean
 open Lean.Json
 
 inductive TextDocumentSyncKind
--- synced by sending full content and on every update
-| full 
--- synced by sending full content on open and otherwise
--- incremental updates
-| incremental 
+/- Documents should not be synced at all. -/
+--| none
+/- Documents are synced by always sending the full content of the document. -/
+| full
+/- Documents are synced by sending the full content on open. After that only incremental updates to the document are send. -/
+| incremental
 
 structure TextDocumentSyncOptions :=
-(openClose : Bool) -- open/close notifications are sent to server
-(change? : Option TextDocumentSyncKind := none) -- none: not synced
+/- Open and close notifications are sent to the server.
+If omitted open close notification should not be sent. -/
+(openClose : Bool)
+/- Change notifications are sent to the server.
+If omitted it defaults to TextDocumentSyncKind.None.
+none: not synced -/
+(change? : Option TextDocumentSyncKind := none)
 
 structure DidOpenTextDocumentParams :=
 (textDocument : TextDocumentItem)
+
+instance didOpenTextDocumentParamsHasFromJson : HasFromJson DidOpenTextDocumentParams :=
+⟨fun j => do
+  textDocument ← j.getObjValAs? TextDocumentItem "textDocument";
+  pure ⟨textDocument⟩⟩
 
 structure TextDocumentChangeRegistrationOptions :=
 (documentSelector? : Option DocumentSelector := none)
@@ -61,11 +72,6 @@ instance textDocumentSyncOptionsHasToJson : HasToJson TextDocumentSyncOptions :=
 ⟨fun o => mkObj $
   ⟨"openClose", o.openClose⟩ :: opt "change" o.change? ++ []⟩
 
-instance didOpenTextDocumentParamsHasFromJson : HasFromJson DidOpenTextDocumentParams :=
-⟨fun j => do
-  textDocument ← j.getObjValAs? TextDocumentItem "textDocument";
-  pure ⟨textDocument⟩⟩
-
 instance textDocumentChangeRegistrationOptionsHasFromJson : HasFromJson TextDocumentChangeRegistrationOptions :=
 ⟨fun j => do
   let documentSelector? := j.getObjValAs? DocumentSelector "documentSelector";
@@ -73,7 +79,7 @@ instance textDocumentChangeRegistrationOptionsHasFromJson : HasFromJson TextDocu
   pure ⟨documentSelector?, syncKind⟩⟩
 
 instance textDocumentContentChangeEventHasFromJson : HasFromJson TextDocumentContentChangeEvent :=
-⟨fun j => 
+⟨fun j =>
   (do
     range ← j.getObjValAs? Range "range";
     text ← j.getObjValAs? String "text";

@@ -83,6 +83,14 @@ match openDocuments.find? key with
 def updateOpenDocuments (s : ServerState) (key : DocumentUri) (val : Document) : IO Unit :=
 s.openDocumentsRef.modify (fun documents => (documents.erase key).insert key val)
 
+-- Clears diagnostics for the document version 'd'.
+-- TODO how to clear all diagnostics? Sending version 'none' doesn't seem to work
+def clearDiagnostics (s : ServerState) (uri : DocumentUri) (d : Document) : IO Unit :=
+writeLspNotification s.o "textDocument/publishDiagnostics"
+  { uri := uri
+  , version? := d.version
+  , diagnostics := #[] : PublishDiagnosticsParams }
+
 def sendDiagnostics (s : ServerState) (uri : DocumentUri) (d : Document) (log : MessageLog) : IO Unit :=
 let diagnostics := log.msgs.map (msgToDiagnostic d.text);
 writeLspNotification s.o "textDocument/publishDiagnostics"
@@ -99,10 +107,10 @@ s.openDocumentsRef.modify (fun openDocuments => openDocuments.insert doc.uri new
 s.sendDiagnostics doc.uri newDoc msgLog
 
 def handleDidChange (s : ServerState) (p : DidChangeTextDocumentParams) : IO Unit := do
-let doc := p.textDocument;
+let docId := p.textDocument;
 let changes := p.contentChanges;
-oldDoc ← s.findOpenDocument doc.uri;
-some newVersion ← pure doc.version? | throw (userError "expected version number");
+oldDoc ← s.findOpenDocument docId.uri;
+some newVersion ← pure docId.version? | throw (userError "expected version number");
 if newVersion <= oldDoc.version then do
   throw (userError "got outdated version number")
 else changes.forM $ fun change =>
@@ -111,8 +119,12 @@ else changes.forM $ fun change =>
     let newDocText := replaceRange oldDoc.text range newText;
     (newEnv, msgLog) ← updateFrontend oldDoc.headerEnv ("\n".intercalate newDocText.toList);
     let newDoc : Document := ⟨newVersion, newDocText, oldDoc.headerEnv⟩;
-    s.updateOpenDocuments doc.uri newDoc;
-    s.sendDiagnostics doc.uri newDoc msgLog
+    s.updateOpenDocuments docId.uri newDoc;
+    -- Clients don't have to clear diagnostics, so we clear them
+    -- for the *previous* version here.
+    s.clearDiagnostics docId.uri oldDoc;
+    s.sendDiagnostics docId.uri newDoc msgLog
+
   | TextDocumentContentChangeEvent.fullChange (text : String) =>
     throw (userError "got content change that replaces the full document (not supported)")
 
@@ -148,7 +160,7 @@ def initialize (i o : FS.Handle) : IO Unit := do
 r ← readLspRequestAs i "initialize" InitializeParams;
 writeLspResponse o r.id ({ capabilities := mkLeanServerCapabilities
                          , serverInfo? := some { name := "Lean 4 server"
-                                                , version? := "0.0.1" }} : InitializeResult);
+                                               , version? := "0.0.1" }} : InitializeResult);
 _ ← readLspRequestNotificationAs i "initialized" Initialized;
 openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
 ServerState.mainLoop ⟨i, o, openDocumentsRef⟩

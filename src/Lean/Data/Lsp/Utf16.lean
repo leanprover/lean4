@@ -42,7 +42,7 @@ private def utf16ReplaceAux₀ : List Char → Nat → Nat → List Char
 private def utf16ReplaceAux₁ : List Char → List Char → Nat → Nat → List Char
 | [],     n :: new, i, endIdx => n :: new
 | s,      [],       i, endIdx => utf16ReplaceAux₀ s i endIdx
-| c :: s, n :: new, i, endIdx => 
+| c :: s, n :: new, i, endIdx =>
   if i ≥ endIdx then
     n :: new ++ c :: s -- range ended, insert rest of the text
   else
@@ -51,7 +51,7 @@ private def utf16ReplaceAux₁ : List Char → List Char → Nat → Nat → Lis
 private def utf16ReplaceAux₂ : List Char → List Char → Nat → Nat → Nat → List Char
 | [],     [],       i, startIdx, endIdx => []
 | [],     n :: new, i, startIdx, endIdx => n :: new
-| c :: s, new,      i, startIdx, endIdx => 
+| c :: s, new,      i, startIdx, endIdx =>
   if i ≥ startIdx then
     utf16ReplaceAux₁ (c :: s) new i endIdx
   else
@@ -65,7 +65,7 @@ end String
 namespace Array
 
 def insertAll {α} (as : Array α) (i : Nat) (as' : Array α) : Array α :=
-as'.reverse.foldr (fun a' acc => acc.insertAt i a') as
+as'.foldr (fun a' acc => acc.insertAt i a') as
 
 def eraseAll {α} (as : Array α) (i n : Nat) : Array α :=
 n.repeat (fun acc => acc.eraseIdx i) as
@@ -89,6 +89,6 @@ let endIdx := focused.iterateRev 0 $ fun lineIdx line endIdxAcc =>
 let focused := "\n".intercalate focused.toList;
 let replaced := (focused.utf16Replace newText si endIdx).splitOnEOLs.toArray;
 (text.eraseAll sl (el - sl + 1)).insertAll sl replaced
-    
+
 
 end Lean.Lsp

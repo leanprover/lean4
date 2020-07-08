@@ -15,7 +15,10 @@ open Lean.Elab
 -- LSP indexes text with rows and colums
 abbrev DocumentText := Array String
 
-structure Document := (version : Int) (text : DocumentText) (env : Environment)
+structure Document :=
+(version : Int)
+(text : DocumentText)
+(headerEnv : Environment)
 
 abbrev DocumentMap := RBMap DocumentUri Document (fun a b => Decidable.decide (a < b))
 
@@ -27,6 +30,18 @@ def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : IO
 match @fromJson? paramType _ params with
 | some parsed => pure parsed
 | none        => throw (userError "got param with wrong structure")
+
+def runFrontend (text : String) : IO (Environment × Environment × MessageLog) := do
+let inputCtx := Parser.mkInputContext text "<input>";
+envNul ← mkEmptyEnvironment;
+match Parser.parseHeader envNul inputCtx with
+| (header, parserState, messages) => do
+  (env, messages) ← processHeader header messages inputCtx;
+  parserStateRef ← IO.mkRef parserState;
+  cmdStateRef    ← IO.mkRef $ Command.mkState env messages {};
+  IO.processCommands inputCtx parserStateRef cmdStateRef;
+  cmdState ← cmdStateRef.get;
+  pure (env, cmdState.env, cmdState.messages)
 
 def updateFrontend (env : Environment) (input : String) : IO (Environment × MessageLog) := do
 let inputCtx := Parser.mkInputContext input "<input>";
@@ -48,7 +63,10 @@ let severity := match m.severity with
 | MessageSeverity.error       => DiagnosticSeverity.error;
 let source := "Lean 4 server";
 let message := toString (format m.data);
-{range := range, severity? := severity, source? := source, message := message}
+{ range := range
+, severity? := severity
+, source? := source
+, message := message}
 
 namespace ServerState
 
@@ -61,49 +79,59 @@ match openDocuments.find? key with
 def updateOpenDocuments (s : ServerState) (key : DocumentUri) (val : Document) : IO Unit :=
 s.openDocumentsRef.modify (fun documents => (documents.erase key).insert key val)
 
-def sendDiagnostics (s : ServerState) (uri : DocumentUri) (d : Document) (log : MessageLog) : IO Unit := 
+def sendDiagnostics (s : ServerState) (uri : DocumentUri) (d : Document) (log : MessageLog) : IO Unit :=
 let diagnostics := log.msgs.map (msgToDiagnostic d.text);
-writeLspNotification s.o "textDocument/publishDiagnostics" {PublishDiagnosticsParams . uri := uri, version? := d.version, diagnostics := diagnostics.toArray}
+writeLspNotification s.o "textDocument/publishDiagnostics"
+  { uri := uri
+  , version? := d.version
+  , diagnostics := diagnostics.toArray : PublishDiagnosticsParams }
 
 def handleDidOpen (s : ServerState) (p : DidOpenTextDocumentParams) : IO Unit := do
-let d := p.textDocument;
-let text := d.text.splitOnEOLs;
-(env, msgLog) ← runFrontend {const2ModIdx := {}, constants := {}, extensions := #[]} ("\n".intercalate text);
-let newDoc : Document := ⟨d.version, text.toArray, env⟩;
-s.openDocumentsRef.modify (fun openDocuments => openDocuments.insert d.uri newDoc);
-s.sendDiagnostics d.uri newDoc msgLog
+let doc := p.textDocument;
+let text := doc.text.splitOnEOLs;
+(headerEnv, env, msgLog) ← runFrontend ("\n".intercalate text);
+let newDoc : Document := ⟨doc.version, text.toArray, headerEnv⟩;
+s.openDocumentsRef.modify (fun openDocuments => openDocuments.insert doc.uri newDoc);
+s.sendDiagnostics doc.uri newDoc msgLog
 
 def handleDidChange (s : ServerState) (p : DidChangeTextDocumentParams) : IO Unit := do
-let d := p.textDocument;
-let c := p.contentChanges;
-oldDoc ← s.findOpenDocument d.uri;
-some newVersion ← pure d.version? | throw (userError "expected version number");
+let doc := p.textDocument;
+let changes := p.contentChanges;
+oldDoc ← s.findOpenDocument doc.uri;
+some newVersion ← pure doc.version? | throw (userError "expected version number");
 if newVersion <= oldDoc.version then do
   throw (userError "got outdated version number")
-else c.forM $ fun change =>
+else changes.forM $ fun change =>
   match change with
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) => do
     let newDocText := replaceRange oldDoc.text range newText;
-    -- (newEnv, newMsgLog) ← updateFrontend oldDoc.env ("\n".intercalate newDocText.toList);
-    (newEnv, msgLog) ← runFrontend {const2ModIdx := {}, constants := {}, extensions := #[]} ("\n".intercalate newDocText.toList);
-    let newDoc : Document := ⟨newVersion, newDocText, newEnv⟩;
-    s.updateOpenDocuments d.uri newDoc;
-    s.sendDiagnostics d.uri newDoc msgLog
-  | TextDocumentContentChangeEvent.fullChange (text : String) => throw (userError "got content change that replaces the full document (not supported)") 
+    (newEnv, msgLog) ← updateFrontend oldDoc.headerEnv ("\n".intercalate newDocText.toList);
+    let newDoc : Document := ⟨newVersion, newDocText, oldDoc.headerEnv⟩;
+    s.updateOpenDocuments doc.uri newDoc;
+    s.sendDiagnostics doc.uri newDoc msgLog
+  | TextDocumentContentChangeEvent.fullChange (text : String) =>
+    throw (userError "got content change that replaces the full document (not supported)")
 
 def handleNotification (s : ServerState) (method : String) (params : Json) : IO Unit := do
-let h := (fun paramType [HasFromJson paramType] (handler : ServerState → paramType → IO Unit) => 
+let h := (fun paramType [HasFromJson paramType] (handler : ServerState → paramType → IO Unit) =>
   parseParams paramType params >>= handler s);
 match method with
 | "textDocument/didOpen"   => h DidOpenTextDocumentParams handleDidOpen
 | "textDocument/didChange" => h DidChangeTextDocumentParams handleDidChange
 | _                        => throw (userError "got unsupported notification method")
 
+def handleRequest (s : ServerState) (id : RequestID) (method : String) (params : Json)
+  : IO Unit := do
+  match method with
+  | _ => throw (userError "Not supporting requests for now!")
+
 partial def mainLoop : ServerState → IO Unit
 | s => do
   m ← readLspMessage s.i;
   match m with
-  | Message.request id method (some params) => pure ()
+  | Message.request id method (some params) => do
+    s.handleRequest id method (toJson params);
+    mainLoop s
   | Message.requestNotification method (some params) => do
     s.handleNotification method (toJson params);
     mainLoop s
@@ -114,7 +142,9 @@ end ServerState
 def initialize (i o : FS.Handle) : IO Unit := do
 -- ignore InitializeParams for MWE
 r ← readLspRequestAs i "initialize" InitializeParams;
-writeLspResponse o r.id mkLeanServerCapabilities;
+writeLspResponse o r.id ({ capabilities := mkLeanServerCapabilities
+                          , serverInfo? := some { name := "Lean 4 server"
+                                                , version? := "0.0.1" }} : InitializeResult);
 _ ← readLspRequestNotificationAs i "initialized" Initialized;
 openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
 ServerState.mainLoop ⟨i, o, openDocumentsRef⟩

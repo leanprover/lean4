@@ -29,8 +29,9 @@ private partial def readHeaderFields : FS.Handle → IO (List (String × String)
     | some hf => do
       tail ← readHeaderFields h;
       pure (hf :: tail)
-    | none => throw (userError "invalid header field")
-    
+    | none => throw (userError $ "invalid header field" ++ l)
+
+-- Returns the Content-Length.
 private def readLspHeader (h : FS.Handle) : IO Nat := do
 fields ← readHeaderFields h;
 match fields.lookup "Content-Length" with
@@ -57,9 +58,9 @@ def writeLspMessage (h : FS.Handle) (m : Message) : IO Unit := do
 let j := (toJson m).compress;
 let header := "Content-Length: " ++ toString j.utf8ByteSize ++ "\r\n\r\n";
 h.putStr (header ++ j);
-IO.println "starting to flush now";
-h.flush;
-IO.println "flushed"
+--IO.println "starting to flush now";
+h.flush
+--IO.println "flushed";
 
 def writeLspResponse {α : Type*} [Lean.HasToJson α] (h : FS.Handle) (id : RequestID) (r : α) : IO Unit :=
 writeLspMessage h (Message.response id (toJson r))

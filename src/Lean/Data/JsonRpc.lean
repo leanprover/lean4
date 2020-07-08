@@ -12,9 +12,56 @@ inductive RequestID
 | num (n : JsonNumber)
 | null
 
+-- TODO maybe put this in Json ns?
 inductive Structured
 | arr (elems : Array Json)
 | obj (kvPairs : RBNode String (fun _ => Json))
+
+/-- Error codes defined by JSON-RPC and LSP. -/
+inductive ErrorCode
+| parseError
+| invalidRequest
+| methodNotFound
+| invalidParams
+| internalError
+| serverErrorStart
+| serverErrorEnd
+| serverNotInitialized
+| unknownErrorCode
+-- LSP-specific codes below.
+| requestCancelled
+| contentModified
+
+instance hasFromJsonErrorCode : HasFromJson ErrorCode :=
+⟨fun j => match j with
+  | num n =>
+    if      n = (-32700 : Int) then ErrorCode.parseError
+    else if n = (-32600 : Int) then ErrorCode.invalidRequest
+    else if n = (-32601 : Int) then ErrorCode.methodNotFound
+    else if n = (-32602 : Int) then ErrorCode.invalidParams
+    else if n = (-32603 : Int) then ErrorCode.internalError
+    else if n = (-32099 : Int) then ErrorCode.serverErrorStart
+    else if n = (-32000 : Int) then ErrorCode.serverErrorEnd
+    else if n = (-32002 : Int) then ErrorCode.serverNotInitialized
+    else if n = (-32001 : Int) then ErrorCode.unknownErrorCode
+    else if n = (-32800 : Int) then ErrorCode.requestCancelled
+    else if n = (-32801 : Int) then ErrorCode.contentModified
+    else none
+  | _ => none⟩
+
+instance hasToJsonErrorCode : HasToJson ErrorCode :=
+⟨fun e => match e with
+  | ErrorCode.parseError           => (-32700 : Int)
+  | ErrorCode.invalidRequest       => (-32600 : Int)
+  | ErrorCode.methodNotFound       => (-32601 : Int)
+  | ErrorCode.invalidParams        => (-32602 : Int)
+  | ErrorCode.internalError        => (-32603 : Int)
+  | ErrorCode.serverErrorStart     => (-32099 : Int)
+  | ErrorCode.serverErrorEnd       => (-32000 : Int)
+  | ErrorCode.serverNotInitialized => (-32002 : Int)
+  | ErrorCode.unknownErrorCode     => (-32001 : Int)
+  | ErrorCode.requestCancelled     => (-32800 : Int)
+  | ErrorCode.contentModified      => (-32801 : Int)⟩
 
 -- uses Option Structured because users will likely rarely distinguish between an empty
 -- parameter array and an omitted params field.
@@ -24,7 +71,7 @@ inductive Message
 | request (id : RequestID) (method : String) (params? : Option Structured)
 | requestNotification (method : String) (params? : Option Structured)
 | response (id : RequestID) (result : Json)
-| responseError (id : RequestID) (code : JsonNumber) (message : String) (data? : Option Json)
+| responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
 
 def Batch := Array Message
 
@@ -44,8 +91,9 @@ instance requestIDToJson : HasToJson RequestID :=
   | RequestID.str s => s
   | RequestID.num n => num n
   | RequestID.null  => null⟩
+
 instance requestIDFromJson : HasFromJson RequestID :=
-⟨fun j => match j with 
+⟨fun j => match j with
   | str s => RequestID.str s
   | num n => RequestID.num n
   | _     => none⟩
@@ -54,6 +102,7 @@ instance structuredToJson : HasToJson Structured :=
 ⟨fun s => match s with
   | Structured.arr a => arr a
   | Structured.obj o => obj o⟩
+
 instance structuredFromJson : HasFromJson Structured :=
 ⟨fun j => match j with
   | arr a => Structured.arr a
@@ -61,7 +110,7 @@ instance structuredFromJson : HasFromJson Structured :=
   | _     => none⟩
 
 instance messageToJson : HasToJson Message :=
-⟨fun m =>   
+⟨fun m =>
   mkObj $ ⟨"jsonrpc", "2.0"⟩ :: match m with
   | Message.request id method params? =>
     [⟨"id", toJson id⟩, ⟨"method", method⟩] ++ opt "params" params?
@@ -70,8 +119,8 @@ instance messageToJson : HasToJson Message :=
   | Message.response id result =>
     [⟨"id", toJson id⟩, ⟨"result", result⟩]
   | Message.responseError id code message data? =>
-    [⟨"id", toJson id⟩, 
-     ⟨"error", mkObj $ 
+    [⟨"id", toJson id⟩,
+     ⟨"error", mkObj $
        [⟨"code", toJson code⟩, ⟨"message", message⟩] ++ opt "data" data?⟩]⟩
 
 def aux1 (j : Json) : Option Message := do
@@ -93,7 +142,7 @@ pure (Message.response id result)
 def aux4 (j : Json) : Option Message := do
 id ← j.getObjValAs? RequestID "id";
 err ← j.getObjVal? "error";
-code ← err.getObjValAs? JsonNumber "code";
+code ← err.getObjValAs? ErrorCode "code";
 message ← err.getObjValAs? String "message";
 let data? := err.getObjVal? "data";
 pure (Message.responseError id code message data?)
@@ -123,7 +172,7 @@ match m with
 | Message.request id method params? =>
   if method = expectedMethod then
     match params? with
-    | some params => 
+    | some params =>
       let j := toJson params;
       match fromJson? j with
       | some v => pure ⟨id, v⟩
@@ -139,7 +188,7 @@ match m with
 | Message.requestNotification method params? =>
   if method = expectedMethod then
     match params? with
-    | some params => 
+    | some params =>
       let j := toJson params;
       match fromJson? j with
       | some v => pure v

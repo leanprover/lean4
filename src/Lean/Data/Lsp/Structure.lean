@@ -18,7 +18,7 @@ structure Range := (start : Position) («end» : Position)
 
 structure Location := (uri : DocumentUri) (range : Range)
 
-structure LocationLink := 
+structure LocationLink :=
 -- span in origin that is highlighted (e.g. underlined).
 -- default for none: word range at mouse position
 (originSelectionRange? : Option Range)
@@ -29,29 +29,69 @@ structure LocationLink :=
 -- must be a subrange of targetRange
 (targetSelectionRange : Range)
 
-inductive DiagnosticSeverity 
+inductive DiagnosticSeverity
 | error | warning | information | hint
 
-inductive DiagnosticCode 
-| int (i : Int) 
-| string (s : String) 
+instance diagnosticSeverityHasFromJson : HasFromJson DiagnosticSeverity :=
+⟨fun j => match j.getNat? with
+  | some 1 => DiagnosticSeverity.error
+  | some 2 => DiagnosticSeverity.warning
+  | some 3 => DiagnosticSeverity.information
+  | some 4 => DiagnosticSeverity.hint
+  | _      => none⟩
 
-inductive DiagnosticTag 
--- faded out in client
+instance diagnosticSeverityHasToJson : HasToJson DiagnosticSeverity :=
+⟨fun o => match o with
+  | DiagnosticSeverity.error       => (1 : Nat)
+  | DiagnosticSeverity.warning     => (2 : Nat)
+  | DiagnosticSeverity.information => (3 : Nat)
+  | DiagnosticSeverity.hint        => (4 : Nat)⟩
+
+inductive DiagnosticCode
+| int (i : Int)
+| string (s : String)
+
+instance diagnosticCodeHasToJson : HasToJson DiagnosticCode :=
+⟨fun o => match o with
+  | DiagnosticCode.int i    => i
+  | DiagnosticCode.string s => s⟩
+
+inductive DiagnosticTag
+/- Unused or unnecessary code.
+
+Clients are allowed to render diagnostics with this tag faded out instead of having
+an error squiggle. -/
 | unnecessary
--- struck through in client
+/- Deprecated or obsolete code.
+
+Clients are allowed to rendered diagnostics with this tag strike through. -/
 | deprecated
 
-structure DiagnosticRelatedInformation := (location : Location) (message : String)
+/- Represents a related message and source code location for a diagnostic. This should be
+used to point to code locations that cause or are related to a diagnostics, e.g when duplicating
+a symbol in a scope. -/
+structure DiagnosticRelatedInformation :=
+(location : Location)
+(message : String)
 
 structure Diagnostic :=
+/- The range at which the message applies. -/
 (range : Range)
--- none: client is free to choose severity
+/- The diagnostic's severity. Can be omitted. If omitted it is up to the
+client to interpret diagnostics as error, warning, info or hint. -/
 (severity? : Option DiagnosticSeverity := none)
+/- The diagnostic's code, which might appear in the user interface. -/
 (code? : Option DiagnosticCode := none)
+/- A human-readable string describing the source of this
+diagnostic, e.g. 'typescript' or 'super lint'. -/
 (source? : Option String := none)
+/- The diagnostic's message. -/
 (message : String)
+/- Additional metadata about the diagnostic.
+@since 3.15.0 -/
 (tags? : Option (Array DiagnosticTag) := none)
+/- An array of related diagnostic information, e.g. when symbol-names within
+a scope collide all definitions can be marked via this property. -/
 (relatedInformation? : Option (Array DiagnosticRelatedInformation) := none)
 
 structure Command :=
@@ -63,11 +103,11 @@ structure Command :=
 
 structure TextEdit :=
 -- text insertion: start = end
-(range : Range) 
+(range : Range)
 -- text deletion: empty string
 (newText : String)
 
--- no intermediate states: 
+-- no intermediate states:
 -- - ranges may not overlap
 -- - multiple inserts can have the same starting position
 -- - the order of the array induces the insert order
@@ -77,7 +117,7 @@ def TextEditBatch := Array TextEdit
 
 structure TextDocumentIdentifier := (uri : DocumentUri)
 
-structure VersionedTextDocumentIdentifier := 
+structure VersionedTextDocumentIdentifier :=
 (uri : DocumentUri)
 -- increases after each change, undo and redo
 -- none used when a document is not open and the
@@ -88,7 +128,7 @@ structure TextDocumentEdit :=
 (textDocument : VersionedTextDocumentIdentifier)
 (edits : TextEditBatch)
 
--- TODO(Marc): missing: 
+-- TODO(Marc): missing:
 -- File Resource Changes, WorkspaceEdit
 -- both of these are pretty global, we can look at their
 -- uses when single file behaviour works.
@@ -103,11 +143,11 @@ structure TextDocumentItem :=
 (text : String)
 
 -- parameter literal for requests
-structure TextDocumentPositionParams := 
+structure TextDocumentPositionParams :=
 (textDocument : TextDocumentIdentifier)
 (position : Position)
 
-structure DocumentFilter := 
+structure DocumentFilter :=
 (language? : Option String := none) -- language id
 -- uri scheme like 'file' or 'untitled'
 (scheme? : Option String := none)
@@ -126,7 +166,7 @@ def DocumentSelector := Array DocumentFilter
 structure TextDocumentRegistrationOptions := (documentSelector? : Option DocumentSelector := none)
 
 -- TODO(Marc): missing:
--- StaticRegistrationOptions, 
+-- StaticRegistrationOptions,
 -- MarkupContent, WorkDoneProgressBegin, WorkDoneProgressReport,
 -- WorkDoneProgressEnd, WorkDoneProgressParams,
 -- WorkDoneProgressOptions, PartialResultParams
@@ -153,15 +193,6 @@ instance locationHasFromJson : HasFromJson Location :=
   uri ← j.getObjValAs? DocumentUri "uri";
   range ← j.getObjValAs? Range "range";
   pure ⟨uri, range⟩⟩
-
-
-instance diagnosticSeverityHasFromJson : HasFromJson DiagnosticSeverity :=
-⟨fun j => match j.getNat? with
-  | some 1 => DiagnosticSeverity.error
-  | some 2 => DiagnosticSeverity.warning
-  | some 3 => DiagnosticSeverity.information
-  | some 4 => DiagnosticSeverity.hint
-  | _      => none⟩
 
 instance diagnosticCodeHasFromJson : HasFromJson DiagnosticCode :=
 ⟨fun j => match j with
@@ -224,7 +255,6 @@ instance documentSelectorHasFromJson : HasFromJson DocumentSelector :=
 instance textDocumentRegistrationOptionsHasFromJson : HasFromJson TextDocumentRegistrationOptions :=
 ⟨fun j => some ⟨j.getObjValAs? DocumentSelector "documentSelector"⟩⟩
 
-
 instance documentUriHasToJson : HasToJson DocumentUri :=
 ⟨fun (o : String) => o⟩
 
@@ -234,23 +264,11 @@ instance positionHasToJson : HasToJson Position :=
 
 instance rangeHasToJson : HasToJson Range :=
 ⟨fun o => mkObj $
-  ⟨"start", toJson o.start⟩ :: ⟨"«end»", toJson o.«end»⟩ :: []⟩
+  ⟨"start", toJson o.start⟩ :: ⟨"end", toJson o.«end»⟩ :: []⟩
 
 instance locationHasToJson : HasToJson Location :=
 ⟨fun o => mkObj $
   ⟨"uri", toJson o.uri⟩ :: ⟨"range", toJson o.range⟩ :: []⟩
-
-instance diagnosticSeverityHasToJson : HasToJson DiagnosticSeverity :=
-⟨fun o => match o with
-  | DiagnosticSeverity.error       => (1 : Nat)
-  | DiagnosticSeverity.warning     => (2 : Nat)
-  | DiagnosticSeverity.information => (3 : Nat)
-  | DiagnosticSeverity.hint        => (4 : Nat)⟩
-
-instance diagnosticCodeHasToJson : HasToJson DiagnosticCode :=
-⟨fun o => match o with
-  | DiagnosticCode.int i    => i
-  | DiagnosticCode.string s => s⟩
 
 instance diagnosticTagHasToJson : HasToJson DiagnosticTag :=
 ⟨fun o => match o with
@@ -263,7 +281,7 @@ instance diagnosticRelatedInformationHasToJson : HasToJson DiagnosticRelatedInfo
 
 instance diagnosticHasToJson : HasToJson Diagnostic :=
 ⟨fun o => mkObj $
-  ⟨"range", toJson o.range⟩ :: opt "severity" o.severity? ++ opt "code" o.code? ++ 
+  ⟨"range", toJson o.range⟩ :: opt "severity" o.severity? ++ opt "code" o.code? ++
     opt "source" o.source? ++ ⟨"message", o.message⟩ :: opt "tags" o.tags? ++ []⟩
 
 end Lean.Lsp

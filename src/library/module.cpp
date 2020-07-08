@@ -79,7 +79,8 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
             return set_io_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
         delete[] header;
-        char * buffer = new char[size - header_size];
+        // use `malloc` here as expected by `compacted_region`
+        char * buffer = static_cast<char *>(malloc(size - header_size));
         in.read(buffer, size - header_size);
         if (!in) {
             return set_io_error((sstream() << "failed to read file '" << olean_fn << "'").str());

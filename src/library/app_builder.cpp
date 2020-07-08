@@ -105,7 +105,6 @@ class app_builder {
     }
 
     optional<entry> get_entry(name const & c, unsigned nargs) {
-        lean_assert(k.check_invariant());
         if (optional<constant_info> info = env().find(c)) {
             buffer<expr> mvars;
             buffer<optional<expr>> inst_args;
@@ -150,7 +149,6 @@ class app_builder {
     }
 
     optional<entry> get_entry(name const & c, unsigned mask_sz, bool const * mask) {
-        lean_assert(k.check_invariant());
         if (auto d = env().find(c)) {
             buffer<expr> mvars;
             buffer<optional<expr>> inst_args;

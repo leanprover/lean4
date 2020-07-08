@@ -128,12 +128,17 @@ else changes.forM $ fun change =>
   | TextDocumentContentChangeEvent.fullChange (text : String) =>
     throw (userError "got content change that replaces the full document (not supported)")
 
+def handleDidClose (s : ServerState) (p : DidCloseTextDocumentParams) : IO Unit := do
+-- TODO is any extra cleanup needed?
+s.openDocumentsRef.modify (fun openDocuments => openDocuments.erase p.textDocument.uri)
+
 def handleNotification (s : ServerState) (method : String) (params : Json) : IO Unit := do
 let h := (fun paramType [HasFromJson paramType] (handler : ServerState → paramType → IO Unit) =>
   parseParams paramType params >>= handler s);
 match method with
 | "textDocument/didOpen"   => h DidOpenTextDocumentParams handleDidOpen
 | "textDocument/didChange" => h DidChangeTextDocumentParams handleDidChange
+| "textDocument/didClose"  => h DidCloseTextDocumentParams handleDidClose
 | _                        => throw (userError "got unsupported notification method")
 
 def handleRequest (s : ServerState) (id : RequestID) (method : String) (params : Json)
@@ -148,6 +153,8 @@ partial def mainLoop : ServerState → IO Unit
   | Message.request id method (some params) => do
     s.handleRequest id method (toJson params);
     mainLoop s
+  | Message.request id "shutdown" none =>
+    writeLspResponse s.o id (Json.null)
   | Message.requestNotification method (some params) => do
     s.handleNotification method (toJson params);
     mainLoop s
@@ -163,7 +170,10 @@ writeLspResponse o r.id ({ capabilities := mkLeanServerCapabilities
                                                , version? := "0.0.1" }} : InitializeResult);
 _ ← readLspRequestNotificationAs i "initialized" Initialized;
 openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
-ServerState.mainLoop ⟨i, o, openDocumentsRef⟩
+ServerState.mainLoop ⟨i, o, openDocumentsRef⟩;
+Message.requestNotification "exit" none ← readLspMessage i
+  | throw (userError "Expected an Exit Notification.");
+pure ()
 
 end Lean.Server
 

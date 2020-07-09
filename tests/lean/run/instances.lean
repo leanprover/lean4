@@ -2,11 +2,9 @@ import Lean
 open Lean
 open Lean.Meta
 
-def tst1 : IO Unit :=
-do let mods := [`Lean];
-   env ← importModules $ mods.map $ fun m => {module := m};
+unsafe def tst1 : IO Unit :=
+withImportModules [{module := `Lean}] 0 fun env => do
    let insts := env.getGlobalInstances;
-   IO.println (format insts);
-   pure ()
+   IO.println (format insts)
 
 #eval tst1

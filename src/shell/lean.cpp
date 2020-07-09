@@ -661,7 +661,9 @@ int main(int argc, char ** argv) {
         }
 
         if (run && ok) {
-            return ir::run_main(env, argc - optind, argv + optind);
+            uint32 ret = ir::run_main(env, argc - optind, argv + optind);
+            environment_free_regions(std::move(env));
+            return ret;
         }
         if (olean_fn && ok) {
             time_task t(".olean serialization",

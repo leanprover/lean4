@@ -20,8 +20,8 @@ do v? ← getExprMVarAssignment? m.mvarId!;
    | some v => pure v
    | none   => throw $ Exception.other "metavariable is not assigned"
 
-def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
-do env ← importModules $ mods.map $ fun m => {module := m};
+unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
+withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
    match x { config := { opts := opts }, currRecDepth := 0, maxRecDepth := 100000 } { env := env } with
    | EStateM.Result.ok _ s    => do
      s.traceState.traces.forM $ fun m => IO.println $ format m;

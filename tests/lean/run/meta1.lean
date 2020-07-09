@@ -2,20 +2,20 @@ import Lean.Meta
 open Lean
 open Lean.Meta
 
-def tstInferType (mods : List Name) (e : Expr) : IO Unit :=
-do env ← importModules $ mods.map $ fun m => {module := m};
+unsafe def tstInferType (mods : List Name) (e : Expr) : IO Unit :=
+withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
    match inferType e { currRecDepth := 0, maxRecDepth := 100000 } { env := env } with
    | EStateM.Result.ok type s   => IO.println (toString e ++ " : " ++ toString type)
    | EStateM.Result.error err _ => throw (IO.userError (toString err))
 
-def tstWHNF (mods : List Name) (e : Expr) (t := TransparencyMode.default) : IO Unit :=
-do env ← importModules $ mods.map $ fun m => {module := m};
+unsafe def tstWHNF (mods : List Name) (e : Expr) (t := TransparencyMode.default) : IO Unit :=
+withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
    match whnf e { config := { transparency := t }, currRecDepth := 0, maxRecDepth := 100000  } { env := env } with
    | EStateM.Result.ok type s   => IO.println (toString e ++ " ==> " ++ toString type)
    | EStateM.Result.error err _ => throw (IO.userError (toString err))
 
-def tstIsProp (mods : List Name) (e : Expr) : IO Unit :=
-do env ← importModules $ mods.map $ fun m => {module := m};
+unsafe def tstIsProp (mods : List Name) (e : Expr) : IO Unit :=
+withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
    match isProp e { currRecDepth := 0, maxRecDepth := 100000 } { env := env } with
    | EStateM.Result.ok b s      => IO.println (toString e ++ ", isProp: " ++ toString b)
    | EStateM.Result.error err _ => throw (IO.userError (toString err))

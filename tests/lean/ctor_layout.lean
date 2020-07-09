@@ -2,8 +2,8 @@ import Lean.Compiler.IR
 open Lean
 open Lean.IR
 
-def tst : IO Unit :=
-do env ← importModules [{module := `Lean.Compiler.IR.Basic}];
+unsafe def main : IO Unit :=
+withImportModules [{module := `Lean.Compiler.IR.Basic}] 0 fun env => do
    ctorLayout ← IO.ofExcept $ getCtorLayout env `Lean.IR.Expr.reuse;
    ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);
    IO.println "---";
@@ -14,4 +14,4 @@ do env ← importModules [{module := `Lean.Compiler.IR.Basic}];
    ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);
    pure ()
 
-#eval tst
+#eval main

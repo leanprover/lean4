@@ -572,6 +572,13 @@ env ← finalizePersistentExtensions env;
 env ← mods.iterateM env $ fun _ mod env => performModifications env mod.serialized;
 pure env
 
+/--
+  Create environment object from imports and free compacted regions after calling `act`. No live references to the
+  environment object or imported objects may exist after `act` finishes. -/
+unsafe def withImportModules {α : Type} (imports : List Import) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
+env ← importModules imports trustLevel;
+finally (x env) env.freeRegions
+
 def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
 registerSimplePersistentEnvExtension {
   name            := `namespaces,

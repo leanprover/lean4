@@ -1,0 +1,15 @@
+inductive1.lean:4:15: error: invalid inductive type, resultant type is not a sort
+inductive1.lean:12:0: error: invalid mutually inductive type, resulting universe mismatch, given 
+  Type
+expected type
+  Prop
+inductive1.lean:22:0: error: invalid mutually inductive type, resulting universe mismatch, given 
+  Type v
+expected type
+  Type u
+inductive1.lean:31:0: error: invalid mutually inductive type, type mismatch at parameter 'x'
+  Bool
+expected type
+  Nat
+inductive1.lean:40:0: error: invalid inductive type, number of parameters mismatch in mutually inductive datatype
+inductive1.lean:49:0: error: invalid mutually inductive type, binder annotation mismatch at parameter 'x'

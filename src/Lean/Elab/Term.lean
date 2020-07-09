@@ -247,8 +247,10 @@ fun ctx s =>
 def ppGoal (ref : Syntax) (mvarId : MVarId) : TermElabM Format := liftMetaM ref $ Meta.ppGoal mvarId
 def isType (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isType e
 def isTypeFormer (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isTypeFormer e
+def isTypeFormerType (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isTypeFormerType e
 def isDefEqNoConstantApprox (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.approxDefEq $ Meta.isDefEq t s
 def isDefEq (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.fullApproxDefEq $ Meta.isDefEq t s
+def isLevelDefEq (ref : Syntax) (u v : Level) : TermElabM Bool := liftMetaM ref $ Meta.isLevelDefEq u v
 def inferType (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.inferType e
 def whnf (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnf e
 def whnfForall (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfForall e
@@ -886,6 +888,14 @@ finally x (modify $ fun s => { s with cache := { s.cache with synthInstance := s
 
 @[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
 if b then resettingSynthInstanceCache x else x
+
+def withLocalContext {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α := do
+localInstsCurr ← getLocalInsts;
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) $
+  if localInsts == localInstsCurr then
+    x
+  else
+    resettingSynthInstanceCache x
 
 /--
   Execute `x` using the given metavariable's `LocalContext` and `LocalInstances`.

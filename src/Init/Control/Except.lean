@@ -181,7 +181,8 @@ instance (ε m out) [MonadRun out m] : MonadRun (fun α => out (Except ε α)) (
 ⟨fun α => run⟩
 
 /-- Execute `x` and then execute `finalizer` even if `x` threw an exception -/
-@[inline] def finally {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) (finalizer : m PUnit) : m α :=
-catch
-  (do a ← x; finalizer; pure a)
-  (fun e => do finalizer; throw e)
+@[inline] def finally {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) (finalizer : m PUnit) : m α := do
+r ← catch (Except.ok <$> x) (fun ex => @pure m _ _ $ Except.error ex);
+match r with
+| Except.ok a => finalizer *> pure a
+| Except.error e => finalizer *> throw e

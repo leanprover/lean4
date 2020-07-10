@@ -636,7 +636,7 @@ else
   let optUnivDeclStx := declId.getArg 1;
   (id, optUnivDeclStx)
 
-@[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
+def withDeclId {α} (declId : Syntax) (f : Name → CommandElabM α) : CommandElabM α := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 let (id, optUnivDeclStx) := expandDeclId declId;
 savedLevelNames ← getLevelNames;

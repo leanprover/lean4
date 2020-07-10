@@ -59,6 +59,11 @@ rs.forM fun r => unless (r.params.size == numParams) $
   Term.throwError r.view.ref "invalid inductive type, number of parameters mismatch in mutually inductive datatype";
 pure numParams
 
+private def checkLevelNames (rs : Array ElabHeaderResult) : TermElabM Unit := do
+let levelNames := (rs.get! 0).view.levelNames;
+rs.forM fun r => unless (r.view.levelNames == levelNames) $
+  Term.throwError r.view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatype"
+
 private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
 Term.withLocalContext r.lctx r.localInsts do
   Term.mkForall r.view.ref r.params r.type
@@ -128,6 +133,7 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
 rs ← elabHeaderAux views 0 #[];
 when (rs.size > 1) do {
   numParams ← checkNumParams rs;
+  checkLevelNames rs;
   checkHeaders rs numParams 0 none
 };
 pure rs

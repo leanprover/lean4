@@ -49,3 +49,13 @@ inductive T1 (b : Bool) (x : Nat)  : Type
 inductive T2 (b : Bool) {x : Nat} : Type -- binder annotation mismatch at 'x'
 
 end
+
+
+-- Test7
+mutual
+
+inductive T1.{w1} (b : Bool) (x : Nat) : Type
+
+inductive T2.{w2} (b : Bool) (x : Nat) : Type -- universe parameter mismatch
+
+end

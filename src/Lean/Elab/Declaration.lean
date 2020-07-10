@@ -123,23 +123,31 @@ parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many introRule
 
 Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
 -/
-private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : InductiveView :=
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : CommandElabM InductiveView :=
 let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
-{ ref        := decl,
+let declId           := decl.getArg numTokens;
+withDeclId declId fun name => do
+levelNames ← getLevelNames;
+pure {
+  ref        := decl,
   modifiers  := modifiers,
-  declId     := decl.getArg numTokens,
+  declName   := name,
+  levelNames := levelNames,
   binders    := binders,
   type?      := type?,
-  introRules := (decl.getArg (numTokens + 2)).getArgs }
+  introRules := (decl.getArg (numTokens + 2)).getArgs
+}
 
-private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : InductiveView :=
+private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=
 inductiveSyntaxToView modifiers decl 2
 
-def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-elabInductiveCore #[inductiveSyntaxToView modifiers stx]
+def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+v ← inductiveSyntaxToView modifiers stx;
+elabInductiveCore #[v]
 
-def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-elabInductiveCore #[classInductiveSyntaxToView modifiers stx]
+def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+v ← classInductiveSyntaxToView modifiers stx;
+elabInductiveCore #[v]
 
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO
@@ -183,7 +191,7 @@ private def isMutualInductive (stx : Syntax) : Bool :=
 private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
 views ← elems.mapM $ fun stx => do {
    modifiers ← elabModifiers (stx.getArg 0);
-   pure $ inductiveSyntaxToView modifiers (stx.getArg 1)
+   inductiveSyntaxToView modifiers (stx.getArg 1)
 };
 elabInductiveCore views
 

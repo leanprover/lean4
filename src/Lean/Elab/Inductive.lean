@@ -13,13 +13,14 @@ namespace Command
 structure InductiveView :=
 (ref           : Syntax)
 (modifiers     : Modifiers)
-(declId        : Syntax)
+(declName      : Name)
+(levelNames    : List Name)
 (binders       : Syntax)
 (type?         : Option Syntax)
 (introRules    : Array Syntax)
 
 instance InductiveView.inhabited : Inhabited InductiveView :=
-⟨{ ref := arbitrary _, modifiers := {}, declId := arbitrary _, binders := arbitrary _, type? := none, introRules := #[] }⟩
+⟨{ ref := arbitrary _, modifiers := {}, declName := arbitrary _, levelNames := [], binders := arbitrary _, type? := none, introRules := #[] }⟩
 
 structure ElabHeaderResult :=
 (view       : InductiveView)
@@ -131,9 +132,35 @@ when (rs.size > 1) do {
 };
 pure rs
 
+private partial def withInductiveLocalDeclsAux {α} (ref : Syntax) (namesAndTypes : Array (Name × Expr)) (params : Array Expr)
+    (x : Array Expr → TermElabM α) : Nat → Array Expr → TermElabM α
+| i, indTypes =>
+  if h : i < namesAndTypes.size then do
+    let (id, type) := namesAndTypes.get ⟨i, h⟩;
+    type ← Term.liftMetaM ref (Meta.instantiateForall type params);
+    Term.withLocalDecl ref id BinderInfo.default type fun y => withInductiveLocalDeclsAux (i+1) (indTypes.push y)
+  else
+    x indTypes
+
+/- Create a local declaration for each inductive type in `rs`, and execute `x indTypes`, where `indTypes` are the new local declarations.
+   We use the the local context/instances and parameters of rs[0].
+   Note that this method is executed after we executed `checkHeaders` and established all
+   parameters are compatible. -/
+private def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (x : Array Expr → TermElabM α) : TermElabM α := do
+namesAndTypes ← rs.mapM fun r => do {
+  type ← mkTypeFor r;
+  -- _root_.dbgTrace (">>> " ++ toString r.view.declName ++ " : " ++ toString type) fun _ =>
+  pure (r.view.declName, type)
+};
+let r0     := rs.get! 0;
+let params := r0.params;
+Term.withLocalContext r0.lctx r0.localInsts $
+  withInductiveLocalDeclsAux r0.view.ref namesAndTypes params x 0 #[]
+
 private def mkInductiveDecl (views : Array InductiveView) : TermElabM Declaration := do
 rs ← elabHeader views;
-Term.throwError (views.get! 0).ref "WIP 2"
+withInductiveLocalDecls rs fun indTypes =>
+  Term.throwError (views.get! 0).ref "WIP 2"
 
 def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
 decl ← liftTermElabM none $ mkInductiveDecl views;

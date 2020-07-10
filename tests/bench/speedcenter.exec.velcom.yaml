@@ -1,0 +1,140 @@
+- attributes:
+    description: stdlib
+    tags: [slow]
+    time: &time
+      #runner: time
+      # alternative config: use `perf stat` for extended properties
+      runner: perf_stat
+      perf_stat:
+        properties: ['wall-clock', 'task-clock', 'instructions', 'branches', 'branch-misses', 'cache-references', 'cache-misses', 'page-faults']
+  run_config:
+    <<: *time
+    cwd: ../../src
+    cmd: |
+      bash -c "find . -name '*.lean' -exec lean --stats -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
+    max_runs: 3
+    parse_output: true
+- attributes:
+    description: stdlib size
+    tags: [deterministic, fast]
+  run_config:
+    cwd: ../../
+    cmd: |
+      bash -c "
+      set -euxo pipefail &&
+      echo -n 'lines: ' &&
+      find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'bytes .olean: ' &&
+      find $(dirname $(which lean))/../lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'lines C++: ' &&
+      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      "
+    max_runs: 1
+    runner: output
+- attributes:
+    description: bin/lean
+    tags: [deterministic, fast]
+  run_config:
+    cmd: |
+      set -eu
+      echo -n 'binary size: '
+      wc -c $(which lean) | cut -d' ' -f 1
+    max_runs: 1
+    runner: output
+- attributes:
+    description: tests/compiler
+    tags: [deterministic, slow]
+  run_config:
+    cwd: ../compiler/
+    cmd: |
+      set -eu
+      printf 'sum binary sizes: '
+      for f in *.lean; do ../bench/compile.sh $f; printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+    max_runs: 1
+    runner: output
+- attributes:
+    description: tests/bench/ interpreted
+    tags: [slow]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c '
+      set -euxo pipefail
+      ulimit -s unlimited
+      for f in *.args; do
+        lean --run ${f%.args} $(cat $f)
+      done
+      '
+    max_runs: 5
+- attributes:
+    description: binarytrees
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./binarytrees.lean.out 21
+  build_config:
+    cmd: ./compile.sh binarytrees.lean
+- attributes:
+    description: deriv
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./deriv.lean.out 10
+  build_config:
+    cmd: ./compile.sh deriv.lean
+- attributes:
+    description: const_fold
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: bash -c "ulimit -s unlimited && ./const_fold.lean.out 23"
+  build_config:
+    cmd: ./compile.sh const_fold.lean
+- attributes:
+    description: new parser Core.lean
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./parser.lean.out ../../src/Init/Core.lean 100
+  build_config:
+    cmd: ./compile.sh parser.lean
+- attributes:
+    description: qsort
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./qsort.lean.out 400
+  build_config:
+    cmd: ./compile.sh qsort.lean
+- attributes:
+    description: rbmap
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./rbmap.lean.out 2000000
+  build_config:
+    cmd: ./compile.sh rbmap.lean
+- attributes:
+    description: rbmap_1
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./rbmap_checkpoint.lean.out 2000000 1
+  build_config:
+    cmd: ./compile.sh rbmap_checkpoint.lean
+- attributes:
+    description: rbmap_10
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./rbmap_checkpoint.lean.out 2000000 10
+  build_config:
+    cmd: ./compile.sh rbmap_checkpoint.lean
+- attributes:
+    description: unionfind
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./unionfind.lean.out 3000000
+  build_config:
+    cmd: ./compile.sh unionfind.lean

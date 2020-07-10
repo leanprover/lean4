@@ -615,7 +615,7 @@ withLocalDecl `v nat BinderInfo.default $ fun v => do
 #eval tst37
 
 def tst38 : MetaM Unit := do
-print "----- tst37 -----";
+print "----- tst38 -----";
 m1 ← mkFreshExprMVar nat;
 withLocalDecl `x nat BinderInfo.default $ fun x => do
 m2 ← mkFreshExprMVar type;
@@ -636,3 +636,16 @@ set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
 
 #eval tst38
+
+def tst39 : MetaM Unit := do
+print "----- tst39 -----";
+withLocalDecl `α type BinderInfo.default $ fun α =>
+withLocalDecl `β type BinderInfo.default $ fun β => do
+  p ← mkProd α β;
+  t ← mkForall #[α, β] p;
+  print t;
+  e ← instantiateForall t #[nat, boolE];
+  print e;
+  pure ()
+
+#eval tst39

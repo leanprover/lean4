@@ -834,6 +834,21 @@ type ← inferType value;
 let type := type.headBeta;
 mkAuxDefinition name type value
 
+private partial def instantiateForallAux (ps : Array Expr) : Nat → Expr → MetaM Expr
+| i, e =>
+  if h : i < ps.size then do
+    let p := ps.get ⟨i, h⟩;
+    e ← whnf e;
+    match e with
+    | Expr.forallE _ _ b _ => instantiateForallAux (i+1) (b.instantiate1 p)
+    | _                    => throw (Exception.other "invalid instantiateForall, too many parameters")
+  else
+    pure e
+
+/- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
+def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
+instantiateForallAux ps 0 e
+
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta;
 registerTraceClass `Meta.debug

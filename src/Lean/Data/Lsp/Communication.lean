@@ -58,9 +58,7 @@ def writeLspMessage (h : FS.Handle) (m : Message) : IO Unit := do
 let j := (toJson m).compress;
 let header := "Content-Length: " ++ toString j.utf8ByteSize ++ "\r\n\r\n";
 h.putStr (header ++ j);
---IO.println "starting to flush now";
 h.flush
---IO.println "flushed";
 
 def writeLspResponse {α : Type*} [Lean.HasToJson α] (h : FS.Handle) (id : RequestID) (r : α) : IO Unit :=
 writeLspMessage h (Message.response id (toJson r))

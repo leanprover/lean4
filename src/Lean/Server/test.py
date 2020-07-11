@@ -3,8 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from json import dumps
 import re
 
-text = """
-prelude
+text = """prelude
 import Lean.Environment
 import Lean.Elab.Frontend
 import Lean.Data.Lsp
@@ -141,7 +140,8 @@ end Lean.Server
 def main (n : List String) : IO UInt32 := do
 i ← IO.stdin;
 o ← IO.stdout;
-Lean.Server.initialize i o -- intentional error to test diagnostics
+Lean.initSearchPath;
+Lean.Server.initialize i o; -- intentional error to test diagnostics
 pure 0
 """
 
@@ -179,7 +179,5 @@ read()
 send(initialized)
 print("sending open1")
 send(open1)
-read()
-read()
 read()
 print(p.wait())

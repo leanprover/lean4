@@ -33,8 +33,8 @@ match @fromJson? paramType _ params with
 
 def runFrontend (text : String) : IO (Environment × Environment × MessageLog) := do
 let inputCtx := Parser.mkInputContext text "<input>";
-envNul ← mkEmptyEnvironment;
-match Parser.parseHeader envNul inputCtx with
+emptyEnv ← mkEmptyEnvironment;
+match Parser.parseHeader emptyEnv inputCtx with
 | (header, parserState, messages) => do
   (env, messages) ← processHeader header messages inputCtx;
   parserStateRef ← IO.mkRef parserState;
@@ -180,5 +180,6 @@ end Lean.Server
 def main (n : List String) : IO UInt32 := do
 i ← IO.stdin;
 o ← IO.stdout;
+Lean.initSearchPath;
 catch (Lean.Server.initialize i o) (fun err => o.putStrLn (toString err));
 pure 0

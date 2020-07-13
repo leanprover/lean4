@@ -145,26 +145,28 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
 rs ← elabHeaderAux views 0 #[];
 when (rs.size > 1) do {
   numParams ← checkNumParams rs;
+  -- TODO: check `unsafe` modifiers. If one declaration is unsafe, then all should be.
   checkLevelNames rs;
   checkHeaders rs numParams 0 none
 };
 pure rs
 
 private partial def withInductiveLocalDeclsAux {α} (ref : Syntax) (namesAndTypes : Array (Name × Expr)) (params : Array Expr)
-    (x : Array Expr → TermElabM α) : Nat → Array Expr → TermElabM α
-| i, indTypes =>
+    (x : Array Expr → Array Expr → TermElabM α) : Nat → Array Expr → TermElabM α
+| i, indFVars =>
   if h : i < namesAndTypes.size then do
     let (id, type) := namesAndTypes.get ⟨i, h⟩;
     type ← Term.liftMetaM ref (Meta.instantiateForall type params);
-    Term.withLocalDecl ref id BinderInfo.default type fun y => withInductiveLocalDeclsAux (i+1) (indTypes.push y)
+    Term.withLocalDecl ref id BinderInfo.default type fun indFVar => withInductiveLocalDeclsAux (i+1) (indFVars.push indFVar)
   else
-    x indTypes
+    x params indFVars
 
-/- Create a local declaration for each inductive type in `rs`, and execute `x indTypes`, where `indTypes` are the new local declarations.
+/- Create a local declaration for each inductive type in `rs`, and execute `x params indFVars`, where `params` are the inductive type parameters and
+   `indFVars` are the new local declarations.
    We use the the local context/instances and parameters of rs[0].
    Note that this method is executed after we executed `checkHeaders` and established all
    parameters are compatible. -/
-private def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (x : Array Expr → TermElabM α) : TermElabM α := do
+private def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
 namesAndTypes ← rs.mapM fun r => do {
   type ← mkTypeFor r;
   -- _root_.dbgTrace (">>> " ++ toString r.view.shortDeclName ++ " : " ++ toString type) fun _ =>
@@ -178,14 +180,42 @@ Term.withLocalContext r0.lctx r0.localInsts $
 /-
 A `ctor` has the form
   parser! " | " >> ident >> optional inferMod >> optDeclSig -/
-private def elabCtors (r : ElabHeaderResult) : TermElabM (Array Constructor) :=
-r.view.ctors.mapM fun ctor =>
-  throw $ arbitrary _ -- TODO
+private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) :=
+r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getArgs fun ctorParams => do
+  type ← match ctorView.type? with
+    | none          => pure indFVar
+    | some ctorType => do {
+      type ← Term.elabTerm ctorType none;
+      -- TODO: check whether resulting type is indFVar
+      pure type
+    };
+  let ref := ctorView.ref;
+  type ← Term.mkForall ref ctorParams type;
+  type ← Term.mkForall ref params type;
+  _root_.dbgTrace (">> " ++ toString ctorView.declName ++ " : " ++ toString type) fun _ =>
+  pure { name := ctorView.declName, type := type }
 
 private def mkInductiveDecl (views : Array InductiveView) : TermElabM Declaration := do
 rs ← elabHeader views;
-withInductiveLocalDecls rs fun indTypes =>
-  Term.throwError (views.get! 0).ref "WIP 2" -- TODO
+let view0      := views.get! 0;
+let levelNames := view0.levelNames;
+let isUnsafe   := view0.modifiers.isUnsafe;
+withInductiveLocalDecls rs fun params indFVars => do
+  indTypes ← views.size.foldM
+    (fun i (indTypes : List InductiveType) => do
+      let indFVar := indFVars.get! i;
+      let r       := rs.get! i;
+      ctors ← elabCtors indFVar params r;
+      let indType := { name := r.view.declName, type := r.type, ctors := ctors : InductiveType };
+      pure (indType :: indTypes))
+    [];
+  let indTypes := indTypes.reverse;
+  let decl := Declaration.inductDecl levelNames params.size indTypes isUnsafe;
+  -- TODO: compute resultant universe level
+  -- TODO: convert local indFVars into constants
+  -- TODO: use inferImplicit at ctors
+  -- TODO: eliminate unused variables from params
+  pure decl
 
 def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
 decl ← liftTermElabM none $ mkInductiveDecl views;

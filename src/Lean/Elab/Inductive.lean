@@ -203,7 +203,11 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
       pure indFVar
     | some ctorType => do {
       type ← Term.elabTerm ctorType none;
-      -- TODO: check whether resulting type is indFVar
+      resultingType ← getResultingType ref type;
+      unless (resultingType.getAppFn == indFVar) $
+        Term.throwError ref ("unexpected constructor resulting type" ++ indentExpr resultingType);
+      unlessM (Term.isType ref resultingType) $
+        Term.throwError ref ("unexpected constructor resulting type, type expected" ++ indentExpr resultingType);
       pure type
     };
   type ← Term.mkForall ref ctorParams type;

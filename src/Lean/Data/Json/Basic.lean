@@ -82,7 +82,7 @@ end JsonNumber
 
 def strLt (a b : String) := Decidable.decide (a < b)
 
-open Std (RBNode)
+open Std (RBNode RBNode.leaf)
 
 inductive Json
 | null

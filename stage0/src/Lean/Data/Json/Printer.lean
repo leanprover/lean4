@@ -67,17 +67,6 @@ end
 def pretty (j : Json) (lineWidth := 80) : String :=
 Format.prettyAux (render j) lineWidth
 
-partial def compress : Json → String
-| null       => "null"
-| bool true  => "true"
-| bool false => "false"
-| num s      => s.toString
-| str s      => renderString s
-| arr elems  => "[" ++ ",".intercalate (elems.map compress).toList ++ "]"
-| obj kvs    => 
-  let ckvs := kvs.fold (fun acc k j => (renderString k ++ ":" ++ compress j) :: acc) [];
-  "{" ++ ",".intercalate ckvs ++ "}"
-
 instance jsonHasFormat : HasFormat Json := ⟨render⟩
 instance jsonHasToString : HasToString Json := ⟨pretty⟩
 

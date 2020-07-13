@@ -151,8 +151,8 @@ withDeclId declId fun name => do
   levelNames ← getLevelNames;
   declName   ← mkDeclName declId modifiers name;
   ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => do {
-    -- def ctor := parser! declModifiers >> " | " >> ident >> optional inferMod >> optDeclSig
-    ctorModifiers ← elabModifiers (ctor.getArg 0);
+    -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
+    ctorModifiers ← elabModifiers (ctor.getArg 1);
     when (ctorModifiers.isPrivate && modifiers.isPrivate) $
       throwError ctor "invalid 'private' constructor in a 'private' inductive datatype";
     checkValidCtorModifier ctor ctorModifiers;

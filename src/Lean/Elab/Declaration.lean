@@ -130,10 +130,10 @@ withDeclId declId fun name => do
   levelNames ← getLevelNames;
   declName   ← mkDeclName declId modifiers name;
   ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => do {
-    -- def ctor := parser! " | " >> ident >> optional inferMod >> optDeclSig
-    let ctorName := ctor.getIdAt 1;
+    -- def ctor := parser! declModifiers >> " | " >> ident >> optional inferMod >> optDeclSig
+    let ctorName := ctor.getIdAt 2;
     let ctorName := declName ++ ctorName;
-    checkNotAlreadyDeclared (ctor.getArg 1) ctorName;
+    checkNotAlreadyDeclared (ctor.getArg 2) ctorName;
     pure (ctorName, ctor)
   };
   pure {

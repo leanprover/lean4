@@ -1,0 +1,7 @@
+protected.lean:10:7: error: unknown identifier 'x'
+(sorryAx ?m_1) : ?m_1
+Foo.x : Nat
+Bla.Foo.y : Nat
+protected.lean:22:7: error: unknown identifier 'y'
+(sorryAx ?m_1) : ?m_1
+Bla.Foo.z : Nat

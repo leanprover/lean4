@@ -128,6 +128,12 @@ match modifiers.visibility with
   let declName := mkPrivateName env declName;
   checkNotAlreadyDeclared ref declName;
   pure declName
+| Visibility.protected => do
+  checkNotAlreadyDeclared ref declName;
+  env ← getEnv;
+  let env := addProtected env declName;
+  setEnv env;
+  pure declName
 | _                  => do
   checkNotAlreadyDeclared ref declName;
   pure declName

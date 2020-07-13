@@ -183,22 +183,32 @@ let params := r0.params;
 Term.withLocalContext r0.lctx r0.localInsts $
   withInductiveLocalDeclsAux r0.view.ref namesAndTypes params x 0 #[]
 
+private def isInductiveFamily (ref : Syntax) (indFVar : Expr) : TermElabM Bool := do
+indFVarType ← Term.inferType ref indFVar;
+indFVarType ← Term.whnf ref indFVarType;
+pure !indFVarType.isSort
+
 /-
 A `ctor` has the form
   parser! " | " >> ident >> optional inferMod >> optDeclSig -/
-private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) :=
+private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) := do
+let ref := r.view.ref;
+indFamily ← isInductiveFamily ref indFVar;
 r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getArgs fun ctorParams => do
+  let ref := ctorView.ref;
   type ← match ctorView.type? with
-    | none          => pure indFVar
+    | none          => do
+      when indFamily $
+        Term.throwError ref "constructor resulting type must be specified in inductive family declaration";
+      pure indFVar
     | some ctorType => do {
       type ← Term.elabTerm ctorType none;
       -- TODO: check whether resulting type is indFVar
       pure type
     };
-  let ref := ctorView.ref;
   type ← Term.mkForall ref ctorParams type;
   type ← Term.mkForall ref params type;
-  _root_.dbgTrace (">> " ++ toString ctorView.declName ++ " : " ++ toString type) fun _ =>
+  -- _root_.dbgTrace (">> " ++ toString ctorView.declName ++ " : " ++ toString type) fun _ =>
   pure { name := ctorView.declName, type := type }
 
 private def mkInductiveDecl (views : Array InductiveView) : TermElabM Declaration := do

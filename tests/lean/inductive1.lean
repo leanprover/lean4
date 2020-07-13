@@ -93,3 +93,8 @@ inductive T1 : Type
 unsafe inductive T2 : Type
 
 end
+
+-- Test11
+inductive T1 : Nat → Type
+| z1 : T1 0
+| z2 -- constructor resulting type must be specified in inductive family declaration

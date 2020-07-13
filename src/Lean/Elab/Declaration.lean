@@ -94,7 +94,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 withDeclId declId $ fun name => do
-  declName          ← mkDeclName modifiers name;
+  declName          ← mkDeclName declId modifiers name;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   explictLevelNames ← getLevelNames;
   decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
@@ -118,8 +118,8 @@ withDeclId declId $ fun name => do
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
-parser! "inductive " >> declId >> optDeclSig >> many introRule
-parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many introRule
+parser! "inductive " >> declId >> optDeclSig >> many ctor
+parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
 
 Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
 -/
@@ -127,16 +127,25 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTo
 let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
 let declId           := decl.getArg numTokens;
 withDeclId declId fun name => do
-levelNames ← getLevelNames;
-pure {
-  ref        := decl,
-  modifiers  := modifiers,
-  declName   := name,
-  levelNames := levelNames,
-  binders    := binders,
-  type?      := type?,
-  introRules := (decl.getArg (numTokens + 2)).getArgs
-}
+  levelNames ← getLevelNames;
+  declName   ← mkDeclName declId modifiers name;
+  ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => do {
+    -- def ctor := parser! " | " >> ident >> optional inferMod >> optDeclSig
+    let ctorName := ctor.getIdAt 1;
+    let ctorName := declName ++ ctorName;
+    checkNotAlreadyDeclared (ctor.getArg 1) ctorName;
+    pure (ctorName, ctor)
+  };
+  pure {
+    ref           := decl,
+    modifiers     := modifiers,
+    shortDeclName := name,
+    declName      := declName,
+    levelNames    := levelNames,
+    binders       := binders,
+    type?         := type?,
+    ctors         := ctors
+  }
 
 private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=
 inductiveSyntaxToView modifiers decl 2

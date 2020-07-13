@@ -59,3 +59,17 @@ inductive T1.{w1} (b : Bool) (x : Nat) : Type
 inductive T2.{w2} (b : Bool) (x : Nat) : Type -- universe parameter mismatch
 
 end
+
+namespace Boo
+
+def T1.bla := 10
+
+inductive T1 : Type
+| bla : T1  -- Boo.T1.bla has already been defined
+
+def T1 := 20
+
+inductive T1 : Type -- Boo.T1 has already been defined
+| bla : T1
+
+end Boo

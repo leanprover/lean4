@@ -14,3 +14,5 @@ expected type
 inductive1.lean:40:0: error: invalid inductive type, number of parameters mismatch in mutually inductive datatype
 inductive1.lean:49:0: error: invalid mutually inductive type, binder annotation mismatch at parameter 'x'
 inductive1.lean:59:0: error: invalid inductive type, universe parameters mismatch in mutually inductive datatype
+inductive1.lean:68:2: error: 'Boo.T1.bla' has already been declared
+inductive1.lean:72:10: error: 'Boo.T1' has already been declared

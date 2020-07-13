@@ -13,14 +13,15 @@ namespace Command
 structure InductiveView :=
 (ref           : Syntax)
 (modifiers     : Modifiers)
+(shortDeclName : Name)
 (declName      : Name)
 (levelNames    : List Name)
 (binders       : Syntax)
 (type?         : Option Syntax)
-(introRules    : Array Syntax)
+(ctors         : Array (Name × Syntax))
 
 instance InductiveView.inhabited : Inhabited InductiveView :=
-⟨{ ref := arbitrary _, modifiers := {}, declName := arbitrary _, levelNames := [], binders := arbitrary _, type? := none, introRules := #[] }⟩
+⟨{ ref := arbitrary _, modifiers := {}, shortDeclName := arbitrary _, declName := arbitrary _, levelNames := [], binders := arbitrary _, type? := none, ctors := #[] }⟩
 
 structure ElabHeaderResult :=
 (view       : InductiveView)
@@ -155,36 +156,30 @@ private partial def withInductiveLocalDeclsAux {α} (ref : Syntax) (namesAndType
 private def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (x : Array Expr → TermElabM α) : TermElabM α := do
 namesAndTypes ← rs.mapM fun r => do {
   type ← mkTypeFor r;
-  -- _root_.dbgTrace (">>> " ++ toString r.view.declName ++ " : " ++ toString type) fun _ =>
-  pure (r.view.declName, type)
+  -- _root_.dbgTrace (">>> " ++ toString r.view.shortDeclName ++ " : " ++ toString type) fun _ =>
+  pure (r.view.shortDeclName, type)
 };
 let r0     := rs.get! 0;
 let params := r0.params;
 Term.withLocalContext r0.lctx r0.localInsts $
   withInductiveLocalDeclsAux r0.view.ref namesAndTypes params x 0 #[]
 
+/-
+A `ctor` has the form
+  parser! " | " >> ident >> optional inferMod >> optDeclSig -/
+private def elabCtors (r : ElabHeaderResult) : TermElabM (Array Constructor) :=
+r.view.ctors.mapM fun ctor =>
+  throw $ arbitrary _ -- TODO
+
 private def mkInductiveDecl (views : Array InductiveView) : TermElabM Declaration := do
 rs ← elabHeader views;
 withInductiveLocalDecls rs fun indTypes =>
-  Term.throwError (views.get! 0).ref "WIP 2"
+  Term.throwError (views.get! 0).ref "WIP 2" -- TODO
 
 def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
 decl ← liftTermElabM none $ mkInductiveDecl views;
+-- TODO
 pure ()
--- pure ()
-/-
-withDeclId declId $ fun name => do
-  declName          ← mkDeclName modifiers name;
-  checkNotAlreadyDeclared ref declName;
-  applyAttributes ref declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
-  explictLevelNames ← getLevelNames;
-  decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
-    -- TODO
-    pure ()
-  };
-
-  throwError ref (ref ++ "\n" ++ toString explictLevelNames)
--/
 
 end Command
 end Elab

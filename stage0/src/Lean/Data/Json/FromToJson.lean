@@ -44,8 +44,4 @@ instance List.hasToJson {α : Type u} [HasToJson α] : HasToJson (Array α) :=
 def Json.getObjValAs? (j : Json) (α : Type u) [HasFromJson α] (k : String) : Option α :=
 (j.getObjVal? k).bind fromJson?
 
-def Json.opt {α : Type*} [HasToJson α] (k : String) : Option α → List (String × Json)
-| some o => [⟨k, toJson o⟩]
-| none   => []
-
 end Lean

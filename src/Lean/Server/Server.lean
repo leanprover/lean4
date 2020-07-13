@@ -1,12 +1,14 @@
+import Init.System.IO
+import Std.Data.RBMap
 import Lean.Environment
 import Lean.Elab.Frontend
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
-import Init.System.IO
 
 namespace Lean.Server
 
 open IO
+open Std (RBMap RBMap.empty)
 open Lean
 open Lean.JsonRpc
 open Lean.Lsp

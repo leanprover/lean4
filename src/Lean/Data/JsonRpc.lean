@@ -1,11 +1,13 @@
 import Init.Control
 import Init.System.IO
+import Std.Data.RBTree
 import Lean.Data.Json
 
 namespace Lean.JsonRpc
 
 open Lean
 open Lean.Json
+open Std (RBNode)
 
 inductive RequestID
 | str (s : String)

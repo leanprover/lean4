@@ -13,12 +13,13 @@ namespace Command
 structure CtorView :=
 (ref       : Syntax)
 (modifiers : Modifiers)
+(inferMod  : Bool)  -- true if `{}` is used in the constructor declaration
 (declName  : Name)
 (binders   : Syntax)
 (type?     : Option Syntax)
 
 instance CtorView.inhabited : Inhabited CtorView :=
-⟨{ ref := arbitrary _, modifiers := {}, declName := arbitrary _, binders := arbitrary _, type? := none }⟩
+⟨{ ref := arbitrary _, modifiers := {}, inferMod := false, declName := arbitrary _, binders := arbitrary _, type? := none }⟩
 
 structure InductiveView :=
 (ref           : Syntax)

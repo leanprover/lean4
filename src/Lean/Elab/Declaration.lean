@@ -159,8 +159,9 @@ withDeclId declId fun name => do
     let ctorName := ctor.getIdAt 2;
     let ctorName := declName ++ ctorName;
     ctorName ← applyVisibility (ctor.getArg 2) ctorModifiers.visibility ctorName;
+    let inferMod := !(ctor.getArg 3).isNone;
     let (binders, type?) := expandOptDeclSig (ctor.getArg 4);
-    pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
+    pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
   };
   pure {
     ref           := decl,

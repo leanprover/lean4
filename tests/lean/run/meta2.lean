@@ -649,3 +649,35 @@ withLocalDecl `β type BinderInfo.default $ fun β => do
   pure ()
 
 #eval tst39
+
+
+def tst40 : MetaM Unit := do
+print "----- tst40 -----";
+withLocalDecl `α type BinderInfo.default $ fun α =>
+withLocalDecl `β type BinderInfo.default $ fun β =>
+withLocalDecl `a α    BinderInfo.default $ fun a =>
+withLocalDecl `b β    BinderInfo.default $ fun b =>
+do
+  p ← mkProd α β;
+  t1 ← mkForall #[α, β] p;
+  t2 ← mkForall #[α, β, a, b] p;
+  print t1;
+  print $ toString $ t1.bindingBody!.hasLooseBVarInExplicitDomain 0 false;
+  print $ toString $ t1.bindingBody!.hasLooseBVarInExplicitDomain 0 true;
+  print $ toString $ t2.bindingBody!.hasLooseBVarInExplicitDomain 0 false;
+  print $ t1.inferImplicit 2 false;
+  check $ pure $ ((t1.inferImplicit 2 false).bindingInfo! == BinderInfo.default);
+  check $ pure $ ((t1.inferImplicit 2 false).bindingBody!.bindingInfo! == BinderInfo.default);
+  print $ t1.inferImplicit 2 true;
+  check $ pure $ ((t1.inferImplicit 2 true).bindingInfo! == BinderInfo.implicit);
+  check $ pure $ ((t1.inferImplicit 2 true).bindingBody!.bindingInfo! == BinderInfo.implicit);
+  print t2;
+  print $ t2.inferImplicit 2 false;
+  check $ pure $ ((t2.inferImplicit 2 false).bindingInfo! == BinderInfo.implicit);
+  check $ pure $ ((t2.inferImplicit 2 false).bindingBody!.bindingInfo! == BinderInfo.implicit);
+  print $ t2.inferImplicit 1 false;
+  check $ pure $ ((t2.inferImplicit 1 false).bindingInfo! == BinderInfo.implicit);
+  check $ pure $ ((t2.inferImplicit 1 false).bindingBody!.bindingInfo! == BinderInfo.default);
+  pure ()
+
+#eval tst40

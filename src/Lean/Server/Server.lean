@@ -21,6 +21,7 @@ structure Document :=
 (version : Int)
 (text : DocumentText)
 (headerEnv : Environment)
+(headerParserState : Parser.ModuleParserState)
 
 abbrev DocumentMap := RBMap DocumentUri Document (fun a b => Decidable.decide (a < b))
 
@@ -33,22 +34,22 @@ match @fromJson? paramType _ params with
 | some parsed => pure parsed
 | none        => throw (userError "got param with wrong structure")
 
-def runFrontend (text : String) : IO (Environment × Environment × MessageLog) := do
+def runFrontend (text : String) : IO (Environment × Environment × Parser.ModuleParserState × MessageLog) := do
 let inputCtx := Parser.mkInputContext text "<input>";
 emptyEnv ← mkEmptyEnvironment;
 match Parser.parseHeader emptyEnv inputCtx with
-| (header, parserState, messages) => do
-  (env, messages) ← processHeader header messages inputCtx;
-  parserStateRef ← IO.mkRef parserState;
-  cmdStateRef ← IO.mkRef $ Command.mkState env messages {};
+| (headerStx, headerParserState, messages) => do
+  (headerEnv, messages) ← processHeader headerStx messages inputCtx;
+  parserStateRef ← IO.mkRef headerParserState;
+  cmdStateRef ← IO.mkRef $ Command.mkState headerEnv messages {};
   IO.processCommands inputCtx parserStateRef cmdStateRef;
   cmdState ← cmdStateRef.get;
-  pure (env, cmdState.env, cmdState.messages)
+  pure (headerEnv, cmdState.env, headerParserState, cmdState.messages)
 
-def updateFrontend (env : Environment) (input : String) : IO (Environment × MessageLog) := do
+def updateFrontend (doc : Document) (input : String) : IO (Environment × MessageLog) := do
 let inputCtx := Parser.mkInputContext input "<input>";
-parserStateRef ← IO.mkRef ({} : Parser.ModuleParserState);
-cmdStateRef    ← IO.mkRef $ Command.mkState env;
+parserStateRef ← IO.mkRef doc.headerParserState;
+cmdStateRef    ← IO.mkRef $ Command.mkState doc.headerEnv;
 IO.processCommands inputCtx parserStateRef cmdStateRef;
 cmdState ← cmdStateRef.get;
 pure (cmdState.env, cmdState.messages)
@@ -103,8 +104,8 @@ writeLspNotification s.o "textDocument/publishDiagnostics"
 def handleDidOpen (s : ServerState) (p : DidOpenTextDocumentParams) : IO Unit := do
 let doc := p.textDocument;
 let text := doc.text.splitOnEOLs;
-(headerEnv, env, msgLog) ← runFrontend ("\n".intercalate text);
-let newDoc : Document := ⟨doc.version, text.toArray, headerEnv⟩;
+(headerEnv, env, headerParserState, msgLog) ← runFrontend ("\n".intercalate text);
+let newDoc : Document := ⟨doc.version, text.toArray, headerEnv, headerParserState⟩;
 s.openDocumentsRef.modify (fun openDocuments => openDocuments.insert doc.uri newDoc);
 s.sendDiagnostics doc.uri newDoc msgLog
 
@@ -119,8 +120,8 @@ else changes.forM $ fun change =>
   match change with
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) => do
     let newDocText := replaceRange oldDoc.text range newText;
-    (newEnv, msgLog) ← updateFrontend oldDoc.headerEnv ("\n".intercalate newDocText.toList);
-    let newDoc : Document := ⟨newVersion, newDocText, oldDoc.headerEnv⟩;
+    (newEnv, msgLog) ← updateFrontend oldDoc ("\n".intercalate newDocText.toList);
+    let newDoc : Document := ⟨newVersion, newDocText, oldDoc.headerEnv, oldDoc.headerParserState⟩;
     s.updateOpenDocuments docId.uri newDoc;
     -- Clients don't have to clear diagnostics, so we clear them
     -- for the *previous* version here.

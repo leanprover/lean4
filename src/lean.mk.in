@@ -19,6 +19,7 @@ BIN_NAME = $(PKG)
 STATIC_LIB_NAME = lib$(PKG).a
 LEAN_OPTS = @LEAN_EXTRA_MAKE_OPTS@
 LEANC_OPTS = -O3 -DNDEBUG
+LINK_OPTS =
 
 SRCS = $(shell find $(PKG) -name '*.lean' 2> /dev/null || true; find $(PKG).lean 2> /dev/null)
 DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
@@ -73,7 +74,7 @@ $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(BIN_OUT)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
 endif
-	leanc -o "$@" -x none $^
+	leanc -o "$@" -x none $^ $(LINK_OPTS)
 
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)
 	@rm -f $@

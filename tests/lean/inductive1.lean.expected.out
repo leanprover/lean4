@@ -17,3 +17,6 @@ inductive1.lean:59:0: error: invalid inductive type, universe parameters mismatc
 inductive1.lean:69:2: error: 'Boo.T1.bla' has already been declared
 inductive1.lean:73:10: error: 'Boo.T1' has already been declared
 inductive1.lean:78:8: error: invalid use of 'partial' in inductive declaration
+inductive1.lean:79:14: error: invalid use of 'noncomputable' in inductive declaration
+inductive1.lean:80:10: error: invalid use of attributes in inductive declaration
+inductive1.lean:83:0: error: invalid 'private' constructor in a 'private' inductive datatype

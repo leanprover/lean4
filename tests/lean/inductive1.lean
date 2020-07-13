@@ -75,9 +75,21 @@ inductive T1 : Type -- Boo.T1 has already been defined
 
 end Boo
 
+-- Test9
+
 partial inductive T1 : Type -- invalid use of partial
 noncomputable inductive T1 : Type -- invalid use of noncomputable
 @[inline] inductive T1 : Type -- invalid use of attributes
 
 private inductive T1 : Type
 | private mk : T1 -- invalid private constructor in private inductive type
+
+
+-- Test10
+mutual
+
+inductive T1 : Type
+
+unsafe inductive T2 : Type
+
+end

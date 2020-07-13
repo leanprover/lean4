@@ -32,6 +32,10 @@ structure Modifiers :=
 (isUnsafe        : Bool := false)
 (attrs           : Array Attribute := #[])
 
+def Modifiers.isPrivate : Modifiers → Bool
+| { visibility := Visibility.private, .. } => true
+| _                                        => false
+
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
 { modifiers with attrs := modifiers.attrs.push attr }
 
@@ -119,10 +123,8 @@ match privateToUserName? declName with
   when (env.contains declName) $
     throwError ref ("a non-private declaration '" ++ declName ++ "' has already been declared")
 
-def mkDeclName (ref : Syntax) (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
-currNamespace ← getCurrNamespace;
-let declName := currNamespace ++ atomicName;
-match modifiers.visibility with
+def applyVisibility (ref : Syntax) (visibility : Visibility) (declName : Name) : CommandElabM Name :=
+match visibility with
 | Visibility.private => do
   env ← getEnv;
   let declName := mkPrivateName env declName;
@@ -137,6 +139,11 @@ match modifiers.visibility with
 | _                  => do
   checkNotAlreadyDeclared ref declName;
   pure declName
+
+def mkDeclName (ref : Syntax) (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
+currNamespace ← getCurrNamespace;
+let declName := currNamespace ++ atomicName;
+applyVisibility ref modifiers.visibility declName
 
 def applyAttributes (ref : Syntax) (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
 attrs.forM $ fun attr => do

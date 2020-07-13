@@ -117,13 +117,34 @@ withDeclId declId $ fun name => do
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
+private def checkValidInductiveModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+when modifiers.isNoncomputable $
+  throwError ref "invalid use of 'noncomputable' in inductive declaration";
+when modifiers.isPartial $
+  throwError ref "invalid use of 'partial' in inductive declaration";
+when (modifiers.attrs.size != 0) $
+  throwError ref "invalid use of attributes in inductive declaration";
+pure ()
+
+private def checkValidCtorModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+when modifiers.isNoncomputable $
+  throwError ref "invalid use of 'noncomputable' in constructor declaration";
+when modifiers.isPartial $
+  throwError ref "invalid use of 'partial' in constructor declaration";
+when modifiers.isUnsafe $
+  throwError ref "invalid use of 'unsafe' in constructor declaration";
+when (modifiers.attrs.size != 0) $
+  throwError ref "invalid use of attributes in constructor declaration";
+pure ()
+
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
 parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
 
 Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
 -/
-private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : CommandElabM InductiveView :=
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : CommandElabM InductiveView := do
+checkValidInductiveModifier decl modifiers;
 let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
 let declId           := decl.getArg numTokens;
 withDeclId declId fun name => do
@@ -131,10 +152,15 @@ withDeclId declId fun name => do
   declName   ← mkDeclName declId modifiers name;
   ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => do {
     -- def ctor := parser! declModifiers >> " | " >> ident >> optional inferMod >> optDeclSig
+    ctorModifiers ← elabModifiers (ctor.getArg 0);
+    when (ctorModifiers.isPrivate && modifiers.isPrivate) $
+      throwError ctor "invalid 'private' constructor in a 'private' inductive datatype";
+    checkValidCtorModifier ctor ctorModifiers;
     let ctorName := ctor.getIdAt 2;
     let ctorName := declName ++ ctorName;
-    checkNotAlreadyDeclared (ctor.getArg 2) ctorName;
-    pure (ctorName, ctor)
+    ctorName ← applyVisibility (ctor.getArg 2) ctorModifiers.visibility ctorName;
+    let (binders, type?) := expandOptDeclSig (ctor.getArg 4);
+    pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   };
   pure {
     ref           := decl,

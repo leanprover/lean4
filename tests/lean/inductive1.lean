@@ -60,6 +60,7 @@ inductive T2.{w2} (b : Bool) (x : Nat) : Type -- universe parameter mismatch
 
 end
 
+-- Test8
 namespace Boo
 
 def T1.bla := 10
@@ -73,3 +74,5 @@ inductive T1 : Type -- Boo.T1 has already been defined
 | bla : T1
 
 end Boo
+
+partial inductive T1 : Type -- invalid use of partial

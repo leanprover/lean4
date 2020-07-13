@@ -10,6 +10,16 @@ namespace Lean
 namespace Elab
 namespace Command
 
+structure CtorView :=
+(ref       : Syntax)
+(modifiers : Modifiers)
+(declName  : Name)
+(binders   : Syntax)
+(type?     : Option Syntax)
+
+instance CtorView.inhabited : Inhabited CtorView :=
+⟨{ ref := arbitrary _, modifiers := {}, declName := arbitrary _, binders := arbitrary _, type? := none }⟩
+
 structure InductiveView :=
 (ref           : Syntax)
 (modifiers     : Modifiers)
@@ -18,10 +28,11 @@ structure InductiveView :=
 (levelNames    : List Name)
 (binders       : Syntax)
 (type?         : Option Syntax)
-(ctors         : Array (Name × Syntax))
+(ctors         : Array CtorView)
 
 instance InductiveView.inhabited : Inhabited InductiveView :=
-⟨{ ref := arbitrary _, modifiers := {}, shortDeclName := arbitrary _, declName := arbitrary _, levelNames := [], binders := arbitrary _, type? := none, ctors := #[] }⟩
+⟨{ ref := arbitrary _, modifiers := {}, shortDeclName := arbitrary _, declName := arbitrary _,
+   levelNames := [], binders := arbitrary _, type? := none, ctors := #[] }⟩
 
 structure ElabHeaderResult :=
 (view       : InductiveView)

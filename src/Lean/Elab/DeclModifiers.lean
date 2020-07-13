@@ -36,6 +36,10 @@ def Modifiers.isPrivate : Modifiers → Bool
 | { visibility := Visibility.private, .. } => true
 | _                                        => false
 
+def Modifiers.isProtected : Modifiers → Bool
+| { visibility := Visibility.protected, .. } => true
+| _                                          => false
+
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
 { modifiers with attrs := modifiers.attrs.push attr }
 

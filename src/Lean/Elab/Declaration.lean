@@ -155,6 +155,8 @@ withDeclId declId fun name => do
     ctorModifiers ← elabModifiers (ctor.getArg 1);
     when (ctorModifiers.isPrivate && modifiers.isPrivate) $
       throwError ctor "invalid 'private' constructor in a 'private' inductive datatype";
+    when (ctorModifiers.isProtected && modifiers.isPrivate) $
+      throwError ctor "invalid 'protected' constructor in a 'private' inductive datatype";
     checkValidCtorModifier ctor ctorModifiers;
     let ctorName := ctor.getIdAt 2;
     let ctorName := declName ++ ctorName;

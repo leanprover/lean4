@@ -188,9 +188,7 @@ indFVarType ← Term.inferType ref indFVar;
 indFVarType ← Term.whnf ref indFVarType;
 pure !indFVarType.isSort
 
-/-
-A `ctor` has the form
-  parser! " | " >> ident >> optional inferMod >> optDeclSig -/
+/- Elaborate constructor types -/
 private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) := do
 let ref := r.view.ref;
 indFamily ← isInductiveFamily ref indFVar;

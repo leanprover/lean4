@@ -228,6 +228,7 @@ withInductiveLocalDecls rs fun params indFVars => do
       pure (indType :: indTypes))
     [];
   let indTypes := indTypes.reverse;
+  Term.synthesizeSyntheticMVars false; -- resolve pending
   let decl := Declaration.inductDecl levelNames params.size indTypes isUnsafe;
   -- TODO: compute resultant universe level
   -- TODO: convert local indFVars into constants

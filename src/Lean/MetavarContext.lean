@@ -1035,7 +1035,7 @@ structure UnivMVarParamResult :=
 def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
 let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx };
-{ mctx          := mctx,
+{ mctx          := s.mctx,
   newParamNames := s.paramNames,
   nextParamIdx  := s.nextParamIdx,
   expr          := e }

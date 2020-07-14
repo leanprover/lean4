@@ -13,6 +13,12 @@ abbrev DocumentUri := String
 -- character is accepted liberally: actual character := min(line length, character)
 structure Position := (line : Nat) (character : Nat)
 
+instance positionHasFromJson : HasFromJson Position :=
+⟨fun j => do
+  line ← j.getObjValAs? Nat "line";
+  character ← j.getObjValAs? Nat "character";
+  pure ⟨line, character⟩⟩
+
 -- [start, end)
 structure Range := (start : Position) («end» : Position)
 
@@ -117,6 +123,11 @@ def TextEditBatch := Array TextEdit
 
 structure TextDocumentIdentifier := (uri : DocumentUri)
 
+instance textDocumentIdentifierHasFromJson : HasFromJson TextDocumentIdentifier :=
+⟨fun j => do
+  uri ← j.getObjValAs? DocumentUri "uri";
+  pure ⟨uri⟩⟩
+
 structure VersionedTextDocumentIdentifier :=
 (uri : DocumentUri)
 -- increases after each change, undo and redo
@@ -147,6 +158,12 @@ structure TextDocumentPositionParams :=
 (textDocument : TextDocumentIdentifier)
 (position : Position)
 
+instance textDocumentPositionParamsHasFromJson : HasFromJson TextDocumentPositionParams :=
+⟨fun j => do
+  textDocument ← j.getObjValAs? TextDocumentIdentifier "textDocument";
+  position ← j.getObjValAs? Position "position";
+  pure ⟨textDocument, position⟩⟩
+
 structure DocumentFilter :=
 (language? : Option String := none) -- language id
 -- uri scheme like 'file' or 'untitled'
@@ -175,12 +192,6 @@ structure TextDocumentRegistrationOptions := (documentSelector? : Option Documen
 
 instance documentUriHasFromJson : HasFromJson DocumentUri :=
 ⟨fun j => j.getStr?⟩
-
-instance positionHasFromJson : HasFromJson Position :=
-⟨fun j => do
-  line ← j.getObjValAs? Nat "line";
-  character ← j.getObjValAs? Nat "character";
-  pure ⟨line, character⟩⟩
 
 instance rangeHasFromJson : HasFromJson Range :=
 ⟨fun j => do
@@ -222,11 +233,6 @@ instance diagnosticHasFromJson : HasFromJson Diagnostic :=
   let tags? := j.getObjValAs? (Array DiagnosticTag) "tags";
   let relatedInformation? := j.getObjValAs? (Array DiagnosticRelatedInformation) "relatedInformation";
   pure ⟨range, severity?, code?, source?, message, tags?, relatedInformation?⟩⟩
-
-instance textDocumentIdentifierHasFromJson : HasFromJson TextDocumentIdentifier :=
-⟨fun j => do
-  uri ← j.getObjValAs? DocumentUri "uri";
-  pure ⟨uri⟩⟩
 
 instance versionedTextDocumentIdentifierHasFromJson : HasFromJson VersionedTextDocumentIdentifier :=
 ⟨fun j => do

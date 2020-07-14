@@ -1,5 +1,6 @@
 import Init.System.IO
 import Std.Data.RBMap
+
 import Lean.Environment
 import Lean.Elab.Frontend
 import Lean.Data.Lsp
@@ -147,6 +148,10 @@ match method with
 def handleRequest (s : ServerState) (id : RequestID) (method : String) (params : Json)
   : IO Unit := do
   match method with
+  | "textDocument/hover" => do
+    p ← parseParams HoverParams params;
+    writeLspResponse s.o id Json.null;
+    pure ()
   | _ => throw (userError "Not supporting requests for now!")
 
 partial def mainLoop : ServerState → IO Unit
@@ -184,5 +189,6 @@ def main (n : List String) : IO UInt32 := do
 i ← IO.stdin;
 o ← IO.stdout;
 Lean.initSearchPath;
+env ← Lean.mkEmptyEnvironment;
 catch (Lean.Server.initialize i o) (fun err => o.putStrLn (toString err));
 pure 0

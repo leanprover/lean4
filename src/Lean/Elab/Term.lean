@@ -332,13 +332,25 @@ adaptReader (fun (ctx : Context) => { ctx with mayPostpone := false }) x
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
-/-- Convert unassigned universe level metavariables into parameters. -/
-def levelMVarToParam (e : Expr) : TermElabM Expr := do
+/--
+  Convert unassigned universe level metavariables into parameters.
+  The new parameter names are of the form `u_i` where `i >= nextParamIdx`.
+  The method returns the updated expression and new `nextParamIdx`.
+
+  Remark: we make sure the generated parameter names do not clash with the universes at `ctx.levelNames`. -/
+def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) : TermElabM (Expr × Nat) := do
 ctx ← read;
 mctx ← getMCtx;
-let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e;
+let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e `u nextParamIdx;
 modify $ fun s => { s with mctx := r.mctx };
-pure r.expr
+pure (r.expr, r.nextParamIdx)
+
+/-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
+def levelMVarToParam' (e : Expr) : StateT Nat TermElabM Expr := do
+nextParamIdx ← get;
+(e, nextParamIdx) ← liftM $ levelMVarToParam e nextParamIdx;
+set nextParamIdx;
+pure e
 
 /--
   Auxiliary method for creating fresh binder names.

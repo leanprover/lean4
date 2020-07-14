@@ -96,8 +96,8 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun var
   type ← Term.mkForall ref vars type;
   val  ← Term.mkLambda ref xs val;
   val  ← Term.mkLambda ref vars val;
-  type ← Term.levelMVarToParam type;
-  val  ← Term.levelMVarToParam val;
+  (type, nextParamIdx) ← Term.levelMVarToParam type;
+  (val,  _) ← Term.levelMVarToParam val nextParamIdx;
   type ← Term.instantiateMVars ref type;
   val  ← Term.instantiateMVars view.val val;
   let shareCommonTypeVal : Std.ShareCommonM (Expr × Expr) := do {

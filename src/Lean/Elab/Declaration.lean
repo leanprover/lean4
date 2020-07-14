@@ -104,7 +104,7 @@ withDeclId declId $ fun name => do
     type ← Term.instantiateMVars typeStx type;
     type ← Term.mkForall typeStx xs type;
     (type, _) ← Term.mkForallUsedOnly typeStx vars type;
-    type ← Term.levelMVarToParam type;
+    (type, _) ← Term.levelMVarToParam type;
     let usedParams  := (collectLevelParams {} type).params;
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
     | Except.error msg      => Term.throwError stx msg

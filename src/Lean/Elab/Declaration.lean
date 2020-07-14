@@ -89,14 +89,15 @@ elabDefLike {
   declId := declId, binders := binders, type? := some type, val := stx.getArg 2
 }
 
-def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
+def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 -- parser! "axiom " >> declId >> declSig
 let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
+scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
   declName          ← mkDeclName declId modifiers name;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
-  explictLevelNames ← getLevelNames;
+  allUserLevelNames ← getLevelNames;
   decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
@@ -105,14 +106,16 @@ withDeclId declId $ fun name => do
     (type, _) ← Term.mkForallUsedOnly typeStx vars type;
     type ← Term.levelMVarToParam type;
     let usedParams  := (collectLevelParams {} type).params;
-    let levelParams := sortDeclLevelParams explictLevelNames usedParams;
-    pure $ Declaration.axiomDecl {
-      name     := declName,
-      lparams  := levelParams,
-      type     := type,
-      isUnsafe := modifiers.isUnsafe
-    }
-  };
+    match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
+    | Except.error msg      => Term.throwError stx msg
+    | Except.ok levelParams =>
+      pure $ Declaration.axiomDecl {
+        name     := declName,
+        lparams  := levelParams,
+        type     := type,
+        isUnsafe := modifiers.isUnsafe
+      }
+    };
   addDecl stx decl;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation

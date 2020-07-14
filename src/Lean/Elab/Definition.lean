@@ -82,7 +82,7 @@ def withUsedWhen' {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e :
 let dummyExpr := mkSort levelOne;
 withUsedWhen ref vars xs e dummyExpr cond k
 
-def mkDef (view : DefView) (declName : Name) (explictLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
+def mkDef (view : DefView) (declName : Name) (scopeLevelNames allUserLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
     : TermElabM (Option Declaration) := do
 let ref := view.ref;
 Term.synthesizeSyntheticMVars;
@@ -110,25 +110,27 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun var
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;
-  let levelParams := sortDeclLevelParams explictLevelNames usedParams.params;
-  match view.kind with
-  | DefKind.theorem =>
-    -- TODO theorem elaboration in parallel
-    pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := Task.pure val }
-  | DefKind.opaque  =>
-    pure $ some $ Declaration.opaqueDecl { name := declName, lparams := levelParams, type := type, value := val, isUnsafe := view.modifiers.isUnsafe }
-  | DefKind.abbrev =>
-    pure $ some $ Declaration.defnDecl {
-      name := declName, lparams := levelParams, type := type, value := val,
-      hints := ReducibilityHints.abbrev,
-      isUnsafe := view.modifiers.isUnsafe }
-  | DefKind.def => do
-    env ← Term.getEnv;
-    pure $ some $ Declaration.defnDecl {
-      name := declName, lparams := levelParams, type := type, value := val,
-      hints := ReducibilityHints.regular (getMaxHeight env val + 1),
-      isUnsafe := view.modifiers.isUnsafe }
-  | _ => unreachable!
+  match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams.params with
+  | Except.error msg      => Term.throwError ref msg
+  | Except.ok levelParams =>
+    match view.kind with
+    | DefKind.theorem =>
+      -- TODO theorem elaboration in parallel
+      pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := Task.pure val }
+    | DefKind.opaque  =>
+      pure $ some $ Declaration.opaqueDecl { name := declName, lparams := levelParams, type := type, value := val, isUnsafe := view.modifiers.isUnsafe }
+    | DefKind.abbrev =>
+      pure $ some $ Declaration.defnDecl {
+        name := declName, lparams := levelParams, type := type, value := val,
+        hints := ReducibilityHints.abbrev,
+        isUnsafe := view.modifiers.isUnsafe }
+    | DefKind.def => do
+      env ← Term.getEnv;
+      pure $ some $ Declaration.defnDecl {
+        name := declName, lparams := levelParams, type := type, value := val,
+        hints := ReducibilityHints.regular (getMaxHeight env val + 1),
+        isUnsafe := view.modifiers.isUnsafe }
+    | _ => unreachable!
 
 def elabDefVal (defVal : Syntax) (expectedType : Expr) : TermElabM Expr := do
 let kind := defVal.getKind;
@@ -140,12 +142,13 @@ else if kind == `Lean.Parser.Command.declValEqns then
 else
   Term.throwUnsupportedSyntax
 
-def elabDefLike (view : DefView) : CommandElabM Unit :=
+def elabDefLike (view : DefView) : CommandElabM Unit := do
 let ref := view.ref;
+scopeLevelNames ← getLevelNames;
 withDeclId view.declId $ fun name => do
   declName          ← mkDeclName view.declId view.modifiers name;
   applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
-  explictLevelNames ← getLevelNames;
+  allUserLevelNames ← getLevelNames;
   decl? ← runTermElabM declName $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
     match view.type? with
     | some typeStx => do
@@ -154,11 +157,11 @@ withDeclId view.declId $ fun name => do
       type ← Term.instantiateMVars typeStx type;
       withUsedWhen' ref vars xs type view.kind.isTheorem $ fun vars => do
         val  ← elabDefVal view.val type;
-        mkDef view declName explictLevelNames vars xs type val
+        mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     | none => do {
       type ← Term.mkFreshTypeMVar view.binders;
       val  ← elabDefVal view.val type;
-      mkDef view declName explictLevelNames vars xs type val
+      mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     };
   match decl? with
   | none      => pure ()

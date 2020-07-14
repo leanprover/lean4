@@ -669,15 +669,23 @@ match scpView.name with
 
 /--
   Sort the given list of `usedParams` using the following order:
-  - If it is an explicit level `explicitParams`, then use user given order.
+  - If it is an explicit level `allUserParams`, then use user given order.
   - Otherwise, use lexicographical.
 
+  Remark: `scopeParams` are the universe params introduced using the `universe` command. `allUserParams` contains
+  the universe params introduced using the `universe` command *and* the `.{...}` notation.
+
+  Remark: this function return an exception if there is an `u` not in `usedParams`, that is in `allUserParams` but not in `scopeParams`.
+
   Remark: `explicitParams` are in reverse declaration order. That is, the head is the last declared parameter. -/
-def sortDeclLevelParams (explicitParams : List Name) (usedParams : Array Name) : List Name :=
-let result := explicitParams.foldl (fun result levelName => if usedParams.elem levelName then levelName :: result else result) [];
-let remaining := usedParams.filter (fun levelParam => !explicitParams.elem levelParam);
-let remaining := remaining.qsort Name.lt;
-result ++ remaining.toList
+def sortDeclLevelParams (scopeParams : List Name) (allUserParams : List Name) (usedParams : Array Name) : Except String (List Name) :=
+match allUserParams.find? $ fun u => !usedParams.contains u && !scopeParams.elem u with
+| some u => throw ("unused universe parameter '" ++ toString u ++ "'")
+| none   =>
+  let result := allUserParams.foldl (fun result levelName => if usedParams.elem levelName then levelName :: result else result) [];
+  let remaining := usedParams.filter (fun levelParam => !allUserParams.elem levelParam);
+  let remaining := remaining.qsort Name.lt;
+  pure $ result ++ remaining.toList
 
 end Command
 end Elab

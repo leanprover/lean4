@@ -1,0 +1,3 @@
+unused_univ.lean:5:0: error: unused universe parameter 'u'
+unused_univ.lean:10:0: error: unused universe parameter 'w'
+unused_univ.lean:13:0: error: unused universe parameter 'w'

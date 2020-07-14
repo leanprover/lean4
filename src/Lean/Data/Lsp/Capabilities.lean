@@ -16,14 +16,17 @@ instance clientCapabilitiesHasFromJson : HasFromJson ClientCapabilities :=
 -- TODO largely unimplemented
 structure ServerCapabilities :=
 (textDocumentSync? : Option TextDocumentSyncOptions := none)
+(hoverProvider : Bool := false)
 
 instance serverCapabilitiesHasToJson : HasToJson ServerCapabilities :=
 ⟨fun o => mkObj $
-  opt "textDocumentSync" o.textDocumentSync? ++ []⟩
+  opt "textDocumentSync" o.textDocumentSync? ++
+  [⟨"hoverProvider", o.hoverProvider⟩]⟩
 
 def mkLeanServerCapabilities : ServerCapabilities :=
 { textDocumentSync? := some
   { openClose := true
-  , change? := TextDocumentSyncKind.incremental }}
+  , change? := TextDocumentSyncKind.incremental }
+, hoverProvider := true }
 
 end Lean.Lsp

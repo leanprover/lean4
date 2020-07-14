@@ -149,6 +149,8 @@ message ← err.getObjValAs? String "message";
 let data? := err.getObjVal? "data";
 pure (Message.responseError id code message data?)
 
+-- HACK: The implementation must be made up of several `auxN`s instead
+-- of one large block because of a bug in the compiler.
 instance messageFromJson : HasFromJson Message :=
 ⟨fun j => do
   "2.0" ← j.getObjVal? "jsonrpc" | none;

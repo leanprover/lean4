@@ -6,7 +6,7 @@
       # alternative config: use `perf stat` for extended properties
       runner: perf_stat
       perf_stat:
-        properties: ['wall-clock', 'task-clock', 'instructions', 'branches', 'branch-misses', 'cache-references', 'cache-misses', 'page-faults']
+        properties: ['wall-clock', 'task-clock', 'instructions', 'branches', 'branch-misses']
   run_config:
     <<: *time
     cwd: ../../src

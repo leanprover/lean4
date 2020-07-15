@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ReplaceLevel
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
 import Lean.Elab.Definition
@@ -241,6 +242,8 @@ private def getResultingUniverse (ref : Syntax) : List InductiveType → TermEla
   | Expr.sort u _ => pure u
   | _             => Term.throwError ref "unexpected inductive type resulting type"
 
+private def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
+
 /--
   Return true if the resulting universe level is of the form `?m + k`.
   Return false if the resulting universe level does not contain universe metavariables.
@@ -251,7 +254,7 @@ u ← Term.instantiateLevelMVars ref u;
 if u.hasMVar then
   match u.getLevelOffset with
   | Level.mvar mvarId _ => do
-    Term.assignLevelMVar mvarId (mkLevelParam `_tmp_ind_univ_param);
+    Term.assignLevelMVar mvarId tmpIndParam;
     pure true
   | _ =>
     Term.throwError ref $
@@ -308,9 +311,10 @@ let r       : Level := r.getLevelOffset;
 unless (r.isParam) $
   Term.throwError ref "failed to compute resulting universe level of inductive datatype, provide universe explicitly";
 us ← collectUniverses ref r rOffset numParams indTypes;
-_root_.dbgTrace ("collected universes: " ++ toString us) fun _ =>
--- TODO
-pure indTypes
+let rNew := Level.mkNaryMax us.toList;
+pure $ indTypes.map fun indType =>
+  let type := indType.type.replaceLevel fun u => if u == tmpIndParam then some rNew else none;
+  { indType with type := type }
 
 private def traceIndTypes (indTypes : List InductiveType) : TermElabM Unit :=
 indTypes.forM fun indType =>

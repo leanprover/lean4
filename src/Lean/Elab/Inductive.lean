@@ -439,15 +439,12 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       | Except.ok levelParams => do
         indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
         let indTypes := applyInferMod views numParams indTypes;
-        traceIndTypes indTypes;
         pure $ Declaration.inductDecl levelParams numParams indTypes isUnsafe
 
 def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
 decl ← runTermElabM view0.declName $ fun vars => mkInductiveDecl vars views;
--- TODO register decl
-pure ()
-
+addDecl view0.ref decl
 
 end Command
 end Elab

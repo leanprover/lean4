@@ -106,3 +106,13 @@ inductive T1 : Nat → Type
 
 inductive T1 : Nat → Type
 | z1 : Nat -- unexpected constructor resulting type
+
+
+-- Test13
+
+inductive A (α : Type u) (β : Type v)
+| nil {}
+| protected cons : α → β → A → A
+
+open A
+#check cons -- unknown `cons`, it is protected

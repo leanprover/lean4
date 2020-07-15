@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ReplaceLevel
+import Lean.Util.ReplaceExpr
 import Lean.Util.CollectLevelParams
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
@@ -366,6 +367,32 @@ let usedParams := indTypes.foldl
   {};
 usedParams.params
 
+private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr :=
+let levelParams := levelNames.map mkLevelParam;
+views.size.fold
+  (fun i (m : ExprMap Expr) =>
+    let view    := views.get! i;
+    let indFVar := indFVars.get! i;
+    m.insert indFVar (mkConst view.declName levelParams))
+  {}
+
+private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) (numParams : Nat) (indTypes : List InductiveType)
+    : TermElabM (List InductiveType) :=
+let ref           := (views.get! 0).ref;
+let indFVar2Const := mkIndFVar2Const views indFVars levelNames;
+indTypes.mapM fun indType => do
+  ctors ← indType.ctors.mapM fun ctor => do {
+    type ← Term.liftMetaM ref $ Meta.forallBoundedTelescope ctor.type numParams fun params type => do {
+      let type := type.replace fun e => if !e.isFVar then none else
+        match indFVar2Const.find? e with
+        | some c => some $ mkAppN c params
+        | none   => none;
+      Meta.mkForall params type
+    };
+    pure { ctor with type := type }
+  };
+  pure { indType with ctors := ctors }
+
 private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Declaration := do
 let view0             := views.get! 0;
 scopeLevelNames ← Term.getLevelNames;
@@ -399,9 +426,9 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       | Except.error msg      => Term.throwError ref msg
       | Except.ok levelParams => do
         _root_.dbgTrace ("levelParams: " ++ toString levelParams) fun _ => do
+        indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
         traceIndTypes indTypes;
         let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe;
-         -- TODO: convert local indFVars into constants
         -- TODO: use inferImplicit at ctors
         Term.throwError ref "WIP"
         --  pure decl

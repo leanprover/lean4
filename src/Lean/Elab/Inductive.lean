@@ -93,6 +93,9 @@ Term.throwError ref "unexpected inductive resulting type"
 private def getResultingType (ref : Syntax) (e : Expr) : TermElabM Expr :=
 Term.liftMetaM ref $ Meta.forallTelescopeReducing e fun _ r => pure r
 
+private def eqvFirstTypeResult (firstType type : Expr) : MetaM Bool :=
+Meta.forallTelescopeReducing firstType fun _ firstTypeResult => Meta.isDefEq firstTypeResult type
+
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private partial def checkParamsAndResultType (ref : Syntax) (numParams : Nat) : Nat → Expr → Expr → TermElabM Unit
 | i, type, firstType => do
@@ -124,9 +127,8 @@ private partial def checkParamsAndResultType (ref : Syntax) (numParams : Nat) : 
       Term.withLocalDecl ref n c.binderInfo d fun x =>
         let type      := b.instantiate1 x;
         checkParamsAndResultType (i+1) type firstType
-    | Expr.sort _ _        => do
-      firstType ← getResultingType ref firstType;
-      unlessM (Term.isDefEq ref type firstType) $
+    | Expr.sort _ _        =>
+      unlessM (Term.liftMetaM ref $ eqvFirstTypeResult firstType type) $
         let msg : MessageData :=
           "invalid mutually inductive types, resulting universe mismatch, given " ++ indentExpr type ++ Format.line ++ "expected type" ++ indentExpr firstType;
         Term.throwError ref msg
@@ -213,11 +215,113 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
   -- _root_.dbgTrace (">> " ++ toString ctorView.declName ++ " : " ++ toString type) fun _ =>
   pure { name := ctorView.declName, type := type }
 
-private def mkInductiveDecl (views : Array InductiveView) : TermElabM Declaration := do
+/- Convert universe metavariables occurring in the `indTypes` into new parameters.
+   Remark: if the resulting inductive datatype has universe metavariables, we will fix it later using
+   `inferResultingUniverse`. -/
+private def levelMVarToParamAux (ref : Syntax) (indTypes : List InductiveType) : StateT Nat TermElabM (List InductiveType) :=
+indTypes.mapM fun indType => do
+  type  ← liftM $ Term.instantiateMVars ref indType.type;
+  type  ← Term.levelMVarToParam' type;
+  ctors ← indType.ctors.mapM fun ctor => do {
+    ctorType ← liftM $ Term.instantiateMVars ref ctor.type;
+    ctorType ← Term.levelMVarToParam' ctorType;
+    pure { ctor with type := ctorType }
+  };
+  pure { indType with ctors := ctors, type := type }
+
+private def levelMVarToParam (ref : Syntax) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
+(levelMVarToParamAux ref indTypes).run' 1
+
+private def getResultingUniverse (ref : Syntax) : List InductiveType → TermElabM Level
+| []           => Term.throwError ref "unexpected empty inductive declaration"
+| indType :: _ => do
+  r ← getResultingType ref indType.type;
+  match r with
+  | Expr.sort u _ => pure u
+  | _             => Term.throwError ref "unexpected inductive type resulting type"
+
+/--
+  Return true if the resulting universe level is of the form `?m + k`.
+  Return false if the resulting universe level does not contain universe metavariables.
+  Throw exeception otherwise. -/
+private def shouldInferResultUniverse (ref : Syntax) (indTypes : List InductiveType) : TermElabM Bool := do
+u ← getResultingUniverse ref indTypes;
+u ← Term.instantiateLevelMVars ref u;
+if u.hasMVar then
+  match u.getLevelOffset with
+  | Level.mvar mvarId _ => do
+    Term.assignLevelMVar mvarId (mkLevelParam `_tmp_ind_univ_param);
+    pure true
+  | _ =>
+    Term.throwError ref $
+      "cannot infer resulting universe level of inductive datatype, given level contains metavariables " ++ mkSort u ++ ", provide universe explicitly"
+else
+  pure false
+
+/-
+  `addLevel u r rOffset us` add `u` components to `us` if they are not already there and it is different from the resulting universe level `r+rOffset`.
+  If `u` is a `max`, then its components are recursively processed.
+  If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
+
+  This method is used to infer the resulting universe level of an inductive datatype. -/
+private def addLevel : Level → Level → Nat → Array Level → Except String (Array Level)
+| Level.max u v _, r, rOffset,   us => do us ← addLevel u r rOffset us; addLevel v r rOffset us
+| Level.zero _,    _, _,         us => pure us
+| Level.succ u _,  r, rOffset+1, us => addLevel u r rOffset us
+| u,               r, rOffset,   us =>
+  if rOffset == 0 && u == r then pure us
+  else if r.occurs u then throw "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
+  else if us.contains u then pure us
+  else pure (us.push u)
+
+private partial def collectUniversesFromCtorTypeAux (ref : Syntax) (r : Level) (rOffset : Nat) : Nat → Expr → Array Level → TermElabM (Array Level)
+| 0,   Expr.forallE n d b c, us => do
+  u ← Term.getLevel ref d;
+  u ← Term.instantiateLevelMVars ref u;
+  match addLevel u r rOffset us with
+  | Except.error msg => Term.throwError ref msg
+  | Except.ok us     => Term.withLocalDecl ref n c.binderInfo d $ fun x =>
+    let e := b.instantiate1 x;
+    collectUniversesFromCtorTypeAux 0 e us
+| i+1, Expr.forallE n d b c, us => do
+  Term.withLocalDecl ref n c.binderInfo d $ fun x =>
+    let e := b.instantiate1 x;
+    collectUniversesFromCtorTypeAux i e us
+| _, _, us => pure us
+
+private partial def collectUniversesFromCtorType
+    (ref : Syntax) (r : Level) (rOffset : Nat) (ctorType : Expr) (numParams : Nat) (us : Array Level) : TermElabM (Array Level) :=
+collectUniversesFromCtorTypeAux ref r rOffset numParams ctorType us
+
+private partial def collectUniverses (ref : Syntax) (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) :=
+indTypes.foldlM
+  (fun us indType => indType.ctors.foldlM
+    (fun us ctor => collectUniversesFromCtorType ref r rOffset ctor.type numParams us)
+    us)
+  #[]
+
+private def updateResultingUniverse (ref : Syntax) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
+r ← getResultingUniverse ref indTypes;
+let rOffset : Nat   := r.getOffset;
+let r       : Level := r.getLevelOffset;
+unless (r.isParam) $
+  Term.throwError ref "failed to compute resulting universe level of inductive datatype, provide universe explicitly";
+us ← collectUniverses ref r rOffset numParams indTypes;
+_root_.dbgTrace ("collected universes: " ++ toString us) fun _ =>
+-- TODO
+pure indTypes
+
+private def traceIndTypes (indTypes : List InductiveType) : TermElabM Unit :=
+indTypes.forM fun indType =>
+  _root_.dbgTrace ("> inductive " ++ toString indType.name ++ " : " ++ toString indType.type) fun _ =>
+  indType.ctors.forM fun ctor => _root_.dbgTrace ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type) fun _ => pure ()
+
+private def mkInductiveDecl (scopeLevelNames : List Name) (views : Array InductiveView) : TermElabM Declaration := do
 rs ← elabHeader views;
 let view0      := views.get! 0;
 let levelNames := view0.levelNames;
 let isUnsafe   := view0.modifiers.isUnsafe;
+let ref        := view0.ref;
 withInductiveLocalDecls rs fun params indFVars => do
   indTypes ← views.size.foldM
     (fun i (indTypes : List InductiveType) => do
@@ -228,16 +332,19 @@ withInductiveLocalDecls rs fun params indFVars => do
       pure (indType :: indTypes))
     [];
   let indTypes := indTypes.reverse;
-  Term.synthesizeSyntheticMVars false; -- resolve pending
+  Term.synthesizeSyntheticMVars false;  -- resolve pending
+  inferLevel ← shouldInferResultUniverse ref indTypes;
+  indTypes ← levelMVarToParam ref indTypes;
+  indTypes ← if inferLevel then updateResultingUniverse ref params.size indTypes else pure indTypes;
   let decl := Declaration.inductDecl levelNames params.size indTypes isUnsafe;
-  -- TODO: compute resultant universe level
   -- TODO: convert local indFVars into constants
   -- TODO: use inferImplicit at ctors
   -- TODO: eliminate unused variables from params
-  pure decl
+  Term.throwError ref "WIP"
+  --  pure decl
 
-def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
-decl ← liftTermElabM none $ mkInductiveDecl views;
+def elabInductiveCore (scopeLevelNames : List Name) (views : Array InductiveView) : CommandElabM Unit := do
+decl ← liftTermElabM none $ mkInductiveDecl scopeLevelNames views;
 -- TODO
 pure ()
 

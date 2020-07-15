@@ -194,6 +194,7 @@ def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s =
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
+def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TermElabM Unit := do
 ctx ← read;

@@ -2,7 +2,7 @@ import Init.System.IO
 import Std.Data.RBMap
 
 import Lean.Environment
-import Lean.Elab.Frontend
+import Lean.Server.Snapshots
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
@@ -15,16 +15,54 @@ open Lean.JsonRpc
 open Lean.Lsp
 open Lean.Elab
 
--- LSP indexes text with rows and colums
-abbrev DocumentText := Array String
 
-structure Document :=
-(version : Int)
+/-- A document editable in the sense that we track the environment
+and parser state after each command so that edits can be applied
+without recompiling code appearing earlier in the file. -/
+structure EditableDocument :=
+(version : Nat)
 (text : DocumentText)
-(headerEnv : Environment)
-(headerParserState : Parser.ModuleParserState)
+/- The first snapshot is that after the header. -/
+(header : Snapshots.Snapshot)
+/- Subsequent snapshots occur after each command. -/
+-- TODO(WN): These should probably be asynchronous Tasks
+(snapshots : List Snapshots.Snapshot)
 
-abbrev DocumentMap := RBMap DocumentUri Document (fun a b => Decidable.decide (a < b))
+/-- Compiles the contents of a Lean file. -/
+def compileDocument (version : Nat) (contents : String)
+  : IO (MessageLog × EditableDocument) := do
+let inputCtx := Parser.mkInputContext contents "<input>";
+emptyEnv ← mkEmptyEnvironment;
+let (headerStx, headerParserState, msgLog) := Parser.parseHeader emptyEnv inputCtx;
+(headerEnv, msgLog) ← Elab.processHeader headerStx msgLog inputCtx;
+let headerSnap : Snapshots.Snapshot := ⟨headerEnv, headerParserState⟩;
+(msgLog, cmdSnaps) ← Snapshots.compileCmdsAfter contents msgLog headerSnap;
+let docOut : EditableDocument := ⟨version, contents.splitOnEOLs.toArray, headerSnap, cmdSnaps⟩;
+pure (msgLog, docOut)
+
+def updateDocument (doc : EditableDocument) (changePos : String.Pos) (newVersion : Nat) (newContents : String)
+  : IO (MessageLog × EditableDocument) :=
+if changePos < doc.header.pos then do -- The header changed, recompile everything.
+  e ← IO.stderr;
+  e.putStrLn $ "\nchangePos = " ++ toString changePos;
+  e.putStrLn "Recompiling header";
+  compileDocument newVersion newContents
+else do
+  e ← IO.stderr;
+  e.putStrLn $ "\nchangePos = " ++ toString changePos;
+  let validSnaps := doc.snapshots.filter (fun snap => snap.pos ≤ changePos);
+  -- The lowest-in-the-file snapshot which is still valid;
+  let lastSnap := validSnaps.getLastD doc.header;
+  e.putStrLn $ "Last snap @ " ++ toString lastSnap.pos;
+  (msgLog, snaps) ← Snapshots.compileCmdsAfter newContents {} lastSnap;
+  let newDoc := { version := newVersion
+                , header := doc.header
+                , text := newContents.splitOnEOLs.toArray
+                , snapshots := doc.snapshots ++ snaps : EditableDocument };
+  pure (msgLog, newDoc)
+
+abbrev DocumentMap :=
+  RBMap DocumentUri EditableDocument (fun a b => Decidable.decide (a < b))
 
 structure ServerState :=
 (i o : FS.Handle)
@@ -35,78 +73,44 @@ match @fromJson? paramType _ params with
 | some parsed => pure parsed
 | none        => throw (userError "got param with wrong structure")
 
-def runFrontend (text : String) : IO (Environment × Environment × Parser.ModuleParserState × MessageLog) := do
-let inputCtx := Parser.mkInputContext text "<input>";
-emptyEnv ← mkEmptyEnvironment;
-match Parser.parseHeader emptyEnv inputCtx with
-| (headerStx, headerParserState, messages) => do
-  (headerEnv, messages) ← processHeader headerStx messages inputCtx;
-  parserStateRef ← IO.mkRef headerParserState;
-  cmdStateRef ← IO.mkRef $ Command.mkState headerEnv messages {};
-  IO.processCommands inputCtx parserStateRef cmdStateRef;
-  cmdState ← cmdStateRef.get;
-  pure (headerEnv, cmdState.env, headerParserState, cmdState.messages)
-
-def updateFrontend (doc : Document) (input : String) : IO (Environment × MessageLog) := do
-let inputCtx := Parser.mkInputContext input "<input>";
-parserStateRef ← IO.mkRef doc.headerParserState;
-cmdStateRef    ← IO.mkRef $ Command.mkState doc.headerEnv;
-IO.processCommands inputCtx parserStateRef cmdStateRef;
-cmdState ← cmdStateRef.get;
-pure (cmdState.env, cmdState.messages)
-
-def msgToDiagnostic (text : DocumentText) (m : Lean.Message) : Diagnostic :=
--- Lean Message line numbers are 1-based while LSP Positions are 0-based.
-let lowLn := m.pos.line - 1;
-let low : Lsp.Position := ⟨lowLn, (text.get! lowLn).codepointPosToUtf16Pos m.pos.column⟩;
-let high : Lsp.Position := match m.endPos with
-| some endPos =>
-  let highLn := endPos.line - 1;
-  ⟨highLn, (text.get! highLn).codepointPosToUtf16Pos endPos.column⟩
-| none        => low;
-let range : Range := ⟨low, high⟩;
-let severity := match m.severity with
-| MessageSeverity.information => DiagnosticSeverity.information
-| MessageSeverity.warning     => DiagnosticSeverity.warning
-| MessageSeverity.error       => DiagnosticSeverity.error;
-let source := "Lean 4 server";
-let message := toString (format m.data);
-{ range := range
-, severity? := severity
-, source? := source
-, message := message}
+-- def ServerM α := StateT ServerState (IO α)
+-- Computes a task with result type α in the ServerM monad.
+-- def ServerTaskM α := ServerM (Task α)
+-- Handles a request with params of type α and response params β.
+-- def RequestHandler α β := Request α → ServerTaskM (Response β)
 
 namespace ServerState
 
-def findOpenDocument (s : ServerState) (key : DocumentUri) : IO Document := do
+def findOpenDocument (s : ServerState) (key : DocumentUri) : IO EditableDocument := do
 openDocuments ← s.openDocumentsRef.get;
 match openDocuments.find? key with
 | some doc => pure doc
 | none     => throw (userError "got unknown document uri")
 
-def updateOpenDocuments (s : ServerState) (key : DocumentUri) (val : Document) : IO Unit :=
+def updateOpenDocuments (s : ServerState) (key : DocumentUri) (val : EditableDocument) : IO Unit :=
 s.openDocumentsRef.modify (fun documents => (documents.erase key).insert key val)
 
--- Clears diagnostics for the document version 'd'.
+-- Clears diagnostics for the document version 'version'.
 -- TODO how to clear all diagnostics? Sending version 'none' doesn't seem to work
-def clearDiagnostics (s : ServerState) (uri : DocumentUri) (d : Document) : IO Unit :=
+-- TODO arg should be versioneddocumentidentifier
+def clearDiagnostics (s : ServerState) (uri : DocumentUri) (version : Nat) : IO Unit :=
 writeLspNotification s.o "textDocument/publishDiagnostics"
   { uri := uri
-  , version? := d.version
+  , version? := version
   , diagnostics := #[] : PublishDiagnosticsParams }
 
-def sendDiagnostics (s : ServerState) (uri : DocumentUri) (d : Document) (log : MessageLog) : IO Unit :=
-let diagnostics := log.msgs.map (msgToDiagnostic d.text);
+def sendDiagnostics (s : ServerState) (uri : DocumentUri) (doc : EditableDocument)
+  (log : MessageLog) : IO Unit :=
+let diagnostics := log.msgs.map (msgToDiagnostic doc.text);
 writeLspNotification s.o "textDocument/publishDiagnostics"
   { uri := uri
-  , version? := d.version
+  , version? := doc.version
   , diagnostics := diagnostics.toArray : PublishDiagnosticsParams }
 
 def handleDidOpen (s : ServerState) (p : DidOpenTextDocumentParams) : IO Unit := do
 let doc := p.textDocument;
 let text := doc.text.splitOnEOLs;
-(headerEnv, env, headerParserState, msgLog) ← runFrontend ("\n".intercalate text);
-let newDoc : Document := ⟨doc.version, text.toArray, headerEnv, headerParserState⟩;
+(msgLog, newDoc) ← compileDocument doc.version doc.text;
 s.openDocumentsRef.modify (fun openDocuments => openDocuments.insert doc.uri newDoc);
 s.sendDiagnostics doc.uri newDoc msgLog
 
@@ -121,16 +125,20 @@ else changes.forM $ fun change =>
   match change with
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) => do
     let newDocText := replaceRange oldDoc.text range newText;
-    (newEnv, msgLog) ← updateFrontend oldDoc ("\n".intercalate newDocText.toList);
-    let newDoc : Document := ⟨newVersion, newDocText, oldDoc.headerEnv, oldDoc.headerParserState⟩;
+    (msgLog, newDoc) ← updateDocument oldDoc
+                                      (range.start.lnColToLinearPos oldDoc.text)
+                                      newVersion
+                                      ("\n".intercalate newDocText.toList);
     s.updateOpenDocuments docId.uri newDoc;
     -- Clients don't have to clear diagnostics, so we clear them
     -- for the *previous* version here.
-    s.clearDiagnostics docId.uri oldDoc;
+    s.clearDiagnostics docId.uri oldDoc.version;
+    -- TODO(WN): at this point we need to re-add the diagnostics for above the
+    -- part that was recompiled. This should be stored in `Snapshot` probably
     s.sendDiagnostics docId.uri newDoc msgLog
 
   | TextDocumentContentChangeEvent.fullChange (text : String) =>
-    throw (userError "got content change that replaces the full document (not supported)")
+    throw (userError "TODO impl computing the diff of two sources.")
 
 def handleDidClose (s : ServerState) (p : DidCloseTextDocumentParams) : IO Unit := do
 -- TODO is any extra cleanup needed?

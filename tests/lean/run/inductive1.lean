@@ -49,3 +49,12 @@ inductive V (α : Type _) : Nat → Type _
 #check @V.casesOn
 #check @V.recOn
 #check @V.below
+
+class inductive Dec (p : Prop) : Type
+| isTrue  (h : p)
+| isFalse (h : Not p)
+
+instance tst : Dec True :=
+Dec.isTrue True.intro
+
+#check tst

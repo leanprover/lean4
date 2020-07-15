@@ -15,6 +15,8 @@ structure Attribute :=
 instance Attribute.hasFormat : HasFormat Attribute :=
 ⟨fun attr => Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
 
+instance Attribute.inhabited : Inhabited Attribute := ⟨{ name := arbitrary _ }⟩
+
 inductive Visibility
 | regular | «protected» | «private»
 

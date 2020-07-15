@@ -466,9 +466,13 @@ views.forM fun view => do {
 
 def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
+let ref   := view0.ref;
 decl ← runTermElabM view0.declName $ fun vars => mkInductiveDecl vars views;
-addDecl view0.ref decl;
-mkAuxConstructions views
+addDecl ref decl;
+mkAuxConstructions views;
+-- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
+views.forM fun view => applyAttributes ref view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+pure ()
 
 end Command
 end Elab

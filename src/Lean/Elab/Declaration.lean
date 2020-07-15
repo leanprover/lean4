@@ -125,7 +125,7 @@ when modifiers.isNoncomputable $
   throwError ref "invalid use of 'noncomputable' in inductive declaration";
 when modifiers.isPartial $
   throwError ref "invalid use of 'partial' in inductive declaration";
-when (modifiers.attrs.size != 0) $
+unless (modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && (modifiers.attrs.get! 0).name == `class)) $
   throwError ref "invalid use of attributes in inductive declaration";
 pure ()
 
@@ -187,6 +187,7 @@ v ← inductiveSyntaxToView modifiers stx;
 elabInductiveCore #[v]
 
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+let modifiers := modifiers.addAttribute { name := `class };
 v ← classInductiveSyntaxToView modifiers stx;
 elabInductiveCore #[v]
 

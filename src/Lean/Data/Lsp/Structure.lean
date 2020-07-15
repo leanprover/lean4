@@ -11,7 +11,7 @@ open Lean.Json
 abbrev DocumentUri := String
 
 -- LSP indexes text with rows and colums
-abbrev DocumentText := Array String
+def DocumentText := Array String
 
 -- character is accepted liberally: actual character := min(line length, character)
 structure Position := (line : Nat) (character : Nat)
@@ -22,19 +22,58 @@ instance positionHasFromJson : HasFromJson Position :=
   character ← j.getObjValAs? Nat "character";
   pure ⟨line, character⟩⟩
 
-namespace Position
+instance positionHasToJson : HasToJson Position :=
+⟨fun o => mkObj $
+  ⟨"line", o.line⟩ :: ⟨"character", o.character⟩ :: []⟩
 
-/-- Computes a linear position from an LSP-style 0-indexed (ln, col) position
-and the text. -/
-def lnColToLinearPos (pos : Position) (text : DocumentText) : String.Pos :=
+instance positionHasToString : HasToString Position :=
+  ⟨fun p => "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
+
+namespace DocumentText
+
+/-- Computes a linear position in an LF-newlined string corresponding
+to `text` from an LSP-style 0-indexed (ln, col) position. -/
+def lnColToLinearPos (text : DocumentText) (pos : Position) : String.Pos :=
 text.foldrRange 0 pos.line (fun ln acc => acc + ln.length + 1) pos.character
 
-end Position
+/-- An imprecise inverse of lnColToLinearPos.
+Should only be used for debugging. -/
+def linearPosToLnCol (text : DocumentText) (pos : String.Pos) : Position :=
+let ⟨_, outPos⟩ : String.Pos × Position :=
+  text.foldl
+    (fun ⟨chrsLeft, p⟩ ln =>
+      if chrsLeft = 0 then ⟨0, p⟩
+      else if ln.length > chrsLeft then (0, { p with character := chrsLeft })
+      else (chrsLeft - ln.length - 1, { p with line := p.line + 1 }))
+    (pos, ⟨0, 0⟩);
+  outPos
+
+end DocumentText
 
 -- [start, end)
 structure Range := (start : Position) («end» : Position)
 
+instance rangeHasFromJson : HasFromJson Range :=
+⟨fun j => do
+  start ← j.getObjValAs? Position "start";
+  «end» ← j.getObjValAs? Position "end";
+  pure ⟨start, «end»⟩⟩
+
+instance rangeHasToJson : HasToJson Range :=
+⟨fun o => mkObj $
+  ⟨"start", toJson o.start⟩ :: ⟨"end", toJson o.«end»⟩ :: []⟩
+
 structure Location := (uri : DocumentUri) (range : Range)
+
+instance locationHasFromJson : HasFromJson Location :=
+⟨fun j => do
+  uri ← j.getObjValAs? DocumentUri "uri";
+  range ← j.getObjValAs? Range "range";
+  pure ⟨uri, range⟩⟩
+
+instance locationHasToJson : HasToJson Location :=
+⟨fun o => mkObj $
+  ⟨"uri", toJson o.uri⟩ :: ⟨"range", toJson o.range⟩ :: []⟩
 
 structure LocationLink :=
 -- span in origin that is highlighted (e.g. underlined).
@@ -46,7 +85,6 @@ structure LocationLink :=
 -- span in target that is highlighted and focused when link is followed.
 -- must be a subrange of targetRange
 (targetSelectionRange : Range)
-
 
 structure Command :=
 (title : String)
@@ -83,6 +121,12 @@ structure VersionedTextDocumentIdentifier :=
 -- disk content is the master
 (version? : Option Nat := none)
 
+instance versionedTextDocumentIdentifierHasFromJson : HasFromJson VersionedTextDocumentIdentifier :=
+⟨fun j => do
+  uri ← j.getObjValAs? DocumentUri "uri";
+  let version? := j.getObjValAs? Nat "version";
+  pure ⟨uri, version?⟩⟩
+
 structure TextDocumentEdit :=
 (textDocument : VersionedTextDocumentIdentifier)
 (edits : TextEditBatch)
@@ -100,6 +144,14 @@ structure TextDocumentItem :=
 -- increases after each change, undo and redo
 (version : Nat)
 (text : String)
+
+instance textDocumentItemHasFromJson : HasFromJson TextDocumentItem :=
+⟨fun j => do
+  uri ← j.getObjValAs? DocumentUri "uri";
+  languageId ← j.getObjValAs? String "languageId";
+  version ← j.getObjValAs? Nat "version";
+  text ← j.getObjValAs? String "text";
+  pure ⟨uri, languageId, version, text⟩⟩
 
 -- parameter literal for requests
 structure TextDocumentPositionParams :=
@@ -126,9 +178,22 @@ structure DocumentFilter :=
 -- - [!...] to negate range of characters
 (pattern? : Option String := none)
 
+instance documentFilterHasFromJson : HasFromJson DocumentFilter :=
+⟨fun j => do
+  let language? := j.getObjValAs? String "language";
+  let scheme? := j.getObjValAs? String "scheme";
+  let pattern? := j.getObjValAs? String "pattern";
+  pure ⟨language?, scheme?, pattern?⟩⟩
+
 def DocumentSelector := Array DocumentFilter
 
+instance documentSelectorHasFromJson : HasFromJson DocumentSelector :=
+⟨@fromJson? (Array DocumentFilter) _⟩
+
 structure TextDocumentRegistrationOptions := (documentSelector? : Option DocumentSelector := none)
+
+instance textDocumentRegistrationOptionsHasFromJson : HasFromJson TextDocumentRegistrationOptions :=
+⟨fun j => some ⟨j.getObjValAs? DocumentSelector "documentSelector"⟩⟩
 
 -- TODO(Marc): missing:
 -- StaticRegistrationOptions,
@@ -137,62 +202,5 @@ structure TextDocumentRegistrationOptions := (documentSelector? : Option Documen
 -- WorkDoneProgressOptions, PartialResultParams
 -- Markup and Progress can be implemented
 -- later when the basic functionality stands.
-
-instance documentUriHasFromJson : HasFromJson DocumentUri :=
-⟨fun j => j.getStr?⟩
-
-instance rangeHasFromJson : HasFromJson Range :=
-⟨fun j => do
-  start ← j.getObjValAs? Position "start";
-  «end» ← j.getObjValAs? Position "end";
-  pure ⟨start, «end»⟩⟩
-
-instance locationHasFromJson : HasFromJson Location :=
-⟨fun j => do
-  uri ← j.getObjValAs? DocumentUri "uri";
-  range ← j.getObjValAs? Range "range";
-  pure ⟨uri, range⟩⟩
-
-instance versionedTextDocumentIdentifierHasFromJson : HasFromJson VersionedTextDocumentIdentifier :=
-⟨fun j => do
-  uri ← j.getObjValAs? DocumentUri "uri";
-  let version? := j.getObjValAs? Nat "version";
-  pure ⟨uri, version?⟩⟩
-
-instance textDocumentItemHasFromJson : HasFromJson TextDocumentItem :=
-⟨fun j => do
-  uri ← j.getObjValAs? DocumentUri "uri";
-  languageId ← j.getObjValAs? String "languageId";
-  version ← j.getObjValAs? Nat "version";
-  text ← j.getObjValAs? String "text";
-  pure ⟨uri, languageId, version, text⟩⟩
-
-instance documentFilterHasFromJson : HasFromJson DocumentFilter :=
-⟨fun j => do
-  let language? := j.getObjValAs? String "language";
-  let scheme? := j.getObjValAs? String "scheme";
-  let pattern? := j.getObjValAs? String "pattern";
-  pure ⟨language?, scheme?, pattern?⟩⟩
-
-instance documentSelectorHasFromJson : HasFromJson DocumentSelector :=
-⟨@fromJson? (Array DocumentFilter) _⟩
-
-instance textDocumentRegistrationOptionsHasFromJson : HasFromJson TextDocumentRegistrationOptions :=
-⟨fun j => some ⟨j.getObjValAs? DocumentSelector "documentSelector"⟩⟩
-
-instance documentUriHasToJson : HasToJson DocumentUri :=
-⟨fun (o : String) => o⟩
-
-instance positionHasToJson : HasToJson Position :=
-⟨fun o => mkObj $
-  ⟨"line", o.line⟩ :: ⟨"character", o.character⟩ :: []⟩
-
-instance rangeHasToJson : HasToJson Range :=
-⟨fun o => mkObj $
-  ⟨"start", toJson o.start⟩ :: ⟨"end", toJson o.«end»⟩ :: []⟩
-
-instance locationHasToJson : HasToJson Location :=
-⟨fun o => mkObj $
-  ⟨"uri", toJson o.uri⟩ :: ⟨"range", toJson o.range⟩ :: []⟩
 
 end Lean.Lsp

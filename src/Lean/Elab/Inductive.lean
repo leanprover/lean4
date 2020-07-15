@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.ReplaceLevel
 import Lean.Util.ReplaceExpr
 import Lean.Util.CollectLevelParams
+import Lean.Util.Constructions
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
 import Lean.Elab.Definition
@@ -441,10 +442,33 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
         let indTypes := applyInferMod views numParams indTypes;
         pure $ Declaration.inductDecl levelParams numParams indTypes isUnsafe
 
+private def mkAuxConstructions (views : Array InductiveView) : CommandElabM Unit := do
+env ← getEnv;
+let hasEq   := env.contains `Eq;
+let hasHEq  := env.contains `HEq;
+let hasUnit := env.contains `PUnit;
+let hasProd := env.contains `Prod;
+views.forM fun view => do {
+  let n := view.declName;
+  modifyEnv fun env => mkRecOn env n;
+  when hasUnit $ modifyEnv fun env => mkCasesOn env n;
+  when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env n;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkBelow env n;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkIBelow env n;
+  pure ()
+};
+views.forM fun view => do {
+  let n := view.declName;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkBRecOn env n;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkBInductionOn env n;
+  pure ()
+}
+
 def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
 decl ← runTermElabM view0.declName $ fun vars => mkInductiveDecl vars views;
-addDecl view0.ref decl
+addDecl view0.ref decl;
+mkAuxConstructions views
 
 end Command
 end Elab

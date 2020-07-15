@@ -249,6 +249,9 @@ _root_.dbgTrace (toString a) $ fun _ => pure ()
 def setEnv (newEnv : Environment) : CommandElabM Unit :=
 modify $ fun s => { s with env := newEnv }
 
+@[inline] def modifyEnv (f : Environment → Environment) : CommandElabM Unit :=
+modify $ fun s => { s with env := f s.env }
+
 def getCurrNamespace : CommandElabM Name := do
 scope ← getScope; pure scope.currNamespace
 

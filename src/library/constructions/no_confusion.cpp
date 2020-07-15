@@ -235,4 +235,12 @@ environment mk_no_confusion(environment const & env, name const & n) {
     new_env = add_no_confusion(new_env, no_confusion_name);
     return add_protected(new_env, no_confusion_name);
 }
+
+extern "C" object * lean_mk_no_confusion(object * env, object * n) {
+    try {
+        return mk_no_confusion(environment(env), name(n, true)).steal();
+    } catch (exception &) {
+        return env;
+    }
+}
 }

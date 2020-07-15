@@ -20,3 +20,4 @@ import Lean.Util.FindExpr
 import Lean.Util.ReplaceExpr
 import Lean.Util.ReplaceLevel
 import Lean.Util.FoldConsts
+import Lean.Util.Constructions

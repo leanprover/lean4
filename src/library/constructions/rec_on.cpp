@@ -60,4 +60,12 @@ environment mk_rec_on(environment const & env, name const & n) {
     new_env = add_aux_recursor(new_env, rec_on_name);
     return add_protected(new_env, rec_on_name);
 }
+
+extern "C" object * lean_mk_rec_on(object * env, object * n) {
+    try {
+        return mk_rec_on(environment(env), name(n, true)).steal();
+    } catch (exception &) {
+        return env;
+    }
+}
 }

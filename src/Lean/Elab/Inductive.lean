@@ -79,10 +79,11 @@ let isUnsafe := (rs.get! 0).view.modifiers.isUnsafe;
 rs.forM fun r => unless (r.view.modifiers.isUnsafe == isUnsafe) $
   Term.throwError r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
 
-private def checkLevelNames (rs : Array ElabHeaderResult) : TermElabM Unit := do
-let levelNames := (rs.get! 0).view.levelNames;
-rs.forM fun r => unless (r.view.levelNames == levelNames) $
-  Term.throwError r.view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
+private def checkLevelNames (views : Array InductiveView) : TermElabM Unit :=
+when (views.size > 1) do
+  let levelNames := (views.get! 0).levelNames;
+  views.forM fun view => unless (view.levelNames == levelNames) $
+    Term.throwError view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
 
 private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
 Term.withLocalContext r.lctx r.localInsts do
@@ -155,7 +156,6 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
 rs ← elabHeaderAux views 0 #[];
 when (rs.size > 1) do {
   checkUnsafe rs;
-  checkLevelNames rs;
   numParams ← checkNumParams rs;
   checkHeaders rs numParams 0 none
 };
@@ -352,36 +352,38 @@ indTypes.mapM fun indType => do
   pure { indType with type := type, ctors := ctors }
 
 private def mkInductiveDecl (scopeLevelNames : List Name) (vars : Array Expr) (views : Array InductiveView) : TermElabM Declaration := do
-rs ← elabHeader views;
 let view0      := views.get! 0;
 let levelNames := view0.levelNames;
 let isUnsafe   := view0.modifiers.isUnsafe;
 let ref        := view0.ref;
-withInductiveLocalDecls rs fun params indFVars => do
-  let numExplicitParams := params.size;
-  indTypes ← views.size.foldM
-    (fun i (indTypes : List InductiveType) => do
-      let indFVar := indFVars.get! i;
-      let r       := rs.get! i;
-      type  ← Term.mkForall ref params r.type;
-      ctors ← elabCtors indFVar params r;
-      let indType := { name := r.view.declName, type := type, ctors := ctors : InductiveType };
-      pure (indType :: indTypes))
-    [];
-  let indTypes := indTypes.reverse;
-  Term.synthesizeSyntheticMVars false;  -- resolve pending
-  inferLevel ← shouldInferResultUniverse ref indTypes;
-  withUsed ref vars indTypes $ fun vars => do
-    let numParams := vars.size + numExplicitParams;
-    indTypes ← updateParams ref vars indTypes;
-    indTypes ← levelMVarToParam ref indTypes;
-    indTypes ← if inferLevel then updateResultingUniverse ref numParams indTypes else pure indTypes;
-    traceIndTypes indTypes;
-    let decl := Declaration.inductDecl levelNames numParams indTypes isUnsafe;
-    -- TODO: convert local indFVars into constants
-    -- TODO: use inferImplicit at ctors
-    Term.throwError ref "WIP"
-    --  pure decl
+checkLevelNames views;
+adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := levelNames ++ ctx.levelNames }) do
+  rs ← elabHeader views;
+  withInductiveLocalDecls rs fun params indFVars => do
+    let numExplicitParams := params.size;
+    indTypes ← views.size.foldM
+      (fun i (indTypes : List InductiveType) => do
+        let indFVar := indFVars.get! i;
+        let r       := rs.get! i;
+        type  ← Term.mkForall ref params r.type;
+        ctors ← elabCtors indFVar params r;
+        let indType := { name := r.view.declName, type := type, ctors := ctors : InductiveType };
+        pure (indType :: indTypes))
+      [];
+    let indTypes := indTypes.reverse;
+    Term.synthesizeSyntheticMVars false;  -- resolve pending
+    inferLevel ← shouldInferResultUniverse ref indTypes;
+    withUsed ref vars indTypes $ fun vars => do
+      let numParams := vars.size + numExplicitParams;
+      indTypes ← updateParams ref vars indTypes;
+      indTypes ← levelMVarToParam ref indTypes;
+      indTypes ← if inferLevel then updateResultingUniverse ref numParams indTypes else pure indTypes;
+      traceIndTypes indTypes;
+      let decl := Declaration.inductDecl levelNames numParams indTypes isUnsafe;
+      -- TODO: convert local indFVars into constants
+      -- TODO: use inferImplicit at ctors
+      Term.throwError ref "WIP"
+      --  pure decl
 
 def elabInductiveCore (scopeLevelNames : List Name) (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;

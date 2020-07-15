@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ReplaceLevel
+import Lean.Util.CollectLevelParams
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
 import Lean.Elab.Definition
@@ -263,6 +264,7 @@ else
   pure false
 
 /-
+  Auxiliary function for `updateResultingUniverse`
   `addLevel u r rOffset us` add `u` components to `us` if they are not already there and it is different from the resulting universe level `r+rOffset`.
   If `u` is a `max`, then its components are recursively processed.
   If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
@@ -278,6 +280,7 @@ private def addLevel : Level → Level → Nat → Array Level → Except String
   else if us.contains u then pure us
   else pure (us.push u)
 
+/- Auxiliary function for `updateResultingUniverse` -/
 private partial def collectUniversesFromCtorTypeAux (ref : Syntax) (r : Level) (rOffset : Nat) : Nat → Expr → Array Level → TermElabM (Array Level)
 | 0,   Expr.forallE n d b c, us => do
   u ← Term.getLevel ref d;
@@ -293,10 +296,12 @@ private partial def collectUniversesFromCtorTypeAux (ref : Syntax) (r : Level) (
     collectUniversesFromCtorTypeAux i e us
 | _, _, us => pure us
 
+/- Auxiliary function for `updateResultingUniverse` -/
 private partial def collectUniversesFromCtorType
     (ref : Syntax) (r : Level) (rOffset : Nat) (ctorType : Expr) (numParams : Nat) (us : Array Level) : TermElabM (Array Level) :=
 collectUniversesFromCtorTypeAux ref r rOffset numParams ctorType us
 
+/- Auxiliary function for `updateResultingUniverse` -/
 private partial def collectUniverses (ref : Syntax) (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) :=
 indTypes.foldlM
   (fun us indType => indType.ctors.foldlM
@@ -351,13 +356,24 @@ indTypes.mapM fun indType => do
   };
   pure { indType with type := type, ctors := ctors }
 
-private def mkInductiveDecl (scopeLevelNames : List Name) (vars : Array Expr) (views : Array InductiveView) : TermElabM Declaration := do
-let view0      := views.get! 0;
-let levelNames := view0.levelNames;
-let isUnsafe   := view0.modifiers.isUnsafe;
-let ref        := view0.ref;
+private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name :=
+let usedParams := indTypes.foldl
+  (fun (usedParams : CollectLevelParams.State) indType =>
+    let usedParams := collectLevelParams usedParams indType.type;
+    indType.ctors.foldl
+      (fun (usedParams : CollectLevelParams.State) ctor => collectLevelParams usedParams ctor.type)
+      usedParams)
+  {};
+usedParams.params
+
+private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Declaration := do
+let view0             := views.get! 0;
+scopeLevelNames ← Term.getLevelNames;
 checkLevelNames views;
-adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := levelNames ++ ctx.levelNames }) do
+let allUserLevelNames := view0.levelNames;
+let isUnsafe          := view0.modifiers.isUnsafe;
+let ref               := view0.ref;
+adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNames }) do
   rs ← elabHeader views;
   withInductiveLocalDecls rs fun params indFVars => do
     let numExplicitParams := params.size;
@@ -378,16 +394,21 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := levelNames ++ 
       indTypes ← updateParams ref vars indTypes;
       indTypes ← levelMVarToParam ref indTypes;
       indTypes ← if inferLevel then updateResultingUniverse ref numParams indTypes else pure indTypes;
-      traceIndTypes indTypes;
-      let decl := Declaration.inductDecl levelNames numParams indTypes isUnsafe;
-      -- TODO: convert local indFVars into constants
-      -- TODO: use inferImplicit at ctors
-      Term.throwError ref "WIP"
-      --  pure decl
+      let usedLevelNames := collectLevelParamsInInductive indTypes;
+      match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
+      | Except.error msg      => Term.throwError ref msg
+      | Except.ok levelParams => do
+        _root_.dbgTrace ("levelParams: " ++ toString levelParams) fun _ => do
+        traceIndTypes indTypes;
+        let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe;
+         -- TODO: convert local indFVars into constants
+        -- TODO: use inferImplicit at ctors
+        Term.throwError ref "WIP"
+        --  pure decl
 
-def elabInductiveCore (scopeLevelNames : List Name) (views : Array InductiveView) : CommandElabM Unit := do
+def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
-decl ← runTermElabM view0.declName $ fun vars => mkInductiveDecl scopeLevelNames vars views;
+decl ← runTermElabM view0.declName $ fun vars => mkInductiveDecl vars views;
 -- TODO
 pure ()
 

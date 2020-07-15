@@ -183,14 +183,12 @@ private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) :
 inductiveSyntaxToView modifiers decl 2
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-scopeLevelNames ← getLevelNames;
 v ← inductiveSyntaxToView modifiers stx;
-elabInductiveCore scopeLevelNames #[v]
+elabInductiveCore #[v]
 
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-scopeLevelNames ← getLevelNames;
 v ← classInductiveSyntaxToView modifiers stx;
-elabInductiveCore scopeLevelNames #[v]
+elabInductiveCore #[v]
 
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO
@@ -232,12 +230,11 @@ private def isMutualInductive (stx : Syntax) : Bool :=
   declKind == `Lean.Parser.Command.inductive
 
 private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
-scopeLevelNames ← getLevelNames;
 views ← elems.mapM $ fun stx => do {
    modifiers ← elabModifiers (stx.getArg 0);
    inductiveSyntaxToView modifiers (stx.getArg 1)
 };
-elabInductiveCore scopeLevelNames views
+elabInductiveCore views
 
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab :=

@@ -26,6 +26,7 @@ lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_2__checkLambdaLet___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Lean_Meta_Check_2__checkLambdaLet___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,7 +78,6 @@ lean_object* l___private_Lean_Meta_Check_7__regTraceClasses(lean_object*);
 lean_object* l___private_Lean_Meta_Check_3__checkForall___at___private_Lean_Meta_Check_6__checkAux___main___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_2__checkLambdaLet___at___private_Lean_Meta_Check_6__checkAux___main___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toTraceMessageData(lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
 lean_object* l___private_Lean_Util_Trace_2__addNode___at_Lean_Meta_check___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_3__checkForall___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
@@ -2682,7 +2682,7 @@ lean_object* _init_l_Lean_Meta_check___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 x_2 = l_Lean_Meta_check___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -4291,7 +4291,7 @@ lean_object* _init_l_Lean_Meta_isTypeCorrect___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 x_2 = l_Lean_Meta_isTypeCorrect___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

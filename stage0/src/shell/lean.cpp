@@ -373,6 +373,11 @@ extern "C" object* lean_print_deps(object* deps, object* w);
 void print_deps(object_ref const & deps) {
     consume_io_result(lean_print_deps(deps.to_obj_arg(), io_mk_world()));
 }
+
+extern "C" object* lean_environment_free_regions(object * env, object * w);
+void environment_free_regions(environment && env) {
+    consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
+}
 }
 
 void check_optarg(char const * option_name) {
@@ -656,7 +661,9 @@ int main(int argc, char ** argv) {
         }
 
         if (run && ok) {
-            return ir::run_main(env, argc - optind, argv + optind);
+            uint32 ret = ir::run_main(env, argc - optind, argv + optind);
+            environment_free_regions(std::move(env));
+            return ret;
         }
         if (olean_fn && ok) {
             time_task t(".olean serialization",
@@ -681,6 +688,7 @@ int main(int argc, char ** argv) {
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
 
+        environment_free_regions(std::move(env));
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
         std::cerr << lean::message_builder(env, ios, mod_fn, lean::pos_info(1, 1), lean::ERROR).set_exception(

@@ -24,7 +24,6 @@ extern lean_object* l_Lean_MessageData_ofList___closed__3;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_3__throwApplyError___rarg___closed__5;
@@ -55,13 +54,13 @@ lean_object* l_Lean_Meta_apply___boxed(lean_object*, lean_object*, lean_object*,
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___closed__1;
 lean_object* l_Lean_Meta_renameMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindMVar_main___main___at___private_Lean_Meta_Tactic_Apply_4__dependsOnOthers___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_apply___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindMVar_main___main___at___private_Lean_Meta_Tactic_Apply_4__dependsOnOthers___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_3__throwApplyError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_importModules___closed__1;
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 lean_object* l___private_Lean_Meta_Tactic_Apply_1__getExpectedNumArgsAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_2__getExpectedNumArgs(lean_object*, lean_object*, lean_object*);
@@ -1640,23 +1639,12 @@ return x_47;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_empty___closed__1;
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
 lean_object* l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___closed__1;
+x_5 = l_Lean_importModules___closed__1;
 x_6 = l_Array_iterateMAux___main___at___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___spec__1(x_1, x_1, x_4, x_5, x_2, x_3);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -2590,8 +2578,6 @@ l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1___closed__2 = _i
 lean_mark_persistent(l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1___closed__2);
 l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1___closed__3 = _init_l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1___closed__3();
 lean_mark_persistent(l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1___closed__3);
-l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___closed__1 = _init_l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___closed__1();
-lean_mark_persistent(l___private_Lean_Meta_Tactic_Apply_5__reorderNonDependentFirst___closed__1);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

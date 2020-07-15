@@ -19,14 +19,12 @@ lean_object* l_Lean_Level_normalize___main(lean_object*);
 uint8_t l___private_Lean_Meta_InferType_11__isAlwaysZero(lean_object*);
 lean_object* l___private_Lean_Meta_InferType_5__inferLambdaType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
-lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l___private_Lean_Expr_3__getAppArgsAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_12__isArrowProp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_16__isArrowType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_4__inferForallType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isTypeFormerAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForall(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_13__isPropQuickApp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_11__isAlwaysZero___main___boxed(lean_object*);
@@ -83,6 +81,7 @@ lean_object* l___private_Lean_Meta_InferType_8__inferFVarType(lean_object*, lean
 lean_object* l___private_Lean_Meta_InferType_4__inferForallType___closed__1;
 lean_object* l_Lean_Meta_inferTypeImpl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerType___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_9__checkInferTypeCache(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -92,6 +91,7 @@ lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*);
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_Lean_Meta_setInferTypeRef___closed__1;
 lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +124,6 @@ lean_object* l___private_Lean_Meta_InferType_7__inferMVarType___boxed(lean_objec
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_1__inferAppType___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_12__isArrowProp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_2__mkAppRangeAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
@@ -137,6 +136,7 @@ lean_object* l___private_Lean_Meta_InferType_13__isPropQuickApp___main(lean_obje
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*);
 extern lean_object* l_Lean_Meta_isClassQuick___main___closed__1;
 lean_object* l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerType___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_2__inferConstType___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
@@ -149,7 +149,7 @@ lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_15__isProofQuickApp___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_1__inferAppType(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isTypeFormerAux___main(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isTypeFormerType___main___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__7(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7698,16 +7698,16 @@ return x_56;
 }
 }
 }
-lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Meta_isTypeFormerType___main___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_expr_instantiate1(x_1, x_2);
-x_6 = l_Lean_Meta_isTypeFormerAux___main(x_5, x_3, x_4);
+x_6 = l_Lean_Meta_isTypeFormerType___main(x_5, x_3, x_4);
 return x_6;
 }
 }
-lean_object* l_Lean_Meta_isTypeFormerAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Meta_isTypeFormerType___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -7764,7 +7764,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get_uint64(x_5, sizeof(void*)*3);
 lean_dec(x_5);
 x_19 = (uint8_t)((x_18 << 24) >> 61);
-x_20 = lean_alloc_closure((void*)(l_Lean_Meta_isTypeFormerAux___main___lambda__1___boxed), 4, 1);
+x_20 = lean_alloc_closure((void*)(l_Lean_Meta_isTypeFormerType___main___lambda__1___boxed), 4, 1);
 lean_closure_set(x_20, 0, x_17);
 x_21 = l_Lean_Meta_withLocalDecl___rarg(x_15, x_16, x_19, x_20, x_2, x_14);
 return x_21;
@@ -7826,21 +7826,21 @@ return x_33;
 }
 }
 }
-lean_object* l_Lean_Meta_isTypeFormerAux___main___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Meta_isTypeFormerType___main___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_Meta_isTypeFormerAux___main___lambda__1(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Meta_isTypeFormerType___main___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Lean_Meta_isTypeFormerAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Meta_isTypeFormerType(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Meta_isTypeFormerAux___main(x_1, x_2, x_3);
+x_4 = l_Lean_Meta_isTypeFormerType___main(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -7858,7 +7858,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
-x_7 = l_Lean_Meta_isTypeFormerAux___main(x_5, x_2, x_6);
+x_7 = l_Lean_Meta_isTypeFormerType___main(x_5, x_2, x_6);
 return x_7;
 }
 else

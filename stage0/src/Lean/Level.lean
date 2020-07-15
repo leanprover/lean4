@@ -360,6 +360,7 @@ def dec : Level → Option Level
    If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/
 | imax l₁ l₂ _ => mkLevelMax <$> dec l₁ <*> dec l₂
 
+
 /- Level to Format -/
 namespace LevelToFormat
 inductive Result
@@ -451,6 +452,13 @@ mkLevelIMax newLhs newRhs
 match lvl with
 | imax lhs rhs d => updateIMax (imax lhs rhs d) newLhs newRhs rfl
 | _              => panic! "imax level expected"
+
+def mkNaryMax : List Level → Level
+| []    => levelZero
+| [u]   => u
+| u::us => mkLevelMax u (mkNaryMax us)
+
+/- Level to Format -/
 
 @[specialize] def instantiateParams (s : Name → Option Level) : Level → Level
 | u@(zero _)       => u

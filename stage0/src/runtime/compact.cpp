@@ -482,4 +482,9 @@ object * compacted_region::read() {
         }
     }
 }
+
+extern "C" obj_res lean_compacted_region_free(usize region, object *) {
+    delete reinterpret_cast<compacted_region *>(region);
+    return lean_mk_io_result(lean_box(0));
+}
 }

@@ -44,6 +44,7 @@ lean_object* l_Lean_Meta_instantiateLevelMVars(lean_object*, lean_object*, lean_
 lean_object* l___private_Lean_Meta_LevelDefEq_10__processPostponedStep___closed__3;
 lean_object* l_Lean_Meta_isLevelDefEq___closed__3;
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponed(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 lean_object* l_Lean_Meta_isExprDefEq___closed__1;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEqAux___main___closed__5;
@@ -139,7 +140,6 @@ lean_object* l_Lean_Meta_isLevelDefEq___closed__2;
 lean_object* l___private_Lean_Meta_LevelDefEq_4__mkMaxArgsDiff___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_1__decAux_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_restore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_isLevelDefEq___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_1__decAux_x3f___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlMAux___main___at___private_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1520,7 +1520,7 @@ lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 x_2 = l_Lean_Meta_isLevelDefEqAux___main___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -11166,7 +11166,7 @@ lean_object* _init_l_Lean_Meta_isExprDefEq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 x_2 = l_Lean_Meta_isExprDefEq___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

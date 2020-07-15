@@ -123,6 +123,7 @@ def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
 def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
+def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def setEnv (env : Environment) : TermElabM Unit := modify $ fun s => { s with env := env }
 def setMCtx (mctx : MetavarContext) : TermElabM Unit := modify $ fun s => { s with mctx := mctx }
 
@@ -194,6 +195,7 @@ def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s =
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
+def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TermElabM Unit := do
 ctx ← read;
@@ -247,14 +249,17 @@ fun ctx s =>
 def ppGoal (ref : Syntax) (mvarId : MVarId) : TermElabM Format := liftMetaM ref $ Meta.ppGoal mvarId
 def isType (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isType e
 def isTypeFormer (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isTypeFormer e
+def isTypeFormerType (ref : Syntax) (e : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isTypeFormerType e
 def isDefEqNoConstantApprox (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.approxDefEq $ Meta.isDefEq t s
 def isDefEq (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.fullApproxDefEq $ Meta.isDefEq t s
+def isLevelDefEq (ref : Syntax) (u v : Level) : TermElabM Bool := liftMetaM ref $ Meta.isLevelDefEq u v
 def inferType (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.inferType e
 def whnf (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnf e
 def whnfForall (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfForall e
 def whnfCore (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfCore e
 def unfoldDefinition? (ref : Syntax) (e : Expr) : TermElabM (Option Expr) := liftMetaM ref $ Meta.unfoldDefinition? e
 def instantiateMVars (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.instantiateMVars e
+def instantiateLevelMVars (ref : Syntax) (u : Level) : TermElabM Level := liftMetaM ref $ Meta.instantiateLevelMVars u
 def isClass (ref : Syntax) (t : Expr) : TermElabM (Option Name) := liftMetaM ref $ Meta.isClass t
 def mkFreshLevelMVar (ref : Syntax) : TermElabM Level := liftMetaM ref $ Meta.mkFreshLevelMVar
 def mkFreshExprMVar (ref : Syntax) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
@@ -329,13 +334,25 @@ adaptReader (fun (ctx : Context) => { ctx with mayPostpone := false }) x
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
-/-- Convert unassigned universe level metavariables into parameters. -/
-def levelMVarToParam (e : Expr) : TermElabM Expr := do
+/--
+  Convert unassigned universe level metavariables into parameters.
+  The new parameter names are of the form `u_i` where `i >= nextParamIdx`.
+  The method returns the updated expression and new `nextParamIdx`.
+
+  Remark: we make sure the generated parameter names do not clash with the universes at `ctx.levelNames`. -/
+def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) : TermElabM (Expr × Nat) := do
 ctx ← read;
 mctx ← getMCtx;
-let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e;
+let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e `u nextParamIdx;
 modify $ fun s => { s with mctx := r.mctx };
-pure r.expr
+pure (r.expr, r.nextParamIdx)
+
+/-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
+def levelMVarToParam' (e : Expr) : StateT Nat TermElabM Expr := do
+nextParamIdx ← get;
+(e, nextParamIdx) ← liftM $ levelMVarToParam e nextParamIdx;
+set nextParamIdx;
+pure e
 
 /--
   Auxiliary method for creating fresh binder names.
@@ -886,6 +903,14 @@ finally x (modify $ fun s => { s with cache := { s.cache with synthInstance := s
 
 @[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
 if b then resettingSynthInstanceCache x else x
+
+def withLocalContext {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α := do
+localInstsCurr ← getLocalInsts;
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) $
+  if localInsts == localInstsCurr then
+    x
+  else
+    resettingSynthInstanceCache x
 
 /--
   Execute `x` using the given metavariable's `LocalContext` and `LocalInstances`.

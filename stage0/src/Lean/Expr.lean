@@ -551,6 +551,11 @@ def bindingBody! : Expr → Expr
 | lam _ _ b _     => b
 | _               => panic! "binding expected"
 
+def bindingInfo! : Expr → BinderInfo
+| forallE _ _ _ c => c.binderInfo
+| lam _ _ _ c     => c.binderInfo
+| _               => panic! "binding expected"
+
 def letName! : Expr → Name
 | letE n _ _ _ _ => n
 | _              => panic! "let expression expected"
@@ -565,6 +570,11 @@ e.looseBVarRange > 0
 @[extern "lean_expr_has_loose_bvar"]
 constant hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool := arbitrary _
 
+/-- Return true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter, or in the range if `tryRange == true`. -/
+def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
+| Expr.forallE _ d b c, bvarIdx, tryRange => (c.binderInfo.isExplicit && hasLooseBVar d bvarIdx) || hasLooseBVarInExplicitDomain b (bvarIdx+1) tryRange
+| e, bvarIdx, tryRange                    => tryRange && hasLooseBVar e bvarIdx
+
 /--
   Lower the loose bound variables `>= s` in `e` by `d`.
   That is, a loose bound variable `bvar i`.
@@ -578,6 +588,22 @@ constant lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr := arbitrary _
   Lift loose bound variables `>= s` in `e` by `d`. -/
 @[extern "lean_expr_lift_loose_bvars"]
 constant liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr := arbitrary _
+
+/--
+  `inferImplicit e numParams considerRange` updates the first `numParams` parameter binder annotations of the `e` forall type.
+  It marks any parameter with an explicit binder annotation if there is another explicit arguments that depends on it or
+  the resulting type if `considerRange == true`.
+
+  Remark: we use this function to infer the bind annotations of inductive datatype constructors, and structure projections.
+  When the `{}` annotation is used in these commands, we set `considerRange == false`.
+-/
+def inferImplicit : Expr → Nat → Bool → Expr
+| Expr.forallE n d b c, i+1, considerRange =>
+  let b       := inferImplicit b i considerRange;
+  let newInfo := if c.binderInfo.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else c.binderInfo;
+  mkForall n newInfo d b
+| e, 0, _ => e
+| e, _, _ => e
 
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/

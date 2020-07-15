@@ -79,22 +79,19 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
             return set_io_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
         delete[] header;
-        char * buffer = new char[size - header_size];
+        // use `malloc` here as expected by `compacted_region`
+        char * buffer = static_cast<char *>(malloc(size - header_size));
         in.read(buffer, size - header_size);
         if (!in) {
             return set_io_error((sstream() << "failed to read file '" << olean_fn << "'").str());
         }
         in.close();
-        /* We don't free compacted_region objects */
         compacted_region * region = new compacted_region(size - header_size, buffer);
-#if defined(__has_feature)
-#if __has_feature(address_sanitizer)
-        // do not report as leak
-        __lsan_ignore_object(region);
-#endif
-#endif
         object * mod = region->read();
-        return set_io_result(mod);
+        object * mod_region = alloc_cnstr(0, 2, 0);
+        cnstr_set(mod_region, 0, mod);
+        cnstr_set(mod_region, 1, box_size_t(reinterpret_cast<size_t>(region)));
+        return set_io_result(mod_region);
     } catch (exception & ex) {
         return set_io_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
     }

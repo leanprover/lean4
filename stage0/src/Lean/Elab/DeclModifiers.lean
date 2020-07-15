@@ -15,6 +15,8 @@ structure Attribute :=
 instance Attribute.hasFormat : HasFormat Attribute :=
 ⟨fun attr => Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
 
+instance Attribute.inhabited : Inhabited Attribute := ⟨{ name := arbitrary _ }⟩
+
 inductive Visibility
 | regular | «protected» | «private»
 
@@ -31,6 +33,14 @@ structure Modifiers :=
 (isPartial       : Bool := false)
 (isUnsafe        : Bool := false)
 (attrs           : Array Attribute := #[])
+
+def Modifiers.isPrivate : Modifiers → Bool
+| { visibility := Visibility.private, .. } => true
+| _                                        => false
+
+def Modifiers.isProtected : Modifiers → Bool
+| { visibility := Visibility.protected, .. } => true
+| _                                          => false
 
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
 { modifiers with attrs := modifiers.attrs.push attr }
@@ -105,15 +115,6 @@ pure {
   attrs           := attrs
 }
 
-def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
-currNamespace ← getCurrNamespace;
-let declName := currNamespace ++ atomicName;
-match modifiers.visibility with
-| Visibility.private => do
-  env ← getEnv;
-  pure $ mkPrivateName env declName
-| _                  => pure declName
-
 def checkNotAlreadyDeclared (ref : Syntax) (declName : Name) : CommandElabM Unit := do
 env ← getEnv;
 when (env.contains declName) $
@@ -127,6 +128,28 @@ match privateToUserName? declName with
 | some declName =>
   when (env.contains declName) $
     throwError ref ("a non-private declaration '" ++ declName ++ "' has already been declared")
+
+def applyVisibility (ref : Syntax) (visibility : Visibility) (declName : Name) : CommandElabM Name :=
+match visibility with
+| Visibility.private => do
+  env ← getEnv;
+  let declName := mkPrivateName env declName;
+  checkNotAlreadyDeclared ref declName;
+  pure declName
+| Visibility.protected => do
+  checkNotAlreadyDeclared ref declName;
+  env ← getEnv;
+  let env := addProtected env declName;
+  setEnv env;
+  pure declName
+| _                  => do
+  checkNotAlreadyDeclared ref declName;
+  pure declName
+
+def mkDeclName (ref : Syntax) (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
+currNamespace ← getCurrNamespace;
+let declName := currNamespace ++ atomicName;
+applyVisibility ref modifiers.visibility declName
 
 def applyAttributes (ref : Syntax) (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
 attrs.forM $ fun attr => do

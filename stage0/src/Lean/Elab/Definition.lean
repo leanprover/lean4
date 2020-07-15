@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Std.ShareCommon
 import Lean.Util.CollectLevelParams
 import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
+import Lean.Elab.CollectFVars
 import Lean.Elab.DeclModifiers
 import Lean.Elab.Binders
 
@@ -40,49 +40,26 @@ structure DefView :=
 (type?         : Option Syntax)
 (val           : Syntax)
 
-def collectUsedFVars (ref : Syntax) (used : CollectFVars.State) (e : Expr) : TermElabM CollectFVars.State := do
-e ← Term.instantiateMVars ref e;
-pure $ collectFVars used e
-
-def collectUsedFVarsAtFVars (ref : Syntax) (used : CollectFVars.State) (fvars : Array Expr) : TermElabM CollectFVars.State :=
-fvars.foldlM
-  (fun used fvar => do
-    fvarType ← Term.inferType ref fvar;
-    collectUsedFVars ref used fvarType)
-  used
-
-def removeUnused (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
+private def removeUnused (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 let used : CollectFVars.State := {};
-used ← collectUsedFVars ref used eType;
-used ← collectUsedFVars ref used e;
-used ← collectUsedFVarsAtFVars ref used xs;
-localInsts ← Term.getLocalInsts;
-lctx ← Term.getLCtx;
-(lctx, localInsts, newVars, _) ← vars.foldrM
-  (fun var (result : LocalContext × LocalInstances × Array Expr × CollectFVars.State) =>
-    let (lctx, localInsts, newVars, used) := result;
-    if used.fvarSet.contains var.fvarId! then do
-      varType ← Term.inferType ref var;
-      used ← collectUsedFVars ref used varType;
-      pure (lctx, localInsts, newVars.push var, used)
-    else
-      pure (lctx.erase var.fvarId!, localInsts.erase var.fvarId!, newVars, used))
-  (lctx, localInsts, #[], used);
-pure (lctx, localInsts, newVars.reverse)
+used ← Term.collectUsedFVars ref used eType;
+used ← Term.collectUsedFVars ref used e;
+used ← Term.collectUsedFVarsAtFVars ref used xs;
+Term.removeUnused ref vars used
 
-def withUsedWhen {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
+private def withUsedWhen {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 if cond then do
  (lctx, localInsts, vars) ← removeUnused ref vars xs e eType;
  Term.withLCtx lctx localInsts $ k vars
 else
  k vars
 
-def withUsedWhen' {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
+private def withUsedWhen' {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 let dummyExpr := mkSort levelOne;
 withUsedWhen ref vars xs e dummyExpr cond k
 
-def mkDef (view : DefView) (declName : Name) (explictLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
+def mkDef (view : DefView) (declName : Name) (scopeLevelNames allUserLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
     : TermElabM (Option Declaration) := do
 let ref := view.ref;
 Term.synthesizeSyntheticMVars;
@@ -96,8 +73,8 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun var
   type ← Term.mkForall ref vars type;
   val  ← Term.mkLambda ref xs val;
   val  ← Term.mkLambda ref vars val;
-  type ← Term.levelMVarToParam type;
-  val  ← Term.levelMVarToParam val;
+  (type, nextParamIdx) ← Term.levelMVarToParam type;
+  (val,  _) ← Term.levelMVarToParam val nextParamIdx;
   type ← Term.instantiateMVars ref type;
   val  ← Term.instantiateMVars view.val val;
   let shareCommonTypeVal : Std.ShareCommonM (Expr × Expr) := do {
@@ -110,25 +87,27 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun var
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;
-  let levelParams := sortDeclLevelParams explictLevelNames usedParams.params;
-  match view.kind with
-  | DefKind.theorem =>
-    -- TODO theorem elaboration in parallel
-    pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := Task.pure val }
-  | DefKind.opaque  =>
-    pure $ some $ Declaration.opaqueDecl { name := declName, lparams := levelParams, type := type, value := val, isUnsafe := view.modifiers.isUnsafe }
-  | DefKind.abbrev =>
-    pure $ some $ Declaration.defnDecl {
-      name := declName, lparams := levelParams, type := type, value := val,
-      hints := ReducibilityHints.abbrev,
-      isUnsafe := view.modifiers.isUnsafe }
-  | DefKind.def => do
-    env ← Term.getEnv;
-    pure $ some $ Declaration.defnDecl {
-      name := declName, lparams := levelParams, type := type, value := val,
-      hints := ReducibilityHints.regular (getMaxHeight env val + 1),
-      isUnsafe := view.modifiers.isUnsafe }
-  | _ => unreachable!
+  match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams.params with
+  | Except.error msg      => Term.throwError ref msg
+  | Except.ok levelParams =>
+    match view.kind with
+    | DefKind.theorem =>
+      -- TODO theorem elaboration in parallel
+      pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := Task.pure val }
+    | DefKind.opaque  =>
+      pure $ some $ Declaration.opaqueDecl { name := declName, lparams := levelParams, type := type, value := val, isUnsafe := view.modifiers.isUnsafe }
+    | DefKind.abbrev =>
+      pure $ some $ Declaration.defnDecl {
+        name := declName, lparams := levelParams, type := type, value := val,
+        hints := ReducibilityHints.abbrev,
+        isUnsafe := view.modifiers.isUnsafe }
+    | DefKind.def => do
+      env ← Term.getEnv;
+      pure $ some $ Declaration.defnDecl {
+        name := declName, lparams := levelParams, type := type, value := val,
+        hints := ReducibilityHints.regular (getMaxHeight env val + 1),
+        isUnsafe := view.modifiers.isUnsafe }
+    | _ => unreachable!
 
 def elabDefVal (defVal : Syntax) (expectedType : Expr) : TermElabM Expr := do
 let kind := defVal.getKind;
@@ -140,13 +119,13 @@ else if kind == `Lean.Parser.Command.declValEqns then
 else
   Term.throwUnsupportedSyntax
 
-def elabDefLike (view : DefView) : CommandElabM Unit :=
+def elabDefLike (view : DefView) : CommandElabM Unit := do
 let ref := view.ref;
+scopeLevelNames ← getLevelNames;
 withDeclId view.declId $ fun name => do
-  declName          ← mkDeclName view.modifiers name;
-  checkNotAlreadyDeclared ref declName;
+  declName          ← mkDeclName view.declId view.modifiers name;
   applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
-  explictLevelNames ← getLevelNames;
+  allUserLevelNames ← getLevelNames;
   decl? ← runTermElabM declName $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
     match view.type? with
     | some typeStx => do
@@ -155,11 +134,11 @@ withDeclId view.declId $ fun name => do
       type ← Term.instantiateMVars typeStx type;
       withUsedWhen' ref vars xs type view.kind.isTheorem $ fun vars => do
         val  ← elabDefVal view.val type;
-        mkDef view declName explictLevelNames vars xs type val
+        mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     | none => do {
       type ← Term.mkFreshTypeMVar view.binders;
       val  ← elabDefVal view.val type;
-      mkDef view declName explictLevelNames vars xs type val
+      mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     };
   match decl? with
   | none      => pure ()

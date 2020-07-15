@@ -147,6 +147,10 @@ struct print_expr_fn {
         print_child(app_arg(e));
     }
 
+    static bool is_arrow(expr const & t) {
+        return lean::is_arrow(t) && binding_info(t) == binder_info::Default;
+    }
+
     void print_arrow_body(expr const & a) {
         if (is_atomic(a) || is_arrow(a))
             return print(a);

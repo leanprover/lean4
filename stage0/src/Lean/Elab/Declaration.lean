@@ -89,57 +89,107 @@ elabDefLike {
   declId := declId, binders := binders, type? := some type, val := stx.getArg 2
 }
 
-def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
+def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 -- parser! "axiom " >> declId >> declSig
 let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
+scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
-  declName          ← mkDeclName modifiers name;
+  declName          ← mkDeclName declId modifiers name;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
-  explictLevelNames ← getLevelNames;
+  allUserLevelNames ← getLevelNames;
   decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
     type ← Term.instantiateMVars typeStx type;
     type ← Term.mkForall typeStx xs type;
     (type, _) ← Term.mkForallUsedOnly typeStx vars type;
-    type ← Term.levelMVarToParam type;
+    (type, _) ← Term.levelMVarToParam type;
     let usedParams  := (collectLevelParams {} type).params;
-    let levelParams := sortDeclLevelParams explictLevelNames usedParams;
-    pure $ Declaration.axiomDecl {
-      name     := declName,
-      lparams  := levelParams,
-      type     := type,
-      isUnsafe := modifiers.isUnsafe
-    }
-  };
+    match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
+    | Except.error msg      => Term.throwError stx msg
+    | Except.ok levelParams =>
+      pure $ Declaration.axiomDecl {
+        name     := declName,
+        lparams  := levelParams,
+        type     := type,
+        isUnsafe := modifiers.isUnsafe
+      }
+    };
   addDecl stx decl;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
+private def checkValidInductiveModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+when modifiers.isNoncomputable $
+  throwError ref "invalid use of 'noncomputable' in inductive declaration";
+when modifiers.isPartial $
+  throwError ref "invalid use of 'partial' in inductive declaration";
+unless (modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && (modifiers.attrs.get! 0).name == `class)) $
+  throwError ref "invalid use of attributes in inductive declaration";
+pure ()
+
+private def checkValidCtorModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+when modifiers.isNoncomputable $
+  throwError ref "invalid use of 'noncomputable' in constructor declaration";
+when modifiers.isPartial $
+  throwError ref "invalid use of 'partial' in constructor declaration";
+when modifiers.isUnsafe $
+  throwError ref "invalid use of 'unsafe' in constructor declaration";
+when (modifiers.attrs.size != 0) $
+  throwError ref "invalid use of attributes in constructor declaration";
+pure ()
+
 /-
-parser! "inductive " >> declId >> optDeclSig >> many introRule
-parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many introRule
+parser! "inductive " >> declId >> optDeclSig >> many ctor
+parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
 
 Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
 -/
-private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : InductiveView :=
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : CommandElabM InductiveView := do
+checkValidInductiveModifier decl modifiers;
 let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
-{ ref        := decl,
-  modifiers  := modifiers,
-  declId     := decl.getArg numTokens,
-  binders    := binders,
-  type?      := type?,
-  introRules := (decl.getArg (numTokens + 2)).getArgs }
+let declId           := decl.getArg numTokens;
+withDeclId declId fun name => do
+  levelNames ← getLevelNames;
+  declName   ← mkDeclName declId modifiers name;
+  ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => do {
+    -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
+    ctorModifiers ← elabModifiers (ctor.getArg 1);
+    when (ctorModifiers.isPrivate && modifiers.isPrivate) $
+      throwError ctor "invalid 'private' constructor in a 'private' inductive datatype";
+    when (ctorModifiers.isProtected && modifiers.isPrivate) $
+      throwError ctor "invalid 'protected' constructor in a 'private' inductive datatype";
+    checkValidCtorModifier ctor ctorModifiers;
+    let ctorName := ctor.getIdAt 2;
+    let ctorName := declName ++ ctorName;
+    ctorName ← applyVisibility (ctor.getArg 2) ctorModifiers.visibility ctorName;
+    let inferMod := !(ctor.getArg 3).isNone;
+    let (binders, type?) := expandOptDeclSig (ctor.getArg 4);
+    pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
+  };
+  pure {
+    ref           := decl,
+    modifiers     := modifiers,
+    shortDeclName := name,
+    declName      := declName,
+    levelNames    := levelNames,
+    binders       := binders,
+    type?         := type?,
+    ctors         := ctors
+  }
 
-private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : InductiveView :=
+private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=
 inductiveSyntaxToView modifiers decl 2
 
-def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-elabInductiveCore #[inductiveSyntaxToView modifiers stx]
+def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+v ← inductiveSyntaxToView modifiers stx;
+elabInductiveCore #[v]
 
-def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-elabInductiveCore #[classInductiveSyntaxToView modifiers stx]
+def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+let modifiers := modifiers.addAttribute { name := `class };
+v ← classInductiveSyntaxToView modifiers stx;
+elabInductiveCore #[v]
 
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO
@@ -183,7 +233,7 @@ private def isMutualInductive (stx : Syntax) : Bool :=
 private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
 views ← elems.mapM $ fun stx => do {
    modifiers ← elabModifiers (stx.getArg 0);
-   pure $ inductiveSyntaxToView modifiers (stx.getArg 1)
+   inductiveSyntaxToView modifiers (stx.getArg 1)
 };
 elabInductiveCore views
 

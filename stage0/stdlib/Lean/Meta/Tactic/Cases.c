@@ -82,6 +82,7 @@ lean_object* l_Nat_anyAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasInd
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__36(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
+extern lean_object* l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 lean_object* l_Std_PersistentArray_anyMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -287,7 +288,6 @@ lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___spec__10(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__41___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12697,7 +12697,7 @@ lean_object* _init_l___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Basic_10__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 x_2 = l___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___lambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

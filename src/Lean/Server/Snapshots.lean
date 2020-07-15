@@ -5,65 +5,103 @@ import Lean.Elab.Command
 
 /-! One can think of this module as being a partial reimplementation
 of Lean.Elab.Frontend which also stores a snapshot of the world after
-each command. Importantly, we allow starting compilation from any
+each command. Importantly, we allow (re)starting compilation from any
 snapshot/position in the file for interactive editing purposes. -/
 
 namespace Lean
 namespace Elab
 namespace Snapshots
 
-/-- What Lean knows about the world after each command. -/
+/-- The data associated with a snapshot is different depending on whether
+it was produced from the header or from a command. -/
+inductive SnapshotData
+| headerData : Environment → MessageLog → Options → SnapshotData
+| cmdData : Command.State → SnapshotData
+
+/-- What Lean knows about the world after the header and each command. -/
 structure Snapshot :=
-/- The (ln,col) after the command. *Not* the
-same as mpState.pos as that's a linear Nat. -/
---(pos : Position)
-(env : Environment)
+/- Where the command which produced this snapshot begins. Note that
+neighbouring snapshots are *not* necessarily attached beginning-to-end,
+since inputs outside the grammar advance the parser but do not produce
+snapshots. -/
+(beginPos : String.Pos)
 (mpState : Parser.ModuleParserState)
---(opts : Options) TODO these are set_option options right? might need to store them
+(data : SnapshotData)
 
-def Snapshot.pos (s : Snapshot) : String.Pos := s.mpState.pos
+namespace Snapshot
 
-/-- Compiles the next command occuring after the given snapshot.
+def endPos (s : Snapshot) : String.Pos := s.mpState.pos
+
+def env : Snapshot → Environment
+| ⟨_, _, SnapshotData.headerData env_ _ _⟩ => env_
+| ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
+
+def msgLog : Snapshot → MessageLog
+| ⟨_, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
+| ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
+
+def toCmdState : Snapshot → Command.State
+| ⟨_, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
+| ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState
+
+end Snapshot
+
+-- TODO(WN): fns here should probably take inputCtx and live
+-- in some SnapshotsM := ReaderT Context (EIO Empty)
+
+def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
+let inputCtx := Parser.mkInputContext contents "<input>";
+emptyEnv ← mkEmptyEnvironment;
+let (headerStx, headerParserState, msgLog) := Parser.parseHeader emptyEnv inputCtx;
+(headerEnv, msgLog) ← Elab.processHeader headerStx msgLog inputCtx;
+pure { beginPos := 0
+     , mpState := headerParserState
+     , data := SnapshotData.headerData headerEnv msgLog opts
+     }
+
+/-- Compiles the next command occurring after the given snapshot.
 If there is no next command, returns `none`. -/
--- NOTE(WN): this code is really very similar to Elab.Frontend.
--- Is there a point in generalizing it over "store snapshots"/"don't store snapshots" via
--- changing the FrontendM monad? I say no because it would likely result in
+-- NOTE(WN): This code is really very similar to Elab.Frontend.
+-- Is there a point in generalizing it over "store snapshots"/"don't store snapshots"
+-- by changing the FrontendM monad? Perhaps not because it would likely result in
 -- confusing isServer? conditionals.
--- TODO(WN): should probably take inputCtx and live in some SnapshotsM := ReaderT Context (EIO Empty)
-def compileNextCmd (contents : String) (msgLog : MessageLog) (snap : Snapshot)
-  : IO (Option (MessageLog × Snapshot)) := do
+def compileNextCmd (contents : String) (snap : Snapshot) : IO (Option Snapshot) := do
 let inputCtx := Parser.mkInputContext contents "<input>";
 let (cmdStx, cmdParserState, msgLog) :=
-  Parser.parseCommand snap.env inputCtx snap.mpState msgLog;
-e ← IO.stderr;
-e.putStrLn $ "Cmd @ " ++ toString snap.pos ++ " = " ++ (toString $ cmdStx.formatStx none true);
+  Parser.parseCommand snap.env inputCtx snap.mpState snap.msgLog;
+let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?
 if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
   pure none
 else do
-  cmdStateRef ← IO.mkRef $ Elab.Command.mkState snap.env msgLog { : Options };
+  cmdStateRef ← IO.mkRef snap.toCmdState;
   let cmdCtx : Elab.Command.Context :=
-    { cmdPos := snap.pos
+    { cmdPos := snap.endPos
     , stateRef := cmdStateRef
     , fileName := inputCtx.fileName
-    , fileMap := inputCtx.fileMap };
+    , fileMap := inputCtx.fileMap
+    };
   EIO.adaptExcept
     (fun e => unreachable!) -- TODO(WN): ignoring exceptions ok here?
     (Elab.Command.withLogging
       (Elab.Command.elabCommand cmdStx)
       cmdCtx);
   postCmdState ← cmdStateRef.get;
-  let postCmdSnap : Snapshot := ⟨postCmdState.env, cmdParserState⟩;
-  pure $ some (postCmdState.messages, postCmdSnap)
+  let postCmdSnap : Snapshot :=
+    { beginPos := cmdPos
+    , mpState := cmdParserState
+    , data := SnapshotData.cmdData postCmdState
+    };
+  pure $ some postCmdSnap
 
-partial def compileCmdsAfter (contents : String) : MessageLog → Snapshot
-  → IO (MessageLog × List Snapshot)
-| msgLog, snap => do
-  cmdOut ← compileNextCmd contents msgLog snap;
+/-- Compiles all commands after the given snapshot. -/
+partial def compileCmdsAfter (contents : String) : Snapshot → IO (List Snapshot)
+| snap => do
+  cmdOut ← compileNextCmd contents snap;
   match cmdOut with
-  | some (msgLog, snap) => do
-    (msgLog, snaps) ← compileCmdsAfter msgLog snap;
-    pure (msgLog, snap :: snaps)
-  | none => pure (msgLog, [])
+  | some snap => do
+    snaps ← compileCmdsAfter snap;
+    pure $ snap :: snaps
+  | none => pure []
 
 end Snapshots
 end Elab

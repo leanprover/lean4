@@ -7,14 +7,10 @@ import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
 namespace Lean.Server
+namespace Editable
 
-open IO
-open Std (RBMap RBMap.empty)
-open Lean
-open Lean.JsonRpc
 open Lean.Lsp
 open Lean.Elab
-
 
 /-- A document editable in the sense that we track the environment
 and parser state after each command so that edits can be applied
@@ -29,37 +25,52 @@ structure EditableDocument :=
 (snapshots : List Snapshots.Snapshot)
 
 /-- Compiles the contents of a Lean file. -/
-def compileDocument (version : Nat) (contents : String)
-  : IO (MessageLog × EditableDocument) := do
-let inputCtx := Parser.mkInputContext contents "<input>";
-emptyEnv ← mkEmptyEnvironment;
-let (headerStx, headerParserState, msgLog) := Parser.parseHeader emptyEnv inputCtx;
-(headerEnv, msgLog) ← Elab.processHeader headerStx msgLog inputCtx;
-let headerSnap : Snapshots.Snapshot := ⟨headerEnv, headerParserState⟩;
-(msgLog, cmdSnaps) ← Snapshots.compileCmdsAfter contents msgLog headerSnap;
-let docOut : EditableDocument := ⟨version, contents.splitOnEOLs.toArray, headerSnap, cmdSnaps⟩;
+def compileDocument (version : Nat) (text : DocumentText)
+  : IO (Lean.MessageLog × EditableDocument) := do
+let contents := "\n".intercalate text.toList;
+headerSnap ← Snapshots.compileHeader contents;
+cmdSnaps ← Snapshots.compileCmdsAfter contents headerSnap;
+let docOut : EditableDocument := ⟨version, text, headerSnap, cmdSnaps⟩;
+let msgLog := (cmdSnaps.getLastD headerSnap).msgLog;
 pure (msgLog, docOut)
 
-def updateDocument (doc : EditableDocument) (changePos : String.Pos) (newVersion : Nat) (newContents : String)
-  : IO (MessageLog × EditableDocument) :=
-if changePos < doc.header.pos then do -- The header changed, recompile everything.
-  e ← IO.stderr;
-  e.putStrLn $ "\nchangePos = " ++ toString changePos;
-  e.putStrLn "Recompiling header";
-  compileDocument newVersion newContents
-else do
-  e ← IO.stderr;
-  e.putStrLn $ "\nchangePos = " ++ toString changePos;
-  let validSnaps := doc.snapshots.filter (fun snap => snap.pos ≤ changePos);
-  -- The lowest-in-the-file snapshot which is still valid;
-  let lastSnap := validSnaps.getLastD doc.header;
-  e.putStrLn $ "Last snap @ " ++ toString lastSnap.pos;
-  (msgLog, snaps) ← Snapshots.compileCmdsAfter newContents {} lastSnap;
-  let newDoc := { version := newVersion
-                , header := doc.header
-                , text := newContents.splitOnEOLs.toArray
-                , snapshots := doc.snapshots ++ snaps : EditableDocument };
-  pure (msgLog, newDoc)
+def updateDocument (doc : EditableDocument) (changePos : Position) (newVersion : Nat)
+  (newText : DocumentText) : IO (Lean.MessageLog × EditableDocument) := do
+let newContents := "\n".intercalate newText.toList;
+let changePos := doc.text.lnColToLinearPos changePos;
+let recompileEverything := compileDocument newVersion newText;
+/- If the change occurred before the first command
+or there are no commands yet, recompile everything. -/
+match doc.snapshots.head? with
+| none => recompileEverything
+| some firstSnap =>
+  if firstSnap.beginPos > changePos then
+    recompileEverything
+  else do
+    let validSnaps := doc.snapshots.filter (fun snap => snap.endPos < changePos);
+    -- The lowest-in-the-file snapshot which is still valid;
+    -- TODO(WN): endPos is greedy in that it consumes input until the next token,
+    -- so a change on some whitespace after a command recompiles it. We could
+    -- be more precise.
+    let lastSnap := validSnaps.getLastD doc.header;
+    snaps ← Snapshots.compileCmdsAfter newContents lastSnap;
+    let newDoc := { version := newVersion
+                  , header := doc.header
+                  , text := newText
+                  , snapshots := validSnaps ++ snaps : EditableDocument };
+    let msgLog := (newDoc.snapshots.getLastD newDoc.header).msgLog;
+    pure (msgLog, newDoc)
+
+end Editable
+
+open Editable
+
+open IO
+open Std (RBMap RBMap.empty)
+open Lean
+open Lean.JsonRpc
+open Lean.Lsp
+open Lean.Elab
 
 abbrev DocumentMap :=
   RBMap DocumentUri EditableDocument (fun a b => Decidable.decide (a < b))
@@ -109,8 +120,11 @@ writeLspNotification s.o "textDocument/publishDiagnostics"
 
 def handleDidOpen (s : ServerState) (p : DidOpenTextDocumentParams) : IO Unit := do
 let doc := p.textDocument;
-let text := doc.text.splitOnEOLs;
-(msgLog, newDoc) ← compileDocument doc.version doc.text;
+-- The text being split here is going to be immediately
+-- intercalated with '\n' but this is useful to get rid of
+-- CRLFs.
+let text := doc.text.splitOnEOLs.toArray;
+(msgLog, newDoc) ← compileDocument doc.version text;
 s.openDocumentsRef.modify (fun openDocuments => openDocuments.insert doc.uri newDoc);
 s.sendDiagnostics doc.uri newDoc msgLog
 
@@ -125,16 +139,12 @@ else changes.forM $ fun change =>
   match change with
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) => do
     let newDocText := replaceRange oldDoc.text range newText;
-    (msgLog, newDoc) ← updateDocument oldDoc
-                                      (range.start.lnColToLinearPos oldDoc.text)
-                                      newVersion
-                                      ("\n".intercalate newDocText.toList);
+    -- TODO(WN): turn range.start from utf16 into a codepoint pos
+    (msgLog, newDoc) ← updateDocument oldDoc range.start newVersion newDocText;
     s.updateOpenDocuments docId.uri newDoc;
     -- Clients don't have to clear diagnostics, so we clear them
     -- for the *previous* version here.
     s.clearDiagnostics docId.uri oldDoc.version;
-    -- TODO(WN): at this point we need to re-add the diagnostics for above the
-    -- part that was recompiled. This should be stored in `Snapshot` probably
     s.sendDiagnostics docId.uri newDoc msgLog
 
   | TextDocumentContentChangeEvent.fullChange (text : String) =>
@@ -178,7 +188,7 @@ partial def mainLoop : ServerState → IO Unit
 
 end ServerState
 
-def initialize (i o : FS.Handle) : IO Unit := do
+def initAndRunServer (i o : FS.Handle) : IO Unit := do
 -- ignore InitializeParams for MWE
 r ← readLspRequestAs i "initialize" InitializeParams;
 writeLspResponse o r.id ({ capabilities := mkLeanServerCapabilities
@@ -196,7 +206,8 @@ end Lean.Server
 def main (n : List String) : IO UInt32 := do
 i ← IO.stdin;
 o ← IO.stdout;
+e ← IO.stderr;
 Lean.initSearchPath;
 env ← Lean.mkEmptyEnvironment;
-catch (Lean.Server.initialize i o) (fun err => o.putStrLn (toString err));
+catch (Lean.Server.initAndRunServer i o) (fun err => e.putStrLn (toString err));
 pure 0

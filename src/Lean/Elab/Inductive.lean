@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
+import Lean.Elab.CollectFVars
 import Lean.Elab.Definition
 
 namespace Lean
@@ -316,35 +317,71 @@ indTypes.forM fun indType =>
   _root_.dbgTrace ("> inductive " ++ toString indType.name ++ " : " ++ toString indType.type) fun _ =>
   indType.ctors.forM fun ctor => _root_.dbgTrace ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type) fun _ => pure ()
 
-private def mkInductiveDecl (scopeLevelNames : List Name) (views : Array InductiveView) : TermElabM Declaration := do
+private def removeUnused (ref : Syntax) (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
+used ← indTypes.foldlM
+  (fun (used : CollectFVars.State) indType => do
+    used ← Term.collectUsedFVars ref used indType.type;
+    indType.ctors.foldlM (fun (used : CollectFVars.State) ctor => Term.collectUsedFVars ref used ctor.type) used)
+  {};
+Term.removeUnused ref vars used
+
+private def withUsed {α} (ref : Syntax) (vars : Array Expr) (indTypes : List InductiveType) (k : Array Expr → TermElabM α) : TermElabM α := do
+(lctx, localInsts, vars) ← removeUnused ref vars indTypes;
+Term.withLCtx lctx localInsts $ k vars
+
+abbrev Ctor2InferMod := Std.HashMap Name Bool
+
+private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod :=
+views.foldl
+  (fun (m : Ctor2InferMod) view => view.ctors.foldl
+    (fun (m : Ctor2InferMod) ctorView => m.insert ctorView.declName ctorView.inferMod)
+    m)
+  {}
+
+private def updateParams (ref : Syntax) (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
+indTypes.mapM fun indType => do
+  type ← Term.mkForall ref vars indType.type;
+  ctors ← indType.ctors.mapM fun ctor => do {
+    ctorType ← Term.mkForall ref vars ctor.type;
+    pure { ctor with type := ctorType }
+  };
+  pure { indType with type := type, ctors := ctors }
+
+private def mkInductiveDecl (scopeLevelNames : List Name) (vars : Array Expr) (views : Array InductiveView) : TermElabM Declaration := do
 rs ← elabHeader views;
 let view0      := views.get! 0;
 let levelNames := view0.levelNames;
 let isUnsafe   := view0.modifiers.isUnsafe;
 let ref        := view0.ref;
 withInductiveLocalDecls rs fun params indFVars => do
+  let numExplicitParams := params.size;
   indTypes ← views.size.foldM
     (fun i (indTypes : List InductiveType) => do
       let indFVar := indFVars.get! i;
       let r       := rs.get! i;
+      type  ← Term.mkForall ref params r.type;
       ctors ← elabCtors indFVar params r;
-      let indType := { name := r.view.declName, type := r.type, ctors := ctors : InductiveType };
+      let indType := { name := r.view.declName, type := type, ctors := ctors : InductiveType };
       pure (indType :: indTypes))
     [];
   let indTypes := indTypes.reverse;
   Term.synthesizeSyntheticMVars false;  -- resolve pending
   inferLevel ← shouldInferResultUniverse ref indTypes;
-  indTypes ← levelMVarToParam ref indTypes;
-  indTypes ← if inferLevel then updateResultingUniverse ref params.size indTypes else pure indTypes;
-  let decl := Declaration.inductDecl levelNames params.size indTypes isUnsafe;
-  -- TODO: convert local indFVars into constants
-  -- TODO: use inferImplicit at ctors
-  -- TODO: eliminate unused variables from params
-  Term.throwError ref "WIP"
-  --  pure decl
+  withUsed ref vars indTypes $ fun vars => do
+    let numParams := vars.size + numExplicitParams;
+    indTypes ← updateParams ref vars indTypes;
+    indTypes ← levelMVarToParam ref indTypes;
+    indTypes ← if inferLevel then updateResultingUniverse ref numParams indTypes else pure indTypes;
+    traceIndTypes indTypes;
+    let decl := Declaration.inductDecl levelNames numParams indTypes isUnsafe;
+    -- TODO: convert local indFVars into constants
+    -- TODO: use inferImplicit at ctors
+    Term.throwError ref "WIP"
+    --  pure decl
 
 def elabInductiveCore (scopeLevelNames : List Name) (views : Array InductiveView) : CommandElabM Unit := do
-decl ← liftTermElabM none $ mkInductiveDecl scopeLevelNames views;
+let view0 := views.get! 0;
+decl ← runTermElabM view0.declName $ fun vars => mkInductiveDecl scopeLevelNames vars views;
 -- TODO
 pure ()
 

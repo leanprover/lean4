@@ -40,7 +40,7 @@ structure DefView :=
 (type?         : Option Syntax)
 (val           : Syntax)
 
-def removeUnused (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
+private def removeUnused (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 let used : CollectFVars.State := {};
 used ← Term.collectUsedFVars ref used eType;
@@ -48,14 +48,14 @@ used ← Term.collectUsedFVars ref used e;
 used ← Term.collectUsedFVarsAtFVars ref used xs;
 Term.removeUnused ref vars used
 
-def withUsedWhen {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
+private def withUsedWhen {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 if cond then do
  (lctx, localInsts, vars) ← removeUnused ref vars xs e eType;
  Term.withLCtx lctx localInsts $ k vars
 else
  k vars
 
-def withUsedWhen' {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
+private def withUsedWhen' {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 let dummyExpr := mkSort levelOne;
 withUsedWhen ref vars xs e dummyExpr cond k
 

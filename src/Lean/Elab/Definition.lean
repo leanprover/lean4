@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Std.ShareCommon
 import Lean.Util.CollectLevelParams
 import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
+import Lean.Elab.CollectFVars
 import Lean.Elab.DeclModifiers
 import Lean.Elab.Binders
 
@@ -40,36 +40,13 @@ structure DefView :=
 (type?         : Option Syntax)
 (val           : Syntax)
 
-def collectUsedFVars (ref : Syntax) (used : CollectFVars.State) (e : Expr) : TermElabM CollectFVars.State := do
-e ← Term.instantiateMVars ref e;
-pure $ collectFVars used e
-
-def collectUsedFVarsAtFVars (ref : Syntax) (used : CollectFVars.State) (fvars : Array Expr) : TermElabM CollectFVars.State :=
-fvars.foldlM
-  (fun used fvar => do
-    fvarType ← Term.inferType ref fvar;
-    collectUsedFVars ref used fvarType)
-  used
-
 def removeUnused (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 let used : CollectFVars.State := {};
-used ← collectUsedFVars ref used eType;
-used ← collectUsedFVars ref used e;
-used ← collectUsedFVarsAtFVars ref used xs;
-localInsts ← Term.getLocalInsts;
-lctx ← Term.getLCtx;
-(lctx, localInsts, newVars, _) ← vars.foldrM
-  (fun var (result : LocalContext × LocalInstances × Array Expr × CollectFVars.State) =>
-    let (lctx, localInsts, newVars, used) := result;
-    if used.fvarSet.contains var.fvarId! then do
-      varType ← Term.inferType ref var;
-      used ← collectUsedFVars ref used varType;
-      pure (lctx, localInsts, newVars.push var, used)
-    else
-      pure (lctx.erase var.fvarId!, localInsts.erase var.fvarId!, newVars, used))
-  (lctx, localInsts, #[], used);
-pure (lctx, localInsts, newVars.reverse)
+used ← Term.collectUsedFVars ref used eType;
+used ← Term.collectUsedFVars ref used e;
+used ← Term.collectUsedFVarsAtFVars ref used xs;
+Term.removeUnused ref vars used
 
 def withUsedWhen {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 if cond then do

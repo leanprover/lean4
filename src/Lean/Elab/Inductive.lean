@@ -181,7 +181,6 @@ private partial def withInductiveLocalDeclsAux {α} (ref : Syntax) (namesAndType
 private def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
 namesAndTypes ← rs.mapM fun r => do {
   type ← mkTypeFor r;
-  -- _root_.dbgTrace (">>> " ++ toString r.view.shortDeclName ++ " : " ++ toString type) fun _ =>
   pure (r.view.shortDeclName, type)
 };
 let r0     := rs.get! 0;
@@ -194,7 +193,13 @@ indFVarType ← Term.inferType ref indFVar;
 indFVarType ← Term.whnf ref indFVarType;
 pure !indFVarType.isSort
 
-/- Elaborate constructor types -/
+/-
+  Elaborate constructor types.
+
+  Remark: we check whether the resulting type is correct, but
+  we do not check for:
+  - Positivity (it is a rare failure, and the kernel already checks for it).
+  - Universe constraints (the kernel checks for it). -/
 private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) := do
 let ref := r.view.ref;
 indFamily ← isInductiveFamily ref indFVar;
@@ -216,7 +221,6 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
     };
   type ← Term.mkForall ref ctorParams type;
   type ← Term.mkForall ref params type;
-  -- _root_.dbgTrace (">> " ++ toString ctorView.declName ++ " : " ++ toString type) fun _ =>
   pure { name := ctorView.declName, type := type }
 
 /- Convert universe metavariables occurring in the `indTypes` into new parameters.
@@ -324,7 +328,6 @@ pure $ indTypes.map fun indType =>
 
 private def traceIndTypes (indTypes : List InductiveType) : TermElabM Unit :=
 indTypes.forM fun indType =>
-  _root_.dbgTrace ("> inductive " ++ toString indType.name ++ " : " ++ toString indType.type) fun _ =>
   indType.ctors.forM fun ctor => _root_.dbgTrace ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type) fun _ => pure ()
 
 private def removeUnused (ref : Syntax) (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
@@ -425,7 +428,6 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
       | Except.error msg      => Term.throwError ref msg
       | Except.ok levelParams => do
-        _root_.dbgTrace ("levelParams: " ++ toString levelParams) fun _ => do
         indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
         traceIndTypes indTypes;
         let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe;

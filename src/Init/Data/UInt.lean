@@ -159,6 +159,12 @@ def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 def UInt32.lor (a b : UInt32) : UInt32 := ⟨Fin.lor a.val b.val⟩
 def UInt32.lt (a b : UInt32) : Prop := a.val < b.val
 def UInt32.le (a b : UInt32) : Prop := a.val ≤ b.val
+@[extern c inline "((uint8_t)#1)"]
+def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
+@[extern c inline "((uint16_t)#1)"]
+def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
+@[extern c inline "((uint32_t)#1)"]
+def UInt8.toUInt32 (a : UInt8) : UInt32 := a.toNat.toUInt32
 
 instance : HasZero UInt32     := ⟨UInt32.ofNat 0⟩
 instance : HasOne UInt32      := ⟨UInt32.ofNat 1⟩

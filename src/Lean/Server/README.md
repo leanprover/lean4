@@ -2,7 +2,7 @@
 
 (Assuming `lean4` is the `elan` toolchain for stage 0.5)
 ```
-leanmake +lean4 bin PKG=Server LINK_OPTS=-rdynamic
+leanmake +lean4 bin PKG=ServerBin LINK_OPTS=-rdynamic
 ```
 
 ## Logging LSP requests
@@ -13,7 +13,7 @@ leanmake +lean4 bin PKG=Server LINK_OPTS=-rdynamic
 mkfifo pipe
 # So that the server can find and import packages
 export LEAN_PATH=$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage0.5/lib/lean/
-nc -l -p 12345 < pipe | tee client.log | ./build/bin/Server 2> stderr | tee pipe server.log
+nc -l -p 12345 < pipe | tee client.log | ./build/bin/ServerBin 2> stderr | tee pipe server.log
 ```
 will create three files to follow with `tail -f` -- `client.log` for client messages, `server.log` for server messages and `stderr` for server `IO.stderr` debugging
 

@@ -180,6 +180,7 @@ match method with
 | "textDocument/didOpen"   => h DidOpenTextDocumentParams handleDidOpen
 | "textDocument/didChange" => h DidChangeTextDocumentParams handleDidChange
 | "textDocument/didClose"  => h DidCloseTextDocumentParams handleDidClose
+| "$/cancelRequest"        => pure () -- TODO when we're async
 | _                        => throw (userError "got unsupported notification method")
 
 def handleRequest (id : RequestID) (method : String) (params : Json)
@@ -225,14 +226,17 @@ def initAndRunServer (i o : FS.Handle) : IO Unit := do
       pure ())
     (⟨i, o, openDocumentsRef⟩ : ServerState)
 
-end Server
-end Lean
+namespace Test
 
-def main (n : List String) : IO UInt32 := do
-i ← IO.stdin;
+def runWithInputFile (fn : String) (searchPath : Option String) : IO Unit := do
 o ← IO.stdout;
 e ← IO.stderr;
-Lean.initSearchPath;
-env ← Lean.mkEmptyEnvironment;
-catch (Lean.Server.initAndRunServer i o) (fun err => e.putStrLn (toString err));
-pure 0
+FS.withFile fn FS.Mode.read (fun hFile => do
+  Lean.initSearchPath searchPath;
+  catch
+    (Lean.Server.initAndRunServer hFile o)
+    (fun err => e.putStrLn (toString err)))
+
+end Test
+end Server
+end Lean

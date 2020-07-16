@@ -121,26 +121,6 @@ withDeclId declId $ fun name => do
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
-private def checkValidInductiveModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
-when modifiers.isNoncomputable $
-  throwError ref "invalid use of 'noncomputable' in inductive declaration";
-when modifiers.isPartial $
-  throwError ref "invalid use of 'partial' in inductive declaration";
-unless (modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && (modifiers.attrs.get! 0).name == `class)) $
-  throwError ref "invalid use of attributes in inductive declaration";
-pure ()
-
-private def checkValidCtorModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
-when modifiers.isNoncomputable $
-  throwError ref "invalid use of 'noncomputable' in constructor declaration";
-when modifiers.isPartial $
-  throwError ref "invalid use of 'partial' in constructor declaration";
-when modifiers.isUnsafe $
-  throwError ref "invalid use of 'unsafe' in constructor declaration";
-when (modifiers.attrs.size != 0) $
-  throwError ref "invalid use of attributes in constructor declaration";
-pure ()
-
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
 parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor

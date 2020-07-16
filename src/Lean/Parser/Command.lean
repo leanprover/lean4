@@ -64,6 +64,7 @@ def structFields         := parser! many (structExplicitBinder <|> structImplici
 def structCtor           := parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
+-- TODO: fix 'extends'. Two features are missing: optional names and `private` parents
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
 def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
 @[builtinCommandParser] def declaration := parser!

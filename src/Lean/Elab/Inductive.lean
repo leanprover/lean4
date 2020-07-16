@@ -15,6 +15,27 @@ namespace Lean
 namespace Elab
 namespace Command
 
+def checkValidInductiveModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+when modifiers.isNoncomputable $
+  throwError ref "invalid use of 'noncomputable' in inductive declaration";
+when modifiers.isPartial $
+  throwError ref "invalid use of 'partial' in inductive declaration";
+unless (modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && (modifiers.attrs.get! 0).name == `class)) $
+  throwError ref "invalid use of attributes in inductive declaration";
+pure ()
+
+def checkValidCtorModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+when modifiers.isNoncomputable $
+  throwError ref "invalid use of 'noncomputable' in constructor declaration";
+when modifiers.isPartial $
+  throwError ref "invalid use of 'partial' in constructor declaration";
+when modifiers.isUnsafe $
+  throwError ref "invalid use of 'unsafe' in constructor declaration";
+when (modifiers.attrs.size != 0) $
+  throwError ref "invalid use of attributes in constructor declaration";
+pure ()
+
+
 structure CtorView :=
 (ref       : Syntax)
 (modifiers : Modifiers)

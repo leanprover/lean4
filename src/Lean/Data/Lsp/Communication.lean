@@ -1,11 +1,11 @@
 import Init.System.IO
 import Lean.Data.JsonRpc
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
 open IO
-open Lean
-open Lean.JsonRpc
+open JsonRpc
 
 private def parseHeaderField (s : String) : Option (String × String) :=
 if s = "" ∨ s.takeRight 2 ≠ "\r\n" then
@@ -44,11 +44,11 @@ def readLspMessage (h : FS.Handle) : IO Message := do
 nBytes ← readLspHeader h;
 h.readMessage nBytes
 
-def readLspRequestAs (h : FS.Handle) (expectedMethod : String) (α : Type*) [Lean.HasFromJson α] : IO (Request α) := do
+def readLspRequestAs (h : FS.Handle) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO (Request α) := do
 nBytes ← readLspHeader h;
 h.readRequestAs nBytes expectedMethod α
 
-def readLspRequestNotificationAs (h : FS.Handle) (expectedMethod : String) (α : Type*) [Lean.HasFromJson α] : IO α := do
+def readLspRequestNotificationAs (h : FS.Handle) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO α := do
 nBytes ← readLspHeader h;
 h.readRequestNotificationAs nBytes expectedMethod α
 
@@ -60,13 +60,14 @@ let header := "Content-Length: " ++ toString j.utf8ByteSize ++ "\r\n\r\n";
 h.putStr (header ++ j);
 h.flush
 
-def writeLspResponse {α : Type*} [Lean.HasToJson α] (h : FS.Handle) (id : RequestID) (r : α) : IO Unit :=
+def writeLspResponse {α : Type*} [HasToJson α] (h : FS.Handle) (id : RequestID) (r : α) : IO Unit :=
 writeLspMessage h (Message.response id (toJson r))
 
-def writeLspNotification {α : Type*} [Lean.HasToJson α] (h : FS.Handle) (method : String) (r : α) : IO Unit :=
+def writeLspNotification {α : Type*} [HasToJson α] (h : FS.Handle) (method : String) (r : α) : IO Unit :=
 match toJson r with
 | Json.obj o => writeLspMessage h (Message.requestNotification method o)
 | Json.arr a => writeLspMessage h (Message.requestNotification method a)
 | _          => throw (userError "internal server error in Lean.Lsp.writeLspNotification: tried to write lsp notification that is neither a json object nor a json array")
 
-end Lean.Lsp
+end Lsp
+end Lean

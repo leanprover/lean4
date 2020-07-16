@@ -6,11 +6,14 @@ import Lean.Server.Snapshots
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-namespace Lean.Server
+namespace Lean
+namespace Server
+
+open Lsp
+
 namespace Editable
 
-open Lean.Lsp
-open Lean.Elab
+open Elab
 
 /-- A document editable in the sense that we track the environment
 and parser state after each command so that edits can be applied
@@ -26,7 +29,7 @@ structure EditableDocument :=
 
 /-- Compiles the contents of a Lean file. -/
 def compileDocument (version : Nat) (text : DocumentText)
-  : IO (Lean.MessageLog × EditableDocument) := do
+  : IO (MessageLog × EditableDocument) := do
 let contents := "\n".intercalate text.toList;
 headerSnap ← Snapshots.compileHeader contents;
 cmdSnaps ← Snapshots.compileCmdsAfter contents headerSnap;
@@ -34,8 +37,8 @@ let docOut : EditableDocument := ⟨version, text, headerSnap, cmdSnaps⟩;
 let msgLog := (cmdSnaps.getLastD headerSnap).msgLog;
 pure (msgLog, docOut)
 
-def updateDocument (doc : EditableDocument) (changePos : Position) (newVersion : Nat)
-  (newText : DocumentText) : IO (Lean.MessageLog × EditableDocument) := do
+def updateDocument (doc : EditableDocument) (changePos : Lsp.Position) (newVersion : Nat)
+  (newText : DocumentText) : IO (MessageLog × EditableDocument) := do
 let newContents := "\n".intercalate newText.toList;
 let changePos := doc.text.lnColToLinearPos changePos;
 let recompileEverything := compileDocument newVersion newText;
@@ -67,10 +70,7 @@ open Editable
 
 open IO
 open Std (RBMap RBMap.empty)
-open Lean
-open Lean.JsonRpc
-open Lean.Lsp
-open Lean.Elab
+open JsonRpc
 
 abbrev DocumentMap :=
   RBMap DocumentUri EditableDocument (fun a b => Decidable.decide (a < b))
@@ -201,7 +201,8 @@ Message.requestNotification "exit" none ← readLspMessage i
   | throw (userError "Expected an Exit Notification.");
 pure ()
 
-end Lean.Server
+end Server
+end Lean
 
 def main (n : List String) : IO UInt32 := do
 i ← IO.stdin;

@@ -1,10 +1,10 @@
 import Lean.Data.Json
 import Lean.Data.Lsp.Structure
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
-open Lean
-open Lean.Json
+open Json
 
 /- The result of a hover request. -/
 structure Hover :=
@@ -12,7 +12,7 @@ structure Hover :=
 --(contents: MarkedString | MarkedString[] | MarkupContent)
 /- An optional range is a range inside a text document
 that is used to visualize a hover, e.g. by changing the background color. -/
-(range? : Range)
+(range? : Option Range := none)
 
 structure HoverParams extends TextDocumentPositionParams
 
@@ -21,5 +21,5 @@ instance hoverParamsHasFromJson : HasFromJson HoverParams :=
   tdpp : TextDocumentPositionParams ← fromJson? j;
   pure ⟨tdpp⟩⟩
 
-end Lean.Lsp
-
+end Lsp
+end Lean

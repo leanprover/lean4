@@ -3,10 +3,10 @@ import Lean.Data.Json
 import Lean.Data.Lsp.Structure
 import Lean.Data.Lsp.Utf16
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
-open Lean
-open Lean.Json
+open Json
 
 inductive DiagnosticSeverity
 | error | warning | information | hint
@@ -135,7 +135,7 @@ instance publishDiagnosticsParamsHasToJson : HasToJson PublishDiagnosticsParams 
   ⟨"uri", toJson o.uri⟩ :: opt "version" o.version? ++ ⟨"diagnostics", toJson o.diagnostics⟩ :: []⟩
 
 /-- Transform a Lean Message into an LSP Diagnostic. -/
-def msgToDiagnostic (text : DocumentText) (m : Lean.Message) : Diagnostic :=
+def msgToDiagnostic (text : DocumentText) (m : Message) : Diagnostic :=
 -- Lean Message line numbers are 1-based while LSP Positions are 0-based.
 let lowLn := m.pos.line - 1;
 let low : Lsp.Position := ⟨lowLn, (text.get! lowLn).codepointPosToUtf16Pos m.pos.column⟩;
@@ -156,4 +156,5 @@ let message := toString (format m.data);
 , source? := source
 , message := message}
 
-end Lean.Lsp
+end Lsp
+end Lean

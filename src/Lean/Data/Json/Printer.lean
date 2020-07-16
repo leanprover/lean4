@@ -74,7 +74,7 @@ partial def compress : Json → String
 | num s      => s.toString
 | str s      => renderString s
 | arr elems  => "[" ++ ",".intercalate (elems.map compress).toList ++ "]"
-| obj kvs    => 
+| obj kvs    =>
   let ckvs := kvs.fold (fun acc k j => (renderString k ++ ":" ++ compress j) :: acc) [];
   "{" ++ ",".intercalate ckvs ++ "}"
 

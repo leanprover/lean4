@@ -1,10 +1,10 @@
 import Lean.Data.Lsp.Capabilities
 import Lean.Data.Json
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
-open Lean
-open Lean.Json
+open Json
 
 structure ClientInfo :=
 (name : String)
@@ -78,4 +78,5 @@ instance initializeResultHasToJson : HasToJson InitializeResult :=
 ⟨fun o => mkObj $
   ⟨"capabilities", toJson o.capabilities⟩ :: opt "serverInfo" o.serverInfo?⟩
 
-end Lean.Lsp
+end Lsp
+end Lean

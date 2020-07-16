@@ -1,11 +1,11 @@
 import Lean.Data.JsonRpc
 import Lean.Data.Lsp.TextSync
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
-open Lean
-open Lean.Json
-open Lean.JsonRpc
+open Json
+open JsonRpc
 
 -- TODO: right now we ignore the client's capabilities
 inductive ClientCapabilities | mk
@@ -29,4 +29,5 @@ def mkLeanServerCapabilities : ServerCapabilities :=
   , change? := TextDocumentSyncKind.incremental }
 , hoverProvider := true }
 
-end Lean.Lsp
+end Lsp
+end Lean

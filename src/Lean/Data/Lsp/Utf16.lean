@@ -1,6 +1,6 @@
 import Init.Data.String
 import Init.Data.Array
-import Lean.Data.Lsp.Structure
+import Lean.Data.Lsp.Basic
 
 -- LSP uses UTF-16 for indexing, so we need to provide some primitives
 -- to interact with Lean strings using UTF-16 indices

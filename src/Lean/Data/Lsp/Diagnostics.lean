@@ -1,6 +1,6 @@
 import Lean.Message
 import Lean.Data.Json
-import Lean.Data.Lsp.Structure
+import Lean.Data.Lsp.Basic
 import Lean.Data.Lsp.Utf16
 
 namespace Lean

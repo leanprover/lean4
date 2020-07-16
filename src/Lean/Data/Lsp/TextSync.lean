@@ -1,5 +1,5 @@
 import Lean.Data.Json
-import Lean.Data.Lsp.Structure
+import Lean.Data.Lsp.Basic
 
 namespace Lean
 namespace Lsp

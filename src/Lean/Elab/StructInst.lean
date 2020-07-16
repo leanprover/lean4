@@ -634,16 +634,13 @@ if !e.isApp then pure none
 else match e.getAppFn with
   | Expr.const name _ _ => do
     env ← Meta.getEnv;
-    if env.isProjectionFn name then
-      match name with
-      | Name.str structName fieldName _ => do
-        if structNames.contains structName then
-          Meta.unfoldDefinition? e
-        else
-          pure none
-      | _ => pure none
-    else
-      pure none
+    match env.getProjectionStructureName? name with
+    | some structName =>
+      if structNames.contains structName then
+        Meta.unfoldDefinition? e
+      else
+        pure none
+    | none => pure none
   | _ => pure none
 
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/

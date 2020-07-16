@@ -69,8 +69,6 @@ def «structure»          := parser! (structureTk <|> classTk) >> declId >> man
 @[builtinCommandParser] def declaration := parser!
 declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 
-@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 «declaration» >> "end"
-
 @[builtinCommandParser] def «section»      := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := parser! "namespace " >> ident
 @[builtinCommandParser] def «end»          := parser! "end " >> optional ident
@@ -94,6 +92,10 @@ def openRenaming     := parser! try (ident >> "renaming") >> sepBy1 openRenaming
 def openOnly         := parser! try (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
+
+def mutualElement := «declaration» <|> «variable» <|> «variables» <|> «universe» <|> «universes» <|> «open» <|> «check»
+
+@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 mutualElement >> "end"
 
 end Command
 end Parser

@@ -9,8 +9,10 @@ each command. Importantly, we allow (re)starting compilation from any
 snapshot/position in the file for interactive editing purposes. -/
 
 namespace Lean
-namespace Elab
+namespace Server
 namespace Snapshots
+
+open Elab
 
 /-- The data associated with a snapshot is different depending on whether
 it was produced from the header or from a command. -/
@@ -81,8 +83,8 @@ else do
     , fileMap := inputCtx.fileMap
     };
   EIO.adaptExcept
-    (fun e => unreachable!) -- TODO(WN): ignoring exceptions ok here?
-    (Elab.Command.withLogging
+    (fun e => Empty.rec _ e)
+    (Elab.Command.catchExceptions
       (Elab.Command.elabCommand cmdStx)
       cmdCtx);
   postCmdState ← cmdStateRef.get;
@@ -104,5 +106,5 @@ partial def compileCmdsAfter (contents : String) : Snapshot → IO (List Snapsho
   | none => pure []
 
 end Snapshots
-end Elab
+end Server
 end Lean

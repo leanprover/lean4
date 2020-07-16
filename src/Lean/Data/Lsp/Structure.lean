@@ -1,9 +1,9 @@
 import Lean.Data.Json
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
-open Lean
-open Lean.Json
+open Json
 
 -- all Ints/Nats in this file are Floats in LSP
 
@@ -203,4 +203,5 @@ instance textDocumentRegistrationOptionsHasFromJson : HasFromJson TextDocumentRe
 -- Markup and Progress can be implemented
 -- later when the basic functionality stands.
 
-end Lean.Lsp
+end Lsp
+end Lean

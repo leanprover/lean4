@@ -72,7 +72,8 @@ n.repeat (fun acc => acc.eraseIdx i) as
 
 end Array
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
 def replaceRange (text : Array String) (r : Range) (newText : String) : Array String :=
 let sl := r.start.line;
@@ -91,4 +92,5 @@ let replaced := (focused.utf16Replace newText si endIdx).splitOnEOLs.toArray;
 (text.eraseAll sl (el - sl + 1)).insertAll sl replaced
 
 
-end Lean.Lsp
+end Lsp
+end Lean

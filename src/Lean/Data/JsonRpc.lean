@@ -3,10 +3,10 @@ import Init.System.IO
 import Std.Data.RBTree
 import Lean.Data.Json
 
-namespace Lean.JsonRpc
+namespace Lean
+namespace JsonRpc
 
-open Lean
-open Lean.Json
+open Json
 open Std (RBNode)
 
 inductive RequestID
@@ -156,7 +156,8 @@ instance messageFromJson : HasFromJson Message :=
   "2.0" ← j.getObjVal? "jsonrpc" | none;
   aux1 j <|> aux2 j <|> aux3 j <|> aux4 j⟩
 
-end Lean.JsonRpc
+end JsonRpc
+end Lean
 
 namespace IO.FS.Handle
 

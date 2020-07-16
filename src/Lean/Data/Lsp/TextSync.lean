@@ -1,10 +1,10 @@
 import Lean.Data.Json
 import Lean.Data.Lsp.Structure
 
-namespace Lean.Lsp
+namespace Lean
+namespace Lsp
 
-open Lean
-open Lean.Json
+open Json
 
 inductive TextDocumentSyncKind
 /- Documents should not be synced at all. -/
@@ -112,4 +112,5 @@ instance didCloseTextDocumentParamsHasFromJson : HasFromJson DidCloseTextDocumen
   textDocument ← j.getObjValAs? TextDocumentIdentifier "textDocument";
   pure ⟨textDocument⟩⟩
 
-end Lean.Lsp
+end Lsp
+end Lean

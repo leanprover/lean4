@@ -71,7 +71,7 @@ instance hasToJsonErrorCode : HasToJson ErrorCode :=
 -- behavior is expected to be wildly different for both.
 inductive Message
 | request (id : RequestID) (method : String) (params? : Option Structured)
-| requestNotification (method : String) (params? : Option Structured)
+| notification (method : String) (params? : Option Structured)
 | response (id : RequestID) (result : Json)
 | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
 
@@ -116,7 +116,7 @@ instance messageToJson : HasToJson Message :=
   mkObj $ ⟨"jsonrpc", "2.0"⟩ :: match m with
   | Message.request id method params? =>
     [⟨"id", toJson id⟩, ⟨"method", method⟩] ++ opt "params" params?
-  | Message.requestNotification method params? =>
+  | Message.notification method params? =>
     ⟨"method", method⟩ :: opt "params" params?
   | Message.response id result =>
     [⟨"id", toJson id⟩, ⟨"result", result⟩]
@@ -134,7 +134,7 @@ pure (Message.request id method params?)
 def aux2 (j : Json) : Option Message := do
 method ← j.getObjValAs? String "method";
 let params? := j.getObjValAs? Structured "params";
-pure (Message.requestNotification method params?)
+pure (Message.notification method params?)
 
 def aux3 (j : Json) : Option Message := do
 id ← j.getObjValAs? RequestID "id";
@@ -187,10 +187,10 @@ match m with
     throw (userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'"))
 | _ => throw (userError "expected request, got other type of message")
 
-def readRequestNotificationAs (h : FS.Handle) (nBytes : Nat) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO α := do
+def readNotificationAs (h : FS.Handle) (nBytes : Nat) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO α := do
 m ← h.readMessage nBytes;
 match m with
-| Message.requestNotification method params? =>
+| Message.notification method params? =>
   if method = expectedMethod then
     match params? with
     | some params =>

@@ -24,8 +24,21 @@ pure line
 private def csize (c : Char) : Nat :=
 c.utf16Size.toNat
 
-def codepointPosToUtf16Pos (s : String) (pos : Nat) : Nat :=
-(s.take pos).foldr (fun ch acc => acc + csize ch) 0
+-- HACK(WN): String.take n (unintentionally?) produces n UTF-8 bytes rather
+-- than n codepoints. This function deals with codepoints instead.
+def takeCodepoints (s : String) (n : Nat) : String :=
+List.asString (s.toList.take n)
+
+def codepointPosToUtf16Pos (s : String) (pos : Pos) : Nat :=
+(s.takeCodepoints pos).foldr (fun ch acc => acc + csize ch) 0
+
+private def utf16PosToCodepointPosAux : List Char → Nat → Pos → Pos
+| c :: cs, 0, acc => acc
+| c :: cs, n, acc => utf16PosToCodepointPosAux cs (n - csize c) (acc + 1)
+| [],      _, acc => acc
+
+def utf16PosToCodepointPos (s : String) (pos : Nat) : Pos :=
+utf16PosToCodepointPosAux s.toList pos 0
 
 def utf16Length (s : String) : Nat :=
 s.foldr (fun c acc => csize c + acc) 0
@@ -75,7 +88,7 @@ end Array
 namespace Lean
 namespace Lsp
 
-def replaceRange (text : Array String) (r : Range) (newText : String) : Array String :=
+def replaceRange (text : DocumentText) (r : Range) (newText : String) : DocumentText :=
 let sl := r.start.line;
 let si := r.start.character;
 let el := r.«end».line;
@@ -90,7 +103,6 @@ let endIdx := focused.iterateRev 0 $ fun lineIdx line endIdxAcc =>
 let focused := "\n".intercalate focused.toList;
 let replaced := (focused.utf16Replace newText si endIdx).splitOnEOLs.toArray;
 (text.eraseAll sl (el - sl + 1)).insertAll sl replaced
-
 
 end Lsp
 end Lean

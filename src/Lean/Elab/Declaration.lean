@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Util.CollectLevelParams
 import Lean.Elab.Definition
 import Lean.Elab.Inductive
+import Lean.Elab.Structure
 
 namespace Lean
 namespace Elab
@@ -190,9 +191,6 @@ def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Uni
 let modifiers := modifiers.addAttribute { name := `class };
 v ← classInductiveSyntaxToView modifiers stx;
 elabInductiveCore #[v]
-
-def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-pure () -- TODO
 
 @[builtinCommandElab declaration]
 def elabDeclaration : CommandElab :=

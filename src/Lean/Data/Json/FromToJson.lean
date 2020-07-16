@@ -41,11 +41,25 @@ instance Array.hasFromJson {α : Type u} [HasFromJson α] : HasFromJson (Array �
 instance List.hasToJson {α : Type u} [HasToJson α] : HasToJson (Array α) :=
 ⟨fun a => Json.arr (a.map toJson)⟩
 
-def Json.getObjValAs? (j : Json) (α : Type u) [HasFromJson α] (k : String) : Option α :=
+namespace Json
+
+instance Structured.hasFromJson : HasFromJson Structured :=
+⟨fun j => match j with
+  | arr a => Structured.arr a
+  | obj o => Structured.obj o
+  | _     => none⟩
+
+instance Structured.hasToJson : HasToJson Structured :=
+⟨fun s => match s with
+  | Structured.arr a => arr a
+  | Structured.obj o => obj o⟩
+
+def getObjValAs? (j : Json) (α : Type u) [HasFromJson α] (k : String) : Option α :=
 (j.getObjVal? k).bind fromJson?
 
-def Json.opt {α : Type*} [HasToJson α] (k : String) : Option α → List (String × Json)
+def opt {α : Type*} [HasToJson α] (k : String) : Option α → List (String × Json)
 | some o => [⟨k, toJson o⟩]
 | none   => []
 
+end Json
 end Lean

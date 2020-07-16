@@ -14,11 +14,6 @@ inductive RequestID
 | num (n : JsonNumber)
 | null
 
--- TODO maybe put this in Json ns?
-inductive Structured
-| arr (elems : Array Json)
-| obj (kvPairs : RBNode String (fun _ => Json))
-
 /-- Error codes defined by JSON-RPC and LSP. -/
 inductive ErrorCode
 | parseError
@@ -85,9 +80,6 @@ structure Error := (id : RequestID) (code : JsonNumber) (message : String) (data
 instance stringToRequestID : HasCoe String RequestID := ⟨RequestID.str⟩
 instance numToRequestID : HasCoe JsonNumber RequestID := ⟨RequestID.num⟩
 
-instance arrayToStructured : HasCoe (Array Json) Structured := ⟨Structured.arr⟩
-instance kvPairsToStructured : HasCoe (RBNode String (fun _ => Json)) Structured := ⟨Structured.obj⟩
-
 instance requestIDToJson : HasToJson RequestID :=
 ⟨fun rid => match rid with
   | RequestID.str s => s
@@ -98,17 +90,6 @@ instance requestIDFromJson : HasFromJson RequestID :=
 ⟨fun j => match j with
   | str s => RequestID.str s
   | num n => RequestID.num n
-  | _     => none⟩
-
-instance structuredToJson : HasToJson Structured :=
-⟨fun s => match s with
-  | Structured.arr a => arr a
-  | Structured.obj o => obj o⟩
-
-instance structuredFromJson : HasFromJson Structured :=
-⟨fun j => match j with
-  | arr a => Structured.arr a
-  | obj o => Structured.obj o
   | _     => none⟩
 
 instance messageToJson : HasToJson Message :=

@@ -145,5 +145,14 @@ def getArrVal? : Json → Nat → Option Json
 def getObjValD (j : Json) (k : String) : Json :=
 (j.getObjVal? k).getD null
 
+inductive Structured
+| arr (elems : Array Json)
+| obj (kvPairs : RBNode String (fun _ => Json))
+
+instance arrayToStructured : HasCoe (Array Json) Structured :=
+⟨Structured.arr⟩
+instance kvPairsToStructured : HasCoe (RBNode String (fun _ => Json)) Structured :=
+⟨Structured.obj⟩
+
 end Json
 end Lean

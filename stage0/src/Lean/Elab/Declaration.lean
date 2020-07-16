@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Util.CollectLevelParams
 import Lean.Elab.Definition
 import Lean.Elab.Inductive
+import Lean.Elab.Structure
 
 namespace Lean
 namespace Elab
@@ -191,9 +192,6 @@ let modifiers := modifiers.addAttribute { name := `class };
 v ← classInductiveSyntaxToView modifiers stx;
 elabInductiveCore #[v]
 
-def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
-pure () -- TODO
-
 @[builtinCommandElab declaration]
 def elabDeclaration : CommandElab :=
 fun stx => do
@@ -237,13 +235,50 @@ views ← elems.mapM $ fun stx => do {
 };
 elabInductiveCore views
 
+private def isMutualPreambleCommand (stx : Syntax) : Bool :=
+let k := stx.getKind;
+k == `Lean.Parser.Command.variable ||
+k == `Lean.Parser.Command.variables ||
+k == `Lean.Parser.Command.universe ||
+k == `Lean.Parser.Command.universes ||
+k == `Lean.Parser.Command.check ||
+k == `Lean.Parser.Command.set_option ||
+k == `Lean.Parser.Command.open
+
+private partial def splitMutualPreamble (elems : Array Syntax) : Nat → Option (Array Syntax × Array Syntax)
+| i =>
+  if h : i < elems.size then
+    let elem := elems.get ⟨i, h⟩;
+    if isMutualPreambleCommand elem then
+      splitMutualPreamble (i+1)
+    else if i == 0 then
+      none -- `mutual` block does not contain any preamble commands
+    else
+      some (elems.extract 0 i, elems.extract i elems.size)
+  else
+    none -- a `mutual` block containing only preamble commands is not a valid `mutual` block
+
+private def expandMutualPreamble? (stx : Syntax) : MacroM (Option Syntax) :=
+match splitMutualPreamble (stx.getArg 1).getArgs 0 with
+| some (preamble, rest) => do
+  secCmd    ← `(section);
+  newMutual ← `(mutual $rest* end);
+  endCmd    ← `(end);
+  pure (some (mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])))
+| none =>
+  pure none
+
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab :=
-fun stx =>
-  if isMutualInductive stx then
-    elabMutualInductive (stx.getArg 1).getArgs
-  else
-    throwError stx "not supported"
+fun stx => do
+  stxNew? ← liftMacroM $ expandMutualPreamble? stx;
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
+  | none        =>
+    if isMutualInductive stx then
+      elabMutualInductive (stx.getArg 1).getArgs
+    else
+      throwError stx "invalid mutual block"
 
 end Command
 end Elab

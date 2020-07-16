@@ -429,7 +429,7 @@ def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
 e@(Expr.app fn _ _) ← getExpr | failure;
 Expr.const c@(Name.str _ f _) _ _ ← pure fn.getAppFn | failure;
 env ← liftM getEnv;
-some info ← pure $ env.getProjectionFnInfo c | failure;
+some info ← pure $ env.getProjectionFnInfo? c | failure;
 -- can't use with classes since the instance parameter is implicit
 guard $ !info.fromClass;
 -- projection function should be fully applied (#struct params + 1 instance parameter)

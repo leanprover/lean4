@@ -57,19 +57,17 @@ def inferMod         := parser! try ("{" >> "}")
 def ctor             := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
 def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> many ctor
 def classInductive   := parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
-def structExplicitBinder := parser! "(" >> many ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
-def structImplicitBinder := parser! "{" >> many ident >> optional inferMod >> optDeclSig >> "}"
-def structInstBinder     := parser! "[" >> many ident >> optional inferMod >> optDeclSig >> "]"
+def structExplicitBinder := parser! try (declModifiers >> "(") >> many ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structImplicitBinder := parser! try (declModifiers >> "{") >> many ident >> optional inferMod >> optDeclSig >> "}"
+def structInstBinder     := parser! try (declModifiers >> "[") >> declModifiers >> many ident >> optional inferMod >> optDeclSig >> "]"
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
-def structCtor           := parser! ident >> optional inferMod >> " :: "
+def structCtor           := parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
 def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
 @[builtinCommandParser] def declaration := parser!
 declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
-
-@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 «declaration» >> "end"
 
 @[builtinCommandParser] def «section»      := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := parser! "namespace " >> ident
@@ -94,6 +92,10 @@ def openRenaming     := parser! try (ident >> "renaming") >> sepBy1 openRenaming
 def openOnly         := parser! try (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
+
+def mutualElement := «declaration» <|> «variable» <|> «variables» <|> «universe» <|> «universes» <|> «open» <|> «check»
+
+@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 mutualElement >> "end"
 
 end Command
 end Parser

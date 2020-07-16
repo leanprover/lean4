@@ -10,7 +10,7 @@ namespace Lean
 /- Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
    for each field. This structure caches information about these auxiliary definitions. -/
 structure ProjectionFunctionInfo :=
-(ctorName : Name)      -- Constructor associated with the auxiliary projection function.
+(ctorName : Name)  -- Constructor associated with the auxiliary projection function.
 (nparams : Nat)    -- Number of parameters in the structure
 (i : Nat)          -- The field index associated with the auxiliary projection function.
 (fromClass : Bool) -- `true` if the structure is a class
@@ -42,7 +42,7 @@ projectionFnInfoExt.addEntry env (projName, { ctorName := ctorName, nparams := n
 namespace Environment
 
 @[export lean_get_projection_info]
-def getProjectionFnInfo (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
+def getProjectionFnInfo? (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
 match env.getModuleIdxFor? projName with
 | some modIdx =>
   match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
@@ -54,6 +54,15 @@ def isProjectionFn (env : Environment) (n : Name) : Bool :=
 match env.getModuleIdxFor? n with
 | some modIdx => (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, arbitrary _) (fun a b => Name.quickLt a.1 b.1)
 | none        => (projectionFnInfoExt.getState env).contains n
+
+/-- If `projName` is the name of a projection function, return the associated structure name -/
+def getProjectionStructureName? (env : Environment) (projName : Name) : Option Name :=
+match env.getProjectionFnInfo? projName with
+| none          => none
+| some projInfo =>
+  match env.find? projInfo.ctorName with
+  | some (ConstantInfo.ctorInfo val) => some val.induct
+  | _ => none
 
 end Environment
 end Lean

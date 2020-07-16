@@ -160,11 +160,11 @@ lean_object* l___private_Lean_Elab_StructInst_21__getForallBody(lean_object*, le
 lean_object* l_Lean_Elab_Term_StructInst_Source_inhabited;
 lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___main___spec__1(lean_object*);
 extern lean_object* l_Lean_Parser_Term_match___elambda__1___closed__7;
-uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Term_3__fromMetaState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_20__mkCtorHeaderAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_20__mkCtorHeaderAux___main___closed__1;
+lean_object* l_Lean_Environment_getProjectionStructureName_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_collectStructNames(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Field_isSimple___rarg___boxed(lean_object*);
@@ -20725,19 +20725,16 @@ lean_object* x_8;
 x_8 = l_Lean_Expr_getAppFn___main(x_2);
 if (lean_obj_tag(x_8) == 4)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_4, 0);
 lean_inc(x_10);
-lean_inc(x_9);
-x_11 = l_Lean_Environment_isProjectionFn(x_10, x_9);
-lean_dec(x_10);
-if (x_11 == 0)
+x_11 = l_Lean_Environment_getProjectionStructureName_x3f(x_10, x_9);
+if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec(x_9);
 lean_dec(x_3);
 lean_dec(x_2);
 x_12 = lean_box(0);
@@ -20748,12 +20745,10 @@ return x_13;
 }
 else
 {
-if (lean_obj_tag(x_9) == 1)
-{
 lean_object* x_14; uint8_t x_15; 
-x_14 = lean_ctor_get(x_9, 0);
+x_14 = lean_ctor_get(x_11, 0);
 lean_inc(x_14);
-lean_dec(x_9);
+lean_dec(x_11);
 x_15 = l_Array_contains___at_Lean_findField_x3f___main___spec__1(x_1, x_14);
 lean_dec(x_14);
 if (x_15 == 0)
@@ -20774,10 +20769,11 @@ x_18 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spe
 return x_18;
 }
 }
+}
 else
 {
 lean_object* x_19; lean_object* x_20; 
-lean_dec(x_9);
+lean_dec(x_8);
 lean_dec(x_3);
 lean_dec(x_2);
 x_19 = lean_box(0);
@@ -20785,20 +20781,6 @@ x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_4);
 return x_20;
-}
-}
-}
-else
-{
-lean_object* x_21; lean_object* x_22; 
-lean_dec(x_8);
-lean_dec(x_3);
-lean_dec(x_2);
-x_21 = lean_box(0);
-x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_4);
-return x_22;
 }
 }
 }

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectLevelParams
+import Lean.Elab.DeclUtil
 import Lean.Elab.Definition
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
@@ -11,22 +12,6 @@ import Lean.Elab.Structure
 namespace Lean
 namespace Elab
 namespace Command
-
-def expandOptDeclSig (stx : Syntax) : Syntax × Option Syntax :=
--- many Term.bracketedBinder >> Term.optType
-let binders := stx.getArg 0;
-let optType := stx.getArg 1; -- optional (parser! " : " >> termParser)
-if optType.isNone then
-  (binders, none)
-else
-  let typeSpec := optType.getArg 0;
-  (binders, some $ typeSpec.getArg 1)
-
-def expandDeclSig (stx : Syntax) : Syntax × Syntax :=
--- many Term.bracketedBinder >> Term.typeSpec
-let binders := stx.getArg 0;
-let typeSpec := stx.getArg 1;
-(binders, typeSpec.getArg 1)
 
 def elabAbbrev (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 -- parser! "abbrev " >> declId >> optDeclSig >> declVal
@@ -121,26 +106,6 @@ withDeclId declId $ fun name => do
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
-private def checkValidInductiveModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
-when modifiers.isNoncomputable $
-  throwError ref "invalid use of 'noncomputable' in inductive declaration";
-when modifiers.isPartial $
-  throwError ref "invalid use of 'partial' in inductive declaration";
-unless (modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && (modifiers.attrs.get! 0).name == `class)) $
-  throwError ref "invalid use of attributes in inductive declaration";
-pure ()
-
-private def checkValidCtorModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
-when modifiers.isNoncomputable $
-  throwError ref "invalid use of 'noncomputable' in constructor declaration";
-when modifiers.isPartial $
-  throwError ref "invalid use of 'partial' in constructor declaration";
-when modifiers.isUnsafe $
-  throwError ref "invalid use of 'unsafe' in constructor declaration";
-when (modifiers.attrs.size != 0) $
-  throwError ref "invalid use of attributes in constructor declaration";
-pure ()
-
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
 parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
@@ -185,12 +150,12 @@ inductiveSyntaxToView modifiers decl 2
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 v ← inductiveSyntaxToView modifiers stx;
-elabInductiveCore #[v]
+elabInductiveViews #[v]
 
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 let modifiers := modifiers.addAttribute { name := `class };
 v ← classInductiveSyntaxToView modifiers stx;
-elabInductiveCore #[v]
+elabInductiveViews #[v]
 
 @[builtinCommandElab declaration]
 def elabDeclaration : CommandElab :=
@@ -233,7 +198,7 @@ views ← elems.mapM $ fun stx => do {
    modifiers ← elabModifiers (stx.getArg 0);
    inductiveSyntaxToView modifiers (stx.getArg 1)
 };
-elabInductiveCore views
+elabInductiveViews views
 
 private def isMutualPreambleCommand (stx : Syntax) : Bool :=
 let k := stx.getKind;

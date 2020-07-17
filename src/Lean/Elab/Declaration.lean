@@ -165,12 +165,12 @@ inductiveSyntaxToView modifiers decl 2
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 v ← inductiveSyntaxToView modifiers stx;
-elabInductiveCore #[v]
+elabInductiveViews #[v]
 
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 let modifiers := modifiers.addAttribute { name := `class };
 v ← classInductiveSyntaxToView modifiers stx;
-elabInductiveCore #[v]
+elabInductiveViews #[v]
 
 @[builtinCommandElab declaration]
 def elabDeclaration : CommandElab :=
@@ -213,7 +213,7 @@ views ← elems.mapM $ fun stx => do {
    modifiers ← elabModifiers (stx.getArg 0);
    inductiveSyntaxToView modifiers (stx.getArg 1)
 };
-elabInductiveCore views
+elabInductiveViews views
 
 private def isMutualPreambleCommand (stx : Syntax) : Bool :=
 let k := stx.getKind;

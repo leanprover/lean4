@@ -71,7 +71,7 @@ else do
   declName ← applyVisibility ctor modifiers.visibility declName;
   pure { ref := ctor, name := name, modifiers := modifiers, inferMod := inferMod, declName := declName }
 
-private def elabStructView (view : StructView) : TermElabM ElabStructResult :=
+private def elabStructureView (view : StructView) : TermElabM ElabStructResult :=
 throw $ arbitrary _ -- TODO
 
 /-
@@ -102,7 +102,7 @@ withDeclId declId $ fun name => do
   declName ← mkDeclName declId modifiers name;
   ctor ← expandCtor stx declName;
   allUserLevelNames ← getLevelNames;
-  r ← runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructView {
+  r ← runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructureView {
     ref               := stx,
     modifiers         := modifiers,
     scopeLevelNames   := scopeLevelNames,

@@ -485,7 +485,7 @@ views.forM fun view => do {
   pure ()
 }
 
-def elabInductiveCore (views : Array InductiveView) : CommandElabM Unit := do
+def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
 let ref   := view0.ref;
 decl ← runTermElabM view0.declName $ fun vars => mkInductiveDecl vars views;

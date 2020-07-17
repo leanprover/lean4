@@ -255,7 +255,6 @@ struct structure_cmd_fn {
     implicit_infer_kind         m_mk_infer;
     buffer<field_decl>          m_fields;
     std::vector<rename_vector>  m_renames;
-    std::vector<field_map>      m_field_maps;
     bool                        m_explicit_universe_params;
     bool                        m_infer_result_universe;
     bool                        m_inductive_predicate;
@@ -546,16 +545,13 @@ struct structure_cmd_fn {
             });
     }
 
-    /** \brief Process extends clauses.
-        This method also populates the vector m_field_maps and m_fields. */
+    /** \brief Process extends clauses. */
     void process_extends() {
         lean_assert(m_fields.size() == m_parents.size());
-        lean_assert(m_field_maps.empty());
 
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent = m_parents[i];
             name const & parent_name = check_parent(parent);
-            m_field_maps.push_back(field_map());
             buffer<expr> args;
             expr parent_fn = get_app_args(parent, args);
 
@@ -604,7 +600,6 @@ struct structure_cmd_fn {
                     m_fields.emplace_back(subfield, some_expr(proj), field_kind::from_parent);
             }
         }
-        lean_assert(m_parents.size() == m_field_maps.size());
     }
 
     void instantiate_mvars() {
@@ -1055,7 +1050,6 @@ struct structure_cmd_fn {
     }
 
     void declare_coercions() {
-        lean_assert(m_parents.size() == m_field_maps.size());
         buffer<name> coercion_names;
         mk_coercion_names(coercion_names);
         names lnames = names(m_level_names);

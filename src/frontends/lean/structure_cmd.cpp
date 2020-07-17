@@ -248,7 +248,6 @@ struct structure_cmd_fn {
     expr                        m_type;
     buffer<optional<name>>      m_parent_refs;
     buffer<expr>                m_parents;
-    buffer<bool>                m_private_parents;
     name                        m_mk;
     name                        m_mk_short;
     name                        m_private_prefix;
@@ -348,16 +347,13 @@ struct structure_cmd_fn {
             m_p.next();
             while (true) {
                 auto pos = m_p.pos();
-                bool is_private_parent = false;
                 if (m_p.curr_is_token(get_private_tk())) {
-                    m_p.next();
-                    is_private_parent  = true;
+                    throw parser_error("invalid 'structure' extends, private parent structures are not supported", pos);
                 }
                 pair<optional<name>, expr> qparent = m_p.parse_qualified_expr();
                 m_parent_refs.push_back(qparent.first);
                 expr const & parent = qparent.second;
                 m_parents.push_back(parent);
-                m_private_parents.push_back(is_private_parent);
                 name const & parent_name = check_parent(parent);
                 auto parent_info         = get_parent_info(parent_name);
                 unsigned nparams         = std::get<1>(parent_info);
@@ -1070,11 +1066,10 @@ struct structure_cmd_fn {
             expr const & parent_fn         = get_app_args(parent, parent_params);
             name const & parent_name       = const_name(parent_fn);
 
-            if (!m_private_parents[i]) {
-                if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name)) {
-                    // if both are classes, then we also mark coercion_name as an instance
-                    m_env = add_instance(m_env, m_name + m_fields[i].get_name(), true);
-                }
+
+            if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name)) {
+                // if both are classes, then we also mark coercion_name as an instance
+                m_env = add_instance(m_env, m_name + m_fields[i].get_name(), true);
             }
         }
     }
@@ -1178,7 +1173,6 @@ struct structure_cmd_fn {
             m_parent_refs.push_back(qparent.first);
             expr const & parent = qparent.second;*/
             m_parents.push_back(parent);
-            // m_private_parents.push_back(is_private_parent);
             name const & parent_name = check_parent(parent);
             auto parent_info = get_parent_info(parent_name);
             unsigned nparams = std::get<1>(parent_info);

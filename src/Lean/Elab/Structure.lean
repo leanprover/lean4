@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
 import Lean.Elab.DeclModifiers
+import Lean.Elab.DeclUtil
 import Lean.Elab.Inductive
 
 namespace Lean
@@ -24,15 +25,16 @@ structure StructCtorView :=
 (name      : Name)
 (declName  : Name)
 
--- TODO: add StructParentView
-
 structure StructFieldView :=
-(ref       : Syntax)
-(modifiers : Modifiers)
-(inferMod  : Bool)
-(name      : Name)
-(declName  : Name)
--- TODO: missing fields
+(ref        : Syntax)
+(modifiers  : Modifiers)
+(binderInfo : BinderInfo)
+(inferMod   : Bool)
+(declName   : Name)
+(name       : Name)
+(binders    : Syntax)
+(type       : Syntax)
+(value?     : Option Syntax)
 
 structure StructView :=
 (ref               : Syntax)
@@ -71,6 +73,66 @@ else do
   declName ← applyVisibility ctor modifiers.visibility declName;
   pure { ref := ctor, name := name, modifiers := modifiers, inferMod := inferMod, declName := declName }
 
+def checkValidFieldModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+when modifiers.isNoncomputable $
+  throwError ref "invalid use of 'noncomputable' in field declaration";
+when modifiers.isPartial $
+  throwError ref "invalid use of 'partial' in field declaration";
+when modifiers.isUnsafe $
+  throwError ref "invalid use of 'unsafe' in field declaration";
+when (modifiers.attrs.size != 0) $
+  throwError ref "invalid use of attributes in field declaration";
+pure ()
+
+/-
+```
+def structExplicitBinder := parser! try (declModifiers >> "(") >> many1 ident >> optional inferMod >> declSig >> optional Term.binderDefault >> ")"
+def structImplicitBinder := parser! try (declModifiers >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
+def structInstBinder     := parser! try (declModifiers >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
+def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
+```
+-/
+private def expandFields (structStx : Syntax) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
+let fieldBinders := (structStx.getArg 7).getArgs;
+fieldBinders.foldlM
+  (fun (views : Array StructFieldView) fieldBinder => do
+    let k := fieldBinder.getKind;
+    binfo ←
+      if k == `Lean.Parser.Command.structExplicitBinder then pure BinderInfo.default
+      else if k == `Lean.Parser.Command.structImplicitBinder then pure BinderInfo.implicit
+      else if k == `Lean.Parser.Command.structInstBinder then pure BinderInfo.instImplicit
+      else throwError fieldBinder "unexpected kind of structure field";
+    modifiers ← elabModifiers (fieldBinder.getArg 0);
+    checkValidFieldModifier fieldBinder modifiers;
+    let inferMod        := !(fieldBinder.getArg 3).isNone;
+    let (binders, type) := expandDeclSig (fieldBinder.getArg 4);
+    let value? :=
+      if binfo != BinderInfo.default then none
+      else
+        let optBinderDefault := fieldBinder.getArg 5;
+        if optBinderDefault.isNone then none
+        else
+          -- binderDefault := parser! " := " >> termParser
+          some $ (optBinderDefault.getArg 0).getArg 1;
+    let idents := (fieldBinder.getArg 2).getArgs;
+    idents.foldlM
+      (fun (views : Array StructFieldView) ident => do
+        let name     := ident.getId;
+        let declName := structDeclName ++ name;
+        declName ← applyVisibility ident modifiers.visibility declName;
+        pure $ views.push {
+          ref        := fieldBinder,
+          modifiers  := modifiers,
+          binderInfo := binfo,
+          inferMod   := inferMod,
+          declName   := declName,
+          name       := name,
+          binders    := binders,
+          type       := type,
+          value?     := value? })
+      views)
+  #[]
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult :=
 throw $ arbitrary _ -- TODO
 
@@ -93,15 +155,15 @@ let modifiers := if isClass then modifiers.addAttribute { name := `class } else 
 let declId    := stx.getArg 1;
 let params    := (stx.getArg 2).getArgs;
 let exts      := stx.getArg 3;
-let parents   := if exts.isNone then #[] else (exts.getArg 1).getArgs.getSepElems; -- TODO: fix
+let parents   := if exts.isNone then #[] else (exts.getArg 1).getArgs.getSepElems;
 let optType   := stx.getArg 4;
 type ← if optType.isNone then `(Type _) else pure $ (optType.getArg 0).getArg 1;
-let fields    := (stx.getArg 7).getArgs;
 scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
   declName ← mkDeclName declId modifiers name;
-  ctor ← expandCtor stx declName;
   allUserLevelNames ← getLevelNames;
+  ctor ← expandCtor stx declName;
+  fields ← expandFields stx declName;
   r ← runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructureView {
     ref               := stx,
     modifiers         := modifiers,
@@ -112,7 +174,7 @@ withDeclId declId $ fun name => do
     params            := params,
     parents           := parents,
     ctor              := ctor,
-    fields            := #[] -- TODO
+    fields            := fields
   };
   pure () -- TODO
 

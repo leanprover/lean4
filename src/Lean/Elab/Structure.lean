@@ -45,6 +45,7 @@ structure StructView :=
 (scopeVars         : Array Expr) -- All `variable` declaration in the current scope
 (params            : Array Expr) -- Explicit parameters provided in the `structure` command
 (parents           : Array Syntax)
+(type              : Syntax)
 (ctor              : StructCtorView)
 (fields            : Array StructFieldView)
 
@@ -133,7 +134,13 @@ fieldBinders.foldlM
       views)
   #[]
 
-private def elabStructureView (view : StructView) : TermElabM ElabStructResult :=
+private def validStructType (type : Expr) : Bool :=
+match type with
+| Expr.sort (Level.succ _ _) _ => true
+| _                            => false
+
+private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
+type ← Term.elabType view.type;
 throw $ arbitrary _ -- TODO
 
 /-
@@ -173,6 +180,7 @@ withDeclId declId $ fun name => do
     scopeVars         := scopeVars,
     params            := params,
     parents           := parents,
+    type              := type,
     ctor              := ctor,
     fields            := fields
   };

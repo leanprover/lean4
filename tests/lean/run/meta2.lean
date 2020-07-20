@@ -26,6 +26,8 @@ def zero  := mkConst `Nat.zero
 def add   := mkConst `Nat.add
 def io    := mkConst `IO
 def type  := mkSort levelOne
+def boolFalse := mkConst `Bool.false
+def boolTrue := mkConst `Bool.true
 
 def tst1 : MetaM Unit :=
 do print "----- tst1 -----";
@@ -104,6 +106,10 @@ do print "----- tst5 -----";
    m ← mkFreshExprMVar prod;
    y ← mkFst m;
    check $ isExprDefEq y x;
+   print y;
+   x ← mkProjection p₁ `fst;
+   print x;
+   y ← mkProjection p₁ `snd;
    print y
 
 #eval tst5
@@ -681,3 +687,43 @@ do
   pure ()
 
 #eval tst40
+
+universes u
+structure A (α : Type u) :=
+(x y : α)
+
+structure B (α : Type u) :=
+(z : α)
+
+structure C (α : Type u) extends A α, B α :=
+(w : Bool)
+
+def mkA (x y : Expr) : MetaM Expr := mkAppC `A.mk #[x, y]
+def mkB (z : Expr) : MetaM Expr := mkAppC `B.mk #[z]
+def mkC (x y z w : Expr) : MetaM Expr := do
+a ← mkA x y;
+b ← mkB z;
+mkAppC `C.mk #[a, b, w]
+
+def tst41 : MetaM Unit := do
+print "----- tst41 -----";
+c ← mkC (mkNatLit 1) (mkNatLit 2) (mkNatLit 3) boolTrue;
+print c;
+x ← mkProjection c `x;
+check x;
+print x;
+y ← mkProjection c `y;
+check y;
+print y;
+z ← mkProjection c `z;
+check z;
+print z;
+w ← mkProjection c `w;
+check w;
+print w;
+pure ()
+
+set_option trace.Meta.isDefEq.step false
+set_option trace.Meta.isDefEq.delta false
+set_option trace.Meta.isDefEq.assign false
+#eval tst41

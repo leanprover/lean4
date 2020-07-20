@@ -130,7 +130,11 @@ else
 
 -- TODO: fix. See comment in the beginning of the file
 def getProjFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
-some (structName ++ fieldName)
+let fieldNames := getStructureFields env structName;
+if fieldNames.any fun n => fieldName == n then
+  some (structName ++ fieldName)
+else
+  none
 
 partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) : Name → List Name → Option (List Name)
 | structName, path =>

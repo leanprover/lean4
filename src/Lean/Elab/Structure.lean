@@ -94,7 +94,7 @@ def structFields         := parser! many (structExplicitBinder <|> structImplici
 ```
 -/
 private def expandFields (structStx : Syntax) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
-let fieldBinders := (structStx.getArg 7).getArgs;
+let fieldBinders := ((structStx.getArg 7).getArg 0).getArgs;
 fieldBinders.foldlM
   (fun (views : Array StructFieldView) fieldBinder => do
     let k := fieldBinder.getKind;

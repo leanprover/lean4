@@ -8,6 +8,11 @@ Helper functions for retrieving structure information.
 import Lean.Environment
 import Lean.ProjFns
 
+/- TODO: We currently assume that the projection function for field `fieldName` at structure `structName` is
+   `structName ++ fieldName`. This is incorrect for private projections.
+   We will fix this by storing a mapping from `structure` + `fieldName` to projection function name in the environment.
+   This modification will impact functions such as `getStructureFields` and `getProjFnForField?` -/
+
 namespace Lean
 
 /--
@@ -46,6 +51,7 @@ private def getStructureFieldsAux (nparams : Nat) : Nat → Expr → Array Name 
     getStructureFieldsAux (i+1) b (fieldNames.push $ deinternalizeFieldName n)
 | _, _, fieldNames => fieldNames
 
+-- TODO: fix. See comment in the beginning of the file
 def getStructureFields (env : Environment) (structName : Name) : Array Name :=
 let ctor := getStructureCtor env structName;
 getStructureFieldsAux ctor.nparams 0 ctor.type #[]
@@ -62,6 +68,7 @@ private def isSubobjectFieldAux (nparams : Nat) (target : Name) : Nat → Expr �
     isSubobjectFieldAux (i+1) b
 | _, _ => none
 
+-- TODO: fix. See comment in the beginning of the file
 /-- If `fieldName` represents the relation to a parent structure `S`, return `S` -/
 def isSubobjectField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
 let ctor := getStructureCtor env structName;
@@ -98,6 +105,7 @@ private partial def getStructureFieldsFlattenedAux (env : Environment) : Name �
 def getStructureFieldsFlattened (env : Environment) (structName : Name) : Array Name :=
 getStructureFieldsFlattenedAux env structName #[]
 
+-- TODO: fix. See comment in the beginning of the file
 private def hasProjFn (env : Environment) (structName : Name) (nparams : Nat) : Nat → Expr → Bool
 | i, Expr.forallE n d b _ =>
   if i < nparams then
@@ -120,6 +128,10 @@ if isStructureLike env constName then
 else
   false
 
+-- TODO: fix. See comment in the beginning of the file
+def getProjFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+some (structName ++ fieldName)
+
 partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) : Name → List Name → Option (List Name)
 | structName, path =>
   if baseStructName == structName then
@@ -129,7 +141,10 @@ partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name
     fieldNames.findSome? $ fun fieldName =>
       match isSubobjectField? env structName fieldName with
       | none                  => none
-      | some parentStructName => getPathToBaseStructureAux parentStructName ((structName ++ fieldName) :: path)
+      | some parentStructName =>
+        match getProjFnForField? env structName fieldName with
+        | none        => none
+        | some projFn => getPathToBaseStructureAux parentStructName (projFn :: path)
 
 /--
   If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions

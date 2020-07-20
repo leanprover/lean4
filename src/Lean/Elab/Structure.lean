@@ -41,6 +41,7 @@ structure StructView :=
 (modifiers         : Modifiers)
 (scopeLevelNames   : List Name)  -- All `universe` declarations in the current scope
 (allUserLevelNames : List Name)  -- `scopeLevelNames` ++ explicit universe parameters provided in the `structure` command
+(isClass           : Bool)
 (declName          : Name)
 (scopeVars         : Array Expr) -- All `variable` declaration in the current scope
 (params            : Array Expr) -- Explicit parameters provided in the `structure` command
@@ -48,6 +49,15 @@ structure StructView :=
 (type              : Syntax)
 (ctor              : StructCtorView)
 (fields            : Array StructFieldView)
+
+inductive StructFieldKind
+| newField | fromParent | subobject
+
+structure StructFieldInfo :=
+(name   : Name)
+(fvar   : Expr)
+(kind   : StructFieldKind)
+(value? : Option Expr := none)
 
 structure ElabStructResult :=
 (decl      : Declaration)
@@ -139,9 +149,58 @@ match type with
 | Expr.sort (Level.succ _ _) _ => true
 | _                            => false
 
+private def checkParentIsStructure (ref : Syntax) (parent : Expr) : TermElabM Name :=
+match parent.getAppFn with
+| Expr.const c _ _ => do
+  env ← Term.getEnv;
+  unless (isStructure env c) $
+    Term.throwError ref $ "'" ++ toString c ++ "' is not a structure";
+  pure c
+| _ => Term.throwError ref $ "expected structure"
+
+private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
+infos.any fun info => info.name == fieldName
+
+private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
+    : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
+| i, infos, k =>
+  if h : i < subfieldNames.size then do
+    let subfieldName := subfieldNames.get ⟨i, h⟩;
+    env ← Term.getEnv;
+    when (containsFieldName infos subfieldName) $
+      Term.throwError ref ("field '" ++ subfieldName ++ "' from '" ++ parentStructName ++ "' has already been declared");
+    val  ← Term.liftMetaM ref $ Meta.mkProjection parentFVar subfieldName;
+    type ← Term.inferType ref val;
+    Term.withLetDecl ref subfieldName type val fun subfieldFVar =>
+      let infos := infos.push { name := subfieldName, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
+      processSubfields (i+1) infos k
+  else
+    k infos
+
+private partial def withParents {α} (view : StructView) : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
+| i, infos, k =>
+  if h : i < view.parents.size then do
+    let parentStx := view.parents.get ⟨i, h⟩;
+    parent ← Term.elabType parentStx;
+    parentName ← checkParentIsStructure parentStx parent;
+    let toParentName := mkNameSimple $ "to" ++ parentName.eraseMacroScopes.getString!; -- erase macro scopes?
+    when (containsFieldName infos toParentName) $
+      Term.throwError parentStx ("field '" ++ toParentName ++ "' has already been declared");
+    env ← Term.getEnv;
+    let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default;
+    Term.withLocalDecl parentStx toParentName binfo parent $ fun parentFVar =>
+      let infos := infos.push { name := toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
+      let subfieldNames := getStructureFieldsFlattened env parentName;
+      processSubfields parentStx parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
+  else
+    k infos
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 type ← Term.elabType view.type;
-throw $ arbitrary _ -- TODO
+unless (validStructType type) $ Term.throwError view.type "expected Type";
+withParents view 0 #[] fun fieldInfos => do
+  -- TODO
+  Term.throwError view.ref "WIP"
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
@@ -162,7 +221,7 @@ let modifiers := if isClass then modifiers.addAttribute { name := `class } else 
 let declId    := stx.getArg 1;
 let params    := (stx.getArg 2).getArgs;
 let exts      := stx.getArg 3;
-let parents   := if exts.isNone then #[] else (exts.getArg 1).getArgs.getSepElems;
+let parents   := if exts.isNone then #[] else ((exts.getArg 0).getArg 1).getArgs.getSepElems;
 let optType   := stx.getArg 4;
 type ← if optType.isNone then `(Type _) else pure $ (optType.getArg 0).getArg 1;
 scopeLevelNames ← getLevelNames;
@@ -177,6 +236,7 @@ withDeclId declId $ fun name => do
     scopeLevelNames   := scopeLevelNames,
     allUserLevelNames := allUserLevelNames,
     declName          := declName,
+    isClass           := isClass,
     scopeVars         := scopeVars,
     params            := params,
     parents           := parents,

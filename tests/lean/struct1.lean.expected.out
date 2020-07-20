@@ -1,0 +1,4 @@
+struct1.lean:9:14: error: expected Type
+struct1.lean:12:20: error: expected structure
+struct1.lean:15:27: error: field 'toA' has already been declared
+struct1.lean:18:27: error: field 'x' from 'B' has already been declared

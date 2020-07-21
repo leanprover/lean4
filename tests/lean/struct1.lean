@@ -23,3 +23,19 @@ structure S := -- error '_' is not allowed
 
 structure S := -- error '_' is not allowed
 (x _y : Nat)
+
+structure S :=
+(x : Nat)
+(x : Nat) -- error
+
+structure S extends A Nat :=
+(x : Nat) -- error
+
+structure S extends A Nat :=
+(x := true) -- error type mismatch
+
+structure S extends A Nat :=
+(x : Bool := true) -- error omit type
+
+structure S :=
+(x : Nat := true) -- error type mismatch

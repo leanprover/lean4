@@ -139,7 +139,7 @@ fieldBinders.foldlM
         let declName := structDeclName ++ name;
         declName ← applyVisibility ident modifiers.visibility declName;
         pure $ views.push {
-          ref        := fieldBinder,
+          ref        := ident,
           modifiers  := modifiers,
           binderInfo := binfo,
           inferMod   := inferMod,
@@ -165,8 +165,11 @@ match parent.getAppFn with
   pure c
 | _ => Term.throwError ref $ "expected structure"
 
+private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : Option StructFieldInfo :=
+infos.find? fun info => info.name == fieldName
+
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
-infos.any fun info => info.name == fieldName
+(findFieldInfo? infos fieldName).isSome
 
 private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
     : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
@@ -204,19 +207,56 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
 
 private partial def withFields {α} (views : Array StructFieldView) : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
 | i, infos, k =>
-  if h : i < views.size then
+  if h : i < views.size then do
     let view := views.get ⟨i, h⟩;
-    Term.elabBinders view.binders.getArgs $ fun params =>
-
-      k infos
+    (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => do {
+      type? ← match view.type? with
+        | none         => pure none
+        | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall typeStx params type; pure $ some type };
+      value? ← match view.value? with
+        | none        => pure none
+        | some valStx => do {
+          value ← Term.elabTerm valStx type?;
+          value ← Term.mkLambda valStx params value;
+          value ← Term.ensureHasType valStx type? value;
+          pure $ some value
+        };
+      pure (type?, value?)
+    };
+    match findFieldInfo? infos view.name with
+    | none      => do
+      match type?, value? with
+      | none,      none => Term.throwError view.ref "invalid field, type expected"
+      | some type, _    =>
+        Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
+          let infos := infos.push { name := view.name, fvar := fieldFVar, value? := value?, kind := StructFieldKind.newField };
+          withFields (i+1) infos k
+      | none, some value => do
+        type ← Term.inferType view.ref value;
+        Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
+          let infos := infos.push { name := view.name, fvar := fieldFVar, kind := StructFieldKind.newField };
+          withFields (i+1) infos k
+    | some info =>
+      match info.kind with
+      | StructFieldKind.newField   => Term.throwError view.ref ("field '" ++ view.name ++ "' has already been declared")
+      | StructFieldKind.fromParent =>
+        match value?, type? with
+        | none,       _      => Term.throwError view.ref ("field '" ++ view.name ++ "' has been declared in parent structure")
+        | _,          some _ => Term.throwError view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value")
+        | some value, none   => do
+          fvarType ← Term.inferType view.ref info.fvar;
+          value    ← Term.ensureHasType view.value?.get! fvarType value;
+          let infos := infos.push { info with value? := value };
+          withFields (i+1) infos k
+      | StructFieldKind.subobject => unreachable!
   else
     k infos
 
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 type ← Term.elabType view.type;
 unless (validStructType type) $ Term.throwError view.type "expected Type";
-withParents view 0 #[] fun fieldInfos => do
-
+withParents view 0 #[] fun fieldInfos =>
+withFields view.fields 0 fieldInfos fun fieldInfos =>
   -- TODO
   Term.throwError view.ref "WIP"
 

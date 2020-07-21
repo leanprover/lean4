@@ -4,3 +4,22 @@ struct1.lean:15:27: error: field 'toA' has already been declared
 struct1.lean:18:27: error: field 'x' from 'B' has already been declared
 struct1.lean:22:1: error: invalid field name '_x', identifiers starting with '_' are reserved to the system
 struct1.lean:25:3: error: invalid field name '_y', identifiers starting with '_' are reserved to the system
+struct1.lean:29:1: error: field 'x' has already been declared
+struct1.lean:32:1: error: field 'x' has been declared in parent structure
+struct1.lean:35:6: error: type mismatch
+  true
+has type
+  Bool
+but it is expected to have type
+  Nat
+failed to synthesize instance
+  CoeT Bool true Nat
+struct1.lean:38:5: error: omit field 'x' type to set default value
+struct1.lean:41:12: error: type mismatch
+  true
+has type
+  Bool
+but it is expected to have type
+  Nat
+failed to synthesize instance
+  CoeT Bool true Nat

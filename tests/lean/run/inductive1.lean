@@ -58,3 +58,10 @@ instance tst : Dec True :=
 Dec.isTrue True.intro
 
 #check tst
+
+variable (β : Type _)
+
+inductive T1
+| mk : β → β → T1
+
+#check @T1.mk

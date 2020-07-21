@@ -254,13 +254,45 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
   else
     k infos
 
+private def getResultUniverse (ref : Syntax) (type : Expr) : TermElabM Level := do
+type ← Term.whnf ref type;
+match type with
+| Expr.sort u _ => pure u
+| _             => Term.throwError ref "unexpected structure resulting type"
+
+private def removeUnused (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
+    : TermElabM (LocalContext × LocalInstances × Array Expr) := do
+used ← params.foldlM (Term.collectUsedFVars ref) {};
+used ← fieldInfos.foldlM
+  (fun (used : CollectFVars.State) info => do
+    fvarType ← Term.inferType ref info.fvar;
+    used ← Term.collectUsedFVars ref used fvarType;
+    match info.value? with
+    | none       => pure used
+    | some value => Term.collectUsedFVars ref used value)
+  used;
+Term.removeUnused ref scopeVars used
+
+private def withUsed {α} (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (k : Array Expr → TermElabM α)
+    : TermElabM α := do
+(lctx, localInsts, vars) ← removeUnused ref scopeVars params fieldInfos;
+Term.withLCtx lctx localInsts $ k vars
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
+let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
 unless (validStructType type) $ Term.throwError view.type "expected Type";
+let ref := view.ref;
 withParents view 0 #[] fun fieldInfos =>
-withFields view.fields 0 fieldInfos fun fieldInfos =>
-  -- TODO
-  Term.throwError view.ref "WIP"
+withFields view.fields 0 fieldInfos fun fieldInfos => do
+  Term.synthesizeSyntheticMVars false;  -- resolve pending
+  u ← getResultUniverse ref type;
+  inferLevel ← shouldInferResultUniverse ref u;
+  withUsed ref view.scopeVars view.params fieldInfos $ fun scopeVars => do
+    let numParams := scopeVars.size + numExplicitParams;
+
+    -- TODO
+    Term.throwError view.ref ("WIP " ++ toString scopeVars)
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields

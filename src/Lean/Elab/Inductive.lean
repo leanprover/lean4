@@ -270,14 +270,13 @@ private def getResultingUniverse (ref : Syntax) : List InductiveType → TermEla
   | Expr.sort u _ => pure u
   | _             => Term.throwError ref "unexpected inductive type resulting type"
 
-private def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
+def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
 
 /--
-  Return true if the resulting universe level is of the form `?m + k`.
-  Return false if the resulting universe level does not contain universe metavariables.
-  Throw exeception otherwise. -/
-private def shouldInferResultUniverse (ref : Syntax) (indTypes : List InductiveType) : TermElabM Bool := do
-u ← getResultingUniverse ref indTypes;
+  Return true if `u` is of the form `?m + k`.
+  Return false if `u` does not contain universe metavariables.
+  Throw exception otherwise. -/
+def shouldInferResultUniverse (ref : Syntax) (u : Level) : TermElabM Bool := do
 u ← Term.instantiateLevelMVars ref u;
 if u.hasMVar then
   match u.getLevelOffset with
@@ -449,7 +448,8 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       [];
     let indTypes := indTypes.reverse;
     Term.synthesizeSyntheticMVars false;  -- resolve pending
-    inferLevel ← shouldInferResultUniverse ref indTypes;
+    u ← getResultingUniverse ref indTypes;
+    inferLevel ← shouldInferResultUniverse ref u;
     withUsed ref vars indTypes $ fun vars => do
       let numParams := vars.size + numExplicitParams;
       indTypes ← updateParams ref vars indTypes;

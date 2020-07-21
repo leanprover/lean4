@@ -33,7 +33,7 @@ structure StructFieldView :=
 (declName   : Name)
 (name       : Name)
 (binders    : Syntax)
-(type       : Syntax)
+(type?      : Option Syntax)
 (value?     : Option Syntax)
 
 structure StructView :=
@@ -97,7 +97,7 @@ pure ()
 
 /-
 ```
-def structExplicitBinder := parser! try (declModifiers >> "(") >> many1 ident >> optional inferMod >> declSig >> optional Term.binderDefault >> ")"
+def structExplicitBinder := parser! try (declModifiers >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! try (declModifiers >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := parser! try (declModifiers >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
@@ -115,8 +115,13 @@ fieldBinders.foldlM
       else throwError fieldBinder "unexpected kind of structure field";
     modifiers ← elabModifiers (fieldBinder.getArg 0);
     checkValidFieldModifier fieldBinder modifiers;
-    let inferMod        := !(fieldBinder.getArg 3).isNone;
-    let (binders, type) := expandDeclSig (fieldBinder.getArg 4);
+    let inferMod         := !(fieldBinder.getArg 3).isNone;
+    let (binders, type?) :=
+      if binfo == BinderInfo.default then
+         expandOptDeclSig (fieldBinder.getArg 4)
+      else
+         let (binders, type) := expandDeclSig (fieldBinder.getArg 4);
+         (binders, some type);
     let value? :=
       if binfo != BinderInfo.default then none
       else
@@ -141,7 +146,7 @@ fieldBinders.foldlM
           declName   := declName,
           name       := name,
           binders    := binders,
-          type       := type,
+          type?      := type?,
           value?     := value? })
       views)
   #[]
@@ -197,10 +202,21 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
   else
     k infos
 
+private partial def withFields {α} (views : Array StructFieldView) : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
+| i, infos, k =>
+  if h : i < views.size then
+    let view := views.get ⟨i, h⟩;
+    Term.elabBinders view.binders.getArgs $ fun params =>
+
+      k infos
+  else
+    k infos
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 type ← Term.elabType view.type;
 unless (validStructType type) $ Term.throwError view.type "expected Type";
 withParents view 0 #[] fun fieldInfos => do
+
   -- TODO
   Term.throwError view.ref "WIP"
 

@@ -262,7 +262,11 @@ match type with
 
 private def removeUnused (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
-used ← params.foldlM (Term.collectUsedFVars ref) {};
+used ← params.foldlM
+   (fun (used : CollectFVars.State) p => do
+     type ← Term.inferType ref p;
+     Term.collectUsedFVars ref used type)
+   {};
 used ← fieldInfos.foldlM
   (fun (used : CollectFVars.State) info => do
     fvarType ← Term.inferType ref info.fvar;

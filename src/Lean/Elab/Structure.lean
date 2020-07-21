@@ -129,6 +129,8 @@ fieldBinders.foldlM
     idents.foldlM
       (fun (views : Array StructFieldView) ident => do
         let name     := ident.getId;
+        when (isInternalSubobjectFieldName name) $
+          throwError ident ("invalid field name '" ++ name ++ "', identifiers starting with '_' are reserved to the system");
         let declName := structDeclName ++ name;
         declName ← applyVisibility ident modifiers.visibility declName;
         pure $ views.push {

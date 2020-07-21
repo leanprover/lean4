@@ -7,6 +7,7 @@
       runner: perf_stat
       perf_stat:
         properties: ['wall-clock', 'task-clock', 'instructions', 'branches', 'branch-misses']
+      rusage_properties: ['maxrss']
   run_config:
     <<: *time
     cwd: ../../src

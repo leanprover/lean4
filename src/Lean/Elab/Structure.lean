@@ -93,6 +93,8 @@ when modifiers.isUnsafe $
   throwError ref "invalid use of 'unsafe' in field declaration";
 when (modifiers.attrs.size != 0) $
   throwError ref "invalid use of attributes in field declaration";
+when modifiers.isPrivate $
+  throwError ref "private fields are not supported yet";
 pure ()
 
 /-

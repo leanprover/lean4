@@ -282,6 +282,29 @@ private def withUsed {α} (ref : Syntax) (scopeVars : Array Expr) (params : Arra
 (lctx, localInsts, vars) ← removeUnused ref scopeVars params fieldInfos;
 Term.withLCtx lctx localInsts $ k vars
 
+private def levelMVarToParamFVar (ref : Syntax) (fvar : Expr) : StateT Nat TermElabM Unit := do
+type ← liftM $ Term.inferType ref fvar;
+_ ← Term.levelMVarToParam' type;
+pure ()
+
+private def levelMVarToParamFVars (ref : Syntax) (fvars : Array Expr) : StateT Nat TermElabM Unit :=
+fvars.forM (levelMVarToParamFVar ref)
+
+private def levelMVarToParamAux (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
+    : StateT Nat TermElabM (Array StructFieldInfo) := do
+levelMVarToParamFVars ref scopeVars;
+levelMVarToParamFVars ref params;
+fieldInfos.mapM fun info => do
+  levelMVarToParamFVar ref info.fvar;
+  match info.value? with
+  | none       => pure info
+  | some value => do
+    value ← Term.levelMVarToParam' value;
+    pure { info with value? := value }
+
+private def levelMVarToParam (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array StructFieldInfo) :=
+(levelMVarToParamAux ref scopeVars params fieldInfos).run' 1
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
@@ -294,7 +317,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
   inferLevel ← shouldInferResultUniverse ref u;
   withUsed ref view.scopeVars view.params fieldInfos $ fun scopeVars => do
     let numParams := scopeVars.size + numExplicitParams;
-
+    fieldInfos ← levelMVarToParam ref scopeVars view.params fieldInfos;
     -- TODO
     Term.throwError view.ref ("WIP " ++ toString scopeVars)
 

@@ -305,6 +305,30 @@ fieldInfos.mapM fun info => do
 private def levelMVarToParam (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array StructFieldInfo) :=
 (levelMVarToParamAux ref scopeVars params fieldInfos).run' 1
 
+private partial def collectUniversesFromFields (ref : Syntax) (r : Level) (rOffset : Nat) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Level) := do
+fieldInfos.foldlM
+  (fun (us : Array Level) (info : StructFieldInfo) => do
+    type ← Term.inferType ref info.fvar;
+    u ← Term.getLevel ref type;
+    u ← Term.instantiateLevelMVars ref u;
+    match accLevelAtCtor u r rOffset us with
+    | Except.error msg => Term.throwError ref msg
+    | Except.ok us     => pure us)
+  #[]
+
+private def updateResultingUniverse (ref : Syntax) (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
+r ← getResultUniverse ref type;
+let rOffset : Nat   := r.getOffset;
+let r       : Level := r.getLevelOffset;
+match r with
+| Level.mvar mvarId _ => do
+  us ← collectUniversesFromFields ref r rOffset fieldInfos;
+  _root_.dbgTrace ("us: " ++ toString us) fun _ => do
+  let rNew := Level.mkNaryMax us.toList;
+  Term.assignLevelMVar mvarId rNew;
+  Term.instantiateMVars ref type
+| _ => Term.throwError ref "failed to compute resulting universe level of structure, provide universe explicitly"
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
@@ -318,8 +342,9 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
   withUsed ref view.scopeVars view.params fieldInfos $ fun scopeVars => do
     let numParams := scopeVars.size + numExplicitParams;
     fieldInfos ← levelMVarToParam ref scopeVars view.params fieldInfos;
+    type ← if inferLevel then updateResultingUniverse ref fieldInfos type else pure type;
     -- TODO
-    Term.throwError view.ref ("WIP " ++ toString scopeVars)
+    Term.throwError view.ref ("WIP " ++ type)
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields

@@ -289,15 +289,15 @@ else
 
 /-
   Auxiliary function for `updateResultingUniverse`
-  `addLevel u r rOffset us` add `u` components to `us` if they are not already there and it is different from the resulting universe level `r+rOffset`.
+  `accLevelAtCtor u r rOffset us` add `u` components to `us` if they are not already there and it is different from the resulting universe level `r+rOffset`.
   If `u` is a `max`, then its components are recursively processed.
   If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
 
   This method is used to infer the resulting universe level of an inductive datatype. -/
-private def addLevel : Level → Level → Nat → Array Level → Except String (Array Level)
-| Level.max u v _, r, rOffset,   us => do us ← addLevel u r rOffset us; addLevel v r rOffset us
+def accLevelAtCtor : Level → Level → Nat → Array Level → Except String (Array Level)
+| Level.max u v _, r, rOffset,   us => do us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
 | Level.zero _,    _, _,         us => pure us
-| Level.succ u _,  r, rOffset+1, us => addLevel u r rOffset us
+| Level.succ u _,  r, rOffset+1, us => accLevelAtCtor u r rOffset us
 | u,               r, rOffset,   us =>
   if rOffset == 0 && u == r then pure us
   else if r.occurs u then throw "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
@@ -309,7 +309,7 @@ private partial def collectUniversesFromCtorTypeAux (ref : Syntax) (r : Level) (
 | 0,   Expr.forallE n d b c, us => do
   u ← Term.getLevel ref d;
   u ← Term.instantiateLevelMVars ref u;
-  match addLevel u r rOffset us with
+  match accLevelAtCtor u r rOffset us with
   | Except.error msg => Term.throwError ref msg
   | Except.ok us     => Term.withLocalDecl ref n c.binderInfo d $ fun x =>
     let e := b.instantiate1 x;

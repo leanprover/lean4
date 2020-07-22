@@ -250,11 +250,9 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
    `inferResultingUniverse`. -/
 private def levelMVarToParamAux (ref : Syntax) (indTypes : List InductiveType) : StateT Nat TermElabM (List InductiveType) :=
 indTypes.mapM fun indType => do
-  type  ← liftM $ Term.instantiateMVars ref indType.type;
-  type  ← Term.levelMVarToParam' type;
+  type  ← Term.levelMVarToParam' indType.type;
   ctors ← indType.ctors.mapM fun ctor => do {
-    ctorType ← liftM $ Term.instantiateMVars ref ctor.type;
-    ctorType ← Term.levelMVarToParam' ctorType;
+    ctorType ← Term.levelMVarToParam' ctor.type;
     pure { ctor with type := ctorType }
   };
   pure { indType with ctors := ctors, type := type }

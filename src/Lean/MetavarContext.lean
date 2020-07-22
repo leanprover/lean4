@@ -1011,7 +1011,7 @@ partial def visitLevel : Level → M Level
     pure p
 
 @[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
-if e.hasLevelMVar then f e else pure e
+if e.hasMVar then f e else pure e
 
 partial def main : Expr → M Expr
 | e@(Expr.proj _ _ s _)    => do s ← visit main s; pure (e.updateProj! s)
@@ -1022,6 +1022,11 @@ partial def main : Expr → M Expr
 | e@(Expr.mdata _ b _)     => do b ← visit main b; pure (e.updateMData! b)
 | e@(Expr.const _ us _)    => do us ← us.mapM visitLevel; pure (e.updateConst! us)
 | e@(Expr.sort u _)        => do u ← visitLevel u; pure (e.updateSort! u)
+| e@(Expr.mvar mvarId _)   => do
+  s ← get;
+  match s.mctx.getExprAssignment? mvarId with
+  | some v => visit main v
+  | none   => pure e
 | e                        => pure e
 
 end LevelMVarToParam

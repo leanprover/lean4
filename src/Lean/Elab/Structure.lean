@@ -329,6 +329,20 @@ match r with
   Term.instantiateMVars ref type
 | _ => Term.throwError ref "failed to compute resulting universe level of structure, provide universe explicitly"
 
+private def collectLevelParamsInFVar (ref : Syntax) (s : CollectLevelParams.State) (fvar : Expr) : TermElabM CollectLevelParams.State := do
+type ← Term.inferType ref fvar;
+type ← Term.instantiateMVars ref type;
+pure $ collectLevelParams s type
+
+private def collectLevelParamsInFVars (ref : Syntax) (fvars : Array Expr) (s : CollectLevelParams.State) : TermElabM CollectLevelParams.State :=
+fvars.foldlM (collectLevelParamsInFVar ref) s
+
+private def collectLevelParamsInStructure (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Name) := do
+s ← collectLevelParamsInFVars ref scopeVars {};
+s ← collectLevelParamsInFVars ref params s;
+s ← fieldInfos.foldlM (fun (s : CollectLevelParams.State) info => collectLevelParamsInFVar ref s info.fvar) s;
+pure s.params
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
@@ -343,8 +357,12 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     let numParams := scopeVars.size + numExplicitParams;
     fieldInfos ← levelMVarToParam ref scopeVars view.params fieldInfos;
     type ← if inferLevel then updateResultingUniverse ref fieldInfos type else pure type;
-    -- TODO
-    Term.throwError view.ref ("WIP " ++ type)
+    usedLevelNames ← collectLevelParamsInStructure ref scopeVars view.params fieldInfos;
+    match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
+    | Except.error msg      => Term.throwError ref msg
+    | Except.ok levelParams => do
+      -- TODO
+      Term.throwError view.ref ("WIP " ++ toString levelParams)
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields

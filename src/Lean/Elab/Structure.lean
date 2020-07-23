@@ -54,16 +54,29 @@ inductive StructFieldKind
 | newField | fromParent | subobject
 
 structure StructFieldInfo :=
-(name   : Name)
-(fvar   : Expr)
-(kind   : StructFieldKind)
-(value? : Option Expr := none)
+(name     : Name)
+(declName : Name) -- Remark: this field value doesn't matter for fromParent fields.
+(fvar     : Expr)
+(kind     : StructFieldKind)
+(inferMod : Bool := false)
+(value?   : Option Expr := none)
 
 instance StructFieldInfo.inhabited : Inhabited StructFieldInfo :=
-⟨{ name := arbitrary _, fvar := arbitrary _, kind := StructFieldKind.newField }⟩
+⟨{ name := arbitrary _, declName := arbitrary _, fvar := arbitrary _, kind := StructFieldKind.newField }⟩
+
+def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
+match info.kind with
+| StructFieldKind.fromParent => true
+| _                          => false
+
+/- Auxiliary declaration for `mkProjections` -/
+structure ProjectionInfo :=
+(declName : Name)
+(inferMod : Bool)
 
 structure ElabStructResult :=
 (decl      : Declaration)
+(projInfos : List ProjectionInfo)
 
 private def defaultCtorName := `mk
 
@@ -195,7 +208,7 @@ private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (pa
     val  ← Term.liftMetaM ref $ Meta.mkProjection parentFVar subfieldName;
     type ← Term.inferType ref val;
     Term.withLetDecl ref subfieldName type val fun subfieldFVar =>
-      let infos := infos.push { name := subfieldName, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
+      let infos := infos.push { name := subfieldName, declName := arbitrary _, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
       processSubfields (i+1) infos k
   else
     k infos
@@ -212,7 +225,7 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
     env ← Term.getEnv;
     let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default;
     Term.withLocalDecl parentStx toParentName binfo parent $ fun parentFVar =>
-      let infos := infos.push { name := toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
+      let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
       let subfieldNames := getStructureFieldsFlattened env parentName;
       processSubfields parentStx parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
   else
@@ -242,12 +255,13 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
       | none,      none => Term.throwError view.ref "invalid field, type expected"
       | some type, _    =>
         Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
-          let infos := infos.push { name := view.name, fvar := fieldFVar, value? := value?, kind := StructFieldKind.newField };
+          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
+                                    kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
       | none, some value => do
         type ← Term.inferType view.ref value;
         Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
-          let infos := infos.push { name := view.name, fvar := fieldFVar, kind := StructFieldKind.newField };
+          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
     | some info =>
       match info.kind with
@@ -402,7 +416,18 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
       type ← Term.instantiateMVars ref type;
       let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
       let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
-      pure { decl := decl }
+      let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
+        { declName := info.declName, inferMod := info.inferMod : ProjectionInfo };
+      pure { decl := decl, projInfos := projInfos }
+
+@[extern "lean_mk_projections"]
+private constant mkProjections (env : Environment) (structName : @& Name) (projs : @& List ProjectionInfo) (isClass : Bool) : Except String Environment := arbitrary _
+
+private def addProjections (ref : Syntax) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : CommandElabM Unit := do
+env ← getEnv;
+match mkProjections env structName projs isClass with
+| Except.ok env    => setEnv env
+| Except.error msg => throwError ref msg
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
@@ -448,6 +473,7 @@ withDeclId declId $ fun name => do
   };
   let ref := declId;
   addDecl ref r.decl;
+  addProjections ref declName r.projInfos isClass;
   -- TODO: add auxiliary definitions
   -- TODO: register default values
   pure ()

@@ -124,6 +124,12 @@ def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
+def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
+  lctx ← getLCtx;
+  match lctx.find? fvar.fvarId! with
+  | some d => pure d
+  | none   => unreachable!
+
 def setEnv (env : Environment) : TermElabM Unit := modify $ fun s => { s with env := env }
 def setMCtx (mctx : MetavarContext) : TermElabM Unit := modify $ fun s => { s with mctx := mctx }
 

@@ -59,6 +59,9 @@ structure StructFieldInfo :=
 (kind   : StructFieldKind)
 (value? : Option Expr := none)
 
+instance StructFieldInfo.inhabited : Inhabited StructFieldInfo :=
+⟨{ name := arbitrary _, fvar := arbitrary _, kind := StructFieldKind.newField }⟩
+
 structure ElabStructResult :=
 (decl      : Declaration)
 
@@ -342,6 +345,27 @@ s ← collectLevelParamsInFVars ref params s;
 s ← fieldInfos.foldlM (fun (s : CollectLevelParams.State) info => collectLevelParamsInFVar ref s info.fvar) s;
 pure s.params
 
+private def addCtorFields (ref : Syntax) (fieldInfos : Array StructFieldInfo) : Nat → Expr → TermElabM Expr
+| 0,   type => pure type
+| i+1, type => do
+  let info := fieldInfos.get! i;
+  match info.kind with
+  | StructFieldKind.fromParent => do
+    decl ← Term.getFVarLocalDecl! info.fvar;
+    let val := decl.value;
+    let type := type.abstract #[info.fvar];
+    addCtorFields i (type.instantiate1 val)
+  | _ => do
+    type ← Term.mkForall ref #[info.fvar] type;
+    addCtorFields i type
+
+private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor := do
+let type := mkAppN (mkConst view.declName (levelParams.map mkLevelParam)) params;
+type ← addCtorFields view.ref fieldInfos fieldInfos.size type;
+type ← Term.mkForall view.ref params type;
+let type := type.inferImplicit params.size !view.ctor.inferMod;
+pure { name := view.ctor.declName, type := type }
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
@@ -360,10 +384,12 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
     | Except.error msg      => Term.throwError ref msg
     | Except.ok levelParams => do
+      let params := scopeVars ++ view.params;
       structType ← Term.mkForall ref view.params type;
       structType ← Term.mkForall ref scopeVars structType;
+      ctor ← mkCtor view levelParams params fieldInfos;
       -- TODO
-      Term.throwError view.ref ("WIP " ++ toString levelParams ++ " " ++ structType)
+      Term.throwError view.ref ("WIP " ++ toString levelParams ++ " " ++ ctor.type)
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields

@@ -363,6 +363,7 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
 let type := mkAppN (mkConst view.declName (levelParams.map mkLevelParam)) params;
 type ← addCtorFields view.ref fieldInfos fieldInfos.size type;
 type ← Term.mkForall view.ref params type;
+type ← Term.instantiateMVars view.ref type;
 let type := type.inferImplicit params.size !view.ctor.inferMod;
 pure { name := view.ctor.declName, type := type }
 
@@ -385,11 +386,13 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     | Except.error msg      => Term.throwError ref msg
     | Except.ok levelParams => do
       let params := scopeVars ++ view.params;
-      structType ← Term.mkForall ref view.params type;
-      structType ← Term.mkForall ref scopeVars structType;
       ctor ← mkCtor view levelParams params fieldInfos;
-      -- TODO
-      Term.throwError view.ref ("WIP " ++ toString levelParams ++ " " ++ ctor.type)
+      type ← Term.mkForall ref view.params type;
+      type ← Term.mkForall ref scopeVars type;
+      type ← Term.instantiateMVars ref type;
+      let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
+      let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
+      pure { decl := decl }
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
@@ -433,7 +436,11 @@ withDeclId declId $ fun name => do
     ctor              := ctor,
     fields            := fields
   };
-  pure () -- TODO
+  let ref := declId;
+  addDecl ref r.decl;
+  -- TODO: add auxiliary definitions
+  -- TODO: register default values
+  pure ()
 
 end Command
 end Elab

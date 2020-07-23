@@ -349,15 +349,17 @@ private def addCtorFields (ref : Syntax) (fieldInfos : Array StructFieldInfo) : 
 | 0,   type => pure type
 | i+1, type => do
   let info := fieldInfos.get! i;
+  decl ← Term.getFVarLocalDecl! info.fvar;
+  let type := type.abstract #[info.fvar];
   match info.kind with
-  | StructFieldKind.fromParent => do
-    decl ← Term.getFVarLocalDecl! info.fvar;
+  | StructFieldKind.fromParent =>
     let val := decl.value;
-    let type := type.abstract #[info.fvar];
     addCtorFields i (type.instantiate1 val)
-  | _ => do
-    type ← Term.mkForall ref #[info.fvar] type;
-    addCtorFields i type
+  | StructFieldKind.subobject =>
+    let n := mkInternalSubobjectFieldName $ decl.userName;
+    addCtorFields i (mkForall n decl.binderInfo decl.type type)
+  | StructFieldKind.newField =>
+    addCtorFields i (mkForall decl.userName decl.binderInfo decl.type type)
 
 private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor := do
 let type := mkAppN (mkConst view.declName (levelParams.map mkLevelParam)) params;

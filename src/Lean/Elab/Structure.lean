@@ -474,8 +474,9 @@ withDeclId declId $ fun name => do
   let ref := declId;
   addDecl ref r.decl;
   addProjections ref declName r.projInfos isClass;
-  -- TODO: add auxiliary definitions
+  -- TODO: add auxiliary definitions recOn and casesOn
   -- TODO: register default values
+  -- TODO: add coercions
   pure ()
 
 end Command

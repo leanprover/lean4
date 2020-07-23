@@ -73,19 +73,23 @@ The structore constructor syntax is
 parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
 ```
 -/
-private def expandCtor (structStx : Syntax) (structDeclName : Name) : CommandElabM StructCtorView :=
+private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM StructCtorView :=
 let optCtor := structStx.getArg 6;
 if optCtor.isNone then
   pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := structDeclName ++ defaultCtorName }
 else do
   let ctor := optCtor.getArg 0;
-  modifiers ← elabModifiers (ctor.getArg 0);
-  checkValidCtorModifier ctor modifiers;
+  ctorModifiers ← elabModifiers (ctor.getArg 0);
+  checkValidCtorModifier ctor ctorModifiers;
+  when (ctorModifiers.isPrivate && structModifiers.isPrivate) $
+    throwError ctor "invalid 'private' constructor in a 'private' structure";
+  when (ctorModifiers.isProtected && structModifiers.isPrivate) $
+    throwError ctor "invalid 'protected' constructor in a 'private' structure";
   let inferMod := !(ctor.getArg 2).isNone;
   let name := ctor.getIdAt 1;
   let declName := structDeclName ++ name;
-  declName ← applyVisibility ctor modifiers.visibility declName;
-  pure { ref := ctor, name := name, modifiers := modifiers, inferMod := inferMod, declName := declName }
+  declName ← applyVisibility ctor ctorModifiers.visibility declName;
+  pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
 
 def checkValidFieldModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
 when modifiers.isNoncomputable $
@@ -108,7 +112,7 @@ def structInstBinder     := parser! try (declModifiers >> "[") >> many1 ident >>
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
-private def expandFields (structStx : Syntax) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
+private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
 let fieldBinders := ((structStx.getArg 7).getArg 0).getArgs;
 fieldBinders.foldlM
   (fun (views : Array StructFieldView) fieldBinder => do
@@ -118,8 +122,12 @@ fieldBinders.foldlM
       else if k == `Lean.Parser.Command.structImplicitBinder then pure BinderInfo.implicit
       else if k == `Lean.Parser.Command.structInstBinder then pure BinderInfo.instImplicit
       else throwError fieldBinder "unexpected kind of structure field";
-    modifiers ← elabModifiers (fieldBinder.getArg 0);
-    checkValidFieldModifier fieldBinder modifiers;
+    fieldModifiers ← elabModifiers (fieldBinder.getArg 0);
+    checkValidFieldModifier fieldBinder fieldModifiers;
+    when (fieldModifiers.isPrivate && structModifiers.isPrivate) $
+      throwError fieldBinder "invalid 'private' field in a 'private' structure";
+    when (fieldModifiers.isProtected && structModifiers.isPrivate) $
+      throwError fieldBinder "invalid 'protected' field in a 'private' structure";
     let inferMod         := !(fieldBinder.getArg 3).isNone;
     let (binders, type?) :=
       if binfo == BinderInfo.default then
@@ -142,10 +150,10 @@ fieldBinders.foldlM
         when (isInternalSubobjectFieldName name) $
           throwError ident ("invalid field name '" ++ name ++ "', identifiers starting with '_' are reserved to the system");
         let declName := structDeclName ++ name;
-        declName ← applyVisibility ident modifiers.visibility declName;
+        declName ← applyVisibility ident fieldModifiers.visibility declName;
         pure $ views.push {
           ref        := ident,
-          modifiers  := modifiers,
+          modifiers  := fieldModifiers,
           binderInfo := binfo,
           inferMod   := inferMod,
           declName   := declName,
@@ -422,8 +430,8 @@ scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
   declName ← mkDeclName declId modifiers name;
   allUserLevelNames ← getLevelNames;
-  ctor ← expandCtor stx declName;
-  fields ← expandFields stx declName;
+  ctor ← expandCtor stx modifiers declName;
+  fields ← expandFields stx modifiers declName;
   r ← runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructureView {
     ref               := stx,
     modifiers         := modifiers,

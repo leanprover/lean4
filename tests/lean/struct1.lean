@@ -39,3 +39,18 @@ structure S extends A Nat :=
 
 structure S :=
 (x : Nat := true) -- error type mismatch
+
+private structure S :=
+private mk :: (x : Nat)
+
+private structure S :=
+protected mk :: (x : Nat)
+
+private structure S :=
+protected (x : Nat)
+
+private structure S :=
+mk2 :: (x : Nat)
+
+#check S
+#check S.mk2

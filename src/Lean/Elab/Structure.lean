@@ -323,7 +323,6 @@ let r       : Level := r.getLevelOffset;
 match r with
 | Level.mvar mvarId _ => do
   us ← collectUniversesFromFields ref r rOffset fieldInfos;
-  _root_.dbgTrace ("us: " ++ toString us) fun _ => do
   let rNew := Level.mkNaryMax us.toList;
   Term.assignLevelMVar mvarId rNew;
   Term.instantiateMVars ref type
@@ -361,8 +360,10 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
     | Except.error msg      => Term.throwError ref msg
     | Except.ok levelParams => do
+      structType ← Term.mkForall ref view.params type;
+      structType ← Term.mkForall ref scopeVars structType;
       -- TODO
-      Term.throwError view.ref ("WIP " ++ toString levelParams)
+      Term.throwError view.ref ("WIP " ++ toString levelParams ++ " " ++ structType)
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields

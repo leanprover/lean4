@@ -88,6 +88,8 @@ private def resolveGlobalNameAux (env : Environment) (ns : Name) (openDecls : Li
   | some newId => [(newId, projs)]
   | none =>
   let resolvedIds := if env.contains id then [id] else [];
+  let idPrv := mkPrivateName env id;
+  let resolvedIds := if env.contains idPrv then [idPrv] ++ resolvedIds else resolvedIds;
   let resolvedIds := resolveOpenDecls env id openDecls resolvedIds;
   let resolvedIds := getAliases env id ++ resolvedIds;
   match resolvedIds with

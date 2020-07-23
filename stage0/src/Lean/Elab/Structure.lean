@@ -54,13 +54,29 @@ inductive StructFieldKind
 | newField | fromParent | subobject
 
 structure StructFieldInfo :=
-(name   : Name)
-(fvar   : Expr)
-(kind   : StructFieldKind)
-(value? : Option Expr := none)
+(name     : Name)
+(declName : Name) -- Remark: this field value doesn't matter for fromParent fields.
+(fvar     : Expr)
+(kind     : StructFieldKind)
+(inferMod : Bool := false)
+(value?   : Option Expr := none)
+
+instance StructFieldInfo.inhabited : Inhabited StructFieldInfo :=
+⟨{ name := arbitrary _, declName := arbitrary _, fvar := arbitrary _, kind := StructFieldKind.newField }⟩
+
+def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
+match info.kind with
+| StructFieldKind.fromParent => true
+| _                          => false
+
+/- Auxiliary declaration for `mkProjections` -/
+structure ProjectionInfo :=
+(declName : Name)
+(inferMod : Bool)
 
 structure ElabStructResult :=
 (decl      : Declaration)
+(projInfos : List ProjectionInfo)
 
 private def defaultCtorName := `mk
 
@@ -70,19 +86,23 @@ The structore constructor syntax is
 parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
 ```
 -/
-private def expandCtor (structStx : Syntax) (structDeclName : Name) : CommandElabM StructCtorView :=
+private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM StructCtorView :=
 let optCtor := structStx.getArg 6;
 if optCtor.isNone then
   pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := structDeclName ++ defaultCtorName }
 else do
   let ctor := optCtor.getArg 0;
-  modifiers ← elabModifiers (ctor.getArg 0);
-  checkValidCtorModifier ctor modifiers;
+  ctorModifiers ← elabModifiers (ctor.getArg 0);
+  checkValidCtorModifier ctor ctorModifiers;
+  when (ctorModifiers.isPrivate && structModifiers.isPrivate) $
+    throwError ctor "invalid 'private' constructor in a 'private' structure";
+  when (ctorModifiers.isProtected && structModifiers.isPrivate) $
+    throwError ctor "invalid 'protected' constructor in a 'private' structure";
   let inferMod := !(ctor.getArg 2).isNone;
   let name := ctor.getIdAt 1;
   let declName := structDeclName ++ name;
-  declName ← applyVisibility ctor modifiers.visibility declName;
-  pure { ref := ctor, name := name, modifiers := modifiers, inferMod := inferMod, declName := declName }
+  declName ← applyVisibility ctor ctorModifiers.visibility declName;
+  pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
 
 def checkValidFieldModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
 when modifiers.isNoncomputable $
@@ -105,7 +125,7 @@ def structInstBinder     := parser! try (declModifiers >> "[") >> many1 ident >>
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
-private def expandFields (structStx : Syntax) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
+private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
 let fieldBinders := ((structStx.getArg 7).getArg 0).getArgs;
 fieldBinders.foldlM
   (fun (views : Array StructFieldView) fieldBinder => do
@@ -115,8 +135,12 @@ fieldBinders.foldlM
       else if k == `Lean.Parser.Command.structImplicitBinder then pure BinderInfo.implicit
       else if k == `Lean.Parser.Command.structInstBinder then pure BinderInfo.instImplicit
       else throwError fieldBinder "unexpected kind of structure field";
-    modifiers ← elabModifiers (fieldBinder.getArg 0);
-    checkValidFieldModifier fieldBinder modifiers;
+    fieldModifiers ← elabModifiers (fieldBinder.getArg 0);
+    checkValidFieldModifier fieldBinder fieldModifiers;
+    when (fieldModifiers.isPrivate && structModifiers.isPrivate) $
+      throwError fieldBinder "invalid 'private' field in a 'private' structure";
+    when (fieldModifiers.isProtected && structModifiers.isPrivate) $
+      throwError fieldBinder "invalid 'protected' field in a 'private' structure";
     let inferMod         := !(fieldBinder.getArg 3).isNone;
     let (binders, type?) :=
       if binfo == BinderInfo.default then
@@ -139,10 +163,10 @@ fieldBinders.foldlM
         when (isInternalSubobjectFieldName name) $
           throwError ident ("invalid field name '" ++ name ++ "', identifiers starting with '_' are reserved to the system");
         let declName := structDeclName ++ name;
-        declName ← applyVisibility ident modifiers.visibility declName;
+        declName ← applyVisibility ident fieldModifiers.visibility declName;
         pure $ views.push {
           ref        := ident,
-          modifiers  := modifiers,
+          modifiers  := fieldModifiers,
           binderInfo := binfo,
           inferMod   := inferMod,
           declName   := declName,
@@ -184,7 +208,7 @@ private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (pa
     val  ← Term.liftMetaM ref $ Meta.mkProjection parentFVar subfieldName;
     type ← Term.inferType ref val;
     Term.withLetDecl ref subfieldName type val fun subfieldFVar =>
-      let infos := infos.push { name := subfieldName, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
+      let infos := infos.push { name := subfieldName, declName := arbitrary _, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
       processSubfields (i+1) infos k
   else
     k infos
@@ -201,7 +225,7 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
     env ← Term.getEnv;
     let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default;
     Term.withLocalDecl parentStx toParentName binfo parent $ fun parentFVar =>
-      let infos := infos.push { name := toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
+      let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
       let subfieldNames := getStructureFieldsFlattened env parentName;
       processSubfields parentStx parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
   else
@@ -231,12 +255,13 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
       | none,      none => Term.throwError view.ref "invalid field, type expected"
       | some type, _    =>
         Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
-          let infos := infos.push { name := view.name, fvar := fieldFVar, value? := value?, kind := StructFieldKind.newField };
+          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
+                                    kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
       | none, some value => do
         type ← Term.inferType view.ref value;
         Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
-          let infos := infos.push { name := view.name, fvar := fieldFVar, kind := StructFieldKind.newField };
+          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
     | some info =>
       match info.kind with
@@ -342,6 +367,30 @@ s ← collectLevelParamsInFVars ref params s;
 s ← fieldInfos.foldlM (fun (s : CollectLevelParams.State) info => collectLevelParamsInFVar ref s info.fvar) s;
 pure s.params
 
+private def addCtorFields (ref : Syntax) (fieldInfos : Array StructFieldInfo) : Nat → Expr → TermElabM Expr
+| 0,   type => pure type
+| i+1, type => do
+  let info := fieldInfos.get! i;
+  decl ← Term.getFVarLocalDecl! info.fvar;
+  let type := type.abstract #[info.fvar];
+  match info.kind with
+  | StructFieldKind.fromParent =>
+    let val := decl.value;
+    addCtorFields i (type.instantiate1 val)
+  | StructFieldKind.subobject =>
+    let n := mkInternalSubobjectFieldName $ decl.userName;
+    addCtorFields i (mkForall n decl.binderInfo decl.type type)
+  | StructFieldKind.newField =>
+    addCtorFields i (mkForall decl.userName decl.binderInfo decl.type type)
+
+private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor := do
+let type := mkAppN (mkConst view.declName (levelParams.map mkLevelParam)) params;
+type ← addCtorFields view.ref fieldInfos fieldInfos.size type;
+type ← Term.mkForall view.ref params type;
+type ← Term.instantiateMVars view.ref type;
+let type := type.inferImplicit params.size !view.ctor.inferMod;
+pure { name := view.ctor.declName, type := type }
+
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
@@ -360,10 +409,25 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
     | Except.error msg      => Term.throwError ref msg
     | Except.ok levelParams => do
-      structType ← Term.mkForall ref view.params type;
-      structType ← Term.mkForall ref scopeVars structType;
-      -- TODO
-      Term.throwError view.ref ("WIP " ++ toString levelParams ++ " " ++ structType)
+      let params := scopeVars ++ view.params;
+      ctor ← mkCtor view levelParams params fieldInfos;
+      type ← Term.mkForall ref view.params type;
+      type ← Term.mkForall ref scopeVars type;
+      type ← Term.instantiateMVars ref type;
+      let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
+      let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
+      let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
+        { declName := info.declName, inferMod := info.inferMod : ProjectionInfo };
+      pure { decl := decl, projInfos := projInfos }
+
+@[extern "lean_mk_projections"]
+private constant mkProjections (env : Environment) (structName : @& Name) (projs : @& List ProjectionInfo) (isClass : Bool) : Except String Environment := arbitrary _
+
+private def addProjections (ref : Syntax) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : CommandElabM Unit := do
+env ← getEnv;
+match mkProjections env structName projs isClass with
+| Except.ok env    => setEnv env
+| Except.error msg => throwError ref msg
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
@@ -391,8 +455,8 @@ scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
   declName ← mkDeclName declId modifiers name;
   allUserLevelNames ← getLevelNames;
-  ctor ← expandCtor stx declName;
-  fields ← expandFields stx declName;
+  ctor ← expandCtor stx modifiers declName;
+  fields ← expandFields stx modifiers declName;
   r ← runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructureView {
     ref               := stx,
     modifiers         := modifiers,
@@ -407,7 +471,13 @@ withDeclId declId $ fun name => do
     ctor              := ctor,
     fields            := fields
   };
-  pure () -- TODO
+  let ref := declId;
+  addDecl ref r.decl;
+  addProjections ref declName r.projInfos isClass;
+  -- TODO: add auxiliary definitions recOn and casesOn
+  -- TODO: register default values
+  -- TODO: add coercions
+  pure ()
 
 end Command
 end Elab

@@ -234,7 +234,6 @@ lean_object* l___private_Lean_Elab_App_17__addLValArg___main___closed__11;
 lean_object* l_Lean_Elab_Term_elabApp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPathToBaseStructure_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeAppInstMVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__1;
 lean_object* l___private_Lean_Elab_App_4__tryCoeFun___closed__3;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -251,6 +250,7 @@ extern lean_object* l_Lean_Elab_Term_TermElabResult_inhabited;
 lean_object* l_List_map___main___at___private_Lean_Elab_App_20__elabAppFnId___spec__1(lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_App_24__mergeFailures___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
+extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabProj___closed__1;
 lean_object* l___private_Lean_Elab_App_4__tryCoeFun___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAutoParam(lean_object*);
@@ -16952,7 +16952,7 @@ if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_13);
-x_14 = l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__1;
+x_14 = l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
 x_15 = l_unreachable_x21___rarg(x_14);
 lean_inc(x_4);
 x_16 = lean_apply_2(x_15, x_4, x_5);

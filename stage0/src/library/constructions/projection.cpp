@@ -110,6 +110,25 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     return new_env;
 }
 
+
+extern "C" object * lean_mk_projections(object * env, object * struct_name, object * proj_infos, uint8 inst_implicit) {
+    environment new_env(env);
+    name n(struct_name, true);
+    list_ref<object_ref> ps(proj_infos, true);
+    buffer<name> proj_names;
+    buffer<implicit_infer_kind> infer_kinds;
+    for (auto p : ps) {
+        proj_names.push_back(cnstr_get_ref_t<name>(p, 0));
+        infer_kinds.push_back(unbox(cnstr_get_ref(p, 1).raw()) == 0 ? implicit_infer_kind::RelaxedImplicit : implicit_infer_kind::Implicit);
+    }
+    try {
+        new_env = mk_projections(new_env, n, proj_names, infer_kinds, inst_implicit != 0);
+        return mk_except_ok(new_env);
+    } catch (exception & ex) {
+        return mk_except_error(string_ref(ex.what()));
+    }
+}
+
 void initialize_def_projection() {
 }
 

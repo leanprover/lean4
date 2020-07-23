@@ -25,6 +25,7 @@ lean_object* l___private_Lean_Structure_3__getStructureFieldsFlattenedAux___main
 lean_object* l___private_Lean_Structure_1__getStructureFieldsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+lean_object* l_Array_anyRangeMAux___main___at_Lean_getProjFnForField_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -35,12 +36,14 @@ uint8_t l___private_Lean_Structure_4__hasProjFn___main(lean_object*, lean_object
 uint8_t l_Lean_isInternalSubobjectFieldName(lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Array_contains___at_Lean_findField_x3f___main___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_getProjFnForField_x3f(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Structure_3__getStructureFieldsFlattenedAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_1__getStructureFieldsAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_isStructureLike___boxed(lean_object*, lean_object*);
+uint8_t l_Array_anyRangeMAux___main___at_Lean_getProjFnForField_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_2__isSubobjectFieldAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_getStructureFieldsFlattened(lean_object*, lean_object*);
@@ -300,7 +303,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = lean_unsigned_to_nat(39u);
+x_2 = lean_unsigned_to_nat(44u);
 x_3 = lean_unsigned_to_nat(7u);
 x_4 = l_Lean_getStructureCtor___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -320,7 +323,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = lean_unsigned_to_nat(38u);
+x_2 = lean_unsigned_to_nat(43u);
 x_3 = lean_unsigned_to_nat(9u);
 x_4 = l_Lean_getStructureCtor___closed__4;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -558,7 +561,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = lean_unsigned_to_nat(60u);
+x_2 = lean_unsigned_to_nat(66u);
 x_3 = lean_unsigned_to_nat(11u);
 x_4 = l___private_Lean_Structure_2__isSubobjectFieldAux___main___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -1137,6 +1140,87 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+uint8_t l_Array_anyRangeMAux___main___at_Lean_getProjFnForField_x3f___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; 
+x_7 = lean_nat_dec_lt(x_6, x_5);
+if (x_7 == 0)
+{
+uint8_t x_8; 
+lean_dec(x_6);
+x_8 = 0;
+return x_8;
+}
+else
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_array_fget(x_4, x_6);
+x_10 = lean_name_eq(x_3, x_9);
+lean_dec(x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_add(x_6, x_11);
+lean_dec(x_6);
+x_6 = x_12;
+goto _start;
+}
+else
+{
+lean_dec(x_6);
+return x_10;
+}
+}
+}
+}
+lean_object* l_Lean_getProjFnForField_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_inc(x_2);
+lean_inc(x_1);
+x_4 = l_Lean_getStructureFields(x_1, x_2);
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = l_Array_anyRangeMAux___main___at_Lean_getProjFnForField_x3f___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_1);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_8 = lean_box(0);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = l_Lean_Name_append___main(x_2, x_3);
+lean_dec(x_2);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+}
+}
+lean_object* l_Array_anyRangeMAux___main___at_Lean_getProjFnForField_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = l_Array_anyRangeMAux___main___at_Lean_getProjFnForField_x3f___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_8 = lean_box(x_7);
+return x_8;
+}
+}
 lean_object* l_Array_findSomeMAux___main___at_Lean_getPathToBaseStructureAux___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1174,24 +1258,42 @@ goto _start;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_object* x_15; lean_object* x_16; 
 x_15 = lean_ctor_get(x_11, 0);
 lean_inc(x_15);
 lean_dec(x_11);
-x_16 = l_Lean_Name_append___main(x_3, x_10);
-lean_inc(x_4);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_16);
-lean_ctor_set(x_17, 1, x_4);
+lean_inc(x_3);
 lean_inc(x_1);
-x_18 = l_Lean_getPathToBaseStructureAux___main(x_1, x_2, x_15, x_17);
-if (lean_obj_tag(x_18) == 0)
+x_16 = l_Lean_getProjFnForField_x3f(x_1, x_3, x_10);
+if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_unsigned_to_nat(1u);
-x_20 = lean_nat_add(x_6, x_19);
+lean_object* x_17; lean_object* x_18; 
+lean_dec(x_15);
+x_17 = lean_unsigned_to_nat(1u);
+x_18 = lean_nat_add(x_6, x_17);
 lean_dec(x_6);
-x_6 = x_20;
+x_6 = x_18;
+goto _start;
+}
+else
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = lean_ctor_get(x_16, 0);
+lean_inc(x_20);
+lean_dec(x_16);
+lean_inc(x_4);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_4);
+lean_inc(x_1);
+x_22 = l_Lean_getPathToBaseStructureAux___main(x_1, x_2, x_15, x_21);
+if (lean_obj_tag(x_22) == 0)
+{
+lean_object* x_23; lean_object* x_24; 
+x_23 = lean_unsigned_to_nat(1u);
+x_24 = lean_nat_add(x_6, x_23);
+lean_dec(x_6);
+x_6 = x_24;
 goto _start;
 }
 else
@@ -1200,7 +1302,8 @@ lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-return x_18;
+return x_22;
+}
 }
 }
 }

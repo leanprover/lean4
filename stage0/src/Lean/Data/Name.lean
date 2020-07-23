@@ -28,6 +28,10 @@ def getRoot : Name → Name
 | str n _ _             => getRoot n
 | num n _ _             => getRoot n
 
+def getString! : Name → String
+| str _ s _ => s
+| _         => unreachable!
+
 def getNumParts : Name → Nat
 | anonymous => 0
 | str p _ _ => getNumParts p + 1

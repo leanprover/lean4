@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.SynthInstance
 
@@ -270,6 +271,37 @@ match type.eq? with
 
 def mkPure (m : Expr) (e : Expr) : MetaM Expr := do
 mkAppOptM `HasPure.pure #[m, none, none, e]
+
+/--
+  `mkProjection s fieldName` return an expression for accessing field `fieldName` of the structure `s`.
+  Remark: `fieldName` may be a subfield of `s`. -/
+partial def mkProjection : Expr → Name → MetaM Expr
+| s, fieldName => do
+  type ← inferType s;
+  type ← whnf type;
+  match type.getAppFn with
+  | Expr.const structName us _ => do
+    env ← getEnv;
+    unless (isStructureLike env structName) $ throwEx $ Exception.appBuilder `mkProjectionn "structure expected" #[s];
+    match getProjFnForField? env structName fieldName with
+    | some projFn =>
+      let params := type.getAppArgs;
+      pure $ mkApp (mkAppN (mkConst projFn us) params) s
+    | none => do
+      let fields := getStructureFields env structName;
+      r? ← fields.findSomeM? fun fieldName' =>
+        match isSubobjectField? env structName fieldName' with
+        | none   => pure none
+        | some _ => do {
+          parent ← mkProjection s fieldName';
+          (do r ← mkProjection parent fieldName; pure $ some r)
+          <|>
+          pure none
+        };
+      match r? with
+      | some r => pure r
+      | none   => throwEx $ Exception.appBuilder `mkProjectionn ("invalid field name '" ++ toString fieldName ++ "'") #[s]
+  | _ => throwEx $ Exception.appBuilder `mkProjectionn "structure expected" #[s]
 
 end Meta
 end Lean

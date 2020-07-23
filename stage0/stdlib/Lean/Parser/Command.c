@@ -16393,7 +16393,7 @@ if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; 
 lean_inc(x_1);
-x_41 = l_Lean_Parser_Command_declSig___elambda__1(x_1, x_39);
+x_41 = l_Lean_Parser_Command_optDeclSig___elambda__1(x_1, x_39);
 x_42 = lean_ctor_get(x_41, 3);
 lean_inc(x_42);
 if (lean_obj_tag(x_42) == 0)
@@ -16928,7 +16928,7 @@ if (lean_obj_tag(x_190) == 0)
 {
 lean_object* x_191; lean_object* x_192; 
 lean_inc(x_1);
-x_191 = l_Lean_Parser_Command_declSig___elambda__1(x_1, x_189);
+x_191 = l_Lean_Parser_Command_optDeclSig___elambda__1(x_1, x_189);
 x_192 = lean_ctor_get(x_191, 3);
 lean_inc(x_192);
 if (lean_obj_tag(x_192) == 0)
@@ -17245,7 +17245,7 @@ lean_object* _init_l_Lean_Parser_Command_structExplicitBinder___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Command_declSig;
+x_1 = l_Lean_Parser_Command_optDeclSig;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = l_Lean_Parser_Command_structExplicitBinder___closed__3;

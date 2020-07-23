@@ -592,12 +592,12 @@ struct structure_cmd_fn {
                         return mk_lambda(binding_name(e), mk_as_is(binding_domain(e)), pi_to_lam(binding_body(e), i + 1),
                                          i < nparams ? mk_implicit_binder_info() : mk_binder_info());
                     };
-                    type = pi_to_lam(type, 0);
-                    type = mk_app(type, base_obj);
+                type = pi_to_lam(type, 0);
+                type = mk_app(type, base_obj);
 
-                    expr proj = mk_proj_app(m_env, full_fname.get_prefix(), full_fname.get_string(), base_obj);
-                    expr subfield = mk_local(full_fname.get_string(), type);
-                    m_fields.emplace_back(subfield, some_expr(proj), field_kind::from_parent);
+                expr proj = mk_proj_app(m_env, full_fname.get_prefix(), full_fname.get_string(), base_obj);
+                expr subfield = mk_local(full_fname.get_string(), type);
+                m_fields.emplace_back(subfield, some_expr(proj), field_kind::from_parent);
             }
         }
     }

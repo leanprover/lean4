@@ -250,11 +250,9 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
    `inferResultingUniverse`. -/
 private def levelMVarToParamAux (ref : Syntax) (indTypes : List InductiveType) : StateT Nat TermElabM (List InductiveType) :=
 indTypes.mapM fun indType => do
-  type  ← liftM $ Term.instantiateMVars ref indType.type;
-  type  ← Term.levelMVarToParam' type;
+  type  ← Term.levelMVarToParam' indType.type;
   ctors ← indType.ctors.mapM fun ctor => do {
-    ctorType ← liftM $ Term.instantiateMVars ref ctor.type;
-    ctorType ← Term.levelMVarToParam' ctorType;
+    ctorType ← Term.levelMVarToParam' ctor.type;
     pure { ctor with type := ctorType }
   };
   pure { indType with ctors := ctors, type := type }
@@ -270,14 +268,13 @@ private def getResultingUniverse (ref : Syntax) : List InductiveType → TermEla
   | Expr.sort u _ => pure u
   | _             => Term.throwError ref "unexpected inductive type resulting type"
 
-private def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
+def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
 
 /--
-  Return true if the resulting universe level is of the form `?m + k`.
-  Return false if the resulting universe level does not contain universe metavariables.
-  Throw exeception otherwise. -/
-private def shouldInferResultUniverse (ref : Syntax) (indTypes : List InductiveType) : TermElabM Bool := do
-u ← getResultingUniverse ref indTypes;
+  Return true if `u` is of the form `?m + k`.
+  Return false if `u` does not contain universe metavariables.
+  Throw exception otherwise. -/
+def shouldInferResultUniverse (ref : Syntax) (u : Level) : TermElabM Bool := do
 u ← Term.instantiateLevelMVars ref u;
 if u.hasMVar then
   match u.getLevelOffset with
@@ -292,15 +289,15 @@ else
 
 /-
   Auxiliary function for `updateResultingUniverse`
-  `addLevel u r rOffset us` add `u` components to `us` if they are not already there and it is different from the resulting universe level `r+rOffset`.
+  `accLevelAtCtor u r rOffset us` add `u` components to `us` if they are not already there and it is different from the resulting universe level `r+rOffset`.
   If `u` is a `max`, then its components are recursively processed.
   If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
 
   This method is used to infer the resulting universe level of an inductive datatype. -/
-private def addLevel : Level → Level → Nat → Array Level → Except String (Array Level)
-| Level.max u v _, r, rOffset,   us => do us ← addLevel u r rOffset us; addLevel v r rOffset us
+def accLevelAtCtor : Level → Level → Nat → Array Level → Except String (Array Level)
+| Level.max u v _, r, rOffset,   us => do us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
 | Level.zero _,    _, _,         us => pure us
-| Level.succ u _,  r, rOffset+1, us => addLevel u r rOffset us
+| Level.succ u _,  r, rOffset+1, us => accLevelAtCtor u r rOffset us
 | u,               r, rOffset,   us =>
   if rOffset == 0 && u == r then pure us
   else if r.occurs u then throw "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
@@ -312,7 +309,7 @@ private partial def collectUniversesFromCtorTypeAux (ref : Syntax) (r : Level) (
 | 0,   Expr.forallE n d b c, us => do
   u ← Term.getLevel ref d;
   u ← Term.instantiateLevelMVars ref u;
-  match addLevel u r rOffset us with
+  match accLevelAtCtor u r rOffset us with
   | Except.error msg => Term.throwError ref msg
   | Except.ok us     => Term.withLocalDecl ref n c.binderInfo d $ fun x =>
     let e := b.instantiate1 x;
@@ -449,7 +446,8 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       [];
     let indTypes := indTypes.reverse;
     Term.synthesizeSyntheticMVars false;  -- resolve pending
-    inferLevel ← shouldInferResultUniverse ref indTypes;
+    u ← getResultingUniverse ref indTypes;
+    inferLevel ← shouldInferResultUniverse ref u;
     withUsed ref vars indTypes $ fun vars => do
       let numParams := vars.size + numExplicitParams;
       indTypes ← updateParams ref vars indTypes;

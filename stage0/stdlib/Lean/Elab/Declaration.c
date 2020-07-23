@@ -83,6 +83,7 @@ lean_object* l_Lean_Elab_Command_elabInstance___closed__1;
 extern lean_object* l_Lean_Parser_Command_set__option___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabInstance___closed__2;
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Command_elabStructure___closed__8;
 extern lean_object* l_Lean_Parser_Command_def___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Command_declValSimple___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabInductiveViews(lean_object*, lean_object*, lean_object*);
@@ -141,7 +142,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Elab_Declaration_3__isMutualInductive___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabAbbrev___closed__2;
-extern lean_object* l_Lean_Elab_Command_elabStructure___closed__1;
 lean_object* l___private_Lean_Elab_Declaration_7__expandMutualPreamble_x3f___closed__10;
 lean_object* l_Lean_Elab_Command_elabStructure(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_addAttribute(lean_object*, lean_object*);
@@ -2606,7 +2606,7 @@ lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = l_Lean_Elab_Command_elabStructure___closed__1;
+x_5 = l_Lean_Elab_Command_elabStructure___closed__8;
 x_6 = l_Lean_Elab_Command_Modifiers_addAttribute(x_1, x_5);
 x_7 = lean_unsigned_to_nat(2u);
 lean_inc(x_3);

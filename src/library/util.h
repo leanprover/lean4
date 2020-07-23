@@ -124,6 +124,11 @@ unsigned get_num_constructors(environment const & env, name const & n);
     \pre inductive::is_intro_rule(env, n) */
 unsigned get_constructor_idx(environment const & env, name const & n);
 
+/** \brief Given a constructor name, return the associated inductive type name.
+
+    \pre inductive::is_intro_rule(env, ctor_name) */
+name get_constructor_inductive_type(environment const & env, name const & ctor_name);
+
 /** \brief Given an expression \c e, return the number of arguments expected arguments.
 
     \remark This function counts the number of nested Pi's in \c e. Weak-head-normal-forms are computed for the type of \c e.

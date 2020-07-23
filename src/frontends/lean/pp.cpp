@@ -685,7 +685,7 @@ static bool is_structure_instance(environment const & env, expr const & e, bool 
     if (!is_constant(fn)) return false;
     name const & mk_name = const_name(fn);
     if (!is_constructor(env, mk_name)) return false;
-    name const & S       = mk_name.get_prefix();
+    name S = get_constructor_inductive_type(env, mk_name);
     if (!is_structure(env, S)) return false;
     /* If implicit arguments is true, and the structure has parameters, we should not
        pretty print using { ... }, because we will not be able to see the parameters. */

@@ -318,6 +318,13 @@ unsigned get_constructor_idx(environment const & env, name const & n) {
     lean_unreachable();
 }
 
+name get_constructor_inductive_type(environment const & env, name const & ctor_name) {
+    constant_info info  = env.get(ctor_name);
+    lean_assert(info.is_constructor());
+    constructor_val val = info.to_constructor_val();
+    return val.get_induct();
+}
+
 expr instantiate_lparam(expr const & e, name const & p, level const & l) {
     return instantiate_lparams(e, names(p), levels(l));
 }

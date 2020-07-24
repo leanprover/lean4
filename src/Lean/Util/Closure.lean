@@ -14,6 +14,7 @@ namespace Closure
 structure Context :=
 (mctx      : MetavarContext)
 (lctxInput : LocalContext)
+(zeta      : Bool) -- if `true` let-variables are expanded
 
 structure State :=
 (lctxOutput    : LocalContext := {})
@@ -138,11 +139,14 @@ partial def collectExprAux : Expr → ClosureM Expr
       x    ← mkLocalDecl userName type;
       modify $ fun s => { s with exprClosure := s.exprClosure.push e };
       pure x
-    | some (LocalDecl.ldecl _ _ userName type value) => do
-      type  ← collect type;
-      value ← collect value;
-      -- Note that let-declarations do not need to be provided to the closure being constructed.
-      mkLetDecl userName type value
+    | some (LocalDecl.ldecl _ _ userName type value) =>
+      if ctx.zeta then
+        collect value
+      else do
+        type  ← collect type;
+        value ← collect value;
+        -- Note that let-declarations do not need to be provided to the closure being constructed.
+        mkLetDecl userName type value
   | e => pure e
 
 def collectExpr (e : Expr) : ClosureM Expr :=
@@ -155,7 +159,7 @@ structure MkClosureResult :=
 (levelClosure : Array Level)
 (exprClosure  : Array Expr)
 
-def mkClosure (mctx : MetavarContext) (lctx : LocalContext) (type : Expr) (value : Expr) : Except String MkClosureResult :=
+def mkClosure (mctx : MetavarContext) (lctx : LocalContext) (type : Expr) (value : Expr) (zeta : Bool := false) : Except String MkClosureResult :=
 let shareCommonTypeValue : Std.ShareCommonM (Expr × Expr) := do {
   type  ← Std.withShareCommon type;
   value ← Std.withShareCommon value;
@@ -167,7 +171,7 @@ let mkTypeValue : ClosureM (Expr × Expr) := do {
   value ← collectExpr value;
   pure (type, value)
 };
-match (mkTypeValue { mctx := mctx, lctxInput := lctx }).run {} with
+match (mkTypeValue { mctx := mctx, lctxInput := lctx, zeta := zeta }).run {} with
 | EStateM.Result.ok (type, value) s =>
   let fvars := s.lctxOutput.getFVars;
   let type  := s.lctxOutput.mkForall fvars type;
@@ -183,8 +187,8 @@ match (mkTypeValue { mctx := mctx, lctxInput := lctx }).run {} with
 end Closure
 
 def mkAuxDefinition (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
-    : Except KernelException (Expr × Environment) :=
-match Closure.mkClosure mctx lctx type value with
+    (zeta : Bool := false) : Except KernelException (Expr × Environment) :=
+match Closure.mkClosure mctx lctx type value zeta with
 | Except.error ex  => throw $ KernelException.other ex
 | Except.ok result => do
   let decl := Declaration.defnDecl {

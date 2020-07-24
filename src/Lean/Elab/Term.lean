@@ -132,6 +132,7 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
 
 def setEnv (env : Environment) : TermElabM Unit := modify $ fun s => { s with env := env }
 def setMCtx (mctx : MetavarContext) : TermElabM Unit := modify $ fun s => { s with mctx := mctx }
+@[inline] def modifyEnv (f : Environment → Environment) : TermElabM Unit := modify $ fun s => { s with env := f s.env }
 
 def addContext (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
@@ -989,12 +990,12 @@ match env.compileDecl opts decl with
 | Except.ok env    => setEnv env
 | Except.error kex => throwError ref (kex.toMessageData opts)
 
-def mkAuxDefinition (ref : Syntax) (declName : Name) (type : Expr) (value : Expr) : TermElabM Expr := do
+def mkAuxDefinition (ref : Syntax) (declName : Name) (type : Expr) (value : Expr) (zeta : Bool := false) : TermElabM Expr := do
 env ← getEnv;
 opts ← getOptions;
 mctx ← getMCtx;
 lctx ← getLCtx;
-match Lean.mkAuxDefinition env opts mctx lctx declName type value with
+match Lean.mkAuxDefinition env opts mctx lctx declName type value zeta with
 | Except.error ex    => throwError ref (ex.toMessageData opts)
 | Except.ok (r, env) => do
   setEnv env;

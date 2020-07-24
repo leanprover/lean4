@@ -484,6 +484,7 @@ withDeclId declId $ fun name => do
   addDecl ref r.decl;
   addProjections ref declName r.projInfos isClass;
   mkAuxConstructions declName;
+  applyAttributes ref declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   -- TODO: register default values
   -- TODO: add coercions
   pure ()

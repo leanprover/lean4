@@ -429,6 +429,15 @@ match mkProjections env structName projs isClass with
 | Except.ok env    => setEnv env
 | Except.error msg => throwError ref msg
 
+private def mkAuxConstructions (declName : Name) : CommandElabM Unit := do
+env ← getEnv;
+let hasUnit := env.contains `PUnit;
+let hasEq   := env.contains `Eq;
+let hasHEq  := env.contains `HEq;
+modifyEnv fun env => mkRecOn env declName;
+when hasUnit $ modifyEnv fun env => mkCasesOn env declName;
+when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env declName
+
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
 
@@ -474,7 +483,7 @@ withDeclId declId $ fun name => do
   let ref := declId;
   addDecl ref r.decl;
   addProjections ref declName r.projInfos isClass;
-  -- TODO: add auxiliary definitions recOn and casesOn
+  mkAuxConstructions declName;
   -- TODO: register default values
   -- TODO: add coercions
   pure ()

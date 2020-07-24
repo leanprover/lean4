@@ -80,9 +80,13 @@ structure ProjectionInfo :=
 (inferMod : Bool)
 
 structure ElabStructResult :=
-(decl          : Declaration)
-(projInfos     : List ProjectionInfo)
-(projInstances : List Name) -- projections (to parent classes) that must be marked as instances.
+(decl            : Declaration)
+(projInfos       : List ProjectionInfo)
+(projInstances   : List Name) -- projections (to parent classes) that must be marked as instances.
+(mctx            : MetavarContext)
+(lctx            : LocalContext)
+(localInsts      : LocalInstances)
+(defaultAuxDecls : Array (Name × Expr × Expr))
 
 private def defaultCtorName := `mk
 
@@ -429,7 +433,16 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
         pure (info.isSubobject && decl.binderInfo.isInstImplicit)
       };
       let projInstances := instParents.toList.map fun info => info.declName;
-      pure { decl := decl, projInfos := projInfos, projInstances := projInstances }
+      mctx ← Term.getMCtx;
+      lctx ← Term.getLCtx;
+      localInsts ← Term.getLocalInsts;
+      let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome;
+      defaultAuxDecls ← fieldsWithDefault.mapM fun info => do {
+        type ← Term.inferType ref info.fvar;
+        pure (info.declName ++ `_default, type, info.value?.get!)
+      };
+      pure { decl := decl, projInfos := projInfos, projInstances := projInstances,
+             mctx := mctx, lctx := lctx, localInsts := localInsts, defaultAuxDecls := defaultAuxDecls }
 
 @[extern "lean_mk_projections"]
 private constant mkProjections (env : Environment) (structName : @& Name) (projs : @& List ProjectionInfo) (isClass : Bool) : Except String Environment := arbitrary _
@@ -448,6 +461,14 @@ let hasHEq  := env.contains `HEq;
 modifyEnv fun env => mkRecOn env declName;
 when hasUnit $ modifyEnv fun env => mkCasesOn env declName;
 when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env declName
+
+private def addDefaults (ref : Syntax) (mctx : MetavarContext) (lctx : LocalContext) (localInsts : LocalInstances)
+    (defaultAuxDecls : Array (Name × Expr × Expr)) : CommandElabM Unit :=
+liftTermElabM none $ Term.withLocalContext lctx localInsts do
+  Term.setMCtx mctx;
+  defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
+    _ ← Term.mkAuxDefinition ref declName type value;
+    pure ()
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
@@ -497,7 +518,7 @@ withDeclId declId $ fun name => do
   mkAuxConstructions declName;
   applyAttributes ref declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   r.projInstances.forM $ addInstance ref;
-  -- TODO: register default values
+  addDefaults ref r.mctx r.lctx r.localInsts r.defaultAuxDecls;
   pure ()
 
 end Command

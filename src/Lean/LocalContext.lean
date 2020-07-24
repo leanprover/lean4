@@ -63,6 +63,10 @@ def updateUserName : LocalDecl → Name → LocalDecl
 | cdecl index id _ type bi,  userName => cdecl index id userName type bi
 | ldecl index id _ type val, userName => ldecl index id userName type val
 
+def updateBinderInfo : LocalDecl → BinderInfo → LocalDecl
+| cdecl index id n type _,  bi => cdecl index id n type bi
+| ldecl _ _ _ _ _, _           => panic! "unexpected let declaration"
+
 def toExpr (decl : LocalDecl) : Expr :=
 mkFVar decl.fvarId
 
@@ -200,6 +204,16 @@ match lctx with
   | none      => lctx
   | some decl =>
     let decl := decl.updateUserName toName;
+    { fvarIdToDecl := map.insert decl.fvarId decl,
+      decls        := decls.set decl.index decl }
+
+def updateBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
+match lctx with
+| { fvarIdToDecl := map, decls := decls } =>
+  match lctx.find? fvarId with
+  | none      => lctx
+  | some decl =>
+    let decl := decl.updateBinderInfo bi;
     { fvarIdToDecl := map.insert decl.fvarId decl,
       decls        := decls.set decl.index decl }
 

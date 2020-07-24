@@ -162,6 +162,11 @@ attrs.forM $ fun attr => do
      env ← liftIO ref $ attrImpl.add env declName attr.args true;
      setEnv env
 
+def addInstance (ref : Syntax) (declName : Name) : CommandElabM Unit := do
+env ← getEnv;
+env ← liftIO ref $ Meta.addGlobalInstance env declName;
+setEnv env
+
 end Command
 end Elab
 end Lean

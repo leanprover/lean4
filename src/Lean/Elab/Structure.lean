@@ -69,14 +69,20 @@ match info.kind with
 | StructFieldKind.fromParent => true
 | _                          => false
 
+def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
+match info.kind with
+| StructFieldKind.subobject => true
+| _                         => false
+
 /- Auxiliary declaration for `mkProjections` -/
 structure ProjectionInfo :=
 (declName : Name)
 (inferMod : Bool)
 
 structure ElabStructResult :=
-(decl      : Declaration)
-(projInfos : List ProjectionInfo)
+(decl          : Declaration)
+(projInfos     : List ProjectionInfo)
+(projInstances : List Name) -- projections (to parent classes) that must be marked as instances.
 
 private def defaultCtorName := `mk
 
@@ -418,7 +424,12 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
       let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
       let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
         { declName := info.declName, inferMod := info.inferMod : ProjectionInfo };
-      pure { decl := decl, projInfos := projInfos }
+      instParents ← fieldInfos.filterM fun info => do {
+        decl ← Term.getFVarLocalDecl! info.fvar;
+        pure (info.isSubobject && decl.binderInfo.isInstImplicit)
+      };
+      let projInstances := instParents.toList.map fun info => info.declName;
+      pure { decl := decl, projInfos := projInfos, projInstances := projInstances }
 
 @[extern "lean_mk_projections"]
 private constant mkProjections (env : Environment) (structName : @& Name) (projs : @& List ProjectionInfo) (isClass : Bool) : Except String Environment := arbitrary _
@@ -485,8 +496,8 @@ withDeclId declId $ fun name => do
   addProjections ref declName r.projInfos isClass;
   mkAuxConstructions declName;
   applyAttributes ref declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+  r.projInstances.forM $ addInstance ref;
   -- TODO: register default values
-  -- TODO: add coercions
   pure ()
 
 end Command

@@ -909,6 +909,7 @@ xs.size.foldRevM
     match lctx.getFVar! x with
     | LocalDecl.cdecl _ _ n type bi =>
       if !usedOnly || e.hasLooseBVar 0 then do
+        let type := type.headBeta;
         type ← abstractRange xs i type;
         if isLambda then
           pure (Lean.mkLambda n bi type e, num + 1)

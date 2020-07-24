@@ -84,10 +84,10 @@ match userName? with
 | some userName => pure userName
 | none          => mkNextUserName
 
-def mkLocalDecl (userName? : Option Name) (type : Expr) : ClosureM Expr := do
+def mkLocalDecl (userName? : Option Name) (type : Expr) (bi : BinderInfo) : ClosureM Expr := do
 userName ← getUserName userName?;
 fvarId   ← mkFreshFVarId;
-modify $ fun s => { s with lctxOutput := s.lctxOutput.mkLocalDecl fvarId userName type };
+modify $ fun s => { s with lctxOutput := s.lctxOutput.mkLocalDecl fvarId userName type bi };
 pure $ mkFVar fvarId
 
 def mkLetDecl (userName : Name) (type : Expr) (value : Expr) : ClosureM Expr := do
@@ -127,16 +127,16 @@ partial def collectExprAux : Expr → ClosureM Expr
       | some v => collect v
       | none   => do
         type ← collect mvarDecl.type;
-        x    ← mkLocalDecl none type;
+        x    ← mkLocalDecl none type BinderInfo.default;
         modify $ fun s => { s with exprClosure := s.exprClosure.push e };
         pure x
   | Expr.fvar fvarId _ => do
     ctx ← read;
     match ctx.lctxInput.find? fvarId with
     | none => throw "unknown free variable"
-    | some (LocalDecl.cdecl _ _ userName type _) => do
+    | some (LocalDecl.cdecl _ _ userName type bi) => do
       type ← collect type;
-      x    ← mkLocalDecl userName type;
+      x    ← mkLocalDecl userName type bi;
       modify $ fun s => { s with exprClosure := s.exprClosure.push e };
       pure x
     | some (LocalDecl.ldecl _ _ userName type value) =>

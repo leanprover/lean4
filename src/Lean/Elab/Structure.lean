@@ -421,8 +421,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     | Except.ok levelParams => do
       let params := scopeVars ++ view.params;
       ctor ← mkCtor view levelParams params fieldInfos;
-      type ← Term.mkForall ref view.params type;
-      type ← Term.mkForall ref scopeVars type;
+      type ← Term.mkForall ref params type;
       type ← Term.instantiateMVars ref type;
       let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
       let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
@@ -441,6 +440,17 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
         type ← Term.inferType ref info.fvar;
         pure (info.declName ++ `_default, type, info.value?.get!)
       };
+      /- The `mctx`, `lctx`, `localInsts` and `defaultAuxDecls` are used to create the auxiliary `_default` declarations *after* the structure has been declarated.
+         The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
+      let lctx := params.foldl
+        (fun (lctx : LocalContext) (p : Expr) =>
+          lctx.updateBinderInfo p.fvarId! BinderInfo.implicit)
+        lctx;
+      let lctx := fieldInfos.foldl
+        (fun (lctx : LocalContext) (info : StructFieldInfo) =>
+          if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating `_default`.
+          else lctx.updateBinderInfo info.fvar.fvarId! BinderInfo.default)
+        lctx;
       pure { decl := decl, projInfos := projInfos, projInstances := projInstances,
              mctx := mctx, lctx := lctx, localInsts := localInsts, defaultAuxDecls := defaultAuxDecls }
 

@@ -539,6 +539,11 @@ fun stx => failIfSucceeds stx $ elabCheck stx
 def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.addDecl ref decl
 def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.compileDecl ref decl
 
+def addInstance (ref : Syntax) (declName : Name) : CommandElabM Unit := do
+env ← getEnv;
+env ← liftIO ref $ Meta.addGlobalInstance env declName;
+setEnv env
+
 unsafe def elabEvalUnsafe : CommandElab :=
 fun stx => withoutModifyingEnv do
   let ref  := stx;

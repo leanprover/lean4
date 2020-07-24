@@ -989,6 +989,17 @@ match env.compileDecl opts decl with
 | Except.ok env    => setEnv env
 | Except.error kex => throwError ref (kex.toMessageData opts)
 
+def mkAuxDefinition (ref : Syntax) (declName : Name) (type : Expr) (value : Expr) : TermElabM Expr := do
+env ← getEnv;
+opts ← getOptions;
+mctx ← getMCtx;
+lctx ← getLCtx;
+match Lean.mkAuxDefinition env opts mctx lctx declName type value with
+| Except.error ex    => throwError ref (ex.toMessageData opts)
+| Except.ok (r, env) => do
+  setEnv env;
+  pure r
+
 private partial def mkAuxNameAux (env : Environment) (base : Name) : Nat → Name
 | i =>
   let candidate := base.appendIndexAfter i;

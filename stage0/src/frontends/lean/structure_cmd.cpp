@@ -1052,8 +1052,6 @@ struct structure_cmd_fn {
     void declare_coercions() {
         buffer<name> coercion_names;
         mk_coercion_names(coercion_names);
-        names lnames = names(m_level_names);
-        levels st_ls             = lparams_to_levels(lnames);
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent            = m_parents[i];
             buffer<expr> parent_params;

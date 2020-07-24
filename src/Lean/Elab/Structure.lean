@@ -207,7 +207,7 @@ infos.find? fun info => info.name == fieldName
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
 (findFieldInfo? infos fieldName).isSome
 
-private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
+private partial def processSubfields {α} (ref : Syntax) (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
     : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
 | i, infos, k =>
   if h : i < subfieldNames.size then do
@@ -218,7 +218,10 @@ private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (pa
     val  ← Term.liftMetaM ref $ Meta.mkProjection parentFVar subfieldName;
     type ← Term.inferType ref val;
     Term.withLetDecl ref subfieldName type val fun subfieldFVar =>
-      let infos := infos.push { name := subfieldName, declName := arbitrary _, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
+      /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
+         its default value is overwritten in the structure. -/
+      let declName := structDeclName ++ subfieldName;
+      let infos := infos.push { name := subfieldName, declName := declName, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
       processSubfields (i+1) infos k
   else
     k infos
@@ -237,7 +240,7 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
     Term.withLocalDecl parentStx toParentName binfo parent $ fun parentFVar =>
       let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
       let subfieldNames := getStructureFieldsFlattened env parentName;
-      processSubfields parentStx parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
+      processSubfields parentStx view.declName parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
   else
     k infos
 

@@ -48,12 +48,16 @@ modify $ fun s => { s with levelParams := s.levelParams.push p, nextLevelIdx := 
 pure $ mkLevelParam p
 
 partial def collectLevelAux : Level → ClosureM Level
-| u@(Level.succ v _)   => do v ← visitLevel collectLevelAux v; pure $ u.updateSucc! v
-| u@(Level.max v w _)  => do v ← visitLevel collectLevelAux v; w ← visitLevel collectLevelAux w; pure $ u.updateMax! v w
-| u@(Level.imax v w _) => do v ← visitLevel collectLevelAux v; w ← visitLevel collectLevelAux w; pure $ u.updateIMax! v w
-| u@(Level.mvar _ _)   => mkNewLevelParam u
-| u@(Level.param _ _)  => mkNewLevelParam u
-| u@(Level.zero _)     => pure u
+| u@(Level.succ v _)      => do v ← visitLevel collectLevelAux v; pure $ u.updateSucc! v
+| u@(Level.max v w _)     => do v ← visitLevel collectLevelAux v; w ← visitLevel collectLevelAux w; pure $ u.updateMax! v w
+| u@(Level.imax v w _)    => do v ← visitLevel collectLevelAux v; w ← visitLevel collectLevelAux w; pure $ u.updateIMax! v w
+| u@(Level.mvar mvarId _) => do
+  ctx ← read;
+  match ctx.mctx.getLevelAssignment? mvarId with
+  | none   => mkNewLevelParam u
+  | some v => visitLevel collectLevelAux v
+| u@(Level.param _ _)     => mkNewLevelParam u
+| u@(Level.zero _)        => pure u
 
 def collectLevel (u : Level) : ClosureM Level :=
 visitLevel collectLevelAux u
@@ -117,11 +121,14 @@ partial def collectExprAux : Expr → ClosureM Expr
     ctx ← read;
     match ctx.mctx.findDecl? mvarId with
     | none          => throw "unknown metavariable"
-    | some mvarDecl => do
-      type ← collect mvarDecl.type;
-      x    ← mkLocalDecl none type;
-      modify $ fun s => { s with exprClosure := s.exprClosure.push e };
-      pure x
+    | some mvarDecl =>
+      match ctx.mctx.getExprAssignment? mvarId with
+      | some v => collect v
+      | none   => do
+        type ← collect mvarDecl.type;
+        x    ← mkLocalDecl none type;
+        modify $ fun s => { s with exprClosure := s.exprClosure.push e };
+        pure x
   | Expr.fvar fvarId _ => do
     ctx ← read;
     match ctx.lctxInput.find? fvarId with

@@ -119,7 +119,8 @@ extern "C" object * lean_mk_projections(object * env, object * struct_name, obje
     buffer<implicit_infer_kind> infer_kinds;
     for (auto p : ps) {
         proj_names.push_back(cnstr_get_ref_t<name>(p, 0));
-        infer_kinds.push_back(unbox(cnstr_get_ref(p, 1).raw()) == 0 ? implicit_infer_kind::RelaxedImplicit : implicit_infer_kind::Implicit);
+        bool infer_mod = cnstr_get_uint8(p.raw(), sizeof(object*));
+        infer_kinds.push_back(infer_mod ? implicit_infer_kind::Implicit : implicit_infer_kind::RelaxedImplicit);
     }
     try {
         new_env = mk_projections(new_env, n, proj_names, infer_kinds, inst_implicit != 0);

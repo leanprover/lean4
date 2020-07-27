@@ -31,6 +31,7 @@ structure State :=
 (scopes         : List Scope := [{ kind := "root", header := "" }])
 (nextMacroScope : Nat := firstFrontendMacroScope + 1)
 (maxRecDepth    : Nat)
+(ngen           : NameGenerator := {})
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _, maxRecDepth := 0 }⟩
 
@@ -207,19 +208,11 @@ let scope := s.scopes.head!;
 private def mkTermState (s : State) : Term.State :=
 { env            := s.env,
   messages       := s.messages,
-  nextMacroScope := s.nextMacroScope }
-
-private def updateState (s : State) (newS : Term.State) : State :=
-{ s with env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope }
+  nextMacroScope := s.nextMacroScope,
+  ngen           := s.ngen }
 
 private def getVarDecls (s : State) : Array Syntax :=
 s.scopes.head!.varDecls
-
-private def toCommandResult {α} (ctx : Context) (s : State) (result : EStateM.Result Term.Exception Term.State α) : EStateM.Result Exception State α :=
-match result with
-| EStateM.Result.ok a newS                          => EStateM.Result.ok a (updateState s newS)
-| EStateM.Result.error (Term.Exception.ex ex) newS  => EStateM.Result.error ex (updateState s newS)
-| EStateM.Result.error Term.Exception.postpone newS => unreachable!
 
 instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
@@ -228,8 +221,8 @@ instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ctx ← read;
 s ← get;
 match (x $ mkTermContext ctx s declName?).run (mkTermState s) with
-| EStateM.Result.ok a newS                          => do modify $ fun s => { s with env := newS.env, messages := newS.messages }; pure a
-| EStateM.Result.error (Term.Exception.ex ex) newS  => do modify $ fun s => { s with env := newS.env, messages := newS.messages }; throw ex
+| EStateM.Result.ok a newS                          => do modify $ fun s => { s with env := newS.env, messages := newS.messages, ngen := newS.ngen }; pure a
+| EStateM.Result.error (Term.Exception.ex ex) newS  => do modify $ fun s => { s with env := newS.env, messages := newS.messages, ngen := newS.ngen }; throw ex
 | EStateM.Result.error Term.Exception.postpone newS => unreachable!
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elab : Array Expr → TermElabM α) : CommandElabM α := do

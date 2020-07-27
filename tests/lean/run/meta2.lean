@@ -88,8 +88,6 @@ def mkProd (a b : Expr) : MetaM Expr := mkAppC `Prod #[a, b]
 def mkPair (a b : Expr) : MetaM Expr := mkAppC `Prod.mk #[a, b]
 def mkFst (s : Expr) : MetaM Expr := mkAppC `Prod.fst #[s]
 def mkSnd (s : Expr) : MetaM Expr := mkAppC `Prod.snd #[s]
-def mkId (a : Expr) : MetaM Expr := mkAppC `id #[a]
-
 
 def tst5 : MetaM Unit :=
 do print "----- tst5 -----";

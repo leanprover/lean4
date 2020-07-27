@@ -483,7 +483,7 @@ liftTermElabM none $ Term.withLocalContext lctx localInsts do
   Term.setMCtx mctx;
   defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
     /- The identity function is used as "marker". -/
-    value ← Term.mkAppM ref `id #[value];
+    value ← Term.liftMetaM ref $ Meta.mkId value;
     let zeta := true; -- expand `let-declarations`
     _ ← Term.mkAuxDefinition ref declName type value zeta;
     Term.modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;

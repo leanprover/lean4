@@ -248,22 +248,22 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
 | i, infos, k =>
   if h : i < views.size then do
     let view := views.get ⟨i, h⟩;
-    (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => do {
-      type? ← match view.type? with
-        | none         => pure none
-        | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall typeStx params type; pure $ some type };
-      value? ← match view.value? with
-        | none        => pure none
-        | some valStx => do {
-          value ← Term.elabTerm valStx type?;
-          value ← Term.mkLambda valStx params value;
-          value ← Term.ensureHasType valStx type? value;
-          pure $ some value
-        };
-      pure (type?, value?)
-    };
     match findFieldInfo? infos view.name with
     | none      => do
+      (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => do {
+        type? ← match view.type? with
+          | none         => pure none
+          | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall typeStx params type; pure $ some type };
+        value? ← match view.value? with
+          | none        => pure none
+          | some valStx => do {
+            value ← Term.elabTerm valStx type?;
+            value ← Term.mkLambda valStx params value;
+            value ← Term.ensureHasType valStx type? value;
+            pure $ some value
+          };
+        pure (type?, value?)
+      };
       match type?, value? with
       | none,      none => Term.throwError view.ref "invalid field, type expected"
       | some type, _    =>
@@ -280,12 +280,14 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
       match info.kind with
       | StructFieldKind.newField   => Term.throwError view.ref ("field '" ++ view.name ++ "' has already been declared")
       | StructFieldKind.fromParent =>
-        match value?, type? with
-        | none,       _      => Term.throwError view.ref ("field '" ++ view.name ++ "' has been declared in parent structure")
-        | _,          some _ => Term.throwError view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value")
-        | some value, none   => do
+        match view.value? with
+        | none       => Term.throwError view.ref ("field '" ++ view.name ++ "' has been declared in parent structure")
+        | some valStx => do
+          when (!view.binders.getArgs.isEmpty || view.type?.isSome) $
+            Term.throwError view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value");
           fvarType ← Term.inferType view.ref info.fvar;
-          value    ← Term.ensureHasType view.value?.get! fvarType value;
+          value ← Term.elabTerm valStx fvarType;
+          value ← Term.ensureHasType valStx fvarType value;
           let infos := infos.push { info with value? := value };
           withFields (i+1) infos k
       | StructFieldKind.subobject => unreachable!

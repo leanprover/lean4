@@ -42,7 +42,6 @@ extern lean_object* l_Lean_Parser_declareBuiltinParser___closed__8;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_StructInst_19__expandStruct___main___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_formatStruct___main___closed__4;
-extern lean_object* l_Lean_Meta_mkExpectedTypeHint___closed__1;
 lean_object* l_Lean_Elab_Term_mkFreshExprMVar(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_4__getAppRevArgsAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_getHierarchyDepth___main___boxed(lean_object*);
@@ -129,6 +128,7 @@ extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Elab_Term_StructInst_formatField(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_8__expandCompositeFields___closed__1;
 lean_object* l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_mkId___closed__1;
 extern lean_object* l_Lean_Parser_Term_typeAscription___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_StructInst_Field_hasFormat___closed__1;
 lean_object* l___private_Lean_Elab_StructInst_4__elabModifyOp___closed__11;
@@ -20512,7 +20512,7 @@ block_14:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 lean_dec(x_5);
-x_6 = l_Lean_Meta_mkExpectedTypeHint___closed__1;
+x_6 = l_Lean_Meta_mkId___closed__1;
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = l_Lean_Expr_isAppOfArity___main(x_2, x_6, x_7);
 if (x_8 == 0)

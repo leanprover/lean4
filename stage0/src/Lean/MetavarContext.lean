@@ -769,9 +769,11 @@ xs.size.foldRevM
     let x := xs.get! i;
     match lctx.getFVar! x with
     | LocalDecl.cdecl _ _ n type bi => do
+      let type := type.headBeta;
       type ← abstractRangeAux elimMVarDeps xs i type;
       pure $ Lean.mkForall n bi type e
     | LocalDecl.ldecl _ _ n type value => do
+      let type := type.headBeta;
       type  ← abstractRangeAux elimMVarDeps xs i type;
       value ← abstractRangeAux elimMVarDeps xs i value;
       let e := mkLet n type value e;
@@ -907,6 +909,7 @@ xs.size.foldRevM
     match lctx.getFVar! x with
     | LocalDecl.cdecl _ _ n type bi =>
       if !usedOnly || e.hasLooseBVar 0 then do
+        let type := type.headBeta;
         type ← abstractRange xs i type;
         if isLambda then
           pure (Lean.mkLambda n bi type e, num + 1)

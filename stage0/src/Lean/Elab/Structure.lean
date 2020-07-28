@@ -207,7 +207,7 @@ infos.find? fun info => info.name == fieldName
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
 (findFieldInfo? infos fieldName).isSome
 
-private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
+private partial def processSubfields {α} (ref : Syntax) (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
     : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
 | i, infos, k =>
   if h : i < subfieldNames.size then do
@@ -218,7 +218,10 @@ private partial def processSubfields {α} (ref : Syntax) (parentFVar : Expr) (pa
     val  ← Term.liftMetaM ref $ Meta.mkProjection parentFVar subfieldName;
     type ← Term.inferType ref val;
     Term.withLetDecl ref subfieldName type val fun subfieldFVar =>
-      let infos := infos.push { name := subfieldName, declName := arbitrary _, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
+      /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
+         its default value is overwritten in the structure. -/
+      let declName := structDeclName ++ subfieldName;
+      let infos := infos.push { name := subfieldName, declName := declName, fvar := subfieldFVar, kind := StructFieldKind.fromParent };
       processSubfields (i+1) infos k
   else
     k infos
@@ -237,7 +240,7 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
     Term.withLocalDecl parentStx toParentName binfo parent $ fun parentFVar =>
       let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
       let subfieldNames := getStructureFieldsFlattened env parentName;
-      processSubfields parentStx parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
+      processSubfields parentStx view.declName parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
   else
     k infos
 
@@ -245,22 +248,22 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
 | i, infos, k =>
   if h : i < views.size then do
     let view := views.get ⟨i, h⟩;
-    (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => do {
-      type? ← match view.type? with
-        | none         => pure none
-        | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall typeStx params type; pure $ some type };
-      value? ← match view.value? with
-        | none        => pure none
-        | some valStx => do {
-          value ← Term.elabTerm valStx type?;
-          value ← Term.mkLambda valStx params value;
-          value ← Term.ensureHasType valStx type? value;
-          pure $ some value
-        };
-      pure (type?, value?)
-    };
     match findFieldInfo? infos view.name with
     | none      => do
+      (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => do {
+        type? ← match view.type? with
+          | none         => pure none
+          | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall typeStx params type; pure $ some type };
+        value? ← match view.value? with
+          | none        => pure none
+          | some valStx => do {
+            value ← Term.elabTerm valStx type?;
+            value ← Term.mkLambda valStx params value;
+            value ← Term.ensureHasType valStx type? value;
+            pure $ some value
+          };
+        pure (type?, value?)
+      };
       match type?, value? with
       | none,      none => Term.throwError view.ref "invalid field, type expected"
       | some type, _    =>
@@ -277,12 +280,14 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
       match info.kind with
       | StructFieldKind.newField   => Term.throwError view.ref ("field '" ++ view.name ++ "' has already been declared")
       | StructFieldKind.fromParent =>
-        match value?, type? with
-        | none,       _      => Term.throwError view.ref ("field '" ++ view.name ++ "' has been declared in parent structure")
-        | _,          some _ => Term.throwError view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value")
-        | some value, none   => do
+        match view.value? with
+        | none       => Term.throwError view.ref ("field '" ++ view.name ++ "' has been declared in parent structure")
+        | some valStx => do
+          when (!view.binders.getArgs.isEmpty || view.type?.isSome) $
+            Term.throwError view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value");
           fvarType ← Term.inferType view.ref info.fvar;
-          value    ← Term.ensureHasType view.value?.get! fvarType value;
+          value ← Term.elabTerm valStx fvarType;
+          value ← Term.ensureHasType valStx fvarType value;
           let infos := infos.push { info with value? := value };
           withFields (i+1) infos k
       | StructFieldKind.subobject => unreachable!
@@ -421,8 +426,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     | Except.ok levelParams => do
       let params := scopeVars ++ view.params;
       ctor ← mkCtor view levelParams params fieldInfos;
-      type ← Term.mkForall ref view.params type;
-      type ← Term.mkForall ref scopeVars type;
+      type ← Term.mkForall ref params type;
       type ← Term.instantiateMVars ref type;
       let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
       let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
@@ -441,6 +445,17 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
         type ← Term.inferType ref info.fvar;
         pure (info.declName ++ `_default, type, info.value?.get!)
       };
+      /- The `mctx`, `lctx`, `localInsts` and `defaultAuxDecls` are used to create the auxiliary `_default` declarations *after* the structure has been declarated.
+         The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
+      let lctx := params.foldl
+        (fun (lctx : LocalContext) (p : Expr) =>
+          lctx.updateBinderInfo p.fvarId! BinderInfo.implicit)
+        lctx;
+      let lctx := fieldInfos.foldl
+        (fun (lctx : LocalContext) (info : StructFieldInfo) =>
+          if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating `_default`.
+          else lctx.updateBinderInfo info.fvar.fvarId! BinderInfo.default)
+        lctx;
       pure { decl := decl, projInfos := projInfos, projInstances := projInstances,
              mctx := mctx, lctx := lctx, localInsts := localInsts, defaultAuxDecls := defaultAuxDecls }
 
@@ -467,7 +482,11 @@ private def addDefaults (ref : Syntax) (mctx : MetavarContext) (lctx : LocalCont
 liftTermElabM none $ Term.withLocalContext lctx localInsts do
   Term.setMCtx mctx;
   defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
-    _ ← Term.mkAuxDefinition ref declName type value;
+    /- The identity function is used as "marker". -/
+    value ← Term.liftMetaM ref $ Meta.mkId value;
+    let zeta := true; -- expand `let-declarations`
+    _ ← Term.mkAuxDefinition ref declName type value zeta;
+    Term.modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;
     pure ()
 
 /-

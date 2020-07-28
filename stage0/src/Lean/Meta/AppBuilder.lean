@@ -10,6 +10,12 @@ import Lean.Meta.SynthInstance
 namespace Lean
 namespace Meta
 
+/-- Return `id e` -/
+def mkId (e : Expr) : MetaM Expr := do
+type ← inferType e;
+u    ← getLevel type;
+pure $ mkApp2 (mkConst `id [u]) type e
+
 /-- Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, return
     term `@id expectedType e`. -/
 def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do

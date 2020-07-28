@@ -207,8 +207,8 @@ match e with
 | appTypeMismatch  env lctx e fnType argType =>
   mkCtx env lctx opts $
     "application type mismatch" ++ indentExpr e
-    ++ "argument has type" ++ indentExpr argType
-    ++ "but function has type" ++ indentExpr fnType
+    ++ Format.line ++ "argument has type" ++ indentExpr argType
+    ++ Format.line ++ "but function has type" ++ indentExpr fnType
 | invalidProj env lctx e              => mkCtx env lctx opts $ "(kernel) invalid projection" ++ indentExpr e
 | other msg                           => "(kernel) " ++ msg
 

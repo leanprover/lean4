@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab
-// Imports: Init Lean.Elab.Import Lean.Elab.Exception Lean.Elab.StrategyAttrs Lean.Elab.Command Lean.Elab.Term Lean.Elab.App Lean.Elab.Binders Lean.Elab.Quotation Lean.Elab.Frontend Lean.Elab.BuiltinNotation Lean.Elab.Declaration Lean.Elab.Tactic Lean.Elab.Syntax Lean.Elab.Match Lean.Elab.DoNotation Lean.Elab.StructInst Lean.Elab.Inductive
+// Imports: Init Lean.Elab.Import Lean.Elab.Exception Lean.Elab.StrategyAttrs Lean.Elab.Command Lean.Elab.Term Lean.Elab.App Lean.Elab.Binders Lean.Elab.Quotation Lean.Elab.Frontend Lean.Elab.BuiltinNotation Lean.Elab.Declaration Lean.Elab.Tactic Lean.Elab.Syntax Lean.Elab.Match Lean.Elab.DoNotation Lean.Elab.StructInst Lean.Elab.Inductive Lean.Elab.Structure Lean.Elab.Print
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,8 @@ lean_object* initialize_Lean_Elab_Match(lean_object*);
 lean_object* initialize_Lean_Elab_DoNotation(lean_object*);
 lean_object* initialize_Lean_Elab_StructInst(lean_object*);
 lean_object* initialize_Lean_Elab_Inductive(lean_object*);
+lean_object* initialize_Lean_Elab_Structure(lean_object*);
+lean_object* initialize_Lean_Elab_Print(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab(lean_object* w) {
 lean_object * res;
@@ -88,6 +90,12 @@ res = initialize_Lean_Elab_StructInst(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Inductive(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Structure(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Print(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

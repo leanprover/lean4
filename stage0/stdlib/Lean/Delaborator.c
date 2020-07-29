@@ -116,7 +116,6 @@ lean_object* l_Lean_Delaborator_mkDelabAttribute___lambda__1___closed__1;
 lean_object* l___regBuiltin_Lean_Delaborator_delabForall___closed__1;
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 extern lean_object* l_Lean_Parser_Term_explicitUniv___elambda__1___closed__5;
-lean_object* l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(lean_object*);
 uint8_t l_Lean_getPPStructureProjections(lean_object*);
 lean_object* l_Lean_Delaborator_DelabM_monadQuotation___closed__1;
 extern lean_object* l_Lean_Parser_Term_typeAscription___elambda__1___closed__2;
@@ -469,6 +468,7 @@ lean_object* l_Lean_Delaborator_getExprKind___closed__3;
 lean_object* l_Lean_Delaborator_delabOfNat___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_getExprKind___closed__18;
 lean_object* l_Lean_Delaborator_delabAttribute___closed__3;
+lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_Delaborator_getExprKind___closed__28;
 lean_object* l_Lean_Delaborator_getExprKind___closed__14;
 extern lean_object* l_Lean_mkAppStx___closed__2;
@@ -13777,7 +13777,7 @@ if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; uint8_t x_38; lean_object* x_73; uint8_t x_74; 
 lean_dec(x_20);
-x_36 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_36 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 lean_dec(x_1);
 x_37 = l_Lean_mkTermIdFromIdent(x_36);
 x_73 = l_Lean_Parser_Term_fun___elambda__1___closed__2;
@@ -14607,7 +14607,7 @@ lean_object* x_367; lean_object* x_368; lean_object* x_369; lean_object* x_370; 
 lean_dec(x_26);
 lean_dec(x_4);
 lean_dec(x_3);
-x_367 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_367 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 lean_dec(x_1);
 x_368 = l_Array_empty___closed__1;
 x_369 = lean_array_push(x_368, x_367);
@@ -15055,7 +15055,7 @@ if (x_519 == 0)
 {
 lean_object* x_520; lean_object* x_521; uint8_t x_522; lean_object* x_557; uint8_t x_558; 
 lean_dec(x_20);
-x_520 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_520 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 lean_dec(x_1);
 x_521 = l_Lean_mkTermIdFromIdent(x_520);
 x_557 = l_Lean_Parser_Term_fun___elambda__1___closed__2;
@@ -15884,7 +15884,7 @@ lean_object* x_849; lean_object* x_850; lean_object* x_851; lean_object* x_852; 
 lean_dec(x_510);
 lean_dec(x_4);
 lean_dec(x_3);
-x_849 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_849 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 lean_dec(x_1);
 x_850 = l_Array_empty___closed__1;
 x_851 = lean_array_push(x_850, x_849);
@@ -16535,7 +16535,7 @@ case 3:
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; 
 lean_dec(x_4);
 lean_dec(x_3);
-x_73 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_73 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 x_74 = l_Array_empty___closed__1;
 x_75 = lean_array_push(x_74, x_73);
 x_76 = l_Lean_Delaborator_delabLam___lambda__1___closed__3;
@@ -16690,7 +16690,7 @@ case 3:
 lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; 
 lean_dec(x_4);
 lean_dec(x_3);
-x_148 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_148 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 x_149 = l_Array_empty___closed__1;
 x_150 = lean_array_push(x_149, x_148);
 x_151 = l_Lean_Delaborator_delabLam___lambda__1___closed__3;
@@ -16868,7 +16868,7 @@ case 3:
 lean_object* x_228; lean_object* x_229; lean_object* x_230; lean_object* x_231; lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; lean_object* x_237; lean_object* x_238; lean_object* x_239; lean_object* x_240; lean_object* x_241; lean_object* x_242; lean_object* x_243; lean_object* x_244; lean_object* x_245; lean_object* x_246; lean_object* x_247; lean_object* x_248; lean_object* x_249; 
 lean_dec(x_4);
 lean_dec(x_3);
-x_228 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_228 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 x_229 = l_Array_empty___closed__1;
 x_230 = lean_array_push(x_229, x_228);
 x_231 = l_Lean_Delaborator_delabLam___lambda__1___closed__3;

@@ -172,7 +172,6 @@ lean_object* l_Lean_Elab_Term_elabBadCDot___boxed(lean_object*, lean_object*, le
 lean_object* l___private_Lean_Elab_Term_15__tryCoeSort___closed__3;
 extern lean_object* l_Lean_Parser_Term_tacticBlock___elambda__1___closed__2;
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
-lean_object* l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabParen(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Elab_Term_logTrace___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -844,6 +843,7 @@ lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_char___elambda__1___closed__2;
 lean_object* l___private_Lean_Elab_Term_11__elabUsingElabFnsAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_isLocalTermId_x3f(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Term_MetaHasEval___rarg___closed__5;
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l___private_Lean_Elab_Term_18__mkPairsAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -27368,7 +27368,7 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
 lean_dec(x_4);
-x_7 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_1);
+x_7 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_1);
 x_8 = l___private_Lean_Elab_Term_18__mkPairsAux___main(x_1, x_6, x_7, x_2, x_3);
 return x_8;
 }

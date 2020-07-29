@@ -54,7 +54,6 @@ lean_object* l_Lean_Parser_tokenFn(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_updateTokens___closed__1;
 lean_object* l_Lean_Parser_Module_import___closed__9;
 lean_object* l_Lean_Parser_isExitCommand___boxed(lean_object*);
-lean_object* l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(lean_object*);
 lean_object* l___private_Lean_Parser_Module_1__mkErrorMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__1;
 extern lean_object* l_String_splitAux___main___closed__1;
@@ -183,6 +182,7 @@ lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_obje
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString(lean_object*);
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__8;
+lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_Parser_parseFileAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__3;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
@@ -334,7 +334,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
-x_15 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_14);
+x_15 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_14);
 lean_dec(x_14);
 if (lean_obj_tag(x_15) == 2)
 {
@@ -457,7 +457,7 @@ if (lean_obj_tag(x_49) == 0)
 lean_object* x_50; lean_object* x_51; 
 x_50 = lean_ctor_get(x_48, 0);
 lean_inc(x_50);
-x_51 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_50);
+x_51 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_50);
 lean_dec(x_50);
 if (lean_obj_tag(x_51) == 2)
 {
@@ -772,7 +772,7 @@ if (lean_obj_tag(x_64) == 0)
 lean_object* x_65; lean_object* x_66; 
 x_65 = lean_ctor_get(x_63, 0);
 lean_inc(x_65);
-x_66 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_65);
+x_66 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_65);
 lean_dec(x_65);
 if (lean_obj_tag(x_66) == 2)
 {
@@ -840,7 +840,7 @@ if (lean_obj_tag(x_47) == 0)
 lean_object* x_48; lean_object* x_49; 
 x_48 = lean_ctor_get(x_46, 0);
 lean_inc(x_48);
-x_49 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_48);
+x_49 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_48);
 lean_dec(x_48);
 if (lean_obj_tag(x_49) == 2)
 {
@@ -1065,7 +1065,7 @@ if (lean_obj_tag(x_150) == 0)
 lean_object* x_151; lean_object* x_152; 
 x_151 = lean_ctor_get(x_149, 0);
 lean_inc(x_151);
-x_152 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_151);
+x_152 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_151);
 lean_dec(x_151);
 if (lean_obj_tag(x_152) == 2)
 {
@@ -1133,7 +1133,7 @@ if (lean_obj_tag(x_132) == 0)
 lean_object* x_133; lean_object* x_134; 
 x_133 = lean_ctor_get(x_131, 0);
 lean_inc(x_133);
-x_134 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_133);
+x_134 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_133);
 lean_dec(x_133);
 if (lean_obj_tag(x_134) == 2)
 {
@@ -2110,7 +2110,7 @@ lean_inc(x_4);
 x_9 = l_Lean_Parser_Module_header___elambda__1(x_4, x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-x_11 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_10);
+x_11 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_10);
 lean_dec(x_10);
 x_12 = lean_ctor_get(x_9, 3);
 lean_inc(x_12);
@@ -2340,7 +2340,7 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
-x_22 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_21);
+x_22 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_21);
 lean_dec(x_21);
 x_23 = lean_ctor_get(x_19, 1);
 lean_inc(x_23);
@@ -2424,7 +2424,7 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_49 = lean_ctor_get(x_47, 0);
 lean_inc(x_49);
-x_50 = l_Array_back___at_Lean_Parser_checkStackTopFn___spec__1(x_49);
+x_50 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_49);
 lean_dec(x_49);
 x_51 = lean_ctor_get(x_47, 1);
 lean_inc(x_51);

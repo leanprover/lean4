@@ -20,3 +20,5 @@ import Lean.Elab.Match
 import Lean.Elab.DoNotation
 import Lean.Elab.StructInst
 import Lean.Elab.Inductive
+import Lean.Elab.Structure
+import Lean.Elab.Print

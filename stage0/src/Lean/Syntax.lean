@@ -308,6 +308,72 @@ formatStxAux maxDepth showInfo 0 stx
 instance : HasFormat (Syntax)   := ⟨formatStx⟩
 instance : HasToString (Syntax) := ⟨toString ∘ format⟩
 
+/--
+Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.
+Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.
+If the `Traverser` is used linearly, updates are linear in the `Syntax` object as well.
+-/
+structure Traverser :=
+(cur     : Syntax)
+(parents : Array Syntax)
+(idxs    : Array Nat)
+
+namespace Traverser
+
+def fromSyntax (stx : Syntax) : Traverser :=
+⟨stx, #[], #[]⟩
+
+def setCur (t : Traverser) (stx : Syntax) : Traverser :=
+{ t with cur := stx }
+
+/-- Advance to the `idx`-th child of the current node. -/
+def down (t : Traverser) (idx : Nat) : Traverser :=
+if idx < t.cur.getNumArgs then
+  { cur := t.cur.getArg idx, parents := t.parents.push $ t.cur.setArg idx (arbitrary _), idxs := t.idxs.push idx }
+else
+  { cur := Syntax.missing, parents := t.parents.push t.cur, idxs := t.idxs.push idx }
+
+/-- Advance to the parent of the current node, if any. -/
+def up (t : Traverser) : Traverser :=
+if t.parents.size > 0 then
+  let cur := if t.idxs.back < t.parents.back.getNumArgs then t.parents.back.setArg t.idxs.back t.cur else t.parents.back;
+  { cur := cur, parents := t.parents.pop, idxs := t.idxs.pop }
+else t
+
+/-- Advance to the left sibling of the current node, if any. -/
+def left (t : Traverser) : Traverser :=
+if t.parents.size > 0 then
+  t.up.down (t.idxs.back - 1)
+else t
+
+/-- Advance to the right sibling of the current node, if any. -/
+def right (t : Traverser) : Traverser :=
+if t.parents.size > 0 then
+  t.up.down (t.idxs.back + 1)
+else t
+
+end Traverser
+
+/-- Monad class that gives read/write access to a `Traverser`. -/
+class MonadTraverser (m : Type → Type) :=
+(st : MonadState Traverser m)
+
+namespace MonadTraverser
+
+variables {m : Type → Type} [Monad m] [t : MonadTraverser m]
+
+def getCur : m Syntax := Traverser.cur <$> t.st.get
+def setCur (stx : Syntax) : m Unit := @modify _ _ t.st (fun t => t.setCur stx)
+def goDown (idx : Nat)    : m Unit := @modify _ _ t.st (fun t => t.down idx)
+def goUp                  : m Unit := @modify _ _ t.st (fun t => t.up)
+def goLeft                : m Unit := @modify _ _ t.st (fun t => t.left)
+def goRight               : m Unit := @modify _ _ t.st (fun t => t.right)
+
+def getIdx : m Nat := do
+st ← t.st.get;
+pure st.idxs.back
+
+end MonadTraverser
 end Syntax
 
 namespace SyntaxNode

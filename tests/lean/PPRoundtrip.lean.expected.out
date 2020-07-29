@@ -135,3 +135,17 @@
    (null (Term.app (Term.id `HasLess.Less (null)) (null (Term.num (numLit "1")) (Term.num (numLit "2")))) (null))
    ")")
   (Term.id `Bool.true (null))))
+(Term.app
+ (Term.id `id (null))
+ (null
+  (Term.paren
+   "("
+   (null
+    (Term.fun
+     "fun"
+     (null (Term.paren "(" (null (Term.id `a (null)) (null (Term.typeAscription ":" (Term.id `Nat (null))))) ")"))
+     "=>"
+     (Term.id `a (null)))
+    (null))
+   ")")
+  (Term.num (numLit "0"))))

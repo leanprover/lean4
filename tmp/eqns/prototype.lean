@@ -1,7 +1,6 @@
-prelude
-import Init.Lean.Meta.Check
-import Init.Lean.Meta.Tactic.Cases
-import Init.Lean.Meta.GeneralizeTelescope
+import Lean.Meta.Check
+import Lean.Meta.Tactic.Cases
+import Lean.Meta.GeneralizeTelescope
 
 namespace Lean
 namespace Meta
@@ -36,7 +35,7 @@ structure MinorsRange :=
 (firstMinorPos : Nat)
 (numMinors     : Nat)
 
-abbrev AltToMinorsMap := PersistentHashMap Nat MinorsRange
+abbrev AltToMinorsMap := Std.PersistentHashMap Nat MinorsRange
 
 structure Alt :=
 (idx       : Nat) -- for generating error messages
@@ -114,7 +113,7 @@ withMotive majors sortv $ fun motive => do
 let target  := mkAppN motive majors;
 goal ← mkFreshExprMVar target;
 let alts    := mkAlts lhss;
-let problem := { Problem . goal := goal, vars := majors.toList, alts := alts };
+let problem := { goal := goal, vars := majors.toList, alts := alts : Problem };
 process problem;
 pure { numMinors := 0, numEqs := 0, elim := arbitrary _, altMap := {} } -- TODO
 
@@ -197,10 +196,10 @@ forallTelescopeReducing cinfo.type $ fun args body =>
     k xs alts
 
 inductive Pat {α : Sort u} (a : α) : Type u
-| mk {} : Pat
+| mk : Pat
 
 inductive LHS {α : Sort u} (a : α) : Type u
-| mk {} : LHS
+| mk : LHS
 
 instance LHS.inhabited {α} (a : α) : Inhabited (LHS a) := ⟨LHS.mk⟩
 
@@ -220,7 +219,7 @@ def tst1 : MetaM Unit :=
 withDepElimFrom `ex1 2 $ fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug majors.toArray;
-  mkElim `test majors alts;
+  _ ← mkElim `test majors alts;
   pure ()
 
 #eval tst1

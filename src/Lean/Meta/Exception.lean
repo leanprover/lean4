@@ -39,7 +39,7 @@ inductive Exception
 | generalizeTelescope  (es : Array Expr) (ctx : ExceptionContext)
 | kernel               (ex : KernelException) (opts : Options)
 | bug                  (b : Bug) (ctx : ExceptionContext)
-| other                (msg : String)
+| other                (msg : MessageData)
 
 namespace Exception
 instance : Inhabited Exception := ⟨other ""⟩
@@ -68,7 +68,7 @@ def toStr : Exception → String
 | generalizeTelescope _ _       => "generalize telescope"
 | kernel _ _                    => "kernel exception"
 | bug _ _                       => "bug"
-| other s                       => s
+| other s                       => toString $ fmt s
 
 instance : HasToString Exception := ⟨toStr⟩
 

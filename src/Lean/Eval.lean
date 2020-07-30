@@ -13,10 +13,10 @@ universe u
     The basic `HasEval` class is in the prelude and should not depend on these
     types. -/
 class MetaHasEval (α : Type u) :=
-(eval : Environment → Options → α → forall (hideUnit : optParam Bool true), IO Unit)
+(eval : Environment → Options → α → forall (hideUnit : optParam Bool true), IO Environment)
 
 instance metaHasEvalOfHasEval {α : Type u} [HasEval α] : MetaHasEval α :=
-⟨fun env opts a hideUnit => HasEval.eval a hideUnit⟩
+⟨fun env opts a hideUnit => do HasEval.eval a hideUnit; pure env⟩
 
 abbrev MetaIO := ReaderT (Environment × Options) IO
 
@@ -27,7 +27,9 @@ def MetaIO.getOptions : MetaIO Options := do
 ctx ← read; pure ctx.2
 
 instance MetaIO.metaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaIO α) :=
-⟨fun env opts x _ => x (env, opts) >>= MetaHasEval.eval env opts⟩
+⟨fun env opts x _ => do
+  a ← x (env, opts);
+  MetaHasEval.eval env opts a⟩
 
 instance MetaIO.monadIO : MonadIO MetaIO := {}
 

@@ -27,9 +27,9 @@ withLocalDecl `a α BinderInfo.default $ fun a => do
 withLocalDecl `f (mkArrow α α) BinderInfo.default $ fun f => do
 withLetDecl   `b α (mkApp f a) $ fun b => do
 let t := mkApp m2 (mkApp f b);
-e ← mkAuxDefinitionFor `foo t;
+e ← mkAuxDefinitionFor `foo1 t;
 trace! `Meta.debug e;
-printDef `foo;
+printDef `foo1;
 pure ()
 
 #eval tst1
@@ -44,9 +44,9 @@ m ← mkFreshExprMVar (mkArrow (mkApp2 (mkConst `Vec [u]) α (mkNatLit 10)) (mkS
 withLocalDecl `p (mkSort levelZero) BinderInfo.default $ fun p => do
 t ← mkEq v1 v2;
 let t := mkApp2 (mkConst `And) t (mkApp2 (mkConst `Or) (mkApp m v2) p);
-e ← mkAuxDefinitionFor `foo t;
+e ← mkAuxDefinitionFor `foo2 t;
 trace! `Meta.debug e;
-printDef `foo;
+printDef `foo2;
 pure ()
 
 #eval tst2

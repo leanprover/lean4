@@ -544,44 +544,58 @@ fun stx => withoutModifyingEnv do
   let n := `_eval;
   ctx ← read;
   env ← getEnv;
-  let addAndCompile := fun value => do {
+  let addAndCompile (value : Expr) : TermElabM Unit := do {
     type ← Term.inferType ref value;
     let decl := Declaration.defnDecl { name := n, lparams := [], type := type,
       value := value, hints := ReducibilityHints.opaque, isUnsafe := true };
     Term.addDecl ref decl;
     Term.compileDecl ref decl
   };
-  act ← runTermElabM (some n) fun _ => do {
-    e    ← Term.elabTerm term none;
-    Term.synthesizeSyntheticMVars false;
-    if env.contains `Lean.MetaHasEval then do
-      -- modify `e` to `fun env opts => MetaHasEval.eval (hideUnit := false) env opts e`
-      e ← Term.withLocalDecl ref `env BinderInfo.default (mkConst `Lean.Environment) fun env =>
-        Term.withLocalDecl ref `opts BinderInfo.default (mkConst `Lean.Options) fun opts => do {
-          e ← Term.mkAppM ref `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
-          Term.mkLambda ref #[env, opts] e
-        };
-      addAndCompile e;
-      env ← Term.getEnv;
-      opts ← Term.getOptions;
-      match env.evalConst (Environment → Options → IO Unit) n with
-      | Except.error e => Term.throwError ref e
-      | Except.ok act  => pure $ act env opts
-    else do
-      -- fall back to non-meta eval if MetaHasEval hasn't been defined yet
-      -- modify e to `HasEval.eval (hideUnit := false) e`
+  let elabMetaEval : CommandElabM Unit := do {
+    act : IO Environment ← runTermElabM (some n) fun _ => do {
+      e    ← Term.elabTerm term none;
+      Term.synthesizeSyntheticMVars false;
+        e ← Term.withLocalDecl ref `env BinderInfo.default (mkConst `Lean.Environment) fun env =>
+          Term.withLocalDecl ref `opts BinderInfo.default (mkConst `Lean.Options) fun opts => do {
+            e ← Term.mkAppM ref `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
+            Term.mkLambda ref #[env, opts] e
+          };
+        addAndCompile e;
+        env ← Term.getEnv;
+        opts ← Term.getOptions;
+        match env.evalConst (Environment → Options → IO Environment) n with
+        | Except.error e => Term.throwError ref e
+        | Except.ok act  => pure $ act env opts
+    };
+    (out, res) ← liftIO ref $ IO.Prim.withIsolatedStreams act;
+    logInfo ref out;
+    match res with
+    | Except.error e => throw $ Exception.error $ ioErrorToMessage ctx ref e
+    | Except.ok env  => do setEnv env; pure ()
+  };
+  let elabEval : CommandElabM Unit := do {
+    -- fall back to non-meta eval if MetaHasEval hasn't been defined yet
+    -- modify e to `HasEval.eval (hideUnit := false) e`
+    act : IO Unit ← runTermElabM (some n) fun _ => do {
+      e    ← Term.elabTerm term none;
+      Term.synthesizeSyntheticMVars false;
       e ← Term.mkAppM ref `Lean.HasEval.eval #[e, toExpr false];
       addAndCompile e;
       env ← Term.getEnv;
       match env.evalConst (IO Unit) n with
       | Except.error e => Term.throwError ref e
       | Except.ok act  => pure act
+    };
+    (out, res) ← liftIO ref $ IO.Prim.withIsolatedStreams act;
+    logInfo ref out;
+    match res with
+    | Except.error e => throw $ Exception.error $ ioErrorToMessage ctx ref e
+    | Except.ok _    => pure ()
   };
-  (out, res) ← liftIO ref $ IO.Prim.withIsolatedStreams act;
-  logInfo ref out;
-  match res with
-  | Except.error e => throw $ Exception.error $ ioErrorToMessage ctx ref e
-  | Except.ok _    => pure ()
+  if env.contains `Lean.MetaHasEval then do
+     elabMetaEval
+  else
+    elabEval
 
 @[builtinCommandElab «eval», implementedBy elabEvalUnsafe]
 constant elabEval : CommandElab := arbitrary _

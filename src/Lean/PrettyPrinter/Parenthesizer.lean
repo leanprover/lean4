@@ -71,6 +71,7 @@ node).
 -/
 
 import Lean.Parser
+import Lean.Meta
 import Lean.Elab.Quotation
 
 namespace Lean
@@ -229,39 +230,6 @@ def visitToken : Parenthesizer | p => do
 modify (fun st => { st with contPrec := none, visitedToken := true });
 goLeft
 
-def evalNat (e : Expr) : ParenthesizerM Nat := do
-e ← liftM $ whnf e;
-some n ← pure $ Meta.evalNat e
-  | throw $ Exception.other $ "failed to evaluate Nat argument: " ++ toString e;
-pure n
-
-def evalOptPrec (e : Expr) : ParenthesizerM Nat := do
-e ← liftM $ whnf e;
-match e.getAppFn.constName? with
-| some `Option.none => pure 0
-| some `Option.some => evalNat e.appArg!
-| _ => throw $ Exception.other $ "failed to evaluate precedence: " ++ toString e
-
-def evalString (e : Expr) : ParenthesizerM String := do
-Expr.lit (Literal.strVal s) _ ← liftM $ whnf e
-  | throw $ Exception.other $ "failed to evaluate String argument: " ++ toString e;
-pure s
-
-partial def evalName : Expr → ParenthesizerM Name | e => do
-e ← liftM $ whnf e;
-if e.isAppOfArity `Lean.Name.anonymous 0 then
-  pure Name.anonymous
-else if e.isAppOfArity `Lean.Name.str 3 then do
-  n ← evalName $ e.getArg! 0;
-  s ← evalString $ e.getArg! 1;
-  pure $ mkNameStr n s
-else if e.isAppOfArity `Lean.Name.num 3 then do
-  n ← evalName $ e.getArg! 0;
-  u ← evalNat $ e.getArg! 1;
-  pure $ mkNameNum n u
-else
-  throw $ Exception.other $ "failed to evaluate Name argument: " ++ toString e
-
 @[builtinParenthesizer termParser]
 def termParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
 stx ← getCur;
@@ -269,17 +237,17 @@ stx ← getCur;
 if stx.getKind == nullKind then
   throw $ Exception.other "BACKTRACK"
 else do
-  prec ← evalNat p.appArg!;
+  prec ← liftM $ reduceEval p.appArg!;
   visitParenthesizable (fun stx => Unhygienic.run `(($stx))) prec
 
 @[builtinParenthesizer tacticParser]
 def tacticParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
-prec ← evalNat p.appArg!;
+prec ← liftM $ reduceEval p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(tactic|($stx))) prec
 
 @[builtinParenthesizer levelParser]
 def levelParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
-prec ← evalNat p.appArg!;
+prec ← liftM $ reduceEval p.appArg!;
 visitParenthesizable (fun stx => Unhygienic.run `(level|($stx))) prec
 
 @[builtinParenthesizer categoryParser]
@@ -302,7 +270,7 @@ visit (p.getArg! 1) *> visit (p.getArg! 0)
 @[builtinParenthesizer node]
 def node.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
-k ← evalName $ p.getArg! 0;
+k ← liftM $ reduceEval $ p.getArg! 0;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
@@ -312,7 +280,7 @@ visitArgs $ visit p.appArg!
 
 @[builtinParenthesizer checkPrec]
 def checkPrec.parenthesizer : Parenthesizer | p => do
-prec ← evalNat $ p.getArg! 0;
+prec ← liftM $ reduceEval $ p.getArg! 0;
 addPrecCheck prec
 
 @[builtinParenthesizer leadingNode]
@@ -328,8 +296,8 @@ modify $ fun st => { st with contPrec := (fun p => Nat.min (maxPrec-1) p) <$> st
 @[builtinParenthesizer trailingNode]
 def trailingNode.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
-k ← evalName $ p.getArg! 0;
-prec ← evalNat $ p.getArg! 1;
+k ← liftM $ reduceEval $ p.getArg! 0;
+prec ← liftM $ reduceEval $ p.getArg! 1;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`

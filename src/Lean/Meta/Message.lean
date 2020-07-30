@@ -71,7 +71,7 @@ def toMessageData : Exception → MessageData
 | letTypeMismatch fvarId ctx      => mkLetTypeMismatchMessage fvarId ctx
 | appTypeMismatch f a ctx         => mkAppTypeMismatchMessage f a ctx
 | notInstance i ctx               => mkCtx ctx $ "not a type class instance " ++ i
-| appBuilder op msg args ctx      => mkCtx ctx $ "application builder failure " ++ op ++ " " ++ args ++ " " ++ msg
+| appBuilder op msg ctx           => mkCtx ctx $ "application builder failure " ++ op ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ "failed to synthesize" ++ indentExpr inst
 | tactic tacName mvarId msg ctx   => mkCtx ctx $ "tactic '" ++ tacName ++ "' failed, " ++ msg ++ Format.line ++ MessageData.ofGoal mvarId
 | generalizeTelescope es ctx      => mkCtx ctx $ "failed to create telescope generalizing " ++ es

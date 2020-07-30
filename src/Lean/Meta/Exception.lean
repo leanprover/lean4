@@ -33,7 +33,7 @@ inductive Exception
 | letTypeMismatch      (fvarId : FVarId) (ctx : ExceptionContext)
 | appTypeMismatch      (f a : Expr) (ctx : ExceptionContext)
 | notInstance          (e : Expr) (ctx : ExceptionContext)
-| appBuilder           (op : Name) (msg : String) (args : Array Expr) (ctx : ExceptionContext)
+| appBuilder           (op : Name) (msg : MessageData) (ctx : ExceptionContext)
 | synthInstance        (inst : Expr) (ctx : ExceptionContext)
 | tactic               (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ctx : ExceptionContext)
 | generalizeTelescope  (es : Array Expr) (ctx : ExceptionContext)
@@ -62,7 +62,7 @@ def toStr : Exception → String
 | letTypeMismatch _ _           => "type mismatch at let-expression"
 | appTypeMismatch _ _ _         => "application type mismatch"
 | notInstance _ _               => "type class instance expected"
-| appBuilder _ _ _ _            => "application builder failure"
+| appBuilder _ _ _              => "application builder failure"
 | synthInstance _ _             => "type class instance synthesis failed"
 | tactic tacName _ _ _          => "tactic '" ++ toString tacName ++ "' failed"
 | generalizeTelescope _ _       => "generalize telescope"
@@ -93,7 +93,7 @@ def toTraceMessageData : Exception → MessageData
 | letTypeMismatch fvarId ctx      => mkCtx ctx $ `letTypeMismatch ++ " " ++ mkFVar fvarId
 | appTypeMismatch f a ctx         => mkCtx ctx $ `appTypeMismatch ++ " " ++ mkApp f a
 | notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
-| appBuilder op msg args ctx      => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args ++ " " ++ msg
+| appBuilder op msg ctx           => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ `synthInstance ++ " " ++ inst
 | tactic tacName mvarId msg ctx   => mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg
 | generalizeTelescope es ctx      => mkCtx ctx $ `generalizeTelescope ++ " " ++ es

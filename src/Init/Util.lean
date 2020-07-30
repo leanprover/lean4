@@ -13,6 +13,9 @@ universes u v
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α :=
 f ()
 
+def dbgTraceVal {α : Type u} [HasToString α] (a : α) : α :=
+dbgTrace (toString a) (fun _ => a)
+
 /- Display the given message if `a` is shared, that is, RC(a) > 1 -/
 @[neverExtract, extern "lean_dbg_trace_if_shared"]
 def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α :=

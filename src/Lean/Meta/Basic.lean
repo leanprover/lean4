@@ -783,6 +783,23 @@ let fvar := mkFVar fvarId;
 adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
+def withExistingLocalDecls {α} (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
+ctx ← read;
+let numLocalInstances := ctx.localInstances.size;
+let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ctx.lctx;
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) do
+  newLocalInsts ← decls.foldlM
+    (fun (newlocalInsts : Array LocalInstance) (decl : LocalDecl) => do
+      c? ← isClass decl.type;
+      match c? with
+      | none   => pure newlocalInsts
+      | some c => pure $ newlocalInsts.push { className := c, fvar := decl.toExpr })
+    ctx.localInstances;
+  if newLocalInsts.size == numLocalInstances then
+    k
+  else
+    resettingSynthInstanceCache $ adaptReader (fun (ctx : Context) => { ctx with localInstances := newLocalInsts }) k
+
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
   and restore saved data. -/

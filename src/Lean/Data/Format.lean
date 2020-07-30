@@ -9,12 +9,12 @@ universes u v
 namespace Lean
 
 inductive Format
-| nil          : Format
-| line         : Format
-| text         : String → Format
-| nest         : Nat → Format → Format
-| compose      : Bool → Format → Format → Format
-| choice       : Format → Format → Format
+| nil                        : Format
+| line                       : Format
+| text                       : String → Format
+| nest (indent : Nat)        : Format → Format
+| compose (flattened : Bool) : Format → Format → Format
+| choice                     : Format → Format → Format
 
 namespace Format
 @[export lean_format_append]

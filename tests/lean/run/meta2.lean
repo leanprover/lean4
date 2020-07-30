@@ -725,3 +725,15 @@ set_option trace.Meta.isDefEq.step false
 set_option trace.Meta.isDefEq.delta false
 set_option trace.Meta.isDefEq.assign false
 #eval tst41
+
+def tst42 : MetaM Unit := do
+print "----- tst42 -----";
+t ← mkListLit nat [mkNatLit 1, mkNatLit 2];
+print t;
+check t;
+t ← mkArrayLit nat [mkNatLit 1, mkNatLit 2];
+print t;
+check t;
+pure ()
+
+#eval tst42

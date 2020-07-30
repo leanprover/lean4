@@ -309,5 +309,29 @@ partial def mkProjection : Expr → Name → MetaM Expr
       | none   => throwEx $ Exception.appBuilder `mkProjectionn ("invalid field name '" ++ toString fieldName ++ "'") #[s]
   | _ => throwEx $ Exception.appBuilder `mkProjectionn "structure expected" #[s]
 
+private def mkListLitAux (nil : Expr) (cons : Expr) : List Expr → Expr
+| []    => nil
+| x::xs => mkApp (mkApp cons x) (mkListLitAux xs)
+
+private def getDecLevel (methodName : Name) (type : Expr) : MetaM Level := do
+u ← getLevel type;
+match u.dec with
+| none   => throwEx $ Exception.appBuilder methodName ("invalid universe level, " ++ toString u ++ " is not greater than 0") #[type]
+| some u => pure u
+
+def mkListLit (type : Expr) (xs : List Expr) : MetaM Expr := do
+u   ← getDecLevel `mkListLit type;
+let nil := mkApp (mkConst `List.nil [u]) type;
+match xs with
+| [] => pure nil
+| _  =>
+  let cons := mkApp (mkConst `List.cons [u]) type;
+  pure $ mkListLitAux nil cons xs
+
+def mkArrayLit (type : Expr) (xs : List Expr) : MetaM Expr := do
+u ← getDecLevel `mkArrayLit type;
+listLit ← mkListLit type xs;
+pure (mkApp (mkApp (mkConst `List.toArray [u]) type) listLit)
+
 end Meta
 end Lean

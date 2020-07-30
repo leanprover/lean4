@@ -47,6 +47,15 @@ partial def main : Expr → Visitor
 | Expr.sort u _        => visitLevel collect u
 | _                    => id
 
+private partial def getUnusedLevelParamAux (s : CollectLevelParams.State) (pre : Name) : Nat → Level
+| i =>
+  let v := mkLevelParam (pre.appendIndexAfter i);
+  if s.visitedLevel.contains v then getUnusedLevelParamAux (i+1) else v
+
+def State.getUnusedLevelParam (s : CollectLevelParams.State) (pre : Name := `v) : Level :=
+let v := mkLevelParam pre;
+if s.visitedLevel.contains v then getUnusedLevelParamAux s pre 1 else v
+
 end CollectLevelParams
 
 def collectLevelParams (s : CollectLevelParams.State) (e : Expr) : CollectLevelParams.State :=

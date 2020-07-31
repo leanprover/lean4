@@ -2,18 +2,23 @@ import Lean
 open Lean
 open Lean.Elab
 open Lean.Elab.Term
+open Lean.Elab.Command
 open Lean.Format
 
-def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
-stx ← stx;
-opts ← getOptions;
-e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
-stx' ← liftMetaM stx $ delab e opts optionsPerPos;
-stx' ← liftMetaM stx' $ PrettyPrinter.parenthesizeTerm stx';
-dbgTrace $ toString stx';
-e' ← elabTermAndSynthesize stx' none <* throwErrorIfErrors;
-unlessM (isDefEq stx e e') $
-  throwError stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
+def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : MetaIO Unit := do
+env ← MetaIO.getEnv;
+opts ← MetaIO.getOptions;
+table ← Parser.builtinTokenTable.get;
+discard $ liftM $ MetaHasEval.eval env opts do
+  stx ← stx;
+  e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
+  stx' ← liftMetaM stx $ delab e opts optionsPerPos;
+  stx' ← liftMetaM stx' $ PrettyPrinter.parenthesizeTerm stx';
+  f' ← liftMetaM stx' $ PrettyPrinter.formatTerm table stx';
+  dbgTrace $ toString f';
+  e' ← elabTermAndSynthesize stx' none <* throwErrorIfErrors;
+  unlessM (isDefEq stx e e') $
+    throwError stx (fmt "failed to elab round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
 -- #eval check `(?m)  -- fails round-trip
 

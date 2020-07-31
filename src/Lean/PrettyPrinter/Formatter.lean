@@ -16,14 +16,17 @@ structure Context :=
 (table : Parser.TokenTable)
 
 structure State :=
-(stxTrav : Syntax.Traverser)
+(stxTrav  : Syntax.Traverser)
 (leadWord : String := "")
+-- Stack of generated Format objects, analogous to the Syntax stack in the parser.
+-- Note, however, that the stack is reversed because of the right-to-left traversal.
+(stack    : Array Format := #[])
 
 end Formatter
 
 abbrev FormatterM := ReaderT Formatter.Context $ StateT Formatter.State MetaM
 
-abbrev Formatter := Expr → FormatterM Format
+abbrev Formatter := Expr → FormatterM Unit
 
 unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
 KeyedDeclsAttribute.init {
@@ -53,18 +56,41 @@ instance FormatterM.monadTraverser : Syntax.MonadTraverser FormatterM := ⟨{
 
 open Syntax.MonadTraverser
 
-/-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
-def visitArgs (x : FormatterM Format) : FormatterM Format := do
-stx ← getCur;
-f ← if (stx.getArgs.size > 0)
-  then goDown (stx.getArgs.size - 1) *> x <* goUp
-  else pure Format.nil;
-goLeft;
-pure f
+def getStack : FormatterM (Array Format) := do
+st ← get;
+pure st.stack
 
-def concatArgs (x : FormatterM Format) : FormatterM Format := do
+def getStackSize : FormatterM Nat := do
+stack ← getStack;
+pure stack.size
+
+def setStack (stack : Array Format) : FormatterM Unit :=
+modify fun st => { st with stack := stack }
+
+def push (f : Format) : FormatterM Unit :=
+modify fun st => { st with stack := st.stack.push f }
+
+/-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
+def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
 stx ← getCur;
-visitArgs $ Array.foldl Format.append Format.nil <$> stx.getArgs.mapM fun _ => x
+when (stx.getArgs.size > 0) $
+  goDown (stx.getArgs.size - 1) *> x <* goUp;
+goLeft
+
+/-- Execute `x`, pass array of generated Format objects to `fn`, and push result. -/
+def fold (fn : Array Format → Format) (x : FormatterM Unit) : FormatterM Unit := do
+sp ← getStackSize;
+x;
+stack ← getStack;
+let f := fn $ stack.extract sp stack.size;
+setStack $ (stack.shrink sp).push f
+
+/-- Execute `x` and concatenate generated Format objects. -/
+def concat (x : FormatterM Unit) : FormatterM Unit := do
+fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
+
+def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
+concat (visitArgs x)
 
 /--
   Call an appropriate `[formatter]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
@@ -74,9 +100,10 @@ stx ← getCur;
 -- do reductions _except_ for definition unfolding
 p ← liftM $ whnfCore p;
 trace! `PrettyPrinter.format ("formatting" ++ MessageData.nest 2 (line ++ stx) ++ line ++ "using" ++ MessageData.nest 2 (line ++ p));
+sp ← getStackSize;
 let c := Expr.constName? p.getAppFn;
 env ← liftM getEnv;
-f ← match c >>= (formatterAttribute.ext.getState env).table.find? with
+match c >>= (formatterAttribute.ext.getState env).table.find? with
 | some (f::_) => do
   -- call first matching formatter
   f p
@@ -85,10 +112,13 @@ f ← match c >>= (formatterAttribute.ext.getState env).table.find? with
   if c == some `choice then do
     visitArgs do {
       stx ← getCur;
-      fs ← stx.getArgs.mapM fun _ => visit (mkConst stx.getKind);
-      when (¬ fs.all fun f => pretty f == pretty (fs.get! 0))
+      sp ← getStackSize;
+      stx.getArgs.forM fun _ => visit (mkConst stx.getKind);
+      stack ← getStack;
+      when (stack.size > sp && stack.anyRange sp stack.size fun f => pretty f != pretty (stack.get! sp))
         panic! "Formatter.visit: inequal choice children";
-      pure $ fs.get! 0
+      -- discard all but one child format
+      setStack $ stack.extract 0 (sp+1)
     }
   else do {
     -- (try to) unfold definition and recurse
@@ -96,8 +126,8 @@ f ← match c >>= (formatterAttribute.ext.getState env).table.find? with
       | throw $ Exception.other $ "no known formatter for '" ++ toString p ++ "'";
     visit p'
   };
-trace! `PrettyPrinter.format ("=> " ++ f);
-pure f
+stack ← getStack;
+trace! `PrettyPrinter.format (" => " ++ (stack.extract sp stack.size).foldl (fun acc f => repr (toString f) ++ " " ++ acc) "")
 
 open Lean.Parser
 
@@ -131,10 +161,8 @@ def try.formatter : Formatter | p =>
 visit p.appArg!
 
 @[builtinFormatter andthen]
-def andthen.formatter : Formatter | p => do
-f2 ← visit (p.getArg! 1);
-f1 ← visit (p.getArg! 0);
-pure $ f1 ++ f2
+def andthen.formatter : Formatter | p =>
+visit (p.getArg! 1) *> visit (p.getArg! 0)
 
 @[builtinFormatter node]
 def node.formatter : Formatter | p => do
@@ -145,10 +173,7 @@ when (k != stx.getKind) $ do {
   -- HACK; see `orelse.formatter`
   throw $ Exception.other "BACKTRACK"
 };
-visitArgs $ visit p.appArg!
-
-@[builtinFormatter checkPrec]
-def checkPrec.formatter : Formatter | p => pure Format.nil
+concatArgs $ visit p.appArg!
 
 @[builtinFormatter trailingNode]
 def trailingNode.formatter : Formatter | p => do
@@ -159,17 +184,19 @@ when (k != stx.getKind) $ do {
   -- HACK; see `orelse.formatter`
   throw $ Exception.other "BACKTRACK"
 };
-visitArgs do
-  f2 ← visit p.appArg!;
+concatArgs do
+  visit p.appArg!;
   -- leading term, not actually produced by `p`
-  f1 ← categoryParser.formatter p;
-  pure $ f1 ++ f2
+  categoryParser.formatter p
 
-def visitToken (tk : String) : FormatterM Format := do
+def pushText (s : String) : FormatterM Unit :=
 -- TODO: use leadWord
+push s
+
+def visitToken (tk : String) : FormatterM Unit := do
 -- TODO: (try to) preserve whitespace
-goLeft;
-pure tk
+pushText tk;
+goLeft
 
 @[builtinFormatter symbol]
 def symbol.formatter : Formatter | p => do
@@ -198,8 +225,8 @@ when (k != Name.anonymous && k != stx.getKind) $ do {
 };
 Syntax.atom _ val ← pure $ stx.getArg 0
   | throw $ Exception.other $ "not an atom: " ++ toString stx;
-goLeft;
-pure val
+pushText val;
+goLeft
 
 @[builtinFormatter charLitNoAntiquot] def charLitNoAntiquot.formatter := visitAtom charLitKind
 @[builtinFormatter strLitNoAntiquot] def strLitNoAntiquot.formatter := visitAtom strLitKind
@@ -208,27 +235,26 @@ pure val
 @[builtinFormatter fieldIdx] def fieldIdx.formatter := visitAtom fieldIdxKind
 
 @[builtinFormatter many]
-def many.formatter : Formatter | p =>
-concatArgs $ visit (p.getArg! 0)
+def many.formatter : Formatter | p => do
+stx ← getCur;
+concatArgs $ stx.getArgs.size.forM $ fun _ => visit (p.getArg! 0)
 
 @[builtinFormatter many1] def many1.formatter : Formatter | p => do
 stx ← getCur;
-if stx.getKind == nullKind then
-  concatArgs $ visit (p.getArg! 0)
+if stx.getKind == nullKind then do
+  many.formatter p
 else
   -- can happen with `unboxSingleton = true`
   visit (p.getArg! 0)
 
 @[builtinFormatter Parser.optional]
 def optional.formatter : Formatter | p => do
-visitArgs $ visit (p.getArg! 0)
+concatArgs $ visit (p.getArg! 0)
 
 @[builtinFormatter sepBy]
 def sepBy.formatter : Formatter | p => do
 stx ← getCur;
-concatArgs do
-  idx ← getIdx;
-  visit (p.getArg! (idx % 2))
+concatArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => visit (p.getArg! (i % 2))
 
 @[builtinFormatter sepBy1] def sepBy1.formatter := sepBy.formatter
 
@@ -244,11 +270,12 @@ catch (visit (p.getArg! 0)) $ fun e => match e with
 -- call closure with dummy position
 visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
 
-@[builtinFormatter checkStackTop] def checkStackTop.formatter : Formatter | p => pure Format.nil
-@[builtinFormatter checkWsBefore] def checkWsBefore.formatter : Formatter | p => pure Format.nil
-@[builtinFormatter checkNoWsBefore] def checkNoWsBefore.formatter : Formatter | p => pure Format.nil
-@[builtinFormatter checkTailWs] def checkTailWs.formatter : Formatter | p => pure Format.nil
-@[builtinFormatter checkColGe] def checkColGe.formatter : Formatter | p => pure Format.nil
+@[builtinFormatter checkPrec] def checkPrec.formatter : Formatter | p => pure ()
+@[builtinFormatter checkStackTop] def checkStackTop.formatter : Formatter | p => pure ()
+@[builtinFormatter checkWsBefore] def checkWsBefore.formatter : Formatter | p => pure ()
+@[builtinFormatter checkNoWsBefore] def checkNoWsBefore.formatter : Formatter | p => pure ()
+@[builtinFormatter checkTailWs] def checkTailWs.formatter : Formatter | p => pure ()
+@[builtinFormatter checkColGe] def checkColGe.formatter : Formatter | p => pure ()
 
 open Lean.Parser.Command
 @[builtinFormatter commentBody] def commentBody.formatter := visitAtom Name.anonymous
@@ -258,8 +285,8 @@ open Lean.Parser.Command
 end Formatter
 
 def format (table : Parser.TokenTable) (parser : Expr) (stx : Syntax) : MetaM Format := do
-(f, _) ← Formatter.visit parser { table := table } { stxTrav := Syntax.Traverser.fromSyntax stx };
-pure f
+(_, st) ← Formatter.visit parser { table := table } { stxTrav := Syntax.Traverser.fromSyntax stx };
+pure $ st.stack.get! 0
 
 def formatTerm (table) := format table (mkApp (mkConst `Lean.Parser.termParser) (mkNatLit 0))
 

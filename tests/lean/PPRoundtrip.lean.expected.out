@@ -1,35 +1,35 @@
 Prop
 Type
 Type
-Type1
-Type_
+Type 1
+Type _
 Type(_+2)
 Nat
-ListNat
-idNat
-id(id(idNat))
-ListNat
-@idTypeNat
+List Nat
+id Nat
+id(id(id Nat))
+List Nat
+@id Type Nat
 List.{0}Nat
 id.{2}Nat
-id(@idTypeNat)
+id(@id Type Nat)
 λ(a : Nat)=>a
-λ(ab : Nat)=>a
+λ(a b : Nat)=>a
 λ(a : Nat)(b : Bool)=>a
-λ{ab : Nat}=>a
+λ{a b : Nat}=>a
 typeAs({α : Type} → α → α)λ{α : Type}(a : α)=>a
-λ{α : Type}[_inst_1 : HasToStringα](a : α)=>@HasToString.toStringα_inst_1a
+λ{α : Type}[_inst_1 : HasToString α](a : α)=>@HasToString.toString α _inst_1 a
 (α : Type) → α
-(αβ : Type) → α
+(α β : Type) → α
 Type → Type → Type
 (α : Type) → α → α
-(α : Type) → (a : α) → Eqaa
+(α : Type) → (a : α) → Eq a a
 {α : Type} → α
-{α : Type} → [_inst_1 : HasToStringα] → α
+{α : Type} → [_inst_1 : HasToString α] → α
 0
 1
 42
 "hi"
-(Prod.mk12).fst
-or(HasLess.Less12)Bool.true
+(Prod.mk 1 2).fst
+or(HasLess.Less 1 2)Bool.true
 id(λ(a : Nat)=>a)0

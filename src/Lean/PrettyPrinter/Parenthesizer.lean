@@ -337,7 +337,7 @@ visitArgs $ stx.getArgs.size.forM $ fun _ => visit (p.getArg! 0)
 @[builtinParenthesizer many1] def many1.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
 if stx.getKind == nullKind then
-  visitArgs $ stx.getArgs.size.forM $ fun _ => visit (p.getArg! 0)
+  many.parenthesizer p
 else
   -- can happen with `unboxSingleton = true`
   visit (p.getArg! 0)

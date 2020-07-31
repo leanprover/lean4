@@ -251,6 +251,11 @@ ctx ← read;
 s ← get;
 throw (f { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts })
 
+def throwOther {α} (msg : MessageData) : MetaM α := do
+ctx ← read;
+s ← get;
+throw (Exception.other (MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg))
+
 def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
 

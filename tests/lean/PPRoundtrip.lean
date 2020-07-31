@@ -16,9 +16,12 @@ discard $ liftM $ MetaHasEval.eval env opts do
   stx' ← liftMetaM stx' $ PrettyPrinter.parenthesizeTerm stx';
   f' ← liftMetaM stx' $ PrettyPrinter.formatTerm table stx';
   dbgTrace $ toString f';
-  e' ← elabTermAndSynthesize stx' none <* throwErrorIfErrors;
-  unlessM (isDefEq stx e e') $
-    throwError stx (fmt "failed to elab round-trip" ++ line ++ fmt e ++ line ++ fmt e')
+  match Parser.runParserCategory env `term (toString f') "<input>" with
+  | Except.error e => throwError stx e
+  | Except.ok stx'' => do
+    e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
+    unlessM (isDefEq stx e e') $
+      throwError stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
 -- #eval check `(?m)  -- fails round-trip
 

@@ -153,10 +153,13 @@ ctx ← read; pure ctx.config
 @[inline] def getMCtx : MetaM MetavarContext := do
 s ← get; pure s.mctx
 
+def setMCtx (mctx : MetavarContext) : MetaM Unit := do
+modify $ fun s => { s with mctx := mctx }
+
 @[inline] def getEnv : MetaM Environment := do
 s ← get; pure s.env
 
-@[inline] def setEnv (env : Environment) : MetaM Unit := do
+def setEnv (env : Environment) : MetaM Unit := do
 modify $ fun s => { s with env := env }
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
@@ -847,11 +850,9 @@ env   ← getEnv;
 opts  ← getOptions;
 mctx  ← getMCtx;
 lctx  ← getLCtx;
-type  ← instantiateMVars type;
-value ← instantiateMVars value;
 match Lean.mkAuxDefinition env opts mctx lctx name type value with
-| Except.error ex    => throw $ Exception.kernel ex opts
-| Except.ok (e, env) => do setEnv env; pure e
+| Except.error ex          => throw $ Exception.kernel ex opts
+| Except.ok (e, env, mctx) => do setEnv env; setMCtx mctx; pure e
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
 def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do

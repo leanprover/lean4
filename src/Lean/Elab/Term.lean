@@ -996,9 +996,10 @@ opts ← getOptions;
 mctx ← getMCtx;
 lctx ← getLCtx;
 match Lean.mkAuxDefinition env opts mctx lctx declName type value zeta with
-| Except.error ex    => throwError ref (ex.toMessageData opts)
-| Except.ok (r, env) => do
+| Except.error ex          => throwError ref (ex.toMessageData opts)
+| Except.ok (r, env, mctx) => do
   setEnv env;
+  setMCtx mctx;
   pure r
 
 private partial def mkAuxNameAux (env : Environment) (base : Name) : Nat → Name

@@ -12,11 +12,11 @@ namespace Lean
 namespace Closure
 
 structure Context :=
-(mctx      : MetavarContext)
 (lctxInput : LocalContext)
 (zeta      : Bool) -- if `true` let-variables are expanded
 
 structure State :=
+(mctx          : MetavarContext)
 (lctxOutput    : LocalContext := {})
 (ngen          : NameGenerator := { namePrefix := `_closure })
 (visitedLevel  : LevelMap Level := {})
@@ -48,15 +48,19 @@ let p := (`u).appendIndexAfter s.nextLevelIdx;
 modify $ fun s => { s with levelParams := s.levelParams.push p, nextLevelIdx := s.nextLevelIdx + 1, levelClosure := s.levelClosure.push u };
 pure $ mkLevelParam p
 
+def getMCtx : ClosureM MetavarContext := do
+s ← get; pure s.mctx
+
+def instantiateMVars (e : Expr) : ClosureM Expr := do
+modifyGet fun s =>
+  let (e, mctx) := s.mctx.instantiateMVars e;
+  (e, { s with mctx := mctx })
+
 partial def collectLevelAux : Level → ClosureM Level
 | u@(Level.succ v _)      => do v ← visitLevel collectLevelAux v; pure $ u.updateSucc! v
 | u@(Level.max v w _)     => do v ← visitLevel collectLevelAux v; w ← visitLevel collectLevelAux w; pure $ u.updateMax! v w
 | u@(Level.imax v w _)    => do v ← visitLevel collectLevelAux v; w ← visitLevel collectLevelAux w; pure $ u.updateIMax! v w
-| u@(Level.mvar mvarId _) => do
-  ctx ← read;
-  match ctx.mctx.getLevelAssignment? mvarId with
-  | none   => mkNewLevelParam u
-  | some v => visitLevel collectLevelAux v
+| u@(Level.mvar mvarId _) => mkNewLevelParam u
 | u@(Level.param _ _)     => mkNewLevelParam u
 | u@(Level.zero _)        => pure u
 
@@ -119,37 +123,40 @@ partial def collectExprAux : Expr → ClosureM Expr
   | Expr.sort u _        => do u ← collectLevel u; pure (e.updateSort! u)
   | Expr.const c us _    => do us ← us.mapM collectLevel; pure (e.updateConst! us)
   | Expr.mvar mvarId _   => do
-    ctx ← read;
-    match ctx.mctx.findDecl? mvarId with
+    mctx ← getMCtx;
+    match mctx.findDecl? mvarId with
     | none          => throw "unknown metavariable"
-    | some mvarDecl =>
-      match ctx.mctx.getExprAssignment? mvarId with
-      | some v => collect v
-      | none   => do
-        type ← collect mvarDecl.type;
-        x    ← mkLocalDecl none type BinderInfo.default;
-        modify $ fun s => { s with exprClosure := s.exprClosure.push e };
-        pure x
+    | some mvarDecl => do
+      type ← instantiateMVars mvarDecl.type;
+      type ← collect type;
+      x    ← mkLocalDecl none type BinderInfo.default;
+      modify $ fun s => { s with exprClosure := s.exprClosure.push e };
+      pure x
   | Expr.fvar fvarId _ => do
     ctx ← read;
     match ctx.lctxInput.find? fvarId with
     | none => throw "unknown free variable"
     | some (LocalDecl.cdecl _ _ userName type bi) => do
+      type ← instantiateMVars type;
       type ← collect type;
       x    ← mkLocalDecl userName type bi;
       modify $ fun s => { s with exprClosure := s.exprClosure.push e };
       pure x
     | some (LocalDecl.ldecl _ _ userName type value) =>
-      if ctx.zeta then
+      if ctx.zeta then do
+        value ← instantiateMVars value;
         collect value
       else do
+        type  ← instantiateMVars type;
         type  ← collect type;
+        value ← instantiateMVars value;
         value ← collect value;
         -- Note that let-declarations do not need to be provided to the closure being constructed.
         mkLetDecl userName type value
   | e => pure e
 
-def collectExpr (e : Expr) : ClosureM Expr :=
+def collectExpr (e : Expr) : ClosureM Expr := do
+e ← instantiateMVars e;
 visitExpr collectExprAux e
 
 structure MkClosureResult :=
@@ -158,6 +165,7 @@ structure MkClosureResult :=
 (value        : Expr)
 (levelClosure : Array Level)
 (exprClosure  : Array Expr)
+(mctx         : MetavarContext)
 
 def mkClosure (mctx : MetavarContext) (lctx : LocalContext) (type : Expr) (value : Expr) (zeta : Bool := false) : Except String MkClosureResult :=
 let shareCommonTypeValue : Std.ShareCommonM (Expr × Expr) := do {
@@ -166,13 +174,14 @@ let shareCommonTypeValue : Std.ShareCommonM (Expr × Expr) := do {
   pure (type, value)
 };
 let (type, value) := shareCommonTypeValue.run;
-let mkTypeValue : ClosureM (Expr × Expr) := do {
+let mkTypeValue : ClosureM (Expr × Expr × MetavarContext) := do {
   type  ← collectExpr type;
   value ← collectExpr value;
-  pure (type, value)
+  mctx  ← getMCtx;
+  pure (type, value, mctx)
 };
-match (mkTypeValue { mctx := mctx, lctxInput := lctx, zeta := zeta }).run {} with
-| EStateM.Result.ok (type, value) s =>
+match (mkTypeValue { lctxInput := lctx, zeta := zeta }).run { mctx := mctx } with
+| EStateM.Result.ok (type, value, mctx) s =>
   let fvars := s.lctxOutput.getFVars;
   let type  := s.lctxOutput.mkForall fvars type;
   let value := s.lctxOutput.mkLambda fvars value;
@@ -181,13 +190,14 @@ match (mkTypeValue { mctx := mctx, lctxInput := lctx, zeta := zeta }).run {} wit
     type         := type,
     value        := value,
     levelClosure := s.levelClosure,
-    exprClosure  := s.exprClosure }
+    exprClosure  := s.exprClosure,
+    mctx         := mctx }
 | EStateM.Result.error ex s => Except.error ex
 
 end Closure
 
 def mkAuxDefinition (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
-    (zeta : Bool := false) : Except KernelException (Expr × Environment) :=
+    (zeta : Bool := false) : Except KernelException (Expr × Environment × MetavarContext) :=
 match Closure.mkClosure mctx lctx type value zeta with
 | Except.error ex  => throw $ KernelException.other ex
 | Except.ok result => do
@@ -201,6 +211,6 @@ match Closure.mkClosure mctx lctx type value zeta with
   };
   env ← env.addAndCompile opts decl;
   let c := mkAppN (mkConst name result.levelClosure.toList) result.exprClosure;
-  pure (c, env)
+  pure (c, env, result.mctx)
 
 end Lean

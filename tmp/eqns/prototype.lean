@@ -67,7 +67,6 @@ structure Problem :=
 (goal          : Expr)
 (vars          : List Expr)
 (alts          : List Alt)
-(processedVars : Array Expr := #[])
 
 namespace Problem
 
@@ -138,6 +137,12 @@ p.alts.all fun alt => match alt.patterns with
   | Pattern.var _ _ :: _          => true
   | _                             => false
 
+/- Return true if the next pattern of each remaining alternative is a constructor application -/
+private def isConstructorTransition (p : Problem) : Bool :=
+p.alts.all fun alt => match alt.patterns with
+  | Pattern.ctor _ _ _ _ _ :: _ => true
+  | _                           => false
+
 private def processLeaf (p : Problem) (s : State) : MetaM State := do
 let alt := p.alts.head!;
 assignGoalOf p alt.rhs;
@@ -153,13 +158,41 @@ match p.vars with
   process { p with alts := alts, vars := xs } s
 | _ => unreachable!
 
+private def isFirstPatternCtor (ctorName : Name) (alt : Alt) : Bool :=
+match alt.patterns with
+| Pattern.ctor _ n _ _ _ :: _ => n == ctorName
+| _                           => false
+
+private def expandCtorPattern (alt : Alt) : Alt :=
+match alt.patterns with
+| Pattern.ctor _ _ _ _ fields :: ps => { alt with patterns := fields ++ ps }
+| _                                 => alt
+
+private def processConstructor (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State :=
+match p.vars with
+| x :: xs => do
+  subgoals ← cases p.goal.mvarId! x.fvarId!;
+  subgoals.foldlM
+    (fun (s : State) subgoal =>
+      let newVars := subgoal.fields.toList.map mkFVar ++ xs;
+      let newAlts := p.alts.filter $ isFirstPatternCtor subgoal.ctorName;
+      let newAlts := newAlts.map fun alt => match alt.patterns with
+        | Pattern.ctor _ _ _ _ fields :: ps => { alt with patterns := fields ++ ps }
+        | _                                 => unreachable!;
+      -- TODO: apply subgoal substitution to `newVars` and `newAlts`
+      process { goal := mkMVar subgoal.mvarId, vars := newVars, alts := newAlts } s)
+    s
+| _ => unreachable!
+
 private partial def process : Problem → State → MetaM State
 | p, s => withIncRecDepth do
-  traceM `Meta.debug p.toMessageData;
+  withGoalOf p (traceM `Meta.debug p.toMessageData);
   if isDone p then
     processLeaf p s
   else if isVariableTransition p then
     processVariable process p s
+  else if isConstructorTransition p then
+    processConstructor process p s
   else
     -- TODO: remaining cases
     pure s
@@ -191,9 +224,9 @@ generalizeTelescope majors.toArray `_d fun majors => do
 withMotive majors sortv fun motive => do
 let target  := mkAppN motive majors;
 trace! `Meta.debug ("target: " ++ target);
-goal ← mkFreshExprMVar target;
 withAlts motive lhss fun alts minors => do
-  s   ← process { goal := goal, vars := majors.toList, alts := alts } {};
+  goal ← mkFreshExprMVar target;
+  s    ← process { goal := goal, vars := majors.toList, alts := alts } {};
   let args := #[motive] ++ majors ++ minors;
   type ← mkForall args target;
   val  ← mkLambda args goal;
@@ -298,35 +331,40 @@ set_option trace.Meta.debug true
 @[init] def register : IO Unit :=
 registerTraceClass `Meta.mkElim
 
+def test (ex : Name) (numPats : Nat) (elimName : Name) : MetaM Unit :=
+withDepElimFrom ex numPats fun majors alts => do
+  let majors := majors.map mkFVar;
+  trace! `Meta.debug ("majors: " ++ majors.toArray);
+  _ ← mkElim elimName majors alts;
+  pure ()
+
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
 := arbitrary _
 
-def tst0 : MetaM Unit :=
-withDepElimFrom `ex0 1 fun majors alts => do
-  let majors := majors.map mkFVar;
-  trace! `Meta.debug ("majors: " ++ majors.toArray);
-  _ ← mkElim `elimTest majors alts;
-  pure ()
+#eval test `ex0 1 `elimTest0
 
-#eval tst0
+#print elimTest0
 
-#print elimTest
+def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
+  LHS (Pat ([] : List α) × Pat ([] : List β))
+× LHS (forall (a : α) (as : List α) (b : β) (bs : List β), Pat (a::as) × Pat (b::bs))
+× LHS (forall (a : α) (as : List α), Pat (a::as) × Pat ([] : List β))
+× LHS (forall (b : β) (bs : List β), Pat ([] : List α) × Pat (b::bs))
+:= arbitrary _
+
+#eval test `ex1 2 `elimTest1
+
+#print elimTest1
 
 #exit
 
-def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
+def ex2 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
   LHS (Pat ([] : List α) × Pat ([] : List β))
 × LHS (forall (a : α) (b : α), Pat [a] × Pat [b])
 × LHS (forall (a₁ a₂ : α) (as : List α) (b₁ b₂ : β) (bs : List β), Pat (a₁::a₂::as) × Pat (b₁::b₂::bs))
 × LHS (forall (as : List α) (bs : List β), Pat as × Pat bs)
 := arbitrary _
 
-def tst1 : MetaM Unit :=
-withDepElimFrom `ex1 2 fun majors alts => do
-  let majors := majors.map mkFVar;
-  trace! `Meta.debug ("majors: " ++ majors.toArray);
-  _ ← mkElim `test majors alts;
-  pure ()
+#eval test `ex2 2 `elimTest2
 
-set_option pp.all true
-#eval tst1
+#print elimTest2

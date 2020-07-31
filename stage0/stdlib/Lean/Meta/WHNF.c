@@ -71,7 +71,6 @@ lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, lean_object*, lean_o
 lean_object* l___private_Lean_Util_WHNF_4__toCtorWhenK___at_Lean_Meta_whnfCore___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_reduceQuotRec___at_Lean_Meta_unfoldDefinition_x3f___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Exception_Inhabited___closed__1;
 lean_object* l___private_Lean_Util_WHNF_3__getRecRuleFor(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfUntil___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
@@ -228,6 +227,7 @@ lean_object* l_Lean_WHNF_isRecStuck_x3f___at_Lean_Meta_unfoldDefinition_x3f___sp
 lean_object* l_Lean_Meta_reduceNat_x3f___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__8;
 lean_object* l_Lean_Meta_reduceNative_x3f(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Exception_Inhabited___closed__2;
 lean_object* l_Lean_Meta_reduceNative_x3f___closed__4;
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_Meta_isLevelDefEqAux___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_3__cache(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11072,27 +11072,31 @@ lean_inc(x_5);
 x_6 = l_Lean_Environment_evalConstCheck___rarg(x_5, x_1, x_2);
 if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_alloc_ctor(22, 1, 0);
+x_8 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
-x_9 = lean_alloc_ctor(1, 2, 0);
+x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_4);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_6, 0);
-lean_inc(x_10);
-lean_dec(x_6);
-x_11 = lean_alloc_ctor(0, 2, 0);
+x_10 = lean_alloc_ctor(22, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_4);
 return x_11;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_6, 0);
+lean_inc(x_12);
+lean_dec(x_6);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_4);
+return x_13;
 }
 }
 }
@@ -11153,7 +11157,7 @@ lean_object* l_Lean_Meta_reduceBoolNative___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_Exception_Inhabited___closed__1;
+x_2 = l_Lean_Meta_Exception_Inhabited___closed__2;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -11182,7 +11186,7 @@ lean_object* l_Lean_Meta_reduceNatNative___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_Exception_Inhabited___closed__1;
+x_2 = l_Lean_Meta_Exception_Inhabited___closed__2;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

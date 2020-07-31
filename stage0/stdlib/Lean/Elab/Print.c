@@ -37,11 +37,11 @@ lean_object* lean_private_to_user_name(lean_object*);
 lean_object* l___private_Lean_Elab_Print_1__throwUnknownId___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabPrint(lean_object*);
 lean_object* l___private_Lean_Elab_Command_3__setState(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_assumption___closed__1;
 extern lean_object* l_Lean_Parser_Command_print___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Term_explicitUniv___elambda__1___closed__5;
 lean_object* l_List_map___main___at___private_Lean_Elab_Print_9__printId___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Command_elabPrint___closed__4;
+extern lean_object* l_Lean_Meta_Exception_Inhabited___closed__1;
 lean_object* l___private_Lean_Elab_Print_5__printAxiomLike___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_4__printDefLike___closed__1;
 lean_object* l___private_Lean_Elab_Print_4__printDefLike___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -218,7 +218,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_Lean_Meta_assumption___closed__1;
+x_2 = l_Lean_Meta_Exception_Inhabited___closed__1;
 return x_2;
 }
 else
@@ -335,7 +335,7 @@ lean_inc(x_80);
 x_81 = lean_ctor_get(x_79, 1);
 lean_inc(x_81);
 lean_dec(x_79);
-x_82 = l_Lean_Meta_assumption___closed__1;
+x_82 = l_Lean_Meta_Exception_Inhabited___closed__1;
 x_8 = x_82;
 x_9 = x_80;
 x_10 = x_81;

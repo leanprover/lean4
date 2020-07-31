@@ -69,6 +69,7 @@ lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__17;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__43;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__79;
+extern lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Lean_Meta_Exception_toStr___closed__19;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__81;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__44;
@@ -106,6 +107,7 @@ lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__76;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__75;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__26;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__58;
+lean_object* l_Lean_fmt___at_Lean_Message_toString___spec__1(lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Meta_Exception_toStr___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__14;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__28;
@@ -128,6 +130,7 @@ lean_object* l_Lean_Meta_Exception_toStr(lean_object*);
 lean_object* l_Lean_Meta_Exception_HasToString___closed__1;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__2;
 lean_object* l_Lean_Meta_Exception_mkCtx(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Exception_Inhabited___closed__2;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__48;
 lean_object* l_Lean_Meta_Exception_toStr___closed__6;
 lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__13;
@@ -161,7 +164,17 @@ lean_object* _init_l_Lean_Meta_Exception_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_String_splitAux___main___closed__1;
+x_1 = l_Lean_Format_join___closed__1;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_Meta_Exception_Inhabited___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Exception_Inhabited___closed__1;
 x_2 = lean_alloc_ctor(22, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -171,7 +184,7 @@ lean_object* _init_l_Lean_Meta_Exception_Inhabited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Exception_Inhabited___closed__1;
+x_1 = l_Lean_Meta_Exception_Inhabited___closed__2;
 return x_1;
 }
 }
@@ -637,18 +650,21 @@ return x_63;
 }
 case 22:
 {
-lean_object* x_64; 
+lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
 x_64 = lean_ctor_get(x_1, 0);
 lean_inc(x_64);
 lean_dec(x_1);
-return x_64;
+x_65 = l_Lean_fmt___at_Lean_Message_toString___spec__1(x_64);
+x_66 = l_Lean_Options_empty;
+x_67 = l_Lean_Format_pretty(x_65, x_66);
+return x_67;
 }
 default: 
 {
-lean_object* x_65; 
+lean_object* x_68; 
 lean_dec(x_1);
-x_65 = l_Lean_Meta_Exception_toStr___closed__13;
-return x_65;
+x_68 = l_Lean_Meta_Exception_toStr___closed__13;
+return x_68;
 }
 }
 }
@@ -1882,145 +1898,125 @@ return x_116;
 }
 case 16:
 {
-lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; 
+lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; 
 x_117 = lean_ctor_get(x_1, 0);
 lean_inc(x_117);
 x_118 = lean_ctor_get(x_1, 1);
 lean_inc(x_118);
 x_119 = lean_ctor_get(x_1, 2);
 lean_inc(x_119);
-x_120 = lean_ctor_get(x_1, 3);
-lean_inc(x_120);
 lean_dec(x_1);
-x_121 = lean_alloc_ctor(4, 1, 0);
-lean_ctor_set(x_121, 0, x_117);
-x_122 = l_Lean_Meta_Exception_toTraceMessageData___closed__71;
-x_123 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_123, 0, x_122);
-lean_ctor_set(x_123, 1, x_121);
-x_124 = l_Lean_Meta_Exception_toTraceMessageData___closed__4;
+x_120 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_120, 0, x_117);
+x_121 = l_Lean_Meta_Exception_toTraceMessageData___closed__71;
+x_122 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_122, 0, x_121);
+lean_ctor_set(x_122, 1, x_120);
+x_123 = l_Lean_Meta_Exception_toTraceMessageData___closed__4;
+x_124 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_124, 0, x_122);
+lean_ctor_set(x_124, 1, x_123);
 x_125 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_125, 0, x_123);
-lean_ctor_set(x_125, 1, x_124);
-x_126 = lean_unsigned_to_nat(0u);
-x_127 = l_Lean_MessageData_coeOfArrayExpr___closed__2;
-x_128 = l_Lean_MessageData_arrayExpr_toMessageData___main(x_119, x_126, x_127);
-lean_dec(x_119);
-x_129 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_129, 0, x_125);
-lean_ctor_set(x_129, 1, x_128);
-x_130 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_130, 0, x_129);
-lean_ctor_set(x_130, 1, x_124);
-x_131 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_131, 0, x_118);
-x_132 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_132, 0, x_131);
-x_133 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_133, 0, x_130);
-lean_ctor_set(x_133, 1, x_132);
-x_134 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_134, 0, x_120);
-lean_ctor_set(x_134, 1, x_133);
-return x_134;
+lean_ctor_set(x_125, 0, x_124);
+lean_ctor_set(x_125, 1, x_118);
+x_126 = lean_alloc_ctor(6, 2, 0);
+lean_ctor_set(x_126, 0, x_119);
+lean_ctor_set(x_126, 1, x_125);
+return x_126;
 }
 case 17:
 {
-lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; 
-x_135 = lean_ctor_get(x_1, 0);
-lean_inc(x_135);
-x_136 = lean_ctor_get(x_1, 1);
-lean_inc(x_136);
+lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; 
+x_127 = lean_ctor_get(x_1, 0);
+lean_inc(x_127);
+x_128 = lean_ctor_get(x_1, 1);
+lean_inc(x_128);
 lean_dec(x_1);
-x_137 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_137, 0, x_135);
-x_138 = l_Lean_Meta_Exception_toTraceMessageData___closed__75;
-x_139 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_139, 0, x_138);
-lean_ctor_set(x_139, 1, x_137);
-x_140 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_140, 0, x_136);
-lean_ctor_set(x_140, 1, x_139);
-return x_140;
+x_129 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_129, 0, x_127);
+x_130 = l_Lean_Meta_Exception_toTraceMessageData___closed__75;
+x_131 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_131, 0, x_130);
+lean_ctor_set(x_131, 1, x_129);
+x_132 = lean_alloc_ctor(6, 2, 0);
+lean_ctor_set(x_132, 0, x_128);
+lean_ctor_set(x_132, 1, x_131);
+return x_132;
 }
 case 18:
 {
-lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; 
-x_141 = lean_ctor_get(x_1, 0);
-lean_inc(x_141);
-x_142 = lean_ctor_get(x_1, 2);
-lean_inc(x_142);
-x_143 = lean_ctor_get(x_1, 3);
-lean_inc(x_143);
+lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; 
+x_133 = lean_ctor_get(x_1, 0);
+lean_inc(x_133);
+x_134 = lean_ctor_get(x_1, 2);
+lean_inc(x_134);
+x_135 = lean_ctor_get(x_1, 3);
+lean_inc(x_135);
 lean_dec(x_1);
-x_144 = lean_alloc_ctor(4, 1, 0);
-lean_ctor_set(x_144, 0, x_141);
-x_145 = l_Lean_Meta_Exception_toTraceMessageData___closed__79;
-x_146 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_146, 0, x_145);
-lean_ctor_set(x_146, 1, x_144);
-x_147 = l_Lean_Meta_Exception_toTraceMessageData___closed__4;
-x_148 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_148, 0, x_146);
-lean_ctor_set(x_148, 1, x_147);
-x_149 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_149, 0, x_148);
-lean_ctor_set(x_149, 1, x_142);
-x_150 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_150, 0, x_143);
-lean_ctor_set(x_150, 1, x_149);
-return x_150;
+x_136 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_136, 0, x_133);
+x_137 = l_Lean_Meta_Exception_toTraceMessageData___closed__79;
+x_138 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_138, 0, x_137);
+lean_ctor_set(x_138, 1, x_136);
+x_139 = l_Lean_Meta_Exception_toTraceMessageData___closed__4;
+x_140 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_140, 0, x_138);
+lean_ctor_set(x_140, 1, x_139);
+x_141 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_141, 0, x_140);
+lean_ctor_set(x_141, 1, x_134);
+x_142 = lean_alloc_ctor(6, 2, 0);
+lean_ctor_set(x_142, 0, x_135);
+lean_ctor_set(x_142, 1, x_141);
+return x_142;
 }
 case 19:
 {
-lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; 
+lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; 
+x_143 = lean_ctor_get(x_1, 0);
+lean_inc(x_143);
+x_144 = lean_ctor_get(x_1, 1);
+lean_inc(x_144);
+lean_dec(x_1);
+x_145 = lean_unsigned_to_nat(0u);
+x_146 = l_Lean_MessageData_coeOfArrayExpr___closed__2;
+x_147 = l_Lean_MessageData_arrayExpr_toMessageData___main(x_143, x_145, x_146);
+lean_dec(x_143);
+x_148 = l_Lean_Meta_Exception_toTraceMessageData___closed__83;
+x_149 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_149, 0, x_148);
+lean_ctor_set(x_149, 1, x_147);
+x_150 = lean_alloc_ctor(6, 2, 0);
+lean_ctor_set(x_150, 0, x_144);
+lean_ctor_set(x_150, 1, x_149);
+return x_150;
+}
+case 20:
+{
+lean_object* x_151; lean_object* x_152; lean_object* x_153; 
 x_151 = lean_ctor_get(x_1, 0);
 lean_inc(x_151);
 x_152 = lean_ctor_get(x_1, 1);
 lean_inc(x_152);
 lean_dec(x_1);
-x_153 = lean_unsigned_to_nat(0u);
-x_154 = l_Lean_MessageData_coeOfArrayExpr___closed__2;
-x_155 = l_Lean_MessageData_arrayExpr_toMessageData___main(x_151, x_153, x_154);
-lean_dec(x_151);
-x_156 = l_Lean_Meta_Exception_toTraceMessageData___closed__83;
-x_157 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_157, 0, x_156);
-lean_ctor_set(x_157, 1, x_155);
-x_158 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_158, 0, x_152);
-lean_ctor_set(x_158, 1, x_157);
-return x_158;
-}
-case 20:
-{
-lean_object* x_159; lean_object* x_160; lean_object* x_161; 
-x_159 = lean_ctor_get(x_1, 0);
-lean_inc(x_159);
-x_160 = lean_ctor_get(x_1, 1);
-lean_inc(x_160);
-lean_dec(x_1);
-x_161 = l_Lean_KernelException_toMessageData(x_159, x_160);
-return x_161;
+x_153 = l_Lean_KernelException_toMessageData(x_151, x_152);
+return x_153;
 }
 case 21:
 {
-lean_object* x_162; 
+lean_object* x_154; 
 lean_dec(x_1);
-x_162 = l_Lean_Meta_Exception_toTraceMessageData___closed__86;
-return x_162;
+x_154 = l_Lean_Meta_Exception_toTraceMessageData___closed__86;
+return x_154;
 }
 default: 
 {
-lean_object* x_163; lean_object* x_164; lean_object* x_165; 
-x_163 = lean_ctor_get(x_1, 0);
-lean_inc(x_163);
+lean_object* x_155; 
+x_155 = lean_ctor_get(x_1, 0);
+lean_inc(x_155);
 lean_dec(x_1);
-x_164 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_164, 0, x_163);
-x_165 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_165, 0, x_164);
-return x_165;
+return x_155;
 }
 }
 }
@@ -2052,6 +2048,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Exception_Inhabited___closed__1 = _init_l_Lean_Meta_Exception_Inhabited___closed__1();
 lean_mark_persistent(l_Lean_Meta_Exception_Inhabited___closed__1);
+l_Lean_Meta_Exception_Inhabited___closed__2 = _init_l_Lean_Meta_Exception_Inhabited___closed__2();
+lean_mark_persistent(l_Lean_Meta_Exception_Inhabited___closed__2);
 l_Lean_Meta_Exception_Inhabited = _init_l_Lean_Meta_Exception_Inhabited();
 lean_mark_persistent(l_Lean_Meta_Exception_Inhabited);
 l_Lean_Meta_Exception_toStr___closed__1 = _init_l_Lean_Meta_Exception_toStr___closed__1();

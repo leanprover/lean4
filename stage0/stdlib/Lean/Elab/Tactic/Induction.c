@@ -88,7 +88,6 @@ lean_object* l_Nat_foldMAux___main___at___private_Lean_Elab_Tactic_Induction_16_
 lean_object* l___private_Lean_Elab_Tactic_Induction_15__isTermRHS___boxed(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInduction(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_11__checkAltCtorNames(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_toString___at_Lean_Elab_OpenDecl_HasToString___spec__2(lean_object*);
@@ -124,6 +123,7 @@ lean_object* l_Lean_Meta_revert___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Elab_Tactic_Induction_16__processResult___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getRecFromUsing(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Elab_Tactic_Induction_16__processResult___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getInductiveValFromMajor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkRecFor___closed__1;
@@ -1974,7 +1974,7 @@ goto block_58;
 else
 {
 lean_object* x_59; lean_object* x_60; 
-x_59 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_59 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_60 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_59, x_4, x_20);
 if (lean_obj_tag(x_60) == 0)
@@ -2253,7 +2253,7 @@ goto block_118;
 else
 {
 lean_object* x_119; lean_object* x_120; 
-x_119 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_119 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_120 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_119, x_4, x_80);
 if (lean_obj_tag(x_120) == 0)
@@ -2532,7 +2532,7 @@ goto block_178;
 else
 {
 lean_object* x_179; lean_object* x_180; 
-x_179 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_179 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_180 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_179, x_4, x_140);
 if (lean_obj_tag(x_180) == 0)
@@ -2811,7 +2811,7 @@ goto block_238;
 else
 {
 lean_object* x_239; lean_object* x_240; 
-x_239 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_239 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_240 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_239, x_4, x_200);
 if (lean_obj_tag(x_240) == 0)
@@ -3107,7 +3107,7 @@ goto block_304;
 else
 {
 lean_object* x_305; lean_object* x_306; 
-x_305 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_305 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_306 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_305, x_4, x_266);
 if (lean_obj_tag(x_306) == 0)
@@ -3450,7 +3450,7 @@ goto block_367;
 else
 {
 lean_object* x_368; lean_object* x_369; 
-x_368 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_368 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_369 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_368, x_4, x_329);
 if (lean_obj_tag(x_369) == 0)
@@ -3731,7 +3731,7 @@ goto block_440;
 else
 {
 lean_object* x_441; lean_object* x_442; 
-x_441 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_441 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_442 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_441, x_4, x_402);
 if (lean_obj_tag(x_442) == 0)
@@ -4010,7 +4010,7 @@ goto block_500;
 else
 {
 lean_object* x_501; lean_object* x_502; 
-x_501 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_501 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_502 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_501, x_4, x_462);
 if (lean_obj_tag(x_502) == 0)
@@ -4289,7 +4289,7 @@ goto block_560;
 else
 {
 lean_object* x_561; lean_object* x_562; 
-x_561 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_561 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_562 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_561, x_4, x_522);
 if (lean_obj_tag(x_562) == 0)
@@ -4568,7 +4568,7 @@ goto block_620;
 else
 {
 lean_object* x_621; lean_object* x_622; 
-x_621 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_621 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_622 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_621, x_4, x_582);
 if (lean_obj_tag(x_622) == 0)
@@ -4847,7 +4847,7 @@ goto block_680;
 else
 {
 lean_object* x_681; lean_object* x_682; 
-x_681 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_681 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_682 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_681, x_4, x_642);
 if (lean_obj_tag(x_682) == 0)
@@ -5126,7 +5126,7 @@ goto block_740;
 else
 {
 lean_object* x_741; lean_object* x_742; 
-x_741 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_741 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_742 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_741, x_4, x_702);
 if (lean_obj_tag(x_742) == 0)
@@ -5405,7 +5405,7 @@ goto block_800;
 else
 {
 lean_object* x_801; lean_object* x_802; 
-x_801 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_801 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_802 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_801, x_4, x_762);
 if (lean_obj_tag(x_802) == 0)
@@ -5684,7 +5684,7 @@ goto block_860;
 else
 {
 lean_object* x_861; lean_object* x_862; 
-x_861 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_861 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_862 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_861, x_4, x_822);
 if (lean_obj_tag(x_862) == 0)

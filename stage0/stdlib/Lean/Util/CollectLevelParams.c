@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitExpr___spec__7___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_CollectLevelParams_visitLevel(lean_object*, lean_object*, lean_object*);
@@ -29,13 +30,16 @@ uint8_t l_List_elem___main___at_Lean_CollectLevelParams_visitExpr___spec__2(lean
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_collect___main(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(lean_object*, lean_object*);
+lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_CollectLevelParams_visitLevel___spec__2(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
+lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_visitExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_moveEntries___main___at_Lean_CollectLevelParams_visitExpr___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitExpr___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_mkHashSet___at_Lean_CollectLevelParams_State_inhabited___spec__2(lean_object*);
@@ -43,10 +47,12 @@ size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_main(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_moveEntries___main___at_Lean_CollectLevelParams_visitLevel___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_inhabited___closed__3;
 lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_main___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitExpr___spec__4(lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___main___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_inhabited___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -61,6 +67,8 @@ lean_object* l_Lean_CollectLevelParams_State_inhabited;
 lean_object* l_List_elem___main___at_Lean_CollectLevelParams_visitExpr___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_inhabited___closed__2;
 lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_visitExpr___spec__6(lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Lean_collectLevelParams(lean_object*, lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object*, lean_object*, lean_object*);
@@ -2437,6 +2445,92 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_CollectLevelParams_main___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_inc(x_3);
+lean_inc(x_2);
+x_4 = l_Lean_Name_appendIndexAfter(x_2, x_3);
+x_5 = l_Lean_mkLevelParam(x_4);
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_6, x_5);
+if (x_7 == 0)
+{
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; 
+lean_dec(x_5);
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_add(x_3, x_8);
+lean_dec(x_3);
+x_3 = x_9;
+goto _start;
+}
+}
+}
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___main(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_inc(x_2);
+x_3 = l_Lean_mkLevelParam(x_2);
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_4, x_3);
+if (x_5 == 0)
+{
+lean_dec(x_2);
+return x_3;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = l___private_Lean_Util_CollectLevelParams_1__getUnusedLevelParamAux___main(x_1, x_2, x_6);
+return x_7;
+}
+}
+}
+lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_CollectLevelParams_State_getUnusedLevelParam(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

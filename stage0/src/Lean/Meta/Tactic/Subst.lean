@@ -66,9 +66,9 @@ withMVarContext mvarId $ do
             pure (fvarSubst, mvarId)
           };
           if depElim then do
-            let newType := (type.abstract #[a]).instantiate1 b;
+            let newType := type.replaceFVar a b;
             reflB ← mkEqRefl b;
-            let newType := (newType.abstract #[h]).instantiate1 reflB;
+            let newType := newType.replaceFVar h reflB;
             if symm then do
               motive ← mkLambda #[a, h] type;
               continue motive newType
@@ -82,13 +82,13 @@ withMVarContext mvarId $ do
               motive ← withLocalDecl `_h hAuxType BinderInfo.default $ fun hAux => do {
                 hAuxSymm ← mkEqSymm hAux;
                 /- replace h in type with hAuxSymm -/
-                let newType := (type.abstract #[h]).instantiate1 hAuxSymm;
+                let newType := type.replaceFVar h hAuxSymm;
                 mkLambda #[a, hAux] newType
               };
               continue motive newType
           else do
             motive ← mkLambda #[a] type;
-            let newType := (type.abstract #[a]).instantiate1 b;
+            let newType := type.replaceFVar a b;
             continue motive newType
     | _ =>
       throwTacticEx `subst mvarId $

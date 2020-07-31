@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_check___spec__3(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__7;
 lean_object* l_Lean_Meta_getLCtx___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__35(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -152,8 +151,8 @@ uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__has
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalizeIndices(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_mkNoConfusion___closed__4;
 lean_object* l_Lean_Meta_cases(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_mkNoConfusion___closed__8;
 lean_object* l_Nat_repr(lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__46(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Cases_2__withNewIndexEqsAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -195,7 +194,6 @@ lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_Tactic_Cases_9__unifyEqs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__32(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__8;
 uint8_t l_Std_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__37(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__41(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,6 +218,7 @@ lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__un
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Cases_cases(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_mkNoConfusion___closed__5;
 uint8_t l_Nat_anyAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__37___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___spec__3(lean_object*, lean_object*, lean_object*);
@@ -292,7 +291,6 @@ lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__41___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__2;
 lean_object* l_Std_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -1242,11 +1240,9 @@ return x_16;
 lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_mkNoConfusion___closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string("indexed inductive type expected");
+return x_1;
 }
 }
 lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__2() {
@@ -1254,7 +1250,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
+x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1262,32 +1258,14 @@ return x_2;
 lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("indexed inductive type expected");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__4;
+x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__2;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6() {
+lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1295,21 +1273,21 @@ x_1 = lean_mk_string("ill-formed inductive datatype");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__7() {
+lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6;
+x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__4;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__8() {
+lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__7;
+x_1 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__5;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1334,7 +1312,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
-x_14 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__2;
+x_14 = l_Lean_Meta_mkNoConfusion___closed__8;
 x_15 = l_Lean_Meta_throwTacticEx___rarg(x_5, x_1, x_14, x_10, x_11);
 lean_dec(x_10);
 return x_15;
@@ -1396,7 +1374,7 @@ lean_dec(x_26);
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
-x_41 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__5;
+x_41 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__3;
 x_42 = l_Lean_Meta_throwTacticEx___rarg(x_5, x_1, x_41, x_10, x_11);
 lean_dec(x_10);
 x_43 = !lean_is_exclusive(x_42);
@@ -1428,7 +1406,7 @@ lean_dec(x_26);
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
-x_47 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__8;
+x_47 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6;
 x_48 = l_Lean_Meta_throwTacticEx___rarg(x_5, x_1, x_47, x_10, x_11);
 lean_dec(x_10);
 x_49 = !lean_is_exclusive(x_48);
@@ -1522,7 +1500,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
-x_56 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__2;
+x_56 = l_Lean_Meta_mkNoConfusion___closed__8;
 x_57 = l_Lean_Meta_throwTacticEx___rarg(x_5, x_1, x_56, x_10, x_11);
 lean_dec(x_10);
 return x_57;
@@ -1556,7 +1534,7 @@ lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_64 = l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__2;
+x_64 = l_Lean_Meta_mkNoConfusion___closed__8;
 x_65 = l_Lean_Meta_throwTacticEx___rarg(x_5, x_1, x_64, x_10, x_11);
 lean_dec(x_10);
 return x_65;
@@ -11168,7 +11146,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 x_16 = l___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___lambda__1___closed__2;
-x_17 = l_Lean_Meta_injectionCore___lambda__1___closed__2;
+x_17 = l_Lean_Meta_mkNoConfusion___closed__5;
 x_18 = l_Lean_Meta_throwTacticEx___rarg(x_16, x_1, x_17, x_7, x_8);
 lean_dec(x_7);
 return x_18;
@@ -13997,10 +13975,6 @@ l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___close
 lean_mark_persistent(l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__5);
 l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6 = _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6();
 lean_mark_persistent(l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6);
-l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__7 = _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__7();
-lean_mark_persistent(l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__7);
-l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__8 = _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__8();
-lean_mark_persistent(l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__8);
 l_Lean_Meta_generalizeIndices___lambda__1___closed__1 = _init_l_Lean_Meta_generalizeIndices___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_generalizeIndices___lambda__1___closed__1);
 l_Lean_Meta_generalizeIndices___lambda__1___closed__2 = _init_l_Lean_Meta_generalizeIndices___lambda__1___closed__2();

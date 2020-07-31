@@ -411,8 +411,12 @@ static environment eval_cmd(parser & p) {
         msg << string_to_std(str);
         msg.report();
         dec_ref(str);
+        return p.env();
+    } else if (meta_eval_instance) {
+        return environment(io_result_get_value(r.raw()), true);
+    } else {
+        return p.env();
     }
-    return p.env();
 }
 
 environment compact_tst_cmd(parser & p) {

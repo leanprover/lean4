@@ -148,7 +148,6 @@ lean_object* l_List_findM_x3f___main___at_Lean_Elab_Tactic_evalCase___spec__1(le
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Elab_Tactic_evalTactic___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTactic___main___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Basic_4__regTraceClasses(lean_object*);
-extern lean_object* l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSkip___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalCase(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalClear___closed__1;
@@ -226,6 +225,7 @@ lean_object* l_Lean_Elab_Tactic_State_inhabited___closed__1;
 lean_object* l_Lean_collectMVars(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalParen___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadLog___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_object* l_Lean_Elab_Term_throwUnsupportedSyntax___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSubst(lean_object*);
@@ -2135,7 +2135,7 @@ goto block_43;
 else
 {
 lean_object* x_44; lean_object* x_45; 
-x_44 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_44 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 x_45 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_44, x_3, x_4);
 if (lean_obj_tag(x_45) == 0)
 {
@@ -5114,7 +5114,7 @@ goto block_249;
 else
 {
 lean_object* x_250; lean_object* x_251; 
-x_250 = l_Lean_Elab_Term_withIncRecDepth___rarg___closed__2;
+x_250 = l_Lean_Meta_withIncRecDepth___rarg___closed__2;
 lean_inc(x_1);
 x_251 = l_Lean_Elab_Tactic_throwError___rarg(x_1, x_250, x_2, x_3);
 if (lean_obj_tag(x_251) == 0)

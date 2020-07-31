@@ -469,6 +469,7 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__126;
 uint8_t l_Lean_Name_hasMacroScopes___main(lean_object*);
 lean_object* l_Lean_Parser_registerParserCategory(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__63;
+extern lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Command_elabSyntax___closed__9;
 lean_object* l___private_Lean_Elab_Syntax_6__declareSyntaxCatQuotParser___closed__51;
 extern lean_object* l_Bool_HasRepr___closed__1;
@@ -716,7 +717,6 @@ extern lean_object* l_Lean_Parser_mkParserOfConstantUnsafe___closed__5;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_Syntax_9__expandNotationAux___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__2;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__44;
-extern lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__1___closed__2;
 lean_object* l___private_Lean_Elab_Syntax_1__mkParserSeq___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_syntax___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem(lean_object*, lean_object*, lean_object*);
@@ -3365,7 +3365,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Elab_Command_elabEvalUnsafe___lambda__1___closed__2;
+x_2 = l_Lean_Elab_Command_elabEvalUnsafe___lambda__1___closed__3;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

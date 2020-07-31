@@ -843,10 +843,12 @@ finally x (modify $ fun s => { s with mctx := mctx' })
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
 def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM Expr := do
-env  ← getEnv;
-opts ← getOptions;
-mctx ← getMCtx;
-lctx ← getLCtx;
+env   ← getEnv;
+opts  ← getOptions;
+mctx  ← getMCtx;
+lctx  ← getLCtx;
+type  ← instantiateMVars type;
+value ← instantiateMVars value;
 match Lean.mkAuxDefinition env opts mctx lctx name type value with
 | Except.error ex    => throw $ Exception.kernel ex opts
 | Except.ok (e, env) => do setEnv env; pure e

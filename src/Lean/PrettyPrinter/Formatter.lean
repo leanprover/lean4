@@ -289,9 +289,12 @@ catch (visit (p.getArg! 0)) $ fun e => match e with
 -- call closure with dummy position
 visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
 
+@[builtinFormatter checkWsBefore] def checkWsBefore.formatter : Formatter | p => do
+modify fun st => { st with leadWord := "" };
+push " "
+
 @[builtinFormatter checkPrec] def checkPrec.formatter : Formatter | p => pure ()
 @[builtinFormatter checkStackTop] def checkStackTop.formatter : Formatter | p => pure ()
-@[builtinFormatter checkWsBefore] def checkWsBefore.formatter : Formatter | p => pure ()
 @[builtinFormatter checkNoWsBefore] def checkNoWsBefore.formatter : Formatter | p => pure ()
 @[builtinFormatter checkTailWs] def checkTailWs.formatter : Formatter | p => pure ()
 @[builtinFormatter checkColGe] def checkColGe.formatter : Formatter | p => pure ()

@@ -110,6 +110,7 @@ structure Cache :=
 (funInfo       : PersistentHashMap InfoCacheKey FunInfo := {})
 (synthInstance : PersistentHashMap Expr (Option Expr) := {})
 (whnfDefault   : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.default`
+(whnfAll       : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.all`
 
 structure Context :=
 (config         : Config         := {})

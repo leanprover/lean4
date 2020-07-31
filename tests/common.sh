@@ -40,7 +40,7 @@ function exec_check {
 
 function diff_produced {
     if test -f "$f.expected.out"; then
-        if $DIFF -u --ignore-all-space -I "executing external script" "$f.expected.out" "$f.produced.out"; then
+        if $DIFF -u -I "executing external script" "$f.expected.out" "$f.produced.out"; then
             exit 0
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"

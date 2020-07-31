@@ -96,7 +96,7 @@ structure TokenCacheEntry :=
 (token : Syntax := Syntax.missing)
 
 structure ParserCache :=
-(tokenCache : TokenCacheEntry := {})
+(tokenCache : TokenCacheEntry)
 
 def initCacheForInput (input : String) : ParserCache :=
 { tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/} }
@@ -161,7 +161,7 @@ end Error
 structure ParserState :=
 (stxStack : Array Syntax := #[])
 (pos      : String.Pos := 0)
-(cache    : ParserCache := {})
+(cache    : ParserCache)
 (errorMsg : Option Error := none)
 
 namespace ParserState
@@ -1445,8 +1445,8 @@ private def noImmediateColon : Parser :=
 
 def setExpectedFn (expected : List String) (p : ParserFn) : ParserFn :=
 fun c s => match p c s with
-  | s'@{ errorMsg := some msg } => { s' with errorMsg := some { msg with expected := [] } }
-  | s'                          => s'
+  | s'@{ errorMsg := some msg, .. } => { s' with errorMsg := some { msg with expected := [] } }
+  | s'                              => s'
 
 def setExpected (expected : List String) (p : Parser) : Parser :=
 { fn := setExpectedFn expected p.fn, info := p.info }

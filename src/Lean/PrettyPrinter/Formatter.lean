@@ -189,18 +189,23 @@ visitToken stx.getId.toString
 @[builtinFormatter rawIdent] def rawIdent.formatter := identNoAntiquot.formatter
 @[builtinFormatter nonReservedSymbol] def nonReservedSymbol.formatter := identNoAntiquot.formatter
 
-def visitAtom : Formatter | p => do
+def visitAtom (k : SyntaxNodeKind) : Formatter | p => do
 stx ← getCur;
+when (k != Name.anonymous && k != stx.getKind) $ do {
+  trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
+  -- HACK; see `orelse.formatter`
+  throw $ Exception.other "BACKTRACK"
+};
 Syntax.atom _ val ← pure $ stx.getArg 0
   | throw $ Exception.other $ "not an atom: " ++ toString stx;
 goLeft;
 pure val
 
-@[builtinFormatter charLitNoAntiquot] def charLitNoAntiquot.formatter := visitAtom
-@[builtinFormatter strLitNoAntiquot] def strLitNoAntiquot.formatter := visitAtom
-@[builtinFormatter nameLitNoAntiquot] def nameLitNoAntiquot.formatter := visitAtom
-@[builtinFormatter numLitNoAntiquot] def numLitNoAntiquot.formatter := visitAtom
-@[builtinFormatter fieldIdx] def fieldIdx.formatter := visitAtom
+@[builtinFormatter charLitNoAntiquot] def charLitNoAntiquot.formatter := visitAtom charLitKind
+@[builtinFormatter strLitNoAntiquot] def strLitNoAntiquot.formatter := visitAtom strLitKind
+@[builtinFormatter nameLitNoAntiquot] def nameLitNoAntiquot.formatter := visitAtom nameLitKind
+@[builtinFormatter numLitNoAntiquot] def numLitNoAntiquot.formatter := visitAtom numLitKind
+@[builtinFormatter fieldIdx] def fieldIdx.formatter := visitAtom fieldIdxKind
 
 @[builtinFormatter many]
 def many.formatter : Formatter | p =>
@@ -246,9 +251,9 @@ visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
 @[builtinFormatter checkColGe] def checkColGe.formatter : Formatter | p => pure Format.nil
 
 open Lean.Parser.Command
-@[builtinFormatter commentBody] def commentBody.formatter := visitAtom
-@[builtinFormatter quotedSymbol] def quotedSymbol.formatter := visitAtom
-@[builtinFormatter unquotedSymbol] def unquotedSymbol.formatter := visitAtom
+@[builtinFormatter commentBody] def commentBody.formatter := visitAtom Name.anonymous
+@[builtinFormatter quotedSymbol] def quotedSymbol.formatter := visitAtom quotedSymbolKind
+@[builtinFormatter unquotedSymbol] def unquotedSymbol.formatter := visitAtom Name.anonymous
 
 end Formatter
 

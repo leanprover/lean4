@@ -17,6 +17,8 @@ structure Context :=
 
 structure State :=
 (stxTrav  : Syntax.Traverser)
+-- Textual content of `stack` up to the first whitespace (not enclosed in an escaped ident). We assume that the textual
+-- content of `stack` is modified only by `pushText` and `pushLine`, so `leadWord` is adjusted there accordingly.
 (leadWord : String := "")
 -- Stack of generated Format objects, analogous to the Syntax stack in the parser.
 -- Note, however, that the stack is reversed because of the right-to-left traversal.
@@ -189,20 +191,37 @@ concatArgs do
   -- leading term, not actually produced by `p`
   categoryParser.formatter p
 
-def pushText (s : String) : FormatterM Unit :=
--- TODO: use leadWord
-push s
+def parseToken (s : String) : FormatterM ParserState := do
+ctx ← read;
+env ← liftM getEnv;
+pure $ Parser.tokenFn { input := s, fileName := "", fileMap := FileMap.ofString "", prec := 0, env := env, tokens := ctx.table } (Parser.mkParserState s)
 
-def visitToken (tk : String) : FormatterM Unit := do
--- TODO: (try to) preserve whitespace
-pushText tk;
+def pushToken (tk : String) : FormatterM Unit := do
+st ← get;
+-- If there is no space between `tk` and the next word, compare parsing `tk` with and without the next word
+if st.leadWord != "" && tk.trimRight == tk then do
+  t1 ← parseToken tk.trimLeft;
+  t2 ← parseToken $ tk.trimLeft ++ st.leadWord;
+  if t1.pos == t2.pos then do
+    -- same result => use `tk` as is, extend `leadWord` if not prefixed by whitespace
+    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" };
+    push tk
+  else do
+    -- different result => add space
+    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
+    push $ tk ++ " "
+else do {
+  -- already separated => use `tk` as is
+  modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
+  push tk
+};
 goLeft
 
 @[builtinFormatter symbol]
 def symbol.formatter : Formatter | p => do
 let sym := p.getArg! 0;
 sym ← liftM $ reduceEval sym;
-visitToken sym
+pushToken sym
 
 @[builtinFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
 @[builtinFormatter unicodeSymbol] def unicodeSymbol.formatter := symbol.formatter
@@ -211,7 +230,7 @@ visitToken sym
 def identNoAntiquot.formatter : Formatter | _ => do
 stx ← getCur;
 -- TODO: pretty-print Name using «»
-visitToken stx.getId.toString
+pushToken stx.getId.toString
 
 @[builtinFormatter rawIdent] def rawIdent.formatter := identNoAntiquot.formatter
 @[builtinFormatter nonReservedSymbol] def nonReservedSymbol.formatter := identNoAntiquot.formatter
@@ -225,7 +244,7 @@ when (k != Name.anonymous && k != stx.getKind) $ do {
 };
 Syntax.atom _ val ← pure $ stx.getArg 0
   | throw $ Exception.other $ "not an atom: " ++ toString stx;
-pushText val;
+pushToken val;
 goLeft
 
 @[builtinFormatter charLitNoAntiquot] def charLitNoAntiquot.formatter := visitAtom charLitKind

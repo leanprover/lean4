@@ -1,3 +1,4 @@
+import Lean.Util.CollectLevelParams
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
@@ -42,12 +43,6 @@ structure AltLHS :=
 (fvarDecls : List LocalDecl) -- Free variables used in the patterns.
 (patterns  : List Pattern)   -- We use `List Pattern` since we have nary match-expressions.
 
-structure MinorsRange :=
-(firstMinorPos : Nat)
-(numMinors     : Nat)
-
-abbrev AltToMinorsMap := Std.PersistentHashMap Nat MinorsRange
-
 structure Alt :=
 (idx       : Nat) -- for generating error messages
 (rhs       : Expr)
@@ -85,24 +80,13 @@ pure $ "vars " ++ p.vars.toArray ++ Format.line ++ MessageData.joinSep alts Form
 end Problem
 
 structure ElimResult :=
-(numMinors : Nat)  -- It is the number of alternatives (Reason: support for overlapping equations)
-(numEqs    : Nat)  -- It is the number of minors (Reason: users may want equations that hold definitionally)
 (elim      : Expr) -- The eliminator. It is not just `Expr.const elimName` because the type of the major premises may contain free variables.
-(altMap    : AltToMinorsMap) -- each alternative may be "expanded" into multiple minor premise
 
 /- The number of patterns in each AltLHS must be equal to majors.length -/
 private def checkNumPatterns (majors : List Expr) (lhss : List AltLHS) : MetaM Unit :=
 let num := majors.length;
 when (lhss.any (fun lhs => lhs.patterns.length != num)) $
   throw $ Exception.other "incorrect number of patterns"
-
-/- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
-private def mkElimSort (inProp : Bool) : MetaM Expr :=
-if inProp then
-  pure $ mkSort $ levelZero
-else do
-  vId ← mkFreshId;
-  pure $ mkSort $ mkLevelParam vId
 
 /-
  Given major premises `(x_1 : A_1) (x_2 : A_2[x_1]) ... (x_n : A_n[x_1, x_2, ...])`, return
@@ -134,33 +118,89 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
 private partial def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt → Array Expr → MetaM α) : MetaM α :=
 withAltsAux motive lhss [] #[] k
 
+def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
+withMVarContext p.goal.mvarId! x
+
+def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
+withGoalOf p (assignExprMVar p.goal.mvarId! e)
+
 structure State :=
-(minors : Array Expr := #[])
 (used   : Std.HashSet Nat := {}) -- used alternatives
 
-private def processLeaf {α} (p : Problem) (s : State) (k : State → MetaM α) : MetaM α := do
-type ← inferType p.goal;
-k s
+/-- Return true if the given (sub-)problem has been solved. -/
+private def isDone (p : Problem) : Bool :=
+p.vars.isEmpty
 
-private partial def process {α} : Problem → State → (State → MetaM α) → MetaM α
-| p, s, k => withIncRecDepth do
+/- Return true if the next pattern of each remaining alternative is an inaccessible term or a variable -/
+private def isVariableTransition (p : Problem) : Bool :=
+p.alts.all fun alt => match alt.patterns with
+  | Pattern.inaccessible _ _ :: _ => true
+  | Pattern.var _ _ :: _          => true
+  | _                             => false
+
+private def processLeaf (p : Problem) (s : State) : MetaM State := do
+let alt := p.alts.head!;
+assignGoalOf p alt.rhs;
+pure { s with used := s.used.insert alt.idx }
+
+private def processVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
+match p.vars with
+| x :: xs =>
+  let alts := p.alts.map fun alt => match alt.patterns with
+    | Pattern.inaccessible _ _ :: ps => { alt with patterns := ps }
+    | Pattern.var _ fvarId :: ps     => { alt with patterns := ps, rhs := alt.rhs.replaceFVarId fvarId x }
+    | _                              => unreachable!;
+  process { p with alts := alts, vars := xs } s
+| _ => unreachable!
+
+private partial def process : Problem → State → MetaM State
+| p, s => withIncRecDepth do
   traceM `Meta.debug p.toMessageData;
-  if p.vars.isEmpty then
-    processLeaf p s k
+  if isDone p then
+    processLeaf p s
+  else if isVariableTransition p then
+    processVariable process p s
   else
-    k s
+    -- TODO: remaining cases
+    pure s
+
+def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
+let s : CollectLevelParams.State := {};
+s ← majors.foldlM
+  (fun s major => do
+    major ← instantiateMVars major;
+    majorType ← inferType major;
+    majorType ← instantiateMVars majorType;
+    let s := collectLevelParams s major;
+    pure $ collectLevelParams s majorType)
+  s;
+pure s.getUnusedLevelParam
+
+/- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
+private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool) : MetaM Expr :=
+if inProp then
+  pure $ mkSort $ levelZero
+else do
+  v ← getUnusedLevelParam majors lhss;
+  pure $ mkSort $ v
 
 def mkElim (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
 checkNumPatterns majors lhss;
+sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
-sortv ← mkElimSort inProp;
 withMotive majors sortv fun motive => do
 let target  := mkAppN motive majors;
 trace! `Meta.debug ("target: " ++ target);
 goal ← mkFreshExprMVar target;
 withAlts motive lhss fun alts minors => do
-process { goal := goal, vars := majors.toList, alts := alts } {} fun s =>
-pure { numMinors := 0, numEqs := 0, elim := arbitrary _, altMap := {} } -- TODO
+  s   ← process { goal := goal, vars := majors.toList, alts := alts } {};
+  let args := #[motive] ++ majors ++ minors;
+  type ← mkForall args target;
+  val  ← mkLambda args goal;
+  trace! `Meta.debug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
+  elim ← mkAuxDefinition elimName type val;
+  trace! `Meta.debug ("eliminator: " ++ elim);
+  pure { elim := elim }
 
 end DepElim
 end Meta
@@ -265,13 +305,17 @@ def tst0 : MetaM Unit :=
 withDepElimFrom `ex0 1 fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug ("majors: " ++ majors.toArray);
-  _ ← mkElim `test majors alts;
+  _ ← mkElim `elimTest majors alts;
   pure ()
 
 #eval tst0
 
+#print elimTest
+
+#exit
+
 def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
-  LHS (Pat ([] : List α) × Pat ([] : List α))
+  LHS (Pat ([] : List α) × Pat ([] : List β))
 × LHS (forall (a : α) (b : α), Pat [a] × Pat [b])
 × LHS (forall (a₁ a₂ : α) (as : List α) (b₁ b₂ : β) (bs : List β), Pat (a₁::a₂::as) × Pat (b₁::b₂::bs))
 × LHS (forall (as : List α) (bs : List β), Pat as × Pat bs)
@@ -284,4 +328,5 @@ withDepElimFrom `ex1 2 fun majors alts => do
   _ ← mkElim `test majors alts;
   pure ()
 
+set_option pp.all true
 #eval tst1

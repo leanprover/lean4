@@ -52610,7 +52610,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_bindOp___elambda__1___closed__3;
 x_2 = lean_unsigned_to_nat(55u);
-x_3 = l_Lean_Parser_Term_infixR(x_1, x_2);
+x_3 = l_Lean_Parser_Term_infixL(x_1, x_2);
 return x_3;
 }
 }

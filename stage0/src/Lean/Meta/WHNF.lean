@@ -23,7 +23,7 @@ Lean.WHNF.whnfCore getConstNoEx isAuxDef? whnf inferType isExprDefEqAux getLocal
 unsafe def reduceNativeConst (α : Type) (typeName : Name) (constName : Name) : MetaM α := do
 env ← getEnv;
 match env.evalConstCheck α typeName constName with
-| Except.error ex => throw $ Exception.other ex
+| Except.error ex => throwOther ex
 | Except.ok v     => pure v
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := reduceNativeConst Bool `Bool constName
@@ -86,22 +86,30 @@ else match e with
 
 
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
--- We cache only consed terms
+-- We cache only closed terms
 if e.hasFVar then pure false
 else do
   ctx ← read;
-  pure $ ctx.config.transparency == TransparencyMode.default
+  pure $ ctx.config.transparency != TransparencyMode.reducible
 
 @[inline] private def cached? (useCache : Bool) (e : Expr) : MetaM (Option Expr) := do
 if useCache then do
-  s ← get;
-  pure $ s.cache.whnfDefault.find? e
+  ctx ← read;
+  s   ← get;
+  match ctx.config.transparency with
+  | TransparencyMode.default => pure $ s.cache.whnfDefault.find? e
+  | TransparencyMode.all     => pure $ s.cache.whnfAll.find? e
+  | _                        => unreachable!
 else
   pure none
 
 private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
+ctx ← read;
 when useCache $
-  modify $ fun s => { s with cache := { s.cache with whnfDefault := s.cache.whnfDefault.insert e r } };
+  match ctx.config.transparency with
+  | TransparencyMode.default => modify $ fun s => { s with cache := { s.cache with whnfDefault := s.cache.whnfDefault.insert e r } }
+  | TransparencyMode.all     => modify $ fun s => { s with cache := { s.cache with whnfAll := s.cache.whnfAll.insert e r } }
+  | _                        => unreachable!;
 pure r
 
 partial def whnfImpl : Expr → MetaM Expr

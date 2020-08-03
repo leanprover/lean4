@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.FVarSubst
-// Imports: Init Lean.Expr Lean.Util.ReplaceExpr
+// Imports: Init Lean.Expr Lean.LocalContext Lean.Util.ReplaceExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_apply___boxed(lean_object*, lean_object*);
+lean_object* l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_domain___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -22,12 +23,16 @@ lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_erase(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Lean_Meta_FVarSubst_domain(lean_object*);
 lean_object* l_Std_RBNode_find___main___at_Lean_Meta_FVarSubst_get___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_applyFVarSubst___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_FVarSubst_domain___boxed(lean_object*);
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_erase___at_Lean_Meta_FVarSubst_erase___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_del___main___at_Lean_Meta_FVarSubst_erase___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_compose___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
+lean_object* l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_domain___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_apply(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isBlack___rarg(lean_object*);
@@ -41,6 +46,7 @@ lean_object* l_Std_RBNode_appendTrees___main___rarg(lean_object*, lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
+lean_object* l_Lean_LocalDecl_applyFVarSubst___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_contains___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_erase___at_Lean_Meta_FVarSubst_erase___spec__1___boxed(lean_object*, lean_object*);
@@ -56,8 +62,10 @@ lean_object* l_Lean_Meta_FVarSubst_erase___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_del___main___at_Lean_Meta_FVarSubst_erase___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
+lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_Meta_FVarSubst_apply___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
+lean_object* l_Lean_Expr_applyFVarSubst(lean_object*, lean_object*);
 lean_object* _init_l_Lean_Meta_FVarSubst_empty() {
 _start:
 {
@@ -992,8 +1000,166 @@ return x_3;
 }
 }
 }
+lean_object* l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_domain___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_ctor_get(x_2, 3);
+x_6 = l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_domain___spec__1(x_1, x_3);
+lean_inc(x_4);
+x_7 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_7, 0, x_4);
+lean_ctor_set(x_7, 1, x_6);
+x_1 = x_7;
+x_2 = x_5;
+goto _start;
+}
+}
+}
+lean_object* l_Lean_Meta_FVarSubst_domain(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_domain___spec__1(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_domain___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_RBNode_fold___main___at_Lean_Meta_FVarSubst_domain___spec__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Meta_FVarSubst_domain___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_FVarSubst_domain(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_2);
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_2, 3);
+x_5 = l_Lean_Meta_FVarSubst_apply(x_1, x_4);
+lean_ctor_set(x_2, 3, x_5);
+return x_2;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_2, 1);
+x_8 = lean_ctor_get(x_2, 2);
+x_9 = lean_ctor_get(x_2, 3);
+x_10 = lean_ctor_get_uint8(x_2, sizeof(void*)*4);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_dec(x_2);
+x_11 = l_Lean_Meta_FVarSubst_apply(x_1, x_9);
+x_12 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_12, 0, x_6);
+lean_ctor_set(x_12, 1, x_7);
+lean_ctor_set(x_12, 2, x_8);
+lean_ctor_set(x_12, 3, x_11);
+lean_ctor_set_uint8(x_12, sizeof(void*)*4, x_10);
+return x_12;
+}
+}
+else
+{
+uint8_t x_13; 
+x_13 = !lean_is_exclusive(x_2);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_14 = lean_ctor_get(x_2, 3);
+x_15 = lean_ctor_get(x_2, 4);
+x_16 = l_Lean_Meta_FVarSubst_apply(x_1, x_14);
+x_17 = l_Lean_Meta_FVarSubst_apply(x_1, x_15);
+lean_ctor_set(x_2, 4, x_17);
+lean_ctor_set(x_2, 3, x_16);
+return x_2;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_18 = lean_ctor_get(x_2, 0);
+x_19 = lean_ctor_get(x_2, 1);
+x_20 = lean_ctor_get(x_2, 2);
+x_21 = lean_ctor_get(x_2, 3);
+x_22 = lean_ctor_get(x_2, 4);
+lean_inc(x_22);
+lean_inc(x_21);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_inc(x_18);
+lean_dec(x_2);
+x_23 = l_Lean_Meta_FVarSubst_apply(x_1, x_21);
+x_24 = l_Lean_Meta_FVarSubst_apply(x_1, x_22);
+x_25 = lean_alloc_ctor(1, 5, 0);
+lean_ctor_set(x_25, 0, x_18);
+lean_ctor_set(x_25, 1, x_19);
+lean_ctor_set(x_25, 2, x_20);
+lean_ctor_set(x_25, 3, x_23);
+lean_ctor_set(x_25, 4, x_24);
+return x_25;
+}
+}
+}
+}
+lean_object* l_Lean_LocalDecl_applyFVarSubst___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_LocalDecl_applyFVarSubst(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_applyFVarSubst(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_FVarSubst_apply(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_applyFVarSubst___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Expr_applyFVarSubst(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Expr(lean_object*);
+lean_object* initialize_Lean_LocalContext(lean_object*);
 lean_object* initialize_Lean_Util_ReplaceExpr(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Meta_Tactic_FVarSubst(lean_object* w) {
@@ -1004,6 +1170,9 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Expr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_LocalContext(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_ReplaceExpr(lean_io_mk_world());

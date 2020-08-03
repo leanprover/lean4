@@ -174,10 +174,10 @@ s.mapIdx $ fun i s => { ctorName := ctorNames.get! i, toInductionSubgoal := s }
 
 private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSubgoal)
 | 0,   s => do
-  trace! `Meta.cases ("unifyEqs " ++ MessageData.ofGoal s.mvarId);
+  trace! `Meta.Tactic.cases ("unifyEqs " ++ MessageData.ofGoal s.mvarId);
   pure (some s)
 | n+1, s => do
-  trace! `Meta.cases ("unifyEqs [" ++ toString (n+1) ++ "] " ++ MessageData.ofGoal s.mvarId);
+  trace! `Meta.Tactic.cases ("unifyEqs [" ++ toString (n+1) ++ "] " ++ MessageData.ofGoal s.mvarId);
   (eqFVarId, mvarId) ← intro1 s.mvarId;
   withMVarContext mvarId $ do
     eqDecl ← getLocalDecl eqFVarId;
@@ -243,7 +243,7 @@ withMVarContext mvarId $ do
         pure $ toCasesSubgoals s ctors)
       (do
         s₁ ← generalizeIndices mvarId majorFVarId;
-        trace! `Meta.cases ("after generalizeIndices" ++ Format.line ++ MessageData.ofGoal s₁.mvarId);
+        trace! `Meta.Tactic.cases ("after generalizeIndices" ++ Format.line ++ MessageData.ofGoal s₁.mvarId);
         s₂ ← induction s₁.mvarId s₁.fvarId casesOn givenNames useUnusedNames;
         s₂ ← elimAuxIndices s₁ s₂;
         let s₂ := toCasesSubgoals s₂ ctors;
@@ -253,6 +253,9 @@ end Cases
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
 Cases.cases mvarId majorFVarId givenNames useUnusedNames
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta.Tactic.cases
 
 end Meta
 end Lean

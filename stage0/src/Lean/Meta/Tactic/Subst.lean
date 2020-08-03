@@ -27,12 +27,14 @@ withMVarContext mvarId $ do
     a ← whnf a;
     match a with
     | Expr.fvar aFVarId _ => do
+      trace! `Meta.Tactic.subst ("substituting " ++ a ++ " (id: " ++ aFVarId ++ ") with " ++ b);
       mctx ← getMCtx;
       when (mctx.exprDependsOn b aFVarId) $
         throwTacticEx `subst mvarId ("'" ++ a ++ "' occurs at" ++ indentExpr b);
       aLocalDecl ← getLocalDecl aFVarId;
       (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true;
       (twoVars, mvarId) ← introN mvarId 2 [] false;
+      trace! `Meta.Tactic.subst ("reverted variables " ++ toString vars);
       let aFVarId := twoVars.get! 0;
       let a       := mkFVar aFVarId;
       let hFVarId := twoVars.get! 1;
@@ -59,7 +61,7 @@ withMVarContext mvarId $ do
             (newFVars, mvarId) ← introN mvarId (vars.size - 2) [] false;
             fvarSubst ← newFVars.size.foldM
               (fun i (fvarSubst : FVarSubst) =>
-                let var      := vars.get! i;
+                let var      := vars.get! (i+2);
                 let newFVar := newFVars.get! i;
                 pure $ fvarSubst.insert var newFVar)
               FVarSubst.empty;

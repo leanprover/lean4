@@ -110,6 +110,7 @@ structure Cache :=
 (funInfo       : PersistentHashMap InfoCacheKey FunInfo := {})
 (synthInstance : PersistentHashMap Expr (Option Expr) := {})
 (whnfDefault   : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.default`
+(whnfAll       : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.all`
 
 structure Context :=
 (config         : Config         := {})
@@ -152,10 +153,13 @@ ctx ← read; pure ctx.config
 @[inline] def getMCtx : MetaM MetavarContext := do
 s ← get; pure s.mctx
 
+def setMCtx (mctx : MetavarContext) : MetaM Unit := do
+modify $ fun s => { s with mctx := mctx }
+
 @[inline] def getEnv : MetaM Environment := do
 s ← get; pure s.env
 
-@[inline] def setEnv (env : Environment) : MetaM Unit := do
+def setEnv (env : Environment) : MetaM Unit := do
 modify $ fun s => { s with env := env }
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
@@ -249,6 +253,11 @@ pure $ mkLevelMVar mvarId
 ctx ← read;
 s ← get;
 throw (f { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts })
+
+def throwOther {α} (msg : MessageData) : MetaM α := do
+ctx ← read;
+s ← get;
+throw (Exception.other (MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg))
 
 def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
@@ -837,13 +846,13 @@ finally x (modify $ fun s => { s with mctx := mctx' })
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
 def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM Expr := do
-env  ← getEnv;
-opts ← getOptions;
-mctx ← getMCtx;
-lctx ← getLCtx;
+env   ← getEnv;
+opts  ← getOptions;
+mctx  ← getMCtx;
+lctx  ← getLCtx;
 match Lean.mkAuxDefinition env opts mctx lctx name type value with
-| Except.error ex    => throw $ Exception.kernel ex opts
-| Except.ok (e, env) => do setEnv env; pure e
+| Except.error ex          => throw $ Exception.kernel ex opts
+| Except.ok (e, env, mctx) => do setEnv env; setMCtx mctx; pure e
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
 def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do

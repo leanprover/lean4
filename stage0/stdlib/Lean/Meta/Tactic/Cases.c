@@ -25,6 +25,7 @@ lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___sp
 extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Cases_2__withNewIndexEqsAux___main(lean_object*);
@@ -81,7 +82,6 @@ lean_object* l_Nat_anyAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasInd
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__36(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 lean_object* l_Std_PersistentArray_anyMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -277,6 +277,7 @@ lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__un
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Cases_9__unifyEqs___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__44(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__2;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___spec__9___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_5__hasIndepIndices___spec__45(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Lean_Meta_Tactic_Cases_4__mkCasesContext_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -310,6 +311,7 @@ uint8_t l_Std_PersistentArray_anyMAux___main___at___private_Lean_Meta_Tactic_Cas
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_cases___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Tactic_Cases_10__regTraceClasses(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Cases_1__mkEqAndProof(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -12675,7 +12677,7 @@ lean_object* _init_l___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__2;
 x_2 = l___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___lambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -13930,6 +13932,15 @@ lean_dec(x_5);
 return x_8;
 }
 }
+lean_object* l___private_Lean_Meta_Tactic_Cases_10__regTraceClasses(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l___private_Lean_Meta_Tactic_Cases_8__unifyEqsAux___main___closed__1;
+x_3 = l_Lean_registerTraceClass(x_2, x_1);
+return x_3;
+}
+}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Induction(lean_object*);
@@ -14019,6 +14030,9 @@ l_Lean_Meta_Cases_cases___lambda__1___closed__6 = _init_l_Lean_Meta_Cases_cases_
 lean_mark_persistent(l_Lean_Meta_Cases_cases___lambda__1___closed__6);
 l_Lean_Meta_Cases_cases___lambda__1___closed__7 = _init_l_Lean_Meta_Cases_cases___lambda__1___closed__7();
 lean_mark_persistent(l_Lean_Meta_Cases_cases___lambda__1___closed__7);
+res = l___private_Lean_Meta_Tactic_Cases_10__regTraceClasses(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

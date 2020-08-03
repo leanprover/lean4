@@ -22,7 +22,7 @@ categoryParser `tactic rbp
 def Tactic.seq : Parser         := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
 def Tactic.nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
 
-def darrow : Parser := "=>"
+def darrow : Parser := " => "
 
 namespace Term
 
@@ -74,10 +74,10 @@ def haveAssign := parser! " := " >> termParser
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
-@[builtinTermParser] def structInst := parser! "{" >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}"
+@[builtinTermParser] def structInst := parser! "{ " >> optional (try (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
-@[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
+@[builtinTermParser] def subtype := parser! "{ " >> ident >> optType >> " // " >> termParser >> " }"
 @[builtinTermParser] def listLit := parser! "[" >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def arrayLit := parser! "#[" >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def explicit := parser! "@" >> termParser maxPrec
@@ -92,10 +92,10 @@ def instBinder := parser! "[" >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
 @[builtinTermParser] def depArrow := parser! bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser
 def simpleBinder := parser! many1 binderIdent
-@[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
+@[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall " >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
 def funBinder : Parser := implicitBinder <|> instBinder <|> termParser maxPrec
-@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> many1 funBinder >> darrow >> termParser
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ " "fun " >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
@@ -103,7 +103,7 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
 
 def matchAlts (optionalFirstBar := true) : Parser :=
 withPosition $ fun pos =>
-  (if optionalFirstBar then optional "|" else "|") >>
+  (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 
 @[builtinTermParser] def «match» := parser!:leadPrec "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
@@ -153,7 +153,7 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def arrayRef := tparser! symbolNoWs "[" >> termParser >>"]"
 
 @[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "expected space") >> termParser 0
-@[builtinTermParser] def dollarProj := tparser!:0 "$." >> (fieldIdx <|> ident)
+@[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
 @[builtinTermParser] def «where»    := tparser!:0 " where " >> sepBy1 letDecl (group ("; " >> symbol " where "))
 

@@ -306,7 +306,7 @@ open Lean.Parser.Command
 
 end Formatter
 
-def format (table : Parser.TokenTable) (parser : Expr) (stx : Syntax) : MetaM Format := do
+def format (table : Parser.TokenTable) (parser : Expr) (stx : Syntax) : MetaM Format := Meta.withAtLeastTransparency Meta.TransparencyMode.default do
 (_, st) ← Formatter.visit parser { table := table } { stxTrav := Syntax.Traverser.fromSyntax stx };
 pure $ st.stack.get! 0
 

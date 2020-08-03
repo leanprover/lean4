@@ -12,7 +12,7 @@ table ← Parser.builtinTokenTable.get;
 discard $ liftM $ MetaHasEval.eval env opts do
   stx ← stx;
   e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
-  stx' ← liftMetaM stx $ delab e opts optionsPerPos;
+  stx' ← liftMetaM stx $ delab e optionsPerPos;
   stx' ← liftMetaM stx' $ PrettyPrinter.parenthesizeTerm stx';
   f' ← liftMetaM stx' $ PrettyPrinter.formatTerm table stx';
   dbgTrace $ toString f';

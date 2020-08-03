@@ -15,10 +15,10 @@ abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options �
 constant ppOld : Environment → MetavarContext → LocalContext → Options → Expr → Format := arbitrary _
 
 def mkPPExprFnRef : IO (IO.Ref PPExprFn) := IO.mkRef ppOld
-@[init mkPPExprFnRef] def PPExprFnRef : IO.Ref PPExprFn := arbitrary _
+@[init mkPPExprFnRef] def ppExprFnRef : IO.Ref PPExprFn := arbitrary _
 
 def mkPPExprFnExtension : IO (EnvExtension PPExprFn) :=
-registerEnvExtension $ PPExprFnRef.get
+registerEnvExtension $ ppExprFnRef.get
 
 @[init mkPPExprFnExtension]
 constant ppExprExt : EnvExtension PPExprFn := arbitrary _

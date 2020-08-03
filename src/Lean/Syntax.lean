@@ -308,6 +308,15 @@ formatStxAux maxDepth showInfo 0 stx
 instance : HasFormat (Syntax)   := ⟨formatStx⟩
 instance : HasToString (Syntax) := ⟨toString ∘ format⟩
 
+partial def structEq : Syntax → Syntax → Bool
+| Syntax.missing, Syntax.missing => true
+| Syntax.node k args, Syntax.node k' args' => k == k' && args.isEqv args' structEq
+| Syntax.atom _ val, Syntax.atom _ val' => val == val'
+| Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => rawVal == rawVal' && val == val' && preresolved == preresolved'
+| _, _ => false
+
+instance structHasBeq : HasBeq Lean.Syntax := ⟨structEq⟩
+
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.
 Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.

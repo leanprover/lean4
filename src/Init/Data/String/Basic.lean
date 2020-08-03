@@ -490,6 +490,11 @@ if s.isNat then
 else
   none
 
+def beq (ss1 ss2 : Substring) : Bool :=
+ss1.toString == ss2.toString
+
+instance hasBeq : HasBeq Substring := ⟨beq⟩
+
 end Substring
 
 namespace String

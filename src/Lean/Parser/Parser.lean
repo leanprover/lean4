@@ -1661,14 +1661,6 @@ kinds      ← builtinSyntaxNodeKindSetRef.get;
 categories ← builtinParserCategoriesRef.get;
 pure { tokens := tokens, kinds := kinds, categories := categories }
 
-private def mergePrecendences (msgPreamble : String) (sym : String) : Option Nat → Option Nat → Except String (Option Nat)
-| none,   b      => pure b
-| a,      none   => pure a
-| some a, some b =>
-  if a == b then pure $ some a
-  else
-    throw $ msgPreamble ++ "precedence mismatch for '" ++ toString sym ++ "', previous: " ++ toString a ++ ", new: " ++ toString b
-
 private def addTokenConfig (tokens : TokenTable) (tk : Token) : Except String TokenTable := do
 if tk == "" then throw "invalid empty symbol"
 else match tokens.find? tk with

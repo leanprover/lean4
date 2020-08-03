@@ -196,7 +196,7 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def orM         := tparser! infixR " <||> " 30
 @[builtinTermParser] def andM        := tparser! infixR " <&&> " 35
 @[builtinTermParser] def andthen     := tparser! infixR " >> "  60
-@[builtinTermParser] def bindOp      := tparser! infixR " >>= " 55
+@[builtinTermParser] def bindOp      := tparser! infixL " >>= " 55
 @[builtinTermParser] def mapRev      := tparser! infixR " <&> " 100
 @[builtinTermParser] def seq         := tparser! infixL " <*> " 60
 @[builtinTermParser] def seqLeft     := tparser! infixL " <* "  60

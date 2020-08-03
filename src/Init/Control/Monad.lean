@@ -15,7 +15,7 @@ class HasBind (m : Type u → Type v) :=
 
 export HasBind (bind)
 
-infixr `>>=` := bind
+infixl `>>=` := bind
 
 @[inline] def mcomp {α : Type u} {β δ : Type v} {m : Type v → Type w} [HasBind m] (f : α → m β) (g : β → m δ) : α → m δ :=
 fun a => f a >>= g

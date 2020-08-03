@@ -6,20 +6,6 @@ open Lean.Elab
 open Lean.Elab.Term
 open Lean.Format
 
-def Substring.beq (ss1 ss2 : Substring) : Bool :=
-ss1.toString == ss2.toString
-
-instance : HasBeq Substring := ⟨Substring.beq⟩
-
-partial def Lean.Syntax.structEq : Syntax → Syntax → Bool
-| Syntax.missing, Syntax.missing => true
-| Syntax.node k args, Syntax.node k' args' => k == k' && args.isEqv args' Lean.Syntax.structEq
-| Syntax.atom _ val, Syntax.atom _ val' => val == val'
-| Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => rawVal == rawVal' && val == val' && preresolved == preresolved'
-| _, _ => false
-
-instance : HasBeq Lean.Syntax := ⟨Lean.Syntax.structEq⟩
-
 def unparenAux (parens body : Syntax) : Syntax :=
 match parens.getHeadInfo, body.getHeadInfo, body.getTailInfo, parens.getTailInfo with
 | some bi', some bi, some ti, some ti' => (body.setHeadInfo { bi with leading := bi'.leading }).setTailInfo { ti with trailing := ti'.trailing }

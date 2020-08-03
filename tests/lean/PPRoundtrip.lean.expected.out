@@ -13,12 +13,12 @@ List Nat
 List.{0} Nat
 id.{2} Nat
 id (@id Type Nat)
-λ(a : Nat)=>a
-λ(a b : Nat)=>a
-λ(a : Nat)(b : Bool)=>a
-λ{a b : Nat}=>a
-typeAs ({α : Type} → α → α) λ{α : Type}(a : α)=>a
-λ{α : Type}[_inst_1 : HasToString α](a : α)=>@HasToString.toString α _inst_1 a
+λ (a : Nat) => a
+λ (a b : Nat) => a
+λ (a : Nat)(b : Bool) => a
+λ {a b : Nat} => a
+typeAs ({α : Type} → α → α) λ {α : Type}(a : α) => a
+λ {α : Type}[_inst_1 : HasToString α](a : α) => @HasToString.toString α _inst_1 a
 (α : Type) → α
 (α β : Type) → α
 Type → Type → Type
@@ -32,4 +32,4 @@ Type → Type → Type
 "hi"
 (Prod.mk 1 2).fst
 or (HasLess.Less 1 2) Bool.true
-id (λ(a : Nat)=>a) 0
+id (λ (a : Nat) => a) 0

@@ -63,6 +63,9 @@ else oldS.map.fold
       | some fvarId'' => m.insert fvarId fvarId'')
   newS
 
+def domain (s : FVarSubst) : List FVarId :=
+s.map.fold (fun r k v => k :: r) []
+
 end FVarSubst
 end Meta
 

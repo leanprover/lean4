@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Expr
+import Lean.LocalContext
 import Lean.Util.ReplaceExpr
 
 namespace Lean
@@ -64,4 +65,12 @@ else oldS.map.fold
 
 end FVarSubst
 end Meta
+
+def LocalDecl.applyFVarSubst (s : Meta.FVarSubst) : LocalDecl → LocalDecl
+| LocalDecl.cdecl i id n t bi => LocalDecl.cdecl i id n (s.apply t) bi
+| LocalDecl.ldecl i id n t v  => LocalDecl.ldecl i id n (s.apply t) (s.apply v)
+
+abbrev Expr.applyFVarSubst (s : Meta.FVarSubst) (e : Expr) : Expr :=
+s.apply e
+
 end Lean

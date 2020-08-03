@@ -37,6 +37,13 @@ partial def toExpr : Pattern → MetaM Expr
   fields ← fields.mapM toExpr;
   pure $ mkAppN (mkConst ctorName us) (params ++ fields).toArray
 
+partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern
+| inaccessible r e  => inaccessible r $ e.applyFVarSubst s
+| ctor r n us ps fs => ctor r n us (ps.map fun p => p.applyFVarSubst s) (fs.map applyFVarSubst)
+| val r e           => val r $ e.applyFVarSubst s
+| arrayLit r t xs   => arrayLit r (t.applyFVarSubst s) (xs.map applyFVarSubst)
+| p                 => p
+
 end Pattern
 
 structure AltLHS :=
@@ -61,6 +68,12 @@ withLocalContext lctx localInsts do
   let msg : MessageData := "⟦" ++ MessageData.joinSep (alt.patterns.map Pattern.toMessageData) ", " ++ "⟧ := " ++ alt.rhs;
   addContext msg
 
+def applyFVarSubst (s : FVarSubst) (alt : Alt) : Alt :=
+{ alt with
+  patterns  := alt.patterns.map fun p => p.applyFVarSubst s,
+  fvarDecls := alt.fvarDecls.map fun d => d.applyFVarSubst s,
+  rhs       := alt.rhs.applyFVarSubst s }
+
 end Alt
 
 structure Problem :=
@@ -80,6 +93,7 @@ end Problem
 
 structure ElimResult :=
 (elim      : Expr) -- The eliminator. It is not just `Expr.const elimName` because the type of the major premises may contain free variables.
+
 
 /- The number of patterns in each AltLHS must be equal to majors.length -/
 private def checkNumPatterns (majors : List Expr) (lhss : List AltLHS) : MetaM Unit :=
@@ -179,7 +193,8 @@ match p.vars with
       let newAlts := newAlts.map fun alt => match alt.patterns with
         | Pattern.ctor _ _ _ _ fields :: ps => { alt with patterns := fields ++ ps }
         | _                                 => unreachable!;
-      -- TODO: apply subgoal substitution to `newVars` and `newAlts`
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subgoal.subst;
+      let newVars := newVars.map fun x => x.applyFVarSubst subgoal.subst;
       process { goal := mkMVar subgoal.mvarId, vars := newVars, alts := newAlts } s)
     s
 | _ => unreachable!
@@ -193,9 +208,10 @@ private partial def process : Problem → State → MetaM State
     processVariable process p s
   else if isConstructorTransition p then
     processConstructor process p s
-  else
+  else do
+    msg ← p.toMessageData;
     -- TODO: remaining cases
-    pure s
+    throwOther ("not implement yet " ++ msg)
 
 def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
 let s : CollectLevelParams.State := {};
@@ -326,7 +342,7 @@ inductive LHS {α : Sort u} (a : α) : Type u
 
 instance LHS.inhabited {α} (a : α) : Inhabited (LHS a) := ⟨LHS.mk⟩
 
-set_option trace.Meta.debug true
+-- set_option trace.Meta.debug true
 
 @[init] def register : IO Unit :=
 registerTraceClass `Meta.mkElim

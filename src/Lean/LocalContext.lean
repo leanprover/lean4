@@ -35,6 +35,10 @@ def index : LocalDecl → Nat
 | cdecl idx _ _ _ _ => idx
 | ldecl idx _ _ _ _ => idx
 
+def setIndex : LocalDecl → Nat → LocalDecl
+| cdecl _  id n t bi, idx => cdecl idx id n t bi
+| ldecl _  id n t v,  idx => ldecl idx id n t v
+
 def fvarId : LocalDecl → FVarId
 | cdecl _ id _ _ _ => id
 | ldecl _ id _ _ _ => id
@@ -112,7 +116,10 @@ match lctx with
 /- Low level API -/
 def addDecl (lctx : LocalContext) (newDecl : LocalDecl) : LocalContext :=
 match lctx with
-| { fvarIdToDecl := map, decls := decls } => { fvarIdToDecl := map.insert newDecl.fvarId newDecl, decls := decls.set newDecl.index newDecl }
+| { fvarIdToDecl := map, decls := decls } =>
+  let idx     := decls.size;
+  let newDecl := newDecl.setIndex idx;
+  { fvarIdToDecl := map.insert newDecl.fvarId newDecl, decls := decls.push newDecl }
 
 @[export lean_local_ctx_find]
 def find? (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=

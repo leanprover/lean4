@@ -379,7 +379,7 @@ open Lean.Parser.Command
 end Parenthesizer
 
 /-- Add necessary parentheses in `stx` parsed by `parser`. -/
-def parenthesize (parser : Expr) (stx : Syntax) : MetaM Syntax := do
+def parenthesize (parser : Expr) (stx : Syntax) : MetaM Syntax := Meta.withAtLeastTransparency Meta.TransparencyMode.default do
 (_, st) ← Parenthesizer.visit parser {} { stxTrav := Syntax.Traverser.fromSyntax stx };
 pure st.stxTrav.cur
 

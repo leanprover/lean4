@@ -37,12 +37,19 @@ partial def toExpr : Pattern → MetaM Expr
   fields ← fields.mapM toExpr;
   pure $ mkAppN (mkConst ctorName us) (params ++ fields).toArray
 
+partial def replaceFVarId (fvarId : FVarId) (newFVarId : FVarId) : Pattern → Pattern
+| inaccessible r e  => inaccessible r $ e.replaceFVarId fvarId newFVarId
+| val r e           => val r $ e.replaceFVarId fvarId newFVarId
+| ctor r n us ps fs => ctor r n us (ps.map fun p => p.replaceFVarId fvarId newFVarId) (fs.map replaceFVarId)
+| arrayLit r t xs   => arrayLit r (t.replaceFVarId fvarId newFVarId) (xs.map replaceFVarId)
+| p@(var r id)      => if fvarId == id then var r newFVarId else p
+
 partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern
 | inaccessible r e  => inaccessible r $ e.applyFVarSubst s
 | ctor r n us ps fs => ctor r n us (ps.map fun p => p.applyFVarSubst s) (fs.map applyFVarSubst)
 | val r e           => val r $ e.applyFVarSubst s
 | arrayLit r t xs   => arrayLit r (t.applyFVarSubst s) (xs.map applyFVarSubst)
-| p                 => p
+| var r fvarId      => var r $ s.get fvarId
 
 end Pattern
 
@@ -81,13 +88,19 @@ structure Problem :=
 (vars          : List Expr)
 (alts          : List Alt)
 
+def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
+withMVarContext p.goal.mvarId! x
+
 namespace Problem
 
 instance : Inhabited Problem := ⟨{ goal := arbitrary _, vars := [], alts := []}⟩
 
-def toMessageData (p : Problem) : MetaM MessageData := do
-alts ← p.alts.mapM Alt.toMessageData;
-pure $ "vars " ++ p.vars.toArray ++ Format.line ++ MessageData.joinSep alts Format.line
+def toMessageData (p : Problem) : MetaM MessageData :=
+withGoalOf p do
+  alts ← p.alts.mapM Alt.toMessageData;
+  pure $ "vars " ++ p.vars.toArray
+    -- ++ Format.line ++ "var ids " ++ toString (p.vars.map (fun x => match x with | Expr.fvar id _ => toString id | _ => "[nonvar]"))
+    ++ Format.line ++ MessageData.joinSep alts Format.line
 
 end Problem
 
@@ -131,9 +144,6 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
 private partial def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt → Array Expr → MetaM α) : MetaM α :=
 withAltsAux motive lhss [] #[] k
 
-def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
-withMVarContext p.goal.mvarId! x
-
 def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
 withGoalOf p (assignExprMVar p.goal.mvarId! e)
 
@@ -167,7 +177,7 @@ match p.vars with
 | x :: xs =>
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.inaccessible _ _ :: ps => { alt with patterns := ps }
-    | Pattern.var _ fvarId :: ps     => { alt with patterns := ps, rhs := alt.rhs.replaceFVarId fvarId x }
+    | Pattern.var _ fvarId :: ps     => { alt with patterns := ps.map (fun p => p.replaceFVarId fvarId x.fvarId!), rhs := alt.rhs.replaceFVarId fvarId x.fvarId! }
     | _                              => unreachable!;
   process { p with alts := alts, vars := xs } s
 | _ => unreachable!
@@ -343,6 +353,8 @@ inductive LHS {α : Sort u} (a : α) : Type u
 instance LHS.inhabited {α} (a : α) : Inhabited (LHS a) := ⟨LHS.mk⟩
 
 -- set_option trace.Meta.debug true
+-- set_option trace.Meta.Tactic.cases true
+-- set_option trace.Meta.Tactic.subst true
 
 @[init] def register : IO Unit :=
 registerTraceClass `Meta.mkElim
@@ -358,7 +370,6 @@ def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
 := arbitrary _
 
 #eval test `ex0 1 `elimTest0
-
 #print elimTest0
 
 def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
@@ -369,8 +380,19 @@ def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 := arbitrary _
 
 #eval test `ex1 2 `elimTest1
-
 #print elimTest1
+
+inductive Vec (α : Type u) : Nat → Type u
+| nil            : Vec 0
+| cons {n : Nat} : α → Vec n → Vec (n+1)
+
+def ex2 (α : Type u) (n : Nat) (xs : Vec α n) (ys : Vec α n) :
+  LHS (Pat (inaccessible 0) × Pat (Vec.nil : Vec α 0) × Pat (Vec.nil : Vec α 0))
+× LHS (forall (n : Nat) (x : α) (xs : Vec α n) (y : α) (ys : Vec α n), Pat (inaccessible (n+1)) × Pat (Vec.cons x xs) × Pat (Vec.cons y ys)) :=
+arbitrary _
+
+#eval test `ex2 3 `elimTest2
+#print elimTest2
 
 #exit
 

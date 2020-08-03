@@ -638,8 +638,8 @@ constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr :=
 def replaceFVar (e : Expr) (fvar : Expr) (v : Expr) : Expr :=
 (e.abstract #[fvar]).instantiate1 v
 
-def replaceFVarId (e : Expr) (fvarId : FVarId) (v : Expr) : Expr :=
-replaceFVar e (mkFVar fvarId) v
+def replaceFVarId (e : Expr) (fvarId : FVarId) (newFVarId : FVarId) : Expr :=
+replaceFVar e (mkFVar fvarId) (mkFVar newFVarId)
 
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩

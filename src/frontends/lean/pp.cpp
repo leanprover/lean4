@@ -153,34 +153,36 @@ void finalize_pp() {
 
 /** \brief We assume a metavariable name has a suggestion embedded in it WHEN its
     last component is a string. */
-static bool has_embedded_suggestion(name const & m) {
-    return m.is_string();
-}
+// static bool has_embedded_suggestion(name const & m) {
+//    return m.is_string();
+// }
 
 /** \see extract_suggestion */
-static name extract_suggestion_core(name const & m) {
-    if (m.is_string()) {
-        if (m.is_atomic())
-            return m;
-        else
-            return name(extract_suggestion_core(m.get_prefix()), m.get_string());
-    } else {
-        return name();
-    }
-}
+// static name extract_suggestion_core(name const & m) {
+//    if (m.is_string()) {
+//        if (m.is_atomic())
+//             return m;
+//         else
+//             return name(extract_suggestion_core(m.get_prefix()), m.get_string());
+//     } else {
+//         return name();
+//     }
+// }
 
 /** \brief Extract "suggested name" embedded in a metavariable name
 
     \pre has_embedded_suggestion(m)
 */
-static name extract_suggestion(name const & m) {
-    lean_assert(has_embedded_suggestion(m));
-    name r = extract_suggestion_core(m);
-    lean_assert(!r.is_anonymous());
-    return r;
-}
+// static name extract_suggestion(name const & m) {
+//     lean_assert(has_embedded_suggestion(m));
+//     name r = extract_suggestion_core(m);
+//     lean_assert(!r.is_anonymous());
+//     return r;
+// }
 
-name pretty_fn::mk_metavar_name(name const & m, optional<name> const & prefix) {
+name pretty_fn::mk_metavar_name(name const & /* m */, optional<name> const & /* prefix */) {
+    lean_unreachable();
+    /*
     if (auto it = m_purify_meta_table.find(m))
         return *it;
     if (has_embedded_suggestion(m)) {
@@ -204,6 +206,7 @@ name pretty_fn::mk_metavar_name(name const & m, optional<name> const & prefix) {
         m_purify_meta_table.insert(m, new_m);
         return new_m;
     }
+    */
 }
 
 name pretty_fn::mk_local_name(name const & n, name const & suggested) {
@@ -223,6 +226,8 @@ name pretty_fn::mk_local_name(name const & n, name const & suggested) {
 }
 
 level pretty_fn::purify(level const & l) {
+    return l;
+/*
     if (!m_universes || !m_purify_metavars || !has_mvar(l))
         return l;
     return replace(l, [&](level const & l) {
@@ -234,6 +239,7 @@ level pretty_fn::purify(level const & l) {
                 return some_level(mk_univ_mvar(mk_metavar_name(mvar_id(l))));
             return none_level();
         });
+*/
 }
 
 expr pretty_fn::infer_type(expr const & e) {
@@ -261,10 +267,10 @@ expr pretty_fn::purify(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e))) {
                 return some_expr(e);
-            } else if (m_purify_metavars && is_metavar_decl_ref(e)) {
-                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e), "m")));
-            } else if (m_purify_metavars && is_metavar(e) && !is_idx_metavar(e)) {
-                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e))));
+                // } else if (m_purify_metavars && is_metavar_decl_ref(e)) {
+                // return some_expr(mk_metavar(mk_metavar_name(mvar_name(e), "m")));
+                // } else if (m_purify_metavars && is_metavar(e) && !is_idx_metavar(e)) {
+                // return some_expr(mk_metavar(mk_metavar_name(mvar_name(e))));
             } else if (is_local(e)) {
                 return some_expr(mk_local(local_name(e), mk_local_name(local_name(e), local_pp_name(e)),
                                           infer_type(e), local_info(e)));
@@ -624,16 +630,28 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     }
 }
 
+static name mk_clean_mvar_name(name const & n) {
+    if (n.is_numeral()) {
+        return name(mk_clean_mvar_name(n.get_prefix()), n.get_numeral());
+    } else {
+        return name("?m");
+    }
+}
+
 auto pretty_fn::pp_meta(expr const & e) -> result {
     if (is_idx_metavar(e)) {
         return result(format((sstream() << "?x_" << to_meta_idx(e)).str()));
-    } else if (is_metavar_decl_ref(e) && !m_purify_metavars) {
+    }
+    return result(format(mk_clean_mvar_name(mvar_name(e))));
+/*
+    else if (is_metavar_decl_ref(e) && !m_purify_metavars) {
         return result(format((sstream() << "?m_" << get_metavar_decl_ref_suffix(e)).str()));
     } else if (m_purify_metavars) {
         return result(compose(format("?"), format(mvar_name(e))));
     } else {
         return result(compose(format("?M."), format(mvar_name(e))));
     }
+*/
 }
 
 auto pretty_fn::pp_fvar(expr const & e) -> result {

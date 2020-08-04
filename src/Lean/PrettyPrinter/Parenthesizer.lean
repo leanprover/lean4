@@ -145,7 +145,8 @@ partial def visit : Parenthesizer | p => do
 stx ← getCur;
 -- do reductions _except_ for definition unfolding
 p ← liftM $ whnfCore p;
-trace! `PrettyPrinter.parenthesize ("parenthesizing" ++ MessageData.nest 2 (line ++ stx) ++ line ++ "using" ++ MessageData.nest 2 (line ++ p));
+st ← get;
+trace! `PrettyPrinter.parenthesize ("parenthesizing (contPrec := " ++ toString st.contPrec ++ ")" ++ MessageData.nest 2 (line ++ stx) ++ line ++ "using" ++ MessageData.nest 2 (line ++ p));
 let c := Expr.constName? p.getAppFn;
 env ← liftM getEnv;
 match c >>= (parenthesizerAttribute.ext.getState env).table.find? with
@@ -370,6 +371,8 @@ visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
 @[builtinParenthesizer checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkTailWs] def checkTailWs.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkColGe] def checkColGe.parenthesizer : Parenthesizer | p => pure ()
+
+@[builtinParenthesizer pushNone] def pushNone.formatter : Parenthesizer | p => goLeft
 
 open Lean.Parser.Command
 @[builtinParenthesizer commentBody] def commentBody.parenthesizer := visitToken

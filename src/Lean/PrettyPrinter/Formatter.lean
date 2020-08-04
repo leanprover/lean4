@@ -223,6 +223,7 @@ goLeft
 
 @[builtinFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
 @[builtinFormatter unicodeSymbol] def unicodeSymbol.formatter := symbol.formatter
+@[builtinFormatter nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
 
 @[builtinFormatter identNoAntiquot]
 def identNoAntiquot.formatter : Formatter | _ => do
@@ -233,13 +234,12 @@ pushToken stx.getId.toString;
 goLeft
 
 @[builtinFormatter rawIdent] def rawIdent.formatter := identNoAntiquot.formatter
-@[builtinFormatter nonReservedSymbol] def nonReservedSymbol.formatter := identNoAntiquot.formatter
 
 def visitAtom (k : SyntaxNodeKind) : Formatter | p => do
 stx ← getCur;
-Syntax.atom _ val ← pure $ stx.getArg 0
 when (k != Name.anonymous) $
   checkKind k;
+Syntax.atom _ val ← pure $ stx.ifNode (fun n => n.getArg 0) (fun _ => stx)
   | throw $ Exception.other $ "not an atom: " ++ toString stx;
 pushToken val;
 goLeft
@@ -296,9 +296,19 @@ push " "
 @[builtinFormatter checkTailWs] def checkTailWs.formatter : Formatter | p => pure ()
 @[builtinFormatter checkColGe] def checkColGe.formatter : Formatter | p => pure ()
 
+@[builtinFormatter pushNone] def pushNone.formatter : Formatter | p => goLeft
+
 open Lean.Parser.Command
 @[builtinFormatter commentBody] def commentBody.formatter := visitAtom Name.anonymous
-@[builtinFormatter quotedSymbol] def quotedSymbol.formatter := visitAtom quotedSymbolKind
+
+-- TODO: delete with old frontend
+@[builtinFormatter quotedSymbol] def quotedSymbol.formatter : Formatter | p => do
+checkKind quotedSymbolKind;
+concatArgs do
+  push "`"; goLeft;
+  visitAtom Name.anonymous p;
+  push "`"; goLeft
+
 @[builtinFormatter unquotedSymbol] def unquotedSymbol.formatter := visitAtom Name.anonymous
 
 end Formatter

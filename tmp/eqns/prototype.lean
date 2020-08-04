@@ -197,18 +197,24 @@ else match d with
   | LocalDecl.cdecl idx id n type bi  => LocalDecl.cdecl idx id n (type.replaceFVarId fvarId e) bi
   | LocalDecl.ldecl idx id n type val => LocalDecl.ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e)
 
+private def isAltDecl (alt : Alt) (fvarId : FVarId) : Bool :=
+alt.fvarDecls.any fun d => d.fvarId == fvarId
+
 private def processVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
 match p.vars with
 | x :: xs =>
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.inaccessible _ _ :: ps => { alt with patterns := ps }
     | Pattern.var _ fvarId :: ps     =>
-      let patterns  := ps.map (fun p => p.replaceFVarId fvarId x);
-      let rhs       := alt.rhs.replaceFVarId fvarId x;
-      /- We eliminate the LocalDecl for fvarId since it was substituted. -/
-      let fvarDecls := alt.fvarDecls.filter fun d => d.fvarId != fvarId;
-      let fvarDecls := fvarDecls.map $ replaceFVarIdAtLocalDecl fvarId x;
-      { alt with patterns := patterns, rhs := rhs, fvarDecls := fvarDecls }
+      if isAltDecl alt fvarId then
+        let patterns  := ps.map (fun p => p.replaceFVarId fvarId x);
+        let rhs       := alt.rhs.replaceFVarId fvarId x;
+        /- We eliminate the LocalDecl for fvarId since it was substituted. -/
+        let fvarDecls := alt.fvarDecls.filter fun d => d.fvarId != fvarId;
+        let fvarDecls := fvarDecls.map $ replaceFVarIdAtLocalDecl fvarId x;
+        { alt with patterns := patterns, rhs := rhs, fvarDecls := fvarDecls }
+      else
+        { alt with patterns := ps }
     | _                              => unreachable!;
   process { p with alts := alts, vars := xs } s
 | _ => unreachable!
@@ -245,7 +251,7 @@ t ← inferType e;
 throwOther ("failed to compile pattern matching, inductive type expected" ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr t)
 
 /- Auxiliary method for `processComplete` -/
-private partial def mkCompatibleCtorPattern (ref : Syntax) (fvarDecls : List LocalDecl) (ctorName : Name) (us : List Level) (params : Array Expr)
+private partial def mkCompatibleCtorPattern (ref : Syntax) (ctorName : Name) (us : List Level) (params : Array Expr)
     (mvars : Array Expr) (varNamePrefix : Name) : Nat → Array LocalDecl → Array Pattern → MetaM (List LocalDecl × Pattern)
 | i, newDecls, fields =>
   if h : i < mvars.size then do
@@ -257,28 +263,24 @@ private partial def mkCompatibleCtorPattern (ref : Syntax) (fvarDecls : List Loc
       withLocalDecl (varNamePrefix.appendIndexAfter i) type BinderInfo.default fun x => do
         decl ← getLocalDecl x.fvarId!;
         mkCompatibleCtorPattern (i+1) (newDecls.push decl) (fields.push (Pattern.var ref decl.fvarId))
-    | Expr.fvar fvarId _ =>
-      if fvarDecls.any fun d => d.fvarId == fvarId then
-        mkCompatibleCtorPattern (i+1) newDecls (fields.push (Pattern.var ref fvarId))
-      else
-        mkCompatibleCtorPattern (i+1) newDecls (fields.push (Pattern.inaccessible ref e))
+    | Expr.fvar fvarId _ => mkCompatibleCtorPattern (i+1) newDecls (fields.push (Pattern.var ref fvarId))
     | _ => mkCompatibleCtorPattern (i+1) newDecls (fields.push (Pattern.inaccessible ref e))
   else
     pure (newDecls.toList, Pattern.ctor ref ctorName us params.toList fields.toList)
 
 /- Auxiliary method for `processComplete` -/
-private partial def compatibleConstructor? (ref : Syntax) (fvarDecls : List LocalDecl) (ctorName : Name) (us : List Level) (params : Array Expr) (expectedType : Expr)
+private partial def compatibleConstructor? (ref : Syntax) (ctorName : Name) (us : List Level) (params : Array Expr) (expectedType : Expr)
     (varNamePrefix : Name) : MetaM (Option (List LocalDecl × Pattern)) := do
 let ctor := mkAppN (mkConst ctorName us) params;
 ctorType ← inferType ctor;
 (mvars, _, resultType) ← forallMetaTelescopeReducing ctorType;
 trace! `Meta.debug ("ctorName: " ++ ctorName ++ ", resultType: " ++ resultType ++ ", expectedType: " ++ expectedType);
 condM (isDefEq resultType expectedType)
-  (Option.some <$> mkCompatibleCtorPattern ref fvarDecls ctorName us params mvars varNamePrefix 0 #[] #[])
+  (Option.some <$> mkCompatibleCtorPattern ref ctorName us params mvars varNamePrefix 0 #[] #[])
   (pure none)
 
 /- Auxiliary method for `processComplete` -/
-private def getCompatibleConstructors (ref : Syntax) (fvarDecls : List LocalDecl) (e : Expr) (varNamePrefix : Name) : MetaM (List (List LocalDecl × Pattern)) := do
+private def getCompatibleConstructors (ref : Syntax) (e : Expr) (varNamePrefix : Name) : MetaM (List (List LocalDecl × Pattern)) := do
 env ← getEnv;
 expectedType ← inferType e;
 expectedType ← whnfD expectedType;
@@ -290,7 +292,7 @@ match info with
   let params := Iargs.extract 0 val.nparams;
   val.ctors.foldlM
     (fun (result : List (List LocalDecl × Pattern)) ctor => do
-      entry? ← withNewMCtxDepth $ compatibleConstructor? ref fvarDecls ctor us params expectedType varNamePrefix;
+      entry? ← withNewMCtxDepth $ compatibleConstructor? ref ctor us params expectedType varNamePrefix;
       match entry? with
       | none       => pure result
       | some entry => pure (entry :: result))
@@ -308,7 +310,7 @@ newAlts ← p.alts.foldlM
     | p@(Pattern.var ref fvarId) :: ps =>
       withExistingLocalDecls alt.fvarDecls do
         ldecl ← getLocalDecl fvarId;
-        dps ← getCompatibleConstructors p.ref alt.fvarDecls (mkFVar fvarId) ldecl.userName;
+        dps ← getCompatibleConstructors p.ref (mkFVar fvarId) ldecl.userName;
         expandedAlts ← dps.mapM fun ⟨newLocalDecls, p⟩ => do {
           e ← p.toExpr;
           let ps  := ps.map fun p => p.replaceFVarId fvarId e;

@@ -14,7 +14,7 @@ import Lean.Meta.Tactic.FVarSubst
 namespace Lean
 namespace Meta
 
-def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (genFVarSubst := false) : MetaM (FVarSubst × MVarId) :=
+def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) :=
 withMVarContext mvarId $ do
   tag     ← getMVarTag mvarId;
   checkNotAssigned mvarId `subst;
@@ -27,6 +27,7 @@ withMVarContext mvarId $ do
     a ← whnf a;
     match a with
     | Expr.fvar aFVarId _ => do
+      let aFVarIdOriginal := aFVarId;
       trace! `Meta.Tactic.subst ("substituting " ++ a ++ " (id: " ++ aFVarId ++ ") with " ++ b);
       mctx ← getMCtx;
       when (mctx.exprDependsOn b aFVarId) $
@@ -61,10 +62,11 @@ withMVarContext mvarId $ do
             (newFVars, mvarId) ← introN mvarId (vars.size - 2) [] false;
             fvarSubst ← newFVars.size.foldM
               (fun i (fvarSubst : FVarSubst) =>
-                let var      := vars.get! (i+2);
+                let var     := vars.get! (i+2);
                 let newFVar := newFVars.get! i;
-                pure $ fvarSubst.insert var newFVar)
-              FVarSubst.empty;
+                pure $ fvarSubst.insert var (mkFVar newFVar))
+              fvarSubst;
+            let fvarSubst := fvarSubst.insert aFVarIdOriginal b;
             pure (fvarSubst, mvarId)
           };
           if depElim then do

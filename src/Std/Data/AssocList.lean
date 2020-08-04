@@ -14,8 +14,17 @@ inductive AssocList (α : Type u) (β : Type v)
 namespace AssocList
 variables {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
 
-def empty : AssocList α β :=
+abbrev empty : AssocList α β :=
 nil
+
+instance : HasEmptyc (AssocList α β) := ⟨empty⟩
+
+abbrev insert (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
+m.cons k v
+
+def isEmpty : AssocList α β → Bool
+| nil => true
+| _   => false
 
 @[specialize] def foldlM (f : δ → α → β → m δ) : δ → AssocList α β → m δ
 | d, nil         => pure d
@@ -23,6 +32,14 @@ nil
 
 @[inline] def foldl (f : δ → α → β → δ) (d : δ) (as : AssocList α β) : δ :=
 Id.run (foldlM f d as)
+
+def mapKey (f : α → δ) : AssocList α β → AssocList δ β
+| nil        => nil
+| cons k v t => cons (f k) v (mapKey t)
+
+def mapVal (f : β → δ) : AssocList α β → AssocList α δ
+| nil        => nil
+| cons k v t => cons k (f v) (mapVal t)
 
 def findEntry? [HasBeq α] (a : α) : AssocList α β → Option (α × β)
 | nil         => none

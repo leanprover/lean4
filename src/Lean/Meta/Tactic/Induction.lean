@@ -107,7 +107,7 @@ private partial def finalizeAux
               else
                 let revertedFVarId := reverted.get! i;
                 let newFVarId      := extra.get! (i - indices.size - 1);
-                subst.insert revertedFVarId newFVarId)
+                subst.insert revertedFVarId (mkFVar newFVarId))
             baseSubst;
           finalizeAux (pos+1) (minorIdx+1) rec recType consumedMajor (subgoals.push { mvarId := mvarId', fields := fields, subst := subst })
       | _ => unreachable!
@@ -172,7 +172,7 @@ withMVarContext mvarId $ do
     (indices', mvarId) ← introN mvarId indices.size [] false;
     (majorFVarId', mvarId) ← intro1 mvarId false;
     -- Create FVarSubst with indices
-    let baseSubst : FVarSubst := indices.iterate {} (fun i index subst => subst.insert index.fvarId! (indices'.get! i.val));
+    let baseSubst : FVarSubst := indices.iterate {} (fun i index subst => subst.insert index.fvarId! (mkFVar (indices'.get! i.val)));
     trace! `Meta.Tactic.induction ("after revert&intro" ++ Format.line ++ MessageData.ofGoal mvarId);
     -- Update indices and major
     let indices := indices'.map mkFVar;

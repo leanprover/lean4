@@ -163,10 +163,12 @@ let indicesFVarIds := s₁.indicesFVarIds;
 s₂.mapM $ fun s => do
   indicesFVarIds.foldlM
     (fun s indexFVarId =>
-      let indexFVarId' := s.subst.get indexFVarId;
-      (do mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
-      <|>
-      (pure s))
+      match s.subst.get indexFVarId with
+      | Expr.fvar indexFVarId' _ =>
+        (do mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
+        <|>
+        (pure s)
+      | _ => pure s)
     s
 
 private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) : Array CasesSubgoal :=
@@ -195,12 +197,15 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
           unifyEqsAux n { s with mvarId := mvarId }
         };
         let substEq (symm : Bool) : MetaM (Option CasesSubgoal) := do {
-          (newSubst, mvarId) ← substCore mvarId eqFVarId false true;
+          (newSubst, mvarId) ← substCore mvarId eqFVarId false s.subst;
           unifyEqsAux n {
             s with
             mvarId := mvarId,
-            subst  := newSubst.compose s.subst,
-            fields := s.fields.map $ fun fvarId => newSubst.get fvarId
+            subst  := newSubst,
+            fields := s.fields.map $ fun fvarId =>
+               match newSubst.get fvarId with
+               | Expr.fvar fvarId _ => fvarId
+               | _                  => unreachable!
           }
         };
         let inj : Unit → MetaM (Option CasesSubgoal) := fun _ => do {

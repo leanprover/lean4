@@ -166,26 +166,24 @@ visit p.appArg!
 def andthen.formatter : Formatter | p =>
 visit (p.getArg! 1) *> visit (p.getArg! 0)
 
-@[builtinFormatter node]
-def node.formatter : Formatter | p => do
+def checkKind (k : SyntaxNodeKind) : FormatterM Unit := do
 stx ← getCur;
-k ← liftM $ reduceEval $ p.getArg! 0;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.formatter`
   throw $ Exception.other "BACKTRACK"
-};
+}
+
+@[builtinFormatter node]
+def node.formatter : Formatter | p => do
+k ← liftM $ reduceEval $ p.getArg! 0;
+checkKind k;
 concatArgs $ visit p.appArg!
 
 @[builtinFormatter trailingNode]
 def trailingNode.formatter : Formatter | p => do
-stx ← getCur;
 k ← liftM $ reduceEval $ p.getArg! 0;
-when (k != stx.getKind) $ do {
-  trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
-  -- HACK; see `orelse.formatter`
-  throw $ Exception.other "BACKTRACK"
-};
+checkKind k;
 concatArgs do
   visit p.appArg!;
   -- leading term, not actually produced by `p`
@@ -214,35 +212,34 @@ else do {
   -- already separated => use `tk` as is
   modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
   push tk
-};
-goLeft
+}
 
 @[builtinFormatter symbol]
 def symbol.formatter : Formatter | p => do
 let sym := p.getArg! 0;
 sym ← liftM $ reduceEval sym;
-pushToken sym
+pushToken sym;
+goLeft
 
 @[builtinFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
 @[builtinFormatter unicodeSymbol] def unicodeSymbol.formatter := symbol.formatter
 
 @[builtinFormatter identNoAntiquot]
 def identNoAntiquot.formatter : Formatter | _ => do
+checkKind identKind;
 stx ← getCur;
 -- TODO: pretty-print Name using «»
-pushToken stx.getId.toString
+pushToken stx.getId.toString;
+goLeft
 
 @[builtinFormatter rawIdent] def rawIdent.formatter := identNoAntiquot.formatter
 @[builtinFormatter nonReservedSymbol] def nonReservedSymbol.formatter := identNoAntiquot.formatter
 
 def visitAtom (k : SyntaxNodeKind) : Formatter | p => do
 stx ← getCur;
-when (k != Name.anonymous && k != stx.getKind) $ do {
-  trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
-  -- HACK; see `orelse.formatter`
-  throw $ Exception.other "BACKTRACK"
-};
 Syntax.atom _ val ← pure $ stx.getArg 0
+when (k != Name.anonymous) $
+  checkKind k;
   | throw $ Exception.other $ "not an atom: " ++ toString stx;
 pushToken val;
 goLeft

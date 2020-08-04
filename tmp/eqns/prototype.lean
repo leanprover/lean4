@@ -50,23 +50,14 @@ partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern
 | ctor r n us ps fs => ctor r n us (ps.map fun p => p.applyFVarSubst s) (fs.map applyFVarSubst)
 | val r e           => val r $ e.applyFVarSubst s
 | arrayLit r t xs   => arrayLit r (t.applyFVarSubst s) (xs.map applyFVarSubst)
-| var r fvarId      => var r $ s.get fvarId
+| var r fvarId      =>
+  match s.get fvarId with
+  | Expr.fvar newFVarId _ => var r newFVarId
+  | e                     => inaccessible r e
 
-/- Shorthand for applying an unary variable substitution -/
-def substFVarId (fvarId : FVarId) (newFVarId : FVarId) (p : Pattern) : Pattern :=
-let s : FVarSubst := {};
-p.applyFVarSubst (s.insert fvarId newFVarId)
-
-/-
-  Replace occurrences of the free variable `fvarId` with `e` in the pattern `p`.
-  Remark: the nested pattern `var _ fvarId` are replaced with `inaccessible _ e`.
-  This function is used by `processComplete`. -/
-partial def replaceFVarId (fvarId : FVarId) (e : Expr) : Pattern → Pattern
-| inaccessible r e  => inaccessible r $ e.replaceFVarId fvarId e
-| val r e           => val r $ e.replaceFVarId fvarId e
-| ctor r n us ps fs => ctor r n us (ps.map fun p => p.replaceFVarId fvarId e) (fs.map replaceFVarId)
-| arrayLit r t xs   => arrayLit r (t.replaceFVarId fvarId e) (xs.map replaceFVarId)
-| p@(var r id)      => if fvarId == id then inaccessible r e else p
+def replaceFVarId (fvarId : FVarId) (e : Expr) (p : Pattern) : Pattern :=
+let s := FVarSubst.empty.insert fvarId e;
+applyFVarSubst s p
 
 end Pattern
 
@@ -200,16 +191,23 @@ let alt := p.alts.head!;
 assignGoalOf p alt.rhs;
 pure { s with used := s.used.insert alt.idx }
 
+private def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
+if d.fvarId == fvarId then d
+else match d with
+  | LocalDecl.cdecl idx id n type bi  => LocalDecl.cdecl idx id n (type.replaceFVarId fvarId e) bi
+  | LocalDecl.ldecl idx id n type val => LocalDecl.ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e)
+
 private def processVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
 match p.vars with
 | x :: xs =>
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.inaccessible _ _ :: ps => { alt with patterns := ps }
     | Pattern.var _ fvarId :: ps     =>
-      let patterns  := ps.map (fun p => p.substFVarId fvarId x.fvarId!);
+      let patterns  := ps.map (fun p => p.replaceFVarId fvarId x);
       let rhs       := alt.rhs.replaceFVarId fvarId x;
       /- We eliminate the LocalDecl for fvarId since it was substituted. -/
       let fvarDecls := alt.fvarDecls.filter fun d => d.fvarId != fvarId;
+      let fvarDecls := fvarDecls.map $ replaceFVarIdAtLocalDecl fvarId x;
       { alt with patterns := patterns, rhs := rhs, fvarDecls := fvarDecls }
     | _                              => unreachable!;
   process { p with alts := alts, vars := xs } s
@@ -232,12 +230,12 @@ match p.vars with
   subgoals.foldlM
     (fun (s : State) subgoal =>
       let newVars := subgoal.fields.toList.map mkFVar ++ xs;
+      let newVars := newVars.map fun x => x.applyFVarSubst subgoal.subst;
       let newAlts := p.alts.filter $ isFirstPatternCtor subgoal.ctorName;
       let newAlts := newAlts.map fun alt => match alt.patterns with
         | Pattern.ctor _ _ _ _ fields :: ps => { alt with patterns := fields ++ ps }
         | _                                 => unreachable!;
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subgoal.subst;
-      let newVars := newVars.map fun x => x.applyFVarSubst subgoal.subst;
       process { goal := mkMVar subgoal.mvarId, vars := newVars, alts := newAlts } s)
     s
 | _ => unreachable!
@@ -298,12 +296,6 @@ match info with
       | some entry => pure (entry :: result))
     []
 | _ => throwInductiveTypeExpected e
-
-private def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
-if d.fvarId == fvarId then d
-else match d with
-  | LocalDecl.cdecl idx id n type bi  => LocalDecl.cdecl idx id n (type.replaceFVarId fvarId e) bi
-  | LocalDecl.ldecl idx id n type val => LocalDecl.ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e)
 
 /- Auxiliary method for `processComplete` -/
 private def processComplete (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State :=

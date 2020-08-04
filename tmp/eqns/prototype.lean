@@ -161,6 +161,9 @@ structure State :=
 private def isDone (p : Problem) : Bool :=
 p.vars.isEmpty
 
+private def isAltDecl (alt : Alt) (fvarId : FVarId) : Bool :=
+alt.fvarDecls.any fun d => d.fvarId == fvarId
+
 /- Return true if the next pattern of each remaining alternative is an inaccessible term or a variable -/
 private def isVariableTransition (p : Problem) : Bool :=
 p.alts.all fun alt => match alt.patterns with
@@ -181,7 +184,7 @@ let (ok, hasVar, hasCtor) := p.alts.foldl
     let (ok, hasVar, hasCtor) := acc;
     match alt.patterns with
     | Pattern.ctor _ _ _ _ _ :: _ => (ok, hasVar, true)
-    | Pattern.var _ _ :: _        => (ok, true, hasCtor)
+    | Pattern.var _ fvarId :: _   => if isAltDecl alt fvarId then (ok, true, hasCtor) else (false, hasVar, hasCtor)
     | _                           => (false, hasVar, hasCtor))
   (true, false, false);
 ok && hasVar && hasCtor
@@ -196,9 +199,6 @@ if d.fvarId == fvarId then d
 else match d with
   | LocalDecl.cdecl idx id n type bi  => LocalDecl.cdecl idx id n (type.replaceFVarId fvarId e) bi
   | LocalDecl.ldecl idx id n type val => LocalDecl.ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e)
-
-private def isAltDecl (alt : Alt) (fvarId : FVarId) : Bool :=
-alt.fvarDecls.any fun d => d.fvarId == fvarId
 
 private def processVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
 match p.vars with

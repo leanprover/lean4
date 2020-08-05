@@ -678,6 +678,13 @@ elimTest7 _ (fun _ _ => Bool) n xs (fun _ => true) (fun _ _ => false)
 #eval isSizeOne (Vec.cons 1 Vec.nil)
 #eval isSizeOne (Vec.cons 2 (Vec.cons 1 Vec.nil))
 
+def singleton? {n : Nat} (xs : Vec Nat n) : Option Nat :=
+elimTest7 _ (fun _ _ => Option Nat) n xs (fun a => some a) (fun _ _ => none)
+
+#eval singleton? Vec.nil
+#eval singleton? (Vec.cons 10 Vec.nil)
+#eval singleton? (Vec.cons 20 (Vec.cons 10 Vec.nil))
+
 def ex8 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (forall (a b : α), Pat (inaccessible 2) × Pat (Vec.cons a (Vec.cons b Vec.nil)))
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=

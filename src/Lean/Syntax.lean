@@ -289,9 +289,9 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
 | _,     missing           => "<missing>"
 | depth, node kind args    =>
   let depth := depth + 1;
-  if kind == `Lean.Parser.noKind then
+  if kind == nullKind then
     sbracket $
-      if depth > maxDepth.getD depth then
+      if args.size > 0 && depth > maxDepth.getD depth then
         ".."
       else
         joinSep (args.toList.map (formatStxAux depth)) line
@@ -299,7 +299,7 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
     let header      := format shorterName;
     let body : List Format :=
-      if depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
+      if args.size > 0 && depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
     paren $ joinSep (header :: body) line
 
 def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false) : Format :=

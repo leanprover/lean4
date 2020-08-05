@@ -272,6 +272,12 @@ structure State :=
 private def isDone (p : Problem) : Bool :=
 p.vars.isEmpty
 
+/-- Return true if the next element on the `p.vars` list is a variable. -/
+private def isNextVar (p : Problem) : Bool :=
+match p.vars with
+| Expr.fvar _ _ :: _ => true
+| _                  => false
+
 /- Return true if the next pattern of each remaining alternative is an inaccessible term or a variable -/
 private def isVariableTransition (p : Problem) : Bool :=
 p.alts.all fun alt => match alt.patterns with
@@ -297,11 +303,23 @@ let (ok, hasVar, hasCtor) := p.alts.foldl
   (true, false, false);
 ok && hasVar && hasCtor
 
-private def processLeaf (p : Problem) (s : State) : MetaM State := do
--- TODO: check whether we have unassigned metavars in rhs
-let alt := p.alts.head!;
-assignGoalOf p alt.rhs;
-pure { s with used := s.used.insert alt.idx }
+private def processNonVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
+trace! `Meta.debug ("process non variable");
+match p.vars with
+| x :: xs =>
+  let alts := p.alts.map fun alt => match alt.patterns with
+    | _ :: ps => { alt with patterns := ps }
+    | _       => unreachable!;
+  process { p with alts := alts, vars := xs } s
+| _ => unreachable!
+
+private def processLeaf (p : Problem) (s : State) : MetaM State :=
+match p.alts with
+| [] => throwOther "missing case" -- TODO improve error message
+| alt :: _ => do
+  -- TODO: check whether we have unassigned metavars in rhs
+  assignGoalOf p alt.rhs;
+  pure { s with used := s.used.insert alt.idx }
 
 private def processVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
 trace! `Meta.debug ("process variable");
@@ -429,6 +447,8 @@ private partial def process : Problem → State → MetaM State
   withGoalOf p (traceM `Meta.debug p.toMessageData);
   if isDone p then
     processLeaf p s
+  else if !isNextVar p then
+    processNonVariable process p s
   else if isVariableTransition p then
     processVariable process p s
   else if isConstructorTransition p then
@@ -690,8 +710,12 @@ def ex8 (α : Type u) (n : Nat) (xs : Vec α n) :
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
 arbitrary _
 
-#exit -- we need to fix a bug at `subst` to handle ex8
-set_option trace.Meta.debug true
-set_option pp.all true
-
 #eval test `ex8 2 `elimTest8
+#print elimTest8
+
+def pair? {n : Nat} (xs : Vec Nat n) : Option (Nat × Nat) :=
+elimTest8 _ (fun _ _ => Option (Nat × Nat)) n xs (fun a b => some (a, b)) (fun _ _ => none)
+
+#eval pair? Vec.nil
+#eval pair? (Vec.cons 10 Vec.nil)
+#eval pair? (Vec.cons 20 (Vec.cons 10 Vec.nil))

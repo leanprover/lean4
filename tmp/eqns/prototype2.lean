@@ -612,11 +612,11 @@ instance LHS.inhabited {α} (a : α) : Inhabited (LHS a) := ⟨LHS.mk⟩
 @[init] def register : IO Unit :=
 registerTraceClass `Meta.mkElim
 
-def test (ex : Name) (numPats : Nat) (elimName : Name) : MetaM Unit :=
+def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit :=
 withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug ("majors: " ++ majors.toArray);
-  _ ← mkElim elimName majors alts;
+  _ ← mkElim elimName majors alts inProp;
   pure ()
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
@@ -744,3 +744,15 @@ elimTest9 (fun _ => Bool) xs
 #eval f [⟨0, 0, Op.mk 0⟩]
 #eval f [⟨0, 0, Op.mk 0⟩, ⟨1, 1, Op.mk 1⟩]
 #eval f [⟨0, 0, Op.mk 0⟩, ⟨2, 2, Op.mk 2⟩]
+
+inductive Foo : Bool → Prop
+| bar : Foo false
+| baz : Foo false
+
+def ex10 (x : Bool) (y : Foo x) :
+  LHS (Pat (inaccessible false) × Pat Foo.bar)
+× LHS (forall (x : Bool) (y : Foo x), Pat (inaccessible x) × Pat y) :=
+arbitrary _
+
+#eval test `ex10 2 `elimTest10 true
+#check elimTest10

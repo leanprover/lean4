@@ -182,17 +182,53 @@ pure alt
 
 end Alt
 
+inductive Example
+| var        : FVarId → Example
+| underscore : Example
+| ctor       : Name → List Example → Example
+| val        : Expr → Example
+
+namespace Example
+
+partial def replaceFVarId (fvarId : FVarId) (ex : Example) : Example → Example
+| var x      => if x == fvarId then ex else var x
+| ctor n exs => ctor n $ exs.map replaceFVarId
+| ex         => ex
+
+partial def applyFVarSubst (s : FVarSubst) : Example → Example
+| var fvarId =>
+  match s.get fvarId with
+  | Expr.fvar fvarId' _ => var fvarId'
+  | _                   => underscore
+| ctor n exs => ctor n $ exs.map applyFVarSubst
+| ex         => ex
+
+partial def varsToUnderscore : Example → Example
+| var x      => underscore
+| ctor n exs => ctor n $ exs.map varsToUnderscore
+| ex         => ex
+
+partial def toMessageData : Example → MessageData
+| var fvarId        => mkFVar fvarId
+| ctor ctorName []  => mkConst ctorName
+| ctor ctorName exs => "(" ++ mkConst ctorName ++ exs.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil ++ ")"
+| val e             => e
+| underscore        => "_"
+
+end Example
+
 structure Problem :=
 (goal          : Expr)
 (vars          : List Expr)
 (alts          : List Alt)
+(examples      : List Example)
 
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
 withMVarContext p.goal.mvarId! x
 
 namespace Problem
 
-instance : Inhabited Problem := ⟨{ goal := arbitrary _, vars := [], alts := []}⟩
+instance : Inhabited Problem := ⟨{ goal := arbitrary _, vars := [], alts := [], examples := []}⟩
 
 def toMessageData (p : Problem) : MetaM MessageData :=
 withGoalOf p do
@@ -203,8 +239,17 @@ withGoalOf p do
 
 end Problem
 
+abbrev CounterExample := List Example
+
+def counterExampleToMessageData (cex : CounterExample) : MessageData :=
+MessageData.joinSep (cex.map (Example.toMessageData ∘ Example.varsToUnderscore)) ", "
+
+def counterExamplesToMessageData (cexs : List CounterExample) : MessageData :=
+MessageData.joinSep (cexs.map counterExampleToMessageData) Format.line
+
 structure ElimResult :=
-(elim      : Expr) -- The eliminator. It is not just `Expr.const elimName` because the type of the major premises may contain free variables.
+(elim            : Expr) -- The eliminator. It is not just `Expr.const elimName` because the type of the major premises may contain free variables.
+(counterExamples : List CounterExample)
 
 /- The number of patterns in each AltLHS must be equal to majors.length -/
 private def checkNumPatterns (majors : List Expr) (lhss : List AltLHS) : MetaM Unit :=
@@ -266,7 +311,8 @@ def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
 withGoalOf p (assignExprMVar p.goal.mvarId! e)
 
 structure State :=
-(used   : Std.HashSet Nat := {}) -- used alternatives
+(used            : Std.HashSet Nat := {}) -- used alternatives
+(counterExamples : List (List Example) := [])
 
 /-- Return true if the given (sub-)problem has been solved. -/
 private def isDone (p : Problem) : Bool :=
@@ -315,7 +361,9 @@ match p.vars with
 
 private def processLeaf (p : Problem) (s : State) : MetaM State :=
 match p.alts with
-| [] => throwOther "missing case" -- TODO improve error message
+| []       => do
+  admit p.goal.mvarId!;
+  pure { s with counterExamples := p.examples :: s.counterExamples }
 | alt :: _ => do
   -- TODO: check whether we have unassigned metavars in rhs
   assignGoalOf p alt.rhs;
@@ -352,16 +400,22 @@ match p.vars with
   subgoals ← cases p.goal.mvarId! x.fvarId!;
   subgoals.foldlM
     (fun (s : State) subgoal => do
-      let subst   := subgoal.subst;
-      let newVars := subgoal.fields.toList ++ xs;
-      let newVars := newVars.map fun x => x.applyFVarSubst subst;
-      let newAlts := p.alts.filter $ isFirstPatternCtor subgoal.ctorName;
-      let newAlts := newAlts.map fun alt => match alt.patterns with
+      let subst    := subgoal.subst;
+      let fields   := subgoal.fields.toList;
+      let newVars  := fields ++ xs;
+      let newVars  := newVars.map fun x => x.applyFVarSubst subst;
+      let subex    := Example.ctor subgoal.ctorName $ fields.map fun field => match field with
+        | Expr.fvar fvarId _ => Example.var fvarId
+        | _                  => Example.underscore; -- This case can happen due to dependent elimination
+      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
+      let examples := examples.map $ Example.applyFVarSubst subst;
+      let newAlts  := p.alts.filter $ isFirstPatternCtor subgoal.ctorName;
+      let newAlts  := newAlts.map fun alt => match alt.patterns with
         | Pattern.ctor _ _ _ _ fields :: ps => { alt with patterns := fields ++ ps }
         | _                                 => unreachable!;
       newAlts ← newAlts.mapM fun alt => alt.applyFVarSubst subst;
       newAlts ← newAlts.mapM fun alt => alt.copy;
-      process { goal := mkMVar subgoal.mvarId, vars := newVars, alts := newAlts } s)
+      process { goal := mkMVar subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s)
     s
 | _ => unreachable!
 
@@ -489,14 +543,15 @@ let target  := mkAppN motive majors;
 trace! `Meta.debug ("target: " ++ target);
 withAlts motive lhss fun alts minors => do
   goal ← mkFreshExprMVar target;
-  s    ← process { goal := goal, vars := majors.toList, alts := alts } {};
+  let examples := majors.toList.map fun major => Example.var major.fvarId!;
+  s    ← process { goal := goal, vars := majors.toList, alts := alts, examples := examples } {};
   let args := #[motive] ++ majors ++ minors;
   type ← mkForall args target;
   val  ← mkLambda args goal;
   trace! `Meta.debug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
   elim ← mkAuxDefinition elimName type val;
   trace! `Meta.debug ("eliminator: " ++ elim);
-  pure { elim := elim }
+  pure { elim := elim, counterExamples := s.counterExamples }
 
 end DepElim
 end Meta
@@ -616,7 +671,9 @@ def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) 
 withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug ("majors: " ++ majors.toArray);
-  _ ← mkElim elimName majors alts inProp;
+  r ← mkElim elimName majors alts inProp;
+  unless r.counterExamples.isEmpty $
+    throwOther ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
   pure ()
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
@@ -755,4 +812,18 @@ def ex10 (x : Bool) (y : Foo x) :
 arbitrary _
 
 #eval test `ex10 2 `elimTest10 true
-#check elimTest10
+
+def ex11 (xs : List Node) :
+  LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
+× LHS (Pat ([] : List Node)) :=
+arbitrary _
+
+#eval test `ex11 1 `elimTest11 -- should produce error message
+
+def ex12 (x y z : Bool) :
+  LHS (forall (x y : Bool), Pat x × Pat y    × Pat true)
+× LHS (forall (x z : Bool), Pat false × Pat true × Pat z)
+× LHS (forall (y z : Bool), Pat true × Pat false × Pat z) :=
+arbitrary _
+
+#eval test `ex12 3 `elimTest12 -- should produce error message

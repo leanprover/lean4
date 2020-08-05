@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <lean/sstream.h>
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
+#include "kernel/inductive.h"
 #include "kernel/replace_fn.h"
 #include "library/expr_lt.h"
 #include "library/util.h"
@@ -238,6 +239,15 @@ public:
         }
     }
 
+    expr lit_to_constructor(expr const & e) {
+        if (is_nat_lit(e))
+            return nat_lit_to_constructor(e);
+        else if (is_string_lit(e))
+            return string_lit_to_constructor(e);
+        else
+            return e;
+    }
+
     expr visit_no_confusion(expr const & fn, buffer<expr> & args, bool root) {
         name const & no_confusion_name  = const_name(fn);
         name const & I_name             = no_confusion_name.get_prefix();
@@ -253,6 +263,8 @@ public:
         type_checker tc(m_st, m_lctx);
         expr lhs                        = tc.whnf(args[nparams + nindices + 1]);
         expr rhs                        = tc.whnf(args[nparams + nindices + 2]);
+        lhs = lit_to_constructor(lhs);
+        rhs = lit_to_constructor(rhs);
         optional<name> lhs_constructor  = is_constructor_app(env(), lhs);
         optional<name> rhs_constructor  = is_constructor_app(env(), rhs);
         if (!lhs_constructor || !rhs_constructor)

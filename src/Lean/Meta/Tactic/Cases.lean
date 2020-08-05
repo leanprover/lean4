@@ -217,6 +217,7 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
         condM (isDefEq a b) (skip ()) $ do
         a ← whnf a;
         b ← whnf b;
+        -- TODO: fix: if `a` or `b` changed, we must update type and recurse
         match a, b with
         | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
         | Expr.fvar _ _,       _                   => substEq false

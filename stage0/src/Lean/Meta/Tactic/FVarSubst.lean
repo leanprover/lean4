@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Std.Data.AssocList
 import Lean.Expr
 import Lean.LocalContext
 import Lean.Util.ReplaceExpr
@@ -10,30 +11,38 @@ import Lean.Util.ReplaceExpr
 namespace Lean
 namespace Meta
 /-
-  Some tactics substitute hypotheses with new ones.
+  Some tactics substitute hypotheses with expressions.
   We track these substitutions using `FVarSubst`.
   It is just a mapping from the original FVarId (internal) name
-  to the new one. The new free variable should be defined in the new goal. -/
+  to an expression. The free variables occurring in the expression must
+  be defined in the new goal. -/
 structure FVarSubst :=
-(map : NameMap FVarId := {})
+(map : Std.AssocList FVarId Expr := {})
 
 namespace FVarSubst
 
 def empty : FVarSubst := {}
 
-def insert (s : FVarSubst) (fvarId : FVarId) (fvarIdNew : FVarId) : FVarSubst :=
-{ map := s.map.insert fvarId fvarIdNew }
+def isEmpty (s : FVarSubst) : Bool :=
+s.map.isEmpty
 
 def contains (s : FVarSubst) (fvarId : FVarId) : Bool :=
 s.map.contains fvarId
 
+/- Add entry `fvarId |-> v` to `s` if `s` does not contain an entry for `fvarId`. -/
+def insert (s : FVarSubst) (fvarId : FVarId) (v : Expr) : FVarSubst :=
+if s.contains fvarId then s
+else
+  let map := s.map.mapVal fun e => e.replaceFVarId fvarId v;
+  { map := map.insert fvarId v }
+
 def erase (s : FVarSubst) (fvarId : FVarId) : FVarSubst :=
 { map := s.map.erase fvarId }
 
-def get (s : FVarSubst) (fvarId : FVarId) : FVarId :=
+def get (s : FVarSubst) (fvarId : FVarId) : Expr :=
 match s.map.find? fvarId with
-| none         => fvarId -- it has not been replaced
-| some fvarId' => fvarId'
+| none   => mkFVar fvarId -- it has not been replaced
+| some v => v
 
 /-- Given `e`, for each `(x => v)` in `s` replace `x` with `v` in `e` -/
 def apply (s : FVarSubst) (e : Expr) : Expr :=
@@ -41,30 +50,15 @@ if s.map.isEmpty then e
 else if !e.hasFVar then e
 else e.replace $ fun e => match e with
   | Expr.fvar fvarId _ => match s.map.find? fvarId with
-    | none         => e
-    | some fvarId' => mkFVar fvarId'
-  | _                  => none
-
-/--
-  Extend substitution `newS` by applying `newS` to entries `(x => v)` to `oldS`,
-  and then merging the resulting entry `(x => newS.apply v)` to `newS`.
-
-  Remark: the entries in `newS` have precedence over the ones in `oldS`. -/
-def compose (newS oldS : FVarSubst) : FVarSubst :=
-if newS.map.isEmpty then oldS
-else if oldS.map.isEmpty then newS
-else oldS.map.fold
-  (fun m fvarId fvarId' =>
-    match m.map.find? fvarId with
-    | some _ => m -- newS already has a substitution for fvarId
-    | none   =>
-      match m.map.find? fvarId' with
-      | none          => m.insert fvarId fvarId'
-      | some fvarId'' => m.insert fvarId fvarId'')
-  newS
+    | none   => e
+    | some v => v
+  | _ => none
 
 def domain (s : FVarSubst) : List FVarId :=
-s.map.fold (fun r k v => k :: r) []
+s.map.foldl (fun r k v => k :: r) []
+
+def any (p : FVarId → Expr → Bool) (s : FVarSubst) : Bool :=
+s.map.any p
 
 end FVarSubst
 end Meta

@@ -38,7 +38,7 @@ private def addRecParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (
 
 structure InductionSubgoal :=
 (mvarId : MVarId)
-(fields : Array FVarId := #[])
+(fields : Array Expr := #[])
 (subst  : FVarSubst := {})
 
 instance InductionSubgoal.inhabited : Inhabited InductionSubgoal := ⟨{ mvarId := arbitrary _ }⟩
@@ -103,12 +103,13 @@ private partial def finalizeAux
           (extra,  mvarId') ← introN mvarId' nextra [] false;
           let subst := reverted.size.fold
             (fun i (subst : FVarSubst) =>
-              if i ≤ indices.size + 1 then subst
+              if i < indices.size + 1 then subst
               else
                 let revertedFVarId := reverted.get! i;
                 let newFVarId      := extra.get! (i - indices.size - 1);
-                subst.insert revertedFVarId newFVarId)
+                subst.insert revertedFVarId (mkFVar newFVarId))
             baseSubst;
+          let fields := fields.map mkFVar;
           finalizeAux (pos+1) (minorIdx+1) rec recType consumedMajor (subgoals.push { mvarId := mvarId', fields := fields, subst := subst })
       | _ => unreachable!
   else do
@@ -172,7 +173,8 @@ withMVarContext mvarId $ do
     (indices', mvarId) ← introN mvarId indices.size [] false;
     (majorFVarId', mvarId) ← intro1 mvarId false;
     -- Create FVarSubst with indices
-    let baseSubst : FVarSubst := indices.iterate {} (fun i index subst => subst.insert index.fvarId! (indices'.get! i.val));
+    let baseSubst : FVarSubst := indices.iterate {} (fun i index subst => subst.insert index.fvarId! (mkFVar (indices'.get! i.val)));
+    trace! `Meta.Tactic.induction ("after revert&intro" ++ Format.line ++ MessageData.ofGoal mvarId);
     -- Update indices and major
     let indices := indices'.map mkFVar;
     let majorFVarId := majorFVarId';
@@ -208,6 +210,9 @@ withMVarContext mvarId $ do
           finalize mvarId givenNames recInfo reverted major indices baseSubst rec
         | _ =>
          throwTacticEx `induction mvarId "major premise is not of the form (C ...)"
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta.Tactic.induction
 
 end Meta
 end Lean

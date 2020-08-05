@@ -163,10 +163,12 @@ let indicesFVarIds := s₁.indicesFVarIds;
 s₂.mapM $ fun s => do
   indicesFVarIds.foldlM
     (fun s indexFVarId =>
-      let indexFVarId' := s.subst.get indexFVarId;
-      (do mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
-      <|>
-      (pure s))
+      match s.subst.get indexFVarId with
+      | Expr.fvar indexFVarId' _ =>
+        (do mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
+        <|>
+        (pure s)
+      | _ => pure s)
     s
 
 private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) : Array CasesSubgoal :=
@@ -195,12 +197,12 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
           unifyEqsAux n { s with mvarId := mvarId }
         };
         let substEq (symm : Bool) : MetaM (Option CasesSubgoal) := do {
-          (newSubst, mvarId) ← substCore mvarId eqFVarId false true;
+          (newSubst, mvarId) ← substCore mvarId eqFVarId symm s.subst;
           unifyEqsAux n {
             s with
             mvarId := mvarId,
-            subst  := newSubst.compose s.subst,
-            fields := s.fields.map $ fun fvarId => newSubst.get fvarId
+            subst  := newSubst,
+            fields := s.fields.map $ fun field => newSubst.apply field
           }
         };
         let inj : Unit → MetaM (Option CasesSubgoal) := fun _ => do {
@@ -210,13 +212,20 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
           | InjectionResultCore.subgoal mvarId numEqs => unifyEqsAux (n+numEqs) { s with mvarId := mvarId }
         };
         condM (isDefEq a b) (skip ()) $ do
-        a ← whnf a;
-        b ← whnf b;
-        match a, b with
-        | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
-        | Expr.fvar _ _,       _                   => substEq false
-        | _,                   Expr.fvar _ _       => substEq true
-        | _,                   _                   => inj ()
+        a' ← whnf a;
+        b' ← whnf b;
+        if a' != a || b' != b then do
+          let prf := mkFVar eqFVarId;
+          aEqb'  ← mkEq a' b';
+          mvarId ← assert mvarId eqDecl.userName aEqb' prf;
+          mvarId ← clear mvarId eqFVarId;
+          unifyEqsAux (n+1) { s with mvarId := mvarId }
+        else
+          match a, b with
+          | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
+          | Expr.fvar _ _,       _                   => substEq false
+          | _,                   Expr.fvar _ _       => substEq true
+          | _,                   _                   => inj ()
       | none => throwTacticEx `cases mvarId "equality expected"
 
 private def unifyEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=

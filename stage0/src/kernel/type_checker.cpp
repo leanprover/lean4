@@ -242,15 +242,16 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     if (!I_info.is_inductive())
         throw invalid_proj_exception(env(), m_lctx, e);
     inductive_val I_val = I_info.to_inductive_val();
-    if (length(I_val.get_cnstrs()) != 1 || args.size() != I_val.get_nparams())
+    if (length(I_val.get_cnstrs()) != 1 || args.size() != I_val.get_nparams() + I_val.get_nindices())
         throw invalid_proj_exception(env(), m_lctx, e);
 
     constant_info c_info = env().get(head(I_val.get_cnstrs()));
     expr r = instantiate_type_lparams(c_info, const_levels(I));
-    for (expr const & arg : args) {
+    for (unsigned i = 0; i < I_val.get_nparams(); i++) {
+        lean_assert(i < args.size());
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
-        r = instantiate(binding_body(r), arg);
+        r = instantiate(binding_body(r), args[i]);
     }
     for (unsigned i = 0; i < idx; i++) {
         r = whnf(r);

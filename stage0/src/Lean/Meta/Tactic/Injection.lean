@@ -21,7 +21,7 @@ match env.find? ctorName with
 | some (ConstantInfo.ctorInfo v) => if numArgs == v.nparams + v.nfields then pure (some v) else pure none
 | _                              => pure none
 
-def constructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
+private def constructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
 match e with
 | Expr.lit (Literal.natVal n) _ =>
   if n == 0 then getConstructorVal `Nat.zero 0 else getConstructorVal `Nat.succ 1

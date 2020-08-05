@@ -23,15 +23,15 @@ lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__6;
 lean_object* l_Lean_Meta_withLocalContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_WHNF_toCtorIfLit___closed__5;
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,14 +41,14 @@ lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Injection_1__getConstructorVal___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryClear(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 extern lean_object* l_Lean_Expr_heq_x3f___closed__2;
 lean_object* l_Lean_Meta_injectionCore(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_WHNF_toCtorIfLit___closed__2;
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_constructorApp_x3f(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Tactic_Injection_2__constructorApp_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*);
@@ -68,12 +68,12 @@ lean_object* l_Lean_Meta_injectionCore___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkNoConfusion(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro1(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Tactic_Injection_2__constructorApp_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__3;
-lean_object* l_Lean_Meta_constructorApp_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__5;
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injection(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Injection_1__getConstructorVal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__2;
@@ -220,7 +220,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_Meta_constructorApp_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Lean_Meta_Tactic_Injection_2__constructorApp_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 9)
@@ -306,11 +306,11 @@ return x_26;
 }
 }
 }
-lean_object* l_Lean_Meta_constructorApp_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Lean_Meta_Tactic_Injection_2__constructorApp_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Meta_constructorApp_x3f(x_1, x_2, x_3);
+x_4 = l___private_Lean_Meta_Tactic_Injection_2__constructorApp_x3f(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
@@ -459,14 +459,14 @@ lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
-x_32 = l_Lean_Meta_constructorApp_x3f(x_24, x_4, x_31);
+x_32 = l___private_Lean_Meta_Tactic_Injection_2__constructorApp_x3f(x_24, x_4, x_31);
 lean_dec(x_24);
 x_33 = lean_ctor_get(x_32, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec(x_32);
-x_35 = l_Lean_Meta_constructorApp_x3f(x_27, x_4, x_34);
+x_35 = l___private_Lean_Meta_Tactic_Injection_2__constructorApp_x3f(x_27, x_4, x_34);
 lean_dec(x_27);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -1128,7 +1128,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
@@ -1631,7 +1631,7 @@ return x_113;
 }
 }
 }
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -1639,7 +1639,7 @@ lean_inc(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lean_Meta_getLocalDecl), 3, 1);
 lean_closure_set(x_5, 0, x_2);
 lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Injection_2__heqToEq___lambda__1___boxed), 5, 2);
+x_6 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Injection_3__heqToEq___lambda__1___boxed), 5, 2);
 lean_closure_set(x_6, 0, x_2);
 lean_closure_set(x_6, 1, x_1);
 x_7 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg), 4, 2);
@@ -1687,20 +1687,20 @@ return x_17;
 }
 }
 }
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Lean_Meta_Tactic_Injection_2__heqToEq___lambda__1(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Lean_Meta_Tactic_Injection_3__heqToEq___lambda__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 return x_6;
 }
 }
-lean_object* l___private_Lean_Meta_Tactic_Injection_2__heqToEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l___private_Lean_Meta_Tactic_Injection_3__heqToEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Lean_Meta_Tactic_Injection_2__heqToEq(x_1, x_2, x_3, x_4);
+x_5 = l___private_Lean_Meta_Tactic_Injection_3__heqToEq(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -1735,7 +1735,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_13, 1);
 lean_inc(x_16);
 lean_dec(x_13);
-x_17 = l___private_Lean_Meta_Tactic_Injection_2__heqToEq(x_16, x_15, x_5, x_14);
+x_17 = l___private_Lean_Meta_Tactic_Injection_3__heqToEq(x_16, x_15, x_5, x_14);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -1828,7 +1828,7 @@ lean_inc(x_37);
 x_38 = lean_ctor_get(x_35, 1);
 lean_inc(x_38);
 lean_dec(x_35);
-x_39 = l___private_Lean_Meta_Tactic_Injection_2__heqToEq(x_38, x_37, x_5, x_36);
+x_39 = l___private_Lean_Meta_Tactic_Injection_3__heqToEq(x_38, x_37, x_5, x_36);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 

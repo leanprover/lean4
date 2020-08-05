@@ -635,11 +635,13 @@ constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr := arbitrary _
 @[extern "lean_expr_abstract_range"]
 constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
 
+/-- Replace occurrences of the free variable `fvar` in `e` with `v` -/
 def replaceFVar (e : Expr) (fvar : Expr) (v : Expr) : Expr :=
 (e.abstract #[fvar]).instantiate1 v
 
-def replaceFVarId (e : Expr) (fvarId : FVarId) (newFVarId : FVarId) : Expr :=
-replaceFVar e (mkFVar fvarId) (mkFVar newFVarId)
+/-- Replace occurrences of the free variable `fvarId` in `e` with `v` -/
+def replaceFVarId (e : Expr) (fvarId : FVarId) (v : Expr) : Expr :=
+replaceFVar e (mkFVar fvarId) v
 
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩

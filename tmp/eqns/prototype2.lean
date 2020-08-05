@@ -250,6 +250,7 @@ MessageData.joinSep (cexs.map counterExampleToMessageData) Format.line
 structure ElimResult :=
 (elim            : Expr) -- The eliminator. It is not just `Expr.const elimName` because the type of the major premises may contain free variables.
 (counterExamples : List CounterExample)
+(unusedAltIdxs   : List Nat)
 
 /- The number of patterns in each AltLHS must be equal to majors.length -/
 private def checkNumPatterns (majors : List Expr) (lhss : List AltLHS) : MetaM Unit :=
@@ -551,7 +552,10 @@ withAlts motive lhss fun alts minors => do
   trace! `Meta.debug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
   elim ← mkAuxDefinition elimName type val;
   trace! `Meta.debug ("eliminator: " ++ elim);
-  pure { elim := elim, counterExamples := s.counterExamples }
+  let unusedAltIdxs : List Nat := lhss.length.fold
+    (fun i r => if s.used.contains i then r else i::r)
+    [];
+  pure { elim := elim, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
 
 end DepElim
 end Meta
@@ -674,6 +678,8 @@ withDepElimFrom ex numPats fun majors alts => do
   r ← mkElim elimName majors alts inProp;
   unless r.counterExamples.isEmpty $
     throwOther ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
+  unless r.unusedAltIdxs.isEmpty $
+    throwOther ("unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)));
   pure ()
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
@@ -827,3 +833,11 @@ def ex12 (x y z : Bool) :
 arbitrary _
 
 #eval test `ex12 3 `elimTest12 -- should produce error message
+
+def ex13 (xs : List Node) :
+  LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
+× LHS (forall (ys : List Node), Pat ys)
+× LHS (forall (ys : List Node), Pat ys) :=
+arbitrary _
+
+#eval test `ex13 1 `elimTest13 -- should produce error message

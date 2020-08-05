@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
+import Lean.Meta.AppBuilder
 import Lean.Meta.LevelDefEq
 
 namespace Lean
@@ -43,6 +44,15 @@ instance Meta.hasOrelse {α} : HasOrelse (MetaM α) := ⟨Meta.orelse⟩
 
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic
+
+/-- Assign `mvarId` to `sorryAx` -/
+def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
+withMVarContext mvarId $ do
+  checkNotAssigned mvarId `admit;
+  mvarType ← getMVarType mvarId;
+  val ← mkSorry mvarType synthetic;
+  assignExprMVar mvarId val;
+  pure ()
 
 end Meta
 end Lean

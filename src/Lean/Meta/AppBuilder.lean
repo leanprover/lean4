@@ -340,5 +340,9 @@ u ← getDecLevel `mkArrayLit type;
 listLit ← mkListLit type xs;
 pure (mkApp (mkApp (mkConst `List.toArray [u]) type) listLit)
 
+def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
+u ← getLevel type;
+pure $ mkApp2 (mkConst `sorryAx [u]) type (toExpr synthetic)
+
 end Meta
 end Lean

@@ -38,7 +38,7 @@ private def addRecParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (
 
 structure InductionSubgoal :=
 (mvarId : MVarId)
-(fields : Array FVarId := #[])
+(fields : Array Expr := #[])
 (subst  : FVarSubst := {})
 
 instance InductionSubgoal.inhabited : Inhabited InductionSubgoal := ⟨{ mvarId := arbitrary _ }⟩
@@ -109,6 +109,7 @@ private partial def finalizeAux
                 let newFVarId      := extra.get! (i - indices.size - 1);
                 subst.insert revertedFVarId (mkFVar newFVarId))
             baseSubst;
+          let fields := fields.map mkFVar;
           finalizeAux (pos+1) (minorIdx+1) rec recType consumedMajor (subgoals.push { mvarId := mvarId', fields := fields, subst := subst })
       | _ => unreachable!
   else do

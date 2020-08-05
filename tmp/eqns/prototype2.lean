@@ -335,7 +335,7 @@ match p.vars with
   subgoals.foldlM
     (fun (s : State) subgoal => do
       let subst   := subgoal.subst;
-      let newVars := subgoal.fields.toList.map mkFVar ++ xs;
+      let newVars := subgoal.fields.toList ++ xs;
       let newVars := newVars.map fun x => x.applyFVarSubst subst;
       let newAlts := p.alts.filter $ isFirstPatternCtor subgoal.ctorName;
       let newAlts := newAlts.map fun alt => match alt.patterns with

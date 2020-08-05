@@ -38,3 +38,9 @@ begin
   cases v with
   | cons h1 h2 n tail => exact h1
 end
+
+def test6 {α β} {n} (v : Vec2 α β (n+2)) : α :=
+begin
+  cases v with
+  | cons h1 h2 n tail => exact h1
+end

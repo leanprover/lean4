@@ -197,15 +197,12 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
           unifyEqsAux n { s with mvarId := mvarId }
         };
         let substEq (symm : Bool) : MetaM (Option CasesSubgoal) := do {
-          (newSubst, mvarId) ← substCore mvarId eqFVarId false s.subst;
+          (newSubst, mvarId) ← substCore mvarId eqFVarId symm s.subst;
           unifyEqsAux n {
             s with
             mvarId := mvarId,
             subst  := newSubst,
-            fields := s.fields.map $ fun fvarId =>
-               match newSubst.get fvarId with
-               | Expr.fvar fvarId _ => fvarId
-               | _                  => unreachable!
+            fields := s.fields.map $ fun field => newSubst.apply field
           }
         };
         let inj : Unit → MetaM (Option CasesSubgoal) := fun _ => do {
@@ -215,14 +212,20 @@ private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSu
           | InjectionResultCore.subgoal mvarId numEqs => unifyEqsAux (n+numEqs) { s with mvarId := mvarId }
         };
         condM (isDefEq a b) (skip ()) $ do
-        a ← whnf a;
-        b ← whnf b;
-        -- TODO: fix: if `a` or `b` changed, we must update type and recurse
-        match a, b with
-        | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
-        | Expr.fvar _ _,       _                   => substEq false
-        | _,                   Expr.fvar _ _       => substEq true
-        | _,                   _                   => inj ()
+        a' ← whnf a;
+        b' ← whnf b;
+        if a' != a || b' != b then do
+          let prf := mkFVar eqFVarId;
+          aEqb'  ← mkEq a' b';
+          mvarId ← assert mvarId eqDecl.userName aEqb' prf;
+          mvarId ← clear mvarId eqFVarId;
+          unifyEqsAux (n+1) { s with mvarId := mvarId }
+        else
+          match a, b with
+          | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do aDecl ← getLocalDecl aFVarId; bDecl ← getLocalDecl bFVarId; substEq (aDecl.index < bDecl.index)
+          | Expr.fvar _ _,       _                   => substEq false
+          | _,                   Expr.fvar _ _       => substEq true
+          | _,                   _                   => inj ()
       | none => throwTacticEx `cases mvarId "equality expected"
 
 private def unifyEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=

@@ -32,3 +32,7 @@ def tst1 : IO Unit :=
 #[1, 2, 3, 4].forRevM IO.println
 
 #eval tst1
+
+#eval #[1, 2].extract 0 1
+#eval #[1, 2].extract 0 0
+#eval #[1, 2].extract 0 2

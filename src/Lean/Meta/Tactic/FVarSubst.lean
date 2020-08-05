@@ -23,6 +23,9 @@ namespace FVarSubst
 
 def empty : FVarSubst := {}
 
+def isEmpty (s : FVarSubst) : Bool :=
+s.map.isEmpty
+
 def contains (s : FVarSubst) (fvarId : FVarId) : Bool :=
 s.map.contains fvarId
 
@@ -53,6 +56,9 @@ else e.replace $ fun e => match e with
 
 def domain (s : FVarSubst) : List FVarId :=
 s.map.foldl (fun r k v => k :: r) []
+
+def any (p : FVarId → Expr → Bool) (s : FVarSubst) : Bool :=
+s.map.any p
 
 end FVarSubst
 end Meta

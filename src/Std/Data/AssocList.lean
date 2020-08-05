@@ -69,5 +69,13 @@ def erase [HasBeq α] (a : α) : AssocList α β → AssocList α β
   | true  => es
   | false => cons k v (erase es)
 
+def any (p : α → β → Bool) : AssocList α β → Bool
+| nil         => false
+| cons k v es => p k v || any es
+
+def all (p : α → β → Bool) : AssocList α β → Bool
+| nil         => true
+| cons k v es => p k v && all es
+
 end AssocList
 end Std

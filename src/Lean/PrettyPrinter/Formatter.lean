@@ -238,11 +238,20 @@ goLeft
 def identNoAntiquot.formatter : Formatter | _ => do
 checkKind identKind;
 stx ← getCur;
--- TODO: pretty-print Name using «»
-pushToken stx.getId.toString;
+let s := stx.getId.toString;
+-- try to parse `s` as-is; if it fails, escape
+pst ← parseToken s;
+let s := if pst.stxStack == #[stx] then s else match stx.getId with
+  | Name.str Name.anonymous s _ => "«" ++ s ++ "»"
+  | _                           => panic! "unimplemented: escaping non-atomic identifiers (is anyone even using those?)";
+pushToken s;
 goLeft
 
-@[builtinFormatter rawIdent] def rawIdent.formatter := identNoAntiquot.formatter
+@[builtinFormatter rawIdent] def rawIdent.formatter : Formatter | _ => do
+checkKind identKind;
+stx ← getCur;
+pushToken stx.getId.toString;
+goLeft
 
 def visitAtom (k : SyntaxNodeKind) : Formatter | p => do
 stx ← getCur;

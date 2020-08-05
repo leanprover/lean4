@@ -63,7 +63,7 @@ practice since if there is another parser to the left that produced zero nodes i
 there is no danger of the left-most child being processed multiple times.
 
 Ultimately, most parenthesizers are implemented via three primitives that do all the actual syntax traversal:
-`visitParenthesizable mkParen prec` recurses on the current node and afterwards transforms it with `mkParen` if the above
+`maybeParenthesize mkParen prec x` runs `x` and afterwards transforms it with `mkParen` if the above
 condition for `p prec` is fulfilled. `visitToken` advances to the preceding sibling and is used on atoms. `visitArgs x`
 executes `x` on the last child of the current node and then advances to the preceding sibling (of the original current
 node).
@@ -165,6 +165,12 @@ match c >>= (parenthesizerAttribute.ext.getState env).table.find? with
       | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
     visit p'
 
+/-- Continue evaluation of `p` by further reducing it. -/
+def resume : Parenthesizer | p => do
+some p' ← liftM $ unfoldDefinition? p
+  | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
+visit p'
+
 open Lean.Parser
 
 -- Macro scopes in the parenthesizer output are ultimately ignored by the pretty printer,
@@ -175,26 +181,14 @@ instance monadQuotation : MonadQuotation ParenthesizerM := {
   withFreshMacroScope := fun α x => x,
 }
 
-def visitAntiquot : ParenthesizerM Unit := do
-stx ← getCur;
-if Elab.Term.Quotation.isAntiquot stx then visitArgs $ do
-  -- antiquot syntax is, simplified, `syntax:maxPrec "$" "$"* antiquotExpr ":" (nonReservedSymbol name) "*"?`
-  goLeft; goLeft; goLeft; -- now on `antiquotExpr`
-  visit (mkConst `Lean.Parser.antiquotExpr);
-  addPrecCheck maxPrec
-else
-  throw $ Exception.other $ "not an antiquotation"
-
-/-- Recurse using `visit`, and parenthesize the result using `mkParen` if necessary. -/
-def visitParenthesizable (mkParen : Syntax → Syntax) (prec : Nat) : ParenthesizerM Unit := do
+/-- Run `x` and parenthesize the result using `mkParen` if necessary. -/
+def maybeParenthesize (mkParen : Syntax → Syntax) (prec : Nat) (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 stx ← getCur;
 idx ← getIdx;
 st ← get;
 -- reset prec/prec and store `mkParen` for the recursive call
 set { stxTrav := st.stxTrav };
-adaptReader (fun (ctx : Context) => { ctx with mkParen := some mkParen }) $
-  -- we assume that each node kind is produced by a 0-ary parser of the same name
-  visit (mkConst stx.getKind);
+adaptReader (fun (ctx : Context) => { ctx with mkParen := some mkParen }) x;
 { minPrec := some minPrec, trailPrec := trailPrec, .. } ← get
   | panic! "visitParenthesizable: visited a term without tokens?!";
 trace! `PrettyPrinter.parenthesize ("...precedences are " ++ fmt prec ++ " >? " ++ fmt minPrec ++ ", " ++ fmt trailPrec ++ " <=? " ++ fmt st.contPrec);
@@ -231,34 +225,38 @@ def visitToken : Parenthesizer | p => do
 modify (fun st => { st with contPrec := none, visitedToken := true });
 goLeft
 
+@[builtinParenthesizer categoryParser]
+def categoryParser.parenthesizer : Parenthesizer | p => do
+stx ← getCur;
+-- visit `(mkCategoryAntiquotParser $(p.getArg! 0) <|> $(mkConst stx.getKind))
+visit (mkAppN (mkConst `Lean.Parser.orelse) #[
+  mkApp (mkConst `Lean.Parser.mkCategoryAntiquotParser) (p.getArg! 0),
+  mkConst stx.getKind])
+
 @[builtinParenthesizer termParser]
-def termParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
+def termParser.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
 -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
 if stx.getKind == nullKind then
   throw $ Exception.other "BACKTRACK"
 else do
   prec ← liftM $ reduceEval p.appArg!;
-  visitParenthesizable (fun stx => Unhygienic.run `(($stx))) prec
+  maybeParenthesize (fun stx => Unhygienic.run `(($stx))) prec (resume p)
 
 @[builtinParenthesizer tacticParser]
-def tacticParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
+def tacticParser.parenthesizer : Parenthesizer | p => do
 prec ← liftM $ reduceEval p.appArg!;
-visitParenthesizable (fun stx => Unhygienic.run `(tactic|($stx))) prec
+maybeParenthesize (fun stx => Unhygienic.run `(tactic|($stx))) prec (resume p)
 
 @[builtinParenthesizer levelParser]
-def levelParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
+def levelParser.parenthesizer : Parenthesizer | p => do
 prec ← liftM $ reduceEval p.appArg!;
-visitParenthesizable (fun stx => Unhygienic.run `(level|($stx))) prec
-
-@[builtinParenthesizer categoryParser]
-def categoryParser.parenthesizer : Parenthesizer | p => visitAntiquot <|> do
-stx ← getCur;
-visit (mkConst stx.getKind)
+maybeParenthesize (fun stx => Unhygienic.run `(level|($stx))) prec (resume p)
 
 @[builtinParenthesizer withAntiquot]
 def withAntiquot.parenthesizer : Parenthesizer | p =>
-visitAntiquot <|> visit (p.getArg! 1)
+-- deoptimize
+visit (mkAppN (mkConst `Lean.Parser.orelse) #[p.getArg! 0, p.getArg! 1])
 
 @[builtinParenthesizer try]
 def try.parenthesizer : Parenthesizer | p =>
@@ -289,9 +287,7 @@ def leadingNode.parenthesizer : Parenthesizer | p => do
 -- Unfold `leadingNode` as usual, but limit `contPrec` to `maxPrec-1` afterwards.
 -- This is because `maxPrec-1` is the precedence of function application, which is the only way to turn a leading parser
 -- into a trailing one.
-some p ← liftM $ unfoldDefinition? p
-  | unreachable!;
-visit p;
+resume p;
 modify $ fun st => { st with contPrec := (fun p => Nat.min (maxPrec-1) p) <$> st.contPrec }
 
 @[builtinParenthesizer trailingNode]
@@ -313,7 +309,8 @@ visitArgs $ do {
   -- parser is calling us; we only need to know its `mkParen`, which we retrieve from the context.
   { mkParen := some mkParen, .. } ← read
     | panic! "trailingNode.parenthesizer called outside of visitParenthesizable call";
-  visitAntiquot <|> visitParenthesizable mkParen 0
+  maybeParenthesize mkParen 0 $
+    visit (mkAppN (mkConst `Lean.Parser.categoryParser) #[toExpr `someCategory, mkNatLit 0])
 }
 
 @[builtinParenthesizer symbol] def symbol.parenthesizer := visitToken
@@ -366,13 +363,16 @@ catch (visit (p.getArg! 0)) $ fun e => match e with
 -- call closure with dummy position
 visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
 
+@[builtinParenthesizer setExpected] def setExpected.parenthesizer : Parenthesizer | p => visit (p.getArg! 1)
+
 @[builtinParenthesizer checkStackTop] def checkStackTop.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkTailWs] def checkTailWs.parenthesizer : Parenthesizer | p => pure ()
 @[builtinParenthesizer checkColGe] def checkColGe.parenthesizer : Parenthesizer | p => pure ()
+@[builtinParenthesizer checkNoImmediateColon] def checkNoImmediateColon.parenthesizer : Parenthesizer | p => pure ()
 
-@[builtinParenthesizer pushNone] def pushNone.formatter : Parenthesizer | p => goLeft
+@[builtinParenthesizer pushNone] def pushNone.parenthesizer : Parenthesizer | p => goLeft
 
 open Lean.Parser.Command
 @[builtinParenthesizer commentBody] def commentBody.parenthesizer := visitToken

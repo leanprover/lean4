@@ -142,17 +142,13 @@ trace! `PrettyPrinter.format (" => " ++ (stack.extract sp stack.size).foldl (fun
 
 open Lean.Parser
 
-def visitAntiquot : Formatter | _ => do
-stx ← getCur;
-if Elab.Term.Quotation.isAntiquot stx then
-  visit (mkAppN (mkConst `Lean.Parser.mkAntiquot) #[mkNatLit 0, mkNatLit 0])
-else
-  throw $ Exception.other $ "not an antiquotation"
-
 @[builtinFormatter categoryParser]
-def categoryParser.formatter : Formatter | p => visitAntiquot p <|> do
+def categoryParser.formatter : Formatter | p => do
 stx ← getCur;
-visit (mkConst stx.getKind)
+-- visit `(mkCategoryAntiquotParser $(p.getArg! 0) <|> $(mkConst stx.getKind))
+visit (mkAppN (mkConst `Lean.Parser.orelse) #[
+  mkApp (mkConst `Lean.Parser.mkCategoryAntiquotParser) (p.getArg! 0),
+  mkConst stx.getKind])
 
 @[builtinFormatter termParser]
 def termParser.formatter : Formatter | p => do
@@ -165,7 +161,8 @@ else
 
 @[builtinFormatter withAntiquot]
 def withAntiquot.formatter : Formatter | p =>
-visitAntiquot p <|> visit (p.getArg! 1)
+-- deoptimize
+visit (mkAppN (mkConst `Lean.Parser.orelse) #[p.getArg! 0, p.getArg! 1])
 
 @[builtinFormatter try]
 def try.formatter : Formatter | p =>
@@ -304,6 +301,8 @@ catch (visit (p.getArg! 0)) $ fun e => match e with
 -- call closure with dummy position
 visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
 
+@[builtinFormatter setExpected] def setExpected.formatter : Formatter | p => visit (p.getArg! 1)
+
 @[builtinFormatter checkWsBefore] def checkWsBefore.formatter : Formatter | p => do
 modify fun st => { st with leadWord := "" };
 push " "
@@ -313,6 +312,7 @@ push " "
 @[builtinFormatter checkNoWsBefore] def checkNoWsBefore.formatter : Formatter | p => pure ()
 @[builtinFormatter checkTailWs] def checkTailWs.formatter : Formatter | p => pure ()
 @[builtinFormatter checkColGe] def checkColGe.formatter : Formatter | p => pure ()
+@[builtinFormatter checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter | p => pure ()
 
 @[builtinFormatter pushNone] def pushNone.formatter : Formatter | p => goLeft
 

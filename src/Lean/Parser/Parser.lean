@@ -1428,7 +1428,7 @@ categoryParser `term prec
 def dollarSymbol : Parser := symbol "$"
 
 /-- Fail if previous token is immediately followed by ':'. -/
-private def noImmediateColon : Parser :=
+def checkNoImmediateColon : Parser :=
 { fn := fun c s =>
   let prev := s.stxStack.back;
   if checkTailNoWs prev then
@@ -1466,10 +1466,10 @@ def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
   produces the syntax tree for `$e`. -/
 def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
-let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name;
+let nameP := node `antiquotName $ checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name;
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
-let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
+let nameP := if anonymous then nameP <|> checkNoImmediateColon >> pushNone else nameP;
 -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
 node kind $ try $
   setExpected [] dollarSymbol >>
@@ -1866,15 +1866,15 @@ private def catNameToString : Name → String
 | Name.str Name.anonymous s _ => s
 | n                           => n.toString
 
-@[inline] def mkCategoryAntiquotParser (kind : Name) : ParserFn :=
-(mkAntiquot (catNameToString kind) none).fn
+@[inline] def mkCategoryAntiquotParser (kind : Name) : Parser :=
+mkAntiquot (catNameToString kind) none
 
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;
   match categories.find? catName with
   | some cat =>
-    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName) ctx s
+    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName).fn ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[init] def setCategoryParserFnRef : IO Unit :=

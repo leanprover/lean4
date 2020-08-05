@@ -719,3 +719,28 @@ elimTest8 _ (fun _ _ => Option (Nat × Nat)) n xs (fun a b => some (a, b)) (fun 
 #eval pair? Vec.nil
 #eval pair? (Vec.cons 10 Vec.nil)
 #eval pair? (Vec.cons 20 (Vec.cons 10 Vec.nil))
+
+inductive Op : Nat → Nat → Type
+| mk : ∀ n, Op n n
+
+structure Node : Type :=
+(id₁ id₂ : Nat)
+(o : Op id₁ id₂)
+
+def ex9 (xs : List Node) :
+  LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
+× LHS (forall (ys : List Node), Pat ys) :=
+arbitrary _
+
+#eval test `ex9 1 `elimTest9
+#print elimTest9
+
+def f (xs : List Node) : Bool :=
+elimTest9 (fun _ => Bool) xs
+  (fun _ _ => true)
+  (fun _   => false)
+
+#eval f []
+#eval f [⟨0, 0, Op.mk 0⟩]
+#eval f [⟨0, 0, Op.mk 0⟩, ⟨1, 1, Op.mk 1⟩]
+#eval f [⟨0, 0, Op.mk 0⟩, ⟨2, 2, Op.mk 2⟩]

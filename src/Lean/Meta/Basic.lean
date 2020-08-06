@@ -138,7 +138,7 @@ instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 
 @[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
 ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.other maxRecDepthErrorMessage;
+when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.other Syntax.missing maxRecDepthErrorMessage;
 adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
 
 @[inline] def getLCtx : MetaM LocalContext := do
@@ -163,17 +163,17 @@ def setEnv (env : Environment) : MetaM Unit := do
 modify $ fun s => { s with env := env }
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
-IO.mkRef $ fun _ => throw $ Exception.other "whnf implementation was not set"
+IO.mkRef $ fun _ => throw $ Exception.other Syntax.missing "whnf implementation was not set"
 
 @[init mkWHNFRef] def whnfRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
 
 def mkInferTypeRef : IO (IO.Ref (Expr → MetaM Expr)) :=
-IO.mkRef $ fun _ => throw $ Exception.other "inferType implementation was not set"
+IO.mkRef $ fun _ => throw $ Exception.other Syntax.missing "inferType implementation was not set"
 
 @[init mkInferTypeRef] def inferTypeRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
 
 def mkIsExprDefEqAuxRef : IO (IO.Ref (Expr → Expr → MetaM Bool)) :=
-IO.mkRef $ fun _ _ => throw $ Exception.other "isDefEq implementation was not set"
+IO.mkRef $ fun _ _ => throw $ Exception.other Syntax.missing "isDefEq implementation was not set"
 
 @[init mkIsExprDefEqAuxRef] def isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) := arbitrary _
 
@@ -254,10 +254,10 @@ ctx ← read;
 s ← get;
 throw (f { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts })
 
-def throwOther {α} (msg : MessageData) : MetaM α := do
+def throwOther {α} (msg : MessageData) (ref := Syntax.missing) : MetaM α := do
 ctx ← read;
 s ← get;
-throw (Exception.other (MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg))
+throw (Exception.other ref (MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg))
 
 def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
@@ -867,7 +867,7 @@ private partial def instantiateForallAux (ps : Array Expr) : Nat → Expr → Me
     e ← whnf e;
     match e with
     | Expr.forallE _ _ b _ => instantiateForallAux (i+1) (b.instantiate1 p)
-    | _                    => throw (Exception.other "invalid instantiateForall, too many parameters")
+    | _                    => throwOther "invalid instantiateForall, too many parameters"
   else
     pure e
 

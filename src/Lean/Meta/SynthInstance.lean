@@ -154,7 +154,7 @@ structure State extends Meta.State :=
 
 abbrev SynthM := ReaderT Context (EStateM Exception State)
 
-instance SynthM.inhabited {α} : Inhabited (SynthM α) := ⟨throw $ Exception.other ""⟩
+instance SynthM.inhabited {α} : Inhabited (SynthM α) := ⟨throw $ Exception.other Syntax.missing ""⟩
 
 def getTraceState : SynthM TraceState := do s ← get; pure s.traceState
 def getOptions : SynthM Options := do ctx ← read; pure ctx.config.opts
@@ -514,7 +514,7 @@ private partial def preprocessArgs : Expr → Nat → Array Expr → MetaM (Arra
       let args := args.set ⟨i, h⟩ arg;
       preprocessArgs (b.instantiate1 arg) (i+1) args
     | _ =>
-      throw $ Exception.other "type class resolution failed, insufficient number of arguments" -- TODO improve error message
+      throw $ Exception.other Syntax.missing "type class resolution failed, insufficient number of arguments" -- TODO improve error message
   else
     pure args
 

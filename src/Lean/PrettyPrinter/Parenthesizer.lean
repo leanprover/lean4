@@ -162,13 +162,13 @@ match c >>= (parenthesizerAttribute.ext.getState env).table.find? with
   else do
     -- (try to) unfold definition and recurse
     some p' ← liftM $ unfoldDefinition? p
-      | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
+      | throw $ Exception.other Syntax.missing $ "no known parenthesizer for '" ++ toString p ++ "'";
     visit p'
 
 /-- Continue evaluation of `p` by further reducing it. -/
 def resume : Parenthesizer | p => do
 some p' ← liftM $ unfoldDefinition? p
-  | throw $ Exception.other $ "no known parenthesizer for '" ++ toString p ++ "'";
+  | throw $ Exception.other Syntax.missing $ "no known parenthesizer for '" ++ toString p ++ "'";
 visit p'
 
 open Lean.Parser
@@ -238,7 +238,7 @@ def termParser.parenthesizer : Parenthesizer | p => do
 stx ← getCur;
 -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
 if stx.getKind == nullKind then
-  throw $ Exception.other "BACKTRACK"
+  throw $ Exception.other Syntax.missing "BACKTRACK"
 else do
   prec ← liftM $ reduceEval p.appArg!;
   maybeParenthesize (fun stx => Unhygienic.run `(($stx))) prec (resume p)
@@ -273,7 +273,7 @@ k ← liftM $ reduceEval $ p.getArg! 0;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw $ Exception.other "BACKTRACK"
+  throw $ Exception.other Syntax.missing "BACKTRACK"
 };
 visitArgs $ visit p.appArg!
 
@@ -298,7 +298,7 @@ prec ← liftM $ reduceEval $ p.getArg! 1;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw $ Exception.other "BACKTRACK"
+  throw $ Exception.other Syntax.missing "BACKTRACK"
 };
 visitArgs $ do {
   visit p.appArg!;
@@ -356,8 +356,8 @@ st ← get;
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
 -- them in turn. Uses the syntax traverser non-linearly!
 catch (visit (p.getArg! 0)) $ fun e => match e with
-  | Exception.other "BACKTRACK" => set st *> visit (p.getArg! 1)
-  | _                           => throw e
+  | Exception.other _ "BACKTRACK" => set st *> visit (p.getArg! 1)
+  | _                             => throw e
 
 @[builtinParenthesizer withPosition] def withPosition.parenthesizer : Parenthesizer | p => do
 -- call closure with dummy position

@@ -5,7 +5,7 @@ open Lean.Meta
 def mkArrow (d b : Expr) : Expr := mkForall `_ BinderInfo.default d b
 
 def check (x : MetaM Bool) : MetaM Unit :=
-unlessM x $ throw $ Exception.other "check failed"
+unlessM x $ throwOther "check failed"
 
 def tst1 : MetaM Unit := do
 let nat := mkConst `Nat;

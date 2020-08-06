@@ -134,7 +134,7 @@ match c >>= (formatterAttribute.ext.getState env).table.find? with
   else do {
     -- (try to) unfold definition and recurse
     some p' ← liftM $ unfoldDefinition? p
-      | throw $ Exception.other $ "no known formatter for '" ++ toString p ++ "'";
+      | throw $ Exception.other Syntax.missing $ "no known formatter for '" ++ toString p ++ "'";
     visit p'
   };
 stack ← getStack;
@@ -155,7 +155,7 @@ def termParser.formatter : Formatter | p => do
 stx ← getCur;
 -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
 if stx.getKind == nullKind then
-  throw $ Exception.other "BACKTRACK"
+  throw $ Exception.other Syntax.missing "BACKTRACK"
 else
   categoryParser.formatter p
 
@@ -177,7 +177,7 @@ stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.formatter`
-  throw $ Exception.other "BACKTRACK"
+  throw $ Exception.other Syntax.missing "BACKTRACK"
 }
 
 @[builtinFormatter node]
@@ -255,7 +255,7 @@ stx ← getCur;
 when (k != Name.anonymous) $
   checkKind k;
 Syntax.atom _ val ← pure $ stx.ifNode (fun n => n.getArg 0) (fun _ => stx)
-  | throw $ Exception.other $ "not an atom: " ++ toString stx;
+  | throw $ Exception.other Syntax.missing $ "not an atom: " ++ toString stx;
 pushToken val;
 goLeft
 
@@ -294,8 +294,8 @@ st ← get;
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
 -- them in turn. Uses the syntax traverser non-linearly!
 catch (visit (p.getArg! 0)) $ fun e => match e with
-  | Exception.other "BACKTRACK" => set st *> visit (p.getArg! 1)
-  | _                           => throw e
+  | Exception.other _ "BACKTRACK" => set st *> visit (p.getArg! 1)
+  | _                             => throw e
 
 @[builtinFormatter withPosition] def withPosition.formatter : Formatter | p => do
 -- call closure with dummy position

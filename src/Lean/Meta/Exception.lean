@@ -39,10 +39,10 @@ inductive Exception
 | generalizeTelescope  (es : Array Expr) (ctx : ExceptionContext)
 | kernel               (ex : KernelException) (opts : Options)
 | bug                  (b : Bug) (ctx : ExceptionContext)
-| other                (msg : MessageData)
+| other                (ref : Syntax) (msg : MessageData)
 
 namespace Exception
-instance : Inhabited Exception := ⟨other ""⟩
+instance : Inhabited Exception := ⟨other Syntax.missing ""⟩
 
 -- TODO: improve, use (to be implemented) pretty printer
 def toStr : Exception → String
@@ -68,7 +68,7 @@ def toStr : Exception → String
 | generalizeTelescope _ _       => "generalize telescope"
 | kernel _ _                    => "kernel exception"
 | bug _ _                       => "bug"
-| other s                       => toString $ fmt s
+| other _ s                     => toString $ fmt s
 
 instance : HasToString Exception := ⟨toStr⟩
 
@@ -99,7 +99,7 @@ def toTraceMessageData : Exception → MessageData
 | generalizeTelescope es ctx      => mkCtx ctx $ `generalizeTelescope ++ " " ++ es
 | kernel ex opts                  => ex.toMessageData opts
 | bug _ _                         => "internal bug" -- TODO improve
-| other s                         => s
+| other _ s                       => s
 
 end Exception
 

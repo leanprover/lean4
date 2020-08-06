@@ -261,7 +261,7 @@ structure ElimResult :=
 private def checkNumPatterns (majors : List Expr) (lhss : List AltLHS) : MetaM Unit :=
 let num := majors.length;
 when (lhss.any (fun lhs => lhs.patterns.length != num)) $
-  throw $ Exception.other "incorrect number of patterns"
+  throwOther "incorrect number of patterns"
 
 /-
  Given major premises `(x_1 : A_1) (x_2 : A_2[x_1]) ... (x_n : A_n[x_1, x_2, ...])`, return

@@ -40,7 +40,7 @@ pure ()
 
 def failIfSuccess (x : MetaM Unit) : MetaM Unit :=
 whenM (catch (x *> pure true) (fun _ => pure false)) $
-  throw $ Exception.other "unexpected success"
+  throwOther "unexpected success"
 
 def tst3 : MetaM Unit :=
 withLocalDecl `n nat BinderInfo.default $ fun n => do

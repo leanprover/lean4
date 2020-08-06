@@ -48,7 +48,7 @@ partial def mkPattern : Expr → MetaM Pattern
       e ← whnfD e;
       r? ← constructorApp? e;
       match r? with
-      | none      => throw $ Exception.other "unexpected pattern"
+      | none      => throwOther "unexpected pattern"
       | some (cval, fn, args) => do
         let params := args.extract 0 cval.nparams;
         let fields := args.extract cval.nparams args.size;
@@ -61,7 +61,7 @@ partial def decodePats : Expr → MetaM (List Pattern)
   | some (_, pat) => do pat ← mkPattern pat; pure [pat]
   | none =>
     match e.prod? with
-    | none => throw $ Exception.other "unexpected pattern"
+    | none => throwOther "unexpected pattern"
     | some (pat, pats) => do
       pat  ← decodePats pat;
       pats ← decodePats pats;
@@ -79,7 +79,7 @@ partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
   | some (_, lhs) => do lhs ← decodeAltLHS lhs; pure [lhs]
   | none =>
     match e.prod? with
-    | none => throw $ Exception.other "unexpected LHS"
+    | none => throwOther "unexpected LHS"
     | some (lhs, lhss) => do
       lhs  ← decodeAltLHSs lhs;
       lhss ← decodeAltLHSs lhss;
@@ -89,7 +89,7 @@ def withDepElimFrom {α} (declName : Name) (numPats : Nat) (k : List FVarId → 
 cinfo ← getConstInfo declName;
 forallTelescopeReducing cinfo.type fun args body =>
   if args.size < numPats then
-    throw $ Exception.other "insufficient number of parameters"
+    throwOther "insufficient number of parameters"
   else do
     let xs := (args.extract (args.size - numPats) args.size).toList.map $ Expr.fvarId!;
     alts ← decodeAltLHSs body;

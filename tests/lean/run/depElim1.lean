@@ -1,4 +1,4 @@
-import Lean.EqnCompiler.DepElim
+import Lean.Meta.EqnCompiler.DepElim
 
 open Lean
 open Lean.Meta

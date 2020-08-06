@@ -12,7 +12,6 @@ import Lean.Attributes
 import Lean.Parser
 import Lean.ReducibilityAttrs
 import Lean.Elab
-import Lean.EqnCompiler
 import Lean.Class
 import Lean.LocalContext
 import Lean.MetavarContext

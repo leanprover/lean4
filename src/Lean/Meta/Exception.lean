@@ -35,7 +35,7 @@ inductive Exception
 | notInstance          (e : Expr) (ctx : ExceptionContext)
 | appBuilder           (op : Name) (msg : MessageData) (ctx : ExceptionContext)
 | synthInstance        (inst : Expr) (ctx : ExceptionContext)
-| tactic               (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ctx : ExceptionContext)
+| tactic               (ref : Syntax) (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ctx : ExceptionContext)
 | generalizeTelescope  (es : Array Expr) (ctx : ExceptionContext)
 | kernel               (ex : KernelException) (opts : Options)
 | bug                  (b : Bug) (ctx : ExceptionContext)
@@ -43,6 +43,11 @@ inductive Exception
 
 namespace Exception
 instance : Inhabited Exception := ⟨other Syntax.missing ""⟩
+
+def getRef : Exception → Syntax
+| tactic ref _ _ _ _ => ref
+| other ref _        => ref
+| _                  => Syntax.missing
 
 -- TODO: improve, use (to be implemented) pretty printer
 def toStr : Exception → String
@@ -64,7 +69,7 @@ def toStr : Exception → String
 | notInstance _ _               => "type class instance expected"
 | appBuilder _ _ _              => "application builder failure"
 | synthInstance _ _             => "type class instance synthesis failed"
-| tactic tacName _ _ _          => "tactic '" ++ toString tacName ++ "' failed"
+| tactic _ tacName _ _ _        => "tactic '" ++ toString tacName ++ "' failed"
 | generalizeTelescope _ _       => "generalize telescope"
 | kernel _ _                    => "kernel exception"
 | bug _ _                       => "bug"
@@ -95,7 +100,7 @@ def toTraceMessageData : Exception → MessageData
 | notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
 | appBuilder op msg ctx           => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ `synthInstance ++ " " ++ inst
-| tactic tacName mvarId msg ctx   => mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg
+| tactic _ tacName mvarId msg ctx => mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg
 | generalizeTelescope es ctx      => mkCtx ctx $ `generalizeTelescope ++ " " ++ es
 | kernel ex opts                  => ex.toMessageData opts
 | bug _ _                         => "internal bug" -- TODO improve

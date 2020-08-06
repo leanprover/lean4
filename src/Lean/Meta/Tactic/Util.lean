@@ -21,8 +21,8 @@ modify $ fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
 mkFreshExprMVar type userName MetavarKind.syntheticOpaque
 
-def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MetaM α := do
-throwEx $ fun ctx => Exception.tactic tacticName mvarId (MessageData.withContext ctx msg) ctx
+def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α := do
+throwEx $ fun ctx => Exception.tactic ref tacticName mvarId (MessageData.withContext ctx msg) ctx
 
 def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit :=
 whenM (isExprMVarAssigned mvarId) $ throwTacticEx tacticName mvarId "metavariable has already been assigned"

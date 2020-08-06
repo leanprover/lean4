@@ -5,3 +5,10 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.EqnCompiler.MatchPattern
 import Lean.Meta.EqnCompiler.DepElim
+
+namespace Lean
+
+@[init] private def regTraceClasses : IO Unit :=
+registerTraceClass `Meta.EqnCompiler
+
+end Lean

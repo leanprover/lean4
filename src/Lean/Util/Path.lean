@@ -60,14 +60,17 @@ some root ← sp.findM? (fun path => IO.isDir $ path ++ pathSep ++ pkg)
   | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
 pure $ root ++ modPathToFilePath mod ++ ".olean"
 
-/-- Infer module name of source file name, assuming that `lean` is called from the package source root. -/
+/-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]
-def moduleNameOfFileName (fname : String) : IO Name := do
+def moduleNameOfFileName (fname : String) (rootDir : Option String) : IO Name := do
 fname ← realPathNormalized fname;
-root ← IO.currentDir >>= realPathNormalized;
-when (!root.isPrefixOf fname) $
-  throw $ IO.userError $ "input file '" ++ fname ++ "' must be contained in current directory (" ++ root ++ ")";
-let fnameSuffix := fname.drop root.length;
+rootDir ← match rootDir with
+  | some rootDir => pure rootDir
+  | none         => IO.currentDir;
+rootDir ← realPathNormalized rootDir;
+when (!rootDir.isPrefixOf fname) $
+  throw $ IO.userError $ "input file '" ++ fname ++ "' must be contained in root directory (" ++ rootDir ++ ")";
+let fnameSuffix := fname.drop rootDir.length;
 let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
 some extPos ← pure (fnameSuffix.revPosOf '.')
   | throw (IO.userError ("failed to convert file name '" ++ fname ++ "' to module name, extension is missing"));

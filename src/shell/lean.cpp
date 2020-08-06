@@ -196,6 +196,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --o=oname -o        create olean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --stdin            take input from stdin\n";
+    std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
+              << "                     (default: current working directory)\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
               << "                     and type check all imported modules\n";
     std::cout << "  --quiet -q         do not print verbose messages\n";
@@ -230,6 +232,7 @@ static struct option g_long_options[] = {
     {"run",          no_argument,       0, 'r'},
     {"o",            optional_argument, 0, 'o'},
     {"stdin",        no_argument,       0, 'i'},
+    {"root",         required_argument, 0, 'R'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
@@ -256,7 +259,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:c:C:qgvht:012j:012rM:012T:012ap:e"
+    "PdD:o:c:C:qgvht:012j:012rR:M:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -351,9 +354,13 @@ void init_search_path() {
     get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
 }
 
-extern "C" object* lean_module_name_of_file(object* fname, object* w);
-optional<name> module_name_of_file(std::string const & fname, bool optional) {
-    object * o = lean_module_name_of_file(mk_string(fname), io_mk_world());
+extern "C" object* lean_module_name_of_file(object* fname, object * root_dir, object* w);
+optional<name> module_name_of_file(std::string const & fname, optional<std::string> const & root_dir, bool optional) {
+    object * oroot_dir = mk_option_none();
+    if (root_dir) {
+        oroot_dir = mk_option_some(mk_string(*root_dir));
+    }
+    object * o = lean_module_name_of_file(mk_string(fname), oroot_dir, io_mk_world());
     if (io_result_is_error(o) && optional) {
         return lean::optional<name>();
     } else {
@@ -444,6 +451,7 @@ int main(int argc, char ** argv) {
     optional<std::string> server_in;
     std::string native_output;
     optional<std::string> c_output;
+    optional<std::string> root_dir;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -480,6 +488,9 @@ int main(int argc, char ** argv) {
                 break;
             case 'o':
                 olean_fn = optarg;
+                break;
+            case 'R':
+                root_dir = optarg;
                 break;
             case 'M':
                 check_optarg("M");
@@ -589,7 +600,7 @@ int main(int argc, char ** argv) {
             }
             mod_fn = argv[optind++];
             contents = read_file(mod_fn);
-            main_module_name = module_name_of_file(mod_fn, /* optional */ !olean_fn && !c_output);
+            main_module_name = module_name_of_file(mod_fn, root_dir, /* optional */ !olean_fn && !c_output);
         }
 
         bool ok = true;

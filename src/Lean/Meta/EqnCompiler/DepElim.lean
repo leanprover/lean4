@@ -7,34 +7,11 @@ import Lean.Util.CollectLevelParams
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
+import Lean.Meta.EqnCompiler.MVarRenaming
 
 namespace Lean
 namespace Meta
 namespace DepElim
-
-structure MVarSubst :=
-(map : NameMap MVarId := {})
-
-def MVarSubst.isEmpty (s : MVarSubst) : Bool :=
-s.map.isEmpty
-
-def MVarSubst.find? (s : MVarSubst) (mvarId : MVarId) : Option MVarId :=
-s.map.find? mvarId
-
-def MVarSubst.find! (s : MVarSubst) (mvarId : MVarId) : MVarId :=
-(s.find? mvarId).get!
-
-def MVarSubst.insert (s : MVarSubst) (mvarId mvarId' : MVarId) : MVarSubst :=
-{ s with map := s.map.insert mvarId mvarId' }
-
-def MVarSubst.apply (s : MVarSubst) (e : Expr) : Expr :=
-if !e.hasMVar then e
-else if s.map.isEmpty then e
-else e.replace $ fun e => match e with
-  | Expr.mvar mvarId _ => match s.map.find? mvarId with
-    | none           => e
-    | some newMVarId => mkMVar newMVarId
-  | _ => none
 
 abbrev VarId := Name
 
@@ -98,7 +75,7 @@ p.visitM Meta.instantiateMVars fun ref mvarId => do
   | some v => inaccessible ref <$> Meta.instantiateMVars v
   | none   => pure (var ref mvarId)
 
-def applyMVarSubst (m : MVarSubst) (p : Pattern true) : IPattern :=
+def applyMVarRenaming (m : MVarRenaming) (p : Pattern true) : IPattern :=
 p.visit m.apply fun ref mvarId =>
   match m.find? mvarId with
   | some newMVarId => var ref newMVarId
@@ -124,7 +101,7 @@ partial def toMessageData (alt : Alt) : MetaM MessageData := do
 let msg : MessageData := alt.mvars.toArray.map mkMVar ++ " ⟦" ++ MessageData.joinSep (alt.patterns.map Pattern.toMessageData) ", " ++ "⟧ := " ++ alt.rhs;
 addContext msg
 
-private def convertMVar (s : FVarSubst) (m : MVarSubst) (mvarId : MVarId) : MetaM (MVarSubst × MVarId) :=
+private def convertMVar (s : FVarSubst) (m : MVarRenaming) (mvarId : MVarId) : MetaM (MVarRenaming × MVarId) :=
 if s.isEmpty && m.isEmpty then pure (m, mvarId)
 else do
   mvarDecl ← getMVarDecl mvarId;
@@ -140,9 +117,9 @@ else do
   else
     pure (m, mvarId)
 
-private def convertMVars (s : FVarSubst) (mvars : List MVarId) : MetaM (MVarSubst × List MVarId) := do
+private def convertMVars (s : FVarSubst) (mvars : List MVarId) : MetaM (MVarRenaming × List MVarId) := do
 (m, mvars) ← mvars.foldlM
-  (fun (acc : MVarSubst × List MVarId) mvarId => do
+  (fun (acc : MVarRenaming × List MVarId) mvarId => do
     let (m, mvarIds) := acc;
     (m, mvarId') ← convertMVar s m mvarId;
     let m := if mvarId == mvarId' then m else m.insert mvarId mvarId';
@@ -152,11 +129,11 @@ pure (m, mvars.reverse)
 
 def applyFVarSubst (s : FVarSubst) (alt : Alt) : MetaM Alt := do
 (m, mvars) ← convertMVars s alt.mvars;
-let patterns := alt.patterns.map fun p => (p.applyFVarSubst s).applyMVarSubst m;
+let patterns := alt.patterns.map fun p => (p.applyFVarSubst s).applyMVarRenaming m;
 let rhs      := m.apply $ s.apply alt.rhs;
 pure { alt with patterns := patterns, mvars := mvars, rhs := rhs }
 
-private def copyMVar (m : MVarSubst) (mvarId : MVarId) : MetaM (MVarSubst × MVarId) := do
+private def copyMVar (m : MVarRenaming) (mvarId : MVarId) : MetaM (MVarRenaming × MVarId) := do
 mvarDecl ← getMVarDecl mvarId;
 let mvarType := mvarDecl.type;
 mvarType ← instantiateMVars mvarType;
@@ -165,18 +142,18 @@ newMVar ← mkFreshExprMVar mvarType;
 let m := m.insert mvarId newMVar.mvarId!;
 pure (m, newMVar.mvarId!)
 
-private def copyMVars (mvars : List MVarId) : MetaM (MVarSubst × List MVarId) := do
+private def copyMVars (mvars : List MVarId) : MetaM (MVarRenaming × List MVarId) := do
 (m, mvars) ← mvars.foldlM
-  (fun (acc : MVarSubst × List MVarId) mvarId => do
+  (fun (acc : MVarRenaming × List MVarId) mvarId => do
     let (m, mvarIds) := acc;
     (m, mvarId) ← copyMVar m mvarId;
     pure (m, mvarId::mvarIds))
   ({}, []);
 pure (m, mvars.reverse)
 
-def copyCore (alt : Alt) : MetaM (MVarSubst × Alt) := do
+def copyCore (alt : Alt) : MetaM (MVarRenaming × Alt) := do
 (m, mvars) ← copyMVars alt.mvars;
-let patterns := alt.patterns.map fun p => p.applyMVarSubst m;
+let patterns := alt.patterns.map fun p => p.applyMVarRenaming m;
 let rhs      := m.apply alt.rhs;
 pure (m, { alt with patterns := patterns, mvars := mvars, rhs := rhs })
 

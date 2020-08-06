@@ -8,6 +8,7 @@ import Lean.Meta.Check
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.EqnCompiler.MVarRenaming
+import Lean.Meta.EqnCompiler.CaseValues
 
 namespace Lean
 namespace Meta
@@ -203,17 +204,17 @@ def examplesToMessageData (cex : List Example) : MessageData :=
 MessageData.joinSep (cex.map (Example.toMessageData ∘ Example.varsToUnderscore)) ", "
 
 structure Problem :=
-(goal          : Expr)
+(mvarId        : MVarId)
 (vars          : List Expr)
 (alts          : List Alt)
 (examples      : List Example)
 
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
-withMVarContext p.goal.mvarId! x
+withMVarContext p.mvarId x
 
 namespace Problem
 
-instance : Inhabited Problem := ⟨{ goal := arbitrary _, vars := [], alts := [], examples := []}⟩
+instance : Inhabited Problem := ⟨{ mvarId := arbitrary _, vars := [], alts := [], examples := []}⟩
 
 def toMessageData (p : Problem) : MetaM MessageData :=
 withGoalOf p do
@@ -295,7 +296,7 @@ private partial def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List
 withAltsAux motive lhss [] #[] k
 
 def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
-withGoalOf p (assignExprMVar p.goal.mvarId! e)
+withGoalOf p (assignExprMVar p.mvarId e)
 
 structure State :=
 (used            : Std.HashSet Nat := {}) -- used alternatives
@@ -361,7 +362,7 @@ match p.vars with
 private def processLeaf (p : Problem) (s : State) : MetaM State :=
 match p.alts with
 | []       => do
-  admit p.goal.mvarId!;
+  admit p.mvarId;
   pure { s with counterExamples := p.examples :: s.counterExamples }
 | alt :: _ => do
   -- TODO: check whether we have unassigned metavars in rhs
@@ -396,7 +397,7 @@ private def processConstructor (process : Problem → State → MetaM State) (p 
 trace! `Meta.EqnCompiler.match ("constructor step");
 match p.vars with
 | x :: xs => do
-  subgoals ← cases p.goal.mvarId! x.fvarId!;
+  subgoals ← cases p.mvarId x.fvarId!;
   subgoals.foldlM
     (fun (s : State) subgoal => do
       let subst    := subgoal.subst;
@@ -414,7 +415,7 @@ match p.vars with
         | _                                 => unreachable!;
       newAlts ← newAlts.mapM fun alt => alt.applyFVarSubst subst;
       newAlts ← newAlts.mapM fun alt => alt.copy;
-      process { goal := mkMVar subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s)
+      process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s)
     s
 | _ => unreachable!
 
@@ -494,13 +495,58 @@ newAlts ← p.alts.foldlM
   [];
 process { p with alts := newAlts.reverse } s
 
+private def collectValues (p : Problem) : Array Expr :=
+p.alts.foldl
+  (fun (values : Array Expr) alt =>
+    match alt.patterns with
+    | Pattern.val _ v :: _ => if values.contains v then values else values.push v
+    | _                    => values)
+  #[]
+
+private def isFirstPatternVar (alt : Alt) : Bool :=
+match alt.patterns with
+| Pattern.var _ _ :: _ => true
+| _                    => false
+
 private def processValue (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
 trace! `Meta.EqnCompiler.match ("value step");
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
-
-  throwOther "WIP"
+  let values := collectValues p;
+  subgoals ← caseValues p.mvarId x.fvarId! values;
+  subgoals.size.foldM
+    (fun i (s : State) =>
+      let subgoal := subgoals.get! i;
+      if h : i < values.size then do
+        let value := values.get ⟨i, h⟩;
+        -- (x = value) branch
+        let subst := subgoal.subst;
+        let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value);
+        let examples := examples.map $ Example.applyFVarSubst subst;
+        let newAlts  := p.alts.filter fun alt => match alt.patterns with
+          | Pattern.val _ v :: _ => v == value
+          | Pattern.var _ _ :: _ => true
+          | _                    => false;
+        newAlts ← newAlts.mapM fun alt => alt.applyFVarSubst subst;
+        newAlts ← newAlts.mapM fun alt => alt.copy;
+        newAlts ← newAlts.mapM fun alt => match alt.patterns with
+          | Pattern.val _ _ :: ps      => pure { alt with patterns := ps }
+          | Pattern.var _ mvarId :: ps => do
+            assignExprMVar mvarId value;
+            ps  ← ps.mapM Pattern.instantiateMVars;
+            rhs ← instantiateMVars alt.rhs;
+            let mvars := alt.mvars.erase mvarId;
+            pure { alt with rhs := rhs, mvars := mvars, patterns := ps }
+          | _  => unreachable!;
+        let newVars := xs.map fun x => x.applyFVarSubst subst;
+        process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s
+      else do
+        -- else branch
+        let newAlts := p.alts.filter isFirstPatternVar;
+        newAlts ← newAlts.mapM fun alt => alt.copy;
+        process { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs } s)
+    s
 
 private partial def process : Problem → State → MetaM State
 | p, s => withIncRecDepth do
@@ -547,15 +593,15 @@ checkNumPatterns majors lhss;
 sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
 withMotive majors sortv fun motive => do
-let target  := mkAppN motive majors;
-trace! `Meta.EqnCompiler.matchDebug ("target: " ++ target);
+let mvarType  := mkAppN motive majors;
+trace! `Meta.EqnCompiler.matchDebug ("target: " ++ mvarType);
 withAlts motive lhss fun alts minors => do
-  goal ← mkFreshExprMVar target;
+  mvar ← mkFreshExprMVar mvarType;
   let examples := majors.toList.map fun major => Example.var major.fvarId!;
-  s    ← process { goal := goal, vars := majors.toList, alts := alts, examples := examples } {};
+  s    ← process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples } {};
   let args := #[motive] ++ majors ++ minors;
-  type ← mkForall args target;
-  val  ← mkLambda args goal;
+  type ← mkForall args mvarType;
+  val  ← mkLambda args mvar;
   trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
   elim ← mkAuxDefinition elimName type val;
   trace! `Meta.EqnCompiler.matchDebug ("eliminator: " ++ elim);

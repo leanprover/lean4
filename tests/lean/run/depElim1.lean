@@ -284,3 +284,21 @@ def ex13 (xs : List Node) :
 arbitrary _
 
 #eval testFailure `ex13 1 `elimTest13 -- should produce error message
+
+def ex14 (x y : Nat) :
+  LHS (Pat (val 1) × Pat (val 2))
+× LHS (Pat (val 2) × Pat (val 3))
+× LHS (forall (x y : Nat), Pat x × Pat y) :=
+arbitrary _
+
+set_option trace.Meta.EqnCompiler true
+
+#eval test `ex14 2 `elimTest14
+#print elimTest14
+
+def h2 (x y : Nat) : Nat :=
+elimTest14 (fun _ _ => Nat) x y 0 1 (fun x y => x + y)
+
+#eval h2 1 2 -- 0
+#eval h2 2 3 -- 1
+#eval h2 3 4 -- 7

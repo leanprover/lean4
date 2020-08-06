@@ -14,7 +14,7 @@ import Lean.Meta.Tactic.FVarSubst
 namespace Lean
 namespace Meta
 
-def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) :=
+def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) : MetaM (FVarSubst × MVarId) :=
 withMVarContext mvarId $ do
   tag     ← getMVarTag mvarId;
   checkNotAssigned mvarId `subst;
@@ -57,8 +57,12 @@ withMVarContext mvarId $ do
             newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major;
             assignExprMVar mvarId newVal;
             let mvarId := newMVar.mvarId!;
-            mvarId ← clear mvarId hFVarId;
-            mvarId ← clear mvarId aFVarId;
+            mvarId ←
+              if clearH then do
+                mvarId ← clear mvarId hFVarId;
+                clear mvarId aFVarId
+              else
+                pure mvarId;
             (newFVars, mvarId) ← introN mvarId (vars.size - 2) [] false;
             fvarSubst ← newFVars.size.foldM
               (fun i (fvarSubst : FVarSubst) =>

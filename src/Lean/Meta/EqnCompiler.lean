@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.EqnCompiler.MatchPattern
 import Lean.Meta.EqnCompiler.DepElim
+import Lean.Meta.EqnCompiler.CaseValues
 
 namespace Lean
 

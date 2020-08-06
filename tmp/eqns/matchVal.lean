@@ -11,12 +11,11 @@ def matchString (C : String → Sort v) (s : String)
     (h₂ : Unit → C "world")
     (h₃ : ∀ s,   C s)
     : C s :=
-if h : s = "hello" then
-  @Eq.rec _ _ (fun x _ => C x) (h₁ ()) _ h.symm
-else if h : s = "world" then
-  @Eq.rec _ _ (fun x _ => C x) (h₂ ()) _ h.symm
-else
-  h₃ s
+dite (s = "hello")
+  (fun h => @Eq.ndrec _ _ (fun x => C x) (h₁ ()) _ h.symm)
+  (fun _ => dite (s = "world")
+    (fun h => @Eq.ndrec _ _ (fun x => C x) (h₂ ()) _ h.symm)
+    (fun _ => h₃ s))
 
 theorem matchString.Eq1 (C : String → Sort v)
     (h₁ : Unit → C "hello")

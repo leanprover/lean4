@@ -64,7 +64,8 @@ def mkAuxName (useUnusedNames : Bool) (lctx : LocalContext) (defaultName : Name)
 | n :: rest  => (if n != "_" then n else if useUnusedNames then lctx.getUnusedName defaultName else defaultName, rest)
 
 def introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) (useUnusedNames := true) : MetaM (Array FVarId × MVarId) :=
-introNCore mvarId n (mkAuxName useUnusedNames) givenNames
+if n == 0 then pure (#[], mvarId)
+else introNCore mvarId n (mkAuxName useUnusedNames) givenNames
 
 def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
 (fvarIds, mvarId) ← introN mvarId 1 [name];

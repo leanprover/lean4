@@ -57,3 +57,25 @@ pure ()
 
 set_option pp.all true
 #eval tst3
+
+inductive Vec.{u} (α : Type u) : Nat → Type u
+| nil            : Vec 0
+| cons {n : Nat} : α → Vec n → Vec (n+1)
+
+def tst4 : MetaM Unit :=
+withLocalDecl `x nat BinderInfo.default fun x =>
+withLocalDecl `y nat BinderInfo.default fun y => do
+vType ← mkAppM `Vec #[nat, x];
+withLocalDecl `v vType BinderInfo.default fun v => do
+m ← mkFreshExprSyntheticOpaqueMVar vType;
+subgoals ← caseValues m.mvarId! x.fvarId! #[mkNatLit 2, mkNatLit 3, mkNatLit 5];
+subgoals.forM fun s => do {
+  print (MessageData.ofGoal s.mvarId);
+  assumption s.mvarId
+};
+t ← instantiateMVars m;
+print t;
+Meta.check t;
+pure ()
+
+#eval tst4

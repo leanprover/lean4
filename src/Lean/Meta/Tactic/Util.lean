@@ -18,6 +18,10 @@ pure mvarDecl.userName
 def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
 modify $ fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
 
+def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
+tag ← getMVarTag mvarId;
+setMVarTag mvarId (tag ++ suffix)
+
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
 mkFreshExprMVar type userName MetavarKind.syntheticOpaque
 

@@ -349,7 +349,7 @@ let (ok, hasVar, hasVal) := p.alts.foldl
 ok && hasVar && hasVal
 
 private def processNonVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-trace! `Meta.EqnCompiler.match ("process non variable");
+trace! `Meta.EqnCompiler.match ("non variable step");
 match p.vars with
 | x :: xs =>
   let alts := p.alts.map fun alt => match alt.patterns with
@@ -369,7 +369,7 @@ match p.alts with
   pure { s with used := s.used.insert alt.idx }
 
 private def processVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-trace! `Meta.EqnCompiler.match ("process variable");
+trace! `Meta.EqnCompiler.match ("variable step");
 match p.vars with
 | x :: xs => do
   alts ← p.alts.mapM fun alt => match alt.patterns with
@@ -393,7 +393,7 @@ match alt.patterns with
 | _                           => false
 
 private def processConstructor (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-trace! `Meta.EqnCompiler.match ("process constructor");
+trace! `Meta.EqnCompiler.match ("constructor step");
 match p.vars with
 | x :: xs => do
   subgoals ← cases p.goal.mvarId! x.fvarId!;
@@ -479,7 +479,7 @@ matchConst env expectedType.getAppFn (fun _ => throwInductiveTypeExpected expect
   | _ => throwInductiveTypeExpected expectedType
 
 private def processComplete (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-trace! `Meta.EqnCompiler.match ("process complete");
+trace! `Meta.EqnCompiler.match ("complete step");
 withGoalOf p do
 env ← getEnv;
 newAlts ← p.alts.foldlM
@@ -495,7 +495,12 @@ newAlts ← p.alts.foldlM
 process { p with alts := newAlts.reverse } s
 
 private def processValue (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-throwOther "WIP"
+trace! `Meta.EqnCompiler.match ("value step");
+match p.vars with
+| []      => unreachable!
+| x :: xs => do
+
+  throwOther "WIP"
 
 private partial def process : Problem → State → MetaM State
 | p, s => withIncRecDepth do

@@ -98,7 +98,7 @@ namespace Alt
 instance : Inhabited Alt := ⟨⟨0, arbitrary _, [], []⟩⟩
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
-let msg : MessageData := alt.mvars.toArray.map mkMVar ++ " ⟦" ++ MessageData.joinSep (alt.patterns.map Pattern.toMessageData) ", " ++ "⟧ := " ++ alt.rhs;
+let msg : MessageData := alt.mvars.map mkMVar ++ " |- " ++ (alt.patterns.map Pattern.toMessageData) ++ " => " ++ alt.rhs;
 addContext msg
 
 private def convertMVar (s : FVarSubst) (m : MVarRenaming) (mvarId : MVarId) : MetaM (MVarRenaming × MVarId) :=
@@ -222,6 +222,7 @@ withGoalOf p do
     -- ++ Format.line ++ "var ids " ++ toString (p.vars.map (fun x => match x with | Expr.fvar id _ => toString id | _ => "[nonvar]"))
     ++ Format.line ++ MessageData.joinSep alts Format.line
     ++ Format.line ++ "examples: " ++ examplesToMessageData p.examples
+    ++ Format.line
 end Problem
 
 abbrev CounterExample := List Example

@@ -71,7 +71,7 @@ withMVarContext mvarId $ do
                 let newFVar := newFVars.get! i;
                 pure $ fvarSubst.insert var (mkFVar newFVar))
               fvarSubst;
-            let fvarSubst := fvarSubst.insert aFVarIdOriginal b;
+            let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId);
             let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId);
             pure (fvarSubst, mvarId)
           };

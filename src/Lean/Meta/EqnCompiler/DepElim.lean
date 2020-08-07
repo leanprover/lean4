@@ -588,27 +588,31 @@ else do
   v ← getUnusedLevelParam majors lhss;
   pure $ mkSort $ v
 
-def mkElim (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
+def mkElimCore (elimName : Name) (motive : Expr) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
 checkNumPatterns majors lhss;
+generalizeTelescope majors.toArray `_d fun majors => do
+  let mvarType  := mkAppN motive majors;
+  trace! `Meta.EqnCompiler.matchDebug ("target: " ++ mvarType);
+  withAlts motive lhss fun alts minors => do
+    mvar ← mkFreshExprMVar mvarType;
+    let examples := majors.toList.map fun major => Example.var major.fvarId!;
+    s    ← process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples } {};
+    let args := #[motive] ++ majors ++ minors;
+    type ← mkForall args mvarType;
+    val  ← mkLambda args mvar;
+    trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
+    elim ← mkAuxDefinition elimName type val;
+    trace! `Meta.EqnCompiler.matchDebug ("eliminator: " ++ elim);
+    let unusedAltIdxs : List Nat := lhss.length.fold
+      (fun i r => if s.used.contains i then r else i::r)
+      [];
+    pure { elim := elim, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
+
+def mkElim (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
 sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
-withMotive majors sortv fun motive => do
-let mvarType  := mkAppN motive majors;
-trace! `Meta.EqnCompiler.matchDebug ("target: " ++ mvarType);
-withAlts motive lhss fun alts minors => do
-  mvar ← mkFreshExprMVar mvarType;
-  let examples := majors.toList.map fun major => Example.var major.fvarId!;
-  s    ← process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples } {};
-  let args := #[motive] ++ majors ++ minors;
-  type ← mkForall args mvarType;
-  val  ← mkLambda args mvar;
-  trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
-  elim ← mkAuxDefinition elimName type val;
-  trace! `Meta.EqnCompiler.matchDebug ("eliminator: " ++ elim);
-  let unusedAltIdxs : List Nat := lhss.length.fold
-    (fun i r => if s.used.contains i then r else i::r)
-    [];
-  pure { elim := elim, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
+  withMotive majors sortv fun motive =>
+    mkElimCore elimName motive majors.toList lhss inProp
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.EqnCompiler.match;

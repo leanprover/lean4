@@ -719,3 +719,55 @@ export Array (mkArray)
 
 @[inline] def List.toArray {α : Type u} (as : List α) : Array α :=
 as.toArrayAux (Array.mkEmpty as.redLength)
+
+namespace Array
+
+def toListLitAux {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
+| 0,     hi, acc => acc
+| (i+1), hi, acc => toListLitAux i (Nat.leOfSuccLe hi) (a.getLit i hsz (Nat.ltOfLtOfEq (Nat.ltOfLtOfLe (Nat.ltSuccSelf i) hi) hsz) :: acc)
+
+def toArrayLit {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
+List.toArray $ toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
+
+theorem toArrayLitEq {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
+-- TODO: this is painful to prove without proper automation
+sorry
+/-
+First, we need to prove
+∀ i j acc, i ≤ a.size → (toListLitAux a n hsz (i+1) hi acc).index j = if j < i then a.getLit j hsz _ else acc.index (j - i)
+by induction
+
+Base case is trivial
+(j : Nat) (acc : List α) (hi : 0 ≤ a.size)
+     |- (toListLitAux a n hsz 0 hi acc).index j = if j < 0 then a.getLit j hsz _ else acc.index (j - 0)
+...  |- acc.index j = acc.index j
+
+Induction
+
+(j : Nat) (acc : List α) (hi : i+1 ≤ a.size)
+      |- (toListLitAux a n hsz (i+1) hi acc).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
+  ... |- (toListLitAux a n hsz i hi' (a.getLit i hsz _ :: acc)).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))  * by def
+  ... |- if j < i     then a.getLit j hsz _ else (a.getLit i hsz _ :: acc).index (j-i)    * by induction hypothesis
+         =
+         if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
+If j < i, then both are a.getLit j hsz _
+If j = i, then lhs reduces else-branch to (a.getLit i hsz _) and rhs is then-brachn (a.getLit i hsz _)
+If j >= i + 1, we use
+   - j - i >= 1 > 0
+   - (a::as).index k = as.index (k-1) If k > 0
+   - j - (i + 1) = (j - i) - 1
+   Then lhs = (a.getLit i hsz _ :: acc).index (j-i) = acc.index (j-i-1) = acc.index (j-(i+1)) = rhs
+
+With this proof, we have
+
+∀ j, j < n → (toListLitAux a n hsz n _ []).index j = a.getLit j hsz _
+
+We also need
+
+- (toListLitAux a n hsz n _ []).length = n
+- j < n -> (List.toArray as).getLit j _ _ = as.index j
+
+Then using Array.extLit, we have that a = List.toArray $ toListLitAux a n hsz n _ []
+-/
+
+end Array

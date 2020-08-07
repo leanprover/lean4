@@ -19,6 +19,7 @@ withMVarContext mvarId $ do
   tag     ← getMVarTag mvarId;
   checkNotAssigned mvarId `subst;
   hLocalDecl ← getLocalDecl hFVarId;
+  let hFVarIdOriginal := hFVarId;
   match hLocalDecl.type.eq? with
   | none => throwTacticEx `subst mvarId "argument must be an equality proof"
   | some (α, lhs, rhs) => do
@@ -71,6 +72,7 @@ withMVarContext mvarId $ do
                 pure $ fvarSubst.insert var (mkFVar newFVar))
               fvarSubst;
             let fvarSubst := fvarSubst.insert aFVarIdOriginal b;
+            let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId);
             pure (fvarSubst, mvarId)
           };
           if depElim then do

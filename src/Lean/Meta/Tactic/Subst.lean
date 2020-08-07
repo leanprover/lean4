@@ -103,6 +103,7 @@ withMVarContext mvarId $ do
         "invalid equality proof, it is not of the form "
         ++ (if symm then "(t = x)" else "(x = t)")
         ++ indentExpr hLocalDecl.type
+        ++ Format.line ++ "after WHNF, variable expected, but obtained" ++ indentExpr a
 
 def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
 withMVarContext mvarId $ do

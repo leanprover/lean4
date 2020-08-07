@@ -83,3 +83,22 @@ Meta.check t;
 pure ()
 
 #eval tst4
+
+def tst5 : MetaM Unit := do
+arrayNat ← mkAppM `Array #[nat];
+withLocalDecl `a arrayNat BinderInfo.default fun a => do
+withLocalDecl `b arrayNat BinderInfo.default fun b => do
+let motiveType := mkArrow arrayNat (mkSort levelZero);
+withLocalDecl `motive motiveType BinderInfo.default fun motive => do
+let mvarType := mkApp motive a;
+mvar ← mkFreshExprSyntheticOpaqueMVar mvarType;
+subgoals ← caseArraySizes mvar.mvarId! a.fvarId! #[1, 0, 4, 5];
+subgoals.forM fun s => do {
+  print (MessageData.ofGoal s.mvarId);
+  pure ()
+};
+pure ()
+
+set_option trace.Meta.synthInstance false
+
+#eval tst5

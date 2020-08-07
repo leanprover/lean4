@@ -21,7 +21,10 @@ instance CaseValueSubgoal.inhabited : Inhabited CaseValueSubgoal :=
   Split goal `... |- C x` into two subgoals
   `..., (h : x = value)  |- C value`
   `..., (h : x != value) |- C x`
-  The type of `x` must have decidable equality. -/
+  where `fvarId` is `x`s id.
+  The type of `x` must have decidable equality.
+
+  Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
 def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h) (subst : FVarSubst := {})
     : MetaM (CaseValueSubgoal × CaseValueSubgoal) :=
 withMVarContext mvarId $ do
@@ -39,9 +42,16 @@ withMVarContext mvarId $ do
   (elseH, elseMVarId) ← intro1 elseMVar.mvarId! false;
   let elseSubgoal := { mvarId := elseMVarId, newH := elseH, subst := subst : CaseValueSubgoal };
   (thenH, thenMVarId) ← intro1 thenMVar.mvarId! false;
-  let symm := false;
+  let symm   := false;
   let clearH := false;
   (thenSubst, thenMVarId) ← substCore thenMVarId thenH symm subst clearH;
+  withMVarContext thenMVarId do {
+    trace! `Meta ("subst domain: " ++ toString thenSubst.domain);
+    let thenH := (thenSubst.get thenH).fvarId!;
+    trace! `Meta "searching for decl";
+    decl ← getLocalDecl thenH;
+    trace! `Meta "found decl"
+  };
   let thenSubgoal := { mvarId := thenMVarId, newH := (thenSubst.get thenH).fvarId!, subst := thenSubst : CaseValueSubgoal };
   pure (thenSubgoal, elseSubgoal)
 
@@ -83,7 +93,11 @@ private def caseValuesAux (hNamePrefix : Name) (fvarId : FVarId) : Nat → MVarI
   n) `..., (h_n : x = value[n - 1])  |- C value[n - 1]`
   n+1) `..., (h_1 : x != value[0]) ... (h_n : x != value[n-1]) |- C x`
   where `n = values.size`
-  The type of `x` must have decidable equality. -/
+  where `fvarId` is `x`s id.
+  The type of `x` must have decidable equality.
+
+  Remark: the last subgoal is for the "else" catchall case, and its `subst` is `{}`.
+  Remark: the fiels `newHs` has size 1 forall but the last subgoal. -/
 def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) : MetaM (Array CaseValuesSubgoal) :=
 caseValuesAux hNamePrefix fvarId 1 mvarId values.toList #[] #[]
 

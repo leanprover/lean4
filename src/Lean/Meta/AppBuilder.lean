@@ -352,5 +352,13 @@ h         ← mkEqRefl (mkConst `Bool.true);
 h         ← mkExpectedTypeHint h decEqTrue;
 mkAppM `ofDecideEqTrue #[h]
 
+/-- Return `a < b` -/
+def mkLt (a b : Expr) : MetaM Expr :=
+mkAppM `HasLess.Less #[a, b]
+
+/-- Return `a <= b` -/
+def mkLe (a b : Expr) : MetaM Expr :=
+mkAppM `HasLessEq.LessEq #[a, b]
+
 end Meta
 end Lean

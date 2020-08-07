@@ -53,7 +53,7 @@ print c;
 Meta.check c;
 cType ← inferType c;
 print cType;
-lt    ← mkAppM `HasLess.Less #[mkNatLit 10000000, mkNatLit 20000000000];
+lt    ← mkLt (mkNatLit 10000000) (mkNatLit 20000000000);
 ltPrf ← mkDecideProof lt;
 Meta.check ltPrf;
 t ← inferType ltPrf;

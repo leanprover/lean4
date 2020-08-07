@@ -300,5 +300,7 @@ def h2 (x y : Nat) : Nat :=
 elimTest14 (fun _ _ => Nat) x y 0 1 (fun x y => x + y)
 
 #eval h2 1 2 -- 0
+#eval h2 1 4 -- 5
 #eval h2 2 3 -- 1
+#eval h2 2 4 -- 6
 #eval h2 3 4 -- 7

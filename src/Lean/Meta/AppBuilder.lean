@@ -344,5 +344,13 @@ def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
 u ← getLevel type;
 pure $ mkApp2 (mkConst `sorryAx [u]) type (toExpr synthetic)
 
+/-- Return a proof for `p : Prop` using `decide p` -/
+def mkDecideProof (p : Expr) : MetaM Expr := do
+decP      ← mkAppM `Decidable.decide #[p];
+decEqTrue ← mkEq decP (mkConst `Bool.true);
+h         ← mkEqRefl (mkConst `Bool.true);
+h         ← mkExpectedTypeHint h decEqTrue;
+mkAppM `ofDecideEqTrue #[h]
+
 end Meta
 end Lean

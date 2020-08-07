@@ -53,9 +53,13 @@ print c;
 Meta.check c;
 cType ← inferType c;
 print cType;
+lt    ← mkAppM `HasLess.Less #[mkNatLit 10000000, mkNatLit 20000000000];
+ltPrf ← mkDecideProof lt;
+Meta.check ltPrf;
+t ← inferType ltPrf;
+print t;
 pure ()
 
-set_option pp.all true
 #eval tst3
 
 inductive Vec.{u} (α : Type u) : Nat → Type u

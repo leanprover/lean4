@@ -11,6 +11,16 @@ universes u v
 def inaccessible {α : Sort u} (a : α) : α := a
 def val {α : Sort u} (a : α) : α := a
 
+inductive Pat {α : Sort u} (a : α) : Type u
+| mk : Pat
+
+inductive ArrayLit0 (α : Sort u) : Type u | mk : ArrayLit0
+inductive ArrayLit1 {α : Sort u} (a : α) : Type u | mk : ArrayLit1
+inductive ArrayLit2 {α : Sort u} (a b : α) : Type u | mk : ArrayLit2
+inductive ArrayLit3 {α : Sort u} (a b c : α) : Type u | mk : ArrayLit3
+inductive ArrayLit4 {α : Sort u} (a b c d : α) : Type u | mk : ArrayLit4
+
+
 private def getConstructorVal (ctorName : Name) (fn : Expr) (args : Array Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
 env ← getEnv;
 match env.find? ctorName with
@@ -37,6 +47,16 @@ partial def mkPattern : Expr → MetaM Pattern
     pure $ Pattern.inaccessible Syntax.missing e.appArg!
   else if e.isFVar then
     pure $ Pattern.var Syntax.missing e.fvarId!
+  else if e.isAppOfArity `ArrayLit0 1 ||
+          e.isAppOfArity `ArrayLit1 2 ||
+          e.isAppOfArity `ArrayLit2 3 ||
+          e.isAppOfArity `ArrayLit3 4 ||
+          e.isAppOfArity `ArrayLit4 5 then do
+    let args := e.getAppArgs;
+    let type := args.get! 0;
+    let ps   := args.extract 1 args.size;
+    ps ← ps.toList.mapM mkPattern;
+    pure $ Pattern.arrayLit Syntax.missing type ps
   else match e.arrayLit? with
     | some es => do
       pats ← es.mapM mkPattern;
@@ -94,9 +114,6 @@ forallTelescopeReducing cinfo.type fun args body =>
     let xs := (args.extract (args.size - numPats) args.size).toList.map $ Expr.fvarId!;
     alts ← decodeAltLHSs body;
     k xs alts
-
-inductive Pat {α : Sort u} (a : α) : Type u
-| mk : Pat
 
 inductive LHS {α : Sort u} (a : α) : Type u
 | mk : LHS
@@ -304,3 +321,11 @@ elimTest14 (fun _ _ => Nat) x y 0 1 (fun x y => x + y)
 #eval h2 2 3 -- 1
 #eval h2 2 4 -- 6
 #eval h2 3 4 -- 7
+
+def ex15 (xs : Array Nat) :
+  LHS (forall (a : Nat), Pat (ArrayLit1 a))
+× LHS (forall (a b : Nat), Pat (ArrayLit2 a b))
+× LHS (forall (ys : Array Nat), Pat ys) :=
+arbitrary _
+
+-- #eval test `ex15 1 `elimTest15

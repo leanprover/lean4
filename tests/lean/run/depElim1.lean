@@ -322,7 +322,7 @@ set_option trace.Meta.EqnCompiler true
 #print elimTest14
 
 def h2 (x y : Nat) : Nat :=
-elimTest14 (fun _ _ => Nat) x y 0 1 (fun x y => x + y)
+elimTest14 (fun _ _ => Nat) x y (fun _ => 0) (fun _ => 1) (fun x y => x + y)
 
 #eval check (h2 1 2 == 0)
 #eval check (h2 1 4 == 5)
@@ -359,12 +359,13 @@ arbitrary _
 #eval test `ex16 1 `elimTest16
 
 #check elimTest16
+#print elimTest16
 
 def h4 (xs : List Nat) : List Nat :=
 elimTest16 (fun _ => List Nat) xs
   (fun a xs b ys => xs)
   (fun a         => [])
-  [1]
+  (fun _         => [1])
 
 #eval check (h4 [1, 2, 3] == [2, 3])
 #eval check (h4 [1] == [])

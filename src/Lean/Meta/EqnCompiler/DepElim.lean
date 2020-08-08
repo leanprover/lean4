@@ -585,6 +585,7 @@ match p.vars with
     (fun i (s : State) =>
       let subgoal := subgoals.get! i;
       if h : i < sizes.size then do
+        let size     := sizes.get! i;
         let subst    := subgoal.subst;
         let elems    := subgoal.elems.toList;
         let newVars  := elems.map mkFVar ++ xs;
@@ -593,7 +594,7 @@ match p.vars with
         let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
         let examples := examples.map $ Example.applyFVarSubst subst;
         let newAlts  := p.alts.filter fun alt => match alt.patterns with
-          | Pattern.arrayLit _ _ ps :: _ => ps.length == sizes.get! i
+          | Pattern.arrayLit _ _ ps :: _ => ps.length == size
           | Pattern.var _ _ :: _         => true
           | _                            => false;
         newAlts ← newAlts.mapM fun alt => alt.applyFVarSubst subst;
@@ -602,12 +603,19 @@ match p.vars with
           | Pattern.arrayLit _ _ pats :: ps      => pure { alt with patterns := pats ++ ps }
           | Pattern.var ref mvarId :: ps => do
             α ← getArrayArgType x;
-            arrayLit ← mkArrayLit α (elems.map mkFVar);
+            newMVars ← size.foldM
+              (fun _ (newMVars : List Expr) => do
+                newMVar ← mkFreshExprMVar α;
+                pure (newMVar :: newMVars))
+              [];
+            arrayLit ← mkArrayLit α newMVars;
             assignExprMVar mvarId arrayLit;
             ps  ← ps.mapM Pattern.instantiateMVars;
             rhs ← instantiateMVars alt.rhs;
             let mvars := alt.mvars.erase mvarId;
-            pure { alt with rhs := rhs, mvars := mvars, patterns := (elems.map fun elem => Pattern.inaccessible ref (mkFVar elem)) ++ ps }
+            let mvars := newMVars.map Expr.mvarId! ++ mvars;
+            let ps    := newMVars.map (fun mvar => Pattern.var ref mvar.mvarId!) ++ ps;
+            pure { alt with rhs := rhs, mvars := mvars, patterns := ps }
           | _  => unreachable!;
         process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s
       else do

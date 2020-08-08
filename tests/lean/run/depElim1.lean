@@ -8,6 +8,9 @@ open Lean.Meta.DepElim
 
 universes u v
 
+def check (x : Bool) : IO Unit :=
+unless x $ throw $ IO.userError "check failed"
+
 def inaccessible {α : Sort u} (a : α) : α := a
 def val {α : Sort u} (a : α) : α := a
 
@@ -263,10 +266,10 @@ elimTest9 (fun _ => Bool) xs
   (fun _ _ => true)
   (fun _   => false)
 
-#eval f []
-#eval f [⟨0, 0, Op.mk 0⟩]
-#eval f [⟨0, 0, Op.mk 0⟩, ⟨1, 1, Op.mk 1⟩]
-#eval f [⟨0, 0, Op.mk 0⟩, ⟨2, 2, Op.mk 2⟩]
+#eval check (f [] == false)
+#eval check (f [⟨0, 0, Op.mk 0⟩] == false)
+#eval check (f [⟨0, 0, Op.mk 0⟩, ⟨1, 1, Op.mk 1⟩])
+#eval check (f [⟨0, 0, Op.mk 0⟩, ⟨2, 2, Op.mk 2⟩] == false)
 
 inductive Foo : Bool → Prop
 | bar : Foo false
@@ -316,17 +319,28 @@ set_option trace.Meta.EqnCompiler true
 def h2 (x y : Nat) : Nat :=
 elimTest14 (fun _ _ => Nat) x y 0 1 (fun x y => x + y)
 
-#eval h2 1 2 -- 0
-#eval h2 1 4 -- 5
-#eval h2 2 3 -- 1
-#eval h2 2 4 -- 6
-#eval h2 3 4 -- 7
+#eval check (h2 1 2 == 0)
+#eval check (h2 1 4 == 5)
+#eval check (h2 2 3 == 1)
+#eval check (h2 2 4 == 6)
+#eval check (h2 3 4 == 7)
 
-def ex15 (xs : Array Nat) :
-  LHS (forall (a : Nat), Pat (ArrayLit1 a))
-× LHS (forall (a b : Nat), Pat (ArrayLit2 a b))
-× LHS (forall (ys : Array Nat), Pat ys) :=
+def ex15 (xs : Array (List Nat)) :
+  LHS (forall (a : Nat), Pat (ArrayLit1 [a]))
+× LHS (forall (a b : Nat), Pat (ArrayLit2 [a] [b]))
+× LHS (forall (ys : Array (List Nat)), Pat ys) :=
 arbitrary _
 
 #eval test `ex15 1 `elimTest15
 #check elimTest15
+
+def h3 (xs : Array (List Nat)) : Nat :=
+elimTest15 (fun _ => Nat) xs
+ (fun a   => a + 1)
+ (fun a b => a + b)
+ (fun ys  => ys.size)
+
+#eval check (h3 #[[1]] == 2)
+#eval check (h3 #[[3], [2]] == 5)
+#eval check (h3 #[[1, 2]] == 1)
+#eval check (h3 #[[1, 2], [2, 3], [3]] == 3)

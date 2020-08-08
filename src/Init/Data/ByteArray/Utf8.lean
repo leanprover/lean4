@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2020 Marc Huisinga. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Authors: Marc Huisinga, Wojciech Nawrocki
+-/
 prelude
 import Init.Data.ByteArray.Basic
 import Init.Data.List.Control
@@ -36,12 +42,10 @@ private partial def utf8ToStringAux : Nat → ByteArray → Option (List Char)
           -- parse the rest of the bytes
           bytes ← (List.range j).mapM (fun k => convertUtf8Byte utf8 (i+k+1));
           some (concatUtf8Bytes (msb :: bytes), j+1));
-    if h : isValidChar charVal then do
-      let ch : Char := ⟨charVal, h⟩;
-      tail ← utf8ToStringAux (i+nextCharOffset) utf8;
-      some (ch :: tail)
-    else
-      failure
+    ⟨h⟩ ← assert (isValidChar charVal);
+    let ch : Char := ⟨charVal, h⟩;
+    tail ← utf8ToStringAux (i+nextCharOffset) utf8;
+    some (ch :: tail)
   else
     some []
 

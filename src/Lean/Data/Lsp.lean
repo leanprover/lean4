@@ -1,8 +1,8 @@
 /-
-Copyright (c) 2019 Gabriel Ebner. All rights reserved.
+Copyright (c) 2020 Marc Huisinga. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Authors: Gabriel Ebner, Marc Huisinga
+Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Lsp.Basic
 import Lean.Data.Lsp.Capabilities

@@ -38,7 +38,7 @@ instance Array.hasFromJson {α : Type u} [HasFromJson α] : HasFromJson (Array �
 ⟨fun j => match j with
   | Json.arr a => a.mapM fromJson?
   | _ => none⟩
-instance List.hasToJson {α : Type u} [HasToJson α] : HasToJson (Array α) :=
+instance Array.hasToJson {α : Type u} [HasToJson α] : HasToJson (Array α) :=
 ⟨fun a => Json.arr (a.map toJson)⟩
 
 namespace Json

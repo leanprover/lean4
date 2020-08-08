@@ -2,8 +2,8 @@ import Init.Data.String
 import Init.Data.Array
 import Lean.Data.Lsp.Basic
 
--- LSP uses UTF-16 for indexing, so we need to provide some primitives
--- to interact with Lean strings using UTF-16 indices
+/-! LSP uses UTF-16 for indexing, so we need to provide some primitives
+to interact with Lean strings using UTF-16 indices. -/
 
 namespace Char
 
@@ -14,7 +14,7 @@ end Char
 
 namespace String
 
--- LSP is EOL agnostic, so we first split on "\r\n" to avoid possibly redundant line breaks
+/-- LSP is EOL agnostic, so we first split on "\r\n" to avoid possibly redundant line breaks. -/
 def splitOnEOLs (s : String) : List String := do
 line ← s.splitOn "\r\n";
 line ← line.splitOn "\n";
@@ -43,7 +43,7 @@ utf16PosToCodepointPosAux s.toList pos 0
 def utf16Length (s : String) : Nat :=
 s.foldr (fun c acc => csize c + acc) 0
 
--- delete text until endIdx
+/-- Delete text until endIdx. -/
 private def utf16ReplaceAux₀ : List Char → Nat → Nat → List Char
 | [],       i, endIdx => [] -- no more text to delete
 | (c :: s), i, endIdx =>

@@ -328,4 +328,5 @@ def ex15 (xs : Array Nat) :
 × LHS (forall (ys : Array Nat), Pat ys) :=
 arbitrary _
 
--- #eval test `ex15 1 `elimTest15
+#eval test `ex15 1 `elimTest15
+#check elimTest15

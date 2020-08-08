@@ -15,11 +15,14 @@ structure CaseArraySizesSubgoal :=
 (diseqs : Array FVarId := #[])
 (subst  : FVarSubst := {})
 
-private def getArrayArgType (mvarId : MVarId) (a : Expr) : MetaM Expr := do
+instance CaseArraySizesSubgoal.inhabited : Inhabited CaseArraySizesSubgoal :=
+⟨{ mvarId := arbitrary _ }⟩
+
+def getArrayArgType (a : Expr) : MetaM Expr := do
 aType ← inferType a;
 aType ← whnfD aType;
 unless (aType.isAppOfArity `Array 1) $
-  throwTacticEx `caseArraySizes mvarId ("array expected" ++ indentExpr a);
+  throwOther ("array expected" ++ indentExpr a);
 pure aType.appArg!
 
 private def mkArrayGetLit (a : Expr) (i : Nat) (n : Nat) (h : Expr) : MetaM Expr := do
@@ -46,7 +49,7 @@ private partial def introArrayLitAux (mvarId : MVarId) (α : Expr) (a : Expr) (n
       pure (newTarget, args.push aEqLitPrf)
 
 private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNamePrefix : Name) (aSizeEqN : Expr) : MetaM MVarId := do
-α ← getArrayArgType mvarId a;
+α ← getArrayArgType a;
 (newTarget, args) ← introArrayLitAux mvarId α a n xNamePrefix aSizeEqN 0 #[] #[];
 tag ← getMVarTag mvarId;
 newMVar   ← mkFreshExprSyntheticOpaqueMVar newTarget tag;
@@ -62,7 +65,7 @@ pure newMVar.mvarId!
   where `n = sizes.size` -/
 def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNamePrefix := `x) (hNamePrefix := `h) : MetaM (Array CaseArraySizesSubgoal) := do
 let a := mkFVar fvarId;
-α ← getArrayArgType mvarId a;
+α ← getArrayArgType a;
 aSize ← mkAppM `Array.size #[a];
 mvarId ← assertExt mvarId `aSize (mkConst `Nat) aSize;
 (aSizeFVarId, mvarId) ← intro1 mvarId;

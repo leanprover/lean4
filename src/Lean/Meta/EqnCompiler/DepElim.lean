@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.EqnCompiler.MVarRenaming
 import Lean.Meta.EqnCompiler.CaseValues
+import Lean.Meta.EqnCompiler.CaseArraySizes
 
 namespace Lean
 namespace Meta
@@ -170,31 +171,36 @@ inductive Example
 | underscore : Example
 | ctor       : Name → List Example → Example
 | val        : Expr → Example
+| arrayLit   : List Example → Example
 
 namespace Example
 
 partial def replaceFVarId (fvarId : FVarId) (ex : Example) : Example → Example
-| var x      => if x == fvarId then ex else var x
-| ctor n exs => ctor n $ exs.map replaceFVarId
-| ex         => ex
+| var x        => if x == fvarId then ex else var x
+| ctor n exs   => ctor n $ exs.map replaceFVarId
+| arrayLit exs => arrayLit $ exs.map replaceFVarId
+| ex           => ex
 
 partial def applyFVarSubst (s : FVarSubst) : Example → Example
 | var fvarId =>
   match s.get fvarId with
   | Expr.fvar fvarId' _ => var fvarId'
   | _                   => underscore
-| ctor n exs => ctor n $ exs.map applyFVarSubst
-| ex         => ex
+| ctor n exs   => ctor n $ exs.map applyFVarSubst
+| arrayLit exs => arrayLit $ exs.map applyFVarSubst
+| ex           => ex
 
 partial def varsToUnderscore : Example → Example
-| var x      => underscore
-| ctor n exs => ctor n $ exs.map varsToUnderscore
-| ex         => ex
+| var x        => underscore
+| ctor n exs   => ctor n $ exs.map varsToUnderscore
+| arrayLit exs => arrayLit $ exs.map varsToUnderscore
+| ex           => ex
 
 partial def toMessageData : Example → MessageData
 | var fvarId        => mkFVar fvarId
 | ctor ctorName []  => mkConst ctorName
 | ctor ctorName exs => "(" ++ mkConst ctorName ++ exs.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil ++ ")"
+| arrayLit exs      => "#" ++ MessageData.ofList (exs.map toMessageData)
 | val e             => e
 | underscore        => "_"
 
@@ -348,6 +354,18 @@ let (ok, hasVar, hasVal) := p.alts.foldl
     | _                    => (false, hasVar, hasVal))
   (true, false, false);
 ok && hasVar && hasVal
+
+/- Return true if the next pattern of the remaining alternatives contain variables AND array literals. -/
+private def isArrayLitTransition (p : Problem) : Bool :=
+let (ok, hasVar, hasArray) := p.alts.foldl
+  (fun (acc : Bool × Bool × Bool) (alt : Alt) =>
+    let (ok, hasVar, hasArray) := acc;
+    match alt.patterns with
+    | Pattern.arrayLit _ _ _ :: _ => (ok, hasVar, true)
+    | Pattern.var _ _ :: _        => (ok, true, hasArray)
+    | _                           => (false, hasVar, hasArray))
+  (true, false, false);
+ok && hasVar && hasArray
 
 private def processNonVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
 trace! `Meta.EqnCompiler.match ("non variable step");
@@ -548,6 +566,57 @@ match p.vars with
         process { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs } s)
     s
 
+private def collectArraySizes (p : Problem) : Array Nat :=
+p.alts.foldl
+  (fun (sizes : Array Nat) alt =>
+    match alt.patterns with
+    | Pattern.arrayLit _ _ ps :: _ => let sz := ps.length; if sizes.contains sz then sizes else sizes.push sz
+    | _                            => sizes)
+  #[]
+
+private def processArrayLit (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
+trace! `Meta.EqnCompiler.match ("array literal step");
+match p.vars with
+| []      => unreachable!
+| x :: xs => do
+  let sizes := collectArraySizes p;
+  subgoals ← caseArraySizes p.mvarId x.fvarId! sizes;
+  subgoals.size.foldM
+    (fun i (s : State) =>
+      let subgoal := subgoals.get! i;
+      if h : i < sizes.size then do
+        let subst    := subgoal.subst;
+        let elems    := subgoal.elems.toList;
+        let newVars  := elems.map mkFVar ++ xs;
+        let newVars  := newVars.map fun x => x.applyFVarSubst subst;
+        let subex    := Example.arrayLit $ elems.map Example.var;
+        let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
+        let examples := examples.map $ Example.applyFVarSubst subst;
+        let newAlts  := p.alts.filter fun alt => match alt.patterns with
+          | Pattern.arrayLit _ _ ps :: _ => ps.length == sizes.get! i
+          | Pattern.var _ _ :: _         => true
+          | _                            => false;
+        newAlts ← newAlts.mapM fun alt => alt.applyFVarSubst subst;
+        newAlts ← newAlts.mapM fun alt => alt.copy;
+        newAlts ← newAlts.mapM fun alt => match alt.patterns with
+          | Pattern.arrayLit _ _ pats :: ps      => pure { alt with patterns := pats ++ ps }
+          | Pattern.var ref mvarId :: ps => do
+            α ← getArrayArgType x;
+            arrayLit ← mkArrayLit α (elems.map mkFVar);
+            assignExprMVar mvarId arrayLit;
+            ps  ← ps.mapM Pattern.instantiateMVars;
+            rhs ← instantiateMVars alt.rhs;
+            let mvars := alt.mvars.erase mvarId;
+            pure { alt with rhs := rhs, mvars := mvars, patterns := (elems.map fun elem => Pattern.inaccessible ref (mkFVar elem)) ++ ps }
+          | _  => unreachable!;
+        process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s
+      else do
+        -- else branch
+        let newAlts := p.alts.filter isFirstPatternVar;
+        newAlts ← newAlts.mapM fun alt => alt.copy;
+        process { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs } s)
+    s
+
 private partial def process : Problem → State → MetaM State
 | p, s => withIncRecDepth do
   withGoalOf p (traceM `Meta.EqnCompiler.match p.toMessageData);
@@ -563,6 +632,8 @@ private partial def process : Problem → State → MetaM State
     processComplete process p s
   else if isValueTransition p then
     processValue process p s
+  else if isArrayLitTransition p then
+    processArrayLit process p s
   else do
     msg ← p.toMessageData;
     -- TODO: remaining cases

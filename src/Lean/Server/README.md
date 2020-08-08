@@ -5,6 +5,12 @@
 leanmake +lean4 bin PKG=ServerBin LINK_OPTS=-rdynamic
 ```
 
+## Server code style
+
+Comments should exist to denote specifics of our implementation but, for
+the most part, we shouldn't copy comments over from the LSP specification
+to avoid unnecessary duplication.
+
 ## Logging LSP requests
 
 ### In `bash`:

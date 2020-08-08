@@ -1,6 +1,8 @@
 import Init.System.IO
 import Lean.Data.JsonRpc
 
+/-! Reading/writing LSP messages from/to IO handles. -/
+
 namespace Lean
 namespace Lsp
 
@@ -29,16 +31,16 @@ private partial def readHeaderFields : FS.Handle → IO (List (String × String)
     | some hf => do
       tail ← readHeaderFields h;
       pure (hf :: tail)
-    | none => throw (userError $ "invalid header field" ++ l)
+    | none => throw (userError $ "invalid header field: " ++ l)
 
--- Returns the Content-Length.
+/-- Returns the Content-Length. -/
 private def readLspHeader (h : FS.Handle) : IO Nat := do
 fields ← readHeaderFields h;
 match fields.lookup "Content-Length" with
 | some length => match length.toNat? with
   | some n => pure n
   | none   => throw (userError ("Content-Length header value '" ++ length ++ "' is not a Nat"))
-| none => throw (userError ("no Content-Length header in header fields " ++ toString fields))
+| none => throw (userError ("no Content-Length header in header fields: " ++ toString fields))
 
 def readLspMessage (h : FS.Handle) : IO Message := do
 nBytes ← readLspHeader h;
@@ -67,7 +69,7 @@ def writeLspNotification {α : Type*} [HasToJson α] (h : FS.Handle) (method : S
 match toJson r with
 | Json.obj o => writeLspMessage h (Message.notification method o)
 | Json.arr a => writeLspMessage h (Message.notification method a)
-| _          => throw (userError "internal server error in Lean.Lsp.writeLspNotification: tried to write lsp notification that is neither a json object nor a json array")
+| _          => throw (userError "internal server error in Lean.Lsp.writeLspNotification: tried to write LSP notification that is neither a JSON object nor a JSON array")
 
 end Lsp
 end Lean

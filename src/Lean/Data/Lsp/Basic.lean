@@ -1,38 +1,46 @@
 import Lean.Data.Json
 
+/-! Defines most of the 'Basic Structures' in the LSP specification
+(https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
+as well as some utilities.
+
+Since LSP is Json-based, Ints/Nats are represented by Floats on the wire. -/
+
 namespace Lean
 namespace Lsp
 
 open Json
 
--- all Ints/Nats in this file are Floats in LSP
-
--- as in http://tools.ietf.org/html/rfc3986
 abbrev DocumentUri := String
 
--- LSP indexes text with rows and colums
+/-- An array of the lines in a text document.
+Elements mustn't contain newline characters. -/
 def DocumentText := Array String
 
--- character is accepted liberally: actual character := min(line length, character)
+/-- Can represent both a UTF-16 position - this is what LSP clients send -
+and a codepoint position - what we use internally.
+`character` is accepted liberally: actual character := min(line length, character) -/
 structure Position := (line : Nat) (character : Nat)
 
-instance positionHasFromJson : HasFromJson Position :=
+instance Position.hasFromJson : HasFromJson Position :=
 ⟨fun j => do
   line ← j.getObjValAs? Nat "line";
   character ← j.getObjValAs? Nat "character";
   pure ⟨line, character⟩⟩
 
-instance positionHasToJson : HasToJson Position :=
+instance Position.hasToJson : HasToJson Position :=
 ⟨fun o => mkObj $
-  ⟨"line", o.line⟩ :: ⟨"character", o.character⟩ :: []⟩
+  [ ⟨"line", o.line⟩
+  , ⟨"character", o.character⟩
+  ]⟩
 
-instance positionHasToString : HasToString Position :=
-  ⟨fun p => "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
+instance Position.hasToString : HasToString Position :=
+⟨fun p => "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
 
 namespace DocumentText
 
-/-- Computes a linear position in an LF-newlined string corresponding
-to `text` from an LSP-style 0-indexed (ln, col) position. -/
+/-- Computes a linear position in `("\n".intercalate text.toList)`
+from an LSP-style 0-indexed (ln, col) position. -/
 def lnColToLinearPos (text : DocumentText) (pos : Position) : String.Pos :=
 text.foldrRange 0 pos.line (fun ln acc => acc + ln.length + 1) pos.character
 
@@ -50,86 +58,141 @@ let ⟨_, outPos⟩ : String.Pos × Position :=
 
 end DocumentText
 
--- [start, end)
 structure Range := (start : Position) («end» : Position)
 
-instance rangeHasFromJson : HasFromJson Range :=
+instance Range.hasFromJson : HasFromJson Range :=
 ⟨fun j => do
   start ← j.getObjValAs? Position "start";
   «end» ← j.getObjValAs? Position "end";
   pure ⟨start, «end»⟩⟩
 
-instance rangeHasToJson : HasToJson Range :=
+instance Range.hasToJson : HasToJson Range :=
 ⟨fun o => mkObj $
-  ⟨"start", toJson o.start⟩ :: ⟨"end", toJson o.«end»⟩ :: []⟩
+  [ ⟨"start", toJson o.start⟩
+  , ⟨"end", toJson o.«end»⟩
+  ]⟩
 
 structure Location := (uri : DocumentUri) (range : Range)
 
-instance locationHasFromJson : HasFromJson Location :=
+instance Location.hasFromJson : HasFromJson Location :=
 ⟨fun j => do
   uri ← j.getObjValAs? DocumentUri "uri";
   range ← j.getObjValAs? Range "range";
   pure ⟨uri, range⟩⟩
 
-instance locationHasToJson : HasToJson Location :=
+instance Location.hasToJson : HasToJson Location :=
 ⟨fun o => mkObj $
-  ⟨"uri", toJson o.uri⟩ :: ⟨"range", toJson o.range⟩ :: []⟩
+  [ ⟨"uri", toJson o.uri⟩
+  , ⟨"range", toJson o.range⟩
+  ]⟩
 
 structure LocationLink :=
--- span in origin that is highlighted (e.g. underlined).
--- default for none: word range at mouse position
 (originSelectionRange? : Option Range)
 (targetUri : DocumentUri)
--- span in target that is displayed
 (targetRange : Range)
--- span in target that is highlighted and focused when link is followed.
--- must be a subrange of targetRange
 (targetSelectionRange : Range)
 
+instance LocationLink.hasFromJson : HasFromJson LocationLink :=
+⟨fun j => do
+  let originSelectionRange? := j.getObjValAs? Range "originSelectionRange";
+  targetUri ← j.getObjValAs? DocumentUri "targetUri";
+  targetRange ← j.getObjValAs? Range "targetRange";
+  targetSelectionRange ← j.getObjValAs? Range "targetSelectionRange";
+  pure ⟨originSelectionRange?, targetUri, targetRange, targetSelectionRange⟩⟩
+
+instance LocationLink.hasToJson : HasToJson LocationLink :=
+⟨fun o => mkObj $
+  opt "originSelectionRange" o.originSelectionRange? ++
+  [ ⟨"targetUri", toJson o.targetUri⟩
+  , ⟨"targetRange", toJson o.targetRange⟩
+  , ⟨"targetSelectionRange", toJson o.targetSelectionRange⟩
+  ]⟩
+
+-- NOTE: Diagnostic defined in Diagnostics.lean
+
+/- NOTE: No specific commands are specified by LSP, hence
+possible commands need to be announced as capabilities. -/
 structure Command :=
 (title : String)
--- no specific commands are specified by LSP, hence
--- possible commands need to be announced as capabilities
 (command : String)
 (arguments? : Option (Array Json) := none)
 
+instance Command.hasFromJson : HasFromJson Command :=
+⟨fun j => do
+  title ← j.getObjValAs? String "title";
+  command ← j.getObjValAs? String "command";
+  let arguments? := j.getObjValAs? (Array Json) "arguments";
+  pure ⟨title, command, arguments?⟩⟩
+
+instance Command.hasToJson : HasToJson Command :=
+⟨fun o => mkObj $
+  opt "arguments" o.arguments? ++
+  [ ⟨"title", o.title⟩
+  , ⟨"command", o.command⟩
+  ]⟩
+
 structure TextEdit :=
--- text insertion: start = end
 (range : Range)
--- text deletion: empty string
 (newText : String)
 
--- no intermediate states:
--- - ranges may not overlap
--- - multiple inserts can have the same starting position
--- - the order of the array induces the insert order
--- - a single remove or replace edit after an insert
---   can also have the same starting position as the insert
+instance TextEdit.hasFromJson : HasFromJson TextEdit :=
+⟨fun j => do
+  range ← j.getObjValAs? Range "range";
+  newText ← j.getObjValAs? String "newText";
+  pure ⟨range, newText⟩⟩
+
+instance TextEdit.hasToJson : HasToJson TextEdit :=
+⟨fun o => mkObj $
+  [ ⟨"range", toJson o.range⟩
+  , ⟨"newText", o.newText⟩
+  ]⟩
+
 def TextEditBatch := Array TextEdit
+
+instance TextEditBatch.hasFromJson : HasFromJson TextEditBatch :=
+⟨@fromJson? (Array TextEdit) _⟩
+
+instance TextEditBatch.hasToJson : HasToJson TextEditBatch :=
+⟨@toJson (Array TextEdit) _⟩
 
 structure TextDocumentIdentifier := (uri : DocumentUri)
 
-instance textDocumentIdentifierHasFromJson : HasFromJson TextDocumentIdentifier :=
-⟨fun j => do
-  uri ← j.getObjValAs? DocumentUri "uri";
-  pure ⟨uri⟩⟩
+instance TextDocumentIdentifier.hasFromJson : HasFromJson TextDocumentIdentifier :=
+⟨fun j => TextDocumentIdentifier.mk <$> j.getObjValAs? DocumentUri "uri"⟩
+
+instance TextDocumentIdentifier.hasToJson : HasToJson TextDocumentIdentifier :=
+⟨fun o => mkObj [⟨"uri", o.uri⟩]⟩
 
 structure VersionedTextDocumentIdentifier :=
 (uri : DocumentUri)
--- increases after each change, undo and redo
--- none used when a document is not open and the
--- disk content is the master
 (version? : Option Nat := none)
 
-instance versionedTextDocumentIdentifierHasFromJson : HasFromJson VersionedTextDocumentIdentifier :=
+instance VersionedTextDocumentIdentifier.hasFromJson : HasFromJson VersionedTextDocumentIdentifier :=
 ⟨fun j => do
   uri ← j.getObjValAs? DocumentUri "uri";
   let version? := j.getObjValAs? Nat "version";
   pure ⟨uri, version?⟩⟩
 
+instance VersionedTextDocumentIdentifier.hasToJson : HasToJson VersionedTextDocumentIdentifier :=
+⟨fun o => mkObj $
+  opt "version" o.version? ++
+  [⟨"uri", o.uri⟩]⟩
+
 structure TextDocumentEdit :=
 (textDocument : VersionedTextDocumentIdentifier)
 (edits : TextEditBatch)
+
+instance TextDocumentEdit.hasFromJson : HasFromJson TextDocumentEdit :=
+⟨fun j => do
+  textDocument ← j.getObjValAs? VersionedTextDocumentIdentifier "textDocument";
+  edits ← j.getObjValAs? TextEditBatch "edits";
+  pure ⟨textDocument, edits⟩⟩
+
+instance TextDocumentEdit.hasToJson : HasToJson TextDocumentEdit :=
+⟨fun o => mkObj $
+  [ ⟨"textDocument", toJson o.textDocument⟩
+  , ⟨"edits", toJson o.edits⟩
+  ]⟩
 
 -- TODO(Marc): missing:
 -- File Resource Changes, WorkspaceEdit
@@ -138,14 +201,11 @@ structure TextDocumentEdit :=
 
 structure TextDocumentItem :=
 (uri : DocumentUri)
--- used to identify documents on the server side
--- when handling more than language
 (languageId : String)
--- increases after each change, undo and redo
 (version : Nat)
 (text : String)
 
-instance textDocumentItemHasFromJson : HasFromJson TextDocumentItem :=
+instance TextDocumentItem.hasFromJson : HasFromJson TextDocumentItem :=
 ⟨fun j => do
   uri ← j.getObjValAs? DocumentUri "uri";
   languageId ← j.getObjValAs? String "languageId";
@@ -153,54 +213,104 @@ instance textDocumentItemHasFromJson : HasFromJson TextDocumentItem :=
   text ← j.getObjValAs? String "text";
   pure ⟨uri, languageId, version, text⟩⟩
 
--- parameter literal for requests
+instance TextDocumentItem.hasToJson : HasToJson TextDocumentItem :=
+⟨fun o => mkObj $
+  [ ⟨"uri", o.uri⟩
+  , ⟨"languageId", o.languageId⟩
+  , ⟨"version", o.version⟩
+  , ⟨"text", o.text⟩
+  ]⟩
+
 structure TextDocumentPositionParams :=
 (textDocument : TextDocumentIdentifier)
 (position : Position)
 
-instance textDocumentPositionParamsHasFromJson : HasFromJson TextDocumentPositionParams :=
+instance TextDocumentPositionParams.hasFromJson : HasFromJson TextDocumentPositionParams :=
 ⟨fun j => do
   textDocument ← j.getObjValAs? TextDocumentIdentifier "textDocument";
   position ← j.getObjValAs? Position "position";
   pure ⟨textDocument, position⟩⟩
 
+instance TextDocumentPositionParams.hasToJson : HasToJson TextDocumentPositionParams :=
+⟨fun o => mkObj $
+  [ ⟨"textDocument", toJson o.textDocument⟩
+  , ⟨"position", toJson o.position⟩
+  ]⟩
+
 structure DocumentFilter :=
-(language? : Option String := none) -- language id
--- uri scheme like 'file' or 'untitled'
+(language? : Option String := none)
 (scheme? : Option String := none)
--- glob pattern, like *.{ts,js}
--- syntax:
--- - * for one or more chars
--- - ? for one char in path segment
--- - ** for zero or more chars
--- - {} for group conditions
--- - [] for range of character
--- - [!...] to negate range of characters
 (pattern? : Option String := none)
 
-instance documentFilterHasFromJson : HasFromJson DocumentFilter :=
+instance DocumentFilter.hasFromJson : HasFromJson DocumentFilter :=
 ⟨fun j => do
   let language? := j.getObjValAs? String "language";
   let scheme? := j.getObjValAs? String "scheme";
   let pattern? := j.getObjValAs? String "pattern";
   pure ⟨language?, scheme?, pattern?⟩⟩
 
+instance DocumentFilter.hasToJson : HasToJson DocumentFilter :=
+⟨fun o => mkObj $
+  opt "language" o.language? ++
+  opt "scheme" o.scheme? ++
+  opt "pattern" o.pattern?⟩
+
 def DocumentSelector := Array DocumentFilter
 
-instance documentSelectorHasFromJson : HasFromJson DocumentSelector :=
+instance DocumentSelector.hasFromJson : HasFromJson DocumentSelector :=
 ⟨@fromJson? (Array DocumentFilter) _⟩
+
+instance DocumentSelector.hasToJson : HasToJson DocumentSelector :=
+⟨@toJson (Array DocumentFilter) _⟩
+
+structure StaticRegistrationOptions := (id? : Option String := none)
+
+instance StaticRegistrationOptions.hasFromJson : HasFromJson StaticRegistrationOptions :=
+⟨fun j => some ⟨j.getObjValAs? String "id"⟩⟩
+
+instance StaticRegistrationOptions.hasToJson : HasToJson StaticRegistrationOptions :=
+⟨fun o => mkObj $ opt "id" o.id?⟩
 
 structure TextDocumentRegistrationOptions := (documentSelector? : Option DocumentSelector := none)
 
-instance textDocumentRegistrationOptionsHasFromJson : HasFromJson TextDocumentRegistrationOptions :=
+instance TextDocumentRegistrationOptions.hasFromJson : HasFromJson TextDocumentRegistrationOptions :=
 ⟨fun j => some ⟨j.getObjValAs? DocumentSelector "documentSelector"⟩⟩
 
+instance TextDocumentRegistrationOptions.hasToJson : HasToJson TextDocumentRegistrationOptions :=
+⟨fun o => mkObj $ opt "documentSelector" o.documentSelector?⟩
+
+inductive MarkupKind | plaintext | markdown
+
+instance MarkupKind.hasFromJson : HasFromJson MarkupKind :=
+⟨fun j => match j with
+  | str "plaintext" => some MarkupKind.plaintext
+  | str "markdown"  => some MarkupKind.markdown
+  | _               => none⟩
+
+instance MarkupKind.hasToJson : HasToJson MarkupKind :=
+⟨fun k => match k with
+  | MarkupKind.plaintext => str "plaintext"
+  | MarkupKind.markdown  => str "markdown"⟩
+
+structure MarkupContent := (kind : MarkupKind) (value : String)
+
+instance MarkupContent.hasFromJson : HasFromJson MarkupContent :=
+⟨fun j => do
+  kind ← j.getObjValAs? MarkupKind "kind";
+  value ← j.getObjValAs? String "value";
+  pure ⟨kind, value⟩⟩
+
+instance MarkupContent.hasToJson : HasToJson MarkupContent :=
+⟨fun o => mkObj $
+  [ ⟨"kind", toJson o.kind⟩
+  , ⟨"value", o.value⟩
+  ]⟩
+
 -- TODO(Marc): missing:
--- StaticRegistrationOptions,
--- MarkupContent, WorkDoneProgressBegin, WorkDoneProgressReport,
+-- WorkDoneProgressBegin, WorkDoneProgressReport,
 -- WorkDoneProgressEnd, WorkDoneProgressParams,
 -- WorkDoneProgressOptions, PartialResultParams
--- Markup and Progress can be implemented
+-- Progress can be implemented
 -- later when the basic functionality stands.
 
 end Lsp

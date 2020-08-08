@@ -186,11 +186,8 @@ match method with
 def handleRequest (id : RequestID) (method : String) (params : Json)
   : ServerM Unit := do
 let h := (fun paramType responseType [HasFromJson paramType] [HasToJson responseType]
-              (handler : paramType → ServerM responseType) => do
-  -- NOTE: for some reason Lean is unhappy with a >>= chain here
-  p ← parseParams paramType params;
-  reply ← handler p;
-  writeLspResponse id reply);
+              (handler : paramType → ServerM responseType) =>
+           parseParams paramType params >>= handler >>= writeLspResponse id);
 match method with
 | "textDocument/hover" => h HoverParams Json handleHover
 | _ => throw (userError "got unsupported request")
@@ -207,7 +204,16 @@ partial def mainLoop : Unit → ServerM Unit
   | Message.notification method (some params) => do
     handleNotification method (toJson params);
     mainLoop ()
-  | _ => throw (userError "got invalid jsonrpc message")
+  | _ => throw (userError "got invalid JSON-RPC message")
+
+def mkLeanServerCapabilities : ServerCapabilities :=
+{ textDocumentSync? := some
+  { openClose := true
+  , change := TextDocumentSyncKind.incremental
+  , willSave := false
+  , willSaveWaitUntil := false
+  , save? := none }
+, hoverProvider := true }
 
 def initAndRunServer (i o : FS.Handle) : IO Unit := do
   openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
@@ -219,7 +225,7 @@ def initAndRunServer (i o : FS.Handle) : IO Unit := do
         { capabilities := mkLeanServerCapabilities
         , serverInfo? := some { name := "Lean 4 server"
                               , version? := "0.0.1" } : InitializeResult };
-      _ ← readLspNotificationAs "initialized" Initialized;
+      _ ← readLspNotificationAs "initialized" InitializedParams;
       mainLoop ();
       Message.notification "exit" none ← readLspMessage
         | throw (userError "Expected an Exit Notification.");

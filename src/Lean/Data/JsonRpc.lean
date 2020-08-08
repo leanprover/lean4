@@ -3,6 +3,9 @@ import Init.System.IO
 import Std.Data.RBTree
 import Lean.Data.Json
 
+/-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)
+for use in the LSP server. -/
+
 namespace Lean
 namespace JsonRpc
 
@@ -29,24 +32,22 @@ inductive ErrorCode
 | requestCancelled
 | contentModified
 
-instance hasFromJsonErrorCode : HasFromJson ErrorCode :=
+instance ErrorCode.hasFromJson : HasFromJson ErrorCode :=
 ⟨fun j => match j with
-  | num n =>
-    if      n = (-32700 : Int) then ErrorCode.parseError
-    else if n = (-32600 : Int) then ErrorCode.invalidRequest
-    else if n = (-32601 : Int) then ErrorCode.methodNotFound
-    else if n = (-32602 : Int) then ErrorCode.invalidParams
-    else if n = (-32603 : Int) then ErrorCode.internalError
-    else if n = (-32099 : Int) then ErrorCode.serverErrorStart
-    else if n = (-32000 : Int) then ErrorCode.serverErrorEnd
-    else if n = (-32002 : Int) then ErrorCode.serverNotInitialized
-    else if n = (-32001 : Int) then ErrorCode.unknownErrorCode
-    else if n = (-32800 : Int) then ErrorCode.requestCancelled
-    else if n = (-32801 : Int) then ErrorCode.contentModified
-    else none
-  | _ => none⟩
+  | num (-32700 : Int) => ErrorCode.parseError
+  | num (-32600 : Int) => ErrorCode.invalidRequest
+  | num (-32601 : Int) => ErrorCode.methodNotFound
+  | num (-32602 : Int) => ErrorCode.invalidParams
+  | num (-32603 : Int) => ErrorCode.internalError
+  | num (-32099 : Int) => ErrorCode.serverErrorStart
+  | num (-32000 : Int) => ErrorCode.serverErrorEnd
+  | num (-32002 : Int) => ErrorCode.serverNotInitialized
+  | num (-32001 : Int) => ErrorCode.unknownErrorCode
+  | num (-32800 : Int) => ErrorCode.requestCancelled
+  | num (-32801 : Int) => ErrorCode.contentModified
+  | _                  => none⟩
 
-instance hasToJsonErrorCode : HasToJson ErrorCode :=
+instance ErrorCode.hasToJson : HasToJson ErrorCode :=
 ⟨fun e => match e with
   | ErrorCode.parseError           => (-32700 : Int)
   | ErrorCode.invalidRequest       => (-32600 : Int)
@@ -60,10 +61,10 @@ instance hasToJsonErrorCode : HasToJson ErrorCode :=
   | ErrorCode.requestCancelled     => (-32800 : Int)
   | ErrorCode.contentModified      => (-32801 : Int)⟩
 
--- uses Option Structured because users will likely rarely distinguish between an empty
--- parameter array and an omitted params field.
--- uses seperate constructors for notifications and errors because client and server
--- behavior is expected to be wildly different for both.
+/- Uses Option Structured because users will likely rarely distinguish between an empty
+parameter array and an omitted params field.
+Uses separate constructors for notifications and errors because client and server
+behavior is expected to be wildly different for both. -/
 inductive Message
 | request (id : RequestID) (method : String) (params? : Option Structured)
 | notification (method : String) (params? : Option Structured)
@@ -80,31 +81,37 @@ structure Error := (id : RequestID) (code : JsonNumber) (message : String) (data
 instance stringToRequestID : HasCoe String RequestID := ⟨RequestID.str⟩
 instance numToRequestID : HasCoe JsonNumber RequestID := ⟨RequestID.num⟩
 
-instance requestIDToJson : HasToJson RequestID :=
-⟨fun rid => match rid with
-  | RequestID.str s => s
-  | RequestID.num n => num n
-  | RequestID.null  => null⟩
-
-instance requestIDFromJson : HasFromJson RequestID :=
+instance RequestId.hasFromJson : HasFromJson RequestID :=
 ⟨fun j => match j with
   | str s => RequestID.str s
   | num n => RequestID.num n
   | _     => none⟩
 
-instance messageToJson : HasToJson Message :=
+instance RequestID.hasToJson : HasToJson RequestID :=
+⟨fun rid => match rid with
+  | RequestID.str s => s
+  | RequestID.num n => num n
+  | RequestID.null  => null⟩
+
+instance Message.hasToJson : HasToJson Message :=
 ⟨fun m =>
   mkObj $ ⟨"jsonrpc", "2.0"⟩ :: match m with
   | Message.request id method params? =>
-    [⟨"id", toJson id⟩, ⟨"method", method⟩] ++ opt "params" params?
+    [ ⟨"id", toJson id⟩
+    , ⟨"method", method⟩
+    ] ++ opt "params" params?
   | Message.notification method params? =>
-    ⟨"method", method⟩ :: opt "params" params?
+    ⟨"method", method⟩ ::
+    opt "params" params?
   | Message.response id result =>
-    [⟨"id", toJson id⟩, ⟨"result", result⟩]
+    [ ⟨"id", toJson id⟩
+    , ⟨"result", result⟩]
   | Message.responseError id code message data? =>
-    [⟨"id", toJson id⟩,
-     ⟨"error", mkObj $
-       [⟨"code", toJson code⟩, ⟨"message", message⟩] ++ opt "data" data?⟩]⟩
+    [ ⟨"id", toJson id⟩
+    , ⟨"error", mkObj $
+       [ ⟨"code", toJson code⟩
+       , ⟨"message", message⟩
+       ] ++ opt "data" data?⟩]⟩
 
 def aux1 (j : Json) : Option Message := do
 id ← j.getObjValAs? RequestID "id";
@@ -132,7 +139,7 @@ pure (Message.responseError id code message data?)
 
 -- HACK: The implementation must be made up of several `auxN`s instead
 -- of one large block because of a bug in the compiler.
-instance messageFromJson : HasFromJson Message :=
+instance Message.hasFromJson : HasFromJson Message :=
 ⟨fun j => do
   "2.0" ← j.getObjVal? "jsonrpc" | none;
   aux1 j <|> aux2 j <|> aux3 j <|> aux4 j⟩
@@ -150,7 +157,7 @@ def readMessage (h : FS.Handle) (nBytes : Nat) : IO Message := do
 j ← h.readJson nBytes;
 match fromJson? j with
 | some m => pure m
-| none   => throw (userError ("json '" ++ j.compress ++ "' did not have the format of a jsonrpc message"))
+| none   => throw (userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message"))
 
 def readRequestAs (h : FS.Handle) (nBytes : Nat) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO (Request α) := do
 m ← h.readMessage nBytes;

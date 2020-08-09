@@ -68,20 +68,21 @@ pure { beginPos := 0
      }
 
 /-- Compiles the next command occurring after the given snapshot.
-If there is no next command, returns `none`. -/
+If there is no next command (file ended), returns messages produced
+through the file. -/
 -- NOTE(WN): This code is really very similar to Elab.Frontend.
 -- Is there a point in generalizing it over "store snapshots"/"don't store snapshots"
 -- by changing the FrontendM monad? Perhaps not because it would likely result in
 -- confusing isServer? conditionals.
-def compileNextCmd (contents : String) (snap : Snapshot) : IO (Option Snapshot) := do
+def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
 let inputCtx := Parser.mkInputContext contents "<input>";
 let (cmdStx, cmdParserState, msgLog) :=
   Parser.parseCommand snap.env inputCtx snap.mpState snap.msgLog;
 let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?
 if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-  pure none
+  pure $ Sum.inr msgLog
 else do
-  cmdStateRef ← IO.mkRef snap.toCmdState;
+  cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog };
   let cmdCtx : Elab.Command.Context :=
     { cmdPos := snap.endPos
     , stateRef := cmdStateRef
@@ -99,17 +100,18 @@ else do
     , mpState := cmdParserState
     , data := SnapshotData.cmdData postCmdState
     };
-  pure $ some postCmdSnap
+  pure $ Sum.inl postCmdSnap
 
-/-- Compiles all commands after the given snapshot. -/
-partial def compileCmdsAfter (contents : String) : Snapshot → IO (List Snapshot)
+/-- Compiles all commands after the given snapshot. Returns them as a list, together with
+the final message log. -/
+partial def compileCmdsAfter (contents : String) : Snapshot → IO (List Snapshot × MessageLog)
 | snap => do
   cmdOut ← compileNextCmd contents snap;
   match cmdOut with
-  | some snap => do
-    snaps ← compileCmdsAfter snap;
-    pure $ snap :: snaps
-  | none => pure []
+  | Sum.inl snap => do
+    (snaps, msgLog) ← compileCmdsAfter snap;
+    pure $ (snap :: snaps, msgLog)
+  | Sum.inr msgLog => pure ([], msgLog)
 
 end Snapshots
 end Server

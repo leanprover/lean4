@@ -38,9 +38,8 @@ def compileDocument (version : Nat) (text : DocumentText)
   : IO (MessageLog × EditableDocument) := do
 let contents := "\n".intercalate text.toList;
 headerSnap ← Snapshots.compileHeader contents;
-cmdSnaps ← Snapshots.compileCmdsAfter contents headerSnap;
+(cmdSnaps, msgLog) ← Snapshots.compileCmdsAfter contents headerSnap;
 let docOut : EditableDocument := ⟨version, text, headerSnap, cmdSnaps⟩;
-let msgLog := (cmdSnaps.getLastD headerSnap).msgLog;
 pure (msgLog, docOut)
 
 def updateDocument (doc : EditableDocument) (changePos : Lsp.Position) (newVersion : Nat)
@@ -64,12 +63,11 @@ match doc.snapshots.head? with
     let validSnaps := doc.snapshots.filter (fun snap => snap.endPos < changePos);
     -- The lowest-in-the-file snapshot which is still valid.
     let lastSnap := validSnaps.getLastD doc.header;
-    snaps ← Snapshots.compileCmdsAfter newContents lastSnap;
+    (snaps, msgLog) ← Snapshots.compileCmdsAfter newContents lastSnap;
     let newDoc := { version := newVersion
                   , header := doc.header
                   , text := newText
                   , snapshots := validSnaps ++ snaps : EditableDocument };
-    let msgLog := (newDoc.snapshots.getLastD newDoc.header).msgLog;
     pure (msgLog, newDoc)
 
 end Editable
@@ -196,7 +194,7 @@ let h := (fun paramType responseType [HasFromJson paramType] [HasToJson response
            parseParams paramType params >>= handler >>= writeLspResponse id);
 match method with
 | "textDocument/hover" => h HoverParams Json handleHover
-| _ => throw (userError "got unsupported request")
+| _ => throw (userError $ "got unsupported request: " ++ method)
 
 partial def mainLoop : Unit → ServerM Unit
 | () => do

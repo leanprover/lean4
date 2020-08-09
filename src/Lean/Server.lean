@@ -64,10 +64,10 @@ match doc.snapshots.head? with
     -- The lowest-in-the-file snapshot which is still valid.
     let lastSnap := validSnaps.getLastD doc.header;
     (snaps, msgLog) ← Snapshots.compileCmdsAfter newContents lastSnap;
-    let newDoc := { version := newVersion
-                  , header := doc.header
-                  , text := newText
-                  , snapshots := validSnaps ++ snaps : EditableDocument };
+    let newDoc := { version := newVersion,
+                    header := doc.header,
+                    text := newText,
+                    snapshots := validSnaps ++ snaps : EditableDocument };
     pure (msgLog, newDoc)
 
 end Editable
@@ -119,17 +119,17 @@ fun st => monadLift $ writeLspResponse st.o id params
 -- TODO(WN): how to clear all diagnostics? Sending version 'none' doesn't seem to work
 def clearDiagnostics (uri : DocumentUri) (version : Nat) : ServerM Unit :=
 writeLspNotification "textDocument/publishDiagnostics"
-  { uri := uri
-  , version? := version
-  , diagnostics := #[] : PublishDiagnosticsParams }
+  { uri := uri,
+    version? := version,
+    diagnostics := #[] : PublishDiagnosticsParams }
 
 def sendDiagnostics (uri : DocumentUri) (doc : EditableDocument) (log : MessageLog)
   : ServerM Unit :=
 let diagnostics := log.msgs.map (msgToDiagnostic doc.text);
 writeLspNotification "textDocument/publishDiagnostics"
-  { uri := uri
-  , version? := doc.version
-  , diagnostics := diagnostics.toArray : PublishDiagnosticsParams }
+  { uri := uri,
+    version? := doc.version,
+    diagnostics := diagnostics.toArray : PublishDiagnosticsParams }
 
 def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit := do
 let doc := p.textDocument;
@@ -213,12 +213,14 @@ partial def mainLoop : Unit → ServerM Unit
 
 def mkLeanServerCapabilities : ServerCapabilities :=
 { textDocumentSync? := some
-  { openClose := true
-  , change := TextDocumentSyncKind.incremental
-  , willSave := false
-  , willSaveWaitUntil := false
-  , save? := none }
-, hoverProvider := true }
+  { openClose := true,
+    change := TextDocumentSyncKind.incremental,
+    willSave := false,
+    willSaveWaitUntil := false,
+    save? := none,
+  },
+  hoverProvider := true,
+}
 
 def initAndRunServer (i o : FS.Handle) : IO Unit := do
   openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
@@ -227,9 +229,9 @@ def initAndRunServer (i o : FS.Handle) : IO Unit := do
       -- ignore InitializeParams for MWE
       r ← readLspRequestAs "initialize" InitializeParams;
       writeLspResponse r.id
-        { capabilities := mkLeanServerCapabilities
-        , serverInfo? := some { name := "Lean 4 server"
-                              , version? := "0.0.1" } : InitializeResult };
+        { capabilities := mkLeanServerCapabilities,
+          serverInfo? := some { name := "Lean 4 server",
+                                version? := "0.0.1" } : InitializeResult };
       _ ← readLspNotificationAs "initialized" InitializedParams;
       mainLoop ();
       Message.notification "exit" none ← readLspMessage

@@ -62,9 +62,9 @@ let inputCtx := Parser.mkInputContext contents "<input>";
 emptyEnv ← mkEmptyEnvironment;
 let (headerStx, headerParserState, msgLog) := Parser.parseHeader emptyEnv inputCtx;
 (headerEnv, msgLog) ← Elab.processHeader headerStx msgLog inputCtx;
-pure { beginPos := 0
-     , mpState := headerParserState
-     , data := SnapshotData.headerData headerEnv msgLog opts
+pure { beginPos := 0,
+       mpState := headerParserState,
+       data := SnapshotData.headerData headerEnv msgLog opts
      }
 
 /-- Compiles the next command occurring after the given snapshot.
@@ -84,10 +84,10 @@ if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
 else do
   cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog };
   let cmdCtx : Elab.Command.Context :=
-    { cmdPos := snap.endPos
-    , stateRef := cmdStateRef
-    , fileName := inputCtx.fileName
-    , fileMap := inputCtx.fileMap
+    { cmdPos := snap.endPos,
+      stateRef := cmdStateRef,
+      fileName := inputCtx.fileName,
+      fileMap := inputCtx.fileMap
     };
   EIO.adaptExcept
     (fun e => Empty.rec _ e)
@@ -96,9 +96,9 @@ else do
       cmdCtx);
   postCmdState ← cmdStateRef.get;
   let postCmdSnap : Snapshot :=
-    { beginPos := cmdPos
-    , mpState := cmdParserState
-    , data := SnapshotData.cmdData postCmdState
+    { beginPos := cmdPos,
+      mpState := cmdParserState,
+      data := SnapshotData.cmdData postCmdState
     };
   pure $ Sum.inl postCmdSnap
 

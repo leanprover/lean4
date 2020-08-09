@@ -103,21 +103,22 @@ instance Message.hasToJson : HasToJson Message :=
 ⟨fun m =>
   mkObj $ ⟨"jsonrpc", "2.0"⟩ :: match m with
   | Message.request id method params? =>
-    [ ⟨"id", toJson id⟩
-    , ⟨"method", method⟩
+    [ ⟨"id", toJson id⟩,
+      ⟨"method", method⟩
     ] ++ opt "params" params?
   | Message.notification method params? =>
     ⟨"method", method⟩ ::
     opt "params" params?
   | Message.response id result =>
-    [ ⟨"id", toJson id⟩
-    , ⟨"result", result⟩]
+    [ ⟨"id", toJson id⟩,
+      ⟨"result", result⟩]
   | Message.responseError id code message data? =>
-    [ ⟨"id", toJson id⟩
-    , ⟨"error", mkObj $
-       [ ⟨"code", toJson code⟩
-       , ⟨"message", message⟩
-       ] ++ opt "data" data?⟩]⟩
+    [ ⟨"id", toJson id⟩,
+      ⟨"error", mkObj $ [
+          ⟨"code", toJson code⟩,
+          ⟨"message", message⟩
+        ] ++ opt "data" data?⟩
+    ]⟩
 
 def aux1 (j : Json) : Option Message := do
 id ← j.getObjValAs? RequestID "id";

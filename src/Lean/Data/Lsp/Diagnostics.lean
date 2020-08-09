@@ -77,10 +77,9 @@ instance DiagnosticRelatedInformation.hasFromJson : HasFromJson DiagnosticRelate
   pure ⟨location, message⟩⟩
 
 instance DiagnosticRelatedInformation.hasToJson : HasToJson DiagnosticRelatedInformation :=
-⟨fun o => mkObj $
-  [ ⟨"location", toJson o.location⟩
-  , ⟨"message", o.message⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"location", toJson o.location⟩,
+  ⟨"message", o.message⟩]⟩
 
 structure Diagnostic :=
 (range : Range)
@@ -108,10 +107,9 @@ instance Diagnostic.hasToJson : HasToJson Diagnostic :=
   opt "code" o.code? ++
   opt "source" o.source? ++
   opt "tags" o.tags? ++
-  opt "relatedInformation" o.relatedInformation? ++
-  [ ⟨"range", toJson o.range⟩
-  , ⟨"message", o.message⟩
-  ]⟩
+  opt "relatedInformation" o.relatedInformation? ++ [
+    ⟨"range", toJson o.range⟩,
+    ⟨"message", o.message⟩]⟩
 
 structure PublishDiagnosticsParams :=
 (uri : DocumentUri)
@@ -127,10 +125,9 @@ instance PublishDiagnosticsParams.hasFromJson : HasFromJson PublishDiagnosticsPa
 
 instance PublishDiagnosticsParams.hasToJson : HasToJson PublishDiagnosticsParams :=
 ⟨fun o => mkObj $
-  opt "version" o.version? ++
-  [ ⟨"uri", toJson o.uri⟩
-  , ⟨"diagnostics", toJson o.diagnostics⟩
-  ]⟩
+  opt "version" o.version? ++ [
+    ⟨"uri", toJson o.uri⟩,
+    ⟨"diagnostics", toJson o.diagnostics⟩]⟩
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToDiagnostic (text : DocumentText) (m : Message) : Diagnostic :=
@@ -149,10 +146,11 @@ let severity := match m.severity with
 | MessageSeverity.error       => DiagnosticSeverity.error;
 let source := "Lean 4 server";
 let message := toString (format m.data);
-{ range := range
-, severity? := severity
-, source? := source
-, message := message}
+{ range := range,
+  severity? := severity,
+  source? := source,
+  message := message,
+}
 
 end Lsp
 end Lean

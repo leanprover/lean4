@@ -23,10 +23,9 @@ instance WorkspaceFolder.hasFromJson : HasFromJson WorkspaceFolder :=
   pure ⟨uri, name⟩⟩
 
 instance WorkspaceFolder.hasToJson : HasToJson WorkspaceFolder :=
-⟨fun o => mkObj $
-  [ ⟨"uri", toJson o.uri⟩
-  , ⟨"name", toJson o.name⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"uri", toJson o.uri⟩,
+  ⟨"name", toJson o.name⟩]⟩
 
 -- TODO(WN):
 -- WorkspaceFoldersServerCapabilities,

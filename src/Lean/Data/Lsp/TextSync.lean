@@ -100,12 +100,11 @@ structure TextDocumentSyncOptions :=
 
 instance TextDocumentSyncOptions.hasToJson : HasToJson TextDocumentSyncOptions :=
 ⟨fun o => mkObj $
-  opt "save" o.save? ++
-  [ ⟨"openClose", toJson o.openClose⟩
-  , ⟨"change", toJson o.change⟩
-  , ⟨"willSave", toJson o.willSave⟩
-  , ⟨"willSaveWaitUntil", toJson o.willSaveWaitUntil⟩
-  ]⟩
+  opt "save" o.save? ++ [
+    ⟨"openClose", toJson o.openClose⟩,
+    ⟨"change", toJson o.change⟩,
+    ⟨"willSave", toJson o.willSave⟩,
+    ⟨"willSaveWaitUntil", toJson o.willSaveWaitUntil⟩]⟩
 
 end Lsp
 end Lean

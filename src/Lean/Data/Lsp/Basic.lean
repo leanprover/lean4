@@ -35,10 +35,9 @@ instance Position.hasFromJson : HasFromJson Position :=
   pure ⟨line, character⟩⟩
 
 instance Position.hasToJson : HasToJson Position :=
-⟨fun o => mkObj $
-  [ ⟨"line", o.line⟩
-  , ⟨"character", o.character⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"line", o.line⟩,
+  ⟨"character", o.character⟩]⟩
 
 instance Position.hasToString : HasToString Position :=
 ⟨fun p => "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
@@ -73,10 +72,9 @@ instance Range.hasFromJson : HasFromJson Range :=
   pure ⟨start, «end»⟩⟩
 
 instance Range.hasToJson : HasToJson Range :=
-⟨fun o => mkObj $
-  [ ⟨"start", toJson o.start⟩
-  , ⟨"end", toJson o.«end»⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"start", toJson o.start⟩,
+  ⟨"end", toJson o.«end»⟩]⟩
 
 structure Location := (uri : DocumentUri) (range : Range)
 
@@ -87,10 +85,9 @@ instance Location.hasFromJson : HasFromJson Location :=
   pure ⟨uri, range⟩⟩
 
 instance Location.hasToJson : HasToJson Location :=
-⟨fun o => mkObj $
-  [ ⟨"uri", toJson o.uri⟩
-  , ⟨"range", toJson o.range⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"uri", toJson o.uri⟩,
+  ⟨"range", toJson o.range⟩]⟩
 
 structure LocationLink :=
 (originSelectionRange? : Option Range)
@@ -108,11 +105,10 @@ instance LocationLink.hasFromJson : HasFromJson LocationLink :=
 
 instance LocationLink.hasToJson : HasToJson LocationLink :=
 ⟨fun o => mkObj $
-  opt "originSelectionRange" o.originSelectionRange? ++
-  [ ⟨"targetUri", toJson o.targetUri⟩
-  , ⟨"targetRange", toJson o.targetRange⟩
-  , ⟨"targetSelectionRange", toJson o.targetSelectionRange⟩
-  ]⟩
+  opt "originSelectionRange" o.originSelectionRange? ++ [
+    ⟨"targetUri", toJson o.targetUri⟩,
+    ⟨"targetRange", toJson o.targetRange⟩,
+    ⟨"targetSelectionRange", toJson o.targetSelectionRange⟩]⟩
 
 -- NOTE: Diagnostic defined in Diagnostics.lean
 
@@ -132,10 +128,9 @@ instance Command.hasFromJson : HasFromJson Command :=
 
 instance Command.hasToJson : HasToJson Command :=
 ⟨fun o => mkObj $
-  opt "arguments" o.arguments? ++
-  [ ⟨"title", o.title⟩
-  , ⟨"command", o.command⟩
-  ]⟩
+  opt "arguments" o.arguments? ++ [
+    ⟨"title", o.title⟩,
+    ⟨"command", o.command⟩]⟩
 
 structure TextEdit :=
 (range : Range)
@@ -148,10 +143,9 @@ instance TextEdit.hasFromJson : HasFromJson TextEdit :=
   pure ⟨range, newText⟩⟩
 
 instance TextEdit.hasToJson : HasToJson TextEdit :=
-⟨fun o => mkObj $
-  [ ⟨"range", toJson o.range⟩
-  , ⟨"newText", o.newText⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"range", toJson o.range⟩,
+  ⟨"newText", o.newText⟩]⟩
 
 def TextEditBatch := Array TextEdit
 
@@ -195,10 +189,9 @@ instance TextDocumentEdit.hasFromJson : HasFromJson TextDocumentEdit :=
   pure ⟨textDocument, edits⟩⟩
 
 instance TextDocumentEdit.hasToJson : HasToJson TextDocumentEdit :=
-⟨fun o => mkObj $
-  [ ⟨"textDocument", toJson o.textDocument⟩
-  , ⟨"edits", toJson o.edits⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"textDocument", toJson o.textDocument⟩,
+  ⟨"edits", toJson o.edits⟩]⟩
 
 -- TODO(Marc): missing:
 -- File Resource Changes, WorkspaceEdit
@@ -220,12 +213,11 @@ instance TextDocumentItem.hasFromJson : HasFromJson TextDocumentItem :=
   pure ⟨uri, languageId, version, text⟩⟩
 
 instance TextDocumentItem.hasToJson : HasToJson TextDocumentItem :=
-⟨fun o => mkObj $
-  [ ⟨"uri", o.uri⟩
-  , ⟨"languageId", o.languageId⟩
-  , ⟨"version", o.version⟩
-  , ⟨"text", o.text⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"uri", o.uri⟩,
+  ⟨"languageId", o.languageId⟩,
+  ⟨"version", o.version⟩,
+  ⟨"text", o.text⟩]⟩
 
 structure TextDocumentPositionParams :=
 (textDocument : TextDocumentIdentifier)
@@ -238,10 +230,9 @@ instance TextDocumentPositionParams.hasFromJson : HasFromJson TextDocumentPositi
   pure ⟨textDocument, position⟩⟩
 
 instance TextDocumentPositionParams.hasToJson : HasToJson TextDocumentPositionParams :=
-⟨fun o => mkObj $
-  [ ⟨"textDocument", toJson o.textDocument⟩
-  , ⟨"position", toJson o.position⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"textDocument", toJson o.textDocument⟩,
+  ⟨"position", toJson o.position⟩]⟩
 
 structure DocumentFilter :=
 (language? : Option String := none)
@@ -307,10 +298,9 @@ instance MarkupContent.hasFromJson : HasFromJson MarkupContent :=
   pure ⟨kind, value⟩⟩
 
 instance MarkupContent.hasToJson : HasToJson MarkupContent :=
-⟨fun o => mkObj $
-  [ ⟨"kind", toJson o.kind⟩
-  , ⟨"value", o.value⟩
-  ]⟩
+⟨fun o => mkObj [
+  ⟨"kind", toJson o.kind⟩,
+  ⟨"value", o.value⟩]⟩
 
 -- TODO(Marc): missing:
 -- WorkDoneProgressBegin, WorkDoneProgressReport,

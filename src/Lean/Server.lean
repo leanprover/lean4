@@ -194,17 +194,18 @@ let h := (fun paramType responseType [HasFromJson paramType] [HasToJson response
            parseParams paramType params >>= handler >>= writeLspResponse id);
 match method with
 | "textDocument/hover" => h HoverParams Json handleHover
-| _ => throw (userError $ "got unsupported request: " ++ method)
+| _ => throw (userError $ "got unsupported request: " ++ method ++
+                          "; params: " ++ toString params)
 
 partial def mainLoop : Unit → ServerM Unit
 | () => do
   msg ← readLspMessage;
   match msg with
+  | Message.request id "shutdown" _ =>
+    writeLspResponse id (Json.null)
   | Message.request id method (some params) => do
     handleRequest id method (toJson params);
     mainLoop ()
-  | Message.request id "shutdown" none =>
-    writeLspResponse id (Json.null)
   | Message.notification method (some params) => do
     handleNotification method (toJson params);
     mainLoop ()

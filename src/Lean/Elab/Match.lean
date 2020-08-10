@@ -17,8 +17,17 @@ private def expandSimpleMatchWithType (stx discr lhsVar type rhs : Syntax) (expe
 newStx ← `(let $lhsVar : $type := $discr; $rhs);
 withMacroExpansion stx newStx $ elabTerm newStx expectedType?
 
-/-
+private def expandMatchOptTypeAux (ref : Syntax) : Nat → MacroM Syntax
+| 0   => pure $ mkHole ref
+| n+1 => do t ← expandMatchOptTypeAux n; r ← `(forall _, $t); pure (r.copyInfo ref)
 
+private def expandMatchOptType (ref : Syntax) (optType : Syntax) (numDiscrs : Nat) : MacroM Syntax :=
+if optType.isNone then
+  expandMatchOptTypeAux ref numDiscrs
+else
+  pure $ (optType.getArg 0).getArg 1
+
+/-
 ```
 def matchDiscr := optIdent >> termParser
 parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
@@ -28,7 +37,9 @@ Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expa
 private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 tryPostponeIfNoneOrMVar expectedType?;
 let discrs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
-throwError stx ("WIP " ++ stx ++ "\n" ++ toString discrs)
+typeStx ← liftMacroM $ expandMatchOptType stx (stx.getArg 2) discrs.size;
+type ← elabType typeStx;
+throwError stx ("WIP type: " ++ type ++ "\n" ++ stx ++ "\n" ++ toString discrs)
 
 /-- Expand discriminants of the form `h : t` -/
 private def expandMatchDiscr? (stx : Syntax) : MacroM (Option Syntax) := do

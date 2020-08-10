@@ -106,7 +106,7 @@ withPosition $ fun pos =>
   (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 
-def matchDiscr := optIdent >> termParser
+def matchDiscr := parser! optIdent >> termParser
 
 @[builtinTermParser] def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch»  := parser!:leadPrec "nomatch " >> termParser

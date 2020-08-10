@@ -230,7 +230,7 @@ match x with
 | none => false
 (Term.match
  "match"
- [[] (Term.id `x [])]
+ [(Term.matchDiscr [] (Term.id `x []))]
  []
  "with"
  ["|"]
@@ -246,7 +246,7 @@ match x with
 
 (Term.match
  "match"
- [[] (Term.id `x [])]
+ [(Term.matchDiscr [] (Term.id `x []))]
  []
  "with"
  ["|"]
@@ -255,7 +255,7 @@ match x with
    "=>"
    (Term.match
     "match"
-    [[] (Term.id `y [])]
+    [(Term.matchDiscr [] (Term.id `y []))]
     []
     "with"
     ["|"]

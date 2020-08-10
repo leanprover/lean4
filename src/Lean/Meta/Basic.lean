@@ -10,6 +10,7 @@ import Lean.ReducibilityAttrs
 import Lean.Util.Trace
 import Lean.Util.RecDepth
 import Lean.Util.Closure
+import Lean.Compiler.InlineAttrs
 import Lean.Meta.Exception
 import Lean.Meta.DiscrTreeTypes
 import Lean.Eval
@@ -258,6 +259,11 @@ def throwOther {α} (msg : MessageData) (ref := Syntax.missing) : MetaM α := do
 ctx ← read;
 s ← get;
 throw (Exception.other ref (MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg))
+
+@[inline] def ofExcept {α ε} [HasToString ε] (x : Except ε α) : MetaM α :=
+match x with
+| Except.ok a    => pure a
+| Except.error e => throwOther (toString e)
 
 def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
@@ -859,6 +865,12 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do
 type ← inferType value;
 let type := type.headBeta;
 mkAuxDefinition name type value
+
+def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
+env ← getEnv;
+match Compiler.setInlineAttribute env declName kind with
+| Except.ok env    => setEnv env
+| Except.error msg => throwOther msg
 
 private partial def instantiateForallAux (ps : Array Expr) : Nat → Expr → MetaM Expr
 | i, e =>

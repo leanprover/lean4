@@ -732,6 +732,7 @@ generalizeTelescope majors.toArray `_d fun majors => do
     val  ← mkLambda args mvar;
     trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
     elim ← mkAuxDefinition elimName type val;
+    setInlineAttribute elimName;
     trace! `Meta.EqnCompiler.matchDebug ("eliminator: " ++ elim);
     let unusedAltIdxs : List Nat := lhss.length.fold
       (fun i r => if s.used.contains i then r else i::r)

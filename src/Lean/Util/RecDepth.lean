@@ -7,15 +7,10 @@ import Lean.Data.Options
 
 namespace Lean
 
-def defaultMaxRecDepth := 512
-
 def getMaxRecDepth (opts : Options) : Nat :=
 opts.getNat `maxRecDepth defaultMaxRecDepth
 
 @[init] def maxRecDepth : IO Unit :=
 registerOption `maxRecDepth { defValue := defaultMaxRecDepth, group := "", descr := "maximum recursion depth for many Lean procedures" }
-
-def maxRecDepthErrorMessage : String :=
-"maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
 
 end Lean

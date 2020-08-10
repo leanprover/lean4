@@ -115,6 +115,8 @@ class MonadMacroAdapter (m : Type → Type) :=
 (getCurrMacroScope                  : m MacroScope)
 (getNextMacroScope                  : m MacroScope)
 (setNextMacroScope                  : MacroScope → m Unit)
+(getCurrRecDepth                    : m Nat)
+(getMaxRecDepth                     : m Nat)
 (throwError  {α : Type}             : Syntax → MessageData → m α)
 (throwUnsupportedSyntax  {α : Type} : m α)
 
@@ -122,7 +124,9 @@ class MonadMacroAdapter (m : Type → Type) :=
 scp  ← MonadMacroAdapter.getCurrMacroScope;
 env  ← MonadMacroAdapter.getEnv;
 next ← MonadMacroAdapter.getNextMacroScope;
-match x { currMacroScope := scp, mainModule := env.mainModule } next with
+currRecDepth ← MonadMacroAdapter.getCurrRecDepth;
+maxRecDepth ← MonadMacroAdapter.getMaxRecDepth;
+match x { currMacroScope := scp, mainModule := env.mainModule, currRecDepth := currRecDepth, maxRecDepth := maxRecDepth } next with
 | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => MonadMacroAdapter.throwUnsupportedSyntax
 | EStateM.Result.error (Macro.Exception.error ref msg) _   => MonadMacroAdapter.throwError ref msg
 | EStateM.Result.ok a nextMacroScope                       => do MonadMacroAdapter.setNextMacroScope nextMacroScope; pure a

@@ -373,11 +373,18 @@ mainModule ← getMainModule;
 scp ← getCurrMacroScope;
 pure $ addMacroScope mainModule n scp
 
+def defaultMaxRecDepth := 512
+
+def maxRecDepthErrorMessage : String :=
+"maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
+
 namespace Macro
 
 structure Context :=
 (mainModule     : Name)
 (currMacroScope : MacroScope)
+(currRecDepth   : Nat := 0)
+(maxRecDepth    : Nat := defaultMaxRecDepth)
 
 inductive Exception
 | error             : Syntax → String → Exception
@@ -400,6 +407,11 @@ throw $ Macro.Exception.error ref msg
 @[inline] protected def Macro.withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
 fresh ← modifyGet (fun s => (s, s+1));
 adaptReader (fun (ctx : Macro.Context) => { ctx with currMacroScope := fresh }) x
+
+@[inline] def Macro.withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α := do
+ctx ← read;
+when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Macro.Exception.error ref maxRecDepthErrorMessage;
+adaptReader (fun (ctx : Macro.Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
 
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,

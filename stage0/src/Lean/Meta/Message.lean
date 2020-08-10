@@ -23,7 +23,7 @@ run? ctx $ do
   fType ← whnf fType;
   match fType with
   | Expr.forallE _ d _ _ => pure d
-  | _                    => throw $ Exception.other "unexpected"
+  | _                    => throwOther "unexpected"
 
 private def whnf? (ctx : ExceptionContext) (e : Expr) : Option Expr :=
 run? ctx (whnf e)
@@ -73,11 +73,11 @@ def toMessageData : Exception → MessageData
 | notInstance i ctx               => mkCtx ctx $ "not a type class instance " ++ i
 | appBuilder op msg ctx           => mkCtx ctx $ "application builder failure " ++ op ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ "failed to synthesize" ++ indentExpr inst
-| tactic tacName mvarId msg ctx   => mkCtx ctx $ "tactic '" ++ tacName ++ "' failed, " ++ msg ++ Format.line ++ MessageData.ofGoal mvarId
+| tactic _ tacName mvarId msg ctx => mkCtx ctx $ "tactic '" ++ tacName ++ "' failed, " ++ msg ++ Format.line ++ MessageData.ofGoal mvarId
 | generalizeTelescope es ctx      => mkCtx ctx $ "failed to create telescope generalizing " ++ es
 | kernel ex opts                  => ex.toMessageData opts
 | bug _ _                         => "internal bug" -- TODO improve
-| other s                         => s
+| other _ s                       => s
 
 end Exception
 

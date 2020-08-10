@@ -49,14 +49,15 @@ else
 
 def antiquotKind? : Syntax → Option SyntaxNodeKind
 | Syntax.node (Name.str k "antiquot" _) args =>
-  -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
-  if (args.get! 3).isNone then some Name.anonymous
-  else some k
+  if (args.get! 3).isOfKind `antiquotName then some k
+  else
+    -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
+    some Name.anonymous
 | _                                          => none
 
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
 def isAntiquotSplice (stx : Syntax) : Bool :=
-isAntiquot stx && (stx.getArg 5).getOptional?.isSome
+isAntiquot stx && (stx.getArg 4).getOptional?.isSome
 
 -- If any item of a `many` node is an antiquotation splice, its result should
 -- be substituted into the `many` node's children

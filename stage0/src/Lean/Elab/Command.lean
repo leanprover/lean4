@@ -225,8 +225,8 @@ match (x $ mkTermContext ctx s declName?).run (mkTermState s) with
 | EStateM.Result.error (Term.Exception.ex ex) newS  => do modify $ fun s => { s with env := newS.env, messages := newS.messages, ngen := newS.ngen }; throw ex
 | EStateM.Result.error Term.Exception.postpone newS => unreachable!
 
-@[inline] def runTermElabM {α} (declName? : Option Name) (elab : Array Expr → TermElabM α) : CommandElabM α := do
-s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elab)
+@[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
+s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x (fun ex => match ex with
@@ -307,9 +307,9 @@ fun stx => do
   | none        => unless (checkAnonymousScope scopes) $ throwError stx "invalid 'end', name is missing"
   | some header => unless (checkEndHeader header scopes) $ throwError stx "invalid 'end', name mismatch"
 
-@[inline] def withNamespace {α} (ref : Syntax) (ns : Name) (elab : CommandElabM α) : CommandElabM α := do
+@[inline] def withNamespace {α} (ref : Syntax) (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
 addNamespace ref ns;
-a ← elab;
+a ← elabFn;
 modify $ fun s => { s with scopes := s.scopes.drop ns.getNumParts };
 pure a
 

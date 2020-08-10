@@ -96,7 +96,7 @@ structure TokenCacheEntry :=
 (token : Syntax := Syntax.missing)
 
 structure ParserCache :=
-(tokenCache : TokenCacheEntry := {})
+(tokenCache : TokenCacheEntry)
 
 def initCacheForInput (input : String) : ParserCache :=
 { tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/} }
@@ -161,7 +161,7 @@ end Error
 structure ParserState :=
 (stxStack : Array Syntax := #[])
 (pos      : String.Pos := 0)
-(cache    : ParserCache := {})
+(cache    : ParserCache)
 (errorMsg : Option Error := none)
 
 namespace ParserState
@@ -1428,7 +1428,7 @@ categoryParser `term prec
 def dollarSymbol : Parser := symbol "$"
 
 /-- Fail if previous token is immediately followed by ':'. -/
-private def noImmediateColon : Parser :=
+def checkNoImmediateColon : Parser :=
 { fn := fun c s =>
   let prev := s.stxStack.back;
   if checkTailNoWs prev then
@@ -1445,8 +1445,8 @@ private def noImmediateColon : Parser :=
 
 def setExpectedFn (expected : List String) (p : ParserFn) : ParserFn :=
 fun c s => match p c s with
-  | s'@{ errorMsg := some msg } => { s' with errorMsg := some { msg with expected := [] } }
-  | s'                          => s'
+  | s'@{ errorMsg := some msg, .. } => { s' with errorMsg := some { msg with expected := [] } }
+  | s'                              => s'
 
 def setExpected (expected : List String) (p : Parser) : Parser :=
 { fn := setExpectedFn expected p.fn, info := p.info }
@@ -1466,10 +1466,10 @@ def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
   produces the syntax tree for `$e`. -/
 def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
-let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name;
+let nameP := node `antiquotName $ checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name;
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
-let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
+let nameP := if anonymous then nameP <|> checkNoImmediateColon >> pushNone else nameP;
 -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
 node kind $ try $
   setExpected [] dollarSymbol >>
@@ -1660,14 +1660,6 @@ tokens     ← builtinTokenTable.get;
 kinds      ← builtinSyntaxNodeKindSetRef.get;
 categories ← builtinParserCategoriesRef.get;
 pure { tokens := tokens, kinds := kinds, categories := categories }
-
-private def mergePrecendences (msgPreamble : String) (sym : String) : Option Nat → Option Nat → Except String (Option Nat)
-| none,   b      => pure b
-| a,      none   => pure a
-| some a, some b =>
-  if a == b then pure $ some a
-  else
-    throw $ msgPreamble ++ "precedence mismatch for '" ++ toString sym ++ "', previous: " ++ toString a ++ ", new: " ++ toString b
 
 private def addTokenConfig (tokens : TokenTable) (tk : Token) : Except String TokenTable := do
 if tk == "" then throw "invalid empty symbol"
@@ -1874,15 +1866,15 @@ private def catNameToString : Name → String
 | Name.str Name.anonymous s _ => s
 | n                           => n.toString
 
-@[inline] def mkCategoryAntiquotParser (kind : Name) : ParserFn :=
-(mkAntiquot (catNameToString kind) none).fn
+@[inline] def mkCategoryAntiquotParser (kind : Name) : Parser :=
+mkAntiquot (catNameToString kind) none
 
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;
   match categories.find? catName with
   | some cat =>
-    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName) ctx s
+    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName).fn ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[init] def setCategoryParserFnRef : IO Unit :=

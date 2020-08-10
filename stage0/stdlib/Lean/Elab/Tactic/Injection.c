@@ -29,7 +29,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 extern lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__1;
-lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__4;
 lean_object* l_Lean_Meta_injection___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalInjection(lean_object*, lean_object*, lean_object*);
@@ -172,7 +172,7 @@ uint8_t x_5;
 x_5 = l_List_isEmpty___rarg(x_2);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_6 = l_List_toString___at_Lean_Elab_OpenDecl_HasToString___spec__2(x_2);
 x_7 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -183,19 +183,20 @@ x_10 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
 x_11 = l___private_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__1;
-x_12 = l_Lean_Meta_throwTacticEx___rarg(x_11, x_1, x_10, x_3, x_4);
-return x_12;
+x_12 = lean_box(0);
+x_13 = l_Lean_Meta_throwTacticEx___rarg(x_11, x_1, x_10, x_12, x_3, x_4);
+return x_13;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; 
+lean_object* x_14; lean_object* x_15; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_13 = lean_box(0);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_4);
-return x_14;
+x_14 = lean_box(0);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_4);
+return x_15;
 }
 }
 }

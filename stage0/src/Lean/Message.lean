@@ -106,6 +106,9 @@ def ofList: List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
 ofList msgs.toList
 
+instance coeOfList     : HasCoe (List MessageData) MessageData := ⟨ofList⟩
+instance coeOfListExpr : HasCoe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
+
 end MessageData
 
 structure Message :=

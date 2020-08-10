@@ -128,7 +128,6 @@ lean_object* l_Std_AssocList_contains___main___at_Lean_Meta_SynthInstance_MkTabl
 extern lean_object* l_Lean_Meta_AbstractMVarsResult_inhabited___closed__1;
 lean_object* l_Lean_Meta_setSynthPendingRef___closed__1;
 uint8_t l_Lean_Meta_SynthInstance_Waiter_isRoot(lean_object*);
-extern lean_object* l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
@@ -345,6 +344,7 @@ extern lean_object* l_Lean_Meta_Exception_Inhabited___closed__2;
 uint8_t l_Lean_MetavarContext_isExprAssignable(lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_Meta_isLevelDefEqAux___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_Answer_inhabited___closed__1;
+extern lean_object* l_Lean_Compiler_checkIsDefinition___closed__5;
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*);
 extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
@@ -401,7 +401,7 @@ lean_object* l_Lean_Meta_SynthInstance_mkInferTCGoalsLRAttr___lambda__1(lean_obj
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_3 = l_Lean_Compiler_checkIsDefinition___closed__5;
 return x_3;
 }
 }
@@ -5159,7 +5159,7 @@ lean_ctor_set(x_99, 1, x_75);
 lean_ctor_set(x_99, 2, x_97);
 lean_ctor_set(x_99, 3, x_77);
 lean_ctor_set(x_99, 4, x_98);
-x_100 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_100 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_15 = x_100;
 x_16 = x_99;
 goto block_71;
@@ -5178,7 +5178,7 @@ lean_dec(x_12);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_101 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_101 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_15 = x_101;
 x_16 = x_72;
 goto block_71;
@@ -5310,7 +5310,7 @@ lean_ctor_set(x_134, 1, x_109);
 lean_ctor_set(x_134, 2, x_132);
 lean_ctor_set(x_134, 3, x_111);
 lean_ctor_set(x_134, 4, x_133);
-x_135 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_135 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_15 = x_135;
 x_16 = x_134;
 goto block_71;
@@ -5329,7 +5329,7 @@ lean_dec(x_12);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_136 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_136 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_15 = x_136;
 x_16 = x_124;
 goto block_71;
@@ -5721,7 +5721,7 @@ lean_ctor_set(x_230, 1, x_204);
 lean_ctor_set(x_230, 2, x_228);
 lean_ctor_set(x_230, 3, x_206);
 lean_ctor_set(x_230, 4, x_229);
-x_231 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_231 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_167 = x_231;
 x_168 = x_230;
 goto block_201;
@@ -5740,7 +5740,7 @@ lean_dec(x_12);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_232 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_232 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_167 = x_232;
 x_168 = x_220;
 goto block_201;
@@ -17773,7 +17773,7 @@ if (x_92 == 0)
 lean_object* x_94; 
 lean_dec(x_19);
 lean_dec(x_15);
-x_94 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_94 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_36 = x_94;
 x_37 = x_93;
 goto block_91;
@@ -18199,7 +18199,7 @@ if (x_201 == 0)
 lean_object* x_203; 
 lean_dec(x_19);
 lean_dec(x_15);
-x_203 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_203 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_167 = x_203;
 x_168 = x_202;
 goto block_200;
@@ -18591,7 +18591,7 @@ if (x_294 == 0)
 lean_object* x_296; 
 lean_dec(x_19);
 lean_dec(x_15);
-x_296 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_296 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_260 = x_296;
 x_261 = x_295;
 goto block_293;
@@ -19098,7 +19098,7 @@ if (x_408 == 0)
 lean_object* x_410; 
 lean_dec(x_349);
 lean_dec(x_346);
-x_410 = l_Nat_forMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__50___closed__1;
+x_410 = l_Lean_Compiler_checkIsDefinition___closed__5;
 x_374 = x_410;
 x_375 = x_409;
 goto block_407;
@@ -21230,11 +21230,13 @@ return x_2;
 lean_object* _init_l___private_Lean_Meta_SynthInstance_4__preprocessArgs___main___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_SynthInstance_4__preprocessArgs___main___closed__3;
-x_2 = lean_alloc_ctor(22, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___private_Lean_Meta_SynthInstance_4__preprocessArgs___main___closed__3;
+x_3 = lean_alloc_ctor(22, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 lean_object* l___private_Lean_Meta_SynthInstance_4__preprocessArgs___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

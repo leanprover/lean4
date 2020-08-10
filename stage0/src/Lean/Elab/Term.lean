@@ -236,6 +236,10 @@ mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmd
 
 /-- Auxiliary function for `liftMetaM` -/
 private def fromMetaException (ctx : Context) (ref : Syntax) (ex : Meta.Exception) : Exception :=
+-- We use `ref` stored in `ex` if it contains position information
+let ref := match ex.getRef.getPos with
+  | some _ => ex.getRef
+  | none   => ref;
 Exception.ex $ Elab.Exception.error $ mkMessageAux ctx ref ex.toMessageData MessageSeverity.error
 
 /-- Auxiliary function for `liftMetaM` -/

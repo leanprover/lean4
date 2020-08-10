@@ -950,7 +950,7 @@ class csimp_fn {
            let x := Array.size w in
            C
            ```
-           `f z` and `Array.size w` do not share any free variable, but it `w` is an reference to a field of `w`.
+           `f z` and `Array.size w` do not share any free variable, but `w` is an reference to a field of `z`.
            In the example above, `w` is an array, and `f z` will not be able to update the array nested there if
            we have `let x := Array.size w` after it.
 

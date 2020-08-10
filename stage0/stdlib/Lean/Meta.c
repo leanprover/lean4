@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta
-// Imports: Init Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Tactic Lean.Meta.Message Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope
+// Imports: Init Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Tactic Lean.Meta.Message Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.EqnCompiler Lean.Meta.ReduceEval
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,8 @@ lean_object* initialize_Lean_Meta_Message(lean_object*);
 lean_object* initialize_Lean_Meta_KAbstract(lean_object*);
 lean_object* initialize_Lean_Meta_RecursorInfo(lean_object*);
 lean_object* initialize_Lean_Meta_GeneralizeTelescope(lean_object*);
+lean_object* initialize_Lean_Meta_EqnCompiler(lean_object*);
+lean_object* initialize_Lean_Meta_ReduceEval(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Meta(lean_object* w) {
 lean_object * res;
@@ -88,6 +90,12 @@ res = initialize_Lean_Meta_RecursorInfo(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_GeneralizeTelescope(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_EqnCompiler(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_ReduceEval(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

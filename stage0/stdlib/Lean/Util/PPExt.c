@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
-lean_object* l_Lean_PPExprFnRef;
 extern lean_object* l_Lean_verboseOption___closed__3;
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -24,6 +23,7 @@ extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_ppExprExt___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkPPExprFnExtension(lean_object*);
 lean_object* l_Lean_mkPPExprFnExtension___closed__1;
+lean_object* l_Lean_ppExprFnRef;
 lean_object* l_Lean_mkPPExprFnRef___closed__1;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_ppExprExt___closed__3;
@@ -332,7 +332,7 @@ lean_object* _init_l_Lean_mkPPExprFnExtension___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_PPExprFnRef;
+x_1 = l_Lean_ppExprFnRef;
 x_2 = lean_alloc_closure((void*)(l_IO_Prim_Ref_get___boxed), 3, 2);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, x_1);
@@ -529,8 +529,8 @@ l_Lean_mkPPExprFnRef___closed__1 = _init_l_Lean_mkPPExprFnRef___closed__1();
 lean_mark_persistent(l_Lean_mkPPExprFnRef___closed__1);
 res = l_Lean_mkPPExprFnRef(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
-l_Lean_PPExprFnRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_PPExprFnRef);
+l_Lean_ppExprFnRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_ppExprFnRef);
 lean_dec_ref(res);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_mkPPExprFnExtension___spec__1___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkPPExprFnExtension___spec__1___closed__1();
 lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_mkPPExprFnExtension___spec__1___closed__1);

@@ -222,7 +222,7 @@ partial def delabFor : Name → Delab
 
 def delab : Delab := do
 k ← getExprKind;
-delabFor k <|> (liftM $ show MetaM Syntax from throw $ Meta.Exception.other $ "don't know how to delaborate '" ++ toString k ++ "'")
+delabFor k <|> (liftM $ show MetaM Syntax from throw $ Meta.Exception.other Syntax.missing $ "don't know how to delaborate '" ++ toString k ++ "'")
 
 @[builtinDelab fvar]
 def delabFVar : Delab := do
@@ -463,9 +463,10 @@ def delabCoeFun : Delab := delabCoe
 
 end Delaborator
 
-/-- "Delaborate" the given term into surface-level syntax using the given general and subterm-specific options. -/
-def delab (e : Expr) (defaultOptions : Options) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
-some stx ← Delaborator.delab { expr := e, defaultOptions := defaultOptions, optionsPerPos := optionsPerPos }
+/-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
+def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
+opts ← Meta.getOptions;
+some stx ← Delaborator.delab { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos }
   | unreachable!;
 pure stx
 

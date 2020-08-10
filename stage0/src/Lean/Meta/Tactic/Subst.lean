@@ -14,11 +14,12 @@ import Lean.Meta.Tactic.FVarSubst
 namespace Lean
 namespace Meta
 
-def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) :=
+def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) : MetaM (FVarSubst × MVarId) :=
 withMVarContext mvarId $ do
   tag     ← getMVarTag mvarId;
   checkNotAssigned mvarId `subst;
   hLocalDecl ← getLocalDecl hFVarId;
+  let hFVarIdOriginal := hFVarId;
   match hLocalDecl.type.eq? with
   | none => throwTacticEx `subst mvarId "argument must be an equality proof"
   | some (α, lhs, rhs) => do
@@ -57,8 +58,12 @@ withMVarContext mvarId $ do
             newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major;
             assignExprMVar mvarId newVal;
             let mvarId := newMVar.mvarId!;
-            mvarId ← clear mvarId hFVarId;
-            mvarId ← clear mvarId aFVarId;
+            mvarId ←
+              if clearH then do
+                mvarId ← clear mvarId hFVarId;
+                clear mvarId aFVarId
+              else
+                pure mvarId;
             (newFVars, mvarId) ← introN mvarId (vars.size - 2) [] false;
             fvarSubst ← newFVars.size.foldM
               (fun i (fvarSubst : FVarSubst) =>
@@ -66,7 +71,8 @@ withMVarContext mvarId $ do
                 let newFVar := newFVars.get! i;
                 pure $ fvarSubst.insert var (mkFVar newFVar))
               fvarSubst;
-            let fvarSubst := fvarSubst.insert aFVarIdOriginal b;
+            let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId);
+            let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId);
             pure (fvarSubst, mvarId)
           };
           if depElim then do
@@ -99,6 +105,7 @@ withMVarContext mvarId $ do
         "invalid equality proof, it is not of the form "
         ++ (if symm then "(t = x)" else "(x = t)")
         ++ indentExpr hLocalDecl.type
+        ++ Format.line ++ "after WHNF, variable expected, but obtained" ++ indentExpr a
 
 def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
 withMVarContext mvarId $ do

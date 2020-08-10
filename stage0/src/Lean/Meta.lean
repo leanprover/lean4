@@ -20,3 +20,5 @@ import Lean.Meta.Message
 import Lean.Meta.KAbstract
 import Lean.Meta.RecursorInfo
 import Lean.Meta.GeneralizeTelescope
+import Lean.Meta.EqnCompiler
+import Lean.Meta.ReduceEval

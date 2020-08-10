@@ -105,6 +105,7 @@ extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed_
 extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__1;
 lean_object* l_Lean_EnumAttributes_getValue___at___private_Lean_Compiler_InlineAttrs_1__hasInlineAttrAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_setInlineAttribute___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___main___at_Lean_Compiler_mkInlineAttrs___spec__2___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isInternal___main(lean_object*);
@@ -125,12 +126,14 @@ lean_object* l_Lean_Compiler_mkInlineAttrs___closed__12;
 lean_object* lean_io_initializing(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Array_qsortAux___main___at_Lean_Compiler_mkInlineAttrs___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_EnumAttributes_setValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Compiler_mkInlineAttrs___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs(lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__26;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___lambda__2(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_setInlineAttribute(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__11;
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__4;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___lambda__1(lean_object*, lean_object*);
@@ -2362,6 +2365,26 @@ uint8_t x_3; lean_object* x_4;
 x_3 = lean_has_macro_inline_attribute(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+lean_object* l_Lean_Compiler_setInlineAttribute(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = l_Lean_Compiler_inlineAttrs;
+x_5 = lean_box(x_3);
+x_6 = l_Lean_EnumAttributes_setValue___rarg(x_4, x_1, x_2, x_5);
+return x_6;
+}
+}
+lean_object* l_Lean_Compiler_setInlineAttribute___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+lean_dec(x_3);
+x_5 = l_Lean_Compiler_setInlineAttribute(x_1, x_2, x_4);
+return x_5;
 }
 }
 lean_object* initialize_Init(lean_object*);

@@ -121,11 +121,11 @@ uint8_t l___private_Lean_Elab_Declaration_3__isMutualInductive(lean_object*);
 extern lean_object* l_Lean_Parser_Command_instance___elambda__1___closed__2;
 extern lean_object* l_Lean_mkReducibilityAttrs___closed__4;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
+extern lean_object* l_Lean_Compiler_mkInlineAttrs___closed__4;
 extern lean_object* l_Lean_Parser_Command_universe___elambda__1___closed__2;
 extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__11;
 uint8_t l___private_Lean_Elab_Declaration_5__isMutualPreambleCommand(lean_object*);
 lean_object* l___private_Lean_Elab_Declaration_1__inductiveSyntaxToView(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_elabAbbrev___closed__3;
 lean_object* lean_environment_main_module(lean_object*);
 extern lean_object* l_Lean_Parser_Command_end___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_elabMutual(lean_object*, lean_object*, lean_object*);
@@ -190,7 +190,6 @@ lean_object* l_Lean_Elab_Command_elabConstant___closed__3;
 lean_object* l___private_Lean_Elab_Declaration_7__expandMutualPreamble_x3f___closed__11;
 lean_object* l_Lean_Elab_Command_elabAbbrev___closed__1;
 lean_object* l_Lean_Elab_Command_checkValidInductiveModifier(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_elabAbbrev___closed__4;
 lean_object* l_Lean_CollectLevelParams_main___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabMutual___closed__1;
@@ -206,26 +205,8 @@ lean_object* l_Lean_Elab_Command_elabMutual___closed__1;
 lean_object* _init_l_Lean_Elab_Command_elabAbbrev___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("inline");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Elab_Command_elabAbbrev___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Elab_Command_elabAbbrev___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_Elab_Command_elabAbbrev___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Command_elabAbbrev___closed__2;
+x_1 = l_Lean_Compiler_mkInlineAttrs___closed__4;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -233,7 +214,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Command_elabAbbrev___closed__4() {
+lean_object* _init_l_Lean_Elab_Command_elabAbbrev___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -258,9 +239,9 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Lean_Elab_Command_elabAbbrev___closed__3;
+x_10 = l_Lean_Elab_Command_elabAbbrev___closed__1;
 x_11 = l_Lean_Elab_Command_Modifiers_addAttribute(x_1, x_10);
-x_12 = l_Lean_Elab_Command_elabAbbrev___closed__4;
+x_12 = l_Lean_Elab_Command_elabAbbrev___closed__2;
 x_13 = l_Lean_Elab_Command_Modifiers_addAttribute(x_11, x_12);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = l_Lean_Syntax_getArg(x_2, x_14);
@@ -3998,10 +3979,6 @@ l_Lean_Elab_Command_elabAbbrev___closed__1 = _init_l_Lean_Elab_Command_elabAbbre
 lean_mark_persistent(l_Lean_Elab_Command_elabAbbrev___closed__1);
 l_Lean_Elab_Command_elabAbbrev___closed__2 = _init_l_Lean_Elab_Command_elabAbbrev___closed__2();
 lean_mark_persistent(l_Lean_Elab_Command_elabAbbrev___closed__2);
-l_Lean_Elab_Command_elabAbbrev___closed__3 = _init_l_Lean_Elab_Command_elabAbbrev___closed__3();
-lean_mark_persistent(l_Lean_Elab_Command_elabAbbrev___closed__3);
-l_Lean_Elab_Command_elabAbbrev___closed__4 = _init_l_Lean_Elab_Command_elabAbbrev___closed__4();
-lean_mark_persistent(l_Lean_Elab_Command_elabAbbrev___closed__4);
 l_Lean_Elab_Command_elabConstant___closed__1 = _init_l_Lean_Elab_Command_elabConstant___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_elabConstant___closed__1);
 l_Lean_Elab_Command_elabConstant___closed__2 = _init_l_Lean_Elab_Command_elabConstant___closed__2();

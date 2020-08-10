@@ -62,5 +62,8 @@ hasInlineAttrAux env InlineAttributeKind.noinline n
 def hasMacroInlineAttribute (env : Environment) (n : Name) : Bool :=
 hasInlineAttrAux env InlineAttributeKind.macroInline n
 
+def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
+inlineAttrs.setValue env declName kind
+
 end Compiler
 end Lean

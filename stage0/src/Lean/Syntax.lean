@@ -289,9 +289,9 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
 | _,     missing           => "<missing>"
 | depth, node kind args    =>
   let depth := depth + 1;
-  if kind == `Lean.Parser.noKind then
+  if kind == nullKind then
     sbracket $
-      if depth > maxDepth.getD depth then
+      if args.size > 0 && depth > maxDepth.getD depth then
         ".."
       else
         joinSep (args.toList.map (formatStxAux depth)) line
@@ -299,7 +299,7 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
     let header      := format shorterName;
     let body : List Format :=
-      if depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
+      if args.size > 0 && depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
     paren $ joinSep (header :: body) line
 
 def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false) : Format :=
@@ -307,6 +307,15 @@ formatStxAux maxDepth showInfo 0 stx
 
 instance : HasFormat (Syntax)   := ⟨formatStx⟩
 instance : HasToString (Syntax) := ⟨toString ∘ format⟩
+
+partial def structEq : Syntax → Syntax → Bool
+| Syntax.missing, Syntax.missing => true
+| Syntax.node k args, Syntax.node k' args' => k == k' && args.isEqv args' structEq
+| Syntax.atom _ val, Syntax.atom _ val' => val == val'
+| Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => rawVal == rawVal' && val == val' && preresolved == preresolved'
+| _, _ => false
+
+instance structHasBeq : HasBeq Lean.Syntax := ⟨structEq⟩
 
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.

@@ -340,5 +340,25 @@ u ← getDecLevel `mkArrayLit type;
 listLit ← mkListLit type xs;
 pure (mkApp (mkApp (mkConst `List.toArray [u]) type) listLit)
 
+def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
+u ← getLevel type;
+pure $ mkApp2 (mkConst `sorryAx [u]) type (toExpr synthetic)
+
+/-- Return a proof for `p : Prop` using `decide p` -/
+def mkDecideProof (p : Expr) : MetaM Expr := do
+decP      ← mkAppM `Decidable.decide #[p];
+decEqTrue ← mkEq decP (mkConst `Bool.true);
+h         ← mkEqRefl (mkConst `Bool.true);
+h         ← mkExpectedTypeHint h decEqTrue;
+mkAppM `ofDecideEqTrue #[h]
+
+/-- Return `a < b` -/
+def mkLt (a b : Expr) : MetaM Expr :=
+mkAppM `HasLess.Less #[a, b]
+
+/-- Return `a <= b` -/
+def mkLe (a b : Expr) : MetaM Expr :=
+mkAppM `HasLessEq.LessEq #[a, b]
+
 end Meta
 end Lean

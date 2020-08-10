@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
+import Lean.Meta.AppBuilder
 import Lean.Meta.LevelDefEq
 
 namespace Lean
@@ -17,11 +18,15 @@ pure mvarDecl.userName
 def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
 modify $ fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
 
+def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
+tag ← getMVarTag mvarId;
+setMVarTag mvarId (tag ++ suffix)
+
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
 mkFreshExprMVar type userName MetavarKind.syntheticOpaque
 
-def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MetaM α := do
-throwEx $ fun ctx => Exception.tactic tacticName mvarId (MessageData.withContext ctx msg) ctx
+def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α := do
+throwEx $ fun ctx => Exception.tactic ref tacticName mvarId (MessageData.withContext ctx msg) ctx
 
 def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit :=
 whenM (isExprMVarAssigned mvarId) $ throwTacticEx tacticName mvarId "metavariable has already been assigned"
@@ -43,6 +48,15 @@ instance Meta.hasOrelse {α} : HasOrelse (MetaM α) := ⟨Meta.orelse⟩
 
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic
+
+/-- Assign `mvarId` to `sorryAx` -/
+def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
+withMVarContext mvarId $ do
+  checkNotAssigned mvarId `admit;
+  mvarType ← getMVarType mvarId;
+  val ← mkSorry mvarType synthetic;
+  assignExprMVar mvarId val;
+  pure ()
 
 end Meta
 end Lean

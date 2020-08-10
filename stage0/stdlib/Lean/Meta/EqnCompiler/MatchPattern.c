@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Lean.EqnCompiler.MatchPattern
+// Module: Lean.Meta.EqnCompiler.MatchPattern
 // Imports: Init Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
@@ -124,7 +124,7 @@ return x_4;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Attributes(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_EqnCompiler_MatchPattern(lean_object* w) {
+lean_object* initialize_Lean_Meta_EqnCompiler_MatchPattern(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

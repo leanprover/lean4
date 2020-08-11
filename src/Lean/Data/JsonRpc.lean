@@ -67,9 +67,7 @@ instance ErrorCode.hasToJson : HasToJson ErrorCode :=
   | ErrorCode.requestCancelled     => (-32800 : Int)
   | ErrorCode.contentModified      => (-32801 : Int)⟩
 
-/- Uses Option Structured because users will likely rarely distinguish between an empty
-parameter array and an omitted params field.
-Uses separate constructors for notifications and errors because client and server
+/- Uses separate constructors for notifications and errors because client and server
 behavior is expected to be wildly different for both. -/
 inductive Message
 | request (id : RequestID) (method : String) (params? : Option Structured)

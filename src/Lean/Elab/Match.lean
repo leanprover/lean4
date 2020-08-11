@@ -27,6 +27,13 @@ def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType 
 ```
 -/
 
+structure MatchAltView :=
+(patterns : Array Syntax)
+(rhs      : Syntax)
+
+def mkMatchAltView (matchAlt : Syntax) : MatchAltView :=
+{ patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
+
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 newStx ← `(let $lhsVar := $discr; $rhs);
 withMacroExpansion stx newStx $ elabTerm newStx expectedType?
@@ -48,15 +55,16 @@ else
 /-
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ sepBy1 termParser ", " >> darrow >> termParser
 -/
-def expandMacrosInPatterns (matchAlts : Array Syntax) : TermElabM (Array Syntax) := do
+def expandMacrosInPatterns (matchAlts : Array MatchAltView) : TermElabM (Array MatchAltView) := do
 env ← getEnv;
 matchAlts.mapM fun matchAlt => do
-  patterns ← liftMacroM $ expandMacros env $ matchAlt.getArg 0;
-  pure $ matchAlt.setArg 0 patterns
+  patterns ← liftMacroM $ matchAlt.patterns.mapM $ expandMacros env;
+  pure $ { matchAlt with patterns := patterns }
 
 /- Given `stx` a match-expression, return its alternatives. -/
-private def getMatchAlts (stx : Syntax) : Array Syntax :=
-(stx.getArg 5).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt
+private def getMatchAlts (stx : Syntax) : Array MatchAltView :=
+let alts : Array Syntax := (stx.getArg 5).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt;
+alts.map mkMatchAltView
 
 /-
 ```
@@ -70,7 +78,7 @@ let discrs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
 typeStx ← liftMacroM $ expandMatchOptType stx (stx.getArg 2) discrs.size;
 type ← elabType typeStx;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
-throwError stx ("WIP type: " ++ type ++ "\n" ++ toString discrs ++ "\n" ++ toString matchAlts)
+throwError stx ("WIP type: " ++ type ++ "\n" ++ toString discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
 
 /-- Expand discriminants of the form `h : t` -/
 private def expandMatchDiscr? (stx : Syntax) : MacroM (Option Syntax) := do

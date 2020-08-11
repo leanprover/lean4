@@ -10,8 +10,8 @@ LEANMAKE_OPTS=\
 	CMAKE_LIKE_OUTPUT=1
 
 stdlib:
-ifeq "${STAGE}" "0.5"
-# In the case of stage 0.5, we simply hardlink .olean files and libInit.a from stage 0 (but not libleancpp.a,
+ifeq ($(patsubst %.5,.5,${STAGE}), .5)
+# In the case of stage n.5, we simply copy .olean files and libInit.a from stage n (but not libleancpp.a,
 # which is different from stage 0).
 	mkdir -p "${LIB}/lean"
 	cp -rf $$(find "${PREV_STAGE}/lib/lean" -mindepth 1 -maxdepth 1 -not -name libleancpp.a) "${LIB}/lean"

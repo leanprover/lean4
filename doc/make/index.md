@@ -116,8 +116,11 @@ programs. In fact, if the stage 0 library and the stage 1 are compatible (use th
 same Lean ABI, so to speak), we can avoid even rebuilding the stage 1 library
 using a special stage "0.5" that combines the stage 1 compiler with the stage 0
 library. Most changes do not break this ABI, so running `make` by itself in the
-root build folder will default to `make stage0.5`. In summary, doing a standard
-build via `make` involves these steps:
+root build folder will default to `make stage0.5`. There is also an analogous
+stage 1.5, which should be sufficient for testing changes to *meta*programs on
+the stdlib.
+
+In summary, doing a standard build via `make` involves these steps:
 
 1. compile the `stage0/src` archived sources into `stage0/bin/lean`
 1. use it to compile the library (*including* your changes) into `stage0/lib`

@@ -210,7 +210,7 @@ catch p1 $ fun e => match e with
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
---@[extern "lean_mk_antiquot_parenthesizer"]
+@[extern 7 "lean_mk_antiquot_parenthesizer"]
 constant mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
 arbitrary _
 

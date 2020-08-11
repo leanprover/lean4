@@ -1823,13 +1823,12 @@ es.foldlM
        | ParserExtensionOleanEntry.category catName leadingIdentAsSymbol => do
          categories ← IO.ofExcept (addParserCategoryCore s.categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol});
          pure { s with categories := categories }
-       | ParserExtensionOleanEntry.parser catName declName =>
-         match mkParserOfConstant env s.categories declName with
-        | Except.ok p     =>
-          match addParser s.categories catName declName p.1 p.2 with
-          | Except.ok categories => pure { s with categories := categories }
-          | Except.error ex      => throw (IO.userError ex)
-        | Except.error ex => throw (IO.userError ex))
+       | ParserExtensionOleanEntry.parser catName declName => do
+         p ← IO.ofExcept $ mkParserOfConstant env s.categories declName;
+         categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2;
+         -- discard result env; all imported parenthesizers should already be compiled
+         _ ← PrettyPrinter.Parenthesizer.addParenthesizerFromConstant env declName;
+         pure { s with categories := categories })
       s)
   s
 
@@ -1986,7 +1985,7 @@ match mkParserOfConstant env categories declName with
   env ← match addParser categories catName declName leading parser with
   | Except.ok _     => pure $ parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
   | Except.error ex => throw (IO.userError ex);
-  PrettyPrinter.Parenthesizer.compile env declName /- builtin -/ false
+  PrettyPrinter.Parenthesizer.addParenthesizerFromConstant env declName
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 { name            := attrName,

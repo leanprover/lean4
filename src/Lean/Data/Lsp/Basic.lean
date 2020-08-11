@@ -49,14 +49,15 @@ from an LSP-style 0-indexed (ln, col) position. -/
 def lnColToLinearPos (text : DocumentText) (pos : Position) : String.Pos :=
 text.foldrRange 0 pos.line (fun ln acc => acc + ln.length + 1) pos.character
 
-/-- An imprecise inverse of lnColToLinearPos.
-Should only be used for debugging. -/
+/-- The inverse of lnColToLinearPos.
+The inverse relationship only holds if called on the same `text`
+and a valid position. -/
 def linearPosToLnCol (text : DocumentText) (pos : String.Pos) : Position :=
 let ⟨_, outPos⟩ : String.Pos × Position :=
   text.foldl
     (fun ⟨chrsLeft, p⟩ ln =>
       if chrsLeft = 0 then ⟨0, p⟩
-      else if ln.length > chrsLeft then (0, { p with character := chrsLeft })
+      else if ln.length ≥ chrsLeft then (0, { p with character := chrsLeft })
       else (chrsLeft - ln.length - 1, { p with line := p.line + 1 }))
     (pos, ⟨0, 0⟩);
   outPos

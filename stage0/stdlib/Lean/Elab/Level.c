@@ -82,6 +82,7 @@ lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_throwError___at_Lean_Elab_Level_elabLevel___main___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_4__foldrRangeMAux___main___at_Lean_Elab_Level_elabLevel___main___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_levelParser_parenthesizer___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwError___at_Lean_Elab_Level_elabLevel___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,7 +92,6 @@ lean_object* l___private_Init_Data_Array_Basic_4__foldrRangeMAux___main___at_Lea
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_Elab_throwError___at_Lean_Elab_Level_elabLevel___main___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Level_paren___elambda__1___closed__4;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__4;
 lean_object* l_Lean_Elab_getPos___at_Lean_Elab_Level_elabLevel___main___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -1031,7 +1031,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 lean_inc(x_1);
 x_4 = l_Lean_Syntax_getKind(x_1);
-x_5 = l_Lean_Parser_Level_paren___elambda__1___closed__4;
+x_5 = l_Lean_PrettyPrinter_Parenthesizer_levelParser_parenthesizer___lambda__1___closed__3;
 x_6 = lean_name_eq(x_4, x_5);
 if (x_6 == 0)
 {

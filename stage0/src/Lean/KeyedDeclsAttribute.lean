@@ -178,9 +178,9 @@ registerBuiltinAttribute {
 };
 pure { tableRef := tableRef, ext := ext }
 
-/-- Retrieve values tagged with `[attr declName]` or `[builtinAttr declName]`. -/
-def getValues {γ} (attr : KeyedDeclsAttribute γ) (env : Environment) (declName : Name) : List γ :=
-(attr.ext.getState env).table.findD declName []
+/-- Retrieve values tagged with `[attr key]` or `[builtinAttr key]`. -/
+def getValues {γ} (attr : KeyedDeclsAttribute γ) (env : Environment) (key : Name) : List γ :=
+(attr.ext.getState env).table.findD key []
 
 end KeyedDeclsAttribute
 

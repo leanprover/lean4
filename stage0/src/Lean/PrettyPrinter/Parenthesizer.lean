@@ -70,9 +70,8 @@ node).
 
 -/
 
-import Lean.Parser
 import Lean.Meta
-import Lean.Elab.Quotation
+import Lean.KeyedDeclsAttribute
 
 namespace Lean
 namespace PrettyPrinter
@@ -98,7 +97,7 @@ end Parenthesizer
 
 abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateT Parenthesizer.State MetaM
 
-abbrev Parenthesizer := Expr → ParenthesizerM Unit
+abbrev Parenthesizer := ParenthesizerM Unit
 
 unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
 KeyedDeclsAttribute.init {
@@ -146,41 +145,6 @@ when (stx.getArgs.size > 0) $
   goDown (stx.getArgs.size - 1) *> x <* goUp;
 goLeft
 
-/--
-  Call an appropriate `[parenthesizer]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
-  should be to the left of all nodes produced by `p`, or at the left-most child if there are no other nodes left. -/
-partial def visit : Parenthesizer | p => do
-stx ← getCur;
--- do reductions _except_ for definition unfolding
-p ← liftM $ whnfCore p;
-st ← get;
-trace! `PrettyPrinter.parenthesize ("parenthesizing (contPrec := " ++ toString st.contPrec ++ ")" ++ MessageData.nest 2 (line ++ stx) ++ line ++ "using" ++ MessageData.nest 2 (line ++ p));
-let c := Expr.constName? p.getAppFn;
-env ← liftM getEnv;
-match c >>= (parenthesizerAttribute.ext.getState env).table.find? with
-| some (f::_) => do
-  -- call first matching parenthesizer
-  f p
-| _           =>
-  -- `choice` is not an actual parser, so special-case it here
-  if c == some `choice then
-    visitArgs $ stx.getArgs.size.forM $ fun _ => do
-      stx ← getCur;
-      visit (mkConst stx.getKind)
-  else do
-    -- (try to) unfold definition and recurse
-    some p' ← liftM $ unfoldDefinition? p
-      | throw $ Exception.other Syntax.missing $ "no known parenthesizer for '" ++ toString p ++ "'";
-    visit p'
-
-/-- Continue evaluation of `p` by further reducing it. -/
-def resume : Parenthesizer | p => do
-some p' ← liftM $ unfoldDefinition? p
-  | throw $ Exception.other Syntax.missing $ "no known parenthesizer for '" ++ toString p ++ "'";
-visit p'
-
-open Lean.Parser
-
 -- Macro scopes in the parenthesizer output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
 instance monadQuotation : MonadQuotation ParenthesizerM := {
@@ -196,9 +160,10 @@ idx ← getIdx;
 st ← get;
 -- reset prec/prec and store `mkParen` for the recursive call
 set { stxTrav := st.stxTrav };
+trace! `PrettyPrinter.parenthesize ("parenthesizing (contPrec := " ++ toString st.contPrec ++ ")" ++ MessageData.nest 2 (line ++ stx));
 adaptReader (fun (ctx : Context) => { ctx with mkParen := some mkParen }) x;
 { minPrec := some minPrec, trailPrec := trailPrec, .. } ← get
-  | panic! "visitParenthesizable: visited a term without tokens?!";
+  | panic! "maybeParenthesize: visited a syntax tree without precedences?!";
 trace! `PrettyPrinter.parenthesize ("...precedences are " ++ fmt prec ++ " >? " ++ fmt minPrec ++ ", " ++ fmt trailPrec ++ " <=? " ++ fmt st.contPrec);
 -- Should we parenthesize?
 when (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some contPrec => trailPrec <= contPrec | _, _ => false) $ do {
@@ -218,7 +183,7 @@ when (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some c
     stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none);
     goLeft;
     -- after parenthesization, there is no more trailing parser
-    modify (fun st => { st with contPrec := maxPrec, trailPrec := none })
+    modify (fun st => { st with contPrec := /- maxPrec -/ some 1024, trailPrec := none })
 };
 { trailPrec := trailPrec, .. } ← get;
 -- If we already had a token at this level, keep the trailing parser. Otherwise, use the minimum of
@@ -229,87 +194,119 @@ let trailPrec := if st.visitedToken then st.trailPrec else match trailPrec with
 modify (fun stP => { stP with minPrec := st.minPrec, trailPrec := trailPrec })
 
 /-- Adjust state and advance. -/
-def visitToken : Parenthesizer | p => do
+def visitToken : Parenthesizer := do
 modify (fun st => { st with contPrec := none, visitedToken := true });
 goLeft
 
-@[builtinParenthesizer categoryParser]
-def categoryParser.parenthesizer : Parenthesizer | p => do
-stx ← getCur;
--- visit `(mkCategoryAntiquotParser $(p.getArg! 0) <|> $(mkConst stx.getKind))
-visit (mkAppN (mkConst `Lean.Parser.orelse) #[
-  mkApp (mkConst `Lean.Parser.mkCategoryAntiquotParser) (p.getArg! 0),
-  mkConst stx.getKind])
+@[combinatorParenthesizer Lean.Parser.orelse] def orelse.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := do
+st ← get;
+-- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
+-- them in turn. Uses the syntax traverser non-linearly!
+catch p1 $ fun e => match e with
+  | Exception.other _ "BACKTRACK" => set st *> p2
+  | _                             => throw e
 
-@[builtinParenthesizer termParser]
-def termParser.parenthesizer : Parenthesizer | p => do
+-- `mkAntiquot` is quite complex, so we'd rather have its parenthesizer synthesized below the actual parser definition.
+-- Note that there is a mutual recursion
+-- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
+-- anyway.
+--@[extern "lean_mk_antiquot_parenthesizer"]
+constant mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
+arbitrary _
+
+def parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer := do
+env ← liftM getEnv;
+p::_ ← pure $ parenthesizerAttribute.getValues env k
+  | throw $ Exception.other Syntax.missing $ "no known parenthesizer for kind '" ++ toString k ++ "'";
+p
+
+@[combinatorParenthesizer Lean.Parser.withAntiquot]
+def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=
+-- TODO: could be optimized using `isAntiquot` (which would have to be moved), but I'd rather
+-- fix the backtracking hack outright.
+orelse.parenthesizer antiP p
+
+@[combinatorParenthesizer Lean.Parser.categoryParser]
+def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
+stx ← getCur;
+if stx.getKind == `choice then
+  visitArgs $ stx.getArgs.size.forM $ fun _ => do
+    stx ← getCur;
+    parenthesizerForKind stx.getKind
+else
+  withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString none) (parenthesizerForKind stx.getKind)
+
+@[combinatorParenthesizer Lean.Parser.categoryParserOfStack]
+def categoryParserOfStack.parenthesizer (offset : Nat) (prec : Nat) : Parenthesizer := do
+st ← get;
+let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset);
+categoryParser.parenthesizer stx.getId prec
+
+@[combinatorParenthesizer Lean.Parser.termParser]
+def termParser.parenthesizer (prec : Nat) : Parenthesizer := do
 stx ← getCur;
 -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
 if stx.getKind == nullKind then
   throw $ Exception.other Syntax.missing "BACKTRACK"
 else do
-  prec ← liftM $ reduceEval p.appArg!;
-  maybeParenthesize (fun stx => Unhygienic.run `(($stx))) prec (resume p)
+  maybeParenthesize (fun stx => Unhygienic.run `(($stx))) prec $
+    categoryParser.parenthesizer `term prec
 
-@[builtinParenthesizer tacticParser]
-def tacticParser.parenthesizer : Parenthesizer | p => do
-prec ← liftM $ reduceEval p.appArg!;
-maybeParenthesize (fun stx => Unhygienic.run `(tactic|($stx))) prec (resume p)
+@[combinatorParenthesizer Lean.Parser.tacticParser]
+def tacticParser.parenthesizer (prec : Nat) : Parenthesizer :=
+maybeParenthesize (fun stx => Unhygienic.run `(tactic|($stx))) prec $
+  categoryParser.parenthesizer `tactic prec
 
-@[builtinParenthesizer levelParser]
-def levelParser.parenthesizer : Parenthesizer | p => do
-prec ← liftM $ reduceEval p.appArg!;
-maybeParenthesize (fun stx => Unhygienic.run `(level|($stx))) prec (resume p)
+@[combinatorParenthesizer Lean.Parser.levelParser]
+def levelParser.parenthesizer (prec : Nat) : Parenthesizer :=
+maybeParenthesize (fun stx => Unhygienic.run `(level|($stx))) prec $
+  categoryParser.parenthesizer `level prec
 
-@[builtinParenthesizer withAntiquot]
-def withAntiquot.parenthesizer : Parenthesizer | p =>
--- deoptimize
-visit (mkAppN (mkConst `Lean.Parser.orelse) #[p.getArg! 0, p.getArg! 1])
+@[combinatorParenthesizer Lean.Parser.try]
+def try.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+p
 
-@[builtinParenthesizer try]
-def try.parenthesizer : Parenthesizer | p =>
-visit p.appArg!
+@[combinatorParenthesizer Lean.Parser.lookahead]
+def lookahead.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+p
 
-@[builtinParenthesizer andthen]
-def andthen.parenthesizer : Parenthesizer | p =>
-visit (p.getArg! 1) *> visit (p.getArg! 0)
+@[combinatorParenthesizer Lean.Parser.andthen]
+def andthen.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer :=
+p2 *> p1
 
-@[builtinParenthesizer node]
-def node.parenthesizer : Parenthesizer | p => do
+@[combinatorParenthesizer Lean.Parser.node]
+def node.parenthesizer (k : SyntaxNodeKind) (p : Parenthesizer) : Parenthesizer := do
 stx ← getCur;
-k ← liftM $ reduceEval $ p.getArg! 0;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
   throw $ Exception.other Syntax.missing "BACKTRACK"
 };
-visitArgs $ visit p.appArg!
+visitArgs p
 
-@[builtinParenthesizer checkPrec]
-def checkPrec.parenthesizer : Parenthesizer | p => do
-prec ← liftM $ reduceEval $ p.getArg! 0;
+@[combinatorParenthesizer Lean.Parser.checkPrec]
+def checkPrec.parenthesizer (prec : Nat) : Parenthesizer :=
 addPrecCheck prec
 
-@[builtinParenthesizer leadingNode]
-def leadingNode.parenthesizer : Parenthesizer | p => do
--- Unfold `leadingNode` as usual, but limit `contPrec` to `maxPrec-1` afterwards.
+@[combinatorParenthesizer Lean.Parser.leadingNode]
+def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
+node.parenthesizer k p;
+addPrecCheck prec;
+-- Limit `contPrec` to `maxPrec-1`.
 -- This is because `maxPrec-1` is the precedence of function application, which is the only way to turn a leading parser
 -- into a trailing one.
-resume p;
-modify $ fun st => { st with contPrec := (fun p => Nat.min (maxPrec-1) p) <$> st.contPrec }
+modify fun st => { st with contPrec := Nat.min (/- maxPrec -/ 1023 -1) prec }
 
-@[builtinParenthesizer trailingNode]
-def trailingNode.parenthesizer : Parenthesizer | p => do
+@[combinatorParenthesizer Lean.Parser.trailingNode]
+def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
 stx ← getCur;
-k ← liftM $ reduceEval $ p.getArg! 0;
-prec ← liftM $ reduceEval $ p.getArg! 1;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
   throw $ Exception.other Syntax.missing "BACKTRACK"
 };
 visitArgs $ do {
-  visit p.appArg!;
+  p;
   addPrecCheck prec;
   -- After visiting the nodes actually produced by the parser passed to `trailingNode`, we are positioned on the
   -- left-most child, which is the term injected by `trailingNode` in place of the recursion. Left recursion is not an
@@ -318,85 +315,219 @@ visitArgs $ do {
   { mkParen := some mkParen, .. } ← read
     | panic! "trailingNode.parenthesizer called outside of visitParenthesizable call";
   maybeParenthesize mkParen 0 $
-    visit (mkAppN (mkConst `Lean.Parser.categoryParser) #[toExpr `someCategory, mkNatLit 0])
+    categoryParser.parenthesizer `someCategory 0
 }
 
-@[builtinParenthesizer symbol] def symbol.parenthesizer := visitToken
-@[builtinParenthesizer symbolNoWs] def symbolNoWs.parenthesizer := visitToken
-@[builtinParenthesizer unicodeSymbol] def unicodeSymbol.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.symbol] def symbol.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.symbolNoWs] def symbolNoWs.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.unicodeSymbol] def unicodeSymbol.parenthesizer := visitToken
 
-@[builtinParenthesizer identNoAntiquot] def identNoAntiquot.parenthesizer := visitToken
-@[builtinParenthesizer rawIdent] def rawIdent.parenthesizer := visitToken
-@[builtinParenthesizer nonReservedSymbol] def nonReservedSymbol.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.identNoAntiquot] def identNoAntiquot.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.rawIdent] def rawIdent.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.identEq] def identEq.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.nonReservedSymbol] def nonReservedSymbol.parenthesizer := visitToken
 
-@[builtinParenthesizer charLitNoAntiquot] def charLitNoAntiquot.parenthesizer := visitToken
-@[builtinParenthesizer strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := visitToken
-@[builtinParenthesizer nameLitNoAntiquot] def nameLitNoAntiquot.parenthesizer := visitToken
-@[builtinParenthesizer numLitNoAntiquot] def numLitNoAntiquot.parenthesizer := visitToken
-@[builtinParenthesizer fieldIdx] def fieldIdx.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.charLitNoAntiquot] def charLitNoAntiquot.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.nameLitNoAntiquot] def nameLitNoAntiquot.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.numLitNoAntiquot] def numLitNoAntiquot.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.fieldIdx] def fieldIdx.parenthesizer := visitToken
 
-@[builtinParenthesizer many]
-def many.parenthesizer : Parenthesizer | p => do
+@[combinatorParenthesizer Lean.Parser.many]
+def many.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 stx ← getCur;
-visitArgs $ stx.getArgs.size.forM $ fun _ => visit (p.getArg! 0)
+visitArgs $ stx.getArgs.size.forM fun _ => p
 
-@[builtinParenthesizer many1] def many1.parenthesizer : Parenthesizer | p => do
+@[combinatorParenthesizer Lean.Parser.many1]
+def many1.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 stx ← getCur;
 if stx.getKind == nullKind then
   many.parenthesizer p
 else
   -- can happen with `unboxSingleton = true`
-  visit (p.getArg! 0)
+  p
 
-@[builtinParenthesizer Parser.optional]
-def optional.parenthesizer : Parenthesizer | p => do
-visitArgs $ visit (p.getArg! 0)
+@[combinatorParenthesizer Lean.Parser.optional]
+def optional.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+visitArgs p
 
-@[builtinParenthesizer sepBy]
-def sepBy.parenthesizer : Parenthesizer | p => do
+@[combinatorParenthesizer Lean.Parser.sepBy]
+def sepBy.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 stx ← getCur;
-visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => visit (p.getArg! (i % 2))
+visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
 
-@[builtinParenthesizer sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
+@[combinatorParenthesizer Lean.Parser.sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
 
-@[builtinParenthesizer orelse] def orelse.parenthesizer : Parenthesizer | p => do
-st ← get;
--- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
--- them in turn. Uses the syntax traverser non-linearly!
-catch (visit (p.getArg! 0)) $ fun e => match e with
-  | Exception.other _ "BACKTRACK" => set st *> visit (p.getArg! 1)
-  | _                             => throw e
-
-@[builtinParenthesizer withPosition] def withPosition.parenthesizer : Parenthesizer | p => do
+@[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Position → Parenthesizer) : Parenthesizer := do
 -- call closure with dummy position
-visit $ mkApp (p.getArg! 0) (mkConst `sorryAx [levelZero])
+p ⟨0, 0⟩
 
-@[builtinParenthesizer setExpected] def setExpected.parenthesizer : Parenthesizer | p => visit (p.getArg! 1)
+@[combinatorParenthesizer Lean.Parser.setExpected]
+def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Parenthesizer :=
+p
 
-@[builtinParenthesizer checkStackTop] def checkStackTop.parenthesizer : Parenthesizer | p => pure ()
-@[builtinParenthesizer checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer | p => pure ()
-@[builtinParenthesizer checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer | p => pure ()
-@[builtinParenthesizer checkTailWs] def checkTailWs.parenthesizer : Parenthesizer | p => pure ()
-@[builtinParenthesizer checkColGe] def checkColGe.parenthesizer : Parenthesizer | p => pure ()
-@[builtinParenthesizer checkNoImmediateColon] def checkNoImmediateColon.parenthesizer : Parenthesizer | p => pure ()
+@[combinatorParenthesizer Lean.Parser.checkStackTop] def checkStackTop.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkTailWs] def checkTailWs.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkColGe] def checkColGe.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkNoImmediateColon] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()
 
-@[builtinParenthesizer pushNone] def pushNone.parenthesizer : Parenthesizer | p => goLeft
+@[combinatorParenthesizer Lean.Parser.pushNone] def pushNone.parenthesizer : Parenthesizer := goLeft
 
-open Lean.Parser.Command
-@[builtinParenthesizer commentBody] def commentBody.parenthesizer := visitToken
-@[builtinParenthesizer quotedSymbol] def quotedSymbol.parenthesizer := visitToken
-@[builtinParenthesizer unquotedSymbol] def unquotedSymbol.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.quotedSymbol] def quotedSymbol.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.unquotedSymbol] def unquotedSymbol.parenthesizer := visitToken
+
+@[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
+if c then t else e
+
+-- replace all references of `Parser` with `Parenthesizer` as a first approximation
+def preprocessParserBody (e : Expr) : Expr :=
+e.replace fun e => if e.isConstOf `Lean.Parser.Parser then mkConst `Lean.PrettyPrinter.Parenthesizer else none
+
+-- translate an expression of type `Parser` into one of type `Parenthesizer`
+unsafe partial def compileParserBody : Expr → MetaM Expr | e => do
+e ← whnfCore e;
+match e with
+| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e fun xs b => compileParserBody b >>= Meta.mkLambda xs
+| e@(Expr.fvar _ _)        => pure e
+| _ => do
+  let fn := e.getAppFn;
+  Expr.const c _ _ ← pure fn
+    | throwOther $ "call of unknown parser at '" ++ toString e ++ "'";
+  let args := e.getAppArgs;
+  -- call the parenthesizer `p` with (a prefix of) the arguments of `e`, recursing for arguments
+  -- of type `Parenthesizer` (i.e. formerly `Parser`)
+  let mkCall (p : Name) := do {
+    ty ← inferType (mkConst p);
+    Meta.forallTelescope ty fun params _ =>
+      params.foldlM₂ (fun p param arg => do
+        paramTy ← inferType param;
+        resultTy ← Meta.forallTelescope paramTy fun _ b => pure b;
+        arg ← if resultTy.isConstOf `Lean.PrettyPrinter.Parenthesizer then compileParserBody arg
+          else pure arg;
+        pure $ mkApp p arg)
+        (mkConst p)
+        e.getAppArgs
+  };
+  env ← getEnv;
+  match combinatorParenthesizerAttribute.getValues env c with
+  -- use first registered `[combinatorParenthesizer]` if available
+  | p::_ => mkCall p
+  | []   => do
+    let parenthesizerDeclName := c ++ `parenthesizer;
+    cinfo ← getConstInfo c;
+    resultTy ← Meta.forallTelescope cinfo.type fun _ b => pure b;
+    if resultTy.isConstOf `Lean.Parser.Parser then do
+      -- synthesize a new `[combinatorParenthesizer]`
+      some value ← pure cinfo.value?
+        | throwOther $ "don't know how to generate parenthesizer for non-definition '" ++ toString e ++ "'";
+      value ← compileParserBody $ preprocessParserBody value;
+      ty ← Meta.forallTelescope cinfo.type fun params _ =>
+        params.foldrM (fun param ty => do
+          paramTy ← inferType param;
+          paramTy ← Meta.forallTelescope paramTy fun _ b => pure $
+            if b.isConstOf `Lean.Parser.Parser then mkConst `Lean.PrettyPrinter.Parenthesizer
+            else b;
+          pure $ mkForall `_ BinderInfo.default paramTy ty)
+          (mkConst `Lean.PrettyPrinter.Parenthesizer);
+      let decl := Declaration.defnDecl { name := parenthesizerDeclName, lparams := [],
+        type := ty, value := value, hints := ReducibilityHints.opaque, isUnsafe := false };
+      env ← getEnv;
+      env ← match env.addAndCompile {} decl with
+      | Except.ok    env => pure env
+      | Except.error kex => throwOther $ toString $ fmt $ kex.toMessageData {};
+      -- HACK: `MetaM` does not currently imply `MonadIO`, though it might soon
+      let env := unsafeIO $ env.addAttribute parenthesizerDeclName `combinatorParenthesizer (mkNullNode #[mkIdent c]);
+      match env with
+      | Except.ok env  => setEnv env
+      | Except.error e => throwOther $ toString e;
+      mkCall parenthesizerDeclName
+    else do
+      -- if this is a generic function, e.g. `HasAndthen.andthen`, it's easier to just unfold it until we are
+      -- back to parser combinators
+      some e' ← liftM $ unfoldDefinition? e
+        | throwOther $ "don't know how to generate parenthesizer for non-parser combinator '" ++ toString e ++ "'";
+      compileParserBody e'
+
+@[implementedBy compileParserBody]
+constant compileParserBody' : Expr → MetaM Expr := arbitrary _
+
+/-- Compile the given declaration into a `[builtinParenthesizer declName]` or `[parenthesizer declName]`. -/
+def compile (env : Environment) (declName : Name) (builtin : Bool) : IO Environment := do
+(value, env) ← IO.runMeta (do
+  cinfo ← getConstInfo declName;
+  compileParserBody' $ preprocessParserBody cinfo.value!) env;
+let parenthesizerDeclName := declName ++ `parenthesizer;
+let decl := Declaration.defnDecl { name := parenthesizerDeclName, lparams := [],
+  type := mkConst `Lean.PrettyPrinter.Parenthesizer,
+  value := value, hints := ReducibilityHints.opaque, isUnsafe := false };
+env ← match env.addAndCompile {} decl with
+| Except.ok    env => pure env
+| Except.error kex => throw $ IO.userError $ toString $ fmt $ kex.toMessageData {};
+let kind := declName;  -- fair assumption...?
+env ← env.addAttribute parenthesizerDeclName (if builtin then `builtinParenthesizer else `parenthesizer)
+  (mkNullNode #[mkIdent kind]);
+-- We also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
+-- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
+-- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
+-- call them at compile time but only reference them).
+env.addAttribute parenthesizerDeclName `combinatorParenthesizer (mkNullNode #[mkIdent declName])
+
+unsafe def mkParenthesizerOfConstantUnsafe (constName : Name) (compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer)
+    : StateT Environment IO Parenthesizer :=
+fun env => match env.find? constName with
+| none      => throw $ IO.userError ("unknow constant '" ++ toString constName ++ "'")
+| some info =>
+  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then do
+    env ← compile env constName /- builtin -/ false;
+    pure (parenthesizerForKind constName, env)
+  else do
+    d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
+    compileParenthesizerDescr d env
+
+@[implementedBy mkParenthesizerOfConstantUnsafe]
+constant mkParenthesizerOfConstantAux (constName : Name) (compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer)
+    : StateT Environment IO Parenthesizer :=
+arbitrary _
+
+partial def compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer
+| ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.orelse d₁ d₂                        => orelse.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.optional d                          => optional.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.lookahead d                         => lookahead.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.try d                               => try.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.many d                              => many.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.many1 d                             => many1.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.sepBy d₁ d₂                         => sepBy.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.sepBy1 d₁ d₂                        => sepBy1.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.node k prec d                       => leadingNode.parenthesizer k prec <$> compileParenthesizerDescr d
+| ParserDescr.trailingNode k prec d               => trailingNode.parenthesizer k prec <$> compileParenthesizerDescr d
+| ParserDescr.symbol tk                           => pure $ symbol.parenthesizer
+| ParserDescr.numLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer
+| ParserDescr.strLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer
+| ParserDescr.charLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer
+| ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
+| ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
+| ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer
+| ParserDescr.parser constName                    => mkParenthesizerOfConstantAux constName compileParenthesizerDescr
+| ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
+
+def addParenthesizerFromConstant (env : Environment) (constName : Name) : IO Environment := do
+(p, env) ← mkParenthesizerOfConstantAux constName compileParenthesizerDescr env;
+parenthesizerAttribute.addBuiltin constName p;
+pure env
 
 end Parenthesizer
+open Parenthesizer
 
 /-- Add necessary parentheses in `stx` parsed by `parser`. -/
-def parenthesize (parser : Expr) (stx : Syntax) : MetaM Syntax := Meta.withAtLeastTransparency Meta.TransparencyMode.default do
-(_, st) ← Parenthesizer.visit parser {} { stxTrav := Syntax.Traverser.fromSyntax stx };
+def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : MetaM Syntax := Meta.withAtLeastTransparency Meta.TransparencyMode.default do
+(_, st) ← parenthesizer {} { stxTrav := Syntax.Traverser.fromSyntax stx };
 pure st.stxTrav.cur
 
-def parenthesizeTerm := parenthesize (mkApp (mkConst `Lean.Parser.termParser) (mkNatLit 0))
-
-def parenthesizeCommand := parenthesize (mkApp (mkConst `Lean.Parser.commandParser) (mkNatLit 0))
+def parenthesizeTerm := parenthesize $ termParser.parenthesizer 0
+def parenthesizeCommand := parenthesize $ categoryParser.parenthesizer `command 0
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter.parenthesize;

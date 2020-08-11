@@ -47,7 +47,6 @@ lean_object* l_Lean_Elab_Command_applyVisibility(lean_object*, uint8_t, lean_obj
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__11;
 lean_object* l_Lean_Elab_Command_Attribute_inhabited___closed__1;
-extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared___closed__2;
 lean_object* l_Lean_Elab_Command_mkDeclName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_AttributeApplicationTime_beq(uint8_t, uint8_t);
@@ -77,6 +76,7 @@ lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared___closed__1;
+extern lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
 extern lean_object* l_Lean_protectedExt;
 extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__2;
 extern lean_object* l_Lean_Options_empty;
@@ -2310,7 +2310,7 @@ if (lean_obj_tag(x_12) == 0)
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; 
 x_39 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_39, 0, x_2);
-x_40 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_40 = l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
 x_41 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_39);

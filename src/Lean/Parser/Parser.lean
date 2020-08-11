@@ -1862,12 +1862,8 @@ match (parserExtension.getState env).categories.find? catName with
 | none     => false
 | some cat => cat.leadingIdentAsSymbol
 
-private def catNameToString : Name → String
-| Name.str Name.anonymous s _ => s
-| n                           => n.toString
-
-@[inline] def mkCategoryAntiquotParser (kind : Name) : Parser :=
-mkAntiquot (catNameToString kind) none
+def mkCategoryAntiquotParser (kind : Name) : Parser :=
+mkAntiquot kind.toString none
 
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>

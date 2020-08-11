@@ -120,6 +120,9 @@ a
    issues when proving equational theorems. The equation Compiler uses it as a marker. -/
 @[macroInline, reducible] def idRhs (α : Sort u) (a : α) : α := a
 
+/-- Auxiliary Declaration used to implement the named patterns `x@p` -/
+@[reducible] def namedPattern {α : Sort u} (x a : α) : α := a
+
 inductive PUnit : Sort u
 | unit : PUnit
 

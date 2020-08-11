@@ -1193,7 +1193,7 @@ result? ← resolveLocalName n;
 match result? with
 | some (e, projs) => do
   unless explicitLevels.isEmpty $
-    throwError ref ("invalid use of explicit universe parameters, '" ++ toString e.fvarId! ++ "' is a local");
+    throwError ref ("invalid use of explicit universe parameters, '" ++ e ++ "' is a local");
   pure [(e, projs)]
 | none =>
   let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {

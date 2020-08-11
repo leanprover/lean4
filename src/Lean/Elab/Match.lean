@@ -21,7 +21,7 @@ withPosition $ fun pos =>
   (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 
-def matchDiscr := optIdent >> termParser
+def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
 def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 ```
@@ -106,9 +106,96 @@ matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
 discrs ← elabDiscrs stx discrStxs matchType expectedType;
 throwError stx ("WIP type: " ++ matchType ++ "\n" ++ discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
 
+/- Auxiliary method for `expandMatchDiscr?` -/
+private partial def mkMatchType (discrs : Array Syntax) : Nat → MacroM Syntax
+| i => withFreshMacroScope $
+  if h : i < discrs.size then
+    let discr := discrs.get ⟨i, h⟩;
+    if discr.isOfKind `Lean.Parser.Term.matchDiscr then do
+      type ← mkMatchType (i+1);
+      if (discr.getArg 0).isNone then
+        `(_ → $type)
+      else
+        let t := discr.getArg 1;
+        `((x : _) → x = $t → $type)
+    else
+      mkMatchType (i+1)
+  else
+    `(_)
+
+private def mkOptType (typeStx : Syntax) : Syntax :=
+mkNullNode #[mkNode `Lean.Parser.Term.typeSpec #[mkAtomFrom typeStx ", ", typeStx]]
+
+/- Auxiliary method for `expandMatchDiscr?` -/
+private partial def mkNewDiscrs (discrs : Array Syntax) : Nat → Array Syntax → MacroM (Array Syntax)
+| i, newDiscrs =>
+  if h : i < discrs.size then
+    let discr := discrs.get ⟨i, h⟩;
+    if discr.isOfKind `Lean.Parser.Term.matchDiscr then do
+      if (discr.getArg 0).isNone then
+        mkNewDiscrs (i+1) (newDiscrs.push discr)
+      else do
+        let newDiscrs := newDiscrs.push $ discr.setArg 0 mkNullNode;
+        let newDiscrs := newDiscrs.push $ mkAtomFrom discr ", ";
+        eqPrf ← `(Eq.refl _);
+        let newDiscrs := newDiscrs.push $ mkNode `Lean.Parser.Term.matchDiscr #[mkNullNode, eqPrf];
+        mkNewDiscrs (i+1) newDiscrs
+    else
+      mkNewDiscrs (i+1) (newDiscrs.push discr)
+  else
+    pure newDiscrs
+
+/- Auxiliary method for `expandMatchDiscr?` -/
+private partial def mkNewPatterns (ref : Syntax) (discrs patterns : Array Syntax) : Nat → Array Syntax → MacroM (Array Syntax)
+| i, newPatterns =>
+  if h : i < discrs.size then
+    let discr := discrs.get ⟨i, h⟩;
+    if h : i < patterns.size then
+      let pattern := patterns.get ⟨i, h⟩;
+      if discr.isOfKind `Lean.Parser.Term.matchDiscr then do
+        if (discr.getArg 0).isNone then
+          mkNewPatterns (i+1) (newPatterns.push pattern)
+        else
+          let newPatterns := newPatterns.push pattern;
+          let newPatterns := newPatterns.push $ mkAtomFrom pattern ", ";
+          let ident       := (discr.getArg 0).getArg 0;
+          let newPatterns := newPatterns.push $ mkTermIdFromIdent ident;
+          mkNewPatterns (i+1) newPatterns
+      else
+        -- it is a ", "
+        mkNewPatterns (i+1) (newPatterns.push pattern)
+    else
+      throw $ Macro.Exception.error ref ("invalid number of patterns, expected #" ++ toString discrs.size)
+  else
+    pure newPatterns
+
+/- Auxiliary method for `expandMatchDiscr?` -/
+private partial def mkNewAlt (discrs : Array Syntax) (alt : Syntax) : MacroM Syntax := do
+let patterns := (alt.getArg 0).getArgs;
+newPatterns ← mkNewPatterns alt discrs patterns 0 #[];
+pure $ alt.setArg 0 (mkNullNode newPatterns)
+
+/- Auxiliary method for `expandMatchDiscr?` -/
+private partial def mkNewAlts (discrs : Array Syntax) (alts : Array Syntax) : MacroM (Array Syntax) :=
+alts.mapSepElemsM $ mkNewAlt discrs
+
 /-- Expand discriminants of the form `h : t` -/
 private def expandMatchDiscr? (stx : Syntax) : MacroM (Option Syntax) := do
-pure none -- TODO
+let discrs := (stx.getArg 1).getArgs;
+if discrs.getSepElems.all fun d => (d.getArg 0).isNone then
+  pure none -- nothing to be done
+else do
+  unless (stx.getArg 2).isNone $
+    throw $ Macro.Exception.error (stx.getArg 2) "match expected type should not be provided when discriminants with equality proofs are used";
+  matchType ← mkMatchType discrs 0;
+  let matchType := matchType.copyInfo stx;
+  let stx := stx.setArg 2 (mkOptType matchType);
+  newDiscrs ← mkNewDiscrs discrs 0 #[];
+  let stx := stx.setArg 1 (mkNullNode newDiscrs);
+  let alts := (stx.getArg 5).getArgs;
+  newAlts ← mkNewAlts discrs alts;
+  let stx := stx.setArg 5 (mkNullNode newAlts);
+  pure stx
 
 -- parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermElab «match»] def elabMatch : TermElab :=

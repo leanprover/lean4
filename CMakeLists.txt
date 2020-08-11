@@ -44,6 +44,16 @@ ExternalProject_add(stage1
   DEPENDS stage0 stage0.5
   EXCLUDE_FROM_ALL ON
 )
+ExternalProject_add(stage1.5
+  SOURCE_DIR "${LEAN_SOURCE_DIR}"
+  SOURCE_SUBDIR src
+  BINARY_DIR stage1.5
+  CMAKE_ARGS -DSTAGE=1.5 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage1 -DLEANCPP="${CMAKE_BINARY_DIR}/stage0.5/lib/lean/libleancpp.a" ${CL_ARGS}
+  BUILD_ALWAYS ON
+  INSTALL_COMMAND ""
+  DEPENDS stage1
+  EXCLUDE_FROM_ALL ON
+)
 ExternalProject_add(stage2
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src

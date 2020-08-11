@@ -46,3 +46,5 @@ it₁.remainingToString ++ "-" ++ it₂.remainingToString
 #eval "αβ".mkIterator.next.prev.hasPrev
 #eval "abc" == "abc"
 #eval "abc" == "abd"
+#eval "αβγ".drop 1
+#eval "αβγ".takeRight 1

@@ -29,7 +29,6 @@ lean_object* l_Lean_Elab_Command_elabDefLike___lambda__1(lean_object*, lean_obje
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__4;
 lean_object* l___private_Lean_Elab_Definition_3__withUsedWhen_x27___rarg___closed__1;
 lean_object* l_Lean_Elab_Command_withDeclId___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_empty___closed__1;
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Command_6__mkTermContext(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__2;
@@ -53,6 +52,7 @@ lean_object* l_Lean_Elab_Command_mkDeclName(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_state_sharecommon(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
 lean_object* l_Lean_Elab_Term_throwUnsupportedSyntax___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_DefKind_isTheorem___boxed(lean_object*);
 uint8_t l_Lean_Elab_Command_DefKind_isDefOrAbbrevOrOpaque(uint8_t);
@@ -85,7 +85,6 @@ lean_object* l___private_Lean_Elab_Command_7__mkTermState(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__3;
-lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__6;
 lean_object* l___private_Lean_Elab_Definition_1__removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Definition_1__removeUnused___closed__1;
@@ -560,19 +559,6 @@ return x_3;
 lean_object* _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_HashSet_Inhabited___closed__1;
-x_2 = l_Array_empty___closed__1;
-x_3 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 x_2 = lean_alloc_ctor(0, 1, 0);
@@ -681,7 +667,7 @@ x_47 = lean_state_sharecommon(x_46, x_40);
 x_48 = lean_ctor_get(x_47, 0);
 lean_inc(x_48);
 lean_dec(x_47);
-x_49 = l_Lean_Elab_Command_mkDef___lambda__1___closed__5;
+x_49 = l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
 lean_inc(x_45);
 x_50 = l_Lean_CollectLevelParams_main___main(x_45, x_49);
 lean_inc(x_48);
@@ -720,7 +706,7 @@ lean_ctor_set(x_124, 0, x_45);
 x_125 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_125, 0, x_123);
 lean_ctor_set(x_125, 1, x_124);
-x_126 = l_Lean_Elab_Command_mkDef___lambda__1___closed__6;
+x_126 = l_Lean_Elab_Command_mkDef___lambda__1___closed__5;
 x_127 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_127, 0, x_125);
 lean_ctor_set(x_127, 1, x_126);
@@ -2643,8 +2629,6 @@ l_Lean_Elab_Command_mkDef___lambda__1___closed__4 = _init_l_Lean_Elab_Command_mk
 lean_mark_persistent(l_Lean_Elab_Command_mkDef___lambda__1___closed__4);
 l_Lean_Elab_Command_mkDef___lambda__1___closed__5 = _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__5();
 lean_mark_persistent(l_Lean_Elab_Command_mkDef___lambda__1___closed__5);
-l_Lean_Elab_Command_mkDef___lambda__1___closed__6 = _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__6();
-lean_mark_persistent(l_Lean_Elab_Command_mkDef___lambda__1___closed__6);
 l_Lean_Elab_Command_elabDefVal___closed__1 = _init_l_Lean_Elab_Command_elabDefVal___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_elabDefVal___closed__1);
 l_Lean_Elab_Command_elabDefVal___closed__2 = _init_l_Lean_Elab_Command_elabDefVal___closed__2();

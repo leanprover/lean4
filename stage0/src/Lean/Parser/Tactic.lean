@@ -20,6 +20,8 @@ fun c s =>
 { fn   := underscoreFn,
   info := mkAtomicInfo "ident" }
 
+@[combinatorParenthesizer underscore] def underscore.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+
 def ident' : Parser := ident <|> underscore
 
 @[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> optional ident'

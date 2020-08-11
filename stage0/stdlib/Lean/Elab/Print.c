@@ -48,7 +48,6 @@ lean_object* l___private_Lean_Elab_Print_4__printDefLike___boxed(lean_object*, l
 lean_object* l___private_Lean_Elab_Print_5__printAxiomLike(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_4__printDefLike(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_List_filterAux___main___at___private_Lean_Elab_Print_9__printId___spec__1(lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Lean_Elab_Print_9__printId___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -63,6 +62,7 @@ lean_object* l___private_Lean_Elab_Print_9__printId___boxed(lean_object*, lean_o
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__1;
+extern lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
 extern lean_object* l_Lean_protectedExt;
 lean_object* l___private_Lean_Elab_Print_2__lparamsToMessageData___boxed(lean_object*);
 extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__4;
@@ -105,8 +105,8 @@ lean_object* l___private_Lean_Elab_Print_7__printInduct___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__3;
-lean_object* l___private_Lean_Elab_Print_8__printIdCore___closed__2;
 lean_object* lean_task_get(lean_object*);
+extern lean_object* l_Lean_Meta_mkRecursorAttr___closed__1;
 lean_object* l_List_foldl___main___at___private_Lean_Elab_Print_2__lparamsToMessageData___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_constant___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_Print_7__printInduct___closed__3;
@@ -127,7 +127,7 @@ x_9 = l_Lean_Elab_Term_resolveName___closed__3;
 x_10 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_11 = l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
 x_12 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -989,14 +989,6 @@ x_1 = lean_mk_string("constructor");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("recursor");
-return x_1;
-}
-}
 lean_object* l___private_Lean_Elab_Print_8__printIdCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1194,7 +1186,7 @@ lean_inc(x_68);
 x_69 = lean_ctor_get(x_66, 2);
 lean_inc(x_69);
 lean_dec(x_66);
-x_70 = l___private_Lean_Elab_Print_8__printIdCore___closed__2;
+x_70 = l_Lean_Meta_mkRecursorAttr___closed__1;
 x_71 = l___private_Lean_Elab_Print_5__printAxiomLike(x_1, x_70, x_2, x_68, x_69, x_67, x_3, x_7);
 lean_dec(x_68);
 return x_71;
@@ -1938,8 +1930,6 @@ l___private_Lean_Elab_Print_7__printInduct___closed__3 = _init_l___private_Lean_
 lean_mark_persistent(l___private_Lean_Elab_Print_7__printInduct___closed__3);
 l___private_Lean_Elab_Print_8__printIdCore___closed__1 = _init_l___private_Lean_Elab_Print_8__printIdCore___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_Print_8__printIdCore___closed__1);
-l___private_Lean_Elab_Print_8__printIdCore___closed__2 = _init_l___private_Lean_Elab_Print_8__printIdCore___closed__2();
-lean_mark_persistent(l___private_Lean_Elab_Print_8__printIdCore___closed__2);
 l_Lean_Elab_Command_elabPrint___closed__1 = _init_l_Lean_Elab_Command_elabPrint___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_elabPrint___closed__1);
 l_Lean_Elab_Command_elabPrint___closed__2 = _init_l_Lean_Elab_Command_elabPrint___closed__2();

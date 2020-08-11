@@ -28,6 +28,8 @@ namespace Command
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock 1) true }
 
+@[combinatorParenthesizer commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+
 def docComment       := parser! "/--" >> commentBody
 def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`

@@ -1,9 +1,7 @@
 /-! Reprint file after removing all parentheses and then passing it through the parenthesizer -/
-import Lean.PrettyPrinter.Parenthesizer
+import Lean.Parser
 
 open Lean
-open Lean.Elab
-open Lean.Elab.Term
 open Lean.Format
 
 def unparenAux (parens body : Syntax) : Syntax :=

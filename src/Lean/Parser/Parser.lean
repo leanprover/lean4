@@ -62,6 +62,7 @@ import Lean.Environment
 import Lean.Attributes
 import Lean.Message
 import Lean.Compiler.InitAttr
+import Lean.PrettyPrinter.Parenthesizer
 
 namespace Lean
 
@@ -1941,7 +1942,7 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (env : Environment) (declName : Name) (args : Syntax) (persistent : Bool) : IO Environment := do
 when args.hasArgs $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
 unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent"));
-match env.find? declName with
+env ← match env.find? declName with
 | none  => throw $ IO.userError "unknown declaration"
 | some decl =>
   match decl.type with
@@ -1950,7 +1951,8 @@ match env.find? declName with
  | Expr.const `Lean.Parser.Parser _ _ =>
    declareLeadingBuiltinParser env catName declName
  | _ =>
-   throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))
+   throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"));
+PrettyPrinter.Parenthesizer.compile env declName /- builtin -/ true
 
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.
@@ -1981,9 +1983,10 @@ match mkParserOfConstant env categories declName with
     env;
   let kinds := parser.info.collectKinds {};
   let env := kinds.foldl (fun env kind _ => addSyntaxNodeKind env kind) env;
-  match addParser categories catName declName leading parser with
+  env ← match addParser categories catName declName leading parser with
   | Except.ok _     => pure $ parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
-  | Except.error ex => throw (IO.userError ex)
+  | Except.error ex => throw (IO.userError ex);
+  PrettyPrinter.Parenthesizer.compile env declName /- builtin -/ false
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 { name            := attrName,

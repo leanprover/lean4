@@ -266,6 +266,10 @@ maybeParenthesize (fun stx => Unhygienic.run `(level|($stx))) prec $
 def try.parenthesizer (p : Parenthesizer) : Parenthesizer :=
 p
 
+@[combinatorParenthesizer Lean.Parser.lookahead]
+def lookahead.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+p
+
 @[combinatorParenthesizer Lean.Parser.andthen]
 def andthen.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer :=
 p2 *> p1
@@ -469,6 +473,53 @@ env ← env.addAttribute parenthesizerDeclName (if builtin then `builtinParenthe
 -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
 -- call them at compile time but only reference them).
 env.addAttribute parenthesizerDeclName `combinatorParenthesizer (mkNullNode #[mkIdent declName])
+
+unsafe def mkParenthesizerOfConstantUnsafe (constName : Name) (compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer)
+    : StateT Environment IO Parenthesizer :=
+fun env => match env.find? constName with
+| none      => throw $ IO.userError ("unknow constant '" ++ toString constName ++ "'")
+| some info =>
+  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
+    match parenthesizerAttribute.getValues env constName with
+    | p::_ => pure (p, env)
+    | _    => do
+      env ← compile env constName /- builtin -/ false;
+      pure (parenthesizerForKind constName, env)
+  else do
+    d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
+    compileParenthesizerDescr d env
+
+@[implementedBy mkParenthesizerOfConstantUnsafe]
+constant mkParenthesizerOfConstantAux (constName : Name) (compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer)
+    : StateT Environment IO Parenthesizer :=
+arbitrary _
+
+partial def compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer
+| ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.orelse d₁ d₂                        => orelse.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.optional d                          => optional.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.lookahead d                         => lookahead.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.try d                               => try.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.many d                              => many.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.many1 d                             => many1.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.sepBy d₁ d₂                         => sepBy.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.sepBy1 d₁ d₂                        => sepBy1.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.node k prec d                       => leadingNode.parenthesizer k prec <$> compileParenthesizerDescr d
+| ParserDescr.trailingNode k prec d               => trailingNode.parenthesizer k prec <$> compileParenthesizerDescr d
+| ParserDescr.symbol tk                           => pure $ symbol.parenthesizer
+| ParserDescr.numLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer
+| ParserDescr.strLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer
+| ParserDescr.charLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer
+| ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
+| ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
+| ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer
+| ParserDescr.parser constName                    => mkParenthesizerOfConstantAux constName compileParenthesizerDescr
+| ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
+
+def addParenthesizerFromConstant (env : Environment) (constName : Name) : IO Environment := do
+(p, env) ← mkParenthesizerOfConstantAux constName compileParenthesizerDescr env;
+parenthesizerAttribute.addBuiltin constName p;
+pure env
 
 end Parenthesizer
 open Parenthesizer

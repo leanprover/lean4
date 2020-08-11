@@ -18,8 +18,7 @@ def readJson (h : FS.Handle) (nBytes : Nat) : IO Json := do
 bytes ← h.read nBytes;
 some s ← pure bytes.utf8ToString
   | throw (userError ("got non-utf8 string '" ++ toString bytes ++ "'"));
-j ← ofExcept (Json.parse s);
-pure j
+ofExcept (Json.parse s)
 
 def writeJson (h : FS.Handle) (j : Json) : IO Unit := do
 h.putStr j.compress;

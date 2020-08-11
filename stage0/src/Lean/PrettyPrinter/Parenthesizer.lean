@@ -104,17 +104,25 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
 KeyedDeclsAttribute.init {
   builtinName := `builtinParenthesizer,
   name := `parenthesizer,
-  descr := "Register a parenthesizer.
+  descr := "Register a parenthesizer for a parser.
 
-[parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.",
+[parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.",
   valueTypeName := `Lean.PrettyPrinter.Parenthesizer,
-  evalKey := fun env args => match attrParamSyntaxToIdentifier args with
-    | some id => match env.find? id with
-      | some _ => pure id
-      | none   => throw ("invalid [parenthesizer] argument, unknown identifier '" ++ toString id ++ "'")
-    | none    => throw "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.parenthesizerAttribute
 @[init mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
+
+unsafe def mkCombinatorParenthesizerAttribute : IO (KeyedDeclsAttribute Name) :=
+KeyedDeclsAttribute.init (KeyedDeclsAttribute.Def.mkSimple
+    none
+    `combinatorParenthesizer
+    "Register a parenthesizer for a parser combinator.
+
+[combinatorParenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.
+Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.
+The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
+with `Parenthesizer` in the parameter types.")
+  `Lean.PrettyPrinter.combinatorParenthesizerAttribute
+@[init mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : KeyedDeclsAttribute Name := arbitrary _
 
 namespace Parenthesizer
 

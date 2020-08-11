@@ -13,12 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_maxRecDepthErrorMessage;
 lean_object* l_Lean_getMaxRecDepth___boxed(lean_object*);
 lean_object* l_Lean_getMaxRecDepth___closed__2;
 lean_object* l_Lean_getMaxRecDepth___closed__1;
 extern lean_object* l_String_splitAux___main___closed__1;
-lean_object* l_Lean_maxRecDepthErrorMessage___closed__1;
 lean_object* l_Lean_maxRecDepth(lean_object*);
 lean_object* l_Lean_maxRecDepth___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -27,15 +25,7 @@ lean_object* l_Lean_getMaxRecDepth(lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_maxRecDepth___closed__2;
 lean_object* l_Lean_maxRecDepth___closed__1;
-lean_object* l_Lean_defaultMaxRecDepth;
-lean_object* _init_l_Lean_defaultMaxRecDepth() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(512u);
-return x_1;
-}
-}
+extern lean_object* l_Lean_defaultMaxRecDepth;
 lean_object* _init_l_Lean_getMaxRecDepth___closed__1() {
 _start:
 {
@@ -115,22 +105,6 @@ x_4 = lean_register_option(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_maxRecDepthErrorMessage___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_maxRecDepthErrorMessage() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_maxRecDepthErrorMessage___closed__1;
-return x_1;
-}
-}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Options(lean_object*);
 static bool _G_initialized = false;
@@ -144,8 +118,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Options(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_defaultMaxRecDepth = _init_l_Lean_defaultMaxRecDepth();
-lean_mark_persistent(l_Lean_defaultMaxRecDepth);
 l_Lean_getMaxRecDepth___closed__1 = _init_l_Lean_getMaxRecDepth___closed__1();
 lean_mark_persistent(l_Lean_getMaxRecDepth___closed__1);
 l_Lean_getMaxRecDepth___closed__2 = _init_l_Lean_getMaxRecDepth___closed__2();
@@ -159,10 +131,6 @@ lean_mark_persistent(l_Lean_maxRecDepth___closed__3);
 res = l_Lean_maxRecDepth(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_maxRecDepthErrorMessage___closed__1 = _init_l_Lean_maxRecDepthErrorMessage___closed__1();
-lean_mark_persistent(l_Lean_maxRecDepthErrorMessage___closed__1);
-l_Lean_maxRecDepthErrorMessage = _init_l_Lean_maxRecDepthErrorMessage();
-lean_mark_persistent(l_Lean_maxRecDepthErrorMessage);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

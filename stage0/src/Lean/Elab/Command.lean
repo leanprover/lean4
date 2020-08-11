@@ -156,6 +156,8 @@ instance : MonadMacroAdapter CommandElabM :=
   getCurrMacroScope      := getCurrMacroScope,
   getNextMacroScope      := do s ← get; pure s.nextMacroScope,
   setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
+  getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
+  getMaxRecDepth         := do s ← get; pure s.maxRecDepth,
   throwError             := @throwError,
   throwUnsupportedSyntax := @throwUnsupportedSyntax}
 

@@ -59,6 +59,7 @@ extern lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* l_Lean_Syntax_isAtom___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_11__decodeQuotedChar___boxed__const__3;
 lean_object* l_Array_mapSepElemsM___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_maxRecDepthErrorMessage;
 lean_object* l_Lean_Syntax_toNat___boxed(lean_object*);
 lean_object* l_Lean_identKind___closed__2;
 lean_object* l___private_Init_LeanInit_8__decodeHexDigit(lean_object*, lean_object*);
@@ -111,6 +112,7 @@ lean_object* l_Lean_NameGenerator_Inhabited;
 lean_object* l_Lean_mkTermIdFromIdent___closed__1;
 lean_object* l_Lean_nameLitKind;
 lean_object* l_Lean_mkAppStx___closed__8;
+lean_object* l_Lean_maxRecDepthErrorMessage___closed__1;
 lean_object* l_Lean_mkAppStx___closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_isSubScriptAlnum___boxed(lean_object*);
@@ -166,6 +168,7 @@ lean_object* l_Lean_Syntax_isFieldIdx_x3f(lean_object*);
 lean_object* l_Lean_Macro_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkTermIdFrom___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
+lean_object* l_Lean_Macro_withIncRecDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*);
 lean_object* l_Lean_firstFrontendMacroScope___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -257,6 +260,7 @@ lean_object* l___private_Init_LeanInit_3__extractImported(lean_object*, lean_obj
 lean_object* l___private_Init_LeanInit_5__extractMacroScopesAux___main(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Macro_withIncRecDepth(lean_object*);
 lean_object* l_Lean_SourceInfo_inhabited___closed__1;
 lean_object* l_String_quote(lean_object*);
 uint8_t l_Char_isAlphanum(uint32_t);
@@ -351,6 +355,7 @@ lean_object* l_Lean_Name_hasMacroScopes___main___boxed(lean_object*);
 lean_object* l_Lean_Name_hasMacroScopes___main___closed__1;
 lean_object* l_Lean_Syntax_findAux(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hash___boxed(lean_object*);
+lean_object* l_Lean_defaultMaxRecDepth;
 lean_object* l_Lean_Syntax_decodeStrLitAux(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___closed__2;
@@ -2679,6 +2684,30 @@ x_2 = lean_alloc_closure((void*)(l_Lean_MonadQuotation_addMacroScope___rarg), 3,
 return x_2;
 }
 }
+lean_object* _init_l_Lean_defaultMaxRecDepth() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(512u);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_maxRecDepthErrorMessage___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_maxRecDepthErrorMessage() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_maxRecDepthErrorMessage___closed__1;
+return x_1;
+}
+}
 lean_object* l_Lean_Macro_addMacroScope(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2771,15 +2800,21 @@ return x_8;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_ctor_get(x_2, 0);
+x_10 = lean_ctor_get(x_2, 2);
+x_11 = lean_ctor_get(x_2, 3);
+lean_inc(x_11);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_2);
-x_10 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_3);
-x_11 = lean_apply_2(x_1, x_10, x_5);
-return x_11;
+x_12 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 1, x_3);
+lean_ctor_set(x_12, 2, x_10);
+lean_ctor_set(x_12, 3, x_11);
+x_13 = lean_apply_2(x_1, x_12, x_5);
+return x_13;
 }
 }
 }
@@ -2788,6 +2823,105 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Macro_withFreshMacroScope___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_Macro_withIncRecDepth___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_6 = lean_ctor_get(x_3, 0);
+x_7 = lean_ctor_get(x_3, 1);
+x_8 = lean_ctor_get(x_3, 2);
+x_9 = lean_ctor_get(x_3, 3);
+x_10 = lean_nat_dec_eq(x_8, x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_dec(x_1);
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_add(x_8, x_11);
+lean_dec(x_8);
+lean_ctor_set(x_3, 2, x_12);
+x_13 = lean_apply_2(x_2, x_3, x_4);
+return x_13;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_free_object(x_3);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_2);
+x_14 = l_Lean_maxRecDepthErrorMessage;
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_1);
+lean_ctor_set(x_15, 1, x_14);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_4);
+return x_16;
+}
+}
+else
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
+x_17 = lean_ctor_get(x_3, 0);
+x_18 = lean_ctor_get(x_3, 1);
+x_19 = lean_ctor_get(x_3, 2);
+x_20 = lean_ctor_get(x_3, 3);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_inc(x_18);
+lean_inc(x_17);
+lean_dec(x_3);
+x_21 = lean_nat_dec_eq(x_19, x_20);
+if (x_21 == 0)
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_dec(x_1);
+x_22 = lean_unsigned_to_nat(1u);
+x_23 = lean_nat_add(x_19, x_22);
+lean_dec(x_19);
+x_24 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_24, 0, x_17);
+lean_ctor_set(x_24, 1, x_18);
+lean_ctor_set(x_24, 2, x_23);
+lean_ctor_set(x_24, 3, x_20);
+x_25 = lean_apply_2(x_2, x_24, x_4);
+return x_25;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+lean_dec(x_20);
+lean_dec(x_19);
+lean_dec(x_18);
+lean_dec(x_17);
+lean_dec(x_2);
+x_26 = l_Lean_maxRecDepthErrorMessage;
+x_27 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_27, 0, x_1);
+lean_ctor_set(x_27, 1, x_26);
+x_28 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_28, 0, x_27);
+lean_ctor_set(x_28, 1, x_4);
+return x_28;
+}
+}
+}
+}
+lean_object* l_Lean_Macro_withIncRecDepth(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Macro_withIncRecDepth___rarg), 4, 0);
 return x_2;
 }
 }
@@ -6859,6 +6993,12 @@ l_Lean_MacroScopesView_inhabited___closed__1 = _init_l_Lean_MacroScopesView_inha
 lean_mark_persistent(l_Lean_MacroScopesView_inhabited___closed__1);
 l_Lean_MacroScopesView_inhabited = _init_l_Lean_MacroScopesView_inhabited();
 lean_mark_persistent(l_Lean_MacroScopesView_inhabited);
+l_Lean_defaultMaxRecDepth = _init_l_Lean_defaultMaxRecDepth();
+lean_mark_persistent(l_Lean_defaultMaxRecDepth);
+l_Lean_maxRecDepthErrorMessage___closed__1 = _init_l_Lean_maxRecDepthErrorMessage___closed__1();
+lean_mark_persistent(l_Lean_maxRecDepthErrorMessage___closed__1);
+l_Lean_maxRecDepthErrorMessage = _init_l_Lean_maxRecDepthErrorMessage();
+lean_mark_persistent(l_Lean_maxRecDepthErrorMessage);
 l_Lean_MacroM_monadQuotation___closed__1 = _init_l_Lean_MacroM_monadQuotation___closed__1();
 lean_mark_persistent(l_Lean_MacroM_monadQuotation___closed__1);
 l_Lean_MacroM_monadQuotation___closed__2 = _init_l_Lean_MacroM_monadQuotation___closed__2();

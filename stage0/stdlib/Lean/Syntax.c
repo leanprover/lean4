@@ -142,6 +142,7 @@ lean_object* l_Lean_Syntax_structEq___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_reprint___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_7__quoteName___main___closed__3;
 lean_object* l_Lean_Syntax_MonadTraverser_goLeft___rarg(lean_object*);
+lean_object* l_Lean_Syntax_copyInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goDown___rarg(lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevMAux___main___at_Lean_Syntax_getTailInfo___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -157,6 +158,7 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_updateLeading(lean_object*);
 lean_object* l___private_Lean_Syntax_7__quoteName___main___closed__5;
 lean_object* l_Lean_Syntax_formatStxAux___main___closed__3;
+lean_object* l_Lean_Syntax_copyInfo___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos___boxed(lean_object*);
 extern lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
@@ -3308,6 +3310,35 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Syntax_replaceInfo___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Syntax_copyInfo(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Syntax_getHeadInfo___main(x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = l_Lean_Syntax_setInfo(x_4, x_1);
+return x_5;
+}
+}
+}
+lean_object* l_Lean_Syntax_copyInfo___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Syntax_copyInfo(x_1, x_2);
+lean_dec(x_2);
 return x_3;
 }
 }

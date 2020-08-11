@@ -28,15 +28,38 @@ abbrev Key := Name
 
  Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
 structure Def (γ : Type) :=
-(builtinName   : Name)    -- Builtin attribute name (e.g., `builtinTermElab)
-(name          : Name)    -- Attribute name (e.g., `termElab)
-(descr         : String)  -- Attribute description
+(builtinName   : Option Name)  -- Builtin attribute name (e.g., `builtinTermElab)
+(name          : Name)         -- Attribute name (e.g., `termElab)
+(descr         : String)       -- Attribute description
 (valueTypeName : Name)
+-- Evaluate the given constant. Uses `Environment.evalConstCheck` by default, but that is unsafe, so we
+-- don't specify it here.
+(evalValue     : Option (Environment → Name → IO γ) := none)
+-- Compile the given constant. Evaluating the resulting term should result in the same value as using
+-- `evalValue`.
+(compileValue  : Environment → Name → IO Expr := fun env declName => do
+  match env.find? declName with
+  | none  => throw $ IO.userError "unknown declaration"
+  | some decl =>
+    match decl.type with
+    | Expr.const c _ _ =>
+      if c != valueTypeName then throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString valueTypeName ++ "` expected"))
+      else pure (mkConst declName)
+    | _ => throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString valueTypeName ++ "` expected")))
 -- Convert `Syntax` into a `Key`, the default implementation expects an identifier.
 (evalKey       : Environment → Syntax → Except String Key :=
   fun env arg => match attrParamSyntaxToIdentifier arg with
     | some id => Except.ok id
     | none    => Except.error "invalid attribute argument, expected identifier")
+
+/-- Build a `KeyedDeclsAttribute` definition that merely stores names of tagged declarations without interpreting them. -/
+def Def.mkSimple (builtinName : Option Name) (name : Name) (descr : String) : Def Name :=
+{ builtinName := builtinName,
+  name        := name,
+  descr       := descr,
+  valueTypeName := `Lean.Name,
+  evalValue   := some fun env declName => pure declName,
+  compileValue := fun env declName => pure (toExpr declName) }
 
 structure OLeanEntry :=
 (key  : Key)
@@ -55,9 +78,15 @@ structure ExtensionState (γ : Type) :=
 
 abbrev Extension (γ : Type) := PersistentEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)
 
+end KeyedDeclsAttribute
+
 structure KeyedDeclsAttribute (γ : Type) :=
-(builtinTableRef : IO.Ref (Table γ))
-(ext             : Extension γ)
+-- imported/builtin instances
+(tableRef : IO.Ref (KeyedDeclsAttribute.Table γ))
+-- instances from current module
+(ext      : KeyedDeclsAttribute.Extension γ)
+
+namespace KeyedDeclsAttribute
 
 def Table.insert {γ : Type} (table : Table γ) (k : Key) (v : γ) : Table γ :=
 match table.find? k with
@@ -68,21 +97,27 @@ instance ExtensionState.inhabited {γ} : Inhabited (ExtensionState γ) :=
 ⟨{}⟩
 
 instance KeyedDeclsAttribute.inhabited {γ} : Inhabited (KeyedDeclsAttribute γ) :=
-⟨{ builtinTableRef := arbitrary _, ext := arbitrary _ }⟩
+⟨{ tableRef := arbitrary _, ext := arbitrary _ }⟩
 
-private def mkInitial {γ} (builtinTableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do
-table ← builtinTableRef.get;
+private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do
+table ← tableRef.get;
 pure { table := table }
 
-private unsafe def addImported {γ} (df : Def γ) (builtinTableRef : IO.Ref (Table γ)) (env : Environment) (es : Array (Array OLeanEntry)) : IO (ExtensionState γ) := do
-table ← builtinTableRef.get;
+private unsafe def evalValue {γ} (df : Def γ) (env : Environment) (constName : Name) : IO γ :=
+match df.evalValue with
+  | some eval => eval env constName
+  | none      => match env.evalConstCheck γ df.valueTypeName constName with
+    | Except.error ex => throw (IO.userError ex)
+    | Except.ok v     => pure v
+
+private unsafe def addImported {γ} (df : Def γ) (tableRef : IO.Ref (Table γ)) (env : Environment) (es : Array (Array OLeanEntry)) : IO (ExtensionState γ) := do
+table ← tableRef.get;
 table ← es.foldlM
   (fun table entries =>
     entries.foldlM
-      (fun (table : Table γ) entry =>
-        match env.evalConstCheck γ df.valueTypeName entry.decl with
-        | Except.ok f     => pure $ table.insert entry.key f
-        | Except.error ex => throw (IO.userError ex))
+      (fun (table : Table γ) entry => do
+        val ← evalValue df env entry.decl;
+        pure $ table.insert entry.key val)
       table)
   table;
 pure { table := table }
@@ -91,16 +126,17 @@ private def addExtensionEntry {γ} (s : ExtensionState γ) (e : AttributeEntry �
 { table := s.table.insert e.key e.value, newEntries := e.toOLeanEntry :: s.newEntries }
 
 def addBuiltin {γ} (attr : KeyedDeclsAttribute γ) (key : Key) (val : γ) : IO Unit :=
-attr.builtinTableRef.modify $ fun m => m.insert key val
+attr.tableRef.modify $ fun m => m.insert key val
 
 /--
 def _regBuiltin$(declName) : IO Unit :=
-addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(mkConst declName)
+@addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(val)
 -/
-def declareBuiltin {γ} (df : Def γ) (attrDeclName : Name) (env : Environment) (key : Key) (declName : Name) : IO Environment :=
+def declareBuiltin {γ} (df : Def γ) (attrDeclName : Name) (env : Environment) (key : Key) (declName : Name) : IO Environment := do
 let name := `_regBuiltin ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, mkConst declName];
+val ← df.compileValue env declName;
+let val  := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, val];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
@@ -109,47 +145,43 @@ match env.addAndCompile {} decl with
 
 /- TODO: add support for scoped attributes -/
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDeclsAttribute γ) := do
-builtinTableRef : IO.Ref (Table γ) ← IO.mkRef {};
+tableRef : IO.Ref (Table γ) ← IO.mkRef {};
 ext : Extension γ ← registerPersistentEnvExtension {
   name            := df.name,
-  mkInitial       := mkInitial builtinTableRef,
-  addImportedFn   := addImported df builtinTableRef,
+  mkInitial       := mkInitial tableRef,
+  addImportedFn   := addImported df tableRef,
   addEntryFn      := addExtensionEntry,
   exportEntriesFn := fun s => s.newEntries.reverse.toArray,
   statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
 };
-registerBuiltinAttribute {
-  name  := df.builtinName,
-  descr := "(builtin) " ++ df.descr,
-  add   := fun env declName arg persistent => do {
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString df.builtinName ++ "', must be persistent"));
-    key ← IO.ofExcept $ df.evalKey env arg;
-    match env.find? declName with
-    | none  => throw $ IO.userError "unknown declaration"
-    | some decl =>
-      match decl.type with
-      | Expr.const c _ _ =>
-        if c != df.valueTypeName then throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
-        else declareBuiltin df attrDeclName env key declName
-      | _ => throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
-  },
-  applicationTime := AttributeApplicationTime.afterCompilation
-};
+match df.builtinName with
+| some builtinName =>
+  registerBuiltinAttribute {
+    name  := builtinName,
+    descr := "(builtin) " ++ df.descr,
+    add   := fun env declName arg persistent => do {
+      unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString df.builtinName ++ "', must be persistent"));
+      key ← IO.ofExcept $ df.evalKey env arg;
+      declareBuiltin df attrDeclName env key declName
+    },
+    applicationTime := AttributeApplicationTime.afterCompilation
+  }
+| _ => pure ();
 registerBuiltinAttribute {
   name            := df.name,
   descr           := df.descr,
-  add             := fun env constName arg persistent =>
-    match env.evalConstCheck γ df.valueTypeName constName with
-    | Except.error ex => throw (IO.userError ex)
-    | Except.ok v     => do
-      key ← IO.ofExcept $ df.evalKey env arg;
-      pure $ ext.addEntry env { key := key, decl := constName, value := v },
+  add             := fun env constName arg persistent => do
+    key ← IO.ofExcept $ df.evalKey env arg;
+    val ← evalValue df env constName;
+    pure $ ext.addEntry env { key := key, decl := constName, value := val },
   applicationTime := AttributeApplicationTime.afterCompilation
 };
-pure { builtinTableRef := builtinTableRef, ext := ext }
+pure { tableRef := tableRef, ext := ext }
+
+/-- Retrieve values tagged with `[attr declName]` or `[builtinAttr declName]`. -/
+def getValues {γ} (attr : KeyedDeclsAttribute γ) (env : Environment) (declName : Name) : List γ :=
+(attr.ext.getState env).table.findD declName []
 
 end KeyedDeclsAttribute
-
-export KeyedDeclsAttribute (KeyedDeclsAttribute)
 
 end Lean

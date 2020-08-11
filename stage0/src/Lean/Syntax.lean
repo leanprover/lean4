@@ -254,6 +254,11 @@ partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
 | node k args => node k $ args.map replaceInfo
 | stx         => setInfo info stx
 
+def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
+match source.getHeadInfo with
+| none      => s
+| some info => s.setInfo info
+
 private def reprintLeaf (info : SourceInfo) (val : String) : String :=
 -- no source info => add gracious amounts of whitespace to definitely separate tokens
 -- Note that the proper pretty printer does not use this function.

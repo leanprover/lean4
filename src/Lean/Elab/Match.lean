@@ -9,6 +9,24 @@ namespace Lean
 namespace Elab
 namespace Term
 
+/- This modules assumes "match"-expressions use the following syntax.
+
+```lean
+def matchAlt : Parser :=
+nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
+  sepBy1 termParser ", " >> darrow >> termParser
+
+def matchAlts (optionalFirstBar := true) : Parser :=
+withPosition $ fun pos =>
+  (if optionalFirstBar then optional "| " else "| ") >>
+  sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+
+def matchDiscr := optIdent >> termParser
+
+def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
+```
+-/
+
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 newStx ← `(let $lhsVar := $discr; $rhs);
 withMacroExpansion stx newStx $ elabTerm newStx expectedType?
@@ -28,8 +46,20 @@ else
   pure $ (optType.getArg 0).getArg 1
 
 /-
+nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ sepBy1 termParser ", " >> darrow >> termParser
+-/
+def expandMacrosInPatterns (matchAlts : Array Syntax) : TermElabM (Array Syntax) := do
+env ← getEnv;
+matchAlts.mapM fun matchAlt => do
+  patterns ← liftMacroM $ expandMacros env $ matchAlt.getArg 0;
+  pure $ matchAlt.setArg 0 patterns
+
+/- Given `stx` a match-expression, return its alternatives. -/
+private def getMatchAlts (stx : Syntax) : Array Syntax :=
+(stx.getArg 5).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt
+
+/-
 ```
-def matchDiscr := optIdent >> termParser
 parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 ```
 Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expandMatchDiscr?`.
@@ -39,7 +69,8 @@ tryPostponeIfNoneOrMVar expectedType?;
 let discrs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
 typeStx ← liftMacroM $ expandMatchOptType stx (stx.getArg 2) discrs.size;
 type ← elabType typeStx;
-throwError stx ("WIP type: " ++ type ++ "\n" ++ stx ++ "\n" ++ toString discrs)
+matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
+throwError stx ("WIP type: " ++ type ++ "\n" ++ toString discrs ++ "\n" ++ toString matchAlts)
 
 /-- Expand discriminants of the form `h : t` -/
 private def expandMatchDiscr? (stx : Syntax) : MacroM (Option Syntax) := do

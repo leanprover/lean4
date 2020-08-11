@@ -134,6 +134,20 @@ match x { currMacroScope := scp, mainModule := env.mainModule, currRecDepth := c
 @[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : Macro) (stx : Syntax) : m Syntax :=
 liftMacroM (x stx)
 
+partial def expandMacros (env : Environment) : Syntax → MacroM Syntax
+| stx@(Syntax.node k args) => do
+  stxNew? ← catch
+    (do newStx ← getMacros env stx; pure (some newStx))
+    (fun ex => match ex with
+      | Macro.Exception.unsupportedSyntax => pure none
+      | _                                 => throw ex);
+  match stxNew? with
+  | some stxNew => expandMacros stxNew
+  | none        => do
+    args ← Macro.withIncRecDepth stx $ args.mapM expandMacros;
+    pure $ Syntax.node k args
+| stx => pure stx
+
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab;
 registerTraceClass `Elab.step

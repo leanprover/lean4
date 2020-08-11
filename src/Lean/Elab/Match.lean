@@ -52,6 +52,29 @@ if optType.isNone then
 else
   pure $ (optType.getArg 0).getArg 1
 
+private def elabMatchOptType (matchStx : Syntax) (numDiscrs : Nat) : TermElabM Expr := do
+typeStx ← liftMacroM $ expandMatchOptType matchStx (matchStx.getArg 2) numDiscrs;
+elabType typeStx
+
+private partial def elabDiscrsAux (ref : Syntax) (discrStxs : Array Syntax) (expectedType : Expr) : Nat → Expr → Array Expr → TermElabM (Array Expr)
+| i, matchType, discrs =>
+  if h : i < discrStxs.size then do
+    let discrStx := discrStxs.get ⟨i, h⟩;
+    matchType ← whnf ref matchType;
+    match matchType with
+    | Expr.forallE _ d b _ => do
+      discr ← elabTerm discrStx d;
+      discr ← ensureHasType discrStx d discr;
+      elabDiscrsAux (i+1) (b.instantiate1 discr) (discrs.push discr)
+    | _ => throwError ref ("invalid type provided to match-expression, function type with arity #" ++ toString discrStxs ++ " expected")
+  else do
+    unlessM (isDefEq ref matchType expectedType) $
+      throwError ref ("invalid result type provided to match-expression" ++ indentExpr matchType ++ Format.line ++ "expected type" ++ indentExpr expectedType);
+    pure discrs
+
+private def elabDiscrs (ref : Syntax) (discrStxs : Array Syntax) (matchType : Expr) (expectedType : Expr) : TermElabM (Array Expr) :=
+elabDiscrsAux ref discrStxs expectedType 0 matchType #[]
+
 /-
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ sepBy1 termParser ", " >> darrow >> termParser
 -/
@@ -74,11 +97,14 @@ Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expa
 -/
 private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 tryPostponeIfNoneOrMVar expectedType?;
-let discrs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
-typeStx ← liftMacroM $ expandMatchOptType stx (stx.getArg 2) discrs.size;
-type ← elabType typeStx;
+expectedType ← match expectedType? with
+  | some expectedType => pure expectedType
+  | none              => mkFreshTypeMVar stx;
+let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
+matchType ← elabMatchOptType stx discrStxs.size;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
-throwError stx ("WIP type: " ++ type ++ "\n" ++ toString discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
+discrs ← elabDiscrs stx discrStxs matchType expectedType;
+throwError stx ("WIP type: " ++ matchType ++ "\n" ++ discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
 
 /-- Expand discriminants of the form `h : t` -/
 private def expandMatchDiscr? (stx : Syntax) : MacroM (Option Syntax) := do

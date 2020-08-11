@@ -23,6 +23,8 @@ discard $ liftM $ MetaHasEval.eval env opts do
     unlessM (isDefEq stx e e') $
       throwError stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
+-- set_option trace.PrettyPrinter.parenthesize true
+
 -- #eval check `(?m)  -- fails round-trip
 
 #eval check `(Sort)

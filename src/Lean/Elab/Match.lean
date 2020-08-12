@@ -92,6 +92,15 @@ private def getMatchAlts (stx : Syntax) : Array MatchAltView :=
 let alts : Array Syntax := (stx.getArg 5).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt;
 alts.map mkMatchAltView
 
+/--
+  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
+  `_` in patterns. -/
+def mkInaccessible (e : Expr) : Expr :=
+mkAnnotation `_inaccessible e
+
+def isInaccessible? (e : Expr) : Option Expr :=
+isAnnotation? `_inaccessible e
+
 inductive PatternVar
 | localVar     (userName : Name)
 -- anonymous variables (`_`) are encoded using metavariables
@@ -121,7 +130,12 @@ private def getMVarSyntaxMVarId (stx : Syntax) : MVarId :=
   The elaboration function for `Syntax` created using `mkMVarSyntax`.
   It just converts the metavariable id wrapped by the Syntax into an `Expr`. -/
 @[builtinTermElab MVarWithIdKind] def elabMVarWithIdKind : TermElab :=
-fun stx expectedType? => pure $ mkMVar (getMVarSyntaxMVarId stx)
+fun stx expectedType? => pure $ mkInaccessible $ mkMVar (getMVarSyntaxMVarId stx)
+
+@[builtinTermElab inaccessible] def elabInaccessible : TermElab :=
+fun stx expectedType? => do
+  e ← elabTerm (stx.getArg 1) expectedType?;
+  pure $ mkInaccessible e
 
 /-
   Patterns define new local variables.

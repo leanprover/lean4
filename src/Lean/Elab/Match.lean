@@ -95,12 +95,15 @@ alts.map mkMatchAltView
 inductive PatternVar
 | localVar     (userName : Name)
 -- anonymous variables (`_`) are encoded using metavariables
-| anonymousVar (mvarUserName : Name)
+| anonymousVar (mvarId   : MVarId)
 
 instance PatternVar.hasToString : HasToString PatternVar :=
 ⟨fun v => match v with
-  | PatternVar.localVar x     => toString x
-  | PatternVar.anonymousVar x => "?" ++ toString x⟩
+  | PatternVar.localVar x          => toString x
+  | PatternVar.anonymousVar mvarId => "?m" ++ toString mvarId⟩
+
+@[init] private def registerAuxiliaryNodeKind : IO Unit :=
+Parser.registerBuiltinNodeKind `MVarWithIdKind
 
 /-
   Patterns define new local variables.

@@ -139,7 +139,7 @@ def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) 
 withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug ("majors: " ++ majors.toArray);
-  r ← mkElim elimName majors alts inProp;
+  r ← mkElimTester elimName majors alts inProp;
   unless r.counterExamples.isEmpty $
     throwOther ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
   unless r.unusedAltIdxs.isEmpty $

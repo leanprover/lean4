@@ -531,6 +531,8 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit acc
   | `($e[$idx]) =>
     elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
+  | `($id:ident@$t:term) =>
+    throwError ref "unexpected occurrence of named pattern"
   | `($id:ident$us:explicitUniv*) => do
     -- Remark: `id.<namedPattern>` should already have been expanded
     us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);

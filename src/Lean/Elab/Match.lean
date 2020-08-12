@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
+import Lean.Meta.EqnCompiler.MatchPattern
+import Lean.Meta.EqnCompiler.DepElim
 
 namespace Lean
 namespace Elab
@@ -28,11 +30,12 @@ def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType 
 -/
 
 structure MatchAltView :=
+(ref      : Syntax)
 (patterns : Array Syntax)
 (rhs      : Syntax)
 
 def mkMatchAltView (matchAlt : Syntax) : MatchAltView :=
-{ patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
+{ ref := matchAlt, patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
 
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 newStx ← `(let $lhsVar := $discr; $rhs);
@@ -89,6 +92,216 @@ private def getMatchAlts (stx : Syntax) : Array MatchAltView :=
 let alts : Array Syntax := (stx.getArg 5).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt;
 alts.map mkMatchAltView
 
+inductive PatternVar
+| localVar     (userName : Name)
+-- anonymous variables (`_`) are encoded using metavariables
+| anonymousVar (mvarUserName : Name)
+
+instance PatternVar.hasToString : HasToString PatternVar :=
+⟨fun v => match v with
+  | PatternVar.localVar x     => toString x
+  | PatternVar.anonymousVar x => "?" ++ toString x⟩
+
+/-
+  Patterns define new local variables.
+  This module collect them and preprocess `_` occurring in patterns.
+  Recall that an `_` may represent anonymous variables or inaccessible terms
+  that implied by typing constraints. Thus, we represent them with fresh named holes `?x`.
+  After we elaborate the pattern, if the metavariable remains unassigned, we transform it into
+  a regular pattern variable. Otherwise, it becomes an inaccessible term.
+
+  Macros occurring in patterns are expanded before the `collectPatternVars` method is executed.
+  The following kinds of Syntax are handled by this module
+  - Constructor applications
+  - Applications of functions tagged with the `[matchPattern]` attribute
+  - Identifiers
+  - Anonymous constructors
+  - Structure instances
+  - Inaccessible terms
+  - Named patterns
+  - Tuple literals
+  - Type ascriptions
+  - Literals: num, string and char
+-/
+namespace CollectPatternVars
+
+structure State :=
+(found     : NameSet := {})
+(vars      : Array PatternVar := #[])
+
+abbrev M := StateT State TermElabM
+
+private def throwCtorExpected {α} (stx : Syntax) : M α :=
+liftM $ throwError stx "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
+
+private def getNumExplicitCtorParams (ref : Syntax) (ctorVal : ConstructorVal) : TermElabM Nat :=
+liftMetaM ref $ Meta.forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
+  ps.foldlM
+    (fun acc p => do
+      localDecl ← Meta.getLocalDecl p.fvarId!;
+      if localDecl.binderInfo.isExplicit then pure $ acc+1 else pure acc)
+    0
+
+private def throwAmbiguous {α} (ref : Syntax) (fs : List Expr) : M α :=
+liftM $ throwError ref ("ambiguous pattern, use fully qualified name, possible interpretations " ++ fs)
+
+private def processVar (ref : Syntax) (id : Name) (mustBeCtor : Bool := false) : M Unit := do
+when mustBeCtor $ throwCtorExpected ref;
+unless id.eraseMacroScopes.isAtomic $ liftM $ throwError ref "invalid pattern variable, must be atomic";
+s ← get;
+when (s.found.contains id) $ liftM $ throwError ref ("invalid pattern, variable '" ++ id ++ "' occurred more than once");
+modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
+
+/- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute)
+   If `mustBeCtor == true`, then `stx` cannot be a pattern variable.
+
+   If `stx` is a constructor, then return the number of explicit arguments that are inductive type parameters. -/
+private def processIdAux (stx : Syntax) (mustBeCtor : Bool) : M Nat := do
+env ← liftM $ getEnv;
+match stx.isTermId? true with
+| none           => throwCtorExpected stx
+| some (id, opt) => do
+  when ((opt.getArg 0).isOfKind `Lean.Parser.Term.namedPattern) $
+    liftM $ throwError stx "invalid occurrence of named pattern";
+  match id with
+  | Syntax.ident _ _ val preresolved => do
+    rs ← liftM $ catch (resolveName stx val preresolved []) (fun _ => pure []);
+    let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty;
+    let fs := rs.map fun ⟨f, _⟩ => f;
+    match fs with
+    | []  => do processVar stx id.getId mustBeCtor; pure 0
+    | [f] => match f with
+      | Expr.const fName _ _ =>
+        match env.find? fName with
+        | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams stx val
+        | some $ info =>
+          if EqnCompiler.hasMatchPatternAttribute env fName then pure 0
+          else do processVar stx id.getId mustBeCtor; pure 0
+        | none => throwCtorExpected stx
+      | _ => do processVar stx id.getId mustBeCtor; pure 0
+    | _   => throwAmbiguous stx fs
+  | _ => unreachable!
+
+private def processCtor (stx : Syntax) : M Nat :=
+processIdAux stx true
+
+private def processId (stx : Syntax) : M Unit := do
+_ ← processIdAux stx false; pure ()
+
+private def throwInvalidPattern {α} (stx : Syntax) : M α :=
+liftM $ throwError stx "invalid pattern"
+
+private partial def collect : Syntax → M Syntax
+| stx@(Syntax.node k args) => withFreshMacroScope $
+  if k == `Lean.Parser.Term.app then do
+    let appFn   := args.get! 0;
+    let appArgs := (args.get! 1).getArgs;
+    appArgs.forM fun appArg =>
+      when (appArg.isOfKind `Lean.Parser.Term.namedPattern) $
+        liftM $ throwError appArg "named parameters are not allowed in patterns";
+    /- We must skip explict inducitve datatype parameters since they are by defaul inaccessible.
+       Example: `A` is inaccessible term at `Sum.inl A b` -/
+    numArgsToSkip ← processCtor appFn;
+    appArgs ← appArgs.mapIdxM fun i arg => if i < numArgsToSkip then pure arg else collect arg;
+    pure $ Syntax.node k $ args.set! 1 (mkNullNode appArgs)
+  else if k == `Lean.Parser.Term.anonymousCtor then do
+    elems ← (args.get! 1).getArgs.mapSepElemsM $ collect;
+    pure $ Syntax.node k $ args.set! 1 $ mkNullNode elems
+  else if k == `Lean.Parser.Term.structInst then do
+    /- { " >> optional (try (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }" -/
+    let withMod := args.get! 1;
+    unless withMod.isNone $
+      liftM $ throwError withMod "invalid struct instance pattern, 'with' is not allowed in patterns";
+    let fields := (args.get! 2).getArgs;
+    fields ← fields.mapSepElemsM fun field => do {
+      -- parser! structInstLVal >> " := " >> termParser
+      newVal ← collect (field.getArg 2);
+      pure $ field.setArg 2 newVal
+    };
+    pure $ Syntax.node k $ args.set! 2 $ mkNullNode fields
+  else if k == `Lean.Parser.Term.hole then do
+    r ← `(?x);
+    modify fun s => { s with vars := s.vars.push $ PatternVar.anonymousVar $ (r.getArg 1).getId };
+    pure r
+  else if k == `Lean.Parser.Term.paren then
+    let arg := args.get! 1;
+    if arg.isNone then
+      pure stx -- `()`
+    else do
+      let t := arg.getArg 0;
+      let s := arg.getArg 1;
+      if s.isNone || (s.getArg 0).isOfKind `Lean.Parser.Term.typeAscription then do
+        -- Ignore `s`, since it empty or it is a type ascription
+        t ← collect t;
+        let arg := arg.setArg 0 t;
+        pure $ Syntax.node k $ args.set! 1 arg
+      else do
+        -- Tuple literal is a constructor
+        t ← collect t;
+        let arg := arg.setArg 0 t;
+        let tupleTail := s.getArg 0;
+        let tupleTailElems := (tupleTail.getArg 1).getArgs;
+        tupleTailElems ← tupleTailElems.mapSepElemsM collect;
+        let tupleTail := tupleTail.setArg 1 $ mkNullNode tupleTailElems;
+        let s         := s.setArg 0 tupleTail;
+        let arg       := arg.setArg 1 s;
+        pure $ Syntax.node k $ args.set! 1 arg
+  else if k == `Lean.Parser.Term.id then do
+    let extra := args.get! 1;
+    if extra.isNone then do
+      processId stx;
+      pure stx
+    else if (extra.getArg 0).isOfKind `Lean.Parser.Term.explicitUniv then do
+      _ ← processCtor stx;
+      pure stx
+    else if (extra.getArg 0).isOfKind `Lean.Parser.Term.namedPattern then do
+      /- Recall that
+         def namedPattern := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser maxPrec
+         def id := parser! ident >> optional (explicitUniv <|> namedPattern) -/
+      let id := stx.getIdOfTermId;
+      processVar stx id;
+      let pat := (extra.getArg 0).getArg 1;
+      pat ← collect pat;
+      `(namedPattern $(mkTermIdFrom stx id) $pat)
+    else
+      throwInvalidPattern stx
+  else if k == `Lean.Parser.Term.inaccessible then
+    pure stx
+  else if k == `Lean.Parser.Term.str then
+    pure stx
+  else if k == `Lean.Parser.Term.num then
+    pure stx
+  else if k == `Lean.Parser.Term.char then
+    pure stx
+  else if k == choiceKind then
+    liftM $ throwError stx "invalid pattern, notation is ambiguous"
+  else
+    throwInvalidPattern stx
+| stx@(Syntax.ident _ _ _ _) => do
+  processId stx;
+  pure stx
+| stx =>
+  throwInvalidPattern stx
+
+def main (alt : MatchAltView) : M MatchAltView := do
+patterns ← alt.patterns.mapM fun p => do {
+  liftM $ trace `Elab.match p fun _ => "collecting variables at pattern: " ++ p;
+  collect p
+};
+pure { alt with patterns := patterns }
+
+end CollectPatternVars
+
+private def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × MatchAltView) := do
+(alt, s) ← (CollectPatternVars.main alt).run {};
+pure (s.vars, alt)
+
+def elabMatchAltView (alt : MatchAltView) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
+(patternVars, alt) ← collectPatternVars alt;
+trace `Elab.match alt.ref fun _ => "patternVars: " ++ toString patternVars;
+-- TODO
+pure (⟨[], []⟩, arbitrary _)
+
 /-
 ```
 parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
@@ -104,6 +317,7 @@ let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
 matchType ← elabMatchOptType stx discrStxs.size;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
 discrs ← elabDiscrs stx discrStxs matchType expectedType;
+alts ← matchAlts.mapM elabMatchAltView;
 throwError stx ("WIP type: " ++ matchType ++ "\n" ++ discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
 
 /- Auxiliary method for `expandMatchDiscr?` -/
@@ -209,6 +423,10 @@ fun stx expectedType? => match_syntax stx with
     match stxNew? with
     | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
     | none        => elabMatchCore stx expectedType?
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab.match;
+pure ()
 
 end Term
 end Elab

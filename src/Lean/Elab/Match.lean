@@ -296,11 +296,44 @@ private def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVa
 (alt, s) ← (CollectPatternVars.main alt).run {};
 pure (s.vars, alt)
 
-def elabMatchAltView (alt : MatchAltView) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
+private partial def withPatternVarsAux {α} (ref : Syntax) (pVars : Array PatternVar) (k : TermElabM α) : Nat → TermElabM α
+| i =>
+  if h : i < pVars.size then
+    match pVars.get ⟨i, h⟩ with
+    | PatternVar.anonymousVar _    => withPatternVarsAux (i+1)
+    | PatternVar.localVar userName => do
+      type ← mkFreshTypeMVar ref;
+      withLocalDecl ref userName BinderInfo.default type fun _ => withPatternVarsAux (i+1)
+  else
+    k
+
+private def withPatternVars {α} (ref : Syntax) (pVars : Array PatternVar) (k : TermElabM α) : TermElabM α :=
+withPatternVarsAux ref pVars k 0
+
+private partial def elabPatternsAux (ref : Syntax) (patternStxs : Array Syntax) : Nat → Expr → Array Expr → TermElabM (Array Expr)
+| i, matchType, patterns =>
+  if h : i < patternStxs.size then do
+    matchType ← whnf ref matchType;
+    match matchType with
+    | Expr.forallE _ d b _ => do
+      pattern ← elabTerm (patternStxs.get ⟨i, h⟩) d;
+      elabPatternsAux (i+1) (b.instantiate1 pattern) (patterns.push pattern)
+    | _ => throwError ref "unexpected match type"
+  else
+    pure patterns
+
+private def elabPatterns (ref : Syntax) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
+patterns ← elabPatternsAux ref patternStxs 0 matchType #[];
+trace `Elab.match ref fun _ => "patterns: " ++ patterns;
+pure patterns
+
+def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
 (patternVars, alt) ← collectPatternVars alt;
 trace `Elab.match alt.ref fun _ => "patternVars: " ++ toString patternVars;
--- TODO
-pure (⟨[], []⟩, arbitrary _)
+withPatternVars alt.ref patternVars do
+  ps ← elabPatterns alt.ref alt.patterns matchType;
+  -- TODO
+  pure (⟨[], []⟩, arbitrary _)
 
 /-
 ```
@@ -317,7 +350,7 @@ let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
 matchType ← elabMatchOptType stx discrStxs.size;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
 discrs ← elabDiscrs stx discrStxs matchType expectedType;
-alts ← matchAlts.mapM elabMatchAltView;
+alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 throwError stx ("WIP type: " ++ matchType ++ "\n" ++ discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
 
 /- Auxiliary method for `expandMatchDiscr?` -/

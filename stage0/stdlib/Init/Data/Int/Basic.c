@@ -15,9 +15,7 @@ extern "C" {
 #endif
 uint8_t l_String_isInt(lean_object*);
 lean_object* l_Int_HasNeg;
-lean_object* l_String_toInt_x3f___closed__1;
 lean_object* l_Int_natMod(lean_object*, lean_object*);
-uint8_t l_String_isInt___closed__1;
 lean_object* l_Int_repr___boxed(lean_object*);
 lean_object* l_String_toInt_x21___closed__1;
 lean_object* l_Int_HasOne;
@@ -29,11 +27,11 @@ lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Int_HasMod___closed__1;
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Int_Int_DecidableEq(lean_object*, lean_object*);
+lean_object* l_Substring_nextn___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_negSucc___boxed(lean_object*);
 lean_object* l_String_toInt_x3f(lean_object*);
 lean_object* l_Int_HasRepr;
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_String_toInt_x3f___closed__2;
 lean_object* l_Int_HasZero;
 lean_object* l_Int_HasAdd;
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -73,14 +71,12 @@ lean_object* l_Int_toNat(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Int_one___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
-extern lean_object* l_Substring_drop___closed__2;
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* l_Int_one;
 lean_object* l_Int_HasCoe(lean_object*);
 lean_object* l_Int_negOfNat(lean_object*);
 lean_object* l_Int_HasMul;
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Int_HasLess;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Int_subNatNat___boxed(lean_object*, lean_object*);
@@ -623,56 +619,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_String_toInt_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Substring_drop___closed__2;
-x_2 = l_Substring_toNat_x3f(x_1);
-return x_2;
-}
-}
-lean_object* _init_l_String_toInt_x3f___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_String_toInt_x3f___closed__1;
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_nat_to_int(x_4);
-x_6 = lean_int_neg(x_5);
-lean_dec(x_5);
-lean_ctor_set(x_1, 0, x_6);
-return x_1;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_nat_to_int(x_7);
-x_9 = lean_int_neg(x_8);
-lean_dec(x_8);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-return x_10;
-}
-}
-}
-}
 lean_object* l_String_toInt_x3f(lean_object* x_1) {
 _start:
 {
@@ -719,71 +665,57 @@ return x_13;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_14 = lean_string_utf8_byte_size(x_1);
-x_15 = lean_unsigned_to_nat(1u);
-x_16 = lean_nat_dec_le(x_14, x_15);
-if (x_16 == 0)
+lean_inc(x_14);
+lean_inc(x_1);
+x_15 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_15, 0, x_1);
+lean_ctor_set(x_15, 1, x_2);
+lean_ctor_set(x_15, 2, x_14);
+x_16 = lean_unsigned_to_nat(1u);
+x_17 = l_Substring_nextn___main(x_15, x_16, x_2);
+lean_dec(x_15);
+x_18 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_18, 0, x_1);
+lean_ctor_set(x_18, 1, x_17);
+lean_ctor_set(x_18, 2, x_14);
+x_19 = l_Substring_toNat_x3f(x_18);
+if (lean_obj_tag(x_19) == 0)
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_17, 0, x_1);
-lean_ctor_set(x_17, 1, x_15);
-lean_ctor_set(x_17, 2, x_14);
-x_18 = l_Substring_toNat_x3f(x_17);
-if (lean_obj_tag(x_18) == 0)
+lean_object* x_20; 
+x_20 = lean_box(0);
+return x_20;
+}
+else
 {
-lean_object* x_19; 
-x_19 = lean_box(0);
+uint8_t x_21; 
+x_21 = !lean_is_exclusive(x_19);
+if (x_21 == 0)
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_19, 0);
+x_23 = lean_nat_to_int(x_22);
+x_24 = lean_int_neg(x_23);
+lean_dec(x_23);
+lean_ctor_set(x_19, 0, x_24);
 return x_19;
 }
 else
 {
-uint8_t x_20; 
-x_20 = !lean_is_exclusive(x_18);
-if (x_20 == 0)
-{
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_ctor_get(x_18, 0);
-x_22 = lean_nat_to_int(x_21);
-x_23 = lean_int_neg(x_22);
-lean_dec(x_22);
-lean_ctor_set(x_18, 0, x_23);
-return x_18;
-}
-else
-{
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_24 = lean_ctor_get(x_18, 0);
-lean_inc(x_24);
-lean_dec(x_18);
-x_25 = lean_nat_to_int(x_24);
-x_26 = lean_int_neg(x_25);
-lean_dec(x_25);
-x_27 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_27, 0, x_26);
-return x_27;
-}
-}
-}
-else
-{
-lean_object* x_28; 
-lean_dec(x_14);
-lean_dec(x_1);
-x_28 = l_String_toInt_x3f___closed__2;
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_25 = lean_ctor_get(x_19, 0);
+lean_inc(x_25);
+lean_dec(x_19);
+x_26 = lean_nat_to_int(x_25);
+x_27 = lean_int_neg(x_26);
+lean_dec(x_26);
+x_28 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_28, 0, x_27);
 return x_28;
 }
 }
 }
-}
-uint8_t _init_l_String_isInt___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; 
-x_1 = l_Substring_drop___closed__2;
-x_2 = l_Substring_isNat(x_1);
-return x_2;
 }
 }
 uint8_t l_String_isInt(lean_object* x_1) {
@@ -803,28 +735,23 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_7 = lean_string_utf8_byte_size(x_1);
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_dec_le(x_7, x_8);
-if (x_9 == 0)
-{
-lean_object* x_10; uint8_t x_11; 
-x_10 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_10, 0, x_1);
-lean_ctor_set(x_10, 1, x_8);
-lean_ctor_set(x_10, 2, x_7);
-x_11 = l_Substring_isNat(x_10);
-return x_11;
-}
-else
-{
-uint8_t x_12; 
-lean_dec(x_7);
-lean_dec(x_1);
-x_12 = l_String_isInt___closed__1;
+lean_inc(x_7);
+lean_inc(x_1);
+x_8 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_2);
+lean_ctor_set(x_8, 2, x_7);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = l_Substring_nextn___main(x_8, x_9, x_2);
+lean_dec(x_8);
+x_11 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_11, 0, x_1);
+lean_ctor_set(x_11, 1, x_10);
+lean_ctor_set(x_11, 2, x_7);
+x_12 = l_Substring_isNat(x_11);
 return x_12;
-}
 }
 }
 }
@@ -959,11 +886,6 @@ l_Int_HasMod___closed__1 = _init_l_Int_HasMod___closed__1();
 lean_mark_persistent(l_Int_HasMod___closed__1);
 l_Int_HasMod = _init_l_Int_HasMod();
 lean_mark_persistent(l_Int_HasMod);
-l_String_toInt_x3f___closed__1 = _init_l_String_toInt_x3f___closed__1();
-lean_mark_persistent(l_String_toInt_x3f___closed__1);
-l_String_toInt_x3f___closed__2 = _init_l_String_toInt_x3f___closed__2();
-lean_mark_persistent(l_String_toInt_x3f___closed__2);
-l_String_isInt___closed__1 = _init_l_String_isInt___closed__1();
 l_String_toInt_x21___closed__1 = _init_l_String_toInt_x21___closed__1();
 lean_mark_persistent(l_String_toInt_x21___closed__1);
 l_String_toInt_x21___closed__2 = _init_l_String_toInt_x21___closed__2();

@@ -761,6 +761,15 @@ match stx with
 | id@(Syntax.ident _ _ _ _) => if relaxed then some (id, mkNullNode) else none
 | _ => none
 
+def getIdOfTermId (stx : Syntax) : Name :=
+match stx with
+| Syntax.node k args =>
+  if k == `Lean.Parser.Term.id && args.size == 2 then
+    (args.get! 0).getId
+  else
+    Name.anonymous
+| _ => Name.anonymous
+
 /-- Similar to `isTermId?`, but succeeds only if the optional part is a `none`. -/
 def isSimpleTermId? (stx : Syntax) (relaxed : Bool := false) : Option Syntax :=
 match stx.isTermId? relaxed with

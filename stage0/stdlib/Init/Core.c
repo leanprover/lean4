@@ -55,6 +55,7 @@ lean_object* l_Quot_indep(lean_object*, lean_object*, lean_object*);
 lean_object* l_Function_comp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Eq_ndrecOn___rarg(lean_object*);
 lean_object* l_bit1(lean_object*);
+lean_object* l_namedPattern(lean_object*, lean_object*);
 lean_object* l_dite_Decidable(lean_object*, lean_object*, lean_object*);
 lean_object* l_dite_Decidable___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_idDelta___rarg(lean_object*);
@@ -76,6 +77,7 @@ lean_object* l_Prod_sizeof(lean_object*, lean_object*);
 lean_object* l_arbitrary___rarg(lean_object*);
 lean_object* l_And_Decidable___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_prodHasDecidableLt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_namedPattern___rarg___boxed(lean_object*);
 uint8_t l_Ne_Decidable___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_std_priority_default;
 lean_object* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1(lean_object*, lean_object*);
@@ -122,6 +124,7 @@ uint8_t l_Not_Decidable___rarg(uint8_t);
 lean_object* l_Quotient_mk___boxed(lean_object*, lean_object*);
 lean_object* l_Forall_Inhabited(lean_object*, lean_object*);
 lean_object* l_List_sizeof___main___rarg(lean_object*, lean_object*);
+lean_object* l_namedPattern___rarg(lean_object*);
 uint8_t l_not(uint8_t);
 lean_object* l_Eq_mpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_recOn___rarg(lean_object*, lean_object*, lean_object*);
@@ -205,6 +208,7 @@ lean_object* l_implies_Decidable___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 lean_object* l_NonScalar_Inhabited;
 lean_object* l_ite___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_namedPattern___boxed(lean_object*, lean_object*);
 uint8_t l_or(uint8_t, uint8_t);
 lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 uint8_t l_Decidable_decide___rarg(uint8_t);
@@ -487,6 +491,39 @@ lean_object* x_2;
 x_2 = l_idRhs___rarg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* l_namedPattern___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_namedPattern(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_namedPattern___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+lean_object* l_namedPattern___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_namedPattern___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_namedPattern___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_namedPattern(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Unit_unit() {

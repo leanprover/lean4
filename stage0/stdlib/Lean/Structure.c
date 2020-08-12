@@ -270,7 +270,6 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12;
 lean_dec(x_1);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = l_String_drop(x_3, x_10);
-lean_dec(x_3);
 x_12 = lean_name_mk_string(x_2, x_11);
 return x_12;
 }

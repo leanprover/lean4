@@ -210,7 +210,7 @@ catch p1 $ fun e => match e with
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
---@[extern "lean_mk_antiquot_parenthesizer"]
+@[extern 7 "lean_mk_antiquot_parenthesizer"]
 constant mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
 arbitrary _
 
@@ -479,9 +479,12 @@ unsafe def mkParenthesizerOfConstantUnsafe (constName : Name) (compileParenthesi
 fun env => match env.find? constName with
 | none      => throw $ IO.userError ("unknow constant '" ++ toString constName ++ "'")
 | some info =>
-  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then do
-    env ← compile env constName /- builtin -/ false;
-    pure (parenthesizerForKind constName, env)
+  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
+    match parenthesizerAttribute.getValues env constName with
+    | p::_ => pure (p, env)
+    | _    => do
+      env ← compile env constName /- builtin -/ false;
+      pure (parenthesizerForKind constName, env)
   else do
     d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
     compileParenthesizerDescr d env

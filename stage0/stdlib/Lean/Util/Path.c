@@ -1072,8 +1072,8 @@ if (lean_is_exclusive(x_9)) {
 }
 x_13 = l_String_isPrefixOf(x_10, x_5);
 x_14 = lean_string_length(x_10);
+lean_inc(x_5);
 x_15 = l_String_drop(x_5, x_14);
-lean_dec(x_14);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_string_utf8_get(x_15, x_16);
 x_18 = l_System_FilePath_pathSeparator;
@@ -1215,7 +1215,6 @@ lean_object* x_47; lean_object* x_48; uint32_t x_49; lean_object* x_50;
 lean_dec(x_10);
 x_47 = lean_unsigned_to_nat(1u);
 x_48 = l_String_drop(x_15, x_47);
-lean_dec(x_15);
 x_49 = 46;
 x_50 = l_String_revPosOf(x_48, x_49);
 if (lean_obj_tag(x_50) == 0)

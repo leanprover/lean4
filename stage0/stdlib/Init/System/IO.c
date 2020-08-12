@@ -1704,7 +1704,6 @@ else
 lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = l_String_dropRight(x_5, x_16);
-lean_dec(x_5);
 x_18 = l_System_Platform_isWindows;
 if (x_18 == 0)
 {
@@ -1730,7 +1729,6 @@ else
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_26 = l_String_dropRight(x_17, x_16);
-lean_dec(x_17);
 x_27 = lean_array_push(x_2, x_26);
 x_28 = l_IO_FS_linesAux___main___rarg(x_1, x_3, x_4, x_27);
 return x_28;

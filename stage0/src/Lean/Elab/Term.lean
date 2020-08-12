@@ -1117,23 +1117,20 @@ fun stx expectedType? =>
     withMacroExpansion stx pairs (elabTerm pairs expectedType?)
   | _ => throwError stx "unexpected parentheses notation"
 
-@[builtinTermElab «listLit»] def elabListLit : TermElab :=
-fun stx expectedType? => do
+@[builtinMacro Lean.Parser.Term.listLit] def expandListLit : Macro :=
+fun stx =>
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
   let consId   := mkTermIdFrom openBkt `List.cons;
   let nilId    := mkTermIdFrom closeBkt `List.nil;
-  let newStx   := args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
-  withMacroExpansion stx newStx $ elabTerm newStx expectedType?
+  pure $ args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId
 
-@[builtinTermElab «arrayLit»] def elabArrayLit : TermElab :=
-fun stx expectedType? => do
+@[builtinMacro Lean.Parser.Term.arrayLit] def expandArrayLit : Macro :=
+fun stx =>
   match_syntax stx with
-  | `(#[$args*]) => do
-    newStx ← `(List.toArray [$args*]);
-    withMacroExpansion stx newStx (elabTerm newStx expectedType?)
-  | _ => throwError stx "unexpected array literal syntax"
+  | `(#[$args*]) => `(List.toArray [$args*])
+  | _            => throw $ Macro.Exception.error stx "unexpected array literal syntax"
 
 private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
 | n, projs =>
@@ -1196,7 +1193,7 @@ result? ← resolveLocalName n;
 match result? with
 | some (e, projs) => do
   unless explicitLevels.isEmpty $
-    throwError ref ("invalid use of explicit universe parameters, '" ++ toString e.fvarId! ++ "' is a local");
+    throwError ref ("invalid use of explicit universe parameters, '" ++ e ++ "' is a local");
   pure [(e, projs)]
 | none =>
   let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {

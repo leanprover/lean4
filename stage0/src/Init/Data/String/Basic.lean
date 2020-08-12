@@ -368,6 +368,14 @@ namespace Substring
 | ⟨s, b, _⟩, p =>
   if p = b then p else s.prev (b+p) - b
 
+def nextn : Substring → Nat → String.Pos → String.Pos
+| ss, 0,   p => p
+| ss, i+1, p => ss.nextn i (ss.next p)
+
+def prevn : Substring → String.Pos → Nat → String.Pos
+| ss, 0,   p => p
+| ss, i+1, p => ss.prevn i (ss.prev p)
+
 @[inline] def front (s : Substring) : Char :=
 s.get 0
 
@@ -376,24 +384,16 @@ match s with
 | ⟨s, b, e⟩ => (String.posOfAux s c e b) - b
 
 @[inline] def drop : Substring → Nat → Substring
-| ⟨s, b, e⟩, n =>
-  if b + n ≥ e then "".toSubstring
-  else ⟨s, b+n, e⟩
+| ss@⟨s, b, e⟩, n => ⟨s, ss.nextn n b, e⟩
 
 @[inline] def dropRight : Substring → Nat → Substring
-| ⟨s, b, e⟩, n =>
-  if e - n ≤ b then "".toSubstring
-  else ⟨s, b, e - n⟩
+| ss@⟨s, b, e⟩, n => ⟨s, b, ss.prevn n e⟩
 
 @[inline] def take : Substring → Nat → Substring
-| ⟨s, b, e⟩, n =>
-  let e := if b + n ≥ e then e else b + n;
-  ⟨s, b, e⟩
+| ss@⟨s, b, e⟩, n => ⟨s, b, ss.nextn n b⟩
 
 @[inline] def takeRight : Substring → Nat → Substring
-| ⟨s, b, e⟩, n =>
-  let b := if e - n ≤ b then b else e - n;
-  ⟨s, b, e⟩
+| ss@⟨s, b, e⟩, n => ⟨s, ss.prevn n e, e⟩
 
 @[inline] def atEnd : Substring → String.Pos → Bool
 | ⟨s, b, e⟩, p => b + p == e

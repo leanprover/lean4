@@ -19,6 +19,7 @@ lean_object* l_Lean_mkHole___closed__3;
 lean_object* l___private_Init_LeanInit_13__filterSepElemsMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCIdentFrom(lean_object*, lean_object*);
 lean_object* l_Lean_mkCTermIdFrom___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getIdOfTermId(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l___private_Init_LeanInit_9__decodeHexLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString___closed__1;
@@ -275,6 +276,7 @@ lean_object* l_Array_filterSepElems(lean_object*, lean_object*);
 lean_object* l_Array_mapSepElemsM___at_Array_mapSepElems___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_identToAtom(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getIdOfTermId___boxed(lean_object*);
 lean_object* l_Lean_Name_Name_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getOptionalIdent_x3f(lean_object*);
@@ -6067,6 +6069,64 @@ x_3 = lean_unbox(x_2);
 lean_dec(x_2);
 x_4 = l_Lean_Syntax_isTermId_x3f(x_1, x_3);
 return x_4;
+}
+}
+lean_object* l_Lean_Syntax_getIdOfTermId(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 1)
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_1, 1);
+x_4 = l_Lean_mkTermIdFromIdent___closed__2;
+x_5 = lean_name_eq(x_2, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_7 = lean_array_get_size(x_3);
+x_8 = lean_unsigned_to_nat(2u);
+x_9 = lean_nat_dec_eq(x_7, x_8);
+lean_dec(x_7);
+if (x_9 == 0)
+{
+lean_object* x_10; 
+x_10 = lean_box(0);
+return x_10;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = l_Lean_Syntax_inhabited;
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = lean_array_get(x_11, x_3, x_12);
+x_14 = l_Lean_Syntax_getId(x_13);
+lean_dec(x_13);
+return x_14;
+}
+}
+}
+else
+{
+lean_object* x_15; 
+x_15 = lean_box(0);
+return x_15;
+}
+}
+}
+lean_object* l_Lean_Syntax_getIdOfTermId___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Syntax_getIdOfTermId(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_Syntax_isSimpleTermId_x3f(lean_object* x_1, uint8_t x_2) {

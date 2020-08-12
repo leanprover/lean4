@@ -1616,6 +1616,18 @@ def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 def mkBuiltinSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
 @[init mkBuiltinSyntaxNodeKindSetRef] constant builtinSyntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 
+def registerBuiltinNodeKindSet (k : SyntaxNodeKind) : IO Unit :=
+builtinSyntaxNodeKindSetRef.modify fun s => s.insert k
+
+@[init] private def registerAuxiliaryNodeKindSets : IO Unit := do
+registerBuiltinNodeKindSet choiceKind;
+registerBuiltinNodeKindSet identKind;
+registerBuiltinNodeKindSet strLitKind;
+registerBuiltinNodeKindSet numLitKind;
+registerBuiltinNodeKindSet charLitKind;
+registerBuiltinNodeKindSet nameLitKind;
+pure ()
+
 def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}
 @[init mkBuiltinParserCategories] constant builtinParserCategoriesRef : IO.Ref ParserCategories := arbitrary _
 
@@ -1887,7 +1899,7 @@ parserExtension.addEntry env $ ParserExtensionEntry.kind k
 
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 let kinds := (parserExtension.getState env).kinds;
-kinds.contains k || k == choiceKind || k == identKind || isLitKind k
+kinds.contains k
 
 def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
 let kinds := (parserExtension.getState env).kinds;

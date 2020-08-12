@@ -30,21 +30,19 @@ pure line
 private def csize (c : Char) : Nat :=
 c.utf16Size.toNat
 
--- HACK(WN): String.take n (unintentionally?) produces n UTF-8 bytes rather
--- than n codepoints. This function deals with codepoints instead.
-def takeCodepoints (s : String) (n : Nat) : String :=
-List.asString (s.toList.take n)
+private def codepointPosToUtf16PosAux (s : String) : Nat → Pos → Nat → Nat
+| 0,    utf8pos, utf16pos => utf16pos
+| cp+1, utf8pos, utf16pos => codepointPosToUtf16PosAux cp (s.next utf8pos) (utf16pos + csize (s.get utf8pos))
 
-def codepointPosToUtf16Pos (s : String) (pos : Pos) : Nat :=
-(s.takeCodepoints pos).foldr (fun ch acc => acc + csize ch) 0
+def codepointPosToUtf16Pos (s : String) (pos : Nat) : Nat :=
+codepointPosToUtf16PosAux s pos 0 0
 
-private def utf16PosToCodepointPosAux : List Char → Nat → Pos → Pos
-| c :: cs, 0, acc => acc
-| c :: cs, n, acc => utf16PosToCodepointPosAux cs (n - csize c) (acc + 1)
-| [],      _, acc => acc
+private partial def utf16PosToCodepointPosAux (s : String) : Nat → Pos → Nat → Nat
+| 0,        utf8pos, cp => cp
+| utf16pos, utf8pos, cp => utf16PosToCodepointPosAux (utf16pos - csize (s.get utf8pos)) (s.next utf8pos) (cp + 1)
 
-def utf16PosToCodepointPos (s : String) (pos : Nat) : Pos :=
-utf16PosToCodepointPosAux s.toList pos 0
+def utf16PosToCodepointPos (s : String) (pos : Nat) : Nat :=
+utf16PosToCodepointPosAux s pos 0 0
 
 def utf16Length (s : String) : Nat :=
 s.foldr (fun c acc => csize c + acc) 0

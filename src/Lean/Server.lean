@@ -81,39 +81,39 @@ open JsonRpc
 abbrev DocumentMap :=
   RBMap DocumentUri EditableDocument (fun a b => Decidable.decide (a < b))
 
-structure ServerState :=
-(i o : FS.Handle)
+structure ServerContext :=
+(hIn hOut : FS.Handle)
 (openDocumentsRef : IO.Ref DocumentMap)
 -- TODO (requestsInFlight : IO.Ref (Array (Task (Σ α, Response α))))
 
-abbrev ServerM := ReaderT ServerState IO
+abbrev ServerM := ReaderT ServerContext IO
 
 def getOpenDocuments : ServerM DocumentMap :=
 fun st => st.openDocumentsRef.get
 
-def findOpenDocument! (key : DocumentUri) : ServerM EditableDocument := do
+def findOpenDocument (key : DocumentUri) : ServerM EditableDocument := do
 openDocuments ← getOpenDocuments;
 match openDocuments.find? key with
 | some doc => pure doc
 | none     => throw (userError $ "got unknown document URI (" ++ key ++ ")")
 
 def updateOpenDocuments (key : DocumentUri) (val : EditableDocument) : ServerM Unit :=
-fun st => st.openDocumentsRef.modify (fun documents => (documents.erase key).insert key val)
+fun st => st.openDocumentsRef.modify (fun documents => documents.insert key val)
 
 def readLspMessage : ServerM JsonRpc.Message :=
-fun st => monadLift $ readLspMessage st.i
+fun st => monadLift $ readLspMessage st.hIn
 
 def readLspRequestAs (expectedMethod : String) (α : Type*) [HasFromJson α] : ServerM (Request α) :=
-fun st => monadLift $ readLspRequestAs st.i expectedMethod α
+fun st => monadLift $ readLspRequestAs st.hIn expectedMethod α
 
 def readLspNotificationAs (expectedMethod : String) (α : Type*) [HasFromJson α] : ServerM α :=
-fun st => monadLift $ readLspNotificationAs st.i expectedMethod α
+fun st => monadLift $ readLspNotificationAs st.hIn expectedMethod α
 
 def writeLspNotification {α : Type*} [HasToJson α] (method : String) (params : α) : ServerM Unit :=
-fun st => monadLift $ writeLspNotification st.o method params
+fun st => monadLift $ writeLspNotification st.hOut method params
 
 def writeLspResponse {α : Type*} [HasToJson α] (id : RequestID) (params : α) : ServerM Unit :=
-fun st => monadLift $ writeLspResponse st.o id params
+fun st => monadLift $ writeLspResponse st.hOut id params
 
 /-- Clears diagnostics for the document version 'version'. -/
 -- TODO(WN): how to clear all diagnostics? Sending version 'none' doesn't seem to work
@@ -144,7 +144,7 @@ sendDiagnostics doc.uri newDoc msgLog
 def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
 let docId := p.textDocument;
 let changes := p.contentChanges;
-oldDoc ← findOpenDocument! docId.uri;
+oldDoc ← findOpenDocument docId.uri;
 some newVersion ← pure docId.version? | throw (userError "expected version number");
 if newVersion <= oldDoc.version then do
   throw (userError "got outdated version number")
@@ -173,7 +173,7 @@ fun st => st.openDocumentsRef.modify (fun openDocuments => openDocuments.erase p
 def handleHover (p : HoverParams) : ServerM Json := pure Json.null
 
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
-match @fromJson? paramType _ params with
+match fromJson? params with
 | some parsed => pure parsed
 | none        => throw (userError "got param with wrong structure")
 
@@ -223,21 +223,21 @@ def mkLeanServerCapabilities : ServerCapabilities :=
 }
 
 def initAndRunServer (i o : FS.Handle) : IO Unit := do
-  openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
-  runReader
-    (do
-      -- ignore InitializeParams for MWE
-      r ← readLspRequestAs "initialize" InitializeParams;
-      writeLspResponse r.id
-        { capabilities := mkLeanServerCapabilities,
-          serverInfo? := some { name := "Lean 4 server",
-                                version? := "0.0.1" } : InitializeResult };
-      _ ← readLspNotificationAs "initialized" InitializedParams;
-      mainLoop ();
-      Message.notification "exit" none ← readLspMessage
-        | throw (userError "Expected an Exit Notification.");
-      pure ())
-    (⟨i, o, openDocumentsRef⟩ : ServerState)
+openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
+runReader
+  (do
+    -- ignore InitializeParams for MWE
+    r ← readLspRequestAs "initialize" InitializeParams;
+    writeLspResponse r.id
+      { capabilities := mkLeanServerCapabilities,
+        serverInfo? := some { name := "Lean 4 server",
+                              version? := "0.0.1" } : InitializeResult };
+    _ ← readLspNotificationAs "initialized" InitializedParams;
+    mainLoop ();
+    Message.notification "exit" none ← readLspMessage
+      | throw (userError "Expected an Exit Notification.");
+    pure ())
+  (⟨i, o, openDocumentsRef⟩ : ServerContext)
 
 namespace Test
 

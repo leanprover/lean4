@@ -272,11 +272,16 @@ def unfoldDefinition? (ref : Syntax) (e : Expr) : TermElabM (Option Expr) := lif
 def instantiateMVars (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.instantiateMVars e
 def instantiateLevelMVars (ref : Syntax) (u : Level) : TermElabM Level := liftMetaM ref $ Meta.instantiateLevelMVars u
 def isClass (ref : Syntax) (t : Expr) : TermElabM (Option Name) := liftMetaM ref $ Meta.isClass t
+def mkFreshId : TermElabM Name := liftMetaM Syntax.missing Meta.mkFreshId
 def mkFreshLevelMVar (ref : Syntax) : TermElabM Level := liftMetaM ref $ Meta.mkFreshLevelMVar
 def mkFreshExprMVar (ref : Syntax) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 match type? with
 | some type => liftMetaM ref $ Meta.mkFreshExprMVar type userName? kind
 | none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; type ← Meta.mkFreshExprMVar (mkSort u); Meta.mkFreshExprMVar type userName? kind
+def mkFreshExprMVarWithId (ref : Syntax) (mvarId : MVarId) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
+match type? with
+| some type => liftMetaM ref $ Meta.mkFreshExprMVarWithId mvarId type userName? kind
+| none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; type ← Meta.mkFreshExprMVar (mkSort u); Meta.mkFreshExprMVarWithId mvarId type userName? kind
 def mkFreshTypeMVar (ref : Syntax) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? kind
 def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ Meta.getLevel type

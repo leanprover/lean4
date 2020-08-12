@@ -233,17 +233,28 @@ let id := s.ngen.curr;
 modify $ fun s => { s with ngen := s.ngen.next };
 pure id
 
+private def mkFreshExprMVarAtCore
+    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : MetaM Expr := do
+modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind };
+pure $ mkMVar mvarId
+
 def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
     : MetaM Expr := do
 mvarId ← mkFreshId;
-modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind };
-pure $ mkMVar mvarId
+mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
 def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 mkFreshExprMVarAt lctx localInsts type userName kind
+
+/- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
+   the metavar using this method. -/
+def mkFreshExprMVarWithId (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
+lctx ← getLCtx;
+localInsts ← getLocalInstances;
+mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
 def mkFreshLevelMVar : MetaM Level := do
 mvarId ← mkFreshId;

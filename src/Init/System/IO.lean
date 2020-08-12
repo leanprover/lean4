@@ -162,7 +162,7 @@ end Prim
 namespace FS
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
-def Handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m Handle :=
+def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
 Prim.liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]

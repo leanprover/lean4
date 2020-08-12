@@ -1,1 +1,2 @@
+*.expected.out binary
 doc/changes.md merge=union

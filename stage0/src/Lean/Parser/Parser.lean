@@ -1616,16 +1616,16 @@ def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 def mkBuiltinSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
 @[init mkBuiltinSyntaxNodeKindSetRef] constant builtinSyntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 
-def registerBuiltinNodeKindSet (k : SyntaxNodeKind) : IO Unit :=
+def registerBuiltinNodeKind (k : SyntaxNodeKind) : IO Unit :=
 builtinSyntaxNodeKindSetRef.modify fun s => s.insert k
 
 @[init] private def registerAuxiliaryNodeKindSets : IO Unit := do
-registerBuiltinNodeKindSet choiceKind;
-registerBuiltinNodeKindSet identKind;
-registerBuiltinNodeKindSet strLitKind;
-registerBuiltinNodeKindSet numLitKind;
-registerBuiltinNodeKindSet charLitKind;
-registerBuiltinNodeKindSet nameLitKind;
+registerBuiltinNodeKind choiceKind;
+registerBuiltinNodeKind identKind;
+registerBuiltinNodeKind strLitKind;
+registerBuiltinNodeKind numLitKind;
+registerBuiltinNodeKind charLitKind;
+registerBuiltinNodeKind nameLitKind;
 pure ()
 
 def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}

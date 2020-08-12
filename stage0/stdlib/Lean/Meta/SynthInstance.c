@@ -78,7 +78,6 @@ lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normExpr___main(lean_object*, 
 lean_object* l_Lean_Meta_maxStepsOption(lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_SynthInstance_findEntry_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getEntry___closed__3;
@@ -364,6 +363,7 @@ lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__1;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_SynthInstance_isNewAnswer___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_SynthInstance_newSubgoal___spec__7(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_Basic_12__regTraceClasses___closed__2;
 lean_object* l___private_Lean_Meta_SynthInstance_1__getSubgoalsAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_resume___closed__4;
 lean_object* l_Lean_Meta_synthInstance_x3f___closed__2;
@@ -3730,7 +3730,7 @@ lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Basic_11__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Meta_Basic_12__regTraceClasses___closed__2;
 x_2 = l_Lean_Meta_Exception_toTraceMessageData___closed__72;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

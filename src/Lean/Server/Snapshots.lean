@@ -70,10 +70,9 @@ pure { beginPos := 0,
 /-- Compiles the next command occurring after the given snapshot.
 If there is no next command (file ended), returns messages produced
 through the file. -/
--- NOTE(WN): This code is really very similar to Elab.Frontend.
--- Is there a point in generalizing it over "store snapshots"/"don't store snapshots"
--- by changing the FrontendM monad? Perhaps not because it would likely result in
--- confusing isServer? conditionals.
+-- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
+-- over "store snapshots"/"don't store snapshots" would likely result in confusing
+-- isServer? conditionals and not be worth it due to how short it is.
 def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
 let inputCtx := Parser.mkInputContext contents "<input>";
 let (cmdStx, cmdParserState, msgLog) :=

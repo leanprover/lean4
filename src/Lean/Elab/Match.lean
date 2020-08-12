@@ -3,9 +3,9 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Elab.Term
 import Lean.Meta.EqnCompiler.MatchPattern
 import Lean.Meta.EqnCompiler.DepElim
+import Lean.Elab.SyntheticMVars
 
 namespace Lean
 namespace Elab
@@ -365,8 +365,9 @@ private partial def elabPatternsAux (ref : Syntax) (patternStxs : Array Syntax) 
   else
     pure patterns
 
-private def elabPatterns (ref : Syntax) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
-patterns ← elabPatternsAux ref patternStxs 0 matchType #[];
+private def elabPatterns (ref : Syntax) (patternVars : Array Expr) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
+patterns ← withSynthesize $ elabPatternsAux ref patternStxs 0 matchType #[];
+patterns ← patterns.mapM $ instantiateMVars ref;
 trace `Elab.match ref fun _ => "patterns: " ++ patterns;
 pure patterns
 
@@ -375,7 +376,7 @@ def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.D
 trace `Elab.match alt.ref fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars alt.ref patternVars fun xs => do
   trace `Elab.match alt.ref fun _ => "xs: " ++ xs;
-  ps ← elabPatterns alt.ref alt.patterns matchType;
+  ps ← elabPatterns alt.ref xs alt.patterns matchType;
   -- TODO
   pure (⟨[], []⟩, arbitrary _)
 

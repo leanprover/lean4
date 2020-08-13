@@ -72,6 +72,7 @@ node).
 
 import Lean.Meta
 import Lean.KeyedDeclsAttribute
+import Lean.Parser.Parser
 import Lean.ParserCompiler
 
 namespace Lean
@@ -184,7 +185,7 @@ when (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some c
     stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none);
     goLeft;
     -- after parenthesization, there is no more trailing parser
-    modify (fun st => { st with contPrec := /- maxPrec -/ some 1024, trailPrec := none })
+    modify (fun st => { st with contPrec := Parser.maxPrec, trailPrec := none })
 };
 { trailPrec := trailPrec, .. } ← get;
 -- If we already had a token at this level, keep the trailing parser. Otherwise, use the minimum of
@@ -296,7 +297,7 @@ addPrecCheck prec;
 -- Limit `contPrec` to `maxPrec-1`.
 -- This is because `maxPrec-1` is the precedence of function application, which is the only way to turn a leading parser
 -- into a trailing one.
-modify fun st => { st with contPrec := Nat.min (/- maxPrec -/ 1023 -1) prec }
+modify fun st => { st with contPrec := Nat.min (Parser.maxPrec-1) prec }
 
 @[combinatorParenthesizer Lean.Parser.trailingNode]
 def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do

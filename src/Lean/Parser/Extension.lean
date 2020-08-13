@@ -7,6 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 /-! Extensible parsing via attributes -/
 
 import Lean.Parser.Parser
+import Lean.PrettyPrinter.Parenthesizer
 
 namespace Lean
 namespace Parser

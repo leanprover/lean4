@@ -62,7 +62,6 @@ import Lean.Environment
 import Lean.Attributes
 import Lean.Message
 import Lean.Compiler.InitAttr
-import Lean.PrettyPrinter.Parenthesizer
 
 namespace Lean
 

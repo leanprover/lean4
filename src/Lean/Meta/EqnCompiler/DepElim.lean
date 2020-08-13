@@ -679,18 +679,6 @@ private partial def process : Problem → State → MetaM State
     -- TODO: remaining cases
     throwOther ("not implement yet " ++ msg)
 
-def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
-let s : CollectLevelParams.State := {};
-s ← majors.foldlM
-  (fun s major => do
-    major ← instantiateMVars major;
-    majorType ← inferType major;
-    majorType ← instantiateMVars majorType;
-    let s := collectLevelParams s major;
-    pure $ collectLevelParams s majorType)
-  s;
-pure s.getUnusedLevelParam
-
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : MetaM ElimResult :=
 withLocalDecl `motive motiveType BinderInfo.default fun motive => do
 forallTelescopeReducing motiveType fun majors _ => do
@@ -713,7 +701,20 @@ withAlts motive lhss fun alts minors => do
     [];
   pure { elim := elim, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
 
+
 /- Helper methods for testins mkElim -/
+
+private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
+let s : CollectLevelParams.State := {};
+s ← majors.foldlM
+  (fun s major => do
+    major ← instantiateMVars major;
+    majorType ← inferType major;
+    majorType ← instantiateMVars majorType;
+    let s := collectLevelParams s major;
+    pure $ collectLevelParams s majorType)
+  s;
+pure s.getUnusedLevelParam
 
 /- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
 private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool) : MetaM Expr :=

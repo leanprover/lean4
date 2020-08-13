@@ -108,7 +108,7 @@ partial def toIPattern (s : FVarSubst) : Pattern → IPattern
 end Pattern
 
 structure AltLHS :=
-(fvarDecls : List LocalDecl) -- Free variables used in the patterns.
+(localDecls : List LocalDecl) -- Free variables used in the patterns.
 (patterns  : List Pattern)   -- We use `List Pattern` since we have nary match-expressions.
 
 structure Alt :=
@@ -281,8 +281,8 @@ private def localDeclsToMVarsAux : List LocalDecl → List MVarId → FVarSubst 
   let s := s.insert d.fvarId mvar;
   localDeclsToMVarsAux ds (mvar.mvarId! :: mvars) s
 
-private def localDeclsToMVars (fvarDecls : List LocalDecl) : MetaM (List MVarId × FVarSubst) :=
-localDeclsToMVarsAux fvarDecls [] {}
+private def localDeclsToMVars (localDecls : List LocalDecl) : MetaM (List MVarId × FVarSubst) :=
+localDeclsToMVarsAux localDecls [] {}
 
 private def mkThunk (type : Expr) : Expr :=
 Lean.mkForall `u BinderInfo.default (Lean.mkConst `Unit) type
@@ -290,8 +290,8 @@ Lean.mkForall `u BinderInfo.default (Lean.mkConst `Unit) type
 private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array Expr → (List Alt → Array Expr → MetaM α) → MetaM α
 | [],        alts, minors, k => k alts.reverse minors
 | lhs::lhss, alts, minors, k => do
-  let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr;
-  minorType ← withExistingLocalDecls lhs.fvarDecls do {
+  let xs := lhs.localDecls.toArray.map LocalDecl.toExpr;
+  minorType ← withExistingLocalDecls lhs.localDecls do {
     args ← lhs.patterns.toArray.mapM Pattern.toExpr;
     let minorType := mkAppN motive args;
     mkForall xs minorType
@@ -303,7 +303,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
   withLocalDecl minorName minorType BinderInfo.default fun minor => do
     let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs;
     let minors := minors.push minor;
-    (mvars, s) ← localDeclsToMVars lhs.fvarDecls;
+    (mvars, s) ← localDeclsToMVars lhs.localDecls;
     let patterns := lhs.patterns.map (fun p => p.toIPattern s);
     let rhs      := s.apply rhs;
     let alts   := { idx := idx, rhs := rhs, mvars := mvars, patterns := patterns : Alt } :: alts;

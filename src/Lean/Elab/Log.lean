@@ -66,10 +66,10 @@ log stx MessageSeverity.warning msgData
 def logInfo [MonadLog m] (stx : Syntax) (msgData : MessageData) : m Unit :=
 log stx MessageSeverity.information msgData
 
-def throwError {α} [MonadPosInfo m] [MonadExceptCore Exception m] (ref : Syntax) (msgData : MessageData) : m α := do
+def throwError {α} [MonadPosInfo m] [MonadExcept Exception m] (ref : Syntax) (msgData : MessageData) : m α := do
 msg ← mkMessage msgData MessageSeverity.error ref; throw (Exception.error msg)
 
-def throwErrorUsingCmdPos {α} [MonadPosInfo m] [MonadExceptCore Exception m] (msgData : MessageData) : m α := do
+def throwErrorUsingCmdPos {α} [MonadPosInfo m] [MonadExcept Exception m] (msgData : MessageData) : m α := do
 cmdPos ← getCmdPos;
 msg ← mkMessageAt msgData MessageSeverity.error cmdPos;
 throw (Exception.error msg)

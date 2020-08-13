@@ -9,7 +9,7 @@ prelude
 import Init.Control.Alternative
 import Init.Control.Lift
 import Init.Data.ToString
-universes u v w
+universes u v w u'
 
 inductive Except (ε : Type u) (α : Type v)
 | error : ε → Except
@@ -126,9 +126,38 @@ fun x => ExceptT.mk $ Except.mapError f <$> x
 end ExceptT
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
+class MonadExceptCore (ε : Type u) (m : Type v → Type w) :=
+(throw {α : Type v} : ε → m α)
+(catch {α : Type v} : m α → (ε → m α) → m α)
+
+abbrev throwThe (ε : Type u) {m : Type v → Type w} [MonadExceptCore ε m] {α : Type v} (e : ε) : m α :=
+MonadExceptCore.throw e
+
+abbrev catchThe (ε : Type u) {m : Type v → Type w} [MonadExceptCore ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
+MonadExceptCore.catch x handle
+
+instance ExceptT.monadExceptParent (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptCore ε₁ m] : MonadExceptCore ε₁ (ExceptT ε₂ m) :=
+{ throw := fun α e        => ExceptT.mk $ throwThe ε₁ e,
+  catch := fun α x handle => ExceptT.mk $ catchThe ε₁ x handle }
+
+instance ExceptT.monadExceptSelf (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptCore ε (ExceptT ε m) :=
+{ throw := fun α e => ExceptT.mk $ pure (Except.error e),
+  catch := @ExceptT.catch ε _ _ }
+
+instance (ε) : MonadExceptCore ε (Except ε) :=
+{ throw := fun α => Except.error,
+  catch := @Except.catch _ }
+
+/-- Similar to `MonadExceptCore`, but `ε` is an outParam for convenience -/
 class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
 (throw {α : Type v} : ε → m α)
 (catch {α : Type v} : m α → (ε → m α) → m α)
+
+export MonadExcept (throw catch)
+
+instance MonadExceptCore.isMonadExcept (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptCore ε m] : MonadExcept ε m :=
+{ throw := fun _ e        => throwThe ε e,
+  catch := fun _ x handle => catchThe ε x handle }
 
 namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
@@ -146,23 +175,13 @@ catch t₁ $ fun e₁ => catch t₂ $ fun e₂ => throw (if useFirstEx then e₁
 
 end MonadExcept
 
-export MonadExcept (throw catch)
-
-instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExcept ε (ExceptT ε m) :=
-{ throw := fun α e => ExceptT.mk $ pure (Except.error e),
-  catch := @ExceptT.catch ε _ _ }
-
-instance (ε) : MonadExcept ε (Except ε) :=
-{ throw := fun α => Except.error, catch := @Except.catch _ }
-
 /-- Adapt a Monad stack, changing its top-most error Type.
 
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadExceptFunctor (ε ε' : outParam (Type u)) (n n' : Type u → Type u) :=
     (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ExceptT ε m α → ExceptT ε' m α) → n α → n' α)
-    ```
--/
+    `` -/
 class MonadExceptAdapter (ε ε' : outParam (Type u)) (m m' : Type u → Type v) :=
 (adaptExcept {α : Type u} : (ε → ε') → m α → m' α)
 export MonadExceptAdapter (adaptExcept)

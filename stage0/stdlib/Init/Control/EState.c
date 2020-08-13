@@ -24,7 +24,6 @@ lean_object* l_EStateM_Result_inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_Result_hasToString(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_fromStateM___rarg(lean_object*, lean_object*);
-lean_object* l_EStateM_MonadExcept(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_dummyRestore___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_dummySave(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -66,6 +65,7 @@ lean_object* l_EStateM_Monad___closed__7;
 lean_object* l_EStateM_Result_inhabited(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Result_toString___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_fromStateM(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_MonadExceptCore___rarg___closed__1;
 lean_object* l_EStateM_seqRight(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_throw___rarg(lean_object*, lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
@@ -82,9 +82,8 @@ lean_object* l_EStateM_orelse___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_EStateM_set(lean_object*, lean_object*);
 lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_run_x27(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_MonadExcept___rarg___closed__1;
 lean_object* l_EStateM_set___rarg(lean_object*, lean_object*);
-lean_object* l_EStateM_MonadExcept___rarg(lean_object*);
+lean_object* l_EStateM_MonadExceptCore___rarg(lean_object*);
 lean_object* l_EStateM_get(lean_object*, lean_object*);
 lean_object* l_EStateM_Monad___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_MonadState___closed__4;
@@ -96,6 +95,7 @@ lean_object* l_EStateM_Monad___closed__10;
 lean_object* l_EStateM_Result_hasRepr(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_MonadState___closed__1;
+lean_object* l_EStateM_MonadExceptCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Result_repr___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_MonadState___closed__2;
 lean_object* l_EStateM_orelse_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1198,7 +1198,7 @@ x_3 = l_EStateM_MonadState___closed__4;
 return x_3;
 }
 }
-lean_object* _init_l_EStateM_MonadExcept___rarg___closed__1() {
+lean_object* _init_l_EStateM_MonadExceptCore___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1208,24 +1208,24 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* l_EStateM_MonadExcept___rarg(lean_object* x_1) {
+lean_object* l_EStateM_MonadExceptCore___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_alloc_closure((void*)(l_EStateM_catch___rarg), 5, 1);
 lean_closure_set(x_2, 0, x_1);
-x_3 = l_EStateM_MonadExcept___rarg___closed__1;
+x_3 = l_EStateM_MonadExceptCore___rarg___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
-lean_object* l_EStateM_MonadExcept(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_MonadExceptCore(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_EStateM_MonadExcept___rarg), 1, 0);
+x_4 = lean_alloc_closure((void*)(l_EStateM_MonadExceptCore___rarg), 1, 0);
 return x_4;
 }
 }
@@ -1575,8 +1575,8 @@ l_EStateM_MonadState___closed__3 = _init_l_EStateM_MonadState___closed__3();
 lean_mark_persistent(l_EStateM_MonadState___closed__3);
 l_EStateM_MonadState___closed__4 = _init_l_EStateM_MonadState___closed__4();
 lean_mark_persistent(l_EStateM_MonadState___closed__4);
-l_EStateM_MonadExcept___rarg___closed__1 = _init_l_EStateM_MonadExcept___rarg___closed__1();
-lean_mark_persistent(l_EStateM_MonadExcept___rarg___closed__1);
+l_EStateM_MonadExceptCore___rarg___closed__1 = _init_l_EStateM_MonadExceptCore___rarg___closed__1();
+lean_mark_persistent(l_EStateM_MonadExceptCore___rarg___closed__1);
 l_EStateM_nonBacktrackable___closed__1 = _init_l_EStateM_nonBacktrackable___closed__1();
 lean_mark_persistent(l_EStateM_nonBacktrackable___closed__1);
 l_EStateM_nonBacktrackable___closed__2 = _init_l_EStateM_nonBacktrackable___closed__2();

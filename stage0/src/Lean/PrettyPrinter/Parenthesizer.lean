@@ -153,6 +153,8 @@ instance monadQuotation : MonadQuotation ParenthesizerM := {
   withFreshMacroScope := fun α x => x,
 }
 
+set_option class.instance_max_depth 100 -- TODO delete
+
 /-- Run `x` and parenthesize the result using `mkParen` if necessary. -/
 def maybeParenthesize (mkParen : Syntax → Syntax) (prec : Nat) (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 stx ← getCur;

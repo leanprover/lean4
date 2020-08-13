@@ -726,6 +726,8 @@ set_option trace.Meta.isDefEq.delta false
 set_option trace.Meta.isDefEq.assign false
 #eval tst41
 
+set_option pp.all false
+
 def tst42 : MetaM Unit := do
 print "----- tst42 -----";
 t ← mkListLit nat [mkNatLit 1, mkNatLit 2];
@@ -736,7 +738,7 @@ print t;
 check t;
 match t.arrayLit? with
 | some (_, xs) => do
-  check $ pure $ xs.size == 2;
+  check $ pure $ xs.length == 2;
   match (xs.get! 0).natLit?, (xs.get! 1).natLit? with
   | some 1, some 2 => pure ()
   | _, _           => throwOther "nat lits expected"

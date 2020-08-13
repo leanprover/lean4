@@ -331,24 +331,38 @@ private def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVa
 (alt, s) ← (CollectPatternVars.main alt).run {};
 pure (s.vars, alt)
 
-private partial def withPatternVarsAux {α} (ref : Syntax) (pVars : Array PatternVar) (k : Array Expr → TermElabM α) : Nat → Array Expr → TermElabM α
-| i, xs =>
+/- We convert the collected `PatternVar`s intro `PatternVarDecl` -/
+inductive PatternVarDecl
+/- For `anonymousVar`, we create both a metavariable and a free variable. The free variable is used as an assignment for the metavariable
+   when it is not assigned during pattern elaboration. -/
+| anonymousVar (mvarId : MVarId) (fvarId : FVarId)
+| localVar     (fvarId : FVarId)
+
+private partial def withPatternVarsAux {α} (ref : Syntax) (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α)
+    : Nat → Array PatternVarDecl → TermElabM α
+| i, decls =>
   if h : i < pVars.size then
     match pVars.get ⟨i, h⟩ with
     | PatternVar.anonymousVar mvarId => do
-      withPatternVarsAux (i+1) (xs.push (mkMVar mvarId))
+      type ← mkFreshTypeMVar ref;
+      withLocalDecl ref ((`_x).appendIndexAfter i) BinderInfo.default type fun x =>
+        withPatternVarsAux (i+1) (decls.push (PatternVarDecl.anonymousVar mvarId x.fvarId!))
     | PatternVar.localVar userName   => do
       type ← mkFreshTypeMVar ref;
-      withLocalDecl ref userName BinderInfo.default type fun x => withPatternVarsAux (i+1) (xs.push x)
+      withLocalDecl ref userName BinderInfo.default type fun x =>
+        withPatternVarsAux (i+1) (decls.push (PatternVarDecl.localVar x.fvarId!))
   else do
     /- We must create the metavariables for `PatternVar.anonymousVar` AFTER we create the new local decls using `withLocalDecl`.
        Reason: their scope must include the new local decls since some of them will be assigned by typing constraints. -/
-    pVars.forM fun pvar => match pvar with
-      | PatternVar.anonymousVar mvarId => do _ ← mkFreshExprMVarWithId ref mvarId; pure ()
+    decls.forM fun decl => match decl with
+      | PatternVarDecl.anonymousVar mvarId fvarId => do
+        type ← inferType ref (mkFVar fvarId);
+        _ ← mkFreshExprMVarWithId ref mvarId type;
+        pure ()
       | _ => pure ();
-    k xs
+    k decls
 
-private def withPatternVars {α} (ref : Syntax) (pVars : Array PatternVar) (k : Array Expr → TermElabM α) : TermElabM α :=
+private def withPatternVars {α} (ref : Syntax) (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
 withPatternVarsAux ref pVars k 0 #[]
 
 private partial def elabPatternsAux (ref : Syntax) (patternStxs : Array Syntax) : Nat → Expr → Array Expr → TermElabM (Array Expr)
@@ -365,47 +379,36 @@ private partial def elabPatternsAux (ref : Syntax) (patternStxs : Array Syntax) 
   else
     pure patterns
 
-/- Recall that `_` occurring in patterns are converted into metavariables. After we elaborate the patterns,
-   this method is invoked to convert unassigned metavariables in new local decls.
-   We execute `k` in the updated local context. -/
-private partial def withPatternDeclsAux {α} (ref : Syntax) (patternVars : Array Expr) (k : Array LocalDecl → TermElabM α) : Nat → Array LocalDecl → TermElabM α
-| i, decls =>
-  if h : i < patternVars.size then do
-    let pVar := patternVars.get ⟨i, h⟩;
-    /- pVar is a free variable or a meta variable -/
-    e ← instantiateMVars ref pVar;
-    match e with
-    | Expr.fvar fvarId _ => do
+def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (Array LocalDecl) :=
+patternVarDecls.foldlM
+  (fun (decls : Array LocalDecl) pdecl =>
+    match pdecl with
+    | PatternVarDecl.localVar fvarId => do
       decl ← getLocalDecl fvarId;
-      withPatternDeclsAux (i+1) (decls.push decl)
-    | Expr.mvar mvarId _ => do
-      decl ← getMVarDecl mvarId;
-      type ← instantiateMVars ref decl.type;
-      withLocalDecl ref ((`_x).appendIndexAfter i) BinderInfo.default type fun x => do
-        decl ← getLocalDecl x.fvarId!;
-        withPatternDeclsAux (i+1) (decls.push decl)
-    | _ =>
-      withPatternDeclsAux (i+1) decls
-  else
-    k decls
+      pure $ decls.push decl
+    | PatternVarDecl.anonymousVar mvarId fvarId => do
+      condM (isExprMVarAssigned mvarId)
+        (pure decls) -- skip
+        (do /- metavariable was not assigned while elaborating the patterns,
+               so we assign to the auxiliary free variable we created at `withPatternVars` -/
+          assignExprMVar mvarId (mkFVar fvarId);
+          decl ← getLocalDecl fvarId;
+          pure $ decls.push decl))
+  #[]
 
-private partial def withPatternDecls {α} (ref : Syntax) (patternVars : Array Expr) (k : Array LocalDecl → TermElabM α) : TermElabM α :=
-withPatternDeclsAux ref patternVars k 0 #[]
-
-private def elabPatterns (ref : Syntax) (patternVars : Array Expr) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
+private def elabPatterns (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
 patterns ← withSynthesize $ elabPatternsAux ref patternStxs 0 matchType #[];
 patterns ← patterns.mapM $ instantiateMVars ref;
-trace `Elab.match ref fun _ => "patterns: " ++ patterns;
-withPatternDecls ref patternVars fun decls => do
+decls ← finalizePatternDecls patternVarDecls;
 trace `Elab.match ref fun _ => MessageData.ofArray $ decls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
+trace `Elab.match ref fun _ => "patterns: " ++ patterns;
 pure patterns
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
 (patternVars, alt) ← collectPatternVars alt;
 trace `Elab.match alt.ref fun _ => "patternVars: " ++ toString patternVars;
-withPatternVars alt.ref patternVars fun xs => do
-  trace `Elab.match alt.ref fun _ => "xs: " ++ xs;
-  ps ← elabPatterns alt.ref xs alt.patterns matchType;
+withPatternVars alt.ref patternVars fun patternVarDecls => do
+  ps ← elabPatterns alt.ref patternVarDecls alt.patterns matchType;
   -- TODO
   pure (⟨[], []⟩, arbitrary _)
 

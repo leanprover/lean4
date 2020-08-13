@@ -130,14 +130,10 @@ instance PublishDiagnosticsParams.hasToJson : HasToJson PublishDiagnosticsParams
     ⟨"diagnostics", toJson o.diagnostics⟩]⟩
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
-def msgToDiagnostic (text : DocumentText) (m : Message) : Diagnostic :=
--- Lean Message line numbers are 1-based while LSP Positions are 0-based.
-let lowLn := m.pos.line - 1;
-let low : Lsp.Position := ⟨lowLn, (text.get! lowLn).codepointPosToUtf16Pos m.pos.column⟩;
+def msgToDiagnostic (text : FileMap) (m : Message) : Diagnostic :=
+let low : Lsp.Position := text.leanPosToLspPos m.pos;
 let high : Lsp.Position := match m.endPos with
-| some endPos =>
-let highLn := endPos.line - 1;
-⟨highLn, (text.get! highLn).codepointPosToUtf16Pos endPos.column⟩
+| some endPos => text.leanPosToLspPos endPos
 | none        => low;
 let range : Range := ⟨low, high⟩;
 let severity := match m.severity with

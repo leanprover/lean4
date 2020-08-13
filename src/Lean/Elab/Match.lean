@@ -365,10 +365,39 @@ private partial def elabPatternsAux (ref : Syntax) (patternStxs : Array Syntax) 
   else
     pure patterns
 
+/- Recall that `_` occurring in patterns are converted into metavariables. After we elaborate the patterns,
+   this method is invoked to convert unassigned metavariables in new local decls.
+   We execute `k` in the updated local context. -/
+private partial def withPatternDeclsAux {α} (ref : Syntax) (patternVars : Array Expr) (k : Array LocalDecl → TermElabM α) : Nat → Array LocalDecl → TermElabM α
+| i, decls =>
+  if h : i < patternVars.size then do
+    let pVar := patternVars.get ⟨i, h⟩;
+    /- pVar is a free variable or a meta variable -/
+    e ← instantiateMVars ref pVar;
+    match e with
+    | Expr.fvar fvarId _ => do
+      decl ← getLocalDecl fvarId;
+      withPatternDeclsAux (i+1) (decls.push decl)
+    | Expr.mvar mvarId _ => do
+      decl ← getMVarDecl mvarId;
+      type ← instantiateMVars ref decl.type;
+      withLocalDecl ref ((`_x).appendIndexAfter i) BinderInfo.default type fun x => do
+        decl ← getLocalDecl x.fvarId!;
+        withPatternDeclsAux (i+1) (decls.push decl)
+    | _ =>
+      withPatternDeclsAux (i+1) decls
+  else
+    k decls
+
+private partial def withPatternDecls {α} (ref : Syntax) (patternVars : Array Expr) (k : Array LocalDecl → TermElabM α) : TermElabM α :=
+withPatternDeclsAux ref patternVars k 0 #[]
+
 private def elabPatterns (ref : Syntax) (patternVars : Array Expr) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
 patterns ← withSynthesize $ elabPatternsAux ref patternStxs 0 matchType #[];
 patterns ← patterns.mapM $ instantiateMVars ref;
 trace `Elab.match ref fun _ => "patterns: " ++ patterns;
+withPatternDecls ref patternVars fun decls => do
+trace `Elab.match ref fun _ => MessageData.ofArray $ decls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
 pure patterns
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do

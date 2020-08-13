@@ -35,7 +35,7 @@ fun s => match x s with
 | EStateM.Result.error ex s => h ex s
 
 instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
-instance (ε : Type) : MonadExceptCore ε (EIO ε) := inferInstanceAs (MonadExceptCore ε (EStateM ε IO.RealWorld))
+instance (ε : Type) : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
 instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
 inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
@@ -68,7 +68,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-class MonadIO (m : Type → Type) extends HasMonadLiftT IO m, MonadExceptCore IO.Error m
+class MonadIO (m : Type → Type) extends HasMonadLiftT IO m, MonadExceptOf IO.Error m
 
 instance : MonadIO IO := {}
 
@@ -162,7 +162,7 @@ end Prim
 namespace FS
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
-def Handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m Handle :=
+def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
 Prim.liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]

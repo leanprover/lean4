@@ -285,7 +285,7 @@ fType ← instantiateMVars fType;
 trace `Elab.app.args $ fun _ => "explicit: " ++ toString explicit ++ ", " ++ f ++ " : " ++ fType;
 unless (namedArgs.isEmpty && args.isEmpty) $
   tryPostponeIfMVar fType;
-ref ← getCurrRef;
+ref ← getRef;
 elabAppArgsAux {ref := ref, args := args, expectedType? := expectedType?, explicit := explicit, namedArgs := namedArgs } f fType
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
@@ -554,20 +554,19 @@ candidates.filter $ fun c => match c with
   | EStateM.Result.ok _ _ => true
   | _ => false
 
-private def toMessageData (msg : Message) (stx : Syntax) : TermElabM MessageData := do
-strPos ← getPos stx;
-pos ← getPosition strPos;
+private def toMessageData (msg : Message) : TermElabM MessageData := do
+pos ← getRefPosition;
 if pos == msg.pos then
   pure msg.data
 else
   pure $ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ " " ++ msg.data
 
-private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) : TermElabM α := do
+private def mergeFailures {α} (failures : Array TermElabResult) : TermElabM α := do
 msgs ← failures.mapM $ fun failure =>
   match failure with
   | EStateM.Result.ok _ _         => unreachable!
-  | EStateM.Result.error errMsg s => toMessageData errMsg stx;
-throwErrorAt stx ("overloaded, errors " ++ MessageData.ofArray msgs)
+  | EStateM.Result.error errMsg s => toMessageData errMsg;
+throwError ("overloaded, errors " ++ MessageData.ofArray msgs)
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) : TermElabM Expr := do
 /- TODO: if `f` contains `choice` or overloaded symbols, `mayPostpone == true`, and `expectedType? == some ?m` where `?m` is not assigned,
@@ -590,7 +589,7 @@ else
       | _                     => unreachable!;
     throwErrorAt f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
   else
-    mergeFailures candidates f
+    withRef f $ mergeFailures candidates
 
 private partial def expandApp (stx : Syntax) : TermElabM (Syntax × Array NamedArg × Array Arg) := do
 let f    := stx.getArg 0;

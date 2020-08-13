@@ -59,7 +59,7 @@ let (binders, type) := expandDeclSig (stx.getArg 2);
 let modifiers       := modifiers.addAttribute { name := `instance };
 declId ← match (stx.getArg 1).getOptional? with
   | some declId => pure declId
-  | none        => throwError stx "not implemented yet";
+  | none        => throwError "not implemented yet";
 elabDefLike {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
   declId := declId, binders := binders, type? := type, val := stx.getArg 3
@@ -81,8 +81,8 @@ let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
-  declName          ← mkDeclName declId modifiers name;
-  applyAttributes stx declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
+  declName          ← mkDeclName modifiers name;
+  applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   allUserLevelNames ← getLevelNames;
   decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
@@ -103,8 +103,8 @@ withDeclId declId $ fun name => do
       }
     };
   addDecl decl;
-  applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-  applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
+  applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+  applyAttributes declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
@@ -113,23 +113,23 @@ parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
 Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : CommandElabM InductiveView := do
-checkValidInductiveModifier decl modifiers;
+checkValidInductiveModifier modifiers;
 let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
 let declId           := decl.getArg numTokens;
 withDeclId declId fun name => do
   levelNames ← getLevelNames;
-  declName   ← mkDeclName declId modifiers name;
-  ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => do {
+  declName   ← mkDeclName modifiers name;
+  ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => withRef ctor do {
     -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
     ctorModifiers ← elabModifiers (ctor.getArg 1);
     when (ctorModifiers.isPrivate && modifiers.isPrivate) $
-      throwError ctor "invalid 'private' constructor in a 'private' inductive datatype";
+      throwError "invalid 'private' constructor in a 'private' inductive datatype";
     when (ctorModifiers.isProtected && modifiers.isPrivate) $
-      throwError ctor "invalid 'protected' constructor in a 'private' inductive datatype";
-    checkValidCtorModifier ctor ctorModifiers;
+      throwError "invalid 'protected' constructor in a 'private' inductive datatype";
+    checkValidCtorModifier ctorModifiers;
     let ctorName := ctor.getIdAt 2;
     let ctorName := declName ++ ctorName;
-    ctorName ← applyVisibility (ctor.getArg 2) ctorModifiers.visibility ctorName;
+    ctorName ← withRef (ctor.getArg 2) $ applyVisibility ctorModifiers.visibility ctorName;
     let inferMod := !(ctor.getArg 3).isNone;
     let (binders, type?) := expandOptDeclSig (ctor.getArg 4);
     pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
@@ -184,7 +184,7 @@ fun stx => do
   else if declKind == `Lean.Parser.Command.structure then
     elabStructure modifiers decl
   else
-    throwError stx "unexpected declaration"
+    throwError "unexpected declaration"
 
 /- Return true if all elements of the mutual-block are inductive declarations. -/
 private def isMutualInductive (stx : Syntax) : Bool :=
@@ -243,7 +243,7 @@ fun stx => do
     if isMutualInductive stx then
       elabMutualInductive (stx.getArg 1).getArgs
     else
-      throwError stx "invalid mutual block"
+      throwError "invalid mutual block"
 
 end Command
 end Elab

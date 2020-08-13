@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
+#include <io.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #include <unistd.h>
@@ -13,8 +14,8 @@ Author: Leonardo de Moura
 // Linux include files
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
-#include <fcntl.h>
 #endif
+#include <fcntl.h>
 #include <iostream>
 #include <chrono>
 #include <sstream>
@@ -680,6 +681,11 @@ void initialize_io() {
     g_io_error_eof = lean_mk_io_error_eof(lean_box(0));
     mark_persistent(g_io_error_eof);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
+#if defined(LEAN_WINDOWS)
+    _setmode(_fileno(stdout), _O_BINARY);
+    _setmode(_fileno(stderr), _O_BINARY);
+    _setmode(_fileno(stdin), _O_BINARY);
+#endif
     g_handle_stdout = io_wrap_handle(stdout);
     mark_persistent(g_handle_stdout);
     g_handle_stderr = io_wrap_handle(stderr);

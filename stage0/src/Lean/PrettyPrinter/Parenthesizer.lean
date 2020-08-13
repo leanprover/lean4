@@ -39,19 +39,19 @@ RHS (0) again is smaller than that of `y`. So it's better to only parenthesize t
 
 # Implementation
 
-We transform the syntax tree and collect the necessary precedence information for that in a single traversal over the
-syntax tree and the parser (as a `Lean.Expr`) that produced it. The traversal is right-to-left to cover case 2. More
-specifically, for every Pratt parser call, we store as monadic state the precedence of the left-most trailing parser and
-the minimum precedence of any parser (`contPrec`/`minPrec`) in this call, if any, and the precedence of the nested
-trailing Pratt parser call (`trailPrec`), if any. If `stP` is the state resulting from the traversal of a Pratt parser
-call `p prec`, and `st` is the state of the surrounding call, we parenthesize if `prec > stP.minPrec` (case 1) or if
-`stP.trailPrec <= st.contPrec` (case 2).
+We transform the syntax tree and collect the necessary precedence information for that in a single traversal. The
+traversal is right-to-left to cover case 2. More specifically, for every Pratt parser call, we store as monadic state
+the precedence of the left-most trailing parser and the minimum precedence of any parser (`contPrec`/`minPrec`) in this
+call, if any, and the precedence of the nested trailing Pratt parser call (`trailPrec`), if any. If `stP` is the state
+resulting from the traversal of a Pratt parser call `p prec`, and `st` is the state of the surrounding call, we
+parenthesize if `prec > stP.minPrec` (case 1) or if `stP.trailPrec <= st.contPrec` (case 2).
 
-The primary traversal is over the parser `Expr`. The `visit` function takes such a parser and, if it is the application
-of a constant `c`, looks for a `[parenthesizer c]` declaration. If it exists, we run it, which might again call `visit`.
-Otherwise, we do a single step of reduction at the head of the expression (with `default` reducibility) and try again.
-If the reduction is stuck, we fail. This happens mostly at the `Parser.mk` decl, which is irreducible, when some parser
-primitive has not been handled yet. You can think of this traversal as a special-case, customized `Expr` interpreter.
+The traversal can be customized for each `[*Parser]` parser declaration `c` (more specifically, each `SyntaxNodeKind`
+`c`) using the `[parenthesizer c]` attribute. Otherwise, a default parenthesizer will be synthesized from the used
+parser combinators by recursively replacing them with declarations tagged as `[combinatorParenthesizer]` for the
+respective combinator. If a called function does not have a registered combinator parenthesizer and is not reducible,
+the synthesizer fails. This happens mostly at the `Parser.mk` decl, which is irreducible, when some parser primitive has
+not been handled yet.
 
 The traversal over the `Syntax` object is complicated by the fact that a parser does not produce exactly one syntax
 node, but an arbitrary (but constant, for each parser) amount that it pushes on top of the parser stack. This amount can
@@ -72,13 +72,15 @@ node).
 
 import Lean.Meta
 import Lean.KeyedDeclsAttribute
+import Lean.Parser.Basic
+import Lean.ParserCompiler
 
 namespace Lean
 namespace PrettyPrinter
 namespace Parenthesizer
 
 structure Context :=
--- We need to store this argument of `visitParenthesizable` to deal with the implicit Pratt parser call in
+-- We need to store this argument of `maybeParenthesize` to deal with the implicit Pratt parser call in
 -- `trailingNode.parenthesizer`.
 (mkParen : Option (Syntax → Syntax) := none)
 
@@ -110,18 +112,16 @@ KeyedDeclsAttribute.init {
 } `Lean.PrettyPrinter.parenthesizerAttribute
 @[init mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
 
-unsafe def mkCombinatorParenthesizerAttribute : IO (KeyedDeclsAttribute Name) :=
-KeyedDeclsAttribute.init (KeyedDeclsAttribute.Def.mkSimple
-    none
-    `combinatorParenthesizer
-    "Register a parenthesizer for a parser combinator.
+unsafe def mkCombinatorParenthesizerAttribute : IO CombinatorCompilerAttribute :=
+registerCombinatorCompilerAttribute
+  `combinatorParenthesizer
+  "Register a parenthesizer for a parser combinator.
 
 [combinatorParenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.
 Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.
 The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
-with `Parenthesizer` in the parameter types.")
-  `Lean.PrettyPrinter.combinatorParenthesizerAttribute
-@[init mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : KeyedDeclsAttribute Name := arbitrary _
+with `Parenthesizer` in the parameter types."
+@[init mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : CombinatorCompilerAttribute := arbitrary _
 
 namespace Parenthesizer
 
@@ -185,7 +185,7 @@ when (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some c
     stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none);
     goLeft;
     -- after parenthesization, there is no more trailing parser
-    modify (fun st => { st with contPrec := /- maxPrec -/ some 1024, trailPrec := none })
+    modify (fun st => { st with contPrec := Parser.maxPrec, trailPrec := none })
 };
 { trailPrec := trailPrec, .. } ← get;
 -- If we already had a token at this level, keep the trailing parser. Otherwise, use the minimum of
@@ -297,7 +297,7 @@ addPrecCheck prec;
 -- Limit `contPrec` to `maxPrec-1`.
 -- This is because `maxPrec-1` is the precedence of function application, which is the only way to turn a leading parser
 -- into a trailing one.
-modify fun st => { st with contPrec := Nat.min (/- maxPrec -/ 1023 -1) prec }
+modify fun st => { st with contPrec := Nat.min (Parser.maxPrec-1) prec }
 
 @[combinatorParenthesizer Lean.Parser.trailingNode]
 def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
@@ -315,7 +315,7 @@ visitArgs $ do {
   -- issue for the parenthesizer, so we can think of this child being produced by `termParser 0`, or whichever Pratt
   -- parser is calling us; we only need to know its `mkParen`, which we retrieve from the context.
   { mkParen := some mkParen, .. } ← read
-    | panic! "trailingNode.parenthesizer called outside of visitParenthesizable call";
+    | panic! "trailingNode.parenthesizer called outside of maybeParenthesize call";
   maybeParenthesize mkParen 0 $
     categoryParser.parenthesizer `someCategory 0
 }
@@ -388,7 +388,7 @@ def preprocessParserBody (e : Expr) : Expr :=
 e.replace fun e => if e.isConstOf `Lean.Parser.Parser then mkConst `Lean.PrettyPrinter.Parenthesizer else none
 
 -- translate an expression of type `Parser` into one of type `Parenthesizer`
-unsafe partial def compileParserBody : Expr → MetaM Expr | e => do
+partial def compileParserBody : Expr → MetaM Expr | e => do
 e ← whnfCore e;
 match e with
 | e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e fun xs b => compileParserBody b >>= Meta.mkLambda xs
@@ -413,10 +413,9 @@ match e with
         e.getAppArgs
   };
   env ← getEnv;
-  match combinatorParenthesizerAttribute.getValues env c with
-  -- use first registered `[combinatorParenthesizer]` if available
-  | p::_ => mkCall p
-  | []   => do
+  match combinatorParenthesizerAttribute.getDeclFor env c with
+  | some p => mkCall p
+  | none   => do
     let parenthesizerDeclName := c ++ `parenthesizer;
     cinfo ← getConstInfo c;
     resultTy ← Meta.forallTelescope cinfo.type fun _ b => pure b;
@@ -439,11 +438,7 @@ match e with
       env ← match env.addAndCompile {} decl with
       | Except.ok    env => pure env
       | Except.error kex => throwOther $ toString $ fmt $ kex.toMessageData {};
-      -- HACK: `MetaM` does not currently imply `MonadIO`, though it might soon
-      let env := unsafeIO $ env.addAttribute parenthesizerDeclName `combinatorParenthesizer (mkNullNode #[mkIdent c]);
-      match env with
-      | Except.ok env  => setEnv env
-      | Except.error e => throwOther $ toString e;
+      setEnv $ combinatorParenthesizerAttribute.setDeclFor env c parenthesizerDeclName;
       mkCall parenthesizerDeclName
     else do
       -- if this is a generic function, e.g. `HasAndthen.andthen`, it's easier to just unfold it until we are
@@ -452,14 +447,11 @@ match e with
         | throwOther $ "don't know how to generate parenthesizer for non-parser combinator '" ++ toString e ++ "'";
       compileParserBody e'
 
-@[implementedBy compileParserBody]
-constant compileParserBody' : Expr → MetaM Expr := arbitrary _
-
 /-- Compile the given declaration into a `[builtinParenthesizer declName]` or `[parenthesizer declName]`. -/
 def compile (env : Environment) (declName : Name) (builtin : Bool) : IO Environment := do
 (value, env) ← IO.runMeta (do
   cinfo ← getConstInfo declName;
-  compileParserBody' $ preprocessParserBody cinfo.value!) env;
+  compileParserBody $ preprocessParserBody cinfo.value!) env;
 let parenthesizerDeclName := declName ++ `parenthesizer;
 let decl := Declaration.defnDecl { name := parenthesizerDeclName, lparams := [],
   type := mkConst `Lean.PrettyPrinter.Parenthesizer,

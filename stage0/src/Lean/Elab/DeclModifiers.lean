@@ -67,11 +67,11 @@ def elabAttr (stx : Syntax) : CommandElabM Attribute := do
 -- rawIdent >> many attrArg
 let nameStx := stx.getArg 0;
 attrName ← match nameStx.isIdOrAtom? with
-  | none     => throwError nameStx "identifier expected"
+  | none     => withRef nameStx $ throwError "identifier expected"
   | some str => pure $ mkNameSimple str;
 env ← getEnv;
 unless (isAttribute env attrName) $
-  throwError stx ("unknown attribute [" ++ attrName ++ "]");
+  throwError ("unknown attribute [" ++ attrName ++ "]");
 let args := stx.getArg 1;
 -- the old frontend passes Syntax.missing for empty args, for reasons
 let args := if args.getNumArgs == 0 then Syntax.missing else args;
@@ -95,14 +95,14 @@ docString ← match docCommentStx.getOptional? with
   | none   => pure none
   | some s => match s.getArg 1 with
     | Syntax.atom _ val => pure (some (val.extract 0 (val.bsize - 2)))
-    | _                 => throwError s ("unexpected doc string " ++ toString (s.getArg 1));
+    | _                 => throwErrorAt s ("unexpected doc string " ++ toString (s.getArg 1));
 visibility ← match visibilityStx.getOptional? with
   | none   => pure Visibility.regular
   | some v =>
     let kind := v.getKind;
     if kind == `Lean.Parser.Command.private then pure Visibility.private
     else if kind == `Lean.Parser.Command.protected then pure Visibility.protected
-    else throwError v "unexpected visibility modifier";
+    else throwErrorAt v "unexpected visibility modifier";
 attrs ← match attrsStx.getOptional? with
   | none       => pure #[]
   | some attrs => elabAttrs attrs;
@@ -115,51 +115,51 @@ pure {
   attrs           := attrs
 }
 
-def checkNotAlreadyDeclared (ref : Syntax) (declName : Name) : CommandElabM Unit := do
+def checkNotAlreadyDeclared (declName : Name) : CommandElabM Unit := do
 env ← getEnv;
 when (env.contains declName) $
   match privateToUserName? declName with
-  | none          => throwError ref ("'" ++ declName ++ "' has already been declared")
-  | some declName => throwError ref ("private declaration '" ++ declName ++ "' has already been declared");
+  | none          => throwError ("'" ++ declName ++ "' has already been declared")
+  | some declName => throwError ("private declaration '" ++ declName ++ "' has already been declared");
 when (env.contains (mkPrivateName env declName)) $
-  throwError ref ("a private declaration '" ++ declName ++ "' has already been declared");
+  throwError ("a private declaration '" ++ declName ++ "' has already been declared");
 match privateToUserName? declName with
 | none => pure ()
 | some declName =>
   when (env.contains declName) $
-    throwError ref ("a non-private declaration '" ++ declName ++ "' has already been declared")
+    throwError ("a non-private declaration '" ++ declName ++ "' has already been declared")
 
-def applyVisibility (ref : Syntax) (visibility : Visibility) (declName : Name) : CommandElabM Name :=
+def applyVisibility (visibility : Visibility) (declName : Name) : CommandElabM Name :=
 match visibility with
 | Visibility.private => do
   env ← getEnv;
   let declName := mkPrivateName env declName;
-  checkNotAlreadyDeclared ref declName;
+  checkNotAlreadyDeclared declName;
   pure declName
 | Visibility.protected => do
-  checkNotAlreadyDeclared ref declName;
+  checkNotAlreadyDeclared declName;
   env ← getEnv;
   let env := addProtected env declName;
   setEnv env;
   pure declName
 | _                  => do
-  checkNotAlreadyDeclared ref declName;
+  checkNotAlreadyDeclared declName;
   pure declName
 
-def mkDeclName (ref : Syntax) (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
+def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
 currNamespace ← getCurrNamespace;
 let declName := currNamespace ++ atomicName;
-applyVisibility ref modifiers.visibility declName
+applyVisibility modifiers.visibility declName
 
-def applyAttributes (ref : Syntax) (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
+def applyAttributes (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
 attrs.forM $ fun attr => do
  env ← getEnv;
  match getAttributeImpl env attr.name with
- | Except.error errMsg => throwError ref errMsg
+ | Except.error errMsg => throwError errMsg
  | Except.ok attrImpl  =>
    when (attrImpl.applicationTime == applicationTime) $ do
      env ← getEnv;
-     env ← liftIO ref $ attrImpl.add env declName attr.args true;
+     env ← liftIO $ attrImpl.add env declName attr.args true;
      setEnv env
 
 end Command

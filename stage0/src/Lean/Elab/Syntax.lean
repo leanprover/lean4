@@ -189,7 +189,7 @@ fun stx => do
   let catName  := stx.getIdAt 1;
   let attrName := catName.appendAfter "Parser";
   env ← getEnv;
-  env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
+  env ← liftIO $ Parser.registerParserCategory env attrName catName;
   setEnv env;
   declareSyntaxCatQuotParser catName
 
@@ -222,7 +222,7 @@ def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 sy
 fun stx => do
   env ← getEnv;
   let cat := (stx.getIdAt 5).eraseMacroScopes;
-  unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
+  unless (Parser.isParserCategory env cat) $ throwErrorAt (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
   let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD Parser.maxPrec;
   kind ← elabKind (stx.getArg 2) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
@@ -232,7 +232,7 @@ fun stx => do
       `(@[$catParserId:ident] def myParser : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
     else
       `(@[$catParserId:ident] def myParser : Lean.ParserDescr := ParserDescr.node $(quote kind) $(quote prec) $val);
-  trace `Elab stx $ fun _ => d;
+  trace `Elab fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 
 /-
@@ -256,13 +256,13 @@ alts ← alts.mapSepElemsM $ fun alt => do {
        pure alt
      else if k' == choiceKind then do
         match quot.getArgs.find? $ fun quotAlt => quotAlt.getKind == k with
-        | none      => throwError alt ("invalid macro_rules alternative, expected syntax node kind '" ++ k ++ "'")
+        | none      => throwErrorAt alt ("invalid macro_rules alternative, expected syntax node kind '" ++ k ++ "'")
         | some quot => do
           pat ← `(`($quot));
           let lhs := lhs.setArg 0 pat;
           pure $ alt.setArg 0 lhs
      else
-       throwError alt ("invalid macro_rules alternative, unexpected syntax node kind '" ++ k' ++ "'")
+       throwErrorAt alt ("invalid macro_rules alternative, unexpected syntax node kind '" ++ k' ++ "'")
   | stx => throwUnsupportedSyntax
 };
 `(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
@@ -275,7 +275,7 @@ match_syntax (alt.getArg 0).getArg 0 with
 def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 k ← inferMacroRulesAltKind (alts.get! 0);
 if k == choiceKind then
-  throwError (alts.get! 0)
+  throwErrorAt (alts.get! 0)
     "invalid macro_rules alternative, multiple interpretations for pattern (solution: specify node kind using `macro_rules [<kind>] ...`)"
 else do
   altsK    ← alts.filterSepElemsM (fun alt => do k' ← inferMacroRulesAltKind alt; pure $ k == k');

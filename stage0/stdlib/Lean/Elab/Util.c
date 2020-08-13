@@ -109,7 +109,6 @@ lean_object* l_Lean_Elab_addMacroStack___closed__1;
 lean_object* l___private_Lean_Elab_Util_4__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__3;
 lean_object* l_Lean_Elab_getBetterRef___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 extern lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__1;
 size_t l_USize_land(size_t, size_t);
@@ -861,27 +860,19 @@ return x_1;
 lean_object* l_Lean_Elab_mkElabAttribute___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_2);
-x_9 = l_Lean_Elab_mkElabAttribute___rarg___closed__1;
-x_10 = lean_string_append(x_6, x_9);
-x_11 = lean_box(0);
-lean_inc(x_5);
-x_12 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_mkParenthesizerAttribute___lambda__1), 4, 1);
-lean_closure_set(x_12, 0, x_5);
-x_13 = lean_alloc_closure((void*)(l_Lean_Elab_mkElabAttribute___rarg___lambda__1___boxed), 3, 1);
-lean_closure_set(x_13, 0, x_4);
-x_14 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_14, 0, x_8);
-lean_ctor_set(x_14, 1, x_3);
-lean_ctor_set(x_14, 2, x_10);
-lean_ctor_set(x_14, 3, x_5);
-lean_ctor_set(x_14, 4, x_11);
-lean_ctor_set(x_14, 5, x_12);
-lean_ctor_set(x_14, 6, x_13);
-x_15 = l_Lean_KeyedDeclsAttribute_init___rarg(x_14, x_1, x_7);
-return x_15;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = l_Lean_Elab_mkElabAttribute___rarg___closed__1;
+x_9 = lean_string_append(x_6, x_8);
+x_10 = lean_alloc_closure((void*)(l_Lean_Elab_mkElabAttribute___rarg___lambda__1___boxed), 3, 1);
+lean_closure_set(x_10, 0, x_4);
+x_11 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_11, 0, x_2);
+lean_ctor_set(x_11, 1, x_3);
+lean_ctor_set(x_11, 2, x_9);
+lean_ctor_set(x_11, 3, x_5);
+lean_ctor_set(x_11, 4, x_10);
+x_12 = l_Lean_KeyedDeclsAttribute_init___rarg(x_11, x_1, x_7);
+return x_12;
 }
 }
 lean_object* l_Lean_Elab_mkElabAttribute(lean_object* x_1) {

@@ -411,7 +411,7 @@ structure OldContext :=
 (open_nss : List Name)
 
 private def oldRunTermElabM {α} (ctx : OldContext) (x : TermElabM α) : Except String α := do
-match x {fileName := "foo", fileMap := FileMap.ofString "", cmdPos := 0,
+match x {fileName := "foo", fileMap := FileMap.ofString "",
   currNamespace := ctx.env.getNamespace, currRecDepth := 0, maxRecDepth := 10000,
   openDecls := ctx.open_nss.map $ fun n => OpenDecl.simple n [],
   lctx := ctx.locals.foldl (fun lctx l => LocalContext.mkLocalDecl lctx l l exprPlaceholder) $ LocalContext.mkEmpty ()}

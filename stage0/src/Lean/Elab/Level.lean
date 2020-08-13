@@ -14,7 +14,7 @@ namespace Level
 structure Context :=
 (fileName   : String)
 (fileMap    : FileMap)
-(cmdPos     : String.Pos)
+(ref        : Syntax)
 (levelNames : List Name)
 
 structure State :=
@@ -24,10 +24,13 @@ structure State :=
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
 instance LevelElabM.MonadLog : MonadPosInfo LevelElabM :=
-{ getCmdPos   := do ctx ← read; pure ctx.cmdPos,
+{ getRef      := do ctx ← read; pure ctx.ref,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := fun msg => pure msg }
+
+@[inline] def withRef {α} (ref : Syntax) (x : LevelElabM α) : LevelElabM α := do
+adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
 
 def mkFreshId : LevelElabM Name := do
 s ← get;
@@ -41,7 +44,7 @@ modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
 
 partial def elabLevel : Syntax → LevelElabM Level
-| stx => do
+| stx => withRef stx do
   let kind := stx.getKind;
   if kind == `Lean.Parser.Level.paren then
     elabLevel (stx.getArg 1)
@@ -66,19 +69,19 @@ partial def elabLevel : Syntax → LevelElabM Level
   else if kind == `Lean.Parser.Level.num then do
     match (stx.getArg 0).isNatLit? with
     | some val => pure (Level.ofNat val)
-    | none     => throwError stx "ill-formed universe level syntax"
+    | none     => throwError "ill-formed universe level syntax"
   else if kind == `Lean.Parser.Level.ident then do
     let paramName := stx.getIdAt 0;
     ctx ← read;
-    unless (ctx.levelNames.contains paramName) $ throwError stx ("unknown universe level " ++ paramName);
+    unless (ctx.levelNames.contains paramName) $ throwError ("unknown universe level " ++ paramName);
     pure $ mkLevelParam paramName
   else if kind == `Lean.Parser.Level.addLit then do
     lvl ← elabLevel (stx.getArg 0);
     match (stx.getArg 2).isNatLit? with
     | some val => pure (lvl.addOffset val)
-    | none     => throwError stx "ill-formed universe level syntax"
+    | none     => throwError "ill-formed universe level syntax"
   else
-    throwError stx "unexpected universe level syntax kind"
+    throwError "unexpected universe level syntax kind"
 
 end Level
 

@@ -438,7 +438,7 @@ private partial def mkMatchType (discrs : Array Syntax) : Nat → MacroM Syntax
         `(_ → $type)
       else
         let t := discr.getArg 1;
-        `((x : _) → x = $t → $type)
+        `((x : _) → $t = x → $type)
     else
       mkMatchType (i+1)
   else

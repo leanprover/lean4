@@ -417,6 +417,17 @@ modify $ fun s => { s with found := s.found.insert fvarId }
 private def throwInvalidPattern {α} (e : Expr) : M α :=
 liftM $ throwError ("invalid pattern " ++ indentExpr e)
 
+private def getFieldsBinderInfoAux (ctorVal : ConstructorVal) : Nat → Expr → Array BinderInfo → Array BinderInfo
+| i, Expr.forallE _ d b c, bis =>
+  if i < ctorVal.nparams then
+    getFieldsBinderInfoAux (i+1) b bis
+  else
+    getFieldsBinderInfoAux (i+1) b (bis.push c.binderInfo)
+| _, _, bis => bis
+
+private def getFieldsBinderInfo (ctorVal : ConstructorVal) : Array BinderInfo :=
+getFieldsBinderInfoAux ctorVal 0 ctorVal.type #[]
+
 partial def main (localDecls : Array LocalDecl) : Expr → M Meta.DepElim.Pattern
 | e =>
   let isLocalDecl (fvarId : FVarId) : Bool :=
@@ -468,8 +479,14 @@ partial def main (localDecls : Array LocalDecl) : Expr → M Meta.DepElim.Patter
           unless (args.size == v.nparams + v.nfields) $ throwInvalidPattern e;
           let params := args.extract 0 v.nparams;
           let fields := args.extract v.nparams args.size;
-          -- TODO: use inaccessible at implicit fields
-          fields ← fields.mapM main;
+          let binderInfos := getFieldsBinderInfo v;
+          fields ← fields.mapIdxM fun i field => do {
+            let binderInfo := binderInfos.get! i;
+            if binderInfo.isExplicit then
+              main field
+            else
+              mkInaccessible field
+          };
           pure $ Meta.DepElim.Pattern.ctor declName us params.toList fields.toList
         | _ => throwInvalidPattern e
       | _ => throwInvalidPattern e

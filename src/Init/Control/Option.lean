@@ -63,7 +63,7 @@ namespace OptionT
   (do { some a ← ma | (handle ());
         pure a } : m (Option α))
 
-  instance : MonadExcept Unit (OptionT m) :=
+  instance : MonadExceptCore Unit (OptionT m) :=
   { throw := fun _ _ => OptionT.fail, catch := @OptionT.catch _ _ }
 
   instance (m out) [MonadRun out m] : MonadRun (fun α => out (Option α)) (OptionT m) :=

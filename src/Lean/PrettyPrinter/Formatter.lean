@@ -103,6 +103,8 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
+set_option class.instance_max_depth 100 -- TODO delete
+
 /--
   Call an appropriate `[formatter]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
   should be to the left of all nodes produced by `p`, or at the left-most child if there are no other nodes left. -/

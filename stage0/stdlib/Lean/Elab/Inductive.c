@@ -31,6 +31,7 @@ extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Inductive_4__checkLevelNames___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_5__forallTelescopeReducingAuxAux___main___at___private_Lean_Elab_Inductive_30__replaceIndFVarsWithConsts___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidInductiveModifier___closed__6;
+extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
 lean_object* l_Lean_Elab_Command_addDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidInductiveModifier___closed__5;
@@ -165,7 +166,6 @@ lean_object* l___private_Lean_Elab_Inductive_23__updateResultingUniverse(lean_ob
 uint8_t l_Lean_Level_isParam(lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_16__elabCtors___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_below(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
 lean_object* l_List_map___main___at___private_Lean_Elab_Inductive_32__applyInferMod___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getLevel(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -10222,7 +10222,7 @@ lean_object* l___private_Lean_Elab_Inductive_28__collectLevelParamsInInductive(l
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
+x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
 x_3 = l_List_foldl___main___at___private_Lean_Elab_Inductive_28__collectLevelParamsInInductive___spec__2(x_2, x_1);
 x_4 = lean_ctor_get(x_3, 2);
 lean_inc(x_4);

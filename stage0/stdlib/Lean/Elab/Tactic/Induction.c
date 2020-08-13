@@ -34,6 +34,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_18__checkCasesResult(lean_ob
 lean_object* l___private_Lean_Elab_Tactic_Induction_13__getRecInfoDefault___closed__2;
 lean_object* l_Lean_Elab_Tactic_getRecFromUsing___closed__3;
 lean_object* l___private_Lean_Elab_Tactic_Induction_13__getRecInfoDefault___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_18__checkCasesResult___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Tactic_Induction_11__checkAltCtorNames___spec__2___closed__2;
@@ -147,7 +148,6 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_6__generalizeVars___lambda__
 lean_object* l___private_Lean_Elab_Tactic_Induction_4__generalizeMajor___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Tactic_Induction_11__checkAltCtorNames___spec__2___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_17__checkCasesResultAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_mkAuxName___closed__1;
 lean_object* l_Lean_Meta_mkRecursorInfo(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_6__generalizeVars___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_foldr___main___at___private_Lean_Elab_Tactic_Induction_11__checkAltCtorNames___spec__1(lean_object*, uint8_t, lean_object*);
@@ -1465,7 +1465,7 @@ lean_inc(x_13);
 x_14 = lean_alloc_closure((void*)(l_Array_forMAux___main___at___private_Lean_Elab_Tactic_Induction_11__checkAltCtorNames___spec__2___lambda__1___boxed), 3, 2);
 lean_closure_set(x_14, 0, x_13);
 lean_closure_set(x_14, 1, x_10);
-x_15 = l_Lean_Meta_mkAuxName___closed__1;
+x_15 = l_Lean_mkThunk___closed__1;
 x_16 = lean_name_eq(x_13, x_15);
 x_17 = lean_ctor_get(x_4, 0);
 lean_inc(x_17);
@@ -6667,7 +6667,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_array_fget(x_1, x_2);
 x_7 = l___private_Lean_Elab_Tactic_Induction_8__getAltName(x_6);
 lean_dec(x_6);
-x_8 = l_Lean_Meta_mkAuxName___closed__1;
+x_8 = l_Lean_mkThunk___closed__1;
 x_9 = lean_name_eq(x_7, x_8);
 lean_dec(x_7);
 if (x_9 == 0)

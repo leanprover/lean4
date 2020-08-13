@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClassExpensive___main(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l_Lean_Meta_introN(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_introN___spec__4(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_EIO_Monad___closed__1;
@@ -69,7 +69,6 @@ lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_Meta_introNCoreAux___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkAuxName___closed__1;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_umapMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -836,16 +835,6 @@ lean_dec(x_5);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Meta_mkAuxName___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_mkHole___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Meta_mkAuxName(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -878,7 +867,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
 lean_dec(x_4);
-x_10 = l_Lean_Meta_mkAuxName___closed__1;
+x_10 = l_Lean_mkThunk___closed__1;
 x_11 = lean_name_eq(x_8, x_10);
 if (x_11 == 0)
 {
@@ -5804,8 +5793,6 @@ l_Lean_Meta_introNCoreAux___main___rarg___closed__1 = _init_l_Lean_Meta_introNCo
 lean_mark_persistent(l_Lean_Meta_introNCoreAux___main___rarg___closed__1);
 l_Lean_Meta_introNCore___rarg___lambda__2___closed__1 = _init_l_Lean_Meta_introNCore___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Meta_introNCore___rarg___lambda__2___closed__1);
-l_Lean_Meta_mkAuxName___closed__1 = _init_l_Lean_Meta_mkAuxName___closed__1();
-lean_mark_persistent(l_Lean_Meta_mkAuxName___closed__1);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

@@ -546,12 +546,16 @@ goto _start;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = l_Lean_Expr_appArg_x21(x_1);
 lean_dec(x_1);
-x_15 = l_List_reverse___rarg(x_2);
-x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_15);
-return x_16;
+x_16 = l_List_reverse___rarg(x_2);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+return x_18;
 }
 }
 }

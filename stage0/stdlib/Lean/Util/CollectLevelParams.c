@@ -24,6 +24,7 @@ extern lean_object* l_Array_empty___closed__1;
 size_t l_Lean_Level_hash(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Lean_CollectLevelParams_State_collect(lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasParam(lean_object*);
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 uint8_t l_List_elem___main___at_Lean_CollectLevelParams_visitExpr___spec__2(lean_object*, lean_object*);
@@ -2535,6 +2536,14 @@ return x_3;
 }
 }
 lean_object* l_Lean_collectLevelParams(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_CollectLevelParams_main___main(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_CollectLevelParams_State_collect(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

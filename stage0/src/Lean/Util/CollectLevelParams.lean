@@ -61,4 +61,7 @@ end CollectLevelParams
 def collectLevelParams (s : CollectLevelParams.State) (e : Expr) : CollectLevelParams.State :=
 CollectLevelParams.main e s
 
+def CollectLevelParams.State.collect (s : CollectLevelParams.State) (e : Expr) : CollectLevelParams.State :=
+collectLevelParams s e
+
 end Lean

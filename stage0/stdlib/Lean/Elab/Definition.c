@@ -19,6 +19,7 @@ lean_object* l_Lean_Elab_Term_removeUnused(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Elab_Term_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__7;
+extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
 lean_object* l_Lean_Elab_Command_addDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Elab_Term_instantiateMVars(lean_object*, lean_object*, lean_object*);
@@ -53,7 +54,6 @@ lean_object* l_Lean_Elab_Command_mkDeclName(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_state_sharecommon(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
 lean_object* l_Lean_Elab_Term_throwUnsupportedSyntax___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_DefKind_isTheorem___boxed(lean_object*);
 uint8_t l_Lean_Elab_Command_DefKind_isDefOrAbbrevOrOpaque(uint8_t);
@@ -666,7 +666,7 @@ x_45 = lean_state_sharecommon(x_44, x_38);
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
 lean_dec(x_45);
-x_47 = l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
+x_47 = l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
 lean_inc(x_43);
 x_48 = l_Lean_CollectLevelParams_main___main(x_43, x_47);
 lean_inc(x_46);

@@ -202,6 +202,21 @@ instance : Inhabited Expr :=
 | proj _ _ _ d    => d
 | localE _ _ _ d  => d
 
+def ctorName : Expr → String
+| bvar _ _        => "bvar"
+| fvar _ _        => "fvar"
+| mvar _ _        => "mvar"
+| sort _ _        => "sort"
+| const _ _ _     => "const"
+| app _ _ _       => "app"
+| lam _ _ _ _     => "lam"
+| forallE _ _ _ _ => "forallE"
+| letE _ _ _ _ _  => "letE"
+| lit _ _         => "lit"
+| mdata _ _ _     => "mdata"
+| proj _ _ _ _    => "proj"
+| localE _ _ _ _  => "localE"
+
 def hash (e : Expr) : USize :=
 e.data.hash
 
@@ -305,6 +320,14 @@ Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
   (t.hasLevelMVar || b.hasLevelMVar)
   (t.hasLevelParam || b.hasLevelParam)
   bi
+
+/- Return `Unit -> type` -/
+def mkThunkType (type : Expr) : Expr :=
+mkForall Name.anonymous BinderInfo.default (Lean.mkConst `Unit) type
+
+/- Return `fun (_ : Unit), e` -/
+def mkThunk (type : Expr) : Expr :=
+mkLambda `_ BinderInfo.default (Lean.mkConst `Unit) type
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
 let x := x.eraseMacroScopes;
@@ -427,14 +450,6 @@ def isLit : Expr → Bool
 | lit _ _ => true
 | _       => false
 
-def isNatLit : Expr → Bool
-| lit (Literal.natVal _) _ => true
-| _                        => false
-
-def isStringLit : Expr → Bool
-| lit (Literal.strVal _) _ => true
-| _                        => false
-
 def getAppFn : Expr → Expr
 | app f a _ => getAppFn f
 | e         => e
@@ -511,6 +526,21 @@ def appFn! : Expr → Expr
 def appArg! : Expr → Expr
 | app _ a _ => a
 | _         => panic! "application expected"
+
+def isNatLit : Expr → Bool
+| lit (Literal.natVal _) _ => true
+| _                        => false
+
+def natLit? : Expr → Option Nat
+| lit (Literal.natVal v) _ => v
+| _                        => none
+
+def isStringLit : Expr → Bool
+| lit (Literal.strVal _) _ => true
+| _                        => false
+
+def isCharLit (e : Expr) : Bool :=
+e.isAppOfArity `Char.ofNat 1 && e.appArg!.isNatLit
 
 def constName! : Expr → Name
 | const n _ _ => n
@@ -960,9 +990,9 @@ end Expr
 def mkAnnotation (kind : Name) (e : Expr) : Expr :=
 mkMData (KVMap.empty.insert kind (DataValue.ofBool true)) e
 
-def isAnnotation? (kind : Name) (e : Expr) : Option Expr :=
+def annotation? (kind : Name) (e : Expr) : Option Expr :=
 match e with
-| Expr.mdata d e _ => if d.size == 1 && d.getBool kind false then some e else none
+| Expr.mdata d b _ => if d.size == 1 && d.getBool kind false then some b else none
 | _                => none
 
 end Lean

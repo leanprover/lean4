@@ -48,8 +48,8 @@ lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___main___at_Lean_mkInitAttr___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkThunkType___closed__1;
 lean_object* l___private_Lean_Compiler_InitAttr_2__isUnitType___boxed(lean_object*);
-lean_object* l___private_Lean_Compiler_InitAttr_2__isUnitType___closed__1;
 lean_object* l_Lean_mkInitAttr(lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Std_RBNode_fold___main___at_Lean_mkInitAttr___spec__2(lean_object*, lean_object*);
@@ -203,14 +203,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_InitAttr_2__isUnitType___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
-return x_1;
-}
-}
 uint8_t l___private_Lean_Compiler_InitAttr_2__isUnitType(lean_object* x_1) {
 _start:
 {
@@ -226,7 +218,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l___private_Lean_Compiler_InitAttr_2__isUnitType___closed__1;
+x_5 = l_Lean_mkThunkType___closed__1;
 x_6 = lean_string_dec_eq(x_4, x_5);
 return x_6;
 }
@@ -2160,8 +2152,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1 = _init_l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1();
 lean_mark_persistent(l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1);
-l___private_Lean_Compiler_InitAttr_2__isUnitType___closed__1 = _init_l___private_Lean_Compiler_InitAttr_2__isUnitType___closed__1();
-lean_mark_persistent(l___private_Lean_Compiler_InitAttr_2__isUnitType___closed__1);
 l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkInitAttr___spec__4___closed__1 = _init_l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkInitAttr___spec__4___closed__1();
 lean_mark_persistent(l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkInitAttr___spec__4___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___closed__1();

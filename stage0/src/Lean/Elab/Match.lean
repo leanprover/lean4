@@ -98,8 +98,8 @@ alts.map mkMatchAltView
 def mkInaccessible (e : Expr) : Expr :=
 mkAnnotation `_inaccessible e
 
-def isInaccessible? (e : Expr) : Option Expr :=
-isAnnotation? `_inaccessible e
+def inaccessible? (e : Expr) : Option Expr :=
+annotation? `_inaccessible e
 
 inductive PatternVar
 | localVar     (userName : Name)
@@ -369,7 +369,7 @@ private partial def withPatternVarsAux {α} (pVars : Array PatternVar) (k : Arra
 private def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
 withPatternVarsAux pVars k 0 #[]
 
-private partial def elabPatternsAux (patternStxs : Array Syntax) : Nat → Expr → Array Expr → TermElabM (Array Expr)
+private partial def elabPatternsAux (patternStxs : Array Syntax) : Nat → Expr → Array Expr → TermElabM (Array Expr × Expr)
 | i, matchType, patterns =>
   if h : i < patternStxs.size then do
     matchType ← whnf matchType;
@@ -381,7 +381,7 @@ private partial def elabPatternsAux (patternStxs : Array Syntax) : Nat → Expr 
       elabPatternsAux (i+1) (b.instantiate1 pattern) (patterns.push pattern)
     | _ => throwError "unexpected match type"
   else
-    pure patterns
+    pure (patterns, matchType)
 
 def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (Array LocalDecl) :=
 patternVarDecls.foldlM
@@ -400,21 +400,130 @@ patternVarDecls.foldlM
           pure $ decls.push decl))
   #[]
 
-private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
-patterns ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
-patterns ← patterns.mapM instantiateMVars;
-decls ← finalizePatternDecls patternVarDecls;
-trace `Elab.match fun _ => MessageData.ofArray $ decls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
-trace `Elab.match fun _ => "patterns: " ++ patterns;
-pure patterns
+namespace ToDepElimPattern
 
-def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
+structure State :=
+(found : NameSet := {})
+
+abbrev M := StateT State TermElabM
+
+private def alreadyVisited (fvarId : FVarId) : M Bool := do
+s ← get;
+pure $ s.found.contains fvarId
+
+private def markAsVisited (fvarId : FVarId) : M Unit :=
+modify $ fun s => { s with found := s.found.insert fvarId }
+
+private def throwInvalidPattern {α} (e : Expr) : M α :=
+liftM $ throwError ("invalid pattern " ++ indentExpr e)
+
+private def getFieldsBinderInfoAux (ctorVal : ConstructorVal) : Nat → Expr → Array BinderInfo → Array BinderInfo
+| i, Expr.forallE _ d b c, bis =>
+  if i < ctorVal.nparams then
+    getFieldsBinderInfoAux (i+1) b bis
+  else
+    getFieldsBinderInfoAux (i+1) b (bis.push c.binderInfo)
+| _, _, bis => bis
+
+private def getFieldsBinderInfo (ctorVal : ConstructorVal) : Array BinderInfo :=
+getFieldsBinderInfoAux ctorVal 0 ctorVal.type #[]
+
+partial def main (localDecls : Array LocalDecl) : Expr → M Meta.DepElim.Pattern
+| e =>
+  let isLocalDecl (fvarId : FVarId) : Bool :=
+    localDecls.any fun d => d.fvarId == fvarId;
+  let mkPatternVar (fvarId : FVarId) (e : Expr) : M Meta.DepElim.Pattern := do {
+    condM (alreadyVisited fvarId)
+      (pure $ Meta.DepElim.Pattern.inaccessible e)
+      (do markAsVisited fvarId; pure $ Meta.DepElim.Pattern.var e.fvarId!)
+  };
+  let mkInaccessible (e : Expr) : M Meta.DepElim.Pattern := do {
+    match e with
+    | Expr.fvar fvarId _ =>
+      if isLocalDecl fvarId then
+        mkPatternVar fvarId e
+      else
+        pure $ Meta.DepElim.Pattern.inaccessible e
+    | _ =>
+      pure $ Meta.DepElim.Pattern.inaccessible e
+  };
+  match inaccessible? e with
+  | some t => mkInaccessible t
+  | none   =>
+  match e.arrayLit? with
+  | some (α, lits) => do
+    ps ← lits.mapM main;
+    pure $ Meta.DepElim.Pattern.arrayLit α ps
+  | none =>
+  if e.isAppOfArity `namedPattern 3 then do
+    p ← main $ e.getArg! 2;
+    match e.getArg! 1 with
+    | Expr.fvar fvarId _ => pure $ Meta.DepElim.Pattern.as fvarId p
+    | _                  => liftM $ throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+  else if e.isNatLit || e.isStringLit || e.isCharLit then
+    pure $ Meta.DepElim.Pattern.val e
+  else if e.isFVar then do
+    let fvarId := e.fvarId!;
+    unless (isLocalDecl fvarId) $ throwInvalidPattern e;
+    mkPatternVar fvarId e
+  else do
+    newE ← liftM $ whnf e;
+    if newE != e then
+      main newE
+    else match e.getAppFn with
+      | Expr.const declName us _ => do
+        env ← liftM getEnv;
+        match env.find? declName with
+        | ConstantInfo.ctorInfo v =>  do
+          let args := e.getAppArgs;
+          unless (args.size == v.nparams + v.nfields) $ throwInvalidPattern e;
+          let params := args.extract 0 v.nparams;
+          let fields := args.extract v.nparams args.size;
+          let binderInfos := getFieldsBinderInfo v;
+          fields ← fields.mapIdxM fun i field => do {
+            let binderInfo := binderInfos.get! i;
+            if binderInfo.isExplicit then
+              main field
+            else
+              mkInaccessible field
+          };
+          pure $ Meta.DepElim.Pattern.ctor declName us params.toList fields.toList
+        | _ => throwInvalidPattern e
+      | _ => throwInvalidPattern e
+
+end ToDepElimPattern
+
+def toDepElimPattern (localDecls : Array LocalDecl) (e : Expr) : TermElabM Meta.DepElim.Pattern :=
+(ToDepElimPattern.main localDecls e).run' {}
+
+private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
+(patterns, matchType) ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
+localDecls ← finalizePatternDecls patternVarDecls;
+patterns ← patterns.mapM instantiateMVars;
+patterns.forM $ fun pattern => when pattern.hasExprMVar $ throwError ("pattern contains metavariables " ++ indentExpr pattern);
+patterns ← patterns.mapM $ toDepElimPattern localDecls;
+trace `Elab.match fun _ => "patterns: " ++ MessageData.ofArray (patterns.map fun (p : Meta.DepElim.Pattern) => p.toMessageData);
+pure ({ localDecls := localDecls.toList, patterns := patterns.toList }, matchType)
+
+def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) :=
+withRef alt.ref do
 (patternVars, alt) ← collectPatternVars alt;
-withRef alt.ref $ trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
+trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
-  ps ← withRef alt.ref $ elabPatterns patternVarDecls alt.patterns matchType;
-  -- TODO
-  pure (⟨[], []⟩, arbitrary _)
+  (altLHS, matchType) ← elabPatterns patternVarDecls alt.patterns matchType;
+  rhs ← elabTerm alt.rhs matchType;
+  let xs := altLHS.localDecls.toArray.map LocalDecl.toExpr;
+  rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambda xs rhs;
+  trace `Elab.match fun _ => "rhs: " ++ rhs;
+  pure (altLHS, rhs)
+
+def mkMotiveType (matchType : Expr) (expectedType : Expr) : TermElabM Expr := do
+liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => do
+  u ← Meta.getLevel matchType;
+  Meta.mkForall xs (mkSort u)
+
+def mkElim (elimName : Name) (motiveType : Expr) (lhss : List Meta.DepElim.AltLHS) : TermElabM Meta.DepElim.ElimResult :=
+liftMetaM $ Meta.DepElim.mkElim elimName motiveType lhss
 
 /-
 ```
@@ -432,7 +541,18 @@ matchType ← elabMatchOptType stx discrStxs.size;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
 discrs ← elabDiscrs discrStxs matchType expectedType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
-throwError ("WIP type: " ++ matchType ++ "\n" ++ discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
+let rhss := alts.map Prod.snd;
+let altLHSS := alts.map Prod.fst;
+motiveType ← mkMotiveType matchType expectedType;
+motive ← liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => Meta.mkLambda xs matchType;
+elimName ← mkAuxName `elim;
+elimResult ← mkElim elimName motiveType altLHSS.toList;
+-- TODO: report `eliminator errors`.
+let r := mkApp elimResult.elim motive;
+let r := mkAppN r discrs;
+let r := mkAppN r rhss;
+trace `Elab.match fun _ => "result: " ++ r;
+pure r
 
 /- Auxiliary method for `expandMatchDiscr?` -/
 private partial def mkMatchType (discrs : Array Syntax) : Nat → MacroM Syntax

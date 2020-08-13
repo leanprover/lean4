@@ -65,6 +65,7 @@ lean_object* l_Lean_Parser_Tactic_inductionAlts_parenthesizer___lambda__1___clos
 lean_object* l_Lean_Parser_Tactic_traceState_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_intros___elambda__1___closed__5;
 extern lean_object* l_Lean_nullKind;
+extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l_Lean_Parser_Tactic_nestedTacticBlockCurly___closed__2;
 lean_object* l_Lean_Parser_Tactic_intros___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Tactic_orelse___closed__1;
@@ -527,7 +528,6 @@ lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_Tactic_intros___elamb
 lean_object* l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Tactic_intros___closed__4;
-extern lean_object* l_Lean_Meta_mkAuxName___closed__1;
 lean_object* l_Lean_Parser_Tactic_cases___elambda__1___closed__5;
 lean_object* l_Lean_Parser_sepBy1Info(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_withAlts_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -909,7 +909,7 @@ lean_inc(x_7);
 x_8 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_7);
 lean_dec(x_7);
 x_9 = l_Lean_Parser_ParserState_popSyntax(x_6);
-x_10 = l_Lean_Meta_mkAuxName___closed__1;
+x_10 = l_Lean_mkThunk___closed__1;
 x_11 = l_Lean_mkIdentFrom(x_8, x_10);
 lean_dec(x_8);
 x_12 = l_Lean_Parser_ParserState_pushSyntax(x_9, x_11);

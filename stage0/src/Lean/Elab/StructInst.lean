@@ -486,8 +486,8 @@ pure r
 def markDefaultMissing (e : Expr) : Expr :=
 mkAnnotation `structInstDefault e
 
-def isDefaultMissing? (e : Expr) : Option Expr :=
-isAnnotation? `structInstDefault e
+def defaultMissing? (e : Expr) : Option Expr :=
+annotation? `structInstDefault e
 
 def throwFailedToElabField {α} (fieldName : Name) (structName : Name) (msgData : MessageData) : TermElabM α :=
 throwError ("failed to elaborate field '" ++ fieldName ++ "' of '" ++ structName ++ ", " ++ msgData)
@@ -581,7 +581,7 @@ partial def findDefaultMissing? (mctx : MetavarContext) : Struct → Option (Fie
    | FieldVal.nested struct => findDefaultMissing? struct
    | _ => match field.expr? with
      | none      => unreachable!
-     | some expr => match isDefaultMissing? expr with
+     | some expr => match defaultMissing? expr with
        | some (Expr.mvar mvarId _) => if mctx.isExprAssigned mvarId then none else some field
        | _                         => none
 
@@ -669,7 +669,7 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
       pure (mkAppN f' args)
 | e@(Expr.mdata _ b _) => do
   b ← reduce b;
-  if (isDefaultMissing? e).isSome && !b.isMVar then
+  if (defaultMissing? e).isSome && !b.isMVar then
     pure b
   else
     pure $ e.updateMData! b
@@ -696,7 +696,7 @@ partial def tryToSynthesizeDefaultAux (structs : Array Struct) (allStructNames :
       | none     => do setMCtx mctx; tryToSynthesizeDefaultAux (i+1) (dist+1)
       | some val => do
         val ← liftMetaM $ reduce allStructNames val;
-        match val.find? $ fun e => (isDefaultMissing? e).isSome with
+        match val.find? $ fun e => (defaultMissing? e).isSome with
         | some _ => do setMCtx mctx; tryToSynthesizeDefaultAux (i+1) (dist+1)
         | none   => do
           mvarDecl ← getMVarDecl mvarId;
@@ -718,7 +718,7 @@ partial def step : Struct → M Unit
     | FieldVal.nested struct => step struct
     | _ => match field.expr? with
       | none      => unreachable!
-      | some expr => match isDefaultMissing? expr with
+      | some expr => match defaultMissing? expr with
         | some (Expr.mvar mvarId _) =>
           unlessM (liftM $ isExprMVarAssigned mvarId) $ do
             ctx ← read;

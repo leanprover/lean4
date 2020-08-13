@@ -30,6 +30,7 @@ lean_object* l___private_Lean_Elab_Structure_10__withFields___main___rarg___clos
 lean_object* l___private_Lean_Elab_Structure_23__addCtorFields___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_StructFieldInfo_inhabited;
 lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
 lean_object* l___private_Lean_Elab_Structure_28__mkAuxConstructions___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Elab_Structure_25__elabStructureView___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Command_addDecl(lean_object*, lean_object*, lean_object*);
@@ -122,7 +123,6 @@ extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_8__processSubfields(lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Structure_15__levelMVarToParamFVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
 extern lean_object* l_Lean_Parser_Term_type___elambda__1___closed__5;
 uint8_t l_Lean_Elab_Command_StructFieldInfo_isSubobject(lean_object*);
 lean_object* l_Lean_Elab_Term_getLevel(lean_object*, lean_object*, lean_object*);
@@ -8042,7 +8042,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Lean_Meta_DepElim_getUnusedLevelParam___closed__1;
+x_7 = l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
 lean_inc(x_4);
 x_8 = l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_21__collectLevelParamsInFVars___spec__1(x_1, x_1, x_6, x_7, x_4, x_5);
 if (lean_obj_tag(x_8) == 0)

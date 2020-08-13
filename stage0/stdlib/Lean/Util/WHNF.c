@@ -81,7 +81,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_List_toExprAux___main___at_Lean_WHNF_toCtorIfLit___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_reduceQuotRec___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_unfoldDefinitionAux(lean_object*);
-extern lean_object* l_Lean_charToExpr___lambda__1___closed__5;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_7__deltaDefinition___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
@@ -112,8 +111,8 @@ lean_object* l___private_Lean_Util_WHNF_3__getRecRuleFor___lambda__1___boxed(lea
 extern lean_object* l_Lean_Literal_type___closed__2;
 lean_object* l_Lean_WHNF_isRecStuck_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_5__isIdRhsApp___closed__2;
+extern lean_object* l_Lean_charToExpr___lambda__1___closed__1;
 lean_object* l_Lean_WHNF_toCtorIfLit___closed__9;
-extern lean_object* l_Lean_charToExpr___lambda__1___closed__2;
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_unfoldDefinitionAux___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_1__getFirstCtor___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -182,6 +181,7 @@ lean_object* l_Lean_WHNF_whnfCore___main___rarg___lambda__6___boxed(lean_object*
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_7__deltaDefinition___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_9__whnfCoreUnstuck(lean_object*);
+extern lean_object* l_Lean_Expr_isCharLit___closed__2;
 lean_object* l_Lean_WHNF_whnfMain___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfCore___main(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -628,7 +628,7 @@ x_6 = lean_unbox_uint32(x_4);
 lean_dec(x_4);
 x_7 = lean_uint32_to_nat(x_6);
 x_8 = l_Lean_mkNatLit(x_7);
-x_9 = l_Lean_charToExpr___lambda__1___closed__5;
+x_9 = l_Lean_charToExpr___lambda__1___closed__1;
 x_10 = l_Lean_mkApp(x_9, x_8);
 lean_inc(x_2);
 x_11 = l_Lean_List_toExprAux___main___at_Lean_WHNF_toCtorIfLit___spec__1(x_1, x_2, x_5);
@@ -718,7 +718,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_charToExpr___lambda__1___closed__2;
+x_2 = l_Lean_Expr_isCharLit___closed__2;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

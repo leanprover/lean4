@@ -60,13 +60,13 @@ extern lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3_
 lean_object* l___private_Lean_Elab_Binders_6__matchBinder(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_9__getFunBinderIdsAux_x3f___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabArrow___closed__1;
+extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_18__processNonVariable___closed__1;
 extern lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__2;
 lean_object* l_Lean_Elab_Term_elabFunBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_declareTacticSyntax___closed__2;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_compileDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_11__expandFunBindersAux___main___closed__6;
-extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_19__processNonVariable___closed__1;
 lean_object* l_Lean_Elab_Term_mkLambda(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___lambda__1___closed__5;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -6123,7 +6123,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_19__processNonVariable___closed__1;
+x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_18__processNonVariable___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

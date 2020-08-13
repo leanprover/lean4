@@ -717,7 +717,7 @@ export Array (mkArray)
 | []    => 0
 | _::as => as.redLength + 1
 
-@[inline] def List.toArray {α : Type u} (as : List α) : Array α :=
+@[inline, matchPattern] def List.toArray {α : Type u} (as : List α) : Array α :=
 as.toArrayAux (Array.mkEmpty as.redLength)
 
 namespace Array

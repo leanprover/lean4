@@ -107,6 +107,7 @@ lean_object* l_Lean_Elab_Term_synthesizeAppInstMVars(lean_object*, lean_object*,
 lean_object* l___private_Lean_Elab_App_18__elabAppLValsAux___main___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabId(lean_object*);
 lean_object* l_Lean_Elab_Term_addNamedArg___closed__6;
+extern lean_object* l_Lean_Parser_Term_proj___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_App_13__resolveLValAux___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_21__elabAppFn___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -133,7 +134,6 @@ lean_object* l_Lean_FindMVar_main___main___at___private_Lean_Elab_App_6__hasType
 extern lean_object* l_Lean_mkTermIdFromIdent___closed__2;
 lean_object* l_List_foldlM___main___at___private_Lean_Elab_App_16__mkBaseProjections___spec__1___closed__2;
 extern lean_object* l_Lean_Format_repr___main___closed__13;
-extern lean_object* l_Lean_Parser_Term_proj___elambda__1___closed__2;
 lean_object* l___private_Lean_Elab_App_17__addLValArg___main___closed__3;
 lean_object* l___private_Lean_Elab_App_21__elabAppFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
@@ -18551,7 +18551,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 uint8_t x_14; uint8_t x_329; lean_object* x_437; uint8_t x_438; 
-x_437 = l_Lean_Parser_Term_proj___elambda__1___closed__2;
+x_437 = l_Lean_Parser_Term_proj___elambda__1___closed__1;
 lean_inc(x_1);
 x_438 = l_Lean_Syntax_isOfKind(x_1, x_437);
 if (x_438 == 0)
@@ -22071,7 +22071,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_termElabAttribute;
-x_3 = l_Lean_Parser_Term_proj___elambda__1___closed__2;
+x_3 = l_Lean_Parser_Term_proj___elambda__1___closed__1;
 x_4 = l___regBuiltin_Lean_Elab_Term_elabProj___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

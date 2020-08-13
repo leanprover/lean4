@@ -496,21 +496,22 @@ end ToDepElimPattern
 def toDepElimPattern (localDecls : Array LocalDecl) (e : Expr) : TermElabM Meta.DepElim.Pattern :=
 (ToDepElimPattern.main localDecls e).run' {}
 
-private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Meta.DepElim.Pattern) := do
+private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM Meta.DepElim.AltLHS := do
 patterns ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
-decls ← finalizePatternDecls patternVarDecls;
+localDecls ← finalizePatternDecls patternVarDecls;
 patterns ← patterns.mapM instantiateMVars;
-trace `Elab.match fun _ => MessageData.ofArray $ decls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
--- TODO: check whether patterns contains metavariables
-patterns ← patterns.mapM $ toDepElimPattern decls;
+trace `Elab.match fun _ => MessageData.ofArray $ localDecls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
+patterns.forM $ fun pattern => when pattern.hasExprMVar $ throwError ("pattern contains metavariables " ++ indentExpr pattern);
+patterns ← patterns.mapM $ toDepElimPattern localDecls;
 trace `Elab.match fun _ => "patterns: " ++ MessageData.ofArray (patterns.map fun (p : Meta.DepElim.Pattern) => p.toMessageData);
-pure patterns
+pure { localDecls := localDecls.toList, patterns := patterns.toList }
 
-def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
+def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) :=
+withRef alt.ref do
 (patternVars, alt) ← collectPatternVars alt;
-withRef alt.ref $ trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
+trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
-  ps ← withRef alt.ref $ elabPatterns patternVarDecls alt.patterns matchType;
+  ps ← elabPatterns patternVarDecls alt.patterns matchType;
   -- TODO
   pure (⟨[], []⟩, arbitrary _)
 

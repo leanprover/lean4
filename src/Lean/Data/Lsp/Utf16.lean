@@ -7,6 +7,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 import Init.Data.String
 import Init.Data.Array
 import Lean.Data.Lsp.Basic
+import Lean.Data.Position
 
 /-! LSP uses UTF-16 for indexing, so we need to provide some primitives
 to interact with Lean strings using UTF-16 indices. -/
@@ -20,93 +21,63 @@ end Char
 
 namespace String
 
-/-- LSP is EOL agnostic, so we first split on "\r\n" to avoid possibly redundant line breaks. -/
-def splitOnEOLs (s : String) : List String := do
-line ← s.splitOn "\r\n";
-line ← line.splitOn "\n";
-line ← line.splitOn "\r";
-pure line
-
 private def csize (c : Char) : Nat :=
 c.utf16Size.toNat
-
-private def codepointPosToUtf16PosAux (s : String) : Nat → Pos → Nat → Nat
-| 0,    utf8pos, utf16pos => utf16pos
-| cp+1, utf8pos, utf16pos => codepointPosToUtf16PosAux cp (s.next utf8pos) (utf16pos + csize (s.get utf8pos))
-
-def codepointPosToUtf16Pos (s : String) (pos : Nat) : Nat :=
-codepointPosToUtf16PosAux s pos 0 0
-
-private partial def utf16PosToCodepointPosAux (s : String) : Nat → Pos → Nat → Nat
-| 0,        utf8pos, cp => cp
-| utf16pos, utf8pos, cp => utf16PosToCodepointPosAux (utf16pos - csize (s.get utf8pos)) (s.next utf8pos) (cp + 1)
-
-def utf16PosToCodepointPos (s : String) (pos : Nat) : Nat :=
-utf16PosToCodepointPosAux s pos 0 0
 
 def utf16Length (s : String) : Nat :=
 s.foldr (fun c acc => csize c + acc) 0
 
-/-- Delete text until endIdx. -/
-private def utf16ReplaceAux₀ : List Char → Nat → Nat → List Char
-| [],       i, endIdx => [] -- no more text to delete
-| (c :: s), i, endIdx =>
-  if i ≥ endIdx then
-    c :: s
-  else
-    utf16ReplaceAux₀ s (i + csize c) endIdx
+private def codepointPosToUtf16PosFromAux (s : String) : Nat → Pos → Nat → Nat
+| 0,    utf8pos, utf16pos => utf16pos
+| cp+1, utf8pos, utf16pos => codepointPosToUtf16PosFromAux cp (s.next utf8pos) (utf16pos + csize (s.get utf8pos))
 
-private def utf16ReplaceAux₁ : List Char → List Char → Nat → Nat → List Char
-| [],     n :: new, i, endIdx => n :: new
-| s,      [],       i, endIdx => utf16ReplaceAux₀ s i endIdx
-| c :: s, n :: new, i, endIdx =>
-  if i ≥ endIdx then
-    n :: new ++ c :: s -- range ended, insert rest of the text
-  else
-    n :: utf16ReplaceAux₁ s new (i + csize c) endIdx
+/-- Computes the UTF-16 offset of the `n`-th Unicode codepoint
+in the substring of `s` starting at UTF-8 offset `off`.
+Yes, this is actually useful.-/
+def codepointPosToUtf16PosFrom (s : String) (n : Nat) (off : Pos) : Nat :=
+codepointPosToUtf16PosFromAux s n off 0
 
-private def utf16ReplaceAux₂ : List Char → List Char → Nat → Nat → Nat → List Char
-| [],     [],       i, startIdx, endIdx => []
-| [],     n :: new, i, startIdx, endIdx => n :: new
-| c :: s, new,      i, startIdx, endIdx =>
-  if i ≥ startIdx then
-    utf16ReplaceAux₁ (c :: s) new i endIdx
-  else
-    c :: utf16ReplaceAux₂ s new (i + csize c) startIdx endIdx
+def codepointPosToUtf16Pos (s : String) (pos : Nat) : Nat :=
+codepointPosToUtf16PosFrom s pos 0
 
-def utf16Replace (s new : String) (a b : Nat) : String :=
-⟨utf16ReplaceAux₂ s.data new.data 0 a b⟩
+private partial def utf16PosToCodepointPosFromAux (s : String) : Nat → Pos → Nat → Nat
+| 0,        utf8pos, cp => cp
+| utf16pos, utf8pos, cp => utf16PosToCodepointPosFromAux (utf16pos - csize (s.get utf8pos)) (s.next utf8pos) (cp + 1)
+
+/-- Computes the position of the Unicode codepoint at UTF-16 offset
+`utf16pos` in the substring of `s` starting at UTF-8 offset `off`. -/
+def utf16PosToCodepointPosFrom (s : String) (utf16pos : Nat) (off : Pos) : Nat :=
+utf16PosToCodepointPosFromAux s utf16pos off 0
+
+def utf16PosToCodepointPos (s : String) (pos : Nat) : Nat :=
+utf16PosToCodepointPosFrom s pos 0
+
+/-- Starting at `utf8pos`, finds the UTF-8 offset of the `p`-th codepoint. -/
+def codepointPosToUtf8PosFrom (s : String) : String.Pos → Nat → String.Pos
+| utf8pos, 0 => utf8pos
+| utf8pos, p+1 => codepointPosToUtf8PosFrom (s.next utf8pos) p
 
 end String
 
-namespace Array
-
-def insertAll {α} (as : Array α) (i : Nat) (as' : Array α) : Array α :=
-as'.foldr (fun a' acc => acc.insertAt i a') as
-
-def eraseAll {α} (as : Array α) (i n : Nat) : Array α :=
-n.repeat (fun acc => acc.eraseIdx i) as
-
-end Array
-
 namespace Lean
-namespace Lsp
+namespace FileMap
 
-def replaceRange (text : DocumentText) (r : Range) (newText : String) : DocumentText :=
-let sl := r.start.line;
-let si := r.start.character;
-let el := r.«end».line;
-let ei := r.«end».character;
-let focused := text.extract sl (el+1);
-let lastFocusedLine := focused.size - 1;
-let endIdx := focused.iterateRev 0 $ fun lineIdx line endIdxAcc =>
-  if lineIdx.val ≠ lastFocusedLine then
-    endIdxAcc + line.utf16Length + 1 -- +1 to account for '\n' after intercalating `focused`
-  else
-    endIdxAcc + ei;
-let focused := "\n".intercalate focused.toList;
-let replaced := (focused.utf16Replace newText si endIdx).splitOnEOLs.toArray;
-(text.eraseAll sl (el - sl + 1)).insertAll sl replaced
+/-- Computes an UTF-8 offset into `text.source`
+from an LSP-style 0-indexed (ln, col) position. -/
+def lspPosToUtf8Pos (text : FileMap) (pos : Lsp.Position) : String.Pos :=
+let colPos := text.positions.get! (pos.line);
+let chr := text.source.utf16PosToCodepointPosFrom pos.character colPos;
+text.source.codepointPosToUtf8PosFrom colPos chr
 
-end Lsp
+def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
+| ⟨ln, col⟩ => ⟨ln-1, text.source.codepointPosToUtf16PosFrom col (text.positions.get! $ ln - 1)⟩
+
+def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
+let start := text.lspPosToUtf8Pos r.start;
+let «end» := text.lspPosToUtf8Pos r.«end»;
+let pre := text.source.extract 0 start;
+let post := text.source.extract «end» text.source.bsize;
+(pre ++ newText ++ post).toFileMap
+
+end FileMap
 end Lean

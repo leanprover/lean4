@@ -19,14 +19,13 @@ open Json
 
 abbrev DocumentUri := String
 
-/-- An array of the lines in a text document.
-Elements mustn't contain newline characters. -/
-def DocumentText := Array String
-
-/-- Can represent both a UTF-16 position - this is what LSP clients send -
-and a codepoint position - what we use internally.
+/-- We adopt the convention that zero-based UTF-16 positions as sent by LSP clients
+are represented by `Lsp.Position` while internally we mostly use `String.Pos` UTF-8
+offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 `character` is accepted liberally: actual character := min(line length, character) -/
 structure Position := (line : Nat) (character : Nat)
+
+instance Position.inhabited : Inhabited Position := ⟨⟨0, 0⟩⟩
 
 instance Position.hasFromJson : HasFromJson Position :=
 ⟨fun j => do
@@ -41,28 +40,6 @@ instance Position.hasToJson : HasToJson Position :=
 
 instance Position.hasToString : HasToString Position :=
 ⟨fun p => "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
-
-namespace DocumentText
-
-/-- Computes a linear position in `("\n".intercalate text.toList)`
-from an LSP-style 0-indexed (ln, col) position. -/
-def lnColToLinearPos (text : DocumentText) (pos : Position) : String.Pos :=
-text.foldrRange 0 pos.line (fun ln acc => acc + ln.length + 1) pos.character
-
-/-- The inverse of lnColToLinearPos.
-The inverse relationship only holds if called on the same `text`
-and a valid position. -/
-def linearPosToLnCol (text : DocumentText) (pos : String.Pos) : Position :=
-let ⟨_, outPos⟩ : String.Pos × Position :=
-  text.foldl
-    (fun ⟨chrsLeft, p⟩ ln =>
-      if chrsLeft = 0 then ⟨0, p⟩
-      else if ln.length ≥ chrsLeft then (0, { p with character := chrsLeft })
-      else (chrsLeft - ln.length - 1, { p with line := p.line + 1 }))
-    (pos, ⟨0, 0⟩);
-  outPos
-
-end DocumentText
 
 structure Range := (start : Position) («end» : Position)
 

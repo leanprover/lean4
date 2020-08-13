@@ -12,6 +12,8 @@ universes u
 structure String :=
 (data : List Char)
 
+/-- A character position in an UTF-8 encoded string.
+To represent codepoint positions, use a plain `Nat`. -/
 abbrev String.Pos := Nat
 
 structure Substring :=

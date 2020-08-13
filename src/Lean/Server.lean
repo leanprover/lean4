@@ -17,35 +17,34 @@ namespace Server
 
 open Lsp
 
-namespace Editable
-
-open Elab
-
 /-- A document editable in the sense that we track the environment
 and parser state after each command so that edits can be applied
 without recompiling code appearing earlier in the file. -/
 structure EditableDocument :=
 (version : Nat)
-(text : DocumentText)
+(text : FileMap)
 /- The first snapshot is that after the header. -/
 (header : Snapshots.Snapshot)
 /- Subsequent snapshots occur after each command. -/
 -- TODO(WN): These should probably be asynchronous Tasks
 (snapshots : List Snapshots.Snapshot)
 
+namespace EditableDocument
+
+open Elab
+
 /-- Compiles the contents of a Lean file. -/
-def compileDocument (version : Nat) (text : DocumentText)
+def compileDocument (version : Nat) (text : FileMap)
   : IO (MessageLog × EditableDocument) := do
-let contents := "\n".intercalate text.toList;
-headerSnap ← Snapshots.compileHeader contents;
-(cmdSnaps, msgLog) ← Snapshots.compileCmdsAfter contents headerSnap;
+headerSnap ← Snapshots.compileHeader text.source;
+(cmdSnaps, msgLog) ← Snapshots.compileCmdsAfter text.source headerSnap;
 let docOut : EditableDocument := ⟨version, text, headerSnap, cmdSnaps⟩;
 pure (msgLog, docOut)
 
-def updateDocument (doc : EditableDocument) (changePos : Lsp.Position) (newVersion : Nat)
-  (newText : DocumentText) : IO (MessageLog × EditableDocument) := do
-let newContents := "\n".intercalate newText.toList;
-let changePos := doc.text.lnColToLinearPos changePos;
+/-- Given `changePos`, the UTF-8 offset of a change into the pre-change source,
+and the new document, updates editable doc state. -/
+def updateDocument (doc : EditableDocument) (changePos : String.Pos) (newVersion : Nat)
+  (newText : FileMap) : IO (MessageLog × EditableDocument) := do
 let recompileEverything := (do
   -- TODO free compacted regions
   compileDocument newVersion newText);
@@ -63,16 +62,16 @@ match doc.snapshots.head? with
     let validSnaps := doc.snapshots.filter (fun snap => snap.endPos < changePos);
     -- The lowest-in-the-file snapshot which is still valid.
     let lastSnap := validSnaps.getLastD doc.header;
-    (snaps, msgLog) ← Snapshots.compileCmdsAfter newContents lastSnap;
+    (snaps, msgLog) ← Snapshots.compileCmdsAfter newText.source lastSnap;
     let newDoc := { version := newVersion,
                     header := doc.header,
                     text := newText,
                     snapshots := validSnaps ++ snaps : EditableDocument };
     pure (msgLog, newDoc)
 
-end Editable
+end EditableDocument
 
-open Editable
+open EditableDocument
 
 open IO
 open Std (RBMap RBMap.empty)
@@ -88,11 +87,9 @@ structure ServerContext :=
 
 abbrev ServerM := ReaderT ServerContext IO
 
-def getOpenDocuments : ServerM DocumentMap :=
-fun st => st.openDocumentsRef.get
-
-def findOpenDocument (key : DocumentUri) : ServerM EditableDocument := do
-openDocuments ← getOpenDocuments;
+def findOpenDocument (key : DocumentUri) : ServerM EditableDocument :=
+fun st => do
+openDocuments ← st.openDocumentsRef.get;
 match openDocuments.find? key with
 | some doc => pure doc
 | none     => throw (userError $ "got unknown document URI (" ++ key ++ ")")
@@ -133,10 +130,13 @@ writeLspNotification "textDocument/publishDiagnostics"
 
 def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit := do
 let doc := p.textDocument;
--- The text being split here is going to be immediately
--- intercalated with '\n' but this is useful to get rid of
--- CRLFs.
-let text := doc.text.splitOnEOLs.toArray;
+-- LSP is EOL agnostic, so we first split on "\r\n" to avoid possibly redundant line breaks.
+let splitOnEOLs (s : String) : List String := (do
+  line ← s.splitOn "\r\n";
+  line ← line.splitOn "\n";
+  line ← line.splitOn "\r";
+  pure line);
+let text := ("\n".intercalate $ splitOnEOLs doc.text).toFileMap;
 (msgLog, newDoc) ← monadLift $ compileDocument doc.version text;
 updateOpenDocuments doc.uri newDoc;
 sendDiagnostics doc.uri newDoc msgLog
@@ -151,12 +151,10 @@ if newVersion <= oldDoc.version then do
 else changes.forM $ fun change =>
   match change with
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) => do
-    let newDocText := replaceRange oldDoc.text range newText;
-    let start := range.start;
-    let startCodepoint := { start with character :=
-      (newDocText.get! start.line).utf16PosToCodepointPos start.character };
+    let startOff := oldDoc.text.lspPosToUtf8Pos range.start;
+    let newDocText := oldDoc.text.replaceLspRange range newText;
     (msgLog, newDoc) ← monadLift $
-      updateDocument oldDoc startCodepoint newVersion newDocText;
+      updateDocument oldDoc startOff newVersion newDocText;
     updateOpenDocuments docId.uri newDoc;
     -- Clients don't have to clear diagnostics, so we clear them
     -- for the *previous* version here.

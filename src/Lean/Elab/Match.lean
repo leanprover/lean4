@@ -400,12 +400,93 @@ patternVarDecls.foldlM
           pure $ decls.push decl))
   #[]
 
-private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr) := do
+namespace ToDepElimPattern
+
+structure State :=
+(found : NameSet := {})
+
+abbrev M := StateT State TermElabM
+
+private def alreadyVisited (fvarId : FVarId) : M Bool := do
+s ← get;
+pure $ s.found.contains fvarId
+
+private def markAsVisited (fvarId : FVarId) : M Unit :=
+modify $ fun s => { s with found := s.found.insert fvarId }
+
+private def throwInvalidPattern {α} (e : Expr) : M α :=
+liftM $ throwError ("invalid pattern " ++ indentExpr e)
+
+partial def main (localDecls : Array LocalDecl) : Expr → M Meta.DepElim.Pattern
+| e =>
+  let isLocalDecl (fvarId : FVarId) : Bool :=
+    localDecls.any fun d => d.fvarId == fvarId;
+  let mkPatternVar (fvarId : FVarId) (e : Expr) : M Meta.DepElim.Pattern := do {
+    condM (alreadyVisited fvarId)
+      (pure $ Meta.DepElim.Pattern.inaccessible e)
+      (do markAsVisited fvarId; pure $ Meta.DepElim.Pattern.var e.fvarId!)
+  };
+  let mkInaccessible (e : Expr) : M Meta.DepElim.Pattern := do {
+    match e with
+    | Expr.fvar fvarId _ =>
+      if isLocalDecl fvarId then
+        mkPatternVar fvarId e
+      else
+        pure $ Meta.DepElim.Pattern.inaccessible e
+    | _ =>
+      pure $ Meta.DepElim.Pattern.inaccessible e
+  };
+  match inaccessible? e with
+  | some t => mkInaccessible t
+  | none   =>
+  match e.arrayLit? with
+  | some (α, lits) => do
+    ps ← lits.mapM main;
+    pure $ Meta.DepElim.Pattern.arrayLit α ps
+  | none =>
+  if e.isAppOfArity `namedPattern 3 then do
+    p ← main $ e.getArg! 2;
+    match e.getArg! 1 with
+    | Expr.fvar fvarId _ => pure $ Meta.DepElim.Pattern.as fvarId p
+    | _                  => liftM $ throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+  else if e.isNatLit || e.isStringLit || e.isCharLit then
+    pure $ Meta.DepElim.Pattern.val e
+  else if e.isFVar then do
+    let fvarId := e.fvarId!;
+    unless (isLocalDecl fvarId) $ throwInvalidPattern e;
+    mkPatternVar fvarId e
+  else do
+    newE ← liftM $ whnf e;
+    if newE != e then
+      main newE
+    else match e.getAppFn with
+      | Expr.const declName us _ => do
+        env ← liftM getEnv;
+        match env.find? declName with
+        | ConstantInfo.ctorInfo v =>  do
+          let args := e.getAppArgs;
+          unless (args.size == v.nparams + v.nfields) $ throwInvalidPattern e;
+          let params := args.extract 0 v.nparams;
+          let fields := args.extract v.nparams args.size;
+          -- TODO: use inaccessible at implicit fields
+          fields ← fields.mapM main;
+          pure $ Meta.DepElim.Pattern.ctor declName us params.toList fields.toList
+        | _ => throwInvalidPattern e
+      | _ => throwInvalidPattern e
+
+end ToDepElimPattern
+
+def toDepElimPattern (localDecls : Array LocalDecl) (e : Expr) : TermElabM Meta.DepElim.Pattern :=
+(ToDepElimPattern.main localDecls e).run' {}
+
+private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Meta.DepElim.Pattern) := do
 patterns ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
-patterns ← patterns.mapM instantiateMVars;
 decls ← finalizePatternDecls patternVarDecls;
+patterns ← patterns.mapM instantiateMVars;
 trace `Elab.match fun _ => MessageData.ofArray $ decls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
-trace `Elab.match fun _ => "patterns: " ++ patterns;
+-- TODO: check whether patterns contains metavariables
+patterns ← patterns.mapM $ toDepElimPattern decls;
+trace `Elab.match fun _ => "patterns: " ++ MessageData.ofArray (patterns.map fun (p : Meta.DepElim.Pattern) => p.toMessageData);
 pure patterns
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do

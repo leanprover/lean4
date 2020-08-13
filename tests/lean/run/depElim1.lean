@@ -45,16 +45,16 @@ match e with
 partial def mkPattern : Expr → MetaM Pattern
 | e =>
   if e.isAppOfArity `val 2 then
-    pure $ Pattern.val Syntax.missing e.appArg!
+    pure $ Pattern.val e.appArg!
   else if e.isAppOfArity `inaccessible 2 then
-    pure $ Pattern.inaccessible Syntax.missing e.appArg!
+    pure $ Pattern.inaccessible e.appArg!
   else if e.isFVar then
-    pure $ Pattern.var Syntax.missing e.fvarId!
+    pure $ Pattern.var e.fvarId!
   else if e.isAppOfArity `As 3 && (e.getArg! 1).isFVar then do
     let v := e.getArg! 1;
     let p := e.getArg! 2;
     p ← mkPattern p;
-    pure $ Pattern.as Syntax.missing v.fvarId! p
+    pure $ Pattern.as v.fvarId! p
   else if e.isAppOfArity `ArrayLit0 1 ||
           e.isAppOfArity `ArrayLit1 2 ||
           e.isAppOfArity `ArrayLit2 3 ||
@@ -64,14 +64,14 @@ partial def mkPattern : Expr → MetaM Pattern
     let type := args.get! 0;
     let ps   := args.extract 1 args.size;
     ps ← ps.toList.mapM mkPattern;
-    pure $ Pattern.arrayLit Syntax.missing type ps
+    pure $ Pattern.arrayLit type ps
   else match e.arrayLit? with
     | some es => do
       pats ← es.mapM mkPattern;
       type ← inferType e;
       type ← whnfD type;
       let elemType := type.appArg!;
-      pure $ Pattern.arrayLit Syntax.missing elemType pats
+      pure $ Pattern.arrayLit elemType pats
     | none => do
       e ← whnfD e;
       r? ← constructorApp? e;
@@ -81,7 +81,7 @@ partial def mkPattern : Expr → MetaM Pattern
         let params := args.extract 0 cval.nparams;
         let fields := args.extract cval.nparams args.size;
         pats ← fields.toList.mapM mkPattern;
-        pure $ Pattern.ctor Syntax.missing cval.name fn.constLevels! params.toList pats
+        pure $ Pattern.ctor cval.name fn.constLevels! params.toList pats
 
 partial def decodePats : Expr → MetaM (List Pattern)
 | e =>

@@ -66,7 +66,7 @@ partial def mkPattern : Expr → MetaM Pattern
     ps ← ps.toList.mapM mkPattern;
     pure $ Pattern.arrayLit type ps
   else match e.arrayLit? with
-    | some es => do
+    | some (_, es) => do
       pats ← es.mapM mkPattern;
       type ← inferType e;
       type ← whnfD type;
@@ -99,7 +99,7 @@ partial def decodeAltLHS (e : Expr) : MetaM AltLHS :=
 forallTelescopeReducing e fun args body => do
   decls ← args.toList.mapM (fun arg => getLocalDecl arg.fvarId!);
   pats  ← decodePats body;
-  pure { fvarDecls := decls, patterns := pats }
+  pure { localDecls := decls, patterns := pats }
 
 partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
 | e =>

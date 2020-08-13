@@ -72,7 +72,7 @@ node).
 
 import Lean.Meta
 import Lean.KeyedDeclsAttribute
-import Lean.Parser.Parser
+import Lean.Parser.Basic
 import Lean.ParserCompiler
 
 namespace Lean

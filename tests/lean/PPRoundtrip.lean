@@ -12,16 +12,16 @@ table ← Parser.builtinTokenTable.get;
 discard $ liftM $ MetaHasEval.eval env opts do
   stx ← stx;
   e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
-  stx' ← liftMetaM stx $ delab e optionsPerPos;
-  stx' ← liftMetaM stx' $ PrettyPrinter.parenthesizeTerm stx';
-  f' ← liftMetaM stx' $ PrettyPrinter.formatTerm table stx';
+  stx' ← liftMetaM $ delab e optionsPerPos;
+  stx' ← liftMetaM $ PrettyPrinter.parenthesizeTerm stx';
+  f' ← liftMetaM $ PrettyPrinter.formatTerm table stx';
   dbgTrace $ toString f';
   match Parser.runParserCategory env `term (toString f') "<input>" with
-  | Except.error e => throwError stx e
+  | Except.error e => throwErrorAt stx e
   | Except.ok stx'' => do
     e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
-    unlessM (isDefEq stx e e') $
-      throwError stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
+    unlessM (isDefEq e e') $
+      throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
 -- set_option trace.PrettyPrinter.parenthesize true
 

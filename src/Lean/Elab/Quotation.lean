@@ -89,7 +89,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
 | stx@(Syntax.node k _) =>
   if isAntiquot stx && !isEscapedAntiquot stx then
     -- splices must occur in a `many` node
-    if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
+    if isAntiquotSplice stx then throwErrorAt stx "unexpected antiquotation splice"
     else pure $ getAntiquotTerm stx
   else do
     empty ← `(Array.empty);
@@ -195,9 +195,9 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     let kind := if k == Name.anonymous then none else k;
     let anti := getAntiquotTerm quoted;
     -- Splices should only appear inside a nullKind node, see next case
-    if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
+    if isAntiquotSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
-    else unconditional $ fun _ => throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
+    else unconditional $ fun _ => throwErrorAt anti ("match_syntax: antiquotation must be variable " ++ toString anti)
   else if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
     -- quotation is a single antiquotation splice => bind args array
     let anti := getAntiquotTerm (quoted.getArg 0);
@@ -209,7 +209,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     let argPats := quoted.getArgs.map $ fun arg => Syntax.node `Lean.Parser.Term.stxQuot #[mkAtom "`(", arg, mkAtom ")"];
     { kind := quoted.getKind, argPats := argPats }
 else
-  unconditional $ fun _ => throwError pat ("match_syntax: unexpected pattern kind " ++ toString pat)
+  unconditional $ fun _ => throwErrorAt pat ("match_syntax: unexpected pattern kind " ++ toString pat)
 
 -- Assuming that the first pattern of the alternative is taken, replace it with patterns (if any) for its
 -- child nodes.
@@ -224,9 +224,9 @@ private def explodeHeadPat (numArgs : Nat) : HeadInfo × Alt → TermElabM Alt
     pure (newPats ++ pats, rhs)
 | _ => unreachable!
 
-private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt → TermElabM Syntax
+private partial def compileStxMatch : List Syntax → List Alt → TermElabM Syntax
 | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
-| _,             []           => throwError ref "non-exhaustive 'match_syntax'"
+| _,             []           => throwError "non-exhaustive 'match_syntax'"
 | discr::discrs, alts         => do
   let alts := (alts.map getHeadInfo).zip alts;
   -- Choose a most specific pattern, ie. a minimal element according to `generalizes`.
@@ -299,16 +299,16 @@ let alts := stx.getArg 4;
 alts ← alts.getArgs.getSepElems.mapM $ fun alt => do {
   let pats := alt.getArg 0;
   pat ← if pats.getArgs.size == 1 then pure $ pats.getArg 0
-    else throwError stx "match_syntax: expected exactly one pattern per alternative";
+    else throwError "match_syntax: expected exactly one pattern per alternative";
   let pat := if pat.isOfKind `Lean.Parser.Term.stxQuot then pat.setArg 1 $ elimAntiquotChoices $ pat.getArg 1 else pat;
   match pat.find? $ fun stx => stx.getKind == choiceKind with
-  | some choiceStx => throwError choiceStx "invalid pattern, nested syntax has multiple interpretations"
+  | some choiceStx => throwErrorAt choiceStx "invalid pattern, nested syntax has multiple interpretations"
   | none           =>
     let rhs := alt.getArg 2;
     pure ([pat], rhs)
 };
 -- letBindRhss (compileStxMatch stx [discr]) alts.toList []
-compileStxMatch stx [discr] alts.toList
+compileStxMatch [discr] alts.toList
 
 @[builtinTermElab «match_syntax»] def elabMatchSyntax : TermElab :=
 adaptExpander match_syntax.expand
@@ -317,13 +317,13 @@ adaptExpander match_syntax.expand
 private def exprPlaceholder := mkMVar Name.anonymous
 
 private unsafe partial def toPreterm : Syntax → TermElabM Expr
-| stx =>
+| stx => withRef stx $
   let args := stx.getArgs;
   match stx.getKind with
   | `Lean.Parser.Term.id =>
     match args.get! 0 with
     | Syntax.ident _ _ val preresolved => do
-      resolved ← resolveName stx val preresolved [];
+      resolved ← resolveName val preresolved [];
       match resolved with
       | (pre,projs)::_ =>
         let pre := match pre with
@@ -390,7 +390,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
   | `Lean.Parser.Term.str => pure $ mkStrLit $ (stx.getArg 0).isStrLit?.getD ""
   | `Lean.Parser.Term.num => pure $ mkNatLit $ (stx.getArg 0).isNatLit?.getD 0
   | `expr => pure $ unsafeCast $ stx.getArg 0  -- HACK: see below
-  | k => throwError stx $ "stxQuot: unimplemented kind " ++ toString k
+  | k => throwError $ "stxQuot: unimplemented kind " ++ toString k
 
 @[export lean_parse_expr]
 def oldParseExpr (env : Environment) (input : String) (pos : String.Pos) : Except String (Syntax × String.Pos) := do
@@ -437,7 +437,7 @@ let alts := alts.map $ fun alt =>
   let pats := alt.1.map elimAntiquotChoices;
   (pats, Syntax.node `expr #[alt.2]);
 -- letBindRhss (compileStxMatch Syntax.missing [discr]) alts []
-stx ← compileStxMatch Syntax.missing [discr] alts;
+stx ← compileStxMatch [discr] alts;
 toPreterm stx
 
 end Quotation

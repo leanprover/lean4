@@ -87,13 +87,13 @@ withDeclId declId $ fun name => do
   decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
-    type ← Term.instantiateMVars typeStx type;
-    type ← Term.mkForall typeStx xs type;
-    (type, _) ← Term.mkForallUsedOnly typeStx vars type;
+    type ← Term.instantiateMVars type;
+    type ← Term.mkForall xs type;
+    (type, _) ← Term.mkForallUsedOnly vars type;
     (type, _) ← Term.levelMVarToParam type;
     let usedParams  := (collectLevelParams {} type).params;
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
-    | Except.error msg      => Term.throwError stx msg
+    | Except.error msg      => Term.throwErrorAt stx msg
     | Except.ok levelParams =>
       pure $ Declaration.axiomDecl {
         name     := declName,
@@ -102,7 +102,7 @@ withDeclId declId $ fun name => do
         isUnsafe := modifiers.isUnsafe
       }
     };
-  addDecl stx decl;
+  addDecl decl;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 

@@ -31,8 +31,8 @@ let mvarId' := mvar'.mvarId!;
 (_, mvarId') ← Meta.introN mvarId' 2 [] false;
 pure [mvarId']
 
-private def evalGeneralizeWithEq (ref : Syntax) (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
-liftMetaTactic ref $ fun mvarId => do
+private def evalGeneralizeWithEq (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
+liftMetaTactic $ fun mvarId => do
   mvarId      ← Meta.generalize mvarId e x;
   mvarDecl    ← Meta.getMVarDecl mvarId;
   match mvarDecl.type with
@@ -46,8 +46,8 @@ liftMetaTactic ref $ fun mvarId => do
   | _ => throw $ Meta.Exception.other Syntax.missing "unexpected type after generalize"
 
 -- If generalizing fails, fall back to not replacing anything
-private def evalGeneralizeFallback (ref : Syntax) (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
-liftMetaTactic ref $ fun mvarId => do
+private def evalGeneralizeFallback (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
+liftMetaTactic $ fun mvarId => do
   eType       ← Meta.inferType e;
   u           ← Meta.getLevel eType;
   mvarType    ← Meta.getMVarType mvarId;
@@ -55,21 +55,21 @@ liftMetaTactic ref $ fun mvarId => do
   let target := Lean.mkForall x BinderInfo.default eType $ Lean.mkForall h BinderInfo.default eq mvarType;
   evalGeneralizeFinalize mvarId e target
 
-def evalGeneralizeAux (ref : Syntax) (h? : Option Name) (e : Expr) (x : Name) : TacticM Unit :=
+def evalGeneralizeAux (h? : Option Name) (e : Expr) (x : Name) : TacticM Unit :=
 match h? with
-| none   => liftMetaTactic ref $ fun mvarId => do
+| none   => liftMetaTactic $ fun mvarId => do
   mvarId ← Meta.generalize mvarId e x;
   (_, mvarId) ← Meta.intro1 mvarId false;
   pure [mvarId]
 | some h =>
-  evalGeneralizeWithEq ref h e x <|> evalGeneralizeFallback ref h e x
+  evalGeneralizeWithEq h e x <|> evalGeneralizeFallback h e x
 
 @[builtinTactic «generalize»] def evalGeneralize : Tactic :=
 fun stx => do
   let h? := getAuxHypothesisName stx;
   let x  := getVarName stx;
   e ← elabTerm (stx.getArg 2) none;
-  evalGeneralizeAux stx h? e x
+  evalGeneralizeAux h? e x
 
 end Tactic
 end Elab

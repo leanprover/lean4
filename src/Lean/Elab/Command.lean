@@ -500,7 +500,7 @@ fun stx => do
   withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
     e    ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
-    type ← Term.inferType stx e;
+    type ← Term.inferType e;
     logInfo stx (e ++ " : " ++ type);
     pure ()
 
@@ -531,8 +531,8 @@ when succeeded $
 @[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab :=
 fun stx => failIfSucceeds stx $ elabCheck stx
 
-def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.addDecl ref decl
-def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.compileDecl ref decl
+def addDecl (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.addDecl decl
+def compileDecl (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.compileDecl decl
 
 def addInstance (ref : Syntax) (declName : Name) : CommandElabM Unit := do
 env ← getEnv;
@@ -547,26 +547,26 @@ fun stx => withoutModifyingEnv do
   ctx ← read;
   env ← getEnv;
   let addAndCompile (value : Expr) : TermElabM Unit := do {
-    type ← Term.inferType ref value;
+    type ← Term.inferType value;
     let decl := Declaration.defnDecl { name := n, lparams := [], type := type,
       value := value, hints := ReducibilityHints.opaque, isUnsafe := true };
-    Term.addDecl ref decl;
-    Term.compileDecl ref decl
+    Term.addDecl decl;
+    Term.compileDecl decl
   };
   let elabMetaEval : CommandElabM Unit := do {
     act : IO Environment ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
       Term.synthesizeSyntheticMVars false;
-        e ← Term.withLocalDecl ref `env BinderInfo.default (mkConst `Lean.Environment) fun env =>
-          Term.withLocalDecl ref `opts BinderInfo.default (mkConst `Lean.Options) fun opts => do {
-            e ← Term.mkAppM ref `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
-            Term.mkLambda ref #[env, opts] e
+        e ← Term.withLocalDecl `env BinderInfo.default (mkConst `Lean.Environment) fun env =>
+          Term.withLocalDecl `opts BinderInfo.default (mkConst `Lean.Options) fun opts => do {
+            e ← Term.mkAppM `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
+            Term.mkLambda #[env, opts] e
           };
         addAndCompile e;
         env ← Term.getEnv;
         opts ← Term.getOptions;
         match env.evalConst (Environment → Options → IO Environment) n with
-        | Except.error e => Term.throwError ref e
+        | Except.error e => Term.throwError e
         | Except.ok act  => pure $ act env opts
     };
     (out, res) ← liftIO ref $ IO.Prim.withIsolatedStreams act;
@@ -581,11 +581,11 @@ fun stx => withoutModifyingEnv do
     act : IO Unit ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
       Term.synthesizeSyntheticMVars false;
-      e ← Term.mkAppM ref `Lean.HasEval.eval #[e, toExpr false];
+      e ← Term.mkAppM `Lean.HasEval.eval #[e, toExpr false];
       addAndCompile e;
       env ← Term.getEnv;
       match env.evalConst (IO Unit) n with
-      | Except.error e => Term.throwError ref e
+      | Except.error e => Term.throwError e
       | Except.ok act  => pure act
     };
     (out, res) ← liftIO ref $ IO.Prim.withIsolatedStreams act;
@@ -609,8 +609,8 @@ fun stx => do
   withoutModifyingEnv $ runTermElabM `_synth_cmd $ fun _ => do
     inst ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
-    inst ← Term.instantiateMVars ref inst;
-    val  ← Term.liftMetaM ref $ Meta.synthInstance inst;
+    inst ← Term.instantiateMVars inst;
+    val  ← Term.liftMetaM $ Meta.synthInstance inst;
     logInfo stx val;
     pure ()
 

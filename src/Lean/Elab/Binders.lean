@@ -38,15 +38,15 @@ structure BinderView :=
 (id : Syntax) (type : Syntax) (bi : BinderInfo)
 
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
-| stx@(Syntax.ident _ _ _ _) => throwError stx "invalic auto tactic, identifier is not allowed"
+| stx@(Syntax.ident _ _ _ _) => throwErrorAt stx "invalic auto tactic, identifier is not allowed"
 | stx@(Syntax.node k args)   =>
   if Quotation.isAntiquot stx then
-    throwError stx "invalic auto tactic, antiquotation is not allowed"
+    throwErrorAt stx "invalic auto tactic, antiquotation is not allowed"
   else do
     empty ← `(Array.empty);
     args ← args.foldlM (fun args arg =>
       if k == nullKind && Quotation.isAntiquotSplice arg then
-        throwError arg "invalic auto tactic, antiquotation is not allowed"
+        throwErrorAt arg "invalic auto tactic, antiquotation is not allowed"
       else do
         arg ← quoteAutoTactic arg;
         `(Array.push $args $arg)) empty;
@@ -60,11 +60,11 @@ withFreshMacroScope $ do
   let type := Lean.mkConst `Lean.Syntax;
   tactic ← quoteAutoTactic tactic;
   val ← elabTerm tactic type;
-  val ← instantiateMVars tactic val;
-  trace `Elab.autoParam tactic $ fun _ => val;
+  val ← instantiateMVars val;
+  trace `Elab.autoParam $ fun _ => val;
   let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
-  addDecl tactic decl;
-  compileDecl tactic decl;
+  addDecl decl;
+  compileDecl decl;
   pure name
 
 /-
@@ -96,7 +96,7 @@ ids.getArgs.mapM $ fun id =>
     -- The parser never generates this case, but it is convenient when writting macros.
     pure (id.getArg 0)
   else
-    throwError id "identifier or `_` expected"
+    throwErrorAt id "identifier or `_` expected"
 
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 match stx with
@@ -132,14 +132,14 @@ private partial def elabBinderViews (binderViews : Array BinderView)
 | i, fvars, lctx, localInsts =>
   if h : i < binderViews.size then
     let binderView := binderViews.get ⟨i, h⟩;
-    withLCtx lctx localInsts $ do
+    withRef binderView.type $ withLCtx lctx localInsts $ do
       type       ← elabType binderView.type;
       fvarId     ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
       let fvars := fvars.push fvar;
       -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
       let lctx  := lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
-      className? ← isClass binderView.type type;
+      className? ← isClass type;
       match className? with
       | none           => elabBinderViews (i+1) fvars lctx localInsts
       | some className => do
@@ -180,7 +180,7 @@ fun stx _ => match_syntax stx with
 | `(forall $binders*, $term) =>
   elabBinders binders $ fun xs => do
     e ← elabType term;
-    mkForall stx xs e
+    mkForall xs e
 | _ => throwUnsupportedSyntax
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
@@ -195,7 +195,7 @@ fun stx _ =>
   let term   := stx.getArg 2;
   elabBinders #[binder] $ fun xs => do
     e ← elabType term;
-    mkForall stx xs e
+    mkForall xs e
 
 /-- Main loop `getFunBinderIds?` -/
 private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
@@ -257,7 +257,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
     | binder =>
       match binder.isTermId? true with
       | some (ident, extra) => do
-        unless extra.isNone $ throwError binder "invalid binder, simple identifier expected";
+        unless extra.isNone $ throwErrorAt binder "invalid binder, simple identifier expected";
         let type  := mkHole binder;
         expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
       | none => processAsPattern ()
@@ -290,22 +290,22 @@ structure State :=
 (localInsts    : LocalInstances)
 (expectedType? : Option Expr := none)
 
-private def checkNoOptAutoParam (ref : Syntax) (type : Expr) : TermElabM Unit := do
-type ← instantiateMVars ref type;
+private def checkNoOptAutoParam (type : Expr) : TermElabM Unit := do
+type ← instantiateMVars type;
 when type.isOptParam $
-  throwError ref "optParam is not allowed at 'fun/λ' binders";
+  throwError "optParam is not allowed at 'fun/λ' binders";
 when type.isAutoParam $
-  throwError ref "autoParam is not allowed at 'fun/λ' binders"
+  throwError "autoParam is not allowed at 'fun/λ' binders"
 
-private def propagateExpectedType (ref : Syntax) (fvar : Expr) (fvarType : Expr) (s : State) : TermElabM State := do
+private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : TermElabM State := do
 match s.expectedType? with
 | none              => pure s
 | some expectedType => do
-  expectedType ← whnfForall ref expectedType;
+  expectedType ← whnfForall expectedType;
   match expectedType with
   | Expr.forallE _ d b _ => do
-    _ ← isDefEq ref fvarType d;
-    checkNoOptAutoParam ref fvarType;
+    _ ← isDefEq fvarType d;
+    checkNoOptAutoParam fvarType;
     let b := b.instantiate1 fvar;
     pure { s with expectedType? := some b }
   | _ => pure { s with expectedType? := none }
@@ -314,9 +314,9 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
 | i, s =>
   if h : i < binderViews.size then
     let binderView := binderViews.get ⟨i, h⟩;
-    withLCtx s.lctx s.localInsts $ do
+    withRef binderView.type $ withLCtx s.lctx s.localInsts $ do
       type       ← elabType binderView.type;
-      checkNoOptAutoParam binderView.type type;
+      checkNoOptAutoParam type;
       fvarId ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
       let s     := { s with fvars := s.fvars.push fvar };
@@ -327,9 +327,9 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
         We do not believe this is an useful feature, and it would complicate the logic here.
       -/
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
-      s ← propagateExpectedType binderView.id fvar type s;
+      s ← withRef binderView.id $ propagateExpectedType fvar type s;
       let s := { s with lctx := lctx };
-      className? ← isClass binderView.type type;
+      className? ← isClass type;
       match className? with
       | none           => elabFunBinderViews (i+1) s
       | some className => do
@@ -367,7 +367,7 @@ let body := stx.getArg 3;
 (binders, body) ← expandFunBinders binders body;
 elabFunBinders binders expectedType? $ fun xs expectedType? => do {
   e ← elabTerm body expectedType?;
-  mkLambda stx xs e
+  mkLambda xs e
 }
 
 /-
@@ -384,36 +384,36 @@ else
 
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `(fun (x : type) => body) val` -/
-def elabLetDeclAux (ref : Syntax) (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
+def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
     (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
 (type, val) ← elabBinders binders $ fun xs => do {
   type ← elabType typeStx;
   val  ← elabTerm valStx type;
-  val  ← ensureHasType valStx type val;
-  type ← mkForall ref xs type;
-  val  ← mkLambda ref xs val;
+  val  ← withRef valStx $ ensureHasType type val;
+  type ← mkForall xs type;
+  val  ← mkLambda xs val;
   pure (type, val)
 };
-trace `Elab.let.decl ref $ fun _ => n ++ " : " ++ type ++ " := " ++ val;
+trace `Elab.let.decl $ fun _ => n ++ " : " ++ type ++ " := " ++ val;
 if useLetExpr then
-  withLetDecl ref n type val $ fun x => do
+  withLetDecl n type val $ fun x => do
     body ← elabTerm body expectedType?;
-    body ← instantiateMVars ref body;
-    mkLet ref x body
+    body ← instantiateMVars body;
+    mkLet x body
 else do
-  f ← withLocalDecl ref n BinderInfo.default type $ fun x => do {
+  f ← withLocalDecl n BinderInfo.default type $ fun x => do {
     body ← elabTerm body expectedType?;
-    body ← instantiateMVars ref body;
-    mkLambda ref #[x] body
+    body ← instantiateMVars body;
+    mkLambda #[x] body
   };
   pure $ mkApp f val
 
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(let $id:ident $args* := $val; $body) =>
-   elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType? true
+   elabLetDeclAux id.getId args (mkHole stx) val body expectedType? true
 | `(let $id:ident $args* : $type := $val; $body) =>
-   elabLetDeclAux stx id.getId args type val body expectedType? true
+   elabLetDeclAux id.getId args type val body expectedType? true
 | `(let $pat:term := $val; $body) => do
    stxNew ← `(let x := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
@@ -425,9 +425,9 @@ fun stx expectedType? => match_syntax stx with
 @[builtinTermElab «let!»] def elabLetBangDecl : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(let! $id:ident $args* := $val; $body) =>
-   elabLetDeclAux stx id.getId args (mkHole stx) val body expectedType? false
+   elabLetDeclAux id.getId args (mkHole stx) val body expectedType? false
 | `(let! $id:ident $args* : $type := $val; $body) =>
-   elabLetDeclAux stx id.getId args type val body expectedType? false
+   elabLetDeclAux id.getId args type val body expectedType? false
 | `(let! $pat:term := $val; $body) => do
    stxNew ← `(let! x := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?

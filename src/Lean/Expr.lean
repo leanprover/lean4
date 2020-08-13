@@ -321,6 +321,14 @@ Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
   (t.hasLevelParam || b.hasLevelParam)
   bi
 
+/- Return `Unit -> type` -/
+def mkThunkType (type : Expr) : Expr :=
+mkForall Name.anonymous BinderInfo.default (Lean.mkConst `Unit) type
+
+/- Return `fun (_ : Unit), e` -/
+def mkThunk (type : Expr) : Expr :=
+mkLambda `_ BinderInfo.default (Lean.mkConst `Unit) type
+
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
 let x := x.eraseMacroScopes;
 Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))

@@ -369,7 +369,7 @@ private partial def withPatternVarsAux {α} (pVars : Array PatternVar) (k : Arra
 private def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
 withPatternVarsAux pVars k 0 #[]
 
-private partial def elabPatternsAux (patternStxs : Array Syntax) : Nat → Expr → Array Expr → TermElabM (Array Expr)
+private partial def elabPatternsAux (patternStxs : Array Syntax) : Nat → Expr → Array Expr → TermElabM (Array Expr × Expr)
 | i, matchType, patterns =>
   if h : i < patternStxs.size then do
     matchType ← whnf matchType;
@@ -381,7 +381,7 @@ private partial def elabPatternsAux (patternStxs : Array Syntax) : Nat → Expr 
       elabPatternsAux (i+1) (b.instantiate1 pattern) (patterns.push pattern)
     | _ => throwError "unexpected match type"
   else
-    pure patterns
+    pure (patterns, matchType)
 
 def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (Array LocalDecl) :=
 patternVarDecls.foldlM
@@ -496,24 +496,27 @@ end ToDepElimPattern
 def toDepElimPattern (localDecls : Array LocalDecl) (e : Expr) : TermElabM Meta.DepElim.Pattern :=
 (ToDepElimPattern.main localDecls e).run' {}
 
-private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM Meta.DepElim.AltLHS := do
-patterns ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
+private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) := do
+(patterns, matchType) ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
 localDecls ← finalizePatternDecls patternVarDecls;
 patterns ← patterns.mapM instantiateMVars;
 trace `Elab.match fun _ => MessageData.ofArray $ localDecls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
 patterns.forM $ fun pattern => when pattern.hasExprMVar $ throwError ("pattern contains metavariables " ++ indentExpr pattern);
 patterns ← patterns.mapM $ toDepElimPattern localDecls;
 trace `Elab.match fun _ => "patterns: " ++ MessageData.ofArray (patterns.map fun (p : Meta.DepElim.Pattern) => p.toMessageData);
-pure { localDecls := localDecls.toList, patterns := patterns.toList }
+pure ({ localDecls := localDecls.toList, patterns := patterns.toList }, matchType)
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) :=
 withRef alt.ref do
 (patternVars, alt) ← collectPatternVars alt;
 trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
-  ps ← elabPatterns patternVarDecls alt.patterns matchType;
-  -- TODO
-  pure (⟨[], []⟩, arbitrary _)
+  (altLHS, matchType) ← elabPatterns patternVarDecls alt.patterns matchType;
+  rhs ← elabTerm alt.rhs matchType;
+  let xs := altLHS.localDecls.toArray.map LocalDecl.toExpr;
+  rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambda xs rhs;
+  trace `Elab.match fun _ => "rhs: " ++ rhs;
+  pure (altLHS, rhs)
 
 /-
 ```

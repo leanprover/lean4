@@ -284,9 +284,6 @@ private def localDeclsToMVarsAux : List LocalDecl → List MVarId → FVarSubst 
 private def localDeclsToMVars (localDecls : List LocalDecl) : MetaM (List MVarId × FVarSubst) :=
 localDeclsToMVarsAux localDecls [] {}
 
-private def mkThunk (type : Expr) : Expr :=
-Lean.mkForall `u BinderInfo.default (Lean.mkConst `Unit) type
-
 private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array Expr → (List Alt → Array Expr → MetaM α) → MetaM α
 | [],        alts, minors, k => k alts.reverse minors
 | lhs::lhss, alts, minors, k => do
@@ -296,7 +293,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
     let minorType := mkAppN motive args;
     mkForall xs minorType
   };
-  let minorType := if minorType.isForall then minorType else mkThunk minorType;
+  let minorType := if minorType.isForall then minorType else mkThunkType minorType;
   let idx       := alts.length;
   let minorName := (`h).appendIndexAfter (idx+1);
   trace! `Meta.EqnCompiler.matchDebug ("minor premise " ++ minorName ++ " : " ++ minorType);

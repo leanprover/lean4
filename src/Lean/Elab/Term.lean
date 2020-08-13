@@ -23,7 +23,6 @@ namespace Term
 structure Context extends Meta.Context :=
 (fileName        : String)
 (fileMap         : FileMap)
-(cmdPos          : String.Pos)
 (currNamespace   : Name)
 (declName?       : Option Name     := none)
 (levelNames      : List Name       := [])
@@ -140,7 +139,7 @@ env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
 pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
 
 instance monadLog : MonadLog TermElabM :=
-{ getCmdPos   := do ctx ← read; pure ctx.cmdPos,
+{ getRef      := do ctx ← read; pure ctx.ref,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := addContext,
@@ -148,24 +147,20 @@ instance monadLog : MonadLog TermElabM :=
 
 /- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
 @[inline] def withRef {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
-adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x
+adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
 
-def getCurrRef : TermElabM Syntax := do
-ctx ← read; pure ctx.ref
-
-/--
-  Throws an error with the given `msgData` and extracting position information from `ref`.
-  If `ref` does not contain position information, then use `cmdPos` -/
-def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
+/-- Throws an error with the given `msgData` and extracting position information from `ctx.ref`. -/
+def throwError {α} (msgData : MessageData) : TermElabM α := do
 ctx ← read;
+ref ← getRef;
 let ref     := getBetterRef ref ctx.macroStack;
 let msgData := if ctx.macroStackAtErr then addMacroStack msgData ctx.macroStack else msgData;
-msg ← mkMessage msgData MessageSeverity.error ref;
-throw (Exception.ex (Elab.Exception.error msg))
+withRef ref do
+  msg ← mkMessage msgData MessageSeverity.error;
+  throw (Exception.ex (Elab.Exception.error msg))
 
-def throwError {α} (msgData : MessageData) : TermElabM α := do
-ref ← getCurrRef;
-throwErrorAt ref msgData
+def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : TermElabM α :=
+withRef ref $ throwError msgData
 
 def throwUnsupportedSyntax {α} : TermElabM α :=
 throw (Exception.ex Elab.Exception.unsupportedSyntax)
@@ -216,17 +211,16 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
-def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TermElabM Unit := do
+def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
 ctx ← read;
 s   ← get;
-logInfo ref $
+logInfo $
   MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } $
     MessageData.tagged cls msg
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : TermElabM Unit := do
 opts ← getOptions;
-ref ← getCurrRef;
-when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
+when (checkTraceOption opts cls) $ logTrace cls (msg ())
 
 def logDbgTrace (msg : MessageData) : TermElabM Unit := do
 trace `Elab.debug $ fun _ => msg
@@ -245,7 +239,8 @@ _root_.dbgTrace (toString a) $ fun _ => pure ()
 
 /-- Auxiliary function for `liftMetaM` -/
 private def mkMessageAux (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-mkMessageCore ctx.fileName ctx.fileMap msgData severity (ctx.ref.getPos.getD ctx.cmdPos)
+let pos := ctx.ref.getPos.getD 0;
+mkMessageCore ctx.fileName ctx.fileMap msgData severity pos
 
 /-- Auxiliary function for `liftMetaM` -/
 private def fromMetaException (ctx : Context) (ex : Meta.Exception) : Exception :=
@@ -328,7 +323,7 @@ finally x (modify $ fun s => { s with mctx := mctx })
 
 def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
 fun ctx s =>
-  let lvlCtx : Level.Context := { fileName := ctx.fileName, fileMap := ctx.fileMap, cmdPos := ctx.cmdPos, levelNames := ctx.levelNames };
+  let lvlCtx : Level.Context := { fileName := ctx.fileName, fileMap := ctx.fileMap, ref := ctx.ref, levelNames := ctx.levelNames };
   match (x lvlCtx).run { ngen := s.ngen, mctx := s.mctx } with
   | EStateM.Result.ok a newS     => EStateM.Result.ok a { s with mctx := newS.mctx, ngen := newS.ngen }
   | EStateM.Result.error ex newS => EStateM.Result.error (Exception.ex ex) s
@@ -353,7 +348,7 @@ adaptReader (fun (ctx : Context) => { ctx with macroStack := { before := beforeS
   Add the given metavariable to the list of pending synthetic metavariables.
   The method `synthesizeSyntheticMVars` is used to process the metavariables on this list. -/
 def registerSyntheticMVar (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
-ref ← getCurrRef;
+ref ← getRef;
 modify $ fun s => { s with syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars }
 
 /-
@@ -1287,7 +1282,6 @@ instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
     config        := { opts := opts },
     fileName      := "<TermElabM>",
     fileMap       := arbitrary _,
-    cmdPos        := 0,
     currNamespace := Name.anonymous,
     currRecDepth  := 0,
     maxRecDepth   := getMaxRecDepth opts

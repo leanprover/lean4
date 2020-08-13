@@ -19,7 +19,7 @@ def goalsToMessageData (goals : List MVarId) : MessageData :=
 MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
-ref ← Term.getCurrRef;
+ref ← getRef;
 let tailRef := ref.getTailWithPos.getD ref;
 Term.throwErrorAt tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
 
@@ -63,7 +63,7 @@ fun ctx s => match x ctx.toTermCtx s.toTermState with
 def liftMetaM {α} (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM x
 
 @[inline] def withRef {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
-adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x
+adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
 
 def getEnv : TacticM Environment := do s ← get; pure s.env
 def getMCtx : TacticM MetavarContext := do s ← get; pure s.mctx
@@ -91,7 +91,7 @@ let s := Lean.collectMVars {} e;
 pure s.result.toList
 
 instance monadLog : MonadLog TacticM :=
-{ getCmdPos   := do ctx ← read; pure ctx.cmdPos,
+{ getRef      := do ctx ← read; pure ctx.ref,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := addContext,
@@ -127,7 +127,7 @@ unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 @[init mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
 
-def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls ref msg
+def logTrace (cls : Name) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls msg
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls msg
 @[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
 def dbgTrace {α} [HasToString α] (a : α) : TacticM Unit :=_root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -316,7 +316,7 @@ fun stx =>
 @[builtinTactic traceState] def evalTraceState : Tactic :=
 fun stx => do
   gs ← getUnsolvedGoals;
-  logInfo stx (goalsToMessageData gs)
+  logInfo (goalsToMessageData gs)
 
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic $ fun mvarId => do Meta.assumption mvarId; pure []

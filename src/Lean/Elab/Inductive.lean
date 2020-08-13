@@ -15,24 +15,24 @@ namespace Lean
 namespace Elab
 namespace Command
 
-def checkValidInductiveModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+def checkValidInductiveModifier (modifiers : Modifiers) : CommandElabM Unit := do
 when modifiers.isNoncomputable $
-  throwError ref "invalid use of 'noncomputable' in inductive declaration";
+  throwError "invalid use of 'noncomputable' in inductive declaration";
 when modifiers.isPartial $
-  throwError ref "invalid use of 'partial' in inductive declaration";
+  throwError "invalid use of 'partial' in inductive declaration";
 unless (modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && (modifiers.attrs.get! 0).name == `class)) $
-  throwError ref "invalid use of attributes in inductive declaration";
+  throwError "invalid use of attributes in inductive declaration";
 pure ()
 
-def checkValidCtorModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+def checkValidCtorModifier (modifiers : Modifiers) : CommandElabM Unit := do
 when modifiers.isNoncomputable $
-  throwError ref "invalid use of 'noncomputable' in constructor declaration";
+  throwError "invalid use of 'noncomputable' in constructor declaration";
 when modifiers.isPartial $
-  throwError ref "invalid use of 'partial' in constructor declaration";
+  throwError "invalid use of 'partial' in constructor declaration";
 when modifiers.isUnsafe $
-  throwError ref "invalid use of 'unsafe' in constructor declaration";
+  throwError "invalid use of 'unsafe' in constructor declaration";
 when (modifiers.attrs.size != 0) $
-  throwError ref "invalid use of attributes in constructor declaration";
+  throwError "invalid use of attributes in constructor declaration";
 pure ()
 
 
@@ -490,7 +490,7 @@ decl ← runTermElabM view0.declName $ fun vars => Term.withRef ref $ mkInductiv
 addDecl decl;
 mkAuxConstructions views;
 -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
-views.forM fun view => applyAttributes ref view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+views.forM fun view => applyAttributes view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
 pure ()
 
 end Command

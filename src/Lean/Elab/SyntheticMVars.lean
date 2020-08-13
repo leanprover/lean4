@@ -26,7 +26,7 @@ when val.hasExprMVar $ throwError ("tactic failed, result still contain metavari
 def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId };
 remainingGoals ← liftTacticElabM mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
-ref ← getCurrRef;
+ref ← getRef;
 let tailRef := ref.getTailWithPos.getD ref;
 withRef tailRef do
 unless remainingGoals.isEmpty (reportUnsolvedGoals remainingGoals);
@@ -157,8 +157,7 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
   | SyntheticMVarKind.typeClass =>
     withMVarContext mvarSyntheticDecl.mvarId $ do
       mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId;
-      logError mvarSyntheticDecl.ref $
-        "failed to create type class instance for " ++ indentExpr mvarDecl.type
+      logError $ "failed to create type class instance for " ++ indentExpr mvarDecl.type
   | SyntheticMVarKind.coe expectedType eType e f? =>
     withMVarContext mvarSyntheticDecl.mvarId $ do
       mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId;

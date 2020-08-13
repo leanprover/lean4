@@ -100,31 +100,32 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
 let optCtor := structStx.getArg 6;
 if optCtor.isNone then
   pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := structDeclName ++ defaultCtorName }
-else do
+else
   let ctor := optCtor.getArg 0;
+  withRef ctor do
   ctorModifiers ← elabModifiers (ctor.getArg 0);
-  checkValidCtorModifier ctor ctorModifiers;
+  checkValidCtorModifier ctorModifiers;
   when (ctorModifiers.isPrivate && structModifiers.isPrivate) $
-    throwError ctor "invalid 'private' constructor in a 'private' structure";
+    throwError "invalid 'private' constructor in a 'private' structure";
   when (ctorModifiers.isProtected && structModifiers.isPrivate) $
-    throwError ctor "invalid 'protected' constructor in a 'private' structure";
+    throwError "invalid 'protected' constructor in a 'private' structure";
   let inferMod := !(ctor.getArg 2).isNone;
   let name := ctor.getIdAt 1;
   let declName := structDeclName ++ name;
-  declName ← applyVisibility ctor ctorModifiers.visibility declName;
+  declName ← applyVisibility ctorModifiers.visibility declName;
   pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
 
-def checkValidFieldModifier (ref : Syntax) (modifiers : Modifiers) : CommandElabM Unit := do
+def checkValidFieldModifier (modifiers : Modifiers) : CommandElabM Unit := do
 when modifiers.isNoncomputable $
-  throwError ref "invalid use of 'noncomputable' in field declaration";
+  throwError "invalid use of 'noncomputable' in field declaration";
 when modifiers.isPartial $
-  throwError ref "invalid use of 'partial' in field declaration";
+  throwError "invalid use of 'partial' in field declaration";
 when modifiers.isUnsafe $
-  throwError ref "invalid use of 'unsafe' in field declaration";
+  throwError "invalid use of 'unsafe' in field declaration";
 when (modifiers.attrs.size != 0) $
-  throwError ref "invalid use of attributes in field declaration";
+  throwError "invalid use of attributes in field declaration";
 when modifiers.isPrivate $
-  throwError ref "private fields are not supported yet";
+  throwError "private fields are not supported yet";
 pure ()
 
 /-
@@ -138,19 +139,19 @@ def structFields         := parser! many (structExplicitBinder <|> structImplici
 private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
 let fieldBinders := ((structStx.getArg 7).getArg 0).getArgs;
 fieldBinders.foldlM
-  (fun (views : Array StructFieldView) fieldBinder => do
+  (fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let k := fieldBinder.getKind;
     binfo ←
       if k == `Lean.Parser.Command.structExplicitBinder then pure BinderInfo.default
       else if k == `Lean.Parser.Command.structImplicitBinder then pure BinderInfo.implicit
       else if k == `Lean.Parser.Command.structInstBinder then pure BinderInfo.instImplicit
-      else throwError fieldBinder "unexpected kind of structure field";
+      else throwError "unexpected kind of structure field";
     fieldModifiers ← elabModifiers (fieldBinder.getArg 0);
-    checkValidFieldModifier fieldBinder fieldModifiers;
+    checkValidFieldModifier fieldModifiers;
     when (fieldModifiers.isPrivate && structModifiers.isPrivate) $
-      throwError fieldBinder "invalid 'private' field in a 'private' structure";
+      throwError "invalid 'private' field in a 'private' structure";
     when (fieldModifiers.isProtected && structModifiers.isPrivate) $
-      throwError fieldBinder "invalid 'protected' field in a 'private' structure";
+      throwError "invalid 'protected' field in a 'private' structure";
     let inferMod         := !(fieldBinder.getArg 3).isNone;
     let (binders, type?) :=
       if binfo == BinderInfo.default then
@@ -168,12 +169,12 @@ fieldBinders.foldlM
           some $ (optBinderDefault.getArg 0).getArg 1;
     let idents := (fieldBinder.getArg 2).getArgs;
     idents.foldlM
-      (fun (views : Array StructFieldView) ident => do
+      (fun (views : Array StructFieldView) ident => withRef ident do
         let name     := ident.getId;
         when (isInternalSubobjectFieldName name) $
-          throwError ident ("invalid field name '" ++ name ++ "', identifiers starting with '_' are reserved to the system");
+          throwError ("invalid field name '" ++ name ++ "', identifiers starting with '_' are reserved to the system");
         let declName := structDeclName ++ name;
-        declName ← applyVisibility ident fieldModifiers.visibility declName;
+        declName ← applyVisibility fieldModifiers.visibility declName;
         pure $ views.push {
           ref        := ident,
           modifiers  := fieldModifiers,
@@ -465,11 +466,11 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
 @[extern "lean_mk_projections"]
 private constant mkProjections (env : Environment) (structName : @& Name) (projs : @& List ProjectionInfo) (isClass : Bool) : Except String Environment := arbitrary _
 
-private def addProjections (ref : Syntax) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : CommandElabM Unit := do
+private def addProjections (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : CommandElabM Unit := do
 env ← getEnv;
 match mkProjections env structName projs isClass with
 | Except.ok env    => setEnv env
-| Except.error msg => throwError ref msg
+| Except.error msg => throwError msg
 
 private def mkAuxConstructions (declName : Name) : CommandElabM Unit := do
 env ← getEnv;
@@ -480,7 +481,7 @@ modifyEnv fun env => mkRecOn env declName;
 when hasUnit $ modifyEnv fun env => mkCasesOn env declName;
 when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env declName
 
-private def addDefaults (ref : Syntax) (mctx : MetavarContext) (lctx : LocalContext) (localInsts : LocalInstances)
+private def addDefaults (mctx : MetavarContext) (lctx : LocalContext) (localInsts : LocalInstances)
     (defaultAuxDecls : Array (Name × Expr × Expr)) : CommandElabM Unit :=
 liftTermElabM none $ Term.withLocalContext lctx localInsts do
   Term.setMCtx mctx;
@@ -505,7 +506,7 @@ def structCtor           := parser! try (declModifiers >> ident >> optional infe
 
 -/
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-checkValidInductiveModifier stx modifiers;
+checkValidInductiveModifier modifiers;
 let isClass   := (stx.getArg 0).getKind == `Lean.Parser.Command.classTk;
 let modifiers := if isClass then modifiers.addAttribute { name := `class } else modifiers;
 let declId    := stx.getArg 1;
@@ -516,7 +517,7 @@ let optType   := stx.getArg 4;
 type ← if optType.isNone then `(Type _) else pure $ (optType.getArg 0).getArg 1;
 scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
-  declName ← mkDeclName declId modifiers name;
+  declName ← mkDeclName modifiers name;
   allUserLevelNames ← getLevelNames;
   ctor ← expandCtor stx modifiers declName;
   fields ← expandFields stx modifiers declName;
@@ -536,11 +537,11 @@ withDeclId declId $ fun name => do
   };
   let ref := declId;
   addDecl r.decl;
-  addProjections ref declName r.projInfos isClass;
+  addProjections declName r.projInfos isClass;
   mkAuxConstructions declName;
-  applyAttributes ref declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-  r.projInstances.forM $ addInstance ref;
-  addDefaults ref r.mctx r.lctx r.localInsts r.defaultAuxDecls;
+  applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+  r.projInstances.forM addInstance;
+  addDefaults r.mctx r.lctx r.localInsts r.defaultAuxDecls;
   pure ()
 
 end Command

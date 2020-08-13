@@ -119,12 +119,12 @@ else if kind == `Lean.Parser.Command.declValEqns then
 else
   Term.throwUnsupportedSyntax
 
-def elabDefLike (view : DefView) : CommandElabM Unit := do
-let ref := view.ref;
+def elabDefLike (view : DefView) : CommandElabM Unit :=
+withRef view.ref do
 scopeLevelNames ← getLevelNames;
 withDeclId view.declId $ fun name => do
-  declName          ← mkDeclName view.declId view.modifiers name;
-  applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
+  declName          ← withRef view.declId $ mkDeclName view.modifiers name;
+  applyAttributes declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
   allUserLevelNames ← getLevelNames;
   decl? ← runTermElabM declName $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
     match view.type? with
@@ -144,9 +144,9 @@ withDeclId view.declId $ fun name => do
   | none      => pure ()
   | some decl => do
     addDecl decl;
-    applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+    applyAttributes declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
     compileDecl decl;
-    applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
+    applyAttributes declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.definition;

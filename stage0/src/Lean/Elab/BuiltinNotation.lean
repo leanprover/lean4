@@ -37,11 +37,10 @@ fun stx => match_syntax stx with
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab :=
 fun stx expectedType? => match_syntax stx with
 | `(⟨$args*⟩) => do
-  let ref := stx;
   tryPostponeIfNoneOrMVar expectedType?;
   match expectedType? with
   | some expectedType => do
-    expectedType ← instantiateMVars ref expectedType;
+    expectedType ← instantiateMVars expectedType;
     let expectedType := expectedType.consumeMData;
     match expectedType.getAppFn with
     | Expr.const constName _ _ => do
@@ -50,12 +49,12 @@ fun stx expectedType? => match_syntax stx with
       | some (ConstantInfo.inductInfo val) =>
         match val.ctors with
         | [ctor] => do
-          stx ← `($(mkCTermIdFrom ref ctor) $(args.getSepElems)*);
-          withMacroExpansion ref stx $ elabTerm stx expectedType?
-        | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
-      | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
-    | _ => throwError ref ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
-  | none => throwError ref "invalid constructor ⟨...⟩, expected type must be known"
+          newStx ← `($(mkCTermIdFrom stx ctor) $(args.getSepElems)*);
+          withMacroExpansion stx newStx $ elabTerm newStx expectedType?
+        | _ => throwError ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
+      | _ => throwError ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
+    | _ => throwError ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
+  | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
 | _ => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro :=
@@ -80,9 +79,9 @@ fun stx => match_syntax stx with
     body
 | _                      => Macro.throwUnsupported
 
-private def elabParserMacroAux (ref : Syntax) (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
+private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
 some declName ← getDeclName?
-  | throwError ref "invalid `parser!` macro, it must be used in definitions";
+  | throwError "invalid `parser!` macro, it must be used in definitions";
 match extractMacroScopes declName with
 | { name := Name.str _ s _, scopes :=  scps, .. } => do
   let kind := quote declName;
@@ -94,76 +93,76 @@ match extractMacroScopes declName with
   else
     -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
     `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s none) $p)
-| _  => throwError ref "invalid `parser!` macro, unexpected declaration name"
+| _  => throwError "invalid `parser!` macro, unexpected declaration name"
 
 @[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(parser! $e)         => elabParserMacroAux stx (quote Parser.maxPrec) e
-| `(parser! : $prec $e) => elabParserMacroAux stx prec e
+| `(parser! $e)         => elabParserMacroAux (quote Parser.maxPrec) e
+| `(parser! : $prec $e) => elabParserMacroAux prec e
 | _                     => throwUnsupportedSyntax
 
-private def elabTParserMacroAux (ref : Syntax) (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
+private def elabTParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
 declName? ← getDeclName?;
 match declName? with
 | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $prec $e)
-| none          => throwError ref "invalid `tparser!` macro, it must be used in definitions"
+| none          => throwError "invalid `tparser!` macro, it must be used in definitions"
 
 @[builtinTermElab «tparser!»] def elabTParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(tparser! $e)         => elabTParserMacroAux stx (quote Parser.maxPrec) e
-| `(tparser! : $prec $e) => elabTParserMacroAux stx prec e
+| `(tparser! $e)         => elabTParserMacroAux (quote Parser.maxPrec) e
+| `(tparser! : $prec $e) => elabTParserMacroAux prec e
 | _                      => throwUnsupportedSyntax
 
-private def mkNativeReflAuxDecl (ref : Syntax) (type val : Expr) : TermElabM Name := do
-auxName ← mkAuxName ref `_nativeRefl;
+private def mkNativeReflAuxDecl (type val : Expr) : TermElabM Name := do
+auxName ← mkAuxName `_nativeRefl;
 let decl := Declaration.defnDecl {
   name := auxName, lparams := [], type := type, value := val,
   hints := ReducibilityHints.abbrev,
   isUnsafe := false };
-addDecl ref decl;
-compileDecl ref decl;
+addDecl decl;
+compileDecl decl;
 pure auxName
 
 private def elabClosedTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 e ← elabTermAndSynthesize stx expectedType?;
 when e.hasMVar $
-  throwError stx ("invalid macro application, term contains metavariables" ++ indentExpr e);
+  throwError ("invalid macro application, term contains metavariables" ++ indentExpr e);
 when e.hasFVar $
-  throwError stx ("invalid macro application, term contains free variables" ++ indentExpr e);
+  throwError ("invalid macro application, term contains free variables" ++ indentExpr e);
 pure e
 
 @[builtinTermElab «nativeRefl»] def elabNativeRefl : TermElab :=
 fun stx _ => do
   let arg := stx.getArg 1;
   e ← elabClosedTerm arg none;
-  type ← inferType stx e;
-  type ← whnf stx type;
+  type ← inferType e;
+  type ← whnf type;
   unless (type.isConstOf `Bool || type.isConstOf `Nat) $
-    throwError stx ("invalid `nativeRefl!` macro application, term must have type `Nat` or `Bool`" ++ indentExpr type);
-  auxDeclName ← mkNativeReflAuxDecl stx type e;
+    throwError ("invalid `nativeRefl!` macro application, term must have type `Nat` or `Bool`" ++ indentExpr type);
+  auxDeclName ← mkNativeReflAuxDecl type e;
   let isBool := type.isConstOf `Bool;
   let reduceValFn := if isBool then `Lean.reduceBool else `Lean.reduceNat;
   let reduceThm   := if isBool then `Lean.ofReduceBool else `Lean.ofReduceNat;
   let aux         := Lean.mkConst auxDeclName;
   let reduceVal   := mkApp (Lean.mkConst reduceValFn) aux;
-  val? ← liftMetaM stx $ Meta.reduceNative? reduceVal;
+  val? ← liftMetaM $ Meta.reduceNative? reduceVal;
   match val? with
-  | none     => throwError stx ("failed to reduce term at `nativeRefl!` macro application" ++ indentExpr e)
+  | none     => throwError ("failed to reduce term at `nativeRefl!` macro application" ++ indentExpr e)
   | some val => do
-    rflPrf ← liftMetaM stx $ Meta.mkEqRefl val;
+    rflPrf ← liftMetaM $ Meta.mkEqRefl val;
     let r  := mkApp3 (Lean.mkConst reduceThm) aux val rflPrf;
-    eq ← liftMetaM stx $ Meta.mkEq e val;
-    mkExpectedTypeHint stx r eq
+    eq ← liftMetaM $ Meta.mkEq e val;
+    mkExpectedTypeHint r eq
 
-private def getPropToDecide (ref : Syntax) (arg : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+private def getPropToDecide (arg : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 if arg.isOfKind `Lean.Parser.Term.hole then do
   tryPostponeIfNoneOrMVar expectedType?;
   match expectedType? with
-  | none => throwError ref "invalid macro, expected type is not available"
+  | none => throwError "invalid macro, expected type is not available"
   | some expectedType => do
-    expectedType ← instantiateMVars ref expectedType;
+    expectedType ← instantiateMVars expectedType;
     when (expectedType.hasFVar || expectedType.hasMVar) $
-      throwError ref ("expected type must not contain free or meta variables" ++ indentExpr expectedType);
+      throwError ("expected type must not contain free or meta variables" ++ indentExpr expectedType);
     pure expectedType
 else
   let prop := mkSort levelZero;
@@ -172,21 +171,21 @@ else
 @[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab :=
 fun stx expectedType? => do
   let arg  := stx.getArg 1;
-  p ← getPropToDecide stx arg expectedType?;
-  d ← mkAppM stx `Decidable.decide #[p];
-  auxDeclName ← mkNativeReflAuxDecl stx (Lean.mkConst `Bool) d;
-  rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
+  p ← getPropToDecide arg expectedType?;
+  d ← mkAppM `Decidable.decide #[p];
+  auxDeclName ← mkNativeReflAuxDecl (Lean.mkConst `Bool) d;
+  rflPrf ← liftMetaM $ Meta.mkEqRefl (toExpr true);
   let r   := mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf;
-  mkExpectedTypeHint stx r p
+  mkExpectedTypeHint r p
 
 @[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab :=
 fun stx expectedType? => do
   let arg  := stx.getArg 1;
-  p ← getPropToDecide stx arg expectedType?;
-  d ← mkAppM stx `Decidable.decide #[p];
-  d ← instantiateMVars stx d;
+  p ← getPropToDecide arg expectedType?;
+  d ← mkAppM `Decidable.decide #[p];
+  d ← instantiateMVars d;
   let s := d.appArg!; -- get instance from `d`
-  rflPrf ← liftMetaM stx $ Meta.mkEqRefl (toExpr true);
+  rflPrf ← liftMetaM $ Meta.mkEqRefl (toExpr true);
   pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) p s rflPrf
 
 def elabInfix (f : Syntax) : Macro :=

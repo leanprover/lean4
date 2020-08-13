@@ -18,15 +18,15 @@ namespace Elab
 def goalsToMessageData (goals : List MVarId) : MessageData :=
 MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
 
-def Term.reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
+def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
+ref ← Term.getCurrRef;
 let tailRef := ref.getTailWithPos.getD ref;
-Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
+Term.throwErrorAt tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
 
 namespace Tactic
 
 structure Context extends toTermCtx : Term.Context :=
 (main : MVarId)
-(ref  : Syntax)
 
 structure State extends toTermState : Term.State :=
 (goals : List MVarId)
@@ -60,7 +60,10 @@ fun ctx s => match x ctx.toTermCtx s.toTermState with
  | EStateM.Result.error (Term.Exception.ex ex) newS => EStateM.Result.error ex { s with toTermState := newS }
  | EStateM.Result.error Term.Exception.postpone _   => unreachable!
 
-def liftMetaM {α} (ref : Syntax) (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM ref x
+def liftMetaM {α} (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM x
+
+@[inline] def withRef {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
+adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x
 
 def getEnv : TacticM Environment := do s ← get; pure s.env
 def getMCtx : TacticM MetavarContext := do s ← get; pure s.mctx
@@ -69,21 +72,21 @@ def getLCtx : TacticM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TacticM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
-def instantiateMVars (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars ref e
+def instantiateMVars (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars e
 def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
 def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
-def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
-def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals ref goals
-def inferType (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.inferType ref e
-def whnf (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnf ref e
-def whnfCore (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore ref e
-def unfoldDefinition? (ref : Syntax) (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? ref e
+def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType expectedType? e
+def reportUnsolvedGoals (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals goals
+def inferType (e : Expr) : TacticM Expr := liftTermElabM $ Term.inferType e
+def whnf (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnf e
+def whnfCore (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore e
+def unfoldDefinition? (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? e
 def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
 /-- Collect unassigned metavariables -/
-def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do
-e ← instantiateMVars ref e;
+def collectMVars (e : Expr) : TacticM (List MVarId) := do
+e ← instantiateMVars e;
 let s := Lean.collectMVars {} e;
 pure s.result.toList
 
@@ -94,15 +97,17 @@ instance monadLog : MonadLog TacticM :=
   addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
-def throwError {α} (ref : Syntax) (msgData : MessageData) : TacticM α := do
-ref ← if ref.getPos.isNone then do ctx ← read; pure ctx.ref else pure ref;
-liftTermElabM $ Term.throwError ref msgData
+def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : TacticM α := do
+liftTermElabM $ Term.throwErrorAt ref msgData
+
+def throwError {α} (msgData : MessageData) : TacticM α := do
+liftTermElabM $ Term.throwError msgData
 
 def throwUnsupportedSyntax {α} : TacticM α := liftTermElabM $ Term.throwUnsupportedSyntax
 
-@[inline] def withIncRecDepth {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
+@[inline] def withIncRecDepth {α} (x : TacticM α) : TacticM α := do
 ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;
+when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError maxRecDepthErrorMessage;
 adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
 
 protected def getCurrMacroScope : TacticM MacroScope := do ctx ← read; pure ctx.currMacroScope
@@ -123,14 +128,14 @@ mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tac
 @[init mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
 
 def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls ref msg
-@[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls ref msg
+@[inline] def trace (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls msg
 @[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
 def dbgTrace {α} [HasToString α] (a : α) : TacticM Unit :=_root_.dbgTrace (toString a) $ fun _ => pure ()
 
 private def evalTacticUsing (s : State) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do
   let refFmt := stx.prettyPrint;
-  throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+  throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (evalFn::evalFns) => catch (evalFn stx)
   (fun ex => match ex with
     | Exception.error _           =>
@@ -150,11 +155,11 @@ instance : MonadMacroAdapter TacticM :=
   setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
   getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
   getMaxRecDepth         := do ctx ← read; pure ctx.maxRecDepth,
-  throwError             := @throwError,
+  throwError             := @throwErrorAt,
   throwUnsupportedSyntax := @throwUnsupportedSyntax }
 
 @[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit
-| []    => throwError stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")
+| []    => throwErrorAt stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")
 | m::ms => do
   scp  ← getCurrMacroScope;
   catch
@@ -171,21 +176,21 @@ let macroFns := (table.find? k).getD [];
 expandTacticMacroFns evalTactic stx macroFns
 
 partial def evalTactic : Syntax → TacticM Unit
-| stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
+| stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
   | Syntax.node k args =>
     if k == nullKind then
       -- list of tactics separated by `;` => evaluate in order
       -- Syntax quotations can return multiple ones
       stx.forSepArgsM evalTactic
     else do
-      trace `Elab.step stx $ fun _ => stx;
+      trace `Elab.step fun _ => stx;
       s ← get;
       let table := (tacticElabAttribute.ext.getState s.env).table;
       let k := stx.getKind;
       match table.find? k with
       | some evalFns => evalTacticUsing s stx evalFns
       | none         => expandTacticMacro evalTactic stx
-  | _ => throwError stx "unexpected command"
+  | _ => throwError "unexpected command"
 
 /-- Adapt a syntax transformation to a regular tactic evaluator. -/
 def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic :=
@@ -221,43 +226,43 @@ gs ← getGoals;
 gs ← gs.filterM $ fun g => not <$> isExprMVarAssigned g;
 setGoals gs
 def getUnsolvedGoals : TacticM (List MVarId) := do pruneSolvedGoals; getGoals
-def getMainGoal (ref : Syntax) : TacticM (MVarId × List MVarId) := do (g::gs) ← getUnsolvedGoals | throwError ref "no goals to be solved"; pure (g, gs)
-def ensureHasNoMVars (ref : Syntax) (e : Expr) : TacticM Unit := do
-e ← instantiateMVars ref e;
-when e.hasMVar $ throwError ref ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
+def getMainGoal : TacticM (MVarId × List MVarId) := do (g::gs) ← getUnsolvedGoals | throwError "no goals to be solved"; pure (g, gs)
+def ensureHasNoMVars (e : Expr) : TacticM Unit := do
+e ← instantiateMVars e;
+when e.hasMVar $ throwError ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
 
-def withMainMVarContext {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
-(mvarId, _) ← getMainGoal ref;
+def withMainMVarContext {α} (x : TacticM α) : TacticM α := do
+(mvarId, _) ← getMainGoal;
 withMVarContext mvarId x
 
-@[inline] def liftMetaMAtMain {α} (ref : Syntax) (x : MVarId → MetaM α) : TacticM α := do
-(g, _) ← getMainGoal ref;
-withMVarContext g $ liftMetaM ref $ x g
+@[inline] def liftMetaMAtMain {α} (x : MVarId → MetaM α) : TacticM α := do
+(g, _) ← getMainGoal;
+withMVarContext g $ liftMetaM $ x g
 
-@[inline] def liftMetaTacticAux {α} (ref : Syntax) (tactic : MVarId → MetaM (α × List MVarId)) : TacticM α := do
-(g, gs) ← getMainGoal ref;
+@[inline] def liftMetaTacticAux {α} (tactic : MVarId → MetaM (α × List MVarId)) : TacticM α := do
+(g, gs) ← getMainGoal;
 withMVarContext g $ do
-  (a, gs') ← liftMetaM ref $ tactic g;
+  (a, gs') ← liftMetaM $ tactic g;
   setGoals (gs' ++ gs);
   pure a
 
-@[inline] def liftMetaTactic (ref : Syntax) (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit :=
-liftMetaTacticAux ref (fun mvarId => do gs ← tactic mvarId; pure ((), gs))
+@[inline] def liftMetaTactic (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit :=
+liftMetaTacticAux (fun mvarId => do gs ← tactic mvarId; pure ((), gs))
 
-def done (ref : Syntax) : TacticM Unit := do
+def done : TacticM Unit := do
 gs ← getUnsolvedGoals;
-unless gs.isEmpty $ reportUnsolvedGoals ref gs
+unless gs.isEmpty $ reportUnsolvedGoals gs
 
-def focusAux {α} (ref : Syntax) (tactic : TacticM α) : TacticM α := do
-(g, gs) ← getMainGoal ref;
+def focusAux {α} (tactic : TacticM α) : TacticM α := do
+(g, gs) ← getMainGoal;
 setGoals [g];
 a ← tactic;
 gs' ← getGoals;
 setGoals (gs' ++ gs);
 pure a
 
-def focus {α} (ref : Syntax) (tactic : TacticM α) : TacticM α :=
-focusAux ref (do a ← tactic; done ref; pure a)
+def focus {α} (tactic : TacticM α) : TacticM α :=
+focusAux (do a ← tactic; done; pure a)
 
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.
@@ -306,7 +311,7 @@ fun stx =>
     (catch
       (do evalTactic tactic; pure true)
       (fun _ => pure false))
-    (throwError stx ("tactic succeeded"))
+    (throwError ("tactic succeeded"))
 
 @[builtinTactic traceState] def evalTraceState : Tactic :=
 fun stx => do
@@ -314,12 +319,12 @@ fun stx => do
   logInfo stx (goalsToMessageData gs)
 
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
-fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []
+fun stx => liftMetaTactic $ fun mvarId => do Meta.assumption mvarId; pure []
 
 @[builtinTactic «intro»] def evalIntro : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| intro)    => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
-  | `(tactic| intro $h) => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
+  | `(tactic| intro)    => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
+  | `(tactic| intro $h) => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
   | _                   => throwUnsupportedSyntax
 
 private def getIntrosSize : Expr → Nat
@@ -329,22 +334,23 @@ private def getIntrosSize : Expr → Nat
 
 @[builtinTactic «intros»] def evalIntros : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| intros)       => liftMetaTactic stx $ fun mvarId => do
+  | `(tactic| intros)       => liftMetaTactic $ fun mvarId => do
     type ← Meta.getMVarType mvarId;
     type ← Meta.instantiateMVars type;
     let n := getIntrosSize type;
     (_, mvarId) ← Meta.introN mvarId n;
     pure [mvarId]
-  | `(tactic| intros $ids*) => liftMetaTactic stx $ fun mvarId => do
+  | `(tactic| intros $ids*) => liftMetaTactic $ fun mvarId => do
     (_, mvarId) ← Meta.introN mvarId ids.size (ids.map Syntax.getId).toList;
     pure [mvarId]
   | _                       => throwUnsupportedSyntax
 
-def getFVarId (id : Syntax) : TacticM FVarId := do
+def getFVarId (id : Syntax) : TacticM FVarId :=
+withRef id do
 fvar? ← liftTermElabM $ Term.isLocalTermId? id true;
 match fvar? with
 | some fvar => pure fvar.fvarId!
-| none      => throwError id ("unknown variable '" ++ toString id.getId ++ "'")
+| none      => throwError ("unknown variable '" ++ toString id.getId ++ "'")
 
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) :=
 ids.mapM getFVarId
@@ -352,36 +358,36 @@ ids.mapM getFVarId
 @[builtinTactic «revert»] def evalRevert : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| revert $hs*) => do
-     (g, gs) ← getMainGoal stx;
+     (g, gs) ← getMainGoal;
      withMVarContext g $ do
        fvarIds ← getFVarIds hs;
-       (_, g) ← liftMetaM stx $ Meta.revert g fvarIds;
+       (_, g) ← liftMetaM $ Meta.revert g fvarIds;
        setGoals (g :: gs)
   | _                     => throwUnsupportedSyntax
 
-def forEachVar (ref : Syntax) (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit :=
+def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit :=
 hs.forM $ fun h => do
-  (g, gs) ← getMainGoal ref;
+  (g, gs) ← getMainGoal;
   withMVarContext g $ do
     fvarId ← getFVarId h;
-    g ← liftMetaM ref $ tac g fvarId;
+    g ← liftMetaM $ tac g fvarId;
     setGoals (g :: gs)
 
 @[builtinTactic «clear»] def evalClear : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| clear $hs*) => forEachVar stx hs Meta.clear
+  | `(tactic| clear $hs*) => forEachVar hs Meta.clear
   | _                     => throwUnsupportedSyntax
 
 @[builtinTactic «subst»] def evalSubst : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| subst $hs*) => forEachVar stx hs Meta.subst
+  | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax
 
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalTactic (stx.getArg 1)
 
 @[builtinTactic nestedTacticBlock] def evalNestedTacticBlock : Tactic :=
-fun stx => focus stx (evalTactic (stx.getArg 1))
+fun stx => focus (evalTactic (stx.getArg 1))
 
 @[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlockCurly : Tactic :=
 evalNestedTacticBlock
@@ -391,11 +397,11 @@ fun stx => match_syntax stx with
   | `(tactic| case $tag $tac) => do
      let tag := tag.getId;
      gs ← getUnsolvedGoals;
-     some g ← gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isSuffixOf mvarDecl.userName) | throwError stx "tag not found";
+     some g ← gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isSuffixOf mvarDecl.userName) | throwError "tag not found";
      let gs := gs.erase g;
      setGoals [g];
      evalTactic tac;
-     done stx;
+     done;
      setGoals gs
   | _ => throwUnsupportedSyntax
 

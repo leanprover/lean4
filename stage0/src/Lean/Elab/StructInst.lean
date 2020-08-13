@@ -51,6 +51,7 @@ def setStructSourceSyntax (structStx : Syntax) : Source → Syntax
 | Source.explicit stx _ => (structStx.setArg 1 stx).setArg 3 mkNullNode
 
 private def getStructSource (stx : Syntax) : TermElabM Source :=
+withRef stx $
 let explicitSource := stx.getArg 1;
 let implicitSource := stx.getArg 3;
 if explicitSource.isNone && implicitSource.isNone then
@@ -63,7 +64,7 @@ else if implicitSource.isNone then do
   | none      => unreachable! -- expandNonAtomicExplicitSource must have been used when we get here
   | some src  => pure $ Source.explicit explicitSource src
 else
-  throwError stx "invalid structure instance `with` and `..` cannot be used together"
+  throwError "invalid structure instance `with` and `..` cannot be used together"
 
 /-
   We say a `{ ... }` notation is a `modifyOp` if it contains only one
@@ -86,15 +87,15 @@ s? ← args.foldSepByM
       | none   => pure (some arg)
       | some s =>
         if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwError arg "invalid {...} notation, at most one `[..]` at a given level"
+          throwErrorAt arg "invalid {...} notation, at most one `[..]` at a given level"
         else
-          throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+          throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
     else
       match s? with
       | none   => pure (some arg)
       | some s =>
         if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwError arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+          throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
         else
           pure s?)
   none;
@@ -108,10 +109,10 @@ let continue (val : Syntax) : TermElabM Expr := do {
   let idx  := lval.getArg 1;
   let self := source.getArg 0;
   stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val));
-  trace `Elab.struct.modifyOp stx $ fun _ => stx ++ "\n===>\n" ++ stxNew;
+  trace `Elab.struct.modifyOp fun _ => stx ++ "\n===>\n" ++ stxNew;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 }; do
-trace `Elab.struct.modifyOp stx $ fun _ => modifyOp ++ "\nSource: " ++ source;
+trace `Elab.struct.modifyOp fun _ => modifyOp ++ "\nSource: " ++ source;
 let rest := modifyOp.getArg 1;
 if rest.isNone then do
   continue (modifyOp.getArg 3)
@@ -126,27 +127,26 @@ else do
   let valSource := source.modifyArg 0 $ fun _ => s;
   let val       := stx.setArg 1 valSource;
   let val       := val.setArg 2 $ mkNullNode #[valField];
-  trace `Elab.struct.modifyOp stx $ fun _ => stx ++ "\nval: " ++ val;
+  trace `Elab.struct.modifyOp fun _ => stx ++ "\nval: " ++ val;
   continue val
 
 /- Get structure name and elaborate explicit source (if available) -/
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
-let ref := stx;
 tryPostponeIfNoneOrMVar expectedType?;
 let useSource : Unit → TermElabM Name := fun _ =>
   match sourceView with
   | Source.explicit _ src => do
-    srcType ← inferType stx src;
-    srcType ← whnf stx srcType;
+    srcType ← inferType src;
+    srcType ← whnf srcType;
     tryPostponeIfMVar srcType;
     match srcType.getAppFn with
     | Expr.const constName _ _ => pure constName
-    | _ => throwError stx ("invalid {...} notation, source type is not of the form (C ...)" ++ indentExpr srcType)
-  | _ => throwError ref ("invalid {...} notation, expected type is not of the form (C ...)" ++ indentExpr expectedType?.get!);
+    | _ => throwError ("invalid {...} notation, source type is not of the form (C ...)" ++ indentExpr srcType)
+  | _ => throwError ("invalid {...} notation, expected type is not of the form (C ...)" ++ indentExpr expectedType?.get!);
 match expectedType? with
 | none => useSource ()
 | some expectedType => do
-  expectedType ← whnf ref expectedType;
+  expectedType ← whnf expectedType;
   match expectedType.getAppFn with
   | Expr.const constName _ _ => pure constName
   | _                        => useSource ()
@@ -292,8 +292,8 @@ s.modifyFieldsM $ fun fields => do
   let fieldNames := getStructureFields env s.structName;
   fields.mapM $ fun field => match field with
     | { lhs := FieldLHS.fieldIndex ref idx :: rest, .. } =>
-      if idx == 0 then throwError ref "invalid field index, index must be greater than 0"
-      else if idx > fieldNames.size then throwError ref ("invalid field index, structure has only #" ++ toString fieldNames.size ++ " fields")
+      if idx == 0 then throwErrorAt ref "invalid field index, index must be greater than 0"
+      else if idx > fieldNames.size then throwErrorAt ref ("invalid field index, structure has only #" ++ toString fieldNames.size ++ " fields")
       else pure { field with lhs := FieldLHS.fieldName ref (fieldNames.get! $ idx - 1) :: rest }
     | _ => pure field
 
@@ -317,7 +317,7 @@ env ← getEnv;
 s.modifyFieldsM $ fun fields => fields.mapM $ fun field => match field with
   | { lhs := FieldLHS.fieldName ref fieldName :: rest, .. } =>
     match findField? env s.structName fieldName with
-    | none => throwError ref ("'" ++ fieldName ++ "' is not a field of structure '" ++ s.structName ++ "'")
+    | none => throwErrorAt ref ("'" ++ fieldName ++ "' is not a field of structure '" ++ s.structName ++ "'")
     | some baseStructName =>
       if baseStructName == s.structName then pure field
       else match getPathToBaseStructure? env baseStructName s.structName with
@@ -326,7 +326,7 @@ s.modifyFieldsM $ fun fields => fields.mapM $ fun field => match field with
             | Name.str _ s _ => FieldLHS.fieldName ref (mkNameSimple s)
             | _              => unreachable!;
           pure { field with lhs := path ++ field.lhs }
-        | _ => throwError ref ("failed to access field '" ++ fieldName ++ "' in parent structure")
+        | _ => throwErrorAt ref ("failed to access field '" ++ fieldName ++ "' in parent structure")
   | _ => pure field
 
 private abbrev FieldMap := HashMap Name Fields
@@ -339,7 +339,7 @@ fields.foldlM
       match fieldMap.find? fieldName with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
-          throwError field.ref ("field '" ++ fieldName ++ "' has already beed specified")
+          throwErrorAt field.ref ("field '" ++ fieldName ++ "' has already beed specified")
         else
           pure $ fieldMap.insert fieldName (field::prevField::restFields)
       | _ => pure $ fieldMap.insert fieldName [field]
@@ -350,18 +350,18 @@ private def isSimpleField? : Fields → Option (Field Struct)
 | [field] => if field.isSimple then some field else none
 | _       => none
 
-private def getFieldIdx (ref : Syntax) (structName : Name) (fieldNames : Array Name) (fieldName : Name) : TermElabM Nat := do
+private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName : Name) : TermElabM Nat := do
 match fieldNames.findIdx? $ fun n => n == fieldName with
 | some idx => pure idx
-| none     => throwError ref ("field '" ++ fieldName ++ "' is not a valid field of '" ++ structName ++ "'")
+| none     => throwError ("field '" ++ fieldName ++ "' is not a valid field of '" ++ structName ++ "'")
 
 private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
 Syntax.node `Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
-private def mkSubstructSource (ref : Syntax) (structName : Name) (fieldNames : Array Name) (fieldName : Name) (src : Source) : TermElabM Source :=
+private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fieldName : Name) (src : Source) : TermElabM Source :=
 match src with
 | Source.explicit stx src => do
-  idx ← getFieldIdx ref structName fieldNames fieldName;
+  idx ← getFieldIdx structName fieldNames fieldName;
   let stx := stx.modifyArg 0 $ fun stx => mkProjStx stx fieldName;
   pure $ Source.explicit stx (mkProj structName idx src)
 | s => pure s
@@ -369,6 +369,7 @@ match src with
 @[specialize] private def groupFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
 env ← getEnv;
 let fieldNames := getStructureFields env s.structName;
+withRef s.ref $
 s.modifyFieldsM $ fun fields => do
   fieldMap ← mkFieldMap fields;
   fieldMap.toList.mapM $ fun ⟨fieldName, fields⟩ =>
@@ -376,7 +377,7 @@ s.modifyFieldsM $ fun fields => do
     | some field => pure field
     | none => do
       let substructFields := fields.map $ fun field => { field with lhs := field.lhs.tail! };
-      substructSource ← mkSubstructSource s.ref s.structName fieldNames fieldName s.source;
+      substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source;
       let field := fields.head!;
       match Lean.isSubobjectField? env s.structName fieldName with
       | some substructName => do
@@ -402,6 +403,7 @@ fields.find? $ fun field =>
 env ← getEnv;
 let fieldNames := getStructureFields env s.structName;
 let ref := s.ref;
+withRef ref do
 fields ← fieldNames.foldlM
   (fun fields fieldName => do
     match findField? s.fields fieldName with
@@ -412,7 +414,7 @@ fields ← fieldNames.foldlM
       };
       match Lean.isSubobjectField? env s.structName fieldName with
       | some substructName => do
-        substructSource ← mkSubstructSource s.ref s.structName fieldNames fieldName s.source;
+        substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source;
         let substruct := Struct.mk s.ref substructName [] substructSource;
         substruct ← expandStruct substruct;
         addField (FieldVal.nested substruct)
@@ -441,27 +443,27 @@ structure CtorHeaderResult :=
 (ctorFnType : Expr)
 (instMVars  : Array MVarId := #[])
 
-private def mkCtorHeaderAux (ref : Syntax) : Nat → Expr → Expr → Array MVarId → TermElabM CtorHeaderResult
+private def mkCtorHeaderAux : Nat → Expr → Expr → Array MVarId → TermElabM CtorHeaderResult
 | 0,   type, ctorFn, instMVars => pure { ctorFn := ctorFn, ctorFnType := type, instMVars := instMVars }
 | n+1, type, ctorFn, instMVars => do
-  type ← whnfForall ref type;
+  type ← whnfForall type;
   match type with
   | Expr.forallE _ d b c =>
     match c.binderInfo with
     | BinderInfo.instImplicit => do
-      a ← mkFreshExprMVar ref d MetavarKind.synthetic;
+      a ← mkFreshExprMVar d MetavarKind.synthetic;
       mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a) (instMVars.push a.mvarId!)
     | _ => do
-      a ← mkFreshExprMVar ref d;
+      a ← mkFreshExprMVar d;
       mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a) instMVars
-  | _ => throwError ref "unexpected constructor type"
+  | _ => throwError "unexpected constructor type"
 
 private partial def getForallBody : Nat → Expr → Option Expr
 | i+1, Expr.forallE _ _ b _ => getForallBody i b
 | i+1, _                    => none
 | 0,   type                 => type
 
-private def propagateExpectedType (ref : Syntax) (type : Expr) (numFields : Nat) (expectedType? : Option Expr) : TermElabM Unit :=
+private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType? : Option Expr) : TermElabM Unit :=
 match expectedType? with
 | none              => pure ()
 | some expectedType =>
@@ -469,16 +471,16 @@ match expectedType? with
     | none           => pure ()
     | some typeBody =>
       unless typeBody.hasLooseBVars $ do
-        _ ← isDefEq ref expectedType typeBody;
+        _ ← isDefEq expectedType typeBody;
         pure ()
 
-private def mkCtorHeader (ref : Syntax) (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
-lvls ← ctorVal.lparams.mapM $ fun _ => mkFreshLevelMVar ref;
+private def mkCtorHeader (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
+lvls ← ctorVal.lparams.mapM $ fun _ => mkFreshLevelMVar;
 let val  := Lean.mkConst ctorVal.name lvls;
 let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams lvls;
-r ← mkCtorHeaderAux ref ctorVal.nparams type val #[];
-propagateExpectedType ref r.ctorFnType ctorVal.nfields expectedType?;
-synthesizeAppInstMVars ref r.instMVars;
+r ← mkCtorHeaderAux ctorVal.nparams type val #[];
+propagateExpectedType r.ctorFnType ctorVal.nfields expectedType?;
+synthesizeAppInstMVars r.instMVars;
 pure r
 
 def markDefaultMissing (e : Expr) : Expr :=
@@ -487,20 +489,20 @@ mkAnnotation `structInstDefault e
 def isDefaultMissing? (e : Expr) : Option Expr :=
 isAnnotation? `structInstDefault e
 
-def throwFailedToElabField {α} (ref : Syntax) (fieldName : Name) (structName : Name) (msgData : MessageData) : TermElabM α :=
-throwError ref ("failed to elaborate field '" ++ fieldName ++ "' of '" ++ structName ++ ", " ++ msgData)
+def throwFailedToElabField {α} (fieldName : Name) (structName : Name) (msgData : MessageData) : TermElabM α :=
+throwError ("failed to elaborate field '" ++ fieldName ++ "' of '" ++ structName ++ ", " ++ msgData)
 
 private partial def elabStruct : Struct → Option Expr → TermElabM (Expr × Struct)
-| s, expectedType? => do
+| s, expectedType? => withRef s.ref do
   env ← getEnv;
   let ctorVal := getStructureCtor env s.structName;
-  { ctorFn := ctorFn, ctorFnType := ctorFnType, .. } ← mkCtorHeader s.ref ctorVal expectedType?;
+  { ctorFn := ctorFn, ctorFnType := ctorFnType, .. } ← mkCtorHeader ctorVal expectedType?;
   (e, _, fields) ← s.fields.foldlM
     (fun (acc : Expr × Expr × Fields) field =>
       let (e, type, fields) := acc;
       match field.lhs with
       | [FieldLHS.fieldName ref fieldName] => do
-        type ← whnfForall field.ref type;
+        type ← whnfForall type;
         match type with
         | Expr.forallE _ d b c =>
           let continue (val : Expr) (field : Field Struct) : TermElabM (Expr × Expr × Fields) := do {
@@ -510,11 +512,11 @@ private partial def elabStruct : Struct → Option Expr → TermElabM (Expr × S
             pure (e, type, field::fields)
           };
           match field.val with
-          | FieldVal.term stx => do val ← elabTerm stx (some d); val ← ensureHasType stx d val; continue val field
-          | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); val ← ensureHasType s.ref d val; continue val { field with val := FieldVal.nested sNew }
-          | FieldVal.default  => do val ← mkFreshExprMVar field.ref (some d); continue (markDefaultMissing val) field
-        | _ => throwFailedToElabField field.ref fieldName s.structName ("unexpected constructor type" ++ indentExpr type)
-      | _ => throwError field.ref "unexpected unexpanded structure field")
+          | FieldVal.term stx => do val ← elabTerm stx (some d); val ← withRef stx $ ensureHasType d val; continue val field
+          | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); val ← ensureHasType d val; continue val { field with val := FieldVal.nested sNew }
+          | FieldVal.default  => do val ← withRef field.ref $ mkFreshExprMVar (some d); continue (markDefaultMissing val) field
+        | _ => withRef field.ref $ throwFailedToElabField fieldName s.structName ("unexpected constructor type" ++ indentExpr type)
+      | _ => throwErrorAt field.ref "unexpected unexpanded structure field")
     (ctorFn, ctorFnType, []);
   pure (e, s.setFields fields.reverse)
 
@@ -603,19 +605,18 @@ struct.fields.findSome? $ fun field =>
     none
 
 partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Expr)
-| Expr.lam n d b c =>
-  let ref := struct.ref;
+| Expr.lam n d b c => withRef struct.ref $
   if c.binderInfo.isExplicit then
     let fieldName := n;
     match getFieldValue? struct fieldName with
     | none     => pure none
     | some val => do
-      valType ← inferType ref val;
-      condM (isDefEq ref valType d)
+      valType ← inferType val;
+      condM (isDefEq valType d)
         (mkDefaultValueAux? (b.instantiate1 val))
         (pure none)
   else do
-    arg ← mkFreshExprMVar ref d;
+    arg ← mkFreshExprMVar d;
     mkDefaultValueAux? (b.instantiate1 arg)
 | e =>
   if e.isAppOfArity `id 2 then
@@ -623,9 +624,9 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
   else
     pure (some e)
 
-def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option Expr) := do
-let ref := struct.ref;
-us ← cinfo.lparams.mapM $ fun _ => mkFreshLevelMVar ref;
+def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option Expr) :=
+withRef struct.ref do
+us ← cinfo.lparams.mapM $ fun _ => mkFreshLevelMVar;
 mkDefaultValueAux? struct (cinfo.instantiateValueLevelParams us)
 
 /-- If `e` is a projection function of one of the given structures, then reduce it -/
@@ -679,7 +680,7 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
   | none     => pure e
 | e => pure e
 
-partial def tryToSynthesizeDefaultAux (ref : Syntax) (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat)
+partial def tryToSynthesizeDefaultAux (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat)
     (fieldName : Name) (mvarId : MVarId) : Nat → Nat → TermElabM Bool
 | i, dist =>
   if dist > maxDistance then pure false
@@ -694,21 +695,21 @@ partial def tryToSynthesizeDefaultAux (ref : Syntax) (structs : Array Struct) (a
       match val? with
       | none     => do setMCtx mctx; tryToSynthesizeDefaultAux (i+1) (dist+1)
       | some val => do
-        val ← liftMetaM struct.ref $ reduce allStructNames val;
+        val ← liftMetaM $ reduce allStructNames val;
         match val.find? $ fun e => (isDefaultMissing? e).isSome with
         | some _ => do setMCtx mctx; tryToSynthesizeDefaultAux (i+1) (dist+1)
         | none   => do
           mvarDecl ← getMVarDecl mvarId;
-          val ← ensureHasType ref mvarDecl.type val;
+          val ← ensureHasType mvarDecl.type val;
           assignExprMVar mvarId val;
           pure true
     | _ => tryToSynthesizeDefaultAux (i+1) dist
   else
     pure false
 
-def tryToSynthesizeDefault (ref : Syntax) (structs : Array Struct) (allStructNames : Array Name)
+def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Array Name)
     (maxDistance : Nat) (fieldName : Name) (mvarId : MVarId) : TermElabM Bool :=
-tryToSynthesizeDefaultAux ref structs allStructNames maxDistance fieldName mvarId 0 0
+tryToSynthesizeDefaultAux structs allStructNames maxDistance fieldName mvarId 0 0
 
 partial def step : Struct → M Unit
 | struct => unlessM isRoundDone $ adaptReader (fun (ctx : Context) => { ctx with structs := ctx.structs.push struct }) $ do
@@ -721,7 +722,7 @@ partial def step : Struct → M Unit
         | some (Expr.mvar mvarId _) =>
           unlessM (liftM $ isExprMVarAssigned mvarId) $ do
             ctx ← read;
-            whenM (liftM $ tryToSynthesizeDefault field.ref ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) $ do
+            whenM (liftM $ withRef field.ref $ tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) $ do
               modify $ fun s => { s with progress := true }
         | _ => pure ()
 
@@ -732,7 +733,7 @@ partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
   | none       => pure () -- Done
   | some field =>
     if d > hierarchyDepth then
-      liftM $ throwError field.ref ("field '" ++ getFieldName field ++ "' is missing")
+      liftM $ throwErrorAt field.ref ("field '" ++ getFieldName field ++ "' is missing")
     else adaptReader (fun (ctx : Context) => { ctx with maxDistance := d }) $ do
       modify $ fun (s : State) => { s with progress := false };
       step struct;
@@ -753,12 +754,12 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
 structName ← getStructName stx expectedType? source;
 env ← getEnv;
 unless (isStructureLike env structName) $
-  throwError stx ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
+  throwError ("invalid {...} notation, '" ++ structName ++ "' is not a structure");
 match mkStructView stx structName source with
-| Except.error ex  => throwError stx ex
+| Except.error ex  => throwError ex
 | Except.ok struct => do
   struct ← expandStruct struct;
-  trace `Elab.struct stx $ fun _ => toString struct;
+  trace `Elab.struct fun _ => toString struct;
   (r, struct) ← elabStruct struct expectedType?;
   DefaultFields.propagate struct;
   pure r
@@ -785,7 +786,7 @@ fun stx expectedType? => do
       modifyOp?  ← isModifyOp? stx;
       match modifyOp?, sourceView with
       | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
-      | some _,        _                        => throwError stx ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
+      | some _,        _                        => throwError ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
       | _,             _                        => elabStructInstAux stx expectedType? sourceView
 
 @[init] private def regTraceClasses : IO Unit := do

@@ -16,27 +16,27 @@ structure ExtractMonadResult :=
 (α           : Expr)
 (hasBindInst : Expr)
 
-private def mkIdBindFor (ref : Syntax) (type : Expr) : TermElabM ExtractMonadResult := do
-u ← getLevel ref type;
+private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
+u ← getLevel type;
 let id        := Lean.mkConst `Id [u];
 let idBindVal := Lean.mkConst `Id.hasBind [u];
 pure { m := id, hasBindInst := idBindVal, α := type }
 
-private def extractBind (ref : Syntax) (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
+private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
 match expectedType? with
-| none => throwError ref "invalid do notation, expected type is not available"
+| none => throwError "invalid do notation, expected type is not available"
 | some expectedType => do
-  type ← withReducible $ whnf ref expectedType;
-  when type.getAppFn.isMVar $ throwError ref "invalid do notation, expected type is not available";
+  type ← withReducible $ whnf expectedType;
+  when type.getAppFn.isMVar $ throwError "invalid do notation, expected type is not available";
   match type with
   | Expr.app m α _ =>
     catch
       (do
-        bindInstType ← mkAppM ref `HasBind #[m];
-        bindInstVal  ← synthesizeInst ref bindInstType;
+        bindInstType ← mkAppM `HasBind #[m];
+        bindInstVal  ← synthesizeInst bindInstType;
         pure { m := m, hasBindInst := bindInstVal, α := α })
-      (fun ex => mkIdBindFor ref type)
-  | _ => mkIdBindFor ref type
+      (fun ex => mkIdBindFor type)
+  | _ => mkIdBindFor type
 
 private def getDoElems (stx : Syntax) : Array Syntax :=
 --parser! "do " >> (bracketedDoSeq <|> doSeq)
@@ -147,34 +147,34 @@ structure ProcessedDoElem :=
 
 instance ProcessedDoElem.inhabited : Inhabited ProcessedDoElem := ⟨⟨arbitrary _, arbitrary _⟩⟩
 
-private def extractTypeFormerAppArg (ref : Syntax) (type : Expr) : TermElabM Expr := do
-type ← withReducible $ whnf ref type;
+private def extractTypeFormerAppArg (type : Expr) : TermElabM Expr := do
+type ← withReducible $ whnf type;
 match type with
 | Expr.app _ a _ => pure a
-| _              => throwError ref ("type former application expected" ++ indentExpr type)
+| _              => throwError ("type former application expected" ++ indentExpr type)
 
 /-
 HasBind.bind : ∀ {m : Type u_1 → Type u_2} [self : HasBind m] {α β : Type u_1}, m α → (α → m β) → m β
 -/
-private def mkBind (ref : Syntax) (m bindInstVal : Expr) (elems : Array ProcessedDoElem) (body : Expr) : TermElabM Expr :=
+private def mkBind (m bindInstVal : Expr) (elems : Array ProcessedDoElem) (body : Expr) : TermElabM Expr :=
 if elems.isEmpty then
   pure body
 else do
   let x := elems.back.var; -- any variable would work since they must be in the same universe
-  xType ← inferType ref x;
-  u_1 ← getDecLevel ref xType;
-  bodyType ← inferType ref body;
-  u_2 ← getDecLevel ref bodyType;
+  xType ← inferType x;
+  u_1 ← getDecLevel xType;
+  bodyType ← inferType body;
+  u_2 ← getDecLevel bodyType;
   let bindAndInst := mkApp2 (Lean.mkConst `HasBind.bind [u_1, u_2]) m bindInstVal;
   elems.foldrM
     (fun elem body => do
       -- dbgTrace (">>> " ++ toString body);
       let var    := elem.var;
       let action := elem.action;
-      α  ← inferType ref var;
-      mβ ← inferType ref body;
-      β  ← extractTypeFormerAppArg ref mβ;
-      f  ← mkLambda ref #[var] body;
+      α  ← inferType var;
+      mβ ← inferType body;
+      β  ← extractTypeFormerAppArg mβ;
+      f  ← mkLambda #[var] body;
       -- dbgTrace (">>> f: " ++ toString f);
       let body := mkAppN bindAndInst #[α, β, action, f];
       pure body)
@@ -184,45 +184,44 @@ private partial def processDoElemsAux (doElems : Array Syntax) (m bindInstVal : 
 | i, elems =>
   let doElem := doElems.get! i;
   let k      := doElem.getKind;
-  let ref    := doElem;
+  withRef doElem $
   if k == `Lean.Parser.Term.doId then do
     when (i == doElems.size - 1) $
-      throwError ref "the last statement in a 'do' block must be an expression";
+      throwError "the last statement in a 'do' block must be an expression";
     -- try (ident >> optType >> leftArrow) >> termParser
     let id        := doElem.getIdAt 0;
-    let typeStx   := expandOptType ref (doElem.getArg 1);
+    let typeStx   := expandOptType doElem (doElem.getArg 1);
     let actionStx := doElem.getArg 3;
     type ← elabType typeStx;
     let actionExpectedType := mkApp m type;
     action ← elabTerm actionStx actionExpectedType;
-    action ← ensureHasType actionStx actionExpectedType action;
-    withLocalDecl ref id BinderInfo.default type $ fun x =>
+    action ← withRef actionStx $ ensureHasType actionExpectedType action;
+    withLocalDecl id BinderInfo.default type $ fun x =>
       processDoElemsAux (i+1) (elems.push { action := action, var := x })
   else if doElem.getKind == `Lean.Parser.Term.doExpr then do
     when (i != doElems.size - 1) $
-      throwError ref ("unexpected 'do' expression element" ++ Format.line ++ doElem);
+      throwError ("unexpected 'do' expression element" ++ Format.line ++ doElem);
     let bodyStx := doElem.getArg 0;
     body ← elabTerm bodyStx expectedType;
-    body ← ensureHasType ref expectedType body;
-    mkBind ref m bindInstVal elems body
+    body ← ensureHasType expectedType body;
+    mkBind m bindInstVal elems body
   else
-    throwError ref ("unexpected 'do' expression element" ++ Format.line ++ doElem)
+    throwError ("unexpected 'do' expression element" ++ Format.line ++ doElem)
 
 private def processDoElems (doElems : Array Syntax) (m bindInstVal : Expr) (expectedType : Expr) : TermElabM Expr :=
 processDoElemsAux doElems m bindInstVal expectedType 0 #[]
 
 @[builtinTermElab «do»] def elabDo : TermElab :=
 fun stx expectedType? => do
-  let ref := stx;
   tryPostponeIfNoneOrMVar expectedType?;
   let doElems := getDoElems stx;
   stxNew? ← liftMacroM $ expandDoElems doElems;
   match stxNew? with
   | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
   | none => do
-    trace `Elab.do ref $ fun _ => stx;
+    trace `Elab.do $ fun _ => stx;
     let doElems := doElems.getSepElems;
-    { m := m, hasBindInst := bindInstVal, .. } ← extractBind ref expectedType?;
+    { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
     result ← processDoElems doElems m bindInstVal expectedType?.get!;
     -- dbgTrace ("result: " ++ toString result);
     pure result

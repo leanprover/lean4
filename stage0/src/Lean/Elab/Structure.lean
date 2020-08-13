@@ -192,14 +192,14 @@ match type with
 | Expr.sort (Level.succ _ _) _ => true
 | _                            => false
 
-private def checkParentIsStructure (ref : Syntax) (parent : Expr) : TermElabM Name :=
+private def checkParentIsStructure (parent : Expr) : TermElabM Name :=
 match parent.getAppFn with
 | Expr.const c _ _ => do
   env ← Term.getEnv;
   unless (isStructure env c) $
-    Term.throwError ref $ "'" ++ toString c ++ "' is not a structure";
+    Term.throwError $ "'" ++ toString c ++ "' is not a structure";
   pure c
-| _ => Term.throwError ref $ "expected structure"
+| _ => Term.throwError $ "expected structure"
 
 private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : Option StructFieldInfo :=
 infos.find? fun info => info.name == fieldName
@@ -207,17 +207,17 @@ infos.find? fun info => info.name == fieldName
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
 (findFieldInfo? infos fieldName).isSome
 
-private partial def processSubfields {α} (ref : Syntax) (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
+private partial def processSubfields {α} (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
     : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
 | i, infos, k =>
   if h : i < subfieldNames.size then do
     let subfieldName := subfieldNames.get ⟨i, h⟩;
     env ← Term.getEnv;
     when (containsFieldName infos subfieldName) $
-      Term.throwError ref ("field '" ++ subfieldName ++ "' from '" ++ parentStructName ++ "' has already been declared");
-    val  ← Term.liftMetaM ref $ Meta.mkProjection parentFVar subfieldName;
-    type ← Term.inferType ref val;
-    Term.withLetDecl ref subfieldName type val fun subfieldFVar =>
+      Term.throwError ("field '" ++ subfieldName ++ "' from '" ++ parentStructName ++ "' has already been declared");
+    val  ← Term.liftMetaM $ Meta.mkProjection parentFVar subfieldName;
+    type ← Term.inferType val;
+    Term.withLetDecl subfieldName type val fun subfieldFVar =>
       /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
          its default value is overwritten in the structure. -/
       let declName := structDeclName ++ subfieldName;
@@ -228,19 +228,20 @@ private partial def processSubfields {α} (ref : Syntax) (structDeclName : Name)
 
 private partial def withParents {α} (view : StructView) : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
 | i, infos, k =>
-  if h : i < view.parents.size then do
+  if h : i < view.parents.size then
     let parentStx := view.parents.get ⟨i, h⟩;
+    Term.withRef parentStx do
     parent ← Term.elabType parentStx;
-    parentName ← checkParentIsStructure parentStx parent;
+    parentName ← checkParentIsStructure parent;
     let toParentName := mkNameSimple $ "to" ++ parentName.eraseMacroScopes.getString!; -- erase macro scopes?
     when (containsFieldName infos toParentName) $
-      Term.throwError parentStx ("field '" ++ toParentName ++ "' has already been declared");
+      Term.throwErrorAt parentStx ("field '" ++ toParentName ++ "' has already been declared");
     env ← Term.getEnv;
     let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default;
-    Term.withLocalDecl parentStx toParentName binfo parent $ fun parentFVar =>
+    Term.withLocalDecl toParentName binfo parent $ fun parentFVar =>
       let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
       let subfieldNames := getStructureFieldsFlattened env parentName;
-      processSubfields parentStx view.declName parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
+      processSubfields view.declName parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
   else
     k infos
 
@@ -248,141 +249,142 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
 | i, infos, k =>
   if h : i < views.size then do
     let view := views.get ⟨i, h⟩;
+    Term.withRef view.ref $
     match findFieldInfo? infos view.name with
     | none      => do
       (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => do {
         type? ← match view.type? with
           | none         => pure none
-          | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall typeStx params type; pure $ some type };
+          | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall params type; pure $ some type };
         value? ← match view.value? with
           | none        => pure none
           | some valStx => do {
             value ← Term.elabTerm valStx type?;
-            value ← Term.mkLambda valStx params value;
-            value ← Term.ensureHasType valStx type? value;
+            value ← Term.mkLambda params value;
+            value ← Term.withRef valStx $ Term.ensureHasType type? value;
             pure $ some value
           };
         pure (type?, value?)
       };
       match type?, value? with
-      | none,      none => Term.throwError view.ref "invalid field, type expected"
+      | none,      none => Term.throwError "invalid field, type expected"
       | some type, _    =>
-        Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
+        Term.withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
           let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
                                     kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
       | none, some value => do
-        type ← Term.inferType view.ref value;
-        Term.withLocalDecl view.ref view.name view.binderInfo type $ fun fieldFVar =>
+        type ← Term.inferType value;
+        Term.withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
           let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
     | some info =>
       match info.kind with
-      | StructFieldKind.newField   => Term.throwError view.ref ("field '" ++ view.name ++ "' has already been declared")
+      | StructFieldKind.newField   => Term.throwError ("field '" ++ view.name ++ "' has already been declared")
       | StructFieldKind.fromParent =>
         match view.value? with
-        | none       => Term.throwError view.ref ("field '" ++ view.name ++ "' has been declared in parent structure")
+        | none       => Term.throwError ("field '" ++ view.name ++ "' has been declared in parent structure")
         | some valStx => do
           when (!view.binders.getArgs.isEmpty || view.type?.isSome) $
-            Term.throwError view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value");
-          fvarType ← Term.inferType view.ref info.fvar;
+            Term.throwErrorAt view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value");
+          fvarType ← Term.inferType info.fvar;
           value ← Term.elabTerm valStx fvarType;
-          value ← Term.ensureHasType valStx fvarType value;
+          value ← Term.withRef valStx $ Term.ensureHasType fvarType value;
           let infos := infos.push { info with value? := value };
           withFields (i+1) infos k
       | StructFieldKind.subobject => unreachable!
   else
     k infos
 
-private def getResultUniverse (ref : Syntax) (type : Expr) : TermElabM Level := do
-type ← Term.whnf ref type;
+private def getResultUniverse (type : Expr) : TermElabM Level := do
+type ← Term.whnf type;
 match type with
 | Expr.sort u _ => pure u
-| _             => Term.throwError ref "unexpected structure resulting type"
+| _             => Term.throwError "unexpected structure resulting type"
 
-private def removeUnused (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
+private def removeUnused (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 used ← params.foldlM
    (fun (used : CollectFVars.State) p => do
-     type ← Term.inferType ref p;
-     Term.collectUsedFVars ref used type)
+     type ← Term.inferType p;
+     Term.collectUsedFVars used type)
    {};
 used ← fieldInfos.foldlM
   (fun (used : CollectFVars.State) info => do
-    fvarType ← Term.inferType ref info.fvar;
-    used ← Term.collectUsedFVars ref used fvarType;
+    fvarType ← Term.inferType info.fvar;
+    used ← Term.collectUsedFVars used fvarType;
     match info.value? with
     | none       => pure used
-    | some value => Term.collectUsedFVars ref used value)
+    | some value => Term.collectUsedFVars used value)
   used;
-Term.removeUnused ref scopeVars used
+Term.removeUnused scopeVars used
 
-private def withUsed {α} (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (k : Array Expr → TermElabM α)
+private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (k : Array Expr → TermElabM α)
     : TermElabM α := do
-(lctx, localInsts, vars) ← removeUnused ref scopeVars params fieldInfos;
+(lctx, localInsts, vars) ← removeUnused scopeVars params fieldInfos;
 Term.withLCtx lctx localInsts $ k vars
 
-private def levelMVarToParamFVar (ref : Syntax) (fvar : Expr) : StateT Nat TermElabM Unit := do
-type ← liftM $ Term.inferType ref fvar;
+private def levelMVarToParamFVar (fvar : Expr) : StateT Nat TermElabM Unit := do
+type ← liftM $ Term.inferType fvar;
 _ ← Term.levelMVarToParam' type;
 pure ()
 
-private def levelMVarToParamFVars (ref : Syntax) (fvars : Array Expr) : StateT Nat TermElabM Unit :=
-fvars.forM (levelMVarToParamFVar ref)
+private def levelMVarToParamFVars (fvars : Array Expr) : StateT Nat TermElabM Unit :=
+fvars.forM levelMVarToParamFVar
 
-private def levelMVarToParamAux (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
+private def levelMVarToParamAux (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
     : StateT Nat TermElabM (Array StructFieldInfo) := do
-levelMVarToParamFVars ref scopeVars;
-levelMVarToParamFVars ref params;
+levelMVarToParamFVars scopeVars;
+levelMVarToParamFVars params;
 fieldInfos.mapM fun info => do
-  levelMVarToParamFVar ref info.fvar;
+  levelMVarToParamFVar info.fvar;
   match info.value? with
   | none       => pure info
   | some value => do
     value ← Term.levelMVarToParam' value;
     pure { info with value? := value }
 
-private def levelMVarToParam (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array StructFieldInfo) :=
-(levelMVarToParamAux ref scopeVars params fieldInfos).run' 1
+private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array StructFieldInfo) :=
+(levelMVarToParamAux scopeVars params fieldInfos).run' 1
 
-private partial def collectUniversesFromFields (ref : Syntax) (r : Level) (rOffset : Nat) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Level) := do
+private partial def collectUniversesFromFields (r : Level) (rOffset : Nat) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Level) := do
 fieldInfos.foldlM
   (fun (us : Array Level) (info : StructFieldInfo) => do
-    type ← Term.inferType ref info.fvar;
-    u ← Term.getLevel ref type;
-    u ← Term.instantiateLevelMVars ref u;
+    type ← Term.inferType info.fvar;
+    u ← Term.getLevel type;
+    u ← Term.instantiateLevelMVars u;
     match accLevelAtCtor u r rOffset us with
-    | Except.error msg => Term.throwError ref msg
+    | Except.error msg => Term.throwError msg
     | Except.ok us     => pure us)
   #[]
 
-private def updateResultingUniverse (ref : Syntax) (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
-r ← getResultUniverse ref type;
+private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
+r ← getResultUniverse type;
 let rOffset : Nat   := r.getOffset;
 let r       : Level := r.getLevelOffset;
 match r with
 | Level.mvar mvarId _ => do
-  us ← collectUniversesFromFields ref r rOffset fieldInfos;
+  us ← collectUniversesFromFields r rOffset fieldInfos;
   let rNew := Level.mkNaryMax us.toList;
   Term.assignLevelMVar mvarId rNew;
-  Term.instantiateMVars ref type
-| _ => Term.throwError ref "failed to compute resulting universe level of structure, provide universe explicitly"
+  Term.instantiateMVars type
+| _ => Term.throwError "failed to compute resulting universe level of structure, provide universe explicitly"
 
-private def collectLevelParamsInFVar (ref : Syntax) (s : CollectLevelParams.State) (fvar : Expr) : TermElabM CollectLevelParams.State := do
-type ← Term.inferType ref fvar;
-type ← Term.instantiateMVars ref type;
+private def collectLevelParamsInFVar (s : CollectLevelParams.State) (fvar : Expr) : TermElabM CollectLevelParams.State := do
+type ← Term.inferType fvar;
+type ← Term.instantiateMVars type;
 pure $ collectLevelParams s type
 
-private def collectLevelParamsInFVars (ref : Syntax) (fvars : Array Expr) (s : CollectLevelParams.State) : TermElabM CollectLevelParams.State :=
-fvars.foldlM (collectLevelParamsInFVar ref) s
+private def collectLevelParamsInFVars (fvars : Array Expr) (s : CollectLevelParams.State) : TermElabM CollectLevelParams.State :=
+fvars.foldlM collectLevelParamsInFVar s
 
-private def collectLevelParamsInStructure (ref : Syntax) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Name) := do
-s ← collectLevelParamsInFVars ref scopeVars {};
-s ← collectLevelParamsInFVars ref params s;
-s ← fieldInfos.foldlM (fun (s : CollectLevelParams.State) info => collectLevelParamsInFVar ref s info.fvar) s;
+private def collectLevelParamsInStructure (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Name) := do
+s ← collectLevelParamsInFVars scopeVars {};
+s ← collectLevelParamsInFVars params s;
+s ← fieldInfos.foldlM (fun (s : CollectLevelParams.State) info => collectLevelParamsInFVar s info.fvar) s;
 pure s.params
 
-private def addCtorFields (ref : Syntax) (fieldInfos : Array StructFieldInfo) : Nat → Expr → TermElabM Expr
+private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr → TermElabM Expr
 | 0,   type => pure type
 | i+1, type => do
   let info := fieldInfos.get! i;
@@ -398,36 +400,37 @@ private def addCtorFields (ref : Syntax) (fieldInfos : Array StructFieldInfo) : 
   | StructFieldKind.newField =>
     addCtorFields i (mkForall decl.userName decl.binderInfo decl.type type)
 
-private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor := do
+private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor :=
+Term.withRef view.ref do
 let type := mkAppN (mkConst view.declName (levelParams.map mkLevelParam)) params;
-type ← addCtorFields view.ref fieldInfos fieldInfos.size type;
-type ← Term.mkForall view.ref params type;
-type ← Term.instantiateMVars view.ref type;
+type ← addCtorFields fieldInfos fieldInfos.size type;
+type ← Term.mkForall params type;
+type ← Term.instantiateMVars type;
 let type := type.inferImplicit params.size !view.ctor.inferMod;
 pure { name := view.ctor.declName, type := type }
 
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
-unless (validStructType type) $ Term.throwError view.type "expected Type";
-let ref := view.ref;
+unless (validStructType type) $ Term.throwErrorAt view.type "expected Type";
+Term.withRef view.ref do
 withParents view 0 #[] fun fieldInfos =>
 withFields view.fields 0 fieldInfos fun fieldInfos => do
   Term.synthesizeSyntheticMVars false;  -- resolve pending
-  u ← getResultUniverse ref type;
-  inferLevel ← shouldInferResultUniverse ref u;
-  withUsed ref view.scopeVars view.params fieldInfos $ fun scopeVars => do
+  u ← getResultUniverse type;
+  inferLevel ← shouldInferResultUniverse u;
+  withUsed view.scopeVars view.params fieldInfos $ fun scopeVars => do
     let numParams := scopeVars.size + numExplicitParams;
-    fieldInfos ← levelMVarToParam ref scopeVars view.params fieldInfos;
-    type ← if inferLevel then updateResultingUniverse ref fieldInfos type else pure type;
-    usedLevelNames ← collectLevelParamsInStructure ref scopeVars view.params fieldInfos;
+    fieldInfos ← levelMVarToParam scopeVars view.params fieldInfos;
+    type ← if inferLevel then updateResultingUniverse fieldInfos type else pure type;
+    usedLevelNames ← collectLevelParamsInStructure scopeVars view.params fieldInfos;
     match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
-    | Except.error msg      => Term.throwError ref msg
+    | Except.error msg      => Term.throwError msg
     | Except.ok levelParams => do
       let params := scopeVars ++ view.params;
       ctor ← mkCtor view levelParams params fieldInfos;
-      type ← Term.mkForall ref params type;
-      type ← Term.instantiateMVars ref type;
+      type ← Term.mkForall params type;
+      type ← Term.instantiateMVars type;
       let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
       let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
       let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
@@ -442,7 +445,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
       localInsts ← Term.getLocalInsts;
       let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome;
       defaultAuxDecls ← fieldsWithDefault.mapM fun info => do {
-        type ← Term.inferType ref info.fvar;
+        type ← Term.inferType info.fvar;
         pure (info.declName ++ `_default, type, info.value?.get!)
       };
       /- The `mctx`, `lctx`, `localInsts` and `defaultAuxDecls` are used to create the auxiliary `_default` declarations *after* the structure has been declarated.
@@ -483,9 +486,9 @@ liftTermElabM none $ Term.withLocalContext lctx localInsts do
   Term.setMCtx mctx;
   defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
     /- The identity function is used as "marker". -/
-    value ← Term.liftMetaM ref $ Meta.mkId value;
+    value ← Term.liftMetaM $ Meta.mkId value;
     let zeta := true; -- expand `let-declarations`
-    _ ← Term.mkAuxDefinition ref declName type value zeta;
+    _ ← Term.mkAuxDefinition declName type value zeta;
     Term.modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;
     pure ()
 
@@ -532,7 +535,7 @@ withDeclId declId $ fun name => do
     fields            := fields
   };
   let ref := declId;
-  addDecl ref r.decl;
+  addDecl r.decl;
   addProjections ref declName r.projInfos isClass;
   mkAuxConstructions declName;
   applyAttributes ref declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;

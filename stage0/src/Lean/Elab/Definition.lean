@@ -40,55 +40,55 @@ structure DefView :=
 (type?         : Option Syntax)
 (val           : Syntax)
 
-private def removeUnused (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
+private def removeUnused (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 let used : CollectFVars.State := {};
-used ← Term.collectUsedFVars ref used eType;
-used ← Term.collectUsedFVars ref used e;
-used ← Term.collectUsedFVarsAtFVars ref used xs;
-Term.removeUnused ref vars used
+used ← Term.collectUsedFVars used eType;
+used ← Term.collectUsedFVars used e;
+used ← Term.collectUsedFVarsAtFVars used xs;
+Term.removeUnused vars used
 
-private def withUsedWhen {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
+private def withUsedWhen {α} (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 if cond then do
- (lctx, localInsts, vars) ← removeUnused ref vars xs e eType;
+ (lctx, localInsts, vars) ← removeUnused vars xs e eType;
  Term.withLCtx lctx localInsts $ k vars
 else
  k vars
 
-private def withUsedWhen' {α} (ref : Syntax) (vars : Array Expr) (xs : Array Expr) (e : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
+private def withUsedWhen' {α} (vars : Array Expr) (xs : Array Expr) (e : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 let dummyExpr := mkSort levelOne;
-withUsedWhen ref vars xs e dummyExpr cond k
+withUsedWhen vars xs e dummyExpr cond k
 
 def mkDef (view : DefView) (declName : Name) (scopeLevelNames allUserLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
     : TermElabM (Option Declaration) := do
-let ref := view.ref;
+Term.withRef view.ref do
 Term.synthesizeSyntheticMVars;
-val     ← Term.ensureHasType view.val type val;
+val     ← Term.withRef view.val $ Term.ensureHasType type val;
 Term.synthesizeSyntheticMVars false;
-type    ← Term.instantiateMVars ref type;
-val     ← Term.instantiateMVars view.val val;
+type    ← Term.instantiateMVars type;
+val     ← Term.instantiateMVars val;
 if view.kind.isExample then pure none
-else withUsedWhen ref vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars => do
-  type ← Term.mkForall ref xs type;
-  type ← Term.mkForall ref vars type;
-  val  ← Term.mkLambda ref xs val;
-  val  ← Term.mkLambda ref vars val;
+else withUsedWhen vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars => do
+  type ← Term.mkForall xs type;
+  type ← Term.mkForall vars type;
+  val  ← Term.mkLambda xs val;
+  val  ← Term.mkLambda vars val;
   (type, nextParamIdx) ← Term.levelMVarToParam type;
   (val,  _) ← Term.levelMVarToParam val nextParamIdx;
-  type ← Term.instantiateMVars ref type;
-  val  ← Term.instantiateMVars view.val val;
+  type ← Term.instantiateMVars type;
+  val  ← Term.instantiateMVars val;
   let shareCommonTypeVal : Std.ShareCommonM (Expr × Expr) := do {
     type ← Std.withShareCommon type;
     val  ← Std.withShareCommon val;
     pure (type, val)
   };
   let (type, val) := shareCommonTypeVal.run;
-  Term.trace `Elab.definition.body ref $ fun _ => declName ++ " : " ++ type ++ " :=" ++ Format.line ++ val;
+  Term.trace `Elab.definition.body fun _ => declName ++ " : " ++ type ++ " :=" ++ Format.line ++ val;
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;
   match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams.params with
-  | Except.error msg      => Term.throwError ref msg
+  | Except.error msg      => Term.throwError msg
   | Except.ok levelParams =>
     match view.kind with
     | DefKind.theorem =>
@@ -115,7 +115,7 @@ if kind == `Lean.Parser.Command.declValSimple then
   -- parser! " := " >> termParser
   Term.elabTerm (defVal.getArg 1) expectedType
 else if kind == `Lean.Parser.Command.declValEqns then
-  Term.throwError defVal "equations have not been implemented yet"
+  Term.throwErrorAt defVal "equations have not been implemented yet"
 else
   Term.throwUnsupportedSyntax
 
@@ -131,21 +131,21 @@ withDeclId view.declId $ fun name => do
     | some typeStx => do
       type ← Term.elabType typeStx;
       Term.synthesizeSyntheticMVars false;
-      type ← Term.instantiateMVars typeStx type;
-      withUsedWhen' ref vars xs type view.kind.isTheorem $ fun vars => do
+      type ← Term.instantiateMVars type;
+      withUsedWhen' vars xs type view.kind.isTheorem $ fun vars => do
         val  ← elabDefVal view.val type;
         mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     | none => do {
-      type ← Term.mkFreshTypeMVar view.binders;
+      type ← Term.withRef view.binders $ Term.mkFreshTypeMVar;
       val  ← elabDefVal view.val type;
       mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     };
   match decl? with
   | none      => pure ()
   | some decl => do
-    addDecl ref decl;
+    addDecl decl;
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-    compileDecl ref decl;
+    compileDecl decl;
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
 
 @[init] private def regTraceClasses : IO Unit := do

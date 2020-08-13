@@ -570,6 +570,7 @@ lean_object* l___regBuiltin_Lean_Parser_Term_nomatch_parenthesizer(lean_object*)
 lean_object* l_Lean_Parser_Term_listLit___closed__2;
 lean_object* l_Lean_Parser_Term_andthen_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Term_band___elambda__1(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_19__processNonVariable___closed__1;
 lean_object* l_Lean_Parser_ParserState_mkTrailingNode(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_seqRight___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_eq_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2298,7 +2299,6 @@ lean_object* l_Lean_Parser_Term_haveAssign_parenthesizer(lean_object*, lean_obje
 lean_object* l_Lean_Parser_Term_doPat_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_paren_parenthesizer___closed__5;
 lean_object* l___private_Lean_Parser_Parser_2__sepByFnAux___main___at_Lean_Parser_Term_subst___elambda__1___spec__2(uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_20__processNonVariable___closed__1;
 lean_object* l_Lean_Parser_Term_id___closed__7;
 lean_object* l_Lean_Parser_Term_bracketedDoSeq___closed__6;
 lean_object* l_Lean_Parser_Term_let___elambda__1___closed__9;
@@ -38020,7 +38020,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_20__processNonVariable___closed__1;
+x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_19__processNonVariable___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -38039,7 +38039,7 @@ lean_object* _init_l_Lean_Parser_Term_match___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l___private_Lean_Meta_EqnCompiler_DepElim_20__processNonVariable___closed__1;
+x_1 = l___private_Lean_Meta_EqnCompiler_DepElim_19__processNonVariable___closed__1;
 x_2 = l_Lean_Parser_Term_match___elambda__1___closed__2;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);

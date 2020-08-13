@@ -15,21 +15,20 @@ namespace Tactic
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr :=
-liftTermElabM $ adaptReader (fun (ctx : Term.Context) => { ctx with errToSorry := false }) $ do
+withRef stx $ liftTermElabM $ adaptReader (fun (ctx : Term.Context) => { ctx with errToSorry := false }) $ do
   e ← Term.elabTerm stx expectedType?;
   Term.synthesizeSyntheticMVars mayPostpone;
-  Term.instantiateMVars stx e
+  Term.instantiateMVars e
 
 @[builtinTactic «exact»] def evalExact : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| exact $e) => do
-    let ref := stx;
-    (g, gs) ← getMainGoal stx;
+    (g, gs) ← getMainGoal;
     withMVarContext g $ do {
       decl ← getMVarDecl g;
       val  ← elabTerm e decl.type;
-      val  ← ensureHasType ref decl.type val;
-      ensureHasNoMVars ref val;
+      val  ← ensureHasType decl.type val;
+      ensureHasNoMVars val;
       assignExprMVar g val
     };
     setGoals gs
@@ -38,14 +37,13 @@ fun stx => match_syntax stx with
 @[builtinTactic «refine»] def evalRefine : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| refine $e) => do
-    let ref := stx;
-    (g, gs) ← getMainGoal stx;
+    (g, gs) ← getMainGoal;
     gs' ← withMVarContext g $ do {
       decl ← getMVarDecl g;
       val  ← elabTerm e decl.type;
-      val  ← ensureHasType ref decl.type val;
+      val  ← ensureHasType decl.type val;
       assignExprMVar g val;
-      gs'  ← collectMVars ref val;
+      gs'  ← collectMVars val;
       tagUntaggedGoals decl.userName `refine gs';
       pure gs'
     };
@@ -55,12 +53,11 @@ fun stx => match_syntax stx with
 @[builtinTactic «apply»] def evalApply : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| apply $e) => do
-    let ref := stx;
-    (g, gs) ← getMainGoal stx;
+    (g, gs) ← getMainGoal;
     gs' ← withMVarContext g $ do {
       decl ← getMVarDecl g;
       val  ← elabTerm e none true;
-      gs'  ← liftMetaM ref $ Meta.apply g val;
+      gs'  ← liftMetaM $ Meta.apply g val;
       liftTermElabM $ Term.synthesizeSyntheticMVars false;
       pure gs'
     };
@@ -72,15 +69,15 @@ fun stx => match_syntax stx with
   Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/
 def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId := do
-(mvarId, others) ← getMainGoal stx;
+(mvarId, others) ← getMainGoal;
 withMVarContext mvarId $ do
   e ← elabTerm stx none;
   match e with
   | Expr.fvar fvarId _ => pure fvarId
   | _ => do
-    type ← inferType stx e;
+    type ← inferType e;
     let intro (userName : Name) (useUnusedNames : Bool) : TacticM FVarId := do {
-      (fvarId, mvarId) ← liftMetaM stx $ do {
+      (fvarId, mvarId) ← liftMetaM $ do {
         mvarId ← Meta.assert mvarId userName type e;
         Meta.intro1 mvarId useUnusedNames
       };

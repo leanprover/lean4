@@ -24,7 +24,7 @@ fun stx => do
   -- parser! nonReservedSymbol "injection " >> termParser >> withIds
   fvarId ← elabAsFVar (stx.getArg 1);
   let ids := getInjectionNewIds (stx.getArg 2);
-  liftMetaTactic stx $ fun mvarId => do
+  liftMetaTactic $ fun mvarId => do
     r ← Meta.injection mvarId fvarId ids (!ids.isEmpty);
     match r with
     | Meta.InjectionResult.solved                      => do checkUnusedIds mvarId ids; pure []

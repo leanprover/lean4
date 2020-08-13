@@ -10,26 +10,26 @@ namespace Lean
 namespace Elab
 namespace Term
 
-def collectUsedFVars (ref : Syntax) (used : CollectFVars.State) (e : Expr) : TermElabM CollectFVars.State := do
-e ← Term.instantiateMVars ref e;
+def collectUsedFVars (used : CollectFVars.State) (e : Expr) : TermElabM CollectFVars.State := do
+e ← Term.instantiateMVars e;
 pure $ collectFVars used e
 
-def collectUsedFVarsAtFVars (ref : Syntax) (used : CollectFVars.State) (fvars : Array Expr) : TermElabM CollectFVars.State :=
+def collectUsedFVarsAtFVars (used : CollectFVars.State) (fvars : Array Expr) : TermElabM CollectFVars.State :=
 fvars.foldlM
   (fun used fvar => do
-    fvarType ← Term.inferType ref fvar;
-    collectUsedFVars ref used fvarType)
+    fvarType ← Term.inferType fvar;
+    collectUsedFVars used fvarType)
   used
 
-def removeUnused (ref : Syntax) (vars : Array Expr) (used : CollectFVars.State) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
+def removeUnused (vars : Array Expr) (used : CollectFVars.State) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 localInsts ← Term.getLocalInsts;
 lctx ← Term.getLCtx;
 (lctx, localInsts, newVars, _) ← vars.foldrM
   (fun var (result : LocalContext × LocalInstances × Array Expr × CollectFVars.State) =>
     let (lctx, localInsts, newVars, used) := result;
     if used.fvarSet.contains var.fvarId! then do
-      varType ← Term.inferType ref var;
-      used ← Term.collectUsedFVars ref used varType;
+      varType ← Term.inferType var;
+      used ← Term.collectUsedFVars used varType;
       pure (lctx, localInsts, newVars.push var, used)
     else
       pure (lctx.erase var.fvarId!, localInsts.erase var.fvarId!, newVars, used))

@@ -12,23 +12,25 @@ namespace Term
 
 open Tactic (TacticM evalTactic getUnsolvedGoals)
 
-def liftTacticElabM {α} (ref : Syntax) (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
+def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
 withMVarContext mvarId $ fun ctx s =>
   let savedSyntheticMVars := s.syntheticMVars;
-  match x { ctx with ref := ref, main := mvarId } { s with goals := [mvarId], syntheticMVars := [] } with
+  match x { ctx with main := mvarId } { s with goals := [mvarId], syntheticMVars := [] } with
   | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) { newS.toTermState with syntheticMVars := savedSyntheticMVars }
   | EStateM.Result.ok a newS     => EStateM.Result.ok a { newS.toTermState with syntheticMVars := savedSyntheticMVars }
 
-def ensureAssignmentHasNoMVars (ref : Syntax) (mvarId : MVarId) : TermElabM Unit := do
-val ← instantiateMVars ref (mkMVar mvarId);
-when val.hasExprMVar $ throwError ref ("tactic failed, result still contain metavariables" ++ indentExpr val)
+def ensureAssignmentHasNoMVars (mvarId : MVarId) : TermElabM Unit := do
+val ← instantiateMVars (mkMVar mvarId);
+when val.hasExprMVar $ throwError ("tactic failed, result still contain metavariables" ++ indentExpr val)
 
-def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
+def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId };
-remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
+remainingGoals ← liftTacticElabM mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
+ref ← getCurrRef;
 let tailRef := ref.getTailWithPos.getD ref;
-unless remainingGoals.isEmpty (reportUnsolvedGoals tailRef remainingGoals);
-ensureAssignmentHasNoMVars tailRef mvarId
+withRef tailRef do
+unless remainingGoals.isEmpty (reportUnsolvedGoals remainingGoals);
+ensureAssignmentHasNoMVars mvarId
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
@@ -41,16 +43,16 @@ adaptReader (fun (ctx : Context) => { ctx with errToSorry := ctx.errToSorry && e
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
 private def resumePostponed (macroStack : MacroStack) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
-withMVarContext mvarId $ do
+withRef stx $ withMVarContext mvarId $ do
   s ← get;
   catch
     (adaptReader (fun (ctx : Context) => { ctx with macroStack := macroStack }) $ do
       mvarDecl     ← getMVarDecl mvarId;
-      expectedType ← instantiateMVars stx mvarDecl.type;
+      expectedType ← instantiateMVars mvarDecl.type;
       result       ← resumeElabTerm stx expectedType (!postponeOnError);
       /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
          That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
-      result ← ensureHasType stx expectedType result;
+      result ← ensureHasType expectedType result;
       assignExprMVar mvarId result;
       pure true)
     (fun ex => match ex with
@@ -65,40 +67,41 @@ withMVarContext mvarId $ do
 /--
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
-private def synthesizePendingInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
+private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool := do
 withMVarContext instMVar $ catch
-  (synthesizeInstMVarCore ref instMVar)
+  (synthesizeInstMVarCore instMVar)
   (fun ex => match ex with
     | Exception.ex (Elab.Exception.error errMsg) => do logMessage errMsg; pure true
     | _ => unreachable!)
 
 /--
   Similar to `synthesizePendingInstMVar`, but generates type mismatch error message. -/
-private def synthesizePendingCoeInstMVar (ref : Syntax) (instMVar : MVarId) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
+private def synthesizePendingCoeInstMVar (instMVar : MVarId) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
 withMVarContext instMVar $ catch
-  (synthesizeInstMVarCore ref instMVar)
+  (synthesizeInstMVarCore instMVar)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg) => throwTypeMismatchError ref expectedType eType e f? errMsg.data
+    | Exception.ex (Elab.Exception.error errMsg) => throwTypeMismatchError expectedType eType e f? errMsg.data
     | _ => unreachable!)
 
 /--
   Return `true` iff `mvarId` is assigned to a term whose the
   head is not a metavariable. We use this method to process `SyntheticMVarKind.withDefault`. -/
-private def checkWithDefault (ref : Syntax) (mvarId : MVarId) : TermElabM Bool := do
-val ← instantiateMVars ref (mkMVar mvarId);
+private def checkWithDefault (mvarId : MVarId) : TermElabM Bool := do
+val ← instantiateMVars (mkMVar mvarId);
 pure $ !val.getAppFn.isMVar
 
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
+withRef mvarSyntheticDecl.ref $
 match mvarSyntheticDecl.kind with
-| SyntheticMVarKind.typeClass                   => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.coe expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId expectedType eType e f?
+| SyntheticMVarKind.typeClass                   => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.coe expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId expectedType eType e f?
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-| SyntheticMVarKind.withDefault _               => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.withDefault _               => checkWithDefault mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.postponed macroStack        => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId postponeOnError
 | SyntheticMVarKind.tactic tacticCode           =>
   if runTactics then do
-    runTactic mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId tacticCode;
+    runTactic mvarSyntheticDecl.mvarId tacticCode;
     pure true
   else
     pure false
@@ -119,9 +122,9 @@ modify $ fun s => { s with syntheticMVars := [] };
 -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
 -- It would not be incorrect to use `filterM`.
 remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => do {
-   trace `Elab.postpone mvarDecl.ref $ fun _ => "resuming ?" ++ mvarDecl.mvarId;
+   trace `Elab.postpone $ fun _ => "resuming ?" ++ mvarDecl.mvarId;
    succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics;
-   trace `Elab.postpone mvarDecl.ref $ fun _ => if succeeded then fmt "succeeded" else fmt "not ready yet";
+   trace `Elab.postpone $ fun _ => if succeeded then fmt "succeeded" else fmt "not ready yet";
    pure $ !succeeded
 };
 -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
@@ -133,12 +136,13 @@ private def synthesizeUsingDefault : TermElabM Bool := do
 s ← get;
 let len := s.syntheticMVars.length;
 newSyntheticMVars ← s.syntheticMVars.filterM $ fun mvarDecl =>
+  withRef mvarDecl.ref $
   match mvarDecl.kind with
   | SyntheticMVarKind.withDefault defaultVal => withMVarContext mvarDecl.mvarId $ do
-      val ← instantiateMVars mvarDecl.ref (mkMVar mvarDecl.mvarId);
+      val ← instantiateMVars (mkMVar mvarDecl.mvarId);
       when val.getAppFn.isMVar $
-        unlessM (isDefEq mvarDecl.ref val defaultVal) $
-          throwError mvarDecl.ref "failed to assign default value to metavariable"; -- TODO: better error message
+        unlessM (isDefEq val defaultVal) $
+          throwError "failed to assign default value to metavariable"; -- TODO: better error message
       pure false
   | _ => pure true;
 modify $ fun s => { s with syntheticMVars := newSyntheticMVars };
@@ -148,6 +152,7 @@ pure $ newSyntheticMVars.length != len
 private def reportStuckSyntheticMVars : TermElabM Unit := do
 s ← get;
 s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
+  withRef mvarSyntheticDecl.ref $
   match mvarSyntheticDecl.kind with
   | SyntheticMVarKind.typeClass =>
     withMVarContext mvarSyntheticDecl.mvarId $ do
@@ -157,7 +162,7 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
   | SyntheticMVarKind.coe expectedType eType e f? =>
     withMVarContext mvarSyntheticDecl.mvarId $ do
       mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId;
-      throwTypeMismatchError mvarSyntheticDecl.ref expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
+      throwTypeMismatchError expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
   | _ => unreachable! -- TODO handle other cases.
 
 private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
@@ -177,7 +182,7 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
 | _ => do
   let try (x : TermElabM Bool) (k : TermElabM Unit) : TermElabM Unit := condM x (synthesizeSyntheticMVarsAux ()) k;
   ref ← getSomeSynthethicMVarsRef;
-  withIncRecDepth ref $ do
+  withRef ref $ withIncRecDepth $ do
     s ← get;
     unless s.syntheticMVars.isEmpty $ do
       try (synthesizeSyntheticMVarsStep false false) $
@@ -210,17 +215,23 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
 def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
 synthesizeSyntheticMVarsAux mayPostpone ()
 
-/-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
-def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+/-- Execute `k`, and make sure all pending synthetic metavariables created while executing `k` are solved. -/
+def withSynthesize {α} (k : TermElabM α) : TermElabM α := do
 s ← get;
 let syntheticMVars := s.syntheticMVars;
 modify $ fun s => { s with syntheticMVars := [] };
 finally
   (do
-     v ← elabTerm stx expectedType?;
+     a ← k;
      synthesizeSyntheticMVars false;
-     instantiateMVars stx v)
+     pure a)
   (modify $ fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVars })
+
+/-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
+def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+withRef stx do
+  v ← withSynthesize $ elabTerm stx expectedType?;
+  instantiateMVars v
 
 end Term
 end Elab

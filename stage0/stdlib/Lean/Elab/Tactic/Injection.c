@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l___private_Lean_Elab_Tactic_Injection_1__getInjectionNewIds___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__3;
 lean_object* l_Lean_Elab_Tactic_withMVarContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_liftMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_liftMetaM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_liftMetaTactic___closed__1;
@@ -25,7 +25,8 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection(lean_object*);
 lean_object* l_List_toString___at_Lean_Elab_OpenDecl_HasToString___spec__2(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_monadLog___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_evalInjection___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 extern lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__1;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -338,8 +339,7 @@ x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = l___private_Lean_Elab_Tactic_Injection_1__getInjectionNewIds(x_11);
 lean_dec(x_11);
 lean_inc(x_2);
-lean_inc(x_1);
-x_13 = l_Lean_Elab_Tactic_getMainGoal(x_1, x_2, x_9);
+x_13 = l_Lean_Elab_Tactic_getMainGoal(x_2, x_9);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; 
@@ -379,9 +379,8 @@ x_25 = l_Lean_Elab_Tactic_liftMetaTactic___closed__1;
 x_26 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg), 4, 2);
 lean_closure_set(x_26, 0, x_24);
 lean_closure_set(x_26, 1, x_25);
-x_27 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaM___rarg), 4, 2);
-lean_closure_set(x_27, 0, x_1);
-lean_closure_set(x_27, 1, x_26);
+x_27 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaM___rarg), 3, 1);
+lean_closure_set(x_27, 0, x_26);
 x_28 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_monadLog___spec__2___rarg), 4, 2);
 lean_closure_set(x_28, 0, x_27);
 lean_closure_set(x_28, 1, x_20);
@@ -407,9 +406,8 @@ x_34 = l_Lean_Elab_Tactic_liftMetaTactic___closed__1;
 x_35 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg), 4, 2);
 lean_closure_set(x_35, 0, x_33);
 lean_closure_set(x_35, 1, x_34);
-x_36 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaM___rarg), 4, 2);
-lean_closure_set(x_36, 0, x_1);
-lean_closure_set(x_36, 1, x_35);
+x_36 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaM___rarg), 3, 1);
+lean_closure_set(x_36, 0, x_35);
 x_37 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_monadLog___spec__2___rarg), 4, 2);
 lean_closure_set(x_37, 0, x_36);
 lean_closure_set(x_37, 1, x_20);
@@ -424,7 +422,6 @@ uint8_t x_39;
 lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_2);
-lean_dec(x_1);
 x_39 = !lean_is_exclusive(x_13);
 if (x_39 == 0)
 {
@@ -449,7 +446,6 @@ else
 {
 uint8_t x_43; 
 lean_dec(x_2);
-lean_dec(x_1);
 x_43 = !lean_is_exclusive(x_7);
 if (x_43 == 0)
 {
@@ -480,11 +476,20 @@ lean_dec(x_4);
 return x_6;
 }
 }
+lean_object* l_Lean_Elab_Tactic_evalInjection___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Elab_Tactic_evalInjection(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalInjection), 3, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalInjection___boxed), 3, 0);
 return x_1;
 }
 }

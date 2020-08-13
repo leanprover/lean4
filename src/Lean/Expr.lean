@@ -202,6 +202,21 @@ instance : Inhabited Expr :=
 | proj _ _ _ d    => d
 | localE _ _ _ d  => d
 
+def ctorName : Expr → String
+| bvar _ _        => "bvar"
+| fvar _ _        => "fvar"
+| mvar _ _        => "mvar"
+| sort _ _        => "sort"
+| const _ _ _     => "const"
+| app _ _ _       => "app"
+| lam _ _ _ _     => "lam"
+| forallE _ _ _ _ => "forallE"
+| letE _ _ _ _ _  => "letE"
+| lit _ _         => "lit"
+| mdata _ _ _     => "mdata"
+| proj _ _ _ _    => "proj"
+| localE _ _ _ _  => "localE"
+
 def hash (e : Expr) : USize :=
 e.data.hash
 

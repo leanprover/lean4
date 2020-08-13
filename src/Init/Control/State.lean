@@ -80,7 +80,7 @@ fun st => do
   (a, st') ← x st;
   pure (a, join st' ctx)
 
-instance (ε) [MonadExceptCore ε m] : MonadExceptCore ε (StateT σ m) :=
+instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) :=
 { throw := fun α => StateT.lift ∘ throwThe ε,
   catch := fun α x c s => catchThe ε (x s) (fun e => c e s) }
 

@@ -116,7 +116,7 @@ instance {δ} [Backtrackable δ σ] : HasOrelse (EStateM ε σ α) :=
 instance : MonadState σ (EStateM ε σ) :=
 { set := @EStateM.set _ _, get := @EStateM.get _ _, modifyGet := @EStateM.modifyGet _ _ }
 
-instance {δ} [Backtrackable δ σ] : MonadExceptCore ε (EStateM ε σ) :=
+instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) :=
 { throw := @EStateM.throw _ _, catch := @EStateM.catch _ _ _ _ }
 
 @[inline] def adaptState {σ₁ σ₂} (split : σ → σ₁ × σ₂) (merge : σ₁ → σ₂ → σ) (x : EStateM ε σ₁ α) : EStateM ε σ α :=

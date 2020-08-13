@@ -64,7 +64,7 @@ instance [Alternative m] : Alternative (ReaderT ρ m) :=
   failure := @ReaderT.failure _ _ _ _,
   orelse  := @ReaderT.orelse _ _ _ _ }
 
-instance (ε) [Monad m] [MonadExceptCore ε m] : MonadExceptCore ε (ReaderT ρ m) :=
+instance (ε) [Monad m] [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) :=
 { throw := fun α => ReaderT.lift ∘ throwThe ε,
   catch := fun α x c r => catchThe ε (x r) (fun e => (c e) r) }
 

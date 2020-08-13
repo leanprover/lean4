@@ -427,14 +427,6 @@ def isLit : Expr → Bool
 | lit _ _ => true
 | _       => false
 
-def isNatLit : Expr → Bool
-| lit (Literal.natVal _) _ => true
-| _                        => false
-
-def isStringLit : Expr → Bool
-| lit (Literal.strVal _) _ => true
-| _                        => false
-
 def getAppFn : Expr → Expr
 | app f a _ => getAppFn f
 | e         => e
@@ -511,6 +503,21 @@ def appFn! : Expr → Expr
 def appArg! : Expr → Expr
 | app _ a _ => a
 | _         => panic! "application expected"
+
+def isNatLit : Expr → Bool
+| lit (Literal.natVal _) _ => true
+| _                        => false
+
+def natLit? : Expr → Option Nat
+| lit (Literal.natVal v) _ => v
+| _                        => none
+
+def isStringLit : Expr → Bool
+| lit (Literal.strVal _) _ => true
+| _                        => false
+
+def isCharLit (e : Expr) : Bool :=
+e.isAppOfArity `Char.ofNat 1 && e.appArg!.isNatLit
 
 def constName! : Expr → Name
 | const n _ _ => n

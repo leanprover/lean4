@@ -39,19 +39,19 @@ RHS (0) again is smaller than that of `y`. So it's better to only parenthesize t
 
 # Implementation
 
-We transform the syntax tree and collect the necessary precedence information for that in a single traversal over the
-syntax tree and the parser (as a `Lean.Expr`) that produced it. The traversal is right-to-left to cover case 2. More
-specifically, for every Pratt parser call, we store as monadic state the precedence of the left-most trailing parser and
-the minimum precedence of any parser (`contPrec`/`minPrec`) in this call, if any, and the precedence of the nested
-trailing Pratt parser call (`trailPrec`), if any. If `stP` is the state resulting from the traversal of a Pratt parser
-call `p prec`, and `st` is the state of the surrounding call, we parenthesize if `prec > stP.minPrec` (case 1) or if
-`stP.trailPrec <= st.contPrec` (case 2).
+We transform the syntax tree and collect the necessary precedence information for that in a single traversal. The
+traversal is right-to-left to cover case 2. More specifically, for every Pratt parser call, we store as monadic state
+the precedence of the left-most trailing parser and the minimum precedence of any parser (`contPrec`/`minPrec`) in this
+call, if any, and the precedence of the nested trailing Pratt parser call (`trailPrec`), if any. If `stP` is the state
+resulting from the traversal of a Pratt parser call `p prec`, and `st` is the state of the surrounding call, we
+parenthesize if `prec > stP.minPrec` (case 1) or if `stP.trailPrec <= st.contPrec` (case 2).
 
-The primary traversal is over the parser `Expr`. The `visit` function takes such a parser and, if it is the application
-of a constant `c`, looks for a `[parenthesizer c]` declaration. If it exists, we run it, which might again call `visit`.
-Otherwise, we do a single step of reduction at the head of the expression (with `default` reducibility) and try again.
-If the reduction is stuck, we fail. This happens mostly at the `Parser.mk` decl, which is irreducible, when some parser
-primitive has not been handled yet. You can think of this traversal as a special-case, customized `Expr` interpreter.
+The traversal can be customized for each `[*Parser]` parser declaration `c` (more specifically, each `SyntaxNodeKind`
+`c`) using the `[parenthesizer c]` attribute. Otherwise, a default parenthesizer will be synthesized from the used
+parser combinators by recursively replacing them with declarations tagged as `[combinatorParenthesizer]` for the
+respective combinator. If a called function does not have a registered combinator parenthesizer and is not reducible,
+the synthesizer fails. This happens mostly at the `Parser.mk` decl, which is irreducible, when some parser primitive has
+not been handled yet.
 
 The traversal over the `Syntax` object is complicated by the fact that a parser does not produce exactly one syntax
 node, but an arbitrary (but constant, for each parser) amount that it pushes on top of the parser stack. This amount can
@@ -78,7 +78,7 @@ namespace PrettyPrinter
 namespace Parenthesizer
 
 structure Context :=
--- We need to store this argument of `visitParenthesizable` to deal with the implicit Pratt parser call in
+-- We need to store this argument of `maybeParenthesize` to deal with the implicit Pratt parser call in
 -- `trailingNode.parenthesizer`.
 (mkParen : Option (Syntax → Syntax) := none)
 
@@ -313,7 +313,7 @@ visitArgs $ do {
   -- issue for the parenthesizer, so we can think of this child being produced by `termParser 0`, or whichever Pratt
   -- parser is calling us; we only need to know its `mkParen`, which we retrieve from the context.
   { mkParen := some mkParen, .. } ← read
-    | panic! "trailingNode.parenthesizer called outside of visitParenthesizable call";
+    | panic! "trailingNode.parenthesizer called outside of maybeParenthesize call";
   maybeParenthesize mkParen 0 $
     categoryParser.parenthesizer `someCategory 0
 }

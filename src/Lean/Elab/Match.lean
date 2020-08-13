@@ -98,8 +98,8 @@ alts.map mkMatchAltView
 def mkInaccessible (e : Expr) : Expr :=
 mkAnnotation `_inaccessible e
 
-def isInaccessible? (e : Expr) : Option Expr :=
-isAnnotation? `_inaccessible e
+def inaccessible? (e : Expr) : Option Expr :=
+annotation? `_inaccessible e
 
 inductive PatternVar
 | localVar     (userName : Name)

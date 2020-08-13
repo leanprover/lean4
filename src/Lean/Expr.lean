@@ -967,9 +967,9 @@ end Expr
 def mkAnnotation (kind : Name) (e : Expr) : Expr :=
 mkMData (KVMap.empty.insert kind (DataValue.ofBool true)) e
 
-def isAnnotation? (kind : Name) (e : Expr) : Option Expr :=
+def annotation? (kind : Name) (e : Expr) : Option Expr :=
 match e with
-| Expr.mdata d e _ => if d.size == 1 && d.getBool kind false then some e else none
+| Expr.mdata d b _ => if d.size == 1 && d.getBool kind false then some b else none
 | _                => none
 
 end Lean

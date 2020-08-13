@@ -45,19 +45,19 @@ p.app4? `HEq
 | Expr.forallE _ α β _ => if β.hasLooseBVars then none else some (α, β)
 | _                    => none
 
-partial def listLitAux : Expr → List Expr → Option (List Expr)
+partial def listLitAux : Expr → List Expr → Option (Expr × List Expr)
 | e, acc =>
   if e.isAppOfArity `List.nil 1 then
-    some acc.reverse
+    some (e.appArg!, acc.reverse)
   else if e.isAppOfArity `List.cons 3 then
     listLitAux e.appArg! (e.appFn!.appArg! :: acc)
   else
     none
 
-def listLit? (e : Expr) : Option (List Expr) :=
+def listLit? (e : Expr) : Option (Expr × List Expr) :=
 listLitAux e []
 
-def arrayLit? (e : Expr) : Option (List Expr) :=
+def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
 match e.app2? `List.toArray with
 | some (_, e) => e.listLit?
 | none        => none

@@ -734,13 +734,12 @@ check t;
 t ← mkArrayLit nat [mkNatLit 1, mkNatLit 2];
 print t;
 check t;
-match t.isArrayLit? with
+match t.arrayLit? with
 | some (_, xs) => do
   check $ pure $ xs.size == 2;
-  match (xs.get! 0).isNatLit?, (xs.get! 1).isNatLit? with
+  match (xs.get! 0).natLit?, (xs.get! 1).natLit? with
   | some 1, some 2 => pure ()
   | _, _           => throwOther "nat lits expected"
 | none => throwOther "array lit expected"
-
 
 #eval tst42

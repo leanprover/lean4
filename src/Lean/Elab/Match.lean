@@ -500,7 +500,6 @@ private def elabPatterns (patternVarDecls : Array PatternVarDecl) (patternStxs :
 (patterns, matchType) ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
 localDecls ← finalizePatternDecls patternVarDecls;
 patterns ← patterns.mapM instantiateMVars;
-trace `Elab.match fun _ => MessageData.ofArray $ localDecls.map fun (d : LocalDecl) => (d.userName ++ " : " ++ d.type : MessageData);
 patterns.forM $ fun pattern => when pattern.hasExprMVar $ throwError ("pattern contains metavariables " ++ indentExpr pattern);
 patterns ← patterns.mapM $ toDepElimPattern localDecls;
 trace `Elab.match fun _ => "patterns: " ++ MessageData.ofArray (patterns.map fun (p : Meta.DepElim.Pattern) => p.toMessageData);
@@ -518,6 +517,14 @@ withPatternVars patternVars fun patternVarDecls => do
   trace `Elab.match fun _ => "rhs: " ++ rhs;
   pure (altLHS, rhs)
 
+def mkMotiveType (matchType : Expr) (expectedType : Expr) : TermElabM Expr := do
+liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => do
+  u ← Meta.getLevel matchType;
+  Meta.mkForall xs (mkSort u)
+
+def mkElim (elimName : Name) (motiveType : Expr) (lhss : List Meta.DepElim.AltLHS) : TermElabM Meta.DepElim.ElimResult :=
+liftMetaM $ Meta.DepElim.mkElim elimName motiveType lhss
+
 /-
 ```
 parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
@@ -534,7 +541,18 @@ matchType ← elabMatchOptType stx discrStxs.size;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
 discrs ← elabDiscrs discrStxs matchType expectedType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
-throwError ("WIP type: " ++ matchType ++ "\n" ++ discrs ++ "\n" ++ toString (matchAlts.map fun alt => toString alt.patterns))
+let rhss := alts.map Prod.snd;
+let altLHSS := alts.map Prod.fst;
+motiveType ← mkMotiveType matchType expectedType;
+motive ← liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => Meta.mkLambda xs matchType;
+elimName ← mkAuxName `elim;
+elimResult ← mkElim elimName motiveType altLHSS.toList;
+-- TODO: report `eliminator errors`.
+let r := mkApp elimResult.elim motive;
+let r := mkAppN r discrs;
+let r := mkAppN r rhss;
+trace `Elab.match fun _ => "result: " ++ r;
+pure r
 
 /- Auxiliary method for `expandMatchDiscr?` -/
 private partial def mkMatchType (discrs : Array Syntax) : Nat → MacroM Syntax

@@ -72,6 +72,7 @@ node).
 
 import Lean.Meta
 import Lean.KeyedDeclsAttribute
+import Lean.ParserCompiler
 
 namespace Lean
 namespace PrettyPrinter
@@ -110,18 +111,16 @@ KeyedDeclsAttribute.init {
 } `Lean.PrettyPrinter.parenthesizerAttribute
 @[init mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
 
-unsafe def mkCombinatorParenthesizerAttribute : IO (KeyedDeclsAttribute Name) :=
-KeyedDeclsAttribute.init (KeyedDeclsAttribute.Def.mkSimple
-    none
-    `combinatorParenthesizer
-    "Register a parenthesizer for a parser combinator.
+unsafe def mkCombinatorParenthesizerAttribute : IO CombinatorCompilerAttribute :=
+registerCombinatorCompilerAttribute
+  `combinatorParenthesizer
+  "Register a parenthesizer for a parser combinator.
 
 [combinatorParenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.
 Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.
 The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
-with `Parenthesizer` in the parameter types.")
-  `Lean.PrettyPrinter.combinatorParenthesizerAttribute
-@[init mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : KeyedDeclsAttribute Name := arbitrary _
+with `Parenthesizer` in the parameter types."
+@[init mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : CombinatorCompilerAttribute := arbitrary _
 
 namespace Parenthesizer
 
@@ -386,7 +385,7 @@ def preprocessParserBody (e : Expr) : Expr :=
 e.replace fun e => if e.isConstOf `Lean.Parser.Parser then mkConst `Lean.PrettyPrinter.Parenthesizer else none
 
 -- translate an expression of type `Parser` into one of type `Parenthesizer`
-unsafe partial def compileParserBody : Expr → MetaM Expr | e => do
+partial def compileParserBody : Expr → MetaM Expr | e => do
 e ← whnfCore e;
 match e with
 | e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e fun xs b => compileParserBody b >>= Meta.mkLambda xs
@@ -411,10 +410,9 @@ match e with
         e.getAppArgs
   };
   env ← getEnv;
-  match combinatorParenthesizerAttribute.getValues env c with
-  -- use first registered `[combinatorParenthesizer]` if available
-  | p::_ => mkCall p
-  | []   => do
+  match combinatorParenthesizerAttribute.getDeclFor env c with
+  | some p => mkCall p
+  | none   => do
     let parenthesizerDeclName := c ++ `parenthesizer;
     cinfo ← getConstInfo c;
     resultTy ← Meta.forallTelescope cinfo.type fun _ b => pure b;
@@ -437,11 +435,7 @@ match e with
       env ← match env.addAndCompile {} decl with
       | Except.ok    env => pure env
       | Except.error kex => throwOther $ toString $ fmt $ kex.toMessageData {};
-      -- HACK: `MetaM` does not currently imply `MonadIO`, though it might soon
-      let env := unsafeIO $ env.addAttribute parenthesizerDeclName `combinatorParenthesizer (mkNullNode #[mkIdent c]);
-      match env with
-      | Except.ok env  => setEnv env
-      | Except.error e => throwOther $ toString e;
+      setEnv $ combinatorParenthesizerAttribute.setDeclFor env c parenthesizerDeclName;
       mkCall parenthesizerDeclName
     else do
       -- if this is a generic function, e.g. `HasAndthen.andthen`, it's easier to just unfold it until we are
@@ -450,14 +444,11 @@ match e with
         | throwOther $ "don't know how to generate parenthesizer for non-parser combinator '" ++ toString e ++ "'";
       compileParserBody e'
 
-@[implementedBy compileParserBody]
-constant compileParserBody' : Expr → MetaM Expr := arbitrary _
-
 /-- Compile the given declaration into a `[builtinParenthesizer declName]` or `[parenthesizer declName]`. -/
 def compile (env : Environment) (declName : Name) (builtin : Bool) : IO Environment := do
 (value, env) ← IO.runMeta (do
   cinfo ← getConstInfo declName;
-  compileParserBody' $ preprocessParserBody cinfo.value!) env;
+  compileParserBody $ preprocessParserBody cinfo.value!) env;
 let parenthesizerDeclName := declName ++ `parenthesizer;
 let decl := Declaration.defnDecl { name := parenthesizerDeclName, lparams := [],
   type := mkConst `Lean.PrettyPrinter.Parenthesizer,

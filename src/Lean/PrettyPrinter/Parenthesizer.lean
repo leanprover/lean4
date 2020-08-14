@@ -112,9 +112,11 @@ KeyedDeclsAttribute.init {
 
 [parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.",
   valueTypeName := `Lean.PrettyPrinter.Parenthesizer,
-  evalKey := fun env args => match attrParamSyntaxToIdentifier args with
+  evalKey := fun builtin env args => match attrParamSyntaxToIdentifier args with
     | some id =>
-      if isValidSyntaxNodeKind env id then pure id
+      -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
+      -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
+      if (builtin && (env.find? id).isSome) || isValidSyntaxNodeKind env id then pure id
       else throw ("invalid [parenthesizer] argument, unknown syntax kind '" ++ toString id ++ "'")
     | none    => throw "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.parenthesizerAttribute
@@ -136,7 +138,7 @@ which is used when parenthesizing calls of `categoryParser cat prec`. Implementa
 the precedence and an appropriate parentheses builder. If no category parenthesizer is registered, the category will never be
 parenthesized, but still be traversed for parenthesizing nested categories.",
   valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
-  evalKey := fun env args => match attrParamSyntaxToIdentifier args with
+  evalKey := fun _ env args => match attrParamSyntaxToIdentifier args with
     | some id =>
       if isParserCategory env id then pure id
       else throw ("invalid [parenthesizer] argument, unknown parser category '" ++ toString id ++ "'")

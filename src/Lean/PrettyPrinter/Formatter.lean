@@ -47,7 +47,7 @@ KeyedDeclsAttribute.init {
 
 [formatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.",
   valueTypeName := `Lean.PrettyPrinter.Formatter,
-  evalKey := fun env args => match attrParamSyntaxToIdentifier args with
+  evalKey := fun _ env args => match attrParamSyntaxToIdentifier args with
     | some id => match env.find? id with
       | some _ => pure id
       | none   => throw ("invalid [formatter] argument, unknown identifier '" ++ toString id ++ "'")

@@ -85,7 +85,7 @@ KeyedDeclsAttribute.init {
   name := attrName,
   descr := kind ++ " elaborator",
   valueTypeName := typeName,
-  evalKey := fun env arg => syntaxNodeKindOfAttrParam env parserNamespace arg,
+  evalKey := fun _ env arg => syntaxNodeKindOfAttrParam env parserNamespace arg,
 } attrDeclName
 
 unsafe def mkMacroAttribute : IO (KeyedDeclsAttribute Macro) :=

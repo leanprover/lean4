@@ -33,8 +33,8 @@ structure Def (γ : Type) :=
 (descr         : String)  -- Attribute description
 (valueTypeName : Name)
 -- Convert `Syntax` into a `Key`, the default implementation expects an identifier.
-(evalKey       : Environment → Syntax → Except String Key :=
-  fun env arg => match attrParamSyntaxToIdentifier arg with
+(evalKey       : Bool → Environment → Syntax → Except String Key :=
+  fun builtin env arg => match attrParamSyntaxToIdentifier arg with
     | some id => Except.ok id
     | none    => Except.error "invalid attribute argument, expected identifier")
 
@@ -129,7 +129,7 @@ registerBuiltinAttribute {
   descr := "(builtin) " ++ df.descr,
   add   := fun env declName arg persistent => do {
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString df.builtinName ++ "', must be persistent"));
-    key ← IO.ofExcept $ df.evalKey env arg;
+    key ← IO.ofExcept $ df.evalKey true env arg;
     match env.find? declName with
     | none  => throw $ IO.userError "unknown declaration"
     | some decl =>
@@ -145,7 +145,7 @@ registerBuiltinAttribute {
   name            := df.name,
   descr           := df.descr,
   add             := fun env constName arg persistent => do
-    key ← IO.ofExcept $ df.evalKey env arg;
+    key ← IO.ofExcept $ df.evalKey false env arg;
     val ← IO.ofExcept $ env.evalConstCheck γ df.valueTypeName constName;
     pure $ ext.addEntry env { key := key, decl := constName, value := val },
   applicationTime := AttributeApplicationTime.afterCompilation

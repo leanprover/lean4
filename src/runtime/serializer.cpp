@@ -23,7 +23,7 @@ void finalize_serializer() {
 }
 
 serializer::~serializer() {
-    for (std::pair<object*, unsigned> const & it : m_obj_table) {
+    for (std::pair<object * const, unsigned> const & it : m_obj_table) {
         dec_ref(it.first);
     }
 }

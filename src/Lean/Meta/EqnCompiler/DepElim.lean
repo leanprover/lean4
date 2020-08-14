@@ -463,7 +463,7 @@ match p.vars with
 | x :: xs => do
   subgoals ← cases p.mvarId x.fvarId!;
   subgoals.foldlM
-    (fun (s : State) subgoal => do
+    (fun (s : State) subgoal => withMVarContext subgoal.mvarId do
       let subst    := subgoal.subst;
       let fields   := subgoal.fields.toList;
       let newVars  := fields ++ xs;

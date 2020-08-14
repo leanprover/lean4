@@ -99,7 +99,7 @@ partial def decodeAltLHS (e : Expr) : MetaM AltLHS :=
 forallTelescopeReducing e fun args body => do
   decls ← args.toList.mapM (fun arg => getLocalDecl arg.fvarId!);
   pats  ← decodePats body;
-  pure { localDecls := decls, patterns := pats }
+  pure { fvarDecls := decls, patterns := pats }
 
 partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
 | e =>
@@ -185,6 +185,9 @@ def ex3 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 × LHS (forall (as : List α) (bs : List β), Pat as × Pat bs)
 := arbitrary _
 
+-- set_option trace.Meta.EqnCompiler.match true
+-- set_option trace.Meta.EqnCompiler.matchDebug true
+
 #eval test `ex3 2 `elimTest3
 #print elimTest3
 
@@ -209,10 +212,13 @@ def ex6 (α : Type u) (n : Nat) (xs : Vec α n) :
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
 arbitrary _
 
--- set_option trace.Meta.debug true
+set_option trace.Meta.EqnCompiler.match true
+set_option trace.Meta.EqnCompiler.matchDebug true
 
 #eval test `ex6 2 `elimTest6
 #print elimTest6
+
+#exit
 
 def ex7 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (forall (a : α), Pat (inaccessible 1) × Pat (Vec.cons a Vec.nil))
@@ -250,6 +256,8 @@ elimTest8 _ (fun _ _ => Option (Nat × Nat)) n xs (fun a b => some (a, b)) (fun 
 #eval pair? Vec.nil
 #eval pair? (Vec.cons 10 Vec.nil)
 #eval pair? (Vec.cons 20 (Vec.cons 10 Vec.nil))
+
+#exit
 
 inductive Op : Nat → Nat → Type
 | mk : ∀ n, Op n n

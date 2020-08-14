@@ -508,7 +508,7 @@ patterns ← patterns.mapM instantiateMVars;
 patterns.forM $ fun pattern => when pattern.hasExprMVar $ throwError ("pattern contains metavariables " ++ indentExpr pattern);
 patterns ← patterns.mapM $ toDepElimPattern localDecls;
 trace `Elab.match fun _ => "patterns: " ++ MessageData.ofArray (patterns.map fun (p : Meta.DepElim.Pattern) => p.toMessageData);
-pure ({ localDecls := localDecls.toList, patterns := patterns.toList }, matchType)
+pure ({ fvarDecls := localDecls.toList, patterns := patterns.toList }, matchType)
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) :=
 withRef alt.ref do
@@ -517,7 +517,7 @@ trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
   (altLHS, matchType) ← elabPatterns patternVarDecls alt.patterns matchType;
   rhs ← elabTerm alt.rhs matchType;
-  let xs := altLHS.localDecls.toArray.map LocalDecl.toExpr;
+  let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
   rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambda xs rhs;
   trace `Elab.match fun _ => "rhs: " ++ rhs;
   pure (altLHS, rhs)

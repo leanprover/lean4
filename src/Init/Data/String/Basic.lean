@@ -12,8 +12,11 @@ universes u
 structure String :=
 (data : List Char)
 
-/-- A character position in an UTF-8 encoded string.
-To represent codepoint positions, use a plain `Nat`. -/
+/-- A byte position in a `String`. Internally, `String`s are UTF-8 encoded.
+Codepoint positions (counting the Unicode codepoints rather than bytes)
+are represented by plain `Nat`s instead.
+Indexing a `String` by a byte position is constant-time, while codepoint
+positions need to be translated internally to byte positions in linear-time. -/
 abbrev String.Pos := Nat
 
 structure Substring :=

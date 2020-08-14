@@ -14,7 +14,7 @@ emitting a token, we already know the text following it and can decide whether o
 necessary.
 -/
 import Lean.Parser
-import Lean.Meta
+import Lean.Meta.ReduceEval
 import Lean.Elab.Quotation
 
 namespace Lean

@@ -70,7 +70,9 @@ node).
 
 -/
 
-import Lean.Meta
+import Lean.Util.ReplaceExpr
+import Lean.Meta.Basic
+import Lean.Meta.WHNF
 import Lean.KeyedDeclsAttribute
 import Lean.Parser.Basic
 import Lean.ParserCompiler

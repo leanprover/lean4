@@ -36,3 +36,5 @@ def tst1 : IO Unit :=
 #eval #[1, 2].extract 0 1
 #eval #[1, 2].extract 0 0
 #eval #[1, 2].extract 0 2
+
+#eval #[1, 2, 3, 4].filterMap fun x => if x % 2 == 0 then some (x + 10) else none

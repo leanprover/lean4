@@ -339,16 +339,17 @@ p.alts.all fun alt => match alt.patterns with
   | Pattern.var _ :: _          => true
   | _                           => false
 
-/- Return true if the next pattern of each remaining alternative is a constructor application or variable -/
+/- Return true if the next pattern of each remaining alternative is a constructor application or variable or inaccessible term -/
 private def isConstructorTransition (p : Problem) : Bool :=
 (p.alts.any fun alt => match alt.patterns with
    | Pattern.ctor _ _ _ _ :: _ => true
    | _                         => false)
 &&
 (p.alts.all fun alt => match alt.patterns with
-   | Pattern.ctor _ _ _ _ :: _ => true
-   | Pattern.var _ :: _        => true
-   | _                         => false)
+   | Pattern.ctor _ _ _ _ :: _   => true
+   | Pattern.var _ :: _          => true
+   | Pattern.inaccessible _ :: _ => true
+   | _                           => false)
 
 /- Return true if the next pattern of the remaining alternatives contain variables AND values. -/
 private def isValueTransition (p : Problem) : Bool :=
@@ -429,21 +430,6 @@ match p.vars with
     | _                              => unreachable!;
   process { p with alts := alts, vars := xs } s
 
-private def throwInductiveTypeExpected {α} (type : Expr) : MetaM α := do
-throwOther ("failed to compile pattern matching, inductive type expected" ++ indentExpr type)
-
-private def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
-env ← getEnv;
-type ← whnfD type;
-matchConst env type.getAppFn (fun _ => throwInductiveTypeExpected type) fun info us =>
-  match info with
-  | ConstantInfo.inductInfo val =>
-    let I      := type.getAppFn;
-    let Iargs  := type.getAppArgs;
-    let params := Iargs.extract 0 val.nparams;
-    pure (us, params)
-  | _ => throwInductiveTypeExpected type
-
 private def tryConstructor? (alt : Alt) (mvarId : MVarId) (ctorName : Name) : MetaM (Option Alt) := do
 expectedType ← inferType (mkMVar mvarId);
 (us, params) ← getInductiveUniverseAndParams expectedType;
@@ -471,6 +457,7 @@ else do
 
 private def processConstructor (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
 trace! `Meta.EqnCompiler.match ("constructor step");
+env ← getEnv;
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -487,15 +474,28 @@ match p.vars with
       let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
       let examples := examples.map $ Example.applyFVarSubst subst;
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | Pattern.ctor n _ _ _ :: _ => n == subgoal.ctorName
-        | Pattern.var _ :: _        => true
-        | _                         => false;
+        | Pattern.ctor n _ _ _ :: _   => n == subgoal.ctorName
+        | Pattern.var _ :: _          => true
+        | Pattern.inaccessible _ :: _ => true
+        | _                           => false;
       newAlts ← newAlts.mapM fun alt => alt.applyFVarSubst subst;
       newAlts ← newAlts.mapM fun alt => alt.copy;
       newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
-        | Pattern.ctor _ _ _ fields :: ps => pure $ some { alt with patterns := fields ++ ps }
-        | Pattern.var mvarId :: ps        => tryConstructor? { alt with patterns := ps } mvarId subgoal.ctorName
-        | _                               => unreachable!;
+        | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
+        | Pattern.var mvarId :: ps         => tryConstructor? { alt with patterns := ps } mvarId subgoal.ctorName
+        | Pattern.inaccessible e :: ps     => do
+          trace! `Meta.EqnCompiler.match ("inaccessible in ctor step " ++ e);
+          e ← whnfD e;
+          match e.constructorApp? env with
+          | some (ctorVal, ctorArgs) => do
+            if ctorVal.name == subgoal.ctorName then
+              let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
+              let fields := fields.toList.map (fun e => (Pattern.inaccessible e : IPattern));
+              pure $ some { alt with patterns := fields ++ ps }
+            else
+              pure none
+          | _ => pure none
+        | _                                => unreachable!;
       process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s)
     s
 

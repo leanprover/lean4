@@ -95,6 +95,19 @@ def filterRevM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (
 filterAuxM f as.reverse []
 
 @[specialize]
+def filterMapMAux {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) : List α → List β → m (List β)
+| [],     bs => pure bs
+| a :: as, bs => do
+  b? ← f a;
+  match b? with
+  | none   => filterMapMAux as bs
+  | some b => filterMapMAux as (b::bs)
+
+@[inline]
+def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
+filterMapMAux f as.reverse []
+
+@[specialize]
 def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (s → α → m s) → s → List α → m s
 | f, s, [] => pure s
 | f, s, h :: r   => do

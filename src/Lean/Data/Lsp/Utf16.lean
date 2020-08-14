@@ -72,12 +72,5 @@ text.source.codepointPosToUtf8PosFrom colPos chr
 def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
 | ⟨ln, col⟩ => ⟨ln-1, text.source.codepointPosToUtf16PosFrom col (text.positions.get! $ ln - 1)⟩
 
-def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
-let start := text.lspPosToUtf8Pos r.start;
-let «end» := text.lspPosToUtf8Pos r.«end»;
-let pre := text.source.extract 0 start;
-let post := text.source.extract «end» text.source.bsize;
-(pre ++ newText ++ post).toFileMap
-
 end FileMap
 end Lean

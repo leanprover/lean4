@@ -130,16 +130,22 @@ writeLspNotification "textDocument/publishDiagnostics"
 
 def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit := do
 let doc := p.textDocument;
--- LSP is EOL agnostic, so we first split on "\r\n" to avoid possibly redundant line breaks.
-let splitOnEOLs (s : String) : List String := (do
-  line ← s.splitOn "\r\n";
-  line ← line.splitOn "\n";
-  line ← line.splitOn "\r";
-  pure line);
-let text := ("\n".intercalate $ splitOnEOLs doc.text).toFileMap;
+-- NOTE(WN): `toFileMap` marks line beginnings as immediately following
+-- "\n", which should be enough to handle both LF and CRLF correctly.
+-- This is because LSP always refers to characters by (line, column),
+-- so if we get the line number correct it shouldn't matter that there
+-- is a CR there.
+let text := doc.text.toFileMap;
 (msgLog, newDoc) ← monadLift $ compileDocument doc.version text;
 updateOpenDocuments doc.uri newDoc;
 sendDiagnostics doc.uri newDoc msgLog
+
+private def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
+let start := text.lspPosToUtf8Pos r.start;
+let «end» := text.lspPosToUtf8Pos r.«end»;
+let pre := text.source.extract 0 start;
+let post := text.source.extract «end» text.source.bsize;
+(pre ++ newText ++ post).toFileMap
 
 def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
 let docId := p.textDocument;
@@ -152,7 +158,7 @@ else changes.forM $ fun change =>
   match change with
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) => do
     let startOff := oldDoc.text.lspPosToUtf8Pos range.start;
-    let newDocText := oldDoc.text.replaceLspRange range newText;
+    let newDocText := replaceLspRange oldDoc.text range newText;
     (msgLog, newDoc) ← monadLift $
       updateDocument oldDoc startOff newVersion newDocText;
     updateOpenDocuments docId.uri newDoc;

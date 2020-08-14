@@ -68,6 +68,7 @@ private partial def elabDiscrsAux (discrStxs : Array Syntax) (expectedType : Exp
     | Expr.forallE _ d b _ => do
       discr ← elabTerm discrStx d;
       discr ← ensureHasType d discr;
+      trace `Elab.match fun _ => "discr #" ++ toString i ++ " " ++ discr ++ " : " ++ d;
       elabDiscrsAux (i+1) (b.instantiate1 discr) (discrs.push discr)
     | _ => throwError ("invalid type provided to match-expression, function type with arity #" ++ toString discrStxs ++ " expected")
   else do
@@ -391,13 +392,17 @@ patternVarDecls.foldlM
       decl ← getLocalDecl fvarId;
       pure $ decls.push decl
     | PatternVarDecl.anonymousVar mvarId fvarId => do
-      condM (isExprMVarAssigned mvarId)
-        (pure decls) -- skip
-        (do /- metavariable was not assigned while elaborating the patterns,
-               so we assign to the auxiliary free variable we created at `withPatternVars` -/
-          assignExprMVar mvarId (mkFVar fvarId);
-          decl ← getLocalDecl fvarId;
-          pure $ decls.push decl))
+      e ← instantiateMVars (mkMVar mvarId);
+      trace `Elab.match fun _ => "finalizePatternDecls: mvarId: " ++ mkMVar mvarId ++ " := " ++ e ++ ", fvarId: " ++ mkFVar fvarId;
+      match e with
+      | Expr.mvar newMVarId _ => do
+        /- Metavariable was not assigned, or assigned to another metavariable. So,
+           we assign to the auxiliary free variable we created at `withPatternVars` to `newMVarId`. -/
+        assignExprMVar newMVarId (mkFVar fvarId);
+        trace `Elab.match fun _ => "finalizePatternDecls: " ++ mkMVar newMVarId ++ " := " ++ mkFVar fvarId;
+        decl ← getLocalDecl fvarId;
+        pure $ decls.push decl
+      | _ => pure decls)
   #[]
 
 namespace ToDepElimPattern
@@ -540,6 +545,7 @@ let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
 matchType ← elabMatchOptType stx discrStxs.size;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
 discrs ← elabDiscrs discrStxs matchType expectedType;
+trace `Elab.match fun _ => "matchType: " ++ matchType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 let rhss := alts.map Prod.snd;
 let altLHSS := alts.map Prod.fst;

@@ -101,6 +101,9 @@ abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateT Parenthesizer.St
 
 abbrev Parenthesizer := ParenthesizerM Unit
 
+@[extern "lean_is_valid_syntax_node_kind"]
+constant isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool := arbitrary _
+
 unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
 KeyedDeclsAttribute.init {
   builtinName := `builtinParenthesizer,
@@ -109,10 +112,18 @@ KeyedDeclsAttribute.init {
 
 [parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.",
   valueTypeName := `Lean.PrettyPrinter.Parenthesizer,
+  evalKey := fun env args => match attrParamSyntaxToIdentifier args with
+    | some id =>
+      if isValidSyntaxNodeKind env id then pure id
+      else throw ("invalid [parenthesizer] argument, unknown syntax kind '" ++ toString id ++ "'")
+    | none    => throw "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.parenthesizerAttribute
 @[init mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
 
 abbrev CategoryParenthesizer := forall (prec : Nat), Parenthesizer
+
+@[extern "lean_is_parser_category"]
+constant isParserCategory (env : Environment) (k : SyntaxNodeKind) : Bool := arbitrary _
 
 unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryParenthesizer) :=
 KeyedDeclsAttribute.init {
@@ -125,6 +136,11 @@ which is used when parenthesizing calls of `categoryParser cat prec`. Implementa
 the precedence and an appropriate parentheses builder. If no category parenthesizer is registered, the category will never be
 parenthesized, but still be traversed for parenthesizing nested categories.",
   valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
+  evalKey := fun env args => match attrParamSyntaxToIdentifier args with
+    | some id =>
+      if isParserCategory env id then pure id
+      else throw ("invalid [parenthesizer] argument, unknown parser category '" ++ toString id ++ "'")
+    | none    => throw "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.categoryParenthesizerAttribute
 @[init mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer := arbitrary _
 

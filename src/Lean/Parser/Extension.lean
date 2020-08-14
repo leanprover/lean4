@@ -260,6 +260,7 @@ registerPersistentEnvExtension {
 @[init mkParserExtension]
 constant parserExtension : ParserExtension := arbitrary _
 
+@[export lean_is_parser_category]
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
 (parserExtension.getState env).categories.contains catName
 
@@ -300,6 +301,7 @@ pure $ parserExtension.addEntry env $ ParserExtensionEntry.token tk
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
 parserExtension.addEntry env $ ParserExtensionEntry.kind k
 
+@[export lean_is_valid_syntax_node_kind]
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 let kinds := (parserExtension.getState env).kinds;
 kinds.contains k

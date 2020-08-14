@@ -26,6 +26,11 @@ namespace Elab
 namespace Term
 namespace Quotation
 
+-- quotation node kinds are formed from a unique quotation name plus "quot"
+def isQuot : Syntax → Bool
+| Syntax.node (Name.str _ "quot" _) _ => true
+| _                                   => false
+
 -- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
 def isAntiquot : Syntax → Bool
 | Syntax.node (Name.str _ "antiquot" _) _ => true
@@ -174,7 +179,7 @@ if pat.isOfKind `Lean.Parser.Term.id then unconditional $ fun rhs => `(let $pat 
 -- wildcard pattern
 else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
 -- quotation pattern
-else if pat.isOfKind `Lean.Parser.Term.stxQuot then
+else if isQuot pat then
   let quoted := pat.getArg 1;
   if quoted.isAtom then
     -- We assume that atoms are uniquely determined by the node kind and never have to be checked
@@ -206,7 +211,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   else
     -- not an antiquotation or escaped antiquotation: match head shape
     let quoted := unescapeAntiquot quoted;
-    let argPats := quoted.getArgs.map $ fun arg => Syntax.node `Lean.Parser.Term.stxQuot #[mkAtom "`(", arg, mkAtom ")"];
+    let argPats := quoted.getArgs.map (pat.setArg 1);
     { kind := quoted.getKind, argPats := argPats }
 else
   unconditional $ fun _ => throwErrorAt pat ("match_syntax: unexpected pattern kind " ++ toString pat)
@@ -265,7 +270,7 @@ private partial def getPatternVarsAux : Syntax → List Syntax
 
 -- Get all pattern vars (as Term.id nodes) in `stx`
 partial def getPatternVars (stx : Syntax) : List Syntax :=
-if stx.isOfKind `Lean.Parser.Term.stxQuot then do
+if isQuot stx then do
   let quoted := stx.getArg 1;
   getPatternVarsAux stx
 else if stx.isOfKind `Lean.Parser.Term.id then
@@ -300,7 +305,7 @@ alts ← alts.getArgs.getSepElems.mapM $ fun alt => do {
   let pats := alt.getArg 0;
   pat ← if pats.getArgs.size == 1 then pure $ pats.getArg 0
     else throwError "match_syntax: expected exactly one pattern per alternative";
-  let pat := if pat.isOfKind `Lean.Parser.Term.stxQuot then pat.setArg 1 $ elimAntiquotChoices $ pat.getArg 1 else pat;
+  let pat := if isQuot pat then pat.setArg 1 $ elimAntiquotChoices $ pat.getArg 1 else pat;
   match pat.find? $ fun stx => stx.getKind == choiceKind with
   | some choiceStx => throwErrorAt choiceStx "invalid pattern, nested syntax has multiple interpretations"
   | none           =>

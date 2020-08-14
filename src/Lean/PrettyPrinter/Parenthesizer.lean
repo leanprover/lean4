@@ -443,7 +443,7 @@ match e with
     let parenthesizerDeclName := c ++ `parenthesizer;
     cinfo ← getConstInfo c;
     resultTy ← Meta.forallTelescope cinfo.type fun _ b => pure b;
-    if resultTy.isConstOf `Lean.Parser.Parser then do
+    if resultTy.isConstOf `Lean.Parser.TrailingParser || resultTy.isConstOf `Lean.Parser.Parser then do
       -- synthesize a new `[combinatorParenthesizer]`
       some value ← pure cinfo.value?
         | throwOther $ "don't know how to generate parenthesizer for non-definition '" ++ toString e ++ "'";
@@ -472,25 +472,18 @@ match e with
       compileParserBody e'
 
 /-- Compile the given declaration into a `[builtinParenthesizer declName]` or `[parenthesizer declName]`. -/
-def compile (env : Environment) (declName : Name) (builtin : Bool) : IO Environment := do
-(value, env) ← IO.runMeta (do
-  cinfo ← getConstInfo declName;
-  compileParserBody $ preprocessParserBody cinfo.value!) env;
-let parenthesizerDeclName := declName ++ `parenthesizer;
-let decl := Declaration.defnDecl { name := parenthesizerDeclName, lparams := [],
-  type := mkConst `Lean.PrettyPrinter.Parenthesizer,
-  value := value, hints := ReducibilityHints.opaque, isUnsafe := false };
-env ← match env.addAndCompile {} decl with
-| Except.ok    env => pure env
-| Except.error kex => throw $ IO.userError $ toString $ fmt $ kex.toMessageData {};
-let kind := declName;  -- fair assumption...?
-env ← env.addAttribute parenthesizerDeclName (if builtin then `builtinParenthesizer else `parenthesizer)
-  (mkNullNode #[mkIdent kind]);
--- We also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
+def compileParser (env : Environment) (declName : Name) (builtin : Bool) : IO Environment := do
+-- This will also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
 -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
 -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
 -- call them at compile time but only reference them).
-env.addAttribute parenthesizerDeclName `combinatorParenthesizer (mkNullNode #[mkIdent declName])
+(Expr.const parenthesizerDeclName _ _, env) ← IO.runMeta (compileParserBody (mkConst declName)) env
+  | unreachable!;
+-- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
+-- using `parser!` or `syntax`.
+let kind := declName;
+env.addAttribute parenthesizerDeclName (if builtin then `builtinParenthesizer else `parenthesizer)
+  (mkNullNode #[mkIdent kind])
 
 unsafe def mkParenthesizerOfConstantUnsafe (constName : Name) (compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer)
     : StateT Environment IO Parenthesizer :=
@@ -501,7 +494,7 @@ fun env => match env.find? constName with
     match parenthesizerAttribute.getValues env constName with
     | p::_ => pure (p, env)
     | _    => do
-      env ← compile env constName /- builtin -/ false;
+      env ← compileParser env constName /- builtin -/ false;
       pure (parenthesizerForKind constName, env)
   else do
     d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
@@ -512,7 +505,7 @@ constant mkParenthesizerOfConstantAux (constName : Name) (compileParenthesizerDe
     : StateT Environment IO Parenthesizer :=
 arbitrary _
 
-partial def compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer
+unsafe def compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer
 | ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
 | ParserDescr.orelse d₁ d₂                        => orelse.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
 | ParserDescr.optional d                          => optional.parenthesizer <$> compileParenthesizerDescr d
@@ -531,14 +524,40 @@ partial def compileParenthesizerDescr : ParserDescr → StateT Environment IO Pa
 | ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
 | ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer
-| ParserDescr.parser constName                    => mkParenthesizerOfConstantAux constName compileParenthesizerDescr
+| ParserDescr.parser constName                    => do
+  env ← get;
+  p ← match combinatorParenthesizerAttribute.getDeclFor env constName with
+  | some p => pure p
+  | none   => do {
+    (Expr.const p _ _, env) ← liftM $ IO.runMeta (compileParserBody (mkConst constName)) env
+      | unreachable!;
+    set env;
+    pure p
+  };
+  env ← get;
+  liftM $ IO.ofExcept $ env.evalConstCheck Parenthesizer `Lean.PrettyPrinter.Parenthesizer p
 | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
 
-def addParenthesizerFromConstant (env : Environment) (constName : Name) : IO Environment := do
-(p, env) ← mkParenthesizerOfConstantAux constName compileParenthesizerDescr env;
+unsafe def addParenthesizerFromConstantUnsafe (env : Environment) (constName : Name) : IO Environment := do
+(p, env) ← match env.find? constName with
+| none      => throw $ IO.userError ("unknow constant '" ++ toString constName ++ "'")
+| some info =>
+  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
+    match parenthesizerAttribute.getValues env constName with
+    | p::_ => pure (p, env)
+    | _    => do
+      env ← compileParser env constName /- builtin -/ false;
+      pure (parenthesizerForKind constName, env)
+  else do {
+    d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
+    compileParenthesizerDescr d env
+  };
 -- Register parenthesizer without exporting it to the .olean file. It will be re-interpreted and registered
 -- when the parser is imported.
 pure $ parenthesizerAttribute.ext.modifyState env fun st => { st with table := st.table.insert constName p }
+
+@[implementedBy addParenthesizerFromConstantUnsafe]
+constant addParenthesizerFromConstant (env : Environment) (constName : Name) : IO Environment := arbitrary _
 
 end Parenthesizer
 open Parenthesizer

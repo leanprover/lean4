@@ -366,7 +366,7 @@ env ← match env.find? declName with
    declareLeadingBuiltinParser env catName declName
  | _ =>
    throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"));
-PrettyPrinter.Parenthesizer.compile env declName /- builtin -/ true
+PrettyPrinter.Parenthesizer.compileParser env declName /- builtin -/ true
 
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.

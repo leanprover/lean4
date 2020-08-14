@@ -126,7 +126,7 @@ the precedence and an appropriate parentheses builder. If no category parenthesi
 parenthesized, but still be traversed for parenthesizing nested categories.",
   valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
 } `Lean.PrettyPrinter.categoryParenthesizerAttribute
-@[init mkCategoryParenthesizerAttribute] constant categoryOarenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer := arbitrary _
+@[init mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer := arbitrary _
 
 unsafe def mkCombinatorParenthesizerAttribute : IO CombinatorCompilerAttribute :=
 registerCombinatorCompilerAttribute
@@ -244,8 +244,7 @@ def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=
 -- fix the backtracking hack outright.
 orelse.parenthesizer antiP p
 
-@[combinatorParenthesizer Lean.Parser.categoryParser]
-def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
+def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer := do
 stx ← getCur;
 if stx.getKind == `choice then
   visitArgs $ stx.getArgs.size.forM $ fun _ => do
@@ -254,31 +253,40 @@ if stx.getKind == `choice then
 else
   withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString none) (parenthesizerForKind stx.getKind)
 
+@[combinatorParenthesizer Lean.Parser.categoryParser]
+def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
+env ← liftM getEnv;
+match categoryParenthesizerAttribute.getValues env cat with
+| p::_ => p prec
+-- Fall back to the generic parenthesizer.
+-- In this case this node will never be parenthesized since we don't know which parentheses to use.
+| _    => parenthesizeCategoryCore cat prec
+
 @[combinatorParenthesizer Lean.Parser.categoryParserOfStack]
 def categoryParserOfStack.parenthesizer (offset : Nat) (prec : Nat) : Parenthesizer := do
 st ← get;
 let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset);
 categoryParser.parenthesizer stx.getId prec
 
-@[combinatorParenthesizer Lean.Parser.termParser]
-def termParser.parenthesizer (prec : Nat) : Parenthesizer := do
+@[builtinCategoryParenthesizer term]
+def term.parenthesizer : CategoryParenthesizer | prec => do
 stx ← getCur;
 -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
 if stx.getKind == nullKind then
   throw $ Exception.other Syntax.missing "BACKTRACK"
 else do
   maybeParenthesize (fun stx => Unhygienic.run `(($stx))) prec $
-    categoryParser.parenthesizer `term prec
+    parenthesizeCategoryCore `term prec
 
-@[combinatorParenthesizer Lean.Parser.tacticParser]
-def tacticParser.parenthesizer (prec : Nat) : Parenthesizer :=
+@[builtinCategoryParenthesizer tactic]
+def tactic.parenthesizer : CategoryParenthesizer | prec => do
 maybeParenthesize (fun stx => Unhygienic.run `(tactic|($stx))) prec $
-  categoryParser.parenthesizer `tactic prec
+  parenthesizeCategoryCore `tactic prec
 
-@[combinatorParenthesizer Lean.Parser.levelParser]
-def levelParser.parenthesizer (prec : Nat) : Parenthesizer :=
+@[builtinCategoryParenthesizer level]
+def level.parenthesizer : CategoryParenthesizer | prec => do
 maybeParenthesize (fun stx => Unhygienic.run `(level|($stx))) prec $
-  categoryParser.parenthesizer `level prec
+  parenthesizeCategoryCore `level prec
 
 @[combinatorParenthesizer Lean.Parser.try]
 def try.parenthesizer (p : Parenthesizer) : Parenthesizer :=
@@ -528,8 +536,9 @@ partial def compileParenthesizerDescr : ParserDescr → StateT Environment IO Pa
 
 def addParenthesizerFromConstant (env : Environment) (constName : Name) : IO Environment := do
 (p, env) ← mkParenthesizerOfConstantAux constName compileParenthesizerDescr env;
-parenthesizerAttribute.addBuiltin constName p;
-pure env
+-- Register parenthesizer without exporting it to the .olean file. It will be re-interpreted and registered
+-- when the parser is imported.
+pure $ parenthesizerAttribute.ext.modifyState env fun st => { st with table := st.table.insert constName p }
 
 end Parenthesizer
 open Parenthesizer
@@ -539,7 +548,7 @@ def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : MetaM Syntax :
 (_, st) ← parenthesizer {} { stxTrav := Syntax.Traverser.fromSyntax stx };
 pure st.stxTrav.cur
 
-def parenthesizeTerm := parenthesize $ termParser.parenthesizer 0
+def parenthesizeTerm := parenthesize $ categoryParser.parenthesizer `term 0
 def parenthesizeCommand := parenthesize $ categoryParser.parenthesizer `command 0
 
 @[init] private def regTraceClasses : IO Unit := do

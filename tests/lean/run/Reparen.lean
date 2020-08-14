@@ -10,7 +10,7 @@ match parens.getHeadInfo, body.getHeadInfo, body.getTailInfo, parens.getTailInfo
 | _, _, _, _ => body
 
 partial def unparen : Syntax → Syntax
--- don't remove parentheses in syntax quotation, they might be semantically significant
+-- don't remove parentheses in syntax quotations, they might be semantically significant
 | stx => if stx.isOfKind `Lean.Parser.Term.stxQuot then stx
   else match_syntax stx with
   | `(($stx')) => unparenAux stx $ unparen stx'
@@ -37,3 +37,18 @@ cmds.forM $ fun cmd => do
   IO.print s
 
 #eval main ["../../../src/Init/Core.lean"]
+
+def check (stx : Syntax) : MetaM Unit := do
+let stx' := unparen stx;
+stx' ← PrettyPrinter.parenthesizeTerm stx';
+when (stx != stx') $
+  Meta.throwOther "reparenthesization failed"
+
+new_frontend
+
+open Lean
+
+syntax:80 term " ^~ " term:80 : term
+syntax:70 term " *~ " term:71 : term
+#eval check $ Unhygienic.run `(((1 + 2) *~ 3) ^~ 4)
+

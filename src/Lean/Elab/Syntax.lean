@@ -229,9 +229,9 @@ fun stx => do
   (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) cat;
   d ←
     if trailingParser then
-      `(@[$catParserId:ident] def myParser : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
+      `(@[$catParserId:ident] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
     else
-      `(@[$catParserId:ident] def myParser : Lean.ParserDescr := ParserDescr.node $(quote kind) $(quote prec) $val);
+      `(@[$catParserId:ident] def $(mkIdentFrom stx kind) : Lean.ParserDescr := ParserDescr.node $(quote kind) $(quote prec) $val);
   trace `Elab fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 

@@ -112,6 +112,22 @@ KeyedDeclsAttribute.init {
 } `Lean.PrettyPrinter.parenthesizerAttribute
 @[init mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
 
+abbrev CategoryParenthesizer := forall (prec : Nat), Parenthesizer
+
+unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryParenthesizer) :=
+KeyedDeclsAttribute.init {
+  builtinName := `builtinCategoryParenthesizer,
+  name := `categoryParenthesizer,
+  descr := "Register a parenthesizer for a syntax category.
+
+[parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
+which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize` with
+the precedence and an appropriate parentheses builder. If no category parenthesizer is registered, the category will never be
+parenthesized, but still be traversed for parenthesizing nested categories.",
+  valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
+} `Lean.PrettyPrinter.categoryParenthesizerAttribute
+@[init mkCategoryParenthesizerAttribute] constant categoryOarenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer := arbitrary _
+
 unsafe def mkCombinatorParenthesizerAttribute : IO CombinatorCompilerAttribute :=
 registerCombinatorCompilerAttribute
   `combinatorParenthesizer

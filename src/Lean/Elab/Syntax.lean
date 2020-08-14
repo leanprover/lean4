@@ -250,28 +250,31 @@ def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM 
 alts ← alts.mapSepElemsM $ fun alt => do {
   let lhs := alt.getArg 0;
   let pat := lhs.getArg 0;
-  match_syntax pat with
-  | `(`($quot)) =>
-     let k' := quot.getKind;
-     if k' == k then
-       pure alt
-     else if k' == choiceKind then do
-        match quot.getArgs.find? $ fun quotAlt => quotAlt.getKind == k with
-        | none      => throwErrorAt alt ("invalid macro_rules alternative, expected syntax node kind '" ++ k ++ "'")
-        | some quot => do
-          pat ← `(`($quot));
-          let lhs := lhs.setArg 0 pat;
-          pure $ alt.setArg 0 lhs
-     else
-       throwErrorAt alt ("invalid macro_rules alternative, unexpected syntax node kind '" ++ k' ++ "'")
-  | stx => throwUnsupportedSyntax
+  when (!Term.Quotation.isQuot pat) $
+    throwUnsupportedSyntax;
+  let quot := pat.getArg 1;
+  let k' := quot.getKind;
+  if k' == k then
+    pure alt
+  else if k' == choiceKind then do
+     match quot.getArgs.find? $ fun quotAlt => quotAlt.getKind == k with
+     | none      => throwErrorAt alt ("invalid macro_rules alternative, expected syntax node kind '" ++ k ++ "'")
+     | some quot => do
+       let pat := pat.setArg 1 quot;
+       let lhs := lhs.setArg 0 pat;
+       pure $ alt.setArg 0 lhs
+  else
+    throwErrorAt alt ("invalid macro_rules alternative, unexpected syntax node kind '" ++ k' ++ "'")
 };
 `(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
 
-def inferMacroRulesAltKind (alt : Syntax) : CommandElabM SyntaxNodeKind :=
-match_syntax (alt.getArg 0).getArg 0 with
-| `(`($quot)) => pure quot.getKind
-| stx         => throwUnsupportedSyntax
+def inferMacroRulesAltKind (alt : Syntax) : CommandElabM SyntaxNodeKind := do
+let lhs := alt.getArg 0;
+let pat := lhs.getArg 0;
+when (!Term.Quotation.isQuot pat) $
+  throwUnsupportedSyntax;
+let quot := pat.getArg 1;
+pure quot.getKind
 
 def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 k ← inferMacroRulesAltKind (alts.get! 0);

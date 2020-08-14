@@ -97,7 +97,6 @@ extern lean_object* l_Lean_fieldIdxKind___closed__1;
 uint8_t l_Array_isEqvAux___main___at_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4;
 lean_object* l_Lean_Parser_mkParserState(lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
 lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_symbol_formatter___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_rawIdent_formatter___closed__3;
@@ -313,6 +312,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___closed__
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_sepBy1_formatter___closed__1;
 lean_object* l_List_forM___main___at_Lean_PrettyPrinter_Formatter_sepBy_formatter___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_nameLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 lean_object* l_Lean_PrettyPrinter_Formatter_withPosition_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_PrettyPrinter_Formatter_visit___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_visit___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4992,7 +4992,7 @@ lean_object* x_16;
 lean_dec(x_11);
 lean_dec(x_4);
 lean_dec(x_2);
-x_16 = l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
+x_16 = l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 lean_ctor_set_tag(x_6, 1);
 lean_ctor_set(x_6, 0, x_16);
 return x_6;
@@ -5027,7 +5027,7 @@ lean_object* x_25; lean_object* x_26;
 lean_dec(x_20);
 lean_dec(x_4);
 lean_dec(x_2);
-x_25 = l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
+x_25 = l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_18);
@@ -5370,7 +5370,7 @@ lean_object* x_18; lean_object* x_19;
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_1);
-x_18 = l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
+x_18 = l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 if (lean_is_scalar(x_9)) {
  x_19 = lean_alloc_ctor(1, 2, 0);
 } else {
@@ -5422,7 +5422,7 @@ if (x_37 == 0)
 lean_object* x_38; lean_object* x_39; 
 x_38 = lean_ctor_get(x_36, 0);
 lean_dec(x_38);
-x_39 = l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
+x_39 = l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 lean_ctor_set_tag(x_36, 1);
 lean_ctor_set(x_36, 0, x_39);
 return x_36;
@@ -5433,7 +5433,7 @@ lean_object* x_40; lean_object* x_41; lean_object* x_42;
 x_40 = lean_ctor_get(x_36, 1);
 lean_inc(x_40);
 lean_dec(x_36);
-x_41 = l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
+x_41 = l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 x_42 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_40);
@@ -5518,7 +5518,7 @@ lean_object* x_62; lean_object* x_63;
 lean_dec(x_58);
 lean_dec(x_56);
 lean_dec(x_1);
-x_62 = l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
+x_62 = l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 if (lean_is_scalar(x_9)) {
  x_63 = lean_alloc_ctor(1, 2, 0);
 } else {
@@ -5574,7 +5574,7 @@ if (lean_is_exclusive(x_80)) {
  lean_dec_ref(x_80);
  x_82 = lean_box(0);
 }
-x_83 = l_Lean_PrettyPrinter_Parenthesizer_termParser_parenthesizer___closed__4;
+x_83 = l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__4;
 if (lean_is_scalar(x_82)) {
  x_84 = lean_alloc_ctor(1, 2, 0);
 } else {

@@ -246,17 +246,20 @@ withMVarContext mvarId $ do
   | some ctx =>
     let ctors := ctx.inductiveVal.ctors.toArray;
     let casesOn := mkCasesOnFor ctx.inductiveVal.name;
-    condM (hasIndepIndices ctx)
-      (do
-        s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames;
-        pure $ toCasesSubgoals s ctors)
-      (do
-        s₁ ← generalizeIndices mvarId majorFVarId;
-        trace! `Meta.Tactic.cases ("after generalizeIndices" ++ Format.line ++ MessageData.ofGoal s₁.mvarId);
-        s₂ ← induction s₁.mvarId s₁.fvarId casesOn givenNames useUnusedNames;
-        s₂ ← elimAuxIndices s₁ s₂;
-        let s₂ := toCasesSubgoals s₂ ctors;
-        unifyEqs s₁.numEqs s₂)
+    /- Remark: if caller does not need a `FVarSubst` (variable substitution), and `hasIndepIndices ctx` is true,
+       then we can also use the simple case. This is a minor optimization, and we currently do not even
+       allow callers to specify whether they want the `FVarSubst` or not. -/
+    if ctx.inductiveVal.nindices == 0 then do
+      -- Simple case
+      s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames;
+      pure $ toCasesSubgoals s ctors
+   else do
+      s₁ ← generalizeIndices mvarId majorFVarId;
+      trace! `Meta.Tactic.cases ("after generalizeIndices" ++ Format.line ++ MessageData.ofGoal s₁.mvarId);
+      s₂ ← induction s₁.mvarId s₁.fvarId casesOn givenNames useUnusedNames;
+      s₂ ← elimAuxIndices s₁ s₂;
+      let s₂ := toCasesSubgoals s₂ ctors;
+      unifyEqs s₁.numEqs s₂
 
 end Cases
 

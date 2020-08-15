@@ -512,7 +512,7 @@ private partial def elabStruct : Struct → Option Expr → TermElabM (Expr × S
             pure (e, type, field::fields)
           };
           match field.val with
-          | FieldVal.term stx => do val ← elabTerm stx (some d); val ← withRef stx $ ensureHasType d val; continue val field
+          | FieldVal.term stx => do val ← elabTermEnsuringType stx d; continue val field
           | FieldVal.nested s => do (val, sNew) ← elabStruct s (some d); val ← ensureHasType d val; continue val { field with val := FieldVal.nested sNew }
           | FieldVal.default  => do val ← withRef field.ref $ mkFreshExprMVar (some d); continue (markDefaultMissing val) field
         | _ => withRef field.ref $ throwFailedToElabField fieldName s.structName ("unexpected constructor type" ++ indentExpr type)

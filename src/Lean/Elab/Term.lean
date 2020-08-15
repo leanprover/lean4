@@ -909,6 +909,10 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
 withRef stx $ elabTermAux expectedType? catchExPostpone true stx
 
+def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+e ← elabTerm stx expectedType?;
+withRef stx $ ensureHasType expectedType? e
+
 def elabTermWithoutImplicitLambdas (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
 elabTermAux expectedType? catchExPostpone false stx
 

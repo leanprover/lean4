@@ -289,8 +289,7 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
           when (!view.binders.getArgs.isEmpty || view.type?.isSome) $
             Term.throwErrorAt view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value");
           fvarType ← Term.inferType info.fvar;
-          value ← Term.elabTerm valStx fvarType;
-          value ← Term.withRef valStx $ Term.ensureHasType fvarType value;
+          value ← Term.elabTermEnsuringType valStx fvarType;
           let infos := infos.push { info with value? := value };
           withFields (i+1) infos k
       | StructFieldKind.subobject => unreachable!

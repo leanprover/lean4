@@ -319,17 +319,17 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = lean_array_fget(x_1, x_2);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_2, x_10);
-lean_dec(x_2);
-x_12 = l_Lean_IR_AltCore_body(x_9);
+x_10 = l_Lean_IR_AltCore_body(x_9);
 lean_dec(x_9);
-x_13 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_12, x_3, x_4);
-x_14 = lean_ctor_get(x_13, 1);
-lean_inc(x_14);
-lean_dec(x_13);
-x_2 = x_11;
-x_4 = x_14;
+x_11 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_10, x_3, x_4);
+x_12 = lean_ctor_get(x_11, 1);
+lean_inc(x_12);
+lean_dec(x_11);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_2, x_13);
+lean_dec(x_2);
+x_2 = x_14;
+x_4 = x_12;
 goto _start;
 }
 }

@@ -429,6 +429,16 @@ if e.hasMVar then
 else
   pure e
 
+def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
+match localDecl with
+  | LocalDecl.cdecl idx id n type bi  => do
+    type ← instantiateMVars type;
+    pure $ LocalDecl.cdecl idx id n type bi
+  | LocalDecl.ldecl idx id n type val => do
+    type ← instantiateMVars type;
+    val ← instantiateMVars val;
+    pure $ LocalDecl.ldecl idx id n type val
+
 @[inline] private def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α :=
 fun ctx s =>
   match x ctx.lctx { mctx := s.mctx, ngen := s.ngen } with

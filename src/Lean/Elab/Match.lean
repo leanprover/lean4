@@ -401,6 +401,7 @@ patternVarDecls.foldlM
         assignExprMVar newMVarId (mkFVar fvarId);
         trace `Elab.match fun _ => "finalizePatternDecls: " ++ mkMVar newMVarId ++ " := " ++ mkFVar fvarId;
         decl ← getLocalDecl fvarId;
+        decl ← liftMetaM $ Meta.instantiateLocalDeclMVars decl;
         pure $ decls.push decl
       | _ => pure decls)
   #[]

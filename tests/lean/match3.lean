@@ -48,3 +48,9 @@ def head {α} (xs : List α) (h : xs = [] → False) : α :=
 match he:xs with
 | []   => False.elim $ h he
 | x::_ => x
+
+variables {α : Type u} {p : α → Prop}
+
+theorem ex8 {a1 a2 : {x // p x}} (h : a1.val = a2.val) : a1 = a2 :=
+match a1, a2, h with
+| ⟨_, _⟩, ⟨_, _⟩, rfl => rfl

@@ -38,3 +38,13 @@ begin
   subst h₁;
   assumption
 end
+
+theorem ex7 (a : Bool) (p q : Prop) (h₁ : a = true → p) (h₂ : a = false → q) : p ∨ q :=
+match h:a with
+| true  => Or.inl $ h₁ h
+| false => Or.inr $ h₂ h
+
+def head {α} (xs : List α) (h : xs = [] → False) : α :=
+match he:xs with
+| []   => False.elim $ h he
+| x::_ => x

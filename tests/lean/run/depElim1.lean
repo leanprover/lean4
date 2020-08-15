@@ -218,8 +218,6 @@ set_option trace.Meta.EqnCompiler.matchDebug true
 #eval test `ex6 2 `elimTest6
 #print elimTest6
 
-#exit
-
 def ex7 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (forall (a : α), Pat (inaccessible 1) × Pat (Vec.cons a Vec.nil))
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
@@ -256,8 +254,6 @@ elimTest8 _ (fun _ _ => Option (Nat × Nat)) n xs (fun a b => some (a, b)) (fun 
 #eval pair? Vec.nil
 #eval pair? (Vec.cons 10 Vec.nil)
 #eval pair? (Vec.cons 20 (Vec.cons 10 Vec.nil))
-
-#exit
 
 inductive Op : Nat → Nat → Type
 | mk : ∀ n, Op n n

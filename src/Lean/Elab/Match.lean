@@ -531,6 +531,13 @@ liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => do
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List Meta.DepElim.AltLHS) : TermElabM Meta.DepElim.ElimResult :=
 liftMetaM $ Meta.DepElim.mkElim elimName motiveType lhss
 
+def reportElimResultErrors (result : Meta.DepElim.ElimResult) : TermElabM Unit := do
+-- TODO: improve error messages
+unless result.counterExamples.isEmpty $
+  throwError ("missing cases:" ++ Format.line ++ Meta.DepElim.counterExamplesToMessageData result.counterExamples);
+unless result.unusedAltIdxs.isEmpty $
+  throwError ("unused alternatives: " ++ toString (result.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)))
+
 /-
 ```
 parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
@@ -554,7 +561,7 @@ motiveType ← mkMotiveType matchType expectedType;
 motive ← liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => Meta.mkLambda xs matchType;
 elimName ← mkAuxName `elim;
 elimResult ← mkElim elimName motiveType altLHSS.toList;
--- TODO: report `eliminator errors`.
+reportElimResultErrors elimResult;
 let r := mkApp elimResult.elim motive;
 let r := mkAppN r discrs;
 let r := mkAppN r rhss;

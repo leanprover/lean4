@@ -38,7 +38,7 @@ partial def toMessageData : Pattern → MessageData
 | var varId              => mkFVar varId
 | ctor ctorName _ _ []   => ctorName
 | ctor ctorName _ _ pats => "(" ++ ctorName ++ pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil ++ ")"
-| val e                  => "val!(" ++ e ++ ")"
+| val e                  => e
 | arrayLit _ pats        => "#[" ++ MessageData.joinSep (pats.map toMessageData) ", " ++ "]"
 | as varId p             => mkFVar varId ++ "@" ++toMessageData p
 
@@ -296,28 +296,26 @@ hasArrayLitPattern p && hasVarPattern p
 private def isNatValueCtorTransition (p : Problem) : Bool :=
 hasCtorPattern p && hasNatValPattern p
 
-private def processNonVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-trace! `Meta.EqnCompiler.match ("non variable step");
+private def processNonVariable (p : Problem) : Problem :=
 match p.vars with
+| []      => unreachable!
 | x :: xs =>
   let alts := p.alts.map fun alt => match alt.patterns with
     | _ :: ps => { alt with patterns := ps }
     | _       => unreachable!;
-  process { p with alts := alts, vars := xs } s
-| _ => unreachable!
+  { p with alts := alts, vars := xs }
 
-private def processLeaf (p : Problem) (s : State) : MetaM State :=
+private def processLeaf (p : Problem) : StateT State MetaM Unit :=
 match p.alts with
 | []       => do
-  admit p.mvarId;
-  pure { s with counterExamples := p.examples :: s.counterExamples }
+  liftM $ admit p.mvarId;
+  modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
 | alt :: _ => do
   -- TODO: check whether we have unassigned metavars in rhs
-  assignGoalOf p alt.rhs;
-  pure { s with used := s.used.insert alt.idx }
+  liftM $ assignGoalOf p alt.rhs;
+  modify fun s => { s with used := s.used.insert alt.idx }
 
-private def processAsPattern (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-trace! `Meta.EqnCompiler.match ("as-pattern step");
+private def processAsPattern (p : Problem) : Problem :=
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -326,10 +324,9 @@ match p.vars with
       let alt := { alt with patterns := p :: ps };
       alt.replaceFVarId fvarId x
     | _ => alt;
-  process { p with alts := alts } s
+  { p with alts := alts }
 
-private def processVariable (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
-trace! `Meta.EqnCompiler.match ("variable step");
+private def processVariable (p : Problem) : Problem :=
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -339,7 +336,7 @@ match p.vars with
       let alt := { alt with patterns := ps };
       alt.replaceFVarId fvarId x
     | _ => unreachable!;
-  process { p with alts := alts, vars := xs } s
+  { p with alts := alts, vars := xs }
 
 private def throwInductiveTypeExpected {α} (e : Expr) : MetaM α := do
 t ← inferType e;
@@ -439,48 +436,46 @@ withExistingLocalDecls alt.fvarDecls do
         | e                      => Pattern.inaccessible e;
       pure $ some { alt with fvarDecls := newAltDecls, rhs := rhs, patterns := ctorFieldPatterns ++ patterns }
 
-private def processConstructor (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
+private def processConstructor (p : Problem) : MetaM (Array Problem) := do
 trace! `Meta.EqnCompiler.match ("constructor step");
 env ← getEnv;
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
   subgoals ← cases p.mvarId x.fvarId!;
-  subgoals.foldlM
-    (fun (s : State) subgoal => withMVarContext subgoal.mvarId do
-      let subst    := subgoal.subst;
-      let fields   := subgoal.fields.toList;
-      let newVars  := fields ++ xs;
-      let newVars  := newVars.map fun x => x.applyFVarSubst subst;
-      let subex    := Example.ctor subgoal.ctorName $ fields.map fun field => match field with
-        | Expr.fvar fvarId _ => Example.var fvarId
-        | _                  => Example.underscore; -- This case can happen due to dependent elimination
-      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
-      let examples := examples.map $ Example.applyFVarSubst subst;
-      let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | Pattern.ctor n _ _ _ :: _   => n == subgoal.ctorName
-        | Pattern.var _ :: _          => true
-        | Pattern.inaccessible _ :: _ => true
-        | _                           => false;
-      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
-      newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
-        | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
-        | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
-        | Pattern.inaccessible e :: ps     => do
-          trace! `Meta.EqnCompiler.match ("inaccessible in ctor step " ++ e);
-          e ← whnfD e;
-          match e.constructorApp? env with
-          | some (ctorVal, ctorArgs) => do
-            if ctorVal.name == subgoal.ctorName then
-              let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
-              let fields := fields.toList.map Pattern.inaccessible;
-              pure $ some { alt with patterns := fields ++ ps }
-            else
-              pure none
-          | _ => pure none
-        | _                                => unreachable!;
-      process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s)
-    s
+  subgoals.mapM fun subgoal => withMVarContext subgoal.mvarId do
+    let subst    := subgoal.subst;
+    let fields   := subgoal.fields.toList;
+    let newVars  := fields ++ xs;
+    let newVars  := newVars.map fun x => x.applyFVarSubst subst;
+    let subex    := Example.ctor subgoal.ctorName $ fields.map fun field => match field with
+      | Expr.fvar fvarId _ => Example.var fvarId
+      | _                  => Example.underscore; -- This case can happen due to dependent elimination
+    let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
+    let examples := examples.map $ Example.applyFVarSubst subst;
+    let newAlts  := p.alts.filter fun alt => match alt.patterns with
+      | Pattern.ctor n _ _ _ :: _   => n == subgoal.ctorName
+      | Pattern.var _ :: _          => true
+      | Pattern.inaccessible _ :: _ => true
+      | _                           => false;
+    let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
+    newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
+      | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
+      | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
+      | Pattern.inaccessible e :: ps     => do
+        trace! `Meta.EqnCompiler.match ("inaccessible in ctor step " ++ e);
+        e ← whnfD e;
+        match e.constructorApp? env with
+        | some (ctorVal, ctorArgs) => do
+          if ctorVal.name == subgoal.ctorName then
+            let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
+            let fields := fields.toList.map Pattern.inaccessible;
+            pure $ some { alt with patterns := fields ++ ps }
+          else
+            pure none
+        | _ => pure none
+      | _                                => unreachable!;
+    pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 
 private def collectValues (p : Problem) : Array Expr :=
 p.alts.foldl
@@ -495,40 +490,37 @@ match alt.patterns with
 | Pattern.var _ :: _ => true
 | _                  => false
 
-private def processValue (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
+private def processValue (p : Problem) : MetaM (Array Problem) := do
 trace! `Meta.EqnCompiler.match ("value step");
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
   let values := collectValues p;
   subgoals ← caseValues p.mvarId x.fvarId! values;
-  subgoals.size.foldM
-    (fun i (s : State) =>
-      let subgoal := subgoals.get! i;
-      if h : i < values.size then do
-        let value := values.get ⟨i, h⟩;
-        -- (x = value) branch
-        let subst := subgoal.subst;
-        let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value);
-        let examples := examples.map $ Example.applyFVarSubst subst;
-        let newAlts  := p.alts.filter fun alt => match alt.patterns with
-          | Pattern.val v :: _ => v == value
-          | Pattern.var _ :: _ => true
-          | _                  => false;
-        let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
-        let newAlts := newAlts.map fun alt => match alt.patterns with
-          | Pattern.val _ :: ps      => { alt with patterns := ps }
-          | Pattern.var fvarId :: ps =>
-            let alt := { alt with patterns := ps };
-            alt.replaceFVarId fvarId value
-          | _  => unreachable!;
-        let newVars := xs.map fun x => x.applyFVarSubst subst;
-        process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s
-      else do
-        -- else branch
-        let newAlts := p.alts.filter isFirstPatternVar;
-        process { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs } s)
-    s
+  subgoals.mapIdxM fun i subgoal =>
+    if h : i < values.size then do
+      let value := values.get ⟨i, h⟩;
+      -- (x = value) branch
+      let subst := subgoal.subst;
+      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value);
+      let examples := examples.map $ Example.applyFVarSubst subst;
+      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+        | Pattern.val v :: _ => v == value
+        | Pattern.var _ :: _ => true
+        | _                  => false;
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
+      let newAlts := newAlts.map fun alt => match alt.patterns with
+        | Pattern.val _ :: ps      => { alt with patterns := ps }
+        | Pattern.var fvarId :: ps =>
+          let alt := { alt with patterns := ps };
+          alt.replaceFVarId fvarId value
+        | _  => unreachable!;
+      let newVars := xs.map fun x => x.applyFVarSubst subst;
+      pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+    else do
+      -- else branch
+      let newAlts := p.alts.filter isFirstPatternVar;
+      pure { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
 private def collectArraySizes (p : Problem) : Array Nat :=
 p.alts.foldl
@@ -554,40 +546,37 @@ withExistingLocalDecls alt.fvarDecls do
   fvarDecl ← getLocalDecl fvarId;
   expandVarIntoArrayLitAux alt fvarId arrayElemType fvarDecl.userName arraySize #[]
 
-private def processArrayLit (process : Problem → State → MetaM State) (p : Problem) (s : State) : MetaM State := do
+private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
 trace! `Meta.EqnCompiler.match ("array literal step");
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
   let sizes := collectArraySizes p;
   subgoals ← caseArraySizes p.mvarId x.fvarId! sizes;
-  subgoals.size.foldM
-    (fun i (s : State) =>
-      let subgoal := subgoals.get! i;
-      if h : i < sizes.size then do
-        let size     := sizes.get! i;
-        let subst    := subgoal.subst;
-        let elems    := subgoal.elems.toList;
-        let newVars  := elems.map mkFVar ++ xs;
-        let newVars  := newVars.map fun x => x.applyFVarSubst subst;
-        let subex    := Example.arrayLit $ elems.map Example.var;
-        let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
-        let examples := examples.map $ Example.applyFVarSubst subst;
-        let newAlts  := p.alts.filter fun alt => match alt.patterns with
-          | Pattern.arrayLit _ ps :: _ => ps.length == size
-          | Pattern.var _ :: _         => true
-          | _                          => false;
-        let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
-        newAlts ← newAlts.mapM fun alt => match alt.patterns with
-          | Pattern.arrayLit _ pats :: ps => pure { alt with patterns := pats ++ ps }
-          | Pattern.var fvarId :: ps      => do α ← getArrayArgType x; expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
-          | _  => unreachable!;
-        process { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples } s
-      else do
-        -- else branch
-        let newAlts := p.alts.filter isFirstPatternVar;
-        process { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs } s)
-    s
+  subgoals.mapIdxM fun i subgoal =>
+    if h : i < sizes.size then do
+      let size     := sizes.get! i;
+      let subst    := subgoal.subst;
+      let elems    := subgoal.elems.toList;
+      let newVars  := elems.map mkFVar ++ xs;
+      let newVars  := newVars.map fun x => x.applyFVarSubst subst;
+      let subex    := Example.arrayLit $ elems.map Example.var;
+      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
+      let examples := examples.map $ Example.applyFVarSubst subst;
+      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+        | Pattern.arrayLit _ ps :: _ => ps.length == size
+        | Pattern.var _ :: _         => true
+        | _                          => false;
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
+      newAlts ← newAlts.mapM fun alt => match alt.patterns with
+        | Pattern.arrayLit _ pats :: ps => pure { alt with patterns := pats ++ ps }
+        | Pattern.var fvarId :: ps      => do α ← getArrayArgType x; expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
+        | _  => unreachable!;
+      pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+    else do
+      -- else branch
+      let newAlts := p.alts.filter isFirstPatternVar;
+      pure { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
 private def expandNatValuePattern (p : Problem) : Problem := do
 let alts := p.alts.map fun alt => match alt.patterns with
@@ -596,30 +585,44 @@ let alts := p.alts.map fun alt => match alt.patterns with
   | _                                                     => alt;
 { p with alts := alts }
 
-private partial def process : Problem → State → MetaM State
-| p, s => withIncRecDepth do
-  withGoalOf p (traceM `Meta.EqnCompiler.match p.toMessageData);
+private def traceStep (msg : String) : StateT State MetaM Unit :=
+liftM (trace! `Meta.EqnCompiler.match (msg ++ " step") : MetaM Unit)
+
+private def traceState (p : Problem) : MetaM Unit :=
+withGoalOf p (traceM `Meta.EqnCompiler.match p.toMessageData)
+
+private def throwNonSupported (p : Problem) : MetaM Unit := do
+msg ← p.toMessageData;
+throwOther ("not implement yet " ++ msg)
+
+private partial def process : Problem → StateT State MetaM Unit
+| p => do
+  liftM $ traceState p;
   if isDone p then
-    processLeaf p s
-  else if hasAsPattern p then
-    processAsPattern process p s
-  else if !isNextVar p then
-    processNonVariable process p s
-  else if isVariableTransition p then
-    processVariable process p s
-  else if isConstructorTransition p then
-    processConstructor process p s
-  else if isValueTransition p then
-    processValue process p s
-  else if isArrayLitTransition p then
-    processArrayLit process p s
+    processLeaf p
+  else if hasAsPattern p then do
+    traceStep ("as-pattern");
+    process (processAsPattern p)
+  else if !isNextVar p then do
+    traceStep ("non variable");
+    process (processNonVariable p)
+  else if isVariableTransition p then do
+    traceStep ("variable");
+    process (processVariable p)
+  else if isConstructorTransition p then do
+    ps ← liftM $ processConstructor p;
+    ps.forM process
+  else if isValueTransition p then do
+    ps ← liftM $ processValue p;
+    ps.forM process
+  else if isArrayLitTransition p then do
+    ps ← liftM $ processArrayLit p;
+    ps.forM process
   else if isNatValueCtorTransition p then do
-    trace! `Meta.EqnCompiler.match ("nat value to constructor step");
-    process (expandNatValuePattern p) s
-  else do
-    msg ← p.toMessageData;
-    -- TODO: remaining cases
-    throwOther ("not implement yet " ++ msg)
+    traceStep ("nat value to constructor");
+    process (expandNatValuePattern p)
+  else
+    liftM $ throwNonSupported p
 
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : MetaM ElimResult :=
 withLocalDecl `motive motiveType BinderInfo.default fun motive => do
@@ -630,7 +633,7 @@ trace! `Meta.EqnCompiler.matchDebug ("target: " ++ mvarType);
 withAlts motive lhss fun alts minors => do
   mvar ← mkFreshExprMVar mvarType;
   let examples := majors.toList.map fun major => Example.var major.fvarId!;
-  s    ← process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples } {};
+  (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {};
   let args := #[motive] ++ majors ++ minors;
   type ← mkForall args mvarType;
   val  ← mkLambda args mvar;

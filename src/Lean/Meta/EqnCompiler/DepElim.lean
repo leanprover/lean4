@@ -324,10 +324,8 @@ match p.vars with
 | []      => unreachable!
 | x :: xs => do
   let alts := p.alts.map fun alt => match alt.patterns with
-    | Pattern.as fvarId p :: ps => do
-      let alt := { alt with patterns := p :: ps };
-      alt.replaceFVarId fvarId x
-    | _ => alt;
+    | Pattern.as fvarId p :: ps => { alt with patterns := p :: ps }.replaceFVarId fvarId x
+    | _                         => alt;
   { p with alts := alts }
 
 private def processVariable (p : Problem) : Problem :=
@@ -336,10 +334,8 @@ match p.vars with
 | x :: xs => do
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.inaccessible _ :: ps => { alt with patterns := ps }
-    | Pattern.var fvarId :: ps =>
-      let alt := { alt with patterns := ps };
-      alt.replaceFVarId fvarId x
-    | _ => unreachable!;
+    | Pattern.var fvarId :: ps     => { alt with patterns := ps }.replaceFVarId fvarId x
+    | _                            => unreachable!;
   { p with alts := alts, vars := xs }
 
 private def throwInductiveTypeExpected {α} (e : Expr) : MetaM α := do

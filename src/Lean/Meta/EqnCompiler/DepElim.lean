@@ -293,8 +293,12 @@ hasArrayLitPattern p && hasVarPattern p
    | Pattern.var _ :: _        => true
    | _                         => false
 
-private def isNatValueCtorTransition (p : Problem) : Bool :=
-hasCtorPattern p && hasNatValPattern p
+private def isNatValueTransition (p : Problem) : Bool :=
+hasNatValPattern p
+&& p.alts.any fun alt => match alt.patterns with
+   | Pattern.ctor _ _ _ _ :: _   => true
+   | Pattern.inaccessible _ :: _ => true
+   | _                           => false
 
 private def processNonVariable (p : Problem) : Problem :=
 match p.vars with
@@ -618,7 +622,7 @@ private partial def process : Problem → StateT State MetaM Unit
   else if isArrayLitTransition p then do
     ps ← liftM $ processArrayLit p;
     ps.forM process
-  else if isNatValueCtorTransition p then do
+  else if isNatValueTransition p then do
     traceStep ("nat value to constructor");
     process (expandNatValuePattern p)
   else

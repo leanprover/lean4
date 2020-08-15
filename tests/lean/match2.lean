@@ -11,8 +11,8 @@ structure Node : Type :=
 
 def h1 (x : List Node) : Bool :=
 match x with
-| _ :: Node.mk _ _ (Op.mk Nat.zero) :: _  => true
-| _                                       => false
+| _ :: Node.mk _ _ (Op.mk 0) :: _  => true
+| _                                => false
 
 def mkNode (n : Nat) : Node := { id₁ := n, id₂ := n, o := Op.mk n }
 

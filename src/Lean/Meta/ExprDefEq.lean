@@ -911,6 +911,21 @@ private def isLetFVar (fvarId : FVarId) : MetaM Bool := do
 decl ← getLocalDecl fvarId;
 pure decl.isLet
 
+private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
+status ← isProofQuick t;
+match status with
+| LBool.false =>
+  pure LBool.undef
+| LBool.true  => do
+  tType ← inferType t;
+  sType ← inferType s;
+  toLBoolM $ isExprDefEqAux tType sType
+| LBool.undef => do
+  tType ← inferType t;
+  condM (isProp tType)
+    (do sType ← inferType s; toLBoolM $ isExprDefEqAux tType sType)
+    (pure LBool.undef)
+
 private partial def isDefEqQuick : Expr → Expr → MetaM LBool
 | Expr.lit  l₁ _,           Expr.lit l₂ _            => pure (l₁ == l₂).toLBool
 | Expr.sort u _,            Expr.sort v _            => toLBoolM $ isLevelDefEqAux u v
@@ -918,10 +933,10 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
 | t@(Expr.forallE _ _ _ _), s@(Expr.forallE _ _ _ _) => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
 | Expr.mdata _ t _,         s                        => isDefEqQuick t s
 | t,                        Expr.mdata _ s _         => isDefEqQuick t s
-| Expr.fvar fvarId₁ _,      Expr.fvar fvarId₂ _      =>
+| t@(Expr.fvar fvarId₁ _),  s@(Expr.fvar fvarId₂ _)  =>
   condM (isLetFVar fvarId₁ <||> isLetFVar fvarId₂)
     (pure LBool.undef)
-    (pure (fvarId₁ == fvarId₂).toLBool)
+    (if fvarId₁ == fvarId₂ then pure LBool.true else isDefEqProofIrrel t s)
 | t, s =>
   cond (t == s) (pure LBool.true) $
   cond (etaEq t s || etaEq s t) (pure LBool.true) $  -- t =?= (fun xs => t xs)
@@ -960,21 +975,6 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   else
     condM (commitWhen (processAssignment t s)) (pure LBool.true) $
     assign s t
-
-private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
-status ← isProofQuick t;
-match status with
-| LBool.false =>
-  pure LBool.undef
-| LBool.true  => do
-  tType ← inferType t;
-  sType ← inferType s;
-  toLBoolM $ isExprDefEqAux tType sType
-| LBool.undef => do
-  tType ← inferType t;
-  condM (isProp tType)
-    (do sType ← inferType s; toLBoolM $ isExprDefEqAux tType sType)
-    (pure LBool.undef)
 
 @[inline] def whenUndefDo (x : MetaM LBool) (k : MetaM Bool) : MetaM Bool := do
 status ← x;

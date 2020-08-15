@@ -9,3 +9,9 @@ false
 ---- Foo 2
 true
 false
+---- Op 2
+false
+true
+false
+false
+---- Foo 3

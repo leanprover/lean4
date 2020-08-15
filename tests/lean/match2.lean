@@ -44,3 +44,28 @@ match b, x with
 
 #eval h3 Foo.bar
 #eval h3 Foo.baz
+
+#print "---- Op 2"
+
+def h4 (x : List Node) : Bool :=
+match x with
+| _ :: ⟨1, 1, Op.mk 1⟩ :: _  => true
+| _                          => false
+
+#eval h4 [mkNode 1, mkNode 0, mkNode 3]
+#eval h4 [mkNode 1, mkNode 1, mkNode 3]
+#eval h4 [mkNode 0]
+#eval h4 []
+
+#print "---- Foo 3"
+set_option pp.all true
+
+def h5 {b : Bool} (x : Foo b) : Bool :=
+match b, x with
+| _, Foo.bar => true
+| c, y       => false
+
+def h6 {b : Bool} (x : Foo b) : Bool :=
+match b, x with
+| _, Foo.bar => true
+| b, x       => false

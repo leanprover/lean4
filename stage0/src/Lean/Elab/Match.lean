@@ -66,8 +66,7 @@ private partial def elabDiscrsAux (discrStxs : Array Syntax) (expectedType : Exp
     matchType ← whnf matchType;
     match matchType with
     | Expr.forallE _ d b _ => do
-      discr ← elabTerm discrStx d;
-      discr ← ensureHasType d discr;
+      discr ← elabTermEnsuringType discrStx d;
       trace `Elab.match fun _ => "discr #" ++ toString i ++ " " ++ discr ++ " : " ++ d;
       elabDiscrsAux (i+1) (b.instantiate1 discr) (discrs.push discr)
     | _ => throwError ("invalid type provided to match-expression, function type with arity #" ++ toString discrStxs ++ " expected")
@@ -377,8 +376,7 @@ private partial def elabPatternsAux (patternStxs : Array Syntax) : Nat → Expr 
     match matchType with
     | Expr.forallE _ d b _ => do
       let patternStx := patternStxs.get ⟨i, h⟩;
-      pattern ← elabTerm patternStx d;
-      pattern ← withRef patternStx $ ensureHasType d pattern;
+      pattern ← elabTermEnsuringType patternStx d;
       elabPatternsAux (i+1) (b.instantiate1 pattern) (patterns.push pattern)
     | _ => throwError "unexpected match type"
   else
@@ -516,7 +514,7 @@ withRef alt.ref do
 trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
   (altLHS, matchType) ← elabPatterns patternVarDecls alt.patterns matchType;
-  rhs ← elabTerm alt.rhs matchType;
+  rhs ← elabTermEnsuringType alt.rhs matchType;
   let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
   rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambda xs rhs;
   trace `Elab.match fun _ => "rhs: " ++ rhs;

@@ -194,16 +194,14 @@ private partial def processDoElemsAux (doElems : Array Syntax) (m bindInstVal : 
     let actionStx := doElem.getArg 3;
     type ← elabType typeStx;
     let actionExpectedType := mkApp m type;
-    action ← elabTerm actionStx actionExpectedType;
-    action ← withRef actionStx $ ensureHasType actionExpectedType action;
+    action ← elabTermEnsuringType actionStx actionExpectedType;
     withLocalDecl id BinderInfo.default type $ fun x =>
       processDoElemsAux (i+1) (elems.push { action := action, var := x })
   else if doElem.getKind == `Lean.Parser.Term.doExpr then do
     when (i != doElems.size - 1) $
       throwError ("unexpected 'do' expression element" ++ Format.line ++ doElem);
     let bodyStx := doElem.getArg 0;
-    body ← elabTerm bodyStx expectedType;
-    body ← ensureHasType expectedType body;
+    body ← elabTermEnsuringType bodyStx expectedType;
     mkBind m bindInstVal elems body
   else
     throwError ("unexpected 'do' expression element" ++ Format.line ++ doElem)

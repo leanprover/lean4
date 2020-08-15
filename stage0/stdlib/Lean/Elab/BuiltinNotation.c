@@ -1904,6 +1904,8 @@ x_7 = lean_unsigned_to_nat(1u);
 x_8 = l_Lean_Syntax_getArg(x_1, x_7);
 x_9 = l_Lean_Syntax_getArgs(x_8);
 lean_dec(x_8);
+lean_inc(x_3);
+lean_inc(x_2);
 x_10 = l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(x_2, x_3, x_4);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -6392,6 +6394,8 @@ else
 {
 lean_object* x_9; 
 lean_dec(x_1);
+lean_inc(x_3);
+lean_inc(x_2);
 x_9 = l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(x_2, x_3, x_4);
 if (lean_obj_tag(x_9) == 0)
 {

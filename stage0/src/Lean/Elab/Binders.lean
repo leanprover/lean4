@@ -388,8 +388,7 @@ def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valSt
     (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
 (type, val) ← elabBinders binders $ fun xs => do {
   type ← elabType typeStx;
-  val  ← elabTerm valStx type;
-  val  ← withRef valStx $ ensureHasType type val;
+  val  ← elabTermEnsuringType valStx type;
   type ← mkForall xs type;
   val  ← mkLambda xs val;
   pure (type, val)

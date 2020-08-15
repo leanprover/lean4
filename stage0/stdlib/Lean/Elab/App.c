@@ -13455,6 +13455,8 @@ block_37:
 if (x_17 == 0)
 {
 lean_object* x_19; 
+lean_inc(x_6);
+lean_inc(x_12);
 x_19 = l_Lean_Elab_Term_tryPostponeIfMVar(x_12, x_6, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -15757,6 +15759,8 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
+lean_inc(x_5);
+lean_inc(x_8);
 x_10 = l_Lean_Elab_Term_tryPostponeIfMVar(x_8, x_5, x_9);
 if (lean_obj_tag(x_10) == 0)
 {

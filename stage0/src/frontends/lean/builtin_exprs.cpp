@@ -347,7 +347,9 @@ static expr parse_do(parser & p, bool has_braces) {
                                    pos);
             }
         } else {
-            r = p.rec_save_pos(mk_app(p.save_pos(mk_const({"HasSeqRight", "seqRight"}), ps[i]), es[i], r), ps[i]);
+            expr action2 = p.save_pos(mk_lambda("_", mk_expr_placeholder(), r), ps[i]);
+            r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(p), ps[i]), es[i], action2), ps[i]);
+            // r = p.rec_save_pos(mk_app(p.save_pos(mk_const({"HasSeqRight", "seqRight"}), ps[i]), es[i], r), ps[i]);
         }
     }
     return r;

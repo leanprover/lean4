@@ -752,7 +752,9 @@ when ctx.mayPostpone $ throw Exception.postpone
 
 /-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
 def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
-when e.getAppFn.isMVar $ tryPostpone
+when e.getAppFn.isMVar do
+  e ← instantiateMVars e;
+  when e.getAppFn.isMVar $ tryPostpone
 
 def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
 match e? with
@@ -908,6 +910,10 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
 withRef stx $ elabTermAux expectedType? catchExPostpone true stx
+
+def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+e ← elabTerm stx expectedType?;
+withRef stx $ ensureHasType expectedType? e
 
 def elabTermWithoutImplicitLambdas (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
 elabTermAux expectedType? catchExPostpone false stx

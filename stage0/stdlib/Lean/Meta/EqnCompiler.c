@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_8__withAltsAux___main___rarg___closed__2;
 lean_object* l___private_Lean_Meta_EqnCompiler_1__regTraceClasses(lean_object*);
+extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_2__withAltsAux___main___rarg___closed__2;
 lean_object* l___private_Lean_Meta_EqnCompiler_1__regTraceClasses(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_8__withAltsAux___main___rarg___closed__2;
+x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_2__withAltsAux___main___rarg___closed__2;
 x_3 = l_Lean_registerTraceClass(x_2, x_1);
 return x_3;
 }

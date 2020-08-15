@@ -138,8 +138,10 @@ stx ← quoteSyntax (elimAntiquotChoices quoted);
    implementation is "self-stabilizing". It was in fact originally compiled
    by an unhygienic prototype implementation. -/
 
-@[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
-adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Level.quot] def elabLevelQuot : TermElab := adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Term.quot] def elabTermQuot : TermElab := adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Term.funBinder.quot] def elabfunBinderQuot : TermElab := adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Tactic.quot] def elabTacticQuot : TermElab := adaptExpander stxQuot.expand
 
 /- match_syntax -/
 

@@ -30,7 +30,6 @@ lean_object* l___private_Lean_Elab_Structure_10__withFields___main___rarg___clos
 lean_object* l___private_Lean_Elab_Structure_23__addCtorFields___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_StructFieldInfo_inhabited;
 lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
-extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
 lean_object* l___private_Lean_Elab_Structure_28__mkAuxConstructions___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Elab_Structure_25__elabStructureView___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Command_addDecl(lean_object*, lean_object*, lean_object*);
@@ -100,6 +99,7 @@ lean_object* l_Lean_Elab_Term_whnf(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_3__expandFields___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_StructFieldInfo_isFromParent___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Structure_5__checkParentIsStructure___closed__2;
+extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_12__removeUnused___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Term_elabParen___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_3__expandFields___spec__1___closed__1;
@@ -176,7 +176,6 @@ lean_object* l_Lean_Elab_Command_throwError___rarg(lean_object*, lean_object*, l
 lean_object* l_List_map___main___at___private_Lean_Elab_Structure_25__elabStructureView___spec__4(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_withLocalDecl___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
 lean_object* l_Lean_Level_getOffsetAux___main(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_8__processSubfields___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabStructure___closed__5;
@@ -276,6 +275,7 @@ lean_object* l_Array_filterAux___main___at___private_Lean_Elab_Structure_25__ela
 lean_object* l___private_Lean_Elab_Structure_2__expandCtor___closed__6;
 lean_object* l___private_Lean_Elab_Structure_29__addDefaults(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_20__collectLevelParamsInFVar(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__5;
 lean_object* l___private_Lean_Elab_Command_8__getVarDecls(lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_3__expandFields___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
@@ -2752,7 +2752,7 @@ x_13 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
-x_15 = l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
+x_15 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 x_16 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
@@ -2806,7 +2806,7 @@ x_29 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 x_30 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
-x_31 = l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__5;
+x_31 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 x_32 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_30);
@@ -8042,7 +8042,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l___private_Lean_Meta_EqnCompiler_DepElim_35__getUnusedLevelParam___closed__1;
+x_7 = l_Lean_Elab_Command_mkDef___lambda__1___closed__5;
 lean_inc(x_4);
 x_8 = l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_21__collectLevelParamsInFVars___spec__1(x_1, x_1, x_6, x_7, x_4, x_5);
 if (lean_obj_tag(x_8) == 0)

@@ -63,7 +63,6 @@ lean_object* l___private_Lean_Elab_Tactic_Generalize_4__evalGeneralizeWithEq___l
 lean_object* l___private_Lean_Elab_Tactic_Generalize_4__evalGeneralizeWithEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_generalize___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Generalize_2__getVarName(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_1__getAuxHypothesisName(lean_object*);
@@ -71,6 +70,7 @@ lean_object* l___private_Lean_Elab_Tactic_Generalize_4__evalGeneralizeWithEq___l
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_generalize___elambda__1___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Generalize_1__getAuxHypothesisName(lean_object* x_1) {
 _start:
 {
@@ -1171,7 +1171,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Tactic_tacticElabAttribute;
-x_3 = l_Lean_Parser_Tactic_generalize___elambda__1___closed__1;
+x_3 = l_Lean_Parser_Tactic_generalize___elambda__1___closed__2;
 x_4 = l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

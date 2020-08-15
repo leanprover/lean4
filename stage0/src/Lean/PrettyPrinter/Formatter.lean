@@ -14,7 +14,7 @@ emitting a token, we already know the text following it and can decide whether o
 necessary.
 -/
 import Lean.Parser
-import Lean.Meta
+import Lean.Meta.ReduceEval
 import Lean.Elab.Quotation
 
 namespace Lean
@@ -47,7 +47,7 @@ KeyedDeclsAttribute.init {
 
 [formatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.",
   valueTypeName := `Lean.PrettyPrinter.Formatter,
-  evalKey := fun env args => match attrParamSyntaxToIdentifier args with
+  evalKey := fun _ env args => match attrParamSyntaxToIdentifier args with
     | some id => match env.find? id with
       | some _ => pure id
       | none   => throw ("invalid [formatter] argument, unknown identifier '" ++ toString id ++ "'")

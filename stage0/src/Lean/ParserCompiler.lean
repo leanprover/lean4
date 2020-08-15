@@ -31,8 +31,10 @@ let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
   add   := fun env decl args _ => match attrParamSyntaxToIdentifier args with
-    | some parserDecl => pure $ ext.addEntry env (parserDecl, decl)
-    | none            => throw $ IO.userError "invalid attribute argument, expected identifier"
+    | some parserDecl => match env.find? parserDecl with
+      | some _ => pure $ ext.addEntry env (parserDecl, decl)
+      | none   => throw $ IO.userError $ "invalid [" ++ toString name ++ "] argument, unknown declaration '" ++ toString parserDecl ++ "'"
+    | none            => throw $ IO.userError $ "invalid [" ++ toString name ++ "] argument, expected identifier"
 };
 registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }

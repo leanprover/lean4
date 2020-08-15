@@ -616,6 +616,23 @@ filterAux p as 0 0
 @[inline] def filterM {m : Type → Type} [Monad m] {α : Type}  (p : α → m Bool) (as : Array α) : m (Array α) :=
 filterMAux p as 0 0
 
+@[specialize] partial def filterMapMAux {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : Array α) : Nat → Array β → m (Array β)
+| i, bs =>
+  if h : i < as.size then do
+    let a := as.get ⟨i, h⟩;
+    b? ← f a;
+    match b? with
+    | none   => filterMapMAux (i+1) bs
+    | some b => filterMapMAux (i+1) (bs.push b)
+  else
+    pure bs
+
+@[inline] def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : Array α) : m (Array β) :=
+filterMapMAux f as 0 Array.empty
+
+@[inline] def filterMap {α β : Type u} (f : α → Option β) (as : Array α) : Array β :=
+Id.run $ filterMapM f as
+
 partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
 | i =>
   if h : i < a.size then

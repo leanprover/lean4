@@ -68,6 +68,7 @@ private partial def elabDiscrsAux (discrStxs : Array Syntax) (expectedType : Exp
     | Expr.forallE _ d b _ => do
       discr ← elabTerm discrStx d;
       discr ← ensureHasType d discr;
+      trace `Elab.match fun _ => "discr #" ++ toString i ++ " " ++ discr ++ " : " ++ d;
       elabDiscrsAux (i+1) (b.instantiate1 discr) (discrs.push discr)
     | _ => throwError ("invalid type provided to match-expression, function type with arity #" ++ toString discrStxs ++ " expected")
   else do
@@ -391,13 +392,17 @@ patternVarDecls.foldlM
       decl ← getLocalDecl fvarId;
       pure $ decls.push decl
     | PatternVarDecl.anonymousVar mvarId fvarId => do
-      condM (isExprMVarAssigned mvarId)
-        (pure decls) -- skip
-        (do /- metavariable was not assigned while elaborating the patterns,
-               so we assign to the auxiliary free variable we created at `withPatternVars` -/
-          assignExprMVar mvarId (mkFVar fvarId);
-          decl ← getLocalDecl fvarId;
-          pure $ decls.push decl))
+      e ← instantiateMVars (mkMVar mvarId);
+      trace `Elab.match fun _ => "finalizePatternDecls: mvarId: " ++ mkMVar mvarId ++ " := " ++ e ++ ", fvarId: " ++ mkFVar fvarId;
+      match e with
+      | Expr.mvar newMVarId _ => do
+        /- Metavariable was not assigned, or assigned to another metavariable. So,
+           we assign to the auxiliary free variable we created at `withPatternVars` to `newMVarId`. -/
+        assignExprMVar newMVarId (mkFVar fvarId);
+        trace `Elab.match fun _ => "finalizePatternDecls: " ++ mkMVar newMVarId ++ " := " ++ mkFVar fvarId;
+        decl ← getLocalDecl fvarId;
+        pure $ decls.push decl
+      | _ => pure decls)
   #[]
 
 namespace ToDepElimPattern
@@ -503,7 +508,7 @@ patterns ← patterns.mapM instantiateMVars;
 patterns.forM $ fun pattern => when pattern.hasExprMVar $ throwError ("pattern contains metavariables " ++ indentExpr pattern);
 patterns ← patterns.mapM $ toDepElimPattern localDecls;
 trace `Elab.match fun _ => "patterns: " ++ MessageData.ofArray (patterns.map fun (p : Meta.DepElim.Pattern) => p.toMessageData);
-pure ({ localDecls := localDecls.toList, patterns := patterns.toList }, matchType)
+pure ({ fvarDecls := localDecls.toList, patterns := patterns.toList }, matchType)
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (Meta.DepElim.AltLHS × Expr) :=
 withRef alt.ref do
@@ -512,7 +517,7 @@ trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
   (altLHS, matchType) ← elabPatterns patternVarDecls alt.patterns matchType;
   rhs ← elabTerm alt.rhs matchType;
-  let xs := altLHS.localDecls.toArray.map LocalDecl.toExpr;
+  let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
   rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambda xs rhs;
   trace `Elab.match fun _ => "rhs: " ++ rhs;
   pure (altLHS, rhs)
@@ -524,6 +529,13 @@ liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => do
 
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List Meta.DepElim.AltLHS) : TermElabM Meta.DepElim.ElimResult :=
 liftMetaM $ Meta.DepElim.mkElim elimName motiveType lhss
+
+def reportElimResultErrors (result : Meta.DepElim.ElimResult) : TermElabM Unit := do
+-- TODO: improve error messages
+unless result.counterExamples.isEmpty $
+  throwError ("missing cases:" ++ Format.line ++ Meta.DepElim.counterExamplesToMessageData result.counterExamples);
+unless result.unusedAltIdxs.isEmpty $
+  throwError ("unused alternatives: " ++ toString (result.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)))
 
 /-
 ```
@@ -540,6 +552,7 @@ let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
 matchType ← elabMatchOptType stx discrStxs.size;
 matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
 discrs ← elabDiscrs discrStxs matchType expectedType;
+trace `Elab.match fun _ => "matchType: " ++ matchType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 let rhss := alts.map Prod.snd;
 let altLHSS := alts.map Prod.fst;
@@ -547,7 +560,7 @@ motiveType ← mkMotiveType matchType expectedType;
 motive ← liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => Meta.mkLambda xs matchType;
 elimName ← mkAuxName `elim;
 elimResult ← mkElim elimName motiveType altLHSS.toList;
--- TODO: report `eliminator errors`.
+reportElimResultErrors elimResult;
 let r := mkApp elimResult.elim motive;
 let r := mkAppN r discrs;
 let r := mkAppN r rhss;

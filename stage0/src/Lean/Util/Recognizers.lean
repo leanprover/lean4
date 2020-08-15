@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Expr
+import Lean.Environment
 
 namespace Lean
 namespace Expr
@@ -65,6 +65,40 @@ match e.app2? `List.toArray with
 /-- Recognize `α × β` -/
 def prod? (e : Expr) : Option (Expr × Expr) :=
 e.app2? `Prod
+
+private def getConstructorVal? (env : Environment) (ctorName : Name) : Option ConstructorVal := do
+match env.find? ctorName with
+| some (ConstantInfo.ctorInfo v) => v
+| _                              => none
+
+def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
+match e with
+| Expr.lit (Literal.natVal n) _ => if n == 0 then getConstructorVal? env `Nat.zero else getConstructorVal? env `Nat.succ
+| _ =>
+  match e.getAppFn with
+  | Expr.const n _ _ => match getConstructorVal? env n with
+    | some v => if v.nparams + v.nfields == e.getAppNumArgs then some v else none
+    | none   => none
+  | _ => none
+
+def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) :=
+match e with
+| Expr.lit (Literal.natVal n) _ =>
+  if n == 0 then do
+    v ← getConstructorVal? env `Nat.zero;
+    pure (v, #[])
+  else do
+    v ← getConstructorVal? env `Nat.succ;
+    pure (v, #[mkNatLit (n-1)])
+| _ =>
+  match e.getAppFn with
+  | Expr.const n _ _ => do
+    v ← getConstructorVal? env n;
+    if v.nparams + v.nfields == e.getAppNumArgs then
+      pure (v, e.getAppArgs)
+    else
+      none
+  | _ => none
 
 end Expr
 end Lean

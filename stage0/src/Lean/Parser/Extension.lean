@@ -260,6 +260,7 @@ registerPersistentEnvExtension {
 @[init mkParserExtension]
 constant parserExtension : ParserExtension := arbitrary _
 
+@[export lean_is_parser_category]
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
 (parserExtension.getState env).categories.contains catName
 
@@ -300,6 +301,7 @@ pure $ parserExtension.addEntry env $ ParserExtensionEntry.token tk
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
 parserExtension.addEntry env $ ParserExtensionEntry.kind k
 
+@[export lean_is_valid_syntax_node_kind]
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 let kinds := (parserExtension.getState env).kinds;
 kinds.contains k
@@ -366,7 +368,7 @@ env ← match env.find? declName with
    declareLeadingBuiltinParser env catName declName
  | _ =>
    throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"));
-PrettyPrinter.Parenthesizer.compile env declName /- builtin -/ true
+PrettyPrinter.Parenthesizer.compileParser env declName /- builtin -/ true
 
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.

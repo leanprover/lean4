@@ -39,6 +39,9 @@ else
 def erase (s : FVarSubst) (fvarId : FVarId) : FVarSubst :=
 { map := s.map.erase fvarId }
 
+def find? (s : FVarSubst) (fvarId : FVarId) : Option Expr :=
+s.map.find? fvarId
+
 def get (s : FVarSubst) (fvarId : FVarId) : Expr :=
 match s.map.find? fvarId with
 | none   => mkFVar fvarId -- it has not been replaced

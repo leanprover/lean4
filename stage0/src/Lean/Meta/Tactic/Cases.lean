@@ -12,6 +12,21 @@ import Lean.Meta.Tactic.Subst
 namespace Lean
 namespace Meta
 
+private def throwInductiveTypeExpected {α} (type : Expr) : MetaM α := do
+throwOther ("failed to compile pattern matching, inductive type expected" ++ indentExpr type)
+
+def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
+env ← getEnv;
+type ← whnfD type;
+matchConst env type.getAppFn (fun _ => throwInductiveTypeExpected type) fun info us =>
+  match info with
+  | ConstantInfo.inductInfo val =>
+    let I      := type.getAppFn;
+    let Iargs  := type.getAppArgs;
+    let params := Iargs.extract 0 val.nparams;
+    pure (us, params)
+  | _ => throwInductiveTypeExpected type
+
 private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
 lhsType ← inferType lhs;
 rhsType ← inferType rhs;
@@ -158,7 +173,7 @@ else do
     ctx.majorTypeIndices.any (fun index => decl.fvarId == index.fvarId!) || -- decl is one of the indices
     mctx.findLocalDeclDependsOn decl (fun fvarId => ctx.majorTypeIndices.all $ fun idx => idx.fvarId! != fvarId) -- or does not depend on any index
 
-private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array InductionSubgoal) : MetaM (Array InductionSubgoal) :=
+private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
 let indicesFVarIds := s₁.indicesFVarIds;
 s₂.mapM $ fun s => do
   indicesFVarIds.foldlM
@@ -171,8 +186,17 @@ s₂.mapM $ fun s => do
       | _ => pure s)
     s
 
-private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) : Array CasesSubgoal :=
-s.mapIdx $ fun i s => { ctorName := ctorNames.get! i, toInductionSubgoal := s }
+/-
+  Convert `s` into an array of `CasesSubgoal`, by attaching the corresponding constructor name,
+  and adding the substitution `majorFVarId -> ctor_i us params fields` into each subgoal. -/
+private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr)
+    : Array CasesSubgoal :=
+s.mapIdx $ fun i s =>
+  let ctorName := ctorNames.get! i;
+  let ctorApp  := mkAppN (mkAppN (mkConst ctorName us) params) s.fields;
+  let s        := { s with subst := s.subst.insert majorFVarId ctorApp };
+  { ctorName           := ctorName,
+    toInductionSubgoal := s }
 
 private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSubgoal)
 | 0,   s => do
@@ -237,26 +261,35 @@ subgoals.foldlM
     | some s => pure $ subgoals.push s)
   #[]
 
+private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name)) (useUnusedNames : Bool) (ctx : Context)
+    : MetaM (Array CasesSubgoal) := do
+withMVarContext mvarId do
+majorType ← inferType (mkFVar majorFVarId);
+(us, params) ← getInductiveUniverseAndParams majorType;
+let casesOn := mkCasesOnFor ctx.inductiveVal.name;
+let ctors   := ctx.inductiveVal.ctors.toArray;
+s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames;
+pure $ toCasesSubgoals s ctors majorFVarId us params
+
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
-withMVarContext mvarId $ do
+withMVarContext mvarId do
   checkNotAssigned mvarId `cases;
   context? ← mkCasesContext? majorFVarId;
   match context? with
   | none     => throwTacticEx `cases mvarId "not applicable to the given hypothesis"
   | some ctx =>
-    let ctors := ctx.inductiveVal.ctors.toArray;
-    let casesOn := mkCasesOnFor ctx.inductiveVal.name;
-    condM (hasIndepIndices ctx)
-      (do
-        s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames;
-        pure $ toCasesSubgoals s ctors)
-      (do
-        s₁ ← generalizeIndices mvarId majorFVarId;
-        trace! `Meta.Tactic.cases ("after generalizeIndices" ++ Format.line ++ MessageData.ofGoal s₁.mvarId);
-        s₂ ← induction s₁.mvarId s₁.fvarId casesOn givenNames useUnusedNames;
-        s₂ ← elimAuxIndices s₁ s₂;
-        let s₂ := toCasesSubgoals s₂ ctors;
-        unifyEqs s₁.numEqs s₂)
+    /- Remark: if caller does not need a `FVarSubst` (variable substitution), and `hasIndepIndices ctx` is true,
+       then we can also use the simple case. This is a minor optimization, and we currently do not even
+       allow callers to specify whether they want the `FVarSubst` or not. -/
+    if ctx.inductiveVal.nindices == 0 then do
+      -- Simple case
+      inductionCasesOn mvarId majorFVarId givenNames useUnusedNames ctx
+   else do
+      s₁ ← generalizeIndices mvarId majorFVarId;
+      trace! `Meta.Tactic.cases ("after generalizeIndices" ++ Format.line ++ MessageData.ofGoal s₁.mvarId);
+      s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames useUnusedNames ctx;
+      s₂ ← elimAuxIndices s₁ s₂;
+      unifyEqs s₁.numEqs s₂
 
 end Cases
 

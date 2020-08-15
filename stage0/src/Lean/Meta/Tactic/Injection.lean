@@ -15,21 +15,6 @@ inductive InjectionResultCore
 | solved
 | subgoal (mvarId : MVarId) (numNewEqs : Nat)
 
-private def getConstructorVal (ctorName : Name) (numArgs : Nat) : MetaM (Option ConstructorVal) := do
-env ← getEnv;
-match env.find? ctorName with
-| some (ConstantInfo.ctorInfo v) => if numArgs == v.nparams + v.nfields then pure (some v) else pure none
-| _                              => pure none
-
-private def constructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
-match e with
-| Expr.lit (Literal.natVal n) _ =>
-  if n == 0 then getConstructorVal `Nat.zero 0 else getConstructorVal `Nat.succ 1
-| _ =>
-  match e.getAppFn with
-  | Expr.const n _ _ => getConstructorVal n e.getAppNumArgs
-  | _                => pure none
-
 def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCore := do
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `injection;
@@ -41,9 +26,8 @@ withMVarContext mvarId $ do
     a ← whnf a;
     b ← whnf b;
     target ← getMVarType mvarId;
-    aCtor? ← constructorApp? a;
-    bCtor? ← constructorApp? b;
-    match aCtor?, bCtor? with
+    env ← getEnv;
+    match a.isConstructorApp? env, b.isConstructorApp? env with
     | some aCtor, some bCtor => do
       val ← mkNoConfusion target (mkFVar fvarId);
       if aCtor.name != bCtor.name then do

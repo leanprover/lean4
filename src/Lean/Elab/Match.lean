@@ -55,8 +55,9 @@ if optType.isNone then
 else
   pure $ (optType.getArg 0).getArg 1
 
-private def elabMatchOptType (matchStx : Syntax) (numDiscrs : Nat) : TermElabM Expr := do
-typeStx ← liftMacroM $ expandMatchOptType matchStx (matchStx.getArg 2) numDiscrs;
+private def elabMatchOptType (matchOptType : Syntax) (numDiscrs : Nat) : TermElabM Expr := do
+ref ← getRef;
+typeStx ← liftMacroM $ expandMatchOptType ref matchOptType numDiscrs;
 elabType typeStx
 
 private partial def elabDiscrsAux (discrStxs : Array Syntax) (expectedType : Expr) : Nat → Expr → Array Expr → TermElabM (Array Expr)
@@ -535,20 +536,10 @@ unless result.counterExamples.isEmpty $
 unless result.unusedAltIdxs.isEmpty $
   throwError ("unused alternatives: " ++ toString (result.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)))
 
-/-
-```
-parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
-```
-Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expandMatchDiscr?`.
--/
-private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-tryPostponeIfNoneOrMVar expectedType?;
-expectedType ← match expectedType? with
-  | some expectedType => pure expectedType
-  | none              => mkFreshTypeMVar;
-let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
-matchType ← elabMatchOptType stx discrStxs.size;
-matchAlts ← expandMacrosInPatterns $ getMatchAlts stx;
+private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
+    : TermElabM Expr := do
+matchType ← elabMatchOptType matchOptType discrStxs.size;
+matchAlts ← expandMacrosInPatterns altViews;
 discrs ← elabDiscrs discrStxs matchType expectedType;
 trace `Elab.match fun _ => "matchType: " ++ matchType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
@@ -564,6 +555,25 @@ let r := mkAppN r discrs;
 let r := mkAppN r rhss;
 trace `Elab.match fun _ => "result: " ++ r;
 pure r
+
+private def waitExpectedType (expectedType? : Option Expr) : TermElabM Expr := do
+tryPostponeIfNoneOrMVar expectedType?;
+match expectedType? with
+  | some expectedType => pure expectedType
+  | none              => mkFreshTypeMVar
+
+/-
+```
+parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
+```
+Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expandMatchDiscr?`.
+-/
+private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+expectedType ← waitExpectedType expectedType?;
+let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
+let altViews  := getMatchAlts stx;
+let matchOptType := stx.getArg 2;
+elabMatchAux discrStxs altViews matchOptType expectedType
 
 /- Auxiliary method for `expandMatchDiscr?` -/
 private partial def mkMatchType (discrs : Array Syntax) : Nat → MacroM Syntax
@@ -672,6 +682,14 @@ fun stx expectedType? => match_syntax stx with
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.match;
 pure ()
+
+-- parser!:leadPrec "nomatch " >> termParser
+@[builtinTermElab «nomatch»] def elabNoMatch : TermElab :=
+fun stx expectedType? => match_syntax stx with
+  | `(nomatch $discr) => do
+      expectedType ← waitExpectedType expectedType?;
+      elabMatchAux #[discr] #[] mkNullNode expectedType
+  | _ => throwUnsupportedSyntax
 
 end Term
 end Elab

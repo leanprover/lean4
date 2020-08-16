@@ -422,6 +422,10 @@ fun stx expectedType? => match_syntax stx with
    elabLetDeclAux id.getId args (mkHole stx) val body expectedType? true
 | `(let $id:ident $args* : $type := $val; $body) =>
    elabLetDeclAux id.getId args type val body expectedType? true
+| `(let $id:ident $args* | $alts:matchAlt*; $body) =>
+  throwError "invalid let-expression with pattern matching, type must be provided"
+| `(let $id:ident $args* : $type | $alts:matchAlt*; $body) =>
+  throwError "WIP" -- TODO
 | `(let $pat:term := $val; $body) => do
    stxNew ← `(let x := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
@@ -436,6 +440,10 @@ fun stx expectedType? => match_syntax stx with
    elabLetDeclAux id.getId args (mkHole stx) val body expectedType? false
 | `(let! $id:ident $args* : $type := $val; $body) =>
    elabLetDeclAux id.getId args type val body expectedType? false
+| `(let! $id:ident $args* | $alts:matchAlt*; $body) =>
+  throwError "invalid let-expression with pattern matching, type must be provided"
+| `(let! $id:ident $args* : $type | $alts:matchAlt*; $body) =>
+  throwError "WIP" -- TODO
 | `(let! $pat:term := $val; $body) => do
    stxNew ← `(let! x := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?

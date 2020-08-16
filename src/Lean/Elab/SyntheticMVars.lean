@@ -92,13 +92,13 @@ pure $ !val.getAppFn.isMVar
 
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
-withRef mvarSyntheticDecl.ref $
+withRef mvarSyntheticDecl.stx $
 match mvarSyntheticDecl.kind with
 | SyntheticMVarKind.typeClass                   => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.coe expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId expectedType eType e f?
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
 | SyntheticMVarKind.withDefault _               => checkWithDefault mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.postponed macroStack        => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId postponeOnError
+| SyntheticMVarKind.postponed macroStack        => resumePostponed macroStack mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
 | SyntheticMVarKind.tactic tacticCode           =>
   if runTactics then do
     runTactic mvarSyntheticDecl.mvarId tacticCode;
@@ -136,7 +136,7 @@ private def synthesizeUsingDefault : TermElabM Bool := do
 s ← get;
 let len := s.syntheticMVars.length;
 newSyntheticMVars ← s.syntheticMVars.filterM $ fun mvarDecl =>
-  withRef mvarDecl.ref $
+  withRef mvarDecl.stx $
   match mvarDecl.kind with
   | SyntheticMVarKind.withDefault defaultVal => withMVarContext mvarDecl.mvarId $ do
       val ← instantiateMVars (mkMVar mvarDecl.mvarId);
@@ -152,7 +152,7 @@ pure $ newSyntheticMVars.length != len
 private def reportStuckSyntheticMVars : TermElabM Unit := do
 s ← get;
 s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
-  withRef mvarSyntheticDecl.ref $
+  withRef mvarSyntheticDecl.stx $
   match mvarSyntheticDecl.kind with
   | SyntheticMVarKind.typeClass =>
     withMVarContext mvarSyntheticDecl.mvarId $ do
@@ -166,8 +166,8 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
 
 private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
 s ← get;
-match s.syntheticMVars.find? $ fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.ref.getPos.isNone with
-| some mvarDecl => pure mvarDecl.ref
+match s.syntheticMVars.find? $ fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.stx.getPos.isNone with
+| some mvarDecl => pure mvarDecl.stx
 | none          => pure Syntax.missing
 
 /--

@@ -194,24 +194,34 @@ def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentA
 modify $ fun s => { s with env := env, mctx := mctx, postponed := postponed }
 
 /--
-  `commitWhen x` executes `x` and process all postponed universe level constraints produced by `x`.
-  We keep the modifications only if both return `true`.
+  `commitWhenSome? x` executes `x` and process all postponed universe level constraints produced by `x`.
+  We keep the modifications only if `processPostponed` return true and `x` returned `some a`.
 
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
-@[specialize] def commitWhen (x : MetaM Bool) : MetaM Bool := do
+@[specialize] def commitWhenSome? {α} (x? : MetaM (Option α)) : MetaM (Option α) := do
 s ← get;
 let env       := s.env;
 let mctx      := s.mctx;
 let postponed := s.postponed;
 modify $ fun s => { s with postponed := {} };
 catch
-  (condM x
-    (condM processPostponed
-      (pure true)
-      (do restore env mctx postponed; pure false))
-    (do restore env mctx postponed; pure false))
+  (do
+    a? ← x?;
+    match a? with
+    | some a =>
+      (condM processPostponed
+        (pure (some a))
+        (do restore env mctx postponed; pure none))
+    | none => do
+      restore env mctx postponed; pure none)
   (fun ex => do restore env mctx postponed; throw ex)
+
+@[specialize] def commitWhen (x : MetaM Bool) : MetaM Bool := do
+r? ← commitWhenSome? (condM x (pure $ some ()) (pure none));
+match r? with
+| some _ => pure true
+| none   => pure false
 
 /- Public interface -/
 

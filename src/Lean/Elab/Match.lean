@@ -255,8 +255,8 @@ private partial def collect : Syntax → M Syntax
     let fields := (args.get! 2).getArgs;
     fields ← fields.mapSepElemsM fun field => do {
       -- parser! structInstLVal >> " := " >> termParser
-      newVal ← collect (field.getArg 2);
-      pure $ field.setArg 2 newVal
+      newVal ← collect (field.getArg 3); -- `structInstLVal` has arity 2
+      pure $ field.setArg 3 newVal
     };
     pure $ Syntax.node k $ args.set! 2 $ mkNullNode fields
   else if k == `Lean.Parser.Term.hole then do

@@ -273,7 +273,7 @@ p.alts.all fun alt => match alt.patterns with
   | _                           => false
 
 private def isConstructorTransition (p : Problem) : Bool :=
-hasCtorPattern p
+(hasCtorPattern p || p.alts.isEmpty)
 && p.alts.all fun alt => match alt.patterns with
    | Pattern.ctor _ _ _ _ :: _   => true
    | Pattern.var _ :: _          => true
@@ -607,12 +607,12 @@ private partial def process : Problem → StateT State MetaM Unit
   else if !isNextVar p then do
     traceStep ("non variable");
     process (processNonVariable p)
-  else if isVariableTransition p then do
-    traceStep ("variable");
-    process (processVariable p)
   else if isConstructorTransition p then do
     ps ← liftM $ processConstructor p;
     ps.forM process
+  else if isVariableTransition p then do
+    traceStep ("variable");
+    process (processVariable p)
   else if isValueTransition p then do
     ps ← liftM $ processValue p;
     ps.forM process

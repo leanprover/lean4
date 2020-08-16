@@ -65,5 +65,20 @@ inductive F : Nat → Type
 | z : {n : Nat} → F (n+1)
 | s : {n : Nat} → F n → F (n+1)
 
-def f0Elim {α : Sort u} (x : F 0) : α :=
+def f0 {α : Sort u} (x : F 0) : α :=
 nomatch x
+
+def f1 {α : Sort u} (x : F 0 × Bool) : α :=
+nomatch x
+
+def f2 {α : Sort u} (x : Sum (F 0) (F 0)) : α :=
+nomatch x
+
+def f3 {α : Sort u} (x : Bool × F 0) : α :=
+nomatch x
+
+def f4 (x : Sum (F 0 × Bool) Nat) : Nat :=
+match x with
+| Sum.inr x => x
+
+#eval f4 $ Sum.inr 100

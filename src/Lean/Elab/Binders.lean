@@ -417,12 +417,28 @@ else do
   pure $ mkApp f val
 
 -- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
-def expandLetIdLhs (letIdLhs : Syntax) : Name × Array Syntax × Syntax := do
+private def expandLetIdLhs (letIdLhs : Syntax) : Name × Array Syntax × Syntax := do
 let id      := (letIdLhs.getArg 0).getRelaxedId; -- allow `Term.id` to be used as an id for convenience of macro writers
 let binders := (letIdLhs.getArg 1).getArgs;
 let optType := letIdLhs.getArg 2;
 let type    := expandOptType letIdLhs optType;
 (id, binders, type)
+
+private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
+let alt0 := matchAlts.getArg 0;
+let pats := (alt0.getArg 0).getArgs.getSepElems;
+pats.size
+
+private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array Syntax → MacroM Syntax
+| 0,   discrs =>
+  pure $ Syntax.node `Lean.Parser.Term.match
+    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", mkNullNode, alts]
+| n+1, discrs => withFreshMacroScope do
+  x ← `(x);
+  let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", ";
+  let discrs := discrs.push $ Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, x];
+  body ← expandLetEqnsDeclVal n discrs;
+  `(fun $x => $body)
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
 let ref     := stx;
@@ -441,8 +457,17 @@ else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   stxNew ← `(let x : $type := $val; match x with $pat => $body);
   let stxNew  := if useLetExpr then stxNew else stxNew.updateKind `Lean.Parser.Term.«let!»;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then do
+  let alts    := letDecl.getArg 4;
+  let numPats := getMatchAltNumPatterns alts;
+  val ← liftMacroM $ expandLetEqnsDeclVal ref alts numPats #[];
+  let newDecl := Syntax.node `Lean.Parser.Term.letIdDecl
+    #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val];
+  let declNew := (stx.getArg 1).setArg 0 newDecl;
+  let stxNew  := stx.setArg 1 declNew;
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else
-  throwError "WIP"
+  throwUnsupportedSyntax
 
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
 fun stx expectedType? => elabLetDeclCore stx expectedType? true

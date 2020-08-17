@@ -28,16 +28,14 @@ a + b
 
 #eval f4 (10, 20)
 
-/-
-set_option syntaxMaxDepth 1000
-set_option trace.Elab true
-
-def f4 (x : Nat) : Nat :=
+def f5 (x y : Nat) : Nat :=
 let h : Nat → Nat → Nat
   | 0, b => b
   | a, b => a*b;
-h x x
--/
+h x y
+
+#eval f5 0 10
+#eval f5 20 10
 
 /-
 def f2 (x : Nat × Nat) : Nat :=

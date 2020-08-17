@@ -278,47 +278,50 @@ f Type 1
 let x := 0; x + 1
 (Term.let
  "let"
- (Term.letDecl `x [] [] ":=" (Term.num (numLit "0")))
+ (Term.letDecl (Term.letIdDecl `x [] [] ":=" (Term.num (numLit "0"))))
  ";"
  (Term.add (Term.id `x []) "+" (Term.num (numLit "1"))))
 let x : Nat := 0; x + 1
 (Term.let
  "let"
- (Term.letDecl `x [] [(Term.typeSpec ":" (Term.id `Nat []))] ":=" (Term.num (numLit "0")))
+ (Term.letDecl (Term.letIdDecl `x [] [(Term.typeSpec ":" (Term.id `Nat []))] ":=" (Term.num (numLit "0"))))
  ";"
  (Term.add (Term.id `x []) "+" (Term.num (numLit "1"))))
 let f (x : Nat) := x + 1; f 0
 (Term.let
  "let"
  (Term.letDecl
-  `f
-  [(Term.explicitBinder "(" [`x] [":" (Term.id `Nat [])] [] ")")]
-  []
-  ":="
-  (Term.add (Term.id `x []) "+" (Term.num (numLit "1"))))
+  (Term.letIdDecl
+   `f
+   [(Term.explicitBinder "(" [`x] [":" (Term.id `Nat [])] [] ")")]
+   []
+   ":="
+   (Term.add (Term.id `x []) "+" (Term.num (numLit "1")))))
  ";"
  (Term.app (Term.id `f []) [(Term.num (numLit "0"))]))
 let f {α : Type} (a : α) : α := a; f 10
 (Term.let
  "let"
  (Term.letDecl
-  `f
-  [(Term.implicitBinder "{" [`α] [":" (Term.type "Type" [])] "}")
-   (Term.explicitBinder "(" [`a] [":" (Term.id `α [])] [] ")")]
-  [(Term.typeSpec ":" (Term.id `α []))]
-  ":="
-  (Term.id `a []))
+  (Term.letIdDecl
+   `f
+   [(Term.implicitBinder "{" [`α] [":" (Term.type "Type" [])] "}")
+    (Term.explicitBinder "(" [`a] [":" (Term.id `α [])] [] ")")]
+   [(Term.typeSpec ":" (Term.id `α []))]
+   ":="
+   (Term.id `a [])))
  ";"
  (Term.app (Term.id `f []) [(Term.num (numLit "10"))]))
 let f (x) := x + 1; f 10 + f 20
 (Term.let
  "let"
  (Term.letDecl
-  `f
-  [(Term.explicitBinder "(" [`x] [] [] ")")]
-  []
-  ":="
-  (Term.add (Term.id `x []) "+" (Term.num (numLit "1"))))
+  (Term.letIdDecl
+   `f
+   [(Term.explicitBinder "(" [`x] [] [] ")")]
+   []
+   ":="
+   (Term.add (Term.id `x []) "+" (Term.num (numLit "1")))))
  ";"
  (Term.add
   (Term.app (Term.id `f []) [(Term.num (numLit "10"))])
@@ -328,61 +331,66 @@ let (x, y) := f 10; x + y
 (Term.let
  "let"
  (Term.letDecl
-  (Term.paren "(" [(Term.id `x []) [(Term.tupleTail "," [(Term.id `y [])])]] ")")
-  []
-  []
-  ":="
-  (Term.app (Term.id `f []) [(Term.num (numLit "10"))]))
+  (Term.letPatDecl
+   (Term.paren "(" [(Term.id `x []) [(Term.tupleTail "," [(Term.id `y [])])]] ")")
+   []
+   []
+   ":="
+   (Term.app (Term.id `f []) [(Term.num (numLit "10"))])))
  ";"
  (Term.add (Term.id `x []) "+" (Term.id `y [])))
 let { fst := x, .. } := f 10; x + x
 (Term.let
  "let"
  (Term.letDecl
-  (Term.structInst "{" [] [(Term.structInstField `fst [] ":=" (Term.id `x [])) ","] [".."] [] "}")
-  []
-  []
-  ":="
-  (Term.app (Term.id `f []) [(Term.num (numLit "10"))]))
+  (Term.letPatDecl
+   (Term.structInst "{" [] [(Term.structInstField `fst [] ":=" (Term.id `x [])) ","] [".."] [] "}")
+   []
+   []
+   ":="
+   (Term.app (Term.id `f []) [(Term.num (numLit "10"))])))
  ";"
  (Term.add (Term.id `x []) "+" (Term.id `x [])))
 let x.y := f 10; x
 (Term.let
  "let"
- (Term.letDecl `x.y [] [] ":=" (Term.app (Term.id `f []) [(Term.num (numLit "10"))]))
+ (Term.letDecl (Term.letIdDecl `x.y [] [] ":=" (Term.app (Term.id `f []) [(Term.num (numLit "10"))])))
  ";"
  (Term.id `x []))
 let x.1 := f 10; x
 (Term.let
  "let"
  (Term.letDecl
-  (Term.proj (Term.id `x []) "." (fieldIdx "1"))
-  []
-  []
-  ":="
-  (Term.app (Term.id `f []) [(Term.num (numLit "10"))]))
+  (Term.letPatDecl
+   (Term.proj (Term.id `x []) "." (fieldIdx "1"))
+   []
+   []
+   ":="
+   (Term.app (Term.id `f []) [(Term.num (numLit "10"))])))
  ";"
  (Term.id `x []))
 let x[i].y := f 10; x
 (Term.let
  "let"
  (Term.letDecl
-  (Term.proj (Term.arrayRef (Term.id `x []) "[" (Term.id `i []) "]") "." `y)
-  []
-  []
-  ":="
-  (Term.app (Term.id `f []) [(Term.num (numLit "10"))]))
+  (Term.letPatDecl
+   (Term.proj (Term.arrayRef (Term.id `x []) "[" (Term.id `i []) "]") "." `y)
+   []
+   []
+   ":="
+   (Term.app (Term.id `f []) [(Term.num (numLit "10"))])))
  ";"
  (Term.id `x []))
 let x[i] := f 20; x
 (Term.let
  "let"
  (Term.letDecl
-  (Term.arrayRef (Term.id `x []) "[" (Term.id `i []) "]")
-  []
-  []
-  ":="
-  (Term.app (Term.id `f []) [(Term.num (numLit "20"))]))
+  (Term.letPatDecl
+   (Term.arrayRef (Term.id `x []) "[" (Term.id `i []) "]")
+   []
+   []
+   ":="
+   (Term.app (Term.id `f []) [(Term.num (numLit "20"))])))
  ";"
  (Term.id `x []))
 -x + y
@@ -408,7 +416,7 @@ do
   ";"
   (Term.doExpr (Term.app (Term.id `g []) [(Term.id `x [])]))
   ";"
-  (Term.doLet "let" (Term.letDecl `y [] [] ":=" (Term.app (Term.id `g []) [(Term.id `x [])])))
+  (Term.doLet "let" (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.app (Term.id `g []) [(Term.id `x [])]))))
   ";"
   (Term.doPat
    (Term.paren "(" [(Term.id `a []) [(Term.tupleTail "," [(Term.id `b [])])]] ")")
@@ -419,11 +427,12 @@ do
   (Term.doLet
    "let"
    (Term.letDecl
-    (Term.paren "(" [(Term.id `a []) [(Term.tupleTail "," [(Term.id `b [])])]] ")")
-    []
-    []
-    ":="
-    (Term.paren "(" [(Term.id `b []) [(Term.tupleTail "," [(Term.id `a [])])]] ")")))
+    (Term.letPatDecl
+     (Term.paren "(" [(Term.id `a []) [(Term.tupleTail "," [(Term.id `b [])])]] ")")
+     []
+     []
+     ":="
+     (Term.paren "(" [(Term.id `b []) [(Term.tupleTail "," [(Term.id `a [])])]] ")"))))
   ";"
   (Term.doExpr (Term.app (Term.id `pure []) [(Term.paren "(" [(Term.add (Term.id `a []) "+" (Term.id `b [])) []] ")")]))])
 do { x ← f a; pure $ a + a }
@@ -442,19 +451,20 @@ f 20
 (Term.let
  "let"
  (Term.letDecl
-  `f
-  []
-  [(Term.typeSpec ":" (Term.arrow (Term.id `Nat []) "→" (Term.arrow (Term.id `Nat []) "→" (Term.id `Nat []))))]
-  "|"
-  [(Term.matchAlt
-    [(Term.num (numLit "0")) "," (Term.id `a [])]
-    "=>"
-    (Term.add (Term.id `a []) "+" (Term.num (numLit "10"))))
+  (Term.letEqnsDecl
+   `f
+   []
+   [(Term.typeSpec ":" (Term.arrow (Term.id `Nat []) "→" (Term.arrow (Term.id `Nat []) "→" (Term.id `Nat []))))]
    "|"
-   (Term.matchAlt
-    [(Term.add (Term.id `n []) "+" (Term.num (numLit "1"))) "," (Term.id `b [])]
-    "=>"
-    (Term.mul (Term.id `n []) "*" (Term.id `b [])))])
+   [(Term.matchAlt
+     [(Term.num (numLit "0")) "," (Term.id `a [])]
+     "=>"
+     (Term.add (Term.id `a []) "+" (Term.num (numLit "10"))))
+    "|"
+    (Term.matchAlt
+     [(Term.add (Term.id `n []) "+" (Term.num (numLit "1"))) "," (Term.id `b [])]
+     "=>"
+     (Term.mul (Term.id `n []) "*" (Term.id `b [])))]))
  ";"
  (Term.app (Term.id `f []) [(Term.num (numLit "20"))]))
 max a b

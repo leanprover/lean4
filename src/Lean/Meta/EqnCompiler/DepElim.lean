@@ -89,7 +89,7 @@ instance : Inhabited Alt := ⟨⟨0, arbitrary _, [], []⟩⟩
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
 withExistingLocalDecls alt.fvarDecls do
-  let msg : List MessageData := alt.fvarDecls.map fun d => d.toExpr ++ ":(" ++ d.type ++ ")" ++ toString d.type ++ ",ctorName:" ++ d.type.ctorName;
+  let msg : List MessageData := alt.fvarDecls.map fun d => d.toExpr ++ ":(" ++ d.type ++ ")";
   let msg : MessageData := msg ++ " |- " ++ (alt.patterns.map Pattern.toMessageData) ++ " => " ++ alt.rhs;
   addContext msg
 

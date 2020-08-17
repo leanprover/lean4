@@ -3,8 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.EqnCompiler.MatchPattern
-import Lean.Meta.EqnCompiler.DepElim
+import Lean.Meta.EqnCompiler.MatchPatternAttr
+import Lean.Meta.EqnCompiler.Match
 import Lean.Elab.SyntheticMVars
 
 namespace Lean
@@ -406,7 +406,7 @@ patternVarDecls.foldlM
       | _ => pure decls)
   #[]
 
-open Meta.DepElim (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS mkElim ElimResult)
+open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS ElimResult)
 
 namespace ToDepElimPattern
 
@@ -566,12 +566,12 @@ liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => do
   Meta.mkForall xs (mkSort u)
 
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : TermElabM ElimResult :=
-liftMetaM $ mkElim elimName motiveType lhss
+liftMetaM $ Meta.Match.mkElim elimName motiveType lhss
 
 def reportElimResultErrors (result : ElimResult) : TermElabM Unit := do
 -- TODO: improve error messages
 unless result.counterExamples.isEmpty $
-  throwError ("missing cases:" ++ Format.line ++ Meta.DepElim.counterExamplesToMessageData result.counterExamples);
+  throwError ("missing cases:" ++ Format.line ++ Meta.Match.counterExamplesToMessageData result.counterExamples);
 unless result.unusedAltIdxs.isEmpty $
   throwError ("unused alternatives: " ++ toString (result.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)))
 

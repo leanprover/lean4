@@ -13,7 +13,7 @@ import Lean.Meta.EqnCompiler.CaseArraySizes
 
 namespace Lean
 namespace Meta
-namespace DepElim
+namespace Match
 
 def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
 if d.fvarId == fvarId then d
@@ -729,6 +729,6 @@ registerTraceClass `Meta.EqnCompiler.matchDebug;
 registerTraceClass `Meta.EqnCompiler.matchUnify;
 pure ()
 
-end DepElim
+end Match
 end Meta
 end Lean

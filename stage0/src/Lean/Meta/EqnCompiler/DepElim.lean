@@ -273,7 +273,7 @@ p.alts.all fun alt => match alt.patterns with
   | _                           => false
 
 private def isConstructorTransition (p : Problem) : Bool :=
-hasCtorPattern p
+(hasCtorPattern p || p.alts.isEmpty)
 && p.alts.all fun alt => match alt.patterns with
    | Pattern.ctor _ _ _ _ :: _   => true
    | Pattern.var _ :: _          => true
@@ -437,46 +437,80 @@ withExistingLocalDecls alt.fvarDecls do
         | e                      => Pattern.inaccessible e;
       pure $ some { alt with fvarDecls := newAltDecls, rhs := rhs, patterns := ctorFieldPatterns ++ patterns }
 
+private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
+xType ← inferType x;
+xType ← whnfD xType;
+match xType.getAppFn with
+| Expr.const constName _ _ => do
+  cinfo ← getConstInfo constName;
+  match cinfo with
+  | ConstantInfo.inductInfo val => pure (some val)
+  | _ => pure none
+| _ => pure none
+
+private def hasRecursiveType (x : Expr) : MetaM Bool := do
+val? ← getInductiveVal? x;
+match val? with
+| some val => pure val.isRec
+| _        => pure false
+
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
 trace! `Meta.EqnCompiler.match ("constructor step");
 env ← getEnv;
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
-  subgoals ← cases p.mvarId x.fvarId!;
-  subgoals.mapM fun subgoal => withMVarContext subgoal.mvarId do
-    let subst    := subgoal.subst;
-    let fields   := subgoal.fields.toList;
-    let newVars  := fields ++ xs;
-    let newVars  := newVars.map fun x => x.applyFVarSubst subst;
-    let subex    := Example.ctor subgoal.ctorName $ fields.map fun field => match field with
-      | Expr.fvar fvarId _ => Example.var fvarId
-      | _                  => Example.underscore; -- This case can happen due to dependent elimination
-    let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
-    let examples := examples.map $ Example.applyFVarSubst subst;
-    let newAlts  := p.alts.filter fun alt => match alt.patterns with
-      | Pattern.ctor n _ _ _ :: _   => n == subgoal.ctorName
-      | Pattern.var _ :: _          => true
-      | Pattern.inaccessible _ :: _ => true
-      | _                           => false;
-    let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
-    newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
-      | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
-      | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
-      | Pattern.inaccessible e :: ps     => do
-        trace! `Meta.EqnCompiler.match ("inaccessible in ctor step " ++ e);
-        e ← whnfD e;
-        match e.constructorApp? env with
-        | some (ctorVal, ctorArgs) => do
-          if ctorVal.name == subgoal.ctorName then
-            let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
-            let fields := fields.toList.map Pattern.inaccessible;
-            pure $ some { alt with patterns := fields ++ ps }
-          else
-            pure none
-        | _ => pure none
-      | _                                => unreachable!;
-    pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+  subgoals? ← commitWhenSome? do {
+     subgoals ← cases p.mvarId x.fvarId!;
+     if subgoals.isEmpty then
+       /- Easy case: we have solved problem `p` since there are no subgoals -/
+       pure (some #[])
+     else if !p.alts.isEmpty then
+       pure (some subgoals)
+     else do
+       isRec ← withGoalOf p $ hasRecursiveType x;
+        /- If there are no alternatives and the type of the current variable is recursive, we do NOT consider
+          a constructor-transition to avoid nontermination.
+          TODO: implement a more general approach if this is not sufficient in practice -/
+       if isRec then pure none
+       else pure (some subgoals)
+  };
+  match subgoals? with
+  | none          => pure #[{ p with vars := xs }]
+  | some subgoals =>
+    subgoals.mapM fun subgoal => withMVarContext subgoal.mvarId do
+      let subst    := subgoal.subst;
+      let fields   := subgoal.fields.toList;
+      let newVars  := fields ++ xs;
+      let newVars  := newVars.map fun x => x.applyFVarSubst subst;
+      let subex    := Example.ctor subgoal.ctorName $ fields.map fun field => match field with
+        | Expr.fvar fvarId _ => Example.var fvarId
+        | _                  => Example.underscore; -- This case can happen due to dependent elimination
+      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
+      let examples := examples.map $ Example.applyFVarSubst subst;
+      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+        | Pattern.ctor n _ _ _ :: _   => n == subgoal.ctorName
+        | Pattern.var _ :: _          => true
+        | Pattern.inaccessible _ :: _ => true
+        | _                           => false;
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
+      newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
+        | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
+        | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
+        | Pattern.inaccessible e :: ps     => do
+          trace! `Meta.EqnCompiler.match ("inaccessible in ctor step " ++ e);
+          e ← whnfD e;
+          match e.constructorApp? env with
+          | some (ctorVal, ctorArgs) => do
+            if ctorVal.name == subgoal.ctorName then
+              let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
+              let fields := fields.toList.map Pattern.inaccessible;
+              pure $ some { alt with patterns := fields ++ ps }
+            else
+              pure none
+          | _ => pure none
+        | _                                => unreachable!;
+      pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 
 private def collectValues (p : Problem) : Array Expr :=
 p.alts.foldl
@@ -596,9 +630,22 @@ private def throwNonSupported (p : Problem) : MetaM Unit := do
 msg ← p.toMessageData;
 throwOther ("not implement yet " ++ msg)
 
+@[inline] def withIncRecDepth {α} (x : StateT State MetaM α) : StateT State MetaM α := do
+ctx ← read;
+when (ctx.currRecDepth == ctx.maxRecDepth) $ liftM $ throwOther maxRecDepthErrorMessage;
+adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
+
+def isCurrVarInductive (p : Problem) : MetaM Bool := do
+match p.vars with
+| []   => pure false
+| x::_ => withGoalOf p do
+  val? ← getInductiveVal? x;
+  pure val?.isSome
+
 private partial def process : Problem → StateT State MetaM Unit
-| p => do
+| p => withIncRecDepth do
   liftM $ traceState p;
+  isInductive ← liftM $ isCurrVarInductive p;
   if isDone p then
     processLeaf p
   else if hasAsPattern p then do
@@ -607,12 +654,12 @@ private partial def process : Problem → StateT State MetaM Unit
   else if !isNextVar p then do
     traceStep ("non variable");
     process (processNonVariable p)
+  else if isInductive && isConstructorTransition p then do
+    ps ← liftM $ processConstructor p;
+    ps.forM process
   else if isVariableTransition p then do
     traceStep ("variable");
     process (processVariable p)
-  else if isConstructorTransition p then do
-    ps ← liftM $ processConstructor p;
-    ps.forM process
   else if isValueTransition p then do
     ps ← liftM $ processValue p;
     ps.forM process

@@ -44,7 +44,7 @@ pure $ namedArgs.push namedArg
 def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit :=
 instMVars.forM $ fun mvarId =>
   unlessM (synthesizeInstMVarCore mvarId) $
-    registerSyntheticMVar mvarId SyntheticMVarKind.typeClass
+    registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
 argType ← inferType arg;

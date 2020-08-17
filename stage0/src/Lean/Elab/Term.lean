@@ -60,7 +60,7 @@ inductive SyntheticMVarKind
 | withDefault (defaultVal : Expr)
 
 structure SyntheticMVarDecl :=
-(mvarId : MVarId) (ref : Syntax) (kind : SyntheticMVarKind)
+(mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
 
 structure State extends Meta.State :=
 (syntheticMVars  : List SyntheticMVarDecl := [])
@@ -347,9 +347,12 @@ adaptReader (fun (ctx : Context) => { ctx with macroStack := { before := beforeS
 /-
   Add the given metavariable to the list of pending synthetic metavariables.
   The method `synthesizeSyntheticMVars` is used to process the metavariables on this list. -/
-def registerSyntheticMVar (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
-ref ← getRef;
-modify $ fun s => { s with syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars }
+def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
+modify $ fun s => { s with syntheticMVars := { mvarId := mvarId, stx := stx, kind := kind } :: s.syntheticMVars }
+
+def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
+ctx ← read;
+registerSyntheticMVar ctx.ref mvarId kind
 
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
@@ -535,7 +538,7 @@ let mvarId := mvar.mvarId!;
 catch
   (withoutMacroStackAtErr $ do
     unlessM (synthesizeInstMVarCore mvarId) $
-      registerSyntheticMVar mvarId (SyntheticMVarKind.coe expectedType eType e f?);
+      registerSyntheticMVarWithCurrRef mvarId (SyntheticMVarKind.coe expectedType eType e f?);
     pure eNew)
   (fun ex =>
     match ex with
@@ -765,7 +768,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
 trace `Elab.postpone $ fun _ => stx ++ " : " ++ expectedType?;
 mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque;
 ctx ← read;
-withRef stx $ registerSyntheticMVar mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
+registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
 pure mvar
 
 /-
@@ -961,7 +964,7 @@ def mkInstMVar (type : Expr) : TermElabM Expr := do
 mvar ← mkFreshExprMVar type MetavarKind.synthetic;
 let mvarId := mvar.mvarId!;
 unlessM (synthesizeInstMVarCore mvarId) $
-  registerSyntheticMVar mvarId SyntheticMVarKind.typeClass;
+  registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass;
 pure mvar
 
 /-
@@ -1079,7 +1082,7 @@ fun stx expectedType? =>
 def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
 mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque `main;
 let mvarId := mvar.mvarId!;
-registerSyntheticMVar mvarId $ SyntheticMVarKind.tactic tacticCode;
+registerSyntheticMVar tacticCode mvarId $ SyntheticMVarKind.tactic tacticCode;
 pure mvar
 
 @[builtinTermElab tacticBlock] def elabTacticBlock : TermElab :=
@@ -1254,7 +1257,7 @@ fun stx expectedType? => do
     | some val => pure (mkNatLit val)
     | none     => throwError "ill-formed syntax";
   typeMVar ← mkFreshTypeMVar MetavarKind.synthetic;
-  registerSyntheticMVar typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat));
+  registerSyntheticMVar stx typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat));
   match expectedType? with
   | some expectedType => do _ ← isDefEq expectedType typeMVar; pure ()
   | _                 => pure ();

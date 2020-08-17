@@ -218,21 +218,25 @@ private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → T
 private def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
 getFunBinderIdsAux? false stx #[]
 
-/-- Main loop for `expandFunBinders`. -/
-private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Array Syntax → TermElabM (Array Syntax × Syntax)
+/--
+  Main loop for `expandFunBinders`.
+
+  The resulting `Bool` is true if a pattern was found. We use it to "mark" a macro expansion. -/
+private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Array Syntax → TermElabM (Array Syntax × Syntax × Bool)
 | body, i, newBinders =>
   if h : i < binders.size then
     let binder := binders.get ⟨i, h⟩;
-    let processAsPattern : Unit → TermElabM (Array Syntax × Syntax) := fun _ => do {
+    let processAsPattern : Unit → TermElabM (Array Syntax × Syntax × Bool) := fun _ => do {
       let pattern := binder;
       major ← mkFreshAnonymousIdent binder;
-      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder));
+      (binders, newBody, _) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder));
       newBody ← `(match $major:ident with | $pattern => $newBody);
-      pure (binders, newBody)
+      pure (binders, newBody, true)
     };
     match binder with
     | Syntax.node `Lean.Parser.Term.implicitBinder _ => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.instBinder _     => expandFunBindersAux body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.explicitBinder _ => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.hole _ => do
       ident ← mkFreshAnonymousIdent binder;
       let type := binder;
@@ -262,7 +266,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
         expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
       | none => processAsPattern ()
   else
-    pure (newBinders, body)
+    pure (newBinders, body, false)
 
 /--
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
@@ -278,8 +282,10 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
   which can be elaborated using `elabBinders`, and `newBody` is the updated `body` syntax.
   We update the `body` syntax when expanding the pattern notation.
   Example: `fun (a, b) => a + b` expands into `fun _a_1 => match _a_1 with | (a, b) => a + b`.
-  See local function `processAsPattern` at `expandFunBindersAux`. -/
-def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
+  See local function `processAsPattern` at `expandFunBindersAux`.
+
+  The resulting `Bool` is true if a pattern was found. We use it "mark" a macro expansion. -/
+def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax × Bool) :=
 expandFunBindersAux binders body 0 #[]
 
 namespace FunBinders
@@ -364,11 +370,14 @@ fun stx expectedType? => do
 -- `fun` term+ `=>` term
 let binders := (stx.getArg 1).getArgs;
 let body := stx.getArg 3;
-(binders, body) ← expandFunBinders binders body;
-elabFunBinders binders expectedType? $ fun xs expectedType? => do {
-  e ← elabTerm body expectedType?;
-  mkLambda xs e
-}
+(binders, body, expandedPattern) ← expandFunBinders binders body;
+if expandedPattern then do
+  newStx ← `(fun $binders* => $body);
+  withMacroExpansion stx newStx $ elabTerm newStx expectedType?
+else
+  elabFunBinders binders expectedType? $ fun xs expectedType? => do
+    e ← elabTerm body expectedType?;
+    mkLambda xs e
 
 /-
   Recall that
@@ -413,6 +422,10 @@ fun stx expectedType? => match_syntax stx with
    elabLetDeclAux id.getId args (mkHole stx) val body expectedType? true
 | `(let $id:ident $args* : $type := $val; $body) =>
    elabLetDeclAux id.getId args type val body expectedType? true
+| `(let $id:ident $args* | $alts:matchAlt*; $body) =>
+  throwError "invalid let-expression with pattern matching, type must be provided"
+| `(let $id:ident $args* : $type | $alts:matchAlt*; $body) =>
+  throwError "WIP" -- TODO
 | `(let $pat:term := $val; $body) => do
    stxNew ← `(let x := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
@@ -427,6 +440,10 @@ fun stx expectedType? => match_syntax stx with
    elabLetDeclAux id.getId args (mkHole stx) val body expectedType? false
 | `(let! $id:ident $args* : $type := $val; $body) =>
    elabLetDeclAux id.getId args type val body expectedType? false
+| `(let! $id:ident $args* | $alts:matchAlt*; $body) =>
+  throwError "invalid let-expression with pattern matching, type must be provided"
+| `(let! $id:ident $args* : $type | $alts:matchAlt*; $body) =>
+  throwError "WIP" -- TODO
 | `(let! $pat:term := $val; $body) => do
    stxNew ← `(let! x := $val; match x with $pat => $body);
    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?

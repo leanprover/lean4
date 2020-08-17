@@ -22,6 +22,12 @@ g2 fun (x, y) (z, w) => a*(y - x) + (w - z)
 
 #eval f3 100
 
+def f4 (x : Nat × Nat) : Nat :=
+let (a, b) := x;
+a + b
+
+#eval f4 (10, 20)
+
 /-
 set_option syntaxMaxDepth 1000
 set_option trace.Elab true

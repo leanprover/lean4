@@ -362,7 +362,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
         e ← toPreterm stx;
         pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let => do
-    let decl := args.get! 1;
+    let decl := (args.get! 1).getArg 0;
     let n    := if (decl.getArg 0).isIdent then (decl.getArg 0).getId else (decl.getArg 0).getIdAt 0;
     let val  := decl.getArg 4;
     let body := args.get! 3;

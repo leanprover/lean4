@@ -965,6 +965,7 @@ lean_object* l_Lean_Parser_Command_structInstBinder___closed__9;
 lean_object* l_Lean_Parser_Command_ctor___closed__4;
 lean_object* l_Lean_Parser_Command_universes___closed__4;
 extern lean_object* l_Lean_Parser_Term_tacticBlock___closed__2;
+extern lean_object* l_Lean_Parser_Term_letEqnsDecl___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_classTk___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_constant___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_abbrev___closed__9;
@@ -1286,7 +1287,6 @@ lean_object* l_Lean_Parser_Command_print___elambda__1(lean_object*, lean_object*
 extern lean_object* l_Lean_Parser_Term_explicitUniv___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Command_open___closed__6;
 lean_object* l_Lean_Parser_Command_declModifiers___closed__12;
-extern lean_object* l_Lean_Parser_Term_letEqnsDecl___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Command_noncomputable___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Command_attribute___closed__8;
 lean_object* l_Lean_Parser_Command_structureTk___elambda__1(lean_object*, lean_object*);
@@ -9762,7 +9762,7 @@ lean_object* l_Lean_Parser_Command_declValEqns___elambda__1(lean_object* x_1, le
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_3 = l_Lean_Parser_Term_letEqnsDecl___elambda__1___closed__1;
+x_3 = l_Lean_Parser_Term_letEqnsDecl___elambda__1___closed__3;
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 x_5 = l_Lean_Parser_Command_declValEqns___elambda__1___closed__4;
@@ -9882,7 +9882,7 @@ lean_object* _init_l_Lean_Parser_Command_declValEqns___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Term_letEqnsDecl___elambda__1___closed__1;
+x_1 = l_Lean_Parser_Term_letEqnsDecl___elambda__1___closed__3;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = l_Lean_Parser_Command_declValEqns___elambda__1___closed__2;

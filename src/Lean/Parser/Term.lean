@@ -120,10 +120,11 @@ def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
-def letIdDecl   : Parser := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl $ try (letIdLhs >> " := ") >> termParser
-def letPatDecl  : Parser := node `Lean.Parser.Term.letDecl $ try (termParser >> pushNone >> optType >> " := ") >> termParser
-def letEqnsDecl : Parser := node `Lean.Parser.Term.letDecl $ letIdLhs >> matchAlts false
-def letDecl              := letIdDecl <|> letPatDecl <|> letEqnsDecl
+def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ try (letIdLhs >> " := ") >> termParser
+def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
+def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false
+-- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
+def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (letIdDecl <|> letPatDecl <|> letEqnsDecl)
 @[builtinTermParser] def «let» := parser!:leadPrec "let " >> letDecl >> "; " >> termParser
 @[builtinTermParser] def «let!» := parser!:leadPrec "let! " >> letDecl >> "; " >> termParser
 

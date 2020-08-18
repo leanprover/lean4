@@ -13,9 +13,11 @@ produced it, driven by parser-specific handlers registered via an attribute. The
 emitting a token, we already know the text following it and can decide whether or not whitespace between the two is
 necessary.
 -/
+
 import Lean.Parser
 import Lean.Meta.ReduceEval
 import Lean.Elab.Quotation
+import Lean.ParserCompiler
 
 namespace Lean
 namespace PrettyPrinter
@@ -43,17 +45,30 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
 KeyedDeclsAttribute.init {
   builtinName := `builtinFormatter,
   name := `formatter,
-  descr := "Register a formatter.
+  descr := "Register a formatter for a parser.
 
-[formatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.",
+[formatter k] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `SyntaxNodeKind` `k`.",
   valueTypeName := `Lean.PrettyPrinter.Formatter,
-  evalKey := fun _ env args => match attrParamSyntaxToIdentifier args with
-    | some id => match env.find? id with
-      | some _ => pure id
-      | none   => throw ("invalid [formatter] argument, unknown identifier '" ++ toString id ++ "'")
+  evalKey := fun builtin env args => match attrParamSyntaxToIdentifier args with
+    | some id =>
+      -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
+      -- synthesize a formatter for it immediately, so we just check for a declaration in this case
+      if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
+      else throw ("invalid [formatter] argument, unknown syntax kind '" ++ toString id ++ "'")
     | none    => throw "invalid [formatter] argument, expected identifier"
 } `Lean.PrettyPrinter.formatterAttribute
 @[init mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter := arbitrary _
+
+unsafe def mkCombinatorFormatterAttribute : IO CombinatorCompilerAttribute :=
+registerCombinatorCompilerAttribute
+  `combinatorFormatter
+  "Register a formatter for a parser combinator.
+
+[combinatorFormatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.
+Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.
+The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
+with `Formatter` in the parameter types."
+@[init mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : CombinatorCompilerAttribute := arbitrary _
 
 namespace Formatter
 

@@ -2,20 +2,20 @@
 
 let
   # pin Lean commit to avoid rebuilds
-  # 2020-03-04
-  lean = import (builtins.fetchGit { url = ../../.; rev = "21ca3709612ff7a05f0e5aa0849d776c1bc6d751"; }) {};
+  # 2020-08-18
+  lean = import (builtins.fetchGit { url = ../../.; rev = "d059d28c220247d51310c4ea437807c3446d36d7"; }) {};
   # for binarytrees.hs
   ghcPackages = p: [ p.parallel ];
-  ghc = pkgs.haskell.packages.ghc883.ghcWithPackages ghcPackages; #.override { withLLVM = true; };
-  ocaml = pkgs.ocaml-ng.ocamlPackages_latest.ocaml;
+  ghc = pkgs.haskell.packages.ghc884.ghcWithPackages ghcPackages; #.override { withLLVM = true; };
+  ocaml = pkgs.ocaml-ng.ocamlPackages_4_11.ocaml;
   # note that this will need to be compiled from source
   ocamlFlambda = ocaml.override { flambdaSupport = true; };
   mlton = pkgs.mlton;
   mlkit = pkgs.stdenv.mkDerivation {
     name = "mlkit";
-    src = pkgs.fetchzip {
-      url = "https://github.com/melsman/mlkit/releases/download/mlkit-4.4.2/mlkit_bin_dist.tgz";
-      sha256 = "079299h5m3gkk10qpn2r6va7kjj0sr9z3cs0knjz3qv1cldpzj7x";
+    src = builtins.fetchTarball {
+      url = "https://github.com/melsman/mlkit/releases/download/v4.5.0/mlkit_bin_dist.tgz";
+      sha256 = "1nrk2klhrr2xcm83y601w6dffl756qfk4kgvn3rkjlp7b2i8r8mr";
     };
     buildInputs = [ pkgs.makeWrapper ];
     dontBuild = true;
@@ -29,7 +29,7 @@ let
     '';
   };
   swift = pkgs.swift;
-  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "ba1505a7c2de471a5821a2643b34de2d1c1af03e"; }) {};
+  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "743a6ee9328fc8cb85d334dbce23a89d14cef4c5"; }) {};
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];
@@ -37,17 +37,17 @@ in pkgs.stdenv.mkDerivation rec {
   #LEAN_GCC_BIN = "${lean { stdenv = pkgs.gcc9Stdenv; }}/bin";
   LEAN_NO_REUSE_BIN = "${lean.overrideAttrs (attrs: {
     prePatch = ''
-      substituteInPlace src/Init/Lean/Compiler/IR.lean --replace "decls.map Decl.insertResetReuse" "decls"
-	  substituteInPlace src/shell/CMakeLists.txt --replace "install(TARGETS lean DESTINATION bin)" "install(PROGRAMS $<TARGET_FILE:lean_stage2> DESTINATION bin RENAME lean)"
+substituteInPlace src/Lean/Compiler/IR.lean --replace "decls.map Decl.insertResetReuse" "decls"
     '';
-	buildFlags = [ "lean_stage2" ];
+    buildFlags = [ "stage1.5" ];
+    installFlags = [ "-C stage1.5" ];
   })}/bin";
   LEAN_NO_BORROW_BIN = "${lean.overrideAttrs (attrs: {
     prePatch = ''
-      substituteInPlace src/Init/Lean/Compiler/IR.lean --replace "inferBorrow" "pure"
-	  substituteInPlace src/shell/CMakeLists.txt --replace "install(TARGETS lean DESTINATION bin)" "install(PROGRAMS $<TARGET_FILE:lean_stage2> DESTINATION bin RENAME lean)"
+substituteInPlace src/Lean/Compiler/IR.lean --replace "inferBorrow" "pure"
     '';
-	buildFlags = [ "lean_stage2" ];
+    buildFlags = [ "stage1.5" ];
+    installFlags = [ "-C stage1.5" ];
   })}/bin";
   LEAN_NO_ST_BIN = "${lean.overrideAttrs (attrs: { patches = [ ./disable-st.patch ]; })}/bin";
   PARSER_TEST_FILE = lean.src + "/src/Init/Core.lean";

@@ -4,13 +4,13 @@ Date: Mon, 11 Nov 2019 18:15:21 +0100
 Subject: [PATCH] disable ST objects
 
 ---
- src/runtime/lean.h | 6 +++---
+ src/include/lean/lean.h | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/src/runtime/lean.h b/src/runtime/lean.h
+diff --git a/src/include/lean/lean.h b/src/include/lean/lean.h
 index 6b37fd91a..c53137860 100644
---- a/src/runtime/lean.h
-+++ b/src/runtime/lean.h
+--- a/src/include/lean/lean.h
++++ b/src/include/lean/lean.h
 @@ -567,13 +567,13 @@ void lean_mark_persistent(lean_object * o);
 
  static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned other) {

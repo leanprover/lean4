@@ -50,6 +50,9 @@ mkMonadIO @liftIO {
     | ex => throw ex)
 }
 
+instance monadExcept : MonadExceptOf Exception CoreM :=
+inferInstance
+
 private def getState : CoreM State :=
 fun ctx => liftIOCore ctx.stateRef.get
 

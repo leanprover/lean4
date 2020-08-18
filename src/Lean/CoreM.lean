@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Init.System.IO
+import Init.Control.StateRef
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Environment
@@ -21,7 +22,6 @@ structure Context :=
 (options        : Options := {})
 (currRecDepth   : Nat := 0)
 (maxRecDepth    : Nat)
-(stateRef       : IO.Ref State)
 (ref            : Syntax := Syntax.missing)
 
 inductive Exception
@@ -29,43 +29,17 @@ inductive Exception
 | kernel (ex : KernelException) (opts : Options)
 | error (ref : Syntax) (msg : MessageData)
 
-abbrev CoreM := ReaderT Context $ EIO Exception
+abbrev CoreM := ReaderT Context $ StateRefT State $ EIO Exception
+
+@[inline] def liftIOCore {α} (x : IO α) : EIO Exception α :=
+EIO.adaptExcept Exception.io x
+
+instance : MonadIO (EIO Exception) := mkMonadIO @liftIOCore
 
 @[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
 ctx ← read;
 when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.error Syntax.missing maxRecDepthErrorMessage;
 adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
-
-@[inline] def liftIOCore {α} (x : IO α) : EIO Exception α :=
-EIO.adaptExcept Exception.io x
-
-@[inline] def liftIO {α} (x : IO α) : CoreM α :=
-fun _ => liftIOCore x
-
-instance monadIO : MonadIO CoreM :=
-mkMonadIO @liftIO {
-  throw := fun α ex => throw $ Exception.io ex,
-  catch := fun α x handler => catch x (fun ex => match ex with
-    | Exception.io ex => handler ex
-    | ex => throw ex)
-}
-
-instance monadExcept : MonadExceptOf Exception CoreM :=
-inferInstance
-
-private def getState : CoreM State :=
-fun ctx => liftIOCore ctx.stateRef.get
-
-private def setState (s : State) : CoreM Unit :=
-fun ctx => liftIOCore $ ctx.stateRef.set s
-
-@[inline] private def modifyGetState {α} (f : State → α × State) : CoreM α := do
-s ← getState; let (a, s) := f s; setState s; pure a
-
-instance monadState : MonadState State CoreM :=
-{ get       := getState,
-  set       := setState,
-  modifyGet := @modifyGetState }
 
 def getEnv : CoreM Environment := do
 s ← get; pure s.env
@@ -132,18 +106,15 @@ match env.find? constName with
 | none      => throwError ("unknown constant '" ++ constName ++ "'")
 
 @[inline] def runCore {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO (Environment × α) := do
-ref ← IO.mkRef { env := env : State };
-let x : CoreM (Environment × α) := finally (do a ← x; pure (env, a)) do {
+let x : CoreM (Environment × α) := finally (do a ← x; env ← getEnv; pure (env, a)) do {
   traceState ← getTraceState;
   traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
 };
-let x : EIO Exception (Environment × α) := x { maxRecDepth := getMaxRecDepth options, options := options, stateRef := ref };
-EIO.adaptExcept
-  (fun ex => match ex with
+let x : EIO Exception (Environment × α) := (x { maxRecDepth := getMaxRecDepth options, options := options }).run' { env := env };
+x.toIO fun ex => match ex with
     | Exception.io ex         => ex
     | Exception.kernel ex opt => IO.userError $ toString $ format $ ex.toMessageData opt
-    | Exception.error _ msg   => IO.userError $ toString $ format $ msg)
-  x
+    | Exception.error _ msg   => IO.userError $ toString $ format $ msg
 
 @[inline] def run {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO α := do
 (_, a) ← runCore x env options;

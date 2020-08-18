@@ -42,6 +42,9 @@ inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
 abbrev IO : Type → Type := EIO IO.Error
 
+@[inline] def EIO.toIO {α ε} (f : ε → IO.Error) (x : EIO ε α) : IO α :=
+x.adaptExcept f
+
 section
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
@@ -80,6 +83,9 @@ instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO
 
 def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) :=
 @MonadIO.mk m ⟨lift⟩
+
+@[inline] def liftIO {α : Type} {m : Type → Type} [MonadIO m] (x : IO α) : m α :=
+liftM x
 
 namespace IO
 

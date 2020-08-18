@@ -42,6 +42,7 @@ fun stx expectedType? => match_syntax stx with
   | some expectedType => do
     expectedType ← instantiateMVars expectedType;
     let expectedType := expectedType.consumeMData;
+    expectedType ← whnf expectedType;
     match expectedType.getAppFn with
     | Expr.const constName _ _ => do
       env ← getEnv;

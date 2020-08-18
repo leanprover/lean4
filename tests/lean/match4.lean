@@ -46,7 +46,7 @@ match x with
 def Vector (α : Type) (n : Nat) := { a : Array α // a.size = n }
 
 def mkVec {α : Type} (n : Nat) (a : α) : Vector α n :=
-Subtype.mk (mkArray n a) rfl
+⟨mkArray n a, rfl⟩
 
 structure S :=
 (n : Nat)

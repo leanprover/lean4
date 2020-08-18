@@ -1,8 +1,8 @@
-import Lean.Meta.EqnCompiler.DepElim
+import Lean.Meta.EqnCompiler.Match
 
 open Lean
 open Lean.Meta
-open Lean.Meta.DepElim
+open Lean.Meta.Match
 
 /- Infrastructure for testing -/
 

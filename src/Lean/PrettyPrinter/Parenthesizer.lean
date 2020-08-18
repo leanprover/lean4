@@ -191,7 +191,7 @@ stx ← getCur;
 idx ← getIdx;
 st ← get;
 -- reset prec/prec and store `mkParen` for the recursive call
-set { stxTrav := st.stxTrav };
+set { stxTrav := st.stxTrav : State };
 trace! `PrettyPrinter.parenthesize ("parenthesizing (contPrec := " ++ toString st.contPrec ++ ")" ++ MessageData.nest 2 (line ++ stx));
 adaptReader (fun (ctx : Context) => { ctx with mkParen := some mkParen }) x;
 { minPrec := some minPrec, trailPrec := trailPrec, .. } ← get

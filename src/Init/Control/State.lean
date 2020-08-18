@@ -90,7 +90,7 @@ end StateT
 /-- An implementation of [MonadState](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html).
     In contrast to the Haskell implementation, we use overlapping instances to derive instances
     automatically from `monadLift`. -/
-class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
+class MonadState (σ : Type u) (m : Type u → Type v) :=
 /- Obtain the top-most State of a Monad stack. -/
 (get : m σ)
 /- Set the top-most State of a Monad stack. -/
@@ -101,16 +101,42 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
    because the latter does not use the State linearly (without sufficient inlining). -/
 (modifyGet {α : Type u} : (σ → α × σ) → m α)
 
-export MonadState (get set modifyGet)
+export MonadState (set)
+
+abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadState σ m] : m σ :=
+MonadState.get
+
+@[inline] abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
+MonadState.modifyGet fun s => (PUnit.unit, f s)
+
+/-- Class for `get`, but `σ` is an outParam for convenience -/
+class HasGet (σ : outParam (Type u)) (m : Type u → Type v) :=
+(get : m σ)
+
+export HasGet (get)
+
+instance monadState.hasGet (σ : Type u) (m : Type u → Type v) [MonadState σ m] : HasGet σ m :=
+{ get := getThe σ }
+
+class HasModifyGet (σ : outParam (Type u)) (m : Type u → Type v) :=
+(modifyGet {α : Type u} : (σ → α × σ) → m α)
+
+export HasModifyGet (modifyGet)
+
+def MonadState.toModifyGet {σ : Type u} {m : Type u → Type v} (s : MonadState σ m) : HasModifyGet σ m :=
+{ modifyGet := s.modifyGet }
+
+instance monadState.hasModifyGet (σ : Type u) (m : Type u → Type v) [MonadState σ m] : HasModifyGet σ m :=
+{ modifyGet := fun α f => MonadState.modifyGet f }
 
 section
 variables {σ : Type u} {m : Type u → Type v}
 
-@[inline] def modify [MonadState σ m] (f : σ → σ) : m PUnit :=
-modifyGet (fun s => (PUnit.unit, f s))
+@[inline] def modify [HasModifyGet σ m] (f : σ → σ) : m PUnit :=
+modifyGet fun s => (PUnit.unit, f s)
 
-@[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ := do
-s ← get; modify f; pure s
+@[inline] def getModify [HasModifyGet σ m] [Monad m] (f : σ → σ) : m σ := do
+modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first

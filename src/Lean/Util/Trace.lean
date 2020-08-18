@@ -15,6 +15,11 @@ class MonadTracer (m : Type → Type u) :=
 (trace  : Name → (Unit → MessageData) → m PUnit)
 (traceM : Name → m MessageData → m PUnit)
 
+instance ReaderT.monadTracer (ρ : Type) (m : Type → Type) [MonadTracer m] : MonadTracer (ReaderT ρ m) :=
+{ traceCtx := fun α n x ctx => MonadTracer.traceCtx n (x ctx),
+  trace    := fun n x _     => MonadTracer.trace n x,
+  traceM   := fun n x ctx   => MonadTracer.traceM n (x ctx) }
+
 class MonadTracerAdapter (m : Type → Type) :=
 (isTracingEnabledFor : Name → m Bool)
 (addContext          : MessageData → m MessageData)

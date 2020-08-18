@@ -8,9 +8,10 @@ Authors: Sebastian Ullrich
 The formatter turns a `Syntax` tree into a `Format` object, inserting both mandatory whitespace (to separate adjacent
 tokens) as well as "pretty" optional whitespace.
 
-The basic approach works much like the parenthesizer: A right-to-left traversal over the syntax tree, driven by
-parser-specific handlers registered via attributes. The traversal is right-to-left so that when emitting a token, we
-already know the text following it and can decide whether or not whitespace between the two is necessary.
+The basic approach works much like the parenthesizer: A right-to-left traversal over the syntax tree and the parser that
+produced it, driven by parser-specific handlers registered via an attribute. The traversal is right-to-left so that when
+emitting a token, we already know the text following it and can decide whether or not whitespace between the two is
+necessary.
 -/
 import Lean.Parser
 import Lean.Meta.ReduceEval

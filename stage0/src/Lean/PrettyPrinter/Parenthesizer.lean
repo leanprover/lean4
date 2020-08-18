@@ -74,7 +74,7 @@ import Lean.Util.ReplaceExpr
 import Lean.Meta.Basic
 import Lean.Meta.WHNF
 import Lean.KeyedDeclsAttribute
-import Lean.Parser.Basic
+import Lean.Parser.Extension
 import Lean.ParserCompiler
 
 namespace Lean
@@ -103,9 +103,6 @@ abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateT Parenthesizer.St
 
 abbrev Parenthesizer := ParenthesizerM Unit
 
-@[extern "lean_is_valid_syntax_node_kind"]
-constant isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool := arbitrary _
-
 unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
 KeyedDeclsAttribute.init {
   builtinName := `builtinParenthesizer,
@@ -118,16 +115,13 @@ KeyedDeclsAttribute.init {
     | some id =>
       -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
       -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
-      if (builtin && (env.find? id).isSome) || isValidSyntaxNodeKind env id then pure id
+      if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
       else throw ("invalid [parenthesizer] argument, unknown syntax kind '" ++ toString id ++ "'")
     | none    => throw "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.parenthesizerAttribute
 @[init mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
 
 abbrev CategoryParenthesizer := forall (prec : Nat), Parenthesizer
-
-@[extern "lean_is_parser_category"]
-constant isParserCategory (env : Environment) (k : SyntaxNodeKind) : Bool := arbitrary _
 
 unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryParenthesizer) :=
 KeyedDeclsAttribute.init {
@@ -142,7 +136,7 @@ parenthesized, but still be traversed for parenthesizing nested categories.",
   valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
   evalKey := fun _ env args => match attrParamSyntaxToIdentifier args with
     | some id =>
-      if isParserCategory env id then pure id
+      if Parser.isParserCategory env id then pure id
       else throw ("invalid [parenthesizer] argument, unknown parser category '" ++ toString id ++ "'")
     | none    => throw "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.categoryParenthesizerAttribute
@@ -592,6 +586,13 @@ def parenthesizeCommand := parenthesize $ categoryParser.parenthesizer `command 
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter.parenthesize;
+Parser.registerParserAttributeHook {
+  postAdd := fun catName env declName builtin =>
+    if builtin then
+      compileParser env declName builtin
+    else
+      addParenthesizerFromConstant env declName
+};
 pure ()
 
 end PrettyPrinter

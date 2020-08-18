@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Parser.Extension
+import Lean.PrettyPrinter.Parenthesizer  -- necessary for auto-generation
 
 namespace Lean
 namespace Parser

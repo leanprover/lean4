@@ -68,7 +68,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-class MonadIO (m : Type → Type) extends HasMonadLiftT IO m, MonadExceptOf IO.Error m
+class MonadIO (m : Type → Type) extends HasMonadLiftT IO m
 
 instance : MonadIO IO := {}
 
@@ -78,8 +78,8 @@ an error is returned in the topmost monad. -/
 instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) := {}
 instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) := {}
 
-def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) (mex : MonadExceptOf IO.Error m) :=
-@MonadIO.mk m ⟨lift⟩ mex
+def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) :=
+@MonadIO.mk m ⟨lift⟩
 
 namespace IO
 

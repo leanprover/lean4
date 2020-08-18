@@ -61,5 +61,9 @@ partial def find? (p : Expr → Bool) : Expr → Option Expr
     | Expr.proj _ _ b _      => find? b
     | e                      => none
 
+/-- Return true if `e` occurs in `t` -/
+def occurs (e : Expr) (t : Expr) : Bool :=
+(t.find? fun s => s == e).isSome
+
 end Expr
 end Lean

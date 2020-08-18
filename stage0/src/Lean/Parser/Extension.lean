@@ -338,6 +338,25 @@ if s.hasError then
 else
   Except.ok s.stxStack.back
 
+structure ParserAttributeHook :=
+/- Called after a parser attribute is applied to a declaration. -/
+(postAdd : forall (attr catName : Name) (env : Environment) (declName : Name) (builtin : Bool), IO Environment)
+
+def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef {}
+@[init mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
+
+unsafe def mkParserAttributeHookAttribute : IO (KeyedDeclsAttribute ParserAttributeHook) :=
+KeyedDeclsAttribute.init {
+  builtinName := `builtinParserAttributeHook,
+  name := `parserAttributeHook,
+  descr := "Add a hook of type `ParserAttributeHook`, which is executed whenever a parser attribute is applied.",
+  valueTypeName := `Lean.PrettyPrinter.ParserAttributeHook,
+  evalKey := fun builtin env args => do
+    when args.hasArgs $ throw "invalid attribute 'parserAttributeHook', unexpected argument";
+    pure ""
+} `Lean.Parser.parserAttributeHookAttribute
+@[init mkParserAttributeHookAttribute] constant parserAttributeHookAttribute : KeyedDeclsAttribute ParserAttributeHook := arbitrary _
+
 def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);

@@ -416,41 +416,64 @@ else do
   };
   pure $ mkApp f val
 
+-- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
+private def expandLetIdLhs (letIdLhs : Syntax) : Name × Array Syntax × Syntax := do
+let id      := (letIdLhs.getArg 0).getRelaxedId; -- allow `Term.id` to be used as an id for convenience of macro writers
+let binders := (letIdLhs.getArg 1).getArgs;
+let optType := letIdLhs.getArg 2;
+let type    := expandOptType letIdLhs optType;
+(id, binders, type)
+
+private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
+let alt0 := matchAlts.getArg 0;
+let pats := (alt0.getArg 0).getArgs.getSepElems;
+pats.size
+
+private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array Syntax → MacroM Syntax
+| 0,   discrs =>
+  pure $ Syntax.node `Lean.Parser.Term.match
+    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", mkNullNode, alts]
+| n+1, discrs => withFreshMacroScope do
+  x ← `(x);
+  let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", ";
+  let discrs := discrs.push $ Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, x];
+  body ← expandLetEqnsDeclVal n discrs;
+  `(fun $x => $body)
+
+def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
+let ref     := stx;
+let letDecl := (stx.getArg 1).getArg 0;
+let body    := stx.getArg 3;
+if letDecl.getKind == `Lean.Parser.Term.letIdDecl then
+  let (id, binders, type) := expandLetIdLhs letDecl;
+  let val                 := letDecl.getArg 4;
+  elabLetDeclAux id binders type val body expectedType? useLetExpr
+else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
+  -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
+  let pat     := letDecl.getArg 0;
+  let optType := letDecl.getArg 2;
+  let type    := expandOptType stx optType;
+  let val     := letDecl.getArg 4;
+  stxNew ← `(let x : $type := $val; match x with $pat => $body);
+  let stxNew  := if useLetExpr then stxNew else stxNew.updateKind `Lean.Parser.Term.«let!»;
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then do
+  let alts    := letDecl.getArg 4;
+  let numPats := getMatchAltNumPatterns alts;
+  val ← liftMacroM $ expandLetEqnsDeclVal ref alts numPats #[];
+  let newDecl := Syntax.node `Lean.Parser.Term.letIdDecl
+    #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val];
+  let declNew := (stx.getArg 1).setArg 0 newDecl;
+  let stxNew  := stx.setArg 1 declNew;
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+else
+  throwUnsupportedSyntax
+
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
-fun stx expectedType? => match_syntax stx with
-| `(let $id:ident $args* := $val; $body) =>
-   elabLetDeclAux id.getId args (mkHole stx) val body expectedType? true
-| `(let $id:ident $args* : $type := $val; $body) =>
-   elabLetDeclAux id.getId args type val body expectedType? true
-| `(let $id:ident $args* | $alts:matchAlt*; $body) =>
-  throwError "invalid let-expression with pattern matching, type must be provided"
-| `(let $id:ident $args* : $type | $alts:matchAlt*; $body) =>
-  throwError "WIP" -- TODO
-| `(let $pat:term := $val; $body) => do
-   stxNew ← `(let x := $val; match x with $pat => $body);
-   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-| `(let $pat:term : $type := $val; $body) => do
-   stxNew ← `(let x : $type := $val; match x with $pat => $body);
-   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-| _ => throwUnsupportedSyntax
+fun stx expectedType? => elabLetDeclCore stx expectedType? true
 
 @[builtinTermElab «let!»] def elabLetBangDecl : TermElab :=
-fun stx expectedType? => match_syntax stx with
-| `(let! $id:ident $args* := $val; $body) =>
-   elabLetDeclAux id.getId args (mkHole stx) val body expectedType? false
-| `(let! $id:ident $args* : $type := $val; $body) =>
-   elabLetDeclAux id.getId args type val body expectedType? false
-| `(let! $id:ident $args* | $alts:matchAlt*; $body) =>
-  throwError "invalid let-expression with pattern matching, type must be provided"
-| `(let! $id:ident $args* : $type | $alts:matchAlt*; $body) =>
-  throwError "WIP" -- TODO
-| `(let! $pat:term := $val; $body) => do
-   stxNew ← `(let! x := $val; match x with $pat => $body);
-   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-| `(let! $pat:term : $type := $val; $body) => do
-   stxNew ← `(let! x : $type := $val; match x with $pat => $body);
-   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-| _ => throwUnsupportedSyntax
+fun stx expectedType? => elabLetDeclCore stx expectedType? false
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.let;

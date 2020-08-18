@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.EqnCompiler
-// Imports: Init Lean.Meta.EqnCompiler.MatchPattern Lean.Meta.EqnCompiler.DepElim Lean.Meta.EqnCompiler.CaseValues Lean.Meta.EqnCompiler.CaseArraySizes
+// Imports: Init Lean.Meta.EqnCompiler.MatchPatternAttr Lean.Meta.EqnCompiler.Match Lean.Meta.EqnCompiler.CaseValues Lean.Meta.EqnCompiler.CaseArraySizes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,20 +14,20 @@
 extern "C" {
 #endif
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_EqnCompiler_Match_2__withAltsAux___main___rarg___closed__2;
 lean_object* l___private_Lean_Meta_EqnCompiler_1__regTraceClasses(lean_object*);
-extern lean_object* l___private_Lean_Meta_EqnCompiler_DepElim_2__withAltsAux___main___rarg___closed__2;
 lean_object* l___private_Lean_Meta_EqnCompiler_1__regTraceClasses(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Meta_EqnCompiler_DepElim_2__withAltsAux___main___rarg___closed__2;
+x_2 = l___private_Lean_Meta_EqnCompiler_Match_2__withAltsAux___main___rarg___closed__2;
 x_3 = l_Lean_registerTraceClass(x_2, x_1);
 return x_3;
 }
 }
 lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Meta_EqnCompiler_MatchPattern(lean_object*);
-lean_object* initialize_Lean_Meta_EqnCompiler_DepElim(lean_object*);
+lean_object* initialize_Lean_Meta_EqnCompiler_MatchPatternAttr(lean_object*);
+lean_object* initialize_Lean_Meta_EqnCompiler_Match(lean_object*);
 lean_object* initialize_Lean_Meta_EqnCompiler_CaseValues(lean_object*);
 lean_object* initialize_Lean_Meta_EqnCompiler_CaseArraySizes(lean_object*);
 static bool _G_initialized = false;
@@ -38,10 +38,10 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_EqnCompiler_MatchPattern(lean_io_mk_world());
+res = initialize_Lean_Meta_EqnCompiler_MatchPatternAttr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_EqnCompiler_DepElim(lean_io_mk_world());
+res = initialize_Lean_Meta_EqnCompiler_Match(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_EqnCompiler_CaseValues(lean_io_mk_world());

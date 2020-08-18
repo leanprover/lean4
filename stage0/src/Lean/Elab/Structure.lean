@@ -246,6 +246,25 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
   else
     k infos
 
+private def elabFieldTypeValue (view : StructFieldView) (params : Array Expr) : TermElabM (Option Expr × Option Expr) := do
+match view.type? with
+| none         =>
+  match view.value? with
+  | none        => pure (none, none)
+  | some valStx => do
+    value ← Term.elabTerm valStx none;
+    value ← Term.mkLambda params value;
+    pure (none, value)
+| some typeStx => do
+  type ← Term.elabType typeStx;
+  match view.value? with
+  | none        => pure (type, none)
+  | some valStx => do
+    value ← Term.elabTermEnsuringType valStx type;
+    type  ← Term.mkForall params type;
+    value ← Term.mkLambda params value;
+    pure (type, value)
+
 private partial def withFields {α} (views : Array StructFieldView) : Nat → Array StructFieldInfo → (Array StructFieldInfo → TermElabM α) → TermElabM α
 | i, infos, k =>
   if h : i < views.size then do
@@ -253,20 +272,7 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
     Term.withRef view.ref $
     match findFieldInfo? infos view.name with
     | none      => do
-      (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => do {
-        type? ← match view.type? with
-          | none         => pure none
-          | some typeStx => do { type ← Term.elabType typeStx; type ← Term.mkForall params type; pure $ some type };
-        value? ← match view.value? with
-          | none        => pure none
-          | some valStx => do {
-            value ← Term.elabTerm valStx type?;
-            value ← Term.mkLambda params value;
-            value ← Term.withRef valStx $ Term.ensureHasType type? value;
-            pure $ some value
-          };
-        pure (type?, value?)
-      };
+      (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => elabFieldTypeValue view params;
       match type?, value? with
       | none,      none => Term.throwError "invalid field, type expected"
       | some type, _    =>
@@ -389,6 +395,7 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr �
 | i+1, type => do
   let info := fieldInfos.get! i;
   decl ← Term.getFVarLocalDecl! info.fvar;
+  type ← Term.instantiateMVars type;
   let type := type.abstract #[info.fvar];
   match info.kind with
   | StructFieldKind.fromParent =>

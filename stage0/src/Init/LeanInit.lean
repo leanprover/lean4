@@ -212,6 +212,11 @@ match stx with
 | Syntax.atom _ v      => mkNameSimple v
 | Syntax.ident _ _ _ _ => identKind
 
+def updateKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
+match stx with
+| Syntax.node _ args => Syntax.node k args
+| _                  => stx
+
 def isOfKind : Syntax → SyntaxNodeKind → Bool
 | stx, k => stx.getKind == k
 
@@ -769,6 +774,12 @@ match stx with
   else
     Name.anonymous
 | _ => Name.anonymous
+
+/- Given an `ident` or `Term.id`, return its name -/
+def getRelaxedId (stx : Syntax) : Name :=
+match stx with
+| Syntax.ident _ _ _ _ => stx.getId
+| _                    => stx.getIdOfTermId
 
 /-- Similar to `isTermId?`, but succeeds only if the optional part is a `none`. -/
 def isSimpleTermId? (stx : Syntax) (relaxed : Bool := false) : Option Syntax :=

@@ -23,3 +23,4 @@ import Lean.Eval
 import Lean.Structure
 import Lean.Delaborator
 import Lean.PrettyPrinter
+import Lean.CoreM

@@ -2,7 +2,7 @@ open Lean
 
 partial def expandHash : Syntax → StateT Bool MacroM Syntax
 | Syntax.node k args =>
-  if k == `doHash then do set true; `(←HasGet.get)
+  if k == `doHash then do set true; `(←MonadState.get)
   else do
     args ← args.mapM expandHash;
     pure $ Syntax.node k args

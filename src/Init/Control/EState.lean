@@ -113,7 +113,7 @@ instance : Monad (EStateM ε σ) :=
 instance {δ} [Backtrackable δ σ] : HasOrelse (EStateM ε σ α) :=
 { orelse := @EStateM.orelse _ _ _ _ _ }
 
-instance : MonadState σ (EStateM ε σ) :=
+instance : MonadStateOf σ (EStateM ε σ) :=
 { set := @EStateM.set _ _, get := @EStateM.get _ _, modifyGet := @EStateM.modifyGet _ _ }
 
 instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) :=

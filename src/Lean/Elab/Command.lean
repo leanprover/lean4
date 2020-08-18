@@ -84,7 +84,7 @@ fun ctx => liftIOCore ctx ctx.ref $ ctx.stateRef.set s
 @[inline] private def modifyGetState {α} (f : State → α × State) : CommandElabM α := do
 s ← getState; let (a, s) := f s; setState s; pure a
 
-instance CommandElabCoreM.monadState : MonadState State CommandElabM :=
+instance CommandElabCoreM.monadState : MonadStateOf State CommandElabM :=
 { get       := getState,
   set       := setState,
   modifyGet := @modifyGetState }

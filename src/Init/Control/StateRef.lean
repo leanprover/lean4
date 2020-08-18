@@ -40,7 +40,7 @@ fun ref => ref.set s
 @[inline] protected def modifyGet [Monad m] [MonadIO m] (f : σ → α × σ) : StateRefT σ m α :=
 fun ref => ref.modifyGet f
 
-instance [Monad m] [MonadIO m] : MonadState σ (StateRefT σ m) :=
+instance [Monad m] [MonadIO m] : MonadStateOf σ (StateRefT σ m) :=
 { get       := StateRefT.get,
   set       := StateRefT.set,
   modifyGet := fun α f => StateRefT.modifyGet f }

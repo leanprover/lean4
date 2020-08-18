@@ -377,11 +377,11 @@ namespace MonadTraverser
 variables {m : Type → Type} [Monad m] [t : MonadTraverser m]
 
 def getCur : m Syntax := Traverser.cur <$> t.st.get
-def setCur (stx : Syntax) : m Unit := @modify _ _ t.st.toModifyGet (fun t => t.setCur stx)
-def goDown (idx : Nat)    : m Unit := @modify _ _ t.st.toModifyGet (fun t => t.down idx)
-def goUp                  : m Unit := @modify _ _ t.st.toModifyGet (fun t => t.up)
-def goLeft                : m Unit := @modify _ _ t.st.toModifyGet (fun t => t.left)
-def goRight               : m Unit := @modify _ _ t.st.toModifyGet (fun t => t.right)
+def setCur (stx : Syntax) : m Unit := @modify _ _ t.st (fun t => t.setCur stx)
+def goDown (idx : Nat)    : m Unit := @modify _ _ t.st (fun t => t.down idx)
+def goUp                  : m Unit := @modify _ _ t.st (fun t => t.up)
+def goLeft                : m Unit := @modify _ _ t.st (fun t => t.left)
+def goRight               : m Unit := @modify _ _ t.st (fun t => t.right)
 
 def getIdx : m Nat := do
 st ← t.st.get;

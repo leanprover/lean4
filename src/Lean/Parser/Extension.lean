@@ -7,7 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 /-! Extensible parsing via attributes -/
 
 import Lean.Parser.Basic
-import Lean.PrettyPrinter.Parenthesizer
+import Lean.KeyedDeclsAttribute
 
 namespace Lean
 namespace Parser
@@ -223,6 +223,16 @@ partial def compileParserDescr (env : Environment) (categories : ParserCategorie
 def mkParserOfConstant (env : Environment) (categories : ParserCategories) (constName : Name) : Except String (Bool × Parser) :=
 mkParserOfConstantAux env categories constName (compileParserDescr env categories)
 
+structure ParserAttributeHook :=
+/- Called after a parser attribute is applied to a declaration. -/
+(postAdd : forall (catName : Name) (env : Environment) (declName : Name) (builtin : Bool), IO Environment)
+
+def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef {}
+@[init mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
+
+def registerParserAttributeHook (hook : ParserAttributeHook) : IO Unit := do
+parserAttributeHooks.modify fun hooks => hook::hooks
+
 private def ParserExtension.addImported (env : Environment) (es : Array (Array ParserExtensionOleanEntry)) : IO ParserExtensionState := do
 s ← ParserExtension.mkInitial;
 es.foldlM
@@ -241,8 +251,9 @@ es.foldlM
        | ParserExtensionOleanEntry.parser catName declName => do
          p ← IO.ofExcept $ mkParserOfConstant env s.categories declName;
          categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2;
-         -- discard result env; all imported parenthesizers should already be compiled
-         _ ← PrettyPrinter.Parenthesizer.addParenthesizerFromConstant env declName;
+         hooks ← parserAttributeHooks.get;
+         -- discard result env; all environment side effects should already have happened when the parser was declared initially
+         _ ← hooks.foldlM (fun env hook => hook.postAdd catName env declName /- builtin -/ false) env;
          pure { s with categories := categories })
       s)
   s
@@ -260,7 +271,6 @@ registerPersistentEnvExtension {
 @[init mkParserExtension]
 constant parserExtension : ParserExtension := arbitrary _
 
-@[export lean_is_parser_category]
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
 (parserExtension.getState env).categories.contains catName
 
@@ -301,7 +311,6 @@ pure $ parserExtension.addEntry env $ ParserExtensionEntry.token tk
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
 parserExtension.addEntry env $ ParserExtensionEntry.kind k
 
-@[export lean_is_valid_syntax_node_kind]
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 let kinds := (parserExtension.getState env).kinds;
 kinds.contains k
@@ -338,16 +347,6 @@ if s.hasError then
 else
   Except.ok s.stxStack.back
 
-structure ParserAttributeHook :=
-/- Called after a parser attribute is applied to a declaration. -/
-(postAdd : forall (attr catName : Name) (env : Environment) (declName : Name) (builtin : Bool), IO Environment)
-
-def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef {}
-@[init mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
-
-def registerParserAttributeHook (hook : ParserAttributeHook) : IO Unit := do
-parserAttributeHooks.modify fun hooks => hook::hooks
-
 def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
@@ -378,7 +377,8 @@ env ← match env.find? declName with
    declareLeadingBuiltinParser env catName declName
  | _ =>
    throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"));
-PrettyPrinter.Parenthesizer.compileParser env declName /- builtin -/ true
+hooks ← parserAttributeHooks.get;
+hooks.foldlM (fun env hook => hook.postAdd catName env declName /- builtin -/ true) env
 
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.
@@ -412,7 +412,8 @@ match mkParserOfConstant env categories declName with
   env ← match addParser categories catName declName leading parser with
   | Except.ok _     => pure $ parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
   | Except.error ex => throw (IO.userError ex);
-  PrettyPrinter.Parenthesizer.addParenthesizerFromConstant env declName
+  hooks ← parserAttributeHooks.get;
+  hooks.foldlM (fun env hook => hook.postAdd catName env declName /- builtin -/ false) env
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 { name            := attrName,

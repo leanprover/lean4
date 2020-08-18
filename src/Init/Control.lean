@@ -10,6 +10,7 @@ import Init.Control.Alternative
 import Init.Control.Monad
 import Init.Control.Lift
 import Init.Control.State
+import Init.Control.StateRef
 import Init.Control.Id
 import Init.Control.Except
 import Init.Control.Reader

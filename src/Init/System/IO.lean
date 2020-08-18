@@ -78,6 +78,9 @@ an error is returned in the topmost monad. -/
 instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) := {}
 instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) := {}
 
+def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) (mex : MonadExceptOf IO.Error m) :=
+@MonadIO.mk m ⟨lift⟩ mex
+
 namespace IO
 
 def ofExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=
@@ -338,7 +341,14 @@ variables {m : Type → Type} [Monad m] [MonadIO m]
 v ← r.get;
 r.reset;
 r.set (f v)
+@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := do
+v ← r.get;
+r.reset;
+let (b, a) := f v;
+r.set a;
+pure b
 end
+
 end IO
 
 universe u

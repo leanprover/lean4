@@ -1,15 +1,3 @@
-def Vector (α : Type) (n : Nat) := { a : Array α // a.size = n }
-
-def mkVec {α : Type} (n : Nat) (a : α) : Vector α n :=
-⟨mkArray n a, rfl⟩
-
-structure S :=
-(n : Nat)
-(y : Vector Nat n)
-(z : Vector Nat n)
-(h : y = z)
-(m : { v : Nat // v = y.val.size })
-
 new_frontend
 
 def f1 (x : Nat × Nat) : Nat :=
@@ -54,6 +42,18 @@ match x with
 | { fst := x, .. } => x * 10
 
 #eval f6 (5, 20)
+
+def Vector (α : Type) (n : Nat) := { a : Array α // a.size = n }
+
+def mkVec {α : Type} (n : Nat) (a : α) : Vector α n :=
+Subtype.mk (mkArray n a) rfl
+
+structure S :=
+(n : Nat)
+(y : Vector Nat n)
+(z : Vector Nat n)
+(h : y = z)
+(m : { v : Nat // v = y.val.size })
 
 def f7 (s : S) : Nat :=
 match s with

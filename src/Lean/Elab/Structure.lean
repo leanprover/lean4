@@ -395,6 +395,7 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr �
 | i+1, type => do
   let info := fieldInfos.get! i;
   decl ← Term.getFVarLocalDecl! info.fvar;
+  type ← Term.instantiateMVars type;
   let type := type.abstract #[info.fvar];
   match info.kind with
   | StructFieldKind.fromParent =>

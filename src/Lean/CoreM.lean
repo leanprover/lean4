@@ -42,6 +42,14 @@ EIO.adaptExcept Exception.io x
 @[inline] def liftIO {α} (x : IO α) : CoreM α :=
 fun _ => liftIOCore x
 
+instance monadIO : MonadIO CoreM :=
+mkMonadIO @liftIO {
+  throw := fun α ex => throw $ Exception.io ex,
+  catch := fun α x handler => catch x (fun ex => match ex with
+    | Exception.io ex => handler ex
+    | ex => throw ex)
+}
+
 private def getState : CoreM State :=
 fun ctx => liftIOCore ctx.stateRef.get
 
@@ -51,7 +59,7 @@ fun ctx => liftIOCore $ ctx.stateRef.set s
 @[inline] private def modifyGetState {α} (f : State → α × State) : CoreM α := do
 s ← getState; let (a, s) := f s; setState s; pure a
 
-instance CoreM.monadState : MonadState State CoreM :=
+instance monadState : MonadState State CoreM :=
 { get       := getState,
   set       := setState,
   modifyGet := @modifyGetState }
@@ -120,7 +128,7 @@ match env.find? constName with
 | some info => pure info
 | none      => throwError ("unknown constant '" ++ constName ++ "'")
 
-def runCore {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO (Environment × α) := do
+@[inline] def runCore {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO (Environment × α) := do
 ref ← IO.mkRef { env := env : State };
 let x : CoreM (Environment × α) := finally (do a ← x; pure (env, a)) do {
   traceState ← getTraceState;
@@ -134,7 +142,7 @@ EIO.adaptExcept
     | Exception.error _ msg   => IO.userError $ toString $ format $ msg)
   x
 
-def run {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO α := do
+@[inline] def run {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO α := do
 (_, a) ← runCore x env options;
 pure a
 

@@ -304,14 +304,14 @@ abbrev TrailingParser := Parser
 @[noinline] def epsilonInfo : ParserInfo :=
 { firstTokens := FirstTokens.epsilon }
 
-@[inline] def checkStackTopFn (p : Syntax → Bool) : ParserFn :=
+@[inline] def checkStackTopFn (p : Syntax → Bool) (msg : String) : ParserFn :=
 fun c s =>
   if p s.stxStack.back then s
-  else s.mkUnexpectedError "invalid leading token"
+  else s.mkUnexpectedError msg
 
-@[inline] def checkStackTop (p : Syntax → Bool) : Parser :=
+@[inline] def checkStackTop (p : Syntax → Bool) (msg : String) : Parser :=
 { info := epsilonInfo,
-  fn   := checkStackTopFn p }
+  fn   := checkStackTopFn p msg }
 
 @[inline] def andthenFn (p q : ParserFn) : ParserFn :=
 fun c s =>

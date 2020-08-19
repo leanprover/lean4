@@ -209,12 +209,12 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def tacticBlock := parser! "begin " >> Tactic.seq >> "end"
 @[builtinTermParser] def byTactic    := parser!:leadPrec "by " >> Tactic.nonEmptySeq
 
-@[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> funBinder >> ")"
+@[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
 end Term
 
 -- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.quot`
-@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> sepBy1 tacticParser "; " true true >> ")"
-@[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> levelParser >> ")"
+@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> toggleInsideQuot (sepBy1 tacticParser "; " true true) >> ")"
+@[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"
 
 end Parser
 end Lean

@@ -45,6 +45,9 @@ abbrev IO : Type → Type := EIO IO.Error
 @[inline] def EIO.toIO {α ε} (f : ε → IO.Error) (x : EIO ε α) : IO α :=
 x.adaptExcept f
 
+@[inline] def IO.toEIO {α ε} (f : IO.Error → ε) (x : IO α) : EIO ε α :=
+x.adaptExcept f
+
 section
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable

@@ -71,8 +71,8 @@ partial def formatAux : Option MessageDataContext → MessageData → Format
 | ctx,       node ds           => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
 
 instance : HasAppend MessageData := ⟨compose⟩
-
 instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
+instance : HasToString MessageData := ⟨fun d => toString (format d)⟩
 
 instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
 instance coeOfLevel     : HasCoe Level MessageData  := ⟨ofLevel⟩

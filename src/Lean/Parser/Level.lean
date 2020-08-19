@@ -21,8 +21,8 @@ namespace Level
 @[builtinLevelParser] def max    := parser! nonReservedSymbol "max " true  >> many1 (levelParser maxPrec)
 @[builtinLevelParser] def imax   := parser! nonReservedSymbol "imax " true >> many1 (levelParser maxPrec)
 @[builtinLevelParser] def hole   := parser! "_"
-@[builtinLevelParser] def num    := numLit
-@[builtinLevelParser] def ident  := ident
+@[builtinLevelParser] def num    := checkPrec maxPrec >> numLit
+@[builtinLevelParser] def ident  := checkPrec maxPrec >> ident
 @[builtinLevelParser] def addLit := tparser!:65 "+" >> numLit
 
 end Level

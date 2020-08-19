@@ -43,10 +43,12 @@ checkPrec prec >> symbol sym >> termParser (prec+1)
 def leadPrec := maxPrec - 1
 
 /- Built-in parsers -/
-@[builtinTermParser] def ident := Parser.ident
-@[builtinTermParser] def num : Parser := numLit
-@[builtinTermParser] def str : Parser := strLit
-@[builtinTermParser] def char : Parser := charLit
+
+-- `checkPrec` necessary for the pretty printer
+@[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
+@[builtinTermParser] def num : Parser := checkPrec maxPrec >> numLit
+@[builtinTermParser] def str : Parser := checkPrec maxPrec >> strLit
+@[builtinTermParser] def char : Parser := checkPrec maxPrec >> charLit
 @[builtinTermParser] def type := parser! "Type" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def sort := parser! "Sort" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def prop := parser! "Prop"

@@ -12,12 +12,21 @@ import Lean.Parser.Module
 import Lean.Parser.Syntax
 
 namespace Lean
-namespace Parser
+namespace PrettyPrinter
+namespace Parenthesizer
 
 -- Close the mutual recursion loop; see corresponding `[extern]` in the parenthesizer.
 @[export lean_mk_antiquot_parenthesizer]
-def mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : PrettyPrinter.Parenthesizer :=
-mkAntiquot.parenthesizer name kind anonymous
+def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : PrettyPrinter.Parenthesizer :=
+Parser.mkAntiquot.parenthesizer name kind anonymous
 
-end Parser
+-- The parenthesizer auto-generated these instances correctly, but tagged them with the wrong kind, since the actual kind
+-- (e.g. `ident`) is not equal to the parser name `Lean.Parser.Term.ident`.
+@[builtinParenthesizer ident] def ident.parenthesizer := Parser.Term.ident.parenthesizer
+@[builtinParenthesizer numLit] def numLit.parenthesizer := Parser.Term.num.parenthesizer
+@[builtinParenthesizer charLit] def charLit.parenthesizer := Parser.Term.char.parenthesizer
+@[builtinParenthesizer strLit] def strLit.parenthesizer := Parser.Term.str.parenthesizer
+
+end Parenthesizer
+end PrettyPrinter
 end Lean

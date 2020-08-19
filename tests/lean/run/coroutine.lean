@@ -126,7 +126,7 @@ unsafe instance : Monad (coroutine α δ) :=
 { pure := @coroutine.pure _ _,
   bind := @coroutine.bind _ _ }
 
-unsafe instance : MonadReader α (coroutine α δ) :=
+unsafe instance : MonadReaderOf α (coroutine α δ) :=
 { read := @coroutine.read _ _ }
 
 end coroutine

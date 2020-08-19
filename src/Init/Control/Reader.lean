@@ -84,16 +84,26 @@ end ReaderT
     (lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α)
     ```
     -/
+class MonadReaderOf (ρ : Type u) (m : Type u → Type v) :=
+(read : m ρ)
+
+@[inline] def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
+MonadReaderOf.read
+
+/-- Similar to `MonadReaderOf`, but `ρ` is an outParam for convenience -/
 class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) :=
 (read : m ρ)
 
 export MonadReader (read)
 
+instance MonadReaderOf.isMonadReader (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReader ρ m :=
+⟨readThe ρ⟩
+
 instance monadReaderTrans {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w}
-  [MonadReader ρ m] [HasMonadLift m n] : MonadReader ρ n :=
+  [MonadReaderOf ρ m] [HasMonadLift m n] : MonadReaderOf ρ n :=
 ⟨monadLift (MonadReader.read : m ρ)⟩
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReader ρ (ReaderT ρ m) :=
+instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) :=
 ⟨ReaderT.read⟩
 
 

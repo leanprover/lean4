@@ -90,7 +90,7 @@ end StateT
 /-- An implementation of [MonadState](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html).
     In contrast to the Haskell implementation, we use overlapping instances to derive instances
     automatically from `monadLift`. -/
-class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
+class MonadStateOf (σ : Type u) (m : Type u → Type v) :=
 /- Obtain the top-most State of a Monad stack. -/
 (get : m σ)
 /- Set the top-most State of a Monad stack. -/
@@ -101,25 +101,44 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
    because the latter does not use the State linearly (without sufficient inlining). -/
 (modifyGet {α : Type u} : (σ → α × σ) → m α)
 
-export MonadState (get set modifyGet)
+export MonadStateOf (set)
+
+abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :=
+MonadStateOf.get
+
+@[inline] abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
+MonadStateOf.modifyGet fun s => (PUnit.unit, f s)
+
+/-- Similar to `MonadStateOf`, but `σ` is an outParam for convenience -/
+class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
+(get : m σ)
+(set : σ → m PUnit)
+(modifyGet {α : Type u} : (σ → α × σ) → m α)
+
+export MonadState (get modifyGet)
+
+instance monadStateOf.isMonadState (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState σ m :=
+{ set       := MonadStateOf.set,
+  get       := getThe σ,
+  modifyGet := fun α f => MonadStateOf.modifyGet f }
 
 section
 variables {σ : Type u} {m : Type u → Type v}
 
 @[inline] def modify [MonadState σ m] (f : σ → σ) : m PUnit :=
-modifyGet (fun s => (PUnit.unit, f s))
+modifyGet fun s => (PUnit.unit, f s)
 
 @[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ := do
-s ← get; modify f; pure s
+modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
-instance monadStateTrans {n : Type u → Type w} [MonadState σ m] [HasMonadLift m n] : MonadState σ n :=
-{ get := monadLift (MonadState.get : m _),
-  set := fun st => monadLift (MonadState.set st : m _),
+instance monadStateTrans {n : Type u → Type w} [MonadStateOf σ m] [HasMonadLift m n] : MonadStateOf σ n :=
+{ get       := monadLift (MonadStateOf.get : m _),
+  set       := fun st => monadLift (MonadStateOf.set st : m _),
   modifyGet := fun α f => monadLift (MonadState.modifyGet f : m _) }
 
-instance [Monad m] : MonadState σ (StateT σ m) :=
+instance [Monad m] : MonadStateOf σ (StateT σ m) :=
 { get := StateT.get,
   set := StateT.set,
   modifyGet := @StateT.modifyGet _ _ _ }

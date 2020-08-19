@@ -34,7 +34,6 @@ uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_List_mapM___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_mkFreshId___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___closed__2;
-lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__3(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___closed__1;
@@ -117,6 +116,7 @@ lean_object* l_Lean_Meta_abstractMVars___closed__2;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVarsResult_hasBeq;
 extern lean_object* l_Lean_Expr_updateForallE_x21___closed__1;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
@@ -1910,20 +1910,21 @@ return x_2;
 lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__3;
-x_2 = l_ReaderT_Monad___rarg(x_1);
-return x_2;
+x_2 = l_Lean_Expr_Inhabited;
+x_3 = l_monadInhabited___rarg(x_1, x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
-x_2 = l_Lean_Expr_Inhabited;
-x_3 = l_monadInhabited___rarg(x_1, x_2);
-return x_3;
+x_2 = lean_alloc_closure((void*)(l_ReaderT_inhabited___rarg___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

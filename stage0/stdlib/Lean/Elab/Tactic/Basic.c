@@ -21,6 +21,7 @@ lean_object* l_Lean_Elab_Tactic_monadLog;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalAssumption___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_EStateM_MonadStateOf___closed__2;
 lean_object* l_Lean_Elab_Tactic_getLocalInsts___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMVarContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -463,7 +464,6 @@ lean_object* l_Lean_Elab_Tactic_getGoals(lean_object*);
 lean_object* l_Lean_Elab_Term_reportUnsolvedGoals___closed__2;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_Lean_Elab_Tactic_traceAtCmdPos(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EStateM_MonadState___closed__2;
 lean_object* l_Lean_Elab_Tactic_evalNestedTacticBlockCurly___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getLCtx(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandTacticMacro(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3751,7 +3751,7 @@ lean_object* _init_l_Lean_Elab_Tactic_Lean_Elab_MonadMacroAdapter___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EStateM_MonadState___closed__2;
+x_1 = l_EStateM_MonadStateOf___closed__2;
 x_2 = lean_alloc_closure((void*)(l_ReaderT_lift___at_Lean_Elab_Tactic_Lean_Elab_MonadMacroAdapter___spec__1___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

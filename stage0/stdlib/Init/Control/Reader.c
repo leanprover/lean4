@@ -64,6 +64,8 @@ lean_object* l_ReaderT_Monad___rarg___lambda__7___boxed(lean_object*, lean_objec
 lean_object* l_ReaderT_pure___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_map(lean_object*, lean_object*);
 lean_object* l_monadReaderTrans(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_inhabited(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_HasMonadLift(lean_object*, lean_object*);
 lean_object* l_ReaderT_adapt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadFunctor___rarg(lean_object*, lean_object*, lean_object*);
@@ -75,6 +77,7 @@ lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object*, lean_objec
 lean_object* l_ReaderT_MonadReader(lean_object*, lean_object*);
 lean_object* l_ReaderT_pure(lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___rarg(lean_object*, lean_object*);
+lean_object* l_ReaderT_inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadExceptOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad(lean_object*, lean_object*);
@@ -83,6 +86,31 @@ lean_object* l_ReaderT_Monad___rarg___lambda__6(lean_object*, lean_object*, lean
 lean_object* l_monadReaderTrans___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_inhabited___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_ReaderT_inhabited(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_ReaderT_inhabited___rarg___boxed), 2, 0);
+return x_4;
+}
+}
+lean_object* l_ReaderT_inhabited___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ReaderT_inhabited___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 lean_object* l_ReaderT_run___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

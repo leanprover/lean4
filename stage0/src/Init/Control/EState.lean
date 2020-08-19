@@ -92,6 +92,9 @@ fun s => match x s with
   | Result.error e s => Result.error (f e) s
   | Result.ok a s    => Result.ok a s
 
+instance monadExceptAdapter {ε ε' σ} : MonadExceptAdapter ε ε' (EStateM ε σ) (EStateM ε' σ) :=
+⟨fun α f x => adaptExcept f x⟩
+
 @[inline] protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EStateM ε σ β :=
 fun s => match x s with
   | Result.ok a s    => f a s
@@ -113,7 +116,7 @@ instance : Monad (EStateM ε σ) :=
 instance {δ} [Backtrackable δ σ] : HasOrelse (EStateM ε σ α) :=
 { orelse := @EStateM.orelse _ _ _ _ _ }
 
-instance : MonadState σ (EStateM ε σ) :=
+instance : MonadStateOf σ (EStateM ε σ) :=
 { set := @EStateM.set _ _, get := @EStateM.get _ _, modifyGet := @EStateM.modifyGet _ _ }
 
 instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) :=

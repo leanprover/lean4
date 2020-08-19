@@ -36,6 +36,7 @@ lean_object* l_Lean_Elab_Term_synthesizeInstMVarCore___closed__8;
 uint8_t l_Lean_MessageData_hasSyntheticSorry___main(lean_object*);
 lean_object* l_Lean_Elab_Term_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabImplicitLambdaAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_EStateM_MonadStateOf___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabStr(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Elab_Term_14__isLambdaWithImplicit___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -841,7 +842,6 @@ lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg___boxed(lean_object*
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_Elab_Term_expandListLit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 extern lean_object* l_Lean_Meta_mkSorry___closed__2;
-extern lean_object* l_EStateM_MonadState___closed__2;
 extern lean_object* l_Lean_Parser_Term_arrayLit___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_getOptions___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_tryLiftAndCoe___closed__7;
@@ -18996,7 +18996,7 @@ lean_object* _init_l_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EStateM_MonadState___closed__2;
+x_1 = l_EStateM_MonadStateOf___closed__2;
 x_2 = lean_alloc_closure((void*)(l_ReaderT_lift___at_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___spec__1___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

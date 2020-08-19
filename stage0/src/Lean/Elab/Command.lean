@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Init.Control.StateRef
 import Lean.Elab.Alias
 import Lean.Elab.Log
 import Lean.Elab.ResolveName
@@ -41,7 +42,6 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
 structure Context :=
 (fileName       : String)
 (fileMap        : FileMap)
-(stateRef       : IO.Ref State)
 (currRecDepth   : Nat := 0)
 (cmdPos         : String.Pos := 0)
 (macroStack     : MacroStack := [])
@@ -50,7 +50,7 @@ structure Context :=
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error $ arbitrary _⟩
 
-abbrev CommandElabCoreM (ε) := ReaderT Context (EIO ε)
+abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 
@@ -69,25 +69,19 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 let ref := getBetterRef ref ctx.macroStack;
 mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeverity.error
 
-@[inline] def liftIOCore {α} (ctx : Context) (ref : Syntax) (x : IO α) : EIO Exception α :=
-EIO.adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ref ex) x
+-- This instance is needed for StateRefT
+instance monadIOAux : MonadIO (EIO Exception) :=
+mkMonadIO fun _ x => adaptExcept (fun ex => Exception.error { fileName := "<unavaiable>", pos := ⟨0, 0⟩, data := toString ex }) x
 
-@[inline] def liftIO {α} (x : IO α) : CommandElabM α :=
-fun ctx => liftIOCore ctx ctx.ref x
+@[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α :=
+liftM x
 
-private def getState : CommandElabM State :=
-fun ctx => liftIOCore ctx ctx.ref $ ctx.stateRef.get
+@[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
+ctx ← read;
+liftEIO $ adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ctx.ref ex) x
 
-private def setState (s : State) : CommandElabM Unit :=
-fun ctx => liftIOCore ctx ctx.ref $ ctx.stateRef.set s
-
-@[inline] private def modifyGetState {α} (f : State → α × State) : CommandElabM α := do
-s ← getState; let (a, s) := f s; setState s; pure a
-
-instance CommandElabCoreM.monadState : MonadState State CommandElabM :=
-{ get       := getState,
-  set       := setState,
-  modifyGet := @modifyGetState }
+instance : MonadIO CommandElabM :=
+mkMonadIO fun α => liftIO
 
 def getEnv : CommandElabM Environment := do s ← get; pure s.env
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
@@ -249,7 +243,7 @@ catch x (fun ex => match ex with
   | Exception.unsupportedSyntax => unreachable!)
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
-fun ctx => EIO.catchExceptions (withLogging x ctx) (fun _ => pure ())
+fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()

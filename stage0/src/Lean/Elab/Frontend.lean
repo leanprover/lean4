@@ -23,9 +23,10 @@ EIO.catchExceptions x (fun _ => unreachable!)
 
 @[inline] def runCommandElabM (x : Command.CommandElabM Unit) : FrontendM Unit :=
 fun ctx => do
-  cmdPos ← liftIOCore! $ ctx.cmdPosRef.get;
-  let cmdCtx : Command.Context := { cmdPos := cmdPos, stateRef := ctx.commandStateRef, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap };
-  EIO.catchExceptions (x cmdCtx) (fun _ => pure ())
+  cmdPos   ← liftIOCore! $ ctx.cmdPosRef.get;   -- TODO: cleanup
+  cmdState ← liftIOCore! $ ctx.commandStateRef.get;
+  let cmdCtx : Command.Context := { cmdPos := cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap };
+  EIO.catchExceptions (do (_, s) ← (x cmdCtx).run cmdState; ctx.commandStateRef.set s) (fun _ => pure ())
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit :=
 runCommandElabM (Command.withLogging $ Command.elabCommand stx)
@@ -78,10 +79,13 @@ end Frontend
 
 open Frontend
 
+private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
+Empty.rec _ ex
+
 def IO.processCommands (inputCtx : Parser.InputContext) (parserStateRef : IO.Ref Parser.ModuleParserState) (cmdStateRef : IO.Ref Command.State) : IO Unit := do
 ps ← parserStateRef.get;
 cmdPosRef ← IO.mkRef ps.pos;
-EIO.adaptExcept (fun (ex : Empty) => Empty.rec _ ex) $
+adaptExcept ioErrorFromEmpty $
   processCommands { commandStateRef := cmdStateRef, parserStateRef := parserStateRef, cmdPosRef := cmdPosRef, inputCtx := inputCtx }
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do

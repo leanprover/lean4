@@ -20,6 +20,7 @@ lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_7_
 lean_object* l_Lean_Elab_Term_ensureAssignmentHasNoMVars___closed__2;
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__2___closed__9;
 lean_object* l___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___closed__9;
+extern lean_object* l_EStateM_MonadStateOf___closed__2;
 lean_object* l___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep(uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_6__synthesizeSyntheticMVar(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_instantiateMVars(lean_object*, lean_object*, lean_object*);
@@ -139,7 +140,6 @@ lean_object* l_Lean_indentExpr(lean_object*);
 extern lean_object* l_Lean_Format_repr___main___closed__16;
 lean_object* l_Lean_fmt___at___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__3___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_4__synthesizePendingCoeInstMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EStateM_MonadState___closed__2;
 lean_object* l___private_Lean_Elab_SyntheticMVars_10__getSomeSynthethicMVarsRef___rarg___closed__1;
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_8__synthesizeUsingDefault___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at___private_Lean_Elab_SyntheticMVars_7__synthesizeSyntheticMVarsStep___spec__3(uint8_t);
@@ -2232,7 +2232,7 @@ lean_object* _init_l___private_Lean_Elab_SyntheticMVars_2__resumePostponed___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EStateM_MonadState___closed__2;
+x_1 = l_EStateM_MonadStateOf___closed__2;
 x_2 = lean_alloc_closure((void*)(l_ReaderT_lift___at_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___spec__1___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

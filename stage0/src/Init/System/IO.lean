@@ -26,8 +26,8 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-@[inline] def EIO.adaptExcept {α ε ε'} (f : ε → ε') (x : EIO ε α) : EIO ε' α :=
-EStateM.adaptExcept f x
+instance monadExceptAdapter {ε ε'} : MonadExceptAdapter ε ε' (EIO ε) (EIO ε') :=
+inferInstanceAs $ MonadExceptAdapter ε ε' (EStateM ε IO.RealWorld) (EStateM ε' IO.RealWorld)
 
 @[inline] def EIO.catchExceptions {α ε} (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
 fun s => match x s with
@@ -41,6 +41,9 @@ instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
 inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
 abbrev IO : Type → Type := EIO IO.Error
+
+@[inline] def EIO.toIO {α ε} (f : ε → IO.Error) (x : EIO ε α) : IO α :=
+x.adaptExcept f
 
 section
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
@@ -68,7 +71,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-class MonadIO (m : Type → Type) extends HasMonadLiftT IO m, MonadExceptOf IO.Error m
+class MonadIO (m : Type → Type) extends HasMonadLiftT IO m
 
 instance : MonadIO IO := {}
 
@@ -77,6 +80,12 @@ errors introduces the risk that `withStdout` will not restore the previous handl
 an error is returned in the topmost monad. -/
 instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) := {}
 instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) := {}
+
+def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) :=
+@MonadIO.mk m ⟨lift⟩
+
+@[inline] def liftIO {α : Type} {m : Type → Type} [MonadIO m] (x : IO α) : m α :=
+liftM x
 
 namespace IO
 
@@ -338,7 +347,14 @@ variables {m : Type → Type} [Monad m] [MonadIO m]
 v ← r.get;
 r.reset;
 r.set (f v)
+@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := do
+v ← r.get;
+r.reset;
+let (b, a) := f v;
+r.set a;
+pure b
 end
+
 end IO
 
 universe u

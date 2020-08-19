@@ -369,7 +369,6 @@ lean_object* l_Lean_Expr_getAppNumArgsAux___main___boxed(lean_object*, lean_obje
 lean_object* l___private_Lean_Expr_5__withAppRevAux___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__9;
 lean_object* l_Lean_Expr_instantiateRevRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_insertAt___rarg___closed__1;
 lean_object* l_Lean_Expr_updateLambda_x21___closed__1;
 lean_object* l_Lean_mkAppN___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Literal_hashable___closed__1;
@@ -556,6 +555,7 @@ lean_object* l_Lean_ExprStructEq_HasToString___boxed(lean_object*);
 lean_object* l_Lean_Expr_isCharLit___closed__2;
 lean_object* l_Lean_Expr_getRevArgD___main___boxed(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_BinderInfo_hash(uint8_t);
+extern lean_object* l_List_get_x21___main___rarg___closed__2;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArgD___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5833,7 +5833,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Expr_1__Expr_mkDataCore___closed__1;
 x_2 = lean_unsigned_to_nat(504u);
 x_3 = lean_unsigned_to_nat(20u);
-x_4 = l_Array_insertAt___rarg___closed__1;
+x_4 = l_List_get_x21___main___rarg___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }

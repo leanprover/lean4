@@ -52,6 +52,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_checkAssignment___spec__
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isExprDefEq___closed__2;
 lean_object* l___private_Lean_Meta_ExprDefEq_43__isDefEqWHNF___at_Lean_Meta_isExprDefEqAuxImpl___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_EIO_Monad___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_ExprDefEq_29__sameHeadSymbol(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_CheckAssignment_assignToConstFun___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -318,7 +319,6 @@ lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_41__isDefEqProofIrrel(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_2__mkAppRangeAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_WHNF_whnfEasyCases___main___at_Lean_Meta_whnfImpl___main___spec__1___closed__1;
 lean_object* l_Lean_Meta_isDefEqBindingDomain___main___at___private_Lean_Meta_ExprDefEq_6__isDefEqBindingAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateLet_x21___closed__1;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -348,6 +348,7 @@ lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__10
 lean_object* l_Lean_Meta_CheckAssignment_mkAuxMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_Lean_MonadCache___closed__3;
 lean_object* l_Lean_Meta_reduceNative_x3f(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_CheckAssignment_check___main___closed__2;
 lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__3;
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_getMCtx___boxed(lean_object*);
@@ -357,6 +358,7 @@ lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__5;
 lean_object* l___private_Lean_Meta_ExprDefEq_42__isDefEqQuick___main___closed__3;
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_26__tryHeuristic___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEqNat(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_CheckAssignment_check___main___closed__1;
 lean_object* l___private_Lean_Meta_ExprDefEq_42__isDefEqQuick___main(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_resettingSynthInstanceCache___rarg___closed__1;
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
@@ -378,6 +380,7 @@ lean_object* l_Lean_Meta_CheckAssignmentQuick_check___main___boxed(lean_object*,
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_HasBeq;
 lean_object* l___private_Lean_Meta_ExprDefEq_33__unfoldNonProjFnDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkBVar(lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_25__isDefEqLeftRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_ExprDefEq_5__isDefEqArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -400,6 +403,7 @@ lean_object* l___private_Lean_Meta_ExprDefEq_12__checkAssignmentFailure___closed
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_42__isDefEqQuick___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isLet(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFVarLocalDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_5__isDefEqArgs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Lean_Meta_commitWhenSome_x3f___at___private_Lean_Meta_ExprDefEq_1__isDefEqEta___spec__2___closed__1() {
@@ -26139,6 +26143,26 @@ return x_1736;
 }
 }
 }
+lean_object* _init_l_Lean_Meta_CheckAssignment_check___main___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_EIO_Monad___closed__1;
+x_2 = l_Lean_Expr_Inhabited;
+x_3 = l_monadInhabited___rarg(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Meta_CheckAssignment_check___main___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_CheckAssignment_check___main___closed__1;
+x_2 = lean_alloc_closure((void*)(l_ReaderT_inhabited___rarg___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Meta_CheckAssignment_check___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -27503,7 +27527,7 @@ case 12:
 {
 lean_object* x_317; lean_object* x_318; lean_object* x_319; 
 lean_dec(x_1);
-x_317 = l_Lean_WHNF_whnfEasyCases___main___at_Lean_Meta_whnfImpl___main___spec__1___closed__1;
+x_317 = l_Lean_Meta_CheckAssignment_check___main___closed__2;
 x_318 = l_unreachable_x21___rarg(x_317);
 x_319 = lean_apply_2(x_318, x_2, x_3);
 return x_319;
@@ -57310,6 +57334,10 @@ l_Lean_Meta_CheckAssignment_Lean_MonadCache___closed__3 = _init_l_Lean_Meta_Chec
 lean_mark_persistent(l_Lean_Meta_CheckAssignment_Lean_MonadCache___closed__3);
 l_Lean_Meta_CheckAssignment_Lean_MonadCache = _init_l_Lean_Meta_CheckAssignment_Lean_MonadCache();
 lean_mark_persistent(l_Lean_Meta_CheckAssignment_Lean_MonadCache);
+l_Lean_Meta_CheckAssignment_check___main___closed__1 = _init_l_Lean_Meta_CheckAssignment_check___main___closed__1();
+lean_mark_persistent(l_Lean_Meta_CheckAssignment_check___main___closed__1);
+l_Lean_Meta_CheckAssignment_check___main___closed__2 = _init_l_Lean_Meta_CheckAssignment_check___main___closed__2();
+lean_mark_persistent(l_Lean_Meta_CheckAssignment_check___main___closed__2);
 l___private_Lean_Meta_ExprDefEq_12__checkAssignmentFailure___closed__1 = _init_l___private_Lean_Meta_ExprDefEq_12__checkAssignmentFailure___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_ExprDefEq_12__checkAssignmentFailure___closed__1);
 l___private_Lean_Meta_ExprDefEq_12__checkAssignmentFailure___closed__2 = _init_l___private_Lean_Meta_ExprDefEq_12__checkAssignmentFailure___closed__2();

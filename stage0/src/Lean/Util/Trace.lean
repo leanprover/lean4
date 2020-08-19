@@ -3,6 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
+import Init.Control.StateRef
 import Lean.Message
 universe u
 
@@ -14,6 +15,14 @@ class MonadTracer (m : Type → Type u) :=
 (traceCtx {α} : Name → m α → m α)
 (trace  : Name → (Unit → MessageData) → m PUnit)
 (traceM : Name → m MessageData → m PUnit)
+
+instance ReaderT.monadTracer (ρ : Type) (m : Type → Type) [MonadTracer m] : MonadTracer (ReaderT ρ m) :=
+{ traceCtx := fun α n x ctx => MonadTracer.traceCtx n (x ctx),
+  trace    := fun n x _     => MonadTracer.trace n x,
+  traceM   := fun n x ctx   => MonadTracer.traceM n (x ctx) }
+
+instance StateRefT.monadTracer (σ : Type) (m : Type → Type) [MonadTracer m] : MonadTracer (StateRefT σ m) :=
+inferInstanceAs (MonadTracer (ReaderT _ _))
 
 class MonadTracerAdapter (m : Type → Type) :=
 (isTracingEnabledFor : Name → m Bool)

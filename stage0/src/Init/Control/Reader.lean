@@ -17,6 +17,9 @@ universes u v w
 def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
 ρ → m α
 
+instance ReaderT.inhabited (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) :=
+⟨fun _ => arbitrary _⟩
+
 @[inline] def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
 x r
 

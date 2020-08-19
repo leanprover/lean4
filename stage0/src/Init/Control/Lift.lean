@@ -51,7 +51,7 @@ theorem monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α)
 
 
     Remark: other libraries equate `m` and `m'`, and `n` and `n'`. We need to distinguish them to be able to implement
-    gadgets such as `MonadStateAdapter` and `MonadReaderAdapter`. -/
+    ogadgets such as `MonadStateAdapter` and `MonadReaderAdapter`. -/
 class MonadFunctor (m m' : Type u → Type v) (n n' : Type u → Type w) :=
 (monadMap {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
 

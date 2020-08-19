@@ -43,7 +43,6 @@ lean_object* l_Std_AssocList_replace___main___at_Lean_IR_Borrow_OwnedSet_insert_
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_OwnedSet_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* l_Lean_IR_Borrow_whileModifingAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_OwnedSet_Hashable___closed__1;
@@ -186,6 +185,7 @@ lean_object* l_Std_AssocList_contains___main___at_Lean_IR_Borrow_InitParamMap_vi
 lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Lean_IR_Borrow_updateParamSet(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ownArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ParamMap_Hashable___closed__1;
 lean_object* l_Std_mkHashMap___at_Lean_IR_Borrow_mkInitParamMap___spec__1(lean_object*);
@@ -2961,20 +2961,21 @@ return x_2;
 lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_Borrow_getParamInfo___closed__1;
-x_2 = l_ReaderT_Monad___rarg(x_1);
-return x_2;
+x_2 = l_Array_empty___closed__1;
+x_3 = l_monadInhabited___rarg(x_1, x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_IR_Borrow_getParamInfo___closed__2;
-x_2 = l_Array_empty___closed__1;
-x_3 = l_monadInhabited___rarg(x_1, x_2);
-return x_3;
+x_2 = lean_alloc_closure((void*)(l_ReaderT_inhabited___rarg___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_IR_Borrow_getParamInfo(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

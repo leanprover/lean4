@@ -25,6 +25,7 @@ lean_object* l_Array_iterateMAux___main___at___private_Lean_MetavarContext_10__c
 lean_object* l_Std_PersistentArray_anyM___at_Lean_MetavarContext_localDeclDependsOn___spec__20___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_MetavarContext_9__getLocalDeclWithSmallestIdx___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_EStateM_MonadStateOf___closed__2;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_MetavarContext_getLevelAssignment_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_containsAtAux___main___at_Lean_MetavarContext_isLevelAssigned___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getExprAssignment_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -677,7 +678,6 @@ lean_object* l_Std_PersistentArray_anyM___at_Lean_MetavarContext_localDeclDepend
 lean_object* l_Lean_MetavarContext_hasAssignedMVar___main(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContext_assignExprCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_21__elimMVarDepsApp___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EStateM_MonadState___closed__2;
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_MetavarContext_MkBinding_Exception_toString___spec__3(uint8_t, lean_object*);
 lean_object* l___private_Lean_MetavarContext_15__withFreshCache(lean_object*);
@@ -25235,7 +25235,7 @@ lean_object* _init_l_Lean_MetavarContext_MkBinding_Lean_MonadHashMapCacheAdapter
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EStateM_MonadState___closed__2;
+x_1 = l_EStateM_MonadStateOf___closed__2;
 x_2 = lean_alloc_closure((void*)(l_ReaderT_lift___at_Lean_MetavarContext_MkBinding_Lean_MonadHashMapCacheAdapter___spec__1___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

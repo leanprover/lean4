@@ -43,13 +43,10 @@ checkPrec prec >> symbol sym >> termParser (prec+1)
 def leadPrec := maxPrec - 1
 
 /- Built-in parsers -/
-def explicitUniv' := checkNoWsBefore "no space before '.{'" >> parser! ".{" >> sepBy1 levelParser ", " >> "}"
-def namedPattern' := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser maxPrec
-@[builtinTermParser] def id := checkOutsideQuot >> parser! ident >> optional (explicitUniv' <|> namedPattern')
-@[builtinTermParser] def ident := checkInsideQuot >> Parser.ident
-@[builtinTermParser] def num : Parser := checkInsideQuot >> numLit <|> checkOutsideQuot >> parser! numLit
-@[builtinTermParser] def str : Parser := checkInsideQuot >> strLit <|> checkOutsideQuot >> parser! strLit
-@[builtinTermParser] def char : Parser := checkInsideQuot >> charLit <|> checkOutsideQuot >> parser! charLit
+@[builtinTermParser] def ident := Parser.ident
+@[builtinTermParser] def num : Parser := numLit
+@[builtinTermParser] def str : Parser := strLit
+@[builtinTermParser] def char : Parser := charLit
 @[builtinTermParser] def type := parser! "Type" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def sort := parser! "Sort" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def prop := parser! "Prop"

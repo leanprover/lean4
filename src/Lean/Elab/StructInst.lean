@@ -424,7 +424,7 @@ fields ← fieldNames.foldlM
         | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
         | Source.explicit stx _ =>
           -- stx is of the form `optional (try (termParser >> "with"))`
-          let src := (stx.getArg 0).getArg 0;
+          let src := stx.getArg 0;
           let val := mkProjStx src fieldName;
           addField (FieldVal.term val))
   [];

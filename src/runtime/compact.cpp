@@ -73,7 +73,12 @@ object_compactor::~object_compactor() {
     free(m_begin);
 }
 
-object_offset g_null_offset = reinterpret_cast<object_offset>(static_cast<size_t>(-1));
+/*
+  Remark: g_null_offset must NOT be a valid Lean scalar value (e.g., static_cast<size_t>(-1)).
+  Recall that Lean scalar are odd size_t values. So, we use (static_cast<size_t>(-1) - 1) which is an even number.
+  In the past we used `static_cast<size_t>(-1)`, and it caused nontermination in the object compactor.
+*/
+object_offset g_null_offset = reinterpret_cast<object_offset>(static_cast<size_t>(-1) - 1);
 
 void * object_compactor::alloc(size_t sz) {
     size_t rem = sz % sizeof(void*);

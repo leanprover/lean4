@@ -139,10 +139,12 @@ partial def getClassName (env : Environment) : Expr → Option Name
 registerBuiltinAttribute {
   name  := `class,
   descr := "type class",
-  add   := fun env decl args persistent => do
-    when args.hasArgs $ throw (IO.userError ("invalid attribute 'class', unexpected argument"));
-    unless persistent $ throw (IO.userError ("invalid attribute 'class', must be persistent"));
-    IO.ofExcept (addClass env decl)
+  add   := fun decl args persistent => do
+    env ← Core.getEnv;
+    when args.hasArgs $ Core.throwError "invalid attribute 'class', unexpected argument";
+    unless persistent $ Core.throwError "invalid attribute 'class', must be persistent";
+    env ← Core.ofExcept (addClass env decl);
+    Core.setEnv env
 }
 
 -- TODO: delete

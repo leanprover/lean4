@@ -290,11 +290,13 @@ match cinfo with
 
 def mkRecursorAttr : IO (ParametricAttribute Nat) :=
 registerParametricAttribute `recursor "user defined recursor, numerical parameter specifies position of the major premise"
-  (fun _ _ => syntaxToMajorPos)
-  (fun env declName majorPos =>
-    match Meta.run env (mkRecursorInfoCore declName (some majorPos)) with
-    | Except.ok _     => pure env
-    | Except.error ex => Except.error $ toString ex)
+  (fun _ stx => Core.ofExcept $ syntaxToMajorPos stx)
+  (fun declName majorPos => do
+    -- TODO: new code after CoreM refactoring
+    -- Meta.run $ mkRecursorInfoCore declName (some majorPos)
+    env ← Core.getEnv;
+    (info, env) ← liftM $ IO.runMeta (mkRecursorInfoCore declName (some majorPos)) env;
+    Core.setEnv env)
 
 @[init mkRecursorAttr] constant recursorAttribute : ParametricAttribute Nat := arbitrary _
 

@@ -159,7 +159,7 @@ attrs.forM $ fun attr => do
  | Except.ok attrImpl  =>
    when (attrImpl.applicationTime == applicationTime) $ do
      env ← getEnv;
-     env ← liftIO $ attrImpl.add env declName attr.args true;
+     (env, _) ← liftIO $ Core.runCore (attrImpl.add declName attr.args true) env; -- TODO: revise after MetaM refactoring
      setEnv env
 
 end Command

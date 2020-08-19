@@ -46,11 +46,13 @@ match env.find? constName with
 registerBuiltinAttribute {
   name  := `instance,
   descr := "type class instance",
-  add   := fun env declName args persistent => do
-    when args.hasArgs $ throw (IO.userError ("invalid attribute 'instance', unexpected argument"));
-    unless persistent $ throw (IO.userError ("invalid attribute 'instance', must be persistent"));
-    env ← IO.ofExcept (addGlobalInstanceOld env declName); -- TODO: delete
-    addGlobalInstance env declName
+  add   := fun declName args persistent => do
+    when args.hasArgs $ Core.throwError "invalid attribute 'instance', unexpected argument";
+    unless persistent $ Core.throwError "invalid attribute 'instance', must be persistent";
+    env ← Core.getEnv;
+    env ← Core.ofExcept (addGlobalInstanceOld env declName); -- TODO: delete
+    env ← liftM $ addGlobalInstance env declName;
+    Core.setEnv env
 }
 
 end Meta

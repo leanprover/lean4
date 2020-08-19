@@ -54,6 +54,11 @@ def throwError {α} (msg : MessageData) : CoreM α := do
 ctx ← read;
 throw $ Exception.error ctx.ref msg
 
+def ofExcept {ε α} [HasToString ε] (x : Except ε α) : CoreM α :=
+match x with
+| Except.ok a    => pure a
+| Except.error e => throwError $ toString e
+
 def checkRecDepth : CoreM Unit := do
 ctx ← read;
 when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError maxRecDepthErrorMessage
@@ -69,6 +74,9 @@ s ← get; pure s.env
 
 def setEnv (env : Environment) : CoreM Unit :=
 modify $ fun s => { s with env := env }
+
+@[inline] def modifyEnv (f : Environment → Environment) : CoreM Unit :=
+modify $ fun s => { s with env := f s.env }
 
 def getOptions {ε} : ECoreM ε Options :=  do
 ctx ← read; pure ctx.options

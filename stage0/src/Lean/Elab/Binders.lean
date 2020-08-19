@@ -40,7 +40,7 @@ structure BinderView :=
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
 | stx@(Syntax.ident _ _ _ _) => throwErrorAt stx "invalic auto tactic, identifier is not allowed"
 | stx@(Syntax.node k args)   =>
-  if Quotation.isAntiquot stx then
+  if stx.isAntiquot then
     throwErrorAt stx "invalic auto tactic, antiquotation is not allowed"
   else do
     empty ← `(Array.empty);

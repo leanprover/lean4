@@ -38,7 +38,6 @@ lean_object* l_IO_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*,
 lean_object* l___private_Lean_Elab_Command_3__mkTermContext(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_6__printQuot___rarg___closed__1;
 extern lean_object* l_Lean_Parser_Command_print___elambda__1___closed__2;
-extern lean_object* l_Lean_Parser_Term_explicitUniv___elambda__1___closed__5;
 lean_object* l_List_map___main___at___private_Lean_Elab_Print_9__printId___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Command_elabPrint___closed__4;
 extern lean_object* l_Lean_Meta_Exception_Inhabited___closed__1;
@@ -102,6 +101,7 @@ lean_object* l___private_Lean_Elab_Print_7__printInduct___boxed(lean_object*, le
 lean_object* l___private_Lean_Elab_Print_7__printInduct___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Term_explicitUniv_x27___elambda__1___closed__5;
 lean_object* l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__3;
 lean_object* l___private_Lean_Elab_Print_8__printIdCore___closed__2;
 lean_object* l___private_Lean_Elab_Print_6__printQuot___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,7 +165,7 @@ lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_explicitUniv___elambda__1___closed__5;
+x_1 = l_Lean_Parser_Term_explicitUniv_x27___elambda__1___closed__5;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

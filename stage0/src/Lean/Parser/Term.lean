@@ -43,14 +43,13 @@ checkPrec prec >> symbol sym >> termParser (prec+1)
 def leadPrec := maxPrec - 1
 
 /- Built-in parsers -/
--- NOTE: `checkNoWsBefore` should be used *before* `parser!` so that it is also applied to the generated
--- antiquotation.
-def explicitUniv := checkNoWsBefore "no space before '.{'" >> parser! ".{" >> sepBy1 levelParser ", " >> "}"
-def namedPattern := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser maxPrec
-@[builtinTermParser] def id := parser! ident >> optional (explicitUniv <|> namedPattern)
-@[builtinTermParser] def num : Parser := parser! numLit
-@[builtinTermParser] def str : Parser := parser! strLit
-@[builtinTermParser] def char : Parser := parser! charLit
+def explicitUniv' := checkNoWsBefore "no space before '.{'" >> parser! ".{" >> sepBy1 levelParser ", " >> "}"
+def namedPattern' := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser maxPrec
+@[builtinTermParser] def id := checkOutsideQuot >> parser! ident >> optional (explicitUniv' <|> namedPattern')
+@[builtinTermParser] def ident := checkInsideQuot >> Parser.ident
+@[builtinTermParser] def num : Parser := checkInsideQuot >> numLit <|> checkOutsideQuot >> parser! numLit
+@[builtinTermParser] def str : Parser := checkInsideQuot >> strLit <|> checkOutsideQuot >> parser! strLit
+@[builtinTermParser] def char : Parser := checkInsideQuot >> charLit <|> checkOutsideQuot >> parser! charLit
 @[builtinTermParser] def type := parser! "Type" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def sort := parser! "Sort" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def prop := parser! "Prop"
@@ -155,6 +154,15 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def arrayRef := tparser! symbolNoWs "[" >> termParser >>"]"
 
+def isIdent (stx : Syntax) : Bool :=
+-- antiquotations should also be allowed where an identifier is expected
+stx.isAntiquot || stx.isIdent
+
+-- NOTE: `check*` should be used *before* `tparser!` so that it is also applied to the generated
+-- antiquotation.
+@[builtinTermParser] def explicitUniv : TrailingParser := checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> tparser! ".{" >> sepBy1 levelParser ", " >> "}"
+@[builtinTermParser] def namedPattern : TrailingParser := checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> tparser! "@" >> termParser maxPrec
+
 @[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
@@ -209,12 +217,12 @@ def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def tacticBlock := parser! "begin " >> Tactic.seq >> "end"
 @[builtinTermParser] def byTactic    := parser!:leadPrec "by " >> Tactic.nonEmptySeq
 
-@[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> funBinder >> ")"
+@[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
 end Term
 
 -- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.quot`
-@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> sepBy1 tacticParser "; " true true >> ")"
-@[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> levelParser >> ")"
+@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> toggleInsideQuot (sepBy1 tacticParser "; " true true) >> ")"
+@[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"
 
 end Parser
 end Lean

@@ -250,7 +250,7 @@ def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM 
 alts ← alts.mapSepElemsM $ fun alt => do {
   let lhs := alt.getArg 0;
   let pat := lhs.getArg 0;
-  when (!Term.Quotation.isQuot pat) $
+  when (!pat.isQuot) $
     throwUnsupportedSyntax;
   let quot := pat.getArg 1;
   let k' := quot.getKind;
@@ -271,7 +271,7 @@ alts ← alts.mapSepElemsM $ fun alt => do {
 def inferMacroRulesAltKind (alt : Syntax) : CommandElabM SyntaxNodeKind := do
 let lhs := alt.getArg 0;
 let pat := lhs.getArg 0;
-when (!Term.Quotation.isQuot pat) $
+when (!pat.isQuot) $
   throwUnsupportedSyntax;
 let quot := pat.getArg 1;
 pure quot.getKind

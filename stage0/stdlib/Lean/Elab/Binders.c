@@ -205,11 +205,11 @@ lean_object* l_Lean_Elab_Term_mkFreshInstanceName___rarg(lean_object*);
 extern lean_object* l_Lean_formatEntry___closed__1;
 lean_object* l_Lean_Elab_Term_isClass(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Elab_Term_Quotation_isAntiquot(lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 extern lean_object* l_Lean_Expr_getAutoParamTactic_x3f___closed__1;
 lean_object* l_Lean_Elab_Term_quoteAutoTactic(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
+uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
 uint8_t l_Lean_Expr_isAutoParam(lean_object*);
 extern lean_object* l_Lean_Expr_getAutoParamTactic_x3f___closed__2;
 extern lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__10;
@@ -881,7 +881,7 @@ x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
-x_9 = l_Lean_Elab_Term_Quotation_isAntiquot(x_1);
+x_9 = l_Lean_Syntax_isAntiquot(x_1);
 if (x_9 == 0)
 {
 uint8_t x_10; 

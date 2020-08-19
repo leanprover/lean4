@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
+uint8_t l_Lean_Syntax_isQuot(lean_object*);
 extern lean_object* l_Lean_Expr_eq_x3f___closed__1;
 extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__56;
@@ -39,7 +40,6 @@ lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__10;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__32;
 lean_object* l___private_Lean_Elab_Quotation_6__compileStxMatch___main___closed__33;
 lean_object* l_Lean_mkTermIdFromIdent(lean_object*);
-uint8_t l_Lean_Elab_Term_Quotation_isQuot(lean_object*);
 extern lean_object* l_Lean_Nat_HasQuote___closed__2;
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_10__toPreterm___main___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,7 +107,6 @@ lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___close
 lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__16;
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__2;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__50;
-extern lean_object* l_Lean_Parser_mkAntiquot___closed__4;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -160,6 +159,7 @@ extern lean_object* l_Lean_Elab_Term_expandCDot_x3f___closed__4;
 extern lean_object* l_Lean_mkAppStx___closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__1___closed__5;
+extern lean_object* l_Lean_Parser_mkAntiquot___closed__3;
 lean_object* l___private_Lean_Elab_Quotation_10__toPreterm___main___closed__3;
 lean_object* l_List_filterAux___main___at___private_Lean_Elab_Quotation_6__compileStxMatch___main___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__61;
@@ -359,7 +359,6 @@ lean_object* l_ReaderT_bind___at_Lean_Elab_Term_monadLog___spec__2___rarg(lean_o
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_quot___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__47;
-uint8_t l_Lean_Elab_Term_Quotation_isAntiquot(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__60;
 lean_object* l_Lean_mkFVar(lean_object*);
 extern lean_object* l_Lean_optionToExpr___rarg___lambda__1___closed__3;
@@ -367,6 +366,7 @@ extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_5__explodeHeadPat___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__6;
 extern lean_object* l_Lean_nullKind___closed__1;
+uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_11__oldRunTermElabM___rarg___closed__4;
 lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__10;
@@ -386,7 +386,6 @@ lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__25;
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___lambda__1___closed__5;
 lean_object* l_List_map___main___at___private_Lean_Elab_Quotation_11__oldRunTermElabM___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
-lean_object* l_Lean_Elab_Term_Quotation_isQuot___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_5__explodeHeadPat___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_letDecl___closed__1;
 extern lean_object* l_Lean_mkAppStx___closed__3;
@@ -470,7 +469,6 @@ lean_object* l_List_mapM___main___at___private_Lean_Elab_Quotation_6__compileStx
 extern lean_object* l___private_Lean_Meta_LevelDefEq_10__processPostponedStep___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_1__elimAntiquotChoices(lean_object*);
 lean_object* l_Lean_Elab_Term_adaptExpander(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_Quotation_isAntiquot___boxed(lean_object*);
 lean_object* l_Lean_mkStxStrLit(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Term_Quotation_isAntiquotSplice(lean_object*);
 lean_object* lean_parse_expr(lean_object*, lean_object*, lean_object*);
@@ -529,6 +527,7 @@ extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_11__oldRunTermElabM(lean_object*);
+extern lean_object* l_Lean_Syntax_isAntiquot___closed__1;
 extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_10__toPreterm___main___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
@@ -565,7 +564,6 @@ lean_object* l___private_Lean_Elab_Quotation_6__compileStxMatch___main___closed_
 lean_object* l___private_Lean_Elab_Quotation_1__elimAntiquotChoices___main(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_elabLevelQuot(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__4;
 lean_object* l___private_Lean_Elab_Quotation_10__toPreterm___main___lambda__2___closed__4;
 extern lean_object* l_Lean_Parser_Term_and___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__43;
@@ -598,87 +596,6 @@ lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_elabMatchSyntax___closed__1;
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
-extern lean_object* l_Lean_Parser_mkAntiquot___closed__1;
-uint8_t l_Lean_Elab_Term_Quotation_isQuot(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 0);
-if (lean_obj_tag(x_2) == 1)
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_2, 1);
-x_4 = l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__3;
-x_5 = lean_string_dec_eq(x_3, x_4);
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-lean_object* l_Lean_Elab_Term_Quotation_isQuot___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_Term_Quotation_isQuot(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
-uint8_t l_Lean_Elab_Term_Quotation_isAntiquot(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 0);
-if (lean_obj_tag(x_2) == 1)
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_2, 1);
-x_4 = l_Lean_Parser_mkAntiquot___closed__1;
-x_5 = lean_string_dec_eq(x_3, x_4);
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-lean_object* l_Lean_Elab_Term_Quotation_isAntiquot___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_Term_Quotation_isAntiquot(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 uint8_t l_Lean_Elab_Term_Quotation_isEscapedAntiquot(lean_object* x_1) {
 _start:
 {
@@ -717,7 +634,7 @@ lean_object* l_Lean_Elab_Term_Quotation_unescapeAntiquot(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_Lean_Elab_Term_Quotation_isAntiquot(x_1);
+x_2 = l_Lean_Syntax_isAntiquot(x_1);
 if (x_2 == 0)
 {
 return x_1;
@@ -794,7 +711,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_Lean_Parser_mkAntiquot___closed__1;
+x_6 = l_Lean_Syntax_isAntiquot___closed__1;
 x_7 = lean_string_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {
@@ -808,7 +725,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8
 x_9 = l_Lean_Syntax_inhabited;
 x_10 = lean_unsigned_to_nat(3u);
 x_11 = lean_array_get(x_9, x_3, x_10);
-x_12 = l_Lean_Parser_mkAntiquot___closed__4;
+x_12 = l_Lean_Parser_mkAntiquot___closed__3;
 x_13 = l_Lean_Syntax_isOfKind(x_11, x_12);
 if (x_13 == 0)
 {
@@ -854,7 +771,7 @@ uint8_t l_Lean_Elab_Term_Quotation_isAntiquotSplice(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_Lean_Elab_Term_Quotation_isAntiquot(x_1);
+x_2 = l_Lean_Syntax_isAntiquot(x_1);
 if (x_2 == 0)
 {
 uint8_t x_3; 
@@ -2306,7 +2223,7 @@ case 1:
 lean_object* x_7; lean_object* x_8; uint8_t x_114; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-x_114 = l_Lean_Elab_Term_Quotation_isAntiquot(x_1);
+x_114 = l_Lean_Syntax_isAntiquot(x_1);
 if (x_114 == 0)
 {
 lean_object* x_115; 
@@ -4468,7 +4385,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_termElabAttribute;
-x_3 = l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__4;
+x_3 = l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__3;
 x_4 = l___regBuiltin_Lean_Elab_Term_Quotation_elabfunBinderQuot___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -5531,7 +5448,7 @@ x_7 = l_Lean_Syntax_isOfKind(x_3, x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-x_8 = l_Lean_Elab_Term_Quotation_isQuot(x_3);
+x_8 = l_Lean_Syntax_isQuot(x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -5553,7 +5470,7 @@ x_50 = l_Lean_Syntax_isAtom(x_13);
 if (x_50 == 0)
 {
 uint8_t x_51; 
-x_51 = l_Lean_Elab_Term_Quotation_isAntiquot(x_13);
+x_51 = l_Lean_Syntax_isAntiquot(x_13);
 if (x_51 == 0)
 {
 lean_object* x_52; 
@@ -10865,7 +10782,7 @@ if (lean_obj_tag(x_1) == 1)
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-x_3 = l_Lean_Elab_Term_Quotation_isAntiquot(x_1);
+x_3 = l_Lean_Syntax_isAntiquot(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -10950,7 +10867,7 @@ lean_object* l_Lean_Elab_Term_Quotation_getPatternVars(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_Lean_Elab_Term_Quotation_isQuot(x_1);
+x_2 = l_Lean_Syntax_isQuot(x_1);
 if (x_2 == 0)
 {
 lean_object* x_3; uint8_t x_4; 
@@ -13333,7 +13250,7 @@ goto block_57;
 block_57:
 {
 uint8_t x_15; 
-x_15 = l_Lean_Elab_Term_Quotation_isQuot(x_13);
+x_15 = l_Lean_Syntax_isQuot(x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 

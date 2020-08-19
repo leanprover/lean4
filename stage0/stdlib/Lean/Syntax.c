@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Lean_Syntax_isQuot(lean_object*);
 lean_object* l_Lean_Syntax_reprint___main___closed__1;
 lean_object* l_Lean_Syntax_formatStxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_beq___main___at_Lean_Syntax_structEq___main___spec__2___boxed(lean_object*, lean_object*);
@@ -206,6 +207,7 @@ lean_object* l_Lean_Syntax_getTailInfo___main___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getAtomVal_x21___closed__3;
 lean_object* l_Lean_Syntax_MonadTraverser_goLeft___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goUp(lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
 lean_object* l_Lean_Syntax_ifNode___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_asNode___boxed(lean_object*);
 uint8_t l_List_beq___main___at_Lean_Syntax_structEq___main___spec__3(lean_object*, lean_object*);
@@ -308,8 +310,10 @@ lean_object* lean_mk_syntax_str_lit(lean_object*);
 lean_object* l_Lean_mkStxLit(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_7__quoteName___main___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_isAntiquot___boxed(lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 extern lean_object* l_Lean_Format_paren___closed__3;
+lean_object* l_Lean_Syntax_isAntiquot___closed__1;
 lean_object* l___private_Lean_Syntax_9__quoteOption___rarg___closed__4;
 lean_object* l___private_Lean_Syntax_1__updateInfo(lean_object*, lean_object*);
 lean_object* l_Lean_mkCTermIdFrom(lean_object*, lean_object*);
@@ -333,8 +337,10 @@ extern lean_object* l_Lean_mkAppStx___closed__2;
 extern lean_object* l_String_Inhabited;
 lean_object* l_Lean_Syntax_Traverser_left(lean_object*);
 lean_object* l___private_Lean_Syntax_9__quoteOption___rarg___closed__1;
+lean_object* l_Lean_Syntax_isQuot___boxed(lean_object*);
 lean_object* l_Lean_Syntax_modifyArgs(lean_object*, lean_object*);
 lean_object* l_Lean_mkNode(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_isQuot___closed__1;
 lean_object* l_Lean_Syntax_getTailInfo___main(lean_object*);
 lean_object* l_Lean_SyntaxNode_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStxAux___main___spec__2___boxed(lean_object*, lean_object*);
@@ -402,6 +408,102 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Syntax_isMissing(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Syntax_isQuot___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("quot");
+return x_1;
+}
+}
+uint8_t l_Lean_Syntax_isQuot(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 1)
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
+if (lean_obj_tag(x_2) == 1)
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = l_Lean_Syntax_isQuot___closed__1;
+x_5 = lean_string_dec_eq(x_3, x_4);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+lean_object* l_Lean_Syntax_isQuot___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Syntax_isQuot(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Syntax_isAntiquot___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("antiquot");
+return x_1;
+}
+}
+uint8_t l_Lean_Syntax_isAntiquot(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 1)
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
+if (lean_obj_tag(x_2) == 1)
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = l_Lean_Syntax_isAntiquot___closed__1;
+x_5 = lean_string_dec_eq(x_3, x_4);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+lean_object* l_Lean_Syntax_isAntiquot___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Syntax_isAntiquot(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
@@ -590,7 +692,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Syntax_getAtomVal_x21___closed__1;
-x_2 = lean_unsigned_to_nat(70u);
+x_2 = lean_unsigned_to_nat(80u);
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Lean_Syntax_getAtomVal_x21___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -6407,6 +6509,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Syntax_isQuot___closed__1 = _init_l_Lean_Syntax_isQuot___closed__1();
+lean_mark_persistent(l_Lean_Syntax_isQuot___closed__1);
+l_Lean_Syntax_isAntiquot___closed__1 = _init_l_Lean_Syntax_isAntiquot___closed__1();
+lean_mark_persistent(l_Lean_Syntax_isAntiquot___closed__1);
 l_Lean_Syntax_getAtomVal_x21___closed__1 = _init_l_Lean_Syntax_getAtomVal_x21___closed__1();
 lean_mark_persistent(l_Lean_Syntax_getAtomVal_x21___closed__1);
 l_Lean_Syntax_getAtomVal_x21___closed__2 = _init_l_Lean_Syntax_getAtomVal_x21___closed__2();

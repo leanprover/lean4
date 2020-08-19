@@ -23,9 +23,10 @@ EIO.catchExceptions x (fun _ => unreachable!)
 
 @[inline] def runCommandElabM (x : Command.CommandElabM Unit) : FrontendM Unit :=
 fun ctx => do
-  cmdPos ← liftIOCore! $ ctx.cmdPosRef.get;
-  let cmdCtx : Command.Context := { cmdPos := cmdPos, stateRef := ctx.commandStateRef, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap };
-  EIO.catchExceptions (x cmdCtx) (fun _ => pure ())
+  cmdPos   ← liftIOCore! $ ctx.cmdPosRef.get;   -- TODO: cleanup
+  cmdState ← liftIOCore! $ ctx.commandStateRef.get;
+  let cmdCtx : Command.Context := { cmdPos := cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap };
+  EIO.catchExceptions (do (_, s) ← (x cmdCtx).run cmdState; ctx.commandStateRef.set s) (fun _ => pure ())
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit :=
 runCommandElabM (Command.withLogging $ Command.elabCommand stx)

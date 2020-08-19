@@ -29,7 +29,7 @@ inductive Exception
 | kernel (ex : KernelException) (opts : Options)
 | error  (ref : Syntax) (msg : MessageData)
 
-abbrev ECoreM (ε : Type) := ReaderT Context $ StateT State $ EIO ε
+abbrev ECoreM (ε : Type) := ReaderT Context $ StateRefT State $ EIO ε
 
 abbrev CoreM := ECoreM Exception
 

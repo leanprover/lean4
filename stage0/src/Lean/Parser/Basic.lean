@@ -304,14 +304,14 @@ abbrev TrailingParser := Parser
 @[noinline] def epsilonInfo : ParserInfo :=
 { firstTokens := FirstTokens.epsilon }
 
-@[inline] def checkStackTopFn (p : Syntax → Bool) : ParserFn :=
+@[inline] def checkStackTopFn (p : Syntax → Bool) (msg : String) : ParserFn :=
 fun c s =>
   if p s.stxStack.back then s
-  else s.mkUnexpectedError "invalid leading token"
+  else s.mkUnexpectedError msg
 
-@[inline] def checkStackTop (p : Syntax → Bool) : Parser :=
+@[inline] def checkStackTop (p : Syntax → Bool) (msg : String) : Parser :=
 { info := epsilonInfo,
-  fn   := checkStackTopFn p }
+  fn   := checkStackTopFn p msg }
 
 @[inline] def andthenFn (p q : ParserFn) : ParserFn :=
 fun c s =>
@@ -1481,7 +1481,7 @@ def pushNone : Parser :=
 { fn := fun c s => s.pushSyntax mkNullNode }
 
 -- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbol "(" >> termParser >> ")")
+def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbol "(" >> toggleInsideQuot termParser >> ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 /--

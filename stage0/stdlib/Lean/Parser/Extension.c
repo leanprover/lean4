@@ -8074,15 +8074,17 @@ return x_4;
 lean_object* l_Lean_Parser_mkParserContext(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = l_Lean_Parser_getTokenTable(x_1);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_4);
-lean_ctor_set(x_5, 2, x_1);
-lean_ctor_set(x_5, 3, x_3);
-return x_5;
+x_5 = 0;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_2);
+lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 2, x_1);
+lean_ctor_set(x_6, 3, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_5);
+return x_6;
 }
 }
 lean_object* l_Lean_Parser_mkParserState(lean_object* x_1) {

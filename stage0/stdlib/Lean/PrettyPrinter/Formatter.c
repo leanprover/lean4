@@ -7359,7 +7359,7 @@ return x_5;
 lean_object* l_Lean_PrettyPrinter_Formatter_parseToken(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = l_String_splitAux___main___closed__1;
@@ -7370,21 +7370,23 @@ lean_ctor_set(x_9, 0, x_1);
 lean_ctor_set(x_9, 1, x_7);
 lean_ctor_set(x_9, 2, x_8);
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-lean_ctor_set(x_11, 2, x_6);
-lean_ctor_set(x_11, 3, x_2);
-x_12 = l_Lean_Parser_mkParserState(x_1);
+x_11 = 0;
+x_12 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 1, x_10);
+lean_ctor_set(x_12, 2, x_6);
+lean_ctor_set(x_12, 3, x_2);
+lean_ctor_set_uint8(x_12, sizeof(void*)*4, x_11);
+x_13 = l_Lean_Parser_mkParserState(x_1);
 lean_dec(x_1);
-x_13 = l_Lean_Parser_tokenFn(x_11, x_12);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_3);
+x_14 = l_Lean_Parser_tokenFn(x_12, x_13);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_5);
-return x_15;
+lean_ctor_set(x_15, 1, x_3);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_5);
+return x_16;
 }
 }
 lean_object* l_Lean_PrettyPrinter_Formatter_parseToken___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

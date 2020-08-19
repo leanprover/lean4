@@ -120,9 +120,10 @@ instance InputContext.inhabited : Inhabited InputContext :=
 ⟨{ input := "", fileName := "", fileMap := arbitrary _ }⟩
 
 structure ParserContext extends InputContext :=
-(prec     : Nat)
-(env      : Environment)
-(tokens   : TokenTable)
+(prec       : Nat)
+(env        : Environment)
+(tokens     : TokenTable)
+(insideQuot : Bool := false)
 
 structure Error :=
 (unexpected : String := "")
@@ -359,6 +360,31 @@ fun c s =>
 @[inline] def checkPrec (prec : Nat) : Parser :=
 { info := epsilonInfo,
   fn   := checkPrecFn prec }
+
+def checkInsideQuotFn : ParserFn :=
+fun c s =>
+  if c.insideQuot then s
+  else s.mkUnexpectedError "unexpected syntax outside syntax quotation"
+
+@[inline] def checkInsideQuot : Parser :=
+{ info := epsilonInfo,
+  fn   := checkInsideQuotFn }
+
+def checkOutsideQuotFn : ParserFn :=
+fun c s =>
+  if !c.insideQuot then s
+  else s.mkUnexpectedError "unexpected syntax inside syntax quotation"
+
+@[inline] def checkOutsideQuot : Parser :=
+{ info := epsilonInfo,
+  fn   := checkOutsideQuotFn }
+
+def toggleInsideQuotFn (p : ParserFn) : ParserFn :=
+fun c s => p { c with insideQuot := !c.insideQuot } s
+
+@[inline] def toggleInsideQuot (p : Parser) : Parser :=
+{ info := epsilonInfo,
+  fn   := toggleInsideQuotFn p.fn }
 
 @[inline] def leadingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
 checkPrec prec >> node n p

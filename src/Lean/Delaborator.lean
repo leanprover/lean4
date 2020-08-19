@@ -195,9 +195,6 @@ descend fn 0 d
 
 partial def annotatePos (pos : Nat) : Syntax → Syntax
 | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo { pos := pos }
--- Term.ids => annotate ident
--- TODO: universes?
-| stx@(Syntax.node `Lean.Parser.Term.id args)  => stx.modifyArg 0 annotatePos
 -- app => annotate function
 | stx@(Syntax.node `Lean.Parser.Term.app args) => stx.modifyArg 0 annotatePos
 -- otherwise, annotate first direct child token if any
@@ -228,7 +225,7 @@ delabFor k <|> (liftM $ show MetaM Syntax from throw $ Meta.Exception.other Synt
 def delabFVar : Delab := do
 Expr.fvar id _ ← getExpr | unreachable!;
 l ← liftM $ getLocalDecl id;
-pure $ mkTermId l.userName
+pure $ mkIdent l.userName
 
 @[builtinDelab mvar]
 def delabMVar : Delab := do
@@ -251,9 +248,9 @@ def delabConst : Delab := do
 Expr.const c ls _ ← getExpr | unreachable!;
 ppUnivs ← getPPOption getPPUniverses;
 if ls.isEmpty || !ppUnivs then
-  `($(mkIdent c):ident)
+  pure $ mkIdent c
 else
-  `($(mkIdent c):ident.{$(ls.toArray.map quote)*})
+  `($(mkIdent c).{$(ls.toArray.map quote)*})
 
 /-- Return array with n-th element set to `true` iff n-th parameter of `e` is implicit. -/
 def getImplicitParams (e : Expr) : MetaM (Array Bool) := do
@@ -362,12 +359,11 @@ delabBinders $ fun curNames stxBody => do
     group ← match e.binderInfo, ppTypes with
       | BinderInfo.default,     true   => do
         -- "default" binder group is the only one that expects binder names
-        -- as a term, i.e. a single `Term.id` or an application thereof
-        let curNames := curNames.map mkTermIdFromIdent;
+        -- as a term, i.e. a single `Syntax.ident` or an application thereof
         stxCurNames ← if curNames.size > 1 then `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
           else pure $ curNames.get! 0;
         `(funBinder| ($stxCurNames : $stxT))
-      | BinderInfo.default,     false  => pure $ mkTermIdFromIdent curNames.back  -- here `curNames.size == 1`
+      | BinderInfo.default,     false  => pure curNames.back  -- here `curNames.size == 1`
       | BinderInfo.implicit,    true   => `(funBinder| {$curNames* : $stxT})
       | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
       | BinderInfo.instImplicit, _     => `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`

@@ -1146,8 +1146,8 @@ fun stx =>
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
-  let consId   := mkTermIdFrom openBkt `List.cons;
-  let nilId    := mkTermIdFrom closeBkt `List.nil;
+  let consId   := mkIdentFrom openBkt `List.cons;
+  let nilId    := mkIdentFrom closeBkt `List.nil;
   pure $ args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId
 
 @[builtinMacro Lean.Parser.Term.arrayLit] def expandArrayLit : Macro :=
@@ -1168,10 +1168,10 @@ private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String
 lctx ← getLCtx;
 pure $ resolveLocalNameAux lctx n []
 
-/- Return true iff `stx` is a `Term.id`, and it is local variable. -/
-def isLocalTermId? (stx : Syntax) (relaxed : Bool := false) : TermElabM (Option Expr) :=
-match stx.isTermId? relaxed with
-| some (Syntax.ident _ _ val _, _) => do
+/- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
+def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
+match stx with
+| Syntax.ident _ _ val _ => do
   r? ← resolveLocalName val;
   match r? with
   | some (fvar, []) => pure (some fvar)
@@ -1237,21 +1237,13 @@ match result? with
 @[builtinTermElab cdot] def elabBadCDot : TermElab :=
 fun stx _ => throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
-/-
-  A raw literal is not a valid term, but it is nice to have a handler for them because it allows `macros` to insert them into terms.
-
-  TODO: check whether we still need wrapper nodes around literals. -/
-@[builtinTermElab strLit] def elabRawStrLit : TermElab :=
+@[builtinTermElab strLit] def elabStrLit : TermElab :=
 fun stx _ => do
   match stx.isStrLit? with
   | some val => pure $ mkStrLit val
   | none     => throwError "ill-formed syntax"
 
-@[builtinTermElab str] def elabStr : TermElab :=
-fun stx expectedType? => elabRawStrLit (stx.getArg 0) expectedType?
-
-/- See `elabRawStrLit` -/
-@[builtinTermElab numLit] def elabRawNumLit : TermElab :=
+@[builtinTermElab numLit] def elabNumLit : TermElab :=
 fun stx expectedType? => do
   val ← match stx.isNatLit? with
     | some val => pure (mkNatLit val)
@@ -1266,18 +1258,11 @@ fun stx expectedType? => do
   mvar ← mkInstMVar (mkApp (Lean.mkConst `HasOfNat [u]) typeMVar);
   pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) typeMVar mvar val
 
-@[builtinTermElab num] def elabNum : TermElab :=
-fun stx expectedType? => elabRawNumLit (stx.getArg 0) expectedType?
-
-/- See `elabRawStrLit` -/
-@[builtinTermElab charLit] def elabRawCharLit : TermElab :=
+@[builtinTermElab charLit] def elabCharLit : TermElab :=
 fun stx _ => do
   match stx.isCharLit? with
   | some val => pure $ mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
   | none     => throwError "ill-formed syntax"
-
-@[builtinTermElab char] def elabChar : TermElab :=
-fun stx expectedType? => elabRawCharLit (stx.getArg 0) expectedType?
 
 @[builtinTermElab quotedName] def elabQuotedName : TermElab :=
 fun stx _ =>

@@ -439,12 +439,12 @@ class HasQuote (α : Type) :=
 export HasQuote (quote)
 
 instance Syntax.HasQuote : HasQuote Syntax := ⟨id⟩
-instance String.HasQuote : HasQuote String := ⟨fun s => Syntax.node `Lean.Parser.Term.str #[mkStxStrLit s]⟩
-instance Nat.HasQuote : HasQuote Nat := ⟨fun n => Syntax.node `Lean.Parser.Term.num #[mkStxNumLit $ toString n]⟩
+instance String.HasQuote : HasQuote String := ⟨mkStxStrLit⟩
+instance Nat.HasQuote : HasQuote Nat := ⟨fun n => mkStxNumLit $ toString n⟩
 instance Substring.HasQuote : HasQuote Substring := ⟨fun s => mkCAppStx `String.toSubstring #[quote s.toString]⟩
 
 private def quoteName : Name → Syntax
-| Name.anonymous => mkCTermId `Lean.Name.anonymous
+| Name.anonymous => mkCIdent `Lean.Name.anonymous
 | Name.str n s _ => mkCAppStx `Lean.mkNameStr #[quoteName n, quote s]
 | Name.num n i _ => mkCAppStx `Lean.mkNameNum #[quoteName n, quote i]
 
@@ -454,7 +454,7 @@ instance Prod.hasQuote {α β : Type} [HasQuote α] [HasQuote β] : HasQuote (α
 ⟨fun ⟨a, b⟩ => mkCAppStx `Prod.mk #[quote a, quote b]⟩
 
 private def quoteList {α : Type} [HasQuote α] : List α → Syntax
-| []      => mkCTermId `List.nil
+| []      => mkCIdent `List.nil
 | (x::xs) => mkCAppStx `List.cons #[quote x, quoteList xs]
 
 instance List.hasQuote {α : Type} [HasQuote α] : HasQuote (List α) := ⟨quoteList⟩
@@ -463,7 +463,7 @@ instance Array.hasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
 ⟨fun xs => mkCAppStx `List.toArray #[quote xs.toList]⟩
 
 private def quoteOption {α : Type} [HasQuote α] : Option α → Syntax
-| none     => mkTermId `Option.none
+| none     => mkIdent `Option.none
 | (some x) => mkCAppStx `Option.some #[quote x]
 
 instance Option.hasQuote {α : Type} [HasQuote α] : HasQuote (Option α) := ⟨quoteOption⟩

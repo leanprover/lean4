@@ -16,7 +16,7 @@ def elabAnonCtor (args : Syntax) (τ : Expr) : TermElabM Expr := do
     ctors ← getCtors C;
     match ctors with
     | [c] => do
-      stx ← `($(Lean.mkCTermId c) $(getSepElems args.getArgs)*);
+      stx ← `($(Lean.mkIdent c) $(getSepElems args.getArgs)*);
       elabTerm stx τ
 -- error handling
     | _ => unreachable!

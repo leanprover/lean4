@@ -50,7 +50,7 @@ fun stx expectedType? => match_syntax stx with
       | some (ConstantInfo.inductInfo val) =>
         match val.ctors with
         | [ctor] => do
-          newStx ← `($(mkCTermIdFrom stx ctor) $(args.getSepElems)*);
+          newStx ← `($(mkCIdentFrom stx ctor) $(args.getSepElems)*);
           withMacroExpansion stx newStx $ elabTerm newStx expectedType?
         | _ => throwError ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
       | _ => throwError ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
@@ -197,7 +197,7 @@ fun stx => do
   pure (mkAppStx f #[a, b])
 
 def elabInfixOp (op : Name) : Macro :=
-fun stx => elabInfix (mkCTermIdFrom (stx.getArg 1) op) stx
+fun stx => elabInfix (mkCIdentFrom (stx.getArg 1) op) stx
 
 @[builtinMacro Lean.Parser.Term.prod] def elabProd : Macro := elabInfixOp `Prod
 @[builtinMacro Lean.Parser.Term.fcomp] def ElabFComp : Macro := elabInfixOp `Function.comp

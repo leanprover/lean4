@@ -52,3 +52,10 @@ IO.println $ "state1 " ++ toString a2;
 pure (a0 + a1 + a2)
 
 #eval ((f4.run' ⟨10⟩).run' ⟨20⟩).run' ⟨30⟩
+
+abbrev N := StateRefT Nat $ ExceptT Bool $ StateRefT Bool $ IO
+
+def f5 : N Nat := do
+a : Nat ← get;
+b ← getThe Bool;
+pure a

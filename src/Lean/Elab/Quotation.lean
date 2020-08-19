@@ -26,15 +26,7 @@ namespace Elab
 namespace Term
 namespace Quotation
 
--- quotation node kinds are formed from a unique quotation name plus "quot"
-def isQuot : Syntax → Bool
-| Syntax.node (Name.str _ "quot" _) _ => true
-| _                                   => false
-
--- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
-def isAntiquot : Syntax → Bool
-| Syntax.node (Name.str _ "antiquot" _) _ => true
-| _                                       => false
+open Lean.Syntax (isQuot isAntiquot)
 
 -- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros.
 def isEscapedAntiquot (stx : Syntax) : Bool :=

@@ -20,6 +20,16 @@ def Syntax.isMissing : Syntax → Bool
 | Syntax.missing => true
 | _ => false
 
+-- quotation node kinds are formed from a unique quotation name plus "quot"
+def Syntax.isQuot : Syntax → Bool
+| Syntax.node (Name.str _ "quot" _) _ => true
+| _                                   => false
+
+-- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
+def Syntax.isAntiquot : Syntax → Bool
+| Syntax.node (Name.str _ "antiquot" _) _ => true
+| _                                       => false
+
 inductive IsNode : Syntax → Prop
 | mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
 

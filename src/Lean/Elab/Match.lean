@@ -191,6 +191,18 @@ s ← get;
 when (s.found.contains id) $ liftM $ throwError ("invalid pattern, variable '" ++ id ++ "' occurred more than once");
 modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
 
+-- HACK: inlining this function crashes the compiler
+def processIdAuxAux (stx : Syntax) (mustBeCtor : Bool) (env : Environment) (f : Expr) : M Nat :=
+match f with
+| Expr.const fName _ _ =>
+  match env.find? fName with
+  | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams val
+  | some $ info =>
+    if EqnCompiler.hasMatchPatternAttribute env fName then pure 0
+    else do processVar stx.getId mustBeCtor; pure 0
+  | none => throwCtorExpected
+| _ => do processVar stx.getId mustBeCtor; pure 0
+
 /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute)
    If `mustBeCtor == true`, then `stx` cannot be a pattern variable.
 
@@ -198,29 +210,16 @@ modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := 
 private def processIdAux (stx : Syntax) (mustBeCtor : Bool) : M Nat :=
 withRef stx do
 env ← liftM $ getEnv;
-match stx.isTermId? true with
-| none           => throwCtorExpected
-| some (id, opt) => do
-  when ((opt.getArg 0).isOfKind `Lean.Parser.Term.namedPattern) $
-    liftM $ throwError "invalid occurrence of named pattern";
-  match id with
-  | Syntax.ident _ _ val preresolved => do
-    rs ← liftM $ catch (resolveName val preresolved []) (fun _ => pure []);
-    let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty;
-    let fs := rs.map fun ⟨f, _⟩ => f;
-    match fs with
-    | []  => do processVar id.getId mustBeCtor; pure 0
-    | [f] => match f with
-      | Expr.const fName _ _ =>
-        match env.find? fName with
-        | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams val
-        | some $ info =>
-          if EqnCompiler.hasMatchPatternAttribute env fName then pure 0
-          else do processVar id.getId mustBeCtor; pure 0
-        | none => throwCtorExpected
-      | _ => do processVar id.getId mustBeCtor; pure 0
-    | _   => throwAmbiguous fs
-  | _ => unreachable!
+match stx with
+| Syntax.ident _ _ val preresolved => do
+  rs ← liftM $ catch (resolveName val preresolved []) (fun _ => pure []);
+  let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty;
+  let fs := rs.map fun ⟨f, _⟩ => f;
+  match fs with
+  | []  => do processVar stx.getId mustBeCtor; pure 0
+  | [f] => processIdAuxAux stx mustBeCtor env f
+  | _   => throwAmbiguous fs
+| _ => unreachable!
 
 private def processCtor (stx : Syntax) : M Nat :=
 processIdAux stx true
@@ -286,32 +285,24 @@ private partial def collect : Syntax → M Syntax
         let s         := s.setArg 0 tupleTail;
         let arg       := arg.setArg 1 s;
         pure $ Syntax.node k $ args.set! 1 arg
-  else if k == `Lean.Parser.Term.id then do
-    let extra := args.get! 1;
-    if extra.isNone then do
-      processId stx;
-      pure stx
-    else if (extra.getArg 0).isOfKind `Lean.Parser.Term.explicitUniv then do
-      _ ← processCtor stx;
-      pure stx
-    else if (extra.getArg 0).isOfKind `Lean.Parser.Term.namedPattern then do
-      /- Recall that
-         def namedPattern := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser maxPrec
-         def id := parser! ident >> optional (explicitUniv <|> namedPattern) -/
-      let id := stx.getIdOfTermId;
-      processVar id;
-      let pat := (extra.getArg 0).getArg 1;
-      pat ← collect pat;
-      `(namedPattern $(mkTermIdFrom stx id) $pat)
-    else
-      throwInvalidPattern
+  else if k == `Lean.Parser.Term.explicitUniv then do
+    _ ← processCtor (stx.getArg 0);
+    pure stx
+  else if k == `Lean.Parser.Term.namedPattern then do
+    /- Recall that
+       def namedPattern := check... >> tparser! "@" >> termParser -/
+    let id := stx.getArg 0;
+    processVar id.getId;
+    let pat := stx.getArg 2;
+    pat ← collect pat;
+    `(namedPattern $id $pat)
   else if k == `Lean.Parser.Term.inaccessible then
     pure stx
-  else if k == `Lean.Parser.Term.str then
+  else if k == strLitKind then
     pure stx
-  else if k == `Lean.Parser.Term.num then
+  else if k == numLitKind then
     pure stx
-  else if k == `Lean.Parser.Term.char then
+  else if k == charLitKind then
     pure stx
   else if k == choiceKind then
     liftM $ throwError "invalid pattern, notation is ambiguous"
@@ -667,7 +658,7 @@ private partial def mkNewPatterns (ref : Syntax) (discrs patterns : Array Syntax
           let newPatterns := newPatterns.push pattern;
           let newPatterns := newPatterns.push $ mkAtomFrom pattern ", ";
           let ident       := (discr.getArg 0).getArg 0;
-          let newPatterns := newPatterns.push $ mkTermIdFromIdent ident;
+          let newPatterns := newPatterns.push ident;
           mkNewPatterns (i+1) newPatterns
       else
         -- it is a ", "

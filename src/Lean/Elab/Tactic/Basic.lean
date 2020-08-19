@@ -347,7 +347,7 @@ fun stx => match_syntax stx with
 
 def getFVarId (id : Syntax) : TacticM FVarId :=
 withRef id do
-fvar? ← liftTermElabM $ Term.isLocalTermId? id true;
+fvar? ← liftTermElabM $ Term.isLocalIdent? id;
 match fvar? with
 | some fvar => pure fvar.fvarId!
 | none      => throwError ("unknown variable '" ++ toString id.getId ++ "'")

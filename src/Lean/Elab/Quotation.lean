@@ -39,7 +39,7 @@ else stx
 
 def getAntiquotTerm (stx : Syntax) : Syntax :=
 let e := stx.getArg 2;
-if e.isIdent then mkTermIdFromIdent e
+if e.isIdent then e
 else
   -- `e` is from `"(" >> termParser >> ")"`
   e.getArg 1
@@ -169,7 +169,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
 let pat := alt.fst.head!;
 let unconditional (rhsFn) := { rhsFn := rhsFn : HeadInfo };
 -- variable pattern
-if pat.isOfKind `Lean.Parser.Term.id then unconditional $ fun rhs => `(let $pat := discr; $rhs)
+if pat.isIdent then unconditional $ fun rhs => `(let $pat := discr; $rhs)
 -- wildcard pattern
 else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
 -- quotation pattern
@@ -181,13 +181,13 @@ else if isQuot pat then
   else if isAntiquot quoted && !isEscapedAntiquot quoted then
     -- quotation contains a single antiquotation
     let k := antiquotKind? quoted;
-    -- Antiquotation kinds like `$id:id` influence the parser, but also need to be considered by
-    -- match_syntax (but not by quotation terms). For example, `($id:id) and `($e) are not
+    -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
+    -- match_syntax (but not by quotation terms). For example, `($id:ident) and `($e) are not
     -- distinguishable without checking the kind of the node to be captured. Note that some
     -- antiquotations like the latter one for terms do not correspond to any actual node kind
-    -- (signified by `k == Name.anonymous`), so we would only check for `Term.id` here.
+    -- (signified by `k == Name.anonymous`), so we would only check for `ident` here.
     --
-    -- if stx.isOfKind `Lean.Parser.Term.id then
+    -- if stx.isOfKind `ident then
     --   let id := stx; ...
     -- else
     --   let e := stx; ...
@@ -195,7 +195,7 @@ else if isQuot pat then
     let anti := getAntiquotTerm quoted;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
-    else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
+    else if anti.isIdent then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
     else unconditional $ fun _ => throwErrorAt anti ("match_syntax: antiquotation must be variable " ++ toString anti)
   else if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
     -- quotation is a single antiquotation splice => bind args array
@@ -256,18 +256,18 @@ private partial def getPatternVarsAux : Syntax → List Syntax
 | stx@(Syntax.node k args) =>
   if isAntiquot stx && !isEscapedAntiquot stx then
     let anti := getAntiquotTerm stx;
-    if anti.isOfKind `Lean.Parser.Term.id then [anti]
+    if anti.isIdent then [anti]
     else []
   else
     List.join $ args.toList.map getPatternVarsAux
 | _ => []
 
--- Get all pattern vars (as Term.id nodes) in `stx`
+-- Get all pattern vars (as `Syntax.ident`s) in `stx`
 partial def getPatternVars (stx : Syntax) : List Syntax :=
 if isQuot stx then do
   let quoted := stx.getArg 1;
   getPatternVarsAux stx
-else if stx.isOfKind `Lean.Parser.Term.id then
+else if stx.isIdent then
   [stx]
 else []
 
@@ -317,10 +317,9 @@ private def exprPlaceholder := mkMVar Name.anonymous
 
 private unsafe partial def toPreterm : Syntax → TermElabM Expr
 | stx => withRef stx $
-  let args := stx.getArgs;
   match stx.getKind with
-  | `Lean.Parser.Term.id =>
-    match args.get! 0 with
+  | `ident =>
+    match stx with
     | Syntax.ident _ _ val preresolved => do
       resolved ← resolveName val preresolved [];
       match resolved with
@@ -332,17 +331,17 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
       | [] => unreachable!
     | _ => unreachable!
   | `Lean.Parser.Term.fun => do
-    let params := (args.get! 1).getArgs;
-    let body := args.get! 3;
+    let params := (stx.getArg 1).getArgs;
+    let body := stx.getArg 3;
     if params.size == 0 then toPreterm body
     else do
       let param := params.get! 0;
-      (n, ty) ← if param.isOfKind `Lean.Parser.Term.id then
-          pure (param.getIdAt 0, exprPlaceholder)
+      (n, ty) ← if param.isIdent then
+          pure (param.getId, exprPlaceholder)
         else if param.isOfKind `Lean.Parser.Term.hole then
           pure (`_a, exprPlaceholder)
         else do {
-          let n := ((param.getArg 1).getArg 0).getIdAt 0;
+          let n := ((param.getArg 1).getArg 0).getId;
           ty ← toPreterm $ (((param.getArg 1).getArg 1).getArg 0).getArg 1;
           pure (n, ty)
         };
@@ -354,10 +353,10 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
         e ← toPreterm stx;
         pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let => do
-    let decl := (args.get! 1).getArg 0;
-    let n    := if (decl.getArg 0).isIdent then (decl.getArg 0).getId else (decl.getArg 0).getIdAt 0;
+    let decl := (stx.getArg 1).getArg 0;
+    let n    := decl.getIdAt 0;
     let val  := decl.getArg 4;
-    let body := args.get! 3;
+    let body := stx.getArg 3;
     val ← toPreterm val;
     lctx ← getLCtx;
     let lctx := lctx.mkLetDecl n n exprPlaceholder val;
@@ -365,29 +364,29 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
       e ← toPreterm $ body;
       pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.app => do
-    fn ← toPreterm $ args.get! 0;
-    as ← (args.get! 1).getArgs.mapM toPreterm;
+    fn ← toPreterm $ stx.getArg 0;
+    as ← (stx.getArg 1).getArgs.mapM toPreterm;
     pure $ mkAppN fn as
   | `Lean.Parser.Term.if => do
-    let con := args.get! 2;
-    let yes := args.get! 4;
-    let no := args.get! 6;
+    let con := stx.getArg 2;
+    let yes := stx.getArg 4;
+    let no := stx.getArg 6;
     toPreterm $ Unhygienic.run `(ite $con $yes $no)
   | `Lean.Parser.Term.paren =>
-    let inner := (args.get! 1).getArgs;
+    let inner := (stx.getArg 1).getArgs;
     if inner.size == 0 then pure $ Lean.mkConst `Unit.unit
     else toPreterm $ inner.get! 0
   | `Lean.Parser.Term.band =>
-    let lhs := args.get! 0; let rhs := args.get! 2;
+    let lhs := stx.getArg 0; let rhs := stx.getArg 2;
     toPreterm $ Unhygienic.run `(and $lhs $rhs)
   | `Lean.Parser.Term.beq =>
-    let lhs := args.get! 0; let rhs := args.get! 2;
+    let lhs := stx.getArg 0; let rhs := stx.getArg 2;
     toPreterm $ Unhygienic.run `(HasBeq.beq $lhs $rhs)
   | `Lean.Parser.Term.eq =>
-    let lhs := args.get! 0; let rhs := args.get! 2;
+    let lhs := stx.getArg 0; let rhs := stx.getArg 2;
     toPreterm $ Unhygienic.run `(Eq $lhs $rhs)
-  | `Lean.Parser.Term.str => pure $ mkStrLit $ (stx.getArg 0).isStrLit?.getD ""
-  | `Lean.Parser.Term.num => pure $ mkNatLit $ (stx.getArg 0).isNatLit?.getD 0
+  | `strLit => pure $ mkStrLit $ stx.isStrLit?.getD ""
+  | `numLit => pure $ mkNatLit $ stx.isNatLit?.getD 0
   | `expr => pure $ unsafeCast $ stx.getArg 0  -- HACK: see below
   | k => throwError $ "stxQuot: unimplemented kind " ++ toString k
 
@@ -426,7 +425,7 @@ toPreterm stx
 @[export lean_get_antiquot_vars]
 def oldGetPatternVars (ctx : OldContext) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM ctx $ do
 let vars := List.join $ pats.map getPatternVars;
-pure $ vars.map $ fun var => var.getIdAt 0
+pure $ vars.map $ fun var => var.getId
 
 @[export lean_expand_match_syntax]
 unsafe def oldExpandMatchSyntax (ctx : OldContext) (discr : Syntax) (alts : List (List Syntax × Syntax)) : Except String Expr := oldRunTermElabM ctx $ do

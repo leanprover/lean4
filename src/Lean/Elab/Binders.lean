@@ -83,7 +83,7 @@ else
   else if kind == `Lean.Parser.Term.binderTactic then do
     let tac := modifier.getArg 2;
     name ← declareTacticSyntax tac;
-    `(autoParam $type $(mkTermIdFrom tac name))
+    `(autoParam $type $(mkIdentFrom tac name))
   else
     throwUnsupportedSyntax
 
@@ -92,9 +92,6 @@ ids.getArgs.mapM $ fun id =>
   let k := id.getKind;
   if k == identKind || k == `Lean.Parser.Term.hole then
     pure id
-  else if k == `Lean.Parser.Term.id && id.getArgs.size == 2 && (id.getArg 1).isNone then
-    -- The parser never generates this case, but it is convenient when writting macros.
-    pure (id.getArg 0)
   else
     throwErrorAt id "identifier or `_` expected"
 
@@ -206,11 +203,9 @@ private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → T
      else do
        (some acc) ← getFunBinderIdsAux? false f acc | pure none;
        getFunBinderIdsAux? true a acc
-  | `(_) => do ident ← mkFreshAnonymousIdent stx; pure (some (acc.push ident))
-  | stx  =>
-    match stx.isSimpleTermId? true with
-    | some id => pure (some (acc.push id))
-    | _       => pure none
+  | `(_) => do { ident ← mkFreshAnonymousIdent stx; pure (some (acc.push ident)) }
+  | `($id:ident) => pure (some (acc.push id))
+  | _ => pure none
 
 /--
   Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into `#[id_1, ..., id_m]`
@@ -258,13 +253,10 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
           match idents? with
           | some idents => expandFunBindersAux body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
           | none        => processAsPattern ()
-    | binder =>
-      match binder.isTermId? true with
-      | some (ident, extra) => do
-        unless extra.isNone $ throwErrorAt binder "invalid binder, simple identifier expected";
-        let type  := mkHole binder;
-        expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
-      | none => processAsPattern ()
+    | Syntax.ident _ _ _ _ =>
+      let type  := mkHole binder;
+      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder binder type)
+    | _ => processAsPattern ()
   else
     pure (newBinders, body, false)
 
@@ -418,7 +410,7 @@ else do
 
 -- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
 private def expandLetIdLhs (letIdLhs : Syntax) : Name × Array Syntax × Syntax := do
-let id      := (letIdLhs.getArg 0).getRelaxedId; -- allow `Term.id` to be used as an id for convenience of macro writers
+let id      := (letIdLhs.getArg 0).getId;
 let binders := (letIdLhs.getArg 1).getArgs;
 let optType := letIdLhs.getArg 2;
 let type    := expandOptType letIdLhs optType;

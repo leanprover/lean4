@@ -18,8 +18,8 @@ dbgTrace "message 2"
 
 def tst2 : TermElabM Unit := do
 opt ← getOptions;
-let a := mkTermId `a;
-let b := mkTermId `b;
+let a := mkIdent `a;
+let b := mkIdent `b;
 stx ← `((fun ($a : Type) (x : $a) => @id $a x) _ 1);
 e ← elabTermAndSynthesize stx none;
 logDbgTrace (">>> " ++ e);

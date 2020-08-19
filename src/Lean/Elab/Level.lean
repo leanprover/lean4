@@ -66,12 +66,12 @@ partial def elabLevel : Syntax → LevelElabM Level
       lvl
   else if kind == `Lean.Parser.Level.hole then do
     mkFreshLevelMVar
-  else if kind == `Lean.Parser.Level.num then do
-    match (stx.getArg 0).isNatLit? with
+  else if kind == numLitKind then do
+    match stx.isNatLit? with
     | some val => pure (Level.ofNat val)
     | none     => throwError "ill-formed universe level syntax"
-  else if kind == `Lean.Parser.Level.ident then do
-    let paramName := stx.getIdAt 0;
+  else if kind == identKind then do
+    let paramName := stx.getId;
     ctx ← read;
     unless (ctx.levelNames.contains paramName) $ throwError ("unknown universe level " ++ paramName);
     pure $ mkLevelParam paramName

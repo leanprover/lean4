@@ -9,7 +9,7 @@ def run {α} [HasToString α] : Unhygienic α → String := toString ∘ Unhygie
 #eval run `($Syntax.missing)
 namespace Syntax
 #eval run `($missing)
-#eval run `($(missing.getArg 0))
+#eval run `($(missing))
 #eval run `($(id Syntax.missing) + 1)
 #eval run $ let id := Syntax.missing; `($id + 1)
 end Syntax
@@ -26,8 +26,8 @@ end Syntax
 #eval run $ do a ← `(def foo := 1); match_syntax a with `($f:command) => pure f | _ => pure Syntax.missing
 #eval run $ do a ← `(def foo := 1 def bar := 2); match_syntax a with `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
 
-#eval run $ do a ← `(aa); match_syntax a with `($id:id) => pure 0 | `($e) => pure 1 | _ => pure 2
-#eval run $ do a ← `(1 + 2); match_syntax a with `($id:id) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do a ← `(aa); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do a ← `(1 + 2); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
 #eval run $ do params ← #[`(a), `((b : Nat))].mapM id; `(fun $params* => 1)
 #eval run $ do a ← `(fun (a : Nat) b => c); match_syntax a with `(fun $aa* => $e) => pure aa | _ => pure #[]
 #eval run $ do a ← `(∀ a, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a

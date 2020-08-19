@@ -449,6 +449,9 @@ let info := src.getHeadInfo.getD {};
 let id   := addMacroScope `_internal c reservedMacroScope;
 Syntax.ident info (toString id).toSubstring id [(c, [])]
 
+def mkCIdent (c : Name) : Syntax :=
+mkCIdentFrom Syntax.missing c
+
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
 let info := src.getHeadInfo.getD {};
 Syntax.atom info val
@@ -484,33 +487,8 @@ Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
 def mkHole (ref : Syntax) : Syntax :=
 Syntax.node `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
 
-/-- Convert a `Syntax.ident` into a `Lean.Parser.Term.id` node -/
-def mkTermIdFromIdent (ident : Syntax) : Syntax :=
-match ident with
-| Syntax.ident _ _ _ _ => Syntax.node `Lean.Parser.Term.id #[ident, mkNullNode]
-| _                    => unreachable!
-
-/--
-  Create a simple `Lean.Parser.Term.id` syntax using position
-  information from `ref` and name `n`. By simple, we mean that
-  `optional (explicitUniv <|> namedPattern)` is none.
-  To refer to a specific constant, use `mkCTermIdFrom` instead. -/
-def mkTermIdFrom (ref : Syntax) (n : Name) : Syntax :=
-mkTermIdFromIdent (mkIdentFrom ref n)
-
-/-- Variant of `mkTermIdFrom` that makes sure that the identifier cannot accidentally
-    be captured. -/
-def mkCTermIdFrom (ref : Syntax) (c : Name) : Syntax :=
-mkTermIdFromIdent (mkCIdentFrom ref c)
-
-def mkTermId (n : Name) : Syntax :=
-mkTermIdFrom Syntax.missing n
-
-def mkCTermId (c : Name) : Syntax :=
-mkCTermIdFrom Syntax.missing c
-
 def mkCAppStx (fn : Name) (args : Array Syntax) : Syntax :=
-mkAppStx (mkCTermId fn) args
+mkAppStx (mkCIdent fn) args
 
 def mkStxLit (kind : SyntaxNodeKind) (val : String) (info : SourceInfo := {}) : Syntax :=
 let atom : Syntax := Syntax.atom info val;
@@ -748,44 +726,6 @@ def getOptionalIdent? (stx : Syntax) : Option Name :=
 match stx.getOptional? with
 | some stx => some stx.getId
 | none     => none
-
-/--
-  Return `some (id, opt)` if `stx` is a Lean term id.
-  The `Lean.Parser.Term.id` parser is `ident >> optional (explicitUniv <|> namedPattern)`.
-
-  If `relaxed == true` and `stx` is a raw identifier `<id>`, it returns `some (<id>, noneStx)`.
-  This feature is useful when we want to implement elaboration functions and macros
-  that have support for raw identifiers where a term is expected. -/
-def isTermId? (stx : Syntax) (relaxed : Bool := false) : Option (Syntax × Syntax) :=
-match stx with
-| Syntax.node k args =>
-  if k == `Lean.Parser.Term.id && args.size == 2 then
-    some (args.get! 0, args.get! 1)
-  else
-    none
-| id@(Syntax.ident _ _ _ _) => if relaxed then some (id, mkNullNode) else none
-| _ => none
-
-def getIdOfTermId (stx : Syntax) : Name :=
-match stx with
-| Syntax.node k args =>
-  if k == `Lean.Parser.Term.id && args.size == 2 then
-    (args.get! 0).getId
-  else
-    Name.anonymous
-| _ => Name.anonymous
-
-/- Given an `ident` or `Term.id`, return its name -/
-def getRelaxedId (stx : Syntax) : Name :=
-match stx with
-| Syntax.ident _ _ _ _ => stx.getId
-| _                    => stx.getIdOfTermId
-
-/-- Similar to `isTermId?`, but succeeds only if the optional part is a `none`. -/
-def isSimpleTermId? (stx : Syntax) (relaxed : Bool := false) : Option Syntax :=
-match stx.isTermId? relaxed with
-| some (id, opt) => if opt.isNone then some id else none
-| none           => none
 
 partial def findAux (p : Syntax → Bool) : Syntax → Option Syntax
 | stx@(Syntax.node _ args) => if p stx then some stx else args.findSome? findAux

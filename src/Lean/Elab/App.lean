@@ -469,9 +469,8 @@ private def elabAppLVals (f : Expr) (lvals : List LVal) (namedArgs : Array Named
 when (!lvals.isEmpty && explicit) $ throwError "invalid use of field notation with `@` modifier";
 elabAppLValsAux namedArgs args expectedType? explicit f lvals
 
-def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) := do
-let lvls := stx.getArg 1;
-lvls.foldSepRevArgsM
+def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
+lvls.foldrM
   (fun stx lvls => do
     lvl ← elabLevel stx;
     pure (lvl::lvls))
@@ -516,11 +515,7 @@ match fIdent with
 
 private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Array Arg → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
 | f, lvals, namedArgs, args, expectedType?, explicit, acc =>
-  if f.isIdent then
-    -- A raw identifier is not a valid Term. Recall that `Term.id` is defined as `parser! ident >> optional (explicitUniv <|> namedPattern)`
-    -- We handle it here to make macro development more comfortable.
-    elabAppFnId f [] lvals namedArgs args expectedType? explicit acc
-  else if f.getKind == choiceKind then
+  if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     adaptReader (fun (ctx : Context) => { ctx with errToSorry := false }) $
       f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
@@ -535,12 +530,15 @@ private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Arra
     elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
   | `($id:ident@$t:term) =>
     throwError "unexpected occurrence of named pattern"
-  | `($id:ident$us:explicitUniv*) => do
-    -- Remark: `id.<namedPattern>` should already have been expanded
-    us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
+  | `($id:ident) => do
+    elabAppFnId id [] lvals namedArgs args expectedType? explicit acc
+  | `($id:ident.{$us*}) => do
+    us ← elabExplicitUnivs us.getSepElems;
     elabAppFnId id us lvals namedArgs args expectedType? explicit acc
-  | `(@$id:id) =>
+  | `(@$id:ident) =>
     elabAppFn id lvals namedArgs args expectedType? true acc
+  | `(@$id:ident.{$us*}) =>
+    elabAppFn (f.getArg 1) lvals namedArgs args expectedType? true acc
   | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
   | _ => do
     s ← observing $ do {
@@ -615,14 +613,17 @@ fun stx expectedType? => do
 def elabAtom : TermElab :=
 fun stx expectedType? => elabAppAux stx #[] #[] expectedType?
 
-@[builtinTermElab «id»] def elabId : TermElab := elabAtom
+@[builtinTermElab ident] def elabIdent : TermElab := elabAtom
+@[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
+@[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
 
 @[builtinTermElab explicit] def elabExplicit : TermElab :=
 fun stx expectedType? => match_syntax stx with
-  | `(@$id:id) => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
-  | `(@($t))   => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
-  | `(@$t)     => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
-  | _          => throwUnsupportedSyntax
+  | `(@$id:ident)        => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$id:ident.{$us*}) => elabAtom stx expectedType?
+  | `(@($t))             => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
+  | `(@$t)               => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
+  | _                    => throwUnsupportedSyntax
 
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom

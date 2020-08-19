@@ -117,17 +117,28 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (Rea
     (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α → ReaderT ρ' m α) → n α → n' α)
     ```
     -/
+class MonadReaderAdapterOf (ρ : outParam (Type u)) (ρ' : Type u) (m m' : Type u → Type v) :=
+(adaptReader {α : Type u} : (ρ' → ρ) → m α → m' α)
+
+@[inline] def adaptTheReader {ρ : Type u} (ρ' : Type u) {m m' : Type u → Type v} [MonadReaderAdapterOf ρ ρ' m m'] {α} : (ρ' → ρ) → m α → m' α :=
+MonadReaderAdapterOf.adaptReader
+
+/-- Similar to `MonadReaderAdapterOf`, but `ρ'` is an `outParam` for convenience -/
 class MonadReaderAdapter (ρ ρ' : outParam (Type u)) (m m' : Type u → Type v) :=
 (adaptReader {α : Type u} : (ρ' → ρ) → m α → m' α)
+
 export MonadReaderAdapter (adaptReader)
+
+instance MonadReaderAdapterOf.isMonadReaderAdapter (ρ ρ' : Type u) (m m' : Type u → Type v) [MonadReaderAdapterOf ρ ρ' m m'] : MonadReaderAdapter ρ ρ' m m' :=
+⟨fun α => adaptTheReader ρ'⟩
 
 section
 variables {ρ ρ' : Type u} {m m' : Type u → Type v}
 
-instance monadReaderAdapterTrans {n n' : Type u → Type v} [MonadReaderAdapter ρ ρ' m m'] [MonadFunctor m m' n n'] : MonadReaderAdapter ρ ρ' n n' :=
+instance monadReaderAdapterTrans {n n' : Type u → Type v} [MonadReaderAdapterOf ρ ρ' m m'] [MonadFunctor m m' n n'] : MonadReaderAdapterOf ρ ρ' n n' :=
 ⟨fun α f => monadMap (fun α => (adaptReader f : m α → m' α))⟩
 
-instance [Monad m] : MonadReaderAdapter ρ ρ' (ReaderT ρ m) (ReaderT ρ' m) :=
+instance [Monad m] : MonadReaderAdapterOf ρ ρ' (ReaderT ρ m) (ReaderT ρ' m) :=
 ⟨fun α => ReaderT.adapt⟩
 end
 

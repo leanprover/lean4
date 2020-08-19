@@ -223,12 +223,12 @@ def isOfKind : Syntax → SyntaxNodeKind → Bool
 def getArg (stx : Syntax) (i : Nat) : Syntax :=
 match stx with
 | Syntax.node _ args => args.get! i
-| _                  => panic! "Syntax.getArg: not a node"
+| _                  => Syntax.missing -- panic! "Syntax.getArg: not a node"
 
 def getArgs (stx : Syntax) : Array Syntax :=
 match stx with
 | Syntax.node _ args => args
-| _                  => panic! "Syntax.getArgs: not a node"
+| _                  => #[] -- panic! "Syntax.getArgs: not a node"
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo : Syntax → Option SourceInfo

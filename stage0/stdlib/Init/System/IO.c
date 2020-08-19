@@ -47,6 +47,7 @@ lean_object* l_IO_FS_Handle_putStr___rarg(lean_object*, lean_object*, lean_objec
 lean_object* lean_io_prim_handle_put_str(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_stdout___rarg(lean_object*);
 lean_object* l_IO_getEnv___rarg(lean_object*, lean_object*);
+lean_object* l_IO_toEIO(lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_getLine___rarg(lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_mk___boxed(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -236,6 +237,7 @@ lean_object* lean_io_ref_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_getEnv___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Ref_swap(lean_object*, lean_object*);
 lean_object* l_IO_Ref_ptrEq(lean_object*, lean_object*);
+lean_object* l_IO_toEIO___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_putStrLn(lean_object*);
 lean_object* l_IO_FS_lines___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_stdout(lean_object*);
@@ -544,6 +546,71 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_EIO_toIO___rarg), 3, 0);
+return x_3;
+}
+}
+lean_object* l_IO_toEIO___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_2, x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+uint8_t x_5; 
+lean_dec(x_1);
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_dec(x_4);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+return x_8;
+}
+}
+else
+{
+uint8_t x_9; 
+x_9 = !lean_is_exclusive(x_4);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_ctor_get(x_4, 0);
+x_11 = lean_apply_1(x_1, x_10);
+lean_ctor_set(x_4, 0, x_11);
+return x_4;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_ctor_get(x_4, 0);
+x_13 = lean_ctor_get(x_4, 1);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_4);
+x_14 = lean_apply_1(x_1, x_12);
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_13);
+return x_15;
+}
+}
+}
+}
+lean_object* l_IO_toEIO(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_IO_toEIO___rarg), 3, 0);
 return x_3;
 }
 }

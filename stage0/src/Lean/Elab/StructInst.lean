@@ -25,7 +25,7 @@ withFreshMacroScope $
   let sourceOpt := stx.getArg 1;
   if sourceOpt.isNone then pure none  else do
     let source := sourceOpt.getArg 0;
-    fvar? ← isLocalTermId? source;
+    fvar? ← isLocalIdent? source;
     match fvar? with
     | some _ => pure none
     | none   => do
@@ -59,7 +59,7 @@ if explicitSource.isNone && implicitSource.isNone then
 else if explicitSource.isNone then
   pure $ Source.implicit implicitSource
 else if implicitSource.isNone then do
-  fvar? ← isLocalTermId? (explicitSource.getArg 0);
+  fvar? ← isLocalIdent? (explicitSource.getArg 0);
   match fvar? with
   | none      => unreachable! -- expandNonAtomicExplicitSource must have been used when we get here
   | some src  => pure $ Source.explicit explicitSource src
@@ -424,7 +424,7 @@ fields ← fieldNames.foldlM
         | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
         | Source.explicit stx _ =>
           -- stx is of the form `optional (try (termParser >> "with"))`
-          let src := (stx.getArg 0).getArg 0;
+          let src := stx.getArg 0;
           let val := mkProjStx src fieldName;
           addField (FieldVal.term val))
   [];

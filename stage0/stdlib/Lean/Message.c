@@ -77,6 +77,7 @@ extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 lean_object* l_Lean_MessageLog_toList(lean_object*);
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__6;
+lean_object* l_Lean_MessageData_HasToString(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_append(lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__46;
@@ -949,6 +950,17 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_box(0);
 x_3 = l_Lean_MessageData_formatAux___main(x_2, x_1);
 return x_3;
+}
+}
+lean_object* l_Lean_MessageData_HasToString(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_box(0);
+x_3 = l_Lean_MessageData_formatAux___main(x_2, x_1);
+x_4 = l_Lean_Options_empty;
+x_5 = l_Lean_Format_pretty(x_3, x_4);
+return x_5;
 }
 }
 lean_object* l_Lean_MessageData_coeOfFormat(lean_object* x_1) {

@@ -17,12 +17,12 @@ private def isValidCppName : Name → Bool
 | _                           => false
 
 def mkExportAttr : IO (ParametricAttribute Name) :=
-registerParametricAttribute `export "name to be used by code generators" $ fun _ _ stx =>
+registerParametricAttribute `export "name to be used by code generators" $ fun _ stx =>
   match attrParamSyntaxToIdentifier stx with
   | some exportName =>
-    if isValidCppName exportName then Except.ok exportName
-    else Except.error "invalid 'export' function name, is not a valid C++ identifier"
-  | _ => Except.error "unexpected kind of argument"
+    if isValidCppName exportName then pure exportName
+    else Core.throwError "invalid 'export' function name, is not a valid C++ identifier"
+  | _ => Core.throwError "unexpected kind of argument"
 
 @[init mkExportAttr]
 constant exportAttr : ParametricAttribute Name := arbitrary _

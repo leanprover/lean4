@@ -70,7 +70,6 @@ lean_object* l_Lean_IR_getDecls___boxed(lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__1(lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_IR_mkDeclMapExtension___spec__13(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_IR_mkDeclMapExtension___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_tracePrefixOptionName___closed__5;
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_mkDeclMapExtension___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_log(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -141,7 +140,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_IR_mkDeclMapExtension___spec__
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_IR_declMapExt___closed__4;
-lean_object* l_Lean_IR_tracePrefixOptionName___closed__6;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_tracePrefixOptionName___closed__3;
 extern lean_object* l___private_Lean_Environment_5__envExtensionsRef;
@@ -221,6 +219,7 @@ lean_object* l_Lean_IR_addDecl___boxed(lean_object*, lean_object*, lean_object*)
 lean_object* l_Array_findMAux___main___at_Lean_IR_findEnvDecl_x27___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___closed__4;
 lean_object* l_Lean_IR_logMessageIf(lean_object*);
+extern lean_object* l_Lean_checkTraceOption___closed__2;
 lean_object* l_Lean_IR_getDecl_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6___closed__1;
@@ -476,7 +475,7 @@ lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trace");
+x_1 = lean_mk_string("compiler");
 return x_1;
 }
 }
@@ -484,7 +483,7 @@ lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_checkTraceOption___closed__2;
 x_2 = l_Lean_IR_tracePrefixOptionName___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -494,7 +493,7 @@ lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("compiler");
+x_1 = lean_mk_string("ir");
 return x_1;
 }
 }
@@ -508,29 +507,11 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("ir");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName___closed__4;
-x_2 = l_Lean_IR_tracePrefixOptionName___closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* _init_l_Lean_IR_tracePrefixOptionName() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_tracePrefixOptionName___closed__6;
+x_1 = l_Lean_IR_tracePrefixOptionName___closed__4;
 return x_1;
 }
 }
@@ -4104,10 +4085,6 @@ l_Lean_IR_tracePrefixOptionName___closed__3 = _init_l_Lean_IR_tracePrefixOptionN
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__3);
 l_Lean_IR_tracePrefixOptionName___closed__4 = _init_l_Lean_IR_tracePrefixOptionName___closed__4();
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__4);
-l_Lean_IR_tracePrefixOptionName___closed__5 = _init_l_Lean_IR_tracePrefixOptionName___closed__5();
-lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__5);
-l_Lean_IR_tracePrefixOptionName___closed__6 = _init_l_Lean_IR_tracePrefixOptionName___closed__6();
-lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__6);
 l_Lean_IR_tracePrefixOptionName = _init_l_Lean_IR_tracePrefixOptionName();
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName);
 l___private_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1 = _init_l___private_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1();

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Core_getConstInfo___closed__5;
 lean_object* l_Array_findSomeMAux___main___at_Lean_Meta_subst___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Meta_substCore___lambda__3___closed__2;
@@ -60,7 +61,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__3___closed__31;
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclM_x3f___at_Lean_Meta_subst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Lean_Meta_substCore___lambda__3___closed__11;
 extern lean_object* l_Array_HasRepr___rarg___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -2696,7 +2696,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 x_135 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_135, 0, x_29);
-x_136 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_136 = l_Lean_Core_getConstInfo___closed__5;
 x_137 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_137, 0, x_136);
 lean_ctor_set(x_137, 1, x_135);
@@ -3993,7 +3993,7 @@ x_17 = l_Lean_Meta_subst___lambda__1___closed__3;
 x_18 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_16);
-x_19 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_19 = l_Lean_Core_getConstInfo___closed__5;
 x_20 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);

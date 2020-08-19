@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Meta_clear___lambda__1___closed__3;
+extern lean_object* l_Lean_Core_getConstInfo___closed__5;
 lean_object* l_Lean_Meta_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
@@ -32,7 +33,6 @@ uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__4;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear___lambda__1___closed__1;
@@ -44,7 +44,6 @@ lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Meta_tryClear___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Meta_clear___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear___lambda__1___closed__4;
 lean_object* l_Lean_MetavarContext_localDeclDependsOn(lean_object*, lean_object*, lean_object*);
@@ -69,7 +68,6 @@ lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__1;
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5;
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdxAux___main___at_Lean_Meta_clear___spec__7(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__7;
 lean_object* l_Array_findIdxAux___main___at_Lean_Meta_clear___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__3;
 lean_object* l_Lean_Meta_clear___lambda__1___closed__5;
@@ -205,26 +203,6 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Char_HasRepr___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__7;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -309,7 +287,7 @@ lean_ctor_set(x_32, 0, x_31);
 x_33 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_33, 0, x_30);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_34 = l_Lean_Core_getConstInfo___closed__5;
 x_35 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
@@ -454,7 +432,7 @@ lean_ctor_set(x_32, 0, x_31);
 x_33 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_33, 0, x_30);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_34 = l_Lean_Core_getConstInfo___closed__5;
 x_35 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
@@ -671,7 +649,7 @@ x_87 = l_Lean_Meta_clear___lambda__1___closed__6;
 x_88 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_88, 0, x_87);
 lean_ctor_set(x_88, 1, x_86);
-x_89 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_89 = l_Lean_Core_getConstInfo___closed__5;
 x_90 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_90, 0, x_88);
 lean_ctor_set(x_90, 1, x_89);
@@ -764,7 +742,7 @@ x_61 = l_Lean_Meta_clear___lambda__1___closed__3;
 x_62 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_60);
-x_63 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_63 = l_Lean_Core_getConstInfo___closed__5;
 x_64 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_64, 0, x_62);
 lean_ctor_set(x_64, 1, x_63);
@@ -1276,10 +1254,6 @@ l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5 = _init_l_Arra
 lean_mark_persistent(l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5);
 l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__6 = _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__6();
 lean_mark_persistent(l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__6);
-l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__7 = _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__7();
-lean_mark_persistent(l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__7);
-l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8 = _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8();
-lean_mark_persistent(l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8);
 l_Lean_Meta_clear___lambda__1___closed__1 = _init_l_Lean_Meta_clear___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_clear___lambda__1___closed__1);
 l_Lean_Meta_clear___lambda__1___closed__2 = _init_l_Lean_Meta_clear___lambda__1___closed__2();

@@ -138,6 +138,7 @@ extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
 extern lean_object* l_Lean_Meta_run___rarg___closed__1;
 extern lean_object* l_Lean_Meta_Exception_toStr___closed__18;
 lean_object* l___private_Lean_Meta_Message_3__inferDomain_x3f___lambda__1___closed__1;
+lean_object* l_IO_println___at_Lean_Core_runCore___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__18;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__30;
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
@@ -154,7 +155,6 @@ lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Meta_MetaHasEval___s
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* l_Lean_Meta_Exception_toMessageData___closed__20;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_IO_println___at_IO_runMeta___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__39;
 lean_object* _init_l___private_Lean_Meta_Message_1__run_x3f___rarg___closed__1() {
 _start:
@@ -1844,7 +1844,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_array_fget(x_1, x_2);
 x_9 = lean_box(0);
 x_10 = l_Lean_MessageData_formatAux___main(x_9, x_8);
-x_11 = l_IO_println___at_IO_runMeta___spec__1(x_10, x_3);
+x_11 = l_IO_println___at_Lean_Core_runCore___spec__2(x_10, x_3);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 

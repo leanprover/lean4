@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Scopes
 import Lean.Syntax
+import Lean.CoreM
 
 namespace Lean
 
@@ -25,7 +26,7 @@ instance AttributeApplicationTime.hasBeq : HasBeq AttributeApplicationTime := �
 structure AttributeImpl :=
 (name : Name)
 (descr : String)
-(add (env : Environment) (decl : Name) (args : Syntax) (persistent : Bool) : IO Environment)
+(add (decl : Name) (args : Syntax) (persistent : Bool) : CoreM Unit)
 /-
 (addScoped (env : Environment) (decl : Name) (args : Syntax) : IO Environment
            := throw (IO.userError ("attribute '" ++ toString name ++ "' does not support scopes")))
@@ -38,7 +39,7 @@ structure AttributeImpl :=
 (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
-⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure env }⟩
+⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure () }⟩
 
 open Std (PersistentHashMap)
 
@@ -190,7 +191,8 @@ namespace Environment
 @[export lean_add_attribute]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment := do
 attr ← IO.ofExcept $ getAttributeImpl env attrName;
-attr.add env decl args persistent
+(env, _) ← Core.runCore (attr.add decl args persistent) env;
+pure env
 
 /-
 /- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.
@@ -262,7 +264,7 @@ structure TagAttribute :=
 (attr : AttributeImpl)
 (ext  : PersistentEnvExtension Name Name NameSet)
 
-def registerTagAttribute (name : Name) (descr : String) (validate : Environment → Name → Except String Unit := fun _ _ => Except.ok ()) : IO TagAttribute := do
+def registerTagAttribute (name : Name) (descr : String) (validate : Name → CoreM Unit := fun _ => pure ()) : IO TagAttribute := do
 ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
   name            := name,
   mkInitial       := pure {},
@@ -276,14 +278,14 @@ ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtensio
 let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
-  add   := fun env decl args persistent => do
-    when args.hasArgs $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
+  add   := fun decl args persistent => do
+    when args.hasArgs $ Core.throwError ("invalid attribute '" ++ toString name ++ "', unexpected argument");
+    unless persistent $ Core.throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
+    env ← Core.getEnv;
     unless (env.getModuleIdxFor? decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
-    match validate env decl with
-    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | _                => pure $ ext.addEntry env decl
+      Core.throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
+    validate decl;
+    Core.setEnv $ ext.addEntry env decl
 };
 registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
@@ -310,8 +312,8 @@ structure ParametricAttribute (α : Type) :=
 (ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
 def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
-    (getParam : Environment → Name → Syntax → Except String α)
-    (afterSet : Environment → Name → α → Except String Environment := fun env _ _ => Except.ok env)
+    (getParam : Name → Syntax → CoreM α)
+    (afterSet : Name → α → CoreM Unit := fun env _ _ => pure ())
     (appTime := AttributeApplicationTime.afterTypeChecking)
     : IO (ParametricAttribute α) := do
 ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
@@ -328,17 +330,15 @@ let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
   applicationTime := appTime,
-  add   := fun env decl args persistent => do
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
+  add   := fun decl args persistent => do
+    unless persistent $ Core.throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
+    env ← Core.getEnv;
     unless (env.getModuleIdxFor? decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
-    match getParam env decl args with
-    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | Except.ok val    => do
-      let env := ext.addEntry env (decl, val);
-      match afterSet env decl val with
-      | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-      | Except.ok env    => pure env
+      Core.throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
+    val ← getParam decl args;
+    let env' := ext.addEntry env (decl, val);
+    Core.setEnv env';
+    catch (afterSet decl val) (fun _ => Core.setEnv env)
 };
 registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
@@ -373,7 +373,9 @@ structure EnumAttributes (α : Type) :=
 (attrs : List AttributeImpl)
 (ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
-def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := fun _ _ _ => Except.ok ()) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO (EnumAttributes α) := do
+def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
+    (validate : Name → α → CoreM Unit := fun _ _ => pure ())
+    (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO (EnumAttributes α) := do
 ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := extName,
   mkInitial       := pure {},
@@ -388,13 +390,13 @@ let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => {
   name            := name,
   descr           := descr,
   applicationTime := applicationTime,
-  add             := (fun env decl args persistent => do
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
+  add             := (fun decl args persistent => do
+    unless persistent $ Core.throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
+    env ← Core.getEnv;
     unless (env.getModuleIdxFor? decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
-    match validate env decl val with
-    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | _                => pure $ ext.addEntry env (decl, val))
+      Core.throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
+    validate decl val;
+    Core.setEnv $ ext.addEntry env (decl, val))
   : AttributeImpl
 };
 attrs.forM registerBuiltinAttribute;

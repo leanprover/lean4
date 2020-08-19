@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_check___spec__3(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Core_getConstInfo___closed__5;
 lean_object* l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_induction___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -55,7 +56,6 @@ lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__8___
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__7___closed__1;
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__8___closed__8;
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_induction___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__7___boxed(lean_object**);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_induction___spec__4___closed__3;
@@ -2455,7 +2455,7 @@ lean_dec(x_16);
 lean_dec(x_5);
 x_79 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_79, 0, x_8);
-x_80 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_80 = l_Lean_Core_getConstInfo___closed__5;
 x_81 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_81, 0, x_80);
 lean_ctor_set(x_81, 1, x_79);
@@ -2569,7 +2569,7 @@ lean_dec(x_5);
 lean_dec(x_3);
 x_36 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_36, 0, x_8);
-x_37 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_37 = l_Lean_Core_getConstInfo___closed__5;
 x_38 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_ctor_set(x_38, 1, x_36);
@@ -2678,7 +2678,7 @@ lean_dec(x_16);
 lean_dec(x_5);
 x_62 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_62, 0, x_8);
-x_63 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__8;
+x_63 = l_Lean_Core_getConstInfo___closed__5;
 x_64 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_64, 0, x_63);
 lean_ctor_set(x_64, 1, x_62);

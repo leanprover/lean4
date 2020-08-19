@@ -38,7 +38,7 @@ registerEnumAttributes `specializeAttrs
      In the new equation compiler we should pass all attributes and allow it to apply them to auxiliary definitions.
      In the current implementation, we workaround this issue by using functions such as `hasSpecializeAttrAux`.
    -/
-  (fun env declName _ => Except.ok ())
+  (fun declName _ => pure ())
   AttributeApplicationTime.beforeElaboration
 
 @[init mkSpecializeAttrs]

@@ -225,7 +225,7 @@ mkParserOfConstantAux env categories constName (compileParserDescr env categorie
 
 structure ParserAttributeHook :=
 /- Called after a parser attribute is applied to a declaration. -/
-(postAdd : forall (catName : Name) (env : Environment) (declName : Name) (builtin : Bool), IO Environment)
+(postAdd : forall (catName : Name) (env : Environment) (declName : Name) (builtin : Bool), IO Environment) -- TODO: use CoreM?
 
 def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef {}
 @[init mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
@@ -357,28 +357,31 @@ match env.addAndCompile {} decl with
 | Except.error _ => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
-def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment :=
+def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment := -- TODO: use CoreM?
 declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser catName declName
 
-def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment :=
+def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment := -- TODO: use CoreM?
 declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParser catName declName
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
-    (env : Environment) (declName : Name) (args : Syntax) (persistent : Bool) : IO Environment := do
-when args.hasArgs $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
-unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent"));
-env ← match env.find? declName with
-| none  => throw $ IO.userError "unknown declaration"
-| some decl =>
-  match decl.type with
- | Expr.const `Lean.Parser.TrailingParser _ _ =>
-   declareTrailingBuiltinParser env catName declName
- | Expr.const `Lean.Parser.Parser _ _ =>
-   declareLeadingBuiltinParser env catName declName
- | _ =>
-   throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"));
+    (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
+when args.hasArgs $ Core.throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
+unless persistent $ Core.throwError ("invalid attribute '" ++ attrName ++ "', must be persistent");
+decl ← Core.getConstInfo declName;
+env ← Core.getEnv;
+match decl.type with
+| Expr.const `Lean.Parser.TrailingParser _ _ => do
+  env ← liftM $ declareTrailingBuiltinParser env catName declName;
+  Core.setEnv env
+| Expr.const `Lean.Parser.Parser _ _ => do
+  env ← liftM $ declareLeadingBuiltinParser env catName declName;
+  Core.setEnv env
+| _ => Core.throwError ("unexpected parser type at '" ++ declName ++ "' (`Parser` or `TrailingParser` expected");
 hooks ← parserAttributeHooks.get;
-hooks.foldlM (fun env hook => hook.postAdd catName env declName /- builtin -/ true) env
+hooks.forM fun hook => do
+  env ← Core.getEnv;
+  env ← liftM $ hook.postAdd catName env declName /- builtin -/ true;
+  Core.setEnv env
 
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.
@@ -392,28 +395,32 @@ registerBuiltinAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (env : Environment) (declName : Name) (args : Syntax) (persistent : Bool) : IO Environment := do
-when args.hasArgs $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
+private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
+when args.hasArgs $ Core.throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
+env ← Core.getEnv;
 let categories := (parserExtension.getState env).categories;
 match mkParserOfConstant env categories declName with
-| Except.error ex => throw (IO.userError ex)
+| Except.error ex => Core.throwError ex
 | Except.ok p     => do
   let leading    := p.1;
   let parser     := p.2;
   let tokens     := parser.info.collectTokens [];
-  env ← tokens.foldlM
-    (fun env token =>
-      match addToken env token with
-      | Except.ok env    => pure env
-      | Except.error msg => throw (IO.userError ("invalid parser '" ++ toString declName ++ "', " ++ msg)))
-    env;
+  tokens.forM fun token => do {
+    env ← Core.getEnv;
+    match addToken env token with
+      | Except.ok env    => Core.setEnv env
+      | Except.error msg => Core.throwError ("invalid parser '" ++ toString declName ++ "', " ++ msg)
+  };
   let kinds := parser.info.collectKinds {};
-  let env := kinds.foldl (fun env kind _ => addSyntaxNodeKind env kind) env;
-  env ← match addParser categories catName declName leading parser with
-  | Except.ok _     => pure $ parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
-  | Except.error ex => throw (IO.userError ex);
+  kinds.forM fun kind _ => Core.modifyEnv fun env => addSyntaxNodeKind env kind;
+  match addParser categories catName declName leading parser with
+  | Except.ok _     => Core.modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
+  | Except.error ex => Core.throwError ex;
   hooks ← parserAttributeHooks.get;
-  hooks.foldlM (fun env hook => hook.postAdd catName env declName /- builtin -/ false) env
+  hooks.forM fun hook => do
+    env ← Core.getEnv;
+    env ← liftM $ hook.postAdd catName env declName /- builtin -/ false;
+    Core.setEnv env
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 { name            := attrName,

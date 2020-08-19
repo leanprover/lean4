@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
+lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
 extern lean_object* l___private_Lean_Compiler_IR_Format_1__formatArg___closed__2;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
 lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*);
 extern lean_object* l___private_Lean_Syntax_6__formatInfo___closed__1;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
-lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_Lean_HasFormat___closed__1;
 lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
@@ -128,7 +128,7 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(x_3);
+x_4 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_3);
 x_5 = 0;
 x_6 = l_Lean_IR_CtorFieldInfo_format___closed__2;
 x_7 = lean_alloc_ctor(4, 2, 1);
@@ -143,7 +143,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 lean_dec(x_1);
-x_9 = l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(x_8);
+x_9 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_8);
 x_10 = 0;
 x_11 = l_Lean_IR_CtorFieldInfo_format___closed__4;
 x_12 = lean_alloc_ctor(4, 2, 1);
@@ -162,7 +162,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_1, 2);
 lean_inc(x_15);
 lean_dec(x_1);
-x_16 = l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(x_13);
+x_16 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_13);
 x_17 = 0;
 x_18 = l_Lean_IR_CtorFieldInfo_format___closed__6;
 x_19 = lean_alloc_ctor(4, 2, 1);
@@ -174,7 +174,7 @@ x_21 = lean_alloc_ctor(4, 2, 1);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
 lean_ctor_set_uint8(x_21, sizeof(void*)*2, x_17);
-x_22 = l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(x_14);
+x_22 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_14);
 x_23 = lean_alloc_ctor(4, 2, 1);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);

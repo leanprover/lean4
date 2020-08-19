@@ -29,19 +29,45 @@ inductive Exception
 | kernel (ex : KernelException) (opts : Options)
 | error  (ref : Syntax) (msg : MessageData)
 
+instance Exception.inhabited : Inhabited Exception := ⟨Exception.error Syntax.missing (arbitrary _)⟩
+
+def Exception.toMessageData : Exception → MessageData
+| Exception.io ex          => ex.toString
+| Exception.kernel ex opts => ex.toMessageData opts
+| Exception.error _ msg    => msg
+
+instance Exception.hasToString : HasToString Exception := ⟨fun ex => toString ex.toMessageData⟩
+
 abbrev ECoreM (ε : Type) := ReaderT Context $ StateRefT State $ EIO ε
 
 abbrev CoreM := ECoreM Exception
+
+instance ECoreM.inhabited {ε α} [Inhabited ε] : Inhabited (ECoreM ε α) :=
+⟨fun _ _ => throw $ arbitrary _⟩
 
 @[inline] def liftIOCore {α} (x : IO α) : EIO Exception α :=
 adaptExcept Exception.io x
 
 instance : MonadIO (EIO Exception) := mkMonadIO @liftIOCore
 
-@[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
+def throwError {α} (msg : MessageData) : CoreM α := do
 ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.error Syntax.missing maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
+throw $ Exception.error ctx.ref msg
+
+def ofExcept {ε α} [HasToString ε] (x : Except ε α) : CoreM α :=
+match x with
+| Except.ok a    => pure a
+| Except.error e => throwError $ toString e
+
+def checkRecDepth : CoreM Unit := do
+ctx ← read;
+when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError maxRecDepthErrorMessage
+
+def Context.incCurrRecDepth (ctx : Context) : Context :=
+{ ctx with currRecDepth := ctx.currRecDepth + 1 }
+
+@[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
+checkRecDepth; adaptReader Context.incCurrRecDepth x
 
 def getEnv : CoreM Environment := do
 s ← get; pure s.env
@@ -49,37 +75,45 @@ s ← get; pure s.env
 def setEnv (env : Environment) : CoreM Unit :=
 modify $ fun s => { s with env := env }
 
-def getOptions : CoreM Options :=  do
+@[inline] def modifyEnv (f : Environment → Environment) : CoreM Unit :=
+modify $ fun s => { s with env := f s.env }
+
+def getOptions {ε} : ECoreM ε Options :=  do
 ctx ← read; pure ctx.options
 
-def getTraceState : CoreM TraceState := do
+def getTraceState {ε} [MonadIO (EIO ε)] : ECoreM ε TraceState := do
 s ← get; pure s.traceState
+
+def mkFreshId : CoreM Name := do
+s ← get;
+let id := s.ngen.curr;
+modify $ fun s => { s with ngen := s.ngen.next };
+pure id
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
 match ref.getPos with
 | some _ => ref
 | _      => oldRef
 
+def Context.replaceRef (ref : Syntax) (ctx : Context) : Context :=
+{ ctx with ref := replaceRef ref ctx.ref }
+
 @[inline] def withRef {α} (ref : Syntax) (x : CoreM α) : CoreM α := do
-adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
+adaptReader (Context.replaceRef ref) x
 
 @[inline] private def getTraceState : CoreM TraceState := do
 s ← get; pure s.traceState
 
-def addContext (msg : MessageData) : CoreM MessageData := do
+def addContext {ε} [MonadIO (EIO ε)] (msg : MessageData) : ECoreM ε MessageData := do
 ctx ← read;
 s   ← get;
 pure $ MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := ctx.options } msg
 
-instance tracer : SimpleMonadTracerAdapter CoreM :=
+instance tracer {ε} [MonadIO (EIO ε)]  : SimpleMonadTracerAdapter (ECoreM ε) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   addContext       := addContext,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
-
-def throwError {α} (msg : MessageData) : CoreM α := do
-ctx ← read;
-throw $ Exception.error ctx.ref msg
 
 def addDecl (decl : Declaration) : CoreM Unit := do
 env ← getEnv;

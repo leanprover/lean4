@@ -30,11 +30,13 @@ ext : SimplePersistentEnvExtension (Name × Name) (NameMap Name) ← registerSim
 let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
-  add   := fun env decl args _ => match attrParamSyntaxToIdentifier args with
-    | some parserDecl => match env.find? parserDecl with
-      | some _ => pure $ ext.addEntry env (parserDecl, decl)
-      | none   => throw $ IO.userError $ "invalid [" ++ toString name ++ "] argument, unknown declaration '" ++ toString parserDecl ++ "'"
-    | none            => throw $ IO.userError $ "invalid [" ++ toString name ++ "] argument, expected identifier"
+  add   := fun decl args _ => do
+    env ← Core.getEnv;
+    match attrParamSyntaxToIdentifier args with
+    | some parserDeclName => do
+      _ ← Core.getConstInfo parserDeclName;
+      Core.setEnv $ ext.addEntry env (parserDeclName, decl)
+    | none            => Core.throwError $ "invalid [" ++ name ++ "] argument, expected identifier"
 };
 registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }

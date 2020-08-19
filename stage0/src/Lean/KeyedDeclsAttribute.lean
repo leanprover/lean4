@@ -127,27 +127,29 @@ ext : Extension γ ← registerPersistentEnvExtension {
 registerBuiltinAttribute {
   name  := df.builtinName,
   descr := "(builtin) " ++ df.descr,
-  add   := fun env declName arg persistent => do {
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString df.builtinName ++ "', must be persistent"));
-    key ← IO.ofExcept $ df.evalKey true env arg;
-    match env.find? declName with
-    | none  => throw $ IO.userError "unknown declaration"
-    | some decl =>
-      match decl.type with
-      | Expr.const c _ _ =>
-        if c != df.valueTypeName then throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
-        else declareBuiltin df attrDeclName env key declName
-      | _ => throw (IO.userError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected"))
+  add   := fun declName arg persistent => do {
+    env ← Core.getEnv;
+    unless persistent $ Core.throwError ("invalid attribute '" ++ df.builtinName ++ "', must be persistent");
+    key ← Core.ofExcept $ df.evalKey true env arg;
+    decl ← Core.getConstInfo declName;
+    match decl.type with
+    | Expr.const c _ _ =>
+      if c != df.valueTypeName then Core.throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
+      else do
+        env ← liftM $ declareBuiltin df attrDeclName env key declName;
+        Core.setEnv env
+    | _ => Core.throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
   },
   applicationTime := AttributeApplicationTime.afterCompilation
 };
 registerBuiltinAttribute {
   name            := df.name,
   descr           := df.descr,
-  add             := fun env constName arg persistent => do
-    key ← IO.ofExcept $ df.evalKey false env arg;
-    val ← IO.ofExcept $ env.evalConstCheck γ df.valueTypeName constName;
-    pure $ ext.addEntry env { key := key, decl := constName, value := val },
+  add             := fun constName arg persistent => do
+    env ← Core.getEnv;
+    key ← Core.ofExcept $ df.evalKey false env arg;
+    val ← Core.ofExcept $ env.evalConstCheck γ df.valueTypeName constName;
+    Core.setEnv $ ext.addEntry env { key := key, decl := constName, value := val },
   applicationTime := AttributeApplicationTime.afterCompilation
 };
 pure { tableRef := tableRef, ext := ext }

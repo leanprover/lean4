@@ -115,6 +115,13 @@ p ← liftM $ whnfCore p;
 trace! `PrettyPrinter.format ("formatting" ++ MessageData.nest 2 (line ++ stx) ++ line ++ "using" ++ MessageData.nest 2 (line ++ p));
 sp ← getStackSize;
 let c := Expr.constName? p.getAppFn;
+-- TODO: delete after adapting parenthesizer compiler approach
+let p := match c with
+| `ident => mkConst `Lean.Parser.Term.ident
+| `charLit => mkConst `Lean.Parser.Term.char
+| `numLit => mkConst `Lean.Parser.Term.num
+| `strLit => mkConst `Lean.Parser.Term.str
+| _ => p;
 env ← liftM getEnv;
 match c >>= (formatterAttribute.ext.getState env).table.find? with
 | some (f::_) => do

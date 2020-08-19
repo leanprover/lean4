@@ -22,25 +22,21 @@ match getIOTypeArg type with
 | _ => false
 
 def mkInitAttr : IO (ParametricAttribute Name) :=
-registerParametricAttribute `init "initialization procedure for global references" $ fun env declName stx =>
-  match env.find? declName with
-  | none => Except.error "unknown declaration"
-  | some decl =>
-    match attrParamSyntaxToIdentifier stx with
-    | some initFnName =>
-      match env.find? initFnName with
-      | none => Except.error ("unknown initialization function '" ++ toString initFnName ++ "'")
-      | some initDecl =>
-        match getIOTypeArg initDecl.type with
-        | none => Except.error ("initialization function '" ++ toString initFnName ++ "' must have type of the form `IO <type>`")
-        | some initTypeArg =>
-          if decl.type == initTypeArg then Except.ok initFnName
-          else Except.error ("initialization function '" ++ toString initFnName ++ "' type mismatch")
-    | _ => match stx with
-      | Syntax.missing =>
-        if isIOUnit decl.type then Except.ok Name.anonymous
-        else Except.error "initialization function must have type `IO Unit`"
-      | _ => Except.error "unexpected kind of argument"
+registerParametricAttribute `init "initialization procedure for global references" $ fun declName stx => do
+  decl ← Core.getConstInfo declName;
+  match attrParamSyntaxToIdentifier stx with
+  | some initFnName => do
+    initDecl ← Core.getConstInfo initFnName;
+    match getIOTypeArg initDecl.type with
+    | none => Core.throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")
+    | some initTypeArg =>
+      if decl.type == initTypeArg then pure initFnName
+      else Core.throwError ("initialization function '" ++ initFnName ++ "' type mismatch")
+  | _ => match stx with
+    | Syntax.missing =>
+      if isIOUnit decl.type then pure Name.anonymous
+      else Core.throwError "initialization function must have type `IO Unit`"
+    | _ => Core.throwError "unexpected kind of argument"
 
 @[init mkInitAttr]
 constant initAttr : ParametricAttribute Name := arbitrary _

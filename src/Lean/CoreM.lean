@@ -25,14 +25,16 @@ structure Context :=
 (ref            : Syntax := Syntax.missing)
 
 inductive Exception
-| io (ex : IO.Error)
+| io     (ex : IO.Error)
 | kernel (ex : KernelException) (opts : Options)
-| error (ref : Syntax) (msg : MessageData)
+| error  (ref : Syntax) (msg : MessageData)
 
-abbrev CoreM := ReaderT Context $ StateRefT State $ EIO Exception
+abbrev ECoreM (ε : Type) := ReaderT Context $ StateT State $ EIO ε
+
+abbrev CoreM := ECoreM Exception
 
 @[inline] def liftIOCore {α} (x : IO α) : EIO Exception α :=
-EIO.adaptExcept Exception.io x
+adaptExcept Exception.io x
 
 instance : MonadIO (EIO Exception) := mkMonadIO @liftIOCore
 

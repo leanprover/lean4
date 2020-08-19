@@ -78,10 +78,13 @@ end Frontend
 
 open Frontend
 
+private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
+Empty.rec _ ex
+
 def IO.processCommands (inputCtx : Parser.InputContext) (parserStateRef : IO.Ref Parser.ModuleParserState) (cmdStateRef : IO.Ref Command.State) : IO Unit := do
 ps ← parserStateRef.get;
 cmdPosRef ← IO.mkRef ps.pos;
-EIO.adaptExcept (fun (ex : Empty) => Empty.rec _ ex) $
+adaptExcept ioErrorFromEmpty $
   processCommands { commandStateRef := cmdStateRef, parserStateRef := parserStateRef, cmdPosRef := cmdPosRef, inputCtx := inputCtx }
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do

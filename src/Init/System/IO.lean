@@ -26,8 +26,8 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-@[inline] def EIO.adaptExcept {α ε ε'} (f : ε → ε') (x : EIO ε α) : EIO ε' α :=
-EStateM.adaptExcept f x
+instance monadExceptAdapter {ε ε'} : MonadExceptAdapter ε ε' (EIO ε) (EIO ε') :=
+inferInstanceAs $ MonadExceptAdapter ε ε' (EStateM ε IO.RealWorld) (EStateM ε' IO.RealWorld)
 
 @[inline] def EIO.catchExceptions {α ε} (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
 fun s => match x s with

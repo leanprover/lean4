@@ -69,17 +69,17 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 let ref := getBetterRef ref ctx.macroStack;
 mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeverity.error
 
-@[inline] def liftIOCore {α} (ctx : Context) (ref : Syntax) (x : IO α) : EIO Exception α :=
-EIO.adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ref ex) x
+-- @[inline] def liftIOCore {α} (ctx : Context) (ref : Syntax) (x : IO α) : EIO Exception α :=
+-- EIO.adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ref ex) x
 
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α :=
-fun ctx => liftIOCore ctx ctx.ref x
+fun ctx => adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ctx.ref ex) x
 
-private def getState : CommandElabM State :=
-fun ctx => liftIOCore ctx ctx.ref $ ctx.stateRef.get
+private def getState : CommandElabM State := do
+ctx ← read; liftIO ctx.stateRef.get
 
-private def setState (s : State) : CommandElabM Unit :=
-fun ctx => liftIOCore ctx ctx.ref $ ctx.stateRef.set s
+private def setState (s : State) : CommandElabM Unit := do
+ctx ← read; liftIO $ ctx.stateRef.set s
 
 @[inline] private def modifyGetState {α} (f : State → α × State) : CommandElabM α := do
 s ← getState; let (a, s) := f s; setState s; pure a

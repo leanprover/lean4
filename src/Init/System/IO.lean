@@ -387,24 +387,24 @@ end Prim
 
 section
 
-@[inline] private def toIO {α} (x : EIO Empty α) : IO α :=
+@[inline] private def fromEmptyEIO {ε α} (x : EIO Empty α) : EIO ε α :=
 fun s => match x s with
   | r@(EStateM.Result.error e _) => Empty.rec _ e
   | EStateM.Result.ok a s        => EStateM.Result.ok a s
 
-variables {m : Type → Type} [Monad m] [MonadIO m]
+instance EIOEmpty.monadLift {ε} : HasMonadLift (EIO Empty) (EIO ε) :=
+{ monadLift := fun α => fromEmptyEIO }
 
-@[inline] def liftEIOEmpty {α} (x : EIO Empty α) : m α :=
-liftIO $ toIO x
+variables {m : Type → Type} [Monad m] [HasMonadLiftT (EIO Empty) m]
 
-@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  liftEIOEmpty $ Prim.mkRef a
-@[inline] def Ref.get {α : Type} (r : Ref α) : m α := liftEIOEmpty $ Prim.Ref.get r
-@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := liftEIOEmpty $ Prim.Ref.set r a
-@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := liftEIOEmpty $ Prim.Ref.swap r a
-@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := liftEIOEmpty $ Prim.Ref.take r
-@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := liftEIOEmpty $ Prim.Ref.ptrEq r1 r2
-@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := liftEIOEmpty $ Prim.Ref.modify r f
-@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := liftEIOEmpty $ Prim.Ref.modifyGet r f
+@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  liftM $ Prim.mkRef a
+@[inline] def Ref.get {α : Type} (r : Ref α) : m α := liftM $ Prim.Ref.get r
+@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := liftM $ Prim.Ref.set r a
+@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := liftM $ Prim.Ref.swap r a
+@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := liftM $ Prim.Ref.take r
+@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := liftM $ Prim.Ref.ptrEq r1 r2
+@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := liftM $ Prim.Ref.modify r f
+@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := liftM $ Prim.Ref.modifyGet r f
 
 end
 

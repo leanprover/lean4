@@ -5,11 +5,11 @@ open Lean.Elab.Term
 open Lean.Elab.Command
 open Lean.Format
 
-def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : MetaIO Unit := do
-env ← MetaIO.getEnv;
-opts ← MetaIO.getOptions;
+def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : CoreM Unit := do
+env ← Core.getEnv;
+opts ← Core.getOptions;
 table ← Parser.builtinTokenTable.get;
-discard $ liftM $ MetaHasEval.eval env opts do
+discard $ liftIO $ MetaHasEval.eval env opts do
   stx ← stx;
   e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
   stx' ← liftMetaM $ delab e optionsPerPos;

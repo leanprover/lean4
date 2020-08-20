@@ -164,6 +164,7 @@ def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 := arbitrary _
 
 #eval test `ex1 2 `elimTest1
+
 #print elimTest1
 
 inductive Vec (α : Type u) : Nat → Type u

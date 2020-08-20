@@ -3,8 +3,8 @@ open Lean
 
 def c1 : Bool := true
 
-unsafe def tst1 : MetaIO Unit := do
-env ← MetaIO.getEnv;
+unsafe def tst1 : CoreM Unit := do
+env ← Core.getEnv;
 let v := env.evalConst Bool `c1;
 IO.println v
 
@@ -12,8 +12,8 @@ IO.println v
 
 def c2 : Bool := false
 
-unsafe def tst2 : MetaIO Unit := do
-env ← MetaIO.getEnv;
+unsafe def tst2 : CoreM Unit := do
+env ← Core.getEnv;
 let v := env.evalConst Bool `c2;
 IO.println v
 

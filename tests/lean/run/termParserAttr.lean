@@ -2,13 +2,13 @@ import Lean
 open Lean
 open Lean.Elab
 
-def run (input : String) (failIff : Bool := true) : MetaIO Unit :=
-do env  ← MetaIO.getEnv;
-   opts ← MetaIO.getOptions;
-   (env, messages) ← liftM $ process input env opts;
-   messages.toList.forM $ fun msg => IO.println msg;
-   when (failIff && messages.hasErrors) $ throw (IO.userError "errors have been found");
-   when (!failIff && !messages.hasErrors) $ throw (IO.userError "there are no errors");
+def run (input : String) (failIff : Bool := true) : CoreM Unit :=
+do env  ← Core.getEnv;
+   opts ← Core.getOptions;
+   (env, messages) ← liftIO $ process input env opts;
+   messages.toList.forM $ fun msg => liftIO $ IO.println msg;
+   when (failIff && messages.hasErrors) $ Core.throwError "errors have been found";
+   when (!failIff && !messages.hasErrors) $ Core.throwError "there are no errors";
    pure ()
 
 open Lean.Parser

@@ -13,8 +13,8 @@ structure S3 :=
 structure S4 extends S2, S3 :=
 (s : Nat)
 
-def check (b : Bool) : MetaIO Unit :=
-unless b $ throw $ IO.userError "check failed"
+def check (b : Bool) : CoreM Unit :=
+unless b $ Core.throwError "check failed"
 
 class S5 :=
 (x y : Nat)
@@ -22,8 +22,8 @@ class S5 :=
 inductive D
 | mk (x y z : Nat) : D
 
-def tst : MetaIO Unit :=
-do env ← MetaIO.getEnv;
+def tst : CoreM Unit :=
+do env ← Core.getEnv;
    IO.println (getStructureFields env `Lean.Environment);
    check $ getStructureFields env `S4 == #[`toS2, `toS3, `s];
    check $ getStructureFields env `S1 == #[`x, `y];

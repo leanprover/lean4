@@ -594,41 +594,43 @@ static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_
 extern "C" obj_res lean_io_ref_get(b_obj_arg ref, obj_arg) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
-        object * val = val_addr->exchange(nullptr);
-        if (val == nullptr)
-            return set_io_error(g_io_error_nullptr_read);
-        inc(val);
-        object * tmp = val_addr->exchange(val);
-        if (tmp != nullptr) {
-            /* this may happen if another thread wrote `ref` */
-            dec(tmp);
+        while (true) {
+            object * val = val_addr->exchange(nullptr);
+            if (val != nullptr) {
+                inc(val);
+                object * tmp = val_addr->exchange(val);
+                if (tmp != nullptr) {
+                    /* this may happen if another thread wrote `ref` */
+                    dec(tmp);
+                }
+                return set_io_result(val);
+            }
         }
-        return set_io_result(val);
     } else {
         object * val = lean_to_ref(ref)->m_value;
-        if (val == nullptr)
-            return set_io_error(g_io_error_nullptr_read);
+        lean_assert(val != nullptr);
         inc(val);
+        return set_io_result(val);
+    }
+}
+
+extern "C" obj_res lean_io_ref_take(b_obj_arg ref, obj_arg) {
+    if (ref_maybe_mt(ref)) {
+        atomic<object *> * val_addr = mt_ref_val_addr(ref);
+        while (true) {
+            object * val = val_addr->exchange(nullptr);
+            if (val != nullptr)
+                return set_io_result(val);
+        }
+    } else {
+        object * val = lean_to_ref(ref)->m_value;
+        lean_assert(val != nullptr);
+        lean_to_ref(ref)->m_value = nullptr;
         return set_io_result(val);
     }
 }
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
-
-extern "C" obj_res lean_io_ref_reset(b_obj_arg ref, obj_arg) {
-    if (ref_maybe_mt(ref)) {
-        atomic<object *> * val_addr = mt_ref_val_addr(ref);
-        object * old_a = val_addr->exchange(nullptr);
-        if (old_a != nullptr)
-            dec(old_a);
-        return set_io_result(box(0));
-    } else {
-        if (lean_to_ref(ref)->m_value != nullptr)
-            dec(lean_to_ref(ref)->m_value);
-        lean_to_ref(ref)->m_value = nullptr;
-        return set_io_result(box(0));
-    }
-}
 
 extern "C" obj_res lean_io_ref_set(b_obj_arg ref, obj_arg a, obj_arg) {
     if (ref_maybe_mt(ref)) {
@@ -654,10 +656,11 @@ extern "C" obj_res lean_io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
         /* See io_ref_write */
         mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
-        object * old_a = val_addr->exchange(a);
-        if (old_a == nullptr)
-            return set_io_error(g_io_error_nullptr_read);
-        return set_io_result(old_a);
+        while (true) {
+            object * old_a = val_addr->exchange(a);
+            if (old_a != nullptr)
+                return set_io_result(old_a);
+        }
     } else {
         object * old_a = lean_to_ref(ref)->m_value;
         if (old_a == nullptr)

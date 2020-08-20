@@ -28,7 +28,8 @@ supposedly produced by `p prec` if
 1. the leading/any trailing parser involved in `stx` has precedence < `prec` (because without parentheses, `p prec`
    would not produce all of `stx`), or
 2. the trailing parser parsing the input to *the right of* `stx`, if any, has precedence >= `prec` (because without
-   parentheses, `p prec` would have parsed it as well and made it a part of `stx`).
+   parentheses, `p prec` would have parsed it as well and made it a part of `stx`). We also check that the two parsers
+   are from the same syntax category.
 
 Note that in case 2, it is also sufficient to parenthesize a *parent* node as long as the offending parser is still to
 the right of that node. For example, imagine the tree structure of `(f $ fun x => x) y` without parentheses. We need to
@@ -82,14 +83,14 @@ namespace PrettyPrinter
 namespace Parenthesizer
 
 structure Context :=
--- We need to store this argument of `maybeParenthesize` to deal with the implicit Pratt parser call in
--- `trailingNode.parenthesizer`.
-(mkParen : Option (Syntax → Syntax) := none)
+-- We need to store this `categoryParser` argument to deal with the implicit Pratt parser call in `trailingNode.parenthesizer`.
+(cat : Name := Name.anonymous)
 
 structure State :=
 (stxTrav : Syntax.Traverser)
---- precedence of the current left-most trailing parser, if any; see module doc for details
+--- precedence and category of the current left-most trailing parser, if any; see module doc for details
 (contPrec : Option Nat := none)
+(contCat := Name.anonymous)
 -- current minimum precedence in this Pratt parser call, if any; see module doc for details
 (minPrec : Option Nat := none)
 -- precedence of the trailing Pratt parser call if any; see module doc for details
@@ -130,9 +131,9 @@ KeyedDeclsAttribute.init {
   descr := "Register a parenthesizer for a syntax category.
 
 [parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
-which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize` with
-the precedence and an appropriate parentheses builder. If no category parenthesizer is registered, the category will never be
-parenthesized, but still be traversed for parenthesizing nested categories.",
+which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`
+with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,
+but still be traversed for parenthesizing nested categories.",
   valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
   evalKey := fun _ env args => match attrParamSyntaxToIdentifier args with
     | some id =>
@@ -166,7 +167,7 @@ instance ParenthesizerM.monadTraverser : Syntax.MonadTraverser ParenthesizerM :=
 open Syntax.MonadTraverser
 
 def addPrecCheck (prec : Nat) : ParenthesizerM Unit :=
-modify $ fun st => { st with contPrec := prec, minPrec := Nat.min (st.minPrec.getD prec) prec }
+modify $ fun st => { st with contPrec := Nat.min (st.contPrec.getD prec) prec, minPrec := Nat.min (st.minPrec.getD prec) prec }
 
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
@@ -186,19 +187,19 @@ instance monadQuotation : MonadQuotation ParenthesizerM := {
 set_option class.instance_max_depth 100 -- TODO delete
 
 /-- Run `x` and parenthesize the result using `mkParen` if necessary. -/
-def maybeParenthesize (mkParen : Syntax → Syntax) (prec : Nat) (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
+def maybeParenthesize (cat : Name) (mkParen : Syntax → Syntax) (prec : Nat) (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 stx ← getCur;
 idx ← getIdx;
 st ← get;
--- reset prec/prec and store `mkParen` for the recursive call
+-- reset precs for the recursive call
 set { stxTrav := st.stxTrav : State };
-trace! `PrettyPrinter.parenthesize ("parenthesizing (contPrec := " ++ toString st.contPrec ++ ")" ++ MessageData.nest 2 (line ++ stx));
-adaptReader (fun (ctx : Context) => { ctx with mkParen := some mkParen }) x;
+trace! `PrettyPrinter.parenthesize ("parenthesizing (cont := " ++ toString (st.contPrec, st.contCat) ++ ")" ++ MessageData.nest 2 (line ++ stx));
+x;
 { minPrec := some minPrec, trailPrec := trailPrec, .. } ← get
   | panic! "maybeParenthesize: visited a syntax tree without precedences?!";
-trace! `PrettyPrinter.parenthesize ("...precedences are " ++ fmt prec ++ " >? " ++ fmt minPrec ++ ", " ++ fmt trailPrec ++ " <=? " ++ fmt st.contPrec);
+trace! `PrettyPrinter.parenthesize ("...precedences are " ++ fmt prec ++ " >? " ++ fmt minPrec ++ ", " ++ fmt (trailPrec, cat) ++ " <=? " ++ fmt (st.contPrec, st.contCat));
 -- Should we parenthesize?
-when (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some contPrec => trailPrec <= contPrec | _, _ => false) $ do {
+when (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some contPrec => cat == st.contCat && trailPrec <= contPrec | _, _ => false) $ do {
     -- The recursive `visit` call, by the invariant, has moved to the preceding node. In order to parenthesize
     -- the original node, we must first move to the right, except if we already were at the left-most child in the first
     -- place.
@@ -215,7 +216,7 @@ when (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some c
     stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none);
     goLeft;
     -- after parenthesization, there is no more trailing parser
-    modify (fun st => { st with contPrec := Parser.maxPrec, trailPrec := none })
+    modify (fun st => { st with contPrec := Parser.maxPrec, contCat := cat, trailPrec := none })
 };
 { trailPrec := trailPrec, .. } ← get;
 -- If we already had a token at this level, keep the trailing parser. Otherwise, use the minimum of
@@ -227,7 +228,7 @@ modify (fun stP => { stP with minPrec := st.minPrec, trailPrec := trailPrec })
 
 /-- Adjust state and advance. -/
 def visitToken : Parenthesizer := do
-modify (fun st => { st with contPrec := none, visitedToken := true });
+modify (fun st => { st with contPrec := none, contCat := Name.anonymous, visitedToken := true });
 goLeft
 
 @[combinatorParenthesizer Lean.Parser.orelse] def orelse.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := do
@@ -258,14 +259,16 @@ def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=
 -- fix the backtracking hack outright.
 orelse.parenthesizer antiP p
 
-def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer := do
-stx ← getCur;
-if stx.getKind == `choice then
-  visitArgs $ stx.getArgs.size.forM $ fun _ => do
-    stx ← getCur;
-    parenthesizerForKind stx.getKind
-else
-  withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString none) (parenthesizerForKind stx.getKind)
+def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer :=
+adaptReader (fun (ctx : Context) => { ctx with cat := cat }) do
+  stx ← getCur;
+  if stx.getKind == `choice then
+    visitArgs $ stx.getArgs.size.forM $ fun _ => do
+      stx ← getCur;
+      parenthesizerForKind stx.getKind
+  else
+    withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString none) (parenthesizerForKind stx.getKind);
+  modify fun st => { st with contCat := cat }
 
 @[combinatorParenthesizer Lean.Parser.categoryParser]
 def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
@@ -289,17 +292,17 @@ stx ← getCur;
 if stx.getKind == nullKind then
   throw $ Exception.other Syntax.missing "BACKTRACK"
 else do
-  maybeParenthesize (fun stx => Unhygienic.run `(($stx))) prec $
+  maybeParenthesize `term (fun stx => Unhygienic.run `(($stx))) prec $
     parenthesizeCategoryCore `term prec
 
 @[builtinCategoryParenthesizer tactic]
 def tactic.parenthesizer : CategoryParenthesizer | prec => do
-maybeParenthesize (fun stx => Unhygienic.run `(tactic|($stx))) prec $
+maybeParenthesize `tactic (fun stx => Unhygienic.run `(tactic|($stx))) prec $
   parenthesizeCategoryCore `tactic prec
 
 @[builtinCategoryParenthesizer level]
 def level.parenthesizer : CategoryParenthesizer | prec => do
-maybeParenthesize (fun stx => Unhygienic.run `(level|($stx))) prec $
+maybeParenthesize `level (fun stx => Unhygienic.run `(level|($stx))) prec $
   parenthesizeCategoryCore `level prec
 
 @[combinatorParenthesizer Lean.Parser.try]
@@ -332,7 +335,7 @@ addPrecCheck prec
 def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
 node.parenthesizer k p;
 addPrecCheck prec;
--- Limit `contPrec` to `maxPrec-1`.
+-- Limit `cont` precedence to `maxPrec-1`.
 -- This is because `maxPrec-1` is the precedence of function application, which is the only way to turn a leading parser
 -- into a trailing one.
 modify fun st => { st with contPrec := Nat.min (Parser.maxPrec-1) prec }
@@ -348,14 +351,13 @@ when (k != stx.getKind) $ do {
 visitArgs $ do {
   p;
   addPrecCheck prec;
+  ctx ← read;
+  modify fun st => { st with contCat := ctx.cat };
   -- After visiting the nodes actually produced by the parser passed to `trailingNode`, we are positioned on the
   -- left-most child, which is the term injected by `trailingNode` in place of the recursion. Left recursion is not an
   -- issue for the parenthesizer, so we can think of this child being produced by `termParser 0`, or whichever Pratt
-  -- parser is calling us; we only need to know its `mkParen`, which we retrieve from the context.
-  { mkParen := some mkParen, .. } ← read
-    | panic! "trailingNode.parenthesizer called outside of maybeParenthesize call";
-  maybeParenthesize mkParen 0 $
-    categoryParser.parenthesizer `someCategory 0
+  -- parser is calling us.
+  categoryParser.parenthesizer ctx.cat 0
 }
 
 @[combinatorParenthesizer Lean.Parser.symbol] def symbol.parenthesizer := visitToken

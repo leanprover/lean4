@@ -21,7 +21,8 @@ parenthesizeCommand >=> formatCommand table
 
 def ppModule (table : Parser.TokenTable) (stx : Syntax) : MetaM Format := do
 let header := stx.getArg 0;
-f ← arbitrary _; --format table (mkConst `Lean.Parser.Module.header) header;
+-- TODO: header formatter is not auto-generated because the parser is not used in any syntax category...
+some f ← pure $ header.reprint | unreachable!; -- format table Lean.Parser.Module.header.formatter header;
 let cmds := stx.getArgs.extract 1 stx.getArgs.size;
 cmds.foldlM (fun f cmd => do
   cmdF ← ppCommand table cmd;

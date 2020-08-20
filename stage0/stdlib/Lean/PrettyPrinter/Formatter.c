@@ -47,9 +47,10 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_Traverser_up(lean_object*);
 extern lean_object* l_Lean_KeyedDeclsAttribute_Def_inhabited___closed__2;
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27(lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* lean_mk_antiquot_formatter(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_map___at_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___lambda__1___closed__1;
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,7 +67,7 @@ uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 uint8_t l_Array_isEqvAux___main___at_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4;
 lean_object* l_Lean_Parser_mkParserState(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___closed__6;
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__1___closed__3;
@@ -87,6 +88,7 @@ lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___lambda__1(uint8_t, lean
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkNoWsBefore_formatter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_lookahead_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkTailWs_formatter___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_try_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,9 +100,11 @@ lean_object* l_Lean_Syntax_MonadTraverser_goDown___at_Lean_PrettyPrinter_Formatt
 lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_fieldIdx_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_sepBy_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkStackTop_formatter___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoWs_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nameLitKind;
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_optional_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -130,6 +134,7 @@ lean_object* l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatt
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__4;
 lean_object* l_Lean_PrettyPrinter_Formatter_setExpected_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_strLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 extern lean_object* l_Lean_numLitKind;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -152,12 +157,14 @@ lean_object* l_Lean_PrettyPrinter_Formatter_toggleInsideQuot_formatter(lean_obje
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_node_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___at_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___spec__2(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_PrettyPrinter_Formatter_checkKind___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_pushNone_formatter___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkStackTop_formatter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__13;
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_identEq_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_ReaderT_lift___at_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -184,9 +191,8 @@ lean_object* l_Lean_PrettyPrinter_Formatter_quotedSymbol_formatter___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
 uint8_t l_Lean_Syntax_structEq___main(lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_unquotedSymbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_PrettyPrinter_formatterAttribute___spec__1___closed__1;
 lean_object* l_ReaderT_map___at_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___spec__3(lean_object*, lean_object*);
@@ -250,10 +256,8 @@ lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___lambda__1___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_quotedSymbol_formatter___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatterAttribute___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkNoImmediateColon_formatter(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__12;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__4___boxed(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom___closed__2;
 extern lean_object* l_Lean_Format_getWidth___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkNoWsBefore_formatter___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -282,6 +286,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_concat___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_setStack(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkNoImmediateColon_formatter___boxed(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_parseToken(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkCombinatorFormatterAttribute___closed__3;
 extern lean_object* l_Lean_ParserCompiler_CombinatorAttribute_Inhabited___closed__3;
@@ -295,15 +300,16 @@ lean_object* l_Lean_PrettyPrinter_Formatter_quotedSymbol_formatter___lambda__1(l
 lean_object* l_Nat_forMAux___main___at_Lean_PrettyPrinter_Formatter_many_formatter___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_numLitNoAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_trim(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_concat___closed__2;
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_PrettyPrinter_Formatter_checkKind___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter___closed__1;
-lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
 lean_object* l_Lean_PrettyPrinter_Formatter_rawIdent_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_rawIdent_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_charLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__3;
 lean_object* l_Lean_PrettyPrinter_Formatter_concat___lambda__1(lean_object*, lean_object*);
@@ -316,7 +322,6 @@ extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__2;
 lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__8;
@@ -336,12 +341,14 @@ lean_object* l_Std_mkHashMap___at_Lean_PrettyPrinter_formatterAttribute___spec__
 extern lean_object* l_Lean_mkAppStx___closed__2;
 extern lean_object* l_String_Inhabited;
 lean_object* l_Lean_Syntax_Traverser_left(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_getStackSize___rarg___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_List_forM___main___at_Lean_PrettyPrinter_Formatter_sepBy_formatter___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatTerm___closed__1;
+lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__1;
 extern lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
@@ -2083,48 +2090,14 @@ return x_35;
 }
 }
 }
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_box(0);
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_1);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set(x_6, 1, x_3);
-return x_6;
-}
-}
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___rarg___boxed), 3, 0);
-return x_5;
-}
-}
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___rarg(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_3);
+uint8_t x_8; lean_object* x_9; 
+x_8 = lean_unbox(x_3);
 lean_dec(x_3);
-x_6 = l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27(x_1, x_2, x_5, x_4);
-lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_6;
+x_9 = lean_mk_antiquot_formatter(x_1, x_2, x_8, x_4, x_5, x_6, x_7);
+return x_9;
 }
 }
 lean_object* _init_l_Lean_PrettyPrinter_Formatter_formatterForKind___closed__1() {
@@ -2789,7 +2762,7 @@ x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_1);
 x_16 = lean_box(0);
 x_17 = 1;
 x_18 = lean_box(x_17);
-x_19 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed), 4, 3);
+x_19 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed), 7, 3);
 lean_closure_set(x_19, 0, x_15);
 lean_closure_set(x_19, 1, x_16);
 lean_closure_set(x_19, 2, x_18);
@@ -4254,23 +4227,6 @@ lean_dec(x_4);
 return x_6;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_PrettyPrinter_Formatter_symbol_formatter(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
-return x_6;
-}
-}
 lean_object* l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -4286,6 +4242,186 @@ lean_object* x_6;
 x_6 = l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_6;
+}
+}
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("not an atom: ");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__2;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_7 = l_Lean_Syntax_MonadTraverser_getCur___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__1___rarg(x_4, x_5, x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_7, 1);
+lean_inc(x_9);
+if (lean_is_exclusive(x_7)) {
+ lean_ctor_release(x_7, 0);
+ lean_ctor_release(x_7, 1);
+ x_10 = x_7;
+} else {
+ lean_dec_ref(x_7);
+ x_10 = lean_box(0);
+}
+x_11 = lean_ctor_get(x_8, 0);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_8, 1);
+lean_inc(x_12);
+lean_dec(x_8);
+switch (lean_obj_tag(x_11)) {
+case 0:
+{
+lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
+lean_dec(x_12);
+lean_dec(x_10);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_28 = lean_box(0);
+x_29 = 0;
+x_30 = lean_unsigned_to_nat(0u);
+x_31 = l_Lean_Syntax_formatStxAux___main(x_28, x_29, x_30, x_11);
+x_32 = l_Lean_Options_empty;
+x_33 = l_Lean_Format_pretty(x_31, x_32);
+x_34 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_34, 0, x_33);
+x_35 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_35, 0, x_34);
+x_36 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
+x_37 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_37, 0, x_36);
+lean_ctor_set(x_37, 1, x_35);
+x_38 = lean_alloc_ctor(22, 2, 0);
+lean_ctor_set(x_38, 0, x_11);
+lean_ctor_set(x_38, 1, x_37);
+x_39 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_39, 0, x_38);
+lean_ctor_set(x_39, 1, x_9);
+return x_39;
+}
+case 2:
+{
+lean_object* x_40; lean_object* x_41; uint8_t x_42; 
+lean_dec(x_10);
+x_40 = lean_ctor_get(x_11, 1);
+lean_inc(x_40);
+lean_dec(x_11);
+x_41 = l_String_trim(x_1);
+x_42 = lean_string_dec_eq(x_40, x_41);
+lean_dec(x_41);
+lean_dec(x_40);
+if (x_42 == 0)
+{
+lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
+lean_dec(x_1);
+x_43 = l_Lean_PrettyPrinter_Formatter_pushToken(x_2, x_3, x_12, x_5, x_9);
+x_44 = lean_ctor_get(x_43, 0);
+lean_inc(x_44);
+x_45 = lean_ctor_get(x_43, 1);
+lean_inc(x_45);
+lean_dec(x_43);
+x_46 = lean_ctor_get(x_44, 1);
+lean_inc(x_46);
+lean_dec(x_44);
+x_47 = l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__2___rarg(x_46, x_5, x_45);
+return x_47;
+}
+else
+{
+lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
+lean_dec(x_2);
+x_48 = l_Lean_PrettyPrinter_Formatter_pushToken(x_1, x_3, x_12, x_5, x_9);
+x_49 = lean_ctor_get(x_48, 0);
+lean_inc(x_49);
+x_50 = lean_ctor_get(x_48, 1);
+lean_inc(x_50);
+lean_dec(x_48);
+x_51 = lean_ctor_get(x_49, 1);
+lean_inc(x_51);
+lean_dec(x_49);
+x_52 = l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__2___rarg(x_51, x_5, x_50);
+return x_52;
+}
+}
+default: 
+{
+lean_object* x_53; 
+lean_dec(x_12);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_53 = lean_box(0);
+x_13 = x_53;
+goto block_27;
+}
+}
+block_27:
+{
+lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_dec(x_13);
+x_14 = lean_box(0);
+x_15 = 0;
+x_16 = lean_unsigned_to_nat(0u);
+x_17 = l_Lean_Syntax_formatStxAux___main(x_14, x_15, x_16, x_11);
+x_18 = l_Lean_Options_empty;
+x_19 = l_Lean_Format_pretty(x_17, x_18);
+x_20 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_20, 0, x_19);
+x_21 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_21, 0, x_20);
+x_22 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
+x_23 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_23, 0, x_22);
+lean_ctor_set(x_23, 1, x_21);
+x_24 = lean_box(0);
+x_25 = lean_alloc_ctor(22, 2, 0);
+lean_ctor_set(x_25, 0, x_24);
+lean_ctor_set(x_25, 1, x_23);
+if (lean_is_scalar(x_10)) {
+ x_26 = lean_alloc_ctor(1, 2, 0);
+} else {
+ x_26 = x_10;
+ lean_ctor_set_tag(x_26, 1);
+}
+lean_ctor_set(x_26, 0, x_25);
+lean_ctor_set(x_26, 1, x_9);
+return x_26;
+}
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+return x_7;
 }
 }
 uint8_t l_Array_isEqvAux___main___at_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -4343,7 +4479,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__1___closed__1;
-x_2 = lean_unsigned_to_nat(293u);
+x_2 = lean_unsigned_to_nat(303u);
 x_3 = lean_unsigned_to_nat(35u);
 x_4 = l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -4682,34 +4818,6 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Formatter_visitAtom___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("not an atom: ");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_PrettyPrinter_Formatter_visitAtom___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -4766,7 +4874,7 @@ x_24 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
-x_26 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_26 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_27 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_25);
@@ -4793,7 +4901,7 @@ x_36 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
 x_37 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
-x_38 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_38 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_39 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_37);
@@ -4844,7 +4952,7 @@ x_68 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_68, 0, x_67);
 x_69 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_69, 0, x_68);
-x_70 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_70 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_71 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_71, 0, x_70);
 lean_ctor_set(x_71, 1, x_69);
@@ -4907,7 +5015,7 @@ x_55 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_55, 0, x_54);
 x_56 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_56, 0, x_55);
-x_57 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_57 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_58 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_58, 0, x_57);
 lean_ctor_set(x_58, 1, x_56);
@@ -4973,7 +5081,7 @@ x_97 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_97, 0, x_96);
 x_98 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_98, 0, x_97);
-x_99 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_99 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_100 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_100, 0, x_99);
 lean_ctor_set(x_100, 1, x_98);
@@ -5001,7 +5109,7 @@ x_110 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_110, 0, x_109);
 x_111 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_111, 0, x_110);
-x_112 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_112 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_113 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_113, 0, x_112);
 lean_ctor_set(x_113, 1, x_111);
@@ -5062,7 +5170,7 @@ x_127 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_127, 0, x_126);
 x_128 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_128, 0, x_127);
-x_129 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_129 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_130 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_130, 0, x_129);
 lean_ctor_set(x_130, 1, x_128);
@@ -5104,7 +5212,7 @@ x_156 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_156, 0, x_155);
 x_157 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_157, 0, x_156);
-x_158 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_158 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_159 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_159, 0, x_158);
 lean_ctor_set(x_159, 1, x_157);
@@ -5160,7 +5268,7 @@ x_143 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_143, 0, x_142);
 x_144 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_144, 0, x_143);
-x_145 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_145 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_146 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_146, 0, x_145);
 lean_ctor_set(x_146, 1, x_144);
@@ -5213,7 +5321,7 @@ x_181 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_181, 0, x_180);
 x_182 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_182, 0, x_181);
-x_183 = l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3;
+x_183 = l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3;
 x_184 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_184, 0, x_183);
 lean_ctor_set(x_184, 1, x_182);
@@ -6001,6 +6109,86 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_PrettyPrinter_Formatter_checkNoImmediateColon_formatter(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_box(0);
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_1);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_3);
+return x_6;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_PrettyPrinter_Formatter_checkInsideQuot_formatter(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_box(0);
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_1);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_3);
+return x_6;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -7055,6 +7243,12 @@ l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___closed__1 = _init_l_Lean
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___closed__1);
 l_Lean_PrettyPrinter_Formatter_parseToken___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_parseToken___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_parseToken___closed__1);
+l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__1();
+lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__1);
+l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__2();
+lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__2);
+l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3 = _init_l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3();
+lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__3);
 l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__1);
 l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__2();
@@ -7063,12 +7257,6 @@ l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__3 = _init_l_L
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__3);
 l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__4 = _init_l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__4();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___closed__4);
-l_Lean_PrettyPrinter_Formatter_visitAtom___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_visitAtom___closed__1();
-lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_visitAtom___closed__1);
-l_Lean_PrettyPrinter_Formatter_visitAtom___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_visitAtom___closed__2();
-lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_visitAtom___closed__2);
-l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3 = _init_l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3();
-lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_visitAtom___closed__3);
 l_Lean_PrettyPrinter_Formatter_withPosition_formatter___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_withPosition_formatter___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_withPosition_formatter___closed__1);
 l_Lean_PrettyPrinter_Formatter_quotedSymbol_formatter___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_quotedSymbol_formatter___closed__1();

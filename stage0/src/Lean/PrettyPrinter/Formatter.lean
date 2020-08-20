@@ -175,7 +175,7 @@ catch p1 $ fun e => match e with
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
---@[extern 7 "lean_mk_antiquot_formatter"]
+@[extern 7 "lean_mk_antiquot_formatter"]
 constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
 arbitrary _
 
@@ -278,8 +278,18 @@ pushToken sym;
 goLeft
 
 @[combinatorFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
-@[combinatorFormatter unicodeSymbol] def unicodeSymbol.formatter := symbol.formatter
 @[combinatorFormatter nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
+
+@[combinatorFormatter unicodeSymbol]
+def unicodeSymbol.formatter (sym asciiSym : String) : Formatter := do
+stx ← getCur;
+Syntax.atom _ val ← pure stx
+  | throw $ Exception.other Syntax.missing $ "not an atom: " ++ toString stx;
+if val == sym.trim then
+  pushToken sym
+else
+  pushToken asciiSym;
+goLeft
 
 @[combinatorFormatter identNoAntiquot]
 def identNoAntiquot.formatter : Formatter := do
@@ -363,6 +373,8 @@ push " "
 @[combinatorFormatter checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkInsideQuot] def checkInsideQuot.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkOutsideQuot] def checkOutsideQuot.formatter : Formatter := pure ()
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

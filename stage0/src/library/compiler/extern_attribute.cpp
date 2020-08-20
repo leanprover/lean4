@@ -38,6 +38,9 @@ static optional<unsigned> get_given_arity(environment const & env, name const & 
     return optional<unsigned>(); // ignore big nums
 }
 
+bool is_io(expr const & type) {
+    return is_app_of(type, get_io_name()) || is_app_of(type, get_eio_name());
+}
 
 /*
   Similar to lean::get_arity, but adds `1` if resultant type is of the form `IO a`.
@@ -55,7 +58,7 @@ static unsigned get_arity_for_extern(expr type) {
         type = binding_body(type);
         r++;
     }
-    if (is_app_of(type, get_io_name())) {
+    if (is_io(type)) {
         r++;
     }
     return r;
@@ -92,7 +95,7 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
                 borrowed_args.resize(*given_arity, false);
                 return true;
             }
-        } else if (is_app_of(type, get_io_name())) {
+        } else if (is_io(type)) {
             /* See: `get_arity_for_extern`. We have special code for guessing
                the arity for external IO primitives. */
             borrowed_args.push_back(false);
@@ -134,7 +137,7 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
             } else {
                 ll_type = mk_runtime_type(st, lctx, type);
             }
-        } else if (is_app_of(type, get_io_name())) {
+        } else if (is_io(type)) {
             /* Add "world".
                See: `get_arity_for_extern`. We have special code for guessing
                the arity for external IO primitives. */

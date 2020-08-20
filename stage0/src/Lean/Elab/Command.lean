@@ -71,7 +71,7 @@ mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeveri
 
 -- This instance is needed for StateRefT
 instance monadIOAux : MonadIO (EIO Exception) :=
-mkMonadIO fun _ x => adaptExcept (fun ex => Exception.error { fileName := "<unavaiable>", pos := ⟨0, 0⟩, data := toString ex }) x
+{ liftIO := fun _ x => adaptExcept (fun ex => Exception.error { fileName := "<unavaiable>", pos := ⟨0, 0⟩, data := toString ex }) x }
 
 @[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α :=
 liftM x
@@ -81,7 +81,7 @@ ctx ← read;
 liftEIO $ adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ctx.ref ex) x
 
 instance : MonadIO CommandElabM :=
-mkMonadIO fun α => liftIO
+{ liftIO := fun α => liftIO }
 
 def getEnv : CommandElabM Environment := do s ← get; pure s.env
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!

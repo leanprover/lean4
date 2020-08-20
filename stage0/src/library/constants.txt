@@ -103,6 +103,7 @@ Int.natAbs
 Int.decLt
 Int.ofNat
 inline
+EIO
 IO
 ite
 lcProof

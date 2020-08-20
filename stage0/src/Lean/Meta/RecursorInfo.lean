@@ -295,7 +295,7 @@ registerParametricAttribute `recursor "user defined recursor, numerical paramete
     -- TODO: new code after CoreM refactoring
     -- Meta.run $ mkRecursorInfoCore declName (some majorPos)
     env ← Core.getEnv;
-    (info, env) ← liftM $ IO.runMeta (mkRecursorInfoCore declName (some majorPos)) env;
+    (info, env) ← liftIO $ IO.runMeta (mkRecursorInfoCore declName (some majorPos)) env;
     Core.setEnv env)
 
 @[init mkRecursorAttr] constant recursorAttribute : ParametricAttribute Nat := arbitrary _

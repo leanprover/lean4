@@ -14,15 +14,15 @@
 extern "C" {
 #endif
 extern lean_object* l_Lean_Name_toString___closed__1;
+lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_IO_isDir___at_Lean_findOLean___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_io_is_dir(lean_object*, lean_object*);
 lean_object* l_String_revPosOf(lean_object*, uint32_t);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Path_1__pathSep;
 lean_object* l_Lean_searchPathRef;
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath(lean_object*);
 lean_object* l_Lean_mkSearchPathRef(lean_object*);
 lean_object* l_Lean_parseSearchPath___boxed(lean_object*, lean_object*, lean_object*);
@@ -47,6 +47,7 @@ lean_object* l_Lean_moduleNameOfFileName___closed__1;
 extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_System_FilePath_normalizePath(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findOLean___closed__2;
 lean_object* l_Lean_modPathToFilePath___boxed(lean_object*);
 lean_object* l_Lean_modPathToFilePath___main___boxed(lean_object*);
@@ -73,7 +74,6 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_addSearchPathFromEnv(lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__2;
 extern lean_object* l_System_mkFilePath___closed__1;
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_parseSearchPath(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_appPath___at_Lean_getBuiltinSearchPath___spec__2(lean_object*);
 lean_object* l_Lean_Name_getRoot___main(lean_object*);
@@ -750,12 +750,9 @@ return x_1;
 lean_object* l_Lean_findOLean(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_3 = l_Lean_searchPathRef;
 x_4 = lean_io_ref_get(x_3, x_2);
-if (lean_obj_tag(x_4) == 0)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
@@ -872,29 +869,6 @@ x_43 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 return x_43;
-}
-}
-}
-else
-{
-uint8_t x_44; 
-x_44 = !lean_is_exclusive(x_4);
-if (x_44 == 0)
-{
-return x_4;
-}
-else
-{
-lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_45 = lean_ctor_get(x_4, 0);
-x_46 = lean_ctor_get(x_4, 1);
-lean_inc(x_46);
-lean_inc(x_45);
-lean_dec(x_4);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-return x_47;
 }
 }
 }

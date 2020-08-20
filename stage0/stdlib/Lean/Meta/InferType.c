@@ -76,6 +76,7 @@ extern lean_object* l_Lean_Meta_inferTypeRef;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isPropQuick___main(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Expr_hash(lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l___private_Lean_Meta_InferType_8__inferFVarType(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_4__inferForallType___closed__1;
@@ -125,7 +126,6 @@ lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_1__inferAp
 lean_object* l___private_Lean_Meta_InferType_12__isArrowProp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_2__mkAppRangeAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited;
 lean_object* lean_mk_array(lean_object*, lean_object*);

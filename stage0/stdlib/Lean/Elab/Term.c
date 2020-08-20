@@ -78,6 +78,7 @@ lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getDeclName_x3f(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabTacticBlock(lean_object*);
+extern lean_object* l_Lean_KeyedDeclsAttribute_Def_inhabited___closed__2;
 extern lean_object* l_Lean_Meta_commitWhenSome_x3f___at___private_Lean_Meta_ExprDefEq_1__isDefEqEta___spec__2___closed__1;
 lean_object* l_Lean_Elab_Term_mkFreshId(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForall(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3391,13 +3392,15 @@ return x_7;
 lean_object* _init_l_Lean_Elab_Term_termElabAttribute___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Elab_Term_termElabAttribute___closed__4;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_KeyedDeclsAttribute_Def_inhabited___closed__2;
+x_2 = lean_box(0);
+x_3 = l_Lean_Elab_Term_termElabAttribute___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_Elab_Term_LVal_hasToString(lean_object* x_1) {
@@ -18738,7 +18741,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_6 = l_Lean_Elab_Term_termElabAttribute;
-x_7 = lean_ctor_get(x_6, 1);
+x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);

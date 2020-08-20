@@ -1332,7 +1332,6 @@ goto block_44;
 block_44:
 {
 lean_object* x_12; 
-lean_inc(x_9);
 x_12 = l_Lean_Core_getEnv___rarg(x_9, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -1364,6 +1363,7 @@ lean_ctor_set(x_20, 0, x_5);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_13, x_20);
 x_22 = l_Lean_Core_setEnv(x_21, x_8, x_9, x_18);
+lean_dec(x_9);
 lean_dec(x_8);
 return x_22;
 }
@@ -1718,7 +1718,6 @@ lean_object* l_Lean_Compiler_mkInlineAttrs___lambda__1(lean_object* x_1, uint8_t
 _start:
 {
 lean_object* x_6; 
-lean_inc(x_4);
 x_6 = l_Lean_Core_getEnv___rarg(x_4, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -1730,14 +1729,12 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = l_Lean_Compiler_checkIsDefinition(x_7, x_1);
 x_10 = l_Lean_Core_ofExcept___at_Lean_Compiler_mkInlineAttrs___spec__1(x_9, x_3, x_4, x_8);
-lean_dec(x_4);
 lean_dec(x_9);
 return x_10;
 }
 else
 {
 uint8_t x_11; 
-lean_dec(x_4);
 lean_dec(x_1);
 x_11 = !lean_is_exclusive(x_6);
 if (x_11 == 0)
@@ -2151,6 +2148,7 @@ uint8_t x_6; lean_object* x_7;
 x_6 = lean_unbox(x_2);
 lean_dec(x_2);
 x_7 = l_Lean_Compiler_mkInlineAttrs___lambda__1(x_1, x_6, x_3, x_4, x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 return x_7;
 }

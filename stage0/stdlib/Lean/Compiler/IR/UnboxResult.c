@@ -95,7 +95,6 @@ lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1(lean_object* x_1, lea
 _start:
 {
 lean_object* x_5; 
-lean_inc(x_3);
 x_5 = l_Lean_Core_getConstInfo(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -113,7 +112,6 @@ lean_dec(x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-lean_dec(x_3);
 x_9 = !lean_is_exclusive(x_5);
 if (x_9 == 0)
 {
@@ -145,7 +143,6 @@ lean_inc(x_15);
 lean_dec(x_5);
 x_16 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
 x_17 = l_Lean_Core_throwError___rarg(x_16, x_2, x_3, x_15);
-lean_dec(x_3);
 return x_17;
 }
 }
@@ -158,14 +155,12 @@ lean_inc(x_18);
 lean_dec(x_5);
 x_19 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__3;
 x_20 = l_Lean_Core_throwError___rarg(x_19, x_2, x_3, x_18);
-lean_dec(x_3);
 return x_20;
 }
 }
 else
 {
 uint8_t x_21; 
-lean_dec(x_3);
 x_21 = !lean_is_exclusive(x_5);
 if (x_21 == 0)
 {
@@ -237,6 +232,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
 }

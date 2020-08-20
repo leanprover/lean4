@@ -38,6 +38,9 @@ structure Def (γ : Type) :=
     | some id => Except.ok id
     | none    => Except.error "invalid attribute argument, expected identifier")
 
+instance Def.inhabited {γ} : Inhabited (Def γ) :=
+⟨{ builtinName := arbitrary _, name := arbitrary _, descr := arbitrary _, valueTypeName := arbitrary _ }⟩
+
 structure OLeanEntry :=
 (key  : Key)
 (decl : Name) -- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`.
@@ -58,6 +61,7 @@ abbrev Extension (γ : Type) := PersistentEnvExtension OLeanEntry (AttributeEntr
 end KeyedDeclsAttribute
 
 structure KeyedDeclsAttribute (γ : Type) :=
+(defn : KeyedDeclsAttribute.Def γ)
 -- imported/builtin instances
 (tableRef : IO.Ref (KeyedDeclsAttribute.Table γ))
 -- instances from current module
@@ -74,7 +78,7 @@ instance ExtensionState.inhabited {γ} : Inhabited (ExtensionState γ) :=
 ⟨{}⟩
 
 instance KeyedDeclsAttribute.inhabited {γ} : Inhabited (KeyedDeclsAttribute γ) :=
-⟨{ tableRef := arbitrary _, ext := arbitrary _ }⟩
+⟨{ defn := arbitrary _, tableRef := arbitrary _, ext := arbitrary _ }⟩
 
 private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do
 table ← tableRef.get;
@@ -152,7 +156,7 @@ registerBuiltinAttribute {
     Core.setEnv $ ext.addEntry env { key := key, decl := constName, value := val },
   applicationTime := AttributeApplicationTime.afterCompilation
 };
-pure { tableRef := tableRef, ext := ext }
+pure { defn := df, tableRef := tableRef, ext := ext }
 
 /-- Retrieve values tagged with `[attr key]` or `[builtinAttr key]`. -/
 def getValues {γ} (attr : KeyedDeclsAttribute γ) (env : Environment) (key : Name) : List γ :=

@@ -1972,7 +1972,6 @@ lean_object* l_Lean_mkExternAttr___lambda__2(lean_object* x_1, lean_object* x_2,
 _start:
 {
 lean_object* x_6; 
-lean_inc(x_4);
 x_6 = l_Lean_Core_getEnv___rarg(x_4, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -1995,7 +1994,6 @@ if (x_11 == 0)
 {
 lean_object* x_12; 
 lean_dec(x_8);
-lean_dec(x_4);
 lean_dec(x_1);
 x_12 = lean_box(0);
 lean_ctor_set(x_6, 0, x_12);
@@ -2022,7 +2020,6 @@ return x_17;
 else
 {
 uint8_t x_18; 
-lean_dec(x_4);
 x_18 = !lean_is_exclusive(x_14);
 if (x_18 == 0)
 {
@@ -2065,7 +2062,6 @@ return x_26;
 else
 {
 uint8_t x_27; 
-lean_dec(x_4);
 x_27 = !lean_is_exclusive(x_23);
 if (x_27 == 0)
 {
@@ -2107,7 +2103,6 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
 lean_dec(x_31);
-lean_dec(x_4);
 lean_dec(x_1);
 x_35 = lean_box(0);
 x_36 = lean_alloc_ctor(0, 2, 0);
@@ -2135,7 +2130,6 @@ return x_41;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-lean_dec(x_4);
 x_42 = lean_ctor_get(x_38, 0);
 lean_inc(x_42);
 x_43 = lean_ctor_get(x_38, 1);
@@ -2179,7 +2173,6 @@ return x_50;
 else
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
-lean_dec(x_4);
 x_51 = lean_ctor_get(x_47, 0);
 lean_inc(x_51);
 x_52 = lean_ctor_get(x_47, 1);
@@ -2207,7 +2200,6 @@ return x_54;
 else
 {
 uint8_t x_55; 
-lean_dec(x_4);
 lean_dec(x_1);
 x_55 = !lean_is_exclusive(x_6);
 if (x_55 == 0)
@@ -2384,6 +2376,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_mkExternAttr___lambda__2(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_6;

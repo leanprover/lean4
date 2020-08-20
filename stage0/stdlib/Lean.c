@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean
-// Imports: Init Lean.Compiler Lean.Environment Lean.Modifiers Lean.ProjFns Lean.Runtime Lean.Attributes Lean.Parser Lean.ReducibilityAttrs Lean.Elab Lean.Class Lean.LocalContext Lean.MetavarContext Lean.AuxRecursor Lean.Linter Lean.Meta Lean.Util Lean.Eval Lean.Structure Lean.Delaborator Lean.PrettyPrinter Lean.CoreM
+// Imports: Init Lean.Compiler Lean.Environment Lean.Modifiers Lean.ProjFns Lean.Runtime Lean.Attributes Lean.Parser Lean.ReducibilityAttrs Lean.Elab Lean.Class Lean.LocalContext Lean.MetavarContext Lean.AuxRecursor Lean.Linter Lean.Meta Lean.Util Lean.Eval Lean.Structure Lean.Delaborator Lean.PrettyPrinter Lean.CoreM Lean.PrettyPrinter.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35,6 +35,7 @@ lean_object* initialize_Lean_Structure(lean_object*);
 lean_object* initialize_Lean_Delaborator(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter(lean_object*);
 lean_object* initialize_Lean_CoreM(lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Meta(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean(lean_object* w) {
 lean_object * res;
@@ -104,6 +105,9 @@ res = initialize_Lean_PrettyPrinter(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_CoreM(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_PrettyPrinter_Meta(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

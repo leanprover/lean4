@@ -26,6 +26,7 @@ lean_object* lean_io_prim_handle_get_line(lean_object*, lean_object*);
 lean_object* lean_io_timeit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IO_HasEval___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_is_eof(lean_object*, lean_object*);
+lean_object* l_mkEIOMonadIO(lean_object*, lean_object*);
 lean_object* l_IO_Prim_iterate___main(lean_object*, lean_object*);
 lean_object* l_IO_Ref_set___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_chmod(lean_object*, uint32_t, lean_object*);
@@ -271,6 +272,7 @@ lean_object* l_EIO_Monad(lean_object*);
 lean_object* l_IO_Prim_fopenFlags___closed__8;
 lean_object* l_IO_Prim_Handle_putStr___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IO_HasEval___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_mkEIOMonadIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_timeit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_app_dir(lean_object*);
 lean_object* l_IO_FS_Handle_isEof___rarg(lean_object*, lean_object*);
@@ -757,6 +759,71 @@ lean_object* x_2;
 x_2 = l_mkMonadIO___rarg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* l_mkEIOMonadIO___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_apply_3(x_1, lean_box(0), x_4, x_5);
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_7; 
+lean_dec(x_2);
+x_7 = !lean_is_exclusive(x_6);
+if (x_7 == 0)
+{
+return x_6;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_6, 0);
+x_9 = lean_ctor_get(x_6, 1);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_dec(x_6);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_8);
+lean_ctor_set(x_10, 1, x_9);
+return x_10;
+}
+}
+else
+{
+uint8_t x_11; 
+x_11 = !lean_is_exclusive(x_6);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_6, 0);
+x_13 = lean_apply_1(x_2, x_12);
+lean_ctor_set(x_6, 0, x_13);
+return x_6;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_14 = lean_ctor_get(x_6, 0);
+x_15 = lean_ctor_get(x_6, 1);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_dec(x_6);
+x_16 = lean_apply_1(x_2, x_14);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_15);
+return x_17;
+}
+}
+}
+}
+lean_object* l_mkEIOMonadIO(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_mkEIOMonadIO___rarg), 5, 0);
+return x_3;
 }
 }
 lean_object* l_liftIO___rarg(lean_object* x_1, lean_object* x_2) {

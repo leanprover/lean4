@@ -84,8 +84,11 @@ an error is returned in the topmost monad. -/
 instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) := {}
 instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) := {}
 
-def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) :=
+@[inline] def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) :=
 @MonadIO.mk m ⟨lift⟩
+
+@[inline] def mkEIOMonadIO {ε ε'} [MonadIO (EIO ε)] (f : ε → ε') : MonadIO (EIO ε') :=
+mkMonadIO fun α (x : IO α) => adaptExcept f (liftM x : EIO ε α)
 
 @[inline] def liftIO {α : Type} {m : Type → Type} [MonadIO m] (x : IO α) : m α :=
 liftM x

@@ -6542,7 +6542,6 @@ lean_object* l_Lean_registerClassAttr___lambda__1(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_7; 
-lean_inc(x_5);
 x_7 = l_Lean_Core_getEnv___rarg(x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -6562,7 +6561,6 @@ lean_dec(x_8);
 lean_dec(x_1);
 x_11 = l_Lean_registerClassAttr___lambda__1___closed__3;
 x_12 = l_Lean_Core_throwError___rarg(x_11, x_4, x_5, x_9);
-lean_dec(x_5);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
 {
@@ -6602,7 +6600,6 @@ return x_21;
 else
 {
 uint8_t x_22; 
-lean_dec(x_5);
 x_22 = !lean_is_exclusive(x_18);
 if (x_22 == 0)
 {
@@ -6631,7 +6628,6 @@ lean_dec(x_8);
 lean_dec(x_1);
 x_26 = l_Lean_registerClassAttr___lambda__1___closed__6;
 x_27 = l_Lean_Core_throwError___rarg(x_26, x_4, x_5, x_9);
-lean_dec(x_5);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
 {
@@ -6655,7 +6651,6 @@ return x_31;
 else
 {
 uint8_t x_32; 
-lean_dec(x_5);
 lean_dec(x_1);
 x_32 = !lean_is_exclusive(x_7);
 if (x_32 == 0)
@@ -6755,6 +6750,7 @@ uint8_t x_7; lean_object* x_8;
 x_7 = lean_unbox(x_3);
 lean_dec(x_3);
 x_8 = l_Lean_registerClassAttr___lambda__1(x_1, x_2, x_7, x_4, x_5, x_6);
+lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_8;

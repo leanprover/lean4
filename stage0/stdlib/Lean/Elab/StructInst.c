@@ -131,6 +131,7 @@ lean_object* l_Nat_max(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_List_mapM___main___at___private_Lean_Elab_StructInst_10__expandParentFields___spec__2___closed__3;
 extern lean_object* l_Lean_formatKVMap___closed__1;
+extern lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__1;
 extern lean_object* l_Lean_Name_inhabited;
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Elab_Term_StructInst_formatField(lean_object*, lean_object*);
@@ -403,7 +404,6 @@ lean_object* l_Array_foldlStepMAux___main___at___private_Lean_Elab_StructInst_3_
 lean_object* l_Lean_Elab_Term_StructInst_Struct_ref___boxed(lean_object*);
 lean_object* l_Std_HashMap_toList___at___private_Lean_Elab_StructInst_19__expandStruct___main___spec__6(lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_4__elabModifyOp___closed__25;
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__1;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_isRoundDone(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at___private_Lean_Elab_StructInst_12__mkFieldMap___spec__9(lean_object*);
@@ -24097,7 +24097,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17;
 x_14 = lean_ctor_get(x_2, 0);
 x_15 = lean_array_push(x_14, x_1);
 lean_ctor_set(x_2, 0, x_15);
-x_16 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__1;
+x_16 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__1;
 x_17 = l_List_forM___main___at_Lean_Elab_Term_StructInst_DefaultFields_step___main___spec__1(x_16, x_12, x_2, x_11, x_4, x_10);
 return x_17;
 }
@@ -24116,7 +24116,7 @@ x_22 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_19);
 lean_ctor_set(x_22, 2, x_20);
-x_23 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__1;
+x_23 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__1;
 x_24 = l_List_forM___main___at_Lean_Elab_Term_StructInst_DefaultFields_step___main___spec__1(x_23, x_12, x_22, x_11, x_4, x_10);
 return x_24;
 }

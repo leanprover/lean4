@@ -20,7 +20,8 @@ fun c s =>
 { fn   := underscoreFn,
   info := mkAtomicInfo "ident" }
 
-@[combinatorParenthesizer underscore] def underscore.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+@[combinatorParenthesizer underscore] def underscore.parenthesizer := PrettyPrinter.Parenthesizer.rawIdent.parenthesizer
+@[combinatorFormatter underscore] def underscore.formatter := PrettyPrinter.Formatter.rawIdent.formatter
 
 def ident' : Parser := ident <|> underscore
 

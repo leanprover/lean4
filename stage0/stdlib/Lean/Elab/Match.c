@@ -128,6 +128,7 @@ lean_object* l___private_Lean_Elab_Match_40__mkNewAlts(lean_object*, lean_object
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Lean_Elab_Match_13__getNumExplicitCtorParams___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__1;
 lean_object* l___private_Lean_Elab_Match_22__withPatternVarsAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
@@ -463,7 +464,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Term_finalizePatternDecls
 lean_object* l___private_Lean_Elab_Match_3__expandMatchOptTypeAux___main___closed__8;
 lean_object* l___private_Lean_Elab_Match_37__mkNewDiscrs___main___closed__2;
 lean_object* l___private_Lean_Elab_Match_35__mkMatchType___main___closed__4;
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__1;
 lean_object* l___private_Lean_Elab_Match_3__expandMatchOptTypeAux___main___closed__4;
 lean_object* l_Lean_Parser_registerBuiltinNodeKind(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkHole___closed__1;
@@ -10791,7 +10791,7 @@ lean_object* l___private_Lean_Elab_Match_16__processIdAux(lean_object* x_1, uint
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_6 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__1;
+x_6 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__1;
 x_7 = lean_box(x_2);
 lean_inc(x_1);
 x_8 = lean_alloc_closure((void*)(l___private_Lean_Elab_Match_16__processIdAux___lambda__1___boxed), 7, 3);

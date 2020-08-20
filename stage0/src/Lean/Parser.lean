@@ -17,7 +17,7 @@ namespace Parenthesizer
 
 -- Close the mutual recursion loop; see corresponding `[extern]` in the parenthesizer.
 @[export lean_mk_antiquot_parenthesizer]
-def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : PrettyPrinter.Parenthesizer :=
+def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
 Parser.mkAntiquot.parenthesizer name kind anonymous
 
 -- The parenthesizer auto-generated these instances correctly, but tagged them with the wrong kind, since the actual kind

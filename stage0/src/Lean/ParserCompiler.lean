@@ -102,8 +102,9 @@ def compileParser {α} (ctx : Context α) (env : Environment) (declName : Name) 
 -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
 -- using `parser!` or `syntax`.
 let kind := declName;
-env.addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runtimeAttr.defn.name)
-  (mkNullNode #[mkIdent kind])
+env.addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runtimeAttr.defn.name) (mkNullNode #[mkIdent kind])
+  -- When called from `interpretParserDescr`, `declName` might not be a tagged parser, so ignore "not a valid syntax kind" failures
+  <|> pure env
 
 unsafe def interpretParser {α} (ctx : Context α) (constName : Name)
     : StateT Environment IO α :=

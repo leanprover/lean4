@@ -32,6 +32,8 @@ class RandomGen (g : Type u) :=
 structure StdGen :=
 (s1 : Nat) (s2 : Nat)
 
+instance StdGen.inhabited : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
+
 def stdRange := (1, 2147483562)
 
 instance : HasRepr StdGen :=

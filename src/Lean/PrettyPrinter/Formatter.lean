@@ -17,7 +17,7 @@ necessary.
 import Lean.Parser
 import Lean.Meta.ReduceEval
 import Lean.Elab.Quotation
-import Lean.ParserCompiler
+import Lean.ParserCompiler.Attribute
 
 namespace Lean
 namespace PrettyPrinter
@@ -59,8 +59,8 @@ KeyedDeclsAttribute.init {
 } `Lean.PrettyPrinter.formatterAttribute
 @[init mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter := arbitrary _
 
-unsafe def mkCombinatorFormatterAttribute : IO CombinatorCompilerAttribute :=
-registerCombinatorCompilerAttribute
+unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribute :=
+ParserCompiler.registerCombinatorAttribute
   `combinatorFormatter
   "Register a formatter for a parser combinator.
 
@@ -68,7 +68,7 @@ registerCombinatorCompilerAttribute
 Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.
 The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
 with `Formatter` in the parameter types."
-@[init mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : CombinatorCompilerAttribute := arbitrary _
+@[init mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute := arbitrary _
 
 namespace Formatter
 

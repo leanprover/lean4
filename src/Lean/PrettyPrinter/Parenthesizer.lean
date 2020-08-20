@@ -167,7 +167,7 @@ instance ParenthesizerM.monadTraverser : Syntax.MonadTraverser ParenthesizerM :=
 open Syntax.MonadTraverser
 
 def addPrecCheck (prec : Nat) : ParenthesizerM Unit :=
-modify $ fun st => { st with contPrec := prec, minPrec := Nat.min (st.minPrec.getD prec) prec }
+modify $ fun st => { st with contPrec := Nat.min (st.contPrec.getD prec) prec, minPrec := Nat.min (st.minPrec.getD prec) prec }
 
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do

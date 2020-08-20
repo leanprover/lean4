@@ -22,7 +22,6 @@ let (debug, f) : Bool × String := match args with
   | [f, "-d"] => (true, f)
   | [f]       => (false, f)
   | _         => panic! "usage: file [-d]";
-initSearchPath none;
 env ← mkEmptyEnvironment;
 stx ← Lean.Parser.parseFile env args.head!;
 let header := stx.getArg 0;

@@ -327,18 +327,35 @@ def Ref (α : Type) : Type := (RefPointed α).type
 instance (α : Type) : Inhabited (Ref α) := ⟨(RefPointed α).val⟩
 
 namespace Prim
+
+@[inline] unsafe def exceptionFreeUnsafe {α} (x : IO α) : IO α :=
+fun s => match x s with
+  | r@(EStateM.Result.error _ _) => False.elim lcProof
+  | r                            => r
+
+/- TODO: add a exceptionFreeBuiltin macro that creates an unsafe definition `using exceptionFreeUnsafe`
+   and then seals it using `implementedBy`. Then, we can remove the not so safe constant `exceptionFree`. -/
+@[implementedBy exceptionFreeUnsafe] private constant exceptionFree {α} (x : IO α) : IO α :=
+x
+
 @[extern "lean_io_mk_ref"]
-constant mkRef {α : Type} (a : α) : IO (Ref α)                := arbitrary _
+constant mkRefCore {α : Type} (a : α) : IO (Ref α) := arbitrary _
+@[inline] def mkRef {α : Type} (a : α) : IO (Ref α) := exceptionFree $ mkRefCore a
 @[extern "lean_io_ref_get"]
-constant Ref.get {α : Type} (r : @& Ref α) : IO α             := arbitrary _
+constant Ref.getCore {α : Type} (r : @& Ref α) : IO α := arbitrary _
+@[inline] def Ref.get {α : Type} (r : Ref α) : IO α := exceptionFree $ Ref.getCore r
 @[extern "lean_io_ref_set"]
-constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := arbitrary _
+constant Ref.setCore {α : Type} (r : @& Ref α) (a : α) : IO Unit := arbitrary _
+@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : IO Unit := exceptionFree $ Ref.setCore r a
 @[extern "lean_io_ref_swap"]
-constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α    := arbitrary _
+constant Ref.swapCore {α : Type} (r : @& Ref α) (a : α) : IO α := arbitrary _
+@[inline] def Ref.swap  {α : Type} (r : Ref α) (a : α) : IO α := exceptionFree $ Ref.swapCore r a
 @[extern "lean_io_ref_take"]
-unsafe constant Ref.take {α : Type} (r : @& Ref α) : IO α     := arbitrary _
+unsafe constant Ref.takeCore {α : Type} (r : @& Ref α) : IO α := arbitrary _
+@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : IO α := exceptionFree $ Ref.takeCore r
 @[extern "lean_io_ref_ptr_eq"]
-constant Ref.ptrEq {α : Type} (r1 r2 : @& Ref α) : IO Bool    := arbitrary _
+constant Ref.ptrEqCore {α : Type} (r1 r2 : @& Ref α) : IO Bool := arbitrary _
+@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : IO Bool := exceptionFree $ Ref.ptrEqCore r1 r2
 end Prim
 
 section

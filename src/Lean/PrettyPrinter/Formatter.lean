@@ -175,7 +175,7 @@ catch p1 $ fun e => match e with
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
---@[extern 7 "lean_mk_antiquot_formatter"]
+@[extern 7 "lean_mk_antiquot_formatter"]
 constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
 arbitrary _
 
@@ -363,6 +363,8 @@ push " "
 @[combinatorFormatter checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkInsideQuot] def checkInsideQuot.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkOutsideQuot] def checkOutsideQuot.formatter : Formatter := pure ()
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

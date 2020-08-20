@@ -28,5 +28,18 @@ Parser.mkAntiquot.parenthesizer name kind anonymous
 @[builtinParenthesizer strLit] def strLit.parenthesizer := Parser.Term.str.parenthesizer
 
 end Parenthesizer
+
+namespace Formatter
+
+@[export lean_mk_antiquot_formatter]
+def mkAntiquot.formatter (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
+Parser.mkAntiquot.formatter name kind anonymous
+
+@[builtinFormatter ident] def ident.formatter := Parser.Term.ident.formatter
+@[builtinFormatter numLit] def numLit.formatter := Parser.Term.num.formatter
+@[builtinFormatter charLit] def charLit.formatter := Parser.Term.char.formatter
+@[builtinFormatter strLit] def strLit.formatter := Parser.Term.str.formatter
+
+end Formatter
 end PrettyPrinter
 end Lean

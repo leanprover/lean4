@@ -327,40 +327,23 @@ instance Ref.inhabited {α} [Inhabited α] : Inhabited (Ref α) :=
 
 namespace Prim
 
-@[inline] def exceptionFree {α} (x : EIO Empty α) : EIO Empty α :=
-fun s => match x s with
-  | r@(EStateM.Result.error e _) => Empty.rec _ e
-  | r                            => r
-
 /- Auxiliary definition for showing that `EIO ε α` is inhabited when we have a `Ref α` -/
 private noncomputable def inhabitedFromRef {α} (r : Ref α) : EIO Empty α :=
 pure $ (Classical.inhabitedOfNonempty r.h).default
 
 
 @[extern "lean_io_mk_ref"]
-constant mkRefCore {α} (a : α) : EIO Empty (Ref α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
-@[inline] def mkRef {α} (a : α) : EIO Empty (Ref α) := exceptionFree $ mkRefCore a
-
+constant mkRef {α} (a : α) : EIO Empty (Ref α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
 @[extern "lean_io_ref_get"]
-constant Ref.getCore {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
-@[inline] def Ref.get {α} (r : Ref α) : EIO Empty α := exceptionFree $ Ref.getCore r
-
+constant Ref.get {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
 @[extern "lean_io_ref_set"]
-constant Ref.setCore {α} (r : @& Ref α) (a : α) : EIO Empty Unit := arbitrary _
-@[inline] def Ref.set {α} (r : Ref α) (a : α) : EIO Empty Unit := exceptionFree $ Ref.setCore r a
-
+constant Ref.set {α} (r : @& Ref α) (a : α) : EIO Empty Unit := arbitrary _
 @[extern "lean_io_ref_swap"]
-constant Ref.swapCore {α} (r : @& Ref α) (a : α) : EIO Empty α := inhabitedFromRef r
-@[inline] def Ref.swap  {α} (r : Ref α) (a : α) : EIO Empty α := exceptionFree $ Ref.swapCore r a
-
+constant Ref.swap {α} (r : @& Ref α) (a : α) : EIO Empty α := inhabitedFromRef r
 @[extern "lean_io_ref_take"]
-unsafe constant Ref.takeCore {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
-@[inline] unsafe def Ref.take {α} (r : Ref α) : EIO Empty α := exceptionFree $ Ref.takeCore r
-
+unsafe constant Ref.take {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
 @[extern "lean_io_ref_ptr_eq"]
-constant Ref.ptrEqCore {α} (r1 r2 : @& Ref α) : EIO Empty Bool := arbitrary _
-@[inline] def Ref.ptrEq {α} (r1 r2 : Ref α) : EIO Empty Bool := exceptionFree $ Ref.ptrEqCore r1 r2
-
+constant Ref.ptrEq {α} (r1 r2 : @& Ref α) : EIO Empty Bool := arbitrary _
 @[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : EIO Empty Unit := do
 v ← Ref.take r;
 Ref.set r (f v)

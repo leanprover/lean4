@@ -82,7 +82,7 @@ modify $ fun s => { s with env := f s.env }
 def getOptions {ε} : ECoreM ε Options :=  do
 ctx ← read; pure ctx.options
 
-def getTraceState {ε} [MonadIO (EIO ε)] : ECoreM ε TraceState := do
+def getTraceState {ε} : ECoreM ε TraceState := do
 s ← get; pure s.traceState
 
 def mkFreshId : CoreM Name := do
@@ -105,12 +105,12 @@ adaptReader (Context.replaceRef ref) x
 @[inline] private def getTraceState : CoreM TraceState := do
 s ← get; pure s.traceState
 
-def addContext {ε} [MonadIO (EIO ε)] (msg : MessageData) : ECoreM ε MessageData := do
+def addContext {ε} (msg : MessageData) : ECoreM ε MessageData := do
 ctx ← read;
 s   ← get;
 pure $ MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := ctx.options } msg
 
-instance tracer {ε} [MonadIO (EIO ε)]  : SimpleMonadTracerAdapter (ECoreM ε) :=
+instance tracer {ε} : SimpleMonadTracerAdapter (ECoreM ε) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   addContext       := addContext,

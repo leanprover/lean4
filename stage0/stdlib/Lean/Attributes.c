@@ -150,7 +150,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_registerBuiltinAttribute___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_getBuiltinAttributeImpl___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_mkAttributeExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TagAttribute_Inhabited___closed__1;
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
@@ -196,10 +195,10 @@ lean_object* l_Lean_registerTagAttribute___lambda__1___boxed(lean_object*, lean_
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_mkAttributeImplOfBuilder___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
-lean_object* l_Lean_Core_getTraceState___at_Lean_Core_runCore___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__6(lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_mkTagDeclarationExtension___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerEnumAttributes___spec__7(lean_object*);
+lean_object* l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam(lean_object*);
 lean_object* l_Lean_attributeExtension___closed__1;
@@ -386,6 +385,7 @@ lean_object* l_Lean_registerAttributeOfDecl(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__4___closed__8;
 lean_object* l_Std_RBNode_fold___main___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__4___closed__4;
+lean_object* l_Lean_Core_getTraceState___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkAttributeExtension___spec__1(lean_object*, lean_object*);
@@ -4462,7 +4462,7 @@ lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean
 x_41 = lean_ctor_get(x_39, 0);
 lean_inc(x_41);
 lean_dec(x_39);
-x_42 = l_Lean_Core_getTraceState___at_Lean_Core_runCore___spec__1___rarg(x_37, x_40);
+x_42 = l_Lean_Core_getTraceState___rarg(x_37, x_40);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
 x_44 = lean_ctor_get(x_42, 1);
@@ -4472,7 +4472,7 @@ x_45 = lean_ctor_get(x_43, 0);
 lean_inc(x_45);
 lean_dec(x_43);
 x_46 = l_Lean_Environment_addAttribute___closed__2;
-x_47 = l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__4(x_45, x_46, x_37, x_44);
+x_47 = l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__3(x_45, x_46, x_37, x_44);
 lean_dec(x_37);
 lean_dec(x_45);
 if (lean_obj_tag(x_47) == 0)
@@ -4505,7 +4505,7 @@ lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean
 x_51 = lean_ctor_get(x_39, 0);
 lean_inc(x_51);
 lean_dec(x_39);
-x_52 = l_Lean_Core_getTraceState___at_Lean_Core_runCore___spec__1___rarg(x_37, x_40);
+x_52 = l_Lean_Core_getTraceState___rarg(x_37, x_40);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc(x_53);
 x_54 = lean_ctor_get(x_52, 1);
@@ -4515,7 +4515,7 @@ x_55 = lean_ctor_get(x_53, 0);
 lean_inc(x_55);
 lean_dec(x_53);
 x_56 = l_Lean_Environment_addAttribute___closed__2;
-x_57 = l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__4(x_55, x_56, x_37, x_54);
+x_57 = l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__3(x_55, x_56, x_37, x_54);
 lean_dec(x_55);
 if (lean_obj_tag(x_57) == 0)
 {

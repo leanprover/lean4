@@ -31,6 +31,7 @@ lean_object* l_Lean_Meta_mkFreshLevelMVar(lean_object*);
 lean_object* l_Lean_Meta_mkFreshId___boxed(lean_object*);
 lean_object* l_Lean_Meta_setEnv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_Core_runCore___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLetDecl(lean_object*);
 lean_object* l_Lean_Meta_MetaExtState_inhabited___closed__2;
 size_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
@@ -471,7 +472,6 @@ lean_object* l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(lean_object*, lean_
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallBoundedTelescope___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_10__withNewFVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Lean_Meta_Basic_7__lambdaTelescopeAux___main___spec__1(lean_object*);
-lean_object* l_IO_println___at_Lean_Core_runCore___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMCtx(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_7__lambdaTelescopeAux(lean_object*);
@@ -47711,7 +47711,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_array_fget(x_1, x_2);
 x_9 = l_Lean_fmt___at_Lean_Message_toString___spec__1(x_8);
-x_10 = l_IO_println___at_Lean_Core_runCore___spec__2(x_9, x_3);
+x_10 = l_IO_println___at_Lean_Core_runCore___spec__1(x_9, x_3);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 

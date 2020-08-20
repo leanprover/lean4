@@ -41,6 +41,7 @@ lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Elab_Term_14__isLambdaWithImplicit___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabImplicitLambdaAux___closed__1;
+lean_object* l_IO_println___at_Lean_Core_runCore___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkTermElabAttribute___closed__4;
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__7;
@@ -771,7 +772,6 @@ uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean
 lean_object* l___private_Lean_Elab_Term_12__isExplicit___boxed(lean_object*);
 lean_object* l_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Lean_Elab_MonadMacroAdapter___closed__1;
-lean_object* l_IO_println___at_Lean_Core_runCore___spec__2(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Elab_Term_mkTermElabAttribute___closed__2;
@@ -30943,7 +30943,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lean_Message_toString(x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
-x_5 = l_IO_println___at_Lean_Core_runCore___spec__2(x_4, x_2);
+x_5 = l_IO_println___at_Lean_Core_runCore___spec__1(x_4, x_2);
 return x_5;
 }
 }

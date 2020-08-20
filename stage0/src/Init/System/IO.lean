@@ -26,6 +26,8 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
+def ST := EIO Empty
+
 instance monadExceptAdapter {ε ε'} : MonadExceptAdapter ε ε' (EIO ε) (EIO ε') :=
 inferInstanceAs $ MonadExceptAdapter ε ε' (EStateM ε IO.RealWorld) (EStateM ε' IO.RealWorld)
 
@@ -39,6 +41,7 @@ instance (ε : Type) : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExcept
 instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
 inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
+instance : Monad ST := inferInstanceAs (Monad (EIO Empty))
 
 abbrev IO : Type → Type := EIO IO.Error
 
@@ -328,39 +331,39 @@ instance Ref.inhabited {α} [Inhabited α] : Inhabited (Ref α) :=
 namespace Prim
 
 /- Auxiliary definition for showing that `EIO ε α` is inhabited when we have a `Ref α` -/
-private noncomputable def inhabitedFromRef {α} (r : Ref α) : EIO Empty α :=
+private noncomputable def inhabitedFromRef {α} (r : Ref α) : ST α :=
 pure $ (Classical.inhabitedOfNonempty r.h).default
 
 
 @[extern "lean_io_mk_ref"]
-constant mkRef {α} (a : α) : EIO Empty (Ref α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
+constant mkRef {α} (a : α) : ST (Ref α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
 @[extern "lean_io_ref_get"]
-constant Ref.get {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
+constant Ref.get {α} (r : @& Ref α) : ST α := inhabitedFromRef r
 @[extern "lean_io_ref_set"]
-constant Ref.set {α} (r : @& Ref α) (a : α) : EIO Empty Unit := arbitrary _
+constant Ref.set {α} (r : @& Ref α) (a : α) : ST Unit := arbitrary _
 @[extern "lean_io_ref_swap"]
-constant Ref.swap {α} (r : @& Ref α) (a : α) : EIO Empty α := inhabitedFromRef r
+constant Ref.swap {α} (r : @& Ref α) (a : α) : ST α := inhabitedFromRef r
 @[extern "lean_io_ref_take"]
-unsafe constant Ref.take {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
+unsafe constant Ref.take {α} (r : @& Ref α) : ST α := inhabitedFromRef r
 @[extern "lean_io_ref_ptr_eq"]
-constant Ref.ptrEq {α} (r1 r2 : @& Ref α) : EIO Empty Bool := arbitrary _
-@[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : EIO Empty Unit := do
+constant Ref.ptrEq {α} (r1 r2 : @& Ref α) : ST Bool := arbitrary _
+@[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : ST Unit := do
 v ← Ref.take r;
 Ref.set r (f v)
 
-@[inline] unsafe def Ref.modifyGetUnsafe {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : EIO Empty β := do
+@[inline] unsafe def Ref.modifyGetUnsafe {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : ST β := do
 v ← Ref.take r;
 let (b, a) := f v;
 Ref.set r a;
 pure b
 
 @[implementedBy Ref.modifyUnsafe]
-def Ref.modify {α : Type} (r : Ref α) (f : α → α) : EIO Empty Unit := do
+def Ref.modify {α : Type} (r : Ref α) (f : α → α) : ST Unit := do
 v ← Ref.get r;
 Ref.set r (f v)
 
 @[implementedBy Ref.modifyGetUnsafe]
-def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : EIO Empty β := do
+def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : ST β := do
 v ← Ref.get r;
 let (b, a) := f v;
 Ref.set r a;
@@ -370,15 +373,15 @@ end Prim
 
 section
 
-@[inline] private def fromEmptyEIO {ε α} (x : EIO Empty α) : EIO ε α :=
+@[inline] private def liftST {ε α} (x : ST α) : EIO ε α :=
 fun s => match x s with
   | r@(EStateM.Result.error e _) => Empty.rec _ e
   | EStateM.Result.ok a s        => EStateM.Result.ok a s
 
-instance EIOEmpty.monadLift {ε} : HasMonadLift (EIO Empty) (EIO ε) :=
-{ monadLift := fun α => fromEmptyEIO }
+instance ST.monadLift {ε} : HasMonadLift ST (EIO ε) :=
+{ monadLift := fun α => liftST }
 
-variables {m : Type → Type} [Monad m] [HasMonadLiftT (EIO Empty) m]
+variables {m : Type → Type} [Monad m] [HasMonadLiftT ST m]
 
 @[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  liftM $ Prim.mkRef a
 @[inline] def Ref.get {α : Type} (r : Ref α) : m α := liftM $ Prim.Ref.get r

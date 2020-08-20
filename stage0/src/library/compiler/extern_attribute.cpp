@@ -39,7 +39,7 @@ static optional<unsigned> get_given_arity(environment const & env, name const & 
 }
 
 bool is_io(expr const & type) {
-    return is_app_of(type, get_io_name()) || is_app_of(type, get_eio_name());
+    return is_app_of(type, get_io_name()) || is_app_of(type, get_eio_name()) || is_app_of(type, get_st_name());
 }
 
 /*

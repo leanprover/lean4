@@ -109,6 +109,7 @@ name const * g_int_dec_lt = nullptr;
 name const * g_int_of_nat = nullptr;
 name const * g_inline = nullptr;
 name const * g_eio = nullptr;
+name const * g_st = nullptr;
 name const * g_io = nullptr;
 name const * g_ite = nullptr;
 name const * g_lc_proof = nullptr;
@@ -302,6 +303,7 @@ void initialize_constants() {
     g_int_of_nat = new name{"Int", "ofNat"};
     g_inline = new name{"inline"};
     g_eio = new name{"EIO"};
+    g_st = new name{"ST"};
     g_io = new name{"IO"};
     g_ite = new name{"ite"};
     g_lc_proof = new name{"lcProof"};
@@ -496,6 +498,7 @@ void finalize_constants() {
     delete g_int_of_nat;
     delete g_inline;
     delete g_eio;
+    delete g_st;
     delete g_io;
     delete g_ite;
     delete g_lc_proof;
@@ -689,6 +692,7 @@ name const & get_int_dec_lt_name() { return *g_int_dec_lt; }
 name const & get_int_of_nat_name() { return *g_int_of_nat; }
 name const & get_inline_name() { return *g_inline; }
 name const & get_eio_name() { return *g_eio; }
+name const & get_st_name() { return *g_st; }
 name const & get_io_name() { return *g_io; }
 name const & get_ite_name() { return *g_ite; }
 name const & get_lc_proof_name() { return *g_lc_proof; }

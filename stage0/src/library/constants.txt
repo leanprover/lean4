@@ -104,6 +104,7 @@ Int.decLt
 Int.ofNat
 inline
 EIO
+ST
 IO
 ite
 lcProof

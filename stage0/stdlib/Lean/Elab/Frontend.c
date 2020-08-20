@@ -13,31 +13,30 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_ModuleParserState_inhabited___closed__1;
 extern lean_object* l_EIO_Monad___closed__1;
 lean_object* l_Lean_Elab_IO_processCommands(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_runFrontend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_liftIOCore_x21(lean_object*);
+lean_object* lean_io_mk_ref(lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
 extern lean_object* l_Lean_Elab_parseImports___closed__1;
 lean_object* l_Lean_MessageLog_toList(lean_object*);
-lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_getInputContext___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_setParserState___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseCommand___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Frontend_1__ioErrorFromEmpty(uint8_t);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___boxed(lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Frontend_1__ioErrorFromEmpty___boxed(lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Parser_Module_4__testModuleParserAux___main___closed__1;
@@ -62,6 +61,7 @@ lean_object* l_Lean_Elab_Frontend_getParserState(lean_object*, lean_object*);
 lean_object* lean_process_input(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_setParserState(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isEOI(lean_object*);
 lean_object* l_Lean_Elab_Frontend_setMessages(lean_object*, lean_object*, lean_object*);

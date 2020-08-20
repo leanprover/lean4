@@ -79,7 +79,7 @@ class MonadIO (m : Type → Type) :=
 
 export MonadIO (liftIO)
 
-instance : MonadIO IO :=
+instance monadIOSelf : MonadIO IO :=
 { liftIO := fun α => id }
 
 /- Omitted instances of MonadIO: OptionT, ExceptT and EStateT. The possibility for
@@ -317,70 +317,77 @@ def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
 Prim.setAccessRights filename mode.flags
 
 /- References -/
-constant RefPointed (α : Type) : PointedType := arbitrary _
-def Ref (α : Type) : Type := (RefPointed α).type
-instance (α : Type) : Inhabited (Ref α) := ⟨(RefPointed α).val⟩
+constant RefPointed : PointedType.{0} := arbitrary _
+
+structure Ref (α : Type) : Type :=
+(ref : RefPointed.type) (h : Nonempty α)
+
+instance Ref.inhabited {α} [Inhabited α] : Inhabited (Ref α) :=
+⟨{ ref := RefPointed.val, h := Nonempty.intro $ arbitrary _}⟩
 
 namespace Prim
 
-@[inline] unsafe def exceptionFreeUnsafe {α} (x : IO α) : IO α :=
-fun s => match x s with
-  | r@(EStateM.Result.error _ _) => False.elim lcProof
-  | r                            => r
+/- Auxiliary definition for showing that `EIO ε α` is inhabited when we have a `Ref α` -/
+private noncomputable def inhabitedFromRef {α} (r : Ref α) : EIO Empty α :=
+pure $ (Classical.inhabitedOfNonempty r.h).default
 
-/- TODO: add a exceptionFreeBuiltin macro that creates an unsafe definition `using exceptionFreeUnsafe`
-   and then seals it using `implementedBy`. Then, we can remove the not so safe constant `exceptionFree`. -/
-@[implementedBy exceptionFreeUnsafe] private constant exceptionFree {α} (x : IO α) : IO α :=
-x
 
 @[extern "lean_io_mk_ref"]
-constant mkRefCore {α : Type} (a : α) : IO (Ref α) := arbitrary _
-@[inline] def mkRef {α : Type} (a : α) : IO (Ref α) := exceptionFree $ mkRefCore a
+constant mkRef {α} (a : α) : EIO Empty (Ref α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
 @[extern "lean_io_ref_get"]
-constant Ref.getCore {α : Type} (r : @& Ref α) : IO α := arbitrary _
-@[inline] def Ref.get {α : Type} (r : Ref α) : IO α := exceptionFree $ Ref.getCore r
+constant Ref.get {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
 @[extern "lean_io_ref_set"]
-constant Ref.setCore {α : Type} (r : @& Ref α) (a : α) : IO Unit := arbitrary _
-@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : IO Unit := exceptionFree $ Ref.setCore r a
+constant Ref.set {α} (r : @& Ref α) (a : α) : EIO Empty Unit := arbitrary _
 @[extern "lean_io_ref_swap"]
-constant Ref.swapCore {α : Type} (r : @& Ref α) (a : α) : IO α := arbitrary _
-@[inline] def Ref.swap  {α : Type} (r : Ref α) (a : α) : IO α := exceptionFree $ Ref.swapCore r a
+constant Ref.swap {α} (r : @& Ref α) (a : α) : EIO Empty α := inhabitedFromRef r
 @[extern "lean_io_ref_take"]
-unsafe constant Ref.takeCore {α : Type} (r : @& Ref α) : IO α := arbitrary _
-@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : IO α := exceptionFree $ Ref.takeCore r
+unsafe constant Ref.take {α} (r : @& Ref α) : EIO Empty α := inhabitedFromRef r
 @[extern "lean_io_ref_ptr_eq"]
-constant Ref.ptrEqCore {α : Type} (r1 r2 : @& Ref α) : IO Bool := arbitrary _
-@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : IO Bool := exceptionFree $ Ref.ptrEqCore r1 r2
-end Prim
+constant Ref.ptrEq {α} (r1 r2 : @& Ref α) : EIO Empty Bool := arbitrary _
+@[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : EIO Empty Unit := do
+v ← Ref.take r;
+Ref.set r (f v)
 
-section
-variables {m : Type → Type} [Monad m] [MonadIO m]
-@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  liftIO (Prim.mkRef a)
-@[inline] def Ref.get {α : Type} (r : Ref α) : m α := liftIO (Prim.Ref.get r)
-@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := liftIO (Prim.Ref.set r a)
-@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := liftIO (Prim.Ref.swap r a)
-@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := liftIO (Prim.Ref.take r)
-@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := liftIO (Prim.Ref.ptrEq r1 r2)
-@[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : m Unit := do
-v ← r.take;
-r.set (f v)
-@[inline] unsafe def Ref.modifyGetUnsafe {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := do
-v ← r.take;
+@[inline] unsafe def Ref.modifyGetUnsafe {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : EIO Empty β := do
+v ← Ref.take r;
 let (b, a) := f v;
-r.set a;
+Ref.set r a;
 pure b
 
 @[implementedBy Ref.modifyUnsafe]
-def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := do
-v ← r.get;
-r.set (f v)
+def Ref.modify {α : Type} (r : Ref α) (f : α → α) : EIO Empty Unit := do
+v ← Ref.get r;
+Ref.set r (f v)
 
 @[implementedBy Ref.modifyGetUnsafe]
-def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := do
-v ← r.get;
+def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : EIO Empty β := do
+v ← Ref.get r;
 let (b, a) := f v;
-r.set a;
+Ref.set r a;
 pure b
+
+end Prim
+
+section
+
+@[inline] private def fromEmptyEIO {ε α} (x : EIO Empty α) : EIO ε α :=
+fun s => match x s with
+  | r@(EStateM.Result.error e _) => Empty.rec _ e
+  | EStateM.Result.ok a s        => EStateM.Result.ok a s
+
+instance EIOEmpty.monadLift {ε} : HasMonadLift (EIO Empty) (EIO ε) :=
+{ monadLift := fun α => fromEmptyEIO }
+
+variables {m : Type → Type} [Monad m] [HasMonadLiftT (EIO Empty) m]
+
+@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  liftM $ Prim.mkRef a
+@[inline] def Ref.get {α : Type} (r : Ref α) : m α := liftM $ Prim.Ref.get r
+@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := liftM $ Prim.Ref.set r a
+@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := liftM $ Prim.Ref.swap r a
+@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := liftM $ Prim.Ref.take r
+@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := liftM $ Prim.Ref.ptrEq r1 r2
+@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := liftM $ Prim.Ref.modify r f
+@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := liftM $ Prim.Ref.modifyGet r f
 
 end
 

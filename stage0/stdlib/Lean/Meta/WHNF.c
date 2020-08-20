@@ -132,7 +132,6 @@ lean_object* l_Lean_WHNF_whnfEasyCases___main___at_Lean_Meta_whnfCore___spec__8_
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_Literal_type___closed__1;
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_8__deltaBetaDefinition___at_Lean_Meta_unfoldDefinition_x3f___spec__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___main___rarg___closed__2;
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
@@ -217,6 +216,7 @@ lean_object* l_Lean_WHNF_whnfEasyCases___main___at_Lean_Meta_whnfImpl___main___s
 lean_object* l_Std_PersistentHashMap_insertAux___main___at___private_Lean_Meta_WHNF_3__cache___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at___private_Lean_Meta_WHNF_2__cached_x3f___spec__1(lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_1__getFirstCtor___at_Lean_Meta_unfoldDefinition_x3f___spec__11(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_isQuotRecStuck_x3f___at_Lean_Meta_unfoldDefinition_x3f___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -18668,11 +18668,28 @@ return x_1;
 lean_object* l_Lean_Meta_setWHNFRef(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = l_Lean_Meta_whnfRef;
 x_3 = l_Lean_Meta_setWHNFRef___closed__1;
 x_4 = lean_io_ref_set(x_2, x_3, x_1);
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
+{
 return x_4;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_dec(x_4);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+return x_8;
+}
 }
 }
 lean_object* l_Lean_Meta_reduceProj_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

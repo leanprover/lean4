@@ -76,7 +76,6 @@ extern lean_object* l_Lean_Meta_inferTypeRef;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_InferType_9__checkInferTypeCache___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isPropQuick___main(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Expr_hash(lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l___private_Lean_Meta_InferType_8__inferFVarType(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_4__inferForallType___closed__1;
@@ -126,6 +125,7 @@ lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_1__inferAp
 lean_object* l___private_Lean_Meta_InferType_12__isArrowProp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_2__mkAppRangeAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited;
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -5099,11 +5099,28 @@ return x_1;
 lean_object* l_Lean_Meta_setInferTypeRef(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = l_Lean_Meta_inferTypeRef;
 x_3 = l_Lean_Meta_setInferTypeRef___closed__1;
 x_4 = lean_io_ref_set(x_2, x_3, x_1);
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
+{
 return x_4;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_dec(x_4);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+return x_8;
+}
 }
 }
 uint8_t l___private_Lean_Meta_InferType_11__isAlwaysZero___main(lean_object* x_1) {

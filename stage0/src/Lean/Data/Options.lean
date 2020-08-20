@@ -23,6 +23,9 @@ structure OptionDecl :=
 
 def OptionDecls := NameMap OptionDecl
 
+instance OptionDecls.inhabited : Inhabited OptionDecls :=
+⟨({} : NameMap OptionDecl)⟩
+
 private def initOptionDeclsRef : IO (IO.Ref OptionDecls) :=
 IO.mkRef (mkNameMap OptionDecl)
 

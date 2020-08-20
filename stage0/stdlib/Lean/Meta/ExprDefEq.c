@@ -196,7 +196,6 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_CheckAssignment_check___
 lean_object* l___private_Lean_Meta_ExprDefEq_23__isDefEqLeft___closed__4;
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_1__isDefEqEta___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint64_t, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__8;
 lean_object* l___private_Lean_Meta_ExprDefEq_23__isDefEqLeft___closed__2;
 lean_object* l_Array_back___at___private_Lean_Meta_ExprDefEq_14__processAssignmentFOApproxAux___spec__1(lean_object*);
@@ -326,6 +325,7 @@ lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_o
 lean_object* l___private_Lean_Meta_ExprDefEq_44__unstuckMVar___at___private_Lean_Meta_ExprDefEq_45__isDefEqOnFailure___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhenSome_x3f___at_Lean_Meta_isExprDefEqAuxImpl___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
 extern lean_object* l_Lean_prodToExpr___rarg___lambda__1___closed__3;
@@ -57125,11 +57125,28 @@ return x_1;
 lean_object* l_Lean_Meta_setIsExprDefEqAuxRef(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = l_Lean_Meta_isExprDefEqAuxRef;
 x_3 = l_Lean_Meta_setIsExprDefEqAuxRef___closed__1;
 x_4 = lean_io_ref_set(x_2, x_3, x_1);
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
+{
 return x_4;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_dec(x_4);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+return x_8;
+}
 }
 }
 lean_object* l___private_Lean_Meta_ExprDefEq_47__regTraceClasses(lean_object* x_1) {

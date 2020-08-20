@@ -50,7 +50,6 @@ lean_object* l_Lean_Elab_Command_checkValidFieldModifier___closed__5;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* l___private_Lean_Elab_Structure_13__removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidFieldModifier___closed__3;
 lean_object* l___private_Lean_Elab_Structure_9__withParents___main___rarg___closed__1;
@@ -67,6 +66,7 @@ lean_object* l___private_Lean_Elab_Structure_17__levelMVarToParamAux___boxed(lea
 lean_object* l___private_Lean_Elab_Structure_15__levelMVarToParamFVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_9__withParents___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_filterMAux___main___at___private_Lean_Elab_Structure_26__elabStructureView___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_addInstance(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkLambda(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -85,6 +85,7 @@ lean_object* l_Lean_Elab_Term_withLocalContext___rarg(lean_object*, lean_object*
 lean_object* l_Lean_Elab_Command_shouldInferResultUniverse(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getLevelNames___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_11__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_3__expandFields___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_11__withFields(lean_object*);
 lean_object* l_Lean_Elab_Term_withLetDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +125,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_5__checkParentIsStructure___closed__1;
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_8__processSubfields(lean_object*);
 extern lean_object* l_Lean_Parser_Term_type___elambda__1___closed__5;
 uint8_t l_Lean_Elab_Command_StructFieldInfo_isSubobject(lean_object*);
@@ -170,7 +170,6 @@ lean_object* l___private_Lean_Elab_Structure_2__expandCtor___boxed(lean_object*,
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l___private_Lean_Elab_Structure_14__withUsed___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_12__getResultUniverse(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_throwError___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at_Lean_Elab_Command_elabStructure___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -286,6 +285,7 @@ lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_3__ex
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* lean_set_reducibility_status(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_TraceState_Inhabited___closed__1;
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_10__elabFieldTypeValue(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Command_StructFieldInfo_isFromParent(lean_object*);
 lean_object* l___private_Lean_Elab_Structure_21__collectLevelParamsInFVar(lean_object*, lean_object*, lean_object*, lean_object*);

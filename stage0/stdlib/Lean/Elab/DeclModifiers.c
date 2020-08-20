@@ -18,7 +18,6 @@ lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared(lean_object*, lean_obje
 extern lean_object* l_Lean_Core_getConstInfo___closed__5;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared___closed__4;
-lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared___closed__8;
 extern lean_object* l_Lean_List_format___rarg___closed__4;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__6;
@@ -26,7 +25,6 @@ lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Elab_Command_Modifiers_hasFormat___spec__2(lean_object*);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Elab_Command_Modifiers_hasFormat___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__8;
 lean_object* l_Lean_Core_getEnv___rarg(lean_object*, lean_object*);
@@ -34,8 +32,10 @@ lean_object* l_Lean_Elab_Command_applyAttributes___boxed(lean_object*, lean_obje
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_elabModifiers___closed__6;
+lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__2;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* lean_private_to_user_name(lean_object*);
 extern lean_object* l_Lean_MessageData_arrayExpr_toMessageData___main___closed__1;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__1;

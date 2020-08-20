@@ -19,7 +19,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__2___boxed(lean_obj
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__23___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__10___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
-lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__3;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_KeyedDeclsAttribute_2__addImported___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,7 +46,6 @@ lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_ExtensionState_inhabi
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_Def_inhabited___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__8;
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__29(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_ExtensionState_inhabited___spec__2___rarg(lean_object*);
 lean_object* l___private_Lean_KeyedDeclsAttribute_2__addImported(lean_object*);
@@ -66,9 +64,11 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_KeyedDeclsAttribute_getValues(lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_KeyedDeclsAttribute_init___spec__1___closed__1;
 lean_object* l_Lean_KeyedDeclsAttribute_Def_inhabited___closed__1;
+lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__22___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_KeyedDeclsAttribute_getValues___spec__3___rarg(lean_object*, size_t, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
@@ -85,6 +85,7 @@ size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_init___spec__2___rarg(lean_object*);
 lean_object* l_Std_AssocList_replace___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__30___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__28(lean_object*);
+lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__26___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__3___rarg(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,7 +119,6 @@ lean_object* l_Std_AssocList_contains___main___at_Lean_KeyedDeclsAttribute_Table
 lean_object* l_Std_PersistentHashMap_empty___at_Lean_KeyedDeclsAttribute_init___spec__3(lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_KeyedDeclsAttribute_getValues___spec__4(lean_object*);
-lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_Table_insert(lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__17___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_KeyedDeclsAttribute_init___spec__6___rarg___closed__2;
@@ -159,7 +159,6 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_KeyedDeclsAttribute_init___sp
 lean_object* l_Lean_Core_ofExcept___at_Lean_KeyedDeclsAttribute_init___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__10;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_empty___at_Lean_KeyedDeclsAttribute_ExtensionState_inhabited___spec__3(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__6___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_KeyedDeclsAttribute_init___spec__1(lean_object*);
@@ -261,6 +260,7 @@ lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_KeyedDeclsAttrib
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 lean_object* l_Lean_SMap_empty___at_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___spec__1___closed__1;
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__8(lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___main___at_Lean_KeyedDeclsAttribute_Table_insert___spec__15___rarg(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_KeyedDeclsAttribute_init___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_empty___at_Lean_KeyedDeclsAttribute_init___spec__9(lean_object*);
@@ -3398,7 +3398,7 @@ return x_2;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_io_ref_take(x_5, x_4);
 x_7 = lean_ctor_get(x_6, 0);
@@ -3408,7 +3408,24 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = l_Lean_KeyedDeclsAttribute_Table_insert___rarg(x_7, x_2, x_3);
 x_10 = lean_io_ref_set(x_5, x_9, x_8);
+x_11 = !lean_is_exclusive(x_10);
+if (x_11 == 0)
+{
 return x_10;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_10, 0);
+x_13 = lean_ctor_get(x_10, 1);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_10);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
+}
 }
 }
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin(lean_object* x_1) {

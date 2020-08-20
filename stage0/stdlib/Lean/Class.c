@@ -42,7 +42,6 @@ uint8_t l_Std_PersistentHashMap_containsAtAux___main___at_Lean_Environment_conta
 lean_object* l_Lean_SMap_contains___at_Lean_isClass___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_isOutParam___closed__2;
 lean_object* l_Lean_registerClassAttr___lambda__1___closed__6;
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__19(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ClassState_addEntry___spec__33(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -59,6 +58,7 @@ lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_ClassState_addEn
 lean_object* l___private_Lean_Class_2__consumeNLambdas___main(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ClassState_addEntry___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__2;
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 uint8_t l_Lean_ClassEntry_lt(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__1;
 lean_object* l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__1(lean_object*);
@@ -80,6 +80,7 @@ lean_object* l_Std_AssocList_foldlM___main___at_Lean_ClassState_addEntry___spec_
 lean_object* l_Std_PersistentHashMap_empty___at_Lean_ClassState_Inhabited___spec__3;
 lean_object* l_Std_mkHashMap___at_Lean_ClassState_Inhabited___spec__5(lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
+lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_isClass___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_classExtension___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains___at_Lean_isInstance___spec__1___boxed(lean_object*, lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_Lean_classExtension___closed__6;
 lean_object* l_Lean_registerClassAttr___lambda__1___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_classExtension___closed__2;
 lean_object* l_Lean_ClassState_Inhabited___closed__1;
 lean_object* l_Lean_getClassName___main(lean_object*, lean_object*);
@@ -141,7 +141,6 @@ extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_hasOutParams___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_ClassState_addEntry___spec__4(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___main___at_Lean_ClassState_addEntry___spec__35(lean_object*, lean_object*);
 lean_object* l_Lean_ClassState_Inhabited;
 lean_object* l_Lean_addClass(lean_object*, lean_object*);
@@ -233,6 +232,7 @@ lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_mkClassExtension___spec
 lean_object* l_Std_AssocList_replace___main___at_Lean_ClassState_addEntry___spec__39(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_ClassState_Inhabited___spec__2(lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Class_1__checkOutParam___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4___closed__2;
 lean_object* l_Lean_SMap_insert___at_Lean_ClassState_addEntry___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___main___at_Lean_ClassState_addEntry___spec__35___boxed(lean_object*, lean_object*);

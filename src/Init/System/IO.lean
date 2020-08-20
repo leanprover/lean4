@@ -335,8 +335,8 @@ constant Ref.get {α : Type} (r : @& Ref α) : IO α             := arbitrary _
 constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := arbitrary _
 @[extern "lean_io_ref_swap"]
 constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α    := arbitrary _
-@[extern "lean_io_ref_reset"]
-constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit        := arbitrary _
+@[extern "lean_io_ref_take"]
+unsafe constant Ref.take {α : Type} (r : @& Ref α) : IO α     := arbitrary _
 @[extern "lean_io_ref_ptr_eq"]
 constant Ref.ptrEq {α : Type} (r1 r2 : @& Ref α) : IO Bool    := arbitrary _
 end Prim
@@ -347,18 +347,29 @@ variables {m : Type → Type} [Monad m] [MonadIO m]
 @[inline] def Ref.get {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.get r)
 @[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)
 @[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
-@[inline] def Ref.reset {α : Type} (r : Ref α) : m Unit := Prim.liftIO (Prim.Ref.reset r)
+@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.take r)
 @[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := Prim.liftIO (Prim.Ref.ptrEq r1 r2)
-@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := do
-v ← r.get;
-r.reset;
+@[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : m Unit := do
+v ← r.take;
 r.set (f v)
-@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := do
-v ← r.get;
-r.reset;
+@[inline] unsafe def Ref.modifyGetUnsafe {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := do
+v ← r.take;
 let (b, a) := f v;
 r.set a;
 pure b
+
+@[implementedBy Ref.modifyUnsafe]
+def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := do
+v ← r.get;
+r.set (f v)
+
+@[implementedBy Ref.modifyGetUnsafe]
+def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := do
+v ← r.get;
+let (b, a) := f v;
+r.set a;
+pure b
+
 end
 
 end IO

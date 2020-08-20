@@ -124,10 +124,11 @@ end AbstractMVars
   Application: we use this method to cache the results of type class resolution. -/
 def abstractMVars (e : Expr) : MetaM AbstractMVarsResult := do
 e ← instantiateMVars e;
-s ← get;
+ngen ← getNGen;
 lctx ← getLCtx;
-let (e, s) := AbstractMVars.abstractExprMVars e s.mctx { lctx := lctx, ngen := s.ngen };
-modify $ fun s => { s with ngen := s.ngen };
+mctx ← getMCtx;
+let (e, s) := AbstractMVars.abstractExprMVars e mctx { lctx := lctx, ngen := ngen };
+setNGen s.ngen;
 let e := s.lctx.mkLambda s.fvars e;
 pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
 

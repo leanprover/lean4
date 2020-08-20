@@ -54,6 +54,35 @@ abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 
+def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
+mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
+
+private def mkCoreContext (ctx : Context) (s : State) : Core.Context :=
+let scope      := s.scopes.head!;
+{ options      := scope.opts,
+  currRecDepth := ctx.currRecDepth,
+  maxRecDepth  := s.maxRecDepth,
+  ref          := ctx.ref }
+
+structure CoreResult (α : Type) :=
+(env : Environment) (ngen : NameGenerator) (val : α)
+
+def fromCoreException (ctx : Context) (ex : Core.Exception) : Exception :=
+match ex with
+| Core.Exception.error ref msg  => Exception.error (mkMessageAux ctx (replaceRef ref ctx.ref) msg MessageSeverity.error)
+| Core.Exception.io error       => Exception.io error
+| Core.Exception.kernel ex opts => Exception.error (mkMessageAux ctx ctx.ref (ex.toMessageData opts) MessageSeverity.error)
+
+def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
+s ← get;
+ctx ← read;
+let x : CoreM (CoreResult α) := do { a ← x; env ← Core.getEnv; ngen ← Core.getNGen; pure ⟨env, ngen, a⟩ };
+let x : EIO Core.Exception (CoreResult α) := (ReaderT.run x (mkCoreContext ctx s)).run' { env := s.env, ngen := s.ngen };
+let x : EIO Exception (CoreResult α) := adaptExcept (fromCoreException ctx) x;
+result ← liftM x;
+modify fun s => { s with env := result.env, ngen := result.ngen };
+pure result.val
+
 @[inline] def getCurrRef : CommandElabM Syntax := do
 ctx ← read;
 pure ctx.ref
@@ -62,8 +91,6 @@ pure ctx.ref
 @[inline] def withRef {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM α := do
 adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
 
-def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
 let ref := getBetterRef ref ctx.macroStack;
@@ -152,6 +179,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
     | Exception.error _           => throw ex
+    | Exception.io _              => throw ex
     | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
@@ -199,40 +227,48 @@ fun stx => do
   stx' ← exp stx;
   withMacroExpansion stx stx' $ elabCommand stx'
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
-let scope := s.scopes.head!;
-{ config         := { opts := scope.opts, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
-  fileName       := ctx.fileName,
-  fileMap        := ctx.fileMap,
-  currRecDepth   := ctx.currRecDepth,
-  maxRecDepth    := s.maxRecDepth,
-  declName?      := declName?,
-  macroStack     := ctx.macroStack,
-  currMacroScope := ctx.currMacroScope,
-  currNamespace  := scope.currNamespace,
-  levelNames     := scope.levelNames,
-  openDecls      := scope.openDecls,
-  ref            := ctx.ref }
-
-private def mkTermState (s : State) : Term.State :=
-{ env            := s.env,
-  messages       := s.messages,
-  nextMacroScope := s.nextMacroScope,
-  ngen           := s.ngen }
-
 private def getVarDecls (s : State) : Array Syntax :=
 s.scopes.head!.varDecls
 
 instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
 
-@[inline] def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
+private def mkMetaContext : Meta.Context :=
+{ config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true } }
+
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
+let scope      := s.scopes.head!;
+{
+  macroStack     := ctx.macroStack,
+  fileName       := ctx.fileName,
+  fileMap        := ctx.fileMap,
+  currMacroScope := ctx.currMacroScope,
+  currNamespace  := scope.currNamespace,
+  levelNames     := scope.levelNames,
+  openDecls      := scope.openDecls,
+  declName?      := declName?
+}
+
+def fromTermException (ex : Term.Exception) : Exception :=
+match ex with
+| Term.Exception.postpone => unreachable!
+| Term.Exception.ex ex    => ex
+
+structure TermResult (α : Type) :=
+(env : Environment) (messages : MessageLog) (ngen : NameGenerator) (val : α)
+
+def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
 ctx ← read;
-s ← get;
-match (x $ mkTermContext ctx s declName?).run (mkTermState s) with
-| EStateM.Result.ok a newS                          => do modify $ fun s => { s with env := newS.env, messages := newS.messages, ngen := newS.ngen }; pure a
-| EStateM.Result.error (Term.Exception.ex ex) newS  => do modify $ fun s => { s with env := newS.env, messages := newS.messages, ngen := newS.ngen }; throw ex
-| EStateM.Result.error Term.Exception.postpone newS => unreachable!
+s   ← get;
+let scope := s.scopes.head!;
+let x : TermElabM (TermResult α) := do { a ← x; env ← Term.getEnv; messages ← Term.getMessageLog; ngen ← Term.getNGen; pure ⟨env, messages, ngen, a⟩ };
+let x : EMetaM Term.Exception (TermResult α) := (x (mkTermContext ctx s declName?)).run' { messages := s.messages, nextMacroScope := s.nextMacroScope };
+let x : ECoreM Term.Exception (TermResult α) := (x mkMetaContext).run' {};
+let x : EIO Term.Exception (TermResult α) := (x (mkCoreContext ctx s)).run' { env := s.env, ngen := s.ngen };
+let x : EIO Exception (TermResult α) := adaptExcept fromTermException x;
+result ← liftM x;
+modify fun s => { s with env := result.env, messages := result.messages, ngen := result.ngen };
+pure result.val
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
 s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
@@ -240,6 +276,7 @@ s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x (fun ex => match ex with
   | Exception.error ex          => do logMessage ex; pure ()
+  | Exception.io _              => throw ex
   | Exception.unsupportedSyntax => unreachable!)
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
@@ -531,6 +568,7 @@ succeeded ← finally
      (do x; hasNoErrorMessages)
      (fun ex => match ex with
        | Exception.error msg         => do modify (fun s => { s with messages := s.messages.add msg }); pure false
+       | Exception.io ex             => do logError (toString ex); pure false
        | Exception.unsupportedSyntax => do logError "unsupported syntax"; pure false))
   (restoreMessages prevMessages);
 when succeeded $

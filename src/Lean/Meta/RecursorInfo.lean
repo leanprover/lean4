@@ -101,7 +101,7 @@ match indInfo with
    indicesPos    := indicesPos,
    numArgs       := numArgs
   }
-| _ => throwOther "ill-formed builtin recursor"
+| _ => throwError "ill-formed builtin recursor"
 
 private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat) : MetaM (Option Nat) :=
 if majorPos?.isSome then pure majorPos?
@@ -116,11 +116,11 @@ else do
       recInfo ← getConstInfo (mkRecFor p);
       match recInfo with
       | ConstantInfo.recInfo val => pure (some (val.nparams + val.nindices + (if s == casesOnSuffix then 1 else val.nmotives)))
-      | _                        => throwOther "unexpected recursor information"
+      | _                        => throwError "unexpected recursor information"
   | _ => pure none
 
 private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Expr) : MetaM Unit :=
-unless (motive.isFVar && motiveArgs.all Expr.isFVar) $ throwOther
+unless (motive.isFVar && motiveArgs.all Expr.isFVar) $ throwError
   ("invalid user defined recursor '" ++ toString declName ++ "', result type must be of the form (C t), " ++
    "where C is a bound variable, and t is a (possibly empty) sequence of bound variables")
 
@@ -143,17 +143,17 @@ match majorPos? with
     let major   := xs.get ⟨majorPos, h⟩;
     let depElim := motiveArgs.contains major;
     pure (major, majorPos, depElim)
-  else throwOther
+  else throwError
     ("invalid major premise position for user defined recursor, recursor has only " ++ toString xs.size ++ " arguments")
 | none => do
-  when motiveArgs.isEmpty $ throwOther
+  when motiveArgs.isEmpty $ throwError
     ("invalid user defined recursor, '" ++ toString declName ++ "' does not support dependent elimination, " ++
      "and position of the major premise was not specified " ++
      "(solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)");
   let major := motiveArgs.back;
   match xs.getIdx? major with
   | some majorPos => pure (major, majorPos, true)
-  | none          => throwOther ("ill-formed recursor '" ++ toString declName ++ "'")
+  | none          => throwError ("ill-formed recursor '" ++ toString declName ++ "'")
 
 private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (Iargs : Array Expr) : MetaM (List (Option Nat)) := do
 paramsPos ← numParams.foldM
@@ -167,7 +167,7 @@ paramsPos ← numParams.foldM
       if localDecl.binderInfo.isInstImplicit then
         pure $ paramsPos.push none
       else
-        throwOther
+        throwError
           ("invalid user defined recursor '" ++ toString declName ++ "' , type of the major premise does not contain the recursor parameter"))
   #[];
 pure paramsPos.toList
@@ -181,7 +181,7 @@ indicesPos ← numIndices.foldM
     j? ← Iargs.findIdxM? $ fun Iarg => isDefEq Iarg x;
     match j? with
     | some j => pure $ indicesPos.push j
-    | none   => throwOther
+    | none   => throwError
       ("invalid user defined recursor '" ++ toString declName ++ "' , type of the major premise does not contain the recursor index"))
   #[];
 pure indicesPos.toList
@@ -190,7 +190,7 @@ private def getMotiveLevel (declName : Name) (motiveResultType : Expr) : MetaM L
 match motiveResultType with
 | Expr.sort u@(Level.zero _) _    => pure u
 | Expr.sort u@(Level.param _ _) _ => pure u
-| _                               => throwOther
+| _                               => throwError
  ("invalid user defined recursor '" ++ toString declName ++ "' , motive result sort must be Prop or (Sort u) where u is a universe level parameter")
 
 private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl : Level) (Ilevels : List Level) : MetaM (List RecursorUnivLevelPos) := do
@@ -202,7 +202,7 @@ univLevelPos ← lparams.foldlM
     else
       match Ilevels.findIdx? $ fun u => u == mkLevelParam p with
       | some i => pure $ univLevelPos.push $ RecursorUnivLevelPos.majorType i
-      | none   => throwOther
+      | none   => throwError
         ("invalid user defined recursor '" ++ toString declName ++ "' , major premise type does not contain universe level parameter '" ++ toString p ++ "'"))
   #[];
 pure univLevelPos.toList
@@ -228,7 +228,7 @@ private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices
 pure (produceMotive.toList, rec)
 
 private def checkMotiveResultType (declName : Name) (motiveArgs : Array Expr) (motiveResultType : Expr) (motiveTypeParams : Array Expr) : MetaM Unit :=
-when (!motiveResultType.isSort || motiveArgs.size != motiveTypeParams.size) $ throwOther
+when (!motiveResultType.isSort || motiveArgs.size != motiveTypeParams.size) $ throwError
   ("invalid user defined recursor '" ++ toString declName ++ "', motive must have a type of the form "
    ++ "(C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), "
    ++ "(i : B A) is a (possibly empty) telescope (aka indices), and I is a constant")
@@ -241,7 +241,7 @@ forallTelescopeReducing cinfo.type $ fun xs type => type.withApp $ fun motive mo
   let numParams := getNumParams xs motive 0;
   (major, majorPos, depElim) ← getMajorPosDepElim declName majorPos? xs motive motiveArgs;
   let numIndices := if depElim then motiveArgs.size - 1 else motiveArgs.size;
-  when (majorPos < numIndices) $ throwOther
+  when (majorPos < numIndices) $ throwError
     ("invalid user defined recursor '" ++ toString declName ++ "', indices must occur before major premise");
   majorType ← inferType major;
   majorType.withApp $ fun I Iargs =>
@@ -267,7 +267,7 @@ forallTelescopeReducing cinfo.type $ fun xs type => type.withApp $ fun motive mo
         indicesPos    := indicesPos,
         numArgs       := xs.size
       }
-  | _ => throwOther
+  | _ => throwError
     ("invalid user defined recursor '" ++ toString declName
      ++ "', type of the major premise must be of the form (I ...), where I is a constant")
 
@@ -291,12 +291,7 @@ match cinfo with
 def mkRecursorAttr : IO (ParametricAttribute Nat) :=
 registerParametricAttribute `recursor "user defined recursor, numerical parameter specifies position of the major premise"
   (fun _ stx => Core.ofExcept $ syntaxToMajorPos stx)
-  (fun declName majorPos => do
-    -- TODO: new code after CoreM refactoring
-    -- Meta.run $ mkRecursorInfoCore declName (some majorPos)
-    env ← Core.getEnv;
-    (info, env) ← liftIO $ IO.runMeta (mkRecursorInfoCore declName (some majorPos)) env;
-    Core.setEnv env)
+  (fun declName majorPos => do _ ← (mkRecursorInfoCore declName (some majorPos)).run; pure ())
 
 @[init mkRecursorAttr] constant recursorAttribute : ParametricAttribute Nat := arbitrary _
 

@@ -43,7 +43,7 @@ liftMetaTactic $ fun mvarId => do
     let eq     := mkApp3 (Lean.mkConst `Eq [u]) eType e (mkBVar 0);
     let target := Lean.mkForall x BinderInfo.default eType $ Lean.mkForall h BinderInfo.default eq (b.liftLooseBVars 0 1);
     evalGeneralizeFinalize mvarId e target
-  | _ => throw $ Meta.Exception.other Syntax.missing "unexpected type after generalize"
+  | _ => Meta.throwError "unexpected type after generalize"
 
 -- If generalizing fails, fall back to not replacing anything
 private def evalGeneralizeFallback (h : Name) (e : Expr) (x : Name) : TacticM Unit :=

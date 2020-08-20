@@ -20,7 +20,7 @@ namespace Lean
 namespace Elab
 namespace Term
 
-structure Context extends Meta.Context :=
+structure Context :=
 (fileName        : String)
 (fileMap         : FileMap)
 (currNamespace   : Name)
@@ -43,7 +43,6 @@ structure Context extends Meta.Context :=
 (errToSorry      : Bool            := true)
 /- If `macroStackAtErr == true`, we include it in error messages. -/
 (macroStackAtErr : Bool            := true)
-(ref             : Syntax          := Syntax.missing)
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind
@@ -62,14 +61,14 @@ inductive SyntheticMVarKind
 structure SyntheticMVarDecl :=
 (mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
 
-structure State extends Meta.State :=
+structure State :=
 (syntheticMVars  : List SyntheticMVarDecl := [])
 (messages        : MessageLog := {})
 (instImplicitIdx : Nat := 1)
 (anonymousIdx    : Nat := 1)
 (nextMacroScope  : Nat := firstFrontendMacroScope + 1)
 
-instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
+instance State.inhabited : Inhabited State := ⟨{}⟩
 
 /-
   The Term elaborator monad has a special kind of exception `Exception.postpone` which is used by
@@ -80,6 +79,9 @@ inductive Exception
 | ex       : Elab.Exception → Exception
 | postpone : Exception
 
+instance Exception.monadIO : MonadIO (EIO Exception) :=
+mkEIOMonadIO (Exception.ex ∘ Exception.io)
+
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.postpone⟩
 instance Exception.hasToString : HasToString Exception :=
 ⟨fun ex => match ex with | Exception.postpone => "postponed" | Exception.ex ex => toString ex⟩
@@ -89,57 +91,126 @@ instance Exception.hasToString : HasToString Exception :=
   may postpone or not by having adding a Boolean parameter `mayPostpone` to
   `TermElabM`. This would be useful to ensure that `Exception.postpone` does not leak
   to `CommandElabM`, but we abandoned this design because it adds unnecessary complexity. -/
-abbrev TermElabM := ReaderT Context (EStateM Exception State)
-abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
+abbrev ETermElabM (ε) := ReaderT Context $ StateRefT State $ EMetaM ε
+abbrev TermElabM      := ETermElabM Exception
+abbrev TermElab       := Syntax → Option Expr → TermElabM Expr
 
 instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
 ⟨throw $ Exception.postpone⟩
 
-abbrev TermElabResult := EStateM.Result Message State Expr
+structure SavedState :=
+(core : Core.State)
+(meta : Meta.State)
+(elab : State)
+
+instance SavedState.inhabited : Inhabited SavedState := ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
+
+def saveAllState : TermElabM SavedState := do
+core ← getThe Core.State;
+meta ← getThe Meta.State;
+elab ← get;
+pure { core := core, meta := meta, elab := elab }
+
+def SavedState.restore (s : SavedState) : TermElabM Unit := do
+set s.core; set s.meta; set s.elab
+
+abbrev TermElabResult := EStateM.Result Message SavedState Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
 /--
   Execute `x`, save resulting expression and new state.
   If `x` fails, then it also stores exception and new state.
   Remark: we do not capture `Exception.postpone`. -/
-@[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult :=
-fun ctx s =>
-  match x ctx s with
-  | EStateM.Result.error (Exception.ex (Elab.Exception.error errMsg)) newS => EStateM.Result.ok (EStateM.Result.error errMsg newS) s
-  | EStateM.Result.error Exception.postpone _                              => EStateM.Result.error Exception.postpone s
-  | EStateM.Result.error ex newS                                           => EStateM.Result.error ex newS
-  | EStateM.Result.ok e newS                                               => EStateM.Result.ok (EStateM.Result.ok e newS) s
+@[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult := do
+s ← saveAllState;
+catch
+  (do e ← x; newS ← saveAllState; s.restore; pure (EStateM.Result.ok e newS))
+  (fun ex => match ex with
+    | Exception.ex (Elab.Exception.error errMsg) => do newS ← saveAllState; s.restore; pure (EStateM.Result.error errMsg newS)
+    | Exception.postpone                         => do s.restore; throw Exception.postpone
+    | _                                          => throw ex)
 
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
 def applyResult (result : TermElabResult) : TermElabM Expr :=
 match result with
-| EStateM.Result.ok e s         => do set s; pure e
-| EStateM.Result.error errMsg s => do set s; throw (Exception.ex (Elab.Exception.error errMsg))
+| EStateM.Result.ok e s         => do s.restore; pure e
+| EStateM.Result.error errMsg s => do s.restore; throw (Exception.ex (Elab.Exception.error errMsg))
 
-def getEnv : TermElabM Environment := do s ← get; pure s.env
-def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
-def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
-def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
-def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
+private def getRefImpl : TermElabM Syntax :=
+liftM $ @Core.getRef Exception
+
+/-- Auxiliary function for `liftMetaM` -/
+private def mkMessageAux (ref : Syntax) (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
+let pos := ref.getPos.getD 0;
+mkMessageCore ctx.fileName ctx.fileMap msgData severity pos
+
+private def fromMetaException (ref : Syntax) (ctx : Context) (ex : Meta.Exception) : Exception :=
+-- We use `ref` stored in `ex` if it contains position information
+let ref := match ex.getRef.getPos with
+  | some _ => ex.getRef
+  | none   => ref;
+Exception.ex $ Elab.Exception.error $ mkMessageAux ref ctx ex.toMessageData MessageSeverity.error
+
+@[inline] private def liftMetaMCore {α} (x : MetaM α) : TermElabM α := do
+ref ← getRefImpl;
+ctx ← read;
+liftM $ (adaptExcept (fromMetaException ref ctx) x : EMetaM Exception α)
+
+private def getTraceState : TermElabM TraceState :=
+liftMetaMCore Meta.getTraceState
+
+private def setTraceState (s : TraceState) : TermElabM Unit :=
+liftMetaMCore $ Meta.setTraceState s
+
+private def saveTraceAsMessages (traceState : TraceState) : TermElabM Unit :=
+unless traceState.traces.isEmpty do
+  ref ← getRefImpl;
+  ctx ← read;
+  modify fun s =>
+    { s with messages := traceState.traces.foldl
+        (fun (messages : MessageLog) trace => messages.add (mkMessageAux ref ctx trace MessageSeverity.information))
+        s.messages }
+
+private def liftMetaMFinalizer (oldTraceState : TraceState) : TermElabM Unit := do
+newTraceState ← getTraceState;
+saveTraceAsMessages newTraceState;
+setTraceState oldTraceState
+
+@[inline] def liftMetaM {α} (x : MetaM α) : TermElabM α := do
+oldTraceState ← getTraceState;
+setTraceState {};
+finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
+
+@[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
+liftMetaM $ Meta.liftCoreM x
+
+def getEnv : TermElabM Environment := do s ← getThe Core.State; pure s.env
+def getMCtx : TermElabM MetavarContext := do s ← getThe Meta.State; pure s.mctx
+def getLCtx : TermElabM LocalContext := do ctx ← readThe Meta.Context; pure ctx.lctx
+def getLocalInsts : TermElabM LocalInstances := do ctx ← readThe Meta.Context; pure ctx.localInstances
+def getOptions : TermElabM Options := do ctx ← readThe Core.Context; pure ctx.options
+def getNGen : TermElabM NameGenerator := do s ← getThe Core.State; pure s.ngen
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   lctx ← getLCtx;
   match lctx.find? fvar.fvarId! with
   | some d => pure d
   | none   => unreachable!
+def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
-def setEnv (env : Environment) : TermElabM Unit := modify $ fun s => { s with env := env }
-def setMCtx (mctx : MetavarContext) : TermElabM Unit := modify $ fun s => { s with mctx := mctx }
-@[inline] def modifyEnv (f : Environment → Environment) : TermElabM Unit := modify $ fun s => { s with env := f s.env }
+def setEnv (env : Environment) : TermElabM Unit := modifyThe Core.State $ fun s => { s with env := env }
+@[inline] def modifyEnv (f : Environment → Environment) : TermElabM Unit := modifyThe Core.State $ fun s => { s with env := f s.env }
+def setMCtx (mctx : MetavarContext) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := mctx }
+def setNGen (ngen : NameGenerator) : TermElabM Unit := modifyThe Core.State $ fun s => { s with ngen := ngen }
 
 def addContext (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
 pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
 
 instance monadLog : MonadLog TermElabM :=
-{ getRef      := do ctx ← read; pure ctx.ref,
+{ getRef      := getRefImpl,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := addContext,
@@ -147,7 +218,7 @@ instance monadLog : MonadLog TermElabM :=
 
 /- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
 @[inline] def withRef {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
-adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
+adaptTheReader Core.Context (Core.Context.replaceRef ref) x
 
 /-- Throws an error with the given `msgData` and extracting position information from `ctx.ref`. -/
 def throwError {α} (msgData : MessageData) : TermElabM α := do
@@ -165,10 +236,12 @@ withRef ref $ throwError msgData
 def throwUnsupportedSyntax {α} : TermElabM α :=
 throw (Exception.ex Elab.Exception.unsupportedSyntax)
 
+def checkRecDepth : TermElabM Unit :=
+liftMetaM $ Meta.checkRecDepth
+
 @[inline] def withIncRecDepth {α} (x : TermElabM α) : TermElabM α := do
-ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
+checkRecDepth;
+adaptTheReader Core.Context Core.Context.incCurrRecDepth x
 
 protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.mainModule
@@ -204,18 +277,18 @@ instance LVal.hasToString : HasToString LVal :=
 def getDeclName? : TermElabM (Option Name) := do ctx ← read; pure ctx.declName?
 def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
 def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
-def getTraceState : TermElabM TraceState := do s ← get; pure s.traceState
-def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s => { s with traceState := traceState }
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
-def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
-def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modify $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
+def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
+def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
-ctx ← read;
-s   ← get;
+env  ← getEnv;
+mctx ← getMCtx;
+lctx ← getLCtx;
+opts ← getOptions;
 logInfo $
-  MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } $
+  MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } $
     MessageData.tagged cls msg
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : TermElabM Unit := do
@@ -236,34 +309,6 @@ withRef Syntax.missing $ trace cls msg
 
 def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
-
-/-- Auxiliary function for `liftMetaM` -/
-private def mkMessageAux (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-let pos := ctx.ref.getPos.getD 0;
-mkMessageCore ctx.fileName ctx.fileMap msgData severity pos
-
-/-- Auxiliary function for `liftMetaM` -/
-private def fromMetaException (ctx : Context) (ex : Meta.Exception) : Exception :=
--- We use `ref` stored in `ex` if it contains position information
-let ref := match ex.getRef.getPos with
-  | some _ => ex.getRef
-  | none   => ctx.ref;
-Exception.ex $ Elab.Exception.error $ mkMessageAux ctx ex.toMessageData MessageSeverity.error
-
-/-- Auxiliary function for `liftMetaM` -/
-private def fromMetaState (ctx : Context) (s : State) (newS : Meta.State) (oldTraceState : TraceState) : State :=
-let traces   := newS.traceState.traces;
-let messages := traces.foldl (fun (messages : MessageLog) trace => messages.add (mkMessageAux ctx trace MessageSeverity.information)) s.messages;
-{ s with
-  toState  := { newS with traceState := oldTraceState },
-  messages := messages }
-
-@[inline] def liftMetaM {α} (x : MetaM α) : TermElabM α :=
-fun ctx s =>
-  let oldTraceState := s.traceState;
-  match x ctx.toContext { s.toState with traceState := {} } with
-  | EStateM.Result.ok a newS     => EStateM.Result.ok a (fromMetaState ctx s newS oldTraceState)
-  | EStateM.Result.error ex newS => EStateM.Result.error (fromMetaException ctx ex) (fromMetaState ctx s newS oldTraceState)
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
 def isType (e : Expr) : TermElabM Bool := liftMetaM $ Meta.isType e
@@ -319,20 +364,23 @@ decLevel u
 
 @[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
 mctx ← getMCtx;
-finally x (modify $ fun s => { s with mctx := mctx })
+finally x (setMCtx mctx)
 
-def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
-fun ctx s =>
-  let lvlCtx : Level.Context := { fileName := ctx.fileName, fileMap := ctx.fileMap, ref := ctx.ref, levelNames := ctx.levelNames };
-  match (x lvlCtx).run { ngen := s.ngen, mctx := s.mctx } with
-  | EStateM.Result.ok a newS     => EStateM.Result.ok a { s with mctx := newS.mctx, ngen := newS.ngen }
-  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.ex ex) s
+def liftLevelM {α} (x : LevelElabM α) : TermElabM α := do
+ctx ← read;
+ref ← getRef;
+mctx ← getMCtx;
+ngen ← getNGen;
+let lvlCtx : Level.Context := { fileName := ctx.fileName, fileMap := ctx.fileMap, ref := ref, levelNames := ctx.levelNames };
+  match (x lvlCtx).run { ngen := ngen, mctx := mctx } with
+  | EStateM.Result.ok a newS  => do setMCtx newS.mctx; setNGen newS.ngen; pure a
+  | EStateM.Result.error ex _ => throw $ Exception.ex ex
 
 def elabLevel (stx : Syntax) : TermElabM Level :=
 liftLevelM $ Level.elabLevel stx
 
 @[inline] def withConfig {α} (f : Meta.Config → Meta.Config) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config }) x
+adaptTheReader Meta.Context (fun (ctx : Meta.Context) => { ctx with config := f ctx.config }) x
 
 @[inline] def withTransparency {α} (mode : Meta.TransparencyMode) (x : TermElabM α) : TermElabM α :=
 withConfig (fun config => { config with transparency := mode }) x
@@ -351,8 +399,8 @@ def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVar
 modify $ fun s => { s with syntheticMVars := { mvarId := mvarId, stx := stx, kind := kind } :: s.syntheticMVars }
 
 def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
-ctx ← read;
-registerSyntheticMVar ctx.ref mvarId kind
+ref ← getRef;
+registerSyntheticMVar ref mvarId kind
 
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
@@ -374,7 +422,7 @@ def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) : TermElabM (Expr × N
 ctx ← read;
 mctx ← getMCtx;
 let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e `u nextParamIdx;
-modify $ fun s => { s with mctx := r.mctx };
+setMCtx r.mctx;
 pure (r.expr, r.nextParamIdx)
 
 /-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
@@ -447,33 +495,34 @@ if hasCDot stx then do
 else
   pure none
 
-def mkFreshFVarId : TermElabM Name := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { s with ngen := s.ngen.next };
-pure id
+def mkFreshFVarId : TermElabM FVarId :=
+liftMetaM $ Meta.mkFreshId
 
 def withLocalDecl {α} (n : Name) (binderInfo : BinderInfo) (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
-fvarId ← mkFreshFVarId;
-ctx ← read;
-let lctx       := ctx.lctx.mkLocalDecl fvarId n type binderInfo;
-let localInsts := ctx.localInstances;
-let fvar       := mkFVar fvarId;
-c? ← isClass type;
+fvarId     ← mkFreshFVarId;
+lctx       ← getLCtx;
+localInsts ← getLocalInsts;
+let lctx   := lctx.mkLocalDecl fvarId n type binderInfo;
+let fvar   := mkFVar fvarId;
+c?         ← isClass type;
 match c? with
-| some c => adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar } }) $ k fvar
-| none   => adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $ k fvar
+| some c => adaptTheReader Meta.Context
+    (fun ctx => { ctx with lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar } }) $
+    k fvar
+| none   => adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ k fvar
 
 def withLetDecl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
-fvarId ← mkFreshFVarId;
-ctx ← read;
-let lctx       := ctx.lctx.mkLetDecl fvarId n type val;
-let localInsts := ctx.localInstances;
-let fvar       := mkFVar fvarId;
-c? ← isClass type;
+fvarId     ← mkFreshFVarId;
+lctx       ← getLCtx;
+localInsts ← getLocalInsts;
+let lctx   := lctx.mkLetDecl fvarId n type val;
+let fvar   := mkFVar fvarId;
+c?         ← isClass type;
 match c? with
-| some c => adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar } }) $ k fvar
-| none   => adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $ k fvar
+| some c => adaptTheReader Meta.Context
+              (fun ctx => { ctx with lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar } }) $
+              k fvar
+| none   => adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ k fvar
 
 def throwTypeMismatchError {α} (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
@@ -488,9 +537,7 @@ match f? with
     ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
     ++ extraMsg;
   throwError msg
-| some f => do
-  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
-  throwError $ Meta.Exception.mkAppTypeMismatchMessage f e { env := env, mctx := mctx, lctx := lctx, opts := opts } ++ extraMsg
+| some f => liftMetaM $ Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { ctx with macroStackAtErr := false }) x
@@ -774,15 +821,14 @@ pure mvar
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
-private def elabUsingElabFnsAux (s : State) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
+private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
 | []                => do
   let refFmt := stx.prettyPrint;
   throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg)    => do ctx ← read; if ctx.errToSorry then exceptionToSorry errMsg expectedType? else throw ex
-    | Exception.ex Elab.Exception.unsupportedSyntax => do set s; elabUsingElabFnsAux elabFns
+    | Exception.ex Elab.Exception.unsupportedSyntax => do s.restore; elabUsingElabFnsAux elabFns
     | Exception.postpone          =>
       if catchExPostpone then do
         /- If `elab` threw `Exception.postpone`, we reset any state modifications.
@@ -799,14 +845,17 @@ private def elabUsingElabFnsAux (s : State) (stx : Syntax) (expectedType? : Opti
           keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
           wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
           and new metavariables are created for the nested functions. -/
-          set s;
+          s.restore;
           postponeElabTerm stx expectedType?
         else
-          throw ex)
+          throw ex
+    | Exception.ex (Elab.Exception.error errMsg) => do ctx ← read; if ctx.errToSorry then exceptionToSorry errMsg expectedType? else throw ex
+    | Exception.ex (Elab.Exception.io err)       => throw ex)
 
 def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
-s ← get;
-let table := (termElabAttribute.ext.getState s.env).table;
+s ← saveAllState;
+env ← getEnv;
+let table := (termElabAttribute.ext.getState env).table;
 let k := stx.getKind;
 match table.find? k with
 | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
@@ -817,8 +866,8 @@ instance : MonadMacroAdapter TermElabM :=
   getCurrMacroScope      := getCurrMacroScope,
   getNextMacroScope      := do s ← get; pure s.nextMacroScope,
   setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
-  getMaxRecDepth         := do ctx ← read; pure ctx.maxRecDepth,
+  getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
+  getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
   throwError             := @throwErrorAt,
   throwUnsupportedSyntax := @throwUnsupportedSyntax}
 
@@ -884,9 +933,9 @@ partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr �
 partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
 | stx => withFreshMacroScope $ withIncRecDepth do
   trace `Elab.step $ fun _ => expectedType? ++ " " ++ stx;
-  s ← get;
+  env ← getEnv;
   stxNew? ← catch
-    (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
+    (do newStx ← adaptMacro (getMacros env) stx; pure (some newStx))
     (fun ex => match ex with
       | Exception.ex Elab.Exception.unsupportedSyntax => pure none
       | _                                             => throw ex);
@@ -928,23 +977,28 @@ fun stx expectedType? => do
   withMacroExpansion stx stx' $ elabTerm stx' expectedType?
 
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) x
+adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) x
 
-def resetSynthInstanceCache : TermElabM Unit :=
-modify $ fun s => { s with cache := { s.cache with synthInstance := {} } }
+def saveAndResetSynthInstanceCache : TermElabM Meta.SynthInstanceCache :=
+liftMetaMCore Meta.saveAndResetSynthInstanceCache
 
+def resetSynthInstanceCache : TermElabM Unit := do
+_ ← saveAndResetSynthInstanceCache; pure ()
+
+def restoreSynthInstanceCache (cache : Meta.SynthInstanceCache) : TermElabM Unit :=
+liftMetaMCore $ Meta.restoreSynthInstanceCache cache
+
+/-- Reset `synthInstance` cache, execute `x`, and restore cache -/
 @[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
-s ← get;
-let savedSythInstance := s.cache.synthInstance;
-resetSynthInstanceCache;
-finally x (modify $ fun s => { s with cache := { s.cache with synthInstance := savedSythInstance } })
+savedSythInstance ← saveAndResetSynthInstanceCache;
+finally x (restoreSynthInstanceCache savedSythInstance)
 
 @[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
 if b then resettingSynthInstanceCache x else x
 
 def withLocalContext {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α := do
 localInstsCurr ← getLocalInsts;
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) $
+adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) $
   if localInsts == localInstsCurr then
     x
   else
@@ -955,9 +1009,9 @@ adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := l
   The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
   different from the current ones. -/
 def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
-mvarDecl  ← getMVarDecl mvarId;
-ctx       ← read;
-let needReset := ctx.localInstances == mvarDecl.localInstances;
+mvarDecl   ← getMVarDecl mvarId;
+localInsts ← getLocalInsts;
+let needReset := localInsts == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
 def mkInstMVar (type : Expr) : TermElabM Expr := do
@@ -1270,32 +1324,30 @@ fun stx _ =>
   | some val => pure $ toExpr val
   | none     => throwError "ill-formed syntax"
 
+private def printMessages : TermElabM Unit := do
+s ← get;
+s.messages.forM $ fun m => IO.println $ format m
+
+def TermElabM.run {α} (x : TermElabM α) : MetaM α := do
+let x : TermElabM α := do { a ← x; printMessages; pure a };
+let ctx : Context := {
+  fileName      := "<TermElabM>",
+  fileMap       := arbitrary _,
+  currNamespace := Name.anonymous,
+};
+let x : EMetaM Exception α := (x ctx).run' {};
+ref ← Meta.getRef;
+let mkMetaException (msg : MessageData) : Meta.Exception := Meta.Exception.core (Core.Exception.error ref msg);
+adaptExcept
+  (fun (ex : Exception) => match ex with
+    | Exception.postpone                             => mkMetaException "<postpone>"
+    | Exception.ex Elab.Exception.unsupportedSyntax  => mkMetaException "<unsupportedSyntax>"
+    | Exception.ex (Elab.Exception.io err)           => Meta.Exception.core (Core.Exception.io err)
+    | Exception.ex (Elab.Exception.error msg)        => mkMetaException msg.data)
+  x
+
 instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
-⟨fun env opts x _ => do
-  let ctx : Context := {
-    config        := { opts := opts },
-    fileName      := "<TermElabM>",
-    fileMap       := arbitrary _,
-    currNamespace := Name.anonymous,
-    currRecDepth  := 0,
-    maxRecDepth   := getMaxRecDepth opts
-  };
-  let showMessages (s : State) : IO Unit := do {
-    s.messages.forM $ fun m => IO.println $ format m
-  };
-  match x ctx { env := env } with
-  | EStateM.Result.ok a s => do
-    showMessages s;
-    MetaHasEval.eval s.env opts a
-  | EStateM.Result.error (Exception.ex (Elab.Exception.error err)) s => do
-    showMessages s;
-    throw (IO.userError (toString (format err)))
-  | EStateM.Result.error (Exception.ex Elab.Exception.unsupportedSyntax) s => do
-    showMessages s;
-    throw (IO.userError "error: unsupported syntax")
-  | EStateM.Result.error Exception.postpone s => do
-    showMessages s;
-    throw (IO.userError "error: elaborator postponed")⟩
+⟨fun env opts x _ => MetaHasEval.eval env opts x.run⟩
 
 end Term
 

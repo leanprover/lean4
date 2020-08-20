@@ -13,7 +13,7 @@ namespace Lean
 namespace Meta
 
 private def throwInductiveTypeExpected {α} (type : Expr) : MetaM α := do
-throwOther ("failed to compile pattern matching, inductive type expected" ++ indentExpr type)
+throwError ("failed to compile pattern matching, inductive type expected" ++ indentExpr type)
 
 def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
 env ← getEnv;

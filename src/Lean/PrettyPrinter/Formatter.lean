@@ -168,8 +168,8 @@ st ← get;
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
 -- them in turn. Uses the syntax traverser non-linearly!
 catch p1 $ fun e => match e with
-  | Exception.other _ "BACKTRACK" => set st *> p2
-  | _                             => throw e
+  | Exception.core (Core.Exception.error _ "BACKTRACK") => set st *> p2
+  | _                                                   => throw e
 
 -- `mkAntiquot` is quite complex, so we'd rather have its formatter synthesized below the actual parser definition.
 -- Note that there is a mutual recursion
@@ -182,7 +182,7 @@ arbitrary _
 def formatterForKind (k : SyntaxNodeKind) : Formatter := do
 env ← liftM getEnv;
 p::_ ← pure $ formatterAttribute.getValues env k
-  | throw $ Exception.other Syntax.missing $ "no known formatter for kind '" ++ toString k ++ "'";
+  | liftM $ throwError $ "no known formatter for kind '" ++ k ++ "'";
 p
 
 @[combinatorFormatter Lean.Parser.withAntiquot]
@@ -231,7 +231,7 @@ stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.formatter`
-  throw $ Exception.other Syntax.missing "BACKTRACK"
+  throw $ Exception.core $ Core.Exception.error Syntax.missing "BACKTRACK"
 }
 
 @[combinatorFormatter Lean.Parser.node]
@@ -284,7 +284,7 @@ goLeft
 def unicodeSymbol.formatter (sym asciiSym : String) : Formatter := do
 stx ← getCur;
 Syntax.atom _ val ← pure stx
-  | throw $ Exception.other Syntax.missing $ "not an atom: " ++ toString stx;
+  | throw $ Exception.core $ Core.Exception.error Syntax.missing $ "not an atom: " ++ toString stx;
 if val == sym.trim then
   pushToken sym
 else
@@ -317,7 +317,7 @@ stx ← getCur;
 when (k != Name.anonymous) $
   checkKind k;
 Syntax.atom _ val ← pure $ stx.ifNode (fun n => n.getArg 0) (fun _ => stx)
-  | throw $ Exception.other Syntax.missing $ "not an atom: " ++ toString stx;
+  | liftM $ throwError $ "not an atom: " ++ toString stx;
 pushToken val;
 goLeft
 

@@ -13,18 +13,20 @@ namespace Term
 open Tactic (TacticM evalTactic getUnsolvedGoals)
 
 def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
-withMVarContext mvarId $ fun ctx s =>
+withMVarContext mvarId do
+  s ← get;
   let savedSyntheticMVars := s.syntheticMVars;
-  match x { ctx with main := mvarId } { s with goals := [mvarId], syntheticMVars := [] } with
-  | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) { newS.toTermState with syntheticMVars := savedSyntheticMVars }
-  | EStateM.Result.ok a newS     => EStateM.Result.ok a { newS.toTermState with syntheticMVars := savedSyntheticMVars }
+  modify fun s => { s with syntheticMVars := [] };
+  let x : ETermElabM Tactic.Exception α := (x { main := mvarId }).run' { s with goals := [mvarId] };
+  let x : ETermElabM Exception α := adaptExcept Exception.ex x;
+  finally x (modify fun s => { syntheticMVars := savedSyntheticMVars })
 
 def ensureAssignmentHasNoMVars (mvarId : MVarId) : TermElabM Unit := do
 val ← instantiateMVars (mkMVar mvarId);
 when val.hasExprMVar $ throwError ("tactic failed, result still contain metavariables" ++ indentExpr val)
 
 def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
-modify $ fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId };
+modifyThe Meta.State $ fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId };
 remainingGoals ← liftTacticElabM mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
 ref ← getRef;
 let tailRef := ref.getTailWithPos.getD ref;
@@ -57,6 +59,7 @@ withRef stx $ withMVarContext mvarId $ do
       pure true)
     (fun ex => match ex with
       | Exception.postpone                            => do set s; pure false
+      | Exception.ex (Elab.Exception.io _)            => throw ex
       | Exception.ex Elab.Exception.unsupportedSyntax => unreachable!
       | Exception.ex (Elab.Exception.error msg)       =>
         if postponeOnError then do

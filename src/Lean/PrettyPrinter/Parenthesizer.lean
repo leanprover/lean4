@@ -236,8 +236,8 @@ st ← get;
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
 -- them in turn. Uses the syntax traverser non-linearly!
 catch p1 $ fun e => match e with
-  | Exception.other _ "BACKTRACK" => set st *> p2
-  | _                             => throw e
+  | Exception.core $ Core.Exception.error _ "BACKTRACK" => set st *> p2
+  | _                                                   => throw e
 
 -- `mkAntiquot` is quite complex, so we'd rather have its parenthesizer synthesized below the actual parser definition.
 -- Note that there is a mutual recursion
@@ -250,7 +250,7 @@ arbitrary _
 def parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer := do
 env ← liftM getEnv;
 p::_ ← pure $ parenthesizerAttribute.getValues env k
-  | throw $ Exception.other Syntax.missing $ "no known parenthesizer for kind '" ++ toString k ++ "'";
+  | liftM (throwError $ "no known parenthesizer for kind '" ++ toString k ++ "'");
 p
 
 @[combinatorParenthesizer Lean.Parser.withAntiquot]
@@ -290,7 +290,7 @@ def term.parenthesizer : CategoryParenthesizer | prec => do
 stx ← getCur;
 -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
 if stx.getKind == nullKind then
-  throw $ Exception.other Syntax.missing "BACKTRACK"
+  liftM $ throwError "BACKTRACK"
 else do
   maybeParenthesize `term (fun stx => Unhygienic.run `(($stx))) prec $
     parenthesizeCategoryCore `term prec
@@ -323,7 +323,7 @@ stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw $ Exception.other Syntax.missing "BACKTRACK"
+  liftM $ throwError "BACKTRACK"
 };
 visitArgs p
 
@@ -346,7 +346,7 @@ stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw $ Exception.other Syntax.missing "BACKTRACK"
+  liftM $ throwError "BACKTRACK"
 };
 visitArgs $ do {
   p;
@@ -428,6 +428,158 @@ p
 
 @[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
 if c then t else e
+
+-- replace all references of `Parser` with `Parenthesizer` as a first approximation
+def preprocessParserBody (e : Expr) : Expr :=
+e.replace fun e => if e.isConstOf `Lean.Parser.Parser then mkConst `Lean.PrettyPrinter.Parenthesizer else none
+
+-- translate an expression of type `Parser` into one of type `Parenthesizer`
+partial def compileParserBody : Expr → MetaM Expr | e => do
+e ← whnfCore e;
+match e with
+| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e fun xs b => compileParserBody b >>= Meta.mkLambda xs
+| e@(Expr.fvar _ _)        => pure e
+| _ => do
+  let fn := e.getAppFn;
+  Expr.const c _ _ ← pure fn
+    | liftM (throwError $ "call of unknown parser at '" ++ toString e ++ "'");
+  let args := e.getAppArgs;
+  -- call the parenthesizer `p` with (a prefix of) the arguments of `e`, recursing for arguments
+  -- of type `Parenthesizer` (i.e. formerly `Parser`)
+  let mkCall (p : Name) := do {
+    ty ← inferType (mkConst p);
+    Meta.forallTelescope ty fun params _ =>
+      params.foldlM₂ (fun p param arg => do
+        paramTy ← inferType param;
+        resultTy ← Meta.forallTelescope paramTy fun _ b => pure b;
+        arg ← if resultTy.isConstOf `Lean.PrettyPrinter.Parenthesizer then compileParserBody arg
+          else pure arg;
+        pure $ mkApp p arg)
+        (mkConst p)
+        e.getAppArgs
+  };
+  env ← getEnv;
+  match combinatorParenthesizerAttribute.getDeclFor env c with
+  | some p => mkCall p
+  | none   => do
+    let parenthesizerDeclName := c ++ `parenthesizer;
+    cinfo ← getConstInfo c;
+    resultTy ← Meta.forallTelescope cinfo.type fun _ b => pure b;
+    if resultTy.isConstOf `Lean.Parser.TrailingParser || resultTy.isConstOf `Lean.Parser.Parser then do
+      -- synthesize a new `[combinatorParenthesizer]`
+      some value ← pure cinfo.value?
+        | liftM (throwError $ "don't know how to generate parenthesizer for non-definition '" ++ toString e ++ "'");
+      value ← compileParserBody $ preprocessParserBody value;
+      ty ← Meta.forallTelescope cinfo.type fun params _ =>
+        params.foldrM (fun param ty => do
+          paramTy ← inferType param;
+          paramTy ← Meta.forallTelescope paramTy fun _ b => pure $
+            if b.isConstOf `Lean.Parser.Parser then mkConst `Lean.PrettyPrinter.Parenthesizer
+            else b;
+          pure $ mkForall `_ BinderInfo.default paramTy ty)
+          (mkConst `Lean.PrettyPrinter.Parenthesizer);
+      let decl := Declaration.defnDecl { name := parenthesizerDeclName, lparams := [],
+        type := ty, value := value, hints := ReducibilityHints.opaque, isUnsafe := false };
+      env ← getEnv;
+      env ← match env.addAndCompile {} decl with
+      | Except.ok    env => pure env
+      | Except.error kex => liftM (throwError $ toString $ fmt $ kex.toMessageData {});
+      setEnv $ combinatorParenthesizerAttribute.setDeclFor env c parenthesizerDeclName;
+      mkCall parenthesizerDeclName
+    else do
+      -- if this is a generic function, e.g. `HasAndthen.andthen`, it's easier to just unfold it until we are
+      -- back to parser combinators
+      some e' ← liftM $ unfoldDefinition? e
+        | liftM (throwError $ "don't know how to generate parenthesizer for non-parser combinator '" ++ e ++ "'");
+      compileParserBody e'
+
+/-- Compile the given declaration into a `[builtinParenthesizer declName]` or `[parenthesizer declName]`. -/
+def compileParser (env : Environment) (declName : Name) (builtin : Bool) : IO Environment := do
+-- This will also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
+-- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
+-- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
+-- call them at compile time but only reference them).
+(env, Expr.const parenthesizerDeclName _ _) ← ((compileParserBody (mkConst declName)).run).run' env
+  | unreachable!;
+-- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
+-- using `parser!` or `syntax`.
+let kind := declName;
+env.addAttribute parenthesizerDeclName (if builtin then `builtinParenthesizer else `parenthesizer)
+  (mkNullNode #[mkIdent kind])
+
+unsafe def mkParenthesizerOfConstantUnsafe (constName : Name) (compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer)
+    : StateT Environment IO Parenthesizer :=
+fun env => match env.find? constName with
+| none      => throw $ IO.userError ("unknow constant '" ++ toString constName ++ "'")
+| some info =>
+  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
+    match parenthesizerAttribute.getValues env constName with
+    | p::_ => pure (p, env)
+    | _    => do
+      env ← compileParser env constName /- builtin -/ false;
+      pure (parenthesizerForKind constName, env)
+  else do
+    d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
+    compileParenthesizerDescr d env
+
+@[implementedBy mkParenthesizerOfConstantUnsafe]
+constant mkParenthesizerOfConstantAux (constName : Name) (compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer)
+    : StateT Environment IO Parenthesizer :=
+arbitrary _
+
+unsafe def compileParenthesizerDescr : ParserDescr → StateT Environment IO Parenthesizer
+| ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.orelse d₁ d₂                        => orelse.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.optional d                          => optional.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.lookahead d                         => lookahead.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.try d                               => try.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.many d                              => many.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.many1 d                             => many1.parenthesizer <$> compileParenthesizerDescr d
+| ParserDescr.sepBy d₁ d₂                         => sepBy.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.sepBy1 d₁ d₂                        => sepBy1.parenthesizer <$> compileParenthesizerDescr d₁ <*> compileParenthesizerDescr d₂
+| ParserDescr.node k prec d                       => leadingNode.parenthesizer k prec <$> compileParenthesizerDescr d
+| ParserDescr.trailingNode k prec d               => trailingNode.parenthesizer k prec <$> compileParenthesizerDescr d
+| ParserDescr.symbol tk                           => pure $ symbol.parenthesizer
+| ParserDescr.numLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer
+| ParserDescr.strLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer
+| ParserDescr.charLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer
+| ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
+| ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
+| ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer
+| ParserDescr.parser constName                    => do
+  env ← get;
+  p ← match combinatorParenthesizerAttribute.getDeclFor env constName with
+  | some p => pure p
+  | none   => do {
+    (env, Expr.const p _ _) ← liftM $ ((compileParserBody (mkConst constName)).run).run' env
+      | unreachable!;
+    set env;
+    pure p
+  };
+  env ← get;
+  liftM $ IO.ofExcept $ env.evalConstCheck Parenthesizer `Lean.PrettyPrinter.Parenthesizer p
+| ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
+
+unsafe def addParenthesizerFromConstantUnsafe (env : Environment) (constName : Name) : IO Environment := do
+(p, env) ← match env.find? constName with
+| none      => throw $ IO.userError ("unknow constant '" ++ toString constName ++ "'")
+| some info =>
+  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
+    match parenthesizerAttribute.getValues env constName with
+    | p::_ => pure (p, env)
+    | _    => do
+      env ← compileParser env constName /- builtin -/ false;
+      pure (parenthesizerForKind constName, env)
+  else do {
+    d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
+    compileParenthesizerDescr d env
+  };
+-- Register parenthesizer without exporting it to the .olean file. It will be re-interpreted and registered
+-- when the parser is imported.
+pure $ parenthesizerAttribute.ext.modifyState env fun st => { st with table := st.table.insert constName p }
+
+@[implementedBy addParenthesizerFromConstantUnsafe]
+constant addParenthesizerFromConstant (env : Environment) (constName : Name) : IO Environment := arbitrary _
 
 end Parenthesizer
 open Parenthesizer

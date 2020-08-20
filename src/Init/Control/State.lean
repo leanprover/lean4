@@ -109,6 +109,9 @@ MonadStateOf.get
 @[inline] abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
 MonadStateOf.modifyGet fun s => (PUnit.unit, f s)
 
+@[inline] abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → α × σ) : m α :=
+MonadStateOf.modifyGet f
+
 /-- Similar to `MonadStateOf`, but `σ` is an outParam for convenience -/
 class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 (get : m σ)

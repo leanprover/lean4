@@ -21,27 +21,27 @@ HasReduceEval.reduceEval e
 instance Nat.hasReduceEval : HasReduceEval Nat := ⟨fun e => do
 e ← whnf e;
 some n ← pure $ evalNat e
-  | throwOther $ "reduceEval: failed to evaluate argument: " ++ toString e;
+  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
 pure n⟩
 
 instance Option.hasReduceEval {α : Type} [HasReduceEval α] : HasReduceEval (Option α) := ⟨fun e => do
 e ← whnf e;
 Expr.const c _ _ ← pure e.getAppFn
-  | throwOther $ "reduceEval: failed to evaluate argument: " ++ toString e;
+  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
 let nargs := e.getAppNumArgs;
 if      c == `Option.none && nargs == 0 then pure none
 else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
-else throwOther $ "reduceEval: failed to evaluate argument: " ++ toString e⟩
+else throwError $ "reduceEval: failed to evaluate argument: " ++ toString e⟩
 
 instance String.hasReduceEval : HasReduceEval String := ⟨fun e => do
 Expr.lit (Literal.strVal s) _ ← whnf e
-  | throwOther $ "reduceEval: failed to evaluate argument: " ++ toString e;
+  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
 pure s⟩
 
 private partial def evalName : Expr → MetaM Name | e => do
 e ← whnf e;
 Expr.const c _ _ ← pure e.getAppFn
-  | throwOther $ "reduceEval: failed to evaluate argument: " ++ toString e;
+  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
 let nargs := e.getAppNumArgs;
 if      c == `Lean.Name.anonymous && nargs == 0 then pure Name.anonymous
 else if c == `Lean.Name.str && nargs == 3 then do
@@ -53,7 +53,7 @@ else if c == `Lean.Name.num && nargs == 3 then do
   u ← reduceEval $ e.getArg! 1;
   pure $ mkNameNum n u
 else
-  throwOther $ "reduceEval: failed to evaluate argument: " ++ toString e
+  throwError $ "reduceEval: failed to evaluate argument: " ++ toString e
 
 instance Name.hasReduceEval : HasReduceEval Name := ⟨evalName⟩
 

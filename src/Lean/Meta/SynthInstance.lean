@@ -146,45 +146,33 @@ structure TableEntry :=
   That being said, we still use `extends` because it makes it simpler to move from
   `M` to `MetaM`.
 -/
-structure State extends Meta.State :=
+structure State :=
 (result         : Option Expr                   := none)
 (generatorStack : Array GeneratorNode           := #[])
 (resumeStack    : Array (ConsumerNode × Answer) := #[])
 (tableEntries   : HashMap Expr TableEntry       := {})
 
-abbrev SynthM := ReaderT Context (EStateM Exception State)
+abbrev SynthM := StateRefT State MetaM
 
-instance SynthM.inhabited {α} : Inhabited (SynthM α) := ⟨throw $ Exception.other Syntax.missing ""⟩
+@[inline] def liftMetaM {α} (x : MetaM α) : SynthM α :=
+liftM x
 
-def getTraceState : SynthM TraceState := do s ← get; pure s.traceState
-def getOptions : SynthM Options := do ctx ← read; pure ctx.config.opts
-def addContext (msg : MessageData) : SynthM MessageData := do
-ctx ← read;
-s   ← get;
-pure $ MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg
+instance meta2Synth {α} : HasCoe (MetaM α) (SynthM α) := ⟨liftMetaM⟩
 
-instance tracer : SimpleMonadTracerAdapter SynthM :=
-{ getOptions       := getOptions,
-  getTraceState    := getTraceState,
-  addContext       := addContext,
-  modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
-
-@[inline] def liftMeta {α} (x : MetaM α) : SynthM α :=
-adaptState (fun (s : State) => (s.toState, s)) (fun s' s => { s with toState := s' }) x
-
-instance meta2Synth {α} : HasCoe (MetaM α) (SynthM α) := ⟨liftMeta⟩
+instance SynthM.inhabited {α} : Inhabited (SynthM α) :=
+⟨fun _ => arbitrary _⟩
 
 @[inline] def withMCtx {α} (mctx : MetavarContext) (x : SynthM α) : SynthM α := do
 mctx' ← getMCtx;
-modify $ fun s => { s with mctx := mctx };
-finally x (modify $ fun s => { s with mctx := mctx' })
+setMCtx mctx;
+finally x (setMCtx mctx')
 
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) :=
 forallTelescopeReducing type $ fun _ type => do
   className? ← isClass type;
   match className? with
-  | none   => throwEx $ Exception.notInstance type
+  | none   => throwError $ "type class instance expected" ++ indentExpr type
   | some className => do
     globalInstances ← getGlobalInstances;
     result ← globalInstances.getUnify type;
@@ -465,11 +453,12 @@ traceCtx `Meta.synthInstance $ do
    trace! `Meta.synthInstance ("main goal " ++ type);
    mvar ← mkFreshExprMVar type;
    mctx ← getMCtx;
-   let key := mkTableKey mctx type;
-   adaptState' (fun (s : Meta.State) => { toState := s : State }) (fun (s : State) => s.toState) $ do {
+   let key    := mkTableKey mctx type;
+   let action : SynthM (Option Expr) := do {
      newSubgoal mctx key mvar Waiter.root;
      synth fuel
-   }
+   };
+   action.run' {}
 
 end SynthInstance
 
@@ -514,7 +503,7 @@ private partial def preprocessArgs : Expr → Nat → Array Expr → MetaM (Arra
       let args := args.set ⟨i, h⟩ arg;
       preprocessArgs (b.instantiate1 arg) (i+1) args
     | _ =>
-      throw $ Exception.other Syntax.missing "type class resolution failed, insufficient number of arguments" -- TODO improve error message
+      throwError "type class resolution failed, insufficient number of arguments" -- TODO improve error message
   else
     pure args
 
@@ -595,7 +584,7 @@ def synthInstance (type : Expr) : MetaM Expr := do
 result? ← synthInstance? type;
 match result? with
 | some result => pure result
-| none        => throwEx $ Exception.synthInstance type
+| none        => throwError $ "failed to synthesize" ++ indentExpr type
 
 def synthPendingImp (mvarId : MVarId) : MetaM Bool := do
 mvarDecl ← getMVarDecl mvarId;

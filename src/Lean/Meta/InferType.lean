@@ -9,6 +9,9 @@ import Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
+def throwFunctionExpected {α} (f : Expr) : MetaM α :=
+throwError $ "function expected " ++ f
+
 private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
 fType ← inferType f;
 (j, fType) ← args.size.foldM
@@ -20,23 +23,26 @@ fType ← inferType f;
       type ← whnf $ type.instantiateRevRange j i args;
       match type with
       | Expr.forallE _ _ b _ => pure (i, b)
-      | _ => throwEx $ Exception.functionExpected (mkAppRange f 0 i args) (args.get! i))
+      | _ => throwFunctionExpected $ mkAppRange f 0 (i+1) args)
   (0, fType);
 pure $ fType.instantiateRevRange j args.size args
 
-private def inferConstType (c : Name) (lvls : List Level) : MetaM Expr := do
+def throwIncorrectNumberOfLevels {α} (constName : Name) (us : List Level) : MetaM α :=
+throwError $ "incorrect number of universe levels " ++ mkConst constName us
+
+private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
 env ← getEnv;
 match env.find? c with
 | some cinfo =>
-  if cinfo.lparams.length == lvls.length then
-    pure $ cinfo.instantiateTypeLevelParams lvls
+  if cinfo.lparams.length == us.length then
+    pure $ cinfo.instantiateTypeLevelParams us
   else
-    throwEx $ Exception.incorrectNumOfLevels c lvls
+    throwIncorrectNumberOfLevels c us
 | none =>
-  throwEx $ Exception.unknownConst c
+  throwUnknownConstant c
 
 private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
-let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProjection structName idx e;
+let failed : Unit → MetaM Expr := fun _ => throwError $ "invalide projection" ++ indentExpr (mkProj structName idx e);
 structType ← inferType e;
 structType ← whnf structType;
 env ← getEnv;
@@ -66,6 +72,9 @@ matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
         | _                    => failed ()
   | _ => failed ()
 
+def throwTypeExcepted {α} (type : Expr) : MetaM α :=
+throwError $ "type expected " ++ indentExpr type
+
 def getLevel (type : Expr) : MetaM Level := do
 typeType ← inferType type;
 typeType ← whnfD typeType;
@@ -73,11 +82,11 @@ match typeType with
 | Expr.sort lvl _    => pure lvl
 | Expr.mvar mvarId _ =>
   condM (isReadOnlyOrSyntheticOpaqueExprMVar mvarId)
-    (throwEx $ Exception.typeExpected type)
+    (throwTypeExcepted type)
     (do lvl ← mkFreshLevelMVar;
         assignExprMVar mvarId (mkSort lvl);
         pure lvl)
-| _ => throwEx $ Exception.typeExpected type
+| _ => throwTypeExcepted type
 
 private def inferForallType (e : Expr) : MetaM Expr :=
 forallTelescope e $ fun xs e => do
@@ -102,17 +111,20 @@ savingCache $ do
   adaptReader (fun (ctx : Context) => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) $
     x (mkFVar fvarId)
 
+def throwUnknownMVar {α} (mvarId : MVarId) : MetaM α :=
+throwError $ "unknown metavariable '" ++ mkMVar mvarId ++ "'"
+
 private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
 mctx ← getMCtx;
 match mctx.findDecl? mvarId with
 | some d => pure d.type
-| none   => throwEx $ Exception.unknownExprMVar mvarId
+| none   => throwUnknownMVar mvarId
 
 private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 lctx ← getLCtx;
 match lctx.find? fvarId with
 | some d => pure d.type
-| none   => throwEx $ Exception.unknownFVar fvarId
+| none   => throwUnknownFVar fvarId
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
 s ← get;
@@ -129,7 +141,7 @@ private partial def inferTypeAux : Expr → MetaM Expr
 | e@(Expr.app f _ _)       => checkInferTypeCache e (inferAppType f.getAppFn e.getAppArgs)
 | Expr.mvar mvarId _       => inferMVarType mvarId
 | Expr.fvar fvarId _       => inferFVarType fvarId
-| Expr.bvar bidx _         => throw $ Exception.unexpectedBVar bidx
+| Expr.bvar bidx _         => throwError $ "unexpected bound variable " ++ mkBVar bidx
 | Expr.mdata _ e _         => inferTypeAux e
 | Expr.lit v _             => pure v.type
 | Expr.sort lvl _          => pure $ mkSort (mkLevelSucc lvl)

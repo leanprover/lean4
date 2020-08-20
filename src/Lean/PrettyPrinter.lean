@@ -28,13 +28,32 @@ cmds.foldlM (fun f cmd => do
   cmdF ← ppCommand table cmd;
   pure $ f ++ "\n\n" ++ cmdF) f
 
+/-
+Kha: this is a temporary hack since ppExprFnRef contains a pure function.
+Possible solution: we change the type of
+```
+abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → Format
+```
+to
+```
+abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → CoreM Format
+```
+-/
+unsafe def ppExprFnUnsafe (table : Parser.TokenTable) (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
+let x : MetaM Format := do { Meta.setMCtx mctx; ppExpr table e };
+let x : MetaM Format := adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) x;
+let x : IO Format    := (x.run).run env opts;
+match unsafeIO x with
+| Except.ok  fmt => fmt
+| Except.error e => "<pretty printer error: " ++ toString e ++ ">"
+
+@[implementedBy ppExprFnUnsafe]
+constant ppExprFn (table : Parser.TokenTable) (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format := arbitrary _
+
 -- TODO: activate when ready
 /-@[init]-/ def registerPPTerm : IO Unit := do
 table ← Parser.builtinTokenTable.get;
-ppExprFnRef.set $ fun env mctx lctx opts e => match
-  ppExpr table e { currRecDepth := 0, maxRecDepth := 1000, lctx := lctx, config := { opts := opts } } { env := env, mctx := mctx } with
-  | EStateM.Result.ok f st    => f
-  | EStateM.Result.error e st => "<pretty printer error: " ++ toString e ++ ">"
+ppExprFnRef.set (ppExprFn table)
 
 end PrettyPrinter
 end Lean

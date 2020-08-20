@@ -349,7 +349,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
       let lctx := lctx.mkLocalDecl n n ty;
       let params := params.eraseIdx 0;
       stx ← `(fun $params* => $body);
-      adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $ do
+      adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ do
         e ← toPreterm stx;
         pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let => do
@@ -360,7 +360,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
     val ← toPreterm val;
     lctx ← getLCtx;
     let lctx := lctx.mkLetDecl n n exprPlaceholder val;
-    adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $ do
+    adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ do
       e ← toPreterm $ body;
       pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.app => do
@@ -408,14 +408,24 @@ structure OldContext :=
 (locals : List Name)
 (open_nss : List Name)
 
-private def oldRunTermElabM {α} (ctx : OldContext) (x : TermElabM α) : Except String α := do
-match x {fileName := "foo", fileMap := FileMap.ofString "",
-  currNamespace := ctx.env.getNamespace, currRecDepth := 0, maxRecDepth := 10000,
-  openDecls := ctx.open_nss.map $ fun n => OpenDecl.simple n [],
-  lctx := ctx.locals.foldl (fun lctx l => LocalContext.mkLocalDecl lctx l l exprPlaceholder) $ LocalContext.mkEmpty ()}
-  {env := ctx.env} with
-| EStateM.Result.ok a _      => Except.ok a
-| EStateM.Result.error msg _ => Except.error $ toString msg
+private unsafe def oldRunTermElabMUnsafe {α} (oldCtx : OldContext) (x : TermElabM α) : Except String α := do
+let updateCtx (ctx : Context) : Context :=
+  { ctx with
+    fileName      := "foo",
+    currNamespace := oldCtx.env.getNamespace,
+    openDecls     := oldCtx.open_nss.map $ fun n => OpenDecl.simple n []
+  };
+let x : TermElabM α := adaptReader updateCtx x;
+let updateMetaCtx (ctx : Meta.Context) : Meta.Context :=
+  { ctx with lctx := oldCtx.locals.foldl (fun lctx l => LocalContext.mkLocalDecl lctx l l exprPlaceholder) $ LocalContext.mkEmpty () };
+let x : TermElabM α := adaptTheReader Meta.Context updateMetaCtx x;
+let x : IO α := ((x.run).run).run oldCtx.env;
+match unsafeIO x with
+| Except.ok a      => Except.ok a
+| Except.error e   => Except.error (toString e)
+
+@[implementedBy oldRunTermElabMUnsafe]
+constant oldRunTermElabM {α} (oldCtx : OldContext) (x : TermElabM α) : Except String α := arbitrary _
 
 @[export lean_expand_stx_quot]
 unsafe def oldExpandStxQuot (ctx : OldContext) (stx : Syntax) : Except String Expr := oldRunTermElabM ctx $ do

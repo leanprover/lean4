@@ -16,7 +16,6 @@ import Lean.Meta.AbstractMVars
 import Lean.Meta.SynthInstance
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic
-import Lean.Meta.Message
 import Lean.Meta.KAbstract
 import Lean.Meta.RecursorInfo
 import Lean.Meta.GeneralizeTelescope

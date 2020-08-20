@@ -16,6 +16,17 @@ namespace Meta
 private def ensureType (e : Expr) : MetaM Unit := do
 _ ← getLevel e; pure ()
 
+def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
+lctx ← getLCtx;
+match lctx.find? fvarId with
+| some (LocalDecl.ldecl _ n t v b) => do
+  vType ← inferType v;
+  throwError $
+     "invalid let declaration, term" ++ indentExpr v
+    ++ Format.line ++ "has type " ++ indentExpr vType
+    ++ Format.line ++ "but is expected to have type" ++ indentExpr t
+| _ => unreachable!
+
 @[specialize] private def checkLambdaLet
     (check   : Expr → MetaM Unit)
     (e : Expr) : MetaM Unit :=
@@ -30,7 +41,7 @@ lambdaTelescope e $ fun xs b => do
       ensureType t;
       check t;
       vType ← inferType v;
-      unlessM (isExprDefEqAux t vType) $ throwEx $ Exception.letTypeMismatch x.fvarId!;
+      unlessM (isExprDefEqAux t vType) $ throwLetTypeMismatchMessage x.fvarId!;
       check v
   };
   check b
@@ -50,8 +61,26 @@ forallTelescope e $ fun xs b => do
 private def checkConstant (c : Name) (lvls : List Level) : MetaM Unit := do
 env ← getEnv;
 match env.find? c with
-| none       => throwEx $ Exception.unknownConst c
-| some cinfo => unless (lvls.length == cinfo.lparams.length) $ throwEx $ Exception.incorrectNumOfLevels c lvls
+| none       => throwUnknownConstant c
+| some cinfo => unless (lvls.length == cinfo.lparams.length) $ throwIncorrectNumberOfLevels c lvls
+
+private def getFunctionDomain (f : Expr) : MetaM Expr := do
+fType ← inferType f;
+fType ← whnfD fType;
+match fType with
+| Expr.forallE _ d _ _ => pure d
+| _                    => throwFunctionExpected f
+
+def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil) : MetaM α := do
+let e := mkApp f a;
+aType ← inferType a;
+expectedType ← getFunctionDomain f;
+throwError $
+  "application type mismatch" ++ indentExpr e
+  ++ Format.line ++ "argument" ++ indentExpr a
+  ++ Format.line ++ "has type" ++ indentExpr aType
+  ++ Format.line ++ "but is expected to have type" ++ indentExpr expectedType
+  ++ extraMsg
 
 @[specialize] private def checkApp
     (check   : Expr → MetaM Unit)
@@ -63,8 +92,8 @@ fType ← whnf fType;
 match fType with
 | Expr.forallE _ d _ _ => do
   aType ← inferType a;
-  unlessM (isExprDefEqAux d aType) $ throwEx $ Exception.appTypeMismatch f a
-| _ => throwEx $ Exception.functionExpected f a
+  unlessM (isExprDefEqAux d aType) $ throwAppTypeMismatch f a
+| _ => throwFunctionExpected (mkApp f a)
 
 private partial def checkAux : Expr → MetaM Unit
 | e@(Expr.forallE _ _ _ _) => checkForall checkAux e

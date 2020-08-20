@@ -25,13 +25,13 @@ Term.throwErrorAt tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageDat
 
 namespace Tactic
 
-structure Context extends toTermCtx : Term.Context :=
+structure Context :=
 (main : MVarId)
 
-structure State extends toTermState : Term.State :=
+structure State :=
 (goals : List MVarId)
 
-instance State.inhabited : Inhabited State := ⟨{ goals := [], toTermState := arbitrary _ }⟩
+instance State.inhabited : Inhabited State := ⟨{ goals := [] }⟩
 
 structure BacktrackableState :=
 (env   : Environment)
@@ -40,38 +40,74 @@ structure BacktrackableState :=
 
 abbrev Exception := Elab.Exception
 
-abbrev TacticM := ReaderT Context (EStateM Exception State)
+abbrev TacticM := ReaderT Context $ StateRefT State $ Term.ETermElabM Exception
+abbrev Tactic  := Syntax → TacticM Unit
 
-abbrev Tactic := Syntax → TacticM Unit
-
-protected def save (s : State) : BacktrackableState :=
-{ env := s.env, mctx := s.mctx, goals := s.goals }
-
-protected def restore (s : State) (bs : BacktrackableState) : State :=
-{ s with env := bs.env, mctx := bs.mctx, goals := bs.goals }
-
-instance : EStateM.Backtrackable BacktrackableState State :=
-{ save    := Tactic.save,
-  restore := Tactic.restore }
-
-def liftTermElabM {α} (x : TermElabM α) : TacticM α :=
-fun ctx s => match x ctx.toTermCtx s.toTermState with
- | EStateM.Result.ok a newS                         => EStateM.Result.ok a { s with toTermState := newS }
- | EStateM.Result.error (Term.Exception.ex ex) newS => EStateM.Result.error ex { s with toTermState := newS }
- | EStateM.Result.error Term.Exception.postpone _   => unreachable!
-
-def liftMetaM {α} (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM x
-
-@[inline] def withRef {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
-adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
-
-def getEnv : TacticM Environment := do s ← get; pure s.env
-def getMCtx : TacticM MetavarContext := do s ← get; pure s.mctx
-@[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : TacticM Unit := modify $ fun s => { s with mctx := f s.mctx }
-def getLCtx : TacticM LocalContext := do ctx ← read; pure ctx.lctx
-def getLocalInsts : TacticM LocalInstances := do ctx ← read; pure ctx.localInstances
-def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
+def getEnv : TacticM Environment := do s ← getThe Core.State; pure s.env
+def getMCtx : TacticM MetavarContext := do s ← getThe Meta.State; pure s.mctx
+def getLCtx : TacticM LocalContext := do ctx ← readThe Meta.Context; pure ctx.lctx
+def getLocalInsts : TacticM LocalInstances := do ctx ← readThe Meta.Context; pure ctx.localInstances
+def getOptions : TacticM Options := do ctx ← readThe Core.Context; pure ctx.options
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
+
+def setEnv (env : Environment) : TacticM Unit := modifyThe Core.State fun s => { s with env := env }
+def setMCtx (mctx : MetavarContext) : TacticM Unit := modifyThe Meta.State fun s => { s with mctx := mctx }
+
+@[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : TacticM Unit := modifyThe Meta.State $ fun s => { s with mctx := f s.mctx }
+
+def saveBacktrackableState : TacticM BacktrackableState := do
+env ← getEnv;
+mctx ← getMCtx;
+s ← get;
+pure { env := env, mctx := mctx, goals := s.goals }
+
+def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
+setEnv b.env;
+setMCtx b.mctx;
+modify fun s => { s with goals := b.goals }
+
+@[inline] protected def catch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
+b ← saveBacktrackableState;
+catch x (fun ex => do b.restore; h ex)
+
+@[inline] protected def orelse {α} (x y : TacticM α) : TacticM α := do
+catch x (fun _ => y)
+
+instance monadExcept : MonadExcept Exception TacticM :=
+{ throw := fun _ => throw,
+  catch := fun _ x h => Tactic.catch x h }
+
+instance hasOrElse {α} : HasOrelse (TacticM α) := ⟨Tactic.orelse⟩
+
+structure SavedState :=
+(core   : Core.State)
+(meta   : Meta.State)
+(term   : Term.State)
+(tactic : State)
+
+instance SavedState.inhabited : Inhabited SavedState := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _⟩⟩
+
+def saveAllState : TacticM SavedState := do
+core   ← getThe Core.State;
+meta   ← getThe Meta.State;
+term   ← getThe Term.State;
+tactic ← get;
+pure { core := core, meta := meta, term := term, tactic := tactic }
+
+def SavedState.restore (s : SavedState) : TacticM Unit := do
+set s.core; set s.meta; set s.term; set s.tactic
+
+private def fromTermException (ex : Term.Exception) : Exception :=
+match ex with
+| Term.Exception.postpone => unreachable!
+| Term.Exception.ex ex    => ex
+
+@[inline] def liftTermElabM {α} (x : TermElabM α) : TacticM α :=
+liftM (adaptExcept fromTermException x : Term.ETermElabM Exception α)
+
+@[inline] def liftMetaM {α} (x : MetaM α) : TacticM α :=
+liftTermElabM $ Term.liftMetaM x
+
 def instantiateMVars (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars e
 def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
 def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
@@ -84,6 +120,9 @@ def whnfCore (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore e
 def unfoldDefinition? (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? e
 def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
+@[inline] def withRef {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
+adaptTheReader Core.Context (Core.Context.replaceRef ref) x
+
 /-- Collect unassigned metavariables -/
 def collectMVars (e : Expr) : TacticM (List MVarId) := do
 e ← instantiateMVars e;
@@ -91,11 +130,11 @@ let s := Lean.collectMVars {} e;
 pure s.result.toList
 
 instance monadLog : MonadLog TacticM :=
-{ getRef      := do ctx ← read; pure ctx.ref,
-  getFileMap  := do ctx ← read; pure ctx.fileMap,
-  getFileName := do ctx ← read; pure ctx.fileName,
+{ getRef      := liftTermElabM getRef,
+  getFileMap  := liftTermElabM getFileMap,
+  getFileName := liftTermElabM getFileName,
   addContext  := addContext,
-  logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
+  logMessage  := fun msg => liftTermElabM $ logMessage msg }
 
 def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : TacticM α := do
 liftTermElabM $ Term.throwErrorAt ref msgData
@@ -105,17 +144,19 @@ liftTermElabM $ Term.throwError msgData
 
 def throwUnsupportedSyntax {α} : TacticM α := liftTermElabM $ Term.throwUnsupportedSyntax
 
-@[inline] def withIncRecDepth {α} (x : TacticM α) : TacticM α := do
-ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
+def checkRecDepth : TacticM Unit :=
+liftTermElabM $ Term.checkRecDepth
 
-protected def getCurrMacroScope : TacticM MacroScope := do ctx ← read; pure ctx.currMacroScope
+@[inline] def withIncRecDepth {α} (x : TacticM α) : TacticM α := do
+checkRecDepth;
+adaptTheReader Core.Context Core.Context.incCurrRecDepth x
+
+protected def getCurrMacroScope : TacticM MacroScope := do ctx ← readThe Term.Context; pure ctx.currMacroScope
 protected def getMainModule     : TacticM Name       := do env ← getEnv; pure env.mainModule
 
 @[inline] protected def withFreshMacroScope {α} (x : TacticM α) : TacticM α := do
-fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
-adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
+fresh ← modifyGetThe Term.State (fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 }));
+adaptTheReader Term.Context (fun ctx => { ctx with currMacroScope := fresh }) x
 
 instance monadQuotation : MonadQuotation TacticM := {
   getCurrMacroScope   := Tactic.getCurrMacroScope,
@@ -132,29 +173,30 @@ def logTrace (cls : Name) (msg : MessageData) : TacticM Unit := liftTermElabM $ 
 @[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
 def dbgTrace {α} [HasToString α] (a : α) : TacticM Unit :=_root_.dbgTrace (toString a) $ fun _ => pure ()
 
-private def evalTacticUsing (s : State) (stx : Syntax) : List Tactic → TacticM Unit
+private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do
   let refFmt := stx.prettyPrint;
   throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (evalFn::evalFns) => catch (evalFn stx)
   (fun ex => match ex with
-    | Exception.error _           =>
+    | Exception.io err   => throw ex
+    | Exception.error _  =>
       match evalFns with
       | [] => throw ex
-      | _  => do set s; evalTacticUsing evalFns
-    | Exception.unsupportedSyntax => do set s; evalTacticUsing evalFns)
+      | _  => do s.restore; evalTacticUsing evalFns
+    | Exception.unsupportedSyntax => do s.restore; evalTacticUsing evalFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
-adaptReader (fun (ctx : Context) => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+adaptTheReader Term.Context (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter TacticM :=
 { getEnv                 := getEnv,
   getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
-  getMaxRecDepth         := do ctx ← read; pure ctx.maxRecDepth,
+  getNextMacroScope      := do s ← getThe Term.State; pure s.nextMacroScope,
+  setNextMacroScope      := fun next => modifyThe Term.State $ fun s => { s with nextMacroScope := next },
+  getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
+  getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
   throwError             := @throwErrorAt,
   throwUnsupportedSyntax := @throwUnsupportedSyntax }
 
@@ -184,8 +226,9 @@ partial def evalTactic : Syntax → TacticM Unit
       stx.forSepArgsM evalTactic
     else do
       trace `Elab.step fun _ => stx;
-      s ← get;
-      let table := (tacticElabAttribute.ext.getState s.env).table;
+      env ← getEnv;
+      s ← saveAllState;
+      let table := (tacticElabAttribute.ext.getState env).table;
       let k := stx.getKind;
       match table.find? k with
       | some evalFns => evalTacticUsing s stx evalFns
@@ -199,23 +242,26 @@ fun stx => do
   withMacroExpansion stx stx' $ evalTactic stx'
 
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TacticM α) : TacticM α :=
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) x
+adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) x
 
-def resetSynthInstanceCache : TacticM Unit := liftTermElabM Term.resetSynthInstanceCache
+def saveAndResetSynthInstanceCache : TacticM Meta.SynthInstanceCache :=
+liftTermElabM Term.saveAndResetSynthInstanceCache
 
+def restoreSynthInstanceCache (cache : Meta.SynthInstanceCache) : TacticM Unit :=
+liftTermElabM $ Term.restoreSynthInstanceCache cache
+
+/-- Reset `synthInstance` cache, execute `x`, and restore cache -/
 @[inline] def resettingSynthInstanceCache {α} (x : TacticM α) : TacticM α := do
-s ← get;
-let savedSythInstance := s.cache.synthInstance;
-resetSynthInstanceCache;
-finally x (modify $ fun s => { s with cache := { s.cache with synthInstance := savedSythInstance } })
+savedSythInstance ← saveAndResetSynthInstanceCache;
+finally x (restoreSynthInstanceCache savedSythInstance)
 
 @[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TacticM α) : TacticM α :=
 if b then resettingSynthInstanceCache x else x
 
 def withMVarContext {α} (mvarId : MVarId) (x : TacticM α) : TacticM α := do
-mvarDecl  ← getMVarDecl mvarId;
-ctx       ← read;
-let needReset := ctx.localInstances == mvarDecl.localInstances;
+mvarDecl   ← getMVarDecl mvarId;
+localInsts ← getLocalInsts;
+let needReset := localInsts == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
 def getGoals : TacticM (List MVarId) := do s ← get; pure s.goals

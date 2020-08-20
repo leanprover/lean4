@@ -93,6 +93,9 @@ instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadI
 instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) :=
 { liftIO := fun α x => liftM (liftIO x : m α) }
 
+@[inline] def mkEIOMonadIO {ε ε'} [MonadIO (EIO ε)] (f : ε → ε') : MonadIO (EIO ε') :=
+{ liftIO := fun α x => adaptExcept f (liftIO x : EIO ε α) }
+
 namespace IO
 
 def ofExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=

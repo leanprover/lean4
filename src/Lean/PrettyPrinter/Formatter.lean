@@ -278,8 +278,18 @@ pushToken sym;
 goLeft
 
 @[combinatorFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
-@[combinatorFormatter unicodeSymbol] def unicodeSymbol.formatter := symbol.formatter
 @[combinatorFormatter nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
+
+@[combinatorFormatter unicodeSymbol]
+def unicodeSymbol.formatter (sym asciiSym : String) : Formatter := do
+stx ← getCur;
+Syntax.atom _ val ← pure stx
+  | throw $ Exception.other Syntax.missing $ "not an atom: " ++ toString stx;
+if val == sym.trim then
+  pushToken sym
+else
+  pushToken asciiSym;
+goLeft
 
 @[combinatorFormatter identNoAntiquot]
 def identNoAntiquot.formatter : Formatter := do

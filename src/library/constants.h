@@ -110,6 +110,7 @@ name const & get_int_nat_abs_name();
 name const & get_int_dec_lt_name();
 name const & get_int_of_nat_name();
 name const & get_inline_name();
+name const & get_eio_name();
 name const & get_io_name();
 name const & get_ite_name();
 name const & get_lc_proof_name();

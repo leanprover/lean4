@@ -51,7 +51,7 @@ registerBuiltinAttribute {
     unless persistent $ Core.throwError "invalid attribute 'instance', must be persistent";
     env ← Core.getEnv;
     env ← Core.ofExcept (addGlobalInstanceOld env declName); -- TODO: delete
-    env ← liftM $ addGlobalInstance env declName;
+    env ← liftIO $ addGlobalInstance env declName;
     Core.setEnv env
 }
 

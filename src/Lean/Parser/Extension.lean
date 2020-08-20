@@ -371,16 +371,16 @@ decl ← Core.getConstInfo declName;
 env ← Core.getEnv;
 match decl.type with
 | Expr.const `Lean.Parser.TrailingParser _ _ => do
-  env ← liftM $ declareTrailingBuiltinParser env catName declName;
+  env ← liftIO $ declareTrailingBuiltinParser env catName declName;
   Core.setEnv env
 | Expr.const `Lean.Parser.Parser _ _ => do
-  env ← liftM $ declareLeadingBuiltinParser env catName declName;
+  env ← liftIO $ declareLeadingBuiltinParser env catName declName;
   Core.setEnv env
 | _ => Core.throwError ("unexpected parser type at '" ++ declName ++ "' (`Parser` or `TrailingParser` expected");
 hooks ← parserAttributeHooks.get;
 hooks.forM fun hook => do
   env ← Core.getEnv;
-  env ← liftM $ hook.postAdd catName env declName /- builtin -/ true;
+  env ← liftIO $ hook.postAdd catName env declName /- builtin -/ true;
   Core.setEnv env
 
 /-
@@ -419,7 +419,7 @@ match mkParserOfConstant env categories declName with
   hooks ← parserAttributeHooks.get;
   hooks.forM fun hook => do
     env ← Core.getEnv;
-    env ← liftM $ hook.postAdd catName env declName /- builtin -/ false;
+    env ← liftIO $ hook.postAdd catName env declName /- builtin -/ false;
     Core.setEnv env
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=

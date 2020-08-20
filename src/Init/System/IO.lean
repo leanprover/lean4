@@ -74,24 +74,21 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-class MonadIO (m : Type → Type) extends HasMonadLiftT IO m
+class MonadIO (m : Type → Type) :=
+{ liftIO {α} : IO α → m α }
 
-instance : MonadIO IO := {}
+export MonadIO (liftIO)
+
+instance : MonadIO IO :=
+{ liftIO := fun α => id }
 
 /- Omitted instances of MonadIO: OptionT, ExceptT and EStateT. The possibility for
 errors introduces the risk that `withStdout` will not restore the previous handle when
 an error is returned in the topmost monad. -/
-instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) := {}
-instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) := {}
-
-@[inline] def mkMonadIO {m : Type → Type} (lift : forall α, IO α → m α) :=
-@MonadIO.mk m ⟨lift⟩
-
-@[inline] def mkEIOMonadIO {ε ε'} [MonadIO (EIO ε)] (f : ε → ε') : MonadIO (EIO ε') :=
-mkMonadIO fun α (x : IO α) => adaptExcept f (liftM x : EIO ε α)
-
-@[inline] def liftIO {α : Type} {m : Type → Type} [MonadIO m] (x : IO α) : m α :=
-liftM x
+instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) :=
+{ liftIO := fun α x => liftM (liftIO x : m α) }
+instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) :=
+{ liftIO := fun α x => liftM (liftIO x : m α) }
 
 namespace IO
 
@@ -170,15 +167,13 @@ constant appPath : IO String := arbitrary _
 @[extern "lean_io_current_dir"]
 constant currentDir : IO String := arbitrary _
 
-@[inline] def liftIO {m : Type → Type} {α : Type} [MonadIO m] (x : IO α) : m α :=
-monadLift x
 end Prim
 
 namespace FS
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
 def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
-Prim.liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
+liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]
 def withFile {α} (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
@@ -188,15 +183,15 @@ Handle.mk fn mode >>= f
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
 Once `h.isEof` is true, the reading `h` raises `IO.Error.eof`.
 -/
-def Handle.isEof : Handle → m Bool := Prim.liftIO ∘ Prim.Handle.isEof
-def Handle.flush : Handle → m Unit := Prim.liftIO ∘ Prim.Handle.flush
-def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := Prim.liftIO (Prim.Handle.read h (USize.ofNat bytes))
-def Handle.write (h : Handle) (s : ByteArray) : m Unit := Prim.liftIO (Prim.Handle.write h s)
+def Handle.isEof : Handle → m Bool := liftIO ∘ Prim.Handle.isEof
+def Handle.flush : Handle → m Unit := liftIO ∘ Prim.Handle.flush
+def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := liftIO (Prim.Handle.read h (USize.ofNat bytes))
+def Handle.write (h : Handle) (s : ByteArray) : m Unit := liftIO (Prim.Handle.write h s)
 
-def Handle.getLine : Handle → m String := Prim.liftIO ∘ Prim.Handle.getLine
+def Handle.getLine : Handle → m String := liftIO ∘ Prim.Handle.getLine
 
 def Handle.putStr (h : Handle) (s : String) : m Unit :=
-Prim.liftIO $ Prim.Handle.putStr h s
+liftIO $ Prim.Handle.putStr h s
 
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
 h.putStr s *> h.putStr "\n"
@@ -239,13 +234,13 @@ section
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
 def stdin : m FS.Handle :=
-Prim.liftIO Prim.stdin
+liftIO Prim.stdin
 
 def stdout : m FS.Handle :=
-Prim.liftIO Prim.stdout
+liftIO Prim.stdout
 
 def stderr : m FS.Handle :=
-Prim.liftIO Prim.stderr
+liftIO Prim.stderr
 
 def print {α} [HasToString α] (s : α) : m Unit := do
 out ← stdout;
@@ -259,17 +254,17 @@ out.putStr $ toString s
 
 def eprintln {α} [HasToString α] (s : α) : m Unit := eprint s *> eprint "\n"
 
-def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
-def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
-def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
-def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
-def appPath : m String := Prim.liftIO Prim.appPath
+def getEnv : String → m (Option String) := liftIO ∘ Prim.getEnv
+def realPath : String → m String := liftIO ∘ Prim.realPath
+def isDir : String → m Bool := liftIO ∘ Prim.isDir
+def fileExists : String → m Bool := liftIO ∘ Prim.fileExists
+def appPath : m String := liftIO Prim.appPath
 
 def appDir : m String := do
 p ← appPath;
 realPath (System.FilePath.dirName p)
 
-def currentDir : m String := Prim.liftIO Prim.currentDir
+def currentDir : m String := liftIO Prim.currentDir
 
 end
 
@@ -360,12 +355,12 @@ end Prim
 
 section
 variables {m : Type → Type} [Monad m] [MonadIO m]
-@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  Prim.liftIO (Prim.mkRef a)
-@[inline] def Ref.get {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.get r)
-@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)
-@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
-@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.take r)
-@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := Prim.liftIO (Prim.Ref.ptrEq r1 r2)
+@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  liftIO (Prim.mkRef a)
+@[inline] def Ref.get {α : Type} (r : Ref α) : m α := liftIO (Prim.Ref.get r)
+@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := liftIO (Prim.Ref.set r a)
+@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := liftIO (Prim.Ref.swap r a)
+@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := liftIO (Prim.Ref.take r)
+@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := liftIO (Prim.Ref.ptrEq r1 r2)
 @[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : m Unit := do
 v ← r.take;
 r.set (f v)

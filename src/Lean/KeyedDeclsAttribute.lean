@@ -140,7 +140,7 @@ registerBuiltinAttribute {
     | Expr.const c _ _ =>
       if c != df.valueTypeName then Core.throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
       else do
-        env ← liftM $ declareBuiltin df attrDeclName env key declName;
+        env ← liftIO $ declareBuiltin df attrDeclName env key declName;
         Core.setEnv env
     | _ => Core.throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
   },

@@ -48,7 +48,8 @@ instance ECoreM.inhabited {ε α} [Inhabited ε] : Inhabited (ECoreM ε α) :=
 @[inline] def liftIOCore {α} (x : IO α) : EIO Exception α :=
 adaptExcept Exception.io x
 
-instance : MonadIO (EIO Exception) := mkMonadIO @liftIOCore
+instance : MonadIO (EIO Exception) :=
+{ liftIO := @liftIOCore }
 
 def throwError {α} (msg : MessageData) : CoreM α := do
 ctx ← read;

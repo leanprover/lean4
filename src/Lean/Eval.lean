@@ -18,19 +18,4 @@ class MetaHasEval (α : Type u) :=
 instance metaHasEvalOfHasEval {α : Type u} [HasEval α] : MetaHasEval α :=
 ⟨fun env opts a hideUnit => do HasEval.eval a hideUnit; pure env⟩
 
-abbrev MetaIO := ReaderT (Environment × Options) IO
-
-def MetaIO.getEnv : MetaIO Environment := do
-ctx ← read; pure ctx.1
-
-def MetaIO.getOptions : MetaIO Options := do
-ctx ← read; pure ctx.2
-
-instance MetaIO.metaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaIO α) :=
-⟨fun env opts x _ => do
-  a ← x (env, opts);
-  MetaHasEval.eval env opts a⟩
-
-instance MetaIO.monadIO : MonadIO MetaIO := {}
-
 end Lean

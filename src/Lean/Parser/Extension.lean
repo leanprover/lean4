@@ -233,6 +233,15 @@ def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef 
 def registerParserAttributeHook (hook : ParserAttributeHook) : IO Unit := do
 parserAttributeHooks.modify fun hooks => hook::hooks
 
+def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) : CoreM Unit := do
+hooks ← parserAttributeHooks.get;
+hooks.forM fun hook => hook.postAdd catName declName builtin
+
+@[init]
+def registerRunParserAttributeHooksAttribute : IO Unit :=
+discard $ registerTagAttribute `runParserAttributeHooks "explicitly run hooks normally activated by parser attributes" fun declName =>
+  runParserAttributeHooks `Name.anonymous declName /- builtin -/ true
+
 private def ParserExtension.addImported (env : Environment) (es : Array (Array ParserExtensionOleanEntry)) : IO ParserExtensionState := do
 s ← ParserExtension.mkInitial;
 es.foldlM
@@ -251,9 +260,8 @@ es.foldlM
        | ParserExtensionOleanEntry.parser catName declName => do
          p ← IO.ofExcept $ mkParserOfConstant env s.categories declName;
          categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2;
-         hooks ← parserAttributeHooks.get;
          -- discard result env; all environment side effects should already have happened when the parser was declared initially
-         _ ← Lean.Core.CoreM.run (hooks.forM fun hook => hook.postAdd catName declName /- builtin -/ false) env;
+         (runParserAttributeHooks catName declName /- builtin -/ false).run env;
          pure { s with categories := categories })
       s)
   s
@@ -377,8 +385,7 @@ match decl.type with
   env ← liftIO $ declareLeadingBuiltinParser env catName declName;
   Core.setEnv env
 | _ => Core.throwError ("unexpected parser type at '" ++ declName ++ "' (`Parser` or `TrailingParser` expected");
-hooks ← parserAttributeHooks.get;
-hooks.forM fun hook => hook.postAdd catName declName /- builtin -/ true
+runParserAttributeHooks catName declName /- builtin -/ true
 
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.
@@ -413,8 +420,7 @@ match mkParserOfConstant env categories declName with
   match addParser categories catName declName leading parser with
   | Except.ok _     => Core.modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
   | Except.error ex => Core.throwError ex;
-  hooks ← parserAttributeHooks.get;
-  hooks.forM fun hook => hook.postAdd catName declName /- builtin -/ false
+  runParserAttributeHooks catName declName /- builtin -/ false
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 { name            := attrName,

@@ -285,6 +285,7 @@ let attrImpl : AttributeImpl := {
     unless (env.getModuleIdxFor? decl).isNone $
       Core.throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
     validate decl;
+    env ← Core.getEnv;
     Core.setEnv $ ext.addEntry env decl
 };
 registerBuiltinAttribute attrImpl;

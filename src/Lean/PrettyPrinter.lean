@@ -39,12 +39,9 @@ abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options �
 ```
 -/
 unsafe def ppExprFnUnsafe (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
-let x : MetaM Format := do { Meta.setMCtx mctx; ppExpr e };
-let x : MetaM Format := adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) x;
-let x : IO Format    := (x.run).run env opts;
-match unsafeIO x with
-| Except.ok  fmt => fmt
-| Except.error e => "<pretty printer error: " ++ toString e ++ ">"
+match unsafeIO $ (ppExpr e).toIO { options := opts } { env := env } { lctx := lctx } { mctx := mctx }  with
+| Except.ok  (fmt, _, _) => fmt
+| Except.error e         => "<pretty printer error: " ++ toString e ++ ">"
 
 @[implementedBy ppExprFnUnsafe]
 constant ppExprFn (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format := arbitrary _

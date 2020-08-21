@@ -244,10 +244,19 @@ p1 <|> p2
 constant mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
 arbitrary _
 
+@[inline] def liftCoreM {α} (x : CoreM α) : ParenthesizerM α :=
+liftM x
+
+def getEnv : ParenthesizerM Environment :=
+liftCoreM Core.getEnv
+
+def throwError {α} (msg : MessageData) : ParenthesizerM α :=
+liftCoreM $ Core.throwError msg
+
 def parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer := do
-env ← liftM getEnv;
+env ← getEnv;
 p::_ ← pure $ parenthesizerAttribute.getValues env k
-  | liftM (throwError $ "no known parenthesizer for kind '" ++ toString k ++ "'");
+  | throwError $ "no known parenthesizer for kind '" ++ toString k ++ "'";
 p
 
 @[combinatorParenthesizer Lean.Parser.withAntiquot]
@@ -269,7 +278,7 @@ adaptReader (fun (ctx : Context) => { ctx with cat := cat }) do
 
 @[combinatorParenthesizer Lean.Parser.categoryParser]
 def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
-env ← liftM getEnv;
+env ← getEnv;
 match categoryParenthesizerAttribute.getValues env cat with
 | p::_ => p prec
 -- Fall back to the generic parenthesizer.

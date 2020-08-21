@@ -191,8 +191,8 @@ namespace Environment
 @[export lean_add_attribute]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment := do
 attr ← IO.ofExcept $ getAttributeImpl env attrName;
-(env, _) ← (attr.add decl args persistent).run' env;
-pure env
+(_, s) ← (attr.add decl args persistent).toIO {} { env := env };
+pure s.env
 
 /-
 /- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.

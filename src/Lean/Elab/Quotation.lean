@@ -409,20 +409,18 @@ structure OldContext :=
 (open_nss : List Name)
 
 private unsafe def oldRunTermElabMUnsafe {α} (oldCtx : OldContext) (x : TermElabM α) : Except String α := do
-let updateCtx (ctx : Context) : Context :=
-  { ctx with
-    fileName      := "foo",
-    currNamespace := oldCtx.env.getNamespace,
-    openDecls     := oldCtx.open_nss.map $ fun n => OpenDecl.simple n []
-  };
-let x : TermElabM α := adaptReader updateCtx x;
-let updateMetaCtx (ctx : Meta.Context) : Meta.Context :=
-  { ctx with lctx := oldCtx.locals.foldl (fun lctx l => LocalContext.mkLocalDecl lctx l l exprPlaceholder) $ LocalContext.mkEmpty () };
-let x : TermElabM α := adaptTheReader Meta.Context updateMetaCtx x;
-let x : IO α := ((x.run).run).run oldCtx.env;
-match unsafeIO x with
-| Except.ok a      => Except.ok a
-| Except.error e   => Except.error (toString e)
+let ctxMeta : Meta.Context := {
+  lctx := oldCtx.locals.foldl (fun lctx l => LocalContext.mkLocalDecl lctx l l exprPlaceholder) $ LocalContext.mkEmpty ()
+};
+let ctxTerm : Term.Context := {
+  fileName := "foo",
+  fileMap := FileMap.ofString "",
+  currNamespace := oldCtx.env.getNamespace,
+  openDecls := oldCtx.open_nss.map $ fun n => OpenDecl.simple n []
+};
+match unsafeIO $ x.toIO {} { env := oldCtx.env } ctxMeta {} ctxTerm {} with
+| Except.ok (a, _, _, _) => Except.ok a
+| Except.error e         => Except.error (toString e)
 
 @[implementedBy oldRunTermElabMUnsafe]
 constant oldRunTermElabM {α} (oldCtx : OldContext) (x : TermElabM α) : Except String α := arbitrary _

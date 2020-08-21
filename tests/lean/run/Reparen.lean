@@ -30,8 +30,7 @@ IO.print s;
 let cmds := stx.getArgs.extract 1 stx.getArgs.size;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
-  cmd ← (PrettyPrinter.parenthesizeCommand cmd).run
-    env (KVMap.insert {} `trace.PrettyPrinter.parenthesize debug);
+  (cmd, _) ← (PrettyPrinter.parenthesizeCommand cmd).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
   some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 

@@ -23,7 +23,7 @@ instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 structure Context :=
 (options        : Options := {})
 (currRecDepth   : Nat := 0)
-(maxRecDepth    : Nat)
+(maxRecDepth    : Nat := 1000)
 (ref            : Syntax := Syntax.missing)
 
 inductive Exception
@@ -75,13 +75,13 @@ checkRecDepth; adaptReader Context.incCurrRecDepth x
 def getRef {ε} : ECoreM ε Syntax := do
 ctx ← read; pure ctx.ref
 
-def getEnv : CoreM Environment := do
+def getEnv {ε} : ECoreM ε Environment := do
 s ← get; pure s.env
 
-def setEnv (env : Environment) : CoreM Unit :=
+def setEnv {ε} (env : Environment) : ECoreM ε Unit :=
 modify $ fun s => { s with env := env }
 
-@[inline] def modifyEnv (f : Environment → Environment) : CoreM Unit :=
+@[inline] def modifyEnv {ε} (f : Environment → Environment) : ECoreM ε Unit :=
 modify $ fun s => { s with env := f s.env }
 
 def getOptions {ε} : ECoreM ε Options :=  do
@@ -90,16 +90,16 @@ ctx ← read; pure ctx.options
 def getTraceState {ε} : ECoreM ε TraceState := do
 s ← get; pure s.traceState
 
-def setTraceState {ε} [MonadIO (EIO ε)] (traceState : TraceState) : ECoreM ε Unit := do
+def setTraceState {ε} (traceState : TraceState) : ECoreM ε Unit := do
 modify fun s => { s with traceState := traceState }
 
-def getNGen : CoreM NameGenerator := do
+def getNGen {ε} : ECoreM ε NameGenerator := do
 s ← get; pure s.ngen
 
-def setNGen (ngen : NameGenerator) : CoreM Unit :=
+def setNGen {ε} (ngen : NameGenerator) : ECoreM ε Unit :=
 modify fun s => { s with ngen := ngen }
 
-def mkFreshId : CoreM Name := do
+def mkFreshId {ε} : ECoreM ε Name := do
 s ← get;
 let id := s.ngen.curr;
 modify $ fun s => { s with ngen := s.ngen.next };
@@ -113,10 +113,10 @@ match ref.getPos with
 def Context.replaceRef (ref : Syntax) (ctx : Context) : Context :=
 { ctx with ref := replaceRef ref ctx.ref }
 
-@[inline] def withRef {α} (ref : Syntax) (x : CoreM α) : CoreM α := do
+@[inline] def withRef {ε} {α} (ref : Syntax) (x : ECoreM ε α) : ECoreM ε α := do
 adaptReader (Context.replaceRef ref) x
 
-@[inline] private def getTraceState : CoreM TraceState := do
+@[inline] private def getTraceState {ε} : ECoreM ε TraceState := do
 s ← get; pure s.traceState
 
 def addContext {ε} (msg : MessageData) : ECoreM ε MessageData := do
@@ -147,7 +147,7 @@ def addAndCompile (decl : Declaration) : CoreM Unit := do
 addDecl decl;
 compileDecl decl
 
-def dbgTrace {α} [HasToString α] (a : α) : CoreM Unit :=
+def dbgTrace {ε} {α} [HasToString α] (a : α) : ECoreM ε Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
 def getConstInfo (constName : Name) : CoreM ConstantInfo := do
@@ -156,29 +156,28 @@ match env.find? constName with
 | some info => pure info
 | none      => throwError ("unknown constant '" ++ constName ++ "'")
 
-@[inline] def CoreM.run' {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO (Environment × α) := do
-let x : CoreM (Environment × α) := finally (do a ← x; env ← getEnv; pure (env, a)) do {
-  traceState ← getTraceState;
-  traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
-};
-let x : EIO Exception (Environment × α) := (x { maxRecDepth := getMaxRecDepth options, options := options }).run' { env := env };
-x.toIO fun ex => match ex with
+def printTraces : CoreM Unit := do
+traceState ← getTraceState;
+traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
+
+def resetTraceState {ε} : ECoreM ε Unit :=
+modify fun s => { s with traceState := {} }
+
+@[inline] def ECoreM.run {ε α} (x : ECoreM ε α) (ctx : Context) (s : State) : EIO ε (α × State) :=
+(x.run ctx).run s
+
+@[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) :=
+adaptExcept
+  (fun ex => match ex with
     | Exception.io ex         => ex
     | Exception.kernel ex opt => IO.userError $ toString $ format $ ex.toMessageData opt
-    | Exception.error _ msg   => IO.userError $ toString $ format $ msg
-
-@[inline] def CoreM.run {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO α := do
-(_, a) ← x.run' env options;
-pure a
+    | Exception.error _ msg   => IO.userError $ toString $ format $ msg)
+  (x.run ctx s)
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 ⟨fun env opts x _ => do
-  (env, a) ← x.run' env opts;
-  MetaHasEval.eval env opts a⟩
-
-@[inline] def ECoreM.run {ε α} (x : ECoreM ε α) (env : Environment) (options : Options) (maxRecDepth? : Option Nat := none) : EIO ε α :=
-let maxRecDepth := maxRecDepth?.getD (getMaxRecDepth options);
-(x.run { options := options, maxRecDepth := maxRecDepth }).run' { env := env }
+   (a, s) ← (finally x printTraces).toIO { maxRecDepth := getMaxRecDepth opts, options := opts} { env := env};
+   MetaHasEval.eval s.env opts a⟩
 
 end Core
 

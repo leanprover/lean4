@@ -13,7 +13,7 @@ let (debug, f) : Bool × String := match args with
   | _         => panic! "usage: file [-d]";
 env ← mkEmptyEnvironment;
 stx ← Lean.Parser.parseFile env args.head!;
-f ← (PrettyPrinter.ppModule stx).run env (KVMap.insert {} `trace.PrettyPrinter.format debug);
+(f, _) ← (PrettyPrinter.ppModule stx).toIO { options := Options.empty.setBool `trace.PrettyPrinter.format debug } { env := env };
 IO.print f;
 let inputCtx := Parser.mkInputContext (toString f) "<foo>";
 let (stx', state, messages) := Parser.parseHeader env inputCtx;

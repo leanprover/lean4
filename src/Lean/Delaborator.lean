@@ -206,9 +206,15 @@ def annotateCurPos (stx : Syntax) : Delab := do
 ctx ← read;
 pure $ annotatePos ctx.pos stx
 
+@[inline] def liftMetaM {α} (x : MetaM α) : DelabM α :=
+liftM x
+
+def getEnv : DelabM Environment :=
+liftMetaM $ Meta.getEnv
+
 partial def delabFor : Name → Delab
 | k => do
-  env ← liftM getEnv;
+  env ← getEnv;
   (match (delabAttribute.ext.getState env).table.find? k with
    | some delabs => delabs.firstM id >>= annotateCurPos
    | none        => failure) <|>
@@ -330,7 +336,7 @@ private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab
 -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
 -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
 | curNames => do
-  lctx ← liftM $ getLCtx;
+  lctx ← liftMetaM $ getLCtx;
   e ← getExpr;
   let n := lctx.getUnusedName e.bindingName!;
   stxN ← annotateCurPos (mkIdent n);

@@ -136,7 +136,7 @@ private partial def elabBinderViews (binderViews : Array BinderView)
       let fvars := fvars.push fvar;
       -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
       let lctx  := lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
-      className? ← isClass type;
+      className? ← isClass? type;
       match className? with
       | none           => elabBinderViews (i+1) fvars lctx localInsts
       | some className => do
@@ -327,7 +327,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
       s ← withRef binderView.id $ propagateExpectedType fvar type s;
       let s := { s with lctx := lctx };
-      className? ← isClass type;
+      className? ← isClass? type;
       match className? with
       | none           => elabFunBinderViews (i+1) s
       | some className => do

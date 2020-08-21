@@ -15,10 +15,10 @@ def isAuxDef? (constName : Name) : MetaM Bool := do
 env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
 def unfoldDefinition? (e : Expr) : MetaM (Option Expr)  :=
-Lean.WHNF.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isExprDefEq synthPending getLocalDecl getExprMVarAssignment? e
+Lean.WHNF.unfoldDefinitionAux getConstNoEx? isAuxDef? whnf inferType isExprDefEq synthPending getLocalDecl getExprMVarAssignment? e
 
 def whnfCore (e : Expr) : MetaM Expr :=
-Lean.WHNF.whnfCore getConstNoEx isAuxDef? whnf inferType isExprDefEqAux getLocalDecl getExprMVarAssignment? e
+Lean.WHNF.whnfCore getConstNoEx? isAuxDef? whnf inferType isExprDefEqAux getLocalDecl getExprMVarAssignment? e
 
 unsafe def reduceNativeConst (α : Type) (typeName : Name) (constName : Name) : MetaM α := do
 env ← getEnv;
@@ -173,7 +173,7 @@ if e.isAppOf declName then pure e
 else pure none
 
 def getStuckMVar? (e : Expr) : MetaM (Option MVarId) :=
-WHNF.getStuckMVar? getConst whnf e
+WHNF.getStuckMVar? getConst? whnf e
 
 end Meta
 end Lean

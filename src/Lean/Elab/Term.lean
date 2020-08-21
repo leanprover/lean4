@@ -324,7 +324,7 @@ def whnfCore (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfCore e
 def unfoldDefinition? (e : Expr) : TermElabM (Option Expr) := liftMetaM $ Meta.unfoldDefinition? e
 def instantiateMVars (e : Expr) : TermElabM Expr := liftMetaM $ Meta.instantiateMVars e
 def instantiateLevelMVars (u : Level) : TermElabM Level := liftMetaM $ Meta.instantiateLevelMVars u
-def isClass (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass t
+def isClass? (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass? t
 def mkFreshId : TermElabM Name := liftMetaM Meta.mkFreshId
 def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
 def mkFreshExprMVar (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
@@ -504,7 +504,7 @@ lctx       ← getLCtx;
 localInsts ← getLocalInsts;
 let lctx   := lctx.mkLocalDecl fvarId n type binderInfo;
 let fvar   := mkFVar fvarId;
-c?         ← isClass type;
+c?         ← isClass? type;
 match c? with
 | some c => adaptTheReader Meta.Context
     (fun ctx => { ctx with lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar } }) $
@@ -517,7 +517,7 @@ lctx       ← getLCtx;
 localInsts ← getLocalInsts;
 let lctx   := lctx.mkLetDecl fvarId n type val;
 let fvar   := mkFVar fvarId;
-c?         ← isClass type;
+c?         ← isClass? type;
 match c? with
 | some c => adaptTheReader Meta.Context
               (fun ctx => { ctx with lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar } }) $
@@ -1324,18 +1324,15 @@ fun stx _ =>
   | some val => pure $ toExpr val
   | none     => throwError "ill-formed syntax"
 
-private def printMessages : TermElabM Unit := do
-s ← get;
-s.messages.forM $ fun m => IO.println $ format m
-
-def TermElabM.run {α} (x : TermElabM α) : MetaM α := do
-let x : TermElabM α := do { a ← x; printMessages; pure a };
-let ctx : Context := {
-  fileName      := "<TermElabM>",
+private def mkSomeContext : Context :=
+{ fileName      := "<TermElabM>",
   fileMap       := arbitrary _,
-  currNamespace := Name.anonymous,
-};
-let x : EMetaM Exception α := (x ctx).run' {};
+  currNamespace := Name.anonymous }
+
+@[inline] def ETermElabM.run {ε α} (x : ETermElabM ε α) (ctx : Context := mkSomeContext) (s : State := {}) : EMetaM ε (α × State) :=
+(x.run ctx).run s
+
+@[inline] private def toMetaMAux {α} (x : EMetaM Exception α) : MetaM α := do
 ref ← Meta.getRef;
 let mkMetaException (msg : MessageData) : Meta.Exception := Meta.Exception.core (Core.Exception.error ref msg);
 adaptExcept
@@ -1346,8 +1343,18 @@ adaptExcept
     | Exception.ex (Elab.Exception.error msg)        => mkMetaException msg.data)
   x
 
+@[inline] def TermElabM.toMetaM {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
+toMetaMAux $ x.run ctx s
+
+@[inline] def TermElabM.toIO {α} (x : TermElabM α)
+    (ctxCore : Core.Context) (sCore : Core.State)
+    (ctxMeta : Meta.Context) (sMeta : Meta.State)
+    (ctx : Context) (s : State) : IO (α × Core.State × Meta.State × State) := do
+((a, s), sCore, sMeta) ← (toMetaMAux (x.run ctx s)).toIO ctxCore sCore ctxMeta sMeta;
+pure (a, sCore, sMeta, s)
+
 instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
-⟨fun env opts x _ => MetaHasEval.eval env opts x.run⟩
+⟨fun env opts x _ => MetaHasEval.eval env opts (do (a, _) ← x.toMetaM; pure a)⟩
 
 end Term
 

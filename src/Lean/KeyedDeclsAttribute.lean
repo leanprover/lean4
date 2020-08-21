@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Attributes
 import Lean.Compiler.InitAttr
 import Lean.ToExpr
-import Lean.Meta.Message
 
 /-!
 A builder for attributes that are applied to declarations of a common type and

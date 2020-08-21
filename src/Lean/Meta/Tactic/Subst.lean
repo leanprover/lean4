@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
-import Lean.Meta.Message
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Revert
 import Lean.Meta.Tactic.Intro

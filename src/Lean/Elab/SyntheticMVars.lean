@@ -19,7 +19,7 @@ withMVarContext mvarId do
   modify fun s => { s with syntheticMVars := [] };
   let x : ETermElabM Tactic.Exception α := (x { main := mvarId }).run' { s with goals := [mvarId] };
   let x : ETermElabM Exception α := adaptExcept Exception.ex x;
-  finally x (modify fun s => { syntheticMVars := savedSyntheticMVars })
+  finally x (modify fun s => { s with syntheticMVars := savedSyntheticMVars })
 
 def ensureAssignmentHasNoMVars (mvarId : MVarId) : TermElabM Unit := do
 val ← instantiateMVars (mkMVar mvarId);

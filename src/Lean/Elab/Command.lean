@@ -64,9 +64,6 @@ let scope      := s.scopes.head!;
   maxRecDepth  := s.maxRecDepth,
   ref          := ctx.ref }
 
-structure CoreResult (α : Type) :=
-(env : Environment) (ngen : NameGenerator) (val : α)
-
 def fromCoreException (ctx : Context) (ex : Core.Exception) : Exception :=
 match ex with
 | Core.Exception.error ref msg  => Exception.error (mkMessageAux ctx (replaceRef ref ctx.ref) msg MessageSeverity.error)
@@ -76,12 +73,15 @@ match ex with
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
 s ← get;
 ctx ← read;
-let x : CoreM (CoreResult α) := do { a ← x; env ← Core.getEnv; ngen ← Core.getNGen; pure ⟨env, ngen, a⟩ };
-let x : EIO Core.Exception (CoreResult α) := (ReaderT.run x (mkCoreContext ctx s)).run' { env := s.env, ngen := s.ngen };
-let x : EIO Exception (CoreResult α) := adaptExcept (fromCoreException ctx) x;
-result ← liftM x;
-modify fun s => { s with env := result.env, ngen := result.ngen };
-pure result.val
+let Eα := Except Core.Exception α;
+let x : CoreM Eα := catch (do a ← x; pure $ Except.ok a) (fun ex => pure $ Except.error ex);
+let x : EIO Core.Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
+let x : EIO Exception (Eα × Core.State) := adaptExcept (fromCoreException ctx) x;
+(ea, coreS) ← liftM x;
+modify fun s => { s with env := coreS.env, ngen := coreS.ngen };
+match ea with
+| Except.ok a    => pure a
+| Except.error e => throw (fromCoreException ctx e)
 
 @[inline] def getCurrRef : CommandElabM Syntax := do
 ctx ← read;
@@ -254,21 +254,21 @@ match ex with
 | Term.Exception.postpone => unreachable!
 | Term.Exception.ex ex    => ex
 
-structure TermResult (α : Type) :=
-(env : Environment) (messages : MessageLog) (ngen : NameGenerator) (val : α)
-
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
 ctx ← read;
 s   ← get;
 let scope := s.scopes.head!;
-let x : TermElabM (TermResult α) := do { a ← x; env ← Term.getEnv; messages ← Term.getMessageLog; ngen ← Term.getNGen; pure ⟨env, messages, ngen, a⟩ };
-let x : EMetaM Term.Exception (TermResult α) := (x (mkTermContext ctx s declName?)).run' { messages := s.messages, nextMacroScope := s.nextMacroScope };
-let x : ECoreM Term.Exception (TermResult α) := (x mkMetaContext).run' {};
-let x : EIO Term.Exception (TermResult α) := (x (mkCoreContext ctx s)).run' { env := s.env, ngen := s.ngen };
-let x : EIO Exception (TermResult α) := adaptExcept fromTermException x;
-result ← liftM x;
-modify fun s => { s with env := result.env, messages := result.messages, ngen := result.ngen };
-pure result.val
+let Eα    := Except Term.Exception α;
+let x : TermElabM Eα := catch (do a ← x; pure $ Except.ok a) (fun ex => pure $ Except.error ex);
+let x : EMetaM Term.Exception (Eα × Term.State) := (x (mkTermContext ctx s declName?)).run { messages := s.messages, nextMacroScope := s.nextMacroScope };
+let x : ECoreM Term.Exception (Eα × Term.State) := (x mkMetaContext).run' {};
+let x : EIO Term.Exception ((Eα × Term.State) × Core.State) := (x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
+let x : EIO Exception ((Eα × Term.State) × Core.State) := adaptExcept fromTermException x;
+((ea, termS), coreS) ← liftM x;
+modify fun s => { s with env := coreS.env, messages := termS.messages, ngen := coreS.ngen };
+match ea with
+| Except.ok a     => pure a
+| Except.error ex => throw (fromTermException ex)
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
 s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)

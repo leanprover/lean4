@@ -24,6 +24,7 @@ lean_object* l_Lean_registerEnumAttributes___rarg___lambda__1___boxed(lean_objec
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_attrParamSyntaxToIdentifier___boxed(lean_object*);
 lean_object* l_Lean_registerTagAttribute___closed__3;
+lean_object* l_Std_PersistentArray_forM___at_Lean_Core_CoreM_run_x27___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___main___at_Lean_registerParametricAttribute___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkAttributeImplOfBuilder___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -198,7 +199,6 @@ extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__6(lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_mkTagDeclarationExtension___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerEnumAttributes___spec__7(lean_object*);
-lean_object* l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam(lean_object*);
 lean_object* l_Lean_attributeExtension___closed__1;
@@ -4472,7 +4472,7 @@ x_45 = lean_ctor_get(x_43, 0);
 lean_inc(x_45);
 lean_dec(x_43);
 x_46 = l_Lean_Environment_addAttribute___closed__2;
-x_47 = l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__3(x_45, x_46, x_37, x_44);
+x_47 = l_Std_PersistentArray_forM___at_Lean_Core_CoreM_run_x27___spec__3(x_45, x_46, x_37, x_44);
 lean_dec(x_37);
 lean_dec(x_45);
 if (lean_obj_tag(x_47) == 0)
@@ -4515,7 +4515,7 @@ x_55 = lean_ctor_get(x_53, 0);
 lean_inc(x_55);
 lean_dec(x_53);
 x_56 = l_Lean_Environment_addAttribute___closed__2;
-x_57 = l_Std_PersistentArray_forM___at_Lean_Core_runCore___spec__3(x_55, x_56, x_37, x_54);
+x_57 = l_Std_PersistentArray_forM___at_Lean_Core_CoreM_run_x27___spec__3(x_55, x_56, x_37, x_54);
 lean_dec(x_55);
 if (lean_obj_tag(x_57) == 0)
 {

@@ -171,7 +171,7 @@ private def throwCtorExpected {α} : M α :=
 liftM $ throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
 
 def withRef {α} (ref : Syntax) (x : M α) : M α :=
-adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x
+adaptTheReader Core.Context (Core.Context.replaceRef ref) x
 
 private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat :=
 liftMetaM $ Meta.forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
@@ -528,7 +528,7 @@ localDecls ← s.localDecls.mapM fun d => liftMetaM $ Meta.instantiateLocalDeclM
 lctx ← getLCtx;
 let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.erase d.fvarId) lctx;
 let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.addDecl d) lctx;
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $ k localDecls patterns
+adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ k localDecls patterns
 
 private def withElaboratedLHS {α} (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr)
   (k : AltLHS → Expr → TermElabM α) : TermElabM α := do

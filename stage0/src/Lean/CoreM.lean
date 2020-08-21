@@ -18,6 +18,8 @@ structure State :=
 (ngen        : NameGenerator := {})
 (traceState  : TraceState    := {})
 
+instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
+
 structure Context :=
 (options        : Options := {})
 (currRecDepth   : Nat := 0)
@@ -70,6 +72,9 @@ def Context.incCurrRecDepth (ctx : Context) : Context :=
 @[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
 checkRecDepth; adaptReader Context.incCurrRecDepth x
 
+def getRef {ε} : ECoreM ε Syntax := do
+ctx ← read; pure ctx.ref
+
 def getEnv : CoreM Environment := do
 s ← get; pure s.env
 
@@ -84,6 +89,15 @@ ctx ← read; pure ctx.options
 
 def getTraceState {ε} : ECoreM ε TraceState := do
 s ← get; pure s.traceState
+
+def setTraceState {ε} [MonadIO (EIO ε)] (traceState : TraceState) : ECoreM ε Unit := do
+modify fun s => { s with traceState := traceState }
+
+def getNGen : CoreM NameGenerator := do
+s ← get; pure s.ngen
+
+def setNGen (ngen : NameGenerator) : CoreM Unit :=
+modify fun s => { s with ngen := ngen }
 
 def mkFreshId : CoreM Name := do
 s ← get;
@@ -142,7 +156,7 @@ match env.find? constName with
 | some info => pure info
 | none      => throwError ("unknown constant '" ++ constName ++ "'")
 
-@[inline] def runCore {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO (Environment × α) := do
+@[inline] def CoreM.run' {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO (Environment × α) := do
 let x : CoreM (Environment × α) := finally (do a ← x; env ← getEnv; pure (env, a)) do {
   traceState ← getTraceState;
   traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
@@ -153,17 +167,21 @@ x.toIO fun ex => match ex with
     | Exception.kernel ex opt => IO.userError $ toString $ format $ ex.toMessageData opt
     | Exception.error _ msg   => IO.userError $ toString $ format $ msg
 
-@[inline] def run {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO α := do
-(_, a) ← runCore x env options;
+@[inline] def CoreM.run {α} (x : CoreM α) (env : Environment) (options : Options := {}) : IO α := do
+(_, a) ← x.run' env options;
 pure a
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 ⟨fun env opts x _ => do
-  (env, a) ← runCore x env opts;
+  (env, a) ← x.run' env opts;
   MetaHasEval.eval env opts a⟩
+
+@[inline] def ECoreM.run {ε α} (x : ECoreM ε α) (env : Environment) (options : Options) (maxRecDepth? : Option Nat := none) : EIO ε α :=
+let maxRecDepth := maxRecDepth?.getD (getMaxRecDepth options);
+(x.run { options := options, maxRecDepth := maxRecDepth }).run' { env := env }
 
 end Core
 
-export Core (CoreM)
+export Core (CoreM ECoreM)
 
 end Lean

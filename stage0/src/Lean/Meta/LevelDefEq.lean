@@ -190,8 +190,9 @@ numPostponed ← getNumPostponed;
 if numPostponed == 0 then pure true
 else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
 
-def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
-modify $ fun s => { s with env := env, mctx := mctx, postponed := postponed }
+def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit := do
+setEnv env;
+modify $ fun s => { s with mctx := mctx, postponed := postponed }
 
 /--
   `commitWhenSome? x` executes `x` and process all postponed universe level constraints produced by `x`.
@@ -200,8 +201,8 @@ modify $ fun s => { s with env := env, mctx := mctx, postponed := postponed }
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
 @[specialize] def commitWhenSome? {α} (x? : MetaM (Option α)) : MetaM (Option α) := do
+env ← getEnv;
 s ← get;
-let env       := s.env;
 let mctx      := s.mctx;
 let postponed := s.postponed;
 modify $ fun s => { s with postponed := {} };

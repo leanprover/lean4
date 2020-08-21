@@ -371,6 +371,7 @@ private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Me
       match ex with
       | Exception.postpone                            => throw ex
       | Exception.ex Elab.Exception.unsupportedSyntax => throw ex
+      | Exception.ex (Elab.Exception.io _)            => throw ex
       | Exception.ex (Elab.Exception.error errMsg)    => do
         eType? ← unfoldDefinition? eType;
         match eType? with
@@ -580,10 +581,12 @@ else
   if successes.size == 1 then
     applyResult $ successes.get! 0
   else if successes.size > 1 then do
+    env ← getEnv;
     lctx ← getLCtx;
+    mctx ← getMCtx;
     opts ← getOptions;
     let msgs : Array MessageData := successes.map $ fun success => match success with
-      | EStateM.Result.ok e s => MessageData.withContext { env := s.env, mctx := s.mctx, lctx := lctx, opts := opts } e
+      | EStateM.Result.ok e s => MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } e
       | _                     => unreachable!;
     throwErrorAt f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
   else

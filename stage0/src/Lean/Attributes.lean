@@ -191,7 +191,7 @@ namespace Environment
 @[export lean_add_attribute]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment := do
 attr ← IO.ofExcept $ getAttributeImpl env attrName;
-(env, _) ← Core.runCore (attr.add decl args persistent) env;
+(env, _) ← (attr.add decl args persistent).run' env;
 pure env
 
 /-

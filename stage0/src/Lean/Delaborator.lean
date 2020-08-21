@@ -219,7 +219,7 @@ partial def delabFor : Name → Delab
 
 def delab : Delab := do
 k ← getExprKind;
-delabFor k <|> (liftM $ show MetaM Syntax from throw $ Meta.Exception.other Syntax.missing $ "don't know how to delaborate '" ++ toString k ++ "'")
+delabFor k <|> (liftM $ show MetaM Syntax from throwError $ "don't know how to delaborate '" ++ toString k ++ "'")
 
 @[builtinDelab fvar]
 def delabFVar : Delab := do

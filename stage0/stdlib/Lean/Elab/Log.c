@@ -21,6 +21,7 @@ lean_object* l_Lean_Elab_mkMessageAt___rarg___lambda__2(lean_object*, lean_objec
 lean_object* l_Lean_Elab_throwError(lean_object*);
 lean_object* l_Lean_Elab_log___rarg___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logError(lean_object*);
+lean_object* l_Lean_Core_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logInfoAt(lean_object*);
 lean_object* l_Lean_Elab_log___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
@@ -63,18 +64,8 @@ lean_object* l_Lean_Elab_replaceRef(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Syntax_getPos(x_1);
-if (lean_obj_tag(x_3) == 0)
-{
-lean_inc(x_2);
-return x_2;
-}
-else
-{
-lean_dec(x_3);
-lean_inc(x_1);
-return x_1;
-}
+x_3 = l_Lean_Core_replaceRef(x_1, x_2);
+return x_3;
 }
 }
 lean_object* l_Lean_Elab_replaceRef___boxed(lean_object* x_1, lean_object* x_2) {

@@ -39,7 +39,7 @@ match env.find? constName with
 | none => throw $ IO.userError "unknown constant"
 | some cinfo => do
   let c := mkConst constName (cinfo.lparams.map mkLevelParam);
-  (keys, env) ← IO.runMeta (mkInstanceKey c) env;
+  (env, keys) ← ((mkInstanceKey c).run).run' env;
   pure $ instanceExtension.addEntry env { keys := keys, val := c }
 
 @[init] def registerInstanceAttr : IO Unit :=

@@ -10,9 +10,7 @@ namespace Lean
 namespace Elab
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
-match ref.getPos with
-| some _ => ref
-| _      => oldRef
+Core.replaceRef ref oldRef
 
 class MonadPosInfo (m : Type → Type) :=
 (getFileMap   : m FileMap)

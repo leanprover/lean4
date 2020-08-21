@@ -193,7 +193,7 @@ structure ElimResult :=
 private def checkNumPatterns (majors : Array Expr) (lhss : List AltLHS) : MetaM Unit :=
 let num := majors.size;
 when (lhss.any (fun lhs => lhs.patterns.length != num)) $
-  throwOther "incorrect number of patterns"
+  throwError "incorrect number of patterns"
 
 private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array Expr → (List Alt → Array Expr → MetaM α) → MetaM α
 | [],        alts, minors, k => k alts.reverse minors
@@ -341,7 +341,7 @@ match p.vars with
 
 private def throwInductiveTypeExpected {α} (e : Expr) : MetaM α := do
 t ← inferType e;
-throwOther ("failed to compile pattern matching, inductive type expected" ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr t)
+throwError ("failed to compile pattern matching, inductive type expected" ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr t)
 
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
 localDecls.any fun d => d.fvarId == fvarId
@@ -628,12 +628,11 @@ withGoalOf p (traceM `Meta.EqnCompiler.match p.toMessageData)
 
 private def throwNonSupported (p : Problem) : MetaM Unit := do
 msg ← p.toMessageData;
-throwOther ("not implement yet " ++ msg)
+throwError ("not implement yet " ++ msg)
 
 @[inline] def withIncRecDepth {α} (x : StateT State MetaM α) : StateT State MetaM α := do
-ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ liftM $ throwOther maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
+liftM $ checkRecDepth;
+adaptTheReader Core.Context Core.Context.incCurrRecDepth x
 
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
 match p.vars with

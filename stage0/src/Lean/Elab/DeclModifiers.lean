@@ -157,10 +157,8 @@ attrs.forM $ fun attr => do
  match getAttributeImpl env attr.name with
  | Except.error errMsg => throwError errMsg
  | Except.ok attrImpl  =>
-   when (attrImpl.applicationTime == applicationTime) $ do
-     env ← getEnv;
-     (env, _) ← liftIO $ Core.runCore (attrImpl.add declName attr.args true) env; -- TODO: revise after MetaM refactoring
-     setEnv env
+   when (attrImpl.applicationTime == applicationTime) do
+     liftCoreM (attrImpl.add declName attr.args true)
 
 end Command
 end Elab

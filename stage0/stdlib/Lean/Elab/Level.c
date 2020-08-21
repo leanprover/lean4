@@ -26,6 +26,7 @@ lean_object* l_ReaderT_read___at_Lean_Elab_Level_LevelElabM_MonadLog___spec__1(l
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
+lean_object* l_Lean_Core_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Level_max___elambda__1___closed__1;
 lean_object* lean_array_get_size(lean_object*);
@@ -99,7 +100,6 @@ lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__4;
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__2;
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__8;
-lean_object* l_Lean_Elab_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Elab_Level_LevelElabM_MonadLog___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -356,7 +356,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_3, 2);
-x_7 = l_Lean_Elab_replaceRef(x_1, x_6);
+x_7 = l_Lean_Core_replaceRef(x_1, x_6);
 lean_dec(x_6);
 lean_ctor_set(x_3, 2, x_7);
 x_8 = lean_apply_2(x_2, x_3, x_4);
@@ -374,7 +374,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_3);
-x_13 = l_Lean_Elab_replaceRef(x_1, x_11);
+x_13 = l_Lean_Core_replaceRef(x_1, x_11);
 lean_dec(x_11);
 x_14 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_14, 0, x_9);
@@ -1064,7 +1064,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_2, 2);
 x_9 = lean_ctor_get(x_2, 3);
-x_10 = l_Lean_Elab_replaceRef(x_1, x_8);
+x_10 = l_Lean_Core_replaceRef(x_1, x_8);
 lean_dec(x_8);
 lean_inc(x_9);
 lean_ctor_set(x_2, 2, x_10);
@@ -1469,7 +1469,7 @@ lean_inc(x_112);
 lean_inc(x_111);
 lean_inc(x_110);
 lean_dec(x_2);
-x_114 = l_Lean_Elab_replaceRef(x_1, x_112);
+x_114 = l_Lean_Core_replaceRef(x_1, x_112);
 lean_dec(x_112);
 lean_inc(x_113);
 x_115 = lean_alloc_ctor(0, 4, 0);

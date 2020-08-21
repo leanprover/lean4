@@ -23,7 +23,7 @@ Lean.WHNF.whnfCore getConstNoEx isAuxDef? whnf inferType isExprDefEqAux getLocal
 unsafe def reduceNativeConst (α : Type) (typeName : Name) (constName : Name) : MetaM α := do
 env ← getEnv;
 match env.evalConstCheck α typeName constName with
-| Except.error ex => throwOther ex
+| Except.error ex => throwError ex
 | Except.ok v     => pure v
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := reduceNativeConst Bool `Bool constName

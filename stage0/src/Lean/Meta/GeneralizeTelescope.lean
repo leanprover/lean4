@@ -47,7 +47,7 @@ partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Exp
       | LocalDecl.ldecl _ _ _ _ _ => replace e type
     | ⟨e, type, modified⟩ => do
       when modified $ unlessM (isTypeCorrect type) $
-        throwEx $ Exception.generalizeTelescope (entries.map Entry.expr);
+        throwError $ "failed to create telescope generalizing " ++ (entries.map Entry.expr);
       replace e type
   else
     k fvars

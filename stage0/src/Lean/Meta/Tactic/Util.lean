@@ -25,8 +25,8 @@ setMVarTag mvarId (tag ++ suffix)
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
 mkFreshExprMVar type userName MetavarKind.syntheticOpaque
 
-def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α := do
-throwEx $ fun ctx => Exception.tactic ref tacticName mvarId (MessageData.withContext ctx msg) ctx
+def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α :=
+throwError $ "tactic '" ++ tacticName ++ "' failed, " ++ msg ++ Format.line ++ MessageData.ofGoal mvarId
 
 def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit :=
 whenM (isExprMVarAssigned mvarId) $ throwTacticEx tacticName mvarId "metavariable has already been assigned"
@@ -42,7 +42,9 @@ opts ← getOptions;
 pure $ ppGoal env mctx opts mvarId
 
 @[inline] protected def orelse {α} (x y : MetaM α) : MetaM α := do
-s ← get; catch x (fun _ => do restore s.env s.mctx s.postponed; y)
+env ← getEnv;
+s ← get;
+catch x (fun _ => do restore env s.mctx s.postponed; y)
 
 instance Meta.hasOrelse {α} : HasOrelse (MetaM α) := ⟨Meta.orelse⟩
 

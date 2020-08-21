@@ -22,7 +22,7 @@ def getArrayArgType (a : Expr) : MetaM Expr := do
 aType ← inferType a;
 aType ← whnfD aType;
 unless (aType.isAppOfArity `Array 1) $
-  throwOther ("array expected" ++ indentExpr a);
+  throwError ("array expected" ++ indentExpr a);
 pure aType.appArg!
 
 private def mkArrayGetLit (a : Expr) (i : Nat) (n : Nat) (h : Expr) : MetaM Expr := do

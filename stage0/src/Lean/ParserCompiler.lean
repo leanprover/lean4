@@ -40,7 +40,7 @@ match e with
 | _ => do
   let fn := e.getAppFn;
   Expr.const c _ _ ← pure fn
-    | throwOther $ "call of unknown parser at '" ++ toString e ++ "'";
+    | throwError $ "call of unknown parser at '" ++ toString e ++ "'";
   let args := e.getAppArgs;
   -- call the translated `p` with (a prefix of) the arguments of `e`, recursing for arguments
   -- of type `ty` (i.e. formerly `Parser`)
@@ -66,7 +66,7 @@ match e with
     if resultTy.isConstOf `Lean.Parser.TrailingParser || resultTy.isConstOf `Lean.Parser.Parser then do
       -- synthesize a new `[combinatorAttr c]`
       some value ← pure cinfo.value?
-        | throwOther $ "don't know how to generate " ++ ctx.varName ++ " for non-definition '" ++ toString e ++ "'";
+        | throwError $ "don't know how to generate " ++ ctx.varName ++ " for non-definition '" ++ toString e ++ "'";
       value ← compileParserBody $ preprocessParserBody ctx value;
       ty ← Meta.forallTelescope cinfo.type fun params _ =>
         params.foldrM (fun param ty => do
@@ -81,14 +81,14 @@ match e with
       env ← getEnv;
       env ← match env.addAndCompile {} decl with
       | Except.ok    env => pure env
-      | Except.error kex => throwOther $ toString $ fmt $ kex.toMessageData {};
+      | Except.error kex => throwError $ toString $ fmt $ kex.toMessageData {};
       setEnv $ ctx.combinatorAttr.setDeclFor env c c';
       mkCall c'
     else do
       -- if this is a generic function, e.g. `HasAndthen.andthen`, it's easier to just unfold it until we are
       -- back to parser combinators
       some e' ← liftM $ unfoldDefinition? e
-        | throwOther $ "don't know how to generate " ++ ctx.varName ++ " for non-parser combinator '" ++ toString e ++ "'";
+        | throwError $ "don't know how to generate " ++ ctx.varName ++ " for non-parser combinator '" ++ toString e ++ "'";
       compileParserBody e'
 
 /-- Compile the given declaration into a `[(builtin)runtimeAttr declName]` -/
@@ -97,7 +97,7 @@ def compileParser {α} (ctx : Context α) (env : Environment) (declName : Name) 
 -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
 -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
 -- call them at compile time but only reference them).
-(Expr.const c' _ _, env) ← IO.runMeta (compileParserBody ctx (mkConst declName)) env
+(Expr.const c' _ _, env) ← (do a ← compileParserBody ctx (mkConst declName); env ← getEnv; pure (a, env)).toIO env
   | unreachable!;
 -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
 -- using `parser!` or `syntax`.

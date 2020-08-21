@@ -11,13 +11,13 @@ def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
 def check (x : MetaM Bool) : MetaM Unit :=
-unlessM x $ throwOther "check failed"
+unlessM x $ throwError "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
 do v? ← getExprMVarAssignment? m.mvarId!;
    match v? with
    | some v => pure v
-   | none   => throwOther "metavariable is not assigned"
+   | none   => throwError "metavariable is not assigned"
 
 def nat   := mkConst `Nat
 def boolE := mkConst `Bool
@@ -741,7 +741,7 @@ match t.arrayLit? with
   check $ pure $ xs.length == 2;
   match (xs.get! 0).natLit?, (xs.get! 1).natLit? with
   | some 1, some 2 => pure ()
-  | _, _           => throwOther "nat lits expected"
-| none => throwOther "array lit expected"
+  | _, _           => throwError "nat lits expected"
+| none => throwError "array lit expected"
 
 #eval tst42

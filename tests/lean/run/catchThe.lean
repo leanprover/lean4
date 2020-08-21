@@ -9,11 +9,11 @@ abbrev M := ExceptT String $ MetaM
 def testM {α} [HasBeq α] [HasToString α] (x : M α) (expected : α)  : MetaM Unit := do
 r ← x;
 match r with
-| Except.ok a    => unless (a == expected) $ throwOther ("unexpected result " ++ toString a)
-| Except.error e => throwOther ("FAILED: " ++ e)
+| Except.ok a    => unless (a == expected) $ throwError ("unexpected result " ++ toString a)
+| Except.error e => throwError ("FAILED: " ++ e)
 
 @[noinline] def act1 : M Nat :=
-throwThe Exception $ Exception.other Syntax.missing "Error at act1"
+throwThe Exception $ Exception.core $ Core.Exception.error Syntax.missing "Error at act1"
 
 def g1 : M Nat :=
 catchThe Meta.Exception
@@ -31,3 +31,13 @@ catchThe Meta.Exception
   (fun ex => pure 200)
 
 #eval testM g2 100
+
+def h1 : CoreM Nat :=
+pure 10
+
+#eval h1
+
+def h2 : MetaM Nat :=
+pure 20
+
+#eval h2

@@ -12,23 +12,18 @@ def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
 def check (x : MetaM Bool) : MetaM Unit :=
-unlessM x $ throwOther "check failed"
+unlessM x $ throwError "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
 do v? ← getExprMVarAssignment? m.mvarId!;
    match v? with
    | some v => pure v
-   | none   => throwOther "metavariable is not assigned"
+   | none   => throwError "metavariable is not assigned"
 
 unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
-   match x { config := { opts := opts }, currRecDepth := 0, maxRecDepth := 100000 } { env := env } with
-   | EStateM.Result.ok _ s    => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     pure ()
-   | EStateM.Result.error err s => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     throw (IO.userError (toString err))
+   let x := do { x; Meta.printTraces };
+   x.toIO env opts
 
 def nat  := mkConst `Nat
 def succ := mkConst `Nat.succ

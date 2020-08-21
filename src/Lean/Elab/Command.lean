@@ -48,7 +48,7 @@ structure Context :=
 (currMacroScope : MacroScope := firstFrontendMacroScope)
 (ref            : Syntax := Syntax.missing)
 
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.error $ arbitrary _⟩
+instance Exception.inhabited : Inhabited Exception := ⟨Exception.core $ arbitrary _⟩
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -64,8 +64,8 @@ let scope      := s.scopes.head!;
   maxRecDepth  := s.maxRecDepth,
   ref          := ctx.ref }
 
-def fromCoreException (ctx : Context) (ex : Core.Exception) : Exception :=
-Exception.error $ mkMessageAux ctx ex.ref ex.msg MessageSeverity.error
+def fromCoreException (ex : Core.Exception) : Exception :=
+Exception.core ex
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
 s ← get;
@@ -73,12 +73,12 @@ ctx ← read;
 let Eα := Except Core.Exception α;
 let x : CoreM Eα := catch (do a ← x; pure $ Except.ok a) (fun ex => pure $ Except.error ex);
 let x : EIO Core.Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
-let x : EIO Exception (Eα × Core.State) := adaptExcept (fromCoreException ctx) x;
+let x : EIO Exception (Eα × Core.State) := adaptExcept fromCoreException x;
 (ea, coreS) ← liftM x;
 modify fun s => { s with env := coreS.env, ngen := coreS.ngen };
 match ea with
 | Except.ok a    => pure a
-| Except.error e => throw (fromCoreException ctx e)
+| Except.error e => throw (fromCoreException e)
 
 @[inline] def getCurrRef : CommandElabM Syntax := do
 ctx ← read;
@@ -98,7 +98,7 @@ liftM x
 
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
 ctx ← read;
-liftEIO $ adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ctx.ref ex) x
+liftEIO $ adaptExcept (fun (ex : IO.Error) => Exception.core { ref := ctx.ref, msg := ex.toString}) x
 
 instance : MonadIO CommandElabM :=
 { liftIO := fun α => liftIO }
@@ -125,9 +125,9 @@ def throwError {α} (msgData : MessageData) : CommandElabM α := do
 ctx ← read;
 let ref     := getBetterRef ctx.ref ctx.macroStack;
 let msgData := addMacroStack msgData ctx.macroStack;
+msgData ← addContext msgData;
 withRef ref do
-  msg ← mkMessage msgData MessageSeverity.error;
-  throw (Exception.error msg)
+  throw (Exception.core { ref := ref, msg := msgData })
 
 def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α :=
 withRef ref $ throwError msgData
@@ -171,7 +171,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
   throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
-    | Exception.error _           => throw ex
+    | Exception.core _           => throw ex
     | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
@@ -265,7 +265,7 @@ s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x (fun ex => match ex with
-  | Exception.error ex          => do logMessage ex; pure ()
+  | Exception.core ex           => do withRef ex.ref $ logError ex.msg; pure ()
   | Exception.unsupportedSyntax => unreachable!)
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
@@ -556,7 +556,7 @@ succeeded ← finally
   (catch
      (do x; hasNoErrorMessages)
      (fun ex => match ex with
-       | Exception.error msg         => do modify (fun s => { s with messages := s.messages.add msg }); pure false
+       | Exception.core ex           => do withRef ex.ref $ logError ex.msg; pure false
        | Exception.unsupportedSyntax => do logError "unsupported syntax"; pure false))
   (restoreMessages prevMessages);
 when succeeded $
@@ -606,7 +606,7 @@ fun stx => withoutModifyingEnv do
     (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;
     logInfo out;
     match res with
-    | Except.error e => throw $ Exception.error $ ioErrorToMessage ctx ref e
+    | Except.error e => throw $ Exception.core { ref := ref, msg := e.toString }
     | Except.ok env  => do setEnv env; pure ()
   };
   let elabEval : CommandElabM Unit := do {
@@ -625,7 +625,7 @@ fun stx => withoutModifyingEnv do
     (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;
     logInfo out;
     match res with
-    | Except.error e => throw $ Exception.error $ ioErrorToMessage ctx ref e
+    | Except.error e => throw $ Exception.core { ref := ref, msg := e.toString }
     | Except.ok _    => pure ()
   };
   if env.contains `Lean.MetaHasEval then do

@@ -79,7 +79,7 @@ synthesized ←
   catch (withoutMacroStackAtErr $ synthesizeInstMVarCore mvarId)
   (fun ex =>
     match ex with
-    | Exception.ex (Elab.Exception.error errMsg) => throwError ("function expected" ++ Format.line ++ errMsg.data)
+    | Exception.ex (Elab.Exception.core ex) => throwError ("function expected" ++ Format.line ++ ex.msg)
     | _ => throwError "function expected");
 if synthesized then
   pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
@@ -362,7 +362,7 @@ match eType.getAppFn, lval with
 | _, _ =>
   throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
-private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Message → TermElabM LValResolution
+private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Core.Exception → TermElabM LValResolution
 | eType, previousExceptions => do
   eType ← whnfCore eType;
   tryPostponeIfMVar eType;
@@ -371,14 +371,13 @@ private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Me
       match ex with
       | Exception.postpone                            => throw ex
       | Exception.ex Elab.Exception.unsupportedSyntax => throw ex
-      | Exception.ex (Elab.Exception.error errMsg)    => do
+      | Exception.ex (Elab.Exception.core exCore)     => do
         eType? ← unfoldDefinition? eType;
         match eType? with
-        | some eType => resolveLValLoop eType (previousExceptions.push errMsg)
+        | some eType => resolveLValLoop eType (previousExceptions.push exCore)
         | none       => do
-          previousExceptions.forM $ fun ex =>
-            logMessage errMsg;
-          throw (Exception.ex (Elab.Exception.error errMsg)))
+          previousExceptions.forM $ fun ex => withRef ex.ref $ logError ex.msg;
+          throw ex)
 
 private def resolveLVal (e : Expr) (lval : LVal) : TermElabM LValResolution := do
 eType ← inferType e;
@@ -552,18 +551,23 @@ candidates.filter $ fun c => match c with
   | EStateM.Result.ok _ _ => true
   | _ => false
 
-private def toMessageData (msg : Message) : TermElabM MessageData := do
-pos ← getRefPosition;
-if pos == msg.pos then
-  pure msg.data
-else
-  pure $ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ " " ++ msg.data
+private def toMessageData (ex : Core.Exception) : TermElabM MessageData := do
+pos ← getRefPos;
+match ex.ref.getPos with
+| none       => pure ex.msg
+| some exPos =>
+  if pos == exPos then
+    pure ex.msg
+  else do
+    fileMap ← getFileMap;
+    let exPosition := fileMap.toPosition exPos;
+    pure $ toString exPosition.line ++ ":" ++ toString exPosition.column ++ " " ++ ex.msg
 
 private def mergeFailures {α} (failures : Array TermElabResult) : TermElabM α := do
 msgs ← failures.mapM $ fun failure =>
   match failure with
-  | EStateM.Result.ok _ _         => unreachable!
-  | EStateM.Result.error errMsg s => toMessageData errMsg;
+  | EStateM.Result.ok _ _     => unreachable!
+  | EStateM.Result.error ex _ => toMessageData ex;
 throwError ("overloaded, errors " ++ MessageData.ofArray msgs)
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) : TermElabM Expr := do

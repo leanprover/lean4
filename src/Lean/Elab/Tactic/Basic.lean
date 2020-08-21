@@ -179,7 +179,7 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → Ta
   throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (evalFn::evalFns) => catch (evalFn stx)
   (fun ex => match ex with
-    | Exception.error _  =>
+    | Exception.core _  =>
       match evalFns with
       | [] => throw ex
       | _  => do s.restore; evalTacticUsing evalFns

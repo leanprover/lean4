@@ -111,7 +111,7 @@ pure { core := core, meta := meta, elab := elab }
 def SavedState.restore (s : SavedState) : TermElabM Unit := do
 set s.core; set s.meta; set s.elab
 
-abbrev TermElabResult := EStateM.Result Message SavedState Expr
+abbrev TermElabResult := EStateM.Result Core.Exception SavedState Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
 /--
@@ -123,17 +123,17 @@ s ← saveAllState;
 catch
   (do e ← x; newS ← saveAllState; s.restore; pure (EStateM.Result.ok e newS))
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg) => do newS ← saveAllState; s.restore; pure (EStateM.Result.error errMsg newS)
-    | Exception.postpone                         => do s.restore; throw Exception.postpone
-    | _                                          => throw ex)
+    | Exception.ex (Elab.Exception.core ex) => do newS ← saveAllState; s.restore; pure (EStateM.Result.error ex newS)
+    | Exception.postpone                    => do s.restore; throw Exception.postpone
+    | _                                     => throw ex)
 
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
 def applyResult (result : TermElabResult) : TermElabM Expr :=
 match result with
-| EStateM.Result.ok e s         => do s.restore; pure e
-| EStateM.Result.error errMsg s => do s.restore; throw (Exception.ex (Elab.Exception.error errMsg))
+| EStateM.Result.ok e s     => do s.restore; pure e
+| EStateM.Result.error ex s => do s.restore; throw (Exception.ex (Elab.Exception.core ex))
 
 private def getRefImpl : TermElabM Syntax :=
 liftM $ @Core.getRef Exception
@@ -148,7 +148,7 @@ private def fromMetaException (ref : Syntax) (ctx : Context) (ex : Meta.Exceptio
 let ref := match ex.getRef.getPos with
   | some _ => ex.getRef
   | none   => ref;
-Exception.ex $ Elab.Exception.error $ mkMessageAux ref ctx ex.toMessageData MessageSeverity.error
+Exception.ex $ Elab.Exception.core { ref := ref, msg := ex.toMessageData }
 
 @[inline] private def liftMetaMCore {α} (x : MetaM α) : TermElabM α := do
 ref ← getRefImpl;
@@ -226,9 +226,8 @@ ctx ← read;
 ref ← getRef;
 let ref     := getBetterRef ref ctx.macroStack;
 let msgData := if ctx.macroStackAtErr then addMacroStack msgData ctx.macroStack else msgData;
-withRef ref do
-  msg ← mkMessage msgData MessageSeverity.error;
-  throw (Exception.ex (Elab.Exception.error msg))
+msgData ← addContext msgData;
+throw (Exception.ex (Elab.Exception.core { ref := ref, msg := msgData }))
 
 def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : TermElabM α :=
 withRef ref $ throwError msgData
@@ -589,7 +588,7 @@ catch
     pure eNew)
   (fun ex =>
     match ex with
-    | Exception.ex (Elab.Exception.error errMsg) => throwTypeMismatchError expectedType eType e f? errMsg.data
+    | Exception.ex (Elab.Exception.core ex) => throwTypeMismatchError expectedType eType e f? ex.toMessageData
     | _ => throwTypeMismatchError expectedType eType e f?)
 
 private def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
@@ -785,14 +784,15 @@ match expectedType? with
 | none => pure e
 | _    => do eType ← inferType e; ensureHasTypeAux expectedType? eType e
 
-private def exceptionToSorry (errMsg : Message) (expectedType? : Option Expr) : TermElabM Expr := do
+private def exceptionToSorry (ex : Core.Exception) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
   | none              => mkFreshTypeMVar
   | some expectedType => pure expectedType;
 u ← getLevel expectedType;
 -- TODO: should be `(sorryAx.{$u} $expectedType true) when we support antiquotations at that place
 let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
-unless errMsg.data.hasSyntheticSorry $ logMessage errMsg;
+unless ex.msg.hasSyntheticSorry $
+  withRef ex.ref $ logError ex.msg;
 pure syntheticSorry
 
 /-- If `mayPostpone == true`, throw `Expection.postpone`. -/
@@ -849,7 +849,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
           postponeElabTerm stx expectedType?
         else
           throw ex
-    | Exception.ex (Elab.Exception.error errMsg) => do ctx ← read; if ctx.errToSorry then exceptionToSorry errMsg expectedType? else throw ex)
+    | Exception.ex (Elab.Exception.core coreEx) => do ctx ← read; if ctx.errToSorry then exceptionToSorry coreEx expectedType? else throw ex)
 
 def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
 s ← saveAllState;
@@ -1039,7 +1039,7 @@ catch
     (throwError "type expected"))
   (fun ex =>
     match ex with
-    | Exception.ex (Elab.Exception.error errMsg) => throwError ("type expected" ++ Format.line ++ errMsg.data)
+    | Exception.ex (Elab.Exception.core ex) => throwError ("type expected" ++ Format.line ++ ex.msg)
     | _ => throwError "type expected")
 
 /--
@@ -1338,7 +1338,7 @@ adaptExcept
   (fun (ex : Exception) => match ex with
     | Exception.postpone                             => mkMetaException "<postpone>"
     | Exception.ex Elab.Exception.unsupportedSyntax  => mkMetaException "<unsupportedSyntax>"
-    | Exception.ex (Elab.Exception.error msg)        => mkMetaException msg.data)
+    | Exception.ex (Elab.Exception.core ex)          => mkMetaException ex.msg)
   x
 
 @[inline] def TermElabM.toMetaM {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=

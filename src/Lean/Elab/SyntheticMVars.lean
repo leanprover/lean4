@@ -60,11 +60,12 @@ withRef stx $ withMVarContext mvarId $ do
     (fun ex => match ex with
       | Exception.postpone                            => do set s; pure false
       | Exception.ex Elab.Exception.unsupportedSyntax => unreachable!
-      | Exception.ex (Elab.Exception.error msg)       =>
+      | Exception.ex (Elab.Exception.core ex)         =>
         if postponeOnError then do
           set s; pure false
         else do
-          logMessage msg; pure true)
+          withRef ex.ref $ logError ex.msg;
+          pure true)
 
 /--
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
@@ -73,7 +74,7 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool := do
 withMVarContext instMVar $ catch
   (synthesizeInstMVarCore instMVar)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg) => do logMessage errMsg; pure true
+    | Exception.ex (Elab.Exception.core ex) => do withRef ex.ref $ logError ex.msg; pure true
     | _ => unreachable!)
 
 /--
@@ -82,7 +83,7 @@ private def synthesizePendingCoeInstMVar (instMVar : MVarId) (expectedType : Exp
 withMVarContext instMVar $ catch
   (synthesizeInstMVarCore instMVar)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg) => throwTypeMismatchError expectedType eType e f? errMsg.data
+    | Exception.ex (Elab.Exception.core ex) => throwTypeMismatchError expectedType eType e f? ex.msg
     | _ => unreachable!)
 
 /--

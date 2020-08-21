@@ -24,6 +24,6 @@ import Lean.Structure
 import Lean.Delaborator
 import Lean.PrettyPrinter
 import Lean.CoreM
-
+import Lean.InternalExceptionId
 -- import only for `[init]` side-effects
 import Lean.PrettyPrinter.Meta

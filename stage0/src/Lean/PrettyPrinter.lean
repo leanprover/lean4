@@ -10,22 +10,22 @@ import Lean.PrettyPrinter.Formatter
 namespace Lean
 namespace PrettyPrinter
 
-def ppTerm (table : Parser.TokenTable) : Syntax → MetaM Format :=
-parenthesizeTerm >=> formatTerm table
+def ppTerm (stx : Syntax) : CoreM Format :=
+parenthesizeTerm stx >>= formatTerm
 
-def ppExpr (table : Parser.TokenTable) : Expr → MetaM Format :=
-delab >=> ppTerm table
+def ppExpr (e : Expr) : MetaM Format :=
+delab e >>= Meta.liftCoreM ∘ ppTerm
 
-def ppCommand (table : Parser.TokenTable) : Syntax → MetaM Format :=
-parenthesizeCommand >=> formatCommand table
+def ppCommand (stx : Syntax) : CoreM Format :=
+parenthesizeCommand stx >>= formatCommand
 
-def ppModule (table : Parser.TokenTable) (stx : Syntax) : MetaM Format := do
+def ppModule (stx : Syntax) : CoreM Format := do
 let header := stx.getArg 0;
 -- TODO: header formatter is not auto-generated because the parser is not used in any syntax category...
 some f ← pure $ header.reprint | unreachable!; -- format table Lean.Parser.Module.header.formatter header;
 let cmds := stx.getArgs.extract 1 stx.getArgs.size;
 cmds.foldlM (fun f cmd => do
-  cmdF ← ppCommand table cmd;
+  cmdF ← ppCommand cmd;
   pure $ f ++ "\n\n" ++ cmdF) f
 
 /-
@@ -39,8 +39,8 @@ to
 abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → CoreM Format
 ```
 -/
-unsafe def ppExprFnUnsafe (table : Parser.TokenTable) (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
-let x : MetaM Format := do { Meta.setMCtx mctx; ppExpr table e };
+unsafe def ppExprFnUnsafe (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
+let x : MetaM Format := do { Meta.setMCtx mctx; ppExpr e };
 let x : MetaM Format := adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) x;
 let x : IO Format    := (x.run).run env opts;
 match unsafeIO x with
@@ -48,12 +48,11 @@ match unsafeIO x with
 | Except.error e => "<pretty printer error: " ++ toString e ++ ">"
 
 @[implementedBy ppExprFnUnsafe]
-constant ppExprFn (table : Parser.TokenTable) (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format := arbitrary _
+constant ppExprFn (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format := arbitrary _
 
 -- TODO: activate when ready
 /-@[init]-/ def registerPPTerm : IO Unit := do
-table ← Parser.builtinTokenTable.get;
-ppExprFnRef.set (ppExprFn table)
+ppExprFnRef.set ppExprFn
 
 end PrettyPrinter
 end Lean

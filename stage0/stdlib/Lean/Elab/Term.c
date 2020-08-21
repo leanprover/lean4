@@ -549,7 +549,6 @@ lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Term_elabUsingElabFns___spec__1
 lean_object* l_Lean_Elab_Term_expandArrayLit___closed__4;
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Elab_Term_19__isLambdaWithImplicit___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabImplicitLambda___main___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 lean_object* l_Lean_Elab_Term_liftLevelM(lean_object*);
@@ -744,6 +743,7 @@ lean_object* l___regBuiltin_Lean_Elab_Term_elabBadCDot(lean_object*);
 lean_object* l_Lean_Elab_Term_elabUsingElabFns___closed__3;
 lean_object* l_Lean_Elab_Term_elabTerm___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_withRef___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 lean_object* l_Lean_Elab_Term_liftLevelM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_modifyEnv(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getLocalInsts___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -18375,7 +18375,7 @@ lean_inc(x_114);
 x_115 = lean_ctor_get(x_113, 1);
 lean_inc(x_115);
 lean_dec(x_113);
-x_116 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
+x_116 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 x_117 = l_Lean_checkTraceOption(x_114, x_116);
 lean_dec(x_114);
 if (x_117 == 0)
@@ -18849,7 +18849,7 @@ lean_inc(x_222);
 x_223 = lean_ctor_get(x_221, 1);
 lean_inc(x_223);
 lean_dec(x_221);
-x_224 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
+x_224 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 x_225 = l_Lean_checkTraceOption(x_222, x_224);
 lean_dec(x_222);
 if (x_225 == 0)
@@ -19361,7 +19361,7 @@ lean_inc(x_341);
 x_342 = lean_ctor_get(x_340, 1);
 lean_inc(x_342);
 lean_dec(x_340);
-x_343 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
+x_343 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 x_344 = l_Lean_checkTraceOption(x_341, x_343);
 lean_dec(x_341);
 if (x_344 == 0)

@@ -52,7 +52,6 @@ lean_object* l_List_find_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttribute___closed__3;
-extern lean_object* l_Lean_Meta_isLevelDefEqAux___main___closed__5;
 size_t l_USize_shiftRight(size_t, size_t);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* l_Lean_Elab_macroAttribute___closed__3;
@@ -126,6 +125,7 @@ lean_object* l_Lean_Elab_mkElabAttribute(lean_object*);
 lean_object* l_Lean_Elab_adaptMacro(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 uint8_t l_Lean_Parser_isValidSyntaxNodeKind(lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 lean_object* l___private_Lean_Elab_Util_4__regTraceClasses(lean_object*);
 lean_object* l_Lean_Elab_evalSyntaxConstant(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2350,9 +2350,17 @@ return x_3;
 lean_object* _init_l___private_Lean_Elab_Util_4__regTraceClasses___closed__2() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("step");
+return x_1;
+}
+}
+lean_object* _init_l___private_Lean_Elab_Util_4__regTraceClasses___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__1;
-x_2 = l_Lean_Meta_isLevelDefEqAux___main___closed__5;
+x_2 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2369,7 +2377,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
+x_5 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 x_6 = l_Lean_registerTraceClass(x_5, x_4);
 return x_6;
 }
@@ -2489,6 +2497,8 @@ l___private_Lean_Elab_Util_4__regTraceClasses___closed__1 = _init_l___private_Le
 lean_mark_persistent(l___private_Lean_Elab_Util_4__regTraceClasses___closed__1);
 l___private_Lean_Elab_Util_4__regTraceClasses___closed__2 = _init_l___private_Lean_Elab_Util_4__regTraceClasses___closed__2();
 lean_mark_persistent(l___private_Lean_Elab_Util_4__regTraceClasses___closed__2);
+l___private_Lean_Elab_Util_4__regTraceClasses___closed__3 = _init_l___private_Lean_Elab_Util_4__regTraceClasses___closed__3();
+lean_mark_persistent(l___private_Lean_Elab_Util_4__regTraceClasses___closed__3);
 res = l___private_Lean_Elab_Util_4__regTraceClasses(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

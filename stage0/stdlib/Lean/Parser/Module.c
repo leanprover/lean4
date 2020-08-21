@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__14;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__5;
 extern lean_object* l_Lean_Parser_manyAux___main___closed__1;
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
@@ -42,6 +41,7 @@ lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Module_import;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__2;
 lean_object* l___private_Lean_Parser_Module_1__mkErrorMessage___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__15;
 lean_object* l_Lean_Parser_Module_header___closed__4;
 lean_object* l___private_Lean_Parser_Module_2__mkEOI(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
@@ -2191,7 +2191,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
-x_3 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__14;
+x_3 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__15;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);

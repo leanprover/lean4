@@ -18,6 +18,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_5__getGeneralizingFVarIds___
 extern lean_object* l_Lean_Core_getConstInfo___closed__5;
 lean_object* l_Lean_Elab_Tactic_evalCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
+extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__28;
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Elab_Tactic_Induction_14__getRecInfo___spec__2___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Induction_13__getRecInfoDefault___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_17__checkCasesResultAux___main___closed__3;
@@ -96,7 +97,6 @@ lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Term_elabParen___spec__
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Elab_Tactic_Induction_16__processResult___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_15__isTermRHS___boxed(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInduction(lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__27;
 lean_object* l___private_Lean_Elab_Tactic_Induction_14__getRecInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_11__checkAltCtorNames(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -7165,7 +7165,7 @@ lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_39, 0, x_35);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__27;
+x_40 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__28;
 x_41 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);

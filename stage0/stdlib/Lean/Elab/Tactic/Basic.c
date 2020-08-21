@@ -319,7 +319,6 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_evalFailIfSuccess___closed__1;
 lean_object* l_Lean_Elab_Tactic_saveBacktrackableState___boxed(lean_object*);
 lean_object* l_Lean_Meta_subst___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Lean_Elab_MonadMacroAdapter___closed__9;
-extern lean_object* l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_withRef(lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadLog___closed__1;
@@ -419,6 +418,7 @@ lean_object* l_Lean_Elab_Tactic_evalChoiceAux___main(lean_object*, lean_object*,
 lean_object* l_Lean_Elab_Tactic_setGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_saveAllState___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_modifyMCtx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 lean_object* l_Lean_Elab_Tactic_tagUntaggedGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_focus___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_whnfCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6050,7 +6050,7 @@ lean_inc(x_58);
 x_59 = lean_ctor_get(x_57, 1);
 lean_inc(x_59);
 lean_dec(x_57);
-x_60 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
+x_60 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 x_61 = l_Lean_checkTraceOption(x_58, x_60);
 lean_dec(x_58);
 if (x_61 == 0)
@@ -6226,7 +6226,7 @@ lean_inc(x_115);
 x_116 = lean_ctor_get(x_114, 1);
 lean_inc(x_116);
 lean_dec(x_114);
-x_117 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
+x_117 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 x_118 = l_Lean_checkTraceOption(x_115, x_117);
 lean_dec(x_115);
 if (x_118 == 0)
@@ -6443,7 +6443,7 @@ lean_inc(x_183);
 x_184 = lean_ctor_get(x_182, 1);
 lean_inc(x_184);
 lean_dec(x_182);
-x_185 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__2;
+x_185 = l___private_Lean_Elab_Util_4__regTraceClasses___closed__3;
 x_186 = l_Lean_checkTraceOption(x_183, x_185);
 lean_dec(x_183);
 if (x_186 == 0)

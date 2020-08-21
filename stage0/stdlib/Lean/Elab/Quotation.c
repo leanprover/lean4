@@ -197,7 +197,6 @@ lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__1___closed
 extern lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
 lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars(lean_object*);
-extern lean_object* l_Lean_Meta_reduceNat_x3f___closed__12;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__31;
 lean_object* l_List_foldl___main___at___private_Lean_Elab_Quotation_10__toPreterm___main___spec__10(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__59;
@@ -356,6 +355,7 @@ extern lean_object* l_List_head_x21___rarg___closed__2;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 uint8_t l_Array_umapMAux___main___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__1___lambda__1(lean_object*);
 lean_object* l_List_foldl___main___at___private_Lean_Elab_Quotation_10__toPreterm___main___spec__9(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Term_beq___elambda__1___closed__2;
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Quotation_6__compileStxMatch___main___spec__8___closed__5;
 lean_object* l___private_Lean_Elab_Quotation_5__explodeHeadPat___lambda__1___closed__3;
 extern lean_object* l_Lean_Parser_Term_let___elambda__1___closed__2;
@@ -9344,7 +9344,7 @@ x_698 = l_Nat_repr(x_526);
 x_699 = l_Lean_numLitKind;
 x_700 = l_Lean_mkStxLit(x_699, x_698, x_645);
 x_701 = lean_array_push(x_697, x_700);
-x_702 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
+x_702 = l_Lean_Parser_Term_beq___elambda__1___closed__2;
 x_703 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_703, 0, x_702);
 lean_ctor_set(x_703, 1, x_701);
@@ -9704,7 +9704,7 @@ x_876 = l_Nat_repr(x_526);
 x_877 = l_Lean_numLitKind;
 x_878 = l_Lean_mkStxLit(x_877, x_876, x_823);
 x_879 = lean_array_push(x_875, x_878);
-x_880 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
+x_880 = l_Lean_Parser_Term_beq___elambda__1___closed__2;
 x_881 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_881, 0, x_880);
 lean_ctor_set(x_881, 1, x_879);
@@ -10239,7 +10239,7 @@ x_1083 = l_Nat_repr(x_526);
 x_1084 = l_Lean_numLitKind;
 x_1085 = l_Lean_mkStxLit(x_1084, x_1083, x_1030);
 x_1086 = lean_array_push(x_1082, x_1085);
-x_1087 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
+x_1087 = l_Lean_Parser_Term_beq___elambda__1___closed__2;
 x_1088 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_1088, 0, x_1087);
 lean_ctor_set(x_1088, 1, x_1086);
@@ -14068,7 +14068,7 @@ x_14 = lean_name_mk_string(x_12, x_13);
 x_15 = l___private_Lean_Elab_Quotation_10__toPreterm___main___lambda__2___closed__4;
 lean_inc(x_1);
 x_16 = lean_name_mk_string(x_1, x_15);
-x_17 = l_Lean_Meta_reduceNat_x3f___closed__12;
+x_17 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
 x_18 = lean_name_mk_string(x_16, x_17);
 x_19 = l_Lean_Unhygienic_MonadQuotation___closed__2;
 lean_inc(x_18);
@@ -15127,7 +15127,7 @@ x_223 = lean_string_dec_eq(x_177, x_222);
 if (x_223 == 0)
 {
 lean_object* x_224; uint8_t x_225; 
-x_224 = l_Lean_Meta_reduceNat_x3f___closed__12;
+x_224 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
 x_225 = lean_string_dec_eq(x_177, x_224);
 if (x_225 == 0)
 {
@@ -16419,7 +16419,7 @@ x_617 = lean_string_dec_eq(x_177, x_616);
 if (x_617 == 0)
 {
 lean_object* x_618; uint8_t x_619; 
-x_618 = l_Lean_Meta_reduceNat_x3f___closed__12;
+x_618 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
 x_619 = lean_string_dec_eq(x_177, x_618);
 if (x_619 == 0)
 {
@@ -17508,7 +17508,7 @@ x_942 = lean_string_dec_eq(x_177, x_941);
 if (x_942 == 0)
 {
 lean_object* x_943; uint8_t x_944; 
-x_943 = l_Lean_Meta_reduceNat_x3f___closed__12;
+x_943 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
 x_944 = lean_string_dec_eq(x_177, x_943);
 if (x_944 == 0)
 {
@@ -18631,7 +18631,7 @@ x_1273 = lean_string_dec_eq(x_177, x_1272);
 if (x_1273 == 0)
 {
 lean_object* x_1274; uint8_t x_1275; 
-x_1274 = l_Lean_Meta_reduceNat_x3f___closed__12;
+x_1274 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
 x_1275 = lean_string_dec_eq(x_177, x_1274);
 if (x_1275 == 0)
 {
@@ -19787,7 +19787,7 @@ x_1611 = lean_string_dec_eq(x_177, x_1610);
 if (x_1611 == 0)
 {
 lean_object* x_1612; uint8_t x_1613; 
-x_1612 = l_Lean_Meta_reduceNat_x3f___closed__12;
+x_1612 = l_Lean_Parser_Term_beq___elambda__1___closed__1;
 x_1613 = lean_string_dec_eq(x_177, x_1612);
 if (x_1613 == 0)
 {

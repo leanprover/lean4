@@ -69,7 +69,7 @@ log MessageSeverity.information msgData
 
 def throwError {α} [MonadPosInfo m] [MonadExcept Exception m] (msg : MessageData) : m α := do
 ref ← getRef;
-throw $ Exception.core { ref := ref, msg := msg }
+throw $ Exception.error ref msg
 
 end Elab
 end Lean

@@ -9,6 +9,8 @@ structure InternalExceptionId :=
 (idx : Nat := 0)
 
 instance : Inhabited InternalExceptionId := ⟨{}⟩
+instance : HasBeq InternalExceptionId :=
+⟨fun id₁ id₂ => id₁.idx == id₂.idx⟩
 
 def mkInternalExceptionsRef : IO (IO.Ref (Array Name)) :=
 IO.mkRef #[]
@@ -22,7 +24,10 @@ let nextIdx := exs.size;
 internalExceptionsRef.modify fun a => a.push name;
 pure { idx := nextIdx }
 
-def InternalExceptionId.toString (id : InternalExceptionId) : IO Name :=  do
+def InternalExceptionId.toString (id : InternalExceptionId) : String :=
+"internal exception #" ++ toString id.idx
+
+def InternalExceptionId.getName (id : InternalExceptionId) : IO Name :=  do
 exs ← internalExceptionsRef.get;
 let i := id.idx;
 if h : i < exs.size then

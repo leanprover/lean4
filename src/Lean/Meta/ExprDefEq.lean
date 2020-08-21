@@ -348,6 +348,16 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
 
 namespace CheckAssignment
 
+def registerCheckAssignmentId : IO InternalExceptionId :=
+registerInternalExceptionId `checkAssignment
+@[init registerCheckAssignmentId, matchPattern]
+constant checkAssignmentExceptionId : InternalExceptionId := arbitrary _
+
+def registerOutOfScopeId : IO InternalExceptionId :=
+registerInternalExceptionId `outOfScope
+@[init registerOutOfScopeId, matchPattern]
+constant outOfScopeExceptionId : InternalExceptionId := arbitrary _
+
 structure State :=
 (cache : ExprStructMap Expr := {})
 
@@ -356,7 +366,9 @@ structure Context :=
 (mvarDecl      : MetavarDecl)
 (fvars         : Array Expr)
 (hasCtxLocals  : Bool)
+(rhs           : Expr)
 
+/-
 inductive Exception
 | occursCheck
 | useFOApprox
@@ -364,11 +376,18 @@ inductive Exception
 | readOnlyMVarWithBiggerLCtx (mvarId : MVarId)
 | unknownExprMVar            (mvarId : MVarId)
 | meta                       (ex : Meta.Exception)
+-/
 
-abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ EMetaM Exception
+abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ MetaM
 
 @[inline] def liftMetaM {α} (x : MetaM α) : CheckAssignmentM α :=
-liftM (adaptExcept Exception.meta x : EMetaM Exception α)
+liftM x
+
+def throwCheckAssignmentFailure {α} : CheckAssignmentM α :=
+throw $ Core.Exception.internal checkAssignmentExceptionId
+
+def throwOutOfScopeFVar {α} : CheckAssignmentM α :=
+throw $ Core.Exception.internal outOfScopeExceptionId
 
 private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
 s ← get;
@@ -386,6 +405,10 @@ if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
 @[inline] private def readMeta : CheckAssignmentM Meta.Context := do
 liftMetaM read
 
+private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData := do
+ctx ← read;
+pure $ msg ++ " @ " ++ mkMVar ctx.mvarId ++ " " ++ ctx.fvars ++ " := " ++ ctx.rhs
+
 @[specialize] def checkFVar (check : Expr → CheckAssignmentM Expr) (fvar : Expr) : CheckAssignmentM Expr := do
 ctxMeta ← readMeta;
 ctx ← read;
@@ -396,7 +419,9 @@ else do
   | some (LocalDecl.ldecl _ _ _ _ v) => visit check v
   | _ =>
     if ctx.fvars.contains fvar then pure fvar
-    else throw $ Exception.outOfScopeFVar fvar.fvarId!
+    else do
+      traceM `Meta.isDefEq.assign.outOfScopeFVar $ addAssignmentInfo fvar;
+      throwOutOfScopeFVar
 
 @[inline] def getMCtx : CheckAssignmentM MetavarContext := do
 liftMetaM Meta.getMCtx
@@ -408,19 +433,23 @@ liftMetaM $ mkFreshExprMVarAt lctx localInsts type
 let mvarId := mvar.mvarId!;
 ctx  ← read;
 mctx ← getMCtx;
-if mvarId == ctx.mvarId then throw Exception.occursCheck
+if mvarId == ctx.mvarId then do
+  traceM `Meta.isDefEq.assign.occursCheck $ addAssignmentInfo "occurs check failed";
+  throwCheckAssignmentFailure
 else match mctx.getExprAssignment? mvarId with
   | some v => check v
   | none   => match mctx.findDecl? mvarId with
-    | none          => throw $ Exception.unknownExprMVar mvarId
+    | none          => liftMetaM $ throwUnknownMVar mvarId
     | some mvarDecl =>
       if ctx.hasCtxLocals then
-        throw $ Exception.useFOApprox -- It is not a pattern, then we fail and fall back to FO unification
+        throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
       else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
         /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
            We "substract" variables being abstracted because we use `elimMVarDeps` -/
         pure mvar
-      else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
+      else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then do
+        traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx $ addAssignmentInfo (mkMVar mvarId);
+        throwCheckAssignmentFailure
       else do
         ctxMeta ← readMeta;
         if ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
@@ -465,23 +494,21 @@ partial def check : Expr → CheckAssignmentM Expr
   ctxMeta ← readMeta;
   if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then do
     f ← visit (checkMVar check) f;
-    catch
+    catchInternalId outOfScopeExceptionId
       (do
         args ← args.mapM (visit check);
         pure $ mkAppN f args)
-      (fun ex => match ex with
-        | Exception.outOfScopeFVar _ =>
-          condM (liftMetaM $ isDelayedAssigned f.mvarId!) (throw ex) $ do
-            eType ← liftMetaM $ inferType e;
-            mvarType ← check eType;
-            /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+      (fun ex =>
+        condM (liftMetaM $ isDelayedAssigned f.mvarId!) (throw ex) do
+          eType ← liftMetaM $ inferType e;
+          mvarType ← check eType;
+          /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
                Note that `mvarType` may be different from `eType`. -/
-            ctx ← read;
-            newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-            condM (liftMetaM $ assignToConstFun f args.size newMVar)
-              (pure newMVar)
-              (throw ex)
-        | _ => throw ex)
+          ctx ← read;
+          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+          condM (liftMetaM $ assignToConstFun f args.size newMVar)
+            (pure newMVar)
+            (throw ex))
   else do
     f ← visit check f;
     args ← args.mapM (visit check);
@@ -489,33 +516,12 @@ partial def check : Expr → CheckAssignmentM Expr
 
 @[inline] def run (x : CheckAssignmentM Expr) (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
 mvarDecl ← getMVarDecl mvarId;
-let ctx := { mvarId := mvarId, mvarDecl := mvarDecl, fvars := fvars, hasCtxLocals := hasCtxLocals : Context };
+let ctx := { mvarId := mvarId, mvarDecl := mvarDecl, fvars := fvars, hasCtxLocals := hasCtxLocals, rhs := v : Context };
 let x : CheckAssignmentM (Option Expr) :=
-  catch
+  catchInternalIds [outOfScopeExceptionId, checkAssignmentExceptionId]
     (do e ← x; pure $ some e)
-    (fun ex =>
-      match ex with
-      | Exception.occursCheck => do
-        trace! `Meta.isDefEq.assign.occursCheck (mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
-        pure none
-      | Exception.useFOApprox =>
-        pure none
-      | Exception.outOfScopeFVar fvarId => do
-        trace! `Meta.isDefEq.assign.outOfScopeFVar (mkFVar fvarId ++ " @ " ++ mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
-        pure none
-      | Exception.readOnlyMVarWithBiggerLCtx nestedMVarId => do
-        trace! `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
-        pure none
-      | Exception.unknownExprMVar mvarId =>
-        -- This case can only happen if the MetaM API is being misused
-        liftMetaM (throwUnknownMVar mvarId)
-      | Exception.meta _ => throw ex);
-let x : EMetaM Exception (Option Expr) := (x.run ctx).run' {};
-adaptExcept
-  (fun ex => match ex with
-    | Exception.meta ex => ex
-    | _                 => unreachable!)
-  x
+    (fun _ => pure none);
+(x.run ctx).run' {}
 
 end CheckAssignment
 
@@ -966,7 +972,7 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
        ctx ← read;
        if ctx.config.isDefEqStuckEx then do
          trace! `Meta.isDefEq.stuck (t ++ " =?= " ++ s);
-         throw Exception.isDefEqStuck
+         throwIsDefEqStuck
        else pure LBool.false
      else pure LBool.undef) $ do
   -- Both `t` and `s` are terms of the form `?m ...`

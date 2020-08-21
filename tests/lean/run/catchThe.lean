@@ -13,10 +13,10 @@ match r with
 | Except.error e => throwError ("FAILED: " ++ e)
 
 @[noinline] def act1 : M Nat :=
-throwThe Exception $ Exception.core { msg := "Error at act1" }
+throwThe Exception $ Exception.error Syntax.missing "Error at act1"
 
 def g1 : M Nat :=
-catchThe Meta.Exception
+catchThe Exception
   (catch act1 (fun ex => pure 100))
   (fun ex => pure 200)
 
@@ -26,7 +26,7 @@ catchThe Meta.Exception
 throw "hello world"
 
 def g2 : M Nat :=
-catchThe Meta.Exception
+catchThe Exception
   (catch act2 (fun ex => pure 100))
   (fun ex => pure 200)
 

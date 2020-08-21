@@ -17,9 +17,9 @@ withMVarContext mvarId do
   s ← get;
   let savedSyntheticMVars := s.syntheticMVars;
   modify fun s => { s with syntheticMVars := [] };
-  let x : ETermElabM Tactic.Exception α := (x { main := mvarId }).run' { s with goals := [mvarId] };
-  let x : ETermElabM Exception α := adaptExcept Exception.ex x;
-  finally x (modify fun s => { s with syntheticMVars := savedSyntheticMVars })
+  finally
+    (x.run' { main := mvarId } { goals := [mvarId] })
+    (modify fun s => { s with syntheticMVars := savedSyntheticMVars })
 
 def ensureAssignmentHasNoMVars (mvarId : MVarId) : TermElabM Unit := do
 val ← instantiateMVars (mkMVar mvarId);
@@ -58,13 +58,17 @@ withRef stx $ withMVarContext mvarId $ do
       assignExprMVar mvarId result;
       pure true)
     (fun ex => match ex with
-      | Exception.postpone                            => do set s; pure false
-      | Exception.ex Elab.Exception.unsupportedSyntax => unreachable!
-      | Exception.ex (Elab.Exception.core ex)         =>
+      | Exception.internal id =>
+        if id == postponeExceptionId then do
+          set s;
+          pure false
+        else
+          throw ex
+      | Exception.error _ _ =>
         if postponeOnError then do
           set s; pure false
         else do
-          withRef ex.ref $ logError ex.msg;
+          logException ex;
           pure true)
 
 /--
@@ -74,8 +78,8 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool := do
 withMVarContext instMVar $ catch
   (synthesizeInstMVarCore instMVar)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.core ex) => do withRef ex.ref $ logError ex.msg; pure true
-    | _ => unreachable!)
+    | Exception.error _ _ => do logException ex; pure true
+    | _                   => unreachable!)
 
 /--
   Similar to `synthesizePendingInstMVar`, but generates type mismatch error message. -/
@@ -83,8 +87,8 @@ private def synthesizePendingCoeInstMVar (instMVar : MVarId) (expectedType : Exp
 withMVarContext instMVar $ catch
   (synthesizeInstMVarCore instMVar)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.core ex) => throwTypeMismatchError expectedType eType e f? ex.msg
-    | _ => unreachable!)
+    | Exception.error _ msg => throwTypeMismatchError expectedType eType e f? msg
+    | _                     => unreachable!)
 
 /--
   Return `true` iff `mvarId` is assigned to a term whose the

@@ -79,8 +79,8 @@ synthesized ←
   catch (withoutMacroStackAtErr $ synthesizeInstMVarCore mvarId)
   (fun ex =>
     match ex with
-    | Exception.ex (Elab.Exception.core ex) => throwError ("function expected" ++ Format.line ++ ex.msg)
-    | _ => throwError "function expected");
+    | Exception.error _ msg => throwError $ "function expected" ++ Format.line ++ msg
+    | _                     => throwError "function expected");
 if synthesized then
   pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
 else
@@ -366,18 +366,18 @@ private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Co
 | eType, previousExceptions => do
   eType ← whnfCore eType;
   tryPostponeIfMVar eType;
-  catch (resolveLValAux e eType lval)
+  catch
+    (resolveLValAux e eType lval)
     (fun ex =>
       match ex with
-      | Exception.postpone                            => throw ex
-      | Exception.ex Elab.Exception.unsupportedSyntax => throw ex
-      | Exception.ex (Elab.Exception.core exCore)     => do
+      | Exception.error _ _ => do
         eType? ← unfoldDefinition? eType;
         match eType? with
-        | some eType => resolveLValLoop eType (previousExceptions.push exCore)
+        | some eType => resolveLValLoop eType (previousExceptions.push ex)
         | none       => do
-          previousExceptions.forM $ fun ex => withRef ex.ref $ logError ex.msg;
-          throw ex)
+          previousExceptions.forM $ fun ex => logException ex;
+          throw ex
+      | Exception.internal _ => throw ex)
 
 private def resolveLVal (e : Expr) (lval : LVal) : TermElabM LValResolution := do
 eType ← inferType e;
@@ -551,17 +551,17 @@ candidates.filter $ fun c => match c with
   | EStateM.Result.ok _ _ => true
   | _ => false
 
-private def toMessageData (ex : Core.Exception) : TermElabM MessageData := do
+private def toMessageData (ex : Exception) : TermElabM MessageData := do
 pos ← getRefPos;
-match ex.ref.getPos with
-| none       => pure ex.msg
+match ex.getRef.getPos with
+| none       => pure ex.toMessageData
 | some exPos =>
   if pos == exPos then
-    pure ex.msg
+    pure ex.toMessageData
   else do
     fileMap ← getFileMap;
     let exPosition := fileMap.toPosition exPos;
-    pure $ toString exPosition.line ++ ":" ++ toString exPosition.column ++ " " ++ ex.msg
+    pure $ toString exPosition.line ++ ":" ++ toString exPosition.column ++ " " ++ ex.toMessageData
 
 private def mergeFailures {α} (failures : Array TermElabResult) : TermElabM α := do
 msgs ← failures.mapM $ fun failure =>

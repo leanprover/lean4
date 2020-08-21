@@ -48,8 +48,6 @@ structure Context :=
 (currMacroScope : MacroScope := firstFrontendMacroScope)
 (ref            : Syntax := Syntax.missing)
 
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.core $ arbitrary _⟩
-
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
@@ -64,21 +62,17 @@ let scope      := s.scopes.head!;
   maxRecDepth  := s.maxRecDepth,
   ref          := ctx.ref }
 
-def fromCoreException (ex : Core.Exception) : Exception :=
-Exception.core ex
-
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
 s ← get;
 ctx ← read;
 let Eα := Except Core.Exception α;
 let x : CoreM Eα := catch (do a ← x; pure $ Except.ok a) (fun ex => pure $ Except.error ex);
-let x : EIO Core.Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
-let x : EIO Exception (Eα × Core.State) := adaptExcept fromCoreException x;
+let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
 (ea, coreS) ← liftM x;
 modify fun s => { s with env := coreS.env, ngen := coreS.ngen };
 match ea with
 | Except.ok a    => pure a
-| Except.error e => throw (fromCoreException e)
+| Except.error e => throw e
 
 @[inline] def getCurrRef : CommandElabM Syntax := do
 ctx ← read;
@@ -87,7 +81,6 @@ pure ctx.ref
 /- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
 @[inline] def withRef {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM α := do
 adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
-
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
 let ref := getBetterRef ref ctx.macroStack;
@@ -98,7 +91,7 @@ liftM x
 
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
 ctx ← read;
-liftEIO $ adaptExcept (fun (ex : IO.Error) => Exception.core { ref := ctx.ref, msg := ex.toString}) x
+liftEIO $ adaptExcept (fun (ex : IO.Error) => Exception.error ctx.ref ex.toString) x
 
 instance : MonadIO CommandElabM :=
 { liftIO := fun α => liftIO }
@@ -127,7 +120,7 @@ let ref     := getBetterRef ctx.ref ctx.macroStack;
 let msgData := addMacroStack msgData ctx.macroStack;
 msgData ← addContext msgData;
 withRef ref do
-  throw (Exception.core { ref := ref, msg := msgData })
+  throw $ Exception.error ref msgData
 
 def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α :=
 withRef ref $ throwError msgData
@@ -139,9 +132,6 @@ logInfo msg
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : CommandElabM Unit := do
 opts ← getOptions;
 when (checkTraceOption opts cls) $ logTrace cls (msg ())
-
-def throwUnsupportedSyntax {α} : CommandElabM α :=
-throw Elab.Exception.unsupportedSyntax
 
 protected def getCurrMacroScope : CommandElabM Nat  := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure env.mainModule
@@ -169,10 +159,8 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 | []                => do
   let refFmt := stx.prettyPrint;
   throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
-| (elabFn::elabFns) => catch (elabFn stx)
-  (fun ex => match ex with
-    | Exception.core _           => throw ex
-    | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
+| (elabFn::elabFns) => catchInternalId unsupportedSyntaxExceptionId (elabFn stx)
+  (fun _ => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -186,7 +174,7 @@ instance : MonadMacroAdapter CommandElabM :=
   getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
   getMaxRecDepth         := do s ← get; pure s.maxRecDepth,
   throwError             := @throwErrorAt,
-  throwUnsupportedSyntax := @throwUnsupportedSyntax}
+  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
 
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
@@ -198,11 +186,9 @@ partial def elabCommand : Syntax → CommandElabM Unit
     else do
       trace `Elab.step fun _ => stx;
       s ← get;
-      stxNew? ← catch
+      stxNew? ← catchInternalId unsupportedSyntaxExceptionId
         (do newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
-        (fun ex => match ex with
-          | Exception.unsupportedSyntax => pure none
-          | _                           => throw ex);
+        (fun ex => pure none);
       match stxNew? with
       | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
       | _ => do
@@ -241,32 +227,33 @@ let scope      := s.scopes.head!;
   declName?      := declName?
 }
 
-def fromTermException (ex : Term.Exception) : Exception :=
-match ex with
-| Term.Exception.postpone => unreachable!
-| Term.Exception.ex ex    => ex
-
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
 ctx ← read;
 s   ← get;
 let scope := s.scopes.head!;
-let x : EMetaM _ _      := (observing x).run (mkTermContext ctx s declName?) { messages := s.messages, nextMacroScope := s.nextMacroScope };
-let x : ECoreM _ _      := x.run mkMetaContext {};
-let x : EIO _ _         := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
-let x : EIO Exception _ := adaptExcept fromTermException x;
+let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := s.messages, nextMacroScope := s.nextMacroScope };
+let x : CoreM _      := x.run mkMetaContext {};
+let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
 (((ea, termS), _), coreS) ← liftEIO x;
 modify fun s => { s with env := coreS.env, messages := termS.messages, ngen := coreS.ngen };
 match ea with
 | Except.ok a     => pure a
-| Except.error ex => throw (fromTermException ex)
+| Except.error ex => throw ex
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
 s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
 
+def logException (ex : Exception) : CommandElabM Unit := do
+match ex with
+| Exception.error ref msg => withRef ref $ logError msg
+| Exception.internal id   => do
+  name ← liftIO $ id.getName;
+  logError ("internal exception: " ++ name)
+
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x (fun ex => match ex with
-  | Exception.core ex           => do withRef ex.ref $ logError ex.msg; pure ()
-  | Exception.unsupportedSyntax => unreachable!)
+  | Exception.error _ _ => do logException ex; pure ()
+  | _                   => unreachable!)
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
@@ -304,13 +291,13 @@ addScopes "namespace" true header
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun stx => match_syntax stx with
   | `(namespace $n) => addNamespace n.getId
-  | _               => throw Exception.unsupportedSyntax
+  | _               => throwUnsupportedSyntax
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun stx => match_syntax stx with
   | `(section $header:ident) => addScopes "section" false header.getId
   | `(section)               => do currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
-  | _                        => throw Exception.unsupportedSyntax
+  | _                        => throwUnsupportedSyntax
 
 def getScopes : CommandElabM (List Scope) := do
 s ← get; pure s.scopes
@@ -374,11 +361,9 @@ partial def elabChoiceAux (cmds : Array Syntax) : Nat → CommandElabM Unit
 | i =>
   if h : i < cmds.size then
     let cmd := cmds.get ⟨i, h⟩;
-    catch
+    catchInternalId unsupportedSyntaxExceptionId
       (elabCommand cmd)
-      (fun ex => match ex with
-        | Exception.unsupportedSyntax => elabChoiceAux (i+1)
-        | _ => throw ex)
+      (fun ex => elabChoiceAux (i+1))
   else
     throwUnsupportedSyntax
 
@@ -415,7 +400,7 @@ currNamespace ← getCurrNamespace;
 openDecls ← getOpenDecls;
 match Elab.resolveNamespace env currNamespace openDecls id with
 | some ns => pure ns
-| none    => throw Exception.unsupportedSyntax
+| none    => throwUnsupportedSyntax
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun stx => do
@@ -556,8 +541,8 @@ succeeded ← finally
   (catch
      (do x; hasNoErrorMessages)
      (fun ex => match ex with
-       | Exception.core ex           => do withRef ex.ref $ logError ex.msg; pure false
-       | Exception.unsupportedSyntax => do logError "unsupported syntax"; pure false))
+       | Exception.error _ _    => do logException ex; pure false
+       | Exception.internal id  => do logError "internal"; pure false)) -- TODO: improve `logError "internal"`
   (restoreMessages prevMessages);
 when succeeded $
   throwError "unexpected success"
@@ -606,7 +591,7 @@ fun stx => withoutModifyingEnv do
     (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;
     logInfo out;
     match res with
-    | Except.error e => throw $ Exception.core { ref := ref, msg := e.toString }
+    | Except.error e => throw $ Exception.error ref e.toString
     | Except.ok env  => do setEnv env; pure ()
   };
   let elabEval : CommandElabM Unit := do {
@@ -625,7 +610,7 @@ fun stx => withoutModifyingEnv do
     (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;
     logInfo out;
     match res with
-    | Except.error e => throw $ Exception.core { ref := ref, msg := e.toString }
+    | Except.error e => throw $ Exception.error ref e.toString
     | Except.ok _    => pure ()
   };
   if env.contains `Lean.MetaHasEval then do

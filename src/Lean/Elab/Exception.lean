@@ -20,24 +20,15 @@ registerInternalExceptionId `unsupportedSyntax
 @[init registerUnsupportedSyntaxId]
 constant unsupportedSyntaxExceptionId : InternalExceptionId := arbitrary _
 
-inductive Exception
-| core (ex : Core.Exception)
-| unsupportedSyntax
+def throwPostpone {α m} [MonadExcept Exception m] : m α :=
+throw $ Exception.internal postponeExceptionId
 
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.unsupportedSyntax⟩
-
-instance Exception.hasToString : HasToString Exception :=
-⟨fun ex => match ex with
- | Exception.core ex           => toString ex
- | Exception.unsupportedSyntax => "unsupported syntax"⟩
+def throwUnsupportedSyntax {α m} [MonadExcept Exception m] : m α :=
+throw $ Exception.internal unsupportedSyntaxExceptionId
 
 def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : Message :=
 let pos := fileMap.toPosition pos;
 { fileName := fileName, pos := pos, data := msgData, severity := severity }
-
--- def mkExceptionCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (pos : String.Pos) : Exception :=
--- let pos := fileMap.toPosition pos;
--- Exception.error { fileName := fileName, pos := pos, data := msgData, severity := MessageSeverity.error }
 
 end Elab
 end Lean

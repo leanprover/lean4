@@ -117,7 +117,7 @@ if kind == `Lean.Parser.Command.declValSimple then
 else if kind == `Lean.Parser.Command.declValEqns then
   Term.throwErrorAt defVal "equations have not been implemented yet"
 else
-  Term.throwUnsupportedSyntax
+  throwUnsupportedSyntax
 
 def elabDefLike (view : DefView) : CommandElabM Unit :=
 withRef view.ref do

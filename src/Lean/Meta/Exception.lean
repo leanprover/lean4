@@ -19,22 +19,5 @@ registerInternalExceptionId `isDefEqStuck
 @[init registerIsDefEqStuckId]
 constant isDefEqStuckExceptionId : InternalExceptionId := arbitrary _
 
-inductive Exception
-| isDefEqStuck
-| core          (ex : Core.Exception)
-
-namespace Exception
-instance : Inhabited Exception := ⟨core $ arbitrary _⟩
-
-def getRef : Exception → Syntax
-| core ex => ex.ref
-| _       => Syntax.missing
-
-def toMessageData : Exception → MessageData
-| isDefEqStuck => "<isDefEqStuck>"
-| core ex      => ex.toMessageData
-
-end Exception
-
 end Meta
 end Lean

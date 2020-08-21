@@ -93,10 +93,6 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 let ref := getBetterRef ref ctx.macroStack;
 mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeverity.error
 
--- This instance is needed for StateRefT
-instance monadIOAux : MonadIO (EIO Exception) :=
-{ liftIO := fun _ x => adaptExcept (fun ex => Exception.error { fileName := "<unavaiable>", pos := ⟨0, 0⟩, data := toString ex }) x }
-
 @[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α :=
 liftM x
 

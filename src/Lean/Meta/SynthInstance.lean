@@ -583,9 +583,8 @@ adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with isDef
   catch
     (toLOptionM $ synthInstance? type)
     (fun ex => match ex with
-      | Exception.isExprDefEqStuck _ _ _  => pure LOption.undef
-      | Exception.isLevelDefEqStuck _ _ _ => pure LOption.undef
-      | _                                 => throw ex)
+      | Exception.isDefEqStuck => pure LOption.undef
+      | _                      => throw ex)
 
 def synthInstance (type : Expr) : MetaM Expr := do
 result? ← synthInstance? type;

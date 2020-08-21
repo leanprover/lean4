@@ -14,7 +14,7 @@ let (debug, f) : Bool × String := match args with
 table ← Parser.builtinTokenTable.get;
 env ← mkEmptyEnvironment;
 stx ← Lean.Parser.parseFile env args.head!;
-(f, _) ← IO.runMeta (PrettyPrinter.ppModule table stx) env { opts := KVMap.insert {} `trace.PrettyPrinter.format debug };
+f ← (PrettyPrinter.ppModule table stx).toIO env (KVMap.insert {} `trace.PrettyPrinter.format debug);
 IO.print f;
 let inputCtx := Parser.mkInputContext (toString f) "<foo>";
 let (stx', state, messages) := Parser.parseHeader env inputCtx;

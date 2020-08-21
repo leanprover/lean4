@@ -30,8 +30,8 @@ IO.print s;
 let cmds := stx.getArgs.extract 1 stx.getArgs.size;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
-  (cmd, _) ← IO.runMeta (PrettyPrinter.parenthesizeCommand cmd)
-    env { opts := KVMap.insert {} `trace.PrettyPrinter.parenthesize debug };
+  cmd ← (PrettyPrinter.parenthesizeCommand cmd).toIO
+    env (KVMap.insert {} `trace.PrettyPrinter.parenthesize debug);
   some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 
@@ -50,4 +50,3 @@ open Lean
 syntax:80 term " ^~ " term:80 : term
 syntax:70 term " *~ " term:71 : term
 #eval check $ Unhygienic.run `(((1 + 2) *~ 3) ^~ 4)
-

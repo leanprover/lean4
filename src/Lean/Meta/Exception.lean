@@ -19,15 +19,12 @@ inductive Exception
 | isExprDefEqStuck  (t s : Expr) (ctx : ExceptionContext)
 | core              (ex : Core.Exception)
 
-instance EIOEx.monadIO : MonadIO (EIO Exception) :=
-mkEIOMonadIO Exception.core
-
 namespace Exception
 instance : Inhabited Exception := ⟨core $ arbitrary _⟩
 
 def getRef : Exception → Syntax
-| core (Core.Exception.error ref _) => ref
-| _                                 => Syntax.missing
+| core ex => ex.ref
+| _       => Syntax.missing
 
 def mkCtx (ctx : ExceptionContext) (m : MessageData) : MessageData :=
 MessageData.withContext ctx m

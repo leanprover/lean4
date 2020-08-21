@@ -365,9 +365,6 @@ inductive Exception
 | unknownExprMVar            (mvarId : MVarId)
 | meta                       (ex : Meta.Exception)
 
-instance : MonadIO (EIO Exception) :=
-mkEIOMonadIO Exception.meta
-
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ EMetaM Exception
 
 @[inline] def liftMetaM {α} (x : MetaM α) : CheckAssignmentM α :=

@@ -79,9 +79,6 @@ inductive Exception
 | ex       : Elab.Exception → Exception
 | postpone : Exception
 
-instance Exception.monadIO : MonadIO (EIO Exception) :=
-mkEIOMonadIO (Exception.ex ∘ Exception.io)
-
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.postpone⟩
 instance Exception.hasToString : HasToString Exception :=
 ⟨fun ex => match ex with | Exception.postpone => "postponed" | Exception.ex ex => toString ex⟩
@@ -157,6 +154,9 @@ Exception.ex $ Elab.Exception.error $ mkMessageAux ref ctx ex.toMessageData Mess
 ref ← getRefImpl;
 ctx ← read;
 liftM $ (adaptExcept (fromMetaException ref ctx) x : EMetaM Exception α)
+
+instance : MonadIO TermElabM :=
+{ liftIO := fun α x => liftMetaMCore $ liftIO x }
 
 private def getTraceState : TermElabM TraceState :=
 liftMetaMCore Meta.getTraceState
@@ -849,8 +849,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
           postponeElabTerm stx expectedType?
         else
           throw ex
-    | Exception.ex (Elab.Exception.error errMsg) => do ctx ← read; if ctx.errToSorry then exceptionToSorry errMsg expectedType? else throw ex
-    | Exception.ex (Elab.Exception.io err)       => throw ex)
+    | Exception.ex (Elab.Exception.error errMsg) => do ctx ← read; if ctx.errToSorry then exceptionToSorry errMsg expectedType? else throw ex)
 
 def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
 s ← saveAllState;
@@ -1334,12 +1333,11 @@ private def mkSomeContext : Context :=
 
 @[inline] private def toMetaMAux {α} (x : EMetaM Exception α) : MetaM α := do
 ref ← Meta.getRef;
-let mkMetaException (msg : MessageData) : Meta.Exception := Meta.Exception.core (Core.Exception.error ref msg);
+let mkMetaException (msg : MessageData) : Meta.Exception := Meta.Exception.core { ref := ref, msg := msg };
 adaptExcept
   (fun (ex : Exception) => match ex with
     | Exception.postpone                             => mkMetaException "<postpone>"
     | Exception.ex Elab.Exception.unsupportedSyntax  => mkMetaException "<unsupportedSyntax>"
-    | Exception.ex (Elab.Exception.io err)           => Meta.Exception.core (Core.Exception.io err)
     | Exception.ex (Elab.Exception.error msg)        => mkMetaException msg.data)
   x
 

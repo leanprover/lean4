@@ -65,9 +65,7 @@ let scope      := s.scopes.head!;
   ref          := ctx.ref }
 
 def fromCoreException (ctx : Context) (ex : Core.Exception) : Exception :=
-match ex with
-| Core.Exception.error ref msg  => Exception.error (mkMessageAux ctx (replaceRef ref ctx.ref) msg MessageSeverity.error)
-| Core.Exception.io error       => Exception.io error
+Exception.error $ mkMessageAux ctx ex.ref ex.msg MessageSeverity.error
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
 s ← get;
@@ -178,7 +176,6 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
     | Exception.error _           => throw ex
-    | Exception.io _              => throw ex
     | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
@@ -273,7 +270,6 @@ s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x (fun ex => match ex with
   | Exception.error ex          => do logMessage ex; pure ()
-  | Exception.io _              => throw ex
   | Exception.unsupportedSyntax => unreachable!)
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
@@ -565,7 +561,6 @@ succeeded ← finally
      (do x; hasNoErrorMessages)
      (fun ex => match ex with
        | Exception.error msg         => do modify (fun s => { s with messages := s.messages.add msg }); pure false
-       | Exception.io ex             => do logError (toString ex); pure false
        | Exception.unsupportedSyntax => do logError "unsupported syntax"; pure false))
   (restoreMessages prevMessages);
 when succeeded $

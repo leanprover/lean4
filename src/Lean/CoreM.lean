@@ -26,15 +26,13 @@ structure Context :=
 (maxRecDepth    : Nat := 1000)
 (ref            : Syntax := Syntax.missing)
 
-inductive Exception
-| io     (ex : IO.Error)
-| error  (ref : Syntax) (msg : MessageData)
+structure Exception :=
+(ref : Syntax := Syntax.missing) (msg : MessageData)
 
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.error Syntax.missing (arbitrary _)⟩
+instance Exception.inhabited : Inhabited Exception := ⟨{ msg := arbitrary _ }⟩
 
-def Exception.toMessageData : Exception → MessageData
-| Exception.io ex          => ex.toString
-| Exception.error _ msg    => msg
+def Exception.toMessageData (ex : Exception) : MessageData :=
+ex.msg
 
 instance Exception.hasToString : HasToString Exception := ⟨fun ex => toString ex.toMessageData⟩
 
@@ -45,10 +43,16 @@ abbrev CoreM := ECoreM Exception
 instance ECoreM.inhabited {ε α} [Inhabited ε] : Inhabited (ECoreM ε α) :=
 ⟨fun _ _ => throw $ arbitrary _⟩
 
-@[inline] def liftIOCore {α} (x : IO α) : EIO Exception α :=
-adaptExcept Exception.io x
+def getRef {ε} : ECoreM ε Syntax := do
+ctx ← read; pure ctx.ref
 
-instance : MonadIO (EIO Exception) :=
+@[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
+ref ← getRef;
+adaptExcept
+  (fun (err : IO.Error) => { ref := ref, msg := toString err : Exception })
+  (liftM x : ECoreM IO.Error α)
+
+instance : MonadIO CoreM :=
 { liftIO := @liftIOCore }
 
 def addContext {ε} (msg : MessageData) : ECoreM ε MessageData := do
@@ -59,7 +63,7 @@ pure $ MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := c
 def throwError {α} (msg : MessageData) : CoreM α := do
 ctx ← read;
 msg ← addContext msg;
-throw $ Exception.error ctx.ref msg
+throw { ref := ctx.ref, msg := msg }
 
 def ofExcept {ε α} [HasToString ε] (x : Except ε α) : CoreM α :=
 match x with
@@ -75,9 +79,6 @@ def Context.incCurrRecDepth (ctx : Context) : Context :=
 
 @[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
 checkRecDepth; adaptReader Context.incCurrRecDepth x
-
-def getRef {ε} : ECoreM ε Syntax := do
-ctx ← read; pure ctx.ref
 
 def getEnv {ε} : ECoreM ε Environment := do
 s ← get; pure s.env
@@ -171,9 +172,7 @@ modify fun s => { s with traceState := {} }
 
 @[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) :=
 adaptExcept
-  (fun ex => match ex with
-    | Exception.io ex         => ex
-    | Exception.error _ msg   => IO.userError $ toString $ format $ msg)
+  (fun (ex : Exception) => IO.userError $ toString $ format $ ex.msg)
   (x.run ctx s)
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=

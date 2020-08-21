@@ -11,18 +11,13 @@ namespace Elab
 
 inductive Exception
 | error (msg : Message)
-| io (err : IO.Error)
 | unsupportedSyntax
-
-@[inline] instance Exception.monadIO : MonadIO (EIO Exception) :=
-mkEIOMonadIO Exception.io
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error $ arbitrary _⟩
 
 instance Exception.hasToString : HasToString Exception :=
 ⟨fun ex => match ex with
  | Exception.error msg         => toString msg
- | Exception.io err            => toString err
  | Exception.unsupportedSyntax => "unsupported syntax"⟩
 
 def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : Message :=

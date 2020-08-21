@@ -371,7 +371,6 @@ private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Me
       match ex with
       | Exception.postpone                            => throw ex
       | Exception.ex Elab.Exception.unsupportedSyntax => throw ex
-      | Exception.ex (Elab.Exception.io _)            => throw ex
       | Exception.ex (Elab.Exception.error errMsg)    => do
         eType? ← unfoldDefinition? eType;
         match eType? with

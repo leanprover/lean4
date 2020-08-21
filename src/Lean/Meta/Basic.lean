@@ -145,6 +145,9 @@ liftM x
 @[inline] def mapECoreM {ε} (f : forall {α}, ECoreM ε α → ECoreM ε α) {α} : EMetaM ε α → EMetaM ε α :=
 monadMap @f
 
+instance : MonadIO MetaM :=
+{ liftIO := fun α x => liftCoreM $ liftIO x }
+
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
@@ -161,7 +164,7 @@ pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.l
 def throwError {α} (msg : MessageData) : MetaM α := do
 ref ← getRef;
 msg ← addContext msg;
-throw $ Exception.core $ Core.Exception.error ref msg
+throw $ Exception.core { ref := ref, msg := msg }
 
 def checkRecDepth : MetaM Unit :=
 liftCoreM $ Core.checkRecDepth
@@ -932,8 +935,8 @@ registerTraceClass `Meta.debug
 ref ← Core.getRef;
 adaptExcept
   (fun ex => match ex with
-  | Exception.core ex => ex
-  | ex => Core.Exception.error ref ex.toMessageData)
+    | Exception.core ex => ex
+    | ex => { ref := ref, msg := ex.toMessageData })
   x
 
 @[inline] def MetaM.toCoreM {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=

@@ -76,7 +76,7 @@ partial def mkPattern : Expr → MetaM Pattern
       e ← whnfD e;
       r? ← constructorApp? e;
       match r? with
-      | none      => throwOther "unexpected pattern"
+      | none      => throwError "unexpected pattern"
       | some (cval, fn, args) => do
         let params := args.extract 0 cval.nparams;
         let fields := args.extract cval.nparams args.size;
@@ -89,7 +89,7 @@ partial def decodePats : Expr → MetaM (List Pattern)
   | some (_, pat) => do pat ← mkPattern pat; pure [pat]
   | none =>
     match e.prod? with
-    | none => throwOther "unexpected pattern"
+    | none => throwError "unexpected pattern"
     | some (pat, pats) => do
       pat  ← decodePats pat;
       pats ← decodePats pats;
@@ -107,7 +107,7 @@ partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
   | some (_, lhs) => do lhs ← decodeAltLHS lhs; pure [lhs]
   | none =>
     match e.prod? with
-    | none => throwOther "unexpected LHS"
+    | none => throwError "unexpected LHS"
     | some (lhs, lhss) => do
       lhs  ← decodeAltLHSs lhs;
       lhss ← decodeAltLHSs lhss;
@@ -117,7 +117,7 @@ def withDepElimFrom {α} (declName : Name) (numPats : Nat) (k : List FVarId → 
 cinfo ← getConstInfo declName;
 forallTelescopeReducing cinfo.type fun args body =>
   if args.size < numPats then
-    throwOther "insufficient number of parameters"
+    throwError "insufficient number of parameters"
   else do
     let xs := (args.extract (args.size - numPats) args.size).toList.map $ Expr.fvarId!;
     alts ← decodeAltLHSs body;
@@ -141,14 +141,14 @@ withDepElimFrom ex numPats fun majors alts => do
   trace! `Meta.debug ("majors: " ++ majors.toArray);
   r ← mkElimTester elimName majors alts inProp;
   unless r.counterExamples.isEmpty $
-    throwOther ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
+    throwError ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
   unless r.unusedAltIdxs.isEmpty $
-    throwOther ("unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)));
+    throwError ("unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)));
   pure ()
 
 def testFailure (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit := do
-worked ← catch (do test ex numPats elimName inProp; pure true) (fun ex =>  _root_.dbgTrace ("ERROR: " ++ toString ex) fun _ => pure false);
-when worked $ throwOther "unexpected success"
+worked ← catch (do test ex numPats elimName inProp; pure true) (fun ex => pure false);
+when worked $ throwError "unexpected success"
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
 := arbitrary _

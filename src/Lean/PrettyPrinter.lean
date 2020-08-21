@@ -21,8 +21,7 @@ parenthesizeCommand stx >>= formatCommand
 
 def ppModule (stx : Syntax) : CoreM Format := do
 let header := stx.getArg 0;
--- TODO: header formatter is not auto-generated because the parser is not used in any syntax category...
-some f ← pure $ header.reprint | unreachable!; -- format table Lean.Parser.Module.header.formatter header;
+f ← format Lean.Parser.Module.header.formatter header;
 let cmds := stx.getArgs.extract 1 stx.getArgs.size;
 cmds.foldlM (fun f cmd => do
   cmdF ← ppCommand cmd;

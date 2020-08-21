@@ -182,11 +182,11 @@ report/cross/%: $(foreach cat, $(CROSS_TIME_CATS), bench/%$(cat).bench) | report
 report/index.html: $(LEAN_BENCHES:%=report/lean/%) $(CROSS_BENCHES:%=report/cross/%)
 	echo "<html><h1>Lean variant benchmarks</h1><ul>"> $@
 	for bench in $(LEAN_BENCHES); do \
-		echo "<li><a href='lean/$$bench/report.html'>$$bench</a></li>" >> $@; \
+		echo "<li><a href='lean/$$bench/report.html'>$$bench</a><br><img src='lean/$$bench/fig___SinglesProperty______etime___25.0.svg'></img></li>" >> $@; \
 	done
 	echo "</ul><h1>Cross-language benchmarks</h1><ul>">> $@
 	for bench in $(CROSS_BENCHES); do \
-		echo "<li><a href='cross/$$bench/report.html'>$$bench</a></li>" >> $@; \
+		echo "<li><a href='cross/$$bench/report.html'>$$bench</a><br><img src='cross/$$bench/fig___SinglesProperty______etime___25.0.svg'></img></li>" >> $@; \
 	done
 	echo "</ul></html>">> $@
 

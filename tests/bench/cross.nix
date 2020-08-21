@@ -29,7 +29,7 @@ let
     '';
   };
   swift = pkgs.swift;
-  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "743a6ee9328fc8cb85d334dbce23a89d14cef4c5"; }) {};
+  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "64eca12970e8096aa20557c35fd089dd6c668e1b"; }) { inherit pkgs; };
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];
@@ -60,7 +60,7 @@ substituteInPlace src/Lean/Compiler/IR.lean --replace "inferBorrow" "pure"
   TEMCI = "${temci}/bin/temci";
   buildInputs = with pkgs; [
     gmp # needed by leanc
-    (python3.withPackages (ps: [ temci ]))
+    (python37.withPackages (ps: [ temci ps.numpy ps.pyyaml ]))
     temci
     pkgs.linuxPackages.perf time unixtools.column
   ];

@@ -82,7 +82,7 @@ report:
     in: run_output.yaml
     
     # Replace the property names in reports with longer more descriptive versions?
-    long_properties: true
+    long_properties: false
     
     # Possible reporter are 'console', 'html', 'html2' and 'csv'
     reporter: html2
@@ -155,7 +155,7 @@ report:
         percent_format: '{:5.2%}'
         
         # Show zoomed out (x min = 0) figures in the extended summaries?
-        show_zoomed_out: false
+        show_zoomed_out: true
     
     number:
         

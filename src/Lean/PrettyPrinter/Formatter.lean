@@ -175,7 +175,7 @@ catch p1 $ fun e => match e with
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
-@[extern 7 "lean_mk_antiquot_formatter"]
+@[extern 10 "lean_mk_antiquot_formatter"]
 constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
 arbitrary _
 

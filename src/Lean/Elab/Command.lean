@@ -258,13 +258,11 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
 ctx ← read;
 s   ← get;
 let scope := s.scopes.head!;
-let Eα    := Except Term.Exception α;
-let x : TermElabM Eα := catch (do a ← x; pure $ Except.ok a) (fun ex => pure $ Except.error ex);
-let x : EMetaM Term.Exception (Eα × Term.State) := (x (mkTermContext ctx s declName?)).run { messages := s.messages, nextMacroScope := s.nextMacroScope };
-let x : ECoreM Term.Exception (Eα × Term.State) := (x mkMetaContext).run' {};
-let x : EIO Term.Exception ((Eα × Term.State) × Core.State) := (x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
-let x : EIO Exception ((Eα × Term.State) × Core.State) := adaptExcept fromTermException x;
-((ea, termS), coreS) ← liftM x;
+let x : EMetaM _ _      := (observing x).run (mkTermContext ctx s declName?) { messages := s.messages, nextMacroScope := s.nextMacroScope };
+let x : ECoreM _ _      := x.run mkMetaContext {};
+let x : EIO _ _         := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
+let x : EIO Exception _ := adaptExcept fromTermException x;
+(((ea, termS), _), coreS) ← liftEIO x;
 modify fun s => { s with env := coreS.env, messages := termS.messages, ngen := coreS.ngen };
 match ea with
 | Except.ok a     => pure a

@@ -17,19 +17,20 @@ import Lean.Parser.Extension
 namespace Lean
 namespace ParserCompiler
 
-open Meta
-
 structure Context (α : Type) :=
 (varName : Name)
 (runtimeAttr : KeyedDeclsAttribute α)
 (combinatorAttr : CombinatorAttribute)
-(interpretParserDescr : ParserDescr → StateT Environment IO α)
+(interpretParserDescr : ParserDescr → CoreM α)
 
 def Context.tyName {α} (ctx : Context α) : Name := ctx.runtimeAttr.defn.valueTypeName
 
 -- replace all references of `Parser` with `tyName` as a first approximation
 def preprocessParserBody {α} (ctx : Context α) (e : Expr) : Expr :=
 e.replace fun e => if e.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName else none
+
+section
+open Meta
 
 -- translate an expression of type `Parser` into one of type `tyName`
 partial def compileParserBody {α} (ctx : Context α) : Expr → MetaM Expr | e => do
@@ -90,48 +91,51 @@ match e with
       some e' ← liftM $ unfoldDefinition? e
         | throwError $ "don't know how to generate " ++ ctx.varName ++ " for non-parser combinator '" ++ toString e ++ "'";
       compileParserBody e'
+end
+
+open Core
 
 /-- Compile the given declaration into a `[(builtin)runtimeAttr declName]` -/
-def compileParser {α} (ctx : Context α) (env : Environment) (declName : Name) (builtin : Bool) : IO Environment := do
+def compileParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) : CoreM Unit := do
 -- This will also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
 -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
 -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
 -- call them at compile time but only reference them).
-(Expr.const c' _ _, env) ← (do a ← compileParserBody ctx (mkConst declName); env ← getEnv; pure (a, env)).toIO env
+(Expr.const c' _ _) ← (compileParserBody ctx (mkConst declName)).run
   | unreachable!;
 -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
 -- using `parser!` or `syntax`.
 let kind := declName;
-env.addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runtimeAttr.defn.name) (mkNullNode #[mkIdent kind])
+env ← getEnv;
+liftIO (env.addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runtimeAttr.defn.name) (mkNullNode #[mkIdent kind])) >>= setEnv
   -- When called from `interpretParserDescr`, `declName` might not be a tagged parser, so ignore "not a valid syntax kind" failures
-  <|> pure env
+  <|> pure ()
 
-unsafe def interpretParser {α} (ctx : Context α) (constName : Name)
-    : StateT Environment IO α :=
-fun env => match env.find? constName with
-| none      => throw $ IO.userError ("unknow constant '" ++ toString constName ++ "'")
-| some info =>
-  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
-    match ctx.runtimeAttr.getValues env constName with
-    | p::_ => pure (p, env)
-    | _    => do
-      env ← compileParser ctx env constName /- builtin -/ false;
-      p ← IO.ofExcept $ env.evalConst α (constName ++ ctx.varName);
-      pure (p, env)
-  else do
-    d ← IO.ofExcept $ env.evalConst TrailingParserDescr constName;
-    ctx.interpretParserDescr d env
+unsafe def interpretParser {α} (ctx : Context α) (constName : Name) : CoreM α := do
+info ← getConstInfo constName;
+env ← getEnv;
+if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
+  match ctx.runtimeAttr.getValues env constName with
+  | p::_ => pure p
+  | _    => do
+    compileParser ctx constName /- builtin -/ false;
+    env ← getEnv;
+    ofExcept $ env.evalConst α (constName ++ ctx.varName)
+else do
+  d ← ofExcept $ env.evalConst TrailingParserDescr constName;
+  ctx.interpretParserDescr d
 
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
 Parser.registerParserAttributeHook {
-  postAdd := fun catName env declName builtin =>
+  postAdd := fun catName declName builtin =>
     if builtin then
-      compileParser ctx env declName builtin
+      compileParser ctx declName builtin
     else do
-      (p, env) ← interpretParser ctx declName env;
+      p ← interpretParser ctx declName;
       -- Register `p` without exporting it to the .olean file. It will be re-interpreted and registered
       -- when the parser is imported.
-      pure $ ctx.runtimeAttr.ext.modifyState env fun st => { st with table := st.table.insert declName p }
+      env ← getEnv;
+      setEnv $ ctx.runtimeAttr.ext.modifyState env fun st => { st with table := st.table.insert declName p }
 }
 
 end ParserCompiler

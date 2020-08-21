@@ -225,7 +225,7 @@ mkParserOfConstantAux env categories constName (compileParserDescr env categorie
 
 structure ParserAttributeHook :=
 /- Called after a parser attribute is applied to a declaration. -/
-(postAdd : forall (catName : Name) (env : Environment) (declName : Name) (builtin : Bool), IO Environment) -- TODO: use CoreM?
+(postAdd : forall (catName : Name) (declName : Name) (builtin : Bool), CoreM Unit)
 
 def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef {}
 @[init mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
@@ -253,7 +253,7 @@ es.foldlM
          categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2;
          hooks ← parserAttributeHooks.get;
          -- discard result env; all environment side effects should already have happened when the parser was declared initially
-         _ ← hooks.foldlM (fun env hook => hook.postAdd catName env declName /- builtin -/ false) env;
+         _ ← Lean.Core.CoreM.run (hooks.forM fun hook => hook.postAdd catName declName /- builtin -/ false) env;
          pure { s with categories := categories })
       s)
   s
@@ -378,10 +378,7 @@ match decl.type with
   Core.setEnv env
 | _ => Core.throwError ("unexpected parser type at '" ++ declName ++ "' (`Parser` or `TrailingParser` expected");
 hooks ← parserAttributeHooks.get;
-hooks.forM fun hook => do
-  env ← Core.getEnv;
-  env ← liftIO $ hook.postAdd catName env declName /- builtin -/ true;
-  Core.setEnv env
+hooks.forM fun hook => hook.postAdd catName declName /- builtin -/ true
 
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.
@@ -417,10 +414,7 @@ match mkParserOfConstant env categories declName with
   | Except.ok _     => Core.modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
   | Except.error ex => Core.throwError ex;
   hooks ← parserAttributeHooks.get;
-  hooks.forM fun hook => do
-    env ← Core.getEnv;
-    env ← liftIO $ hook.postAdd catName env declName /- builtin -/ false;
-    Core.setEnv env
+  hooks.forM fun hook => hook.postAdd catName declName /- builtin -/ false
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 { name            := attrName,

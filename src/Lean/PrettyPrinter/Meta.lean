@@ -22,7 +22,7 @@ namespace Parenthesizer
 def ctx (interp) : ParserCompiler.Context Parenthesizer :=
 ⟨`parenthesizer, parenthesizerAttribute, combinatorParenthesizerAttribute, interp⟩
 
-unsafe def interpretParserDescr : ParserDescr → StateT Environment IO Parenthesizer
+unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
 | ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
 | ParserDescr.orelse d₁ d₂                        => orelse.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
 | ParserDescr.optional d                          => optional.parenthesizer <$> interpretParserDescr d
@@ -54,7 +54,7 @@ namespace Formatter
 def ctx (interp) : ParserCompiler.Context Formatter :=
 ⟨`formatter, formatterAttribute, combinatorFormatterAttribute, interp⟩
 
-unsafe def interpretParserDescr : ParserDescr → StateT Environment IO Formatter
+unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
 | ParserDescr.andthen d₁ d₂                       => andthen.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
 | ParserDescr.orelse d₁ d₂                        => orelse.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
 | ParserDescr.optional d                          => optional.formatter <$> interpretParserDescr d

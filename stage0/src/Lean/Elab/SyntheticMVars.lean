@@ -59,7 +59,6 @@ withRef stx $ withMVarContext mvarId $ do
       pure true)
     (fun ex => match ex with
       | Exception.postpone                            => do set s; pure false
-      | Exception.ex (Elab.Exception.io _)            => throw ex
       | Exception.ex Elab.Exception.unsupportedSyntax => unreachable!
       | Exception.ex (Elab.Exception.error msg)       =>
         if postponeOnError then do

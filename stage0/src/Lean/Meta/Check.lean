@@ -113,7 +113,7 @@ def isTypeCorrect (e : Expr) : MetaM Bool :=
 catch
   (traceCtx `Meta.check $ do checkAux e; pure true)
   (fun ex => do
-    trace! `Meta.typeError ex.toTraceMessageData;
+    trace! `Meta.typeError ex.toMessageData;
     pure false)
 
 @[init] private def regTraceClasses : IO Unit := do

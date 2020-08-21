@@ -139,14 +139,32 @@ abbrev MetaM := EMetaM Exception
 @[inline] def liftCoreM {α} (x : CoreM α) : MetaM α :=
 liftM $ (adaptExcept Exception.core x : ECoreM Exception α)
 
+@[inline] def liftECoreM {ε α} (x : ECoreM ε α) : EMetaM ε α :=
+liftM x
+
+@[inline] def mapECoreM {ε} (f : forall {α}, ECoreM ε α → ECoreM ε α) {α} : EMetaM ε α → EMetaM ε α :=
+monadMap @f
+
+instance : MonadIO MetaM :=
+{ liftIO := fun α x => liftCoreM $ liftIO x }
+
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
-def throwError {α} (msg : MessageData) : MetaM α :=
-liftCoreM $ Core.throwError msg
+def getRef {ε} : EMetaM ε Syntax :=
+liftECoreM Core.getRef
 
-def addContext (msg : MessageData) : MetaM MessageData :=
-liftCoreM $ Core.addContext msg
+def addContext {ε} (msg : MessageData) : EMetaM ε MessageData := do
+ctxCore ← readThe Core.Context;
+sCore   ← getThe Core.State;
+ctx     ← read;
+s       ← get;
+pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctxCore.options } msg
+
+def throwError {α} (msg : MessageData) : MetaM α := do
+ref ← getRef;
+msg ← addContext msg;
+throw $ Exception.core { ref := ref, msg := msg }
 
 def checkRecDepth : MetaM Unit :=
 liftCoreM $ Core.checkRecDepth
@@ -155,47 +173,44 @@ liftCoreM $ Core.checkRecDepth
 checkRecDepth;
 adaptTheReader Core.Context Core.Context.incCurrRecDepth x
 
-def getRef : MetaM Syntax :=
-liftCoreM Core.getRef
+@[inline] def withRef {ε α} (ref : Syntax) (x : EMetaM ε α) : EMetaM ε α := do
+mapECoreM (fun α => Core.withRef ref) x
 
-@[inline] def withRef {α} (ref : Syntax) (x : MetaM α) : MetaM α := do
-adaptTheReader Core.Context (Core.Context.replaceRef ref) x
-
-@[inline] def getLCtx : MetaM LocalContext := do
+@[inline] def getLCtx {ε} : EMetaM ε LocalContext := do
 ctx ← read; pure ctx.lctx
 
-@[inline] def getLocalInstances : MetaM LocalInstances := do
+@[inline] def getLocalInstances {ε} : EMetaM ε LocalInstances := do
 ctx ← read; pure ctx.localInstances
 
-@[inline] def getConfig : MetaM Config := do
+@[inline] def getConfig {ε} : EMetaM ε Config := do
 ctx ← read; pure ctx.config
 
-@[inline] def getMCtx : MetaM MetavarContext := do
+@[inline] def getMCtx {ε} : EMetaM ε MetavarContext := do
 s ← get; pure s.mctx
 
-def setMCtx (mctx : MetavarContext) : MetaM Unit :=
+def setMCtx {ε} (mctx : MetavarContext) : EMetaM ε Unit :=
 modify $ fun s => { s with mctx := mctx }
 
-@[inline] def getOptions : MetaM Options :=
-liftCoreM Core.getOptions
+@[inline] def getOptions {ε} : EMetaM ε Options :=
+liftECoreM Core.getOptions
 
-@[inline] def getEnv : MetaM Environment :=
-liftCoreM Core.getEnv
+@[inline] def getEnv {ε} : EMetaM ε Environment :=
+liftECoreM Core.getEnv
 
-def setEnv (env : Environment) : MetaM Unit :=
-liftCoreM $ Core.setEnv env
+def setEnv {ε} (env : Environment) : EMetaM ε Unit :=
+liftECoreM $ Core.setEnv env
 
-def getNGen : MetaM NameGenerator :=
-liftCoreM Core.getNGen
+def getNGen {ε} : EMetaM ε NameGenerator :=
+liftECoreM Core.getNGen
 
-def setNGen (ngen : NameGenerator) : MetaM Unit :=
-liftCoreM $ Core.setNGen ngen
+def setNGen {ε} (ngen : NameGenerator) : EMetaM ε Unit :=
+liftECoreM $ Core.setNGen ngen
 
-def getTraceState : MetaM TraceState :=
-liftCoreM $ Core.getTraceState
+def getTraceState {ε}  : EMetaM ε TraceState :=
+liftECoreM $ Core.getTraceState
 
-def setTraceState (traceState : TraceState) : MetaM Unit :=
-liftCoreM $ Core.setTraceState traceState
+def setTraceState {ε} (traceState : TraceState) : EMetaM ε Unit :=
+liftECoreM $ Core.setTraceState traceState
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
@@ -241,33 +256,33 @@ withIncRecDepth do
   fn ← liftIO synthPendingRef.get;
   fn mvarId
 
-def mkFreshId : MetaM Name := do
-liftCoreM Core.mkFreshId
+def mkFreshId {ε} : EMetaM ε Name := do
+liftECoreM Core.mkFreshId
 
-private def mkFreshExprMVarAtCore
-    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : MetaM Expr := do
+private def mkFreshExprMVarAtCore {ε}
+    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : EMetaM ε Expr := do
 modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind };
 pure $ mkMVar mvarId
 
-def mkFreshExprMVarAt
+def mkFreshExprMVarAt {ε}
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
-    : MetaM Expr := do
+    : EMetaM ε Expr := do
 mvarId ← mkFreshId;
 mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
-def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
+def mkFreshExprMVar {ε} (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : EMetaM ε Expr := do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 mkFreshExprMVarAt lctx localInsts type userName kind
 
 /- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
-def mkFreshExprMVarWithId (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
+def mkFreshExprMVarWithId {ε} (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : EMetaM ε Expr := do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
-def mkFreshLevelMVar : MetaM Level := do
+def mkFreshLevelMVar {ε} : EMetaM ε Level := do
 mvarId ← mkFreshId;
 modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
@@ -284,31 +299,31 @@ match x with
 | Except.ok a    => pure a
 | Except.error e => throwError (toString e)
 
-@[inline] def shouldReduceAll : MetaM Bool := do
+@[inline] def shouldReduceAll {ε} : EMetaM ε Bool := do
 ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
 
-@[inline] def shouldReduceReducibleOnly : MetaM Bool := do
+@[inline] def shouldReduceReducibleOnly {ε} : EMetaM ε Bool := do
 ctx ← read; pure $ ctx.config.transparency == TransparencyMode.reducible
 
-@[inline] def getTransparency : MetaM TransparencyMode := do
+@[inline] def getTransparency {ε} : EMetaM ε TransparencyMode := do
 ctx ← read; pure $ ctx.config.transparency
 
 -- Remark: wanted to use `private`, but in C++ parser, `private` declarations do not shadow outer public ones.
 -- TODO: fix this bug
-@[inline] def isReducible (constName : Name) : MetaM Bool := do
+@[inline] def isReducible {ε} (constName : Name) : EMetaM ε Bool := do
 env ← getEnv; pure $ isReducible env constName
 
-@[inline] def withConfig {α} (f : Config → Config) (x : MetaM α) : MetaM α :=
+@[inline] def withConfig {ε α} (f : Config → Config) (x : EMetaM ε α) : EMetaM ε α :=
 adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config }) x
 
 /-- While executing `x`, ensure the given transparency mode is used. -/
-@[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+@[inline] def withTransparency {ε α} (mode : TransparencyMode) (x : EMetaM ε α) : EMetaM ε α :=
 withConfig (fun config => { config with transparency := mode }) x
 
-@[inline] def withReducible {α} (x : MetaM α) : MetaM α :=
+@[inline] def withReducible {ε α} (x : EMetaM ε α) : EMetaM ε α :=
 withTransparency TransparencyMode.reducible x
 
-@[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+@[inline] def withAtLeastTransparency {ε α} (mode : TransparencyMode) (x : EMetaM ε α) : EMetaM ε α :=
 withConfig
   (fun config =>
     let oldMode := config.transparency;
@@ -344,34 +359,31 @@ match mctx.findLevelDepth? mvarId with
 | some depth => pure $ depth != mctx.depth
 | _          => throwError ("unknown universe metavariable '" ++ mkLevelMVar mvarId ++ "'")
 
-def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
+def renameMVar {ε} (mvarId : MVarId) (newUserName : Name) : EMetaM ε Unit :=
 modify $ fun s => { s with mctx := s.mctx.renameMVar mvarId newUserName }
 
-@[inline] def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool := do
+@[inline] def isExprMVarAssigned {ε} (mvarId : MVarId) : EMetaM ε Bool := do
 mctx ← getMCtx;
 pure $ mctx.isExprAssigned mvarId
 
-@[inline] def getExprMVarAssignment? (mvarId : MVarId) : MetaM (Option Expr) := do
+@[inline] def getExprMVarAssignment? {ε} (mvarId : MVarId) : EMetaM ε (Option Expr) := do
 mctx ← getMCtx; pure (mctx.getExprAssignment? mvarId)
 
-def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit := do
+def assignExprMVar {ε} (mvarId : MVarId) (val : Expr) : EMetaM ε Unit := do
 modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
 
-def isDelayedAssigned (mvarId : MVarId) : MetaM Bool := do
+def isDelayedAssigned {ε} (mvarId : MVarId) : EMetaM ε Bool := do
 mctx ← getMCtx;
 pure $ mctx.isDelayedAssigned mvarId
 
-def hasAssignableMVar (e : Expr) : MetaM Bool := do
+def hasAssignableMVar {ε} (e : Expr) : EMetaM ε Bool := do
 mctx ← getMCtx;
 pure $ mctx.hasAssignableMVar e
-
-def dbgTrace {α} [HasToString α] (a : α) : MetaM Unit :=
-_root_.dbgTrace (toString a) $ fun _ => pure ()
 
 def throwUnknownConstant {α} (constName : Name) : MetaM α :=
 throwError ("unknown constant '" ++ constName ++ "'")
 
-def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) := do
+def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
 match env.find? constName with
 | some (info@(ConstantInfo.thmInfo _)) =>
@@ -381,21 +393,25 @@ match env.find? constName with
     (condM (isReducible constName) (pure (some info)) (pure none))
     (pure (some info))
 | some info => pure (some info)
-| none                                 =>
-  if exception? then throwUnknownConstant constName
-  else pure none
-
-@[inline] def getConst (constName : Name) : MetaM (Option ConstantInfo) :=
-getConstAux constName true
-
-@[inline] def getConstNoEx (constName : Name) : MetaM (Option ConstantInfo) :=
-getConstAux constName false
+| none      => throwUnknownConstant constName
 
 def getConstInfo (constName : Name) : MetaM ConstantInfo := do
 env ← getEnv;
 match env.find? constName with
 | some info => pure info
 | none      => throwUnknownConstant constName
+
+def getConstNoEx? {ε} (constName : Name) : EMetaM ε (Option ConstantInfo) := do
+env ← getEnv;
+match env.find? constName with
+| some (info@(ConstantInfo.thmInfo _)) =>
+  condM shouldReduceAll (pure (some info)) (pure none)
+| some (info@(ConstantInfo.defnInfo _)) =>
+  condM shouldReduceReducibleOnly
+    (condM (isReducible constName) (pure (some info)) (pure none))
+    (pure (some info))
+| some info => pure (some info)
+| none      => pure none
 
 def throwUnknownFVar {α} (fvarId : FVarId) : MetaM α :=
 throwError ("unknown free variable '" ++ mkFVar fvarId ++ "'")
@@ -409,7 +425,7 @@ match lctx.find? fvarId with
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
 getLocalDecl fvar.fvarId!
 
-def instantiateMVars (e : Expr) : MetaM Expr :=
+def instantiateMVars {ε} (e : Expr) : EMetaM ε Expr :=
 if e.hasMVar then
   modifyGet $ fun s =>
     let (e, mctx) := s.mctx.instantiateMVars e;
@@ -417,7 +433,7 @@ if e.hasMVar then
 else
   pure e
 
-def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
+def instantiateLocalDeclMVars {ε} (localDecl : LocalDecl) : EMetaM ε LocalDecl :=
 match localDecl with
   | LocalDecl.cdecl idx id n type bi  => do
     type ← instantiateMVars type;
@@ -454,22 +470,22 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e preserveOrder
 
 /-- Save cache, execute `x`, restore cache -/
-@[inline] def savingCache {α} (x : MetaM α) : MetaM α := do
+@[inline] def savingCache {ε α} (x : EMetaM ε α) : EMetaM ε α := do
 s ← get;
 let savedCache := s.cache;
 finally x (modify $ fun s => { s with cache := savedCache })
 
-def isClassQuickConst (constName : Name) : MetaM (LOption Name) := do
+def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
 env ← getEnv;
 if isClass env constName then
   pure (LOption.some constName)
 else do
-  cinfo? ← getConst constName;
+  cinfo? ← getConst? constName;
   match cinfo? with
   | some _ => pure LOption.undef
   | none   => pure LOption.none
 
-partial def isClassQuick : Expr → MetaM (LOption Name)
+partial def isClassQuick? : Expr → MetaM (LOption Name)
 | Expr.bvar _ _        => pure LOption.none
 | Expr.lit _ _         => pure LOption.none
 | Expr.fvar _ _        => pure LOption.none
@@ -477,39 +493,39 @@ partial def isClassQuick : Expr → MetaM (LOption Name)
 | Expr.lam _ _ _ _     => pure LOption.none
 | Expr.letE _ _ _ _ _  => pure LOption.undef
 | Expr.proj _ _ _  _   => pure LOption.undef
-| Expr.forallE _ _ b _ => isClassQuick b
-| Expr.mdata _ e _     => isClassQuick e
-| Expr.const n _ _     => isClassQuickConst n
+| Expr.forallE _ _ b _ => isClassQuick? b
+| Expr.mdata _ e _     => isClassQuick? e
+| Expr.const n _ _     => isClassQuickConst? n
 | Expr.mvar mvarId _   => do
   val? ← getExprMVarAssignment? mvarId;
   match val? with
-  | some val => isClassQuick val
+  | some val => isClassQuick? val
   | none     => pure LOption.none
 | Expr.app f _ _       =>
   match f.getAppFn with
-  | Expr.const n _ _  => isClassQuickConst n
+  | Expr.const n _ _  => isClassQuickConst? n
   | Expr.lam _ _ _ _  => pure LOption.undef
   | _                 => pure LOption.none
 | Expr.localE _ _ _ _ => unreachable!
 
-def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
+def saveAndResetSynthInstanceCache {ε} : EMetaM ε SynthInstanceCache := do
 s ← get;
 let savedSythInstance := s.cache.synthInstance;
 modify $ fun s => { s with cache := { s.cache with synthInstance := {} } };
 pure savedSythInstance
 
-def restoreSynthInstanceCache (cache : SynthInstanceCache) : MetaM Unit :=
+def restoreSynthInstanceCache {ε} (cache : SynthInstanceCache) : EMetaM ε Unit :=
 modify $ fun s => { s with cache := { s.cache with synthInstance := cache } }
 
 /-- Reset `synthInstance` cache, execute `x`, and restore cache -/
-@[inline] def resettingSynthInstanceCache {α} (x : MetaM α) : MetaM α := do
+@[inline] def resettingSynthInstanceCache {ε α} (x : EMetaM ε α) : EMetaM ε α := do
 savedSythInstance ← saveAndResetSynthInstanceCache;
 finally x (restoreSynthInstanceCache savedSythInstance)
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`.
     It resets the type class cache using `resettingSynthInstanceCache`. -/
-@[inline] def withNewLocalInstance {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
+@[inline] def withNewLocalInstance {ε α} (className : Name) (fvar : Expr) (k : EMetaM ε α) : EMetaM ε α :=
 resettingSynthInstanceCache $
   adaptReader
     (fun (ctx : Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
@@ -524,17 +540,17 @@ resettingSynthInstanceCache $
   - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
     Thus, each new local instance requires a new `resettingSynthInstanceCache`. -/
 @[specialize] partial def withNewLocalInstances {α}
-    (isClassExpensive : Expr → MetaM (Option Name))
+    (isClassExpensive? : Expr → MetaM (Option Name))
     (fvars : Array Expr) : Nat → MetaM α → MetaM α
 | i, k =>
   if h : i < fvars.size then do
     let fvar := fvars.get ⟨i, h⟩;
     decl ← getFVarLocalDecl fvar;
-    c?   ← isClassQuick decl.type;
+    c?   ← isClassQuick? decl.type;
     match c? with
     | LOption.none   => withNewLocalInstances (i+1) k
     | LOption.undef  => do
-      c? ← isClassExpensive decl.type;
+      c? ← isClassExpensive? decl.type;
       match c? with
       | none   => withNewLocalInstances (i+1) k
       | some c => withNewLocalInstance c fvar $ withNewLocalInstances (i+1) k
@@ -568,9 +584,9 @@ resettingSynthInstanceCache $
   when `fvars.size == max`
 -/
 @[specialize] private partial def forallTelescopeReducingAuxAux {α}
-    (isClassExpensive : Expr → MetaM (Option Name))
-    (reducing?        : Bool) (maxFVars? : Option Nat)
-    (k                : Array Expr → Expr → MetaM α)
+    (isClassExpensive? : Expr → MetaM (Option Name))
+    (reducing?         : Bool) (maxFVars? : Option Nat)
+    (k                 : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
 | lctx, fvars, j, type@(Expr.forallE n d b c) => do
   let process : Unit → MetaM α := fun _ => do {
@@ -589,12 +605,12 @@ resettingSynthInstanceCache $
     else
       let type := type.instantiateRevRange j fvars.size fvars;
       adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
-        withNewLocalInstances isClassExpensive fvars j $
+        withNewLocalInstances isClassExpensive? fvars j $
           k fvars type
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
-    withNewLocalInstances isClassExpensive fvars j $
+    withNewLocalInstances isClassExpensive? fvars j $
       if reducing? then do
         newType ← whnf type;
         if newType.isForall then
@@ -607,18 +623,18 @@ resettingSynthInstanceCache $
 /- We need this auxiliary definition because it depends on `isClassExpensive`,
    and `isClassExpensive` depends on it. -/
 @[specialize] private def forallTelescopeReducingAux {α}
-    (isClassExpensive : Expr → MetaM (Option Name))
+    (isClassExpensive? : Expr → MetaM (Option Name))
     (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α := do
 newType ← whnf type;
 if newType.isForall then do
   lctx ← getLCtx;
-  forallTelescopeReducingAuxAux isClassExpensive true maxFVars? k lctx #[] 0 newType
+  forallTelescopeReducingAuxAux isClassExpensive? true maxFVars? k lctx #[] 0 newType
 else
   k #[] type
 
-partial def isClassExpensive : Expr → MetaM (Option Name)
+partial def isClassExpensive? : Expr → MetaM (Option Name)
 | type => withReducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
-  forallTelescopeReducingAux isClassExpensive type none $ fun xs type => do
+  forallTelescopeReducingAux isClassExpensive? type none $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ _ => do
       env ← getEnv;
@@ -631,19 +647,19 @@ partial def isClassExpensive : Expr → MetaM (Option Name)
   execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
 def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
 lctx ← getLCtx;
-forallTelescopeReducingAuxAux isClassExpensive false none k lctx #[] 0 type
+forallTelescopeReducingAuxAux isClassExpensive? false none k lctx #[] 0 type
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues bulding the telescope if it is a `forall`. -/
 def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-forallTelescopeReducingAux isClassExpensive type none k
+forallTelescopeReducingAux isClassExpensive? type none k
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`. -/
 def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-forallTelescopeReducingAux isClassExpensive type maxFVars? k
+forallTelescopeReducingAux isClassExpensive? type maxFVars? k
 
 /-- Return the parameter names for the givel global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
@@ -653,12 +669,12 @@ forallTelescopeReducing cinfo.type $ fun xs _ => do
     localDecl ← getLocalDecl x.fvarId!;
     pure localDecl.userName
 
-def isClass (type : Expr) : MetaM (Option Name) := do
-c? ← isClassQuick type;
+def isClass? (type : Expr) : MetaM (Option Name) := do
+c? ← isClassQuick? type;
 match c? with
 | LOption.none   => pure none
 | LOption.some c => pure (some c)
-| LOption.undef  => isClassExpensive type
+| LOption.undef  => isClassExpensive? type
 
 /-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
 private partial def lambdaTelescopeAux {α}
@@ -680,7 +696,7 @@ private partial def lambdaTelescopeAux {α}
 | lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
-    withNewLocalInstances isClassExpensive fvars j $ do
+    withNewLocalInstances isClassExpensive? fvars j $ do
       k fvars e
 
 /-- Similar to `forallTelescope` but for lambda and let expressions. -/
@@ -795,7 +811,7 @@ adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApp
   x
 
 @[inline] private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
-c? ← isClass fvarType;
+c? ← isClass? fvarType;
 match c? with
 | none   => k fvar
 | some c => withNewLocalInstance c fvar $ k fvar
@@ -826,7 +842,7 @@ let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ct
 adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) do
   newLocalInsts ← decls.foldlM
     (fun (newlocalInsts : Array LocalInstance) (decl : LocalDecl) => do
-      c? ← isClass decl.type;
+      c? ← isClass? decl.type;
       match c? with
       | none   => pure newlocalInsts
       | some c => pure $ newlocalInsts.push { className := c, fvar := decl.toExpr })
@@ -878,7 +894,7 @@ opts  ← getOptions;
 mctx  ← getMCtx;
 lctx  ← getLCtx;
 match Lean.mkAuxDefinition env opts mctx lctx name type value with
-| Except.error ex          => throw $ Exception.core $ Core.Exception.kernel ex opts
+| Except.error ex          => liftCoreM $ Core.throwKernelException ex
 | Except.ok (e, env, mctx) => do setEnv env; setMCtx mctx; pure e
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
@@ -912,29 +928,26 @@ instantiateForallAux ps 0 e
 registerTraceClass `Meta;
 registerTraceClass `Meta.debug
 
-@[inline] private abbrev runAux {α} (x : ECoreM Exception α) : CoreM α := do
+@[inline] def EMetaM.run {ε α} (x : EMetaM ε α) (ctx : Context := {}) (s : State := {}) : ECoreM ε (α × State) :=
+(x.run ctx).run s
+
+@[inline] private def toCoreMAux {α} (x : ECoreM Exception α) : CoreM α := do
 ref ← Core.getRef;
 adaptExcept
   (fun ex => match ex with
-  | Exception.core ex => ex
-  | ex => Core.Exception.error ref ex.toMessageData)
+    | Exception.core ex => ex
+    | ex => { ref := ref, msg := ex.toMessageData })
   x
 
-@[inline] def MetaM.toECoreM {α} (x : MetaM α) : ECoreM Exception α :=
-(x.run {}).run' {}
+@[inline] def MetaM.toCoreM {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
+toCoreMAux $ x.run ctx s
 
-@[inline] def MetaM.run {α} (x : MetaM α) : CoreM α := do
-runAux $ x.toECoreM
-
-@[inline] def MetaM.toIO {α} (x : MetaM α) (env : Environment) (options : Options := {}) : IO α :=
-(x.run).run env options
-
-def printTraces : MetaM Unit := do
-s ← getTraceState;
-s.traces.forM fun msg _ => IO.println (toString msg)
+@[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
+((a, s), sCore) ← (toCoreMAux (x.run ctx s)).toIO ctxCore sCore;
+pure (a, sCore, s)
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x _ => MetaHasEval.eval env opts x.run⟩
+⟨fun env opts x _ => MetaHasEval.eval env opts (do (a, _) ← x.toCoreM {} {}; pure a)⟩
 
 end Meta
 

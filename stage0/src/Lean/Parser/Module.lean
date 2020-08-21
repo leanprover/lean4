@@ -12,6 +12,7 @@ namespace Parser
 namespace Module
 def «prelude»  := parser! "prelude"
 def «import»   := parser! "import " >> optional "runtime" >> ident
+@[runParserAttributeHooks]
 def header     := parser! optional «prelude» >> many «import»
 
 def updateTokens (c : ParserContext) : ParserContext :=

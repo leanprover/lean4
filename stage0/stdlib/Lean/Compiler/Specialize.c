@@ -81,7 +81,6 @@ lean_object* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__2(le
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Core_setEnv(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__8(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__6;
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
@@ -106,6 +105,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs_
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_setEnv___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__15;
 lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
@@ -1089,7 +1089,7 @@ x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_5);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_13, x_20);
-x_22 = l_Lean_Core_setEnv(x_21, x_8, x_9, x_18);
+x_22 = l_Lean_Core_setEnv___rarg(x_21, x_8, x_9, x_18);
 lean_dec(x_9);
 lean_dec(x_8);
 return x_22;

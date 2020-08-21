@@ -191,7 +191,7 @@ else
     let fvarType := fvarDecl.type;
     let d₂       := ds₂.get! i;
     condM (isExprDefEqAux fvarType d₂)
-      (do c? ← isClass fvarType;
+      (do c? ← isClass? fvarType;
           match c? with
           | some className => withNewLocalInstance className fvar $ isDefEqBindingDomain (i+1) k
           | none           => isDefEqBindingDomain (i+1) k)
@@ -364,9 +364,6 @@ inductive Exception
 | readOnlyMVarWithBiggerLCtx (mvarId : MVarId)
 | unknownExprMVar            (mvarId : MVarId)
 | meta                       (ex : Meta.Exception)
-
-instance : MonadIO (EIO Exception) :=
-mkEIOMonadIO Exception.meta
 
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ EMetaM Exception
 
@@ -709,9 +706,9 @@ traceCtx `Meta.isDefEq.assign $ do
   mvarDecl ← getMVarDecl mvar.mvarId!;
   processAssignmentAux mvar mvarDecl 0 mvarApp.getAppArgs v
 
-private def isDeltaCandidate (t : Expr) : MetaM (Option ConstantInfo) :=
+private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) :=
 match t.getAppFn with
-| Expr.const c _ _ => getConst c
+| Expr.const c _ _ => getConst? c
 | _                => pure none
 
 /-- Auxiliary method for isDefEqDelta -/
@@ -872,8 +869,8 @@ else
   11- Otherwise, unfold `t` and `s` and continue.
   Remark: 9&10&11 are implemented by `unfoldComparingHeadsDefEq` -/
 private def isDefEqDelta (t s : Expr) : MetaM LBool := do
-tInfo? ← isDeltaCandidate t.getAppFn;
-sInfo? ← isDeltaCandidate s.getAppFn;
+tInfo? ← isDeltaCandidate? t.getAppFn;
+sInfo? ← isDeltaCandidate? s.getAppFn;
 match tInfo?, sInfo? with
 | none,       none       => pure LBool.undef
 | some tInfo, none       => unfold t (pure LBool.undef) $ fun t => isDefEqLeft tInfo.name t s
@@ -969,7 +966,7 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
        ctx ← read;
        if ctx.config.isDefEqStuckEx then do
          trace! `Meta.isDefEq.stuck (t ++ " =?= " ++ s);
-         throwEx $ Exception.isExprDefEqStuck t s
+         throw Exception.isDefEqStuck
        else pure LBool.false
      else pure LBool.undef) $ do
   -- Both `t` and `s` are terms of the form `?m ...`

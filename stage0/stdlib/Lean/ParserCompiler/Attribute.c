@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ParserCompiler.Attribute
-// Imports: Init Lean.Attributes Lean.Compiler.InitAttr Lean.ToExpr Lean.Meta.Message
+// Imports: Init Lean.Attributes Lean.Compiler.InitAttr Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,7 +29,6 @@ lean_object* l_Lean_Core_throwError___rarg(lean_object*, lean_object*, lean_obje
 lean_object* lean_io_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Core_setEnv(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -38,6 +37,7 @@ lean_object* l_Lean_ParserCompiler_CombinatorAttribute_Inhabited;
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_setEnv___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
@@ -742,7 +742,7 @@ x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_19);
 lean_ctor_set(x_22, 1, x_3);
 x_23 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_2, x_10, x_22);
-x_24 = l_Lean_Core_setEnv(x_23, x_6, x_7, x_21);
+x_24 = l_Lean_Core_setEnv___rarg(x_23, x_6, x_7, x_21);
 return x_24;
 }
 else
@@ -1049,7 +1049,6 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Attributes(lean_object*);
 lean_object* initialize_Lean_Compiler_InitAttr(lean_object*);
 lean_object* initialize_Lean_ToExpr(lean_object*);
-lean_object* initialize_Lean_Meta_Message(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_ParserCompiler_Attribute(lean_object* w) {
 lean_object * res;
@@ -1065,9 +1064,6 @@ res = initialize_Lean_Compiler_InitAttr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ToExpr(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Message(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__7___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__7___closed__1();

@@ -121,6 +121,15 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
+@[inline] def liftCoreM {α} (x : CoreM α) : FormatterM α :=
+liftM x
+
+def getEnv : FormatterM Environment :=
+liftCoreM Core.getEnv
+
+def throwError {α} (msg : MessageData) : FormatterM α :=
+liftCoreM $ Core.throwError msg
+
 /-
 /--
   Call an appropriate `[formatter]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
@@ -181,9 +190,9 @@ constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (a
 arbitrary _
 
 def formatterForKind (k : SyntaxNodeKind) : Formatter := do
-env ← liftM getEnv;
+env ← getEnv;
 p::_ ← pure $ formatterAttribute.getValues env k
-  | liftM $ throwError $ "no known formatter for kind '" ++ k ++ "'";
+  | throwError $ "no known formatter for kind '" ++ k ++ "'";
 p
 
 @[combinatorFormatter Lean.Parser.withAntiquot]
@@ -250,7 +259,7 @@ concatArgs do
 
 def parseToken (s : String) : FormatterM ParserState := do
 ctx ← read;
-env ← liftM getEnv;
+env ← getEnv;
 pure $ Parser.tokenFn { input := s, fileName := "", fileMap := FileMap.ofString "", prec := 0, env := env, tokens := ctx.table } (Parser.mkParserState s)
 
 def pushToken (tk : String) : FormatterM Unit := do
@@ -285,7 +294,7 @@ goLeft
 def unicodeSymbol.formatter (sym asciiSym : String) : Formatter := do
 stx ← getCur;
 Syntax.atom _ val ← pure stx
-  | liftM $ throwError $ "not an atom: " ++ toString stx;
+  | throwError $ "not an atom: " ++ toString stx;
 if val == sym.trim then
   pushToken sym
 else
@@ -318,7 +327,7 @@ stx ← getCur;
 when (k != Name.anonymous) $
   checkKind k;
 Syntax.atom _ val ← pure $ stx.ifNode (fun n => n.getArg 0) (fun _ => stx)
-  | liftM $ throwError $ "not an atom: " ++ toString stx;
+  | throwError $ "not an atom: " ++ toString stx;
 pushToken val;
 goLeft
 

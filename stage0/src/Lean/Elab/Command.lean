@@ -65,10 +65,7 @@ let scope      := s.scopes.head!;
   ref          := ctx.ref }
 
 def fromCoreException (ctx : Context) (ex : Core.Exception) : Exception :=
-match ex with
-| Core.Exception.error ref msg  => Exception.error (mkMessageAux ctx (replaceRef ref ctx.ref) msg MessageSeverity.error)
-| Core.Exception.io error       => Exception.io error
-| Core.Exception.kernel ex opts => Exception.error (mkMessageAux ctx ctx.ref (ex.toMessageData opts) MessageSeverity.error)
+Exception.error $ mkMessageAux ctx ex.ref ex.msg MessageSeverity.error
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
 s ← get;
@@ -95,10 +92,6 @@ adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
 let ref := getBetterRef ref ctx.macroStack;
 mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeverity.error
-
--- This instance is needed for StateRefT
-instance monadIOAux : MonadIO (EIO Exception) :=
-{ liftIO := fun _ x => adaptExcept (fun ex => Exception.error { fileName := "<unavaiable>", pos := ⟨0, 0⟩, data := toString ex }) x }
 
 @[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α :=
 liftM x
@@ -179,7 +172,6 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
     | Exception.error _           => throw ex
-    | Exception.io _              => throw ex
     | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
@@ -258,13 +250,11 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
 ctx ← read;
 s   ← get;
 let scope := s.scopes.head!;
-let Eα    := Except Term.Exception α;
-let x : TermElabM Eα := catch (do a ← x; pure $ Except.ok a) (fun ex => pure $ Except.error ex);
-let x : EMetaM Term.Exception (Eα × Term.State) := (x (mkTermContext ctx s declName?)).run { messages := s.messages, nextMacroScope := s.nextMacroScope };
-let x : ECoreM Term.Exception (Eα × Term.State) := (x mkMetaContext).run' {};
-let x : EIO Term.Exception ((Eα × Term.State) × Core.State) := (x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
-let x : EIO Exception ((Eα × Term.State) × Core.State) := adaptExcept fromTermException x;
-((ea, termS), coreS) ← liftM x;
+let x : EMetaM _ _      := (observing x).run (mkTermContext ctx s declName?) { messages := s.messages, nextMacroScope := s.nextMacroScope };
+let x : ECoreM _ _      := x.run mkMetaContext {};
+let x : EIO _ _         := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
+let x : EIO Exception _ := adaptExcept fromTermException x;
+(((ea, termS), _), coreS) ← liftEIO x;
 modify fun s => { s with env := coreS.env, messages := termS.messages, ngen := coreS.ngen };
 match ea with
 | Except.ok a     => pure a
@@ -276,7 +266,6 @@ s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x (fun ex => match ex with
   | Exception.error ex          => do logMessage ex; pure ()
-  | Exception.io _              => throw ex
   | Exception.unsupportedSyntax => unreachable!)
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
@@ -568,7 +557,6 @@ succeeded ← finally
      (do x; hasNoErrorMessages)
      (fun ex => match ex with
        | Exception.error msg         => do modify (fun s => { s with messages := s.messages.add msg }); pure false
-       | Exception.io ex             => do logError (toString ex); pure false
        | Exception.unsupportedSyntax => do logError "unsupported syntax"; pure false))
   (restoreMessages prevMessages);
 when succeeded $

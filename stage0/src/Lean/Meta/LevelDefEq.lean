@@ -109,7 +109,7 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
         ctx ← read;
         if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
           trace! `Meta.isLevelDefEq.stuck (lhs ++ " =?= " ++ rhs);
-          throwEx $ Exception.isLevelDefEqStuck lhs rhs
+          throw Exception.isDefEqStuck
         else
           pure false
       else do

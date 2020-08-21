@@ -12,8 +12,6 @@ import Lean.Util.PPGoal
 namespace Lean
 namespace Meta
 
-abbrev ExceptionContext := MessageDataContext
-
 inductive Exception
 | isDefEqStuck
 | core          (ex : Core.Exception)
@@ -24,9 +22,6 @@ instance : Inhabited Exception := ⟨core $ arbitrary _⟩
 def getRef : Exception → Syntax
 | core ex => ex.ref
 | _       => Syntax.missing
-
-def mkCtx (ctx : ExceptionContext) (m : MessageData) : MessageData :=
-MessageData.withContext ctx m
 
 def toMessageData : Exception → MessageData
 | isDefEqStuck => "<isDefEqStuck>"

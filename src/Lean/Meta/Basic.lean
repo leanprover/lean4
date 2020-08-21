@@ -287,13 +287,6 @@ mvarId ← mkFreshId;
 modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
 
-@[inline] def throwEx {α} (f : ExceptionContext → Exception) : MetaM α := do
-env  ← getEnv;
-mctx ← getMCtx;
-lctx ← getLCtx;
-opts ← getOptions;
-throw (f { env := env, mctx := mctx, lctx := lctx, opts := opts })
-
 @[inline] def ofExcept {α ε} [HasToString ε] (x : Except ε α) : MetaM α :=
 match x with
 | Except.ok a    => pure a

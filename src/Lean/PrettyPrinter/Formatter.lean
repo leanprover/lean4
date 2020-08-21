@@ -13,6 +13,7 @@ parser-specific handlers registered via attributes. The traversal is right-to-le
 already know the text following it and can decide whether or not whitespace between the two is necessary.
 -/
 
+import Lean.CoreM
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
@@ -33,9 +34,12 @@ structure State :=
 -- Note, however, that the stack is reversed because of the right-to-left traversal.
 (stack    : Array Format := #[])
 
+-- see `orelse.parenthesizer`
+structure BacktrackException := mk
+
 end Formatter
 
-abbrev FormatterM := ReaderT Formatter.Context $ StateT Formatter.State MetaM
+abbrev FormatterM := ReaderT Formatter.Context $ StateT Formatter.State $ ExceptT Formatter.BacktrackException CoreM
 
 abbrev Formatter := FormatterM Unit
 
@@ -70,7 +74,7 @@ with `Formatter` in the parameter types."
 
 namespace Formatter
 
-open Lean.Meta
+open Lean.Core
 open Lean.Parser
 open Lean.Format
 
@@ -163,19 +167,16 @@ stack ← getStack;
 trace! `PrettyPrinter.format (" => " ++ (stack.extract sp stack.size).foldl (fun acc f => repr (toString f) ++ " " ++ acc) "")
 -/
 
-@[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter := do
-st ← get;
+@[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
 -- them in turn. Uses the syntax traverser non-linearly!
-catch p1 $ fun e => match e with
-  | Exception.core (Core.Exception.error _ "BACKTRACK") => set st *> p2
-  | _                                                   => throw e
+p1 <|> p2
 
 -- `mkAntiquot` is quite complex, so we'd rather have its formatter synthesized below the actual parser definition.
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
-@[extern 10 "lean_mk_antiquot_formatter"]
+@[extern 8 "lean_mk_antiquot_formatter"]
 constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
 arbitrary _
 
@@ -231,7 +232,7 @@ stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.formatter`
-  throw $ Exception.core $ Core.Exception.error Syntax.missing "BACKTRACK"
+  throw ⟨⟩
 }
 
 @[combinatorFormatter Lean.Parser.node]
@@ -284,7 +285,7 @@ goLeft
 def unicodeSymbol.formatter (sym asciiSym : String) : Formatter := do
 stx ← getCur;
 Syntax.atom _ val ← pure stx
-  | throw $ Exception.core $ Core.Exception.error Syntax.missing $ "not an atom: " ++ toString stx;
+  | liftM $ throwError $ "not an atom: " ++ toString stx;
 if val == sym.trim then
   pushToken sym
 else
@@ -394,12 +395,14 @@ if c then t else e
 end Formatter
 open Formatter
 
-def format (table : Parser.TokenTable) (formatter : Formatter) (stx : Syntax) : MetaM Format := Meta.withAtLeastTransparency Meta.TransparencyMode.default do
-(_, st) ← formatter { table := table } { stxTrav := Syntax.Traverser.fromSyntax stx };
+def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
+table ← Parser.builtinTokenTable.get;
+Except.ok (_, st) ← formatter { table := table } { stxTrav := Syntax.Traverser.fromSyntax stx }
+  | Core.throwError "format: uncaught backtrack exception";
 pure $ st.stack.get! 0
 
-def formatTerm (table) := format table $ categoryParser.formatter `term
-def formatCommand (table) := format table $ categoryParser.formatter `command
+def formatTerm := format $ categoryParser.formatter `term
+def formatCommand := format $ categoryParser.formatter `command
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter.format;

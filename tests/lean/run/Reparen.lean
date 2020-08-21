@@ -30,21 +30,20 @@ IO.print s;
 let cmds := stx.getArgs.extract 1 stx.getArgs.size;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
-  cmd ← (PrettyPrinter.parenthesizeCommand cmd).toIO
+  cmd ← (PrettyPrinter.parenthesizeCommand cmd).run
     env (KVMap.insert {} `trace.PrettyPrinter.parenthesize debug);
   some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 
-#eval main ["../../../src/Init/Core.lean"]
+--#eval main ["../../../src/Init/Core.lean"]
 
-def check (stx : Syntax) : MetaM Unit := do
+def check (stx : Syntax) : CoreM Unit := do
 let stx' := unparen stx;
 stx' ← PrettyPrinter.parenthesizeTerm stx';
-table ← Parser.builtinTokenTable.get;
-f ← PrettyPrinter.formatTerm table stx';
+f ← PrettyPrinter.formatTerm stx';
 IO.println f;
 when (stx != stx') $
-  Meta.throwError "reparenthesization failed"
+  Core.throwError "reparenthesization failed"
 
 new_frontend
 

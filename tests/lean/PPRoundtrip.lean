@@ -5,17 +5,14 @@ open Lean.Elab.Term
 open Lean.Elab.Command
 open Lean.Format
 
-def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : CoreM Unit := do
-env ← Core.getEnv;
-opts ← Core.getOptions;
-table ← Parser.builtinTokenTable.get;
-discard $ liftIO $ MetaHasEval.eval env opts do
+def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
   stx ← stx;
   e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
   stx' ← liftMetaM $ delab e optionsPerPos;
-  stx' ← liftMetaM $ PrettyPrinter.parenthesizeTerm stx';
-  f' ← liftMetaM $ PrettyPrinter.formatTerm table stx';
+  stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
+  f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
   dbgTrace $ toString f';
+  env ← getEnv;
   match Parser.runParserCategory env `term (toString f') "<input>" with
   | Except.error e => throwErrorAt stx e
   | Except.ok stx'' => do

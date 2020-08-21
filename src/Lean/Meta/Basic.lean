@@ -148,11 +148,20 @@ monadMap @f
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
-def throwError {α} (msg : MessageData) : MetaM α :=
-liftCoreM $ Core.throwError msg
+def getRef {ε} : EMetaM ε Syntax :=
+liftECoreM Core.getRef
 
-def addContext {ε} (msg : MessageData) : EMetaM ε MessageData :=
-liftECoreM $ Core.addContext msg
+def addContext {ε} (msg : MessageData) : EMetaM ε MessageData := do
+ctxCore ← readThe Core.Context;
+sCore   ← getThe Core.State;
+ctx     ← read;
+s       ← get;
+pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctxCore.options } msg
+
+def throwError {α} (msg : MessageData) : MetaM α := do
+ref ← getRef;
+msg ← addContext msg;
+throw $ Exception.core $ Core.Exception.error ref msg
 
 def checkRecDepth : MetaM Unit :=
 liftCoreM $ Core.checkRecDepth
@@ -160,9 +169,6 @@ liftCoreM $ Core.checkRecDepth
 @[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
 checkRecDepth;
 adaptTheReader Core.Context Core.Context.incCurrRecDepth x
-
-def getRef {ε} : EMetaM ε Syntax :=
-liftECoreM Core.getRef
 
 @[inline] def withRef {ε α} (ref : Syntax) (x : EMetaM ε α) : EMetaM ε α := do
 mapECoreM (fun α => Core.withRef ref) x
@@ -885,7 +891,7 @@ opts  ← getOptions;
 mctx  ← getMCtx;
 lctx  ← getLCtx;
 match Lean.mkAuxDefinition env opts mctx lctx name type value with
-| Except.error ex          => throw $ Exception.core $ Core.Exception.kernel ex opts
+| Except.error ex          => liftCoreM $ Core.throwKernelException ex
 | Except.ok (e, env, mctx) => do setEnv env; setMCtx mctx; pure e
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/

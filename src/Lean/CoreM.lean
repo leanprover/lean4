@@ -28,14 +28,12 @@ structure Context :=
 
 inductive Exception
 | io     (ex : IO.Error)
-| kernel (ex : KernelException) (opts : Options)
 | error  (ref : Syntax) (msg : MessageData)
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error Syntax.missing (arbitrary _)⟩
 
 def Exception.toMessageData : Exception → MessageData
 | Exception.io ex          => ex.toString
-| Exception.kernel ex opts => ex.toMessageData opts
 | Exception.error _ msg    => msg
 
 instance Exception.hasToString : HasToString Exception := ⟨fun ex => toString ex.toMessageData⟩
@@ -53,8 +51,14 @@ adaptExcept Exception.io x
 instance : MonadIO (EIO Exception) :=
 { liftIO := @liftIOCore }
 
+def addContext {ε} (msg : MessageData) : ECoreM ε MessageData := do
+ctx ← read;
+s   ← get;
+pure $ MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := ctx.options } msg
+
 def throwError {α} (msg : MessageData) : CoreM α := do
 ctx ← read;
+msg ← addContext msg;
 throw $ Exception.error ctx.ref msg
 
 def ofExcept {ε α} [HasToString ε] (x : Except ε α) : CoreM α :=
@@ -119,29 +123,28 @@ adaptReader (Context.replaceRef ref) x
 @[inline] private def getTraceState {ε} : ECoreM ε TraceState := do
 s ← get; pure s.traceState
 
-def addContext {ε} (msg : MessageData) : ECoreM ε MessageData := do
-ctx ← read;
-s   ← get;
-pure $ MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := ctx.options } msg
-
 instance tracer {ε} : SimpleMonadTracerAdapter (ECoreM ε) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   addContext       := addContext,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
 
+def throwKernelException {α} (ex : KernelException) : CoreM α := do
+opts ← getOptions;
+throwError $ ex.toMessageData opts
+
 def addDecl (decl : Declaration) : CoreM Unit := do
 env ← getEnv;
 match env.addDecl decl with
 | Except.ok    env => setEnv env
-| Except.error ex  => do opts ← getOptions; throw $ Exception.kernel ex opts
+| Except.error ex  => throwKernelException ex
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
 env  ← getEnv;
 opts ← getOptions;
 match env.compileDecl opts decl with
 | Except.ok env   => setEnv env
-| Except.error ex => do opts ← getOptions; throw $ Exception.kernel ex opts
+| Except.error ex => throwKernelException ex
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do
 addDecl decl;
@@ -170,7 +173,6 @@ modify fun s => { s with traceState := {} }
 adaptExcept
   (fun ex => match ex with
     | Exception.io ex         => ex
-    | Exception.kernel ex opt => IO.userError $ toString $ format $ ex.toMessageData opt
     | Exception.error _ msg   => IO.userError $ toString $ format $ msg)
   (x.run ctx s)
 

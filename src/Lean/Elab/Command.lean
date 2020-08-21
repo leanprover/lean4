@@ -68,7 +68,6 @@ def fromCoreException (ctx : Context) (ex : Core.Exception) : Exception :=
 match ex with
 | Core.Exception.error ref msg  => Exception.error (mkMessageAux ctx (replaceRef ref ctx.ref) msg MessageSeverity.error)
 | Core.Exception.io error       => Exception.io error
-| Core.Exception.kernel ex opts => Exception.error (mkMessageAux ctx ctx.ref (ex.toMessageData opts) MessageSeverity.error)
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
 s ← get;

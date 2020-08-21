@@ -40,8 +40,11 @@ cmds.forM $ fun cmd => do
 def check (stx : Syntax) : MetaM Unit := do
 let stx' := unparen stx;
 stx' ← PrettyPrinter.parenthesizeTerm stx';
+table ← Parser.builtinTokenTable.get;
+f ← PrettyPrinter.formatTerm table stx';
+IO.println f;
 when (stx != stx') $
-  Meta.throwOther "reparenthesization failed"
+  Meta.throwError "reparenthesization failed"
 
 new_frontend
 

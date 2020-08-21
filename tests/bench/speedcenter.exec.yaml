@@ -9,11 +9,19 @@
       #  properties: ['cache-misses', 'wall-clock']
   run_config:
     <<: *time
-    cwd: ../../src
+    cwd: ../../build/release/stage0
     cmd: |
-      bash -c "find . -name '*.lean' -exec lean --stats -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
-    max_runs: 3
+      find lib/lean ! -name libleancpp.a -delete
+      # for C profiling
+      #PROFILE=1 CCACHE_DISABLE=1
+      LEANMAKE_OPTS=LEAN_OPTS="--stats\ -Dprofiler=true\ -Dprofiler.threshold=9999" make -O -j5 make_stdlib 2>&1 > /dev/null | ../../../tests/bench/accumulate_profile.py
+    max_runs: 2
     parse_output: true
+  # Warmup. Somehow ccache doesn't reuse the cache from the original build? Weird.
+  build_config:
+    cmd: |
+      find lib/lean/ ! -name libleancpp.a -type f -delete
+      make -j5 make_stdlib
 - attributes:
     description: stdlib size
     tags: [deterministic, fast]

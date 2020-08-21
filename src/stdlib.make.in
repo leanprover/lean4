@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash -euo pipefail
 
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
-LEANMAKE_OPTS=\
+LEANMAKE_OPTS+=\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\

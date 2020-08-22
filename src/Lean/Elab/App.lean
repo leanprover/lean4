@@ -362,7 +362,7 @@ match eType.getAppFn, lval with
 | _, _ =>
   throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
-private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Core.Exception → TermElabM LValResolution
+private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Exception → TermElabM LValResolution
 | eType, previousExceptions => do
   eType ← whnfCore eType;
   tryPostponeIfMVar eType;

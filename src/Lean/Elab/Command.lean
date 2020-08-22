@@ -65,7 +65,7 @@ let scope      := s.scopes.head!;
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
 s ← get;
 ctx ← read;
-let Eα := Except Core.Exception α;
+let Eα := Except Exception α;
 let x : CoreM Eα := catch (do a ← x; pure $ Except.ok a) (fun ex => pure $ Except.error ex);
 let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen };
 (ea, coreS) ← liftM x;

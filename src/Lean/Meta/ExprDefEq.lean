@@ -371,10 +371,10 @@ structure Context :=
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ MetaM
 
 def throwCheckAssignmentFailure {α} : CheckAssignmentM α :=
-throw $ Core.Exception.internal checkAssignmentExceptionId
+throw $ Exception.internal checkAssignmentExceptionId
 
 def throwOutOfScopeFVar {α} : CheckAssignmentM α :=
-throw $ Core.Exception.internal outOfScopeExceptionId
+throw $ Exception.internal outOfScopeExceptionId
 
 private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
 s ← get;

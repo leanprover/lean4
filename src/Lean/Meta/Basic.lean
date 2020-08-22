@@ -154,10 +154,10 @@ pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.l
 def throwError {α} (msg : MessageData) : MetaM α := do
 ref ← getRef;
 msg ← addContext msg;
-throw $ Core.Exception.error ref msg
+throw $ Exception.error ref msg
 
 def throwIsDefEqStuck {α} : MetaM α :=
-throw $ Core.Exception.internal isDefEqStuckExceptionId
+throw $ Exception.internal isDefEqStuckExceptionId
 
 def checkRecDepth : MetaM Unit :=
 liftM $ Core.checkRecDepth

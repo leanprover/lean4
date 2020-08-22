@@ -8,6 +8,7 @@ import Init.Control.StateRef
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Environment
+import Lean.Exception
 import Lean.InternalExceptionId
 import Lean.Eval
 
@@ -26,20 +27,6 @@ structure Context :=
 (currRecDepth   : Nat := 0)
 (maxRecDepth    : Nat := 1000)
 (ref            : Syntax := Syntax.missing)
-
-inductive Exception
-| error (ref : Syntax) (msg : MessageData)
-| internal (id : InternalExceptionId)
-
-def Exception.toMessageData : Exception → MessageData
-| Exception.error _ msg => msg
-| Exception.internal id => id.toString
-
-def Exception.getRef : Exception → Syntax
-| Exception.error ref _ => ref
-| Exception.internal _  => Syntax.missing
-
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 
 abbrev CoreM := ReaderT Context $ StateRefT State $ EIO Exception
 
@@ -188,7 +175,7 @@ instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 
 end Core
 
-export Core (CoreM Exception Exception.error Exception.internal)
+export Core (CoreM)
 
 @[inline] def catchInternalId {α} {m : Type → Type} [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α :=
 catch x fun ex => match ex with

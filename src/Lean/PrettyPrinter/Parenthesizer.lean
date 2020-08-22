@@ -75,6 +75,7 @@ import Lean.CoreM
 import Lean.KeyedDeclsAttribute
 import Lean.Parser.Extension
 import Lean.ParserCompiler.Attribute
+import Lean.PrettyPrinter.Backtrack
 
 namespace Lean
 namespace PrettyPrinter
@@ -96,14 +97,18 @@ structure State :=
 -- true iff we have already visited a token on this parser level; used for detecting trailing parsers
 (visitedToken : Bool := false)
 
--- see `orelse.parenthesizer`
-structure BacktrackException := mk
-
 end Parenthesizer
 
-abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateT Parenthesizer.State $ ExceptT Parenthesizer.BacktrackException CoreM
-
+abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateRefT Parenthesizer.State $ CoreM
 abbrev Parenthesizer := ParenthesizerM Unit
+
+@[inline] def ParenthesizerM.orelse {α} (p₁ p₂ : ParenthesizerM α) : ParenthesizerM α := do
+s ← get;
+catchInternalId backtrackExceptionId
+  p₁
+  (fun _ => do set s; p₂)
+
+instance Parenthesizer.orelse {α} : HasOrelse (ParenthesizerM α) := ⟨ParenthesizerM.orelse⟩
 
 unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
 KeyedDeclsAttribute.init {
@@ -159,6 +164,9 @@ namespace Parenthesizer
 
 open Lean.Core
 open Lean.Format
+
+def throwBacktrack {α} : ParenthesizerM α :=
+throw $ Exception.internal backtrackExceptionId
 
 instance ParenthesizerM.monadTraverser : Syntax.MonadTraverser ParenthesizerM := ⟨{
   get       := State.stxTrav <$> get,
@@ -296,7 +304,7 @@ def term.parenthesizer : CategoryParenthesizer | prec => do
 stx ← getCur;
 -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
 if stx.getKind == nullKind then
-  throw ⟨⟩
+  throwBacktrack
 else do
   maybeParenthesize `term (fun stx => Unhygienic.run `(($stx))) prec $
     parenthesizeCategoryCore `term prec
@@ -329,7 +337,7 @@ stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw ⟨⟩
+  throwBacktrack
 };
 visitArgs p
 
@@ -352,7 +360,7 @@ stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.parenthesize.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
   -- HACK; see `orelse.parenthesizer`
-  throw ⟨⟩
+  throwBacktrack
 };
 visitArgs $ do {
   p;
@@ -439,10 +447,12 @@ end Parenthesizer
 open Parenthesizer
 
 /-- Add necessary parentheses in `stx` parsed by `parser`. -/
-def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : CoreM Syntax := do
-Except.ok (_, st) ← parenthesizer {} { stxTrav := Syntax.Traverser.fromSyntax stx }
-  | Core.throwError "parenthesize: uncaught backtrack exception";
-pure st.stxTrav.cur
+def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : CoreM Syntax :=
+catchInternalId backtrackExceptionId
+  (do
+    (_, st) ← (parenthesizer {}).run { stxTrav := Syntax.Traverser.fromSyntax stx };
+    pure st.stxTrav.cur)
+  (fun _ => Core.throwError "parenthesize: uncaught backtrack exception")
 
 def parenthesizeTerm := parenthesize $ categoryParser.parenthesizer `term 0
 def parenthesizeCommand := parenthesize $ categoryParser.parenthesizer `command 0

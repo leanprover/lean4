@@ -17,6 +17,7 @@ import Lean.CoreM
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
+import Lean.PrettyPrinter.Backtrack
 
 namespace Lean
 namespace PrettyPrinter
@@ -34,12 +35,17 @@ structure State :=
 -- Note, however, that the stack is reversed because of the right-to-left traversal.
 (stack    : Array Format := #[])
 
--- see `orelse.parenthesizer`
-structure BacktrackException := mk
-
 end Formatter
 
-abbrev FormatterM := ReaderT Formatter.Context $ StateT Formatter.State $ ExceptT Formatter.BacktrackException CoreM
+abbrev FormatterM := ReaderT Formatter.Context $ StateRefT Formatter.State $ CoreM
+
+@[inline] def FormatterM.orelse {α} (p₁ p₂ : FormatterM α) : FormatterM α := do
+s ← get;
+catchInternalId backtrackExceptionId
+  p₁
+  (fun _ => do set s; p₂)
+
+instance Formatter.orelse {α} : HasOrelse (FormatterM α) := ⟨FormatterM.orelse⟩
 
 abbrev Formatter := FormatterM Unit
 
@@ -77,6 +83,9 @@ namespace Formatter
 open Lean.Core
 open Lean.Parser
 open Lean.Format
+
+def throwBacktrack {α} : FormatterM α :=
+throw $ Exception.internal backtrackExceptionId
 
 instance FormatterM.monadTraverser : Syntax.MonadTraverser FormatterM := ⟨{
   get       := State.stxTrav <$> get,
@@ -240,8 +249,7 @@ def checkKind (k : SyntaxNodeKind) : FormatterM Unit := do
 stx ← getCur;
 when (k != stx.getKind) $ do {
   trace! `PrettyPrinter.format.backtrack ("unexpected node kind '" ++ toString stx.getKind ++ "', expected '" ++ toString k ++ "'");
-  -- HACK; see `orelse.formatter`
-  throw ⟨⟩
+  throwBacktrack
 }
 
 @[combinatorFormatter Lean.Parser.node]
@@ -406,9 +414,11 @@ open Formatter
 
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
 table ← Parser.builtinTokenTable.get;
-Except.ok (_, st) ← formatter { table := table } { stxTrav := Syntax.Traverser.fromSyntax stx }
-  | Core.throwError "format: uncaught backtrack exception";
-pure $ st.stack.get! 0
+catchInternalId backtrackExceptionId
+  (do
+    (_, st) ← (formatter { table := table }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
+    pure $ st.stack.get! 0)
+  (fun _ => Core.throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term
 def formatCommand := format $ categoryParser.formatter `command

@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
-#define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 100
+#define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 5000
 #endif
 
 namespace lean {

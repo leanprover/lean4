@@ -160,7 +160,7 @@ setTraceState {};
 finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
 
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
-liftMetaM $ Meta.liftCoreM x
+liftMetaM $ liftM x
 
 def getEnv : TermElabM Environment := do s ← getThe Core.State; pure s.env
 def getMCtx : TermElabM MetavarContext := do s ← getThe Meta.State; pure s.mctx

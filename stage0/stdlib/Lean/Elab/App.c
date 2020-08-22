@@ -77,7 +77,6 @@ lean_object* l___private_Lean_Elab_App_5__getForallBody(lean_object*, lean_objec
 lean_object* l___private_Lean_Elab_App_14__resolveLValLoop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabApp___closed__1;
-lean_object* l_Lean_Core_Exception_toMessageData(lean_object*);
 uint8_t l___private_Lean_Elab_App_9__nextArgIsHole(lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_12__throwLValError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -182,7 +181,6 @@ lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_5__getForallBody___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_17__addLValArg___main___closed__6;
-lean_object* l_Lean_Core_Exception_getRef(lean_object*);
 lean_object* l___private_Lean_Elab_App_4__tryCoeFun___closed__5;
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_logException(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -325,6 +323,7 @@ lean_object* l___private_Lean_Elab_App_13__resolveLValAux___closed__10;
 lean_object* l_Lean_Elab_Term_whnfCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_25__elabAppAux___closed__1;
 lean_object* l___private_Lean_Elab_App_13__resolveLValAux___closed__20;
+lean_object* l_Lean_Exception_getRef(lean_object*);
 lean_object* l___private_Lean_Elab_App_4__tryCoeFun___closed__2;
 lean_object* l___private_Lean_Elab_App_12__throwLValError___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_App_20__elabAppFnId___spec__1___rarg(lean_object*);
@@ -426,6 +425,7 @@ uint8_t l_Lean_isStructure(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_11__elabAppArgs___closed__2;
 lean_object* l___private_Lean_Elab_App_11__elabAppArgs(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_10__elabAppArgsAux___main___closed__7;
+lean_object* l_Lean_Exception_toMessageData(lean_object*);
 lean_object* l___private_Lean_Elab_App_21__elabAppFn___main___closed__3;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Arg_inhabited;
@@ -13176,14 +13176,14 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_ctor_get(x_9, 0);
-x_12 = l_Lean_Core_Exception_getRef(x_1);
+x_12 = l_Lean_Exception_getRef(x_1);
 x_13 = l_Lean_Syntax_getPos(x_12);
 lean_dec(x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
 lean_dec(x_11);
-x_14 = l_Lean_Core_Exception_toMessageData(x_1);
+x_14 = l_Lean_Exception_toMessageData(x_1);
 lean_ctor_set(x_9, 0, x_14);
 return x_9;
 }
@@ -13226,7 +13226,7 @@ x_30 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__8;
 x_31 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Lean_Core_Exception_toMessageData(x_1);
+x_32 = l_Lean_Exception_toMessageData(x_1);
 x_33 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
@@ -13237,7 +13237,7 @@ else
 {
 lean_object* x_34; 
 lean_dec(x_15);
-x_34 = l_Lean_Core_Exception_toMessageData(x_1);
+x_34 = l_Lean_Exception_toMessageData(x_1);
 lean_ctor_set(x_9, 0, x_34);
 return x_9;
 }
@@ -13251,14 +13251,14 @@ x_36 = lean_ctor_get(x_9, 1);
 lean_inc(x_36);
 lean_inc(x_35);
 lean_dec(x_9);
-x_37 = l_Lean_Core_Exception_getRef(x_1);
+x_37 = l_Lean_Exception_getRef(x_1);
 x_38 = l_Lean_Syntax_getPos(x_37);
 lean_dec(x_37);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; 
 lean_dec(x_35);
-x_39 = l_Lean_Core_Exception_toMessageData(x_1);
+x_39 = l_Lean_Exception_toMessageData(x_1);
 x_40 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_40, 0, x_39);
 lean_ctor_set(x_40, 1, x_36);
@@ -13303,7 +13303,7 @@ x_56 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__8;
 x_57 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_57, 0, x_55);
 lean_ctor_set(x_57, 1, x_56);
-x_58 = l_Lean_Core_Exception_toMessageData(x_1);
+x_58 = l_Lean_Exception_toMessageData(x_1);
 x_59 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
@@ -13316,7 +13316,7 @@ else
 {
 lean_object* x_61; lean_object* x_62; 
 lean_dec(x_41);
-x_61 = l_Lean_Core_Exception_toMessageData(x_1);
+x_61 = l_Lean_Exception_toMessageData(x_1);
 x_62 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_36);

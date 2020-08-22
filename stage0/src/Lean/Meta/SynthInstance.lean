@@ -154,9 +154,6 @@ structure State :=
 
 abbrev SynthM := StateRefT State MetaM
 
-@[inline] def liftMetaM {α} (x : MetaM α) : SynthM α :=
-liftM x
-
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
 monadMap @f
 
@@ -205,7 +202,7 @@ else do
 def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
 withMCtx mctx $ do
   trace! `Meta.synthInstance.newSubgoal key;
-  node? ← liftMetaM $ mkGeneratorNode? key mvar;
+  node? ← liftM $ mkGeneratorNode? key mvar;
   match node? with
   | none      => pure ()
   | some node =>
@@ -232,8 +229,8 @@ match entry? with
   We must instantiate assigned metavariables before we invoke `mkTableKey`. -/
 def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
 withMCtx mctx $ do
-  mvarType ← liftMetaM $ inferType mvar;
-  mvarType ← liftMetaM $ instantiateMVars mvarType;
+  mvarType ← liftM $ inferType mvar;
+  mvarType ← liftM $ instantiateMVars mvarType;
   pure $ mkTableKey mctx mvarType
 
 /- See `getSubgoals` and `getSubgoalsAux`
@@ -317,13 +314,13 @@ forallTelescopeReducing mvarType $ fun xs mvarTypeBody => do
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
-liftMetaM $ traceCtx `Meta.synthInstance.tryResolve $ Meta.withMCtx mctx $ tryResolveCore mvar inst
+liftM $ traceCtx `Meta.synthInstance.tryResolve $ Meta.withMCtx mctx $ tryResolveCore mvar inst
 
 /--
   Assign a precomputed answer to `mvar`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals. -/
 def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option MetavarContext) :=
-liftMetaM $ Meta.withMCtx mctx $ do
+liftM $ Meta.withMCtx mctx $ do
   (_, _, val) ← openAbstractMVarsResult answer.result;
   condM (isDefEq mvar val)
     (do mctx ← getMCtx; pure $ some mctx)
@@ -335,7 +332,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
   if answer.result.paramNames.isEmpty && answer.result.numMVars == 0 then do
     modify $ fun s => { s with result := answer.result.expr }
   else do
-    (_, _, answerExpr) ← liftMetaM $ openAbstractMVarsResult answer.result;
+    (_, _, answerExpr) ← liftM $ openAbstractMVarsResult answer.result;
     trace! `Meta.synthInstance ("skip answer containing metavariables " ++ answerExpr);
     pure ()
 | Waiter.consumerNode cNode => modify $ fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
@@ -359,7 +356,7 @@ Meta.withMCtx cNode.mctx do
   That is, `cNode.subgoals == []`.
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
-answer ← liftMetaM $ mkAnswer cNode;
+answer ← liftM $ mkAnswer cNode;
 -- Remark: `answer` does not contain assignable or assigned metavariables.
 let key := cNode.key;
 entry ← getEntry key;
@@ -425,7 +422,7 @@ match cNode.subgoals with
   match result? with
   | none      => pure ()
   | some mctx => do
-    liftMetaM $ Meta.withMCtx mctx $ traceM `Meta.synthInstance.resume $ do {
+    liftM $ Meta.withMCtx mctx $ traceM `Meta.synthInstance.resume $ do {
       goal    ← inferType cNode.mvar;
       subgoal ← inferType mvar;
       pure (goal ++ " <== " ++ subgoal)

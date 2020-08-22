@@ -319,7 +319,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_pow(lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Term_match__syntax_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_eq___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_match_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkStackTop_parenthesizer___boxed(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkStackTop_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_listLit___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_doExpr___closed__4;
 lean_object* l_Lean_Parser_Term_letEqnsDecl___closed__1;
@@ -936,7 +936,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_obj
 lean_object* l_Lean_Parser_Term_unicodeInfixR_parenthesizer___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_not_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_implicitBinder___closed__4;
-lean_object* l_Lean_PrettyPrinter_Formatter_checkStackTop_formatter___boxed(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_checkStackTop_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_nonEmptySeq___closed__4;
 lean_object* l_Lean_Parser_Term_fun___elambda__1___closed__11;
 lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoWs_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1142,7 +1142,7 @@ lean_object* l___regBuiltin_Lean_Parser_Term_hole_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_suffices___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_add___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_have___elambda__1___closed__6;
-lean_object* l_Lean_PrettyPrinter_Formatter_checkColGe_formatter___boxed(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_checkColGe_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_seqRight___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_seqLeft_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_doElem___closed__3;
@@ -1555,7 +1555,7 @@ lean_object* l_Lean_Parser_Term_letIdDecl___elambda__1(lean_object*, lean_object
 lean_object* l___regBuiltin_Lean_Parser_Level_quot_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_equiv___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_explicit_parenthesizer___closed__4;
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkWsBefore_parenthesizer___boxed(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkWsBefore_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_app_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_not___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_doElem___closed__4;
@@ -3513,7 +3513,7 @@ lean_object* l___regBuiltin_Lean_Parser_Term_append_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Term_subst_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___regBuiltinParser_Lean_Parser_Level_num___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_bnot_parenthesizer(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkColGe_parenthesizer___boxed(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkColGe_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_app___closed__2;
 lean_object* l_Lean_Parser_Term_namedArgument_parenthesizer___closed__5;
 lean_object* l___regBuiltin_Lean_Parser_Term_heq_formatter(lean_object*);
@@ -6520,7 +6520,7 @@ lean_object* _init_l_Lean_Parser_Term_type_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_checkWsBefore_parenthesizer___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_checkWsBefore_parenthesizer___boxed), 4, 0);
 return x_1;
 }
 }
@@ -35754,6 +35754,7 @@ lean_object* x_6;
 x_6 = l_Lean_Parser_darrow_formatter(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_6;
 }
 }
@@ -35945,6 +35946,7 @@ lean_object* x_5;
 x_5 = l_Lean_Parser_darrow_parenthesizer___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -41387,7 +41389,7 @@ lean_object* _init_l_Lean_Parser_Term_matchAlts_formatter___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_checkColGe_formatter___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_checkColGe_formatter___boxed), 4, 0);
 return x_1;
 }
 }
@@ -41786,7 +41788,7 @@ lean_object* _init_l_Lean_Parser_Term_matchAlts_parenthesizer___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_checkColGe_parenthesizer___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_checkColGe_parenthesizer___boxed), 4, 0);
 return x_1;
 }
 }
@@ -52620,6 +52622,7 @@ lean_object* x_6;
 x_6 = l_Lean_Parser_Term_leftArrow_formatter(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_6;
 }
 }
@@ -52724,6 +52727,7 @@ lean_object* x_5;
 x_5 = l_Lean_Parser_Term_leftArrow_parenthesizer___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -61468,7 +61472,7 @@ lean_object* _init_l_Lean_Parser_Term_explicitUniv_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_checkStackTop_formatter___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_checkStackTop_formatter___boxed), 4, 0);
 return x_1;
 }
 }
@@ -61567,7 +61571,7 @@ lean_object* _init_l_Lean_Parser_Term_explicitUniv_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_checkStackTop_parenthesizer___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_checkStackTop_parenthesizer___boxed), 4, 0);
 return x_1;
 }
 }

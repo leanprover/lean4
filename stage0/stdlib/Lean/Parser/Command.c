@@ -3346,6 +3346,7 @@ lean_object* x_5;
 x_5 = l_Lean_Parser_Command_commentBody_parenthesizer___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -3374,6 +3375,7 @@ lean_object* x_6;
 x_6 = l_Lean_Parser_Command_commentBody_formatter(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_6;
 }
 }

@@ -250,6 +250,7 @@ lean_object* l_Lean_Elab_Command_elabCheck___boxed(lean_object*, lean_object*, l
 lean_object* l_Lean_Elab_Command_Lean_Elab_MonadMacroAdapter___closed__9;
 lean_object* l_Lean_Elab_Command_CommandElabM_monadLog___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Exception_inhabited___closed__1;
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 extern lean_object* l_Lean_Core_checkRecDepth___closed__2;
 lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
@@ -520,7 +521,6 @@ lean_object* l_Lean_Elab_Command_mkCommandElabAttribute___closed__2;
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_Elab_Command_elabCommand___main___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elbChoice___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Core_Exception_inhabited___closed__1;
 lean_object* l_Lean_Elab_Command_getMainModule___rarg(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabOpen(lean_object*);
 lean_object* l___private_Lean_Elab_Command_4__getVarDecls___boxed(lean_object*);
@@ -5861,7 +5861,7 @@ lean_object* _init_l_Lean_Elab_Command_CommandElabM_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Core_Exception_inhabited___closed__1;
+x_1 = l_Lean_Exception_inhabited___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Command_CommandElabM_inhabited___lambda__1___boxed), 4, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -15194,7 +15194,7 @@ lean_object* l_Lean_Elab_Command_elabEval___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Core_Exception_inhabited___closed__1;
+x_2 = l_Lean_Exception_inhabited___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

@@ -150,6 +150,7 @@ lean_object* l___private_Lean_Elab_Inductive_11__checkHeaders___main(lean_object
 lean_object* l_List_map___main___at___private_Lean_Elab_Inductive_32__applyInferMod___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_restoreSynthInstanceCache(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Inductive_31__mkCtor2InferMod___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__10;
 lean_object* l_List_map___main___at___private_Lean_Elab_Inductive_32__applyInferMod___spec__1___closed__1;
 lean_object* l___private_Lean_Elab_Inductive_14__withInductiveLocalDecls___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___main___at___private_Lean_Elab_Inductive_22__collectUniverses___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -247,7 +248,6 @@ lean_object* l___private_Lean_Elab_Inductive_33__mkInductiveDecl(lean_object*, l
 lean_object* l___private_Lean_Elab_Inductive_23__updateResultingUniverse___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_23__updateResultingUniverse___closed__1;
 lean_object* l_Lean_Core_Context_replaceRef(lean_object*, lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__11;
 lean_object* l___private_Lean_Elab_Inductive_19__getResultingUniverse___closed__1;
 lean_object* l_Lean_Elab_Command_shouldInferResultUniverse___closed__2;
 lean_object* l_Lean_Elab_Command_accLevelAtCtor___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2552,7 +2552,7 @@ x_74 = l___private_Lean_Elab_Inductive_9__checkParamsAndResultType___main___clos
 x_75 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_75, 0, x_74);
 lean_ctor_set(x_75, 1, x_73);
-x_76 = l_Lean_PrettyPrinter_Formatter_checkKind___closed__11;
+x_76 = l_Lean_PrettyPrinter_Formatter_checkKind___closed__10;
 x_77 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_77, 0, x_75);
 lean_ctor_set(x_77, 1, x_76);

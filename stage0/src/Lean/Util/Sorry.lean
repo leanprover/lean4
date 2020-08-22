@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Message
-import Lean.CoreM
+import Lean.Exception
 
 namespace Lean
 
@@ -55,7 +55,7 @@ partial def MessageData.hasSyntheticSorry : MessageData → Bool
 | MessageData.node msgs         => msgs.any MessageData.hasSyntheticSorry
 | _                             => false
 
-def Core.Exception.hasSyntheticSorry : Exception → Bool
+def Exception.hasSyntheticSorry : Exception → Bool
 | Exception.error _ msg => msg.hasSyntheticSorry
 | _                     => false
 

@@ -18,6 +18,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_5__getGeneralizingFVarIds___
 extern lean_object* l_Lean_Core_getConstInfo___closed__5;
 lean_object* l_Lean_Elab_Tactic_evalCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
+extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__28;
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Elab_Tactic_Induction_14__getRecInfo___spec__2___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Induction_13__getRecInfoDefault___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_17__checkCasesResultAux___main___closed__3;
@@ -219,7 +220,6 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_16__processResult___closed__
 lean_object* l___private_Lean_Elab_Tactic_Induction_16__processResult___closed__1;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__29;
 extern lean_object* l_Lean_MessageData_arrayExpr_toMessageData___main___closed__2;
 lean_object* l_Lean_Elab_Tactic_getRecFromUsing___closed__4;
 extern lean_object* l_Lean_mkHole___closed__2;
@@ -7126,7 +7126,7 @@ lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_39, 0, x_35);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__29;
+x_40 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__28;
 x_41 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);

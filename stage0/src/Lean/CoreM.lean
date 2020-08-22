@@ -8,6 +8,7 @@ import Init.Control.StateRef
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Environment
+import Lean.Exception
 import Lean.InternalExceptionId
 import Lean.Eval
 
@@ -27,22 +28,7 @@ structure Context :=
 (maxRecDepth    : Nat := 1000)
 (ref            : Syntax := Syntax.missing)
 
-inductive Exception
-| error (ref : Syntax) (msg : MessageData)
-| internal (id : InternalExceptionId)
-
-def Exception.toMessageData : Exception → MessageData
-| Exception.error _ msg => msg
-| Exception.internal id => id.toString
-
-def Exception.getRef : Exception → Syntax
-| Exception.error ref _ => ref
-| Exception.internal _  => Syntax.missing
-
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
-
-abbrev ECoreM (ε : Type) := ReaderT Context $ StateRefT State $ EIO ε
-abbrev CoreM := ECoreM Exception
+abbrev CoreM := ReaderT Context $ StateRefT State $ EIO Exception
 
 instance CoreM.inhabited {α} : Inhabited (CoreM α) :=
 ⟨fun _ _ => throw $ arbitrary _⟩
@@ -52,9 +38,7 @@ ctx ← read; pure ctx.ref
 
 @[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
 ref ← getRef;
-adaptExcept
-  (fun (err : IO.Error) => Exception.error ref (toString err))
-  (liftM x : ECoreM IO.Error α)
+liftM $ (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)) x : EIO Exception α)
 
 instance : MonadIO CoreM :=
 { liftIO := @liftIOCore }
@@ -171,10 +155,10 @@ traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
 def resetTraceState : CoreM Unit :=
 modify fun s => { s with traceState := {} }
 
-@[inline] def ECoreM.run {ε α} (x : ECoreM ε α) (ctx : Context) (s : State) : EIO ε (α × State) :=
+@[inline] def CoreM.run {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
 (x.run ctx).run s
 
-@[inline] def ECoreM.run' {ε α} (x : ECoreM ε α) (ctx : Context) (s : State) : EIO ε α :=
+@[inline] def CoreM.run' {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
 Prod.fst <$> x.run ctx s
 
 @[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) :=
@@ -191,7 +175,7 @@ instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 
 end Core
 
-export Core (CoreM Exception Exception.error Exception.internal)
+export Core (CoreM)
 
 @[inline] def catchInternalId {α} {m : Type → Type} [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α :=
 catch x fun ex => match ex with

@@ -2864,6 +2864,7 @@ lean_object* x_7;
 x_7 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__12(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 return x_7;
 }
 }
@@ -2874,6 +2875,7 @@ lean_object* x_7;
 x_7 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 return x_7;
 }
 }

@@ -13,8 +13,9 @@ namespace PrettyPrinter
 def ppTerm (stx : Syntax) : CoreM Format :=
 parenthesizeTerm stx >>= formatTerm
 
-def ppExpr (e : Expr) : MetaM Format :=
-delab e >>= Meta.liftCoreM ∘ ppTerm
+def ppExpr (e : Expr) : MetaM Format := do
+stx ← delab e;
+liftM $ ppTerm stx
 
 def ppCommand (stx : Syntax) : CoreM Format :=
 parenthesizeCommand stx >>= formatCommand

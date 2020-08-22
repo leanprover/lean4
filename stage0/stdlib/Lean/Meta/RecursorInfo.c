@@ -62,7 +62,6 @@ lean_object* l_Array_findIdxAux___main___at___private_Lean_Meta_RecursorInfo_9__
 lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_HasToString___spec__7(lean_object*);
 lean_object* l_Lean_Core_getEnv___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
-lean_object* l_Array_back___at___private_Lean_Meta_ExprDefEq_15__processAssignmentFOApproxAux___spec__1(lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__13;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -193,6 +192,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_RecursorInfo_7__getIndicesPos___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_HasToString___spec__7___boxed(lean_object*);
+lean_object* l_Array_back___at___private_Lean_Meta_ExprDefEq_14__processAssignmentFOApproxAux___spec__1(lean_object*);
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__3;
 lean_object* l___private_Lean_Meta_RecursorInfo_11__checkMotiveResultType___closed__4;
@@ -2877,7 +2877,7 @@ x_11 = l_Array_isEmpty___rarg(x_5);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = l_Array_back___at___private_Lean_Meta_ExprDefEq_15__processAssignmentFOApproxAux___spec__1(x_5);
+x_12 = l_Array_back___at___private_Lean_Meta_ExprDefEq_14__processAssignmentFOApproxAux___spec__1(x_5);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Array_findIdxAux___main___at___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___spec__2(x_12, x_3, x_13);
 if (lean_obj_tag(x_14) == 0)

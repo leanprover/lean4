@@ -130,8 +130,6 @@ structure Context :=
 (lctx           : LocalContext   := {})
 (localInstances : LocalInstances := #[])
 
-open Core (ECoreM Exception)
-
 abbrev MetaM := ReaderT Context $ StateRefT State $ CoreM
 
 @[inline] def mapCoreM (f : forall {α}, CoreM α → CoreM α) {α} : MetaM α → MetaM α :=

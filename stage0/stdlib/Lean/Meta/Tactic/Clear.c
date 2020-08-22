@@ -47,17 +47,17 @@ lean_object* l_Lean_Meta_tryClear___boxed(lean_object*, lean_object*, lean_objec
 lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Meta_clear___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkFreshExprMVarAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear___lambda__1___closed__4;
 lean_object* l_Lean_MetavarContext_localDeclDependsOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
-lean_object* l_Lean_Meta_assignExprMVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Meta_clear___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkFreshExprMVarAt(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_exprDependsOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forM___at_Lean_Meta_clear___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_forM___at_Lean_Meta_clear___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -791,14 +791,14 @@ if (lean_obj_tag(x_29) == 0)
 {
 uint8_t x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 x_30 = 2;
-x_31 = l_Lean_Meta_mkFreshExprMVarAt___rarg(x_26, x_27, x_24, x_13, x_30, x_5, x_6, x_7, x_8, x_25);
+x_31 = l_Lean_Meta_mkFreshExprMVarAt(x_26, x_27, x_24, x_13, x_30, x_5, x_6, x_7, x_8, x_25);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
 lean_inc(x_32);
-x_34 = l_Lean_Meta_assignExprMVar___rarg(x_1, x_32, x_5, x_6, x_7, x_8, x_33);
+x_34 = l_Lean_Meta_assignExprMVar(x_1, x_32, x_5, x_6, x_7, x_8, x_33);
 lean_dec(x_5);
 x_35 = !lean_is_exclusive(x_34);
 if (x_35 == 0)
@@ -834,14 +834,14 @@ lean_dec(x_29);
 x_42 = l_Array_eraseIdx___rarg(x_27, x_41);
 lean_dec(x_41);
 x_43 = 2;
-x_44 = l_Lean_Meta_mkFreshExprMVarAt___rarg(x_26, x_42, x_24, x_13, x_43, x_5, x_6, x_7, x_8, x_25);
+x_44 = l_Lean_Meta_mkFreshExprMVarAt(x_26, x_42, x_24, x_13, x_43, x_5, x_6, x_7, x_8, x_25);
 x_45 = lean_ctor_get(x_44, 0);
 lean_inc(x_45);
 x_46 = lean_ctor_get(x_44, 1);
 lean_inc(x_46);
 lean_dec(x_44);
 lean_inc(x_45);
-x_47 = l_Lean_Meta_assignExprMVar___rarg(x_1, x_45, x_5, x_6, x_7, x_8, x_46);
+x_47 = l_Lean_Meta_assignExprMVar(x_1, x_45, x_5, x_6, x_7, x_8, x_46);
 lean_dec(x_5);
 x_48 = !lean_is_exclusive(x_47);
 if (x_48 == 0)

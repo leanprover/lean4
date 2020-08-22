@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Exception
-// Imports: Init Init.System.IOError Lean.Meta.Exception
+// Imports: Init Init.System.IOError Lean.InternalExceptionId Lean.Meta.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,62 +13,138 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Elab_throwPostpone___rarg(lean_object*);
+lean_object* l_Lean_Elab_registerUnsupportedSyntaxId(lean_object*);
+lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1;
+lean_object* l_Lean_Elab_registerUnsupportedSyntaxId___closed__2;
+lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object*);
+lean_object* l_Lean_Elab_registerUnsupportedSyntaxId___closed__1;
 extern lean_object* l_String_splitAux___main___closed__1;
-lean_object* l_Lean_Elab_Exception_inhabited___closed__1;
+lean_object* l_Lean_Elab_throwPostpone(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_registerPostponeId(lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_Lean_Elab_Exception_hasToString___closed__1;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Exception_inhabited;
-lean_object* l_Lean_Elab_mkExceptionCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Exception_hasToString(lean_object*);
-extern lean_object* l_Lean_Message_Inhabited___closed__2;
-lean_object* l_Lean_Elab_mkExceptionCore(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Message_toString(lean_object*);
-lean_object* _init_l_Lean_Elab_Exception_inhabited___closed__1() {
+lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_postponeExceptionId;
+lean_object* l_Lean_Elab_throwPostpone___rarg___closed__1;
+lean_object* l_Lean_Elab_throwUnsupportedSyntax(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_registerPostponeId___closed__2;
+lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
+lean_object* l_Lean_Elab_registerPostponeId___closed__1;
+lean_object* _init_l_Lean_Elab_registerPostponeId___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("postpone");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Elab_registerPostponeId___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_registerPostponeId___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Elab_registerPostponeId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Elab_registerPostponeId___closed__2;
+x_3 = l_Lean_registerInternalExceptionId(x_2, x_1);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Elab_registerUnsupportedSyntaxId___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("unsupportedSyntax");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Elab_registerUnsupportedSyntaxId___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_registerUnsupportedSyntaxId___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Elab_registerUnsupportedSyntaxId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Elab_registerUnsupportedSyntaxId___closed__2;
+x_3 = l_Lean_registerInternalExceptionId(x_2, x_1);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Elab_throwPostpone___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Message_Inhabited___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
+x_1 = l_Lean_Elab_postponeExceptionId;
+x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Exception_inhabited() {
+lean_object* l_Lean_Elab_throwPostpone___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Exception_inhabited___closed__1;
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Elab_Exception_hasToString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unsupported syntax");
-return x_1;
-}
-}
-lean_object* l_Lean_Elab_Exception_hasToString(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 lean_dec(x_1);
-x_3 = l_Lean_Message_toString(x_2);
-return x_3;
-}
-else
-{
-lean_object* x_4; 
-x_4 = l_Lean_Elab_Exception_hasToString___closed__1;
+x_3 = l_Lean_Elab_throwPostpone___rarg___closed__1;
+x_4 = lean_apply_2(x_2, lean_box(0), x_3);
 return x_4;
 }
+}
+lean_object* l_Lean_Elab_throwPostpone(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwPostpone___rarg), 1, 0);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_unsupportedSyntaxExceptionId;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1;
+x_4 = lean_apply_2(x_2, lean_box(0), x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_Elab_throwUnsupportedSyntax(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwUnsupportedSyntax___rarg), 1, 0);
+return x_3;
 }
 }
 lean_object* l_Lean_Elab_mkMessageCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
@@ -99,37 +175,9 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* l_Lean_Elab_mkExceptionCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = l_Lean_FileMap_toPosition(x_2, x_4);
-x_6 = lean_box(0);
-x_7 = 2;
-x_8 = l_String_splitAux___main___closed__1;
-x_9 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_5);
-lean_ctor_set(x_9, 2, x_6);
-lean_ctor_set(x_9, 3, x_8);
-lean_ctor_set(x_9, 4, x_3);
-lean_ctor_set_uint8(x_9, sizeof(void*)*5, x_7);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-return x_10;
-}
-}
-lean_object* l_Lean_Elab_mkExceptionCore___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Elab_mkExceptionCore(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_5;
-}
-}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Init_System_IOError(lean_object*);
+lean_object* initialize_Lean_InternalExceptionId(lean_object*);
 lean_object* initialize_Lean_Meta_Exception(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_Exception(lean_object* w) {
@@ -142,15 +190,34 @@ lean_dec_ref(res);
 res = initialize_Init_System_IOError(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_InternalExceptionId(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_Exception(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Exception_inhabited___closed__1 = _init_l_Lean_Elab_Exception_inhabited___closed__1();
-lean_mark_persistent(l_Lean_Elab_Exception_inhabited___closed__1);
-l_Lean_Elab_Exception_inhabited = _init_l_Lean_Elab_Exception_inhabited();
-lean_mark_persistent(l_Lean_Elab_Exception_inhabited);
-l_Lean_Elab_Exception_hasToString___closed__1 = _init_l_Lean_Elab_Exception_hasToString___closed__1();
-lean_mark_persistent(l_Lean_Elab_Exception_hasToString___closed__1);
+l_Lean_Elab_registerPostponeId___closed__1 = _init_l_Lean_Elab_registerPostponeId___closed__1();
+lean_mark_persistent(l_Lean_Elab_registerPostponeId___closed__1);
+l_Lean_Elab_registerPostponeId___closed__2 = _init_l_Lean_Elab_registerPostponeId___closed__2();
+lean_mark_persistent(l_Lean_Elab_registerPostponeId___closed__2);
+res = l_Lean_Elab_registerPostponeId(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_postponeExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_postponeExceptionId);
+lean_dec_ref(res);
+l_Lean_Elab_registerUnsupportedSyntaxId___closed__1 = _init_l_Lean_Elab_registerUnsupportedSyntaxId___closed__1();
+lean_mark_persistent(l_Lean_Elab_registerUnsupportedSyntaxId___closed__1);
+l_Lean_Elab_registerUnsupportedSyntaxId___closed__2 = _init_l_Lean_Elab_registerUnsupportedSyntaxId___closed__2();
+lean_mark_persistent(l_Lean_Elab_registerUnsupportedSyntaxId___closed__2);
+res = l_Lean_Elab_registerUnsupportedSyntaxId(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_unsupportedSyntaxExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_unsupportedSyntaxExceptionId);
+lean_dec_ref(res);
+l_Lean_Elab_throwPostpone___rarg___closed__1 = _init_l_Lean_Elab_throwPostpone___rarg___closed__1();
+lean_mark_persistent(l_Lean_Elab_throwPostpone___rarg___closed__1);
+l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1 = _init_l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1();
+lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

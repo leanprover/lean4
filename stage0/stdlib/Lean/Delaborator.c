@@ -23,7 +23,6 @@ lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lea
 lean_object* l_Lean_Delaborator_withAppFn___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabOfNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_withProj(lean_object*);
-lean_object* l_Lean_Core_getOptions___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_quote___main(lean_object*);
 lean_object* l_Lean_Delaborator_delabProjectionApp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Delaborator_delabFor___main___spec__5(lean_object*, lean_object*);
@@ -362,6 +361,7 @@ lean_object* l_Lean_Delaborator_delabAttribute___closed__1;
 extern lean_object* l_Lean_Parser_Term_prop___elambda__1___closed__5;
 lean_object* l_Lean_Level_quote___main___lambda__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_getImplicitParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_getOptions(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l___regBuiltin_Lean_Delaborator_delabCoeFun___closed__2;
 lean_object* l_Lean_getPPAll___boxed(lean_object*);
@@ -18369,7 +18369,7 @@ lean_object* l_Lean_delab(lean_object* x_1, lean_object* x_2, lean_object* x_3, 
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = l_Lean_Core_getOptions___rarg(x_5, x_6, x_7);
+x_8 = l_Lean_Core_getOptions(x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);

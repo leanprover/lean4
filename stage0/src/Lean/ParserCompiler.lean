@@ -101,7 +101,7 @@ def compileParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) : C
 -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
 -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
 -- call them at compile time but only reference them).
-(Expr.const c' _ _, _) ← (compileParserBody ctx (mkConst declName)).toCoreM
+(Expr.const c' _ _) ← (compileParserBody ctx (mkConst declName)).run'
   | unreachable!;
 -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
 -- using `parser!` or `syntax`.

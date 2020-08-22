@@ -67,9 +67,9 @@ log MessageSeverity.warning msgData
 def logInfo [MonadLog m] (msgData : MessageData) : m Unit :=
 log MessageSeverity.information msgData
 
-def throwError {α} [MonadPosInfo m] [MonadExcept Exception m] (msgData : MessageData) : m α := do
-msg ← mkMessage msgData MessageSeverity.error;
-throw (Exception.error msg)
+def throwError {α} [MonadPosInfo m] [MonadExcept Exception m] (msg : MessageData) : m α := do
+ref ← getRef;
+throw $ Exception.error ref msg
 
 end Elab
 end Lean

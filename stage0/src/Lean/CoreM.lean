@@ -8,6 +8,7 @@ import Init.Control.StateRef
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Environment
+import Lean.InternalExceptionId
 import Lean.Eval
 
 namespace Lean
@@ -26,36 +27,39 @@ structure Context :=
 (maxRecDepth    : Nat := 1000)
 (ref            : Syntax := Syntax.missing)
 
-structure Exception :=
-(ref : Syntax := Syntax.missing) (msg : MessageData)
+inductive Exception
+| error (ref : Syntax) (msg : MessageData)
+| internal (id : InternalExceptionId)
 
-instance Exception.inhabited : Inhabited Exception := ⟨{ msg := arbitrary _ }⟩
+def Exception.toMessageData : Exception → MessageData
+| Exception.error _ msg => msg
+| Exception.internal id => id.toString
 
-def Exception.toMessageData (ex : Exception) : MessageData :=
-ex.msg
+def Exception.getRef : Exception → Syntax
+| Exception.error ref _ => ref
+| Exception.internal _  => Syntax.missing
 
-instance Exception.hasToString : HasToString Exception := ⟨fun ex => toString ex.toMessageData⟩
+instance Exception.inhabited : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 
 abbrev ECoreM (ε : Type) := ReaderT Context $ StateRefT State $ EIO ε
-
 abbrev CoreM := ECoreM Exception
 
-instance ECoreM.inhabited {ε α} [Inhabited ε] : Inhabited (ECoreM ε α) :=
+instance CoreM.inhabited {α} : Inhabited (CoreM α) :=
 ⟨fun _ _ => throw $ arbitrary _⟩
 
-def getRef {ε} : ECoreM ε Syntax := do
+def getRef : CoreM Syntax := do
 ctx ← read; pure ctx.ref
 
 @[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
 ref ← getRef;
 adaptExcept
-  (fun (err : IO.Error) => { ref := ref, msg := toString err : Exception })
+  (fun (err : IO.Error) => Exception.error ref (toString err))
   (liftM x : ECoreM IO.Error α)
 
 instance : MonadIO CoreM :=
 { liftIO := @liftIOCore }
 
-def addContext {ε} (msg : MessageData) : ECoreM ε MessageData := do
+def addContext (msg : MessageData) : CoreM MessageData := do
 ctx ← read;
 s   ← get;
 pure $ MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := ctx.options } msg
@@ -63,7 +67,7 @@ pure $ MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := c
 def throwError {α} (msg : MessageData) : CoreM α := do
 ctx ← read;
 msg ← addContext msg;
-throw { ref := ctx.ref, msg := msg }
+throw $ Exception.error ctx.ref msg
 
 def ofExcept {ε α} [HasToString ε] (x : Except ε α) : CoreM α :=
 match x with
@@ -80,31 +84,31 @@ def Context.incCurrRecDepth (ctx : Context) : Context :=
 @[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
 checkRecDepth; adaptReader Context.incCurrRecDepth x
 
-def getEnv {ε} : ECoreM ε Environment := do
+def getEnv : CoreM Environment := do
 s ← get; pure s.env
 
-def setEnv {ε} (env : Environment) : ECoreM ε Unit :=
+def setEnv (env : Environment) : CoreM Unit :=
 modify $ fun s => { s with env := env }
 
-@[inline] def modifyEnv {ε} (f : Environment → Environment) : ECoreM ε Unit :=
+@[inline] def modifyEnv (f : Environment → Environment) : CoreM Unit :=
 modify $ fun s => { s with env := f s.env }
 
-def getOptions {ε} : ECoreM ε Options :=  do
+def getOptions : CoreM Options :=  do
 ctx ← read; pure ctx.options
 
-def getTraceState {ε} : ECoreM ε TraceState := do
+def getTraceState : CoreM TraceState := do
 s ← get; pure s.traceState
 
-def setTraceState {ε} (traceState : TraceState) : ECoreM ε Unit := do
+def setTraceState (traceState : TraceState) : CoreM Unit := do
 modify fun s => { s with traceState := traceState }
 
-def getNGen {ε} : ECoreM ε NameGenerator := do
+def getNGen : CoreM NameGenerator := do
 s ← get; pure s.ngen
 
-def setNGen {ε} (ngen : NameGenerator) : ECoreM ε Unit :=
+def setNGen (ngen : NameGenerator) : CoreM Unit :=
 modify fun s => { s with ngen := ngen }
 
-def mkFreshId {ε} : ECoreM ε Name := do
+def mkFreshId : CoreM Name := do
 s ← get;
 let id := s.ngen.curr;
 modify $ fun s => { s with ngen := s.ngen.next };
@@ -118,13 +122,13 @@ match ref.getPos with
 def Context.replaceRef (ref : Syntax) (ctx : Context) : Context :=
 { ctx with ref := replaceRef ref ctx.ref }
 
-@[inline] def withRef {ε} {α} (ref : Syntax) (x : ECoreM ε α) : ECoreM ε α := do
+@[inline] def withRef {α} (ref : Syntax) (x : CoreM α) : CoreM α := do
 adaptReader (Context.replaceRef ref) x
 
-@[inline] private def getTraceState {ε} : ECoreM ε TraceState := do
+@[inline] private def getTraceState : CoreM TraceState := do
 s ← get; pure s.traceState
 
-instance tracer {ε} : SimpleMonadTracerAdapter (ECoreM ε) :=
+instance tracer : SimpleMonadTracerAdapter (CoreM) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   addContext       := addContext,
@@ -151,7 +155,7 @@ def addAndCompile (decl : Declaration) : CoreM Unit := do
 addDecl decl;
 compileDecl decl
 
-def dbgTrace {ε} {α} [HasToString α] (a : α) : ECoreM ε Unit :=
+def dbgTrace {α} [HasToString α] (a : α) : CoreM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
 def getConstInfo (constName : Name) : CoreM ConstantInfo := do
@@ -164,15 +168,20 @@ def printTraces : CoreM Unit := do
 traceState ← getTraceState;
 traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
 
-def resetTraceState {ε} : ECoreM ε Unit :=
+def resetTraceState : CoreM Unit :=
 modify fun s => { s with traceState := {} }
 
 @[inline] def ECoreM.run {ε α} (x : ECoreM ε α) (ctx : Context) (s : State) : EIO ε (α × State) :=
 (x.run ctx).run s
 
+@[inline] def ECoreM.run' {ε α} (x : ECoreM ε α) (ctx : Context) (s : State) : EIO ε α :=
+Prod.fst <$> x.run ctx s
+
 @[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) :=
 adaptExcept
-  (fun (ex : Exception) => IO.userError $ toString $ format $ ex.msg)
+  (fun (ex : Exception) => match ex with
+    | Exception.error _ msg => IO.userError $ toString $ format msg
+    | Exception.internal id => IO.userError $ toString $ "internal exception #" ++ toString id.idx)
   (x.run ctx s)
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
@@ -182,6 +191,16 @@ instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 
 end Core
 
-export Core (CoreM ECoreM)
+export Core (CoreM Exception Exception.error Exception.internal)
+
+@[inline] def catchInternalId {α} {m : Type → Type} [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α :=
+catch x fun ex => match ex with
+  | Exception.error _ _    => throw ex
+  | Exception.internal id' => if id == id' then h ex else throw ex
+
+@[inline] def catchInternalIds {α} {m : Type → Type} [MonadExcept Exception m] (ids : List InternalExceptionId) (x : m α) (h : Exception → m α) : m α :=
+catch x fun ex => match ex with
+  | Exception.error _ _   => throw ex
+  | Exception.internal id => if ids.contains id then h ex else throw ex
 
 end Lean

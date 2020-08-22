@@ -130,19 +130,14 @@ structure Context :=
 (lctx           : LocalContext   := {})
 (localInstances : LocalInstances := #[])
 
-open Core (ECoreM)
+open Core (ECoreM Exception)
 
-abbrev EMetaM (ε) := ReaderT Context $ StateRefT State $ ECoreM ε
-
-abbrev MetaM := EMetaM Exception
+abbrev MetaM := ReaderT Context $ StateRefT State $ CoreM
 
 @[inline] def liftCoreM {α} (x : CoreM α) : MetaM α :=
-liftM $ (adaptExcept Exception.core x : ECoreM Exception α)
+liftM $ x
 
-@[inline] def liftECoreM {ε α} (x : ECoreM ε α) : EMetaM ε α :=
-liftM x
-
-@[inline] def mapECoreM {ε} (f : forall {α}, ECoreM ε α → ECoreM ε α) {α} : EMetaM ε α → EMetaM ε α :=
+@[inline] def mapCoreM (f : forall {α}, CoreM α → CoreM α) {α} : MetaM α → MetaM α :=
 monadMap @f
 
 instance : MonadIO MetaM :=
@@ -151,10 +146,10 @@ instance : MonadIO MetaM :=
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
-def getRef {ε} : EMetaM ε Syntax :=
-liftECoreM Core.getRef
+def getRef : MetaM Syntax :=
+liftCoreM Core.getRef
 
-def addContext {ε} (msg : MessageData) : EMetaM ε MessageData := do
+def addContext (msg : MessageData) : MetaM MessageData := do
 ctxCore ← readThe Core.Context;
 sCore   ← getThe Core.State;
 ctx     ← read;
@@ -164,53 +159,55 @@ pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.l
 def throwError {α} (msg : MessageData) : MetaM α := do
 ref ← getRef;
 msg ← addContext msg;
-throw $ Exception.core { ref := ref, msg := msg }
+throw $ Core.Exception.error ref msg
+
+def throwIsDefEqStuck {α} : MetaM α :=
+throw $ Core.Exception.internal isDefEqStuckExceptionId
 
 def checkRecDepth : MetaM Unit :=
 liftCoreM $ Core.checkRecDepth
 
 @[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
-checkRecDepth;
-adaptTheReader Core.Context Core.Context.incCurrRecDepth x
+mapCoreM (fun α => Core.withIncRecDepth) x
 
-@[inline] def withRef {ε α} (ref : Syntax) (x : EMetaM ε α) : EMetaM ε α := do
-mapECoreM (fun α => Core.withRef ref) x
+@[inline] def withRef {α} (ref : Syntax) (x : MetaM α) : MetaM α := do
+mapCoreM (fun α => Core.withRef ref) x
 
-@[inline] def getLCtx {ε} : EMetaM ε LocalContext := do
+@[inline] def getLCtx : MetaM LocalContext := do
 ctx ← read; pure ctx.lctx
 
-@[inline] def getLocalInstances {ε} : EMetaM ε LocalInstances := do
+@[inline] def getLocalInstances : MetaM LocalInstances := do
 ctx ← read; pure ctx.localInstances
 
-@[inline] def getConfig {ε} : EMetaM ε Config := do
+@[inline] def getConfig : MetaM Config := do
 ctx ← read; pure ctx.config
 
-@[inline] def getMCtx {ε} : EMetaM ε MetavarContext := do
+@[inline] def getMCtx : MetaM MetavarContext := do
 s ← get; pure s.mctx
 
-def setMCtx {ε} (mctx : MetavarContext) : EMetaM ε Unit :=
+def setMCtx (mctx : MetavarContext) : MetaM Unit :=
 modify $ fun s => { s with mctx := mctx }
 
-@[inline] def getOptions {ε} : EMetaM ε Options :=
-liftECoreM Core.getOptions
+@[inline] def getOptions : MetaM Options :=
+liftCoreM Core.getOptions
 
-@[inline] def getEnv {ε} : EMetaM ε Environment :=
-liftECoreM Core.getEnv
+@[inline] def getEnv : MetaM Environment :=
+liftCoreM Core.getEnv
 
-def setEnv {ε} (env : Environment) : EMetaM ε Unit :=
-liftECoreM $ Core.setEnv env
+def setEnv (env : Environment) : MetaM Unit :=
+liftCoreM $ Core.setEnv env
 
-def getNGen {ε} : EMetaM ε NameGenerator :=
-liftECoreM Core.getNGen
+def getNGen : MetaM NameGenerator :=
+liftCoreM Core.getNGen
 
-def setNGen {ε} (ngen : NameGenerator) : EMetaM ε Unit :=
-liftECoreM $ Core.setNGen ngen
+def setNGen (ngen : NameGenerator) : MetaM Unit :=
+liftCoreM $ Core.setNGen ngen
 
-def getTraceState {ε}  : EMetaM ε TraceState :=
-liftECoreM $ Core.getTraceState
+def getTraceState  : MetaM TraceState :=
+liftCoreM $ Core.getTraceState
 
-def setTraceState {ε} (traceState : TraceState) : EMetaM ε Unit :=
-liftECoreM $ Core.setTraceState traceState
+def setTraceState (traceState : TraceState) : MetaM Unit :=
+liftCoreM $ Core.setTraceState traceState
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
@@ -256,74 +253,65 @@ withIncRecDepth do
   fn ← liftIO synthPendingRef.get;
   fn mvarId
 
-def mkFreshId {ε} : EMetaM ε Name := do
-liftECoreM Core.mkFreshId
+def mkFreshId : MetaM Name := do
+liftCoreM Core.mkFreshId
 
-private def mkFreshExprMVarAtCore {ε}
-    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : EMetaM ε Expr := do
+private def mkFreshExprMVarAtCore
+    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : MetaM Expr := do
 modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind };
 pure $ mkMVar mvarId
 
-def mkFreshExprMVarAt {ε}
+def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
-    : EMetaM ε Expr := do
+    : MetaM Expr := do
 mvarId ← mkFreshId;
 mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
-def mkFreshExprMVar {ε} (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : EMetaM ε Expr := do
+def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 mkFreshExprMVarAt lctx localInsts type userName kind
 
 /- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
-def mkFreshExprMVarWithId {ε} (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : EMetaM ε Expr := do
+def mkFreshExprMVarWithId (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
-def mkFreshLevelMVar {ε} : EMetaM ε Level := do
+def mkFreshLevelMVar : MetaM Level := do
 mvarId ← mkFreshId;
 modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
 
-@[inline] def throwEx {α} (f : ExceptionContext → Exception) : MetaM α := do
-env  ← getEnv;
-mctx ← getMCtx;
-lctx ← getLCtx;
-opts ← getOptions;
-throw (f { env := env, mctx := mctx, lctx := lctx, opts := opts })
-
 @[inline] def ofExcept {α ε} [HasToString ε] (x : Except ε α) : MetaM α :=
-match x with
-| Except.ok a    => pure a
-| Except.error e => throwError (toString e)
+liftCoreM $ Core.ofExcept x
 
-@[inline] def shouldReduceAll {ε} : EMetaM ε Bool := do
+@[inline] def shouldReduceAll : MetaM Bool := do
 ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
 
-@[inline] def shouldReduceReducibleOnly {ε} : EMetaM ε Bool := do
+@[inline] def shouldReduceReducibleOnly : MetaM Bool := do
 ctx ← read; pure $ ctx.config.transparency == TransparencyMode.reducible
 
-@[inline] def getTransparency {ε} : EMetaM ε TransparencyMode := do
+@[inline] def getTransparency : MetaM TransparencyMode := do
 ctx ← read; pure $ ctx.config.transparency
 
 -- Remark: wanted to use `private`, but in C++ parser, `private` declarations do not shadow outer public ones.
 -- TODO: fix this bug
-@[inline] def isReducible {ε} (constName : Name) : EMetaM ε Bool := do
+@[inline] def isReducible (constName : Name) : MetaM Bool := do
 env ← getEnv; pure $ isReducible env constName
 
-@[inline] def withConfig {ε α} (f : Config → Config) (x : EMetaM ε α) : EMetaM ε α :=
+@[inline] def withConfig {α} (f : Config → Config) (x : MetaM α) : MetaM α :=
 adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config }) x
 
 /-- While executing `x`, ensure the given transparency mode is used. -/
-@[inline] def withTransparency {ε α} (mode : TransparencyMode) (x : EMetaM ε α) : EMetaM ε α :=
+@[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
 withConfig (fun config => { config with transparency := mode }) x
 
-@[inline] def withReducible {ε α} (x : EMetaM ε α) : EMetaM ε α :=
+@[inline] def withReducible {α} (x : MetaM α) : MetaM α :=
 withTransparency TransparencyMode.reducible x
 
-@[inline] def withAtLeastTransparency {ε α} (mode : TransparencyMode) (x : EMetaM ε α) : EMetaM ε α :=
+@[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
 withConfig
   (fun config =>
     let oldMode := config.transparency;
@@ -359,24 +347,24 @@ match mctx.findLevelDepth? mvarId with
 | some depth => pure $ depth != mctx.depth
 | _          => throwError ("unknown universe metavariable '" ++ mkLevelMVar mvarId ++ "'")
 
-def renameMVar {ε} (mvarId : MVarId) (newUserName : Name) : EMetaM ε Unit :=
+def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
 modify $ fun s => { s with mctx := s.mctx.renameMVar mvarId newUserName }
 
-@[inline] def isExprMVarAssigned {ε} (mvarId : MVarId) : EMetaM ε Bool := do
+@[inline] def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
 pure $ mctx.isExprAssigned mvarId
 
-@[inline] def getExprMVarAssignment? {ε} (mvarId : MVarId) : EMetaM ε (Option Expr) := do
+@[inline] def getExprMVarAssignment? (mvarId : MVarId) : MetaM (Option Expr) := do
 mctx ← getMCtx; pure (mctx.getExprAssignment? mvarId)
 
-def assignExprMVar {ε} (mvarId : MVarId) (val : Expr) : EMetaM ε Unit := do
+def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit := do
 modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
 
-def isDelayedAssigned {ε} (mvarId : MVarId) : EMetaM ε Bool := do
+def isDelayedAssigned (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
 pure $ mctx.isDelayedAssigned mvarId
 
-def hasAssignableMVar {ε} (e : Expr) : EMetaM ε Bool := do
+def hasAssignableMVar (e : Expr) : MetaM Bool := do
 mctx ← getMCtx;
 pure $ mctx.hasAssignableMVar e
 
@@ -401,7 +389,7 @@ match env.find? constName with
 | some info => pure info
 | none      => throwUnknownConstant constName
 
-def getConstNoEx? {ε} (constName : Name) : EMetaM ε (Option ConstantInfo) := do
+def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
 match env.find? constName with
 | some (info@(ConstantInfo.thmInfo _)) =>
@@ -425,7 +413,7 @@ match lctx.find? fvarId with
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
 getLocalDecl fvar.fvarId!
 
-def instantiateMVars {ε} (e : Expr) : EMetaM ε Expr :=
+def instantiateMVars (e : Expr) : MetaM Expr :=
 if e.hasMVar then
   modifyGet $ fun s =>
     let (e, mctx) := s.mctx.instantiateMVars e;
@@ -433,7 +421,7 @@ if e.hasMVar then
 else
   pure e
 
-def instantiateLocalDeclMVars {ε} (localDecl : LocalDecl) : EMetaM ε LocalDecl :=
+def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
 match localDecl with
   | LocalDecl.cdecl idx id n type bi  => do
     type ← instantiateMVars type;
@@ -470,7 +458,7 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e preserveOrder
 
 /-- Save cache, execute `x`, restore cache -/
-@[inline] def savingCache {ε α} (x : EMetaM ε α) : EMetaM ε α := do
+@[inline] def savingCache {α} (x : MetaM α) : MetaM α := do
 s ← get;
 let savedCache := s.cache;
 finally x (modify $ fun s => { s with cache := savedCache })
@@ -508,24 +496,24 @@ partial def isClassQuick? : Expr → MetaM (LOption Name)
   | _                 => pure LOption.none
 | Expr.localE _ _ _ _ => unreachable!
 
-def saveAndResetSynthInstanceCache {ε} : EMetaM ε SynthInstanceCache := do
+def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
 s ← get;
 let savedSythInstance := s.cache.synthInstance;
 modify $ fun s => { s with cache := { s.cache with synthInstance := {} } };
 pure savedSythInstance
 
-def restoreSynthInstanceCache {ε} (cache : SynthInstanceCache) : EMetaM ε Unit :=
+def restoreSynthInstanceCache (cache : SynthInstanceCache) : MetaM Unit :=
 modify $ fun s => { s with cache := { s.cache with synthInstance := cache } }
 
 /-- Reset `synthInstance` cache, execute `x`, and restore cache -/
-@[inline] def resettingSynthInstanceCache {ε α} (x : EMetaM ε α) : EMetaM ε α := do
+@[inline] def resettingSynthInstanceCache {α} (x : MetaM α) : MetaM α := do
 savedSythInstance ← saveAndResetSynthInstanceCache;
 finally x (restoreSynthInstanceCache savedSythInstance)
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`.
     It resets the type class cache using `resettingSynthInstanceCache`. -/
-@[inline] def withNewLocalInstance {ε α} (className : Name) (fvar : Expr) (k : EMetaM ε α) : EMetaM ε α :=
+@[inline] def withNewLocalInstance {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
 resettingSynthInstanceCache $
   adaptReader
     (fun (ctx : Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
@@ -928,29 +916,21 @@ instantiateForallAux ps 0 e
 registerTraceClass `Meta;
 registerTraceClass `Meta.debug
 
-@[inline] def EMetaM.run {ε α} (x : EMetaM ε α) (ctx : Context := {}) (s : State := {}) : ECoreM ε (α × State) :=
+@[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
 (x.run ctx).run s
 
-@[inline] private def toCoreMAux {α} (x : ECoreM Exception α) : CoreM α := do
-ref ← Core.getRef;
-adaptExcept
-  (fun ex => match ex with
-    | Exception.core ex => ex
-    | ex => { ref := ref, msg := ex.toMessageData })
-  x
-
-@[inline] def MetaM.toCoreM {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
-toCoreMAux $ x.run ctx s
+@[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
+Prod.fst <$> x.run
 
 @[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
-((a, s), sCore) ← (toCoreMAux (x.run ctx s)).toIO ctxCore sCore;
+((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore;
 pure (a, sCore, s)
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x _ => MetaHasEval.eval env opts (do (a, _) ← x.toCoreM {} {}; pure a)⟩
+⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run'⟩
 
 end Meta
 
-export Meta (MetaM EMetaM)
+export Meta (MetaM)
 
 end Lean

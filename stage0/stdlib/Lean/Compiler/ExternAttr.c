@@ -27,6 +27,7 @@ lean_object* l_Lean_getExternNameFor___boxed(lean_object*, lean_object*, lean_ob
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
+extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkExternAttr___spec__9(lean_object*, lean_object*);
 lean_object* l_Lean_Core_getEnv___rarg(lean_object*, lean_object*);
@@ -55,6 +56,7 @@ lean_object* l_Std_RBNode_fold___main___at_Lean_mkExternAttr___spec__4(lean_obje
 lean_object* l_Lean_Core_ofExcept___at_Lean_mkExternAttr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Core_setEnv(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
 extern lean_object* l_Lean_ParametricAttribute_Inhabited___closed__3;
 uint8_t l_Lean_Environment_isConstructor(lean_object*, lean_object*);
@@ -72,7 +74,6 @@ lean_object* lean_add_extern(lean_object*, lean_object*);
 extern lean_object* l_Lean_numLitKind;
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_ofExcept___at_Lean_mkExternAttr___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Core_setEnv___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPatternAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,7 +110,6 @@ lean_object* l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData(lean
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkExternAttr___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_5__envExtensionsRef;
 lean_object* l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__6;
-extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_isExternC___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isIdOrAtom_x3f(lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
@@ -1353,7 +1353,7 @@ x_39 = l_Lean_Name_toStringWithSep___main(x_38, x_37);
 x_40 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_41 = lean_string_append(x_40, x_39);
 lean_dec(x_39);
-x_42 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
+x_42 = l_Lean_registerInternalExceptionId___closed__2;
 x_43 = lean_string_append(x_41, x_42);
 x_44 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
@@ -1481,7 +1481,7 @@ x_77 = l_Lean_Name_toStringWithSep___main(x_76, x_75);
 x_78 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_79 = lean_string_append(x_78, x_77);
 lean_dec(x_77);
-x_80 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
+x_80 = l_Lean_registerInternalExceptionId___closed__2;
 x_81 = lean_string_append(x_79, x_80);
 x_82 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_82, 0, x_81);
@@ -1693,7 +1693,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = l_Lean_Core_setEnv___rarg(x_15, x_3, x_4, x_16);
+x_17 = l_Lean_Core_setEnv(x_15, x_3, x_4, x_16);
 return x_17;
 }
 else
@@ -1735,7 +1735,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec(x_23);
-x_26 = l_Lean_Core_setEnv___rarg(x_24, x_3, x_4, x_25);
+x_26 = l_Lean_Core_setEnv(x_24, x_3, x_4, x_25);
 return x_26;
 }
 else
@@ -1803,7 +1803,7 @@ lean_inc(x_39);
 x_40 = lean_ctor_get(x_38, 1);
 lean_inc(x_40);
 lean_dec(x_38);
-x_41 = l_Lean_Core_setEnv___rarg(x_39, x_3, x_4, x_40);
+x_41 = l_Lean_Core_setEnv(x_39, x_3, x_4, x_40);
 return x_41;
 }
 else
@@ -1846,7 +1846,7 @@ lean_inc(x_48);
 x_49 = lean_ctor_get(x_47, 1);
 lean_inc(x_49);
 lean_dec(x_47);
-x_50 = l_Lean_Core_setEnv___rarg(x_48, x_3, x_4, x_49);
+x_50 = l_Lean_Core_setEnv(x_48, x_3, x_4, x_49);
 return x_50;
 }
 else

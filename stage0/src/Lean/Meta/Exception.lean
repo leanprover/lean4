@@ -7,32 +7,17 @@ import Lean.Environment
 import Lean.MetavarContext
 import Lean.Message
 import Lean.CoreM
+import Lean.InternalExceptionId
 import Lean.Util.PPGoal
 
 namespace Lean
 namespace Meta
 
-abbrev ExceptionContext := MessageDataContext
+def registerIsDefEqStuckId : IO InternalExceptionId :=
+registerInternalExceptionId `isDefEqStuck
 
-inductive Exception
-| isDefEqStuck
-| core          (ex : Core.Exception)
-
-namespace Exception
-instance : Inhabited Exception := ⟨core $ arbitrary _⟩
-
-def getRef : Exception → Syntax
-| core ex => ex.ref
-| _       => Syntax.missing
-
-def mkCtx (ctx : ExceptionContext) (m : MessageData) : MessageData :=
-MessageData.withContext ctx m
-
-def toMessageData : Exception → MessageData
-| isDefEqStuck => "<isDefEqStuck>"
-| core ex      => ex.toMessageData
-
-end Exception
+@[init registerIsDefEqStuckId]
+constant isDefEqStuckExceptionId : InternalExceptionId := arbitrary _
 
 end Meta
 end Lean

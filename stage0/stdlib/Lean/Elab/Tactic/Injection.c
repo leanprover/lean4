@@ -365,7 +365,6 @@ x_17 = lean_unsigned_to_nat(2u);
 x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 x_19 = l___private_Lean_Elab_Tactic_Injection_1__getInjectionNewIds(x_18);
 lean_dec(x_18);
-lean_inc(x_8);
 lean_inc(x_4);
 x_20 = l_Lean_Elab_Tactic_getMainGoal(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_16);
 if (lean_obj_tag(x_20) == 0)

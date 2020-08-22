@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_check___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Core_getOptions___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_2__checkLambdaLet___lambda__2___closed__1;
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
@@ -25,10 +24,11 @@ lean_object* l___private_Lean_Meta_Check_1__ensureType(lean_object*, lean_object
 extern lean_object* l_Lean_MessageData_ofList___closed__3;
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_getEnv___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Exception_toMessageData(lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_addContext(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
+lean_object* l_Lean_Core_Exception_toMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_Check_2__checkLambdaLet___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* l_Array_forMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,6 +83,7 @@ lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_Check_2__checkLambdaLet___at___private_Lean_Meta_Check_7__checkAux___main___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_7__checkAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_6__checkApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_getOptions(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_6__checkApp___at___private_Lean_Meta_Check_7__checkAux___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_4__checkConstant(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -96,7 +97,6 @@ lean_object* l___private_Lean_Meta_Check_7__checkAux(lean_object*, lean_object*,
 extern lean_object* l_Lean_KernelException_toMessageData___closed__12;
 lean_object* l___private_Lean_Meta_Check_2__checkLambdaLet___at___private_Lean_Meta_Check_7__checkAux___main___spec__2___closed__1;
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
-lean_object* l_Lean_Core_addContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_3__checkForall___at___private_Lean_Meta_Check_7__checkAux___main___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3360,7 +3360,7 @@ lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_che
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lean_Core_getOptions___rarg(x_2, x_3, x_4);
+x_5 = l_Lean_Core_getOptions(x_2, x_3, x_4);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
@@ -4743,7 +4743,7 @@ lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_Meta_isTypeCorrect___s
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_8 = l_Lean_Core_addContext___rarg(x_2, x_5, x_6, x_7);
+x_8 = l_Lean_Core_addContext(x_2, x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
@@ -5039,8 +5039,7 @@ lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36;
 x_33 = lean_ctor_get(x_22, 1);
 lean_inc(x_33);
 lean_dec(x_22);
-x_34 = l_Lean_Meta_Exception_toMessageData(x_7);
-lean_dec(x_7);
+x_34 = l_Lean_Core_Exception_toMessageData(x_7);
 x_35 = l_Lean_MonadTracerAdapter_addTrace___at_Lean_Meta_isTypeCorrect___spec__1(x_21, x_34, x_2, x_3, x_4, x_5, x_33);
 lean_dec(x_5);
 lean_dec(x_4);

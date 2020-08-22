@@ -20,7 +20,6 @@ lean_object* l_Lean_Syntax_MonadTraverser_getCur___at_Lean_PrettyPrinter_Formatt
 extern lean_object* l_Lean_Parser_builtinTokenTable;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_ite___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Core_getOptions___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_visitArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_fieldIdxKind;
@@ -68,6 +67,7 @@ lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___lambda__1___closed__2;
+lean_object* l_Lean_Core_addContext(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 uint8_t l_Array_isEqvAux___main___at_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4;
@@ -284,6 +284,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__1
 lean_object* l_Lean_PrettyPrinter_Formatter_fieldIdx_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_getEnv(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkNoWsBefore_formatter(lean_object*);
+lean_object* l_Lean_Core_getOptions(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_liftCoreM(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__1___closed__2;
 lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_PrettyPrinter_Formatter_checkKind___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -317,7 +318,6 @@ lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_PrettyPrinter_Formatte
 lean_object* l_Lean_PrettyPrinter_Formatter_rawIdent_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_rawIdent_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
-lean_object* l_Lean_Core_addContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_throwError(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_charLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3905,7 +3905,7 @@ lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_PrettyPrinter_Formatte
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_8 = l_Lean_Core_addContext___rarg(x_2, x_5, x_6, x_7);
+x_8 = l_Lean_Core_addContext(x_2, x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
@@ -4076,7 +4076,7 @@ lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_PrettyPr
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lean_Core_getOptions___rarg(x_2, x_3, x_4);
+x_5 = l_Lean_Core_getOptions(x_2, x_3, x_4);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {

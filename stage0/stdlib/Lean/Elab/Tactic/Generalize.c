@@ -39,17 +39,17 @@ lean_object* l_Lean_Meta_generalize(lean_object*, lean_object*, lean_object*, le
 lean_object* l_Lean_Elab_Tactic_evalGeneralizeAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalGeneralize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_assignExprMVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalGeneralize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 extern lean_object* l_Lean_Meta_mkEqRefl___closed__2;
 lean_object* l_Lean_Elab_Tactic_evalGeneralizeAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_assertExt___lambda__1___closed__1;
+lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize(lean_object*);
 lean_object* l_Lean_Meta_generalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkFreshExprMVar___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
@@ -166,7 +166,7 @@ lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 2;
 lean_inc(x_4);
-x_19 = l_Lean_Meta_mkFreshExprMVar___rarg(x_3, x_10, x_18, x_4, x_5, x_6, x_7, x_17);
+x_19 = l_Lean_Meta_mkFreshExprMVar(x_3, x_10, x_18, x_4, x_5, x_6, x_7, x_17);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
@@ -182,7 +182,7 @@ lean_inc(x_2);
 x_26 = l_Lean_mkAppB(x_25, x_13, x_2);
 lean_inc(x_20);
 x_27 = l_Lean_mkAppB(x_20, x_2, x_26);
-x_28 = l_Lean_Meta_assignExprMVar___rarg(x_1, x_27, x_4, x_5, x_6, x_7, x_21);
+x_28 = l_Lean_Meta_assignExprMVar(x_1, x_27, x_4, x_5, x_6, x_7, x_21);
 x_29 = lean_ctor_get(x_28, 1);
 lean_inc(x_29);
 lean_dec(x_28);
@@ -603,7 +603,6 @@ lean_object* l___private_Lean_Elab_Tactic_Generalize_4__evalGeneralizeWithEq(lea
 _start:
 {
 lean_object* x_13; 
-lean_inc(x_10);
 lean_inc(x_6);
 x_13 = l_Lean_Elab_Tactic_getMainGoal(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
@@ -803,7 +802,6 @@ lean_object* l___private_Lean_Elab_Tactic_Generalize_5__evalGeneralizeFallback(l
 _start:
 {
 lean_object* x_13; 
-lean_inc(x_10);
 lean_inc(x_6);
 x_13 = l_Lean_Elab_Tactic_getMainGoal(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
@@ -1004,7 +1002,6 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_13; 
-lean_inc(x_10);
 lean_inc(x_6);
 x_13 = l_Lean_Elab_Tactic_getMainGoal(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)

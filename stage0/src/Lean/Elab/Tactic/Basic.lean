@@ -38,9 +38,7 @@ structure BacktrackableState :=
 (mctx  : MetavarContext)
 (goals : List MVarId)
 
-abbrev Exception := Elab.Exception
-
-abbrev TacticM := ReaderT Context $ StateRefT State $ Term.ETermElabM Exception
+abbrev TacticM := ReaderT Context $ StateRefT State $ TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
 def getEnv : TacticM Environment := do s ← getThe Core.State; pure s.env
@@ -97,13 +95,8 @@ pure { core := core, meta := meta, term := term, tactic := tactic }
 def SavedState.restore (s : SavedState) : TacticM Unit := do
 set s.core; set s.meta; set s.term; set s.tactic
 
-private def fromTermException (ex : Term.Exception) : Exception :=
-match ex with
-| Term.Exception.postpone => unreachable!
-| Term.Exception.ex ex    => ex
-
 @[inline] def liftTermElabM {α} (x : TermElabM α) : TacticM α :=
-liftM (adaptExcept fromTermException x : Term.ETermElabM Exception α)
+liftM x
 
 @[inline] def liftMetaM {α} (x : MetaM α) : TacticM α :=
 liftTermElabM $ Term.liftMetaM x
@@ -142,8 +135,6 @@ liftTermElabM $ Term.throwErrorAt ref msgData
 def throwError {α} (msgData : MessageData) : TacticM α := do
 liftTermElabM $ Term.throwError msgData
 
-def throwUnsupportedSyntax {α} : TacticM α := liftTermElabM $ Term.throwUnsupportedSyntax
-
 def checkRecDepth : TacticM Unit :=
 liftTermElabM $ Term.checkRecDepth
 
@@ -179,11 +170,15 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → Ta
   throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (evalFn::evalFns) => catch (evalFn stx)
   (fun ex => match ex with
-    | Exception.error _  =>
+    | Exception.error _ _  =>
       match evalFns with
       | [] => throw ex
       | _  => do s.restore; evalTacticUsing evalFns
-    | Exception.unsupportedSyntax => do s.restore; evalTacticUsing evalFns)
+    | Exception.internal id =>
+      if id == unsupportedSyntaxExceptionId then do
+        s.restore; evalTacticUsing evalFns
+      else
+        throw ex)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
@@ -197,7 +192,7 @@ instance : MonadMacroAdapter TacticM :=
   getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
   getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
   throwError             := @throwErrorAt,
-  throwUnsupportedSyntax := @throwUnsupportedSyntax }
+  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax }
 
 @[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit
 | []    => throwErrorAt stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")
@@ -335,11 +330,9 @@ partial def evalChoiceAux (tactics : Array Syntax) : Nat → TacticM Unit
 | i =>
   if h : i < tactics.size then
     let tactic := tactics.get ⟨i, h⟩;
-    catch
+    catchInternalId unsupportedSyntaxExceptionId
       (evalTactic tactic)
-      (fun ex => match ex with
-        | Exception.unsupportedSyntax => evalChoiceAux (i+1)
-        | _ => throw ex)
+      (fun _ => evalChoiceAux (i+1))
   else
     throwUnsupportedSyntax
 
@@ -458,6 +451,12 @@ fun stx => match_syntax stx with
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;
 pure ()
+
+@[inline] def TacticM.run {α} (x : TacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
+(x.run ctx).run s
+
+@[inline] def TacticM.run' {α} (x : TacticM α) (ctx : Context) (s : State) : TermElabM α :=
+Prod.fst <$> x.run ctx s
 
 end Tactic
 end Elab

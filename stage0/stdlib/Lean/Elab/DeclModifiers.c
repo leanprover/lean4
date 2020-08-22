@@ -2813,7 +2813,6 @@ x_34 = 1;
 x_35 = lean_box(x_34);
 lean_inc(x_1);
 x_36 = lean_apply_3(x_32, x_1, x_33, x_35);
-lean_inc(x_5);
 x_37 = l_Lean_Elab_Command_liftCoreM___rarg(x_36, x_5, x_6, x_15);
 if (lean_obj_tag(x_37) == 0)
 {

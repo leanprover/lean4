@@ -580,11 +580,9 @@ withConfig (fun config => { config with transparency := TransparencyMode.reducib
   instance cannot be synthesized right now because `type` contains metavariables. -/
 def trySynthInstance (type : Expr) : MetaM (LOption Expr) :=
 adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with isDefEqStuckEx := true } }) $
-  catch
+  catchInternalId isDefEqStuckExceptionId
     (toLOptionM $ synthInstance? type)
-    (fun ex => match ex with
-      | Exception.isDefEqStuck => pure LOption.undef
-      | _                      => throw ex)
+    (fun _ => pure LOption.undef)
 
 def synthInstance (type : Expr) : MetaM Expr := do
 result? ← synthInstance? type;

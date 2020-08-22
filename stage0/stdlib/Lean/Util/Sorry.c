@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Sorry
-// Imports: Init Lean.Message
+// Imports: Init Lean.Message Lean.CoreM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry___main___boxed(lean_object*);
 uint8_t l_Lean_Expr_hasSorry___main(lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry___boxed(lean_object*);
+lean_object* l_Lean_Core_Exception_hasSyntheticSorry___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_Expr_hasSyntheticSorry(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -34,6 +35,7 @@ uint8_t l_Lean_MessageData_hasSorry___main(lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_MessageData_hasSorry___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasSyntheticSorry___main(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+uint8_t l_Lean_Core_Exception_hasSyntheticSorry(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_MessageData_hasSorry___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isSorry___closed__1;
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
@@ -888,8 +890,37 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+uint8_t l_Lean_Core_Exception_hasSyntheticSorry(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_ctor_get(x_1, 1);
+x_3 = l_Lean_MessageData_hasSyntheticSorry___main(x_2);
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+}
+lean_object* l_Lean_Core_Exception_hasSyntheticSorry___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Core_Exception_hasSyntheticSorry(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Message(lean_object*);
+lean_object* initialize_Lean_CoreM(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Util_Sorry(lean_object* w) {
 lean_object * res;
@@ -899,6 +930,9 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Message(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_CoreM(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Expr_isSorry___closed__1 = _init_l_Lean_Expr_isSorry___closed__1();

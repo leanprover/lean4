@@ -80,12 +80,12 @@ constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environmen
 
 def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
 registerParametricAttribute `extern "builtin and foreign functions"
-  (fun _ stx => Core.ofExcept $ syntaxToExternAttrData stx)
+  (fun _ stx => ofExcept $ syntaxToExternAttrData stx)
   (fun declName _ => do
-    env ← Core.getEnv;
+    env ← getEnv;
     if env.isProjectionFn declName || env.isConstructor declName then do
-      env ← Core.ofExcept $ addExtern env declName;
-      Core.setEnv env
+      env ← ofExcept $ addExtern env declName;
+      setEnv env
     else
       pure ())
 

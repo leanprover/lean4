@@ -108,7 +108,7 @@ liftMetaMAtMain $ fun mvarId => do
   majorType ← Meta.whnf majorType;
   match majorType.getAppFn with
   | Expr.const n _ _ => do
-    env ← Meta.getEnv;
+    env ← getEnv;
     match env.find? n with
     | ConstantInfo.inductInfo val => pure val
     | _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType)

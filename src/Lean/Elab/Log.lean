@@ -9,23 +9,19 @@ import Lean.Elab.Exception
 namespace Lean
 namespace Elab
 
-def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
-Core.replaceRef ref oldRef
-
 class MonadPosInfo (m : Type → Type) :=
 (getFileMap   : m FileMap)
 (getFileName  : m String)
-(getRef       : m Syntax)
 (addContext   : MessageData → m MessageData)
 
-export MonadPosInfo (getFileMap getFileName getRef)
+export MonadPosInfo (getFileMap getFileName)
 
 class MonadLog (m : Type → Type) extends MonadPosInfo m :=
 (logMessage   : Message → m Unit)
 
 export MonadLog (logMessage)
 
-variables {m : Type → Type} [Monad m]
+variables {m : Type → Type} [Monad m] [MonadError m]
 
 def getRefPos [MonadPosInfo m] : m String.Pos := do
 ref ← getRef;
@@ -66,10 +62,6 @@ log MessageSeverity.warning msgData
 
 def logInfo [MonadLog m] (msgData : MessageData) : m Unit :=
 log MessageSeverity.information msgData
-
-def throwError {α} [MonadPosInfo m] [MonadExcept Exception m] (msg : MessageData) : m α := do
-ref ← getRef;
-throw $ Exception.error ref msg
 
 end Elab
 end Lean

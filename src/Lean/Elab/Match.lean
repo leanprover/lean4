@@ -165,10 +165,10 @@ structure State :=
 (found     : NameSet := {})
 (vars      : Array PatternVar := #[])
 
-abbrev M := StateT State TermElabM
+abbrev M := StateRefT State TermElabM
 
 private def throwCtorExpected {α} : M α :=
-liftM $ throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
+throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
 
 def withRef {α} (ref : Syntax) (x : M α) : M α :=
 adaptTheReader Core.Context (Core.Context.replaceRef ref) x
@@ -182,13 +182,13 @@ liftMetaM $ Meta.forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
     0
 
 private def throwAmbiguous {α} (fs : List Expr) : M α :=
-liftM $ throwError ("ambiguous pattern, use fully qualified name, possible interpretations " ++ fs)
+throwError ("ambiguous pattern, use fully qualified name, possible interpretations " ++ fs)
 
 private def processVar (id : Name) (mustBeCtor : Bool := false) : M Unit := do
 when mustBeCtor $ throwCtorExpected;
-unless id.eraseMacroScopes.isAtomic $ liftM $ throwError "invalid pattern variable, must be atomic";
+unless id.eraseMacroScopes.isAtomic $ throwError "invalid pattern variable, must be atomic";
 s ← get;
-when (s.found.contains id) $ liftM $ throwError ("invalid pattern, variable '" ++ id ++ "' occurred more than once");
+when (s.found.contains id) $ throwError ("invalid pattern, variable '" ++ id ++ "' occurred more than once");
 modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
 
 -- HACK: inlining this function crashes the compiler
@@ -209,7 +209,7 @@ match f with
    If `stx` is a constructor, then return the number of explicit arguments that are inductive type parameters. -/
 private def processIdAux (stx : Syntax) (mustBeCtor : Bool) : M Nat :=
 withRef stx do
-env ← liftM $ getEnv;
+env ← getEnv;
 match stx with
 | Syntax.ident _ _ val preresolved => do
   rs ← liftM $ catch (resolveName val preresolved []) (fun _ => pure []);
@@ -228,7 +228,7 @@ private def processId (stx : Syntax) : M Unit := do
 _ ← processIdAux stx false; pure ()
 
 private def throwInvalidPattern {α} : M α :=
-liftM $ throwError "invalid pattern"
+throwError "invalid pattern"
 
 private partial def collect : Syntax → M Syntax
 | stx@(Syntax.node k args) => withRef stx $ withFreshMacroScope $
@@ -237,7 +237,7 @@ private partial def collect : Syntax → M Syntax
     let appArgs := (args.get! 1).getArgs;
     appArgs.forM fun appArg =>
       when (appArg.isOfKind `Lean.Parser.Term.namedPattern) $
-        liftM $ throwErrorAt appArg "named parameters are not allowed in patterns";
+        throwErrorAt appArg "named parameters are not allowed in patterns";
     /- We must skip explict inducitve datatype parameters since they are by defaul inaccessible.
        Example: `A` is inaccessible term at `Sum.inl A b` -/
     numArgsToSkip ← processCtor appFn;
@@ -250,7 +250,7 @@ private partial def collect : Syntax → M Syntax
     /- { " >> optional (try (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }" -/
     let withMod := args.get! 1;
     unless withMod.isNone $
-      liftM $ throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns";
+      throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns";
     let fields := (args.get! 2).getArgs;
     fields ← fields.mapSepElemsM fun field => do {
       -- parser! structInstLVal >> " := " >> termParser
@@ -305,7 +305,7 @@ private partial def collect : Syntax → M Syntax
   else if k == charLitKind then
     pure stx
   else if k == choiceKind then
-    liftM $ throwError "invalid pattern, notation is ambiguous"
+    throwError "invalid pattern, notation is ambiguous"
   else
     throwInvalidPattern
 | stx@(Syntax.ident _ _ _ _) => do
@@ -406,7 +406,7 @@ structure State :=
 (localDecls : Array LocalDecl)
 (newLocals  : NameSet := {})
 
-abbrev M := StateT State TermElabM
+abbrev M := StateRefT State TermElabM
 
 private def alreadyVisited (fvarId : FVarId) : M Bool := do
 s ← get;
@@ -416,7 +416,7 @@ private def markAsVisited (fvarId : FVarId) : M Unit :=
 modify $ fun s => { s with found := s.found.insert fvarId }
 
 private def throwInvalidPattern {α} (e : Expr) : M α :=
-liftM $ throwError ("invalid pattern " ++ indentExpr e)
+throwError ("invalid pattern " ++ indentExpr e)
 
 private def getFieldsBinderInfoAux (ctorVal : ConstructorVal) : Nat → Expr → Array BinderInfo → Array BinderInfo
 | i, Expr.forallE _ d b c, bis =>
@@ -485,7 +485,7 @@ partial def main : Expr → M Pattern
     p ← main $ e.getArg! 2;
     match e.getArg! 1 with
     | Expr.fvar fvarId _ => pure $ Pattern.as fvarId p
-    | _                  => liftM $ throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+    | _                  => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
   else if e.isNatLit || e.isStringLit || e.isCharLit then
     pure $ Pattern.val e
   else if e.isFVar then do
@@ -500,7 +500,7 @@ partial def main : Expr → M Pattern
       main newE
     else match e.getAppFn with
       | Expr.const declName us _ => do
-        env ← liftM getEnv;
+        env ← getEnv;
         match env.find? declName with
         | ConstantInfo.ctorInfo v =>  do
           let args := e.getAppArgs;

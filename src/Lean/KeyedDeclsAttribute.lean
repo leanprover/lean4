@@ -131,17 +131,17 @@ registerBuiltinAttribute {
   name  := df.builtinName,
   descr := "(builtin) " ++ df.descr,
   add   := fun declName arg persistent => do {
-    env ← Core.getEnv;
-    unless persistent $ Core.throwError ("invalid attribute '" ++ df.builtinName ++ "', must be persistent");
-    key ← Core.ofExcept $ df.evalKey true env arg;
-    decl ← Core.getConstInfo declName;
+    env ← getEnv;
+    unless persistent $ throwError ("invalid attribute '" ++ df.builtinName ++ "', must be persistent");
+    key ← ofExcept $ df.evalKey true env arg;
+    decl ← getConstInfo declName;
     match decl.type with
     | Expr.const c _ _ =>
-      if c != df.valueTypeName then Core.throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
+      if c != df.valueTypeName then throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
       else do
         env ← liftIO $ declareBuiltin df attrDeclName env key declName;
-        Core.setEnv env
-    | _ => Core.throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
+        setEnv env
+    | _ => throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
   },
   applicationTime := AttributeApplicationTime.afterCompilation
 };
@@ -149,10 +149,10 @@ registerBuiltinAttribute {
   name            := df.name,
   descr           := df.descr,
   add             := fun constName arg persistent => do
-    env ← Core.getEnv;
-    key ← Core.ofExcept $ df.evalKey false env arg;
-    val ← Core.ofExcept $ env.evalConstCheck γ df.valueTypeName constName;
-    Core.setEnv $ ext.addEntry env { key := key, decl := constName, value := val },
+    env ← getEnv;
+    key ← ofExcept $ df.evalKey false env arg;
+    val ← ofExcept $ env.evalConstCheck γ df.valueTypeName constName;
+    setEnv $ ext.addEntry env { key := key, decl := constName, value := val },
   applicationTime := AttributeApplicationTime.afterCompilation
 };
 pure { defn := df, tableRef := tableRef, ext := ext }

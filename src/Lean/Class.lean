@@ -140,11 +140,11 @@ registerBuiltinAttribute {
   name  := `class,
   descr := "type class",
   add   := fun decl args persistent => do
-    env ← Core.getEnv;
-    when args.hasArgs $ Core.throwError "invalid attribute 'class', unexpected argument";
-    unless persistent $ Core.throwError "invalid attribute 'class', must be persistent";
-    env ← Core.ofExcept (addClass env decl);
-    Core.setEnv env
+    env ← getEnv;
+    when args.hasArgs $ throwError "invalid attribute 'class', unexpected argument";
+    unless persistent $ throwError "invalid attribute 'class', must be persistent";
+    env ← ofExcept (addClass env decl);
+    setEnv env
 }
 
 -- TODO: delete

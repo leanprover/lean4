@@ -23,20 +23,20 @@ match getIOTypeArg type with
 
 def mkInitAttr : IO (ParametricAttribute Name) :=
 registerParametricAttribute `init "initialization procedure for global references" $ fun declName stx => do
-  decl ← Core.getConstInfo declName;
+  decl ← getConstInfo declName;
   match attrParamSyntaxToIdentifier stx with
   | some initFnName => do
-    initDecl ← Core.getConstInfo initFnName;
+    initDecl ← getConstInfo initFnName;
     match getIOTypeArg initDecl.type with
-    | none => Core.throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")
+    | none => throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")
     | some initTypeArg =>
       if decl.type == initTypeArg then pure initFnName
-      else Core.throwError ("initialization function '" ++ initFnName ++ "' type mismatch")
+      else throwError ("initialization function '" ++ initFnName ++ "' type mismatch")
   | _ => match stx with
     | Syntax.missing =>
       if isIOUnit decl.type then pure Name.anonymous
-      else Core.throwError "initialization function must have type `IO Unit`"
-    | _ => Core.throwError "unexpected kind of argument"
+      else throwError "initialization function must have type `IO Unit`"
+    | _ => throwError "unexpected kind of argument"
 
 @[init mkInitAttr]
 constant initAttr : ParametricAttribute Name := arbitrary _

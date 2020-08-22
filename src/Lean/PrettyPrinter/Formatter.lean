@@ -130,15 +130,6 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
-@[inline] def liftCoreM {α} (x : CoreM α) : FormatterM α :=
-liftM x
-
-def getEnv : FormatterM Environment :=
-liftCoreM Core.getEnv
-
-def throwError {α} (msg : MessageData) : FormatterM α :=
-liftCoreM $ Core.throwError msg
-
 /-
 /--
   Call an appropriate `[formatter]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
@@ -418,7 +409,7 @@ catchInternalId backtrackExceptionId
   (do
     (_, st) ← (formatter { table := table }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
     pure $ st.stack.get! 0)
-  (fun _ => Core.throwError "format: uncaught backtrack exception")
+  (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term
 def formatCommand := format $ categoryParser.formatter `command

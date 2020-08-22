@@ -3,12 +3,12 @@ open Lean
 open Lean.Elab
 
 def run (input : String) (failIff : Bool := true) : CoreM Unit :=
-do env  ← Core.getEnv;
-   opts ← Core.getOptions;
+do env  ← getEnv;
+   opts ← getOptions;
    (env, messages) ← liftIO $ process input env opts;
    messages.forM $ fun msg => IO.println msg;
-   when (failIff && messages.hasErrors) $ Core.throwError "errors have been found";
-   when (!failIff && !messages.hasErrors) $ Core.throwError "there are no errors";
+   when (failIff && messages.hasErrors) $ throwError "errors have been found";
+   when (!failIff && !messages.hasErrors) $ throwError "there are no errors";
    pure ()
 
 def fail (input : String) : CoreM Unit :=

@@ -52,6 +52,31 @@ abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 
+instance : MonadEnv CommandElabM :=
+{ getEnv    := do s ← get; pure s.env,
+  modifyEnv := fun f => modify fun s => { s with env := f s.env } }
+
+instance : MonadOptions CommandElabM :=
+{ getOptions := do s ← get; pure s.scopes.head!.opts }
+
+protected def getRef : CommandElabM Syntax :=
+do ctx ← read; pure ctx.ref
+
+protected def addContext' (msg : MessageData) : CommandElabM MessageData := do
+env ← getEnv; opts ← getOptions;
+pure (MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msg)
+
+protected def addContext (ref : Syntax) (msg : MessageData) : CommandElabM (Syntax × MessageData) := do
+ctx ← read;
+let ref := getBetterRef ref ctx.macroStack;
+let msg := addMacroStack msg ctx.macroStack;
+msg ← Command.addContext' msg;
+pure (ref, msg)
+
+instance : MonadError CommandElabM :=
+{ getRef     := Command.getRef,
+  addContext := Command.addContext }
+
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
@@ -96,37 +121,16 @@ liftEIO $ adaptExcept (fun (ex : IO.Error) => Exception.error ctx.ref ex.toStrin
 instance : MonadIO CommandElabM :=
 { liftIO := fun α => liftIO }
 
-def getEnv : CommandElabM Environment := do s ← get; pure s.env
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
-def getOptions : CommandElabM Options := do scope ← getScope; pure scope.opts
-
-def addContext (msg : MessageData) : CommandElabM MessageData := do
-env ← getEnv; opts ← getOptions;
-pure (MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msg)
 
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
-{ getRef      := do ctx ← read; pure ctx.ref,
-  getFileMap  := do ctx ← read; pure ctx.fileMap,
+{ getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  addContext  := addContext,
+  addContext  := Command.addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
-/--
-  Throws an error with the given `msgData` and extracting position information from `ref`.
-  If `ref` does not contain position information, then use `cmdPos` -/
-def throwError {α} (msgData : MessageData) : CommandElabM α := do
-ctx ← read;
-let ref     := getBetterRef ctx.ref ctx.macroStack;
-let msgData := addMacroStack msgData ctx.macroStack;
-msgData ← addContext msgData;
-withRef ref do
-  throw $ Exception.error ref msgData
-
-def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α :=
-withRef ref $ throwError msgData
-
 def logTrace (cls : Name) (msg : MessageData) : CommandElabM Unit := do
-msg ← addContext $ MessageData.tagged cls msg;
+msg ← Command.addContext' $ MessageData.tagged cls msg;
 logInfo msg
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : CommandElabM Unit := do
@@ -173,7 +177,7 @@ instance : MonadMacroAdapter CommandElabM :=
   setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
   getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
   getMaxRecDepth         := do s ← get; pure s.maxRecDepth,
-  throwError             := @throwErrorAt,
+  throwError             := fun α ref msg => throwErrorAt ref msg,
   throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
 
 partial def elabCommand : Syntax → CommandElabM Unit
@@ -260,12 +264,6 @@ fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
-
-def setEnv (newEnv : Environment) : CommandElabM Unit :=
-modify $ fun s => { s with env := newEnv }
-
-@[inline] def modifyEnv (f : Environment → Environment) : CommandElabM Unit :=
-modify $ fun s => { s with env := f s.env }
 
 def getCurrNamespace : CommandElabM Name := do
 scope ← getScope; pure scope.currNamespace
@@ -582,10 +580,10 @@ fun stx => withoutModifyingEnv do
             Term.mkLambda #[env, opts] e
           };
         addAndCompile e;
-        env ← Term.getEnv;
-        opts ← Term.getOptions;
+        env ← getEnv;
+        opts ← getOptions;
         match env.evalConst (Environment → Options → IO Environment) n with
-        | Except.error e => Term.throwError e
+        | Except.error e => throwError e
         | Except.ok act  => pure $ act env opts
     };
     (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;
@@ -602,9 +600,9 @@ fun stx => withoutModifyingEnv do
       Term.synthesizeSyntheticMVars false;
       e ← Term.mkAppM `Lean.HasEval.eval #[e, toExpr false];
       addAndCompile e;
-      env ← Term.getEnv;
+      env ← getEnv;
       match env.evalConst (IO Unit) n with
-      | Except.error e => Term.throwError e
+      | Except.error e => throwError e
       | Except.ok act  => pure act
     };
     (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;

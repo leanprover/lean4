@@ -23,9 +23,12 @@ structure State :=
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
-instance LevelElabM.MonadLog : MonadPosInfo LevelElabM :=
+instance LevelElabM.monadError : MonadError LevelElabM :=
 { getRef      := do ctx ← read; pure ctx.ref,
-  getFileMap  := do ctx ← read; pure ctx.fileMap,
+  addContext  := fun ref msg => pure (ref, msg) }
+
+instance LevelElabM.monadLog : MonadPosInfo LevelElabM :=
+{ getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := fun msg => pure msg }
 

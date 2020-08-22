@@ -14,7 +14,7 @@ structure S4 extends S2, S3 :=
 (s : Nat)
 
 def check (b : Bool) : CoreM Unit :=
-unless b $ Core.throwError "check failed"
+unless b $ throwError "check failed"
 
 class S5 :=
 (x y : Nat)
@@ -23,7 +23,7 @@ inductive D
 | mk (x y z : Nat) : D
 
 def tst : CoreM Unit :=
-do env ← Core.getEnv;
+do env ← getEnv;
    IO.println (getStructureFields env `Lean.Environment);
    check $ getStructureFields env `S4 == #[`toS2, `toS3, `s];
    check $ getStructureFields env `S1 == #[`x, `y];

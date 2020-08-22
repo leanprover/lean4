@@ -42,7 +42,7 @@ stx' ← PrettyPrinter.parenthesizeTerm stx';
 f ← PrettyPrinter.formatTerm stx';
 IO.println f;
 when (stx != stx') $
-  Core.throwError "reparenthesization failed"
+  throwError "reparenthesization failed"
 
 new_frontend
 

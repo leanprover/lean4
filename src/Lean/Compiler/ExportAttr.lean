@@ -21,8 +21,8 @@ registerParametricAttribute `export "name to be used by code generators" $ fun _
   match attrParamSyntaxToIdentifier stx with
   | some exportName =>
     if isValidCppName exportName then pure exportName
-    else Core.throwError "invalid 'export' function name, is not a valid C++ identifier"
-  | _ => Core.throwError "unexpected kind of argument"
+    else throwError "invalid 'export' function name, is not a valid C++ identifier"
+  | _ => throwError "unexpected kind of argument"
 
 @[init mkExportAttr]
 constant exportAttr : ParametricAttribute Name := arbitrary _

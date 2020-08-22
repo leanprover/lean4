@@ -141,9 +141,6 @@ instance : MonadIO MetaM :=
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
-def getRef : MetaM Syntax :=
-liftM Core.getRef
-
 def addContext (msg : MessageData) : MetaM MessageData := do
 ctxCore ← readThe Core.Context;
 sCore   ← getThe Core.State;
@@ -151,10 +148,9 @@ ctx     ← read;
 s       ← get;
 pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctxCore.options } msg
 
-def throwError {α} (msg : MessageData) : MetaM α := do
-ref ← getRef;
-msg ← addContext msg;
-throw $ Exception.error ref msg
+instance meta.monadError : MonadError MetaM :=
+{ getRef     := liftM (getRef : CoreM Syntax),
+  addContext := fun ref msg => do msg ← addContext msg; pure (ref, msg) }
 
 def throwIsDefEqStuck {α} : MetaM α :=
 throw $ Exception.internal isDefEqStuckExceptionId
@@ -182,15 +178,6 @@ s ← get; pure s.mctx
 
 def setMCtx (mctx : MetavarContext) : MetaM Unit :=
 modify $ fun s => { s with mctx := mctx }
-
-@[inline] def getOptions : MetaM Options :=
-liftM Core.getOptions
-
-@[inline] def getEnv : MetaM Environment :=
-liftM Core.getEnv
-
-def setEnv (env : Environment) : MetaM Unit :=
-liftM $ Core.setEnv env
 
 def getNGen : MetaM NameGenerator :=
 liftM Core.getNGen
@@ -278,9 +265,6 @@ def mkFreshLevelMVar : MetaM Level := do
 mvarId ← mkFreshId;
 modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
-
-@[inline] def ofExcept {α ε} [HasToString ε] (x : Except ε α) : MetaM α :=
-liftM $ Core.ofExcept x
 
 @[inline] def shouldReduceAll : MetaM Bool := do
 ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
@@ -376,12 +360,6 @@ match env.find? constName with
     (condM (isReducible constName) (pure (some info)) (pure none))
     (pure (some info))
 | some info => pure (some info)
-| none      => throwUnknownConstant constName
-
-def getConstInfo (constName : Name) : MetaM ConstantInfo := do
-env ← getEnv;
-match env.find? constName with
-| some info => pure info
 | none      => throwUnknownConstant constName
 
 def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
@@ -877,7 +855,7 @@ opts  ← getOptions;
 mctx  ← getMCtx;
 lctx  ← getLCtx;
 match Lean.mkAuxDefinition env opts mctx lctx name type value with
-| Except.error ex          => liftM $ Core.throwKernelException ex
+| Except.error ex          => throwKernelException ex
 | Except.ok (e, env, mctx) => do setEnv env; setMCtx mctx; pure e
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/

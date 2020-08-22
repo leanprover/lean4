@@ -255,11 +255,8 @@ arbitrary _
 @[inline] def liftCoreM {α} (x : CoreM α) : ParenthesizerM α :=
 liftM x
 
-def getEnv : ParenthesizerM Environment :=
-liftCoreM Core.getEnv
-
 def throwError {α} (msg : MessageData) : ParenthesizerM α :=
-liftCoreM $ Core.throwError msg
+liftCoreM $ throwError msg
 
 def parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer := do
 env ← getEnv;
@@ -452,7 +449,7 @@ catchInternalId backtrackExceptionId
   (do
     (_, st) ← (parenthesizer {}).run { stxTrav := Syntax.Traverser.fromSyntax stx };
     pure st.stxTrav.cur)
-  (fun _ => Core.throwError "parenthesize: uncaught backtrack exception")
+  (fun _ => throwError "parenthesize: uncaught backtrack exception")
 
 def parenthesizeTerm := parenthesize $ categoryParser.parenthesizer `term 0
 def parenthesizeCommand := parenthesize $ categoryParser.parenthesizer `command 0

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Message
 import Lean.InternalExceptionId
+import Lean.Data.Options
 
 namespace Lean
 
@@ -23,4 +24,47 @@ def Exception.getRef : Exception → Syntax
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 
+class MonadError (m : Type → Type) extends MonadExceptOf Exception m :=
+(getRef     : m Syntax)
+(addContext : Syntax → MessageData → m (Syntax × MessageData))
+
+export MonadError (getRef addContext)
+
+instance ReaderT.monadError {ρ m} [Monad m] [MonadError m] : MonadError (ReaderT ρ m) :=
+{ getRef        := fun _ => getRef,
+  addContext    := fun ref msg _ => addContext ref msg }
+
+instance StateRefT.monadError {σ m} [Monad m] [MonadError m] : MonadError (StateRefT σ m) :=
+inferInstanceAs (MonadError (ReaderT _ _))
+
+section Methods
+
+variables {m : Type → Type} [Monad m] [MonadError m]
+
+def throwError {α} (msg : MessageData) : m α := do
+ref ← getRef;
+(ref, msg) ← addContext ref msg;
+throw $ Exception.error ref msg
+
+def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
+match ref.getPos with
+| some _ => ref
+| _      => oldRef
+
+def throwErrorAt {α} (ref : Syntax) (msg : MessageData) : m α := do
+ctxRef ← getRef;
+let ref := replaceRef ref ctxRef;
+(ref, msg) ← addContext ref msg;
+throw $ Exception.error ref msg
+
+def ofExcept {ε α} [HasToString ε] (x : Except ε α) : m α :=
+match x with
+| Except.ok a    => pure a
+| Except.error e => throwError $ toString e
+
+def throwKernelException {α} [MonadOptions m] (ex : KernelException) : m α := do
+opts ← getOptions;
+throwError $ ex.toMessageData opts
+
+end Methods
 end Lean

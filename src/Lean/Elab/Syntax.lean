@@ -39,7 +39,7 @@ structure ToParserDescrContext :=
    See comment at `Parser.ParserCategory`. -/
 (leadingIdentAsSymbol : Bool)
 
-abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateT Bool TermElabM)
+abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateRefT Bool TermElabM)
 private def markAsTrailingParser : ToParserDescrM Unit := set true
 
 @[inline] private def withNotFirst {α} (x : ToParserDescrM α) : ToParserDescrM α :=
@@ -54,8 +54,8 @@ if ctx.first && stx.getKind == `Lean.Parser.Syntax.cat then do
   let cat := (stx.getIdAt 0).eraseMacroScopes;
   if cat == ctx.catName then do
     let prec? : Option Nat  := expandOptPrecedence (stx.getArg 1);
-    unless prec?.isNone $ liftM $ throwErrorAt (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
-    unless ctx.leftRec $ liftM $
+    unless prec?.isNone $ throwErrorAt (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
+    unless ctx.leftRec $
       throwErrorAt (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion");
     markAsTrailingParser; -- mark as trailing par
     pure true
@@ -71,7 +71,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     let args := stx.getArgs;
     condM (checkLeftRec (stx.getArg 0))
       (do
-        when (args.size == 1) $ liftM $ throwErrorAt stx "invalid atomic left recursive syntax";
+        when (args.size == 1) $ throwErrorAt stx "invalid atomic left recursive syntax";
         let args := args.eraseIdx 0;
         args ← args.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
         liftM $ mkParserSeq args)
@@ -86,10 +86,10 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     let cat := (stx.getIdAt 0).eraseMacroScopes;
     ctx ← read;
     if ctx.first && cat == ctx.catName then
-      liftM $ throwErrorAt stx "invalid atomic left recursive syntax"
+      throwErrorAt stx "invalid atomic left recursive syntax"
     else do
       let prec? : Option Nat  := expandOptPrecedence (stx.getArg 1);
-      env ← liftM getEnv;
+      env ← getEnv;
       if Parser.isParserCategory env cat then
         let prec := prec?.getD 0;
         `(ParserDescr.cat $(quote cat) $(quote prec))
@@ -109,11 +109,11 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
               | _                                          => false;
          let candidates := candidates.map fun ⟨c, _⟩ => c;
          match candidates with
-         | []  => liftM $ throwErrorAt (stx.getArg 3) ("unknown category '" ++ cat ++ "' or parser declaration")
+         | []  => throwErrorAt (stx.getArg 3) ("unknown category '" ++ cat ++ "' or parser declaration")
          | [c] => do
-           unless prec?.isNone $ liftM $ throwErrorAt (stx.getArg 3) "unexpected precedence";
+           unless prec?.isNone $ throwErrorAt (stx.getArg 3) "unexpected precedence";
            `(ParserDescr.parser $(quote c))
-         | cs  => liftM $ throwErrorAt (stx.getArg 3) ("ambiguous parser declaration " ++ toString cs)
+         | cs  => throwErrorAt (stx.getArg 3) ("ambiguous parser declaration " ++ toString cs)
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
     | some atom => do
@@ -159,7 +159,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.orelse $d₁ $d₂)
   else
-    liftM $ throwErrorAt stx $ "unexpected syntax kind of category `syntax`: " ++ kind
+    throwErrorAt stx $ "unexpected syntax kind of category `syntax`: " ++ kind
 
 /--
   Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,
@@ -436,7 +436,7 @@ pure ()
 @[inline] def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
 Term.tryPostponeIfNoneOrMVar expectedType?;
 some expectedType ← pure expectedType?
-  | Term.throwError "expected type must be known";
+  | throwError "expected type must be known";
 x expectedType
 
 /-

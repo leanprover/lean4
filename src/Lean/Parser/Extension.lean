@@ -373,18 +373,18 @@ declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParser catName declName
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
-when args.hasArgs $ Core.throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
-unless persistent $ Core.throwError ("invalid attribute '" ++ attrName ++ "', must be persistent");
-decl ← Core.getConstInfo declName;
-env ← Core.getEnv;
+when args.hasArgs $ throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
+unless persistent $ throwError ("invalid attribute '" ++ attrName ++ "', must be persistent");
+decl ← getConstInfo declName;
+env ← getEnv;
 match decl.type with
 | Expr.const `Lean.Parser.TrailingParser _ _ => do
   env ← liftIO $ declareTrailingBuiltinParser env catName declName;
-  Core.setEnv env
+  setEnv env
 | Expr.const `Lean.Parser.Parser _ _ => do
   env ← liftIO $ declareLeadingBuiltinParser env catName declName;
-  Core.setEnv env
-| _ => Core.throwError ("unexpected parser type at '" ++ declName ++ "' (`Parser` or `TrailingParser` expected");
+  setEnv env
+| _ => throwError ("unexpected parser type at '" ++ declName ++ "' (`Parser` or `TrailingParser` expected");
 runParserAttributeHooks catName declName /- builtin -/ true
 
 /-
@@ -400,26 +400,26 @@ registerBuiltinAttribute {
 }
 
 private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
-when args.hasArgs $ Core.throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
-env ← Core.getEnv;
+when args.hasArgs $ throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
+env ← getEnv;
 let categories := (parserExtension.getState env).categories;
 match mkParserOfConstant env categories declName with
-| Except.error ex => Core.throwError ex
+| Except.error ex => throwError ex
 | Except.ok p     => do
   let leading    := p.1;
   let parser     := p.2;
   let tokens     := parser.info.collectTokens [];
   tokens.forM fun token => do {
-    env ← Core.getEnv;
+    env ← getEnv;
     match addToken env token with
-      | Except.ok env    => Core.setEnv env
-      | Except.error msg => Core.throwError ("invalid parser '" ++ toString declName ++ "', " ++ msg)
+      | Except.ok env    => setEnv env
+      | Except.error msg => throwError ("invalid parser '" ++ toString declName ++ "', " ++ msg)
   };
   let kinds := parser.info.collectKinds {};
-  kinds.forM fun kind _ => Core.modifyEnv fun env => addSyntaxNodeKind env kind;
+  kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind;
   match addParser categories catName declName leading parser with
-  | Except.ok _     => Core.modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
-  | Except.error ex => Core.throwError ex;
+  | Except.ok _     => modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
+  | Except.error ex => throwError ex;
   runParserAttributeHooks catName declName /- builtin -/ false
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=

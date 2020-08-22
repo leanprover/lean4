@@ -3,7 +3,7 @@ import Lean
 open Lean
 
 unsafe def test {α : Type} [HasToString α] [ToExpr α] [HasBeq α] (a : α) : CoreM Unit := do
-env ← Core.getEnv;
+env ← getEnv;
 let auxName := `_toExpr._test;
 let decl := Declaration.defnDecl {
   name     := auxName,
@@ -15,14 +15,14 @@ let decl := Declaration.defnDecl {
 };
 IO.println (toExpr a);
 match env.addAndCompile {} decl with
-| Except.error _ => Core.throwError "addDecl failed"
+| Except.error _ => throwError "addDecl failed"
 | Except.ok env  => do
   match env.evalConst α auxName with
-  | Except.error ex => Core.throwError ex
+  | Except.error ex => throwError ex
   | Except.ok b => do
     IO.println b;
     unless (a == b) $
-      Core.throwError "toExpr failed";
+      throwError "toExpr failed";
     pure ()
 
 #eval test #[(1, 2), (3, 4)]

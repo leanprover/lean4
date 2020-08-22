@@ -370,9 +370,6 @@ structure Context :=
 
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ MetaM
 
-@[inline] def liftMetaM {α} (x : MetaM α) : CheckAssignmentM α :=
-liftM x
-
 def throwCheckAssignmentFailure {α} : CheckAssignmentM α :=
 throw $ Core.Exception.internal checkAssignmentExceptionId
 
@@ -392,15 +389,12 @@ instance : MonadCache Expr Expr CheckAssignmentM :=
 @[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
 if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
 
-@[inline] private def readMeta : CheckAssignmentM Meta.Context := do
-liftMetaM read
-
 private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData := do
 ctx ← read;
 pure $ msg ++ " @ " ++ mkMVar ctx.mvarId ++ " " ++ ctx.fvars ++ " := " ++ ctx.rhs
 
 @[specialize] def checkFVar (check : Expr → CheckAssignmentM Expr) (fvar : Expr) : CheckAssignmentM Expr := do
-ctxMeta ← readMeta;
+ctxMeta ← readThe Meta.Context;
 ctx ← read;
 if ctx.mvarDecl.lctx.containsFVar fvar then pure fvar
 else do
@@ -414,10 +408,10 @@ else do
       throwOutOfScopeFVar
 
 @[inline] def getMCtx : CheckAssignmentM MetavarContext := do
-liftMetaM Meta.getMCtx
+liftM Meta.getMCtx
 
 def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) : CheckAssignmentM Expr := do
-liftMetaM $ mkFreshExprMVarAt lctx localInsts type
+liftM $ mkFreshExprMVarAt lctx localInsts type
 
 @[specialize] def checkMVar (check : Expr → CheckAssignmentM Expr) (mvar : Expr) : CheckAssignmentM Expr := do
 let mvarId := mvar.mvarId!;
@@ -429,7 +423,7 @@ if mvarId == ctx.mvarId then do
 else match mctx.getExprAssignment? mvarId with
   | some v => check v
   | none   => match mctx.findDecl? mvarId with
-    | none          => liftMetaM $ throwUnknownMVar mvarId
+    | none          => liftM $ throwUnknownMVar mvarId
     | some mvarDecl =>
       if ctx.hasCtxLocals then
         throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
@@ -441,14 +435,14 @@ else match mctx.getExprAssignment? mvarId with
         traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx $ addAssignmentInfo (mkMVar mvarId);
         throwCheckAssignmentFailure
       else do
-        ctxMeta ← readMeta;
+        ctxMeta ← readThe Meta.Context;
         if ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
           mvarType ← check mvarDecl.type;
           /- Create an auxiliary metavariable with a smaller context and "checked" type.
              Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
              a metavariable that we also need to reduce the context. -/
           newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-          liftMetaM $ modify (fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar });
+          modifyThe Meta.State (fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar });
           pure newMVar
         else
           pure mvar
@@ -481,7 +475,7 @@ partial def check : Expr → CheckAssignmentM Expr
 | e@(Expr.mvar _ _)        => visit (checkMVar check) e
 | Expr.localE _ _ _ _      => unreachable!
 | e@(Expr.app _ _ _)       => e.withApp $ fun f args => do
-  ctxMeta ← readMeta;
+  ctxMeta ← readThe Meta.Context;
   if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then do
     f ← visit (checkMVar check) f;
     catchInternalId outOfScopeExceptionId
@@ -489,14 +483,14 @@ partial def check : Expr → CheckAssignmentM Expr
         args ← args.mapM (visit check);
         pure $ mkAppN f args)
       (fun ex =>
-        condM (liftMetaM $ isDelayedAssigned f.mvarId!) (throw ex) do
-          eType ← liftMetaM $ inferType e;
+        condM (liftM $ isDelayedAssigned f.mvarId!) (throw ex) do
+          eType ← liftM $ inferType e;
           mvarType ← check eType;
           /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
                Note that `mvarType` may be different from `eType`. -/
           ctx ← read;
           newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-          condM (liftMetaM $ assignToConstFun f args.size newMVar)
+          condM (liftM $ assignToConstFun f args.size newMVar)
             (pure newMVar)
             (throw ex))
   else do

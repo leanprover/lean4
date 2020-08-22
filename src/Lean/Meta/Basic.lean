@@ -134,20 +134,17 @@ open Core (ECoreM Exception)
 
 abbrev MetaM := ReaderT Context $ StateRefT State $ CoreM
 
-@[inline] def liftCoreM {α} (x : CoreM α) : MetaM α :=
-liftM $ x
-
 @[inline] def mapCoreM (f : forall {α}, CoreM α → CoreM α) {α} : MetaM α → MetaM α :=
 monadMap @f
 
 instance : MonadIO MetaM :=
-{ liftIO := fun α x => liftCoreM $ liftIO x }
+{ liftIO := fun α x => liftM (liftIO x : CoreM α) }
 
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
 def getRef : MetaM Syntax :=
-liftCoreM Core.getRef
+liftM Core.getRef
 
 def addContext (msg : MessageData) : MetaM MessageData := do
 ctxCore ← readThe Core.Context;
@@ -165,7 +162,7 @@ def throwIsDefEqStuck {α} : MetaM α :=
 throw $ Core.Exception.internal isDefEqStuckExceptionId
 
 def checkRecDepth : MetaM Unit :=
-liftCoreM $ Core.checkRecDepth
+liftM $ Core.checkRecDepth
 
 @[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
 mapCoreM (fun α => Core.withIncRecDepth) x
@@ -189,25 +186,25 @@ def setMCtx (mctx : MetavarContext) : MetaM Unit :=
 modify $ fun s => { s with mctx := mctx }
 
 @[inline] def getOptions : MetaM Options :=
-liftCoreM Core.getOptions
+liftM Core.getOptions
 
 @[inline] def getEnv : MetaM Environment :=
-liftCoreM Core.getEnv
+liftM Core.getEnv
 
 def setEnv (env : Environment) : MetaM Unit :=
-liftCoreM $ Core.setEnv env
+liftM $ Core.setEnv env
 
 def getNGen : MetaM NameGenerator :=
-liftCoreM Core.getNGen
+liftM Core.getNGen
 
 def setNGen (ngen : NameGenerator) : MetaM Unit :=
-liftCoreM $ Core.setNGen ngen
+liftM $ Core.setNGen ngen
 
 def getTraceState  : MetaM TraceState :=
-liftCoreM $ Core.getTraceState
+liftM $ Core.getTraceState
 
 def setTraceState (traceState : TraceState) : MetaM Unit :=
-liftCoreM $ Core.setTraceState traceState
+liftM $ Core.setTraceState traceState
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
@@ -254,7 +251,7 @@ withIncRecDepth do
   fn mvarId
 
 def mkFreshId : MetaM Name := do
-liftCoreM Core.mkFreshId
+liftM Core.mkFreshId
 
 private def mkFreshExprMVarAtCore
     (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : MetaM Expr := do
@@ -285,7 +282,7 @@ modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
 pure $ mkLevelMVar mvarId
 
 @[inline] def ofExcept {α ε} [HasToString ε] (x : Except ε α) : MetaM α :=
-liftCoreM $ Core.ofExcept x
+liftM $ Core.ofExcept x
 
 @[inline] def shouldReduceAll : MetaM Bool := do
 ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
@@ -882,7 +879,7 @@ opts  ← getOptions;
 mctx  ← getMCtx;
 lctx  ← getLCtx;
 match Lean.mkAuxDefinition env opts mctx lctx name type value with
-| Except.error ex          => liftCoreM $ Core.throwKernelException ex
+| Except.error ex          => liftM $ Core.throwKernelException ex
 | Except.ok (e, env, mctx) => do setEnv env; setMCtx mctx; pure e
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/

@@ -16,9 +16,10 @@ extern "C" {
 lean_object* l___private_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkNeverExtractAttr(lean_object*);
 lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_mkNeverExtractAttr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNeverExtractAttr___closed__3;
+lean_object* l_Lean_mkNeverExtractAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux(lean_object*, lean_object*);
-extern lean_object* l_Lean_Core_dbgTrace___rarg___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_neverExtractAttr;
 lean_object* l___private_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___main___boxed(lean_object*, lean_object*);
@@ -31,6 +32,18 @@ lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object
 extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
 uint8_t l___private_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_mkNeverExtractAttr___closed__1;
+lean_object* l_Lean_mkNeverExtractAttr___closed__4;
+lean_object* l_Lean_mkNeverExtractAttr___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_box(0);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+return x_6;
+}
+}
 lean_object* _init_l_Lean_mkNeverExtractAttr___closed__1() {
 _start:
 {
@@ -57,14 +70,33 @@ x_1 = lean_mk_string("instruct the compiler that function applications using the
 return x_1;
 }
 }
+lean_object* _init_l_Lean_mkNeverExtractAttr___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_mkNeverExtractAttr___lambda__1___boxed), 4, 0);
+return x_1;
+}
+}
 lean_object* l_Lean_mkNeverExtractAttr(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_mkNeverExtractAttr___closed__2;
 x_3 = l_Lean_mkNeverExtractAttr___closed__3;
-x_4 = l_Lean_Core_dbgTrace___rarg___closed__1;
+x_4 = l_Lean_mkNeverExtractAttr___closed__4;
 x_5 = l_Lean_registerTagAttribute(x_2, x_3, x_4, x_1);
+return x_5;
+}
+}
+lean_object* l_Lean_mkNeverExtractAttr___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_mkNeverExtractAttr___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -170,6 +202,8 @@ l_Lean_mkNeverExtractAttr___closed__2 = _init_l_Lean_mkNeverExtractAttr___closed
 lean_mark_persistent(l_Lean_mkNeverExtractAttr___closed__2);
 l_Lean_mkNeverExtractAttr___closed__3 = _init_l_Lean_mkNeverExtractAttr___closed__3();
 lean_mark_persistent(l_Lean_mkNeverExtractAttr___closed__3);
+l_Lean_mkNeverExtractAttr___closed__4 = _init_l_Lean_mkNeverExtractAttr___closed__4();
+lean_mark_persistent(l_Lean_mkNeverExtractAttr___closed__4);
 res = l_Lean_mkNeverExtractAttr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_neverExtractAttr = lean_io_result_get_value(res);

@@ -12,12 +12,12 @@ namespace UnboxResult
 
 def mkUnboxAttr : IO TagAttribute :=
 registerTagAttribute `unbox "compiler tries to unbox result values if their types are tagged with `[unbox]`" $ fun declName => do
-  cinfo ← Core.getConstInfo declName;
+  cinfo ← getConstInfo declName;
   match cinfo with
   | ConstantInfo.inductInfo v =>
-    if v.isRec then Core.throwError "recursive inductive datatypes are not supported"
+    if v.isRec then throwError "recursive inductive datatypes are not supported"
     else pure ()
-  | _ => Core.throwError "constant must be an inductive type"
+  | _ => throwError "constant must be an inductive type"
 
 @[init mkUnboxAttr]
 constant unboxAttr : TagAttribute := arbitrary _

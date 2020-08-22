@@ -44,7 +44,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Core_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_getExportNameFor___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___closed__1;
@@ -100,6 +99,7 @@ lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkExportAttr___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9___rarg___closed__1;
 lean_object* l_Lean_mkExportAttr___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* lean_get_export_name_for(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
@@ -1238,7 +1238,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lean_mkExportAttr___lambda__1___closed__3;
-x_8 = l_Lean_Core_throwError___rarg(x_7, x_3, x_4, x_5);
+x_8 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_7, x_3, x_4, x_5);
 return x_8;
 }
 else
@@ -1254,7 +1254,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; 
 lean_dec(x_9);
 x_11 = l_Lean_mkExportAttr___lambda__1___closed__6;
-x_12 = l_Lean_Core_throwError___rarg(x_11, x_3, x_4, x_5);
+x_12 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_11, x_3, x_4, x_5);
 return x_12;
 }
 else

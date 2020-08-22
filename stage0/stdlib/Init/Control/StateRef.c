@@ -28,6 +28,7 @@ lean_object* l_StateRefT_run___rarg___lambda__3(lean_object*, lean_object*, lean
 lean_object* l_IO_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_MonadExceptOf(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_MonadFunctor___rarg(lean_object*, lean_object*);
+lean_object* l_ReaderT_MonadExceptOf___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_modifyGet(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_get___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_run_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,7 +51,6 @@ lean_object* l_StateRefT_HasMonadLift___rarg___boxed(lean_object*, lean_object*)
 lean_object* l_StateRefT_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_lift(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_monadIO___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_MonadExceptOf___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadFunctor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_run_x27___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_IO_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*);
@@ -438,7 +438,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 lean_inc(x_1);
 x_2 = lean_alloc_closure((void*)(l_ReaderT_MonadExceptOf___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_2, 0, x_1);
-x_3 = lean_alloc_closure((void*)(l_ReaderT_MonadExceptOf___rarg___lambda__2), 5, 1);
+x_3 = lean_alloc_closure((void*)(l_ReaderT_MonadExceptOf___rarg___lambda__3), 5, 1);
 lean_closure_set(x_3, 0, x_1);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);

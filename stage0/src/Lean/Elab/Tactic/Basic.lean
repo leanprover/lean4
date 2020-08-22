@@ -21,7 +21,7 @@ MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
 ref ← getRef;
 let tailRef := ref.getTailWithPos.getD ref;
-Term.throwErrorAt tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
+throwErrorAt tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
 
 namespace Tactic
 
@@ -41,14 +41,11 @@ structure BacktrackableState :=
 abbrev TacticM := ReaderT Context $ StateRefT State $ TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
-def getEnv : TacticM Environment := do s ← getThe Core.State; pure s.env
 def getMCtx : TacticM MetavarContext := do s ← getThe Meta.State; pure s.mctx
 def getLCtx : TacticM LocalContext := do ctx ← readThe Meta.Context; pure ctx.lctx
 def getLocalInsts : TacticM LocalInstances := do ctx ← readThe Meta.Context; pure ctx.localInstances
-def getOptions : TacticM Options := do ctx ← readThe Core.Context; pure ctx.options
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 
-def setEnv (env : Environment) : TacticM Unit := modifyThe Core.State fun s => { s with env := env }
 def setMCtx (mctx : MetavarContext) : TacticM Unit := modifyThe Meta.State fun s => { s with mctx := mctx }
 
 @[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : TacticM Unit := modifyThe Meta.State $ fun s => { s with mctx := f s.mctx }
@@ -102,7 +99,6 @@ liftM x
 liftTermElabM $ Term.liftMetaM x
 
 def instantiateMVars (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars e
-def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
 def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType expectedType? e
@@ -123,17 +119,10 @@ let s := Lean.collectMVars {} e;
 pure s.result.toList
 
 instance monadLog : MonadLog TacticM :=
-{ getRef      := liftTermElabM getRef,
-  getFileMap  := liftTermElabM getFileMap,
+{ getFileMap  := liftTermElabM getFileMap,
   getFileName := liftTermElabM getFileName,
-  addContext  := addContext,
+  addContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,
   logMessage  := fun msg => liftTermElabM $ logMessage msg }
-
-def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : TacticM α := do
-liftTermElabM $ Term.throwErrorAt ref msgData
-
-def throwError {α} (msgData : MessageData) : TacticM α := do
-liftTermElabM $ Term.throwError msgData
 
 def checkRecDepth : TacticM Unit :=
 liftTermElabM $ Term.checkRecDepth
@@ -191,7 +180,7 @@ instance : MonadMacroAdapter TacticM :=
   setNextMacroScope      := fun next => modifyThe Term.State $ fun s => { s with nextMacroScope := next },
   getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
   getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
-  throwError             := @throwErrorAt,
+  throwError             := fun α ref msg => throwErrorAt ref msg,
   throwUnsupportedSyntax := fun α => throwUnsupportedSyntax }
 
 @[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit

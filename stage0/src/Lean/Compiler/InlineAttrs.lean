@@ -34,8 +34,8 @@ registerEnumAttributes `inlineAttrs
    (`noinline, "mark definition to never be inlined", InlineAttributeKind.noinline),
    (`macroInline, "mark definition to always be inlined before ANF conversion", InlineAttributeKind.macroInline)]
   (fun declName _ => do
-    env ← Core.getEnv;
-    Core.ofExcept $ checkIsDefinition env declName)
+    env ← getEnv;
+    ofExcept $ checkIsDefinition env declName)
 
 @[init mkInlineAttrs]
 constant inlineAttrs : EnumAttributes InlineAttributeKind := arbitrary _

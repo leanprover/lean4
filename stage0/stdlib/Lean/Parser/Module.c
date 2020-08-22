@@ -136,6 +136,7 @@ lean_object* l_Lean_Parser_testModuleParser___closed__1;
 lean_object* l_IO_println___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__1(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_import_formatter___closed__6;
+lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__7;
 extern lean_object* l_Lean_PrettyPrinter_formatterAttribute;
 lean_object* l_Lean_Parser_addParserTokens(lean_object*, lean_object*);
@@ -224,7 +225,6 @@ lean_object* l___regBuiltin_Lean_Parser_Module_header_formatter___closed__1;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__10;
 lean_object* l_Std_PersistentArray_forMAux___main___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__7___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__3;
 lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
@@ -1503,7 +1503,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Module_prelude___elambda__1___closed__3;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1552,7 +1552,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Module_import___elambda__1___closed__5;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1562,7 +1562,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Module_import___elambda__1___closed__7;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

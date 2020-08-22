@@ -120,9 +120,6 @@ match result with
 | EStateM.Result.ok e s     => do s.restore; pure e
 | EStateM.Result.error ex s => do s.restore; throw ex
 
-private def getRefImpl : TermElabM Syntax :=
-liftM $ Core.getRef
-
 /-- Auxiliary function for `liftMetaM` -/
 private def mkMessageAux (ref : Syntax) (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
 let pos := ref.getPos.getD 0;
@@ -142,7 +139,7 @@ liftMetaMCore $ Meta.setTraceState s
 
 private def saveTraceAsMessages (traceState : TraceState) : TermElabM Unit :=
 unless traceState.traces.isEmpty do
-  ref ← getRefImpl;
+  ref ← getRef;
   ctx ← read;
   modify fun s =>
     { s with messages := traceState.traces.foldl
@@ -162,11 +159,9 @@ finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
 liftMetaM $ liftM x
 
-def getEnv : TermElabM Environment := do s ← getThe Core.State; pure s.env
 def getMCtx : TermElabM MetavarContext := do s ← getThe Meta.State; pure s.mctx
 def getLCtx : TermElabM LocalContext := do ctx ← readThe Meta.Context; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← readThe Meta.Context; pure ctx.localInstances
-def getOptions : TermElabM Options := do ctx ← readThe Core.Context; pure ctx.options
 def getNGen : TermElabM NameGenerator := do s ← getThe Core.State; pure s.ngen
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
@@ -176,37 +171,31 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   | none   => unreachable!
 def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
-def setEnv (env : Environment) : TermElabM Unit := modifyThe Core.State $ fun s => { s with env := env }
-@[inline] def modifyEnv (f : Environment → Environment) : TermElabM Unit := modifyThe Core.State $ fun s => { s with env := f s.env }
 def setMCtx (mctx : MetavarContext) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := mctx }
 def setNGen (ngen : NameGenerator) : TermElabM Unit := modifyThe Core.State $ fun s => { s with ngen := ngen }
 
-def addContext (msg : MessageData) : TermElabM MessageData := do
+private def addContext' (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
 pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
 
+instance MonadError : MonadError TermElabM :=
+{ getRef     := getRef,
+  addContext := fun ref msg => do
+    ctx ← read;
+    let ref := getBetterRef ref ctx.macroStack;
+    let msg := if ctx.macroStackAtErr then addMacroStack msg ctx.macroStack else msg;
+    msg ← addContext' msg;
+    pure (ref, msg) }
+
 instance monadLog : MonadLog TermElabM :=
-{ getRef      := getRefImpl,
-  getFileMap  := do ctx ← read; pure ctx.fileMap,
+{ getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  addContext  := addContext,
+  addContext  := addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
 /- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
 @[inline] def withRef {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
 adaptTheReader Core.Context (Core.Context.replaceRef ref) x
-
-/-- Throws an error with the given `msgData` and extracting position information from `ctx.ref`. -/
-def throwError {α} (msg : MessageData) : TermElabM α := do
-ctx ← read;
-ref ← getRef;
-let ref := getBetterRef ref ctx.macroStack;
-let msg := if ctx.macroStackAtErr then addMacroStack msg ctx.macroStack else msg;
-msg ← addContext msg;
-throw $ Exception.error ref msg
-
-def throwErrorAt {α} (ref : Syntax) (msgData : MessageData) : TermElabM α :=
-withRef ref $ throwError msgData
 
 def checkRecDepth : TermElabM Unit :=
 liftMetaM $ Meta.checkRecDepth
@@ -853,7 +842,7 @@ instance : MonadMacroAdapter TermElabM :=
   setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
   getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
   getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
-  throwError             := @throwErrorAt,
+  throwError             := fun α ref msg => throwErrorAt ref msg,
   throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
 
 private def isExplicit (stx : Syntax) : Bool :=

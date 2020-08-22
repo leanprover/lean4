@@ -26,6 +26,28 @@ x r
 @[reducible] def Reader (ρ : Type u) := ReaderT ρ id
 
 namespace ReaderT
+
+section
+variables {ρ : Type u} {m : Type u → Type v} {α : Type u}
+
+@[inline] protected def lift  (a : m α) : ReaderT ρ m α :=
+fun r => a
+
+instance  : HasMonadLift m (ReaderT ρ m) :=
+⟨@ReaderT.lift ρ m⟩
+
+instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) :=
+{ throw := fun α => ReaderT.lift ∘ throwThe ε,
+  catch := fun α x c r => catchThe ε (x r) (fun e => (c e) r) }
+
+@[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
+fun s => x₁ s <|> x₂ s
+
+@[inline] protected def failure [Alternative m] {α : Type u} : ReaderT ρ m α :=
+fun s => failure
+
+end
+
 section
 variables {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
 
@@ -44,32 +66,16 @@ fun r => f <$> x r
 instance : Monad (ReaderT ρ m) :=
 { pure := @ReaderT.pure _ _ _, bind := @ReaderT.bind _ _ _, map := @ReaderT.map _ _ _ }
 
-@[inline] protected def lift (a : m α) : ReaderT ρ m α :=
-fun r => a
-
-instance (m) [Monad m] : HasMonadLift m (ReaderT ρ m) :=
-⟨@ReaderT.lift ρ m _⟩
-
 instance (ρ m m') [Monad m] [Monad m'] : MonadFunctor m m' (ReaderT ρ m) (ReaderT ρ m') :=
 ⟨fun _ f x r => f (x r)⟩
 
 @[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
 fun x r => x (f r)
 
-@[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
-fun s => x₁ s <|> x₂ s
-
-@[inline] protected def failure [Alternative m] {α : Type u} : ReaderT ρ m α :=
-fun s => failure
-
 instance [Alternative m] : Alternative (ReaderT ρ m) :=
 { ReaderT.Monad with
-  failure := @ReaderT.failure _ _ _ _,
-  orelse  := @ReaderT.orelse _ _ _ _ }
-
-instance (ε) [Monad m] [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) :=
-{ throw := fun α => ReaderT.lift ∘ throwThe ε,
-  catch := fun α x c r => catchThe ε (x r) (fun e => (c e) r) }
+  failure := @ReaderT.failure _ _ _,
+  orelse  := @ReaderT.orelse _ _ _ }
 
 end
 end ReaderT

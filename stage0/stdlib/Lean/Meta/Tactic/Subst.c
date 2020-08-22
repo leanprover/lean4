@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_check___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Core_getConstInfo___closed__5;
 lean_object* l_Array_findSomeMAux___main___at_Lean_Meta_subst___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Meta_substCore___lambda__3___closed__2;
@@ -79,6 +78,7 @@ lean_object* l_Nat_foldMAux___main___at_Lean_Meta_substCore___spec__2___boxed(le
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive_x3f___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__3___closed__9;
@@ -2713,7 +2713,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 x_147 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_147, 0, x_32);
-x_148 = l_Lean_Core_getConstInfo___closed__5;
+x_148 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 x_149 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_149, 0, x_148);
 lean_ctor_set(x_149, 1, x_147);
@@ -4126,7 +4126,7 @@ x_23 = l_Lean_Meta_subst___lambda__1___closed__3;
 x_24 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_22);
-x_25 = l_Lean_Core_getConstInfo___closed__5;
+x_25 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 x_26 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);

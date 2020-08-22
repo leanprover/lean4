@@ -694,5 +694,4 @@ constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool :
 constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr := arbitrary _
 
 end Kernel
-
 end Lean

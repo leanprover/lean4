@@ -87,7 +87,7 @@ private partial def elabHeaderAux (views : Array InductiveView)
       | some typeStx => do
         type ← Term.elabTerm typeStx none;
         unlessM (Term.isTypeFormerType type) $
-          Term.throwErrorAt typeStx "invalid inductive type, resultant type is not a sort";
+          throwErrorAt typeStx "invalid inductive type, resultant type is not a sort";
         elabHeaderAux (i+1) (acc.push { lctx := lctx, localInsts := localInsts, params := params, type := type, view := view })
   else
     pure acc
@@ -95,26 +95,26 @@ private partial def elabHeaderAux (views : Array InductiveView)
 private def checkNumParams (rs : Array ElabHeaderResult) : TermElabM Nat := do
 let numParams := (rs.get! 0).params.size;
 rs.forM fun r => unless (r.params.size == numParams) $
-  Term.throwErrorAt r.view.ref "invalid inductive type, number of parameters mismatch in mutually inductive datatypes";
+  throwErrorAt r.view.ref "invalid inductive type, number of parameters mismatch in mutually inductive datatypes";
 pure numParams
 
 private def checkUnsafe (rs : Array ElabHeaderResult) : TermElabM Unit :=
 let isUnsafe := (rs.get! 0).view.modifiers.isUnsafe;
 rs.forM fun r => unless (r.view.modifiers.isUnsafe == isUnsafe) $
-  Term.throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
+  throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
 
 private def checkLevelNames (views : Array InductiveView) : TermElabM Unit :=
 when (views.size > 1) do
   let levelNames := (views.get! 0).levelNames;
   views.forM fun view => unless (view.levelNames == levelNames) $
-    Term.throwErrorAt view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
+    throwErrorAt view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
 
 private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
 Term.withLocalContext r.lctx r.localInsts do
   Term.mkForall r.params r.type
 
 private def throwUnexpectedInductiveType {α} : TermElabM α :=
-Term.throwError "unexpected inductive resulting type"
+throwError "unexpected inductive resulting type"
 
 -- Given `e` of the form `forall As, B`, return `B`.
 private def getResultingType (e : Expr) : TermElabM Expr :=
@@ -134,15 +134,15 @@ private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr �
       unless (n₁ == n₂) $
         let msg : MessageData :=
           "invalid mutually inductive types, parameter name mismatch '" ++ n₁ ++ "', expected '" ++ n₂ ++ "'";
-        Term.throwError msg;
+        throwError msg;
       unlessM (Term.isDefEq d₁ d₂) $
         let msg : MessageData :=
           "invalid mutually inductive types, type mismatch at parameter '" ++ n₁ ++ "'" ++ indentExpr d₁
           ++ Format.line ++ "expected type" ++ indentExpr d₂;
-        Term.throwError msg;
+        throwError msg;
       unless (c₁.binderInfo == c₂.binderInfo) $
         -- TODO: improve this error message?
-        Term.throwError ("invalid mutually inductive types, binder annotation mismatch at parameter '" ++ n₁ ++ "'");
+        throwError ("invalid mutually inductive types, binder annotation mismatch at parameter '" ++ n₁ ++ "'");
       Term.withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
         let type      := b₁.instantiate1 x;
         let firstType := b₂.instantiate1 x;
@@ -158,7 +158,7 @@ private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr �
       unlessM (Term.liftMetaM $ eqvFirstTypeResult firstType type) $
         let msg : MessageData :=
           "invalid mutually inductive types, resulting universe mismatch, given " ++ indentExpr type ++ Format.line ++ "expected type" ++ indentExpr firstType;
-        Term.throwError msg
+        throwError msg
     | _ => throwUnexpectedInductiveType
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
@@ -230,15 +230,15 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
   type ← match ctorView.type? with
     | none          => do
       when indFamily $
-        Term.throwError "constructor resulting type must be specified in inductive family declaration";
+        throwError "constructor resulting type must be specified in inductive family declaration";
       pure indFVar
     | some ctorType => do {
       type ← Term.elabTerm ctorType none;
       resultingType ← getResultingType type;
       unless (resultingType.getAppFn == indFVar) $
-        Term.throwError ("unexpected constructor resulting type" ++ indentExpr resultingType);
+        throwError ("unexpected constructor resulting type" ++ indentExpr resultingType);
       unlessM (Term.isType resultingType) $
-        Term.throwError ("unexpected constructor resulting type, type expected" ++ indentExpr resultingType);
+        throwError ("unexpected constructor resulting type, type expected" ++ indentExpr resultingType);
       pure type
     };
   type ← Term.mkForall ctorParams type;
@@ -261,12 +261,12 @@ private def levelMVarToParam (indTypes : List InductiveType) : TermElabM (List I
 (levelMVarToParamAux indTypes).run' 1
 
 private def getResultingUniverse : List InductiveType → TermElabM Level
-| []           => Term.throwError "unexpected empty inductive declaration"
+| []           => throwError "unexpected empty inductive declaration"
 | indType :: _ => do
   r ← getResultingType indType.type;
   match r with
   | Expr.sort u _ => pure u
-  | _             => Term.throwError "unexpected inductive type resulting type"
+  | _             => throwError "unexpected inductive type resulting type"
 
 def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
 
@@ -282,7 +282,7 @@ if u.hasMVar then
     Term.assignLevelMVar mvarId tmpIndParam;
     pure true
   | _ =>
-    Term.throwError $
+    throwError $
       "cannot infer resulting universe level of inductive datatype, given level contains metavariables " ++ mkSort u ++ ", provide universe explicitly"
 else
   pure false
@@ -310,7 +310,7 @@ private partial def collectUniversesFromCtorTypeAux (r : Level) (rOffset : Nat) 
   u ← Term.getLevel d;
   u ← Term.instantiateLevelMVars u;
   match accLevelAtCtor u r rOffset us with
-  | Except.error msg => Term.throwError msg
+  | Except.error msg => throwError msg
   | Except.ok us     => Term.withLocalDecl n c.binderInfo d $ fun x =>
     let e := b.instantiate1 x;
     collectUniversesFromCtorTypeAux 0 e us
@@ -338,7 +338,7 @@ r ← getResultingUniverse indTypes;
 let rOffset : Nat   := r.getOffset;
 let r       : Level := r.getLevelOffset;
 unless (r.isParam) $
-  Term.throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly";
+  throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly";
 us ← collectUniverses r rOffset numParams indTypes;
 let rNew := Level.mkNaryMax us.toList;
 pure $ indTypes.map fun indType =>
@@ -455,7 +455,7 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       indTypes ← if inferLevel then updateResultingUniverse numParams indTypes else pure indTypes;
       let usedLevelNames := collectLevelParamsInInductive indTypes;
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
-      | Except.error msg      => Term.throwError msg
+      | Except.error msg      => throwError msg
       | Except.ok levelParams => do
         indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
         let indTypes := applyInferMod views numParams indTypes;

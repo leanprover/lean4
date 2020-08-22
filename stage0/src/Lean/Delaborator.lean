@@ -209,9 +209,6 @@ pure $ annotatePos ctx.pos stx
 @[inline] def liftMetaM {α} (x : MetaM α) : DelabM α :=
 liftM x
 
-def getEnv : DelabM Environment :=
-liftMetaM $ Meta.getEnv
-
 partial def delabFor : Name → Delab
 | k => do
   env ← getEnv;
@@ -430,7 +427,7 @@ e ← withProj delab;
 def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
 e@(Expr.app fn _ _) ← getExpr | failure;
 Expr.const c@(Name.str _ f _) _ _ ← pure fn.getAppFn | failure;
-env ← liftM getEnv;
+env ← getEnv;
 some info ← pure $ env.getProjectionFnInfo? c | failure;
 -- can't use with classes since the instance parameter is implicit
 guard $ !info.fromClass;
@@ -467,7 +464,7 @@ end Delaborator
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
-opts ← Meta.getOptions;
+opts ← getOptions;
 some stx ← Delaborator.delab { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos }
   | unreachable!;
 pure stx

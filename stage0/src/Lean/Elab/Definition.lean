@@ -88,7 +88,7 @@ else withUsedWhen vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars =>
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;
   match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams.params with
-  | Except.error msg      => Term.throwError msg
+  | Except.error msg      => throwError msg
   | Except.ok levelParams =>
     match view.kind with
     | DefKind.theorem =>
@@ -102,7 +102,7 @@ else withUsedWhen vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars =>
         hints := ReducibilityHints.abbrev,
         isUnsafe := view.modifiers.isUnsafe }
     | DefKind.def => do
-      env ← Term.getEnv;
+      env ← getEnv;
       pure $ some $ Declaration.defnDecl {
         name := declName, lparams := levelParams, type := type, value := val,
         hints := ReducibilityHints.regular (getMaxHeight env val + 1),
@@ -115,7 +115,7 @@ if kind == `Lean.Parser.Command.declValSimple then
   -- parser! " := " >> termParser
   Term.elabTerm (defVal.getArg 1) expectedType
 else if kind == `Lean.Parser.Command.declValEqns then
-  Term.throwErrorAt defVal "equations have not been implemented yet"
+  throwErrorAt defVal "equations have not been implemented yet"
 else
   throwUnsupportedSyntax
 

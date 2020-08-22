@@ -196,11 +196,11 @@ match type with
 private def checkParentIsStructure (parent : Expr) : TermElabM Name :=
 match parent.getAppFn with
 | Expr.const c _ _ => do
-  env ← Term.getEnv;
+  env ← getEnv;
   unless (isStructure env c) $
-    Term.throwError $ "'" ++ toString c ++ "' is not a structure";
+    throwError $ "'" ++ toString c ++ "' is not a structure";
   pure c
-| _ => Term.throwError $ "expected structure"
+| _ => throwError $ "expected structure"
 
 private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : Option StructFieldInfo :=
 infos.find? fun info => info.name == fieldName
@@ -213,9 +213,9 @@ private partial def processSubfields {α} (structDeclName : Name) (parentFVar : 
 | i, infos, k =>
   if h : i < subfieldNames.size then do
     let subfieldName := subfieldNames.get ⟨i, h⟩;
-    env ← Term.getEnv;
+    env ← getEnv;
     when (containsFieldName infos subfieldName) $
-      Term.throwError ("field '" ++ subfieldName ++ "' from '" ++ parentStructName ++ "' has already been declared");
+      throwError ("field '" ++ subfieldName ++ "' from '" ++ parentStructName ++ "' has already been declared");
     val  ← Term.liftMetaM $ Meta.mkProjection parentFVar subfieldName;
     type ← Term.inferType val;
     Term.withLetDecl subfieldName type val fun subfieldFVar =>
@@ -236,8 +236,8 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
     parentName ← checkParentIsStructure parent;
     let toParentName := mkNameSimple $ "to" ++ parentName.eraseMacroScopes.getString!; -- erase macro scopes?
     when (containsFieldName infos toParentName) $
-      Term.throwErrorAt parentStx ("field '" ++ toParentName ++ "' has already been declared");
-    env ← Term.getEnv;
+      throwErrorAt parentStx ("field '" ++ toParentName ++ "' has already been declared");
+    env ← getEnv;
     let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default;
     Term.withLocalDecl toParentName binfo parent $ fun parentFVar =>
       let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
@@ -274,7 +274,7 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
     | none      => do
       (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => elabFieldTypeValue view params;
       match type?, value? with
-      | none,      none => Term.throwError "invalid field, type expected"
+      | none,      none => throwError "invalid field, type expected"
       | some type, _    =>
         Term.withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
           let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
@@ -287,13 +287,13 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
           withFields (i+1) infos k
     | some info =>
       match info.kind with
-      | StructFieldKind.newField   => Term.throwError ("field '" ++ view.name ++ "' has already been declared")
+      | StructFieldKind.newField   => throwError ("field '" ++ view.name ++ "' has already been declared")
       | StructFieldKind.fromParent =>
         match view.value? with
-        | none       => Term.throwError ("field '" ++ view.name ++ "' has been declared in parent structure")
+        | none       => throwError ("field '" ++ view.name ++ "' has been declared in parent structure")
         | some valStx => do
           when (!view.binders.getArgs.isEmpty || view.type?.isSome) $
-            Term.throwErrorAt view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value");
+            throwErrorAt view.type?.get! ("omit field '" ++ view.name ++ "' type to set default value");
           fvarType ← Term.inferType info.fvar;
           value ← Term.elabTermEnsuringType valStx fvarType;
           let infos := infos.push { info with value? := value };
@@ -306,7 +306,7 @@ private def getResultUniverse (type : Expr) : TermElabM Level := do
 type ← Term.whnf type;
 match type with
 | Expr.sort u _ => pure u
-| _             => Term.throwError "unexpected structure resulting type"
+| _             => throwError "unexpected structure resulting type"
 
 private def removeUnused (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
@@ -360,7 +360,7 @@ fieldInfos.foldlM
     u ← Term.getLevel type;
     u ← Term.instantiateLevelMVars u;
     match accLevelAtCtor u r rOffset us with
-    | Except.error msg => Term.throwError msg
+    | Except.error msg => throwError msg
     | Except.ok us     => pure us)
   #[]
 
@@ -374,7 +374,7 @@ match r with
   let rNew := Level.mkNaryMax us.toList;
   Term.assignLevelMVar mvarId rNew;
   Term.instantiateMVars type
-| _ => Term.throwError "failed to compute resulting universe level of structure, provide universe explicitly"
+| _ => throwError "failed to compute resulting universe level of structure, provide universe explicitly"
 
 private def collectLevelParamsInFVar (s : CollectLevelParams.State) (fvar : Expr) : TermElabM CollectLevelParams.State := do
 type ← Term.inferType fvar;
@@ -419,7 +419,7 @@ pure { name := view.ctor.declName, type := type }
 private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
-unless (validStructType type) $ Term.throwErrorAt view.type "expected Type";
+unless (validStructType type) $ throwErrorAt view.type "expected Type";
 Term.withRef view.ref do
 withParents view 0 #[] fun fieldInfos =>
 withFields view.fields 0 fieldInfos fun fieldInfos => do
@@ -432,7 +432,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
     type ← if inferLevel then updateResultingUniverse fieldInfos type else pure type;
     usedLevelNames ← collectLevelParamsInStructure scopeVars view.params fieldInfos;
     match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
-    | Except.error msg      => Term.throwError msg
+    | Except.error msg      => throwError msg
     | Except.ok levelParams => do
       let params := scopeVars ++ view.params;
       ctor ← mkCtor view levelParams params fieldInfos;
@@ -496,7 +496,7 @@ liftTermElabM none $ Term.withLocalContext lctx localInsts do
     value ← Term.liftMetaM $ Meta.mkId value;
     let zeta := true; -- expand `let-declarations`
     _ ← Term.mkAuxDefinition declName type value zeta;
-    Term.modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;
+    modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;
     pure ()
 
 /-

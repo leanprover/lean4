@@ -93,7 +93,7 @@ withDeclId declId $ fun name => do
     (type, _) ← Term.levelMVarToParam type;
     let usedParams  := (collectLevelParams {} type).params;
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
-    | Except.error msg      => Term.throwErrorAt stx msg
+    | Except.error msg      => throwErrorAt stx msg
     | Except.ok levelParams =>
       pure $ Declaration.axiomDecl {
         name     := declName,

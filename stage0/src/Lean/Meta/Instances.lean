@@ -47,12 +47,12 @@ registerBuiltinAttribute {
   name  := `instance,
   descr := "type class instance",
   add   := fun declName args persistent => do
-    when args.hasArgs $ Core.throwError "invalid attribute 'instance', unexpected argument";
-    unless persistent $ Core.throwError "invalid attribute 'instance', must be persistent";
-    env ← Core.getEnv;
-    env ← Core.ofExcept (addGlobalInstanceOld env declName); -- TODO: delete
+    when args.hasArgs $ throwError "invalid attribute 'instance', unexpected argument";
+    unless persistent $ throwError "invalid attribute 'instance', must be persistent";
+    env ← getEnv;
+    env ← ofExcept (addGlobalInstanceOld env declName); -- TODO: delete
     env ← liftIO $ addGlobalInstance env declName;
-    Core.setEnv env
+    setEnv env
 }
 
 end Meta

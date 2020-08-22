@@ -590,7 +590,7 @@ match field.lhs with
 | [FieldLHS.fieldName _ fieldName] => fieldName
 | _ => unreachable!
 
-abbrev M := ReaderT Context (StateT State TermElabM)
+abbrev M := ReaderT Context (StateRefT State TermElabM)
 
 def isRoundDone : M Bool := do
 ctx ← read;
@@ -634,7 +634,7 @@ def reduceProjOf? (structNames : Array Name) (e : Expr) : MetaM (Option Expr) :=
 if !e.isApp then pure none
 else match e.getAppFn with
   | Expr.const name _ _ => do
-    env ← Meta.getEnv;
+    env ← getEnv;
     match env.getProjectionStructureName? name with
     | some structName =>
       if structNames.contains structName then
@@ -733,7 +733,7 @@ partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
   | none       => pure () -- Done
   | some field =>
     if d > hierarchyDepth then
-      liftM $ throwErrorAt field.ref ("field '" ++ getFieldName field ++ "' is missing")
+      throwErrorAt field.ref ("field '" ++ getFieldName field ++ "' is missing")
     else adaptReader (fun (ctx : Context) => { ctx with maxDistance := d }) $ do
       modify $ fun (s : State) => { s with progress := false };
       step struct;

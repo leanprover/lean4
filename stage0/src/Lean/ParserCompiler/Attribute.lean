@@ -28,12 +28,12 @@ let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
   add   := fun decl args _ => do
-    env ← Core.getEnv;
+    env ← getEnv;
     match attrParamSyntaxToIdentifier args with
     | some parserDeclName => do
-      _ ← Core.getConstInfo parserDeclName;
-      Core.setEnv $ ext.addEntry env (parserDeclName, decl)
-    | none            => Core.throwError $ "invalid [" ++ name ++ "] argument, expected identifier"
+      _ ← getConstInfo parserDeclName;
+      setEnv $ ext.addEntry env (parserDeclName, decl)
+    | none            => throwError $ "invalid [" ++ name ++ "] argument, expected identifier"
 };
 registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }

@@ -279,14 +279,14 @@ let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
   add   := fun decl args persistent => do
-    when args.hasArgs $ Core.throwError ("invalid attribute '" ++ toString name ++ "', unexpected argument");
-    unless persistent $ Core.throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
-    env ← Core.getEnv;
+    when args.hasArgs $ throwError ("invalid attribute '" ++ toString name ++ "', unexpected argument");
+    unless persistent $ throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
+    env ← getEnv;
     unless (env.getModuleIdxFor? decl).isNone $
-      Core.throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
+      throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
     validate decl;
-    env ← Core.getEnv;
-    Core.setEnv $ ext.addEntry env decl
+    env ← getEnv;
+    setEnv $ ext.addEntry env decl
 };
 registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
@@ -332,14 +332,14 @@ let attrImpl : AttributeImpl := {
   descr := descr,
   applicationTime := appTime,
   add   := fun decl args persistent => do
-    unless persistent $ Core.throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
-    env ← Core.getEnv;
+    unless persistent $ throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
+    env ← getEnv;
     unless (env.getModuleIdxFor? decl).isNone $
-      Core.throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
+      throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
     val ← getParam decl args;
     let env' := ext.addEntry env (decl, val);
-    Core.setEnv env';
-    catch (afterSet decl val) (fun _ => Core.setEnv env)
+    setEnv env';
+    catch (afterSet decl val) (fun _ => setEnv env)
 };
 registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
@@ -392,12 +392,12 @@ let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => {
   descr           := descr,
   applicationTime := applicationTime,
   add             := (fun decl args persistent => do
-    unless persistent $ Core.throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
-    env ← Core.getEnv;
+    unless persistent $ throwError ("invalid attribute '" ++ toString name ++ "', must be persistent");
+    env ← getEnv;
     unless (env.getModuleIdxFor? decl).isNone $
-      Core.throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
+      throwError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module");
     validate decl val;
-    Core.setEnv $ ext.addEntry env (decl, val))
+    setEnv $ ext.addEntry env (decl, val))
   : AttributeImpl
 };
 attrs.forM registerBuiltinAttribute;

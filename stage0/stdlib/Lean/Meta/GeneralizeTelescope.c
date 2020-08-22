@@ -29,7 +29,7 @@ extern lean_object* l_Lean_MessageData_coeOfArrayExpr___closed__2;
 lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -588,7 +588,7 @@ x_34 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___cl
 x_35 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_33);
-x_36 = l_Lean_Meta_throwError___rarg(x_35, x_7, x_8, x_9, x_10, x_27);
+x_36 = l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(x_35, x_7, x_8, x_9, x_10, x_27);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);

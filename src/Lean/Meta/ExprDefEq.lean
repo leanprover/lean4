@@ -368,16 +368,6 @@ structure Context :=
 (hasCtxLocals  : Bool)
 (rhs           : Expr)
 
-/-
-inductive Exception
-| occursCheck
-| useFOApprox
-| outOfScopeFVar             (fvarId : FVarId)
-| readOnlyMVarWithBiggerLCtx (mvarId : MVarId)
-| unknownExprMVar            (mvarId : MVarId)
-| meta                       (ex : Meta.Exception)
--/
-
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ MetaM
 
 @[inline] def liftMetaM {α} (x : MetaM α) : CheckAssignmentM α :=

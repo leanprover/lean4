@@ -21,7 +21,7 @@ instance ReaderT.monadTracer (ρ : Type) (m : Type → Type) [MonadTracer m] : M
   trace    := fun n x _     => MonadTracer.trace n x,
   traceM   := fun n x ctx   => MonadTracer.traceM n (x ctx) }
 
-instance StateRefT.monadTracer (σ : Type) (m : Type → Type) [MonadTracer m] : MonadTracer (StateRefT σ m) :=
+instance StateRefT.monadTracer (ω σ : Type) (m : Type → Type) [MonadTracer m] : MonadTracer (StateRefT' ω σ m) :=
 inferInstanceAs (MonadTracer (ReaderT _ _))
 
 class MonadTracerAdapter (m : Type → Type) :=

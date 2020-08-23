@@ -10,6 +10,7 @@ import Init.Data.String.Basic
 import Init.Data.ByteArray
 import Init.System.IOError
 import Init.System.FilePath
+import Init.System.ST
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations.
@@ -26,8 +27,6 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-def ST := EIO Empty
-
 instance monadExceptAdapter {ε ε'} : MonadExceptAdapter ε ε' (EIO ε) (EIO ε') :=
 inferInstanceAs $ MonadExceptAdapter ε ε' (EStateM ε IO.RealWorld) (EStateM ε' IO.RealWorld)
 
@@ -41,7 +40,6 @@ instance (ε : Type) : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExcept
 instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
 inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
-instance : Monad ST := inferInstanceAs (Monad (EIO Empty))
 
 abbrev IO : Type → Type := EIO IO.Error
 
@@ -323,79 +321,15 @@ def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
 Prim.setAccessRights filename mode.flags
 
 /- References -/
-constant RefPointed : PointedType.{0} := arbitrary _
+abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-structure Ref (α : Type) : Type :=
-(ref : RefPointed.type) (h : Nonempty α)
+instance st2eio {ε} : HasMonadLift (ST IO.RealWorld) (EIO ε) :=
+⟨fun α x s => match x s with
+ | EStateM.Result.ok a s     => EStateM.Result.ok a s
+ | EStateM.Result.error ex _ => Empty.rec _ ex⟩
 
-instance Ref.inhabited {α} [Inhabited α] : Inhabited (Ref α) :=
-⟨{ ref := RefPointed.val, h := Nonempty.intro $ arbitrary _}⟩
-
-namespace Prim
-
-/- Auxiliary definition for showing that `EIO ε α` is inhabited when we have a `Ref α` -/
-private noncomputable def inhabitedFromRef {α} (r : Ref α) : ST α :=
-pure $ (Classical.inhabitedOfNonempty r.h).default
-
-
-@[extern "lean_io_mk_ref"]
-constant mkRef {α} (a : α) : ST (Ref α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
-@[extern "lean_io_ref_get"]
-constant Ref.get {α} (r : @& Ref α) : ST α := inhabitedFromRef r
-@[extern "lean_io_ref_set"]
-constant Ref.set {α} (r : @& Ref α) (a : α) : ST Unit := arbitrary _
-@[extern "lean_io_ref_swap"]
-constant Ref.swap {α} (r : @& Ref α) (a : α) : ST α := inhabitedFromRef r
-@[extern "lean_io_ref_take"]
-unsafe constant Ref.take {α} (r : @& Ref α) : ST α := inhabitedFromRef r
-@[extern "lean_io_ref_ptr_eq"]
-constant Ref.ptrEq {α} (r1 r2 : @& Ref α) : ST Bool := arbitrary _
-@[inline] unsafe def Ref.modifyUnsafe {α : Type} (r : Ref α) (f : α → α) : ST Unit := do
-v ← Ref.take r;
-Ref.set r (f v)
-
-@[inline] unsafe def Ref.modifyGetUnsafe {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : ST β := do
-v ← Ref.take r;
-let (b, a) := f v;
-Ref.set r a;
-pure b
-
-@[implementedBy Ref.modifyUnsafe]
-def Ref.modify {α : Type} (r : Ref α) (f : α → α) : ST Unit := do
-v ← Ref.get r;
-Ref.set r (f v)
-
-@[implementedBy Ref.modifyGetUnsafe]
-def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : ST β := do
-v ← Ref.get r;
-let (b, a) := f v;
-Ref.set r a;
-pure b
-
-end Prim
-
-section
-
-@[inline] private def liftST {ε α} (x : ST α) : EIO ε α :=
-fun s => match x s with
-  | r@(EStateM.Result.error e _) => Empty.rec _ e
-  | EStateM.Result.ok a s        => EStateM.Result.ok a s
-
-instance ST.monadLift {ε} : HasMonadLift ST (EIO ε) :=
-{ monadLift := fun α => liftST }
-
-variables {m : Type → Type} [Monad m] [HasMonadLiftT ST m]
-
-@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  liftM $ Prim.mkRef a
-@[inline] def Ref.get {α : Type} (r : Ref α) : m α := liftM $ Prim.Ref.get r
-@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := liftM $ Prim.Ref.set r a
-@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := liftM $ Prim.Ref.swap r a
-@[inline] unsafe def Ref.take {α : Type} (r : Ref α) : m α := liftM $ Prim.Ref.take r
-@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := liftM $ Prim.Ref.ptrEq r1 r2
-@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := liftM $ Prim.Ref.modify r f
-@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref α) (f : α → β × α) : m β := liftM $ Prim.Ref.modifyGet r f
-
-end
+def mkRef {α : Type} {m : Type → Type} [Monad m] [HasMonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
+ST.mkRef a
 
 end IO
 

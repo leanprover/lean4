@@ -34,7 +34,7 @@ instance ReaderT.monadError {ρ m} [Monad m] [MonadError m] : MonadError (Reader
 { getRef        := fun _ => getRef,
   addContext    := fun ref msg _ => addContext ref msg }
 
-instance StateRefT.monadError {σ m} [Monad m] [MonadError m] : MonadError (StateRefT σ m) :=
+instance StateRefT.monadError {ω σ m} [Monad m] [MonadError m] : MonadError (StateRefT' ω σ m) :=
 inferInstanceAs (MonadError (ReaderT _ _))
 
 section Methods

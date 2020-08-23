@@ -51,7 +51,7 @@ lean_object* l_Lean_MonadTracerAdapter_traceCtxExcept___rarg___lambda__2___boxed
 lean_object* l_Lean_MonadTracerAdapter_traceM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_MonadTracerAdapter_traceCtx___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_fmt___at_Lean_TraceState_HasToString___spec__1(lean_object*);
-lean_object* l_Lean_StateRefT_monadTracer(lean_object*, lean_object*);
+lean_object* l_Lean_StateRefT_monadTracer(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimpleMonadTracerAdapter_modifyTraces___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_traceCtx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_2__addNode___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -245,12 +245,12 @@ x_2 = l_Lean_ReaderT_monadTracer___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_StateRefT_monadTracer(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_StateRefT_monadTracer(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_StateRefT_monadTracer___rarg), 1, 0);
-return x_3;
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lean_StateRefT_monadTracer___rarg), 1, 0);
+return x_4;
 }
 }
 uint8_t l___private_Lean_Util_Trace_1__checkTraceOptionAux___main(lean_object* x_1, lean_object* x_2) {

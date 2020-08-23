@@ -1773,12 +1773,12 @@ static inline lean_obj_res lean_mk_io_error(lean_obj_arg e) {
     return r;
 }
 
-/* IO Ref primitives */
-lean_obj_res lean_io_mk_ref(lean_obj_arg, lean_obj_arg);
-lean_obj_res lean_io_ref_get(b_lean_obj_arg, lean_obj_arg);
-lean_obj_res lean_io_ref_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
-lean_obj_res lean_io_ref_reset(b_lean_obj_arg, lean_obj_arg);
-lean_obj_res lean_io_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
+/* ST Ref primitives */
+lean_obj_res lean_st_mk_ref(lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_st_ref_get(b_lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_st_ref_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_st_ref_reset(b_lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 
 /* pointer address unsafe primitive  */
 static inline size_t lean_ptr_addr(b_lean_obj_arg a) { return (size_t)a; }

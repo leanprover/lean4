@@ -19,7 +19,7 @@ lean_object* l_Lean_throwKernelException(lean_object*);
 lean_object* l_Lean_Exception_inhabited;
 lean_object* l_Lean_throwErrorAt___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_inhabited___closed__1;
-lean_object* l_Lean_StateRefT_monadError(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_StateRefT_monadError(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -48,7 +48,7 @@ lean_object* l_Lean_ReaderT_monadError(lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 lean_object* l_Lean_ReaderT_monadError___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_StateRefT_monadError___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_StateRefT_monadError___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object* x_1) {
 _start:
 {
@@ -205,21 +205,21 @@ x_2 = l_Lean_ReaderT_monadError___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_StateRefT_monadError(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_StateRefT_monadError(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_StateRefT_monadError___rarg), 1, 0);
-return x_4;
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_Lean_StateRefT_monadError___rarg), 1, 0);
+return x_5;
 }
 }
-lean_object* l_Lean_StateRefT_monadError___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_StateRefT_monadError___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_StateRefT_monadError(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* x_5; 
+x_5 = l_Lean_StateRefT_monadError(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 lean_object* l_Lean_throwError___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {

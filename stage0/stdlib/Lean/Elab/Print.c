@@ -33,8 +33,8 @@ lean_object* lean_environment_find(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_resolveName___closed__3;
 extern lean_object* l_Lean_Parser_Command_private___elambda__1___closed__5;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabPrint___closed__1;
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabPrint___closed__1;
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* lean_private_to_user_name(lean_object*);
 lean_object* l___private_Lean_Elab_Print_1__throwUnknownId___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabPrint(lean_object*);
@@ -321,7 +321,7 @@ lean_object* l___private_Lean_Elab_Print_3__mkHeader(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = lean_io_ref_get(x_7, x_8);
+x_9 = lean_st_ref_get(x_7, x_8);
 if (x_5 == 0)
 {
 lean_object* x_148; 
@@ -949,7 +949,7 @@ lean_object* l___private_Lean_Elab_Print_7__printInduct(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; 
-x_11 = lean_io_ref_get(x_9, x_10);
+x_11 = lean_st_ref_get(x_9, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
@@ -1029,7 +1029,7 @@ lean_object* l___private_Lean_Elab_Print_8__printIdCore(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = lean_io_ref_get(x_3, x_4);
+x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);

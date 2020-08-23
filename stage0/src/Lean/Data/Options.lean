@@ -100,7 +100,7 @@ def monadOptsFromLift (m) {n} [MonadOptions m] [HasMonadLiftT m n] : MonadOption
 { getOptions := liftM (getOptions : m _) }
 
 instance ReaderT.monadOpts {ρ m} [MonadOptions m] : MonadOptions (ReaderT ρ m) := monadOptsFromLift m
-instance StateRefT.monadOpts {σ m} [MonadOptions m] : MonadOptions (StateRefT σ m) := monadOptsFromLift m
+instance StateRefT.monadOpts {ω σ m} [MonadOptions m] : MonadOptions (StateRefT' ω σ m) := monadOptsFromLift m
 
 section Methods
 

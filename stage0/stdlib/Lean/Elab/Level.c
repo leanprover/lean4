@@ -54,7 +54,6 @@ lean_object* l_Lean_Elab_Level_LevelElabM_monadError;
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Level_LevelElabM_monadError___closed__3;
 lean_object* l_Lean_Level_addOffsetAux___main(lean_object*, lean_object*);
-extern lean_object* l_EIO_MonadExceptOf___closed__2;
 lean_object* l_Lean_Elab_Level_mkFreshId(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__3;
@@ -66,6 +65,7 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___main___spec__1__
 lean_object* l_Lean_Elab_Level_LevelElabM_monadError___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_monadLog___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelMVar(lean_object*);
+extern lean_object* l_EST_MonadExceptOf___closed__2;
 extern lean_object* l_Lean_Parser_Level_hole___elambda__1___closed__1;
 extern lean_object* l_Lean_identKind;
 lean_object* l_Lean_Elab_Level_withRef(lean_object*);
@@ -189,7 +189,7 @@ lean_object* _init_l_Lean_Elab_Level_LevelElabM_monadError___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EIO_MonadExceptOf___closed__2;
+x_1 = l_EST_MonadExceptOf___closed__2;
 x_2 = l_ReaderT_MonadExceptOf___rarg(x_1);
 return x_2;
 }

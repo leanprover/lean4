@@ -30,9 +30,9 @@ lean_object* l_Lean_Elab_Command_applyAttributes___boxed(lean_object*, lean_obje
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_elabModifiers___closed__6;
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__2;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* lean_private_to_user_name(lean_object*);
 extern lean_object* l_Lean_MessageData_arrayExpr_toMessageData___main___closed__1;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__1;
@@ -1339,7 +1339,7 @@ goto block_55;
 block_55:
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = lean_io_ref_get(x_3, x_8);
+x_9 = lean_st_ref_get(x_3, x_8);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
@@ -2277,7 +2277,7 @@ lean_object* l_Lean_Elab_Command_checkNotAlreadyDeclared(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_37; 
-x_5 = lean_io_ref_get(x_3, x_4);
+x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -2563,7 +2563,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean
 x_16 = lean_ctor_get(x_15, 1);
 lean_inc(x_16);
 lean_dec(x_15);
-x_17 = lean_io_ref_get(x_4, x_16);
+x_17 = lean_st_ref_get(x_4, x_16);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
@@ -2626,7 +2626,7 @@ return x_31;
 default: 
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_32 = lean_io_ref_get(x_4, x_5);
+x_32 = lean_st_ref_get(x_4, x_5);
 x_33 = lean_ctor_get(x_32, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_32, 1);
@@ -2750,7 +2750,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_12 = lean_array_fget(x_3, x_4);
-x_13 = lean_io_ref_get(x_6, x_7);
+x_13 = lean_st_ref_get(x_6, x_7);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);

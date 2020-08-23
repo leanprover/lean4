@@ -487,12 +487,12 @@ inline void io_result_show_error(b_obj_arg r) { return lean_io_result_show_error
 inline void io_mark_end_initialization() { return lean_io_mark_end_initialization(); }
 
 // =======================================
-// IO ref primitives
-inline obj_res io_mk_ref(obj_arg v, obj_arg w) { return lean_io_mk_ref(v, w); }
-inline obj_res io_ref_get(b_obj_arg r, obj_arg w) { return lean_io_ref_get(r, w); }
-inline obj_res io_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_io_ref_set(r, v, w); }
-inline obj_res io_ref_reset(b_obj_arg r, obj_arg w) { return lean_io_ref_reset(r, w); }
-inline obj_res io_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_io_ref_swap(r, v, w); }
+// ST ref primitives
+inline obj_res st_mk_ref(obj_arg v, obj_arg w) { return lean_st_mk_ref(v, w); }
+inline obj_res st_ref_get(b_obj_arg r, obj_arg w) { return lean_st_ref_get(r, w); }
+inline obj_res st_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_set(r, v, w); }
+inline obj_res st_ref_reset(b_obj_arg r, obj_arg w) { return lean_st_ref_reset(r, w); }
+inline obj_res st_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_swap(r, v, w); }
 
 // =======================================
 // Module initialization/finalization

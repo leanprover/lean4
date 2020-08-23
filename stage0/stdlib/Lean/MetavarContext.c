@@ -60,7 +60,6 @@ lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___main___at___private_Lean_MetavarContext_2__visit___spec__2___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_MetavarContext_21__elimMVarDepsApp___main___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__26(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EIO_Monad___closed__1;
 uint8_t l_Nat_anyAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_8__dep___main___at_Lean_MetavarContext_localDeclDependsOn___spec__19(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -145,6 +144,7 @@ extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l___private_Lean_MetavarContext_4__modifyCtx(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_renameMVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__48(lean_object*);
+extern lean_object* l_EST_Monad___closed__1;
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_MetavarContext_findLevelDepth_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;
@@ -41052,7 +41052,7 @@ lean_object* _init_l_Lean_MetavarContext_MkBinding_mkBinding___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EIO_Monad___closed__1;
+x_1 = l_EST_Monad___closed__1;
 x_2 = l_ReaderT_Monad___rarg(x_1);
 return x_2;
 }

@@ -564,8 +564,8 @@ extern "C" obj_res lean_io_current_dir(obj_arg) {
 }
 
 // =======================================
-// IO ref primitives
-extern "C" obj_res lean_io_mk_ref(obj_arg a, obj_arg) {
+// ST ref primitives
+extern "C" obj_res lean_st_mk_ref(obj_arg a, obj_arg) {
     lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
     lean_set_st_header((lean_object*)o, LeanRef, 0);
     o->m_value = a;
@@ -581,17 +581,17 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
 /*
   Important: we have added support for initializing global constants
   at program startup. This feature is particularly useful for
-  initializing `IO.Ref` values. Any `IO.Ref` value created during
-  initialization will be marked as persistent. Thus, to make `IO.Ref`
-  API thread-safe, we must treat persistent `IO.Ref` objects created
+  initializing `ST.Ref` values. Any `ST.Ref` value created during
+  initialization will be marked as persistent. Thus, to make `ST.Ref`
+  API thread-safe, we must treat persistent `ST.Ref` objects created
   during initialization as a multi-threaded object. Then, whenever we store
-  a value `val` into a global `IO.Ref`, we have to mark `va`l as a multi-threaded
-  object as we do for multi-threaded `IO.Ref`s. It makes sense since
-  the global `IO.Ref` may be used to communicate data between threads.
+  a value `val` into a global `ST.Ref`, we have to mark `va`l as a multi-threaded
+  object as we do for multi-threaded `ST.Ref`s. It makes sense since
+  the global `ST.Ref` may be used to communicate data between threads.
 */
 static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
 
-extern "C" obj_res lean_io_ref_get(b_obj_arg ref, obj_arg) {
+extern "C" obj_res lean_st_ref_get(b_obj_arg ref, obj_arg) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
@@ -614,7 +614,7 @@ extern "C" obj_res lean_io_ref_get(b_obj_arg ref, obj_arg) {
     }
 }
 
-extern "C" obj_res lean_io_ref_take(b_obj_arg ref, obj_arg) {
+extern "C" obj_res lean_st_ref_take(b_obj_arg ref, obj_arg) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
@@ -632,7 +632,7 @@ extern "C" obj_res lean_io_ref_take(b_obj_arg ref, obj_arg) {
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
-extern "C" obj_res lean_io_ref_set(b_obj_arg ref, obj_arg a, obj_arg) {
+extern "C" obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a, obj_arg) {
     if (ref_maybe_mt(ref)) {
         /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
            Reason: our runtime relies on the fact that a single-threaded object
@@ -651,7 +651,7 @@ extern "C" obj_res lean_io_ref_set(b_obj_arg ref, obj_arg a, obj_arg) {
     }
 }
 
-extern "C" obj_res lean_io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
+extern "C" obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
     if (ref_maybe_mt(ref)) {
         /* See io_ref_write */
         mark_mt(a);
@@ -670,7 +670,7 @@ extern "C" obj_res lean_io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
     }
 }
 
-extern "C" obj_res lean_io_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
+extern "C" obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
     // TODO(Leo): ref_maybe_mt
     bool r = lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
     return set_io_result(box(r));

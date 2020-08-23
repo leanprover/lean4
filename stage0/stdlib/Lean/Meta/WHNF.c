@@ -46,12 +46,12 @@ size_t l_USize_sub(size_t, size_t);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getStuckMVar_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConstNoEx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNatValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Nat_HasMul___closed__1;
 lean_object* l_Lean_Meta_reduceBinNatPred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_WHNF_5__isIdRhsApp(lean_object*);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_reduceRec___at_Lean_Meta_whnfCore___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
@@ -75,7 +75,6 @@ extern lean_object* l_Lean_Meta_isReducible___closed__2;
 lean_object* l___private_Lean_Util_WHNF_3__getRecRuleFor(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfUntil___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
-lean_object* lean_io_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNatNative___rarg(lean_object*);
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__6;
 extern lean_object* l_Lean_auxRecExt;
@@ -109,6 +108,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setWHNFRef(lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_1__useWHNFCache___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Exception_inhabited___closed__1;
+lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___main___rarg___closed__3;
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
@@ -218,6 +218,7 @@ lean_object* l_Lean_WHNF_reduceQuotRec___at_Lean_Meta_whnfCore___spec__3___boxed
 lean_object* l_Lean_Meta_whnfImpl___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___main___at___private_Lean_Meta_WHNF_3__cache___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceBinNatOp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_WHNF_8__deltaBetaDefinition___at_Lean_Meta_unfoldDefinition_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_2__mkAppRangeAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_reduceRec___at_Lean_Meta_unfoldDefinition_x3f___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -225,7 +226,6 @@ lean_object* l_Lean_WHNF_whnfEasyCases___main___at_Lean_Meta_whnfImpl___main___s
 lean_object* l_Std_PersistentHashMap_insertAux___main___at___private_Lean_Meta_WHNF_3__cache___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at___private_Lean_Meta_WHNF_2__cached_x3f___spec__1(lean_object*, lean_object*);
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited;
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
@@ -17477,7 +17477,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_10 = lean_io_ref_get(x_4, x_7);
+x_10 = lean_st_ref_get(x_4, x_7);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get_uint8(x_11, 5);
@@ -18135,7 +18135,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
-x_12 = lean_io_ref_take(x_5, x_8);
+x_12 = lean_st_ref_take(x_5, x_8);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 1);
@@ -18157,7 +18157,7 @@ x_19 = lean_ctor_get(x_14, 4);
 lean_inc(x_3);
 x_20 = l_Std_PersistentHashMap_insert___at___private_Lean_Meta_WHNF_3__cache___spec__1(x_19, x_2, x_3);
 lean_ctor_set(x_14, 4, x_20);
-x_21 = lean_io_ref_set(x_5, x_13, x_15);
+x_21 = lean_st_ref_set(x_5, x_13, x_15);
 lean_dec(x_5);
 x_22 = !lean_is_exclusive(x_21);
 if (x_22 == 0)
@@ -18203,7 +18203,7 @@ lean_ctor_set(x_32, 2, x_28);
 lean_ctor_set(x_32, 3, x_29);
 lean_ctor_set(x_32, 4, x_31);
 lean_ctor_set(x_13, 1, x_32);
-x_33 = lean_io_ref_set(x_5, x_13, x_15);
+x_33 = lean_st_ref_set(x_5, x_13, x_15);
 lean_dec(x_5);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
@@ -18270,7 +18270,7 @@ x_47 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_47, 0, x_37);
 lean_ctor_set(x_47, 1, x_46);
 lean_ctor_set(x_47, 2, x_38);
-x_48 = lean_io_ref_set(x_5, x_47, x_15);
+x_48 = lean_st_ref_set(x_5, x_47, x_15);
 lean_dec(x_5);
 x_49 = lean_ctor_get(x_48, 1);
 lean_inc(x_49);
@@ -18298,7 +18298,7 @@ lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
-x_52 = lean_io_ref_take(x_5, x_8);
+x_52 = lean_st_ref_take(x_5, x_8);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc(x_53);
 x_54 = lean_ctor_get(x_53, 1);
@@ -18320,7 +18320,7 @@ x_59 = lean_ctor_get(x_54, 3);
 lean_inc(x_3);
 x_60 = l_Std_PersistentHashMap_insert___at___private_Lean_Meta_WHNF_3__cache___spec__1(x_59, x_2, x_3);
 lean_ctor_set(x_54, 3, x_60);
-x_61 = lean_io_ref_set(x_5, x_53, x_55);
+x_61 = lean_st_ref_set(x_5, x_53, x_55);
 lean_dec(x_5);
 x_62 = !lean_is_exclusive(x_61);
 if (x_62 == 0)
@@ -18366,7 +18366,7 @@ lean_ctor_set(x_72, 2, x_68);
 lean_ctor_set(x_72, 3, x_71);
 lean_ctor_set(x_72, 4, x_70);
 lean_ctor_set(x_53, 1, x_72);
-x_73 = lean_io_ref_set(x_5, x_53, x_55);
+x_73 = lean_st_ref_set(x_5, x_53, x_55);
 lean_dec(x_5);
 x_74 = lean_ctor_get(x_73, 1);
 lean_inc(x_74);
@@ -18433,7 +18433,7 @@ x_87 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_87, 0, x_77);
 lean_ctor_set(x_87, 1, x_86);
 lean_ctor_set(x_87, 2, x_78);
-x_88 = lean_io_ref_set(x_5, x_87, x_55);
+x_88 = lean_st_ref_set(x_5, x_87, x_55);
 lean_dec(x_5);
 x_89 = lean_ctor_get(x_88, 1);
 lean_inc(x_89);
@@ -18680,7 +18680,7 @@ case 2:
 lean_object* x_28; lean_object* x_29; uint8_t x_30; 
 x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
-x_29 = lean_io_ref_get(x_3, x_6);
+x_29 = lean_st_ref_get(x_3, x_6);
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)
 {
@@ -18802,7 +18802,7 @@ goto block_88;
 else
 {
 lean_object* x_90; lean_object* x_91; uint8_t x_92; 
-x_90 = lean_io_ref_get(x_3, x_45);
+x_90 = lean_st_ref_get(x_3, x_45);
 x_91 = lean_ctor_get(x_2, 0);
 lean_inc(x_91);
 x_92 = lean_ctor_get_uint8(x_91, 5);
@@ -19204,7 +19204,7 @@ goto block_166;
 else
 {
 lean_object* x_168; lean_object* x_169; uint8_t x_170; 
-x_168 = lean_io_ref_get(x_3, x_123);
+x_168 = lean_st_ref_get(x_3, x_123);
 x_169 = lean_ctor_get(x_2, 0);
 lean_inc(x_169);
 x_170 = lean_ctor_get_uint8(x_169, 5);
@@ -19606,7 +19606,7 @@ goto block_244;
 else
 {
 lean_object* x_246; lean_object* x_247; uint8_t x_248; 
-x_246 = lean_io_ref_get(x_3, x_201);
+x_246 = lean_st_ref_get(x_3, x_201);
 x_247 = lean_ctor_get(x_2, 0);
 lean_inc(x_247);
 x_248 = lean_ctor_get_uint8(x_247, 5);
@@ -20017,7 +20017,7 @@ goto block_324;
 else
 {
 lean_object* x_326; lean_object* x_327; uint8_t x_328; 
-x_326 = lean_io_ref_get(x_3, x_281);
+x_326 = lean_st_ref_get(x_3, x_281);
 x_327 = lean_ctor_get(x_2, 0);
 lean_inc(x_327);
 x_328 = lean_ctor_get_uint8(x_327, 5);
@@ -20421,7 +20421,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = l_Lean_Meta_whnfRef;
 x_3 = l_Lean_Meta_setWHNFRef___closed__1;
-x_4 = lean_io_ref_set(x_2, x_3, x_1);
+x_4 = lean_st_ref_set(x_2, x_3, x_1);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
@@ -21170,7 +21170,7 @@ case 2:
 lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_29 = lean_ctor_get(x_2, 0);
 lean_inc(x_29);
-x_30 = lean_io_ref_get(x_4, x_7);
+x_30 = lean_st_ref_get(x_4, x_7);
 x_31 = !lean_is_exclusive(x_30);
 if (x_31 == 0)
 {

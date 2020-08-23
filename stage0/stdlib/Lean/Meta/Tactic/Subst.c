@@ -38,8 +38,8 @@ lean_object* l_Lean_Meta_substCore___lambda__3___closed__1;
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Lean_Meta_subst___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__3___closed__8;
 lean_object* l_Lean_Meta_subst___lambda__1___closed__2;
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__2___boxed(lean_object**);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_subst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
@@ -501,7 +501,7 @@ goto block_353;
 block_353:
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
-x_27 = lean_io_ref_get(x_18, x_25);
+x_27 = lean_st_ref_get(x_18, x_25);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);
@@ -2684,7 +2684,7 @@ goto block_178;
 block_161:
 {
 lean_object* x_60; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; uint8_t x_146; 
-x_141 = lean_io_ref_get(x_8, x_59);
+x_141 = lean_st_ref_get(x_8, x_59);
 x_142 = lean_ctor_get(x_141, 0);
 lean_inc(x_142);
 x_143 = lean_ctor_get(x_141, 1);
@@ -4100,7 +4100,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_9);
-x_13 = lean_io_ref_get(x_5, x_8);
+x_13 = lean_st_ref_get(x_5, x_8);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);

@@ -18,7 +18,7 @@ lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1(lean_object*, lean_ob
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
 lean_object* lean_environment_find(lean_object*, lean_object*);
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__3;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
 lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_mkUnboxAttr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,7 +44,7 @@ lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_mkUnboxAttr___spec__1(
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = lean_io_ref_get(x_3, x_4);
+x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {

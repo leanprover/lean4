@@ -35,8 +35,8 @@ lean_object* l_Lean_Elab_Command_withDeclId___rarg(lean_object*, lean_object*, l
 extern lean_object* l_Array_empty___closed__1;
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__2;
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Std_ShareCommon_State_empty;
-lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_compileDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Definition_2__withUsedWhen(lean_object*);
 lean_object* l_Lean_Elab_Term_mkLambda(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1890,7 +1890,7 @@ lean_closure_set(x_30, 0, x_1);
 lean_closure_set(x_30, 1, x_19);
 lean_closure_set(x_30, 2, x_3);
 lean_closure_set(x_30, 3, x_27);
-x_31 = lean_io_ref_get(x_6, x_28);
+x_31 = lean_st_ref_get(x_6, x_28);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);

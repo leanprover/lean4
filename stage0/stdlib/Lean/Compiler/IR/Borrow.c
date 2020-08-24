@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Array_forMAux___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_Borrow_updateParamSet___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__3(lean_object*, lean_object*);
 uint8_t l_Lean_IR_Borrow_OwnedSet_beq(lean_object*, lean_object*);
@@ -176,6 +175,7 @@ lean_object* l_Lean_IR_Borrow_OwnedSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_infer___closed__1;
 lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_IR_Borrow_OwnedSet_insert___spec__4(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_IR_Borrow_ownVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_preserveTailCall___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -845,7 +845,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 lean_dec(x_3);
-x_13 = l_Lean_Name_toString___closed__1;
+x_13 = l_System_FilePath_dirName___closed__1;
 x_14 = l_Lean_Name_toStringWithSep___main(x_13, x_12);
 x_15 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
@@ -874,7 +874,7 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_3, 1);
 lean_inc(x_22);
 lean_dec(x_3);
-x_23 = l_Lean_Name_toString___closed__1;
+x_23 = l_System_FilePath_dirName___closed__1;
 x_24 = l_Lean_Name_toStringWithSep___main(x_23, x_21);
 x_25 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_25, 0, x_24);

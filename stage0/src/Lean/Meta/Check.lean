@@ -41,7 +41,7 @@ lambdaTelescope e $ fun xs b => do
       ensureType t;
       check t;
       vType ← inferType v;
-      unlessM (isExprDefEqAux t vType) $ throwLetTypeMismatchMessage x.fvarId!;
+      unlessM (Meta.isExprDefEqAux t vType) $ throwLetTypeMismatchMessage x.fvarId!;
       check v
   };
   check b
@@ -92,7 +92,7 @@ fType ← whnf fType;
 match fType with
 | Expr.forallE _ d _ _ => do
   aType ← inferType a;
-  unlessM (isExprDefEqAux d aType) $ throwAppTypeMismatch f a
+  unlessM (Meta.isExprDefEqAux d aType) $ throwAppTypeMismatch f a
 | _ => throwFunctionExpected (mkApp f a)
 
 private partial def checkAux : Expr → MetaM Unit

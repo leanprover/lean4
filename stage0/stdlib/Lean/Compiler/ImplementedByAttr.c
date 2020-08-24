@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__2___lambda__1___boxed(lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__8;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
@@ -28,6 +27,7 @@ extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__4;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__2___lambda__1(lean_object*);
@@ -88,7 +88,6 @@ lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9___rarg___closed__1;
 lean_object* l_Std_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Compiler_mkImplementedByAttr___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
@@ -96,6 +95,7 @@ extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed_
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_mkImplementedByAttr___spec__6(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__4___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__6;
@@ -137,7 +137,7 @@ x_14 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 x_15 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_15, x_2, x_3, x_8);
+x_16 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_15, x_2, x_3, x_8);
 return x_16;
 }
 else
@@ -177,7 +177,7 @@ x_25 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 x_26 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_26, x_2, x_3, x_19);
+x_27 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_26, x_2, x_3, x_19);
 return x_27;
 }
 else
@@ -719,7 +719,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 x_37 = lean_ctor_get(x_1, 0);
 lean_inc(x_37);
 lean_dec(x_1);
-x_38 = l_Lean_Name_toString___closed__1;
+x_38 = l_System_FilePath_dirName___closed__1;
 x_39 = l_Lean_Name_toStringWithSep___main(x_38, x_37);
 x_40 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_41 = lean_string_append(x_40, x_39);
@@ -847,7 +847,7 @@ lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean
 x_75 = lean_ctor_get(x_1, 0);
 lean_inc(x_75);
 lean_dec(x_1);
-x_76 = l_Lean_Name_toString___closed__1;
+x_76 = l_System_FilePath_dirName___closed__1;
 x_77 = l_Lean_Name_toStringWithSep___main(x_76, x_75);
 x_78 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_79 = lean_string_append(x_78, x_77);
@@ -1114,7 +1114,7 @@ if (lean_obj_tag(x_9) == 0)
 lean_object* x_10; lean_object* x_11; 
 lean_dec(x_7);
 x_10 = l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__3;
-x_11 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_10, x_3, x_4, x_8);
+x_11 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_10, x_3, x_4, x_8);
 return x_11;
 }
 else
@@ -1155,7 +1155,7 @@ x_23 = l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__9;
 x_24 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_24, x_3, x_4, x_16);
+x_25 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_24, x_3, x_4, x_16);
 return x_25;
 }
 else
@@ -1192,7 +1192,7 @@ x_34 = l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__9;
 x_35 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
-x_36 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_35, x_3, x_4, x_27);
+x_36 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_35, x_3, x_4, x_27);
 return x_36;
 }
 else

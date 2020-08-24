@@ -45,7 +45,7 @@ private partial def introArrayLitAux (mvarId : MVarId) (α : Expr) (a : Expr) (n
     aEqLitPrf ← mkAppM `Array.toArrayLitEq #[a, mkNatLit n, aSizeEqN];
     withLocalDecl `hEqALit aEqXsLit BinderInfo.default fun heq => do
       target    ← getMVarType mvarId;
-      newTarget ← mkForall (xs.push heq) target;
+      newTarget ← mkForallFVars (xs.push heq) target;
       pure (newTarget, args.push aEqLitPrf)
 
 private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNamePrefix : Name) (aSizeEqN : Expr) : MetaM MVarId := do

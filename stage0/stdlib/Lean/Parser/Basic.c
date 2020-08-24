@@ -21,7 +21,6 @@ lean_object* l_Lean_Syntax_foldArgs___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Parser_categoryParserOfStack___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_finishCommentBlock(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Parser_charLit___closed__1;
 lean_object* l_Lean_Parser_andthenInfo___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Basic_4__isToken___boxed(lean_object*, lean_object*, lean_object*);
@@ -790,6 +789,7 @@ lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_dollarSymbol___elambda__1___closed__3;
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_node(lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_forArgsM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_stringToParserCoe___boxed(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -11178,7 +11178,7 @@ lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_11 = l_Lean_Name_toString___closed__1;
+x_11 = l_System_FilePath_dirName___closed__1;
 x_12 = l_Lean_Name_toStringWithSep___main(x_11, x_1);
 x_13 = l_Lean_Parser_identEqFn___closed__1;
 x_14 = lean_string_append(x_13, x_12);
@@ -26449,7 +26449,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20;
 lean_dec(x_13);
 lean_dec(x_7);
 lean_dec(x_4);
-x_18 = l_Lean_Name_toString___closed__1;
+x_18 = l_System_FilePath_dirName___closed__1;
 x_19 = l_Lean_Name_toStringWithSep___main(x_18, x_1);
 x_20 = l_Lean_Parser_ParserState_mkError(x_10, x_19);
 return x_20;

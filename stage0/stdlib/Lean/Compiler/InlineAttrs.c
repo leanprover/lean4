@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_List_map___main___at_Lean_Compiler_mkInlineAttrs___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_Compiler_mkInlineAttrs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__24;
@@ -30,6 +29,7 @@ uint8_t lean_has_noinline_attribute(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 uint8_t l___private_Lean_Compiler_InlineAttrs_1__hasInlineAttrAux(lean_object*, uint8_t, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__10;
 uint8_t l_Lean_Compiler_InlineAttributeKind_beq(uint8_t, uint8_t);
@@ -125,7 +125,6 @@ lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 uint8_t lean_has_inline_if_reduce_attribute(lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9___rarg___closed__1;
-lean_object* l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__12;
 lean_object* lean_io_initializing(lean_object*);
@@ -135,6 +134,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___sp
 lean_object* l_Lean_Compiler_mkInlineAttrs(lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__26;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_setInlineAttribute(lean_object*, lean_object*, uint8_t);
@@ -273,7 +273,7 @@ x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -814,7 +814,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 x_37 = lean_ctor_get(x_1, 0);
 lean_inc(x_37);
 lean_dec(x_1);
-x_38 = l_Lean_Name_toString___closed__1;
+x_38 = l_System_FilePath_dirName___closed__1;
 x_39 = l_Lean_Name_toStringWithSep___main(x_38, x_37);
 x_40 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_41 = lean_string_append(x_40, x_39);
@@ -942,7 +942,7 @@ lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean
 x_75 = lean_ctor_get(x_1, 0);
 lean_inc(x_75);
 lean_dec(x_1);
-x_76 = l_Lean_Name_toString___closed__1;
+x_76 = l_System_FilePath_dirName___closed__1;
 x_77 = l_Lean_Name_toStringWithSep___main(x_76, x_75);
 x_78 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_79 = lean_string_append(x_78, x_77);
@@ -969,7 +969,7 @@ lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
-x_39 = l_Lean_Name_toString___closed__1;
+x_39 = l_System_FilePath_dirName___closed__1;
 x_40 = l_Lean_Name_toStringWithSep___main(x_39, x_4);
 x_41 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
@@ -983,7 +983,7 @@ x_45 = l_Lean_registerTagAttribute___lambda__4___closed__9;
 x_46 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_46, 0, x_44);
 lean_ctor_set(x_46, 1, x_45);
-x_47 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_46, x_8, x_9, x_10);
+x_47 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_46, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 x_48 = !lean_is_exclusive(x_47);
@@ -1086,7 +1086,7 @@ lean_dec(x_11);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
-x_25 = l_Lean_Name_toString___closed__1;
+x_25 = l_System_FilePath_dirName___closed__1;
 x_26 = l_Lean_Name_toStringWithSep___main(x_25, x_4);
 x_27 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
@@ -1100,7 +1100,7 @@ x_31 = l_Lean_registerTagAttribute___lambda__4___closed__6;
 x_32 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
-x_33 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_32, x_8, x_9, x_12);
+x_33 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_32, x_8, x_9, x_12);
 lean_dec(x_9);
 lean_dec(x_8);
 x_34 = !lean_is_exclusive(x_33);

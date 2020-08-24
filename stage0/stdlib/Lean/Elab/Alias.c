@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Std_HashMapImp_expand___at_Lean_addAliasEntry___spec__14(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Std_PersistentHashMap_empty___at_Lean_mkAliasExtension___spec__3;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAliasExtension___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,6 +131,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_addAliasEntry___spec__11___box
 lean_object* l_Lean_mkAliasExtension___closed__5;
 lean_object* l_Lean_mkAliasExtension(lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1(lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -1809,7 +1809,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 x_37 = lean_ctor_get(x_1, 0);
 lean_inc(x_37);
 lean_dec(x_1);
-x_38 = l_Lean_Name_toString___closed__1;
+x_38 = l_System_FilePath_dirName___closed__1;
 x_39 = l_Lean_Name_toStringWithSep___main(x_38, x_37);
 x_40 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_41 = lean_string_append(x_40, x_39);
@@ -1937,7 +1937,7 @@ lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean
 x_75 = lean_ctor_get(x_1, 0);
 lean_inc(x_75);
 lean_dec(x_1);
-x_76 = l_Lean_Name_toString___closed__1;
+x_76 = l_System_FilePath_dirName___closed__1;
 x_77 = l_Lean_Name_toStringWithSep___main(x_76, x_75);
 x_78 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_79 = lean_string_append(x_78, x_77);

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -145,6 +144,7 @@ lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___main___boxed(lean_obj
 lean_object* l___private_Lean_Elab_Util_3__expandMacroFns___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_macroAttribute___spec__1___closed__1;
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
@@ -220,7 +220,7 @@ lean_dec(x_7);
 x_10 = l_Lean_Name_append___main(x_9, x_5);
 lean_dec(x_9);
 x_11 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_10, x_3);
-x_12 = l_Lean_Name_toString___closed__1;
+x_12 = l_System_FilePath_dirName___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_11);
 x_14 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -238,7 +238,7 @@ lean_dec(x_1);
 x_17 = l_Lean_Name_append___main(x_15, x_16);
 lean_dec(x_15);
 x_18 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_17, x_3);
-x_19 = l_Lean_Name_toString___closed__1;
+x_19 = l_System_FilePath_dirName___closed__1;
 x_20 = l_Lean_Name_toStringWithSep___main(x_19, x_18);
 x_21 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
@@ -252,7 +252,7 @@ lean_dec(x_3);
 x_22 = lean_ctor_get(x_1, 0);
 lean_inc(x_22);
 lean_dec(x_1);
-x_23 = l_Lean_Name_toString___closed__1;
+x_23 = l_System_FilePath_dirName___closed__1;
 x_24 = l_Lean_Name_toStringWithSep___main(x_23, x_22);
 x_25 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
@@ -703,7 +703,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_13 = lean_ctor_get(x_7, 0);
 lean_dec(x_13);
-x_14 = l_Lean_Name_toString___closed__1;
+x_14 = l_System_FilePath_dirName___closed__1;
 x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_6);
 x_16 = l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__3;
 x_17 = lean_string_append(x_16, x_15);
@@ -717,7 +717,7 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_7);
-x_20 = l_Lean_Name_toString___closed__1;
+x_20 = l_System_FilePath_dirName___closed__1;
 x_21 = l_Lean_Name_toStringWithSep___main(x_20, x_6);
 x_22 = l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__3;
 x_23 = lean_string_append(x_22, x_21);

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore___main___boxed(lean_object*, lean_object*);
@@ -114,6 +113,7 @@ uint8_t l_Lean_DataValue_sameCtor(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_natVal___closed__2;
 uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_eqv(lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_int2DataValue(lean_object*);
@@ -409,7 +409,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec(x_1);
-x_7 = l_Lean_Name_toString___closed__1;
+x_7 = l_System_FilePath_dirName___closed__1;
 x_8 = l_Lean_Name_toStringWithSep___main(x_7, x_6);
 return x_8;
 }
@@ -539,7 +539,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
 lean_dec(x_4);
-x_9 = l_Lean_Name_toString___closed__1;
+x_9 = l_System_FilePath_dirName___closed__1;
 x_10 = l_Lean_Name_toStringWithSep___main(x_9, x_7);
 x_11 = l_Prod_HasRepr___rarg___closed__1;
 x_12 = lean_string_append(x_11, x_10);
@@ -581,7 +581,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_22, 1);
 lean_inc(x_27);
 lean_dec(x_22);
-x_28 = l_Lean_Name_toString___closed__1;
+x_28 = l_System_FilePath_dirName___closed__1;
 x_29 = l_Lean_Name_toStringWithSep___main(x_28, x_26);
 x_30 = l_Prod_HasRepr___rarg___closed__1;
 x_31 = lean_string_append(x_30, x_29);

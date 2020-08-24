@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_mkClosedTermCacheExtension___closed__3;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkClosedTermCacheExtension___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,6 +131,7 @@ lean_object* lean_get_closed_term_name(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_getClosedTermName_x3f___spec__5___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12;
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_mkClosedTermCacheExtension___spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -1462,7 +1462,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 x_37 = lean_ctor_get(x_1, 0);
 lean_inc(x_37);
 lean_dec(x_1);
-x_38 = l_Lean_Name_toString___closed__1;
+x_38 = l_System_FilePath_dirName___closed__1;
 x_39 = l_Lean_Name_toStringWithSep___main(x_38, x_37);
 x_40 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_41 = lean_string_append(x_40, x_39);
@@ -1590,7 +1590,7 @@ lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean
 x_75 = lean_ctor_get(x_1, 0);
 lean_inc(x_75);
 lean_dec(x_1);
-x_76 = l_Lean_Name_toString___closed__1;
+x_76 = l_System_FilePath_dirName___closed__1;
 x_77 = l_Lean_Name_toStringWithSep___main(x_76, x_75);
 x_78 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_79 = lean_string_append(x_78, x_77);

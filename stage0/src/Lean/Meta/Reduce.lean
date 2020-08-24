@@ -32,8 +32,8 @@ partial def reduceAux (explicitOnly : Bool) (skipTypes : Bool) (skipProofs : Boo
             args.modifyM i reduceAux)
         args;
       pure $ mkAppN f args
-    | Expr.lam _ _ _ _     => lambdaTelescope e $ fun xs b => do b ← reduceAux b; mkLambda xs b
-    | Expr.forallE _ _ _ _ => forallTelescope e $ fun xs b => do b ← reduceAux b; mkForall xs b
+    | Expr.lam _ _ _ _     => lambdaTelescope e $ fun xs b => do b ← reduceAux b; mkLambdaFVars xs b
+    | Expr.forallE _ _ _ _ => forallTelescope e $ fun xs b => do b ← reduceAux b; mkForallFVars xs b
     | _ => pure e
 
 def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : MetaM Expr :=

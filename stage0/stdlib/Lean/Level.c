@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Level_dec(lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 uint8_t l_Lean_Level_isNeverZero(lean_object*);
 lean_object* l_Lean_Level_normalize___main(lean_object*);
 lean_object* l_Lean_Level_isMax___boxed(lean_object*);
@@ -235,6 +234,7 @@ lean_object* l_Lean_Level_instantiateParams(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isSucc(lean_object*);
 uint8_t l___private_Lean_Level_7__isExplicitSubsumedAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_isExplicit(lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Level_updateSucc_x21___closed__1;
 uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
@@ -3856,7 +3856,7 @@ lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___main___spec__1(
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Name_toString___closed__1;
+x_2 = l_System_FilePath_dirName___closed__1;
 x_3 = l_Lean_Name_toStringWithSep___main(x_2, x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);

@@ -32,6 +32,7 @@ uint8_t l_Lean_Expr_isCharLit(lean_object*);
 lean_object* l_Lean_Expr_letName_x21(lean_object*);
 uint8_t l_Lean_Expr_isNatLit(lean_object*);
 lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* l_Lean_mkFreshMVarId___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replaceFVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkThunkType___closed__2;
 lean_object* l_Lean_Expr_updateLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -185,6 +186,7 @@ lean_object* l_Lean_ExprStructEq_HasRepr(lean_object*);
 lean_object* l_Lean_Expr_hasExprMVar___boxed(lean_object*);
 lean_object* l_Lean_mkAppRev___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
+lean_object* l_Lean_mkFreshFVarId(lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_updateLambdaE_x21___closed__1;
 lean_object* l_Lean_Expr_getAppFn___boxed(lean_object*);
@@ -256,6 +258,7 @@ uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_abstractRange___boxed(lean_object*, lean_object*, lean_object*);
 uint32_t l_UInt64_toUInt32(uint64_t);
+lean_object* l_Lean_mkFreshId___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_12__getParamSubstArray___main(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Expr_data(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -330,6 +333,7 @@ uint8_t l_Lean_Expr_Data_nonDepLet(uint64_t);
 lean_object* l_Lean_Literal_hasBeq___closed__1;
 lean_object* l_Lean_Level_instantiateParams___main___at_Lean_Expr_instantiateLevelParamsArray___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isHeadBetaTargetFn___boxed(lean_object*);
+lean_object* l_Lean_mkFreshFVarId___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
 uint64_t l_UInt64_land(uint64_t, uint64_t);
 lean_object* lean_expr_mk_app(lean_object*, lean_object*);
@@ -494,6 +498,7 @@ lean_object* l___private_Lean_Expr_9__etaExpandedAux___main(lean_object*, lean_o
 lean_object* l_Lean_Expr_updateProj___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_Inhabited;
 uint8_t l_Lean_Expr_isStringLit(lean_object*);
+lean_object* l_Lean_mkFreshMVarId(lean_object*);
 size_t lean_expr_hash(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_Data_hasFVar___boxed(lean_object*);
@@ -10788,6 +10793,38 @@ x_3 = l_Lean_annotation_x3f(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+lean_object* l_Lean_mkFreshFVarId___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_mkFreshId___rarg(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_mkFreshFVarId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_mkFreshFVarId___rarg), 2, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_mkFreshMVarId___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_mkFreshId___rarg(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_mkFreshMVarId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_mkFreshMVarId___rarg), 2, 0);
+return x_2;
 }
 }
 lean_object* initialize_Init(lean_object*);

@@ -131,12 +131,6 @@ liftM $ x
 instance : MonadIO TermElabM :=
 { liftIO := fun α x => liftMetaMCore $ liftIO x }
 
-private def getTraceState : TermElabM TraceState :=
-liftMetaMCore Meta.getTraceState
-
-private def setTraceState (s : TraceState) : TermElabM Unit :=
-liftMetaMCore $ Meta.setTraceState s
-
 private def saveTraceAsMessages (traceState : TraceState) : TermElabM Unit :=
 unless traceState.traces.isEmpty do
   ref ← getRef;
@@ -151,18 +145,17 @@ newTraceState ← getTraceState;
 saveTraceAsMessages newTraceState;
 setTraceState oldTraceState
 
-@[inline] def liftMetaM {α} (x : MetaM α) : TermElabM α := do
+@[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α := do
 oldTraceState ← getTraceState;
 setTraceState {};
 finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
 
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
-liftMetaM $ liftM x
+Term.liftMetaM $ liftM x
 
-def getMCtx : TermElabM MetavarContext := do s ← getThe Meta.State; pure s.mctx
-def getLCtx : TermElabM LocalContext := do ctx ← readThe Meta.Context; pure ctx.lctx
-def getLocalInsts : TermElabM LocalInstances := do ctx ← readThe Meta.Context; pure ctx.localInstances
-def getNGen : TermElabM NameGenerator := do s ← getThe Core.State; pure s.ngen
+instance : MonadMetaM TermElabM :=
+{ liftMetaM := fun α => Term.liftMetaM }
+
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   lctx ← getLCtx;
@@ -171,15 +164,13 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   | none   => unreachable!
 def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
-def setMCtx (mctx : MetavarContext) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := mctx }
-def setNGen (ngen : NameGenerator) : TermElabM Unit := modifyThe Core.State $ fun s => { s with ngen := ngen }
-
 private def addContext' (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
 pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
 
 instance MonadError : MonadError TermElabM :=
 { getRef     := getRef,
+  withRef    := fun α => withRef,
   addContext := fun ref msg => do
     ctx ← read;
     let ref := getBetterRef ref ctx.macroStack;
@@ -192,17 +183,6 @@ instance monadLog : MonadLog TermElabM :=
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
-
-/- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
-@[inline] def withRef {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
-adaptTheReader Core.Context (Core.Context.replaceRef ref) x
-
-def checkRecDepth : TermElabM Unit :=
-liftMetaM $ Meta.checkRecDepth
-
-@[inline] def withIncRecDepth {α} (x : TermElabM α) : TermElabM α := do
-checkRecDepth;
-adaptTheReader Core.Context Core.Context.incCurrRecDepth x
 
 protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.mainModule
@@ -240,7 +220,6 @@ def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
 def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
-def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
@@ -272,39 +251,22 @@ def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
-def isType (e : Expr) : TermElabM Bool := liftMetaM $ Meta.isType e
-def isTypeFormer (e : Expr) : TermElabM Bool := liftMetaM $ Meta.isTypeFormer e
-def isTypeFormerType (e : Expr) : TermElabM Bool := liftMetaM $ Meta.isTypeFormerType e
-def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.approxDefEq $ Meta.isDefEq t s
-def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.fullApproxDefEq $ Meta.isDefEq t s
-def isLevelDefEq (u v : Level) : TermElabM Bool := liftMetaM $ Meta.isLevelDefEq u v
-def inferType (e : Expr) : TermElabM Expr := liftMetaM $ Meta.inferType e
-def whnf (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnf e
-def whnfForall (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfForall e
-def whnfCore (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfCore e
-def unfoldDefinition? (e : Expr) : TermElabM (Option Expr) := liftMetaM $ Meta.unfoldDefinition? e
-def instantiateMVars (e : Expr) : TermElabM Expr := liftMetaM $ Meta.instantiateMVars e
-def instantiateLevelMVars (u : Level) : TermElabM Level := liftMetaM $ Meta.instantiateLevelMVars u
+def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.approxDefEq $ Lean.isDefEq t s
+def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.fullApproxDefEq $ Lean.isDefEq t s
 def isClass? (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass? t
-def mkFreshId : TermElabM Name := liftMetaM Meta.mkFreshId
-def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
 def mkFreshExprMVar (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 match type? with
-| some type => liftMetaM $ Meta.mkFreshExprMVar type userName? kind
-| none      => liftMetaM $ do u ← Meta.mkFreshLevelMVar; type ← Meta.mkFreshExprMVar (mkSort u); Meta.mkFreshExprMVar type userName? kind
+| some type => liftMetaM $ Lean.mkFreshExprMVar type userName? kind
+| none      => liftMetaM $ do u ← mkFreshLevelMVar; type ← Lean.mkFreshExprMVar (mkSort u); Lean.mkFreshExprMVar type userName? kind
 def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous)
     : TermElabM Expr :=
 match type? with
-| some type => liftMetaM $ Meta.mkFreshExprMVarWithId mvarId type userName? kind
-| none      => liftMetaM $ do u ← Meta.mkFreshLevelMVar; type ← Meta.mkFreshExprMVar (mkSort u); Meta.mkFreshExprMVarWithId mvarId type userName? kind
+| some type => liftMetaM $ Lean.mkFreshExprMVarWithId mvarId type userName? kind
+| none      => liftMetaM $ do u ← Lean.mkFreshLevelMVar; type ← Lean.mkFreshExprMVar (mkSort u); Lean.mkFreshExprMVarWithId mvarId type userName? kind
 def mkFreshTypeMVar (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
-liftMetaM $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? kind
+liftMetaM $ do u ← Lean.mkFreshLevelMVar; Lean.mkFreshExprMVar (mkSort u) userName? kind
+
 def getLevel (type : Expr) : TermElabM Level := liftMetaM $ Meta.getLevel type
-def getLocalDecl (fvarId : FVarId) : TermElabM LocalDecl := liftMetaM $ Meta.getLocalDecl fvarId
-def mkForall (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkForall xs e
-def mkForallUsedOnly (xs : Array Expr) (e : Expr) : TermElabM (Expr × Nat) := liftMetaM $ Meta.mkForallUsedOnly xs e
-def mkLambda (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkLambda xs e
-def mkLet (x : Expr) (e : Expr) : TermElabM Expr := mkLambda #[x] e
 def trySynthInstance (type : Expr) : TermElabM (LOption Expr) := liftMetaM $ Meta.trySynthInstance type
 def mkAppM (constName : Name) (args : Array Expr) : TermElabM Expr := liftMetaM $ Meta.mkAppM constName args
 def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : TermElabM Expr := liftMetaM $ Meta.mkExpectedTypeHint e expectedType
@@ -387,7 +349,7 @@ setMCtx r.mctx;
 pure (r.expr, r.nextParamIdx)
 
 /-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
-def levelMVarToParam' (e : Expr) : StateT Nat TermElabM Expr := do
+def levelMVarToParam' (e : Expr) : StateRefT Nat TermElabM Expr := do
 nextParamIdx ← get;
 (e, nextParamIdx) ← liftM $ levelMVarToParam e nextParamIdx;
 set nextParamIdx;
@@ -456,13 +418,10 @@ if hasCDot stx then do
 else
   pure none
 
-def mkFreshFVarId : TermElabM FVarId :=
-liftMetaM $ Meta.mkFreshId
-
 def withLocalDecl {α} (n : Name) (binderInfo : BinderInfo) (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
 fvarId     ← mkFreshFVarId;
 lctx       ← getLCtx;
-localInsts ← getLocalInsts;
+localInsts ← getLocalInstances;
 let lctx   := lctx.mkLocalDecl fvarId n type binderInfo;
 let fvar   := mkFVar fvarId;
 c?         ← isClass? type;
@@ -475,7 +434,7 @@ match c? with
 def withLetDecl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
 fvarId     ← mkFreshFVarId;
 lctx       ← getLCtx;
-localInsts ← getLocalInsts;
+localInsts ← getLocalInstances;
 let lctx   := lctx.mkLetDecl fvarId n type val;
 let fvar   := mkFVar fvarId;
 c?         ← isClass? type;
@@ -887,7 +846,7 @@ else match expectedType? with
 def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
 body ← elabUsingElabFns stx expectedType catchExPostpone;
 -- body ← ensureHasType stx expectedType body;
-r ← mkLambda fvars body;
+r ← mkLambdaFVars fvars body;
 trace `Elab.implicitForall $ fun _ => r;
 pure r
 
@@ -969,7 +928,7 @@ finally x (restoreSynthInstanceCache savedSythInstance)
 if b then resettingSynthInstanceCache x else x
 
 def withLocalContext {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α := do
-localInstsCurr ← getLocalInsts;
+localInstsCurr ← getLocalInstances;
 adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) $
   if localInsts == localInstsCurr then
     x
@@ -982,7 +941,7 @@ adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances 
   different from the current ones. -/
 def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
 mvarDecl   ← getMVarDecl mvarId;
-localInsts ← getLocalInsts;
+localInsts ← getLocalInstances;
 let needReset := localInsts == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
@@ -1033,31 +992,6 @@ def elabType (stx : Syntax) : TermElabM Expr := do
 u ← mkFreshLevelMVar;
 type ← elabTerm stx (mkSort u);
 withRef stx $ ensureType type
-
-def addDecl (decl : Declaration) : TermElabM Unit := do
-env ← getEnv;
-match env.addDecl decl with
-| Except.ok    env => setEnv env
-| Except.error kex => do opts ← getOptions; throwError (kex.toMessageData opts)
-
-def compileDecl (decl : Declaration) : TermElabM Unit := do
-env  ← getEnv;
-opts ← getOptions;
-match env.compileDecl opts decl with
-| Except.ok env    => setEnv env
-| Except.error kex => throwError (kex.toMessageData opts)
-
-def mkAuxDefinition (declName : Name) (type : Expr) (value : Expr) (zeta : Bool := false) : TermElabM Expr := do
-env ← getEnv;
-opts ← getOptions;
-mctx ← getMCtx;
-lctx ← getLCtx;
-match Lean.mkAuxDefinition env opts mctx lctx declName type value zeta with
-| Except.error ex          => throwError (ex.toMessageData opts)
-| Except.ok (r, env, mctx) => do
-  setEnv env;
-  setMCtx mctx;
-  pure r
 
 private partial def mkAuxNameAux (env : Environment) (base : Name) : Nat → Name
 | i =>

@@ -229,8 +229,8 @@ match entry? with
   We must instantiate assigned metavariables before we invoke `mkTableKey`. -/
 def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
 withMCtx mctx $ do
-  mvarType ← liftM $ inferType mvar;
-  mvarType ← liftM $ instantiateMVars mvarType;
+  mvarType ← inferType mvar;
+  mvarType ← instantiateMVars mvarType;
   pure $ mkTableKey mctx mvarType
 
 /- See `getSubgoals` and `getSubgoalsAux`
@@ -248,7 +248,7 @@ private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInst
     : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult
 | args, j, subgoals, instVal, Expr.forallE n d b c => do
   let d        := d.instantiateRevRange j args.size args;
-  mvarType ← mkForall xs d;
+  mvarType ← mkForallFVars xs d;
   mvar     ← mkFreshExprMVarAt lctx localInsts mvarType;
   let arg      := mkAppN mvar xs;
   let instVal  := mkApp instVal arg;
@@ -298,7 +298,7 @@ forallTelescopeReducing mvarType $ fun xs mvarTypeBody => do
   ⟨subgoals, instVal, instTypeBody⟩ ← getSubgoals lctx localInsts xs inst;
   trace! `Meta.synthInstance.tryResolve (mvarTypeBody ++ " =?= " ++ instTypeBody);
   condM (isDefEq mvarTypeBody instTypeBody)
-    (do instVal ← mkLambda xs instVal;
+    (do instVal ← mkLambdaFVars xs instVal;
         condM (isDefEq mvar instVal)
           (do trace! `Meta.synthInstance.tryResolve "success";
               mctx ← getMCtx;
@@ -482,7 +482,7 @@ the original type `C a_1 ... a_n` witht the normalized one.
 private def preprocess (type : Expr) : MetaM Expr :=
 forallTelescopeReducing type $ fun xs type => do
   type ← whnf type;
-  mkForall xs type
+  mkForallFVars xs type
 
 private def preprocessLevels (us : List Level) : MetaM (List Level) := do
 us ← us.foldlM
@@ -523,7 +523,7 @@ forallTelescope type $ fun xs typeBody =>
       let c := mkConst constName us;
       cType ← inferType c;
       args ← preprocessArgs cType 0 args;
-      mkForall xs (mkAppN c args)
+      mkForallFVars xs (mkAppN c args)
   | _ => pure type
 
 @[init] def maxStepsOption : IO Unit :=

@@ -18,7 +18,6 @@ lean_object* l_Lean_IR_EmitC_emitMarkPersistent___closed__1;
 lean_object* l_Lean_IR_EmitC_emitCase___closed__1;
 lean_object* l_Lean_IR_EmitC_argToCString___closed__1;
 lean_object* lean_string_push(lean_object*, uint32_t);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_IR_EmitC_toStringArgs(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitSProj___closed__4;
 lean_object* l_Lean_IR_EmitC_toCType___closed__7;
@@ -496,6 +495,7 @@ lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitReset___spec__1(lean_ob
 lean_object* l_Lean_IR_EmitC_emitOffset(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_EmitC_emitCase___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitExternDeclAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__34;
 lean_object* l_Lean_IR_EmitC_emitSSet___closed__4;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
@@ -622,7 +622,7 @@ x_7 = lean_ir_find_env_decl(x_6, x_1);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = l_Lean_Name_toString___closed__1;
+x_8 = l_System_FilePath_dirName___closed__1;
 x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_1);
 x_10 = l_Lean_IR_getDecl___closed__1;
 x_11 = lean_string_append(x_10, x_9);
@@ -657,7 +657,7 @@ x_17 = lean_ir_find_env_decl(x_15, x_1);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_18 = l_Lean_Name_toString___closed__1;
+x_18 = l_System_FilePath_dirName___closed__1;
 x_19 = l_Lean_Name_toStringWithSep___main(x_18, x_1);
 x_20 = l_Lean_IR_getDecl___closed__1;
 x_21 = lean_string_append(x_20, x_19);
@@ -1068,7 +1068,7 @@ lean_object* l_Lean_IR_EmitC_throwInvalidExportName___rarg(lean_object* x_1, lea
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = l_Lean_Name_toString___closed__1;
+x_4 = l_System_FilePath_dirName___closed__1;
 x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_1);
 x_6 = l_Lean_IR_EmitC_throwInvalidExportName___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
@@ -3742,7 +3742,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8
 x_9 = lean_array_fget(x_1, x_2);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-x_11 = l_Lean_Name_toString___closed__1;
+x_11 = l_System_FilePath_dirName___closed__1;
 x_12 = l_Lean_Name_toStringWithSep___main(x_11, x_10);
 x_13 = lean_ctor_get_uint8(x_9, sizeof(void*)*1);
 lean_dec(x_9);
@@ -4047,7 +4047,7 @@ x_9 = l_Lean_IR_EmitC_emitFileHeader___closed__1;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = l_IO_FS_Handle_putStrLn___rarg___closed__1;
 x_12 = lean_string_append(x_10, x_11);
-x_13 = l_Lean_Name_toString___closed__1;
+x_13 = l_System_FilePath_dirName___closed__1;
 x_14 = l_Lean_Name_toStringWithSep___main(x_13, x_7);
 x_15 = l_Lean_IR_EmitC_emitFileHeader___closed__2;
 x_16 = lean_string_append(x_15, x_14);
@@ -7542,7 +7542,7 @@ block_15:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_7);
-x_8 = l_Lean_Name_toString___closed__1;
+x_8 = l_System_FilePath_dirName___closed__1;
 x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_1);
 x_10 = l_Lean_IR_EmitC_emitExternCall___closed__1;
 x_11 = lean_string_append(x_10, x_9);

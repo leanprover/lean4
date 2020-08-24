@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_toStringToFormat___rarg___closed__1;
 lean_object* l_Lean_dataValueHasFormat___closed__1;
 lean_object* l_Lean_List_format___rarg___closed__4;
@@ -213,6 +212,7 @@ lean_object* l_Lean_List_format___rarg___closed__3;
 lean_object* l_Lean_Format_joinSuffix___main(lean_object*);
 lean_object* l_Lean_Format_paren___closed__3;
 lean_object* l_Lean_Format_repr___main___closed__10;
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Format_prefixJoin___rarg(lean_object*, lean_object*, lean_object*);
@@ -2457,7 +2457,7 @@ lean_object* l_Lean_nameHasFormat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Name_toString___closed__1;
+x_2 = l_System_FilePath_dirName___closed__1;
 x_3 = l_Lean_Name_toStringWithSep___main(x_2, x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -3233,7 +3233,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 lean_dec(x_1);
-x_9 = l_Lean_Name_toString___closed__1;
+x_9 = l_System_FilePath_dirName___closed__1;
 x_10 = l_Lean_Name_toStringWithSep___main(x_9, x_8);
 x_11 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -3314,7 +3314,7 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l_Lean_Name_toString___closed__1;
+x_4 = l_System_FilePath_dirName___closed__1;
 x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_2);
 x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);

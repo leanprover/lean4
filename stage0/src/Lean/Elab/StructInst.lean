@@ -646,9 +646,9 @@ else match e.getAppFn with
 
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/
 partial def reduce (structNames : Array Name) : Expr → MetaM Expr
-| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e $ fun xs b => do b ← reduce b; Meta.mkLambda xs b
-| e@(Expr.forallE _ _ _ _) => Meta.forallTelescope e $ fun xs b => do b ← reduce b; Meta.mkForall xs b
-| e@(Expr.letE _ _ _ _ _)  => Meta.lambdaTelescope e $ fun xs b => do b ← reduce b; Meta.mkLambda xs b
+| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e $ fun xs b => do b ← reduce b; mkLambdaFVars xs b
+| e@(Expr.forallE _ _ _ _) => Meta.forallTelescope e $ fun xs b => do b ← reduce b; mkForallFVars xs b
+| e@(Expr.letE _ _ _ _ _)  => Meta.lambdaTelescope e $ fun xs b => do b ← reduce b; mkLetFVars xs b
 | e@(Expr.proj _ i b _)    => do
   r? ← Meta.reduceProj? b i;
   match r? with
@@ -674,7 +674,7 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
   else
     pure $ e.updateMData! b
 | e@(Expr.mvar mvarId _) => do
-  val? ← Meta.getExprMVarAssignment? mvarId;
+  val? ← getExprMVarAssignment? mvarId;
   match val? with
   | some val => if val.isMVar then reduce val else pure val
   | none     => pure e
@@ -728,7 +728,7 @@ partial def step : Struct → M Unit
 
 partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
 | d, struct => do
-  mctx ← liftM $ getMCtx;
+  mctx ← getMCtx;
   match findDefaultMissing? mctx struct with
   | none       => pure () -- Done
   | some field =>

@@ -91,7 +91,7 @@ partial def toMessageData (alt : Alt) : MetaM MessageData := do
 withExistingLocalDecls alt.fvarDecls do
   let msg : List MessageData := alt.fvarDecls.map fun d => d.toExpr ++ ":(" ++ d.type ++ ")";
   let msg : MessageData := msg ++ " |- " ++ (alt.patterns.map Pattern.toMessageData) ++ " => " ++ alt.rhs;
-  addContext msg
+  Meta.addTraceContext msg
 
 def applyFVarSubst (s : FVarSubst) (alt : Alt) : Alt :=
 { alt with
@@ -202,7 +202,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
   minorType ← withExistingLocalDecls lhs.fvarDecls do {
     args ← lhs.patterns.toArray.mapM Pattern.toExpr;
     let minorType := mkAppN motive args;
-    mkForall xs minorType
+    mkForallFVars xs minorType
   };
   let minorType := if minorType.isForall then minorType else mkThunkType minorType;
   let idx       := alts.length;
@@ -310,7 +310,7 @@ match p.vars with
     | _       => unreachable!;
   { p with alts := alts, vars := xs }
 
-private def processLeaf (p : Problem) : StateT State MetaM Unit :=
+private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
 match p.alts with
 | []       => do
   liftM $ admit p.mvarId;
@@ -354,7 +354,7 @@ structure Context :=
 structure State :=
 (fvarSubst : FVarSubst := {})
 
-abbrev M := ReaderT Context $ StateT State MetaM
+abbrev M := ReaderT Context $ StateRefT State MetaM
 
 def isAltVar (fvarId : FVarId) : M Bool := do
 ctx ← read;
@@ -387,7 +387,7 @@ else do
 partial def unify : Expr → Expr → M Bool
 | a, b => do
   trace! `Meta.EqnCompiler.matchUnify (a ++ " =?= " ++ b);
-  condM (liftM $ isDefEq a b) (pure true) do
+  condM (isDefEq a b) (pure true) do
   a' ← expandIfVar a;
   b' ← expandIfVar b;
   if a != a' || b != b' then unify a' b'
@@ -620,7 +620,7 @@ let alts := p.alts.map fun alt => match alt.patterns with
   | _                                                     => alt;
 { p with alts := alts }
 
-private def traceStep (msg : String) : StateT State MetaM Unit :=
+private def traceStep (msg : String) : StateRefT State MetaM Unit :=
 liftM (trace! `Meta.EqnCompiler.match (msg ++ " step") : MetaM Unit)
 
 private def traceState (p : Problem) : MetaM Unit :=
@@ -630,10 +630,6 @@ private def throwNonSupported (p : Problem) : MetaM Unit := do
 msg ← p.toMessageData;
 throwError ("not implement yet " ++ msg)
 
-@[inline] def withIncRecDepth {α} (x : StateT State MetaM α) : StateT State MetaM α := do
-liftM $ checkRecDepth;
-adaptTheReader Core.Context Core.Context.incCurrRecDepth x
-
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
 match p.vars with
 | []   => pure false
@@ -641,7 +637,7 @@ match p.vars with
   val? ← getInductiveVal? x;
   pure val?.isSome
 
-private partial def process : Problem → StateT State MetaM Unit
+private partial def process : Problem → StateRefT State MetaM Unit
 | p => withIncRecDepth do
   liftM $ traceState p;
   isInductive ← liftM $ isCurrVarInductive p;
@@ -682,8 +678,8 @@ withAlts motive lhss fun alts minors => do
   let examples := majors.toList.map fun major => Example.var major.fvarId!;
   (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {};
   let args := #[motive] ++ majors ++ minors;
-  type ← mkForall args mvarType;
-  val  ← mkLambda args mvar;
+  type ← mkForallFVars args mvarType;
+  val  ← mkLambdaFVars args mvar;
   trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
   elim ← mkAuxDefinition elimName type val;
   setInlineAttribute elimName;
@@ -719,7 +715,7 @@ else do
 def mkElimTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
 sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
-  motiveType ← mkForall majors sortv;
+  motiveType ← mkForallFVars majors sortv;
   mkElim elimName motiveType lhss
 
 @[init] private def regTraceClasses : IO Unit := do

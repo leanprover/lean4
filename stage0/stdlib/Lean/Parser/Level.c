@@ -36,7 +36,6 @@ lean_object* l_Lean_Parser_Level_addLit___closed__2;
 lean_object* l_Lean_Parser_Level_num_parenthesizer___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_max_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind;
 lean_object* l_Lean_Parser_Level_paren___closed__2;
 lean_object* l_Lean_Parser_Level_num___closed__2;
@@ -338,6 +337,7 @@ lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__4;
 lean_object* l_Lean_Parser_Level_max___elambda__1___closed__7;
 lean_object* l_Lean_Parser_ident_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Level_paren_parenthesizer(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_levelParser_formatter___boxed(lean_object*);
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__5;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__1;
@@ -366,6 +366,7 @@ lean_object* l_Lean_Parser_Level_paren_formatter___closed__2;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__9;
 lean_object* l_Lean_Parser_ident_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_dollarSymbol_parenthesizer___boxed(lean_object*);
+lean_object* l_Lean_Parser_dollarSymbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__27;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_many_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__7;
@@ -378,6 +379,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean
 lean_object* l_Lean_Parser_Level_addLit___closed__1;
 lean_object* l_Lean_Parser_Level_max___closed__1;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__8;
+lean_object* l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__2;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_paren___closed__1;
@@ -988,6 +990,17 @@ x_7 = l_Lean_PrettyPrinter_Formatter_symbol_formatter(x_6, x_1, x_2, x_3, x_4, x
 return x_7;
 }
 }
+lean_object* l_Lean_Parser_dollarSymbol_formatter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Parser_dollarSymbol_formatter(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_6;
+}
+}
 lean_object* l_Lean_Parser_termParser_formatter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1019,7 +1032,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Prod_HasRepr___rarg___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1047,7 +1060,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Option_HasRepr___rarg___closed__3;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1116,7 +1129,7 @@ lean_object* _init_l_Lean_Parser_mkAntiquot_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_dollarSymbol_formatter), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_dollarSymbol_formatter___boxed), 5, 0);
 return x_1;
 }
 }
@@ -1165,7 +1178,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_mkAntiquot___closed__14;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1197,7 +1210,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Util_1__mkPanicMessage___closed__2;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1267,7 +1280,7 @@ lean_dec(x_9);
 if (x_3 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_12 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter), 6, 1);
+x_12 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter___boxed), 6, 1);
 lean_closure_set(x_12, 0, x_1);
 x_13 = l_Lean_Parser_mkAntiquot_formatter___closed__9;
 x_14 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter), 7, 2);
@@ -1308,7 +1321,7 @@ return x_29;
 else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_30 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter), 6, 1);
+x_30 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter___boxed), 6, 1);
 lean_closure_set(x_30, 0, x_1);
 x_31 = l_Lean_Parser_mkAntiquot_formatter___closed__9;
 x_32 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter), 7, 2);
@@ -2577,7 +2590,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Level_max___elambda__1___closed__4;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3126,7 +3139,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Level_imax___elambda__1___closed__4;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3646,7 +3659,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkHole___closed__3;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4446,7 +4459,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Level_LevelToFormat_Result_format___main___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

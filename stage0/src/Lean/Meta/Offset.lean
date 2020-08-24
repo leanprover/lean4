@@ -99,7 +99,7 @@ else if isNatZero e then mkNatLit offset
 else mkAppB (mkConst `Nat.add) e (mkNatLit offset)
 
 def isDefEqOffset (s t : Expr) : MetaM LBool :=
-let isDefEq (s t) : MetaM LBool := toLBoolM $ isExprDefEqAux s t;
+let isDefEq (s t) : MetaM LBool := toLBoolM $ Meta.isExprDefEqAux s t;
 match isOffset s with
 | some (s, k₁) => match isOffset t with
   | some (t, k₂) => -- s+k₁ =?= t+k₂

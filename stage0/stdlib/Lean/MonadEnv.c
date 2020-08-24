@@ -14,57 +14,39 @@
 extern "C" {
 #endif
 lean_object* l_Lean_monadEnvFromLift___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1(lean_object*);
+lean_object* l_Lean_monadEnvFromLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__4;
 lean_object* l_Lean_addDecl___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_StateRefT_monadEnv(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_monad___closed__6;
 lean_object* lean_environment_find(lean_object*, lean_object*);
-lean_object* l_ReaderT_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl(lean_object*);
 lean_object* l_Lean_compileDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_monadEnvFromLift(lean_object*, lean_object*);
 lean_object* l_Lean_setEnv(lean_object*);
 lean_object* l_Lean_addAndCompile___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__3;
-lean_object* l_Lean_StateRefT_monadEnv___rarg(lean_object*);
-lean_object* l_Lean_OptionT_monadEnv___rarg(lean_object*, lean_object*);
-extern lean_object* l_optional___rarg___closed__1;
 lean_object* l_Lean_addAndCompile___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addAndCompile(lean_object*);
 lean_object* l_Lean_addAndCompile___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ReaderT_monadEnv(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 lean_object* l_Lean_addDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Lean_getConstInfo___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ReaderT_monadEnv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo(lean_object*);
-lean_object* l_Lean_monadEnvFromLift___at_Lean_ReaderT_monadEnv___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_addDecl(lean_object*);
 lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__1;
-lean_object* l_Lean_monadEnvFromLift___at_Lean_StateRefT_monadEnv___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ReaderT_monadEnv___rarg(lean_object*);
 lean_object* l_Lean_addDecl___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_OptionT_monadEnv(lean_object*);
-lean_object* l_Lean_monadEnvFromLift___at_Lean_ReaderT_monadEnv___spec__1___rarg(lean_object*);
-lean_object* l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_monadEnvFromLift___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__2;
 lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_monadEnvFromLift___at_Lean_StateRefT_monadEnv___spec__1___rarg(lean_object*);
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_monadEnvFromLift___elambda__1(lean_object*, lean_object*);
 lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
-lean_object* l_Lean_monadEnvFromLift___elambda__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_monadEnvFromLift___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -76,14 +58,6 @@ x_6 = lean_apply_2(x_2, lean_box(0), x_5);
 return x_6;
 }
 }
-lean_object* l_Lean_monadEnvFromLift___elambda__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___elambda__1___rarg), 3, 0);
-return x_3;
-}
-}
 lean_object* l_Lean_monadEnvFromLift___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -92,7 +66,7 @@ x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_inc(x_2);
 x_4 = lean_apply_2(x_2, lean_box(0), x_3);
-x_5 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___elambda__1___rarg), 3, 2);
+x_5 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___rarg___lambda__1), 3, 2);
 lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_2);
 x_6 = lean_alloc_ctor(0, 2, 0);
@@ -107,170 +81,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___rarg), 2, 0);
 return x_3;
-}
-}
-lean_object* l_Lean_monadEnvFromLift___at_Lean_ReaderT_monadEnv___spec__1___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_alloc_closure((void*)(l_ReaderT_lift___rarg___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-x_4 = l_Id_monad___closed__6;
-x_5 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___elambda__1___rarg), 3, 2);
-lean_closure_set(x_5, 0, x_1);
-lean_closure_set(x_5, 1, x_4);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_5);
-return x_6;
-}
-}
-lean_object* l_Lean_monadEnvFromLift___at_Lean_ReaderT_monadEnv___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___at_Lean_ReaderT_monadEnv___spec__1___rarg), 1, 0);
-return x_3;
-}
-}
-lean_object* l_Lean_ReaderT_monadEnv___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_monadEnvFromLift___at_Lean_ReaderT_monadEnv___spec__1___rarg(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_ReaderT_monadEnv(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_ReaderT_monadEnv___rarg), 1, 0);
-return x_4;
-}
-}
-lean_object* l_Lean_ReaderT_monadEnv___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_ReaderT_monadEnv(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Lean_monadEnvFromLift___at_Lean_StateRefT_monadEnv___spec__1___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-x_4 = l_Id_monad___closed__6;
-x_5 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___elambda__1___rarg), 3, 2);
-lean_closure_set(x_5, 0, x_1);
-lean_closure_set(x_5, 1, x_4);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_5);
-return x_6;
-}
-}
-lean_object* l_Lean_monadEnvFromLift___at_Lean_StateRefT_monadEnv___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___at_Lean_StateRefT_monadEnv___spec__1___rarg), 1, 0);
-return x_4;
-}
-}
-lean_object* l_Lean_StateRefT_monadEnv___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_monadEnvFromLift___at_Lean_StateRefT_monadEnv___spec__1___rarg(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_StateRefT_monadEnv(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_StateRefT_monadEnv___rarg), 1, 0);
-return x_4;
-}
-}
-lean_object* l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = l_optional___rarg___closed__1;
-x_8 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_7, x_3);
-return x_8;
-}
-}
-lean_object* l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-lean_inc(x_1);
-x_4 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1___rarg___lambda__1), 3, 1);
-lean_closure_set(x_4, 0, x_1);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
-x_8 = l_optional___rarg___closed__1;
-x_9 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_3);
-x_10 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___elambda__1___rarg), 3, 2);
-lean_closure_set(x_10, 0, x_2);
-lean_closure_set(x_10, 1, x_4);
-x_11 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-return x_11;
-}
-}
-lean_object* l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_OptionT_monadEnv___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_monadEnvFromLift___at_Lean_OptionT_monadEnv___spec__1___rarg(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_OptionT_monadEnv(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_OptionT_monadEnv___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_setEnv___rarg(lean_object* x_1, lean_object* x_2) {

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_IO_isDir___at_Lean_findOLean___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_io_is_dir(lean_object*, lean_object*);
 lean_object* l_String_revPosOf(lean_object*, uint32_t);
@@ -82,6 +81,7 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_modPathToFilePath(lean_object*);
 lean_object* l_List_findM_x3f___main___at_Lean_findOLean___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_app_dir(lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_String_drop(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__3;
@@ -819,7 +819,7 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
 x_7 = l_Lean_Name_getRoot___main(x_1);
-x_8 = l_Lean_Name_toString___closed__1;
+x_8 = l_System_FilePath_dirName___closed__1;
 x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_7);
 x_10 = l_List_findM_x3f___main___at_Lean_findOLean___spec__2(x_9, x_5, x_6);
 if (lean_obj_tag(x_10) == 0)

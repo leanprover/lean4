@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_InternalExceptionId_toString(lean_object*);
 lean_object* l_Lean_registerInternalExceptionId___closed__1;
 lean_object* l_Lean_InternalExceptionId_toString___closed__1;
@@ -44,6 +43,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_registerInternalExceptionId___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_InternalExceptionId_getName___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_internalExceptionsRef;
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_mkInternalExceptionsRef___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkInternalExceptionsRef(lean_object*);
@@ -223,7 +223,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_6);
-x_19 = l_Lean_Name_toString___closed__1;
+x_19 = l_System_FilePath_dirName___closed__1;
 x_20 = l_Lean_Name_toStringWithSep___main(x_19, x_1);
 x_21 = l_Lean_registerInternalExceptionId___closed__1;
 x_22 = lean_string_append(x_21, x_20);
@@ -282,7 +282,7 @@ else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
 lean_dec(x_26);
-x_38 = l_Lean_Name_toString___closed__1;
+x_38 = l_System_FilePath_dirName___closed__1;
 x_39 = l_Lean_Name_toStringWithSep___main(x_38, x_1);
 x_40 = l_Lean_registerInternalExceptionId___closed__1;
 x_41 = lean_string_append(x_40, x_39);

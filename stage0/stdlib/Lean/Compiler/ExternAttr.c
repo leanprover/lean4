@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* lean_string_push(lean_object*, uint32_t);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkExternAttr___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_getExternEntryForAux(lean_object*, lean_object*);
@@ -32,6 +31,7 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkExternAttr___spec__9(
 lean_object* l_Lean_ExternAttrData_inhabited___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__7;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPattern(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -142,7 +142,6 @@ lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__4;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9___rarg___closed__1;
 lean_object* l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__8;
-lean_object* l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___closed__4;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
@@ -157,6 +156,7 @@ lean_object* l_String_Iterator_remainingBytes(lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__1;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__3___lambda__1(lean_object*);
 lean_object* l_Lean_getExternEntryForAux___main(lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
@@ -780,7 +780,7 @@ x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -807,7 +807,7 @@ x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_throwError___at_Lean_Core_checkRecDepth___spec__1___rarg(x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -1347,7 +1347,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 x_37 = lean_ctor_get(x_1, 0);
 lean_inc(x_37);
 lean_dec(x_1);
-x_38 = l_Lean_Name_toString___closed__1;
+x_38 = l_System_FilePath_dirName___closed__1;
 x_39 = l_Lean_Name_toStringWithSep___main(x_38, x_37);
 x_40 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_41 = lean_string_append(x_40, x_39);
@@ -1475,7 +1475,7 @@ lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean
 x_75 = lean_ctor_get(x_1, 0);
 lean_inc(x_75);
 lean_dec(x_1);
-x_76 = l_Lean_Name_toString___closed__1;
+x_76 = l_System_FilePath_dirName___closed__1;
 x_77 = l_Lean_Name_toStringWithSep___main(x_76, x_75);
 x_78 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 x_79 = lean_string_append(x_78, x_77);

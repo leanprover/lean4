@@ -11,24 +11,24 @@ namespace Elab
 namespace Term
 
 def collectUsedFVars (used : CollectFVars.State) (e : Expr) : TermElabM CollectFVars.State := do
-e ← Term.instantiateMVars e;
+e ← instantiateMVars e;
 pure $ collectFVars used e
 
 def collectUsedFVarsAtFVars (used : CollectFVars.State) (fvars : Array Expr) : TermElabM CollectFVars.State :=
 fvars.foldlM
   (fun used fvar => do
-    fvarType ← Term.inferType fvar;
+    fvarType ← inferType fvar;
     collectUsedFVars used fvarType)
   used
 
 def removeUnused (vars : Array Expr) (used : CollectFVars.State) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
-localInsts ← Term.getLocalInsts;
-lctx ← Term.getLCtx;
+localInsts ← getLocalInstances;
+lctx ← getLCtx;
 (lctx, localInsts, newVars, _) ← vars.foldrM
   (fun var (result : LocalContext × LocalInstances × Array Expr × CollectFVars.State) =>
     let (lctx, localInsts, newVars, used) := result;
     if used.fvarSet.contains var.fvarId! then do
-      varType ← Term.inferType var;
+      varType ← inferType var;
       used ← Term.collectUsedFVars used varType;
       pure (lctx, localInsts, newVars.push var, used)
     else

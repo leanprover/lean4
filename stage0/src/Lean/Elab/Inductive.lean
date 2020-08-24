@@ -77,16 +77,16 @@ private partial def elabHeaderAux (views : Array InductiveView)
   if h : i < views.size then
     let view := views.get ⟨i, h⟩;
     Term.elabBinders view.binders.getArgs fun params => do
-      lctx ← Term.getLCtx;
-      localInsts ← Term.getLocalInsts;
+      lctx ← getLCtx;
+      localInsts ← getLocalInstances;
       match view.type? with
       | none         => do
-        u ← Term.mkFreshLevelMVar;
+        u ← mkFreshLevelMVar;
         let type := mkSort (mkLevelSucc u);
         elabHeaderAux (i+1) (acc.push { lctx := lctx, localInsts := localInsts, params := params, type := type, view := view })
       | some typeStx => do
         type ← Term.elabTerm typeStx none;
-        unlessM (Term.isTypeFormerType type) $
+        unlessM (isTypeFormerType type) $
           throwErrorAt typeStx "invalid inductive type, resultant type is not a sort";
         elabHeaderAux (i+1) (acc.push { lctx := lctx, localInsts := localInsts, params := params, type := type, view := view })
   else
@@ -111,7 +111,7 @@ when (views.size > 1) do
 
 private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
 Term.withLocalContext r.lctx r.localInsts do
-  Term.mkForall r.params r.type
+  mkForallFVars r.params r.type
 
 private def throwUnexpectedInductiveType {α} : TermElabM α :=
 throwError "unexpected inductive resulting type"
@@ -121,14 +121,14 @@ private def getResultingType (e : Expr) : TermElabM Expr :=
 Term.liftMetaM $ Meta.forallTelescopeReducing e fun _ r => pure r
 
 private def eqvFirstTypeResult (firstType type : Expr) : MetaM Bool :=
-Meta.forallTelescopeReducing firstType fun _ firstTypeResult => Meta.isDefEq firstTypeResult type
+Meta.forallTelescopeReducing firstType fun _ firstTypeResult => isDefEq firstTypeResult type
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr → Expr → TermElabM Unit
 | i, type, firstType => do
-  type ← Term.whnf type;
+  type ← whnf type;
   if i < numParams then do
-    firstType ← Term.whnf firstType;
+    firstType ← whnf firstType;
     match type, firstType with
     | Expr.forallE n₁ d₁ b₁ c₁, Expr.forallE n₂ d₂ b₂ c₂ => do
       unless (n₁ == n₂) $
@@ -167,7 +167,7 @@ type ← mkTypeFor r;
 match firstType? with
 | none           => pure type
 | some firstType => do
-  Term.withRef r.view.ref $ checkParamsAndResultType numParams 0 type firstType;
+  withRef r.view.ref $ checkParamsAndResultType numParams 0 type firstType;
   pure firstType
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
@@ -190,7 +190,7 @@ private partial def withInductiveLocalDeclsAux {α} (namesAndTypes : Array (Name
 | i, indFVars =>
   if h : i < namesAndTypes.size then do
     let (id, type) := namesAndTypes.get ⟨i, h⟩;
-    type ← Term.liftMetaM (Meta.instantiateForall type params);
+    type ← instantiateForall type params;
     Term.withLocalDecl id BinderInfo.default type fun indFVar => withInductiveLocalDeclsAux (i+1) (indFVars.push indFVar)
   else
     x params indFVars
@@ -207,12 +207,12 @@ namesAndTypes ← rs.mapM fun r => do {
 };
 let r0     := rs.get! 0;
 let params := r0.params;
-Term.withLocalContext r0.lctx r0.localInsts $ Term.withRef r0.view.ref $
+Term.withLocalContext r0.lctx r0.localInsts $ withRef r0.view.ref $
   withInductiveLocalDeclsAux namesAndTypes params x 0 #[]
 
 private def isInductiveFamily (indFVar : Expr) : TermElabM Bool := do
-indFVarType ← Term.inferType indFVar;
-indFVarType ← Term.whnf indFVarType;
+indFVarType ← inferType indFVar;
+indFVarType ← whnf indFVarType;
 pure !indFVarType.isSort
 
 /-
@@ -223,10 +223,10 @@ pure !indFVarType.isSort
   - Positivity (it is a rare failure, and the kernel already checks for it).
   - Universe constraints (the kernel checks for it). -/
 private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) :=
-Term.withRef r.view.ref do
+withRef r.view.ref do
 indFamily ← isInductiveFamily indFVar;
 r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
-  Term.withRef ctorView.ref $ do
+  withRef ctorView.ref $ do
   type ← match ctorView.type? with
     | none          => do
       when indFamily $
@@ -237,18 +237,18 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
       resultingType ← getResultingType type;
       unless (resultingType.getAppFn == indFVar) $
         throwError ("unexpected constructor resulting type" ++ indentExpr resultingType);
-      unlessM (Term.isType resultingType) $
+      unlessM (isType resultingType) $
         throwError ("unexpected constructor resulting type, type expected" ++ indentExpr resultingType);
       pure type
     };
-  type ← Term.mkForall ctorParams type;
-  type ← Term.mkForall params type;
+  type ← mkForallFVars ctorParams type;
+  type ← mkForallFVars params type;
   pure { name := ctorView.declName, type := type }
 
 /- Convert universe metavariables occurring in the `indTypes` into new parameters.
    Remark: if the resulting inductive datatype has universe metavariables, we will fix it later using
    `inferResultingUniverse`. -/
-private def levelMVarToParamAux (indTypes : List InductiveType) : StateT Nat TermElabM (List InductiveType) :=
+private def levelMVarToParamAux (indTypes : List InductiveType) : StateRefT Nat TermElabM (List InductiveType) :=
 indTypes.mapM fun indType => do
   type  ← Term.levelMVarToParam' indType.type;
   ctors ← indType.ctors.mapM fun ctor => do {
@@ -275,7 +275,7 @@ def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
   Return false if `u` does not contain universe metavariables.
   Throw exception otherwise. -/
 def shouldInferResultUniverse (u : Level) : TermElabM Bool := do
-u ← Term.instantiateLevelMVars u;
+u ← instantiateLevelMVars u;
 if u.hasMVar then
   match u.getLevelOffset with
   | Level.mvar mvarId _ => do
@@ -308,7 +308,7 @@ def accLevelAtCtor : Level → Level → Nat → Array Level → Except String (
 private partial def collectUniversesFromCtorTypeAux (r : Level) (rOffset : Nat) : Nat → Expr → Array Level → TermElabM (Array Level)
 | 0,   Expr.forallE n d b c, us => do
   u ← Term.getLevel d;
-  u ← Term.instantiateLevelMVars u;
+  u ← instantiateLevelMVars u;
   match accLevelAtCtor u r rOffset us with
   | Except.error msg => throwError msg
   | Except.ok us     => Term.withLocalDecl n c.binderInfo d $ fun x =>
@@ -363,9 +363,9 @@ Term.withLCtx lctx localInsts $ k vars
 
 private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
 indTypes.mapM fun indType => do
-  type ← Term.mkForall vars indType.type;
+  type ← mkForallFVars vars indType.type;
   ctors ← indType.ctors.mapM fun ctor => do {
-    ctorType ← Term.mkForall vars ctor.type;
+    ctorType ← mkForallFVars vars ctor.type;
     pure { ctor with type := ctorType }
   };
   pure { indType with type := type, ctors := ctors }
@@ -391,7 +391,7 @@ views.size.fold
 
 private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) (numParams : Nat) (indTypes : List InductiveType)
     : TermElabM (List InductiveType) :=
-Term.withRef (views.get! 0).ref $
+withRef (views.get! 0).ref $
 let indFVar2Const := mkIndFVar2Const views indFVars levelNames;
 indTypes.mapM fun indType => do
   ctors ← indType.ctors.mapM fun ctor => do {
@@ -400,7 +400,7 @@ indTypes.mapM fun indType => do
         match indFVar2Const.find? e with
         | some c => some $ mkAppN c params
         | none   => none;
-      Meta.mkForall params type
+      mkForallFVars params type
     };
     pure { ctor with type := type }
   };
@@ -430,7 +430,7 @@ scopeLevelNames ← Term.getLevelNames;
 checkLevelNames views;
 let allUserLevelNames := view0.levelNames;
 let isUnsafe          := view0.modifiers.isUnsafe;
-Term.withRef view0.ref $
+withRef view0.ref $
 adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNames }) do
   rs ← elabHeader views;
   withInductiveLocalDecls rs fun params indFVars => do
@@ -439,7 +439,7 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       (fun i (indTypes : List InductiveType) => do
         let indFVar := indFVars.get! i;
         let r       := rs.get! i;
-        type  ← Term.mkForall params r.type;
+        type  ← mkForallFVars params r.type;
         ctors ← elabCtors indFVar params r;
         let indType := { name := r.view.declName, type := type, ctors := ctors : InductiveType };
         pure (indType :: indTypes))
@@ -486,7 +486,7 @@ views.forM fun view => do {
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
 let ref := view0.ref;
-decl ← runTermElabM view0.declName $ fun vars => Term.withRef ref $ mkInductiveDecl vars views;
+decl ← runTermElabM view0.declName fun vars => withRef ref $ mkInductiveDecl vars views;
 addDecl decl;
 mkAuxConstructions views;
 -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.

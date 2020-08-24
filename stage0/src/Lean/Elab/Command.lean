@@ -75,6 +75,7 @@ pure (ref, msg)
 
 instance : MonadError CommandElabM :=
 { getRef     := Command.getRef,
+  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x,
   addContext := Command.addContext }
 
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
@@ -98,14 +99,6 @@ modify fun s => { s with env := coreS.env, ngen := coreS.ngen };
 match ea with
 | Except.ok a    => pure a
 | Except.error e => throw e
-
-@[inline] def getCurrRef : CommandElabM Syntax := do
-ctx ← read;
-pure ctx.ref
-
-/- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
-@[inline] def withRef {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM α := do
-adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
 let ref := getBetterRef ref ctx.macroStack;
@@ -154,11 +147,6 @@ unsafe def mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab) :=
 mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
 @[init mkCommandElabAttribute] constant commandElabAttribute : KeyedDeclsAttribute CommandElab := arbitrary _
 
-@[inline] def withIncRecDepth {α} (x : CommandElabM α) : CommandElabM α := do
-ctx ← read; s ← get;
-when (ctx.currRecDepth == s.maxRecDepth) $ throwError maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
-
 private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => do
   let refFmt := stx.prettyPrint;
@@ -179,6 +167,11 @@ instance : MonadMacroAdapter CommandElabM :=
   getMaxRecDepth         := do s ← get; pure s.maxRecDepth,
   throwError             := fun α ref msg => throwErrorAt ref msg,
   throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
+
+instance : MonadRecDepth CommandElabM :=
+{ withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,
+  getRecDepth    := do ctx ← read; pure ctx.currRecDepth,
+  getMaxRecDepth := do s ← get; pure s.maxRecDepth }
 
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
@@ -517,7 +510,7 @@ fun stx => do
   withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
     e    ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
-    type ← Term.inferType e;
+    type ← inferType e;
     logInfo (e ++ " : " ++ type);
     pure ()
 
@@ -548,9 +541,6 @@ when succeeded $
 @[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab :=
 fun stx => failIfSucceeds $ elabCheck stx
 
-def addDecl (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.addDecl decl
-def compileDecl (decl : Declaration) : CommandElabM Unit := liftTermElabM none $ Term.compileDecl decl
-
 def addInstance (declName : Name) : CommandElabM Unit := do
 env ← getEnv;
 env ← liftIO $ Meta.addGlobalInstance env declName;
@@ -564,11 +554,10 @@ fun stx => withoutModifyingEnv do
   ctx ← read;
   env ← getEnv;
   let addAndCompile (value : Expr) : TermElabM Unit := do {
-    type ← Term.inferType value;
+    type ← inferType value;
     let decl := Declaration.defnDecl { name := n, lparams := [], type := type,
       value := value, hints := ReducibilityHints.opaque, isUnsafe := true };
-    Term.addDecl decl;
-    Term.compileDecl decl
+    addAndCompile decl
   };
   let elabMetaEval : CommandElabM Unit := do {
     act : IO Environment ← runTermElabM (some n) fun _ => do {
@@ -577,7 +566,7 @@ fun stx => withoutModifyingEnv do
         e ← Term.withLocalDecl `env BinderInfo.default (mkConst `Lean.Environment) fun env =>
           Term.withLocalDecl `opts BinderInfo.default (mkConst `Lean.Options) fun opts => do {
             e ← Term.mkAppM `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
-            Term.mkLambda #[env, opts] e
+            mkLambdaFVars #[env, opts] e
           };
         addAndCompile e;
         env ← getEnv;
@@ -625,7 +614,7 @@ fun stx => do
   withoutModifyingEnv $ runTermElabM `_synth_cmd $ fun _ => do
     inst ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
-    inst ← Term.instantiateMVars inst;
+    inst ← instantiateMVars inst;
     val  ← Term.liftMetaM $ Meta.synthInstance inst;
     logInfo val;
     pure ()

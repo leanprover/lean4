@@ -44,6 +44,7 @@ extern lean_object* l_Lean_charLitKind___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_numLitNoAntiquot_parenthesizer___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__7;
 lean_object* l_Lean_PrettyPrinter_Formatter_sepBy_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,6 +116,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambd
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_combinatorParenthesizerAttribute;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___closed__2;
 extern lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__4;
@@ -2741,7 +2743,7 @@ lean_dec(x_2);
 x_183 = lean_ctor_get(x_1, 0);
 lean_inc(x_183);
 lean_dec(x_1);
-x_184 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__12), 6, 1);
+x_184 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__12___boxed), 6, 1);
 lean_closure_set(x_184, 0, x_183);
 x_185 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_185, 0, x_184);
@@ -2756,7 +2758,7 @@ lean_dec(x_2);
 x_186 = lean_ctor_get(x_1, 0);
 lean_inc(x_186);
 lean_dec(x_1);
-x_187 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13), 6, 1);
+x_187 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13___boxed), 6, 1);
 lean_closure_set(x_187, 0, x_186);
 x_188 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_188, 0, x_187);
@@ -2853,6 +2855,28 @@ lean_object* x_9;
 x_9 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__11(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_2);
 return x_9;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__12___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__12(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_7;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_7;
 }
 }
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

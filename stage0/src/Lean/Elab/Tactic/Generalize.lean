@@ -21,12 +21,12 @@ stx.getIdAt 4
 
 private def evalGeneralizeFinalize (mvarId : MVarId) (e : Expr) (target : Expr) : MetaM (List MVarId) := do
 tag         ← Meta.getMVarTag mvarId;
-eType       ← Meta.inferType e;
+eType       ← inferType e;
 u           ← Meta.getLevel eType;
 mvar' ← Meta.mkFreshExprSyntheticOpaqueMVar target tag;
 let rfl    := mkApp2 (Lean.mkConst `Eq.refl [u]) eType e;
 let val    := mkApp2 mvar' e rfl;
-Meta.assignExprMVar mvarId val;
+assignExprMVar mvarId val;
 let mvarId' := mvar'.mvarId!;
 (_, mvarId') ← Meta.introN mvarId' 2 [] false;
 pure [mvarId']
@@ -34,11 +34,11 @@ pure [mvarId']
 private def evalGeneralizeWithEq (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
 liftMetaTactic $ fun mvarId => do
   mvarId      ← Meta.generalize mvarId e x;
-  mvarDecl    ← Meta.getMVarDecl mvarId;
+  mvarDecl    ← getMVarDecl mvarId;
   match mvarDecl.type with
   | Expr.forallE _ _ b _ => do
     (_, mvarId) ← Meta.intro1 mvarId false;
-    eType       ← Meta.inferType e;
+    eType       ← inferType e;
     u           ← Meta.getLevel eType;
     let eq     := mkApp3 (Lean.mkConst `Eq [u]) eType e (mkBVar 0);
     let target := Lean.mkForall x BinderInfo.default eType $ Lean.mkForall h BinderInfo.default eq (b.liftLooseBVars 0 1);
@@ -48,7 +48,7 @@ liftMetaTactic $ fun mvarId => do
 -- If generalizing fails, fall back to not replacing anything
 private def evalGeneralizeFallback (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
 liftMetaTactic $ fun mvarId => do
-  eType       ← Meta.inferType e;
+  eType       ← inferType e;
   u           ← Meta.getLevel eType;
   mvarType    ← Meta.getMVarType mvarId;
   let eq     := mkApp3 (Lean.mkConst `Eq [u]) eType e (mkBVar 0);

@@ -36,6 +36,7 @@ instance CoreM.inhabited {α} : Inhabited (CoreM α) :=
 
 instance : MonadError CoreM :=
 { getRef     := do ctx ← read; pure ctx.ref,
+  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x,
   addContext := fun ref msg => do
     ctx ← read;
     s   ← get;
@@ -48,6 +49,15 @@ instance : MonadEnv CoreM :=
 instance : MonadOptions CoreM :=
 { getOptions := do ctx ← read; pure ctx.options }
 
+instance : MonadNameGenerator CoreM :=
+{ getNGen := do s ← get; pure s.ngen,
+  setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
+
+instance : MonadRecDepth CoreM :=
+{ withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,
+  getRecDepth    := do ctx ← read; pure ctx.currRecDepth,
+  getMaxRecDepth := do ctx ← read; pure ctx.maxRecDepth }
+
 @[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
 ref ← getRef;
 liftM $ (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)) x : EIO Exception α)
@@ -55,55 +65,11 @@ liftM $ (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)
 instance : MonadIO CoreM :=
 { liftIO := @liftIOCore }
 
-def checkRecDepth : CoreM Unit := do
-ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError maxRecDepthErrorMessage
-
-def Context.incCurrRecDepth (ctx : Context) : Context :=
-{ ctx with currRecDepth := ctx.currRecDepth + 1 }
-
-@[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
-checkRecDepth; adaptReader Context.incCurrRecDepth x
-
-def getTraceState : CoreM TraceState := do
-s ← get; pure s.traceState
-
-def setTraceState (traceState : TraceState) : CoreM Unit := do
-modify fun s => { s with traceState := traceState }
-
-def getNGen : CoreM NameGenerator := do
-s ← get; pure s.ngen
-
-def setNGen (ngen : NameGenerator) : CoreM Unit :=
-modify fun s => { s with ngen := ngen }
-
-def mkFreshId : CoreM Name := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { s with ngen := s.ngen.next };
-pure id
-
-def Context.replaceRef (ref : Syntax) (ctx : Context) : Context :=
-{ ctx with ref := replaceRef ref ctx.ref }
-
-@[inline] def withRef {α} (ref : Syntax) (x : CoreM α) : CoreM α := do
-adaptReader (Context.replaceRef ref) x
-
-@[inline] private def getTraceState : CoreM TraceState := do
-s ← get; pure s.traceState
-
-instance tracer : SimpleMonadTracerAdapter (CoreM) :=
+instance : SimpleMonadTracerAdapter CoreM :=
 { getOptions       := getOptions,
-  getTraceState    := getTraceState,
-  addContext       := fun msg => Prod.snd <$> addContext Syntax.missing msg,
+  getTraceState    := do s ← get; pure s.traceState,
+  addTraceContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
-
-def printTraces : CoreM Unit := do
-traceState ← getTraceState;
-traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
-
-def resetTraceState : CoreM Unit :=
-modify fun s => { s with traceState := {} }
 
 @[inline] def CoreM.run {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
 (x.run ctx).run s

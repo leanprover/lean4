@@ -67,11 +67,9 @@ partial def collectLevelAux : Level → ClosureM Level
 def collectLevel (u : Level) : ClosureM Level :=
 visitLevel collectLevelAux u
 
-def mkFreshFVarId : ClosureM FVarId := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { s with ngen := s.ngen.next };
-pure id
+instance : MonadNameGenerator ClosureM :=
+{ getNGen := do s ← get; pure s.ngen,
+  setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
 
 /--
   Remark: This method does not guarantee unique user names.
@@ -196,7 +194,7 @@ match (mkTypeValue { lctxInput := lctx, zeta := zeta }).run { mctx := mctx } wit
 
 end Closure
 
-def mkAuxDefinition (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
+def mkAuxDefinitionCore (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
     (zeta : Bool := false) : Except KernelException (Expr × Environment × MetavarContext) :=
 match Closure.mkClosure mctx lctx type value zeta with
 | Except.error ex  => throw $ KernelException.other ex

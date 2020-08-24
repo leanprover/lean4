@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_JsonNumber_decidableEq___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_JsonNumber_shiftl(lean_object*, lean_object*);
 lean_object* l_String_Iterator_remainingToString(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -92,6 +91,7 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 extern lean_object* l_stdNext___closed__24;
 lean_object* l_Lean_Json_natToJson(lean_object*);
 lean_object* l_Lean_Json_getObjValD___boxed(lean_object*, lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Json_getArr_x3f___boxed(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_intToJsonNumber;
@@ -374,7 +374,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean
 x_36 = l_Int_repr___closed__1;
 x_37 = lean_string_append(x_36, x_31);
 lean_dec(x_31);
-x_38 = l_Lean_Name_toString___closed__1;
+x_38 = l_System_FilePath_dirName___closed__1;
 x_39 = lean_string_append(x_37, x_38);
 x_40 = lean_string_append(x_39, x_34);
 lean_dec(x_34);
@@ -405,7 +405,7 @@ lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean
 x_47 = l_String_splitAux___main___closed__1;
 x_48 = lean_string_append(x_47, x_31);
 lean_dec(x_31);
-x_49 = l_Lean_Name_toString___closed__1;
+x_49 = l_System_FilePath_dirName___closed__1;
 x_50 = lean_string_append(x_48, x_49);
 x_51 = lean_string_append(x_50, x_34);
 lean_dec(x_34);

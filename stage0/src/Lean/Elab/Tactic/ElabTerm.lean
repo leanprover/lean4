@@ -18,7 +18,7 @@ def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false)
 withRef stx $ liftTermElabM $ adaptReader (fun (ctx : Term.Context) => { ctx with errToSorry := false }) $ do
   e ← Term.elabTerm stx expectedType?;
   Term.synthesizeSyntheticMVars mayPostpone;
-  Term.instantiateMVars e
+  instantiateMVars e
 
 @[builtinTactic «exact»] def evalExact : Tactic :=
 fun stx => match_syntax stx with

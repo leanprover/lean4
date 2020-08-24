@@ -25,14 +25,16 @@ def Exception.getRef : Exception → Syntax
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 
 class MonadError (m : Type → Type) extends MonadExceptOf Exception m :=
-(getRef     : m Syntax)
-(addContext : Syntax → MessageData → m (Syntax × MessageData))
+(getRef         : m Syntax)
+(addContext     : Syntax → MessageData → m (Syntax × MessageData))
+(withRef    {α} : Syntax → m α → m α)
 
-export MonadError (getRef addContext)
+export MonadError (getRef addContext withRef)
 
 instance ReaderT.monadError {ρ m} [Monad m] [MonadError m] : MonadError (ReaderT ρ m) :=
-{ getRef        := fun _ => getRef,
-  addContext    := fun ref msg _ => addContext ref msg }
+{ getRef        := fun _           => getRef,
+  addContext    := fun ref msg _   => addContext ref msg,
+  withRef       := fun α ref x ctx => MonadError.withRef ref (x ctx) }
 
 instance StateRefT.monadError {ω σ m} [Monad m] [MonadError m] : MonadError (StateRefT' ω σ m) :=
 inferInstanceAs (MonadError (ReaderT _ _))
@@ -51,6 +53,11 @@ match ref.getPos with
 | some _ => ref
 | _      => oldRef
 
+@[inline] def withRef {α} (ref : Syntax) (x : m α) : m α := do
+oldRef ← getRef;
+let ref := replaceRef ref oldRef;
+MonadError.withRef ref x
+
 def throwErrorAt {α} (ref : Syntax) (msg : MessageData) : m α := do
 ctxRef ← getRef;
 let ref := replaceRef ref ctxRef;
@@ -67,4 +74,24 @@ opts ← getOptions;
 throwError $ ex.toMessageData opts
 
 end Methods
+
+class MonadRecDepth (m : Type → Type) :=
+(withRecDepth {α} : Nat → m α → m α)
+(getRecDepth      : m Nat)
+(getMaxRecDepth   : m Nat)
+
+instance ReaderT.MonadRecDepth {ρ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) :=
+{ withRecDepth := fun α d x ctx => MonadRecDepth.withRecDepth d (x ctx),
+  getRecDepth     := fun _ => MonadRecDepth.getRecDepth,
+  getMaxRecDepth  := fun _ => MonadRecDepth.getMaxRecDepth }
+
+instance StateRefT.monadRecDepth {ω σ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
+inferInstanceAs (MonadRecDepth (ReaderT _ _))
+
+@[inline] def withIncRecDepth {α m} [Monad m] [MonadRecDepth m] [MonadError m] (x : m α) : m α := do
+curr ← MonadRecDepth.getRecDepth;
+max  ← MonadRecDepth.getMaxRecDepth;
+when (curr == max) $ throwError maxRecDepthErrorMessage;
+MonadRecDepth.withRecDepth (curr+1) x
+
 end Lean

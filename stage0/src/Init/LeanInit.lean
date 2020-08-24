@@ -11,6 +11,8 @@ import Init.Data.UInt
 import Init.Data.Hashable
 import Init.Control.Reader
 import Init.Control.EState
+import Init.Control.StateRef
+import Init.Control.Option
 
 namespace Lean
 /-
@@ -132,6 +134,22 @@ mkNameNum g.namePrefix g.idx
  { g with idx := g.idx + 1 })
 
 end NameGenerator
+
+class MonadNameGenerator (m : Type → Type) :=
+(getNGen : m NameGenerator)
+(setNGen : NameGenerator → m Unit)
+
+export MonadNameGenerator (getNGen setNGen)
+
+def mkFreshId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m Name := do
+ngen ← getNGen;
+let r := ngen.curr;
+setNGen ngen.next;
+pure r
+
+instance monadNameGeneratorLift (m n : Type → Type) [MonadNameGenerator m] [HasMonadLift m n] : MonadNameGenerator n :=
+{ getNGen := liftM (getNGen : m _),
+  setNGen := fun ngen => liftM (setNGen ngen : m _) }
 
 /-
   Small DSL for describing parsers. We implement an interpreter for it

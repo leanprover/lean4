@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Name_isAtomic___boxed(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 extern lean_object* l_Lean_mkHole___closed__3;
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_stringToName;
 lean_object* l_Lean_Name_DecidableRel___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -148,6 +147,7 @@ lean_object* l_Lean_Name_appendBefore(lean_object*, lean_object*);
 lean_object* l_List_replace___main___at_Lean_NameHashSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot___main___boxed(lean_object*);
 lean_object* l_Lean_mkNameMap(lean_object*);
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Std_RBNode_find___main___at_Lean_NameMap_contains___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot___boxed(lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
@@ -9315,7 +9315,7 @@ lean_object* l_String_toName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Name_toString___closed__1;
+x_2 = l_System_FilePath_dirName___closed__1;
 x_3 = l_String_splitOn(x_1, x_2);
 x_4 = lean_box(0);
 x_5 = l_List_foldl___main___at_String_toName___spec__1(x_4, x_3);

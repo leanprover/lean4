@@ -87,9 +87,9 @@ withDeclId declId $ fun name => do
   decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
-    type ← Term.instantiateMVars type;
-    type ← Term.mkForall xs type;
-    (type, _) ← Term.mkForallUsedOnly vars type;
+    type ← instantiateMVars type;
+    type ← mkForallFVars xs type;
+    (type, _) ← mkForallUsedOnly vars type;
     (type, _) ← Term.levelMVarToParam type;
     let usedParams  := (collectLevelParams {} type).params;
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with

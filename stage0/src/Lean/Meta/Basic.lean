@@ -12,6 +12,7 @@ import Lean.Util.RecDepth
 import Lean.Util.Closure
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.Exception
+import Lean.Meta.TransparencyMode
 import Lean.Meta.DiscrTreeTypes
 import Lean.Eval
 import Lean.CoreM
@@ -28,35 +29,6 @@ They are packed into the MetaM monad.
 
 namespace Lean
 namespace Meta
-
-inductive TransparencyMode
-| all | default | reducible
-
-namespace TransparencyMode
-instance : Inhabited TransparencyMode := ⟨TransparencyMode.default⟩
-
-def beq : TransparencyMode → TransparencyMode → Bool
-| all,       all       => true
-| default,   default   => true
-| reducible, reducible => true
-| _,         _         => false
-
-instance : HasBeq TransparencyMode := ⟨beq⟩
-
-def hash : TransparencyMode → USize
-| all       => 7
-| default   => 11
-| reducible => 13
-
-instance : Hashable TransparencyMode := ⟨hash⟩
-
-def lt : TransparencyMode → TransparencyMode → Bool
-| reducible, default => true
-| reducible, all     => true
-| default,   all     => true
-| _,         _       => false
-
-end TransparencyMode
 
 structure Config :=
 (foApprox           : Bool    := false)
@@ -132,64 +104,81 @@ structure Context :=
 
 abbrev MetaM := ReaderT Context $ StateRefT State $ CoreM
 
-@[inline] def mapCoreM (f : forall {α}, CoreM α → CoreM α) {α} : MetaM α → MetaM α :=
-monadMap @f
-
 instance : MonadIO MetaM :=
 { liftIO := fun α x => liftM (liftIO x : CoreM α) }
 
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
-def addContext (msg : MessageData) : MetaM MessageData := do
+protected def addTraceContext (msg : MessageData) : MetaM MessageData := do
 ctxCore ← readThe Core.Context;
 sCore   ← getThe Core.State;
 ctx     ← read;
 s       ← get;
 pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctxCore.options } msg
 
-instance meta.monadError : MonadError MetaM :=
-{ getRef     := liftM (getRef : CoreM Syntax),
-  addContext := fun ref msg => do msg ← addContext msg; pure (ref, msg) }
+instance : MonadError MetaM :=
+{ getRef     := getRef,
+  withRef    := fun α => withRef,
+  addContext := fun ref msg => do msg ← Meta.addTraceContext msg; pure (ref, msg) }
 
-def throwIsDefEqStuck {α} : MetaM α :=
+instance : SimpleMonadTracerAdapter MetaM :=
+{ getOptions       := getOptions,
+  getTraceState    := getTraceState,
+  modifyTraceState := fun f => liftM (modifyTraceState f : CoreM _),
+  addTraceContext  := Meta.addTraceContext }
+
+@[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
+(x.run ctx).run s
+
+@[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
+Prod.fst <$> x.run
+
+@[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
+((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore;
+pure (a, sCore, s)
+
+instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
+⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run'⟩
+
+protected def throwIsDefEqStuck {α} : MetaM α :=
 throw $ Exception.internal isDefEqStuckExceptionId
 
-def checkRecDepth : MetaM Unit :=
-liftM $ Core.checkRecDepth
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta;
+registerTraceClass `Meta.debug
 
-@[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
-mapCoreM (fun α => Core.withIncRecDepth) x
+end Meta
 
-@[inline] def withRef {α} (ref : Syntax) (x : MetaM α) : MetaM α := do
-mapCoreM (fun α => Core.withRef ref) x
+export Meta (MetaM)
 
-@[inline] def getLCtx : MetaM LocalContext := do
-ctx ← read; pure ctx.lctx
+class MonadMetaM (m : Type → Type) :=
+(liftMetaM {α} : MetaM α → m α)
 
-@[inline] def getLocalInstances : MetaM LocalInstances := do
-ctx ← read; pure ctx.localInstances
+export MonadMetaM (liftMetaM)
 
-@[inline] def getConfig : MetaM Config := do
-ctx ← read; pure ctx.config
+instance monadMetaSelf : MonadMetaM MetaM :=
+{ liftMetaM := fun α x => x }
 
-@[inline] def getMCtx : MetaM MetavarContext := do
-s ← get; pure s.mctx
+-- TODO: uncomment after we switch to new frontend
+-- instance monadTrans (m n) [MonadMetaM m] [HasMonadLift m n] : MonadMetaM n :=
+-- { liftMetaM := fun α x => liftM (liftMetaM x : m _) }
+instance monadMetaReader (m ρ) [MonadMetaM m] : MonadMetaM (ReaderT ρ m) :=
+{ liftMetaM := fun α x _ => liftMetaM x }
+instance monadMetaStateRef (m ω σ) [MonadMetaM m] : MonadMetaM (StateRefT' ω σ m) :=
+{ liftMetaM := fun α x _ => liftMetaM x }
+instance monadMetaOption(m) [MonadMetaM m] [Monad m] : MonadMetaM (OptionT m) :=
+{ liftMetaM := fun α x => liftM (liftMetaM x : m _) }
 
-def setMCtx (mctx : MetavarContext) : MetaM Unit :=
-modify $ fun s => { s with mctx := mctx }
+section Methods
+variables {m : Type → Type} [MonadMetaM m]
 
-def getNGen : MetaM NameGenerator :=
-liftM Core.getNGen
-
-def setNGen (ngen : NameGenerator) : MetaM Unit :=
-liftM $ Core.setNGen ngen
-
-def getTraceState  : MetaM TraceState :=
-liftM $ Core.getTraceState
-
-def setTraceState (traceState : TraceState) : MetaM Unit :=
-liftM $ Core.setTraceState traceState
+def getLCtx : m LocalContext := liftMetaM do ctx ← read; pure ctx.lctx
+def getLocalInstances : m LocalInstances := liftMetaM do ctx ← read; pure ctx.localInstances
+def getConfig : m Meta.Config := liftMetaM do ctx ← read; pure ctx.config
+def getMCtx : m MetavarContext := liftMetaM do s ← get; pure s.mctx
+def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
+@[inline] def modifyMCtx {m} [MonadMetaM m] (f : MetavarContext → MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := f s.mctx }
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
@@ -211,108 +200,86 @@ IO.mkRef $ fun _ => pure false
 
 @[init mkSynthPendingRef] def synthPendingRef : IO.Ref (MVarId → MetaM Bool) := arbitrary _
 
-def whnf (e : Expr) : MetaM Expr :=
-withIncRecDepth do
+def whnf (e : Expr) : m Expr :=
+liftMetaM $ withIncRecDepth do
   fn ← liftIO whnfRef.get;
   fn e
 
-def whnfForall (e : Expr) : MetaM Expr := do
+def whnfForall [Monad m] (e : Expr) : m Expr := do
 e' ← whnf e;
 if e'.isForall then pure e' else pure e
 
-def inferType (e : Expr) : MetaM Expr :=
-withIncRecDepth do
+def inferType (e : Expr) : m Expr :=
+liftMetaM $ withIncRecDepth do
   fn ← liftIO inferTypeRef.get;
   fn e
 
-def isExprDefEqAux (t s : Expr) : MetaM Bool :=
+protected def Meta.isExprDefEqAux (t s : Expr) : MetaM Bool :=
 withIncRecDepth do
   fn ← liftIO isExprDefEqAuxRef.get;
   fn t s
 
-def synthPending (mvarId : MVarId) : MetaM Bool :=
+protected def Meta.synthPending (mvarId : MVarId) : MetaM Bool :=
 withIncRecDepth do
   fn ← liftIO synthPendingRef.get;
   fn mvarId
 
-def mkFreshId : MetaM Name := do
-liftM Core.mkFreshId
-
 private def mkFreshExprMVarAtCore
     (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : MetaM Expr := do
-modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind };
+modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId userName lctx localInsts type kind;
 pure $ mkMVar mvarId
 
 def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
-    : MetaM Expr := do
+    : m Expr := liftMetaM do
 mvarId ← mkFreshId;
 mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
-def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
+def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : m Expr := liftMetaM do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 mkFreshExprMVarAt lctx localInsts type userName kind
 
 /- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
-def mkFreshExprMVarWithId (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
+def mkFreshExprMVarWithId (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
+    : m Expr := liftMetaM do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
 mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
 
-def mkFreshLevelMVar : MetaM Level := do
+def mkFreshLevelMVar : m Level := liftMetaM do
 mvarId ← mkFreshId;
-modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
+modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
 pure $ mkLevelMVar mvarId
 
-@[inline] def shouldReduceAll : MetaM Bool := do
-ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
-
-@[inline] def shouldReduceReducibleOnly : MetaM Bool := do
-ctx ← read; pure $ ctx.config.transparency == TransparencyMode.reducible
-
-@[inline] def getTransparency : MetaM TransparencyMode := do
+def shouldReduceAll : MetaM Bool := liftMetaM do
+ctx ← read; pure $ ctx.config.transparency == Meta.TransparencyMode.all
+def shouldReduceReducibleOnly : m Bool := liftMetaM do
+ctx ← read; pure $ ctx.config.transparency == Meta.TransparencyMode.reducible
+def getTransparency : m Meta.TransparencyMode := liftMetaM do
 ctx ← read; pure $ ctx.config.transparency
 
--- Remark: wanted to use `private`, but in C++ parser, `private` declarations do not shadow outer public ones.
+-- Remark: wanted to use `private`, but in the C++ parser, `private` declarations do not shadow outer public ones.
 -- TODO: fix this bug
-@[inline] def isReducible (constName : Name) : MetaM Bool := do
+protected def Meta.isReducible (constName : Name) : MetaM Bool := do
 env ← getEnv; pure $ isReducible env constName
 
-@[inline] def withConfig {α} (f : Config → Config) (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config }) x
-
-/-- While executing `x`, ensure the given transparency mode is used. -/
-@[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
-withConfig (fun config => { config with transparency := mode }) x
-
-@[inline] def withReducible {α} (x : MetaM α) : MetaM α :=
-withTransparency TransparencyMode.reducible x
-
-@[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
-withConfig
-  (fun config =>
-    let oldMode := config.transparency;
-    let mode    := if oldMode.lt mode then mode else oldMode;
-    { config with transparency := mode })
-  x
-
-def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
+def getMVarDecl (mvarId : MVarId) : m MetavarDecl := liftMetaM do
 mctx ← getMCtx;
 match mctx.findDecl? mvarId with
 | some d => pure d
 | none   => throwError ("unknown metavariable '" ++ mkMVar mvarId ++ "'")
 
-def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
-modify $ fun s => { s with mctx := s.mctx.setMVarKind mvarId kind }
+def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : m Unit :=
+modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
-def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
+def isReadOnlyExprMVar (mvarId : MVarId) : m Bool := liftMetaM do
 mvarDecl ← getMVarDecl mvarId;
 mctx     ← getMCtx;
 pure $ mvarDecl.depth != mctx.depth
 
-def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
+def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : m Bool := liftMetaM do
 mvarDecl ← getMVarDecl mvarId;
 match mvarDecl.kind with
 | MetavarKind.syntheticOpaque => pure true
@@ -320,73 +287,46 @@ match mvarDecl.kind with
   mctx ← getMCtx;
   pure $ mvarDecl.depth != mctx.depth
 
-def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
+def isReadOnlyLevelMVar (mvarId : MVarId) : m Bool := liftMetaM do
 mctx ← getMCtx;
 match mctx.findLevelDepth? mvarId with
 | some depth => pure $ depth != mctx.depth
 | _          => throwError ("unknown universe metavariable '" ++ mkLevelMVar mvarId ++ "'")
 
-def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
-modify $ fun s => { s with mctx := s.mctx.renameMVar mvarId newUserName }
+def renameMVar (mvarId : MVarId) (newUserName : Name) : m Unit :=
+modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName
 
-@[inline] def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool := do
+def isExprMVarAssigned (mvarId : MVarId) : m Bool := liftMetaM do
 mctx ← getMCtx;
 pure $ mctx.isExprAssigned mvarId
 
-@[inline] def getExprMVarAssignment? (mvarId : MVarId) : MetaM (Option Expr) := do
+def getExprMVarAssignment? (mvarId : MVarId) : m (Option Expr) := liftMetaM do
 mctx ← getMCtx; pure (mctx.getExprAssignment? mvarId)
 
-def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit := do
-modify $ fun s => { s with mctx := s.mctx.assignExpr mvarId val }
+def assignExprMVar (mvarId : MVarId) (val : Expr) : m Unit := liftMetaM do
+modifyMCtx fun mctx => mctx.assignExpr mvarId val
 
-def isDelayedAssigned (mvarId : MVarId) : MetaM Bool := do
+def isDelayedAssigned (mvarId : MVarId) : m Bool := liftMetaM do
 mctx ← getMCtx;
 pure $ mctx.isDelayedAssigned mvarId
 
-def hasAssignableMVar (e : Expr) : MetaM Bool := do
+def hasAssignableMVar (e : Expr) : m Bool := liftMetaM do
 mctx ← getMCtx;
 pure $ mctx.hasAssignableMVar e
-
-def throwUnknownConstant {α} (constName : Name) : MetaM α :=
-throwError ("unknown constant '" ++ constName ++ "'")
-
-def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-env ← getEnv;
-match env.find? constName with
-| some (info@(ConstantInfo.thmInfo _)) =>
-  condM shouldReduceAll (pure (some info)) (pure none)
-| some (info@(ConstantInfo.defnInfo _)) =>
-  condM shouldReduceReducibleOnly
-    (condM (isReducible constName) (pure (some info)) (pure none))
-    (pure (some info))
-| some info => pure (some info)
-| none      => throwUnknownConstant constName
-
-def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
-env ← getEnv;
-match env.find? constName with
-| some (info@(ConstantInfo.thmInfo _)) =>
-  condM shouldReduceAll (pure (some info)) (pure none)
-| some (info@(ConstantInfo.defnInfo _)) =>
-  condM shouldReduceReducibleOnly
-    (condM (isReducible constName) (pure (some info)) (pure none))
-    (pure (some info))
-| some info => pure (some info)
-| none      => pure none
 
 def throwUnknownFVar {α} (fvarId : FVarId) : MetaM α :=
 throwError ("unknown free variable '" ++ mkFVar fvarId ++ "'")
 
-def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
+def getLocalDecl (fvarId : FVarId) : m LocalDecl := liftMetaM do
 lctx ← getLCtx;
 match lctx.find? fvarId with
 | some d => pure d
 | none   => throwUnknownFVar fvarId
 
-def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
+def getFVarLocalDecl (fvar : Expr) : m LocalDecl := liftMetaM do
 getLocalDecl fvar.fvarId!
 
-def instantiateMVars (e : Expr) : MetaM Expr :=
+def instantiateMVars (e : Expr) : m Expr := liftMetaM do
 if e.hasMVar then
   modifyGet $ fun s =>
     let (e, mctx) := s.mctx.instantiateMVars e;
@@ -394,7 +334,7 @@ if e.hasMVar then
 else
   pure e
 
-def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
+def instantiateLocalDeclMVars (localDecl : LocalDecl) : m LocalDecl := liftMetaM do
 match localDecl with
   | LocalDecl.cdecl idx id n type bi  => do
     type ← instantiateMVars type;
@@ -418,17 +358,69 @@ match x lctx { mctx := mctx, ngen := ngen } with
   setNGen newS.ngen;
   throwError "failed to create binder due to failure when reverting variable dependencies"
 
-def mkForall (xs : Array Expr) (e : Expr) : MetaM Expr :=
+def mkForallFVars (xs : Array Expr) (e : Expr) : m Expr := liftMetaM do
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkForall xs e
 
-def mkLambda (xs : Array Expr) (e : Expr) : MetaM Expr :=
+def mkLambdaFVars (xs : Array Expr) (e : Expr) : m Expr := liftMetaM do
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkLambda xs e
 
-def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MetaM (Expr × Nat) :=
+def mkLetFVars (xs : Array Expr) (e : Expr) : m Expr :=
+mkLambdaFVars xs e
+
+def mkForallUsedOnly (xs : Array Expr) (e : Expr) : m (Expr × Nat) := liftMetaM do
 if xs.isEmpty then pure (e, 0) else liftMkBindingM $ MetavarContext.mkForallUsedOnly xs e
 
-def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
+def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : m Expr := liftMetaM do
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e preserveOrder
+
+end Methods
+
+namespace Meta
+
+@[inline] def withConfig {α} (f : Config → Config) (x : MetaM α) : MetaM α :=
+adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config }) x
+
+/-- While executing `x`, ensure the given transparency mode is used. -/
+@[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+withConfig (fun config => { config with transparency := mode }) x
+
+@[inline] def withReducible {α} (x : MetaM α) : MetaM α :=
+withTransparency TransparencyMode.reducible x
+
+@[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+withConfig
+  (fun config =>
+    let oldMode := config.transparency;
+    let mode    := if oldMode.lt mode then mode else oldMode;
+    { config with transparency := mode })
+  x
+
+def throwUnknownConstant {α} (constName : Name) : MetaM α :=
+throwError ("unknown constant '" ++ constName ++ "'")
+
+def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
+env ← getEnv;
+match env.find? constName with
+| some (info@(ConstantInfo.thmInfo _)) =>
+  condM shouldReduceAll (pure (some info)) (pure none)
+| some (info@(ConstantInfo.defnInfo _)) =>
+  condM shouldReduceReducibleOnly
+    (condM (Meta.isReducible constName) (pure (some info)) (pure none))
+    (pure (some info))
+| some info => pure (some info)
+| none      => throwUnknownConstant constName
+
+def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
+env ← getEnv;
+match env.find? constName with
+| some (info@(ConstantInfo.thmInfo _)) =>
+  condM shouldReduceAll (pure (some info)) (pure none)
+| some (info@(ConstantInfo.defnInfo _)) =>
+  condM shouldReduceReducibleOnly
+    (condM (Meta.isReducible constName) (pure (some info)) (pure none))
+    (pure (some info))
+| some info => pure (some info)
+| none      => pure none
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] def savingCache {α} (x : MetaM α) : MetaM α := do
@@ -735,42 +727,6 @@ private partial def lambdaMetaTelescopeAux (maxMVars? : Option Nat)
 def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
 lambdaMetaTelescopeAux maxMVars? #[] #[] 0 e
 
-@[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α := do
-mctx ← getMCtx;
-let (a, mctx) := x.run mctx;
-modify fun s => { s with mctx := mctx };
-pure a
-
-def instantiateLevelMVars (lvl : Level) : MetaM Level :=
-liftStateMCtx $ MetavarContext.instantiateLevelMVars lvl
-
-def assignLevelMVar (mvarId : MVarId) (lvl : Level) : MetaM Unit :=
-modify $ fun s => { s with mctx := MetavarContext.assignLevel s.mctx mvarId lvl }
-
-def mkFreshLevelMVarId : MetaM MVarId := do
-mvarId ← mkFreshId;
-modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
-pure mvarId
-
-def whnfD : Expr → MetaM Expr :=
-fun e => withTransparency TransparencyMode.default $ whnf e
-
-/-- Execute `x` using approximate unification: `foApprox`, `ctxApprox` and `quasiPatternApprox`.  -/
-@[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true} })
-  x
-
-/--
-  Similar to `approxDefEq`, but uses all available approximations.
-  We don't use `constApprox` by default at `approxDefEq` because it often produces undesirable solution for monadic code.
-  For example, suppose we have `pure (x > 0)` which has type `?m Prop`. We also have the goal `[HasPure ?m]`.
-  Now, assume the expected type is `IO Bool`. Then, the unification constraint `?m Prop =?= IO Bool` could be solved
-  as `?m := fun _ => IO Bool` using `constApprox`, but this spurious solution would generate a failure when we try to
-  solve `[HasPure (fun _ => IO Bool)]` -/
-@[inline] def fullApproxDefEq {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true } })
-  x
-
 @[inline] private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
 c? ← isClass? fvarType;
 match c? with
@@ -843,28 +799,64 @@ mctx' ← getMCtx;
 modify $ fun s => { s with mctx := mctx };
 finally x (modify $ fun s => { s with mctx := mctx' })
 
+@[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α := do
+mctx ← getMCtx;
+let (a, mctx) := x.run mctx;
+modify fun s => { s with mctx := mctx };
+pure a
+
+/-- Execute `x` using approximate unification: `foApprox`, `ctxApprox` and `quasiPatternApprox`.  -/
+@[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
+adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true} })
+  x
+
+/--
+  Similar to `approxDefEq`, but uses all available approximations.
+  We don't use `constApprox` by default at `approxDefEq` because it often produces undesirable solution for monadic code.
+  For example, suppose we have `pure (x > 0)` which has type `?m Prop`. We also have the goal `[HasPure ?m]`.
+  Now, assume the expected type is `IO Bool`. Then, the unification constraint `?m Prop =?= IO Bool` could be solved
+  as `?m := fun _ => IO Bool` using `constApprox`, but this spurious solution would generate a failure when we try to
+  solve `[HasPure (fun _ => IO Bool)]` -/
+@[inline] def fullApproxDefEq {α} (x : MetaM α) : MetaM α :=
+adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true } })
+  x
+
+end Meta
+
+section Methods
+variables {m : Type → Type} [MonadMetaM m]
+
+def instantiateLevelMVars (lvl : Level) : m Level :=
+liftMetaM $ Meta.liftStateMCtx $ MetavarContext.instantiateLevelMVars lvl
+
+def assignLevelMVar (mvarId : MVarId) (lvl : Level) : m Unit :=
+modifyMCtx fun mctx => mctx.assignLevel mvarId lvl
+
+def whnfD (e : Expr) : m Expr :=
+liftMetaM $ Meta.withTransparency Meta.TransparencyMode.default $ whnf e
+
 /--
   Create an auxiliary definition with the given name, type and value.
   The parameters `type` and `value` may contain free and meta variables.
   A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
-def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM Expr := do
+def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) : m Expr := liftMetaM do
 env   ← getEnv;
 opts  ← getOptions;
 mctx  ← getMCtx;
 lctx  ← getLCtx;
-match Lean.mkAuxDefinition env opts mctx lctx name type value with
+match mkAuxDefinitionCore env opts mctx lctx name type value zeta with
 | Except.error ex          => throwKernelException ex
 | Except.ok (e, env, mctx) => do setEnv env; setMCtx mctx; pure e
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do
+def mkAuxDefinitionFor (name : Name) (value : Expr) : m Expr := liftMetaM do
 type ← inferType value;
 let type := type.headBeta;
 mkAuxDefinition name type value
 
-def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
+def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): m Unit := liftMetaM do
 env ← getEnv;
 match Compiler.setInlineAttribute env declName kind with
 | Except.ok env    => setEnv env
@@ -882,28 +874,8 @@ private partial def instantiateForallAux (ps : Array Expr) : Nat → Expr → Me
     pure e
 
 /- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
-def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
-instantiateForallAux ps 0 e
+def instantiateForall (e : Expr) (ps : Array Expr) : m Expr :=
+liftMetaM $ instantiateForallAux ps 0 e
 
-@[init] private def regTraceClasses : IO Unit := do
-registerTraceClass `Meta;
-registerTraceClass `Meta.debug
-
-@[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
-(x.run ctx).run s
-
-@[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
-Prod.fst <$> x.run
-
-@[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
-((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore;
-pure (a, sCore, s)
-
-instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run'⟩
-
-end Meta
-
-export Meta (MetaM)
-
+end Methods
 end Lean

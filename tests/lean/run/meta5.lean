@@ -7,7 +7,7 @@ withLocalDecl `y (mkConst `Nat) BinderInfo.default $ fun y => do
 withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
   mvar ← mkFreshExprMVar (mkConst `Nat) Name.anonymous MetavarKind.syntheticOpaque;
   trace! `Meta mvar;
-  r ← mkLambda #[y, x] mvar;
+  r ← mkLambdaFVars #[y, x] mvar;
   trace! `Meta r;
   let v := mkApp2 (mkConst `Nat.add) x y;
   assignExprMVar mvar.mvarId! v;

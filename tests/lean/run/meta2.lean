@@ -183,7 +183,7 @@ def tst10 : MetaM Unit :=
 do print "----- tst10 -----";
    t ← withLocalDecl `x nat BinderInfo.default $ fun x => do {
      let b := mkAppN add #[x, mkAppN add #[mkNatLit 2, mkNatLit 3]];
-     mkLambda #[x] b
+     mkLambdaFVars #[x] b
    };
    print t;
    t ← reduce t;
@@ -200,9 +200,10 @@ do print "----- tst11 -----";
    check $ not <$> isType (mkNatLit 1);
    withLocalDecl `x nat BinderInfo.default $ fun x => do {
      check $ not <$> isType x;
-     check $ not <$> (mkLambda #[x] x >>= isType);
-     check $ not <$> (mkLambda #[x] nat >>= isType);
-     t ← mkEq x (mkNatLit 0) >>= mkForall #[x];
+     check $ not <$> (mkLambdaFVars #[x] x >>= isType);
+     check $ not <$> (mkLambdaFVars #[x] nat >>= isType);
+     t ← mkEq x (mkNatLit 0);
+     (t, _) ← mkForallUsedOnly #[x] t;
      print t;
      check $ isType t;
      pure ()
@@ -214,7 +215,7 @@ do print "----- tst11 -----";
 def tst12 : MetaM Unit :=
 do print "----- tst12 -----";
    withLocalDecl `x nat BinderInfo.default $ fun x => do {
-     t ← mkEqRefl x >>= mkLambda #[x];
+     t ← mkEqRefl x >>= mkLambdaFVars #[x];
      print t;
      type ← inferType t;
      print type;
@@ -454,7 +455,7 @@ withLocalDecl `z nat BinderInfo.default $ fun z => do
   t1 ← mkAppM `HasAdd.add #[t1, t1];
   t2 ← mkAppM `HasAdd.add #[z, y];
   t3 ← mkAppM `Eq #[t2, t1];
-  t3 ← mkForall #[z] t3;
+  t3 ← mkForallFVars #[z] t3;
   m  ← mkFreshExprMVar nat;
   p  ← mkAppM `HasAdd.add #[x, m];
   print t3;
@@ -527,7 +528,7 @@ aeqb ← mkEq a b;
 withLocalDecl `h2 aeqb BinderInfo.default $ fun h2 => do
 t ← mkEq (mkApp2 add a a) a;
 print t;
-let motive := Lean.mkLambda `x BinderInfo.default nat (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 0)) a);
+let motive := mkLambda `x BinderInfo.default nat (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 0)) a);
 withLocalDecl `h1 t BinderInfo.default $ fun h1 => do
 r ← mkEqNDRec motive h1 h2;
 print r;
@@ -546,8 +547,8 @@ aeqb ← mkEq a b;
 withLocalDecl `h2 aeqb BinderInfo.default $ fun h2 => do
 t ← mkEq (mkApp2 add a a) a;
 let motive :=
-  Lean.mkLambda `x BinderInfo.default nat $
-  Lean.mkLambda `h BinderInfo.default (mkApp3 (mkConst `Eq [levelOne]) nat a (mkBVar 0)) $
+  mkLambda `x BinderInfo.default nat $
+  mkLambda `h BinderInfo.default (mkApp3 (mkConst `Eq [levelOne]) nat a (mkBVar 0)) $
     (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 1)) a);
 withLocalDecl `h1 t BinderInfo.default $ fun h1 => do
 r ← mkEqRec motive h1 h2;
@@ -564,7 +565,7 @@ print "----- tst34 -----";
 let type := mkSort levelOne;
 withLocalDecl `α type BinderInfo.default $ fun α => do
   m ← mkFreshExprMVar type;
-  t ← mkLambda #[α] (mkArrow m m);
+  t ← mkLambdaFVars #[α] (mkArrow m m);
   print t;
   pure ()
 
@@ -580,10 +581,10 @@ withLocalDecl `α type BinderInfo.default $ fun α => do
   let v := mkLambda `x BinderInfo.default nat m1;
   assignExprMVar m2.mvarId! v;
   let w := mkApp m2 zero;
-  t1 ← mkLambda #[α] (mkArrow w w);
+  t1 ← mkLambdaFVars #[α] (mkArrow w w);
   print t1;
   m3 ← mkFreshExprMVar type;
-  t2 ← mkLambda #[α] (mkArrow (mkBVar 0) (mkBVar 1));
+  t2 ← mkLambdaFVars #[α] (mkArrow (mkBVar 0) (mkBVar 1));
   print t2;
   check $ isDefEq t1 t2;
   pure ()
@@ -646,7 +647,7 @@ print "----- tst39 -----";
 withLocalDecl `α type BinderInfo.default $ fun α =>
 withLocalDecl `β type BinderInfo.default $ fun β => do
   p ← mkProd α β;
-  t ← mkForall #[α, β] p;
+  t ← mkForallFVars #[α, β] p;
   print t;
   e ← instantiateForall t #[nat, boolE];
   print e;
@@ -663,8 +664,8 @@ withLocalDecl `a α    BinderInfo.default $ fun a =>
 withLocalDecl `b β    BinderInfo.default $ fun b =>
 do
   p ← mkProd α β;
-  t1 ← mkForall #[α, β] p;
-  t2 ← mkForall #[α, β, a, b] p;
+  t1 ← mkForallFVars #[α, β] p;
+  t2 ← mkForallFVars #[α, β, a, b] p;
   print t1;
   print $ toString $ t1.bindingBody!.hasLooseBVarInExplicitDomain 0 false;
   print $ toString $ t1.bindingBody!.hasLooseBVarInExplicitDomain 0 true;

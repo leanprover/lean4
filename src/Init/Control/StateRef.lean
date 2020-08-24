@@ -10,6 +10,7 @@ import Init.System.IO
 import Init.Control.State
 
 def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type := ReaderT (ST.Ref ω σ) m α
+-- TODO: remove `[STWorld ω m]`. We should use a tactic for synthesizing ω, and the tactic infers the instance `[STWorld ω m]`
 abbrev StateRefT {ω : Type} (σ : Type) (m : Type → Type) [STWorld ω m] (α : Type) := StateRefT' ω σ m α
 
 @[inline] def StateRefT'.run {ω σ : Type} {m : Type → Type} [Monad m] [HasMonadLiftT (ST ω) m] {α : Type} (x : StateRefT' ω σ m α) (s : σ) : m (α × σ) := do

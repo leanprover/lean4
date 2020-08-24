@@ -104,34 +104,44 @@ structure Context :=
 
 abbrev MetaM := ReaderT Context $ StateRefT State $ CoreM
 
-@[inline] def mapCoreM (f : forall {α}, CoreM α → CoreM α) {α} : MetaM α → MetaM α :=
-monadMap @f
-
 instance : MonadIO MetaM :=
 { liftIO := fun α x => liftM (liftIO x : CoreM α) }
 
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
-def addContext (msg : MessageData) : MetaM MessageData := do
+protected def addTraceContext (msg : MessageData) : MetaM MessageData := do
 ctxCore ← readThe Core.Context;
 sCore   ← getThe Core.State;
 ctx     ← read;
 s       ← get;
 pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctxCore.options } msg
 
-instance meta.monadError : MonadError MetaM :=
+instance : MonadError MetaM :=
 { getRef     := getRef,
   withRef    := fun α => withRef,
-  addContext := fun ref msg => do msg ← addContext msg; pure (ref, msg) }
+  addContext := fun ref msg => do msg ← Meta.addTraceContext msg; pure (ref, msg) }
 
-instance meta.simpleMonadTracerAdapter : SimpleMonadTracerAdapter MetaM :=
-{ getOptions       := liftM $ (getOptions : CoreM _),
-  getTraceState    := liftM $ (getTraceState : CoreM _),
+instance : SimpleMonadTracerAdapter MetaM :=
+{ getOptions       := getOptions,
+  getTraceState    := getTraceState,
   modifyTraceState := fun f => liftM (modifyTraceState f : CoreM _),
-  addTraceContext  := addContext }
+  addTraceContext  := Meta.addTraceContext }
 
-def throwIsDefEqStuck {α} : MetaM α :=
+@[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
+(x.run ctx).run s
+
+@[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
+Prod.fst <$> x.run
+
+@[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
+((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore;
+pure (a, sCore, s)
+
+instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
+⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run'⟩
+
+protected def throwIsDefEqStuck {α} : MetaM α :=
 throw $ Exception.internal isDefEqStuckExceptionId
 
 @[inline] def getLCtx : MetaM LocalContext := do
@@ -838,19 +848,6 @@ instantiateForallAux ps 0 e
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta;
 registerTraceClass `Meta.debug
-
-@[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
-(x.run ctx).run s
-
-@[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
-Prod.fst <$> x.run
-
-@[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
-((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore;
-pure (a, sCore, s)
-
-instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run'⟩
 
 end Meta
 

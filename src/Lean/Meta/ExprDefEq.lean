@@ -956,7 +956,7 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
        ctx ← read;
        if ctx.config.isDefEqStuckEx then do
          trace! `Meta.isDefEq.stuck (t ++ " =?= " ++ s);
-         throwIsDefEqStuck
+         Meta.throwIsDefEqStuck
        else pure LBool.false
      else pure LBool.undef) $ do
   -- Both `t` and `s` are terms of the form `?m ...`

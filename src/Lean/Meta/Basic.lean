@@ -12,6 +12,7 @@ import Lean.Util.RecDepth
 import Lean.Util.Closure
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.Exception
+import Lean.Meta.TransparencyMode
 import Lean.Meta.DiscrTreeTypes
 import Lean.Eval
 import Lean.CoreM
@@ -28,35 +29,6 @@ They are packed into the MetaM monad.
 
 namespace Lean
 namespace Meta
-
-inductive TransparencyMode
-| all | default | reducible
-
-namespace TransparencyMode
-instance : Inhabited TransparencyMode := ⟨TransparencyMode.default⟩
-
-def beq : TransparencyMode → TransparencyMode → Bool
-| all,       all       => true
-| default,   default   => true
-| reducible, reducible => true
-| _,         _         => false
-
-instance : HasBeq TransparencyMode := ⟨beq⟩
-
-def hash : TransparencyMode → USize
-| all       => 7
-| default   => 11
-| reducible => 13
-
-instance : Hashable TransparencyMode := ⟨hash⟩
-
-def lt : TransparencyMode → TransparencyMode → Bool
-| reducible, default => true
-| reducible, all     => true
-| default,   all     => true
-| _,         _       => false
-
-end TransparencyMode
 
 structure Config :=
 (foApprox           : Bool    := false)

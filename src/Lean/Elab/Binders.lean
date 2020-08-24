@@ -164,7 +164,7 @@ def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) 
 if binders.isEmpty then x #[]
 else do
   lctx ← getLCtx;
-  localInsts ← getLocalInsts;
+  localInsts ← getLocalInstances;
   (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
   resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $ withLCtx lctx newLocalInsts $
     x fvars
@@ -177,7 +177,7 @@ fun stx _ => match_syntax stx with
 | `(forall $binders*, $term) =>
   elabBinders binders $ fun xs => do
     e ← elabType term;
-    mkForall xs e
+    mkForallFVars xs e
 | _ => throwUnsupportedSyntax
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
@@ -192,7 +192,7 @@ fun stx _ =>
   let term   := stx.getArg 2;
   elabBinders #[binder] $ fun xs => do
     e ← elabType term;
-    mkForall xs e
+    mkForallFVars xs e
 
 /-- Main loop `getFunBinderIds?` -/
 private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
@@ -352,7 +352,7 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
 if binders.isEmpty then x #[] expectedType?
 else do
   lctx ← getLCtx;
-  localInsts ← getLocalInsts;
+  localInsts ← getLocalInstances;
   s ← FunBinders.elabFunBindersAux binders 0 { lctx := lctx, localInsts := localInsts, expectedType? := expectedType? };
   resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) $ withLCtx s.lctx s.localInsts $
     x s.fvars s.expectedType?
@@ -369,7 +369,7 @@ if expandedPattern then do
 else
   elabFunBinders binders expectedType? $ fun xs expectedType? => do
     e ← elabTerm body expectedType?;
-    mkLambda xs e
+    mkLambdaFVars xs e
 
 /-
   Recall that
@@ -390,8 +390,8 @@ def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valSt
 (type, val) ← elabBinders binders $ fun xs => do {
   type ← elabType typeStx;
   val  ← elabTermEnsuringType valStx type;
-  type ← mkForall xs type;
-  val  ← mkLambda xs val;
+  type ← mkForallFVars xs type;
+  val  ← mkLambdaFVars xs val;
   pure (type, val)
 };
 trace `Elab.let.decl $ fun _ => n ++ " : " ++ type ++ " := " ++ val;
@@ -399,12 +399,12 @@ if useLetExpr then
   withLetDecl n type val $ fun x => do
     body ← elabTerm body expectedType?;
     body ← instantiateMVars body;
-    mkLet x body
+    mkLetFVars #[x] body
 else do
   f ← withLocalDecl n BinderInfo.default type $ fun x => do {
     body ← elabTerm body expectedType?;
     body ← instantiateMVars body;
-    mkLambda #[x] body
+    mkLambdaFVars #[x] body
   };
   pure $ mkApp f val
 

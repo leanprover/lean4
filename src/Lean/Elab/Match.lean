@@ -174,7 +174,7 @@ private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat 
 liftMetaM $ Meta.forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
   ps.foldlM
     (fun acc p => do
-      localDecl ← Meta.getLocalDecl p.fvarId!;
+      localDecl ← getLocalDecl p.fvarId!;
       if localDecl.binderInfo.isExplicit then pure $ acc+1 else pure acc)
     0
 
@@ -377,7 +377,7 @@ patternVarDecls.foldlM
     match pdecl with
     | PatternVarDecl.localVar fvarId => do
       decl ← getLocalDecl fvarId;
-      decl ← liftMetaM $ Meta.instantiateLocalDeclMVars decl;
+      decl ← instantiateLocalDeclMVars decl;
       pure $ decls.push decl
     | PatternVarDecl.anonymousVar mvarId fvarId => do
       e ← instantiateMVars (mkMVar mvarId);
@@ -389,7 +389,7 @@ patternVarDecls.foldlM
         assignExprMVar newMVarId (mkFVar fvarId);
         trace `Elab.match fun _ => "finalizePatternDecls: " ++ mkMVar newMVarId ++ " := " ++ mkFVar fvarId;
         decl ← getLocalDecl fvarId;
-        decl ← liftMetaM $ Meta.instantiateLocalDeclMVars decl;
+        decl ← instantiateLocalDeclMVars decl;
         pure $ decls.push decl
       | _ => pure decls)
   #[]
@@ -427,15 +427,15 @@ private def getFieldsBinderInfoAux (ctorVal : ConstructorVal) : Nat → Expr →
 private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
 let mvarId := mvar.mvarId!;
 s ← get;
-val? ← liftM $ liftMetaM $ Meta.getExprMVarAssignment? mvarId;
+val? ← getExprMVarAssignment? mvarId;
 match val? with
 | some val => pure $ Pattern.inaccessible val
 | none => do
   fvarId ← mkFreshId;
-  type   ← liftM $ inferType mvar;
+  type   ← inferType mvar;
   /- HACK: `fvarId` is not in the scope of `mvarId`
      If this generates problems in the future, we should update the metavariable declarations. -/
-  liftM $ assignExprMVar mvarId (mkFVar fvarId);
+  assignExprMVar mvarId (mkFVar fvarId);
   let userName := (`_x).appendIndexAfter (s.localDecls.size+1);
   let newDecl := LocalDecl.cdecl (arbitrary _) fvarId userName type BinderInfo.default;
   modify $ fun s =>
@@ -492,7 +492,7 @@ partial def main : Expr → M Pattern
   else if e.isMVar then do
     mkLocalDeclFor e
   else do
-    newE ← liftM $ whnf e;
+    newE ← whnf e;
     if newE != e then
       main newE
     else match e.getAppFn with
@@ -520,7 +520,7 @@ end ToDepElimPattern
 
 def withDepElimPatterns {α} (localDecls : Array LocalDecl) (ps : Array Expr) (k : Array LocalDecl → Array Pattern → TermElabM α) : TermElabM α := do
 (patterns, s) ← (ps.mapM ToDepElimPattern.main).run { localDecls := localDecls };
-localDecls ← s.localDecls.mapM fun d => liftMetaM $ Meta.instantiateLocalDeclMVars d;
+localDecls ← s.localDecls.mapM fun d => instantiateLocalDeclMVars d;
 /- toDepElimPatterns may have added new localDecls. Thus, we must update the local context before we execute `k` -/
 lctx ← getLCtx;
 let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.erase d.fvarId) lctx;
@@ -543,7 +543,7 @@ withPatternVars patternVars fun patternVarDecls => do
   withElaboratedLHS patternVarDecls alt.patterns matchType fun altLHS matchType => do
     rhs ← elabTermEnsuringType alt.rhs matchType;
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
-    rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambda xs rhs;
+    rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;
     trace `Elab.match fun _ => "rhs: " ++ rhs;
     -- TODO: check whether altLHS still has metavariables
     pure (altLHS, rhs)
@@ -551,7 +551,7 @@ withPatternVars patternVars fun patternVarDecls => do
 def mkMotiveType (matchType : Expr) (expectedType : Expr) : TermElabM Expr := do
 liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => do
   u ← Meta.getLevel matchType;
-  Meta.mkForall xs (mkSort u)
+  mkForallFVars xs (mkSort u)
 
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : TermElabM ElimResult :=
 liftMetaM $ Meta.Match.mkElim elimName motiveType lhss
@@ -573,7 +573,7 @@ alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 let rhss := alts.map Prod.snd;
 let altLHSS := alts.map Prod.fst;
 motiveType ← mkMotiveType matchType expectedType;
-motive ← liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => Meta.mkLambda xs matchType;
+motive ← liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => mkLambdaFVars xs matchType;
 elimName ← mkAuxName `elim;
 elimResult ← mkElim elimName motiveType altLHSS.toList;
 reportElimResultErrors elimResult;

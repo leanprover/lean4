@@ -79,7 +79,7 @@ withMVarContext mvarId $ do
             reflB ← mkEqRefl b;
             let newType := newType.replaceFVar h reflB;
             if symm then do
-              motive ← mkLambda #[a, h] type;
+              motive ← mkLambdaFVars #[a, h] type;
               continue motive newType
             else do
               /- `type` depends on (h : a = b). So, we use the following trick to avoid a type incorrect motive.
@@ -92,11 +92,11 @@ withMVarContext mvarId $ do
                 hAuxSymm ← mkEqSymm hAux;
                 /- replace h in type with hAuxSymm -/
                 let newType := type.replaceFVar h hAuxSymm;
-                mkLambda #[a, hAux] newType
+                mkLambdaFVars #[a, hAux] newType
               };
               continue motive newType
           else do
-            motive ← mkLambda #[a] type;
+            motive ← mkLambdaFVars #[a] type;
             let newType := type.replaceFVar a b;
             continue motive newType
     | _ =>

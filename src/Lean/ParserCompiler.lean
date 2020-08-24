@@ -36,7 +36,7 @@ open Meta
 partial def compileParserBody {α} (ctx : Context α) : Expr → MetaM Expr | e => do
 e ← whnfCore e;
 match e with
-| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e fun xs b => compileParserBody b >>= Meta.mkLambda xs
+| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e fun xs b => compileParserBody b >>= mkLambdaFVars xs
 | e@(Expr.fvar _ _)        => pure e
 | _ => do
   let fn := e.getAppFn;
@@ -88,7 +88,7 @@ match e with
     else do
       -- if this is a generic function, e.g. `HasAndthen.andthen`, it's easier to just unfold it until we are
       -- back to parser combinators
-      some e' ← liftM $ unfoldDefinition? e
+      some e' ← unfoldDefinition? e
         | throwError $ "don't know how to generate " ++ ctx.varName ++ " for non-parser combinator '" ++ toString e ++ "'";
       compileParserBody e'
 end

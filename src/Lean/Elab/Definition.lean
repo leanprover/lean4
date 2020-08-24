@@ -65,18 +65,18 @@ withRef view.ref do
 Term.synthesizeSyntheticMVars;
 val     ← withRef view.val $ Term.ensureHasType type val;
 Term.synthesizeSyntheticMVars false;
-type    ← Term.instantiateMVars type;
-val     ← Term.instantiateMVars val;
+type    ← instantiateMVars type;
+val     ← instantiateMVars val;
 if view.kind.isExample then pure none
 else withUsedWhen vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars => do
-  type ← Term.mkForall xs type;
-  type ← Term.mkForall vars type;
-  val  ← Term.mkLambda xs val;
-  val  ← Term.mkLambda vars val;
+  type ← mkForallFVars xs type;
+  type ← mkForallFVars vars type;
+  val  ← mkLambdaFVars xs val;
+  val  ← mkLambdaFVars vars val;
   (type, nextParamIdx) ← Term.levelMVarToParam type;
   (val,  _) ← Term.levelMVarToParam val nextParamIdx;
-  type ← Term.instantiateMVars type;
-  val  ← Term.instantiateMVars val;
+  type ← instantiateMVars type;
+  val  ← instantiateMVars val;
   let shareCommonTypeVal : Std.ShareCommonM (Expr × Expr) := do {
     type ← Std.withShareCommon type;
     val  ← Std.withShareCommon val;
@@ -131,7 +131,7 @@ withDeclId view.declId $ fun name => do
     | some typeStx => do
       type ← Term.elabType typeStx;
       Term.synthesizeSyntheticMVars false;
-      type ← Term.instantiateMVars type;
+      type ← instantiateMVars type;
       withUsedWhen' vars xs type view.kind.isTheorem $ fun vars => do
         val  ← elabDefVal view.val type;
         mkDef view declName scopeLevelNames allUserLevelNames vars xs type val

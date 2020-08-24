@@ -19,7 +19,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
       let type := type.headBeta;
       newMVar ← mkFreshExprSyntheticOpaqueMVar type tag;
       lctx    ← getLCtx;
-      newVal  ← mkLambda fvars newMVar;
+      newVal  ← mkLambdaFVars fvars newMVar;
       assignExprMVar mvarId newVal;
       pure $ (fvars, newMVar.mvarId!)
 | (i+1), lctx, fvars, j, s, Expr.letE n type val body _ => do

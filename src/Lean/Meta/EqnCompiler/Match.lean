@@ -202,7 +202,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
   minorType ← withExistingLocalDecls lhs.fvarDecls do {
     args ← lhs.patterns.toArray.mapM Pattern.toExpr;
     let minorType := mkAppN motive args;
-    mkForall xs minorType
+    mkForallFVars xs minorType
   };
   let minorType := if minorType.isForall then minorType else mkThunkType minorType;
   let idx       := alts.length;
@@ -387,7 +387,7 @@ else do
 partial def unify : Expr → Expr → M Bool
 | a, b => do
   trace! `Meta.EqnCompiler.matchUnify (a ++ " =?= " ++ b);
-  condM (liftM $ isDefEq a b) (pure true) do
+  condM (isDefEq a b) (pure true) do
   a' ← expandIfVar a;
   b' ← expandIfVar b;
   if a != a' || b != b' then unify a' b'
@@ -678,8 +678,8 @@ withAlts motive lhss fun alts minors => do
   let examples := majors.toList.map fun major => Example.var major.fvarId!;
   (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {};
   let args := #[motive] ++ majors ++ minors;
-  type ← mkForall args mvarType;
-  val  ← mkLambda args mvar;
+  type ← mkForallFVars args mvarType;
+  val  ← mkLambdaFVars args mvar;
   trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
   elim ← mkAuxDefinition elimName type val;
   setInlineAttribute elimName;
@@ -715,7 +715,7 @@ else do
 def mkElimTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
 sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
-  motiveType ← mkForall majors sortv;
+  motiveType ← mkForallFVars majors sortv;
   mkElim elimName motiveType lhss
 
 @[init] private def regTraceClasses : IO Unit := do

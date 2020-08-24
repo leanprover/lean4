@@ -204,8 +204,8 @@ withMVarContext mvarId $ do
           rec ← addRecParams mvarId majorTypeArgs recInfo.paramsPos rec;
           -- Compute motive
           let motive := target;
-          motive ← if recInfo.depElim then mkLambda #[major] motive else pure motive;
-          motive ← mkLambda indices motive;
+          motive ← if recInfo.depElim then mkLambdaFVars #[major] motive else pure motive;
+          motive ← mkLambdaFVars indices motive;
           let rec := mkApp rec motive;
           finalize mvarId givenNames recInfo reverted major indices baseSubst rec
         | _ =>

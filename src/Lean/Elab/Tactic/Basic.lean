@@ -41,15 +41,6 @@ structure BacktrackableState :=
 abbrev TacticM := ReaderT Context $ StateRefT State $ TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
-def getMCtx : TacticM MetavarContext := do s ← getThe Meta.State; pure s.mctx
-def getLCtx : TacticM LocalContext := do ctx ← readThe Meta.Context; pure ctx.lctx
-def getLocalInsts : TacticM LocalInstances := do ctx ← readThe Meta.Context; pure ctx.localInstances
-def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
-
-def setMCtx (mctx : MetavarContext) : TacticM Unit := modifyThe Meta.State fun s => { s with mctx := mctx }
-
-@[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : TacticM Unit := modifyThe Meta.State $ fun s => { s with mctx := f s.mctx }
-
 def saveBacktrackableState : TacticM BacktrackableState := do
 env ← getEnv;
 mctx ← getMCtx;
@@ -98,15 +89,8 @@ liftM x
 @[inline] def liftMetaM {α} (x : MetaM α) : TacticM α :=
 liftTermElabM $ Term.liftMetaM x
 
-def instantiateMVars (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars e
-def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
-def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType expectedType? e
 def reportUnsolvedGoals (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals goals
-def inferType (e : Expr) : TacticM Expr := liftTermElabM $ Term.inferType e
-def whnf (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnf e
-def whnfCore (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore e
-def unfoldDefinition? (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? e
 def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
 /-- Collect unassigned metavariables -/
@@ -233,7 +217,7 @@ if b then resettingSynthInstanceCache x else x
 
 def withMVarContext {α} (mvarId : MVarId) (x : TacticM α) : TacticM α := do
 mvarDecl   ← getMVarDecl mvarId;
-localInsts ← getLocalInsts;
+localInsts ← getLocalInstances;
 let needReset := localInsts == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
@@ -353,7 +337,7 @@ private def getIntrosSize : Expr → Nat
 fun stx => match_syntax stx with
   | `(tactic| intros)       => liftMetaTactic $ fun mvarId => do
     type ← Meta.getMVarType mvarId;
-    type ← Meta.instantiateMVars type;
+    type ← instantiateMVars type;
     let n := getIntrosSize type;
     (_, mvarId) ← Meta.introN mvarId n;
     pure [mvarId]

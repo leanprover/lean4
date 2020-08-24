@@ -10,9 +10,9 @@ import Lean.Meta.ExprDefEq
 namespace Lean
 namespace Meta
 
-private partial def kabstractAux (occs : Occurrences) (p : Expr) (pHeadIdx : HeadIndex) (pNumArgs : Nat) : Expr → Nat → StateT Nat MetaM Expr
+private partial def kabstractAux (occs : Occurrences) (p : Expr) (pHeadIdx : HeadIndex) (pNumArgs : Nat) : Expr → Nat → StateRefT Nat MetaM Expr
 | e, offset =>
-  let visitChildren : Unit → StateT Nat MetaM Expr := fun _ =>
+  let visitChildren : Unit → StateRefT Nat MetaM Expr := fun _ =>
     match e with
     | Expr.app f a _       => do f ← kabstractAux f offset; a ← kabstractAux a offset; pure $ e.updateApp! f a
     | Expr.mdata _ b _     => do b ← kabstractAux b offset; pure $ e.updateMData! b
@@ -23,7 +23,7 @@ private partial def kabstractAux (occs : Occurrences) (p : Expr) (pHeadIdx : Hea
     | e                    => pure e;
   if e.hasLooseBVars then visitChildren ()
   else if e.toHeadIndex == pHeadIdx && e.headNumArgs == pNumArgs then
-    condM (liftM $ isDefEq e p)
+    condM (isDefEq e p)
       (do i ← get;
           set (i+1);
           if occs.contains i then
@@ -34,7 +34,7 @@ private partial def kabstractAux (occs : Occurrences) (p : Expr) (pHeadIdx : Hea
   else
     visitChildren ()
 
-def kabstract (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : MetaM Expr :=
+def kabstract {m} [MonadMetaM m] (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : m Expr := liftMetaM do
 (kabstractAux occs p p.toHeadIndex p.headNumArgs e 0).run' 1
 
 end Meta

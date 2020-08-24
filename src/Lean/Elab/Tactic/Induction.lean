@@ -104,8 +104,8 @@ structure RecInfo :=
 
 def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 liftMetaMAtMain $ fun mvarId => do
-  majorType ← Meta.inferType major;
-  majorType ← Meta.whnf majorType;
+  majorType ← inferType major;
+  majorType ← whnf majorType;
   match majorType.getAppFn with
   | Expr.const n _ _ => do
     env ← getEnv;

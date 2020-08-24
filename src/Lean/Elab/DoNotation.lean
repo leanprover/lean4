@@ -174,7 +174,7 @@ else do
       α  ← inferType var;
       mβ ← inferType body;
       β  ← extractTypeFormerAppArg mβ;
-      f  ← mkLambda #[var] body;
+      f  ← mkLambdaFVars #[var] body;
       -- dbgTrace (">>> f: " ++ toString f);
       let body := mkAppN bindAndInst #[α, β, action, f];
       pure body)

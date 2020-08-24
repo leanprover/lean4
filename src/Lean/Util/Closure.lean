@@ -194,7 +194,7 @@ match (mkTypeValue { lctxInput := lctx, zeta := zeta }).run { mctx := mctx } wit
 
 end Closure
 
-def mkAuxDefinition (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
+def mkAuxDefinitionCore (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
     (zeta : Bool := false) : Except KernelException (Expr × Environment × MetavarContext) :=
 match Closure.mkClosure mctx lctx type value zeta with
 | Except.error ex  => throw $ KernelException.other ex

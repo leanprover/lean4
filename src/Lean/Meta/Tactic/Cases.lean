@@ -99,9 +99,9 @@ withMVarContext mvarId $ do
       /- auxType `forall (j' : J) (h' : I A j'), j == j' -> h == h' -> target -/
       target  ← getMVarType mvarId;
       tag     ← getMVarTag mvarId;
-      auxType ← mkForall newEqs target;
-      auxType ← mkForall #[h'] auxType;
-      auxType ← mkForall newIndices auxType;
+      auxType ← mkForallFVars newEqs target;
+      auxType ← mkForallFVars #[h'] auxType;
+      auxType ← mkForallFVars newIndices auxType;
       newMVar ← mkFreshExprMVarAt lctx localInsts auxType tag MetavarKind.syntheticOpaque;
       /- assign mvarId := newMVar indices h refls -/
       assignExprMVar mvarId (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls);

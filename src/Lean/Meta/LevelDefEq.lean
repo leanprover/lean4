@@ -224,26 +224,34 @@ match r? with
 | some _ => pure true
 | none   => pure false
 
-/- Public interface -/
-
-def isLevelDefEq (u v : Level) : MetaM Bool :=
-traceCtx `Meta.isLevelDefEq $ do
-  b ← commitWhen $ isLevelDefEqAux u v;
-  trace! `Meta.isLevelDefEq (u ++ " =?= " ++ v ++ " ... " ++ if b then "success" else "failure");
-  pure b
-
-def isExprDefEq (t s : Expr) : MetaM Bool :=
-traceCtx `Meta.isDefEq $ do
-  b ← commitWhen $ isExprDefEqAux t s;
-  trace! `Meta.isDefEq (t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure");
-  pure b
-
-abbrev isDefEq := @isExprDefEq
-
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.isLevelDefEq;
 registerTraceClass `Meta.isLevelDefEq.step;
 registerTraceClass `Meta.isLevelDefEq.postponed
 
 end Meta
+
+/- Public interface -/
+section Methods
+variables {m : Type → Type} [MonadMetaM m]
+
+def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
+traceCtx `Meta.isLevelDefEq $ do
+  b ← Meta.commitWhen $ Meta.isLevelDefEqAux u v;
+  trace! `Meta.isLevelDefEq (u ++ " =?= " ++ v ++ " ... " ++ if b then "success" else "failure");
+  pure b
+
+def isExprDefEq (t s : Expr) : m Bool := liftMetaM do
+traceCtx `Meta.isDefEq $ do
+  b ← Meta.commitWhen $ Meta.isExprDefEqAux t s;
+  trace! `Meta.isDefEq (t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure");
+  pure b
+
+abbrev isDefEq (t s : Expr) : m Bool :=
+isExprDefEq t s
+
+def isDefEqNoConstantApprox (t s : Expr) : m Bool := liftMetaM do
+Meta.approxDefEq $ isDefEq t s
+
+end Methods
 end Lean

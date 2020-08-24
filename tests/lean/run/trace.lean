@@ -11,7 +11,7 @@ abbrev M := ReaderT Options (EStateM String MyState)
 instance : SimpleMonadTracerAdapter M :=
 { getOptions       := read,
   getTraceState    := MyState.traceState <$> get,
-  addContext       := pure,
+  addTraceContext  := pure,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
 
 def tst1 : M Unit :=

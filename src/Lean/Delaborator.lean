@@ -79,12 +79,22 @@ structure Context :=
 (defaultOptions : Options)
 (optionsPerPos  : OptionsPerPos)
 
--- Exceptions from delaborators are not expected, so use a simple `OptionT` to signal whether
+-- Exceptions from delaborators are not expected. We use an internal exception to signal whether
 -- the delaborator was able to produce a Syntax object.
-abbrev DelabM := ReaderT Context $ OptionT MetaM
+def registerDelabFailureId : IO InternalExceptionId := registerInternalExceptionId `delabFailure
+@[init registerDelabFailureId] constant delabFailureId : InternalExceptionId := arbitrary _
+
+abbrev DelabM := ReaderT Context MetaM
 abbrev Delab := DelabM Syntax
 
-instance DelabM.inhabited {α} : Inhabited (DelabM α) := ⟨failure⟩
+instance DelabM.inhabited {α} : Inhabited (DelabM α) := ⟨throw $ arbitrary _⟩
+
+@[inline] protected def orelse {α} (d₁ d₂ : DelabM α) : DelabM α := do
+catchInternalId delabFailureId d₁ (fun _ => d₂)
+protected def failure {α} : DelabM α := throw $ Exception.internal delabFailureId
+instance : Alternative DelabM :=
+{ orelse  := fun _ => Delaborator.orelse,
+  failure := fun _ => Delaborator.failure }
 
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
@@ -465,8 +475,8 @@ end Delaborator
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
 opts ← getOptions;
-some stx ← Delaborator.delab { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos }
-  | unreachable!;
-pure stx
+catchInternalId Delaborator.delabFailureId
+  (Delaborator.delab.run { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos })
+  (fun _ => unreachable!)
 
 end Lean

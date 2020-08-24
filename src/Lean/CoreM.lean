@@ -65,7 +65,7 @@ liftM $ (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)
 instance : MonadIO CoreM :=
 { liftIO := @liftIOCore }
 
-instance tracer : SimpleMonadTracerAdapter (CoreM) :=
+instance : SimpleMonadTracerAdapter CoreM :=
 { getOptions       := getOptions,
   getTraceState    := do s ← get; pure s.traceState,
   addTraceContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,

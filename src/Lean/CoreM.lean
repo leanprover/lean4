@@ -65,12 +65,6 @@ def Context.incCurrRecDepth (ctx : Context) : Context :=
 @[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
 checkRecDepth; adaptReader Context.incCurrRecDepth x
 
-def getTraceState : CoreM TraceState := do
-s ← get; pure s.traceState
-
-def setTraceState (traceState : TraceState) : CoreM Unit := do
-modify fun s => { s with traceState := traceState }
-
 def getNGen : CoreM NameGenerator := do
 s ← get; pure s.ngen
 
@@ -89,21 +83,11 @@ def Context.replaceRef (ref : Syntax) (ctx : Context) : Context :=
 @[inline] def withRef {α} (ref : Syntax) (x : CoreM α) : CoreM α := do
 adaptReader (Context.replaceRef ref) x
 
-@[inline] private def getTraceState : CoreM TraceState := do
-s ← get; pure s.traceState
-
 instance tracer : SimpleMonadTracerAdapter (CoreM) :=
 { getOptions       := getOptions,
-  getTraceState    := getTraceState,
-  addContext       := fun msg => Prod.snd <$> addContext Syntax.missing msg,
+  getTraceState    := do s ← get; pure s.traceState,
+  addTraceContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
-
-def printTraces : CoreM Unit := do
-traceState ← getTraceState;
-traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
-
-def resetTraceState : CoreM Unit :=
-modify fun s => { s with traceState := {} }
 
 @[inline] def CoreM.run {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
 (x.run ctx).run s

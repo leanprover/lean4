@@ -26,7 +26,7 @@ inferInstanceAs (MonadTracer (ReaderT _ _))
 
 class MonadTracerAdapter (m : Type → Type) :=
 (isTracingEnabledFor : Name → m Bool)
-(addContext          : MessageData → m MessageData)
+(addTraceContext     : MessageData → m MessageData)
 (enableTracing       : Bool → m Bool)
 (getTraces           : m (PersistentArray MessageData))
 (modifyTraces        : (PersistentArray MessageData → PersistentArray MessageData) → m Unit)
@@ -57,7 +57,7 @@ modifyTraces $ fun _ => {};
 pure oldTraces
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
-msg ← addContext msg;
+msg ← addTraceContext msg;
 modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
 @[inline] protected def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=
@@ -111,10 +111,10 @@ instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [Mon
 
 instance liftMonadTracerAdapter {m n : Type → Type} [MonadTracerAdapter n] [HasMonadLift n m] : MonadTracerAdapter m :=
 { isTracingEnabledFor := fun cls => liftM (MonadTracerAdapter.isTracingEnabledFor cls : n _),
-  addContext := fun msg => liftM (MonadTracerAdapter.addContext msg : n _),
-  enableTracing := fun b => liftM (MonadTracerAdapter.enableTracing b : n _),
-  getTraces := liftM (MonadTracerAdapter.getTraces : n _),
-  modifyTraces := fun f => liftM (MonadTracerAdapter.modifyTraces f : n _) }
+  addTraceContext     := fun msg => liftM (MonadTracerAdapter.addTraceContext msg : n _),
+  enableTracing       := fun b => liftM (MonadTracerAdapter.enableTracing b : n _),
+  getTraces           := liftM (MonadTracerAdapter.getTraces : n _),
+  modifyTraces        := fun f => liftM (MonadTracerAdapter.modifyTraces f : n _) }
 
 structure TraceState :=
 (enabled : Bool := true)
@@ -141,7 +141,7 @@ class SimpleMonadTracerAdapter (m : Type → Type) :=
 (getOptions        : m Options)
 (modifyTraceState  : (TraceState → TraceState) → m Unit)
 (getTraceState     : m TraceState)
-(addContext        : MessageData → m MessageData)
+(addTraceContext   : MessageData → m MessageData)
 
 namespace SimpleMonadTracerAdapter
 variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]
@@ -179,7 +179,7 @@ instance simpleMonadTracerAdapter {m : Type → Type} [SimpleMonadTracerAdapter 
 { isTracingEnabledFor := @SimpleMonadTracerAdapter.isTracingEnabledFor _ _ _,
   enableTracing       := @SimpleMonadTracerAdapter.enableTracing _ _ _,
   getTraces           := @SimpleMonadTracerAdapter.getTraces _ _ _,
-  addContext          := @SimpleMonadTracerAdapter.addContext _ _,
+  addTraceContext     := @SimpleMonadTracerAdapter.addTraceContext _ _,
   modifyTraces        := @SimpleMonadTracerAdapter.modifyTraces _ _ _ }
 
 export MonadTracer (traceCtx trace traceM)
@@ -209,5 +209,28 @@ Recipe for adding tracing support for a monad `M`.
 
 def registerTraceClass (traceClassName : Name) : IO Unit :=
 registerOption (`trace ++ traceClassName) { group := "trace", defValue := false, descr := "enable/disable tracing for the given module and submodules" }
+
+export SimpleMonadTracerAdapter (getTraceState modifyTraceState)
+
+def setTraceState {m} [SimpleMonadTracerAdapter m] (s : TraceState) : m Unit :=
+modifyTraceState (fun _ => s)
+
+def printTraces {m} [Monad m] [SimpleMonadTracerAdapter m] [MonadIO m] : m Unit := do
+traceState ← getTraceState;
+traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
+
+def resetTraceState {m} [SimpleMonadTracerAdapter m] : m Unit :=
+modifyTraceState (fun _ => {})
+
+/- We currently cannot mark the following definition as an instance since it increases the search space too much -/
+def simpleMonadTracerAdapterLift (m : Type → Type) {n : Type → Type} [SimpleMonadTracerAdapter m] [HasMonadLiftT m n] : SimpleMonadTracerAdapter n :=
+{ getOptions       := liftM (SimpleMonadTracerAdapter.getOptions : m _),
+  modifyTraceState := fun f => liftM (SimpleMonadTracerAdapter.modifyTraceState f : m _),
+  getTraceState    := liftM (SimpleMonadTracerAdapter.getTraceState : m _),
+  addTraceContext  := fun msg => liftM (SimpleMonadTracerAdapter.addTraceContext msg : m _) }
+
+instance ReaderT.tracer {m ρ} [Monad m] [SimpleMonadTracerAdapter m] : SimpleMonadTracerAdapter (ReaderT ρ m) := simpleMonadTracerAdapterLift m
+instance StateRefT.tracer {ω m σ} [SimpleMonadTracerAdapter m] : SimpleMonadTracerAdapter (StateRefT' ω σ m) := simpleMonadTracerAdapterLift m
+instance OptionT.tracer {m} [Monad m] [SimpleMonadTracerAdapter m] : SimpleMonadTracerAdapter (OptionT m) := simpleMonadTracerAdapterLift m
 
 end Lean

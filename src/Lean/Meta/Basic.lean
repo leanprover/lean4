@@ -152,6 +152,12 @@ instance meta.monadError : MonadError MetaM :=
 { getRef     := liftM (getRef : CoreM Syntax),
   addContext := fun ref msg => do msg ← addContext msg; pure (ref, msg) }
 
+instance meta.simpleMonadTracerAdapter : SimpleMonadTracerAdapter MetaM :=
+{ getOptions       := liftM $ (getOptions : CoreM _),
+  getTraceState    := liftM $ (getTraceState : CoreM _),
+  modifyTraceState := fun f => liftM (modifyTraceState f : CoreM _),
+  addTraceContext  := addContext }
+
 def throwIsDefEqStuck {α} : MetaM α :=
 throw $ Exception.internal isDefEqStuckExceptionId
 
@@ -184,12 +190,6 @@ liftM Core.getNGen
 
 def setNGen (ngen : NameGenerator) : MetaM Unit :=
 liftM $ Core.setNGen ngen
-
-def getTraceState  : MetaM TraceState :=
-liftM $ Core.getTraceState
-
-def setTraceState (traceState : TraceState) : MetaM Unit :=
-liftM $ Core.setTraceState traceState
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"

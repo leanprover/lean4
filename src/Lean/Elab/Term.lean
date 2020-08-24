@@ -131,12 +131,6 @@ liftM $ x
 instance : MonadIO TermElabM :=
 { liftIO := fun α x => liftMetaMCore $ liftIO x }
 
-private def getTraceState : TermElabM TraceState :=
-liftMetaMCore Meta.getTraceState
-
-private def setTraceState (s : TraceState) : TermElabM Unit :=
-liftMetaMCore $ Meta.setTraceState s
-
 private def saveTraceAsMessages (traceState : TraceState) : TermElabM Unit :=
 unless traceState.traces.isEmpty do
   ref ← getRef;

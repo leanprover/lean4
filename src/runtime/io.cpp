@@ -128,23 +128,53 @@ static lean_object * io_wrap_handle(FILE *hfile) {
 static object * g_handle_stdin  = nullptr;
 static object * g_handle_stdout = nullptr;
 static object * g_handle_stderr = nullptr;
+MK_THREAD_LOCAL_GET(object *, get_handle_current_stdin,  g_handle_stdin);
+MK_THREAD_LOCAL_GET(object *, get_handle_current_stdout, g_handle_stdout);
+MK_THREAD_LOCAL_GET(object *, get_handle_current_stderr, g_handle_stderr);
 
-/* stdin : IO FS.Handle */
+/* getStdin : IO FS.Handle */
 extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
-    inc_ref(g_handle_stdin);
-    return set_io_result(g_handle_stdin);
+    object * r = get_handle_current_stdin();
+    inc_ref(r);
+    return set_io_result(r);
 }
 
-/* stdout : IO FS.Handle */
+/* getStdout : IO FS.Handle */
 extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
-    inc_ref(g_handle_stdout);
-    return set_io_result(g_handle_stdout);
+    object * r = get_handle_current_stdout();
+    inc_ref(r);
+    return set_io_result(r);
 }
 
-/* stderr : IO FS.Handle */
+/* getStderr : IO FS.Handle */
 extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
-    inc_ref(g_handle_stderr);
-    return set_io_result(g_handle_stderr);
+    object * r = get_handle_current_stderr();
+    inc_ref(r);
+    return set_io_result(r);
+}
+
+/* setStdin  : FS.Handle -> IO FS.Handle */
+extern "C" obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
+    object * & x = get_handle_current_stdin();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
+}
+
+/* setStdout  : FS.Handle -> IO FS.Handle */
+extern "C" obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
+    object * & x = get_handle_current_stdout();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
+}
+
+/* setStderr  : FS.Handle -> IO FS.Handle */
+extern "C" obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
+    object * & x = get_handle_current_stderr();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
 }
 
 static FILE * io_get_handle(lean_object * hfile) {

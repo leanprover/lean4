@@ -109,11 +109,18 @@ namespace Prim
 open FS
 
 @[extern "lean_get_stdin"]
-constant stdin  : IO FS.Handle := arbitrary _
+constant getStdin  : IO FS.Handle := arbitrary _
 @[extern "lean_get_stdout"]
-constant stdout : IO FS.Handle := arbitrary _
+constant getStdout : IO FS.Handle := arbitrary _
 @[extern "lean_get_stderr"]
-constant stderr : IO FS.Handle := arbitrary _
+constant getStderr : IO FS.Handle := arbitrary _
+
+@[extern "lean_get_set_stdin"]
+constant setStdin  : FS.Handle → IO FS.Handle := arbitrary _
+@[extern "lean_get_set_stdout"]
+constant setStdout : FS.Handle → IO FS.Handle := arbitrary _
+@[extern "lean_get_set_stderr"]
+constant setStderr : FS.Handle → IO FS.Handle := arbitrary _
 
 /-- Run action with `stdin` closed and `stdout+stderr` captured into a `String`. -/
 @[extern "lean_with_isolated_streams"]
@@ -233,23 +240,47 @@ end FS
 section
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
-def stdin : m FS.Handle :=
-liftIO Prim.stdin
+def getStdin : m FS.Handle :=
+liftIO Prim.getStdin
 
-def stdout : m FS.Handle :=
-liftIO Prim.stdout
+def getStdout : m FS.Handle :=
+liftIO Prim.getStdout
 
-def stderr : m FS.Handle :=
-liftIO Prim.stderr
+def getStderr : m FS.Handle :=
+liftIO Prim.getStderr
+
+/-- Replaces the stdin handle and returns its previous value. -/
+def setStdin : FS.Handle → m FS.Handle :=
+liftIO ∘ Prim.setStdin
+
+/-- Replaces the stdout handle and returns its previous value. -/
+def setStdout : FS.Handle → m FS.Handle :=
+liftIO ∘ Prim.setStdout
+
+/-- Replaces the stderr handle and returns its previous value. -/
+def setStderr : FS.Handle → m FS.Handle :=
+liftIO ∘ Prim.setStderr
+
+def withStdin [MonadFinally m] {α} (h : FS.Handle) (x : m α) : m α := do
+prev ← setStdin h;
+finally x (discard $ setStdin prev)
+
+def withStdout [MonadFinally m] {α} (h : FS.Handle) (x : m α) : m α := do
+prev ← setStdout h;
+finally x (discard $ setStdout prev)
+
+def withStderr [MonadFinally m] {α} (h : FS.Handle) (x : m α) : m α := do
+prev ← setStderr h;
+finally x (discard $ setStderr prev)
 
 def print {α} [HasToString α] (s : α) : m Unit := do
-out ← stdout;
+out ← getStdout;
 out.putStr $ toString s
 
 def println {α} [HasToString α] (s : α) : m Unit := print s *> print "\n"
 
 def eprint {α} [HasToString α] (s : α) : m Unit := do
-out ← stderr;
+out ← getStderr;
 out.putStr $ toString s
 
 def eprintln {α} [HasToString α] (s : α) : m Unit := eprint s *> eprint "\n"

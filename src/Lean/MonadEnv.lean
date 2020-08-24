@@ -15,14 +15,9 @@ class MonadEnv (m : Type → Type) :=
 
 export MonadEnv (getEnv modifyEnv)
 
-/- We currently cannot mark the following definition as an instance since it increases the search space too much -/
-def monadEnvFromLift (m) {n} [MonadEnv m] [HasMonadLiftT m n] : MonadEnv n :=
+instance monadEnvFromLift (m n) [MonadEnv m] [HasMonadLift m n] : MonadEnv n :=
 { getEnv    := liftM (getEnv : m Environment),
   modifyEnv := fun f => liftM (modifyEnv f : m Unit) }
-
-instance ReaderT.monadEnv {m ρ} [Monad m] [MonadEnv m] : MonadEnv (ReaderT ρ m) := monadEnvFromLift m
-instance StateRefT.monadEnv {ω m σ} [MonadEnv m] : MonadEnv (StateRefT' ω σ m)   := monadEnvFromLift m
-instance OptionT.monadEnv {m} [Monad m] [MonadEnv m] : MonadEnv (OptionT m) := monadEnvFromLift m
 
 section Methods
 

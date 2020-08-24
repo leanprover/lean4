@@ -95,12 +95,8 @@ class MonadOptions (m : Type → Type) :=
 
 export MonadOptions (getOptions)
 
-/- We currently cannot mark the following definition as an instance since it increases the search space too much -/
-def monadOptsFromLift (m) {n} [MonadOptions m] [HasMonadLiftT m n] : MonadOptions n :=
+instance monadOptsFromLift (m n) [MonadOptions m] [HasMonadLift m n] : MonadOptions n :=
 { getOptions := liftM (getOptions : m _) }
-
-instance ReaderT.monadOpts {ρ m} [MonadOptions m] : MonadOptions (ReaderT ρ m) := monadOptsFromLift m
-instance StateRefT.monadOpts {ω σ m} [MonadOptions m] : MonadOptions (StateRefT' ω σ m) := monadOptsFromLift m
 
 section Methods
 

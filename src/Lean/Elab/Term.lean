@@ -186,13 +186,6 @@ instance monadLog : MonadLog TermElabM :=
   addContext  := addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
-def checkRecDepth : TermElabM Unit :=
-liftMetaM $ Meta.checkRecDepth
-
-@[inline] def withIncRecDepth {α} (x : TermElabM α) : TermElabM α := do
-checkRecDepth;
-adaptTheReader Core.Context Core.Context.incCurrRecDepth x
-
 protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.mainModule
 

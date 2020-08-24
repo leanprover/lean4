@@ -121,13 +121,6 @@ instance monadLog : MonadLog TacticM :=
   addContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,
   logMessage  := fun msg => liftTermElabM $ logMessage msg }
 
-def checkRecDepth : TacticM Unit :=
-liftTermElabM $ Term.checkRecDepth
-
-@[inline] def withIncRecDepth {α} (x : TacticM α) : TacticM α := do
-checkRecDepth;
-adaptTheReader Core.Context Core.Context.incCurrRecDepth x
-
 protected def getCurrMacroScope : TacticM MacroScope := do ctx ← readThe Term.Context; pure ctx.currMacroScope
 protected def getMainModule     : TacticM Name       := do env ← getEnv; pure env.mainModule
 

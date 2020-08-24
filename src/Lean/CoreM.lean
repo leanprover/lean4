@@ -53,22 +53,17 @@ instance : MonadNameGenerator CoreM :=
 { getNGen := do s ← get; pure s.ngen,
   setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
 
+instance : MonadRecDepth CoreM :=
+{ withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,
+  getRecDepth    := do ctx ← read; pure ctx.currRecDepth,
+  getMaxRecDepth := do ctx ← read; pure ctx.maxRecDepth }
+
 @[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
 ref ← getRef;
 liftM $ (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)) x : EIO Exception α)
 
 instance : MonadIO CoreM :=
 { liftIO := @liftIOCore }
-
-def checkRecDepth : CoreM Unit := do
-ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError maxRecDepthErrorMessage
-
-def Context.incCurrRecDepth (ctx : Context) : Context :=
-{ ctx with currRecDepth := ctx.currRecDepth + 1 }
-
-@[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
-checkRecDepth; adaptReader Context.incCurrRecDepth x
 
 instance tracer : SimpleMonadTracerAdapter (CoreM) :=
 { getOptions       := getOptions,

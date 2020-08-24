@@ -162,12 +162,6 @@ instance meta.simpleMonadTracerAdapter : SimpleMonadTracerAdapter MetaM :=
 def throwIsDefEqStuck {α} : MetaM α :=
 throw $ Exception.internal isDefEqStuckExceptionId
 
-def checkRecDepth : MetaM Unit :=
-liftM $ Core.checkRecDepth
-
-@[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
-mapCoreM (fun α => Core.withIncRecDepth) x
-
 @[inline] def getLCtx : MetaM LocalContext := do
 ctx ← read; pure ctx.lctx
 

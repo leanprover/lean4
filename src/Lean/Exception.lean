@@ -74,4 +74,24 @@ opts ← getOptions;
 throwError $ ex.toMessageData opts
 
 end Methods
+
+class MonadRecDepth (m : Type → Type) :=
+(withRecDepth {α} : Nat → m α → m α)
+(getRecDepth      : m Nat)
+(getMaxRecDepth   : m Nat)
+
+instance ReaderT.MonadRecDepth {ρ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) :=
+{ withRecDepth := fun α d x ctx => MonadRecDepth.withRecDepth d (x ctx),
+  getRecDepth     := fun _ => MonadRecDepth.getRecDepth,
+  getMaxRecDepth  := fun _ => MonadRecDepth.getMaxRecDepth }
+
+instance StateRefT.monadRecDepth {ω σ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
+inferInstanceAs (MonadRecDepth (ReaderT _ _))
+
+@[inline] def withIncRecDepth {α m} [Monad m] [MonadRecDepth m] [MonadError m] (x : m α) : m α := do
+curr ← MonadRecDepth.getRecDepth;
+max  ← MonadRecDepth.getMaxRecDepth;
+when (curr == max) $ throwError maxRecDepthErrorMessage;
+MonadRecDepth.withRecDepth (curr+1) x
+
 end Lean

@@ -147,11 +147,6 @@ unsafe def mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab) :=
 mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
 @[init mkCommandElabAttribute] constant commandElabAttribute : KeyedDeclsAttribute CommandElab := arbitrary _
 
-@[inline] def withIncRecDepth {α} (x : CommandElabM α) : CommandElabM α := do
-ctx ← read; s ← get;
-when (ctx.currRecDepth == s.maxRecDepth) $ throwError maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
-
 private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => do
   let refFmt := stx.prettyPrint;
@@ -172,6 +167,11 @@ instance : MonadMacroAdapter CommandElabM :=
   getMaxRecDepth         := do s ← get; pure s.maxRecDepth,
   throwError             := fun α ref msg => throwErrorAt ref msg,
   throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
+
+instance : MonadRecDepth CommandElabM :=
+{ withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,
+  getRecDepth    := do ctx ← read; pure ctx.currRecDepth,
+  getMaxRecDepth := do s ← get; pure s.maxRecDepth }
 
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with

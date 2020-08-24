@@ -310,7 +310,7 @@ match p.vars with
     | _       => unreachable!;
   { p with alts := alts, vars := xs }
 
-private def processLeaf (p : Problem) : StateT State MetaM Unit :=
+private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
 match p.alts with
 | []       => do
   liftM $ admit p.mvarId;
@@ -354,7 +354,7 @@ structure Context :=
 structure State :=
 (fvarSubst : FVarSubst := {})
 
-abbrev M := ReaderT Context $ StateT State MetaM
+abbrev M := ReaderT Context $ StateRefT State MetaM
 
 def isAltVar (fvarId : FVarId) : M Bool := do
 ctx ← read;
@@ -620,7 +620,7 @@ let alts := p.alts.map fun alt => match alt.patterns with
   | _                                                     => alt;
 { p with alts := alts }
 
-private def traceStep (msg : String) : StateT State MetaM Unit :=
+private def traceStep (msg : String) : StateRefT State MetaM Unit :=
 liftM (trace! `Meta.EqnCompiler.match (msg ++ " step") : MetaM Unit)
 
 private def traceState (p : Problem) : MetaM Unit :=
@@ -630,10 +630,6 @@ private def throwNonSupported (p : Problem) : MetaM Unit := do
 msg ← p.toMessageData;
 throwError ("not implement yet " ++ msg)
 
-@[inline] def withIncRecDepth {α} (x : StateT State MetaM α) : StateT State MetaM α := do
-liftM $ checkRecDepth;
-adaptTheReader Core.Context Core.Context.incCurrRecDepth x
-
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
 match p.vars with
 | []   => pure false
@@ -641,7 +637,7 @@ match p.vars with
   val? ← getInductiveVal? x;
   pure val?.isSome
 
-private partial def process : Problem → StateT State MetaM Unit
+private partial def process : Problem → StateRefT State MetaM Unit
 | p => withIncRecDepth do
   liftM $ traceState p;
   isInductive ← liftM $ isCurrVarInductive p;

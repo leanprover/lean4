@@ -116,7 +116,7 @@ jobs:
         if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
         run: |
-          export PATH=$PWD/build/stage0.5/bin:$PATH
+          export BUILD=$PWD/build PATH=$PWD/build/stage0.5/bin:$PATH
           cd tests/bench; temci exec --config speedcenter.yaml --runs 1
         if: matrix.test-speedcenter
       - name: Check rebootstrap

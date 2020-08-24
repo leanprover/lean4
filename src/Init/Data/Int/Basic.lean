@@ -52,7 +52,7 @@ match m, n with
 | ofNat m,   ofNat n   => ofNat (m + n)
 | ofNat m,   negSucc n => subNatNat m (succ n)
 | negSucc m, ofNat n   => subNatNat n (succ m)
-| negSucc m, negSucc n => negSucc (m + n)
+| negSucc m, negSucc n => negSucc (succ (m + n))
 
 @[extern "lean_int_mul"]
 protected def mul (m n : @& Int) : Int :=

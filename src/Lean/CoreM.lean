@@ -36,6 +36,7 @@ instance CoreM.inhabited {α} : Inhabited (CoreM α) :=
 
 instance : MonadError CoreM :=
 { getRef     := do ctx ← read; pure ctx.ref,
+  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x,
   addContext := fun ref msg => do
     ctx ← read;
     s   ← get;
@@ -68,12 +69,6 @@ def Context.incCurrRecDepth (ctx : Context) : Context :=
 
 @[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
 checkRecDepth; adaptReader Context.incCurrRecDepth x
-
-def Context.replaceRef (ref : Syntax) (ctx : Context) : Context :=
-{ ctx with ref := replaceRef ref ctx.ref }
-
-@[inline] def withRef {α} (ref : Syntax) (x : CoreM α) : CoreM α := do
-adaptReader (Context.replaceRef ref) x
 
 instance tracer : SimpleMonadTracerAdapter (CoreM) :=
 { getOptions       := getOptions,

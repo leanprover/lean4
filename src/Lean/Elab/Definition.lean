@@ -61,9 +61,9 @@ withUsedWhen vars xs e dummyExpr cond k
 
 def mkDef (view : DefView) (declName : Name) (scopeLevelNames allUserLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
     : TermElabM (Option Declaration) := do
-Term.withRef view.ref do
+withRef view.ref do
 Term.synthesizeSyntheticMVars;
-val     ← Term.withRef view.val $ Term.ensureHasType type val;
+val     ← withRef view.val $ Term.ensureHasType type val;
 Term.synthesizeSyntheticMVars false;
 type    ← Term.instantiateMVars type;
 val     ← Term.instantiateMVars val;
@@ -136,7 +136,7 @@ withDeclId view.declId $ fun name => do
         val  ← elabDefVal view.val type;
         mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     | none => do {
-      type ← Term.withRef view.binders $ Term.mkFreshTypeMVar;
+      type ← withRef view.binders $ Term.mkFreshTypeMVar;
       val  ← elabDefVal view.val type;
       mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     };

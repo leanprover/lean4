@@ -167,7 +167,7 @@ type ← mkTypeFor r;
 match firstType? with
 | none           => pure type
 | some firstType => do
-  Term.withRef r.view.ref $ checkParamsAndResultType numParams 0 type firstType;
+  withRef r.view.ref $ checkParamsAndResultType numParams 0 type firstType;
   pure firstType
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
@@ -207,7 +207,7 @@ namesAndTypes ← rs.mapM fun r => do {
 };
 let r0     := rs.get! 0;
 let params := r0.params;
-Term.withLocalContext r0.lctx r0.localInsts $ Term.withRef r0.view.ref $
+Term.withLocalContext r0.lctx r0.localInsts $ withRef r0.view.ref $
   withInductiveLocalDeclsAux namesAndTypes params x 0 #[]
 
 private def isInductiveFamily (indFVar : Expr) : TermElabM Bool := do
@@ -223,10 +223,10 @@ pure !indFVarType.isSort
   - Positivity (it is a rare failure, and the kernel already checks for it).
   - Universe constraints (the kernel checks for it). -/
 private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) :=
-Term.withRef r.view.ref do
+withRef r.view.ref do
 indFamily ← isInductiveFamily indFVar;
 r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
-  Term.withRef ctorView.ref $ do
+  withRef ctorView.ref $ do
   type ← match ctorView.type? with
     | none          => do
       when indFamily $
@@ -391,7 +391,7 @@ views.size.fold
 
 private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) (numParams : Nat) (indTypes : List InductiveType)
     : TermElabM (List InductiveType) :=
-Term.withRef (views.get! 0).ref $
+withRef (views.get! 0).ref $
 let indFVar2Const := mkIndFVar2Const views indFVars levelNames;
 indTypes.mapM fun indType => do
   ctors ← indType.ctors.mapM fun ctor => do {
@@ -430,7 +430,7 @@ scopeLevelNames ← Term.getLevelNames;
 checkLevelNames views;
 let allUserLevelNames := view0.levelNames;
 let isUnsafe          := view0.modifiers.isUnsafe;
-Term.withRef view0.ref $
+withRef view0.ref $
 adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNames }) do
   rs ← elabHeader views;
   withInductiveLocalDecls rs fun params indFVars => do
@@ -486,7 +486,7 @@ views.forM fun view => do {
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
 let ref := view0.ref;
-decl ← runTermElabM view0.declName $ fun vars => Term.withRef ref $ mkInductiveDecl vars views;
+decl ← runTermElabM view0.declName fun vars => withRef ref $ mkInductiveDecl vars views;
 addDecl decl;
 mkAuxConstructions views;
 -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.

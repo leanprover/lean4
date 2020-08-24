@@ -231,7 +231,7 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
 | i, infos, k =>
   if h : i < view.parents.size then
     let parentStx := view.parents.get ⟨i, h⟩;
-    Term.withRef parentStx do
+    withRef parentStx do
     parent ← Term.elabType parentStx;
     parentName ← checkParentIsStructure parent;
     let toParentName := mkNameSimple $ "to" ++ parentName.eraseMacroScopes.getString!; -- erase macro scopes?
@@ -269,7 +269,7 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
 | i, infos, k =>
   if h : i < views.size then do
     let view := views.get ⟨i, h⟩;
-    Term.withRef view.ref $
+    withRef view.ref $
     match findFieldInfo? infos view.name with
     | none      => do
       (type?, value?) ← Term.elabBinders view.binders.getArgs $ fun params => elabFieldTypeValue view params;
@@ -408,7 +408,7 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr �
     addCtorFields i (mkForall decl.userName decl.binderInfo decl.type type)
 
 private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor :=
-Term.withRef view.ref do
+withRef view.ref do
 let type := mkAppN (mkConst view.declName (levelParams.map mkLevelParam)) params;
 type ← addCtorFields fieldInfos fieldInfos.size type;
 type ← Term.mkForall params type;
@@ -420,7 +420,7 @@ private def elabStructureView (view : StructView) : TermElabM ElabStructResult :
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
 unless (validStructType type) $ throwErrorAt view.type "expected Type";
-Term.withRef view.ref do
+withRef view.ref do
 withParents view 0 #[] fun fieldInfos =>
 withFields view.fields 0 fieldInfos fun fieldInfos => do
   Term.synthesizeSyntheticMVars false;  -- resolve pending

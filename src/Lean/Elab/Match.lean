@@ -170,9 +170,6 @@ abbrev M := StateRefT State TermElabM
 private def throwCtorExpected {α} : M α :=
 throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
 
-def withRef {α} (ref : Syntax) (x : M α) : M α :=
-adaptTheReader Core.Context (Core.Context.replaceRef ref) x
-
 private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat :=
 liftMetaM $ Meta.forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
   ps.foldlM

@@ -149,7 +149,8 @@ s       ← get;
 pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctxCore.options } msg
 
 instance meta.monadError : MonadError MetaM :=
-{ getRef     := liftM (getRef : CoreM Syntax),
+{ getRef     := getRef,
+  withRef    := fun α => withRef,
   addContext := fun ref msg => do msg ← addContext msg; pure (ref, msg) }
 
 instance meta.simpleMonadTracerAdapter : SimpleMonadTracerAdapter MetaM :=
@@ -166,9 +167,6 @@ liftM $ Core.checkRecDepth
 
 @[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
 mapCoreM (fun α => Core.withIncRecDepth) x
-
-@[inline] def withRef {α} (ref : Syntax) (x : MetaM α) : MetaM α := do
-mapCoreM (fun α => Core.withRef ref) x
 
 @[inline] def getLCtx : MetaM LocalContext := do
 ctx ← read; pure ctx.lctx

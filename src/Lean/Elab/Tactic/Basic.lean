@@ -109,9 +109,6 @@ def whnfCore (e : Expr) : TacticM Expr := liftTermElabM $ Term.whnfCore e
 def unfoldDefinition? (e : Expr) : TacticM (Option Expr) := liftTermElabM $ Term.unfoldDefinition? e
 def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
-@[inline] def withRef {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
-adaptTheReader Core.Context (Core.Context.replaceRef ref) x
-
 /-- Collect unassigned metavariables -/
 def collectMVars (e : Expr) : TacticM (List MVarId) := do
 e ← instantiateMVars e;

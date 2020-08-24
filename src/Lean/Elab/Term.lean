@@ -172,6 +172,7 @@ pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := 
 
 instance MonadError : MonadError TermElabM :=
 { getRef     := getRef,
+  withRef    := fun α => withRef,
   addContext := fun ref msg => do
     ctx ← read;
     let ref := getBetterRef ref ctx.macroStack;
@@ -184,10 +185,6 @@ instance monadLog : MonadLog TermElabM :=
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
-
-/- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
-@[inline] def withRef {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
-adaptTheReader Core.Context (Core.Context.replaceRef ref) x
 
 def checkRecDepth : TermElabM Unit :=
 liftMetaM $ Meta.checkRecDepth

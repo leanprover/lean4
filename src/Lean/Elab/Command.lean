@@ -75,6 +75,7 @@ pure (ref, msg)
 
 instance : MonadError CommandElabM :=
 { getRef     := Command.getRef,
+  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x,
   addContext := Command.addContext }
 
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
@@ -98,14 +99,6 @@ modify fun s => { s with env := coreS.env, ngen := coreS.ngen };
 match ea with
 | Except.ok a    => pure a
 | Except.error e => throw e
-
-@[inline] def getCurrRef : CommandElabM Syntax := do
-ctx ← read;
-pure ctx.ref
-
-/- Execute `x` using using `ref` as the default Syntax for providing position information to error messages. -/
-@[inline] def withRef {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM α := do
-adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
 let ref := getBetterRef ref ctx.macroStack;

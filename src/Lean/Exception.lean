@@ -25,14 +25,16 @@ def Exception.getRef : Exception → Syntax
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 
 class MonadError (m : Type → Type) extends MonadExceptOf Exception m :=
-(getRef     : m Syntax)
-(addContext : Syntax → MessageData → m (Syntax × MessageData))
+(getRef         : m Syntax)
+(addContext     : Syntax → MessageData → m (Syntax × MessageData))
+(withRef    {α} : Syntax → m α → m α)
 
-export MonadError (getRef addContext)
+export MonadError (getRef addContext withRef)
 
 instance ReaderT.monadError {ρ m} [Monad m] [MonadError m] : MonadError (ReaderT ρ m) :=
-{ getRef        := fun _ => getRef,
-  addContext    := fun ref msg _ => addContext ref msg }
+{ getRef        := fun _           => getRef,
+  addContext    := fun ref msg _   => addContext ref msg,
+  withRef       := fun α ref x ctx => MonadError.withRef ref (x ctx) }
 
 instance StateRefT.monadError {ω σ m} [Monad m] [MonadError m] : MonadError (StateRefT' ω σ m) :=
 inferInstanceAs (MonadError (ReaderT _ _))
@@ -50,6 +52,11 @@ def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
 match ref.getPos with
 | some _ => ref
 | _      => oldRef
+
+@[inline] def withRef {α} (ref : Syntax) (x : m α) : m α := do
+oldRef ← getRef;
+let ref := replaceRef ref oldRef;
+MonadError.withRef ref x
 
 def throwErrorAt {α} (ref : Syntax) (msg : MessageData) : m α := do
 ctxRef ← getRef;

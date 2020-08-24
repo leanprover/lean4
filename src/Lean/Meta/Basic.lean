@@ -185,12 +185,6 @@ s ← get; pure s.mctx
 def setMCtx (mctx : MetavarContext) : MetaM Unit :=
 modify $ fun s => { s with mctx := mctx }
 
-def getNGen : MetaM NameGenerator :=
-liftM Core.getNGen
-
-def setNGen (ngen : NameGenerator) : MetaM Unit :=
-liftM $ Core.setNGen ngen
-
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
 
@@ -234,9 +228,6 @@ def synthPending (mvarId : MVarId) : MetaM Bool :=
 withIncRecDepth do
   fn ← liftIO synthPendingRef.get;
   fn mvarId
-
-def mkFreshId : MetaM Name := do
-liftM Core.mkFreshId
 
 private def mkFreshExprMVarAtCore
     (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : MetaM Expr := do
@@ -746,11 +737,6 @@ liftStateMCtx $ MetavarContext.instantiateLevelMVars lvl
 
 def assignLevelMVar (mvarId : MVarId) (lvl : Level) : MetaM Unit :=
 modify $ fun s => { s with mctx := MetavarContext.assignLevel s.mctx mvarId lvl }
-
-def mkFreshLevelMVarId : MetaM MVarId := do
-mvarId ← mkFreshId;
-modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
-pure mvarId
 
 def whnfD : Expr → MetaM Expr :=
 fun e => withTransparency TransparencyMode.default $ whnf e

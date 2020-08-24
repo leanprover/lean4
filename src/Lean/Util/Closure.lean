@@ -67,11 +67,9 @@ partial def collectLevelAux : Level → ClosureM Level
 def collectLevel (u : Level) : ClosureM Level :=
 visitLevel collectLevelAux u
 
-def mkFreshFVarId : ClosureM FVarId := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { s with ngen := s.ngen.next };
-pure id
+instance : MonadNameGenerator ClosureM :=
+{ getNGen := do s ← get; pure s.ngen,
+  setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
 
 /--
   Remark: This method does not guarantee unique user names.

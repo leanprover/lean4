@@ -995,4 +995,10 @@ match e with
 | Expr.mdata d b _ => if d.size == 1 && d.getBool kind false then some b else none
 | _                => none
 
+def mkFreshFVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarId :=
+mkFreshId
+
+def mkFreshMVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarId :=
+mkFreshId
+
 end Lean

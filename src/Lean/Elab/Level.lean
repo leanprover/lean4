@@ -23,23 +23,21 @@ structure State :=
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
-instance LevelElabM.monadError : MonadError LevelElabM :=
+instance : MonadError LevelElabM :=
 { getRef      := do ctx ← read; pure ctx.ref,
   addContext  := fun ref msg => pure (ref, msg) }
 
-instance LevelElabM.monadLog : MonadPosInfo LevelElabM :=
+instance : MonadPosInfo LevelElabM :=
 { getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := fun msg => pure msg }
 
+instance : MonadNameGenerator LevelElabM :=
+{ getNGen := do s ← get; pure s.ngen,
+  setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
+
 @[inline] def withRef {α} (ref : Syntax) (x : LevelElabM α) : LevelElabM α := do
 adaptReader (fun (ctx : Context) => { ctx with ref := replaceRef ref ctx.ref }) x
-
-def mkFreshId : LevelElabM Name := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { s with ngen := s.ngen.next };
-pure id
 
 def mkFreshLevelMVar : LevelElabM Level := do
 mvarId ← mkFreshId;

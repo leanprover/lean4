@@ -156,7 +156,6 @@ liftMetaM $ liftM x
 def getMCtx : TermElabM MetavarContext := do s ← getThe Meta.State; pure s.mctx
 def getLCtx : TermElabM LocalContext := do ctx ← readThe Meta.Context; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← readThe Meta.Context; pure ctx.localInstances
-def getNGen : TermElabM NameGenerator := do s ← getThe Core.State; pure s.ngen
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   lctx ← getLCtx;
@@ -166,7 +165,6 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
 def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
 def setMCtx (mctx : MetavarContext) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := mctx }
-def setNGen (ngen : NameGenerator) : TermElabM Unit := modifyThe Core.State $ fun s => { s with ngen := ngen }
 
 private def addContext' (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
@@ -280,7 +278,6 @@ def unfoldDefinition? (e : Expr) : TermElabM (Option Expr) := liftMetaM $ Meta.u
 def instantiateMVars (e : Expr) : TermElabM Expr := liftMetaM $ Meta.instantiateMVars e
 def instantiateLevelMVars (u : Level) : TermElabM Level := liftMetaM $ Meta.instantiateLevelMVars u
 def isClass? (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass? t
-def mkFreshId : TermElabM Name := liftMetaM Meta.mkFreshId
 def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
 def mkFreshExprMVar (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 match type? with
@@ -449,9 +446,6 @@ if hasCDot stx then do
   `(fun $binders* => $newStx)
 else
   pure none
-
-def mkFreshFVarId : TermElabM FVarId :=
-liftMetaM $ Meta.mkFreshId
 
 def withLocalDecl {α} (n : Name) (binderInfo : BinderInfo) (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
 fvarId     ← mkFreshFVarId;

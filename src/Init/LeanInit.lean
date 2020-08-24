@@ -11,6 +11,8 @@ import Init.Data.UInt
 import Init.Data.Hashable
 import Init.Control.Reader
 import Init.Control.EState
+import Init.Control.StateRef
+import Init.Control.Option
 
 namespace Lean
 /-
@@ -132,6 +134,27 @@ mkNameNum g.namePrefix g.idx
  { g with idx := g.idx + 1 })
 
 end NameGenerator
+
+class MonadNameGenerator (m : Type → Type) :=
+(getNGen : m NameGenerator)
+(setNGen : NameGenerator → m Unit)
+
+export MonadNameGenerator (getNGen setNGen)
+
+def mkFreshId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m Name := do
+ngen ← getNGen;
+let r := ngen.curr;
+setNGen ngen.next;
+pure r
+
+-- TODO: mark as instance as soon as we move to new frontend
+def monadNameGeneratorLift (m : Type → Type) {n : Type → Type} [MonadNameGenerator m] [HasMonadLiftT m n] : MonadNameGenerator n :=
+{ getNGen := liftM (getNGen : m _),
+  setNGen := fun ngen => liftM (setNGen ngen : m _) }
+
+instance ReaderT.monadNGen {m ρ} [Monad m] [MonadNameGenerator m] : MonadNameGenerator (ReaderT ρ m) := monadNameGeneratorLift m
+instance StateRefT.monadNGen {ω m σ} [MonadNameGenerator m] : MonadNameGenerator (StateRefT' ω σ m)  := monadNameGeneratorLift m
+instance OptionT.monadNGen {m} [Monad m] [MonadNameGenerator m] : MonadNameGenerator (OptionT m)     := monadNameGeneratorLift m
 
 /-
   Small DSL for describing parsers. We implement an interpreter for it

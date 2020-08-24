@@ -434,7 +434,7 @@ val? ← liftM $ liftMetaM $ Meta.getExprMVarAssignment? mvarId;
 match val? with
 | some val => pure $ Pattern.inaccessible val
 | none => do
-  fvarId ← liftM $ mkFreshId;
+  fvarId ← mkFreshId;
   type   ← liftM $ inferType mvar;
   /- HACK: `fvarId` is not in the scope of `mvarId`
      If this generates problems in the future, we should update the metavariable declarations. -/

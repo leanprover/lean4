@@ -48,6 +48,10 @@ instance : MonadEnv CoreM :=
 instance : MonadOptions CoreM :=
 { getOptions := do ctx ← read; pure ctx.options }
 
+instance : MonadNameGenerator CoreM :=
+{ getNGen := do s ← get; pure s.ngen,
+  setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
+
 @[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
 ref ← getRef;
 liftM $ (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)) x : EIO Exception α)
@@ -64,18 +68,6 @@ def Context.incCurrRecDepth (ctx : Context) : Context :=
 
 @[inline] def withIncRecDepth {α} (x : CoreM α) : CoreM α := do
 checkRecDepth; adaptReader Context.incCurrRecDepth x
-
-def getNGen : CoreM NameGenerator := do
-s ← get; pure s.ngen
-
-def setNGen (ngen : NameGenerator) : CoreM Unit :=
-modify fun s => { s with ngen := ngen }
-
-def mkFreshId : CoreM Name := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { s with ngen := s.ngen.next };
-pure id
 
 def Context.replaceRef (ref : Syntax) (ctx : Context) : Context :=
 { ctx with ref := replaceRef ref ctx.ref }

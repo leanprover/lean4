@@ -252,9 +252,6 @@ def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarI
 def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := approxDefEq $ Lean.isDefEq t s
 def isDefEq (t s : Expr) : TermElabM Bool := fullApproxDefEq $ Lean.isDefEq t s
 
-def mkAppM (constName : Name) (args : Array Expr) : TermElabM Expr := liftMetaM $ Meta.mkAppM constName args
-def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : TermElabM Expr := liftMetaM $ Meta.mkExpectedTypeHint e expectedType
-
 @[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
 mctx ← getMCtx;
 finally x (setMCtx mctx)
@@ -497,7 +494,7 @@ if β.getAppFn.isMVar || α.getAppFn.isMVar then pure none
 else catch
  (do
    aNew ← tryCoe β α a none;
-   aNew ← liftMetaM $ Meta.mkPure m aNew;
+   aNew ← mkPure m aNew;
    pure $ some aNew)
  (fun _ => pure none)
 

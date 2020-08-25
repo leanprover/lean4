@@ -150,9 +150,9 @@ fun stx _ => do
   match val? with
   | none     => throwError ("failed to reduce term at `nativeRefl!` macro application" ++ indentExpr e)
   | some val => do
-    rflPrf ← liftMetaM $ Meta.mkEqRefl val;
+    rflPrf ← mkEqRefl val;
     let r  := mkApp3 (Lean.mkConst reduceThm) aux val rflPrf;
-    eq ← liftMetaM $ Meta.mkEq e val;
+    eq ← mkEq e val;
     mkExpectedTypeHint r eq
 
 private def getPropToDecide (arg : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
@@ -175,7 +175,7 @@ fun stx expectedType? => do
   p ← getPropToDecide arg expectedType?;
   d ← mkAppM `Decidable.decide #[p];
   auxDeclName ← mkNativeReflAuxDecl (Lean.mkConst `Bool) d;
-  rflPrf ← liftMetaM $ Meta.mkEqRefl (toExpr true);
+  rflPrf ← mkEqRefl (toExpr true);
   let r   := mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf;
   mkExpectedTypeHint r p
 
@@ -186,7 +186,7 @@ fun stx expectedType? => do
   d ← mkAppM `Decidable.decide #[p];
   d ← instantiateMVars d;
   let s := d.appArg!; -- get instance from `d`
-  rflPrf ← liftMetaM $ Meta.mkEqRefl (toExpr true);
+  rflPrf ← mkEqRefl (toExpr true);
   pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) p s rflPrf
 
 def elabInfix (f : Syntax) : Macro :=

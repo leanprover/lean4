@@ -12,10 +12,10 @@ def nat  := mkConst `Nat
 def succ := mkConst `Nat.succ
 
 def tst1 : MetaM Unit :=
-withLocalDecl `n nat BinderInfo.default $ fun n => do
+withLocalDeclD `n nat $ fun n => do
 let n1    := mkApp succ n;
 let vecN1 := mkApp2 (mkConst `Vec) nat n1;
-withLocalDecl `xs vecN1 BinderInfo.default $ fun xs => do
+withLocalDeclD `xs vecN1 $ fun xs => do
 generalizeTelescope #[n1, xs] `aux $ fun ys => do
 t ← mkLambdaFVars ys ys.back;
 trace! `Meta.debug t;
@@ -26,10 +26,10 @@ pure ()
 set_option pp.all true
 
 def tst2 : MetaM Unit :=
-withLocalDecl `n nat BinderInfo.default $ fun n => do
+withLocalDeclD `n nat $ fun n => do
 let n1    := mkApp succ n;
 let vecN1 := mkApp2 (mkConst `Vec) nat n1;
-withLocalDecl `xs vecN1 BinderInfo.default $ fun xs => do
+withLocalDeclD `xs vecN1 $ fun xs => do
 e ← mkEqRefl xs;
 generalizeTelescope #[n1, xs, e] `aux $ fun ys => do
 t ← mkLambdaFVars ys ys.back;
@@ -43,10 +43,10 @@ whenM (catch (x *> pure true) (fun _ => pure false)) $
   throwError "unexpected success"
 
 def tst3 : MetaM Unit :=
-withLocalDecl `n nat BinderInfo.default $ fun n => do
+withLocalDeclD `n nat $ fun n => do
 let n1    := mkApp succ n;
 let vecN1 := mkApp2 (mkConst `Vec) nat n1;
-withLocalDecl `xs vecN1 BinderInfo.default $ fun xs => do
+withLocalDeclD `xs vecN1 $ fun xs => do
 e ← mkEqRefl xs;
 failIfSuccess $ do {
   generalizeTelescope #[n1, e] `aux $ fun ys => do

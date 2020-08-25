@@ -9,10 +9,10 @@ set_option trace.Elab.debug true
 def tst1 : TermElabM Unit := do
 opt ← getOptions;
 stx ← `(forall (a b : Nat), Nat);
-dbgTrace "message 1"; -- This message goes direct to stdio. It will be displayed before trace messages.
+IO.println "message 1"; -- This message goes direct to stdio. It will be displayed before trace messages.
 e ← elabTermAndSynthesize stx none;
 logDbgTrace (">>> " ++ e); -- display message when `trace.Elab.debug` is true
-dbgTrace "message 2"
+IO.println "message 2"
 
 #eval tst1
 

@@ -67,10 +67,10 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
 | cons {n : Nat} : α → Vec n → Vec (n+1)
 
 def tst4 : MetaM Unit :=
-withLocalDecl `x nat BinderInfo.default fun x =>
-withLocalDecl `y nat BinderInfo.default fun y => do
+withLocalDeclD `x nat fun x =>
+withLocalDeclD `y nat fun y => do
 vType ← mkAppM `Vec #[nat, x];
-withLocalDecl `v vType BinderInfo.default fun v => do
+withLocalDeclD `v vType fun v => do
 m ← mkFreshExprSyntheticOpaqueMVar vType;
 subgoals ← caseValues m.mvarId! x.fvarId! #[mkNatLit 2, mkNatLit 3, mkNatLit 5];
 subgoals.forM fun s => do {
@@ -86,10 +86,10 @@ pure ()
 
 def tst5 : MetaM Unit := do
 arrayNat ← mkAppM `Array #[nat];
-withLocalDecl `a arrayNat BinderInfo.default fun a => do
-withLocalDecl `b arrayNat BinderInfo.default fun b => do
+withLocalDeclD `a arrayNat fun a => do
+withLocalDeclD `b arrayNat fun b => do
 let motiveType := mkArrow arrayNat (mkSort levelZero);
-withLocalDecl `motive motiveType BinderInfo.default fun motive => do
+withLocalDeclD `motive motiveType fun motive => do
 let mvarType := mkApp motive a;
 mvar ← mkFreshExprSyntheticOpaqueMVar mvarType;
 subgoals ← caseArraySizes mvar.mvarId! a.fvarId! #[1, 0, 4, 5];

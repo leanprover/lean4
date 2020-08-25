@@ -3,9 +3,9 @@ open Lean
 open Lean.Meta
 
 def tst1 : MetaM Unit :=
-withLocalDecl `y (mkConst `Nat) BinderInfo.default $ fun y => do
+withLocalDeclD `y (mkConst `Nat) $ fun y => do
 withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
-  mvar ← mkFreshExprMVar (mkConst `Nat) Name.anonymous MetavarKind.syntheticOpaque;
+  mvar ← mkFreshExprMVar (mkConst `Nat) MetavarKind.syntheticOpaque;
   trace! `Meta mvar;
   r ← mkLambdaFVars #[y, x] mvar;
   trace! `Meta r;

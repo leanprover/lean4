@@ -11,7 +11,7 @@ def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermE
   stx' ← liftMetaM $ delab e optionsPerPos;
   stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
   f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
-  dbgTrace $ toString f';
+  IO.println $ toString f';
   env ← getEnv;
   match Parser.runParserCategory env `term (toString f') "<input>" with
   | Except.error e => throwErrorAt stx e

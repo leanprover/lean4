@@ -22,16 +22,10 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) :=
 
 export MonadControlT (stM liftWith restoreM)
 
--- Helper abbreviations for writing `monadControlTrans`
-private abbrev liftWithB := @MonadControl.liftWith
-private abbrev restoreB  := @MonadControl.restoreM
-private abbrev liftWithT := @MonadControlT.liftWith
-private abbrev restoreT  := @MonadControlT.restoreM
-
 instance monadControlTrans (m n o) [MonadControlT m n] [MonadControl n o] : MonadControlT m o := {
-  stM      := fun α   => MonadControlT.stM m n (MonadControl.stM n o α),
-  liftWith := fun α f => liftWithB fun x₂ => liftWithT fun x₁ => f fun β => x₁ ∘ x₂,
-  restoreM := fun α   => restoreB ∘ restoreT }
+  stM      := fun α   => stM m n (MonadControl.stM n o α),
+  liftWith := fun α f => MonadControl.liftWith fun x₂ => liftWith fun x₁ => f fun β => x₁ ∘ x₂,
+  restoreM := fun α   => MonadControl.restoreM ∘ restoreM }
 
 instance monadControlRefl (m : Type u → Type v) [HasPure m] : MonadControlT m m := {
   stM      := fun α => α,

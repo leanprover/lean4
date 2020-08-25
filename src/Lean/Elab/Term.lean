@@ -154,7 +154,8 @@ finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
 Term.liftMetaM $ liftM x
 
 instance : MonadMetaM TermElabM :=
-{ liftMetaM := fun α => Term.liftMetaM }
+{ liftMetaM := fun α => Term.liftMetaM,
+  mapMetaM  := fun α => mapMetaM }
 
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
@@ -251,9 +252,8 @@ def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
-def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.approxDefEq $ Lean.isDefEq t s
-def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.fullApproxDefEq $ Lean.isDefEq t s
-def isClass? (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass? t
+def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := approxDefEq $ Lean.isDefEq t s
+def isDefEq (t s : Expr) : TermElabM Bool := fullApproxDefEq $ Lean.isDefEq t s
 def mkFreshExprMVar (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 match type? with
 | some type => liftMetaM $ Lean.mkFreshExprMVar type userName? kind
@@ -906,44 +906,6 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
 fun stx expectedType? => do
   stx' ← exp stx;
   withMacroExpansion stx stx' $ elabTerm stx' expectedType?
-
-@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
-adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) x
-
-def saveAndResetSynthInstanceCache : TermElabM Meta.SynthInstanceCache :=
-liftMetaMCore Meta.saveAndResetSynthInstanceCache
-
-def resetSynthInstanceCache : TermElabM Unit := do
-_ ← saveAndResetSynthInstanceCache; pure ()
-
-def restoreSynthInstanceCache (cache : Meta.SynthInstanceCache) : TermElabM Unit :=
-liftMetaMCore $ Meta.restoreSynthInstanceCache cache
-
-/-- Reset `synthInstance` cache, execute `x`, and restore cache -/
-@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
-savedSythInstance ← saveAndResetSynthInstanceCache;
-finally x (restoreSynthInstanceCache savedSythInstance)
-
-@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
-if b then resettingSynthInstanceCache x else x
-
-def withLocalContext {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α := do
-localInstsCurr ← getLocalInstances;
-adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) $
-  if localInsts == localInstsCurr then
-    x
-  else
-    resettingSynthInstanceCache x
-
-/--
-  Execute `x` using the given metavariable's `LocalContext` and `LocalInstances`.
-  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
-  different from the current ones. -/
-def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
-mvarDecl   ← getMVarDecl mvarId;
-localInsts ← getLocalInstances;
-let needReset := localInsts == mvarDecl.localInstances;
-withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
 def mkInstMVar (type : Expr) : TermElabM Expr := do
 mvar ← mkFreshExprMVar type MetavarKind.synthetic;

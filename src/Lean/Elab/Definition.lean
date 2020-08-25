@@ -51,7 +51,7 @@ Term.removeUnused vars used
 private def withUsedWhen {α} (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
 if cond then do
  (lctx, localInsts, vars) ← removeUnused vars xs e eType;
- Term.withLCtx lctx localInsts $ k vars
+ withLCtx lctx localInsts $ k vars
 else
  k vars
 

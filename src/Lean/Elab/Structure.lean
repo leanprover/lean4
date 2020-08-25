@@ -328,7 +328,7 @@ Term.removeUnused scopeVars used
 private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (k : Array Expr → TermElabM α)
     : TermElabM α := do
 (lctx, localInsts, vars) ← removeUnused scopeVars params fieldInfos;
-Term.withLCtx lctx localInsts $ k vars
+withLCtx lctx localInsts $ k vars
 
 private def levelMVarToParamFVar (fvar : Expr) : StateRefT Nat TermElabM Unit := do
 type ← inferType fvar;
@@ -489,7 +489,7 @@ when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env declN
 
 private def addDefaults (mctx : MetavarContext) (lctx : LocalContext) (localInsts : LocalInstances)
     (defaultAuxDecls : Array (Name × Expr × Expr)) : CommandElabM Unit :=
-liftTermElabM none $ Term.withLocalContext lctx localInsts do
+liftTermElabM none $ withLCtx lctx localInsts do
   setMCtx mctx;
   defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
     /- The identity function is used as "marker". -/

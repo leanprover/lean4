@@ -251,7 +251,7 @@ abbrev isDefEq (t s : Expr) : m Bool :=
 isExprDefEq t s
 
 def isDefEqNoConstantApprox (t s : Expr) : m Bool := liftMetaM do
-Meta.approxDefEq $ isDefEq t s
+approxDefEq $ isDefEq t s
 
 end Methods
 end Lean

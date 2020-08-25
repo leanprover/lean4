@@ -198,29 +198,6 @@ fun stx => do
   stx' ← exp stx;
   withMacroExpansion stx stx' $ evalTactic stx'
 
-@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TacticM α) : TacticM α :=
-adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) x
-
-def saveAndResetSynthInstanceCache : TacticM Meta.SynthInstanceCache :=
-liftTermElabM Term.saveAndResetSynthInstanceCache
-
-def restoreSynthInstanceCache (cache : Meta.SynthInstanceCache) : TacticM Unit :=
-liftTermElabM $ Term.restoreSynthInstanceCache cache
-
-/-- Reset `synthInstance` cache, execute `x`, and restore cache -/
-@[inline] def resettingSynthInstanceCache {α} (x : TacticM α) : TacticM α := do
-savedSythInstance ← saveAndResetSynthInstanceCache;
-finally x (restoreSynthInstanceCache savedSythInstance)
-
-@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TacticM α) : TacticM α :=
-if b then resettingSynthInstanceCache x else x
-
-def withMVarContext {α} (mvarId : MVarId) (x : TacticM α) : TacticM α := do
-mvarDecl   ← getMVarDecl mvarId;
-localInsts ← getLocalInstances;
-let needReset := localInsts == mvarDecl.localInstances;
-withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
-
 def getGoals : TacticM (List MVarId) := do s ← get; pure s.goals
 def setGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { s with goals := gs }
 def appendGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { s with goals := s.goals ++ gs }

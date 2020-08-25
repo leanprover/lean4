@@ -160,9 +160,6 @@ monadMap @f
 instance SynthM.inhabited {α} : Inhabited (SynthM α) :=
 ⟨fun _ => arbitrary _⟩
 
-@[inline] def withMCtx {α} (mctx : MetavarContext) (x : SynthM α) : SynthM α :=
-mapMetaM (fun α => Meta.withMCtx mctx) x
-
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) :=
 forallTelescopeReducing type $ fun _ type => do
@@ -314,13 +311,13 @@ forallTelescopeReducing mvarType $ fun xs mvarTypeBody => do
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
-liftM $ traceCtx `Meta.synthInstance.tryResolve $ Meta.withMCtx mctx $ tryResolveCore mvar inst
+liftM $ traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar inst
 
 /--
   Assign a precomputed answer to `mvar`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals. -/
 def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option MetavarContext) :=
-liftM $ Meta.withMCtx mctx $ do
+liftM $ withMCtx mctx $ do
   (_, _, val) ← openAbstractMVarsResult answer.result;
   condM (isDefEq mvar val)
     (do mctx ← getMCtx; pure $ some mctx)
@@ -344,7 +341,7 @@ oldAnswers.all $ fun oldAnswer => do
   oldAnswer.resultType != answer.resultType
 
 private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
-Meta.withMCtx cNode.mctx do
+withMCtx cNode.mctx do
   traceM `Meta.synthInstance.newAnswer $ do { mvarType ← inferType cNode.mvar; pure mvarType };
   val ← instantiateMVars cNode.mvar;
   result ← abstractMVars val; -- assignable metavariables become parameters
@@ -422,7 +419,7 @@ match cNode.subgoals with
   match result? with
   | none      => pure ()
   | some mctx => do
-    liftM $ Meta.withMCtx mctx $ traceM `Meta.synthInstance.resume $ do {
+    withMCtx mctx $ traceM `Meta.synthInstance.resume $ do {
       goal    ← inferType cNode.mvar;
       subgoal ← inferType mvar;
       pure (goal ++ " <== " ++ subgoal)

@@ -231,6 +231,5 @@ def simpleMonadTracerAdapterLift (m : Type → Type) {n : Type → Type} [Simple
 
 instance ReaderT.tracer {m ρ} [Monad m] [SimpleMonadTracerAdapter m] : SimpleMonadTracerAdapter (ReaderT ρ m) := simpleMonadTracerAdapterLift m
 instance StateRefT.tracer {ω m σ} [SimpleMonadTracerAdapter m] : SimpleMonadTracerAdapter (StateRefT' ω σ m) := simpleMonadTracerAdapterLift m
-instance OptionT.tracer {m} [Monad m] [SimpleMonadTracerAdapter m] : SimpleMonadTracerAdapter (OptionT m) := simpleMonadTracerAdapterLift m
 
 end Lean

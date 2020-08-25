@@ -110,7 +110,7 @@ when (views.size > 1) do
     throwErrorAt view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
 
 private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
-Term.withLocalContext r.lctx r.localInsts do
+withLCtx r.lctx r.localInsts do
   mkForallFVars r.params r.type
 
 private def throwUnexpectedInductiveType {α} : TermElabM α :=
@@ -118,10 +118,10 @@ throwError "unexpected inductive resulting type"
 
 -- Given `e` of the form `forall As, B`, return `B`.
 private def getResultingType (e : Expr) : TermElabM Expr :=
-Term.liftMetaM $ Meta.forallTelescopeReducing e fun _ r => pure r
+forallTelescopeReducing e fun _ r => pure r
 
 private def eqvFirstTypeResult (firstType type : Expr) : MetaM Bool :=
-Meta.forallTelescopeReducing firstType fun _ firstTypeResult => isDefEq firstTypeResult type
+forallTelescopeReducing firstType fun _ firstTypeResult => isDefEq firstTypeResult type
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr → Expr → TermElabM Unit
@@ -207,7 +207,7 @@ namesAndTypes ← rs.mapM fun r => do {
 };
 let r0     := rs.get! 0;
 let params := r0.params;
-Term.withLocalContext r0.lctx r0.localInsts $ withRef r0.view.ref $
+withLCtx r0.lctx r0.localInsts $ withRef r0.view.ref $
   withInductiveLocalDeclsAux namesAndTypes params x 0 #[]
 
 private def isInductiveFamily (indFVar : Expr) : TermElabM Bool := do
@@ -359,7 +359,7 @@ Term.removeUnused vars used
 
 private def withUsed {α} (vars : Array Expr) (indTypes : List InductiveType) (k : Array Expr → TermElabM α) : TermElabM α := do
 (lctx, localInsts, vars) ← removeUnused vars indTypes;
-Term.withLCtx lctx localInsts $ k vars
+withLCtx lctx localInsts $ k vars
 
 private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
 indTypes.mapM fun indType => do
@@ -395,7 +395,7 @@ withRef (views.get! 0).ref $
 let indFVar2Const := mkIndFVar2Const views indFVars levelNames;
 indTypes.mapM fun indType => do
   ctors ← indType.ctors.mapM fun ctor => do {
-    type ← Term.liftMetaM $ Meta.forallBoundedTelescope ctor.type numParams fun params type => do {
+    type ← forallBoundedTelescope ctor.type numParams fun params type => do {
       let type := type.replace fun e => if !e.isFVar then none else
         match indFVar2Const.find? e with
         | some c => some $ mkAppN c params

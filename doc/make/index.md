@@ -21,7 +21,7 @@ Setting up a basic release build:
 
 ```bash
 git clone https://github.com/leanprover/lean4
-cd lean
+cd lean4
 mkdir -p build/release
 cd build/release
 cmake ../..
@@ -32,7 +32,7 @@ Setting up a basic debug build:
 
 ```bash
 git clone https://github.com/leanprover/lean4
-cd lean
+cd lean4
 mkdir -p build/debug
 cd build/debug
 cmake -D CMAKE_BUILD_TYPE=DEBUG ../..

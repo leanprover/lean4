@@ -34,7 +34,7 @@ private partial def introArrayLitAux (mvarId : MVarId) (α : Expr) (a : Expr) (n
     : Nat → Array Expr → Array Expr → MetaM (Expr × Array Expr)
 | i, xs, args =>
   if i < n then do
-    withLocalDecl (xNamePrefix.appendIndexAfter (i+1)) α BinderInfo.default fun xi => do
+    withLocalDeclD (xNamePrefix.appendIndexAfter (i+1)) α fun xi => do
       let xs := xs.push xi;
       ai ← mkArrayGetLit a i n aSizeEqN;
       let args := args.push ai;
@@ -43,7 +43,7 @@ private partial def introArrayLitAux (mvarId : MVarId) (α : Expr) (a : Expr) (n
     xsLit     ← mkArrayLit α xs.toList;
     aEqXsLit  ← mkEq a xsLit;
     aEqLitPrf ← mkAppM `Array.toArrayLitEq #[a, mkNatLit n, aSizeEqN];
-    withLocalDecl `hEqALit aEqXsLit BinderInfo.default fun heq => do
+    withLocalDeclD `hEqALit aEqXsLit fun heq => do
       target    ← getMVarType mvarId;
       newTarget ← mkForallFVars (xs.push heq) target;
       pure (newTarget, args.push aEqLitPrf)

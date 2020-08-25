@@ -195,7 +195,7 @@ descend e.bindingDomain! 0 d
 
 def withBindingBody {α} (n : Name) (d : DelabM α) : DelabM α := do
 e ← getExpr;
-fun ctx => withLocalDecl n e.bindingDomain! e.binderInfo $ fun fvar =>
+fun ctx => withLocalDecl n e.binderInfo e.bindingDomain! $ fun fvar =>
   let b := e.bindingBody!.instantiate1 fvar;
   descend b 1 d ctx
 

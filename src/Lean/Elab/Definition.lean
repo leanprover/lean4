@@ -136,7 +136,7 @@ withDeclId view.declId $ fun name => do
         val  ← elabDefVal view.val type;
         mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     | none => do {
-      type ← withRef view.binders $ Term.mkFreshTypeMVar;
+      type ← withRef view.binders $ mkFreshTypeMVar;
       val  ← elabDefVal view.val type;
       mkDef view declName scopeLevelNames allUserLevelNames vars xs type val
     };

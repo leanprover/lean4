@@ -218,7 +218,7 @@ private partial def processSubfields {α} (structDeclName : Name) (parentFVar : 
       throwError ("field '" ++ subfieldName ++ "' from '" ++ parentStructName ++ "' has already been declared");
     val  ← Term.liftMetaM $ Meta.mkProjection parentFVar subfieldName;
     type ← inferType val;
-    Term.withLetDecl subfieldName type val fun subfieldFVar =>
+    withLetDecl subfieldName type val fun subfieldFVar =>
       /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
          its default value is overwritten in the structure. -/
       let declName := structDeclName ++ subfieldName;
@@ -239,7 +239,7 @@ private partial def withParents {α} (view : StructView) : Nat → Array StructF
       throwErrorAt parentStx ("field '" ++ toParentName ++ "' has already been declared");
     env ← getEnv;
     let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default;
-    Term.withLocalDecl toParentName binfo parent $ fun parentFVar =>
+    withLocalDecl toParentName binfo parent $ fun parentFVar =>
       let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject };
       let subfieldNames := getStructureFieldsFlattened env parentName;
       processSubfields view.declName parentFVar parentName subfieldNames 0 infos fun infos => withParents (i+1) infos k
@@ -276,13 +276,13 @@ private partial def withFields {α} (views : Array StructFieldView) : Nat → Ar
       match type?, value? with
       | none,      none => throwError "invalid field, type expected"
       | some type, _    =>
-        Term.withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
+        withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
           let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
                                     kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
       | none, some value => do
         type ← inferType value;
-        Term.withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
+        withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
           let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, kind := StructFieldKind.newField, inferMod := view.inferMod };
           withFields (i+1) infos k
     | some info =>
@@ -357,7 +357,7 @@ private partial def collectUniversesFromFields (r : Level) (rOffset : Nat) (fiel
 fieldInfos.foldlM
   (fun (us : Array Level) (info : StructFieldInfo) => do
     type ← inferType info.fvar;
-    u ← Term.getLevel type;
+    u ← getLevel type;
     u ← instantiateLevelMVars u;
     match accLevelAtCtor u r rOffset us with
     | Except.error msg => throwError msg

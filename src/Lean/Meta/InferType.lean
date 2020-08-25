@@ -75,7 +75,7 @@ matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=
 throwError $ "type expected " ++ indentExpr type
 
-def getLevel (type : Expr) : MetaM Level := do
+protected def getLevel (type : Expr) : MetaM Level := do
 typeType ← inferType type;
 typeType ← whnfD typeType;
 match typeType with
@@ -90,11 +90,11 @@ match typeType with
 
 private def inferForallType (e : Expr) : MetaM Expr :=
 forallTelescope e $ fun xs e => do
-  lvl  ← getLevel e;
+  lvl  ← Meta.getLevel e;
   lvl  ← xs.foldrM
     (fun x lvl => do
       xType    ← inferType x;
-      xTypeLvl ← getLevel xType;
+      xTypeLvl ← Meta.getLevel xType;
       pure $ mkLevelIMax xTypeLvl lvl)
     lvl;
   pure $ mkSort lvl.normalize
@@ -344,11 +344,14 @@ protected partial def isTypeFormerType : Expr → MetaM Bool
   match type with
   | Expr.sort _ _ => pure true
   | Expr.forallE n d b c =>
-    withLocalDecl n d c.binderInfo $ fun fvar =>
+    withLocalDecl n c.binderInfo d $ fun fvar =>
     isTypeFormerType (b.instantiate1 fvar)
   | _ => pure false
 
 end Meta
+
+def getLevel {m} [MonadMetaM m] (type : Expr) : m Level :=
+liftMetaM $ Meta.getLevel type
 
 def isProp {m} [MonadMetaM m] (e : Expr) : m Bool :=
 liftMetaM $ Meta.isProp e

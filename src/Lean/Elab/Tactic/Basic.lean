@@ -125,7 +125,6 @@ mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tac
 def logTrace (cls : Name) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls msg
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls msg
 @[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
-def dbgTrace {α} [HasToString α] (a : α) : TacticM Unit :=_root_.dbgTrace (toString a) $ fun _ => pure ()
 
 private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do

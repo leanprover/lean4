@@ -208,7 +208,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
   let idx       := alts.length;
   let minorName := (`h).appendIndexAfter (idx+1);
   trace! `Meta.EqnCompiler.matchDebug ("minor premise " ++ minorName ++ " : " ++ minorType);
-  withLocalDecl minorName minorType BinderInfo.default fun minor => do
+  withLocalDeclD minorName minorType fun minor => do
     let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs;
     let minors := minors.push minor;
     fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars;
@@ -567,7 +567,7 @@ p.alts.foldl
 
 private def expandVarIntoArrayLitAux (alt : Alt) (fvarId : FVarId) (arrayElemType : Expr) (varNamePrefix : Name) : Nat → Array Expr → MetaM Alt
 | n+1, newVars =>
-  withLocalDecl (varNamePrefix.appendIndexAfter (n+1)) arrayElemType BinderInfo.default fun x =>
+  withLocalDeclD (varNamePrefix.appendIndexAfter (n+1)) arrayElemType fun x =>
     expandVarIntoArrayLitAux n (newVars.push x)
 | 0, newVars => do
   arrayLit ← mkArrayLit arrayElemType newVars.toList;
@@ -668,7 +668,7 @@ private partial def process : Problem → StateRefT State MetaM Unit
     liftM $ throwNonSupported p
 
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : MetaM ElimResult :=
-withLocalDecl `motive motiveType BinderInfo.default fun motive => do
+withLocalDeclD `motive motiveType fun motive => do
 forallTelescopeReducing motiveType fun majors _ => do
 checkNumPatterns majors lhss;
 let mvarType  := mkAppN motive majors;

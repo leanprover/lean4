@@ -242,33 +242,58 @@ withIncRecDepth do
   fn mvarId
 
 private def mkFreshExprMVarAtCore
-    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name) (kind : MetavarKind) : MetaM Expr := do
+    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr := do
 modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId userName lctx localInsts type kind;
 pure $ mkMVar mvarId
 
 def mkFreshExprMVarAt
-    (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
+    (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous)
     : m Expr := liftMetaM do
 mvarId ← mkFreshId;
-mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
-
-def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : m Expr := liftMetaM do
-lctx ← getLCtx;
-localInsts ← getLocalInstances;
-mkFreshExprMVarAt lctx localInsts type userName kind
-
-/- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
-   the metavar using this method. -/
-def mkFreshExprMVarWithId (mvarId : MVarId) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
-    : m Expr := liftMetaM do
-lctx ← getLCtx;
-localInsts ← getLocalInstances;
-mkFreshExprMVarAtCore mvarId lctx localInsts type userName kind
+mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName
 
 def mkFreshLevelMVar : m Level := liftMetaM do
 mvarId ← mkFreshId;
 modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
 pure $ mkLevelMVar mvarId
+
+private def mkFreshExprMVarCore (type : Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr := do
+lctx ← getLCtx;
+localInsts ← getLocalInstances;
+mkFreshExprMVarAt lctx localInsts type kind userName
+
+private def mkFreshExprMVarImpl (type? : Option Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr :=
+match type? with
+| some type => mkFreshExprMVarCore type kind userName
+| none      => do
+  u ← mkFreshLevelMVar;
+  type ← mkFreshExprMVarCore (mkSort u) kind Name.anonymous;
+  mkFreshExprMVarCore type kind userName
+
+def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) : m Expr :=
+liftMetaM $ mkFreshExprMVarImpl type? kind userName
+
+def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) : m Expr := liftMetaM do
+u ← mkFreshLevelMVar; mkFreshExprMVar (mkSort u) kind userName
+
+/- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
+   the metavar using this method. -/
+private def mkFreshExprMVarWithIdCore (mvarId : MVarId) (type : Expr) (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous)
+    : m Expr := liftMetaM do
+lctx ← getLCtx;
+localInsts ← getLocalInstances;
+mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName
+
+def mkFreshExprMVarWithIdImpl (mvarId : MVarId) (type? : Option Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr :=
+match type? with
+| some type => mkFreshExprMVarWithIdCore mvarId type kind userName
+| none      => do
+  u ← Lean.mkFreshLevelMVar;
+  type ← mkFreshExprMVar (mkSort u);
+  mkFreshExprMVarWithIdCore mvarId type kind userName
+
+def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName := Name.anonymous) : m Expr :=
+liftMetaM $ mkFreshExprMVarWithIdImpl mvarId type? kind userName
 
 def shouldReduceAll : MetaM Bool := liftMetaM do
 ctx ← read; pure $ ctx.config.transparency == Meta.TransparencyMode.all
@@ -704,7 +729,7 @@ private partial def forallMetaTelescopeReducingAux
   let process : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do {
     let d  := d.instantiateRevRange j mvars.size mvars;
     let k  := if c.binderInfo.isInstImplicit then  MetavarKind.synthetic else kind;
-    mvar ← mkFreshExprMVar d n k;
+    mvar ← mkFreshExprMVar d k n;
     let mvars := mvars.push mvar;
     let bis   := bis.push c.binderInfo;
     forallMetaTelescopeReducingAux mvars bis j b
@@ -772,7 +797,7 @@ match c? with
 | none   => k fvar
 | some c => withNewLocalInstance c fvar $ k fvar
 
-private def withLocalDeclImpl {α} (n : Name) (type : Expr) (bi : BinderInfo) (k : Expr → MetaM α) : MetaM α := do
+private def withLocalDeclImpl {α} (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) : MetaM α := do
 fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
@@ -780,11 +805,11 @@ let fvar := mkFVar fvarId;
 adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
-@[inline] def withLocalDecl {α} (name : Name) (type : Expr) (bi : BinderInfo) (k : Expr → n α) : n α :=
-map1MetaM (fun k => withLocalDeclImpl name type bi k) k
+@[inline] def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
+map1MetaM (fun k => withLocalDeclImpl name bi type k) k
 
 def withLocalDeclD {α} (name : Name) (type : Expr) (k : Expr → n α) : n α :=
-withLocalDecl name type BinderInfo.default k
+withLocalDecl name BinderInfo.default type k
 
 private def withLetDeclImpl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α := do
 fvarId ← mkFreshId;

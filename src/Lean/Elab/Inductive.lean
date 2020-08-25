@@ -143,7 +143,7 @@ private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr �
       unless (c₁.binderInfo == c₂.binderInfo) $
         -- TODO: improve this error message?
         throwError ("invalid mutually inductive types, binder annotation mismatch at parameter '" ++ n₁ ++ "'");
-      Term.withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
+      withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
         let type      := b₁.instantiate1 x;
         let firstType := b₂.instantiate1 x;
         checkParamsAndResultType (i+1) type firstType
@@ -151,7 +151,7 @@ private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr �
   else
     match type with
     | Expr.forallE n d b c =>
-      Term.withLocalDecl n c.binderInfo d fun x =>
+      withLocalDecl n c.binderInfo d fun x =>
         let type      := b.instantiate1 x;
         checkParamsAndResultType (i+1) type firstType
     | Expr.sort _ _        =>
@@ -191,7 +191,7 @@ private partial def withInductiveLocalDeclsAux {α} (namesAndTypes : Array (Name
   if h : i < namesAndTypes.size then do
     let (id, type) := namesAndTypes.get ⟨i, h⟩;
     type ← instantiateForall type params;
-    Term.withLocalDecl id BinderInfo.default type fun indFVar => withInductiveLocalDeclsAux (i+1) (indFVars.push indFVar)
+    withLocalDeclD id type fun indFVar => withInductiveLocalDeclsAux (i+1) (indFVars.push indFVar)
   else
     x params indFVars
 
@@ -307,15 +307,15 @@ def accLevelAtCtor : Level → Level → Nat → Array Level → Except String (
 /- Auxiliary function for `updateResultingUniverse` -/
 private partial def collectUniversesFromCtorTypeAux (r : Level) (rOffset : Nat) : Nat → Expr → Array Level → TermElabM (Array Level)
 | 0,   Expr.forallE n d b c, us => do
-  u ← Term.getLevel d;
+  u ← getLevel d;
   u ← instantiateLevelMVars u;
   match accLevelAtCtor u r rOffset us with
   | Except.error msg => throwError msg
-  | Except.ok us     => Term.withLocalDecl n c.binderInfo d $ fun x =>
+  | Except.ok us     => withLocalDecl n c.binderInfo d $ fun x =>
     let e := b.instantiate1 x;
     collectUniversesFromCtorTypeAux 0 e us
 | i+1, Expr.forallE n d b c, us => do
-  Term.withLocalDecl n c.binderInfo d $ fun x =>
+  withLocalDecl n c.binderInfo d $ fun x =>
     let e := b.instantiate1 x;
     collectUniversesFromCtorTypeAux i e us
 | _, _, us => pure us

@@ -529,7 +529,7 @@ registerOption `synthInstance.maxSteps { defValue := (10000 : Nat), group := "",
 private def getMaxSteps (opts : Options) : Nat :=
 opts.getNat `synthInstance.maxSteps 10000
 
-def synthInstance? (type : Expr) : MetaM (Option Expr) := do
+def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := do
 opts ← getOptions;
 let fuel := getMaxSteps opts;
 inputConfig ← getConfig;
@@ -572,14 +572,14 @@ withConfig (fun config => { config with transparency := TransparencyMode.reducib
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
-def trySynthInstance (type : Expr) : MetaM (LOption Expr) :=
+def trySynthInstanceImp (type : Expr) : MetaM (LOption Expr) :=
 adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with isDefEqStuckEx := true } }) $
   catchInternalId isDefEqStuckExceptionId
-    (toLOptionM $ synthInstance? type)
+    (toLOptionM $ synthInstanceImp? type)
     (fun _ => pure LOption.undef)
 
-def synthInstance (type : Expr) : MetaM Expr := do
-result? ← synthInstance? type;
+def synthInstanceImp (type : Expr) : MetaM Expr := do
+result? ← synthInstanceImp? type;
 match result? with
 | some result => pure result
 | none        => throwError $ "failed to synthesize" ++ indentExpr type
@@ -592,7 +592,7 @@ match mvarDecl.kind with
   match c? with
   | none   => pure false
   | some _ => do
-    val? ← synthInstance? mvarDecl.type;
+    val? ← synthInstanceImp? mvarDecl.type;
     match val? with
     | none     => pure false
     | some val =>
@@ -613,4 +613,19 @@ registerTraceClass `Meta.synthInstance.resume;
 registerTraceClass `Meta.synthInstance.generate
 
 end Meta
+
+section Methods
+variables {m : Type → Type} [MonadMetaM m]
+
+def synthInstance? (type : Expr) : m (Option Expr) :=
+liftMetaM $ Meta.synthInstanceImp? type
+
+def trySynthInstance (type : Expr) : m (LOption Expr) :=
+liftMetaM $ Meta.trySynthInstanceImp type
+
+def synthInstance (type : Expr) : m Expr :=
+liftMetaM $ Meta.synthInstanceImp type
+
+end Methods
+
 end Lean

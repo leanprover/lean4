@@ -157,8 +157,8 @@ private partial def mkAppMAux (f : Expr) (xs : Array Expr) : Nat → Array Expr 
 | i, args, j, instMVars, Expr.forallE n d b c => do
   let d  := d.instantiateRevRange j args.size args;
   match c.binderInfo with
-  | BinderInfo.implicit     => do mvar ← mkFreshExprMVar d n; mkAppMAux i (args.push mvar) j instMVars b
-  | BinderInfo.instImplicit => do mvar ← mkFreshExprMVar d n MetavarKind.synthetic; mkAppMAux i (args.push mvar) j (instMVars.push mvar.mvarId!) b
+  | BinderInfo.implicit     => do mvar ← mkFreshExprMVar d MetavarKind.natural n; mkAppMAux i (args.push mvar) j instMVars b
+  | BinderInfo.instImplicit => do mvar ← mkFreshExprMVar d MetavarKind.synthetic n; mkAppMAux i (args.push mvar) j (instMVars.push mvar.mvarId!) b
   | _ =>
     if h : i < xs.size then do
       let x := xs.get ⟨i, h⟩;
@@ -197,8 +197,8 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
     match xs.get ⟨i, h⟩ with
     | none =>
       match c.binderInfo with
-      | BinderInfo.instImplicit => do mvar ← mkFreshExprMVar d n MetavarKind.synthetic; mkAppOptMAux (i+1) (args.push mvar) j (instMVars.push mvar.mvarId!) b
-      | _                       => do mvar ← mkFreshExprMVar d n; mkAppOptMAux (i+1) (args.push mvar) j instMVars b
+      | BinderInfo.instImplicit => do mvar ← mkFreshExprMVar d MetavarKind.synthetic n; mkAppOptMAux (i+1) (args.push mvar) j (instMVars.push mvar.mvarId!) b
+      | _                       => do mvar ← mkFreshExprMVar d MetavarKind.natural n; mkAppOptMAux (i+1) (args.push mvar) j instMVars b
     | some x => do
       xType ← inferType x;
         condM (isDefEq d xType)
@@ -324,14 +324,8 @@ private def mkListLitAux (nil : Expr) (cons : Expr) : List Expr → Expr
 | []    => nil
 | x::xs => mkApp (mkApp cons x) (mkListLitAux xs)
 
-private def getDecLevel (methodName : Name) (type : Expr) : MetaM Level := do
-u ← getLevel type;
-match u.dec with
-| none   => throwAppBuilderException methodName ("invalid universe level, " ++ toString u ++ " is not greater than 0" ++ indentExpr type)
-| some u => pure u
-
 def mkListLit (type : Expr) (xs : List Expr) : MetaM Expr := do
-u   ← getDecLevel `mkListLit type;
+u   ← getDecLevel type;
 let nil := mkApp (mkConst `List.nil [u]) type;
 match xs with
 | [] => pure nil
@@ -340,7 +334,7 @@ match xs with
   pure $ mkListLitAux nil cons xs
 
 def mkArrayLit (type : Expr) (xs : List Expr) : MetaM Expr := do
-u ← getDecLevel `mkArrayLit type;
+u ← getDecLevel type;
 listLit ← mkListLit type xs;
 pure (mkApp (mkApp (mkConst `List.toArray [u]) type) listLit)
 

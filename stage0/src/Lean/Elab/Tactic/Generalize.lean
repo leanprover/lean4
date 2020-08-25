@@ -12,6 +12,8 @@ namespace Lean
 namespace Elab
 namespace Tactic
 
+open Meta
+
 private def getAuxHypothesisName (stx : Syntax) : Option Name :=
 if (stx.getArg 1).isNone then none
 else some ((stx.getArg 1).getIdAt 0)
@@ -64,7 +66,7 @@ match h? with
 | some h =>
   evalGeneralizeWithEq h e x <|> evalGeneralizeFallback h e x
 
-@[builtinTactic «generalize»] def evalGeneralize : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.generalize] def evalGeneralize : Tactic :=
 fun stx => do
   let h? := getAuxHypothesisName stx;
   let x  := getVarName stx;

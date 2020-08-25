@@ -12,6 +12,8 @@ namespace Lean
 namespace Elab
 namespace Tactic
 
+open Meta
+
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr :=
@@ -50,7 +52,7 @@ fun stx => match_syntax stx with
     setGoals (gs' ++ gs)
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic «apply»] def evalApply : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| apply $e) => do
     (g, gs) ← getMainGoal;

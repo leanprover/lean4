@@ -10,6 +10,8 @@ namespace Lean
 namespace Elab
 namespace Term
 
+open Meta
+
 def collectUsedFVars (used : CollectFVars.State) (e : Expr) : TermElabM CollectFVars.State := do
 e ← instantiateMVars e;
 pure $ collectFVars used e

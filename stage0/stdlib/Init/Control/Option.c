@@ -26,12 +26,12 @@ lean_object* l_OptionT_Monad___rarg(lean_object*);
 lean_object* l_OptionT_orelse___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_bind(lean_object*);
 lean_object* l_OptionT_run___rarg(lean_object*);
+lean_object* l_OptionT_MonadLift___rarg(lean_object*);
 lean_object* l_OptionT_Monad___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_lift(lean_object*);
 lean_object* l_OptionT_run(lean_object*, lean_object*);
 lean_object* l_OptionT_Monad___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_catch___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_OptionT_HasMonadLift___rarg(lean_object*);
 lean_object* l_OptionT_orelse___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_optional___rarg___closed__1;
 lean_object* l_OptionT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,7 +55,7 @@ lean_object* l_OptionT_Monad___rarg___lambda__6(lean_object*, lean_object*, lean
 lean_object* l_OptionT_catch(lean_object*);
 lean_object* l_OptionT_catch___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_orelse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_OptionT_HasMonadLift(lean_object*);
+lean_object* l_OptionT_MonadLift(lean_object*);
 lean_object* l_OptionT_MonadFunctor___rarg(lean_object*, lean_object*);
 lean_object* l_OptionT_MonadExceptOf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_fail(lean_object*);
@@ -616,7 +616,7 @@ x_2 = lean_alloc_closure((void*)(l_OptionT_lift___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_OptionT_HasMonadLift___rarg(lean_object* x_1) {
+lean_object* l_OptionT_MonadLift___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -625,11 +625,11 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_OptionT_HasMonadLift(lean_object* x_1) {
+lean_object* l_OptionT_MonadLift(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_OptionT_HasMonadLift___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_OptionT_MonadLift___rarg), 1, 0);
 return x_2;
 }
 }

@@ -147,7 +147,7 @@ let r := ngen.curr;
 setNGen ngen.next;
 pure r
 
-instance monadNameGeneratorLift (m n : Type → Type) [MonadNameGenerator m] [HasMonadLift m n] : MonadNameGenerator n :=
+instance monadNameGeneratorLift (m n : Type → Type) [MonadNameGenerator m] [MonadLift m n] : MonadNameGenerator n :=
 { getNGen := liftM (getNGen : m _),
   setNGen := fun ngen => liftM (setNGen ngen : m _) }
 
@@ -441,7 +441,7 @@ instance MacroM.monadQuotation : MonadQuotation MacroM :=
   getMainModule       := fun ctx => pure ctx.mainModule,
   withFreshMacroScope := @Macro.withFreshMacroScope }
 
-instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
+instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
 { getCurrMacroScope   := liftM (getCurrMacroScope : m MacroScope),
   getMainModule       := liftM (getMainModule : m Name),
   withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }

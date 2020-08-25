@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Except
-// Imports: Init.Control.Alternative Init.Control.Lift Init.Data.ToString
+// Imports: Init.Control.Alternative Init.Control.MonadControl Init.Data.ToString
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -57,8 +57,10 @@ lean_object* l_Except_MonadExceptOf(lean_object*);
 lean_object* l_ExceptT_adapt(lean_object*, lean_object*);
 lean_object* l_ExceptT_bindCont___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadExcept_HasOrelse___rarg(lean_object*, lean_object*);
+lean_object* l_monadControlExcept(lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_map___rarg(lean_object*, lean_object*);
+lean_object* l_ExceptT_MonadLift___rarg(lean_object*);
 lean_object* l_Except_toString___rarg___closed__1;
 lean_object* l_Except_MonadExceptOf___lambda__1(lean_object*, lean_object*);
 lean_object* l_ExceptT_monadExceptSelf___rarg(lean_object*);
@@ -69,6 +71,7 @@ lean_object* l_ExceptT_catch___rarg(lean_object*, lean_object*, lean_object*, le
 lean_object* l_ExceptT_bindCont(lean_object*, lean_object*);
 lean_object* l_Except_mapError___rarg(lean_object*, lean_object*);
 lean_object* l_catchThe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadControlExcept___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_toBool(lean_object*, lean_object*);
 lean_object* l_ExceptT_monadExceptParent___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_toString___rarg___closed__2;
@@ -86,6 +89,7 @@ lean_object* l_monadExceptAdapterTrans___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_Except_Monad___closed__7;
 lean_object* l_ExceptT_lift(lean_object*, lean_object*);
 lean_object* l_finally___rarg___lambda__1(lean_object*, lean_object*);
+lean_object* l_monadControlExcept___rarg(lean_object*);
 lean_object* l_throwThe(lean_object*, lean_object*);
 lean_object* l_ExceptT_pure___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_monadExceptParent___rarg(lean_object*);
@@ -99,12 +103,13 @@ lean_object* l_Except_mapError(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Except_Monad(lean_object*);
 lean_object* l_Except_Monad___closed__6;
-lean_object* l_ExceptT_HasMonadLift___rarg(lean_object*);
+extern lean_object* l_monadControlRefl___rarg___lambda__2___closed__1;
 lean_object* l_ExceptT_MonadFunctor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadExcept_orelse_x27(lean_object*, lean_object*);
 lean_object* l_ExceptT_mk___rarg(lean_object*);
 lean_object* l_ExceptT_bindCont___at_ExceptT_Monad___spec__2(lean_object*, lean_object*);
 lean_object* l_ExceptT_monadExceptSelf(lean_object*, lean_object*);
+lean_object* l_monadFunctorTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_mk___rarg___boxed(lean_object*);
 lean_object* l_ExceptT_bindCont___at_ExceptT_Monad___spec__1(lean_object*, lean_object*);
 lean_object* l_Except_Inhabited(lean_object*, lean_object*);
@@ -114,7 +119,6 @@ lean_object* l_ExceptT_bind___rarg(lean_object*, lean_object*, lean_object*, lea
 lean_object* l_ExceptT_exceptTOfExcept(lean_object*, lean_object*);
 lean_object* l_ExceptT_Monad___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_monadExceptParent(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_HasToString___rarg(lean_object*, lean_object*);
 lean_object* l_throwThe___rarg(lean_object*, lean_object*, lean_object*);
@@ -138,9 +142,9 @@ lean_object* l_Except_toOption(lean_object*, lean_object*);
 lean_object* l_ExceptT_Monad___rarg___lambda__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadExcept_orelse_x27___rarg___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_finally___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ExceptT_MonadLift(lean_object*, lean_object*);
 lean_object* l_ExceptT_MonadFunctor___rarg(lean_object*, lean_object*);
 lean_object* l_ExceptT_run___rarg(lean_object*);
-lean_object* l_ExceptT_HasMonadLift(lean_object*, lean_object*);
 lean_object* l_MonadExceptOf_isMonadExcept(lean_object*, lean_object*);
 lean_object* l_ExceptT_Monad___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_Monad___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1244,7 +1248,7 @@ x_3 = lean_alloc_closure((void*)(l_ExceptT_exceptTOfExcept___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_ExceptT_HasMonadLift___rarg(lean_object* x_1) {
+lean_object* l_ExceptT_MonadLift___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1253,11 +1257,11 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_ExceptT_HasMonadLift(lean_object* x_1, lean_object* x_2) {
+lean_object* l_ExceptT_MonadLift(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_ExceptT_HasMonadLift___rarg), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_ExceptT_MonadLift___rarg), 1, 0);
 return x_3;
 }
 }
@@ -2195,7 +2199,7 @@ lean_object* l_monadExceptAdapterTrans___rarg(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_alloc_closure((void*)(l_monadFunctorTTrans___rarg___lambda__1), 4, 2);
+x_6 = lean_alloc_closure((void*)(l_monadFunctorTrans___rarg___lambda__1), 4, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_4);
 x_7 = lean_apply_3(x_2, lean_box(0), x_6, x_5);
@@ -2400,8 +2404,49 @@ x_4 = lean_alloc_closure((void*)(l_finally___rarg), 4, 0);
 return x_4;
 }
 }
+lean_object* l_monadControlExcept___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_4 = l_monadControlRefl___rarg___lambda__2___closed__1;
+x_5 = lean_apply_1(x_3, x_4);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = l_ExceptT_lift___rarg___closed__1;
+x_10 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_5);
+return x_10;
+}
+}
+lean_object* l_monadControlExcept___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_alloc_closure((void*)(l_monadControlExcept___rarg___lambda__1), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+x_3 = l_monadControlRefl___rarg___lambda__2___closed__1;
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+return x_4;
+}
+}
+lean_object* l_monadControlExcept(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_monadControlExcept___rarg), 1, 0);
+return x_3;
+}
+}
 lean_object* initialize_Init_Control_Alternative(lean_object*);
-lean_object* initialize_Init_Control_Lift(lean_object*);
+lean_object* initialize_Init_Control_MonadControl(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Except(lean_object* w) {
@@ -2411,7 +2456,7 @@ _G_initialized = true;
 res = initialize_Init_Control_Alternative(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lift(lean_io_mk_world());
+res = initialize_Init_Control_MonadControl(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString(lean_io_mk_world());

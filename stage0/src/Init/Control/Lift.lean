@@ -18,31 +18,28 @@ universes u v w
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
     but `n` does not have to be a monad transformer.
     Alternatively, an implementation of [MonadLayer](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer) without `layerInvmap` (so far). -/
-class HasMonadLift (m : Type u → Type v) (n : Type u → Type w) :=
+class MonadLift (m : Type u → Type v) (n : Type u → Type w) :=
 (monadLift : ∀ {α}, m α → n α)
 
-/-- The reflexive-transitive closure of `HasMonadLift`.
+/-- The reflexive-transitive closure of `MonadLift`.
     `monadLift` is used to transitively lift monadic computations such as `StateT.get` or `StateT.put s`.
     Corresponds to [MonadLift](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift). -/
-class HasMonadLiftT (m : Type u → Type v) (n : Type u → Type w) :=
+class MonadLiftT (m : Type u → Type v) (n : Type u → Type w) :=
 (monadLift : ∀ {α}, m α → n α)
 
-export HasMonadLiftT (monadLift)
+export MonadLiftT (monadLift)
 
 abbrev liftM := @monadLift
 
-@[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [HasMonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
+@[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
 a ← liftM $ x;
 pure $ coe a
 
-instance hasMonadLiftTTrans (m n o) [HasMonadLiftT m n] [HasMonadLift n o] : HasMonadLiftT m o :=
-⟨fun α ma => HasMonadLift.monadLift (monadLift ma : n α)⟩
+instance monadLiftTrans (m n o) [MonadLiftT m n] [MonadLift n o] : MonadLiftT m o :=
+⟨fun α ma => MonadLift.monadLift (monadLift ma : n α)⟩
 
-instance hasMonadLiftTRefl (m) : HasMonadLiftT m m :=
+instance monadLiftRefl (m) : MonadLiftT m m :=
 ⟨fun α => id⟩
-
-theorem monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α) = id := rfl
-
 
 /-- A functor in the category of monads. Can be used to lift monad-transforming functions.
     Based on pipes' [MFunctor](https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html),
@@ -63,14 +60,12 @@ class MonadFunctorT (m m' : Type u → Type v) (n n' : Type u → Type w) :=
 
 export MonadFunctorT (monadMap)
 
-instance monadFunctorTTrans (m m' n n' o o') [MonadFunctorT m m' n n'] [MonadFunctor n n' o o'] :
+instance monadFunctorTrans (m m' n n' o o') [MonadFunctorT m m' n n'] [MonadFunctor n n' o o'] :
   MonadFunctorT m m' o o' :=
 ⟨fun α f => MonadFunctor.monadMap (fun β => (monadMap @f : n β → n' β))⟩
 
-instance monadFunctorTRefl (m m') : MonadFunctorT m m' m m' :=
+instance monadFunctorRefl (m m') : MonadFunctorT m m' m m' :=
 ⟨fun α f => f⟩
-
-theorem monadMapRefl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monadMap @f : m α → m' α) = f := rfl
 
 /-- Run a Monad stack to completion.
     `run` should be the composition of the transformers' individual `run` functions.

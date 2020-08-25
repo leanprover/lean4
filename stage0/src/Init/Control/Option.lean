@@ -50,7 +50,7 @@ namespace OptionT
   @[inline] protected def lift (ma : m α) : OptionT m α :=
   (some <$> ma : m (Option α))
 
-  instance : HasMonadLift m (OptionT m) :=
+  instance : MonadLift m (OptionT m) :=
   ⟨@OptionT.lift _ _⟩
 
   @[inline] protected def monadMap {m'} [Monad m'] {α} (f : ∀ {α}, m α → m' α) : OptionT m α → OptionT m' α :=

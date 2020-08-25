@@ -13,6 +13,8 @@ namespace Lean
 namespace Elab
 namespace Command
 
+open Meta
+
 def elabAbbrev (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 -- parser! "abbrev " >> declId >> optDeclSig >> declVal
 let (binders, type) := expandOptDeclSig (stx.getArg 2);

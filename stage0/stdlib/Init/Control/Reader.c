@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Reader
-// Imports: Init.Control.Lift Init.Control.Id Init.Control.Alternative Init.Control.Except
+// Imports: Init.Control.MonadControl Init.Control.Id Init.Control.Alternative Init.Control.Except
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_monadControlReader(lean_object*, lean_object*);
 lean_object* l_monadReaderRunnerTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadReaderAdapterTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_lift(lean_object*, lean_object*, lean_object*);
@@ -21,6 +22,7 @@ lean_object* l_ReaderT_map___rarg(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_ReaderT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadReaderOf_isMonadReader___rarg___boxed(lean_object*);
+extern lean_object* l_Id_monad___closed__6;
 lean_object* l_ReaderT_MonadStateRunner(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadReaderAdapterOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,6 +36,7 @@ lean_object* l_readThe___rarg___boxed(lean_object*);
 lean_object* l_ReaderT_adapt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadReaderAdapterOf___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__7(lean_object*, lean_object*, lean_object*);
+lean_object* l_monadControlReader___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadReaderAdapterTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Function_const___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadReaderOf(lean_object*, lean_object*);
@@ -48,33 +51,36 @@ lean_object* l_ReaderT_read___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_run___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadReaderRunnerTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadControlReader___closed__2;
 lean_object* l_ReaderT_MonadExceptOf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_orelse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadReaderAdapterOf_isMonadReaderAdapter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadControlReader___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_readThe(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadExceptOf(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_orelse(lean_object*, lean_object*);
 lean_object* l_monadReaderRunnerTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadControlReader___closed__1;
 lean_object* l_ReaderT_read(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadReaderOf___rarg(lean_object*);
 lean_object* l_adaptTheReader(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Alternative___rarg(lean_object*, lean_object*);
-lean_object* l_ReaderT_HasMonadLift___closed__1;
+lean_object* l_monadFunctorTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_MonadLift___closed__1;
 lean_object* l_ReaderT_Alternative(lean_object*, lean_object*);
 lean_object* l_MonadReaderOf_isMonadReader___rarg(lean_object*);
 lean_object* l_ReaderT_adapt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadRun(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_failure___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_MonadLift(lean_object*, lean_object*);
 lean_object* l_ReaderT_map(lean_object*, lean_object*);
 lean_object* l_monadReaderTrans(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_inhabited(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_inhabited___rarg(lean_object*, lean_object*);
-lean_object* l_ReaderT_HasMonadLift(lean_object*, lean_object*);
 lean_object* l_ReaderT_adapt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadFunctor___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadExceptOf___rarg(lean_object*);
@@ -158,7 +164,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_ReaderT_HasMonadLift___closed__1() {
+lean_object* _init_l_ReaderT_MonadLift___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -168,11 +174,11 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* l_ReaderT_HasMonadLift(lean_object* x_1, lean_object* x_2) {
+lean_object* l_ReaderT_MonadLift(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_ReaderT_HasMonadLift___closed__1;
+x_3 = l_ReaderT_MonadLift___closed__1;
 return x_3;
 }
 }
@@ -782,7 +788,7 @@ lean_object* l_monadReaderAdapterTrans___rarg(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_alloc_closure((void*)(l_monadFunctorTTrans___rarg___lambda__1), 4, 2);
+x_6 = lean_alloc_closure((void*)(l_monadFunctorTrans___rarg___lambda__1), 4, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_4);
 x_7 = lean_apply_3(x_2, lean_box(0), x_6, x_5);
@@ -892,7 +898,53 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* initialize_Init_Control_Lift(lean_object*);
+lean_object* l_monadControlReader___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_3, x_1);
+return x_4;
+}
+}
+lean_object* l_monadControlReader___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_alloc_closure((void*)(l_monadControlReader___lambda__1), 3, 1);
+lean_closure_set(x_4, 0, x_3);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+lean_object* _init_l_monadControlReader___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_monadControlReader___lambda__2), 3, 0);
+return x_1;
+}
+}
+lean_object* _init_l_monadControlReader___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_monadControlReader___closed__1;
+x_2 = l_Id_monad___closed__6;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* l_monadControlReader(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_monadControlReader___closed__2;
+return x_3;
+}
+}
+lean_object* initialize_Init_Control_MonadControl(lean_object*);
 lean_object* initialize_Init_Control_Id(lean_object*);
 lean_object* initialize_Init_Control_Alternative(lean_object*);
 lean_object* initialize_Init_Control_Except(lean_object*);
@@ -901,7 +953,7 @@ lean_object* initialize_Init_Control_Reader(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Lift(lean_io_mk_world());
+res = initialize_Init_Control_MonadControl(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Id(lean_io_mk_world());
@@ -913,8 +965,12 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Except(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_ReaderT_HasMonadLift___closed__1 = _init_l_ReaderT_HasMonadLift___closed__1();
-lean_mark_persistent(l_ReaderT_HasMonadLift___closed__1);
+l_ReaderT_MonadLift___closed__1 = _init_l_ReaderT_MonadLift___closed__1();
+lean_mark_persistent(l_ReaderT_MonadLift___closed__1);
+l_monadControlReader___closed__1 = _init_l_monadControlReader___closed__1();
+lean_mark_persistent(l_monadControlReader___closed__1);
+l_monadControlReader___closed__2 = _init_l_monadControlReader___closed__2();
+lean_mark_persistent(l_monadControlReader___closed__2);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

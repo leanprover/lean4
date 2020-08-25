@@ -501,7 +501,9 @@ fun n => do
 env ← getEnv;
 finally x (setEnv env)
 
-@[builtinCommandElab «check»] def elabCheck : CommandElab :=
+open Meta
+
+@[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab :=
 fun stx => do
   let term := stx.getArg 1;
   withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
@@ -562,7 +564,7 @@ fun stx => withoutModifyingEnv do
       Term.synthesizeSyntheticMVars false;
         e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
           withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do {
-            e ← Term.mkAppM `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
+            e ← mkAppM `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
             mkLambdaFVars #[env, opts] e
           };
         addAndCompile e;
@@ -584,7 +586,7 @@ fun stx => withoutModifyingEnv do
     act : IO Unit ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
       Term.synthesizeSyntheticMVars false;
-      e ← Term.mkAppM `Lean.HasEval.eval #[e, toExpr false];
+      e ← mkAppM `Lean.HasEval.eval #[e, toExpr false];
       addAndCompile e;
       env ← getEnv;
       match env.evalConst (IO Unit) n with

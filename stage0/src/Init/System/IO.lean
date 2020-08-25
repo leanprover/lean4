@@ -323,12 +323,12 @@ Prim.setAccessRights filename mode.flags
 /- References -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-instance st2eio {ε} : HasMonadLift (ST IO.RealWorld) (EIO ε) :=
+instance st2eio {ε} : MonadLift (ST IO.RealWorld) (EIO ε) :=
 ⟨fun α x s => match x s with
  | EStateM.Result.ok a s     => EStateM.Result.ok a s
  | EStateM.Result.error ex _ => Empty.rec _ ex⟩
 
-def mkRef {α : Type} {m : Type → Type} [Monad m] [HasMonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
+def mkRef {α : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
 ST.mkRef a
 
 end IO

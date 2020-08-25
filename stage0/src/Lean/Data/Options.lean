@@ -95,7 +95,7 @@ class MonadOptions (m : Type → Type) :=
 
 export MonadOptions (getOptions)
 
-instance monadOptsFromLift (m n) [MonadOptions m] [HasMonadLift m n] : MonadOptions n :=
+instance monadOptsFromLift (m n) [MonadOptions m] [MonadLift m n] : MonadOptions n :=
 { getOptions := liftM (getOptions : m _) }
 
 section Methods

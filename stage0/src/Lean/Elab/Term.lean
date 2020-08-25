@@ -73,6 +73,8 @@ instance State.inhabited : Inhabited State := ⟨{}⟩
 abbrev TermElabM := ReaderT Context $ StateRefT State $ MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
+open Meta
+
 instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
 ⟨throw $ arbitrary _⟩
 
@@ -153,9 +155,8 @@ finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
 Term.liftMetaM $ liftM x
 
-instance : MonadMetaM TermElabM :=
-{ liftMetaM := fun α => Term.liftMetaM,
-  mapMetaM  := fun α => mapMetaM }
+instance : MonadLiftT MetaM TermElabM :=
+⟨fun α => Term.liftMetaM⟩
 
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
@@ -249,11 +250,8 @@ when s.messages.hasErrors $
 withRef Syntax.missing $ trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
-def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := approxDefEq $ Lean.isDefEq t s
-def isDefEq (t s : Expr) : TermElabM Bool := fullApproxDefEq $ Lean.isDefEq t s
-
-def mkAppM (constName : Name) (args : Array Expr) : TermElabM Expr := liftMetaM $ Meta.mkAppM constName args
-def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : TermElabM Expr := liftMetaM $ Meta.mkExpectedTypeHint e expectedType
+def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := approxDefEq $ Meta.isDefEq t s
+def isDefEq (t s : Expr) : TermElabM Bool := fullApproxDefEq $ Meta.isDefEq t s
 
 @[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
 mctx ← getMCtx;
@@ -497,7 +495,7 @@ if β.getAppFn.isMVar || α.getAppFn.isMVar then pure none
 else catch
  (do
    aNew ← tryCoe β α a none;
-   aNew ← liftMetaM $ Meta.mkPure m aNew;
+   aNew ← mkPure m aNew;
    pure $ some aNew)
  (fun _ => pure none)
 
@@ -524,12 +522,12 @@ If `eType` is of the form `m α`. We use the following approaches.
 
 2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
   ```
-  liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : HasMonadLiftT m n] {α : Type u_1}, m α → n α
+  liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : MonadLiftT m n] {α : Type u_1}, m α → n α
   ```
 
 3- If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
   ```
-  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [HasMonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
+  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
   ```
 
 Note that approach 3 does not subsume 1 because it is only applicable if there is a coercion from `α` to `β` for all values in `α`.
@@ -571,12 +569,12 @@ condM (isDefEq m n) (tryCoe expectedType eType e f?) $
   catch
     (do
       -- Construct lift from `m` to `n`
-      hasMonadLiftType ← mkAppM `HasMonadLiftT #[m, n];
-      hasMonadLiftVal  ← synthesizeInst hasMonadLiftType;
+      monadLiftType ← mkAppM `MonadLiftT #[m, n];
+      monadLiftVal  ← synthesizeInst monadLiftType;
       u_1 ← getDecLevel α;
       u_2 ← getDecLevel eType;
       u_3 ← getDecLevel expectedType;
-      let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, hasMonadLiftVal, α, e];
+      let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e];
       eNewType ← inferType eNew;
       condM (isDefEq expectedType eNewType)
         (pure eNew) -- approach 2 worked
@@ -585,7 +583,7 @@ condM (isDefEq m n) (tryCoe expectedType eType e f?) $
           v ← getLevel β;
           let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst `CoeT [u, v]) #[α, mkBVar 0, β];
           coeTInstVal ← synthesizeInst coeTInstType;
-          let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, hasMonadLiftVal, coeTInstVal, monadInst, e];
+          let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e];
           eNewType ← inferType eNew;
           condM (isDefEq expectedType eNewType)
             (pure eNew) -- approach 3 worked

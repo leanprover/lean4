@@ -11,6 +11,8 @@ namespace Lean
 namespace Elab
 namespace Term
 
+open Meta
+
 structure ExtractMonadResult :=
 (m           : Expr)
 (α           : Expr)

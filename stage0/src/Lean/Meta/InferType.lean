@@ -75,7 +75,9 @@ matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=
 throwError $ "type expected " ++ indentExpr type
 
-protected def getLevel (type : Expr) : MetaM Level := do
+variables {m : Type → Type} [MonadLiftT MetaM m]
+
+private def getLevelImp (type : Expr) : MetaM Level := do
 typeType ← inferType type;
 typeType ← whnfD typeType;
 match typeType with
@@ -88,13 +90,16 @@ match typeType with
         pure lvl)
 | _ => throwTypeExcepted type
 
+def getLevel (type : Expr) : m Level :=
+liftMetaM $ getLevelImp type
+
 private def inferForallType (e : Expr) : MetaM Expr :=
 forallTelescope e $ fun xs e => do
-  lvl  ← Meta.getLevel e;
+  lvl  ← getLevel e;
   lvl  ← xs.foldrM
     (fun x lvl => do
       xType    ← inferType x;
-      xTypeLvl ← Meta.getLevel xType;
+      xTypeLvl ← getLevel xType;
       pure $ mkLevelIMax xTypeLvl lvl)
     lvl;
   pure $ mkSort lvl.normalize
@@ -150,11 +155,11 @@ private partial def inferTypeAux : Expr → MetaM Expr
 | e@(Expr.letE _ _ _ _ _)  => checkInferTypeCache e (inferLambdaType e)
 | Expr.localE _ _ _ _      => unreachable!
 
-def inferTypeImpl (e : Expr) : MetaM Expr :=
+def inferTypeImp (e : Expr) : MetaM Expr :=
 withTransparency TransparencyMode.default (inferTypeAux e)
 
 @[init] def setInferTypeRef : IO Unit :=
-inferTypeRef.set inferTypeImpl
+inferTypeRef.set inferTypeImp
 
 /--
   Return `LBool.true` if given level is always equivalent to universe level zero.
@@ -217,7 +222,7 @@ partial def isPropQuick : Expr → MetaM LBool
      to decide whether is a proposition or not. We return `false` in this
      case. We considered using `LBool` and retuning `LBool.undef`, but
      we have no applications for it. -/
-protected def isProp (e : Expr) : MetaM Bool := do
+private def isPropImp (e : Expr) : MetaM Bool := do
 r ← isPropQuick e;
 match r with
 | LBool.true  => pure true
@@ -229,6 +234,9 @@ match r with
   match type with
   | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
   | _             => pure false
+
+def isProp (e : Expr) : m Bool :=
+liftMetaM $ isPropImp e
 
 /--
   `isArrowProposition type n` is an "approximate" predicate which returns `LBool.true`
@@ -273,7 +281,7 @@ partial def isProofQuick : Expr → MetaM LBool
 | Expr.app f _ _        => isProofQuickApp isProofQuick f 1
 | Expr.localE _ _ _ _   => unreachable!
 
-protected def isProof (e : Expr) : MetaM Bool := do
+private def isProofImp (e : Expr) : MetaM Bool := do
 r ← isProofQuick e;
 match r with
 | LBool.true  => pure true
@@ -281,6 +289,9 @@ match r with
 | LBool.undef => do
   type ← inferType e;
   Meta.isProp type
+
+def isProof (e : Expr) : m Bool :=
+liftMetaM $ isProofImp e
 
 /--
   `isArrowType type n` is an "approximate" predicate which returns `LBool.true`
@@ -326,7 +337,7 @@ partial def isTypeQuick : Expr → MetaM LBool
 | Expr.app f _ _        => isTypeQuickApp f 1
 | Expr.localE _ _ _ _   => unreachable!
 
-protected def isType {m} [MonadMetaM m] (e : Expr) : m Bool := liftMetaM do
+private def isTypeImp (e : Expr) : m Bool := liftMetaM do
 r ← isTypeQuick e;
 match r with
 | LBool.true  => pure true
@@ -338,38 +349,28 @@ match r with
   | Expr.sort _ _ => pure true
   | _             => pure false
 
-protected partial def isTypeFormerType : Expr → MetaM Bool
+def isType (e : Expr) : m Bool :=
+liftMetaM $ isTypeImp e
+
+private partial def isTypeFormerTypeImp : Expr → MetaM Bool
 | type => do
   type ← whnfD type;
   match type with
   | Expr.sort _ _ => pure true
   | Expr.forallE n d b c =>
     withLocalDecl n c.binderInfo d $ fun fvar =>
-    isTypeFormerType (b.instantiate1 fvar)
+    isTypeFormerTypeImp (b.instantiate1 fvar)
   | _ => pure false
 
-end Meta
-
-def getLevel {m} [MonadMetaM m] (type : Expr) : m Level :=
-liftMetaM $ Meta.getLevel type
-
-def isProp {m} [MonadMetaM m] (e : Expr) : m Bool :=
-liftMetaM $ Meta.isProp e
-
-def isProof {m} [MonadMetaM m] (e : Expr) : m Bool :=
-liftMetaM $ Meta.isProof e
-
-def isType {m} [MonadMetaM m] (e : Expr) : m Bool :=
-liftMetaM $ Meta.isType e
-
-def isTypeFormerType {m} [MonadMetaM m] (e : Expr) : m Bool :=
-liftMetaM $ Meta.isTypeFormerType e
+def isTypeFormerType (e : Expr) : m Bool :=
+liftMetaM $ isTypeFormerTypeImp e
 
 /--
   Return true iff `e : Sort _` or `e : (forall As, Sort _)`.
   Remark: it subsumes `isType` -/
-def isTypeFormer {m} [MonadMetaM m] (e : Expr) : m Bool := liftMetaM do
+def isTypeFormer (e : Expr) : m Bool := liftMetaM do
 type ← inferType e;
 isTypeFormerType type
 
+end Meta
 end Lean

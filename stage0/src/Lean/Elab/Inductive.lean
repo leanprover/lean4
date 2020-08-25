@@ -15,6 +15,8 @@ namespace Lean
 namespace Elab
 namespace Command
 
+open Meta
+
 def checkValidInductiveModifier (modifiers : Modifiers) : CommandElabM Unit := do
 when modifiers.isNoncomputable $
   throwError "invalid use of 'noncomputable' in inductive declaration";

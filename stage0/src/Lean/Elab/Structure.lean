@@ -12,6 +12,8 @@ namespace Lean
 namespace Elab
 namespace Command
 
+open Meta
+
 /- Recall that the `structure command syntax is
 ```
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
@@ -216,7 +218,7 @@ private partial def processSubfields {α} (structDeclName : Name) (parentFVar : 
     env ← getEnv;
     when (containsFieldName infos subfieldName) $
       throwError ("field '" ++ subfieldName ++ "' from '" ++ parentStructName ++ "' has already been declared");
-    val  ← Term.liftMetaM $ Meta.mkProjection parentFVar subfieldName;
+    val  ← mkProjection parentFVar subfieldName;
     type ← inferType val;
     withLetDecl subfieldName type val fun subfieldFVar =>
       /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
@@ -493,7 +495,7 @@ liftTermElabM none $ withLCtx lctx localInsts do
   setMCtx mctx;
   defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
     /- The identity function is used as "marker". -/
-    value ← Term.liftMetaM $ Meta.mkId value;
+    value ← mkId value;
     let zeta := true; -- expand `let-declarations`
     _ ← mkAuxDefinition declName type value zeta;
     modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;

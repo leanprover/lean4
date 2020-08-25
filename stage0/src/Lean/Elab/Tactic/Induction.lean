@@ -13,6 +13,8 @@ namespace Lean
 namespace Elab
 namespace Tactic
 
+open Meta
+
 -- Recall that
 -- majorPremise := parser! optional (try (ident >> " : ")) >> termParser
 
@@ -264,7 +266,7 @@ else do
     [];
   setGoals gs
 
-@[builtinTactic «induction»] def evalInduction : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic :=
 fun stx => focusAux $ do
   let h? := getAuxHypothesisName stx;
   major ← elabMajor h? (getMajor stx);
@@ -301,7 +303,7 @@ private partial def checkCasesResultAux (casesResult : Array Meta.CasesSubgoal) 
 private def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax) : TacticM Unit :=
 unless altRHSs.isEmpty $ checkCasesResultAux casesResult ctorNames altRHSs 0 0
 
-@[builtinTactic «cases»] def evalCases : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic :=
 fun stx => focusAux $ do
   -- parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
   let h? := getAuxHypothesisName stx;

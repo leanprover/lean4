@@ -10,6 +10,9 @@ import Lean.Elab.Binders
 namespace Lean
 namespace Elab
 namespace Term
+
+open Meta
+
 /--
   Auxiliary inductive datatype for combining unelaborated syntax
   and already elaborated expressions. It is used to elaborate applications. -/

@@ -521,12 +521,12 @@ If `eType` is of the form `m α`. We use the following approaches.
 
 2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
   ```
-  liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : HasMonadLiftT m n] {α : Type u_1}, m α → n α
+  liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : MonadLiftT m n] {α : Type u_1}, m α → n α
   ```
 
 3- If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
   ```
-  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [HasMonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
+  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
   ```
 
 Note that approach 3 does not subsume 1 because it is only applicable if there is a coercion from `α` to `β` for all values in `α`.
@@ -568,12 +568,12 @@ condM (isDefEq m n) (tryCoe expectedType eType e f?) $
   catch
     (do
       -- Construct lift from `m` to `n`
-      hasMonadLiftType ← mkAppM `HasMonadLiftT #[m, n];
-      hasMonadLiftVal  ← synthesizeInst hasMonadLiftType;
+      monadLiftType ← mkAppM `MonadLiftT #[m, n];
+      monadLiftVal  ← synthesizeInst monadLiftType;
       u_1 ← getDecLevel α;
       u_2 ← getDecLevel eType;
       u_3 ← getDecLevel expectedType;
-      let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, hasMonadLiftVal, α, e];
+      let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e];
       eNewType ← inferType eNew;
       condM (isDefEq expectedType eNewType)
         (pure eNew) -- approach 2 worked
@@ -582,7 +582,7 @@ condM (isDefEq m n) (tryCoe expectedType eType e f?) $
           v ← getLevel β;
           let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst `CoeT [u, v]) #[α, mkBVar 0, β];
           coeTInstVal ← synthesizeInst coeTInstType;
-          let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, hasMonadLiftVal, coeTInstVal, monadInst, e];
+          let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e];
           eNewType ← inferType eNew;
           condM (isDefEq expectedType eNewType)
             (pure eNew) -- approach 3 worked

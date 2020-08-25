@@ -160,9 +160,6 @@ monadMap @f
 instance SynthM.inhabited {α} : Inhabited (SynthM α) :=
 ⟨fun _ => arbitrary _⟩
 
-@[inline] def withMCtx {α} (mctx : MetavarContext) (x : SynthM α) : SynthM α :=
-mapMetaM (fun α => Meta.withMCtx mctx) x
-
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) :=
 forallTelescopeReducing type $ fun _ type => do
@@ -314,13 +311,13 @@ forallTelescopeReducing mvarType $ fun xs mvarTypeBody => do
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
-liftM $ traceCtx `Meta.synthInstance.tryResolve $ Meta.withMCtx mctx $ tryResolveCore mvar inst
+liftM $ traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar inst
 
 /--
   Assign a precomputed answer to `mvar`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals. -/
 def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option MetavarContext) :=
-liftM $ Meta.withMCtx mctx $ do
+liftM $ withMCtx mctx $ do
   (_, _, val) ← openAbstractMVarsResult answer.result;
   condM (isDefEq mvar val)
     (do mctx ← getMCtx; pure $ some mctx)
@@ -344,7 +341,7 @@ oldAnswers.all $ fun oldAnswer => do
   oldAnswer.resultType != answer.resultType
 
 private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
-Meta.withMCtx cNode.mctx do
+withMCtx cNode.mctx do
   traceM `Meta.synthInstance.newAnswer $ do { mvarType ← inferType cNode.mvar; pure mvarType };
   val ← instantiateMVars cNode.mvar;
   result ← abstractMVars val; -- assignable metavariables become parameters
@@ -422,7 +419,7 @@ match cNode.subgoals with
   match result? with
   | none      => pure ()
   | some mctx => do
-    liftM $ Meta.withMCtx mctx $ traceM `Meta.synthInstance.resume $ do {
+    withMCtx mctx $ traceM `Meta.synthInstance.resume $ do {
       goal    ← inferType cNode.mvar;
       subgoal ← inferType mvar;
       pure (goal ++ " <== " ++ subgoal)
@@ -532,7 +529,7 @@ registerOption `synthInstance.maxSteps { defValue := (10000 : Nat), group := "",
 private def getMaxSteps (opts : Options) : Nat :=
 opts.getNat `synthInstance.maxSteps 10000
 
-def synthInstance? (type : Expr) : MetaM (Option Expr) := do
+def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := do
 opts ← getOptions;
 let fuel := getMaxSteps opts;
 inputConfig ← getConfig;
@@ -575,14 +572,14 @@ withConfig (fun config => { config with transparency := TransparencyMode.reducib
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
-def trySynthInstance (type : Expr) : MetaM (LOption Expr) :=
+def trySynthInstanceImp (type : Expr) : MetaM (LOption Expr) :=
 adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with isDefEqStuckEx := true } }) $
   catchInternalId isDefEqStuckExceptionId
-    (toLOptionM $ synthInstance? type)
+    (toLOptionM $ synthInstanceImp? type)
     (fun _ => pure LOption.undef)
 
-def synthInstance (type : Expr) : MetaM Expr := do
-result? ← synthInstance? type;
+def synthInstanceImp (type : Expr) : MetaM Expr := do
+result? ← synthInstanceImp? type;
 match result? with
 | some result => pure result
 | none        => throwError $ "failed to synthesize" ++ indentExpr type
@@ -595,7 +592,7 @@ match mvarDecl.kind with
   match c? with
   | none   => pure false
   | some _ => do
-    val? ← synthInstance? mvarDecl.type;
+    val? ← synthInstanceImp? mvarDecl.type;
     match val? with
     | none     => pure false
     | some val =>
@@ -616,4 +613,19 @@ registerTraceClass `Meta.synthInstance.resume;
 registerTraceClass `Meta.synthInstance.generate
 
 end Meta
+
+section Methods
+variables {m : Type → Type} [MonadMetaM m]
+
+def synthInstance? (type : Expr) : m (Option Expr) :=
+liftMetaM $ Meta.synthInstanceImp? type
+
+def trySynthInstance (type : Expr) : m (LOption Expr) :=
+liftMetaM $ Meta.trySynthInstanceImp type
+
+def synthInstance (type : Expr) : m Expr :=
+liftMetaM $ Meta.synthInstanceImp type
+
+end Methods
+
 end Lean

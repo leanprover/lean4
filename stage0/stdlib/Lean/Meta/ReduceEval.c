@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Meta_reduceEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__1;
 lean_object* l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__2;
 lean_object* l_Lean_Meta_Nat_hasReduceEval(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32,6 +31,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat___main(lean_object*);
 extern lean_object* l___private_Lean_Syntax_9__quoteOption___rarg___closed__6;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Lean_Meta_Option_hasReduceEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_String_hasReduceEval(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -238,7 +238,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 
@@ -370,7 +370,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_8 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 
@@ -920,7 +920,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-x_7 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 
@@ -1113,7 +1113,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_13 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_13 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 
@@ -1244,7 +1244,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_40 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_40 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_40) == 0)
 {
 uint8_t x_41; 
@@ -1395,7 +1395,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_76 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_76 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 
@@ -1499,7 +1499,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_94 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_94 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_94) == 0)
 {
 lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; 
@@ -1636,7 +1636,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_124);
-x_125 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_124, x_3, x_4, x_5, x_6);
+x_125 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_124, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_125) == 0)
 {
 lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; 
@@ -1747,7 +1747,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_143);
-x_144 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_143, x_3, x_4, x_5, x_6);
+x_144 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_143, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_144) == 0)
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; 
@@ -1863,7 +1863,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-x_13 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_13 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 
@@ -2041,7 +2041,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-x_48 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_48 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_48) == 0)
 {
 uint8_t x_49; 
@@ -2239,7 +2239,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-x_92 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_92 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_92) == 0)
 {
 lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
@@ -2368,7 +2368,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-x_114 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_114 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_114) == 0)
 {
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; 
@@ -2530,7 +2530,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_148);
 lean_inc(x_1);
-x_149 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_148, x_3, x_4, x_5, x_6);
+x_149 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_148, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_149) == 0)
 {
 lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; 
@@ -2666,7 +2666,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_171);
 lean_inc(x_1);
-x_172 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_171, x_3, x_4, x_5, x_6);
+x_172 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_171, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_172) == 0)
 {
 lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; 
@@ -2846,7 +2846,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 

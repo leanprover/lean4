@@ -255,9 +255,6 @@ catch x (fun ex => match ex with
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
-def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
-_root_.dbgTrace (toString a) $ fun _ => pure ()
-
 def getCurrNamespace : CommandElabM Name := do
 scope ← getScope; pure scope.currNamespace
 
@@ -563,8 +560,8 @@ fun stx => withoutModifyingEnv do
     act : IO Environment ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
       Term.synthesizeSyntheticMVars false;
-        e ← Term.withLocalDecl `env BinderInfo.default (mkConst `Lean.Environment) fun env =>
-          Term.withLocalDecl `opts BinderInfo.default (mkConst `Lean.Options) fun opts => do {
+        e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
+          withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do {
             e ← Term.mkAppM `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
             mkLambdaFVars #[env, opts] e
           };
@@ -615,7 +612,7 @@ fun stx => do
     inst ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
     inst ← instantiateMVars inst;
-    val  ← Term.liftMetaM $ Meta.synthInstance inst;
+    val  ← synthInstance inst;
     logInfo val;
     pure ()
 

@@ -55,7 +55,6 @@ lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4;
 lean_object* l_Std_PersistentHashMap_findAux___main___at___private_Lean_Meta_DiscrTree_16__getStarResult___spec__2___rarg(lean_object*, size_t, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_Meta_DiscrTree_insertCore___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_17__getUnifyAux___main___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_DiscrTree_17__getUnifyAux___main___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_insertCore___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_ctorIdx(lean_object*);
@@ -159,6 +158,7 @@ lean_object* l_Lean_Meta_DiscrTree_Trie_format___main(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_16__getStarResult___rarg(lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_15__getMatchAux___main___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_17__getUnifyAux___main(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_15__getMatchAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_9__createNodes___rarg(lean_object*, lean_object*, lean_object*);
@@ -1076,7 +1076,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_whnf___at_Lean_Meta_isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_whnf___at___private_Lean_Meta_Basic_14__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 

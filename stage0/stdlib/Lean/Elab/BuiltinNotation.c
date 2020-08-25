@@ -42,6 +42,7 @@ lean_object* l_Lean_Elab_Term_elabBAnd___closed__1;
 extern lean_object* l_Lean_Meta_mkLt___closed__4;
 extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabBAnd___closed__1;
+lean_object* l_Lean_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_BuiltinNotation_1__elabParserMacroAux___closed__29;
 extern lean_object* l_Lean_Parser_Term_sub___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_expandIf___closed__5;
@@ -259,7 +260,6 @@ lean_object* l___private_Lean_Elab_BuiltinNotation_5__getPropToDecide___closed__
 lean_object* l___private_Lean_Elab_BuiltinNotation_1__elabParserMacroAux___closed__18;
 extern lean_object* l_Lean_Parser_Term_sub___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_BuiltinNotation_1__elabParserMacroAux___closed__15;
-lean_object* l_Lean_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabNativeRefl___closed__4;
 lean_object* l___private_Lean_Elab_BuiltinNotation_1__elabParserMacroAux___closed__30;
 extern lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__37;
@@ -5514,7 +5514,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_14);
-x_16 = l_Lean_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__1(x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_15);
+x_16 = l_Lean_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 

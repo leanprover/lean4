@@ -139,10 +139,10 @@ private partial def elabBinderViews (binderViews : Array BinderView)
       className? â† isClass? type;
       match className? with
       | none           => elabBinderViews (i+1) fvars lctx localInsts
-      | some className => do
-        resetSynthInstanceCache;
-        let localInsts := localInsts.push { className := className, fvar := mkFVar fvarId };
-        elabBinderViews (i+1) fvars lctx localInsts
+      | some className =>
+        resettingSynthInstanceCache do
+          let localInsts := localInsts.push { className := className, fvar := mkFVar fvarId };
+          elabBinderViews (i+1) fvars lctx localInsts
   else
     pure (fvars, lctx, localInsts)
 
@@ -331,9 +331,9 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat â†
       match className? with
       | none           => elabFunBinderViews (i+1) s
       | some className => do
-        resetSynthInstanceCache;
-        let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId };
-        elabFunBinderViews (i+1) { s with localInsts := localInsts }
+        resettingSynthInstanceCache do
+          let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId };
+          elabFunBinderViews (i+1) { s with localInsts := localInsts }
   else
     pure s
 

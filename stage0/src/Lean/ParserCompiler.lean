@@ -36,7 +36,7 @@ open Meta
 partial def compileParserBody {α} (ctx : Context α) : Expr → MetaM Expr | e => do
 e ← whnfCore e;
 match e with
-| e@(Expr.lam _ _ _ _)     => Meta.lambdaTelescope e fun xs b => compileParserBody b >>= mkLambdaFVars xs
+| e@(Expr.lam _ _ _ _)     => lambdaTelescope e fun xs b => compileParserBody b >>= mkLambdaFVars xs
 | e@(Expr.fvar _ _)        => pure e
 | _ => do
   let fn := e.getAppFn;
@@ -47,10 +47,10 @@ match e with
   -- of type `ty` (i.e. formerly `Parser`)
   let mkCall (p : Name) := do {
     ty ← inferType (mkConst p);
-    Meta.forallTelescope ty fun params _ =>
+    forallTelescope ty fun params _ =>
       params.foldlM₂ (fun p param arg => do
         paramTy ← inferType param;
-        resultTy ← Meta.forallTelescope paramTy fun _ b => pure b;
+        resultTy ← forallTelescope paramTy fun _ b => pure b;
         arg ← if resultTy.isConstOf ctx.tyName then compileParserBody arg
           else pure arg;
         pure $ mkApp p arg)
@@ -63,16 +63,16 @@ match e with
   | none   => do
     let c' := c ++ ctx.varName;
     cinfo ← getConstInfo c;
-    resultTy ← Meta.forallTelescope cinfo.type fun _ b => pure b;
+    resultTy ← forallTelescope cinfo.type fun _ b => pure b;
     if resultTy.isConstOf `Lean.Parser.TrailingParser || resultTy.isConstOf `Lean.Parser.Parser then do
       -- synthesize a new `[combinatorAttr c]`
       some value ← pure cinfo.value?
         | throwError $ "don't know how to generate " ++ ctx.varName ++ " for non-definition '" ++ toString e ++ "'";
       value ← compileParserBody $ preprocessParserBody ctx value;
-      ty ← Meta.forallTelescope cinfo.type fun params _ =>
+      ty ← forallTelescope cinfo.type fun params _ =>
         params.foldrM (fun param ty => do
           paramTy ← inferType param;
-          paramTy ← Meta.forallTelescope paramTy fun _ b => pure $
+          paramTy ← forallTelescope paramTy fun _ b => pure $
             if b.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName
             else b;
           pure $ mkForall `_ BinderInfo.default paramTy ty)

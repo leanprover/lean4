@@ -171,7 +171,7 @@ private def throwCtorExpected {α} : M α :=
 throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
 
 private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat :=
-liftMetaM $ Meta.forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
+forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
   ps.foldlM
     (fun acc p => do
       localDecl ← getLocalDecl p.fvarId!;
@@ -549,8 +549,8 @@ withPatternVars patternVars fun patternVarDecls => do
     pure (altLHS, rhs)
 
 def mkMotiveType (matchType : Expr) (expectedType : Expr) : TermElabM Expr := do
-liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => do
-  u ← Meta.getLevel matchType;
+forallTelescopeReducing matchType fun xs matchType => do
+  u ← liftM $ Meta.getLevel matchType;
   mkForallFVars xs (mkSort u)
 
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : TermElabM ElimResult :=
@@ -573,7 +573,7 @@ alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 let rhss := alts.map Prod.snd;
 let altLHSS := alts.map Prod.fst;
 motiveType ← mkMotiveType matchType expectedType;
-motive ← liftMetaM $ Meta.forallTelescopeReducing matchType fun xs matchType => mkLambdaFVars xs matchType;
+motive ← forallTelescopeReducing matchType fun xs matchType => mkLambdaFVars xs matchType;
 elimName ← mkAuxName `elim;
 elimResult ← mkElim elimName motiveType altLHSS.toList;
 reportElimResultErrors elimResult;

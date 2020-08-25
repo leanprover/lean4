@@ -6294,26 +6294,29 @@ return x_1;
 lean_object* l_Lean_Meta_kabstract___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_5 = l_Lean_Expr_toHeadIndex___main(x_3);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_3, x_6);
-x_8 = lean_alloc_closure((void*)(l_Lean_Meta_kabstract___rarg___lambda__2___boxed), 11, 5);
-lean_closure_set(x_8, 0, x_4);
-lean_closure_set(x_8, 1, x_3);
-lean_closure_set(x_8, 2, x_5);
-lean_closure_set(x_8, 3, x_7);
-lean_closure_set(x_8, 4, x_2);
-x_9 = l_Lean_Meta_kabstract___rarg___closed__2;
-x_10 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_getLCtx___spec__2___rarg), 7, 2);
-lean_closure_set(x_10, 0, x_9);
-lean_closure_set(x_10, 1, x_8);
-x_11 = l_Lean_Meta_kabstract___rarg___closed__3;
-x_12 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_getLCtx___spec__2___rarg), 7, 2);
-lean_closure_set(x_12, 0, x_10);
-lean_closure_set(x_12, 1, x_11);
-x_13 = lean_apply_2(x_1, lean_box(0), x_12);
-return x_13;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = l_Lean_Expr_toHeadIndex___main(x_3);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_3, x_7);
+x_9 = lean_alloc_closure((void*)(l_Lean_Meta_kabstract___rarg___lambda__2___boxed), 11, 5);
+lean_closure_set(x_9, 0, x_4);
+lean_closure_set(x_9, 1, x_3);
+lean_closure_set(x_9, 2, x_6);
+lean_closure_set(x_9, 3, x_8);
+lean_closure_set(x_9, 4, x_2);
+x_10 = l_Lean_Meta_kabstract___rarg___closed__2;
+x_11 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_getLCtx___spec__2___rarg), 7, 2);
+lean_closure_set(x_11, 0, x_10);
+lean_closure_set(x_11, 1, x_9);
+x_12 = l_Lean_Meta_kabstract___rarg___closed__3;
+x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_getLCtx___spec__2___rarg), 7, 2);
+lean_closure_set(x_13, 0, x_11);
+lean_closure_set(x_13, 1, x_12);
+x_14 = lean_apply_2(x_5, lean_box(0), x_13);
+return x_14;
 }
 }
 lean_object* l_Lean_Meta_kabstract(lean_object* x_1) {

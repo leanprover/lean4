@@ -41,7 +41,7 @@ private partial def withNewIndexEqsAux {α} (indices newIndices : Array Expr) (k
     let index    := indices.get! i;
     let newIndex := newIndices.get! i;
     (newEqType, newRefl) ← mkEqAndProof index newIndex;
-    withLocalDecl `h newEqType BinderInfo.default $ fun newEq => do
+    withLocalDeclD `h newEqType $ fun newEq => do
     withNewIndexEqsAux (i+1) (newEqs.push newEq) (newRefls.push newRefl)
   else
     k newEqs newRefls
@@ -90,11 +90,11 @@ withMVarContext mvarId $ do
       IAType ← inferType IA;
       forallTelescopeReducing IAType $ fun newIndices _ => do
       let newType := mkAppN IA newIndices;
-      withLocalDecl fvarDecl.userName newType BinderInfo.default $ fun h' =>
+      withLocalDeclD fvarDecl.userName newType $ fun h' =>
       withNewIndexEqs indices newIndices $ fun newEqs newRefls => do
       (newEqType, newRefl) ← mkEqAndProof fvarDecl.toExpr h';
       let newRefls := newRefls.push newRefl;
-      withLocalDecl `h newEqType BinderInfo.default $ fun newEq => do
+      withLocalDeclD `h newEqType $ fun newEq => do
       let newEqs := newEqs.push newEq;
       /- auxType `forall (j' : J) (h' : I A j'), j == j' -> h == h' -> target -/
       target  ← getMVarType mvarId;
@@ -102,7 +102,7 @@ withMVarContext mvarId $ do
       auxType ← mkForallFVars newEqs target;
       auxType ← mkForallFVars #[h'] auxType;
       auxType ← mkForallFVars newIndices auxType;
-      newMVar ← mkFreshExprMVarAt lctx localInsts auxType tag MetavarKind.syntheticOpaque;
+      newMVar ← mkFreshExprMVarAt lctx localInsts auxType MetavarKind.syntheticOpaque tag;
       /- assign mvarId := newMVar indices h refls -/
       assignExprMVar mvarId (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls);
       (indicesFVarIds, newMVarId) ← introN newMVar.mvarId! newIndices.size [] false;

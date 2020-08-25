@@ -35,7 +35,7 @@ partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Exp
   if h : i < entries.size then
     let replace (e : Expr) (type : Expr) : MetaM α := do {
       let userName := prefixForNewVars.appendIndexAfter nextVarIdx;
-      withLocalDecl userName type BinderInfo.default $ fun x => do
+      withLocalDeclD userName type $ fun x => do
         entries ← updateTypes e x entries (i+1);
         generalizeTelescopeAux entries (i+1) (nextVarIdx+1) (fvars.push x)
     };

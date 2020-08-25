@@ -88,7 +88,7 @@ withMVarContext mvarId $ do
                     `newType` is type correct because `h` and `hAux.symm` are definitionally equal by proof irrelevance.
                  3- Create motive by abstracting `a` and `hAux` in `newType`. -/
               hAuxType ← mkEq b a;
-              motive ← withLocalDecl `_h hAuxType BinderInfo.default $ fun hAux => do {
+              motive ← withLocalDeclD `_h hAuxType $ fun hAux => do {
                 hAuxSymm ← mkEqSymm hAux;
                 /- replace h in type with hAuxSymm -/
                 let newType := type.replaceFVar h hAuxSymm;

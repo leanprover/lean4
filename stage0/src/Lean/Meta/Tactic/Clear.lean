@@ -28,7 +28,7 @@ withMVarContext mvarId $ do
   let localInsts := match localInsts.findIdx? $ fun localInst => localInst.fvar.fvarId! == fvarId with
     | none => localInsts
     | some idx => localInsts.eraseIdx idx;
-  newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type tag MetavarKind.syntheticOpaque;
+  newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type MetavarKind.syntheticOpaque tag;
   assignExprMVar mvarId newMVar;
   pure newMVar.mvarId!
 

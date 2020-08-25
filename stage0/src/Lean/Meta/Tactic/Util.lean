@@ -23,7 +23,7 @@ tag ← getMVarTag mvarId;
 setMVarTag mvarId (tag ++ suffix)
 
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
-mkFreshExprMVar type userName MetavarKind.syntheticOpaque
+mkFreshExprMVar type MetavarKind.syntheticOpaque userName
 
 def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α :=
 throwError $ "tactic '" ++ tacticName ++ "' failed, " ++ msg ++ Format.line ++ MessageData.ofGoal mvarId

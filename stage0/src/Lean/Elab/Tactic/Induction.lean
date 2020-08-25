@@ -206,7 +206,7 @@ else do
   if withAlts.isNone then pure { recName := recName }
   else do
     let alts := getAlts withAlts;
-    paramNames ← liftMetaMAtMain $ fun _ => Meta.getParamNames recInfo.recursorName;
+    paramNames ← liftMetaMAtMain $ fun _ => getParamNames recInfo.recursorName;
     (altVars, altRHSs, remainingAlts, _) ← paramNames.size.foldM
       (fun (i : Nat) (result : Array (List Name) × Array Syntax × Array Syntax × Option Syntax) =>
         if recInfo.isMinor i then

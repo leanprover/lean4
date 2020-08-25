@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 
@@ -54,3 +54,6 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateRefT' ω σ m) :=
   catch := fun α x c s => catchThe ε (x s) (fun e => c e s) }
 
 end StateRefT'
+
+instance monadControlStateRefT' (ω σ : Type) (m : Type → Type) : MonadControl m (StateRefT' ω σ m) :=
+inferInstanceAs (MonadControl m (ReaderT _ _))

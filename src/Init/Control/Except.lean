@@ -7,7 +7,7 @@ The Except monad transformer.
 -/
 prelude
 import Init.Control.Alternative
-import Init.Control.Lift
+import Init.Control.MonadControl
 import Init.Data.ToString
 universes u v w u'
 
@@ -208,3 +208,9 @@ r ← catch (Except.ok <$> x) (fun ex => @pure m _ _ $ Except.error ex);
 match r with
 | Except.ok a => finalizer *> pure a
 | Except.error e => finalizer *> throw e
+
+instance monadControlExcept (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) := {
+  stM      := fun α   => Except ε α,
+  liftWith := fun α f => liftM $ f fun β x => x.run,
+  restoreM := fun α x => x,
+}

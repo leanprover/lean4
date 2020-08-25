@@ -7,7 +7,7 @@ The State monad transformer.
 -/
 prelude
 import Init.Control.Alternative
-import Init.Control.Lift
+import Init.Control.MonadControl
 import Init.Control.Id
 import Init.Control.Except
 universes u v w
@@ -215,3 +215,9 @@ instance monadStateRunnerTrans {n n' : Type u → Type u} [MonadStateRunner σ m
 instance StateT.MonadStateRunner [Monad m] : MonadStateRunner σ (StateT σ m) m :=
 ⟨fun α x s => Prod.fst <$> x s⟩
 end
+
+instance monadControlState (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) := {
+  stM      := fun α   => α × σ,
+  liftWith := fun α f => do s ← get; liftM (f (fun β x => x.run s)),
+  restoreM := fun α x => do (a, s) ← liftM x; set s; pure a
+}

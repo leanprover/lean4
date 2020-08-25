@@ -7,7 +7,7 @@ The Reader monad transformer for passing immutable State.
 -/
 
 prelude
-import Init.Control.Lift
+import Init.Control.MonadControl
 import Init.Control.Id
 import Init.Control.Alternative
 import Init.Control.Except
@@ -164,3 +164,9 @@ instance monadReaderRunnerTrans {n n' : Type u → Type u} [MonadReaderRunner ρ
 instance ReaderT.MonadStateRunner [Monad m] : MonadReaderRunner ρ (ReaderT ρ m) m :=
 ⟨fun α x r => x r⟩
 end
+
+instance monadControlReader (ρ : Type u) (m : Type u → Type v) : MonadControl m (ReaderT ρ m) := {
+  stM      := fun α       => α,
+  liftWith := fun α f ctx => f fun β x => x ctx,
+  restoreM := fun α x ctx => x,
+}

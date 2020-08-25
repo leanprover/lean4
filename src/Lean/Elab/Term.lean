@@ -153,9 +153,8 @@ finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
 Term.liftMetaM $ liftM x
 
-instance : MonadMetaM TermElabM :=
-{ liftMetaM := fun α => Term.liftMetaM,
-  mapMetaM  := fun α => mapMetaM }
+instance : MonadLiftT MetaM TermElabM :=
+⟨fun α => Term.liftMetaM⟩
 
 def getLevelNames : TermElabM (List Name) := do ctx ← read; pure ctx.levelNames
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do

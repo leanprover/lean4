@@ -10,7 +10,7 @@ import Lean.Meta.Check
 
 namespace Lean
 
-variables {m : Type → Type} [MonadMetaM m]
+variables {m : Type → Type} [MonadLiftT MetaM m]
 
 private def mkIdImp (e : Expr) : MetaM Expr := do
 type ← inferType e;

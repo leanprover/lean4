@@ -167,7 +167,7 @@ match e.getAppFn with
 end Meta
 
 section Methods
-variables {m : Type → Type} [MonadMetaM m]
+variables {m : Type → Type} [MonadLiftT MetaM m]
 
 @[inline] def isAuxDef? (constName : Name) : m Bool :=
 liftMetaM $ Meta.isAuxDef? constName
@@ -181,12 +181,12 @@ liftMetaM $ Meta.whnfCore e
 @[inline] def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : m Expr :=
 liftMetaM $ Meta.whnfHeadPredAux pred e
 
-def whnfUntil {m} [MonadMetaM m] (e : Expr) (declName : Name) : m (Option Expr) := liftMetaM do
+def whnfUntil (e : Expr) (declName : Name) : m (Option Expr) := liftMetaM do
 e ← Meta.whnfHeadPredAux (fun e => pure $ !e.isAppOf declName) e;
 if e.isAppOf declName then pure e
 else pure none
 
-def getStuckMVar? {m} [MonadMetaM m] (e : Expr) : m (Option MVarId) := liftMetaM do
+def getStuckMVar? (e : Expr) : m (Option MVarId) := liftMetaM do
 WHNF.getStuckMVar? Meta.getConst? whnf e
 
 end Methods

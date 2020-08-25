@@ -615,7 +615,7 @@ registerTraceClass `Meta.synthInstance.generate
 end Meta
 
 section Methods
-variables {m : Type → Type} [MonadMetaM m]
+variables {m : Type → Type} [MonadLiftT MetaM m]
 
 def synthInstance? (type : Expr) : m (Option Expr) :=
 liftMetaM $ Meta.synthInstanceImp? type

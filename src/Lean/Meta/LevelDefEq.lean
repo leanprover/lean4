@@ -234,7 +234,7 @@ end Meta
 
 /- Public interface -/
 section Methods
-variables {m : Type → Type} [MonadMetaM m]
+variables {m : Type → Type} [MonadLiftT MetaM m]
 
 def decLevel? (u : Level) : m (Option Level) :=
 liftMetaM $ Meta.decLevel? u

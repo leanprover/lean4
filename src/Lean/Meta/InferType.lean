@@ -326,7 +326,9 @@ partial def isTypeQuick : Expr → MetaM LBool
 | Expr.app f _ _        => isTypeQuickApp f 1
 | Expr.localE _ _ _ _   => unreachable!
 
-protected def isType {m} [MonadMetaM m] (e : Expr) : m Bool := liftMetaM do
+variables {m : Type → Type} [MonadLiftT MetaM m]
+
+protected def isType (e : Expr) : m Bool := liftMetaM do
 r ← isTypeQuick e;
 match r with
 | LBool.true  => pure true
@@ -350,25 +352,27 @@ protected partial def isTypeFormerType : Expr → MetaM Bool
 
 end Meta
 
-def getLevel {m} [MonadMetaM m] (type : Expr) : m Level :=
+variables {m : Type → Type} [MonadLiftT MetaM m]
+
+def getLevel (type : Expr) : m Level :=
 liftMetaM $ Meta.getLevel type
 
-def isProp {m} [MonadMetaM m] (e : Expr) : m Bool :=
+def isProp (e : Expr) : m Bool :=
 liftMetaM $ Meta.isProp e
 
-def isProof {m} [MonadMetaM m] (e : Expr) : m Bool :=
+def isProof (e : Expr) : m Bool :=
 liftMetaM $ Meta.isProof e
 
-def isType {m} [MonadMetaM m] (e : Expr) : m Bool :=
+def isType (e : Expr) : m Bool :=
 liftMetaM $ Meta.isType e
 
-def isTypeFormerType {m} [MonadMetaM m] (e : Expr) : m Bool :=
+def isTypeFormerType (e : Expr) : m Bool :=
 liftMetaM $ Meta.isTypeFormerType e
 
 /--
   Return true iff `e : Sort _` or `e : (forall As, Sort _)`.
   Remark: it subsumes `isType` -/
-def isTypeFormer {m} [MonadMetaM m] (e : Expr) : m Bool := liftMetaM do
+def isTypeFormer (e : Expr) : m Bool := liftMetaM do
 type ← inferType e;
 isTypeFormerType type
 

@@ -34,7 +34,7 @@ private partial def kabstractAux (occs : Occurrences) (p : Expr) (pHeadIdx : Hea
   else
     visitChildren ()
 
-def kabstract {m} [MonadMetaM m] (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : m Expr := liftMetaM do
+def kabstract {m} [MonadLiftT MetaM m] (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : m Expr := liftMetaM do
 (kabstractAux occs p p.toHeadIndex p.headNumArgs e 0).run' 1
 
 end Meta

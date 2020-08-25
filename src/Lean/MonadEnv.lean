@@ -15,7 +15,7 @@ class MonadEnv (m : Type → Type) :=
 
 export MonadEnv (getEnv modifyEnv)
 
-instance monadEnvFromLift (m n) [MonadEnv m] [HasMonadLift m n] : MonadEnv n :=
+instance monadEnvFromLift (m n) [MonadEnv m] [MonadLift m n] : MonadEnv n :=
 { getEnv    := liftM (getEnv : m Environment),
   modifyEnv := fun f => liftM (modifyEnv f : m Unit) }
 

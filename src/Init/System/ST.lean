@@ -18,7 +18,7 @@ instance (σ : Type) : Monad (ST σ) := inferInstanceAs (Monad (EST _ _))
 -- Auxiliary class for inferring the "state" of `EST` and `ST` monads
 class STWorld (σ : outParam Type) (m : Type → Type)
 
-instance STWorld.trans {σ m n} [STWorld σ m] [HasMonadLift m n] : STWorld σ n := ⟨⟩
+instance STWorld.trans {σ m n} [STWorld σ m] [MonadLift m n] : STWorld σ n := ⟨⟩
 instance STWorld.base {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
 
 def runEST {ε α : Type} (x : forall (σ : Type), EST ε σ α) : Except ε α :=
@@ -31,7 +31,7 @@ match x Unit () with
 | EStateM.Result.ok a _     => a
 | EStateM.Result.error ex _ => Empty.rec _ ex
 
-instance st2est {ε σ} : HasMonadLift (ST σ) (EST ε σ) :=
+instance st2est {ε σ} : MonadLift (ST σ) (EST ε σ) :=
 ⟨fun α x s => match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex _ => Empty.rec _ ex⟩
@@ -91,7 +91,7 @@ pure b
 end Prim
 
 section
-variables {σ : Type} {m : Type → Type} [Monad m] [HasMonadLiftT (ST σ) m]
+variables {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
 
 @[inline] def mkRef {α : Type} (a : α) : m (Ref σ α) :=  liftM $ Prim.mkRef a
 @[inline] def Ref.get {α : Type} (r : Ref σ α) : m α := liftM $ Prim.Ref.get r

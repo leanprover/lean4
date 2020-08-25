@@ -104,10 +104,10 @@ ExceptT.mk $ x >>= fun a => match a with
 @[inline] protected def lift {α : Type u} (t : m α) : ExceptT ε m α :=
 ExceptT.mk $ Except.ok <$> t
 
-instance exceptTOfExcept : HasMonadLift (Except ε) (ExceptT ε m) :=
+instance exceptTOfExcept : MonadLift (Except ε) (ExceptT ε m) :=
 ⟨fun α e => ExceptT.mk $ pure e⟩
 
-instance : HasMonadLift m (ExceptT ε m) :=
+instance : MonadLift m (ExceptT ε m) :=
 ⟨@ExceptT.lift _ _ _⟩
 
 @[inline] protected def catch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=

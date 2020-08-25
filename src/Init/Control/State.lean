@@ -67,7 +67,7 @@ fun s => pure (f s)
 @[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
 fun s => do a ← t; pure (a, s)
 
-instance : HasMonadLift m (StateT σ m) :=
+instance : MonadLift m (StateT σ m) :=
 ⟨@StateT.lift σ m _⟩
 
 instance (σ m m') [Monad m] [Monad m'] : MonadFunctor m m' (StateT σ m) (StateT σ m') :=
@@ -136,7 +136,7 @@ modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
-instance monadStateTrans {n : Type u → Type w} [MonadStateOf σ m] [HasMonadLift m n] : MonadStateOf σ n :=
+instance monadStateTrans {n : Type u → Type w} [MonadStateOf σ m] [MonadLift m n] : MonadStateOf σ n :=
 { get       := monadLift (MonadStateOf.get : m _),
   set       := fun st => monadLift (MonadStateOf.set st : m _),
   modifyGet := fun α f => monadLift (MonadState.modifyGet f : m _) }

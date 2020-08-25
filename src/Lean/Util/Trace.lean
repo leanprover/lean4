@@ -109,7 +109,7 @@ instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [Mon
   trace    := @MonadTracerAdapter.trace _ _ _,
   traceM   := @MonadTracerAdapter.traceM _ _ _ }
 
-instance liftMonadTracerAdapter {m n : Type → Type} [MonadTracerAdapter n] [HasMonadLift n m] : MonadTracerAdapter m :=
+instance liftMonadTracerAdapter {m n : Type → Type} [MonadTracerAdapter n] [MonadLift n m] : MonadTracerAdapter m :=
 { isTracingEnabledFor := fun cls => liftM (MonadTracerAdapter.isTracingEnabledFor cls : n _),
   addTraceContext     := fun msg => liftM (MonadTracerAdapter.addTraceContext msg : n _),
   enableTracing       := fun b => liftM (MonadTracerAdapter.enableTracing b : n _),
@@ -223,7 +223,7 @@ def resetTraceState {m} [SimpleMonadTracerAdapter m] : m Unit :=
 modifyTraceState (fun _ => {})
 
 /- We currently cannot mark the following definition as an instance since it increases the search space too much -/
-def simpleMonadTracerAdapterLift (m : Type → Type) {n : Type → Type} [SimpleMonadTracerAdapter m] [HasMonadLiftT m n] : SimpleMonadTracerAdapter n :=
+def simpleMonadTracerAdapterLift (m : Type → Type) {n : Type → Type} [SimpleMonadTracerAdapter m] [MonadLiftT m n] : SimpleMonadTracerAdapter n :=
 { getOptions       := liftM (SimpleMonadTracerAdapter.getOptions : m _),
   modifyTraceState := fun f => liftM (SimpleMonadTracerAdapter.modifyTraceState f : m _),
   getTraceState    := liftM (SimpleMonadTracerAdapter.getTraceState : m _),

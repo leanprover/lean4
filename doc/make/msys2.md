@@ -13,16 +13,17 @@ It is easy to install all dependencies, it produces native
 
 [The official webpage of msys2][msys2] provides one-click installers.
 Once installed it, you should run the "MSYS2 MinGW 64-bit shell" from the start menu.
-It has a package management system, [pacman][pacman], which is used in Arch Linux.
+Do not run "MSYS2 MSYS" instead!
+MSYS2 MinGW has a package management system, [pacman][pacman], which is used in Arch Linux.
 
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache git
+pacman -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-clang git
 ```
 
 Then follow the [generic build instructions](index.md) in the [msys2] shell, using
-`-G "Unix Makefiles"` as the generator. This ensures that cmake will call `sh` instead
+`cmake ../.. -G "Unix Makefiles"` instead of `cmake ../..`. This ensures that cmake will call `sh` instead
 of `cmd.exe` for script tasks.
 
 ## Install lean

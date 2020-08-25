@@ -11,6 +11,8 @@ namespace Lean
 namespace Elab
 namespace Term
 
+open Meta
+
 @[builtinMacro Lean.Parser.Term.dollar] def expandDollar : Macro :=
 fun stx => match_syntax stx with
 | `($f $args* $ $a) => let args := args.push a; `($f $args*)

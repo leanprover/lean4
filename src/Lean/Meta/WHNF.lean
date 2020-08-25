@@ -11,14 +11,25 @@ import Lean.Meta.LevelDefEq
 namespace Lean
 namespace Meta
 
-protected def isAuxDef? (constName : Name) : MetaM Bool := do
+variables {m : Type → Type} [MonadLiftT MetaM m]
+
+private def isAuxDefImp? (constName : Name) : MetaM Bool := do
 env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
-protected def unfoldDefinition? (e : Expr) : MetaM (Option Expr)  :=
-Lean.WHNF.unfoldDefinitionAux getConstNoEx? Meta.isAuxDef? whnf inferType isExprDefEq Meta.synthPending getLocalDecl getExprMVarAssignment? e
+@[inline] def isAuxDef? (constName : Name) : m Bool :=
+liftMetaM $ isAuxDefImp? constName
 
-protected def whnfCore (e : Expr) : MetaM Expr :=
-Lean.WHNF.whnfCore getConstNoEx? Meta.isAuxDef? whnf inferType Meta.isExprDefEqAux getLocalDecl getExprMVarAssignment? e
+private def unfoldDefinitionImp? (e : Expr) : MetaM (Option Expr)  :=
+Lean.WHNF.unfoldDefinitionAux getConstNoEx? isAuxDef? whnf inferType isExprDefEq Meta.synthPending getLocalDecl getExprMVarAssignment? e
+
+@[inline] def unfoldDefinition? (e : Expr) : m (Option Expr) :=
+liftMetaM $ unfoldDefinitionImp? e
+
+private def whnfCoreImp (e : Expr) : MetaM Expr :=
+Lean.WHNF.whnfCore getConstNoEx? isAuxDefImp? whnf inferType Meta.isExprDefEqAux getLocalDecl getExprMVarAssignment? e
+
+@[inline] def whnfCore (e : Expr) : m Expr :=
+liftMetaM $ whnfCoreImp e
 
 unsafe def reduceNativeConst (α : Type) (typeName : Name) (constName : Name) : MetaM α := do
 env ← getEnv;
@@ -119,7 +130,7 @@ partial def whnfImpl : Expr → MetaM Expr
   match e? with
   | some e' => pure e'
   | none    => do
-    e' ← Meta.whnfCore e;
+    e' ← whnfCore e;
     v? ← reduceNat? e';
     match v? with
     | some v => cache useCache e v
@@ -128,7 +139,7 @@ partial def whnfImpl : Expr → MetaM Expr
       match v? with
       | some v => cache useCache e v
       | none => do
-        e? ← Meta.unfoldDefinition? e';
+        e? ← unfoldDefinition? e';
         match e? with
         | some e => whnfImpl e
         | none   => cache useCache e e'
@@ -155,39 +166,26 @@ match e.getAppFn with
 
 @[specialize] partial def whnfHeadPredAux (pred : Expr → MetaM Bool) : Expr → MetaM Expr
 | e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment? e $ fun e => do
-  e ← Meta.whnfCore e;
+  e ← whnfCore e;
   condM (pred e)
     (do
-      e? ← Meta.unfoldDefinition? e;
+      e? ← unfoldDefinition? e;
       match e? with
       | some e => whnfHeadPredAux e
       | none   => pure e)
     (pure e)
 
-end Meta
-
-section Methods
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-@[inline] def isAuxDef? (constName : Name) : m Bool :=
-liftMetaM $ Meta.isAuxDef? constName
-
-@[inline] def unfoldDefinition? (e : Expr) : m (Option Expr) :=
-liftMetaM $ Meta.unfoldDefinition? e
-
-@[inline] def whnfCore (e : Expr) : m Expr :=
-liftMetaM $ Meta.whnfCore e
 
 @[inline] def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : m Expr :=
-liftMetaM $ Meta.whnfHeadPredAux pred e
+liftMetaM $ whnfHeadPredAux pred e
 
 def whnfUntil (e : Expr) (declName : Name) : m (Option Expr) := liftMetaM do
-e ← Meta.whnfHeadPredAux (fun e => pure $ !e.isAppOf declName) e;
+e ← whnfHeadPredAux (fun e => pure $ !e.isAppOf declName) e;
 if e.isAppOf declName then pure e
 else pure none
 
 def getStuckMVar? (e : Expr) : m (Option MVarId) := liftMetaM do
-WHNF.getStuckMVar? Meta.getConst? whnf e
+WHNF.getStuckMVar? getConst? whnf e
 
-end Methods
+end Meta
 end Lean

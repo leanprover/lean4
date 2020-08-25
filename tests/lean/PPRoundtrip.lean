@@ -5,6 +5,8 @@ open Lean.Elab.Term
 open Lean.Elab.Command
 open Lean.Format
 
+open Lean.Meta
+
 def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
   stx ← stx;
   e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;

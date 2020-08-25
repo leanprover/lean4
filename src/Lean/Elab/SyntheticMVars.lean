@@ -11,6 +11,7 @@ namespace Elab
 namespace Term
 
 open Tactic (TacticM evalTactic getUnsolvedGoals)
+open Meta
 
 def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
 withMVarContext mvarId do

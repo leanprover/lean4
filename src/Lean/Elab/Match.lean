@@ -11,6 +11,8 @@ namespace Lean
 namespace Elab
 namespace Term
 
+open Meta
+
 /- This modules assumes "match"-expressions use the following syntax.
 
 ```lean
@@ -550,7 +552,7 @@ withPatternVars patternVars fun patternVarDecls => do
 
 def mkMotiveType (matchType : Expr) (expectedType : Expr) : TermElabM Expr := do
 forallTelescopeReducing matchType fun xs matchType => do
-  u ← liftM $ Meta.getLevel matchType;
+  u ← getLevel matchType;
   mkForallFVars xs (mkSort u)
 
 def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : TermElabM ElimResult :=

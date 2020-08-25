@@ -15,6 +15,8 @@ import Lean.Elab.Term
 namespace Lean
 namespace Elab
 
+open Meta
+
 def goalsToMessageData (goals : List MVarId) : MessageData :=
 MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
 
@@ -295,10 +297,10 @@ fun stx => do
   gs ← getUnsolvedGoals;
   logInfo (goalsToMessageData gs)
 
-@[builtinTactic «assumption»] def evalAssumption : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic $ fun mvarId => do Meta.assumption mvarId; pure []
 
-@[builtinTactic «intro»] def evalIntro : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| intro)    => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
   | `(tactic| intro $h) => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
@@ -332,7 +334,7 @@ match fvar? with
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) :=
 ids.mapM getFVarId
 
-@[builtinTactic «revert»] def evalRevert : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| revert $hs*) => do
      (g, gs) ← getMainGoal;
@@ -350,12 +352,12 @@ hs.forM $ fun h => do
     g ← liftMetaM $ tac g fvarId;
     setGoals (g :: gs)
 
-@[builtinTactic «clear»] def evalClear : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| clear $hs*) => forEachVar hs Meta.clear
   | _                     => throwUnsupportedSyntax
 
-@[builtinTactic «subst»] def evalSubst : Tactic :=
+@[builtinTactic Lean.Parser.Tactic.subst] def evalSubst : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax

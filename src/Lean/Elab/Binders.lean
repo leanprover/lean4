@@ -10,6 +10,8 @@ namespace Lean
 namespace Elab
 namespace Term
 
+open Meta
+
 /--
   Given syntax of the forms
     a) (`:` term)?

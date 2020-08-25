@@ -501,7 +501,9 @@ fun n => do
 env ← getEnv;
 finally x (setEnv env)
 
-@[builtinCommandElab «check»] def elabCheck : CommandElab :=
+open Meta
+
+@[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab :=
 fun stx => do
   let term := stx.getArg 1;
   withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do

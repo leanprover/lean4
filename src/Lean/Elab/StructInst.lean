@@ -14,6 +14,7 @@ namespace Term
 namespace StructInst
 
 open Std (HashMap)
+open Meta
 
 /- parser! "{" >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}" -/
 

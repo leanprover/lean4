@@ -73,6 +73,8 @@ instance State.inhabited : Inhabited State := ⟨{}⟩
 abbrev TermElabM := ReaderT Context $ StateRefT State $ MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
+open Meta
+
 instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
 ⟨throw $ arbitrary _⟩
 
@@ -248,8 +250,8 @@ when s.messages.hasErrors $
 withRef Syntax.missing $ trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
-def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := approxDefEq $ Lean.isDefEq t s
-def isDefEq (t s : Expr) : TermElabM Bool := fullApproxDefEq $ Lean.isDefEq t s
+def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := approxDefEq $ Meta.isDefEq t s
+def isDefEq (t s : Expr) : TermElabM Bool := fullApproxDefEq $ Meta.isDefEq t s
 
 @[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
 mctx ← getMCtx;

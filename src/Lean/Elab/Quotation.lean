@@ -27,6 +27,7 @@ namespace Term
 namespace Quotation
 
 open Lean.Syntax (isQuot isAntiquot)
+open Meta
 
 -- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros.
 def isEscapedAntiquot (stx : Syntax) : Bool :=

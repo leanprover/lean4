@@ -39,7 +39,9 @@ private partial def decAux? : Level → MetaM (Option Level)
   | Level.imax u v _ => process u v
   | _                => unreachable!
 
-protected def decLevel? (u : Level) : MetaM (Option Level) := do
+variables {m : Type → Type} [MonadLiftT MetaM m]
+
+private def decLevelImp (u : Level) : MetaM (Option Level) := do
 mctx ← getMCtx;
 result? ← decAux? u;
 match result? with
@@ -47,6 +49,22 @@ match result? with
 | none   => do
   modify $ fun s => { s with mctx := mctx };
   pure none
+
+def decLevel? (u : Level) : m (Option Level) :=
+liftMetaM $ decLevelImp u
+
+def decLevel (u : Level) : m Level := liftMetaM do
+u? ← decLevel? u;
+match u? with
+| some u => pure u
+| none   => throwError ("invalid universe level, " ++ u ++ " is not greater than 0")
+
+/- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
+   Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
+   and then decrement 1 to obtain `u`. -/
+def getDecLevel (type : Expr) : m Level := liftMetaM do
+u ← getLevel type;
+decLevel u
 
 private def strictOccursMaxAux (lvl : Level) : Level → Bool
 | Level.max u v _ => strictOccursMaxAux u || strictOccursMaxAux v
@@ -230,28 +248,6 @@ registerTraceClass `Meta.isLevelDefEq;
 registerTraceClass `Meta.isLevelDefEq.step;
 registerTraceClass `Meta.isLevelDefEq.postponed
 
-end Meta
-
-/- Public interface -/
-section Methods
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-def decLevel? (u : Level) : m (Option Level) :=
-liftMetaM $ Meta.decLevel? u
-
-def decLevel (u : Level) : m Level := liftMetaM do
-u? ← decLevel? u;
-match u? with
-| some u => pure u
-| none   => throwError ("invalid universe level, " ++ u ++ " is not greater than 0")
-
-/- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
-   Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
-   and then decrement 1 to obtain `u`. -/
-def getDecLevel (type : Expr) : m Level := liftMetaM do
-u ← getLevel type;
-decLevel u
-
 def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
 traceCtx `Meta.isLevelDefEq $ do
   b ← Meta.commitWhen $ Meta.isLevelDefEqAux u v;
@@ -270,5 +266,5 @@ isExprDefEq t s
 def isDefEqNoConstantApprox (t s : Expr) : m Bool := liftMetaM do
 approxDefEq $ isDefEq t s
 
-end Methods
+end Meta
 end Lean

@@ -12,6 +12,8 @@ namespace Lean
 namespace Elab
 namespace Command
 
+open Meta
+
 /- Recall that the `structure command syntax is
 ```
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields

@@ -14,6 +14,8 @@ namespace Lean
 namespace Elab
 namespace Command
 
+open Meta
+
 inductive DefKind
 | «def» | «theorem» | «example» | «opaque» | «abbrev»
 

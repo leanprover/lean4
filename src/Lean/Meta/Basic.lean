@@ -148,10 +148,6 @@ throw $ Exception.internal isDefEqStuckExceptionId
 registerTraceClass `Meta;
 registerTraceClass `Meta.debug
 
-end Meta
-
-export Meta (MetaM)
-
 @[inline] def liftMetaM {α m} [MonadLiftT MetaM m] (x : MetaM α) : m α :=
 liftM x
 
@@ -170,7 +166,7 @@ variables {n : Type → Type} [MonadControlT MetaM n] [Monad n]
 
 def getLCtx : m LocalContext := liftMetaM do ctx ← read; pure ctx.lctx
 def getLocalInstances : m LocalInstances := liftMetaM do ctx ← read; pure ctx.localInstances
-def getConfig : m Meta.Config := liftMetaM do ctx ← read; pure ctx.config
+def getConfig : m Config := liftMetaM do ctx ← read; pure ctx.config
 def getMCtx : m MetavarContext := liftMetaM do s ← get; pure s.mctx
 def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
 @[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : m Unit :=
@@ -210,12 +206,12 @@ liftMetaM $ withIncRecDepth do
   fn ← liftIO inferTypeRef.get;
   fn e
 
-protected def Meta.isExprDefEqAux (t s : Expr) : MetaM Bool :=
+protected def isExprDefEqAux (t s : Expr) : MetaM Bool :=
 withIncRecDepth do
   fn ← liftIO isExprDefEqAuxRef.get;
   fn t s
 
-protected def Meta.synthPending (mvarId : MVarId) : MetaM Bool :=
+protected def synthPending (mvarId : MVarId) : MetaM Bool :=
 withIncRecDepth do
   fn ← liftIO synthPendingRef.get;
   fn mvarId
@@ -267,7 +263,7 @@ def mkFreshExprMVarWithIdImpl (mvarId : MVarId) (type? : Option Expr) (kind : Me
 match type? with
 | some type => mkFreshExprMVarWithIdCore mvarId type kind userName
 | none      => do
-  u ← Lean.mkFreshLevelMVar;
+  u ← mkFreshLevelMVar;
   type ← mkFreshExprMVar (mkSort u);
   mkFreshExprMVarWithIdCore mvarId type kind userName
 
@@ -275,15 +271,15 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
 liftMetaM $ mkFreshExprMVarWithIdImpl mvarId type? kind userName
 
 def shouldReduceAll : MetaM Bool := liftMetaM do
-ctx ← read; pure $ ctx.config.transparency == Meta.TransparencyMode.all
+ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
 def shouldReduceReducibleOnly : m Bool := liftMetaM do
-ctx ← read; pure $ ctx.config.transparency == Meta.TransparencyMode.reducible
-def getTransparency : m Meta.TransparencyMode := liftMetaM do
+ctx ← read; pure $ ctx.config.transparency == TransparencyMode.reducible
+def getTransparency : m TransparencyMode := liftMetaM do
 ctx ← read; pure $ ctx.config.transparency
 
 -- Remark: wanted to use `private`, but in the C++ parser, `private` declarations do not shadow outer public ones.
 -- TODO: fix this bug
-protected def Meta.isReducible (constName : Name) : MetaM Bool := do
+def isReducible (constName : Name) : MetaM Bool := do
 env ← getEnv; pure $ isReducible env constName
 
 def getMVarDecl (mvarId : MVarId) : m MetavarDecl := liftMetaM do
@@ -394,16 +390,16 @@ if xs.isEmpty then pure (e, 0) else liftMkBindingM $ MetavarContext.mkForallUsed
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : m Expr := liftMetaM do
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e preserveOrder
 
-@[inline] def withConfig {α} (f : Meta.Config → Meta.Config) : n α → n α :=
-mapMetaM fun _ => adaptReader (fun (ctx : Meta.Context) => { ctx with config := f ctx.config })
+@[inline] def withConfig {α} (f : Config → Config) : n α → n α :=
+mapMetaM fun _ => adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config })
 
-@[inline] def withTransparency {α} (mode : Meta.TransparencyMode) : n α → n α :=
+@[inline] def withTransparency {α} (mode : TransparencyMode) : n α → n α :=
 mapMetaM fun _ => withConfig (fun config => { config with transparency := mode })
 
 @[inline] def withReducible {α} (x : n α) : n α :=
-withTransparency Meta.TransparencyMode.reducible x
+withTransparency TransparencyMode.reducible x
 
-@[inline] def withAtLeastTransparency {α} (mode : Meta.TransparencyMode) (x : n α) : n α :=
+@[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : n α) : n α :=
 withConfig
   (fun config =>
     let oldMode := config.transparency;
@@ -414,45 +410,45 @@ withConfig
 def throwUnknownConstant {α} (constName : Name) : MetaM α :=
 throwError ("unknown constant '" ++ constName ++ "'")
 
-def Meta.getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
+def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
 match env.find? constName with
 | some (info@(ConstantInfo.thmInfo _)) =>
   condM shouldReduceAll (pure (some info)) (pure none)
 | some (info@(ConstantInfo.defnInfo _)) =>
   condM shouldReduceReducibleOnly
-    (condM (Meta.isReducible constName) (pure (some info)) (pure none))
+    (condM (isReducible constName) (pure (some info)) (pure none))
     (pure (some info))
 | some info => pure (some info)
 | none      => throwUnknownConstant constName
 
-def Meta.getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
+def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
 match env.find? constName with
 | some (info@(ConstantInfo.thmInfo _)) =>
   condM shouldReduceAll (pure (some info)) (pure none)
 | some (info@(ConstantInfo.defnInfo _)) =>
   condM shouldReduceReducibleOnly
-    (condM (Meta.isReducible constName) (pure (some info)) (pure none))
+    (condM (isReducible constName) (pure (some info)) (pure none))
     (pure (some info))
 | some info => pure (some info)
 | none      => pure none
 
 /-- Save cache, execute `x`, restore cache -/
-@[inline] def Meta.savingCache {α} (x : MetaM α) : MetaM α := do
+@[inline] private def savingCacheImpl {α} (x : MetaM α) : MetaM α := do
 s ← get;
 let savedCache := s.cache;
 finally x (modify $ fun s => { s with cache := savedCache })
 
 @[inline] def savingCache {α} : n α → n α :=
-mapMetaM fun _ => Meta.savingCache
+mapMetaM fun _ => savingCacheImpl
 
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
 env ← getEnv;
 if isClass env constName then
   pure (LOption.some constName)
 else do
-  cinfo? ← Meta.getConst? constName;
+  cinfo? ← getConst? constName;
   match cinfo? with
   | some _ => pure LOption.undef
   | none   => pure LOption.none
@@ -480,13 +476,13 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | _                 => pure LOption.none
 | Expr.localE _ _ _ _ => unreachable!
 
-def saveAndResetSynthInstanceCache : MetaM Meta.SynthInstanceCache := do
+def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
 s ← get;
 let savedSythInstance := s.cache.synthInstance;
 modify $ fun s => { s with cache := { s.cache with synthInstance := {} } };
 pure savedSythInstance
 
-def restoreSynthInstanceCache (cache : Meta.SynthInstanceCache) : MetaM Unit :=
+def restoreSynthInstanceCache (cache : SynthInstanceCache) : MetaM Unit :=
 modify $ fun s => { s with cache := { s.cache with synthInstance := cache } }
 
 @[inline] private def resettingSynthInstanceCacheImpl {α} (x : MetaM α) : MetaM α := do
@@ -503,7 +499,7 @@ if b then resettingSynthInstanceCache x else x
 @[inline] private def withNewLocalInstanceImpl {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
 resettingSynthInstanceCache $
   adaptReader
-    (fun (ctx : Meta.Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
+    (fun (ctx : Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
     k
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
@@ -585,12 +581,12 @@ mapMetaM fun _ => withNewLocalInstanceImpl className fvar
       process ()
     else
       let type := type.instantiateRevRange j fvars.size fvars;
-      adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) $
+      adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
         withNewLocalInstancesImpl isClassExpensive? fvars j $
           k fvars type
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) $
+  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstancesImpl isClassExpensive? fvars j $
       if reducing? then do
         newType ← whnf type;
@@ -677,7 +673,7 @@ private partial def lambdaTelescopeAux {α}
   lambdaTelescopeAux lctx (fvars.push fvar) j b
 | lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) $
+  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstancesImpl isClassExpensive? fvars j $ do
       k fvars e
 
@@ -781,7 +777,7 @@ fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
 let fvar := mkFVar fvarId;
-adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) $
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
 @[inline] def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
@@ -795,7 +791,7 @@ fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLetDecl fvarId n type val;
 let fvar := mkFVar fvarId;
-adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) $
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
 @[inline] def withLetDecl {α} (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) : n α :=
@@ -805,7 +801,7 @@ private def withExistingLocalDeclsImpl {α} (decls : List LocalDecl) (k : MetaM 
 ctx ← read;
 let numLocalInstances := ctx.localInstances.size;
 let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ctx.lctx;
-adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) do
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) do
   newLocalInsts ← decls.foldlM
     (fun (newlocalInsts : Array LocalInstance) (decl : LocalDecl) => (do {
       c? ← isClass? decl.type;
@@ -816,7 +812,7 @@ adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx }) do
   if newLocalInsts.size == numLocalInstances then
     k
   else
-    resettingSynthInstanceCache $ adaptReader (fun (ctx : Meta.Context) => { ctx with localInstances := newLocalInsts }) k
+    resettingSynthInstanceCache $ adaptReader (fun (ctx : Context) => { ctx with localInstances := newLocalInsts }) k
 
 def withExistingLocalDecls {α} (decls : List LocalDecl) : n α → n α :=
 mapMetaM fun _ => withExistingLocalDeclsImpl decls
@@ -835,7 +831,7 @@ mapMetaM fun _ => withNewMCtxDepthImpl
 
 private def withLocalContextImpl {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
 localInstsCurr ← getLocalInstances;
-adaptReader (fun (ctx : Meta.Context) => { ctx with lctx := lctx, localInstances := localInsts }) $
+adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) $
   if localInsts == localInstsCurr then
     x
   else
@@ -864,7 +860,7 @@ finally x (modify $ fun s => { s with mctx := mctx' })
 mapMetaM fun _ => withMCtxImpl mctx
 
 @[inline] private def approxDefEqImpl {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Meta.Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true} })
+adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true} })
   x
 
 /-- Execute `x` using approximate unification: `foApprox`, `ctxApprox` and `quasiPatternApprox`.  -/
@@ -873,7 +869,7 @@ mapMetaM fun _ => approxDefEqImpl
 
 @[inline] private def fullApproxDefEqImpl {α} (x : MetaM α) : MetaM α :=
 adaptReader
-  (fun (ctx : Meta.Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true } })
+  (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true } })
   x
 
 /--
@@ -899,7 +895,7 @@ def assignLevelMVar (mvarId : MVarId) (lvl : Level) : m Unit :=
 modifyMCtx fun mctx => mctx.assignLevel mvarId lvl
 
 def whnfD [MonadLiftT MetaM n] (e : Expr) : n Expr :=
-withTransparency Meta.TransparencyMode.default $ whnf e
+withTransparency TransparencyMode.default $ whnf e
 
 /--
   Create an auxiliary definition with the given name, type and value.
@@ -944,4 +940,8 @@ def instantiateForall (e : Expr) (ps : Array Expr) : m Expr :=
 liftMetaM $ instantiateForallAux ps 0 e
 
 end Methods
+end Meta
+
+export Meta (MetaM)
+
 end Lean

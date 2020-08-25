@@ -9,7 +9,7 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.Check
 
 namespace Lean
-
+namespace Meta
 variables {m : Type → Type} [MonadLiftT MetaM m]
 
 private def mkIdImp (e : Expr) : MetaM Expr := do
@@ -181,7 +181,7 @@ private partial def mkAppMAux (f : Expr) (xs : Array Expr) : Nat → Array Expr 
       xType ← inferType x;
       condM (isDefEq d xType)
         (mkAppMAux (i+1) (args.push x) j instMVars b)
-        (Meta.throwAppTypeMismatch (mkAppN f args) x)
+        (throwAppTypeMismatch (mkAppN f args) x)
     else
       mkAppMFinal `mkAppM f args instMVars
 | i, args, j, instMVars, type => do
@@ -219,7 +219,7 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
       xType ← inferType x;
         condM (isDefEq d xType)
           (mkAppOptMAux (i+1) (args.push x) j instMVars b)
-          (Meta.throwAppTypeMismatch (mkAppN f args) x)
+          (throwAppTypeMismatch (mkAppN f args) x)
   else
     mkAppMFinal `mkAppOptM f args instMVars
 | i, args, j, instMVars, type => do
@@ -379,4 +379,5 @@ mkAppM `HasLess.Less #[a, b]
 def mkLe (a b : Expr) : m Expr :=
 mkAppM `HasLessEq.LessEq #[a, b]
 
+end Meta
 end Lean

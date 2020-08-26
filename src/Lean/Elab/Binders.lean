@@ -434,6 +434,13 @@ private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array 
   body ← expandLetEqnsDeclVal n discrs;
   `(fun $x => $body)
 
+def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
+let ref     := letDecl;
+let alts    := letDecl.getArg 4;
+let numPats := getMatchAltNumPatterns alts;
+val ← expandLetEqnsDeclVal ref alts numPats #[];
+pure $ Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val]
+
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
 let ref     := stx;
 let letDecl := (stx.getArg 1).getArg 0;
@@ -452,12 +459,7 @@ else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   let stxNew  := if useLetExpr then stxNew else stxNew.updateKind `Lean.Parser.Term.«let!»;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then do
-  let alts    := letDecl.getArg 4;
-  let numPats := getMatchAltNumPatterns alts;
-  val ← liftMacroM $ expandLetEqnsDeclVal ref alts numPats #[];
-  let newDecl := Syntax.node `Lean.Parser.Term.letIdDecl
-    #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val];
-  let declNew := (stx.getArg 1).setArg 0 newDecl;
+  declNew ← liftMacroM $ expandLetEqnsDecl letDecl;
   let stxNew  := stx.setArg 1 declNew;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else

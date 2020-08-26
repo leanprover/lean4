@@ -410,13 +410,20 @@ else do
   };
   pure $ mkApp f val
 
--- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
-private def expandLetIdLhs (letIdLhs : Syntax) : Name × Array Syntax × Syntax := do
-let id      := (letIdLhs.getArg 0).getId;
-let binders := (letIdLhs.getArg 1).getArgs;
-let optType := letIdLhs.getArg 2;
-let type    := expandOptType letIdLhs optType;
-(id, binders, type)
+structure LetIdDeclView :=
+(id      : Name)
+(binders : Array Syntax)
+(type    : Syntax)
+(value   : Syntax)
+
+def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
+-- `letIdDecl` is of the form `ident >> many bracketedBinder >> optType >> " := " >> termParser
+let id      := (letIdDecl.getArg 0).getId;
+let binders := (letIdDecl.getArg 1).getArgs;
+let optType := letIdDecl.getArg 2;
+let type    := expandOptType letIdDecl optType;
+let value   := letIdDecl.getArg 4;
+{ id := id, binders := binders, type := type, value := value }
 
 private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
 let alt0 := matchAlts.getArg 0;
@@ -446,8 +453,7 @@ let ref     := stx;
 let letDecl := (stx.getArg 1).getArg 0;
 let body    := stx.getArg 3;
 if letDecl.getKind == `Lean.Parser.Term.letIdDecl then
-  let (id, binders, type) := expandLetIdLhs letDecl;
-  let val                 := letDecl.getArg 4;
+  let { id := id, binders := binders, type := type, value := val } := mkLetIdDeclView letDecl;
   elabLetDeclAux id binders type val body expectedType? useLetExpr
 else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser

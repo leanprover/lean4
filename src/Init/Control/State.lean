@@ -216,8 +216,16 @@ instance StateT.MonadStateRunner [Monad m] : MonadStateRunner σ (StateT σ m) m
 ⟨fun α x s => Prod.fst <$> x s⟩
 end
 
-instance monadControlState (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) := {
+instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) := {
   stM      := fun α   => α × σ,
   liftWith := fun α f => do s ← get; liftM (f (fun β x => x.run s)),
   restoreM := fun α x => do (a, s) ← liftM x; set s; pure a
 }
+
+instance StateT.finally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Monad m] : MonadFinally (StateT σ m) :=
+{ finally' := fun α β x h s => do
+  ((a, _), (b, s'')) ← finally' (x s)
+    (fun p? => match p? with
+      | some (a, s') => h (some a) s'
+      | none         => h none s);
+  pure ((a, b), s'') }

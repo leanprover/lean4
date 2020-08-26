@@ -227,10 +227,6 @@ def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyTh
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
 
-def withDeclNameSuffix {α} (suffix : Name) (x : TermElabM α) : TermElabM α := do
-name? ← getDeclName?;
-withDeclName ((name?.getD Name.anonymous) ++ suffix) x
-
 def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
 env  ← getEnv;
 mctx ← getMCtx;

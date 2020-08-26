@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 See: https://lexi-lambda.github.io/blog/2019/09/07/demystifying-monadbasecontrol/
 -/
 prelude
-import Init.Control.Lift
+import Init.Control.MonadLift
 
 universes u v w
 

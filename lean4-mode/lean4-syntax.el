@@ -18,7 +18,7 @@
     "end" "this" "using" "using_well_founded" "namespace" "section"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "attributes" "raw" "replacing" "generalizing"
-    "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
+    "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "letrec" "forall" "Pi" "fun"
     "exists" "if" "then" "else" "assume" "from" "init_quot"
     "mutual" "def" "run_cmd")
   "lean keywords ending with 'word' (not symbol)")

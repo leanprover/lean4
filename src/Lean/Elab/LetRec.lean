@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Attributes
 import Lean.Elab.Binders
+import Lean.Elab.DeclModifiers
 
 namespace Lean
 namespace Elab
@@ -83,6 +84,9 @@ view.decls.mapIdxM fun i d => do
   headerLocalDecl ← getLocalDecl header.fnFVarId;
   forallBoundedTelescope headerLocalDecl.type header.numBinders fun xs type =>
      withDeclNameSuffix view.id do
+       currDeclName? ← getDeclName?;
+       let currDeclName := currDeclName?.get!;
+       checkNotAlreadyDeclared currDeclName;
        value ← elabTermEnsuringType view.value type;
        mkLambdaFVars xs value
 

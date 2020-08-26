@@ -220,22 +220,4 @@ pure {
 }
 
 end Closure
-
-def mkAuxDefinitionCore (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
-    (zeta : Bool := false) : Except KernelException (Expr × Environment × MetavarContext) :=
-match Closure.mkValueTypeClosure mctx lctx type value zeta with
-| Except.error ex  => throw $ KernelException.other ex
-| Except.ok result => do
-  let decl := Declaration.defnDecl {
-    name     := name,
-    lparams  := result.levelParams.toList,
-    type     := result.type,
-    value    := result.value,
-    hints    := ReducibilityHints.regular (getMaxHeight env result.value + 1),
-    isUnsafe := env.hasUnsafe result.type || env.hasUnsafe result.value
-  };
-  env ← env.addAndCompile opts decl;
-  let c := mkAppN (mkConst name result.levelClosure.toList) result.exprClosure;
-  pure (c, env, result.mctx)
-
 end Lean

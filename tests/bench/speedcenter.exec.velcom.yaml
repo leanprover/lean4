@@ -11,7 +11,7 @@
   run_config:
     <<: *time
     cmd: |
-      bash -c 'bench=$PWD; cd ${BUILD:-../../build/release}/stage0; find lib/lean ! -name libleancpp.a -delete; LEANMAKE_OPTS=LEAN_OPTS="--stats\ -Dprofiler=true\ -Dprofiler.threshold=9999" make -O -j5 make_stdlib 2>&1 > /dev/null | $bench/accumulate_profile.py'
+      bench=$PWD/tests/bench; cd ${BUILD:-../../build/release}/stage0; find lib/lean ! -name libleancpp.a -delete; LEANMAKE_OPTS=LEAN_OPTS="--stats\ -Dprofiler=true\ -Dprofiler.threshold=9999" make -O -j5 make_stdlib 2>&1 > /dev/null | $bench/accumulate_profile.py
     max_runs: 2
     parse_output: true
   # Warmup. Somehow ccache doesn't reuse the cache from the original build? Weird.

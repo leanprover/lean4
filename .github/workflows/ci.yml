@@ -117,7 +117,7 @@ jobs:
       - name: Test Speedcenter Benchmarks
         run: |
           export BUILD=$PWD/build PATH=$PWD/build/stage0.5/bin:$PATH
-          cd tests/bench; temci exec --config speedcenter.yaml --runs 1
+          cd tests/bench; temci exec --config speedcenter.yaml --included_blocks fast --runs 1
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |

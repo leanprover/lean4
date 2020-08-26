@@ -58,28 +58,31 @@ structure LetRecDeclHeader :=
 
 instance LetRecDeclHeader.inhabited : Inhabited LetRecDeclHeader := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _⟩⟩
 
-private partial def withLetRecDeclHeadersAux {α} (view : LetRecView) (k : Array LetRecDeclHeader → TermElabM α) : Nat → Array LetRecDeclHeader → TermElabM α
-| i, headers =>
-  if h : i < view.decls.size then
-    let decl := (view.decls.get ⟨i, h⟩).decl;
-    -- `decl` is a `letIdDecl` of the form `ident >> many bracketedBinder >> optType >> " := " >> termParser
-    withRef decl do
-      let declView := mkLetIdDeclView decl;
-      (type, numBinders) ← elabBinders declView.binders $ fun xs => do {
-          type ← elabType declView.type;
-          type ← mkForallFVars xs type;
-          pure (type, xs.size)
-      };
-      currDeclName? ← getDeclName?;
-      let declName := currDeclName?.getD Name.anonymous ++ declView.id;
-      checkNotAlreadyDeclared declName;
-      withLocalDeclD declView.id type fun fvar =>
-        withLetRecDeclHeadersAux (i+1) (headers.push { declName := declName, name := declView.id, type := type, numBinders := numBinders })
-  else
-    k headers
+private def mkLetRecDeclHeaders (view : LetRecView) : TermElabM (Array LetRecDeclHeader) := do
+view.decls.mapM fun d =>
+  let decl := d.decl;
+  withRef decl do
+    let declView := mkLetIdDeclView decl;
+    (type, numBinders) ← elabBinders declView.binders $ fun xs => do {
+        type ← elabType declView.type;
+        type ← mkForallFVars xs type;
+        pure (type, xs.size)
+    };
+    currDeclName? ← getDeclName?;
+    let declName := currDeclName?.getD Name.anonymous ++ declView.id;
+    checkNotAlreadyDeclared declName;
+    pure { declName := declName, name := declView.id, type := type, numBinders := numBinders }
 
-private def withLetRecDeclHeaders {α} (view : LetRecView) (k : Array LetRecDeclHeader → TermElabM α) : TermElabM α :=
-withLetRecDeclHeadersAux view k 0 #[]
+private partial def withAuxLocalDeclsAux {α} (headers : Array LetRecDeclHeader) (k : Unit → TermElabM α) : Nat → TermElabM α
+| i =>
+  if h : i < headers.size then
+    let header := headers.get ⟨i, h⟩;
+    withLocalDeclD header.name header.type fun _ => withAuxLocalDeclsAux (i+1)
+  else
+    k ()
+
+private partial def withAuxLocalDecls {α} (headers : Array LetRecDeclHeader) (k : Unit → TermElabM α) : TermElabM α :=
+withAuxLocalDeclsAux headers k 0
 
 private def elabLetRecDeclValues (view : LetRecView) (headers : Array LetRecDeclHeader) : TermElabM (Array Expr) :=
 view.decls.mapIdxM fun i d => do
@@ -96,15 +99,24 @@ structure LetRecDecl :=
 (type     : Expr)
 (value    : Expr)
 
+private def abortIfContainsSyntheticSorry (e : Expr) : TermElabM Unit := do
+e ← instantiateMVars e;
+when e.hasSyntheticSorry $ throwError e
+
 private def elabLetRecView (view : LetRecView) (expectedType? : Option Expr) : TermElabM Expr := do
-decls ← withSynthesize $ withLetRecDeclHeaders view fun headers => do {
-  values ← elabLetRecDeclValues view headers;
-  synthesizeSyntheticMVars false;
-  -- TODO
-  values.forM IO.println;
-  values.mapIdxM fun i value => do
-    let header := headers.get! i;
-    pure { name := header.name, type := header.type, value := value : LetRecDecl }
+decls ← withSynthesize do {
+  headers ← mkLetRecDeclHeaders view;
+  withAuxLocalDecls headers fun _ => do
+    values ← elabLetRecDeclValues view headers;
+    synthesizeSyntheticMVars false;
+    -- We abort if there are synthetic sorry's
+    values.forM abortIfContainsSyntheticSorry;
+    headers.forM fun header => abortIfContainsSyntheticSorry header.type;
+    -- TODO
+    -- values.forM IO.println;
+    values.mapIdxM fun i value => do
+      let header := headers.get! i;
+      pure { name := header.name, type := header.type, value := value : LetRecDecl }
 };
 throwError ("WIP")
 

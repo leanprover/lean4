@@ -165,8 +165,11 @@ instance ReaderT.MonadStateRunner [Monad m] : MonadReaderRunner ρ (ReaderT ρ m
 ⟨fun α x r => x r⟩
 end
 
-instance monadControlReader (ρ : Type u) (m : Type u → Type v) : MonadControl m (ReaderT ρ m) := {
+instance ReaderT.monadControl (ρ : Type u) (m : Type u → Type v) : MonadControl m (ReaderT ρ m) := {
   stM      := fun α       => α,
   liftWith := fun α f ctx => f fun β x => x ctx,
   restoreM := fun α x ctx => x,
 }
+
+instance ReaderT.finally {m : Type u → Type v} {ρ : Type u} [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) :=
+{ finally' := fun α β x h ctx => finally' (x ctx) (fun a? => h a? ctx) }

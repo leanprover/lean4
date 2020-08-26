@@ -6,7 +6,9 @@ Authors: Sebastian Ullrich
 The identity Monad.
 -/
 prelude
-import Init.Control.Lift
+import Init.Control.MonadLift
+import Init.Control.MonadRun
+
 universe u
 
 def Id (type : Type u) : Type u := type

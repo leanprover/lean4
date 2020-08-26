@@ -8,7 +8,10 @@ import Init.Control.Applicative
 import Init.Control.Functor
 import Init.Control.Alternative
 import Init.Control.Monad
-import Init.Control.Lift
+import Init.Control.MonadLift
+import Init.Control.MonadFunctor
+import Init.Control.MonadRun
+import Init.Control.MonadControl
 import Init.Control.State
 import Init.Control.StateRef
 import Init.Control.Id
@@ -16,4 +19,3 @@ import Init.Control.Except
 import Init.Control.Reader
 import Init.Control.Option
 import Init.Control.Conditional
-import Init.Control.MonadControl

@@ -55,5 +55,8 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateRefT' ω σ m) :=
 
 end StateRefT'
 
-instance monadControlStateRefT' (ω σ : Type) (m : Type → Type) : MonadControl m (StateRefT' ω σ m) :=
+instance StateRefT.monadControl (ω σ : Type) (m : Type → Type) : MonadControl m (StateRefT' ω σ m) :=
 inferInstanceAs (MonadControl m (ReaderT _ _))
+
+instance StateRefT.finally {m : Type → Type} {ω σ : Type} [MonadFinally m] [Monad m] : MonadFinally (StateRefT' ω σ m) :=
+inferInstanceAs (MonadFinally (ReaderT _ _))

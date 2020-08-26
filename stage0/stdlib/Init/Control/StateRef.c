@@ -17,6 +17,7 @@ lean_object* l_StateRefT_x27_set(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_StateRefT_x27_run_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadStateOf(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_finally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadIO(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_modifyGet___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_Monad(lean_object*, lean_object*, lean_object*);
@@ -39,21 +40,24 @@ lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_StateRefT_x27_MonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadLift___rarg___boxed(lean_object*, lean_object*);
-extern lean_object* l_monadControlReader___closed__2;
+lean_object* l_monadIOTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadFunctor___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadExceptOf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_monadControlStateRefT_x27(lean_object*, lean_object*, lean_object*);
+lean_object* l_StateRefT_monadControl(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run_x27___rarg___lambda__1(lean_object*, lean_object*);
+lean_object* l_StateRefT_finally___rarg(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadIO___rarg(lean_object*);
+extern lean_object* l_ReaderT_monadControl___closed__2;
 lean_object* l_StateRefT_x27_run___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_set___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_ReaderT_MonadLift___closed__1;
 lean_object* l_StateRefT_x27_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get___rarg(lean_object*, lean_object*);
+lean_object* l_StateRefT_finally(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_monadIO___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadExceptOf(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadExceptOf___rarg(lean_object*);
@@ -260,10 +264,12 @@ return x_3;
 lean_object* l_StateRefT_x27_MonadIO___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ReaderT_monadIO___rarg___boxed), 4, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_ReaderT_MonadLift___closed__1;
+x_3 = lean_alloc_closure((void*)(l_monadIOTrans___rarg), 4, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
 }
 }
 lean_object* l_StateRefT_x27_MonadIO(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -461,11 +467,29 @@ x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_MonadExceptOf___rarg), 1, 0);
 return x_5;
 }
 }
-lean_object* l_monadControlStateRefT_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_StateRefT_monadControl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_monadControlReader___closed__2;
+x_4 = l_ReaderT_monadControl___closed__2;
+return x_4;
+}
+}
+lean_object* l_StateRefT_finally___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_ReaderT_finally___rarg___boxed), 7, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* l_StateRefT_finally(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_StateRefT_finally___rarg), 2, 0);
 return x_4;
 }
 }

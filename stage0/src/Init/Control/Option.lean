@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Control.Alternative
-import Init.Control.Lift
+import Init.Control.MonadLift
 import Init.Control.Except
 
 universes u v

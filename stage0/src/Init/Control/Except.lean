@@ -6,9 +6,13 @@ Authors: Jared Roesch, Sebastian Ullrich
 The Except monad transformer.
 -/
 prelude
+import Init.Data.ToString
 import Init.Control.Alternative
 import Init.Control.MonadControl
-import Init.Data.ToString
+import Init.Control.Id
+import Init.Control.MonadFunctor
+import Init.Control.MonadRun
+
 universes u v w u'
 
 inductive Except (ε : Type u) (α : Type v)
@@ -202,15 +206,33 @@ instance (ε m out) [MonadRun out m] : MonadRun (fun α => out (Except ε α)) (
 @[inline] def observing {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) : m (Except ε α) :=
 catch (do a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))
 
-/-- Execute `x` and then execute `finalizer` even if `x` threw an exception -/
-@[inline] def finally {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) (finalizer : m PUnit) : m α := do
-r ← catch (Except.ok <$> x) (fun ex => @pure m _ _ $ Except.error ex);
-match r with
-| Except.ok a => finalizer *> pure a
-| Except.error e => finalizer *> throw e
-
-instance monadControlExcept (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) := {
+instance ExceptT.monadControl (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) := {
   stM      := fun α   => Except ε α,
   liftWith := fun α f => liftM $ f fun β x => x.run,
   restoreM := fun α x => x,
 }
+
+class MonadFinally (m : Type u → Type v) :=
+(finally' {α β} : m α → (Option α → m β) → m (α × β))
+
+export MonadFinally (finally')
+
+/-- Execute `x` and then execute `finalizer` even if `x` threw an exception -/
+@[inline] abbrev finally {m : Type u → Type v} {α β : Type u} [MonadFinally m] [Functor m] (x : m α) (finalizer : m β) : m α := do
+Prod.fst <$> finally' x (fun _ => finalizer)
+
+instance Id.finally : MonadFinally Id :=
+{ finally' := fun α β x h =>
+   let a := x;
+   let b := h (some x);
+   pure (a, b) }
+
+instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] [Monad m] : MonadFinally (ExceptT ε m) :=
+{ finally' := fun α β x h => ExceptT.mk do
+    r ← finally' x (fun e? => match e? with
+        | some (Except.ok a) => h (some a)
+        | _                  => h none);
+    match r with
+    | (Except.ok a,    Except.ok b)    => pure (Except.ok (a, b))
+    | (_,              Except.error e) => pure (Except.error e)  -- second error has precedence
+    | (Except.error e, _)              => pure (Except.error e)  }

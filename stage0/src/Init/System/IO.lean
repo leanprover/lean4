@@ -36,6 +36,7 @@ fun s => match x s with
 | EStateM.Result.error ex s => h ex s
 
 instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
+instance (ε : Type) : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
 instance (ε : Type) : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
 instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
@@ -80,16 +81,11 @@ class MonadIO (m : Type → Type) :=
 
 export MonadIO (liftIO)
 
+instance monadIOTrans (m n) [MonadIO m] [MonadLift m n] : MonadIO n :=
+{ liftIO := fun α x => liftM $ (liftIO x : m _) }
+
 instance monadIOSelf : MonadIO IO :=
 { liftIO := fun α => id }
-
-/- Omitted instances of MonadIO: OptionT, ExceptT and EStateT. The possibility for
-errors introduces the risk that `withStdout` will not restore the previous handle when
-an error is returned in the topmost monad. -/
-instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) :=
-{ liftIO := fun α x => liftM (liftIO x : m α) }
-instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) :=
-{ liftIO := fun α x => liftM (liftIO x : m α) }
 
 @[inline] def mkEIOMonadIO {ε ε'} [MonadIO (EIO ε)] (f : ε → ε') : MonadIO (EIO ε') :=
 { liftIO := fun α x => adaptExcept f (liftIO x : EIO ε α) }

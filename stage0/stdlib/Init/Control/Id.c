@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Id
-// Imports: Init.Control.Lift
+// Imports: Init.Control.MonadLift Init.Control.MonadRun
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -313,13 +313,17 @@ x_1 = l_Id_MonadRun___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Init_Control_Lift(lean_object*);
+lean_object* initialize_Init_Control_MonadLift(lean_object*);
+lean_object* initialize_Init_Control_MonadRun(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Id(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Lift(lean_io_mk_world());
+res = initialize_Init_Control_MonadLift(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_MonadRun(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Id_hasBind___closed__1 = _init_l_Id_hasBind___closed__1();

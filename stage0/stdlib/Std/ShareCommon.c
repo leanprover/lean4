@@ -26,7 +26,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Std_ShareCommonT_withShareCommon___at_Std_shareCommon___spec__1___rarg(lean_object*, lean_object*);
 uint8_t l_Std_ShareCommon_Object_ptrEq(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findEntryAux___main___at_Std_ShareCommon_ObjectPersistentSet_find_x3f___spec__2(lean_object*, size_t, lean_object*);
-extern lean_object* l_StateT_run_x27___rarg___closed__1;
 lean_object* lean_object_pset_insert(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Std_ShareCommon_ObjectPersistentSet_insert___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Std_shareCommonM___rarg(lean_object*, lean_object*);
@@ -94,6 +93,7 @@ lean_object* l_Std_AssocList_find_x3f___main___at_Std_ShareCommon_ObjectMap_find
 lean_object* l_Std_PersistentHashMap_findEntry_x3f___at_Std_ShareCommon_ObjectPersistentSet_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Std_ShareCommon_ObjectPersistentMap_insert___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_object_pmap_insert(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_finally___rarg___closed__1;
 lean_object* l_Std_PersistentHashMap_findEntryAtAux___main___at_Std_ShareCommon_ObjectPersistentSet_find_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_ShareCommon_mkObjectSet___closed__1;
 lean_object* l_Std_ShareCommonT_withShareCommon___at_Std_shareCommon___spec__1(lean_object*);
@@ -2760,7 +2760,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l_Std_ShareCommon_State_empty;
 x_8 = lean_apply_1(x_3, x_7);
-x_9 = l_StateT_run_x27___rarg___closed__1;
+x_9 = l_finally___rarg___closed__1;
 x_10 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_9, x_8);
 return x_10;
 }
@@ -2788,7 +2788,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l_Std_ShareCommon_PersistentState_empty;
 x_8 = lean_apply_1(x_3, x_7);
-x_9 = l_StateT_run_x27___rarg___closed__1;
+x_9 = l_finally___rarg___closed__1;
 x_10 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_9, x_8);
 return x_10;
 }

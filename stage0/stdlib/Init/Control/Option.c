@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Option
-// Imports: Init.Control.Alternative Init.Control.Lift Init.Control.Except
+// Imports: Init.Control.Alternative Init.Control.MonadLift Init.Control.Except
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -818,7 +818,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Control_Alternative(lean_object*);
-lean_object* initialize_Init_Control_Lift(lean_object*);
+lean_object* initialize_Init_Control_MonadLift(lean_object*);
 lean_object* initialize_Init_Control_Except(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Option(lean_object* w) {
@@ -828,7 +828,7 @@ _G_initialized = true;
 res = initialize_Init_Control_Alternative(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lift(lean_io_mk_world());
+res = initialize_Init_Control_MonadLift(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Except(lean_io_mk_world());

@@ -140,7 +140,6 @@ lean_object* l_Lean_Meta_getLCtx___at___private_Lean_Elab_Tactic_Induction_3__el
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getInductiveValFromMajor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkRecFor___closed__1;
-extern lean_object* l_monadControlReader___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Induction_16__processResult___closed__3;
 lean_object* l___private_Lean_Elab_Tactic_Induction_8__getAltName(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_3__elabMajor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -168,6 +167,7 @@ uint8_t l_List_foldr___main___at___private_Lean_Elab_Tactic_Induction_11__checkA
 lean_object* l_Array_findIdxAux___main___at___private_Lean_Elab_Tactic_Induction_14__getRecInfo___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_17__checkCasesResultAux___main___closed__9;
 lean_object* l_Lean_WHNF_unfoldDefinitionAux___at___private_Lean_Meta_WHNF_2__unfoldDefinitionImp_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_ReaderT_monadControl___closed__2;
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Elab_Tactic_Induction_16__processResult___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7190,7 +7190,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Tactic_Induction_14__getRecInfo___closed__1;
-x_2 = l_monadControlReader___closed__2;
+x_2 = l_ReaderT_monadControl___closed__2;
 x_3 = l_monadControlTrans___rarg(x_1, x_2);
 return x_3;
 }
@@ -7200,7 +7200,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Tactic_Induction_14__getRecInfo___closed__2;
-x_2 = l_monadControlReader___closed__2;
+x_2 = l_ReaderT_monadControl___closed__2;
 x_3 = l_monadControlTrans___rarg(x_1, x_2);
 return x_3;
 }
@@ -7210,7 +7210,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Tactic_Induction_14__getRecInfo___closed__3;
-x_2 = l_monadControlReader___closed__2;
+x_2 = l_ReaderT_monadControl___closed__2;
 x_3 = l_monadControlTrans___rarg(x_1, x_2);
 return x_3;
 }
@@ -7220,7 +7220,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Tactic_Induction_14__getRecInfo___closed__4;
-x_2 = l_monadControlReader___closed__2;
+x_2 = l_ReaderT_monadControl___closed__2;
 x_3 = l_monadControlTrans___rarg(x_1, x_2);
 return x_3;
 }

@@ -122,6 +122,17 @@ instance : MonadStateOf σ (EStateM ε σ) :=
 instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) :=
 { throw := @EStateM.throw _ _, catch := @EStateM.catch _ _ _ _ }
 
+instance : MonadFinally (EStateM ε σ) :=
+{ finally' := fun α β x h s =>
+  let r := x s;
+  match r with
+  | Result.ok a s    => match h (some a) s with
+    | Result.ok b s    => Result.ok (a, b) s
+    | Result.error e s => Result.error e s
+  | Result.error e₁ s => match h none s with
+    | Result.ok _ s     => Result.error e₁ s
+    | Result.error e₂ s => Result.error e₂ s }
+
 @[inline] def adaptState {σ₁ σ₂} (split : σ → σ₁ × σ₂) (merge : σ₁ → σ₂ → σ) (x : EStateM ε σ₁ α) : EStateM ε σ α :=
 fun s =>
   let (s₁, s₂) := split s;

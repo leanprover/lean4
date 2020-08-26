@@ -288,7 +288,7 @@ mkAppM `Eq.mp #[eqProof, pr]
 def mkEqMPR (eqProof pr : Expr) : m Expr :=
 mkAppM `Eq.mpr #[eqProof, pr]
 
-private def mkNoConfusionAppImp (target : Expr) (h : Expr) : MetaM Expr := do
+private def mkNoConfusionImp (target : Expr) (h : Expr) : MetaM Expr := do
 type ← inferType h;
 type ← whnf type;
 match type.eq? with
@@ -303,7 +303,7 @@ match type.eq? with
       u ← getLevel target;
       pure $ mkAppN (mkConst (mkNameStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
     | _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)
-def mkNoConfusionApp (target : Expr) (h : Expr) : m Expr := liftMetaM $ mkNoConfusionAppImp target h
+def mkNoConfusion (target : Expr) (h : Expr) : m Expr := liftMetaM $ mkNoConfusionImp target h
 
 def mkPure (monad : Expr) (e : Expr) : m Expr :=
 mkAppOptM `HasPure.pure #[monad, none, none, e]

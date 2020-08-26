@@ -29,7 +29,7 @@ withMVarContext mvarId $ do
     env ← getEnv;
     match a.isConstructorApp? env, b.isConstructorApp? env with
     | some aCtor, some bCtor => do
-      val ← mkNoConfusionApp target (mkFVar fvarId);
+      val ← mkNoConfusion target (mkFVar fvarId);
       if aCtor.name != bCtor.name then do
         assignExprMVar mvarId val;
         pure InjectionResultCore.solved

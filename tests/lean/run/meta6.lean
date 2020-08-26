@@ -48,7 +48,7 @@ axiom t2 : 0 > 5
 def tst3 : MetaM Unit := do
 env ← getEnv;
 t2  ← getConstInfo `t2;
-c   ← mkNoConfusionApp t2.type (mkConst `t1);
+c   ← mkNoConfusion t2.type (mkConst `t1);
 print c;
 Meta.check c;
 cType ← inferType c;

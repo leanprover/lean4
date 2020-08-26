@@ -157,7 +157,49 @@ def collectExpr (e : Expr) : ClosureM Expr := do
 e ← instantiateMVars e;
 visitExpr collectExprAux e
 
+structure ExprToClose :=
+(expr   : Expr)
+(isType : Bool)
+
+instance ExprToClose.inhabited : Inhabited ExprToClose := ⟨⟨arbitrary _, arbitrary _⟩⟩
+
 structure MkClosureResult :=
+(levelParams  : Array Name)
+(exprs        : Array Expr)
+(levelClosure : Array Level)
+(exprClosure  : Array Expr)
+(mctx         : MetavarContext)
+
+def mkClosure (mctx : MetavarContext) (lctx : LocalContext) (exprsToClose : Array ExprToClose) (zeta : Bool := false) : Except String MkClosureResult :=
+let shareCommonExprs : Std.ShareCommonM (Array ExprToClose) := exprsToClose.mapM fun ⟨e, isType⟩ => do {
+  e ← Std.withShareCommon e;
+  pure ⟨e, isType⟩
+};
+let exprsToClose := shareCommonExprs.run;
+let mkExprs : ClosureM (Array Expr × MetavarContext) := do {
+  exprs ← exprsToClose.mapM fun ⟨e, _⟩ => collectExpr e;
+  mctx  ← getMCtx;
+  pure (exprs, mctx)
+};
+match (mkExprs { lctxInput := lctx, zeta := zeta }).run { mctx := mctx } with
+| EStateM.Result.ok (exprs, mctx) s =>
+  let fvars := s.lctxOutput.getFVars;
+  let exprs := exprs.mapIdx fun i e =>
+    let isType := (exprsToClose.get! i).isType;
+    if isType then
+      s.lctxOutput.mkForall fvars e
+    else
+      s.lctxOutput.mkLambda fvars e;
+  Except.ok {
+    levelParams  := s.levelParams,
+    exprs        := exprs,
+    levelClosure := s.levelClosure,
+    exprClosure  := s.exprClosure,
+    mctx         := mctx
+  }
+| EStateM.Result.error ex s => Except.error ex
+
+structure MkValueTypeClosureResult :=
 (levelParams  : Array Name)
 (type         : Expr)
 (value        : Expr)
@@ -165,38 +207,23 @@ structure MkClosureResult :=
 (exprClosure  : Array Expr)
 (mctx         : MetavarContext)
 
-def mkClosure (mctx : MetavarContext) (lctx : LocalContext) (type : Expr) (value : Expr) (zeta : Bool := false) : Except String MkClosureResult :=
-let shareCommonTypeValue : Std.ShareCommonM (Expr × Expr) := do {
-  type  ← Std.withShareCommon type;
-  value ← Std.withShareCommon value;
-  pure (type, value)
-};
-let (type, value) := shareCommonTypeValue.run;
-let mkTypeValue : ClosureM (Expr × Expr × MetavarContext) := do {
-  type  ← collectExpr type;
-  value ← collectExpr value;
-  mctx  ← getMCtx;
-  pure (type, value, mctx)
-};
-match (mkTypeValue { lctxInput := lctx, zeta := zeta }).run { mctx := mctx } with
-| EStateM.Result.ok (type, value, mctx) s =>
-  let fvars := s.lctxOutput.getFVars;
-  let type  := s.lctxOutput.mkForall fvars type;
-  let value := s.lctxOutput.mkLambda fvars value;
-  Except.ok {
-    levelParams  := s.levelParams,
-    type         := type,
-    value        := value,
-    levelClosure := s.levelClosure,
-    exprClosure  := s.exprClosure,
-    mctx         := mctx }
-| EStateM.Result.error ex s => Except.error ex
+def mkValueTypeClosure (mctx : MetavarContext) (lctx : LocalContext) (type : Expr) (value : Expr) (zeta : Bool := false)
+    : Except String MkValueTypeClosureResult := do
+r ← mkClosure mctx lctx #[ { expr := type, isType := true }, { expr := value, isType := false } ] zeta;
+pure {
+  levelParams  := r.levelParams,
+  type         := r.exprs.get! 0,
+  value        := r.exprs.get! 1,
+  levelClosure := r.levelClosure,
+  exprClosure  := r.exprClosure,
+  mctx         := r.mctx
+}
 
 end Closure
 
 def mkAuxDefinitionCore (env : Environment) (opts : Options) (mctx : MetavarContext) (lctx : LocalContext) (name : Name) (type : Expr) (value : Expr)
     (zeta : Bool := false) : Except KernelException (Expr × Environment × MetavarContext) :=
-match Closure.mkClosure mctx lctx type value zeta with
+match Closure.mkValueTypeClosure mctx lctx type value zeta with
 | Except.error ex  => throw $ KernelException.other ex
 | Except.ok result => do
   let decl := Declaration.defnDecl {

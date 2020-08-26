@@ -33,17 +33,13 @@ def commentBody : Parser :=
 @[combinatorFormatter commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
 def docComment       := parser! "/--" >> commentBody
-def attrArg : Parser := ident <|> strLit <|> numLit
--- use `rawIdent` because of attribute names such as `instance`
-def attrInstance     := parser! rawIdent >> many attrArg
-def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def «private»        := parser! "private "
 def «protected»      := parser! "protected "
 def visibility       := «private» <|> «protected»
 def «noncomputable»  := parser! "noncomputable "
 def «unsafe»         := parser! "unsafe "
 def «partial»        := parser! "partial "
-def declModifiers    := parser! optional docComment >> optional «attributes» >> optional visibility >> optional «noncomputable» >> optional «unsafe» >> optional «partial»
+def declModifiers    := parser! optional docComment >> optional Term.«attributes» >> optional visibility >> optional «noncomputable» >> optional «unsafe» >> optional «partial»
 def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 def declSig          := parser! many Term.bracketedBinder >> Term.typeSpec
 def optDeclSig       := parser! many Term.bracketedBinder >> Term.optType
@@ -89,7 +85,7 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
-@[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 attrInstance ", " >> "]" >> many1 ident
+@[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "]" >> many1 ident
 @[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
 def openHiding       := parser! try (ident >> "hiding") >> many1 ident
 def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident

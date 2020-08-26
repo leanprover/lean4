@@ -465,7 +465,8 @@ else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   let stxNew  := if useLetExpr then stxNew else stxNew.updateKind `Lean.Parser.Term.«let!»;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then do
-  declNew ← liftMacroM $ expandLetEqnsDecl letDecl;
+  letDeclIdNew ← liftMacroM $ expandLetEqnsDecl letDecl;
+  let declNew := (stx.getArg 1).setArg 0 letDeclIdNew;
   let stxNew  := stx.setArg 1 declNew;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else

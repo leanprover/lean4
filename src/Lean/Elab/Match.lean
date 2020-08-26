@@ -191,6 +191,7 @@ when (s.found.contains id) $ throwError ("invalid pattern, variable '" ++ id ++ 
 modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
 
 -- HACK: inlining this function crashes the compiler
+-- It produces "unknown free variable: _kernel_fresh.<some idx>"  at step `csimp.cpp`
 def processIdAuxAux (stx : Syntax) (mustBeCtor : Bool) (env : Environment) (f : Expr) : M Nat :=
 match f with
 | Expr.const fName _ _ =>

@@ -224,6 +224,13 @@ def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
+def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
+
+def withDeclNameSuffix {α} (suffix : Name) (x : TermElabM α) : TermElabM α := do
+name? ← getDeclName?;
+withDeclName ((name?.getD Name.anonymous) ++ suffix) x
+
 def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
 env  ← getEnv;
 mctx ← getMCtx;

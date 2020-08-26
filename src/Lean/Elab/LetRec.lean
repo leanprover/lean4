@@ -47,8 +47,51 @@ result
 private def isLetEqnsDecl (d : LetRecDecl) : Bool :=
 d.decl.isOfKind `Lean.Parser.Term.letEqnsDecl
 
+open Meta
+
+structure LetRecDeclHeader :=
+(fnFVarId   : FVarId)
+(numBinders : Nat)
+
+instance LetRecDeclHeader.inhabited : Inhabited LetRecDeclHeader := ⟨⟨arbitrary _, arbitrary _⟩⟩
+
+private partial def withLetRecDeclHeadersAux {α} (view : LetRecView) (k : Array LetRecDeclHeader → TermElabM α) : Nat → Array LetRecDeclHeader → TermElabM α
+| i, acc =>
+  if h : i < view.decls.size then
+    let decl := (view.decls.get ⟨i, h⟩).decl;
+    -- `decl` is a `letIdDecl` of the form `ident >> many bracketedBinder >> optType >> " := " >> termParser
+    withRef decl do
+      let declView := mkLetIdDeclView decl;
+      (type, numBinders) ← elabBinders declView.binders $ fun xs => do {
+          type ← elabType declView.type;
+          type ← mkForallFVars xs type;
+          pure (type, xs.size)
+      };
+      withLocalDeclD declView.id type fun fvar =>
+        withLetRecDeclHeadersAux (i+1) (acc.push ⟨fvar.fvarId!, numBinders⟩)
+  else
+    k acc
+
+private def withLetRecDeclHeaders {α} (view : LetRecView) (k : Array LetRecDeclHeader → TermElabM α) : TermElabM α :=
+withLetRecDeclHeadersAux view k 0 #[]
+
+private def elabLetRecDeclValues (view : LetRecView) (headers : Array LetRecDeclHeader) : TermElabM (Array Expr) :=
+view.decls.mapIdxM fun i d => do
+  let decl       := d.decl;
+  let view       := mkLetIdDeclView decl;
+  let header     := headers.get! i;
+  headerLocalDecl ← getLocalDecl header.fnFVarId;
+  forallBoundedTelescope headerLocalDecl.type header.numBinders fun xs type =>
+     withDeclNameSuffix view.id do
+       value ← elabTermEnsuringType view.value type;
+       mkLambdaFVars xs value
+
 private def elabLetRecView (view : LetRecView) (expectedType? : Option Expr) : TermElabM Expr :=
-throwError ("WIP " ++ mkNullNode (view.decls.map fun (d : LetRecDecl) => d.decl))
+withLetRecDeclHeaders view fun headers => do
+  values ← elabLetRecDeclValues view headers;
+  -- TODO
+  values.forM IO.println;
+  throwError ("WIP")
 
 @[builtinTermElab «letrec»] def elabLetRec : TermElab :=
 fun stx expectedType? => do

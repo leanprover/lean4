@@ -63,7 +63,7 @@ instance Modifiers.hasFormat : HasFormat Modifiers :=
 
 instance Modifiers.hasToString : HasToString Modifiers := ⟨toString ∘ format⟩
 
-def elabAttr (stx : Syntax) : CommandElabM Attribute := do
+def elabAttr {m} [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) : m Attribute := do
 -- rawIdent >> many attrArg
 let nameStx := stx.getArg 0;
 attrName ← match nameStx.isIdOrAtom? with
@@ -77,7 +77,7 @@ let args := stx.getArg 1;
 let args := if args.getNumArgs == 0 then Syntax.missing else args;
 pure { name := attrName, args := args }
 
-def elabAttrs (stx : Syntax) : CommandElabM (Array Attribute) :=
+def elabAttrs {m} [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) : m (Array Attribute) :=
 (stx.getArg 1).foldSepArgsM
   (fun stx attrs => do
     attr ← elabAttr stx;

@@ -46,7 +46,7 @@ fun stx => match_syntax stx with
       val  ← elabTerm e decl.type;
       val  ← ensureHasType decl.type val;
       assignExprMVar g val;
-      gs'  ← getMVars val;
+      gs'  ← getMVarsNoDelayed val;
       let gs' := gs'.toList;
       tagUntaggedGoals decl.userName `refine gs';
       pure gs'

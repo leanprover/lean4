@@ -256,7 +256,7 @@ else do
         val ← elabTerm rhs mvarDecl.type;
         val ← ensureHasType mvarDecl.type val;
         assignExprMVar mvarId val;
-        gs'  ← getMVars val;
+        gs' ← getMVarsNoDelayed val;
         let gs' := gs'.toList;
         tagUntaggedGoals mvarDecl.userName `induction gs';
         pure (gs ++ gs')

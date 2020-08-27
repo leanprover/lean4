@@ -124,15 +124,6 @@ currNamespace ← getCurrNamespace;
 let declName := currNamespace ++ atomicName;
 applyVisibility modifiers.visibility declName
 
-def applyAttributes (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
-attrs.forM $ fun attr => do
- env ← getEnv;
- match getAttributeImpl env attr.name with
- | Except.error errMsg => throwError errMsg
- | Except.ok attrImpl  =>
-   when (attrImpl.applicationTime == applicationTime) do
-     liftCoreM (attrImpl.add declName attr.args true)
-
 end Command
 end Elab
 end Lean

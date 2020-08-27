@@ -426,7 +426,29 @@ indTypes.map fun indType =>
     { ctor with type := ctorType };
   { indType with ctors := ctors }
 
-private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Declaration := do
+private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit := do
+env ← getEnv;
+let hasEq   := env.contains `Eq;
+let hasHEq  := env.contains `HEq;
+let hasUnit := env.contains `PUnit;
+let hasProd := env.contains `Prod;
+views.forM fun view => do {
+  let n := view.declName;
+  modifyEnv fun env => mkRecOn env n;
+  when hasUnit $ modifyEnv fun env => mkCasesOn env n;
+  when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env n;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkBelow env n;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkIBelow env n;
+  pure ()
+};
+views.forM fun view => do {
+  let n := view.declName;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkBRecOn env n;
+  when (hasUnit && hasProd) $ modifyEnv fun env => mkBInductionOn env n;
+  pure ()
+}
+
+private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := do
 let view0             := views.get! 0;
 scopeLevelNames ← Term.getLevelNames;
 checkLevelNames views;
@@ -461,39 +483,17 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       | Except.ok levelParams => do
         indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
         let indTypes := applyInferMod views numParams indTypes;
-        pure $ Declaration.inductDecl levelParams numParams indTypes isUnsafe
-
-private def mkAuxConstructions (views : Array InductiveView) : CommandElabM Unit := do
-env ← getEnv;
-let hasEq   := env.contains `Eq;
-let hasHEq  := env.contains `HEq;
-let hasUnit := env.contains `PUnit;
-let hasProd := env.contains `Prod;
-views.forM fun view => do {
-  let n := view.declName;
-  modifyEnv fun env => mkRecOn env n;
-  when hasUnit $ modifyEnv fun env => mkCasesOn env n;
-  when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env n;
-  when (hasUnit && hasProd) $ modifyEnv fun env => mkBelow env n;
-  when (hasUnit && hasProd) $ modifyEnv fun env => mkIBelow env n;
-  pure ()
-};
-views.forM fun view => do {
-  let n := view.declName;
-  when (hasUnit && hasProd) $ modifyEnv fun env => mkBRecOn env n;
-  when (hasUnit && hasProd) $ modifyEnv fun env => mkBInductionOn env n;
-  pure ()
-}
+        let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe;
+        -- ensureNoUnassignedMVars decl -- TODO
+        addDecl decl;
+        mkAuxConstructions views;
+        -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
+        views.forM fun view => applyAttributes view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
 
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;
 let ref := view0.ref;
-decl ← runTermElabM view0.declName fun vars => withRef ref $ mkInductiveDecl vars views;
-addDecl decl;
-mkAuxConstructions views;
--- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
-views.forM fun view => applyAttributes view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-pure ()
+runTermElabM view0.declName fun vars => withRef ref $ mkInductiveDecl vars views
 
 end Command
 end Elab

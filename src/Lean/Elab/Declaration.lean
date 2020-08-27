@@ -84,9 +84,9 @@ let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 scopeLevelNames ← getLevelNames;
 withDeclId declId $ fun name => do
   declName          ← mkDeclName modifiers name;
-  applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   allUserLevelNames ← getLevelNames;
-  decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
+  runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do
+    applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
     type ← instantiateMVars type;
@@ -96,17 +96,17 @@ withDeclId declId $ fun name => do
     let usedParams  := (collectLevelParams {} type).params;
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
     | Except.error msg      => throwErrorAt stx msg
-    | Except.ok levelParams =>
-      pure $ Declaration.axiomDecl {
+    | Except.ok levelParams => do
+      let decl := Declaration.axiomDecl {
         name     := declName,
         lparams  := levelParams,
         type     := type,
         isUnsafe := modifiers.isUnsafe
-      }
-    };
-  addDecl decl;
-  applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-  applyAttributes declName modifiers.attrs AttributeApplicationTime.afterCompilation
+      };
+      -- ensureNoUnassignedMVars decl; -- TODO
+      addDecl decl;
+      applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+      applyAttributes declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor

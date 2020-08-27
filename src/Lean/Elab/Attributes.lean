@@ -39,5 +39,17 @@ def elabAttrs {m} [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) : m (Arra
     pure $ attrs.push attr)
   #[]
 
+def applyAttributesImp (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CoreM Unit :=
+attrs.forM $ fun attr => do
+ env ← getEnv;
+ match getAttributeImpl env attr.name with
+ | Except.error errMsg => throwError errMsg
+ | Except.ok attrImpl  =>
+   when (attrImpl.applicationTime == applicationTime) do
+     attrImpl.add declName attr.args true
+
+def applyAttributes {m} [MonadLiftT CoreM m] (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : m Unit :=
+liftM $ applyAttributesImp declName attrs applicationTime
+
 end Elab
 end Lean

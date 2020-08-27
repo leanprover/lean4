@@ -370,7 +370,7 @@ mctx ← getMCtx;
 ngen ← getNGen;
 lctx ← getLCtx;
 match x lctx { mctx := mctx, ngen := ngen } with
-| EStateM.Result.ok e newS      => do
+| EStateM.Result.ok e newS => do
   setNGen newS.ngen;
   setMCtx newS.mctx;
   pure e
@@ -442,7 +442,7 @@ match env.find? constName with
 @[inline] private def savingCacheImpl {α} (x : MetaM α) : MetaM α := do
 s ← get;
 let savedCache := s.cache;
-finally x (modify $ fun s => { s with cache := savedCache })
+finally x (modify fun s => { s with cache := savedCache })
 
 @[inline] def savingCache {α} : n α → n α :=
 mapMetaM fun _ => savingCacheImpl
@@ -824,8 +824,8 @@ mapMetaM fun _ => withExistingLocalDeclsImpl decls
 @[inline] private def withNewMCtxDepthImpl {α} (x : MetaM α) : MetaM α := do
 s ← get;
 let savedMCtx  := s.mctx;
-modify $ fun s => { s with mctx := s.mctx.incDepth };
-finally x (modify $ fun s => { s with mctx := savedMCtx })
+modifyMCtx fun mctx => mctx.incDepth;
+finally x (setMCtx savedMCtx)
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
@@ -857,24 +857,21 @@ mapMetaM fun _ => withMVarContextImpl mvarId
 
 @[inline] private def withMCtxImpl {α} (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
 mctx' ← getMCtx;
-modify $ fun s => { s with mctx := mctx };
-finally x (modify $ fun s => { s with mctx := mctx' })
+setMCtx mctx;
+finally x (setMCtx mctx')
 
 @[inline] def withMCtx {α} (mctx : MetavarContext) : n α → n α :=
 mapMetaM fun _ => withMCtxImpl mctx
 
 @[inline] private def approxDefEqImpl {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true} })
-  x
+withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x
 
 /-- Execute `x` using approximate unification: `foApprox`, `ctxApprox` and `quasiPatternApprox`.  -/
 @[inline] def approxDefEq {α} : n α → n α :=
 mapMetaM fun _ => approxDefEqImpl
 
 @[inline] private def fullApproxDefEqImpl {α} (x : MetaM α) : MetaM α :=
-adaptReader
-  (fun (ctx : Context) => { ctx with config := { ctx.config with foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true } })
-  x
+withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true }) x
 
 /--
   Similar to `approxDefEq`, but uses all available approximations.
@@ -889,7 +886,7 @@ mapMetaM fun _ => fullApproxDefEqImpl
 @[inline] private def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α := do
 mctx ← getMCtx;
 let (a, mctx) := x.run mctx;
-modify fun s => { s with mctx := mctx };
+setMCtx mctx;
 pure a
 
 def instantiateLevelMVars (lvl : Level) : m Level :=

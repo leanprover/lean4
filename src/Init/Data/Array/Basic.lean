@@ -176,7 +176,7 @@ iterateMAux a f 0 b
 @[inline] def foldlM (f : β → α → m β) (init : β) (a : Array α) : m β :=
 iterateM a init (fun _ b a => f a b)
 
-@[inline] def foldlFromM (f : β → α → m β) (init : β) (a : Array α) (beginIdx : Nat := 0) : m β :=
+@[inline] def foldlFromM (f : β → α → m β) (init : β) (beginIdx : Nat) (a : Array α) : m β :=
 iterateMAux a (fun _ b a => f a b) beginIdx init
 
 -- TODO(Leo): justify termination using wf-rec
@@ -273,8 +273,8 @@ Id.run $ iterateMAux a f i b
 @[inline] def foldl (f : β → α → β) (init : β) (a : Array α) : β :=
 iterate a init (fun _ a b => f b a)
 
-@[inline] def foldlFrom (f : β → α → β) (init : β) (a : Array α) (beginIdx : Nat := 0) : β :=
-Id.run $ foldlFromM f init a beginIdx
+@[inline] def foldlFrom (f : β → α → β) (init : β) (beginIdx : Nat) (a : Array α) : β :=
+Id.run $ foldlFromM f init beginIdx a
 
 @[inline] def iterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ (i : Fin a₁.size), α → σ → β → β) : β :=
 Id.run $ iterateM₂Aux a₁ a₂ f 0 b
@@ -516,6 +516,9 @@ partial def forMAux (f : α → m PUnit) (a : Array α) : Nat → m PUnit
 @[inline] def forM (f : α → m PUnit) (a : Array α) : m PUnit :=
 a.forMAux f 0
 
+@[inline] def forFromM (f : α → m PUnit) (beginIdx : Nat) (a : Array α) : m PUnit :=
+a.forMAux f beginIdx
+
 @[specialize]
 partial def forRevMAux (f : α → m PUnit) (a : Array α) : forall (i : Nat), i ≤ a.size → m PUnit
 | i, h =>
@@ -615,6 +618,9 @@ filterAux p as 0 0
 
 @[inline] def filterM {m : Type → Type} [Monad m] {α : Type}  (p : α → m Bool) (as : Array α) : m (Array α) :=
 filterMAux p as 0 0
+
+@[inline] def filterFromM {m : Type → Type} [Monad m] {α : Type}  (p : α → m Bool) (beginIdx : Nat) (as : Array α) : m (Array α) :=
+filterMAux p as beginIdx beginIdx
 
 @[specialize] partial def filterMapMAux {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : Array α) : Nat → Array β → m (Array β)
 | i, bs =>

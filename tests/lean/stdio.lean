@@ -13,11 +13,11 @@ open IO
 def test : IO Unit := do
 FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
 { h₂ ← FS.Handle.mk "stdout2.txt" IO.FS.Mode.write;
-  withStdout h₁ $ do
+  withStdout (Stream.ofHandle h₁) $ do
     println "line 1";
     catch
     ( do
-      withStdout h₂ $ println "line 2";
+      withStdout (Stream.ofHandle h₂) $ println "line 2";
       throw $ IO.userError "my error" )
     ( fun e => println e );
     println "line 3" };

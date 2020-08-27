@@ -125,53 +125,55 @@ static lean_object * io_wrap_handle(FILE *hfile) {
     return lean_alloc_external(g_io_handle_external_class, hfile);
 }
 
-static object * g_handle_stdin  = nullptr;
-static object * g_handle_stdout = nullptr;
-static object * g_handle_stderr = nullptr;
-MK_THREAD_LOCAL_GET(object *, get_handle_current_stdin,  g_handle_stdin);
-MK_THREAD_LOCAL_GET(object *, get_handle_current_stdout, g_handle_stdout);
-MK_THREAD_LOCAL_GET(object *, get_handle_current_stderr, g_handle_stderr);
+extern "C" obj_res lean_stream_of_handle(obj_arg h);
 
-/* getStdin : IO FS.Handle */
+static object * g_stream_stdin  = nullptr;
+static object * g_stream_stdout = nullptr;
+static object * g_stream_stderr = nullptr;
+MK_THREAD_LOCAL_GET(object *, get_stream_current_stdin,  g_stream_stdin);
+MK_THREAD_LOCAL_GET(object *, get_stream_current_stdout, g_stream_stdout);
+MK_THREAD_LOCAL_GET(object *, get_stream_current_stderr, g_stream_stderr);
+
+/* getStdin : IO FS.Stream */
 extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
-    object * r = get_handle_current_stdin();
+    object * r = get_stream_current_stdin();
     inc_ref(r);
     return set_io_result(r);
 }
 
-/* getStdout : IO FS.Handle */
+/* getStdout : IO FS.Stream */
 extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
-    object * r = get_handle_current_stdout();
+    object * r = get_stream_current_stdout();
     inc_ref(r);
     return set_io_result(r);
 }
 
-/* getStderr : IO FS.Handle */
+/* getStderr : IO FS.Stream */
 extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
-    object * r = get_handle_current_stderr();
+    object * r = get_stream_current_stderr();
     inc_ref(r);
     return set_io_result(r);
 }
 
-/* setStdin  : FS.Handle -> IO FS.Handle */
+/* setStdin  : FS.Stream -> IO FS.Stream */
 extern "C" obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
-    object * & x = get_handle_current_stdin();
+    object * & x = get_stream_current_stdin();
     object * r = x;
     x = h;
     return set_io_result(r);
 }
 
-/* setStdout  : FS.Handle -> IO FS.Handle */
+/* setStdout  : FS.Stream -> IO FS.Stream */
 extern "C" obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
-    object * & x = get_handle_current_stdout();
+    object * & x = get_stream_current_stdout();
     object * r = x;
     x = h;
     return set_io_result(r);
 }
 
-/* setStderr  : FS.Handle -> IO FS.Handle */
+/* setStderr  : FS.Stream -> IO FS.Stream */
 extern "C" obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
-    object * & x = get_handle_current_stderr();
+    object * & x = get_stream_current_stderr();
     object * r = x;
     x = h;
     return set_io_result(r);
@@ -719,12 +721,12 @@ void initialize_io() {
     _setmode(_fileno(stderr), _O_BINARY);
     _setmode(_fileno(stdin), _O_BINARY);
 #endif
-    g_handle_stdout = io_wrap_handle(stdout);
-    mark_persistent(g_handle_stdout);
-    g_handle_stderr = io_wrap_handle(stderr);
-    mark_persistent(g_handle_stderr);
-    g_handle_stdin  = io_wrap_handle(stdin);
-    mark_persistent(g_handle_stdin);
+    g_stream_stdout = lean_stream_of_handle(io_wrap_handle(stdout));
+    mark_persistent(g_stream_stdout);
+    g_stream_stderr = lean_stream_of_handle(io_wrap_handle(stderr));
+    mark_persistent(g_stream_stderr);
+    g_stream_stdin  = lean_stream_of_handle(io_wrap_handle(stdin));
+    mark_persistent(g_stream_stdin);
 }
 
 void finalize_io() {

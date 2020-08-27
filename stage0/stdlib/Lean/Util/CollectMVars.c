@@ -26,10 +26,10 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_CollectMVars_visit___spec__2(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_collectMVars(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Expr_hash(lean_object*);
 uint8_t l_Std_HashSetImp_contains___at_Lean_CollectMVars_visit___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_collectMVars(lean_object*, lean_object*);
 lean_object* l_Lean_CollectMVars_State_inhabited___closed__2;
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_List_elem___main___at_Lean_CollectMVars_visit___spec__2___boxed(lean_object*, lean_object*);
@@ -1780,7 +1780,7 @@ x_3 = l_Lean_CollectMVars_main___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_collectMVars(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Expr_collectMVars(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 

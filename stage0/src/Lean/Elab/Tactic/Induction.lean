@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Meta.RecursorInfo
+import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
 import Lean.Elab.Tactic.ElabTerm
@@ -255,7 +256,8 @@ else do
         val ← elabTerm rhs mvarDecl.type;
         val ← ensureHasType mvarDecl.type val;
         assignExprMVar mvarId val;
-        gs'  ← collectMVars val;
+        gs'  ← getMVars val;
+        let gs' := gs'.toList;
         tagUntaggedGoals mvarDecl.userName `induction gs';
         pure (gs ++ gs')
       else do

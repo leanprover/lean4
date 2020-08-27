@@ -410,13 +410,20 @@ else do
   };
   pure $ mkApp f val
 
--- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
-private def expandLetIdLhs (letIdLhs : Syntax) : Name × Array Syntax × Syntax := do
-let id      := (letIdLhs.getArg 0).getId;
-let binders := (letIdLhs.getArg 1).getArgs;
-let optType := letIdLhs.getArg 2;
-let type    := expandOptType letIdLhs optType;
-(id, binders, type)
+structure LetIdDeclView :=
+(id      : Name)
+(binders : Array Syntax)
+(type    : Syntax)
+(value   : Syntax)
+
+def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
+-- `letIdDecl` is of the form `ident >> many bracketedBinder >> optType >> " := " >> termParser
+let id      := (letIdDecl.getArg 0).getId;
+let binders := (letIdDecl.getArg 1).getArgs;
+let optType := letIdDecl.getArg 2;
+let type    := expandOptType letIdDecl optType;
+let value   := letIdDecl.getArg 4;
+{ id := id, binders := binders, type := type, value := value }
 
 private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
 let alt0 := matchAlts.getArg 0;
@@ -434,13 +441,19 @@ private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array 
   body ← expandLetEqnsDeclVal n discrs;
   `(fun $x => $body)
 
+def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
+let ref     := letDecl;
+let alts    := letDecl.getArg 4;
+let numPats := getMatchAltNumPatterns alts;
+val ← expandLetEqnsDeclVal ref alts numPats #[];
+pure $ Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val]
+
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
 let ref     := stx;
 let letDecl := (stx.getArg 1).getArg 0;
 let body    := stx.getArg 3;
 if letDecl.getKind == `Lean.Parser.Term.letIdDecl then
-  let (id, binders, type) := expandLetIdLhs letDecl;
-  let val                 := letDecl.getArg 4;
+  let { id := id, binders := binders, type := type, value := val } := mkLetIdDeclView letDecl;
   elabLetDeclAux id binders type val body expectedType? useLetExpr
 else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
@@ -452,12 +465,8 @@ else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   let stxNew  := if useLetExpr then stxNew else stxNew.updateKind `Lean.Parser.Term.«let!»;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then do
-  let alts    := letDecl.getArg 4;
-  let numPats := getMatchAltNumPatterns alts;
-  val ← liftMacroM $ expandLetEqnsDeclVal ref alts numPats #[];
-  let newDecl := Syntax.node `Lean.Parser.Term.letIdDecl
-    #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val];
-  let declNew := (stx.getArg 1).setArg 0 newDecl;
+  letDeclIdNew ← liftMacroM $ expandLetEqnsDecl letDecl;
+  let declNew := (stx.getArg 1).setArg 0 letDeclIdNew;
   let stxNew  := stx.setArg 1 declNew;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else

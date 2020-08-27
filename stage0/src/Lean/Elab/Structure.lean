@@ -418,7 +418,36 @@ type ← instantiateMVars type;
 let type := type.inferImplicit params.size !view.ctor.inferMod;
 pure { name := view.ctor.declName, type := type }
 
-private def elabStructureView (view : StructView) : TermElabM ElabStructResult := do
+@[extern "lean_mk_projections"]
+private constant mkProjections (env : Environment) (structName : @& Name) (projs : @& List ProjectionInfo) (isClass : Bool) : Except String Environment := arbitrary _
+
+private def addProjections (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : TermElabM Unit := do
+env ← getEnv;
+match mkProjections env structName projs isClass with
+| Except.ok env    => setEnv env
+| Except.error msg => throwError msg
+
+private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
+env ← getEnv;
+let hasUnit := env.contains `PUnit;
+let hasEq   := env.contains `Eq;
+let hasHEq  := env.contains `HEq;
+modifyEnv fun env => mkRecOn env declName;
+when hasUnit $ modifyEnv fun env => mkCasesOn env declName;
+when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env declName
+
+private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × Expr × Expr)) : TermElabM Unit := do
+localInsts ← getLocalInstances;
+withLCtx lctx localInsts do
+  defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
+    /- The identity function is used as "marker". -/
+    value ← mkId value;
+    let zeta := true; -- expand `let-declarations`
+    _ ← mkAuxDefinition declName type value zeta;
+    modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;
+    pure ()
+
+private def elabStructureView (view : StructView) : TermElabM Unit := do
 let numExplicitParams := view.params.size;
 type ← Term.elabType view.type;
 unless (validStructType type) $ throwErrorAt view.type "expected Type";
@@ -442,22 +471,26 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
       type ← instantiateMVars type;
       let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
       let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
+      -- ensureNoUnassignedMVars decl -- TODO
+      addDecl decl;
       let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
         { declName := info.declName, inferMod := info.inferMod : ProjectionInfo };
+      addProjections view.declName projInfos view.isClass;
+      mkAuxConstructions view.declName;
       instParents ← fieldInfos.filterM fun info => do {
         decl ← Term.getFVarLocalDecl! info.fvar;
         pure (info.isSubobject && decl.binderInfo.isInstImplicit)
       };
       let projInstances := instParents.toList.map fun info => info.declName;
-      mctx ← getMCtx;
+      applyAttributes view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+      projInstances.forM addGlobalInstance;
       lctx ← getLCtx;
-      localInsts ← getLocalInstances;
       let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome;
       defaultAuxDecls ← fieldsWithDefault.mapM fun info => do {
         type ← inferType info.fvar;
         pure (info.declName ++ `_default, type, info.value?.get!)
       };
-      /- The `mctx`, `lctx`, `localInsts` and `defaultAuxDecls` are used to create the auxiliary `_default` declarations *after* the structure has been declarated.
+      /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary `_default` declarations
          The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
       let lctx := params.foldl
         (fun (lctx : LocalContext) (p : Expr) =>
@@ -468,38 +501,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
           if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating `_default`.
           else lctx.updateBinderInfo info.fvar.fvarId! BinderInfo.default)
         lctx;
-      pure { decl := decl, projInfos := projInfos, projInstances := projInstances,
-             mctx := mctx, lctx := lctx, localInsts := localInsts, defaultAuxDecls := defaultAuxDecls }
-
-@[extern "lean_mk_projections"]
-private constant mkProjections (env : Environment) (structName : @& Name) (projs : @& List ProjectionInfo) (isClass : Bool) : Except String Environment := arbitrary _
-
-private def addProjections (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : CommandElabM Unit := do
-env ← getEnv;
-match mkProjections env structName projs isClass with
-| Except.ok env    => setEnv env
-| Except.error msg => throwError msg
-
-private def mkAuxConstructions (declName : Name) : CommandElabM Unit := do
-env ← getEnv;
-let hasUnit := env.contains `PUnit;
-let hasEq   := env.contains `Eq;
-let hasHEq  := env.contains `HEq;
-modifyEnv fun env => mkRecOn env declName;
-when hasUnit $ modifyEnv fun env => mkCasesOn env declName;
-when (hasUnit && hasEq && hasHEq) $ modifyEnv fun env => mkNoConfusion env declName
-
-private def addDefaults (mctx : MetavarContext) (lctx : LocalContext) (localInsts : LocalInstances)
-    (defaultAuxDecls : Array (Name × Expr × Expr)) : CommandElabM Unit :=
-liftTermElabM none $ withLCtx lctx localInsts do
-  setMCtx mctx;
-  defaultAuxDecls.forM fun ⟨declName, type, value⟩ => do
-    /- The identity function is used as "marker". -/
-    value ← mkId value;
-    let zeta := true; -- expand `let-declarations`
-    _ ← mkAuxDefinition declName type value zeta;
-    modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible;
-    pure ()
+      addDefaults lctx defaultAuxDecls
 
 /-
 parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
@@ -529,7 +531,7 @@ withDeclId declId $ fun name => do
   allUserLevelNames ← getLevelNames;
   ctor ← expandCtor stx modifiers declName;
   fields ← expandFields stx modifiers declName;
-  r ← runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructureView {
+  runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructureView {
     ref               := stx,
     modifiers         := modifiers,
     scopeLevelNames   := scopeLevelNames,
@@ -542,15 +544,7 @@ withDeclId declId $ fun name => do
     type              := type,
     ctor              := ctor,
     fields            := fields
-  };
-  let ref := declId;
-  addDecl r.decl;
-  addProjections declName r.projInfos isClass;
-  mkAuxConstructions declName;
-  applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-  r.projInstances.forM addInstance;
-  addDefaults r.mctx r.lctx r.localInsts r.defaultAuxDecls;
-  pure ()
+  }
 
 end Command
 end Elab

@@ -36,12 +36,12 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
 | b, leaf           => b
 | b, node _ l k v r => fold (f (fold b l) k v) r
 
-@[specialize] def mfold {m : Type w → Type w'} [Monad m] (f : σ → ∀ (k : α), β k → m σ) : σ → RBNode α β → m σ
+@[specialize] def foldM {m : Type w → Type w'} [Monad m] (f : σ → ∀ (k : α), β k → m σ) : σ → RBNode α β → m σ
 | b, leaf           => pure b
 | b, node _ l k v r => do
-  b ← mfold b l;
+  b ← foldM b l;
   b ← f b k v;
-  mfold b r
+  foldM b r
 
 @[specialize] def revFold (f : σ → ∀ (k : α), β k → σ) : σ → RBNode α β → σ
 | b, leaf           => b
@@ -230,11 +230,11 @@ t.val.depth f
 @[inline] def revFold (f : σ → α → β → σ) : σ → RBMap α β lt → σ
 | b, ⟨t, _⟩ => t.revFold f b
 
-@[inline] def mfold {m : Type w → Type w'} [Monad m] (f : σ → α → β → m σ) : σ → RBMap α β lt → m σ
-| b, ⟨t, _⟩ => t.mfold f b
+@[inline] def foldM {m : Type w → Type w'} [Monad m] (f : σ → α → β → m σ) : σ → RBMap α β lt → m σ
+| b, ⟨t, _⟩ => t.foldM f b
 
-@[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m PUnit) (t : RBMap α β lt) : m PUnit :=
-t.mfold (fun _ k v => f k v) ⟨⟩
+@[inline] def forM {m : Type w → Type w'} [Monad m] (f : α → β → m PUnit) (t : RBMap α β lt) : m PUnit :=
+t.foldM (fun _ k v => f k v) ⟨⟩
 
 @[inline] def isEmpty : RBMap α β lt → Bool
 | ⟨leaf, _⟩ => true

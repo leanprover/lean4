@@ -224,6 +224,9 @@ def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
+def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
+
 def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
 env  ← getEnv;
 mctx ← getMCtx;
@@ -269,15 +272,6 @@ let lvlCtx : Level.Context := { fileName := ctx.fileName, fileMap := ctx.fileMap
 
 def elabLevel (stx : Syntax) : TermElabM Level :=
 liftLevelM $ Level.elabLevel stx
-
-@[inline] def withConfig {α} (f : Meta.Config → Meta.Config) (x : TermElabM α) : TermElabM α :=
-adaptTheReader Meta.Context (fun (ctx : Meta.Context) => { ctx with config := f ctx.config }) x
-
-@[inline] def withTransparency {α} (mode : Meta.TransparencyMode) (x : TermElabM α) : TermElabM α :=
-withConfig (fun config => { config with transparency := mode }) x
-
-@[inline] def withReducible {α} (x : TermElabM α) : TermElabM α :=
-withTransparency Meta.TransparencyMode.reducible x
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=

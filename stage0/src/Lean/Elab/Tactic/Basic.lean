@@ -95,12 +95,6 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := lif
 def reportUnsolvedGoals (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals goals
 def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
-/-- Collect unassigned metavariables -/
-def collectMVars (e : Expr) : TacticM (List MVarId) := do
-e ← instantiateMVars e;
-let s := Lean.collectMVars {} e;
-pure s.result.toList
-
 instance monadLog : MonadLog TacticM :=
 { getFileMap  := liftTermElabM getFileMap,
   getFileName := liftTermElabM getFileName,

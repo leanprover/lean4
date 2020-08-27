@@ -8,6 +8,21 @@ import Lean.Elab.Attributes
 
 namespace Lean
 namespace Elab
+
+def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Unit := do
+env ← getEnv;
+when (env.contains declName) $
+  match privateToUserName? declName with
+  | none          => throwError ("'" ++ declName ++ "' has already been declared")
+  | some declName => throwError ("private declaration '" ++ declName ++ "' has already been declared");
+when (env.contains (mkPrivateName env declName)) $
+  throwError ("a private declaration '" ++ declName ++ "' has already been declared");
+match privateToUserName? declName with
+| none => pure ()
+| some declName =>
+  when (env.contains declName) $
+    throwError ("a non-private declaration '" ++ declName ++ "' has already been declared")
+
 namespace Command
 
 inductive Visibility
@@ -87,20 +102,6 @@ pure {
   attrs           := attrs
 }
 
-def checkNotAlreadyDeclared (declName : Name) : CommandElabM Unit := do
-env ← getEnv;
-when (env.contains declName) $
-  match privateToUserName? declName with
-  | none          => throwError ("'" ++ declName ++ "' has already been declared")
-  | some declName => throwError ("private declaration '" ++ declName ++ "' has already been declared");
-when (env.contains (mkPrivateName env declName)) $
-  throwError ("a private declaration '" ++ declName ++ "' has already been declared");
-match privateToUserName? declName with
-| none => pure ()
-| some declName =>
-  when (env.contains declName) $
-    throwError ("a non-private declaration '" ++ declName ++ "' has already been declared")
-
 def applyVisibility (visibility : Visibility) (declName : Name) : CommandElabM Name :=
 match visibility with
 | Visibility.private => do
@@ -122,15 +123,6 @@ def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name :
 currNamespace ← getCurrNamespace;
 let declName := currNamespace ++ atomicName;
 applyVisibility modifiers.visibility declName
-
-def applyAttributes (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
-attrs.forM $ fun attr => do
- env ← getEnv;
- match getAttributeImpl env attr.name with
- | Except.error errMsg => throwError errMsg
- | Except.ok attrImpl  =>
-   when (attrImpl.applicationTime == applicationTime) do
-     liftCoreM (attrImpl.add declName attr.args true)
 
 end Command
 end Elab

@@ -542,6 +542,7 @@ private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Arra
   | `(@$id:ident.{$us*}) =>
     elabAppFn (f.getArg 1) lvals namedArgs args expectedType? true acc
   | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
+  | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
   | _ => do
     s ← observing $ do {
       f ← elabTerm f none;

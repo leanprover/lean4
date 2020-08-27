@@ -540,11 +540,6 @@ when succeeded $
 @[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab :=
 fun stx => failIfSucceeds $ elabCheck stx
 
-def addInstance (declName : Name) : CommandElabM Unit := do
-env ← getEnv;
-env ← liftIO $ Meta.addGlobalInstance env declName;
-setEnv env
-
 unsafe def elabEvalUnsafe : CommandElab :=
 fun stx => withoutModifyingEnv do
   let ref  := stx;

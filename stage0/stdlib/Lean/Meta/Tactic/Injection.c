@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Meta_mkNoConfusion___at_Lean_Meta_injectionCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___closed__1;
 extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
@@ -25,8 +26,8 @@ lean_object* l_ReaderT_bind___at_Lean_Meta_getLCtx___spec__2___rarg(lean_object*
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
+lean_object* l___private_Lean_Meta_AppBuilder_24__mkNoConfusionImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_AppBuilder_24__mkNoConfusionAppImp___closed__5;
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,7 +38,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryClear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 extern lean_object* l_Lean_Expr_heq_x3f___closed__2;
-lean_object* l_Lean_Meta_mkNoConfusionApp___at_Lean_Meta_injectionCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqOfHEq___at___private_Lean_Meta_Tactic_Injection_1__heqToEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Injection_1__heqToEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,6 +46,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl___at_Lean_Meta_isReadOnlyExprMVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_getFVarLocalDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_AppBuilder_24__mkNoConfusionImp___closed__5;
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
@@ -57,7 +58,6 @@ lean_object* l_Lean_Meta_injection___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_14__mkEqOfHEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_3__mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_AppBuilder_24__mkNoConfusionAppImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Injection_1__heqToEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_4__getLevelImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,11 +74,11 @@ lean_object* l_Lean_Meta_injectionCore___lambda__1___boxed(lean_object*, lean_ob
 lean_object* l_Lean_Expr_isConstructorApp_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__4;
 lean_object* l_Lean_Meta_injectionCore___closed__2;
-lean_object* l_Lean_Meta_mkNoConfusionApp___at_Lean_Meta_injectionCore___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_Meta_mkNoConfusion___at_Lean_Meta_injectionCore___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l___private_Lean_Meta_AppBuilder_24__mkNoConfusionAppImp(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Lean_Meta_AppBuilder_24__mkNoConfusionImp(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_8;
 }
 }
@@ -175,7 +175,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_15);
 lean_dec(x_1);
-x_20 = l___private_Lean_Meta_AppBuilder_24__mkNoConfusionAppImp___closed__5;
+x_20 = l___private_Lean_Meta_AppBuilder_24__mkNoConfusionImp___closed__5;
 x_21 = lean_box(0);
 x_22 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_3, x_20, x_21, x_5, x_6, x_7, x_8, x_16);
 lean_dec(x_8);
@@ -291,7 +291,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_50 = l___private_Lean_Meta_AppBuilder_24__mkNoConfusionAppImp(x_33, x_49, x_5, x_6, x_7, x_8, x_37);
+x_50 = l___private_Lean_Meta_AppBuilder_24__mkNoConfusionImp(x_33, x_49, x_5, x_6, x_7, x_8, x_37);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 

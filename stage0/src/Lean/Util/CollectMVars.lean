@@ -34,7 +34,8 @@ partial def main : Expr → Visitor
 
 end CollectMVars
 
-def collectMVars (s : CollectMVars.State) (e : Expr) : CollectMVars.State :=
+def Expr.collectMVars (s : CollectMVars.State) (e : Expr) : CollectMVars.State :=
 CollectMVars.visit CollectMVars.main e s
+
 
 end Lean

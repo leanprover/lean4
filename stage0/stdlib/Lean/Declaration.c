@@ -14,36 +14,49 @@
 extern "C" {
 #endif
 lean_object* l_Lean_DefinitionVal_isUnsafeEx___boxed(lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityHintsRegularEx___boxed(lean_object*);
+lean_object* l_Lean_Declaration_foldExprM(lean_object*, lean_object*);
 uint8_t lean_definition_val_is_unsafe(lean_object*);
 lean_object* l_Lean_ReducibilityHints_lt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_isUnsafeEx___boxed(lean_object*);
 uint8_t lean_inductive_val_is_rec(lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_constructor_val_is_unsafe(lean_object*);
 lean_object* l_Lean_ConstantVal_inhabited___closed__1;
 lean_object* lean_mk_reducibility_hints_regular(uint32_t);
 uint8_t lean_opaque_val_is_unsafe(lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Declaration_forExprM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantVal_inhabited___closed__2;
 lean_object* lean_mk_inductive_decl(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkConstructorValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_isRecEx___boxed(lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__2;
+lean_object* l_List_foldlM___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_AxiomVal_isUnsafeEx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_QuotVal_kindEx___boxed(lean_object*);
 lean_object* l_Lean_ConstructorVal_isUnsafeEx___boxed(lean_object*);
 lean_object* lean_mk_inductive_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
@@ -52,6 +65,7 @@ lean_object* l_Lean_RecursorVal_isUnsafeEx___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l_Lean_ConstantVal_inhabited;
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t lean_inductive_val_is_reflexive(lean_object*);
@@ -61,6 +75,7 @@ lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_kEx___boxed(lean_object*);
 lean_object* l_Lean_mkRecFor___closed__1;
 uint8_t lean_recursor_k(lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
 lean_object* l_Lean_ReducibilityHints_Inhabited;
 lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
@@ -69,37 +84,52 @@ lean_object* l_Lean_mkQuotValEx___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
 lean_object* lean_mk_recursor_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_recursor_is_unsafe(lean_object*);
 lean_object* l_Lean_ConstructorVal_inhabited___closed__1;
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* lean_mk_constructor_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkDefinitionValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4(lean_object*);
 lean_object* l_Lean_ReducibilityHints_getHeightEx___boxed(lean_object*);
 lean_object* l_Lean_OpaqueVal_isUnsafeEx___boxed(lean_object*);
 lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
 lean_object* l_Lean_mkAxiomValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2(lean_object*);
 uint8_t l_Lean_ConstantInfo_isCtor(lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_is_unsafe_inductive_decl(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
 uint8_t lean_inductive_val_is_unsafe(lean_object*);
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_quot_val_kind(lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
+lean_object* l_ReaderT_Monad___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkInductiveDeclEs___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_name___boxed(lean_object*);
 lean_object* l_Lean_ConstructorVal_inhabited;
 lean_object* lean_mk_definition_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1(lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited;
 lean_object* lean_mk_opaque_val(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_InductiveVal_nctors(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__3;
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_MonadExceptOf___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
 lean_object* l_Lean_mkRecursorValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Declaration_forExprM(lean_object*);
 uint8_t lean_axiom_val_is_unsafe(lean_object*);
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_axiom_val(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
 lean_object* lean_mk_quot_val(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Declaration_foldExprM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_isReflexiveEx___boxed(lean_object*);
 uint32_t lean_reducibility_hints_get_height(lean_object*);
 lean_object* l_Lean_mkInductiveValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -438,6 +468,586 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_is_unsafe_inductive_decl(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_task_get(x_1);
+x_5 = lean_apply_2(x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_2(x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+lean_dec(x_6);
+lean_inc(x_2);
+x_8 = lean_apply_2(x_2, x_3, x_7);
+x_9 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___rarg___lambda__2), 3, 2);
+lean_closure_set(x_9, 0, x_4);
+lean_closure_set(x_9, 1, x_2);
+x_10 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_9);
+return x_10;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_apply_2(x_1, x_2, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___rarg___lambda__4), 3, 1);
+lean_closure_set(x_5, 0, x_1);
+x_6 = lean_ctor_get(x_2, 2);
+lean_inc(x_6);
+lean_dec(x_2);
+x_7 = l_List_foldlM___main___rarg(x_3, lean_box(0), lean_box(0), x_5, x_4, x_6);
+return x_7;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+lean_inc(x_2);
+x_7 = lean_apply_2(x_2, x_3, x_6);
+x_8 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___rarg___lambda__5), 4, 3);
+lean_closure_set(x_8, 0, x_2);
+lean_closure_set(x_8, 1, x_4);
+lean_closure_set(x_8, 2, x_1);
+x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_7, x_8);
+return x_9;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (lean_obj_tag(x_2)) {
+case 0:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_dec(x_1);
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_apply_2(x_3, x_4, x_7);
+return x_8;
+}
+case 2:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_9 = lean_ctor_get(x_2, 0);
+lean_inc(x_9);
+lean_dec(x_2);
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_9, 1);
+lean_inc(x_11);
+lean_dec(x_9);
+x_12 = lean_ctor_get(x_10, 2);
+lean_inc(x_12);
+lean_dec(x_10);
+x_13 = lean_ctor_get(x_1, 1);
+lean_inc(x_13);
+lean_dec(x_1);
+lean_inc(x_3);
+x_14 = lean_apply_2(x_3, x_4, x_12);
+x_15 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_15, 0, x_11);
+lean_closure_set(x_15, 1, x_3);
+x_16 = lean_apply_4(x_13, lean_box(0), lean_box(0), x_14, x_15);
+return x_16;
+}
+case 4:
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_dec(x_3);
+x_17 = lean_ctor_get(x_1, 0);
+lean_inc(x_17);
+lean_dec(x_1);
+x_18 = lean_ctor_get(x_17, 1);
+lean_inc(x_18);
+lean_dec(x_17);
+x_19 = lean_apply_2(x_18, lean_box(0), x_4);
+return x_19;
+}
+case 5:
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = lean_ctor_get(x_2, 0);
+lean_inc(x_20);
+lean_dec(x_2);
+lean_inc(x_1);
+x_21 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___rarg___lambda__3), 4, 2);
+lean_closure_set(x_21, 0, x_1);
+lean_closure_set(x_21, 1, x_3);
+x_22 = l_List_foldlM___main___rarg(x_1, lean_box(0), lean_box(0), x_21, x_4, x_20);
+return x_22;
+}
+case 6:
+{
+lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_23 = lean_ctor_get(x_2, 2);
+lean_inc(x_23);
+lean_dec(x_2);
+lean_inc(x_1);
+x_24 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___rarg___lambda__6), 4, 2);
+lean_closure_set(x_24, 0, x_1);
+lean_closure_set(x_24, 1, x_3);
+x_25 = l_List_foldlM___main___rarg(x_1, lean_box(0), lean_box(0), x_24, x_4, x_23);
+return x_25;
+}
+default: 
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_26 = lean_ctor_get(x_2, 0);
+lean_inc(x_26);
+lean_dec(x_2);
+x_27 = lean_ctor_get(x_26, 0);
+lean_inc(x_27);
+x_28 = lean_ctor_get(x_26, 1);
+lean_inc(x_28);
+lean_dec(x_26);
+x_29 = lean_ctor_get(x_27, 2);
+lean_inc(x_29);
+lean_dec(x_27);
+x_30 = lean_ctor_get(x_1, 1);
+lean_inc(x_30);
+lean_dec(x_1);
+lean_inc(x_3);
+x_31 = lean_apply_2(x_3, x_4, x_29);
+x_32 = lean_alloc_closure((void*)(l_ReaderT_MonadExceptOf___rarg___lambda__2), 3, 2);
+lean_closure_set(x_32, 0, x_3);
+lean_closure_set(x_32, 1, x_28);
+x_33 = lean_apply_4(x_30, lean_box(0), lean_box(0), x_31, x_32);
+return x_33;
+}
+}
+}
+}
+lean_object* l_Lean_Declaration_foldExprM(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___rarg), 4, 0);
+return x_3;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Declaration_foldExprM___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg(x_1, x_2, x_4, x_3);
+return x_5;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_apply_2(x_6, lean_box(0), x_3);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_3);
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_9);
+lean_dec(x_4);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_8, 0);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_11, 2);
+lean_inc(x_12);
+lean_dec(x_11);
+lean_inc(x_2);
+x_13 = lean_apply_1(x_2, x_12);
+lean_inc(x_2);
+x_14 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_14, 0, x_8);
+lean_closure_set(x_14, 1, x_2);
+lean_inc(x_10);
+x_15 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_14);
+x_16 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__2), 4, 3);
+lean_closure_set(x_16, 0, x_1);
+lean_closure_set(x_16, 1, x_2);
+lean_closure_set(x_16, 2, x_9);
+x_17 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_15, x_16);
+return x_17;
+}
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg(x_1, x_2, x_4, x_3);
+return x_5;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_apply_2(x_6, lean_box(0), x_3);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_3);
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_9);
+lean_dec(x_4);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_8, 1);
+lean_inc(x_11);
+lean_dec(x_8);
+lean_inc(x_2);
+x_12 = lean_apply_1(x_2, x_11);
+x_13 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1), 4, 3);
+lean_closure_set(x_13, 0, x_1);
+lean_closure_set(x_13, 1, x_2);
+lean_closure_set(x_13, 2, x_9);
+x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_12, x_13);
+return x_14;
+}
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__3___rarg(x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg(x_1, x_2, x_4, x_3);
+return x_5;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_apply_2(x_6, lean_box(0), x_3);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_dec(x_3);
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_9);
+lean_dec(x_4);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_8, 1);
+lean_inc(x_11);
+lean_inc(x_2);
+x_12 = lean_apply_1(x_2, x_11);
+lean_inc(x_2);
+lean_inc(x_1);
+x_13 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__1), 4, 3);
+lean_closure_set(x_13, 0, x_8);
+lean_closure_set(x_13, 1, x_1);
+lean_closure_set(x_13, 2, x_2);
+lean_inc(x_10);
+x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_12, x_13);
+x_15 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__2), 4, 3);
+lean_closure_set(x_15, 0, x_1);
+lean_closure_set(x_15, 1, x_2);
+lean_closure_set(x_15, 2, x_9);
+x_16 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_14, x_15);
+return x_16;
+}
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_task_get(x_1);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (lean_obj_tag(x_3)) {
+case 0:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_dec(x_4);
+lean_dec(x_1);
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_apply_1(x_2, x_7);
+return x_8;
+}
+case 2:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_dec(x_4);
+x_9 = lean_ctor_get(x_3, 0);
+lean_inc(x_9);
+lean_dec(x_3);
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_9, 1);
+lean_inc(x_11);
+lean_dec(x_9);
+x_12 = lean_ctor_get(x_10, 2);
+lean_inc(x_12);
+lean_dec(x_10);
+x_13 = lean_ctor_get(x_1, 1);
+lean_inc(x_13);
+lean_dec(x_1);
+lean_inc(x_2);
+x_14 = lean_apply_1(x_2, x_12);
+x_15 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_15, 0, x_11);
+lean_closure_set(x_15, 1, x_2);
+x_16 = lean_apply_4(x_13, lean_box(0), lean_box(0), x_14, x_15);
+return x_16;
+}
+case 4:
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_dec(x_2);
+x_17 = lean_ctor_get(x_1, 0);
+lean_inc(x_17);
+lean_dec(x_1);
+x_18 = lean_ctor_get(x_17, 1);
+lean_inc(x_18);
+lean_dec(x_17);
+x_19 = lean_apply_2(x_18, lean_box(0), x_4);
+return x_19;
+}
+case 5:
+{
+lean_object* x_20; lean_object* x_21; 
+x_20 = lean_ctor_get(x_3, 0);
+lean_inc(x_20);
+lean_dec(x_3);
+x_21 = l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg(x_1, x_2, x_4, x_20);
+return x_21;
+}
+case 6:
+{
+lean_object* x_22; lean_object* x_23; 
+x_22 = lean_ctor_get(x_3, 2);
+lean_inc(x_22);
+lean_dec(x_3);
+x_23 = l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__4___rarg(x_1, x_2, x_4, x_22);
+return x_23;
+}
+default: 
+{
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+lean_dec(x_4);
+x_24 = lean_ctor_get(x_3, 0);
+lean_inc(x_24);
+lean_dec(x_3);
+x_25 = lean_ctor_get(x_24, 0);
+lean_inc(x_25);
+x_26 = lean_ctor_get(x_24, 1);
+lean_inc(x_26);
+lean_dec(x_24);
+x_27 = lean_ctor_get(x_25, 2);
+lean_inc(x_27);
+lean_dec(x_25);
+x_28 = lean_ctor_get(x_1, 1);
+lean_inc(x_28);
+lean_dec(x_1);
+lean_inc(x_2);
+x_29 = lean_apply_1(x_2, x_27);
+x_30 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__7___boxed), 3, 2);
+lean_closure_set(x_30, 0, x_2);
+lean_closure_set(x_30, 1, x_26);
+x_31 = lean_apply_4(x_28, lean_box(0), lean_box(0), x_29, x_30);
+return x_31;
+}
+}
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_Declaration_forExprM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_box(0);
+x_5 = l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg(x_1, x_3, x_2, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_Declaration_forExprM(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Declaration_forExprM___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_foldlM___main___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec__1___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 lean_object* lean_mk_inductive_val(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8, uint8_t x_9, uint8_t x_10) {
@@ -1016,7 +1626,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_ConstantInfo_value_x21___closed__1;
-x_2 = lean_unsigned_to_nat(267u);
+x_2 = lean_unsigned_to_nat(285u);
 x_3 = lean_unsigned_to_nat(31u);
 x_4 = l_Lean_ConstantInfo_value_x21___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

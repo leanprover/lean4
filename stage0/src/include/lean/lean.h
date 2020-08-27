@@ -1152,7 +1152,7 @@ static inline b_lean_obj_res lean_thunk_get(b_lean_obj_arg t) {
     return lean_thunk_get_core(t);
 }
 
-/* Primitive for implementing the IR instruction for Thunk.get : Thunk A -> A */
+/* Primitive for implementing Thunk.get : Thunk A -> A */
 static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
     lean_object * r = lean_thunk_get(t);
     lean_inc(r);
@@ -1178,8 +1178,13 @@ static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f) { retu
 lean_obj_res lean_task_map_with_prio(lean_obj_arg f, lean_obj_arg t, unsigned prio);
 /* Task.map (f : A -> B) (t : Task A) : Task B */
 static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t) { return lean_task_map_with_prio(f, t, 0); }
-/* Task.get (t : Task A) : A */
 b_lean_obj_res lean_task_get(b_lean_obj_arg t);
+/* Primitive for implementing Task.get : Task A -> A */
+static inline lean_obj_res lean_task_get_own(b_lean_obj_arg t) {
+    lean_object * r = lean_task_get(t);
+    lean_inc(r);
+    return r;
+}
 
 /* primitive for implementing `IO.checkInterrupt : IO bool` */
 bool lean_io_check_interrupt_core();

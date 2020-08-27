@@ -129,7 +129,8 @@ def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
 def attrInstance     := parser! rawIdent >> many attrArg
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
-@[builtinTermParser] def «letrec» := parser!:leadPrec "letrec " >> optional ("partial ") >> optional «attributes» >> letDecl >> many (", " >> optional «attributes» >> letDecl) >> "; " >> termParser
+@[builtinTermParser] def «letrec» :=
+    parser!:leadPrec "letrec " >> optional ("partial ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser
 
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
 def doLet  := parser! "let ">> letDecl

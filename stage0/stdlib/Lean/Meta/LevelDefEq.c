@@ -26,7 +26,6 @@ lean_object* l_Lean_Meta_decLevel_x3f___at_Lean_Meta_decLevel___spec__1___boxed(
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___closed__3;
 lean_object* l_Lean_Meta_isExprDefEq___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEqNoConstantApprox___rarg___closed__1;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_LevelDefEq_11__processPostponedStep___spec__5(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_8__getLevelConstraintKind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -213,6 +212,7 @@ lean_object* l_Lean_Meta_isLevelDefEq___rarg___closed__2;
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_isLevelDefEq___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___boxed(lean_object*);
 lean_object* l_Lean_Meta_decLevel_x3f(lean_object*);
+lean_object* l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at___private_Lean_Meta_LevelDefEq_11__processPostponedStep___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar___at___private_Lean_Meta_Basic_4__mkFreshExprMVarImpl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10549,7 +10549,7 @@ lean_object* l_Lean_Meta_restore(lean_object* x_1, lean_object* x_2, lean_object
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_9 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_1, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_1, x_4, x_5, x_6, x_7, x_8);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);

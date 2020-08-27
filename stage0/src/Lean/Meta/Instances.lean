@@ -34,13 +34,18 @@ withNewMCtxDepth $ do
   DiscrTree.mkPath type
 
 @[export lean_add_instance]
-def addGlobalInstance (env : Environment) (constName : Name) : IO Environment :=
+def addGlobalInstanceImp (env : Environment) (constName : Name) : IO Environment :=
 match env.find? constName with
 | none => throw $ IO.userError "unknown constant"
 | some cinfo => do
   let c := mkConst constName (cinfo.lparams.map mkLevelParam);
   (keys, s, _) ← (mkInstanceKey c).toIO {} { env := env } {} {};
   pure $ instanceExtension.addEntry s.env { keys := keys, val := c }
+
+def addGlobalInstance {m} [Monad m] [MonadEnv m] [MonadIO m] (declName : Name) : m Unit := do
+env ← getEnv;
+env ← liftIO $ Meta.addGlobalInstanceImp env declName;
+setEnv env
 
 @[init] def registerInstanceAttr : IO Unit :=
 registerBuiltinAttribute {
@@ -49,10 +54,8 @@ registerBuiltinAttribute {
   add   := fun declName args persistent => do
     when args.hasArgs $ throwError "invalid attribute 'instance', unexpected argument";
     unless persistent $ throwError "invalid attribute 'instance', must be persistent";
-    env ← getEnv;
-    env ← ofExcept (addGlobalInstanceOld env declName); -- TODO: delete
-    env ← liftIO $ addGlobalInstance env declName;
-    setEnv env
+    env ← getEnv; env ← ofExcept (addGlobalInstanceOld env declName); setEnv env; -- TODO: delete after we remove old frontend
+    addGlobalInstance declName
 }
 
 end Meta

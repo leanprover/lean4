@@ -28,7 +28,6 @@ extern lean_object* l_Lean_nullKind;
 extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l___private_Lean_Expr_3__getAppArgsAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserBody___main___rarg___lambda__28(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_ParserCompiler_compileParserBody___main___rarg___lambda__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -300,6 +299,7 @@ lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_ParserCompi
 lean_object* l_Lean_ParserCompiler_compileParserBody___main___rarg___lambda__30(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_CoreM_inhabited___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__3;
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__17___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8285,7 +8285,7 @@ block_90:
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
 lean_inc(x_37);
 x_67 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_35, x_65, x_22, x_37);
-x_68 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_67, x_3, x_4, x_5, x_6, x_66);
+x_68 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_67, x_3, x_4, x_5, x_6, x_66);
 x_69 = lean_ctor_get(x_68, 1);
 lean_inc(x_69);
 lean_dec(x_68);
@@ -9067,7 +9067,7 @@ block_272:
 lean_object* x_249; lean_object* x_250; lean_object* x_251; lean_object* x_252; lean_object* x_253; lean_object* x_254; 
 lean_inc(x_219);
 x_249 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_217, x_247, x_204, x_219);
-x_250 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_249, x_3, x_4, x_5, x_6, x_248);
+x_250 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_249, x_3, x_4, x_5, x_6, x_248);
 x_251 = lean_ctor_get(x_250, 1);
 lean_inc(x_251);
 lean_dec(x_250);
@@ -9821,7 +9821,7 @@ block_450:
 lean_object* x_427; lean_object* x_428; lean_object* x_429; lean_object* x_430; lean_object* x_431; lean_object* x_432; 
 lean_inc(x_397);
 x_427 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_395, x_425, x_382, x_397);
-x_428 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_427, x_3, x_4, x_5, x_6, x_426);
+x_428 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_427, x_3, x_4, x_5, x_6, x_426);
 x_429 = lean_ctor_get(x_428, 1);
 lean_inc(x_429);
 lean_dec(x_428);
@@ -10575,7 +10575,7 @@ block_628:
 lean_object* x_605; lean_object* x_606; lean_object* x_607; lean_object* x_608; lean_object* x_609; lean_object* x_610; 
 lean_inc(x_575);
 x_605 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_573, x_603, x_560, x_575);
-x_606 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_605, x_3, x_4, x_5, x_6, x_604);
+x_606 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_605, x_3, x_4, x_5, x_6, x_604);
 x_607 = lean_ctor_get(x_606, 1);
 lean_inc(x_607);
 lean_dec(x_606);
@@ -11329,7 +11329,7 @@ block_806:
 lean_object* x_783; lean_object* x_784; lean_object* x_785; lean_object* x_786; lean_object* x_787; lean_object* x_788; 
 lean_inc(x_753);
 x_783 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_751, x_781, x_738, x_753);
-x_784 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_783, x_3, x_4, x_5, x_6, x_782);
+x_784 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_783, x_3, x_4, x_5, x_6, x_782);
 x_785 = lean_ctor_get(x_784, 1);
 lean_inc(x_785);
 lean_dec(x_784);
@@ -12137,7 +12137,7 @@ block_995:
 lean_object* x_972; lean_object* x_973; lean_object* x_974; lean_object* x_975; lean_object* x_976; lean_object* x_977; 
 lean_inc(x_942);
 x_972 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_940, x_970, x_927, x_942);
-x_973 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_972, x_3, x_4, x_5, x_6, x_971);
+x_973 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_972, x_3, x_4, x_5, x_6, x_971);
 x_974 = lean_ctor_get(x_973, 1);
 lean_inc(x_974);
 lean_dec(x_973);
@@ -12891,7 +12891,7 @@ block_1173:
 lean_object* x_1150; lean_object* x_1151; lean_object* x_1152; lean_object* x_1153; lean_object* x_1154; lean_object* x_1155; 
 lean_inc(x_1120);
 x_1150 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_1118, x_1148, x_1105, x_1120);
-x_1151 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_1150, x_3, x_4, x_5, x_6, x_1149);
+x_1151 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_1150, x_3, x_4, x_5, x_6, x_1149);
 x_1152 = lean_ctor_get(x_1151, 1);
 lean_inc(x_1152);
 lean_dec(x_1151);
@@ -13645,7 +13645,7 @@ block_1351:
 lean_object* x_1328; lean_object* x_1329; lean_object* x_1330; lean_object* x_1331; lean_object* x_1332; lean_object* x_1333; 
 lean_inc(x_1298);
 x_1328 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_1296, x_1326, x_1283, x_1298);
-x_1329 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_1328, x_3, x_4, x_5, x_6, x_1327);
+x_1329 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_1328, x_3, x_4, x_5, x_6, x_1327);
 x_1330 = lean_ctor_get(x_1329, 1);
 lean_inc(x_1330);
 lean_dec(x_1329);
@@ -14399,7 +14399,7 @@ block_1529:
 lean_object* x_1506; lean_object* x_1507; lean_object* x_1508; lean_object* x_1509; lean_object* x_1510; lean_object* x_1511; 
 lean_inc(x_1476);
 x_1506 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_1474, x_1504, x_1461, x_1476);
-x_1507 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_1506, x_3, x_4, x_5, x_6, x_1505);
+x_1507 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_1506, x_3, x_4, x_5, x_6, x_1505);
 x_1508 = lean_ctor_get(x_1507, 1);
 lean_inc(x_1508);
 lean_dec(x_1507);
@@ -15153,7 +15153,7 @@ block_1707:
 lean_object* x_1684; lean_object* x_1685; lean_object* x_1686; lean_object* x_1687; lean_object* x_1688; lean_object* x_1689; 
 lean_inc(x_1654);
 x_1684 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_1652, x_1682, x_1639, x_1654);
-x_1685 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_1684, x_3, x_4, x_5, x_6, x_1683);
+x_1685 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_1684, x_3, x_4, x_5, x_6, x_1683);
 x_1686 = lean_ctor_get(x_1685, 1);
 lean_inc(x_1686);
 lean_dec(x_1685);
@@ -15907,7 +15907,7 @@ block_1885:
 lean_object* x_1862; lean_object* x_1863; lean_object* x_1864; lean_object* x_1865; lean_object* x_1866; lean_object* x_1867; 
 lean_inc(x_1832);
 x_1862 = l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(x_1830, x_1860, x_1817, x_1832);
-x_1863 = l_Lean_setEnv___at_Lean_Meta_mkAuxDefinition___spec__2(x_1862, x_3, x_4, x_5, x_6, x_1861);
+x_1863 = l_Lean_setEnv___at___private_Lean_Meta_Basic_33__mkAuxDefinitionImp___spec__4(x_1862, x_3, x_4, x_5, x_6, x_1861);
 x_1864 = lean_ctor_get(x_1863, 1);
 lean_inc(x_1864);
 lean_dec(x_1863);

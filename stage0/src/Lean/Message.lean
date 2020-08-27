@@ -180,8 +180,11 @@ def toList (log : MessageLog) : List Message :=
 
 end MessageLog
 
+def MessageData.nestD (msg : MessageData) : MessageData :=
+MessageData.nest 2 msg
+
 def indentExpr (msg : MessageData) : MessageData :=
-MessageData.nest 2 (Format.line ++ msg)
+MessageData.nestD (Format.line ++ msg)
 
 namespace KernelException
 

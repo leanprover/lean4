@@ -9,6 +9,8 @@ let bs₁ := bs.set! 2 30;
 IO.println bs₁;
 IO.println bs;
 IO.println bs.size;
+IO.println (bs ++ bs);
+IO.println (bs.extract 1 3);
 pure ()
 
 #eval tst

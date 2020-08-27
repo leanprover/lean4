@@ -17,11 +17,14 @@ match mctx.findDecl? mvarId with
   let instMVars (e : Expr) : Expr := (mctx.instantiateMVars e).1;
   let addLine (fmt : Format) : Format := if fmt.isNil then fmt else fmt ++ Format.line;
   let pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : Format :=
-    let fmt := addLine fmt;
-    match ids, type? with
-    | [], _        => fmt
-    | _, none      => fmt
-    | _, some type => fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ pp type)).group;
+    if ids.isEmpty then
+      fmt
+    else
+      let fmt := addLine fmt;
+      match ids, type? with
+      | [], _        => fmt
+      | _, none      => fmt
+      | _, some type => fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ pp type)).group;
   let (varNames, type?, fmt) := mvarDecl.lctx.foldl
     (fun (acc : List Name × Option Expr × Format) (localDecl : LocalDecl) =>
        let (varNames, prevType?, fmt) := acc;

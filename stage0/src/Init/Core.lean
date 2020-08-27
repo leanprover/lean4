@@ -161,7 +161,7 @@ attribute [extern "lean_mk_task"] Task.mk
 @[noinline, extern "lean_task_pure"]
 protected def Task.pure {α : Type u} (a : α) : Task α :=
 ⟨fun _ => a⟩
-@[noinline, extern "lean_task_get"]
+@[noinline, extern "lean_task_get_own"]
 protected def Task.get {α : Type u} (x : @& Task α) : α :=
 x.fn ()
 @[noinline, extern "lean_task_map"]

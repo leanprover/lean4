@@ -133,7 +133,7 @@ lean_object* l_Lean_Declaration_foldExprM___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_InductiveVal_isReflexiveEx___boxed(lean_object*);
 uint32_t lean_reducibility_hints_get_height(lean_object*);
 lean_object* l_Lean_mkInductiveValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_task_get(lean_object*);
+lean_object* lean_task_get_own(lean_object*);
 lean_object* l_Lean_ConstantInfo_isUnsafe___boxed(lean_object*);
 lean_object* l_Lean_mkRecFor(lean_object*);
 lean_object* l_Lean_ConstantInfo_type___boxed(lean_object*);
@@ -474,7 +474,7 @@ lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__1(lean_object* x_1, l
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_task_get(x_1);
+x_4 = lean_task_get_own(x_1);
 x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
@@ -894,7 +894,7 @@ lean_object* l_Lean_Declaration_foldExprM___at_Lean_Declaration_forExprM___spec_
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_task_get(x_1);
+x_4 = lean_task_get_own(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -1547,7 +1547,7 @@ case 2:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_5, 1);
-x_7 = lean_task_get(x_6);
+x_7 = lean_task_get_own(x_6);
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 return x_8;
@@ -1650,7 +1650,7 @@ case 2:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_4, 1);
-x_6 = lean_task_get(x_5);
+x_6 = lean_task_get_own(x_5);
 return x_6;
 }
 default: 

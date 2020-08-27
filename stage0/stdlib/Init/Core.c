@@ -338,7 +338,7 @@ lean_object* l_ite_Decidable(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_sizeof___rarg(lean_object*, lean_object*);
 lean_object* l_Subtype_sizeof___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Eq_ndrecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_task_get(lean_object*);
+lean_object* lean_task_get_own(lean_object*);
 uint8_t l_decidableOfDecidableOfIff___rarg(uint8_t, lean_object*);
 lean_object* l_PSum_HasSizeof___rarg(lean_object*, lean_object*);
 lean_object* l_Bool_HasSizeof;
@@ -595,7 +595,7 @@ lean_object* l_Task_get___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_task_get(x_2);
+x_3 = lean_task_get_own(x_2);
 lean_dec(x_2);
 return x_3;
 }

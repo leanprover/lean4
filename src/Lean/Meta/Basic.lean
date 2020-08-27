@@ -327,6 +327,10 @@ def isDelayedAssigned (mvarId : MVarId) : m Bool := liftMetaM do
 mctx ← getMCtx;
 pure $ mctx.isDelayedAssigned mvarId
 
+def getDelayedAssignment? (mvarId : MVarId) : m (Option DelayedMetavarAssignment) := liftMetaM do
+mctx ← getMCtx;
+pure $ mctx.getDelayedAssignment? mvarId
+
 def hasAssignableMVar (e : Expr) : m Bool := liftMetaM do
 mctx ← getMCtx;
 pure $ mctx.hasAssignableMVar e

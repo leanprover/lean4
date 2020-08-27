@@ -5421,9 +5421,9 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_1, 1);
-x_15 = lean_nat_sub(x_4, x_5);
-x_16 = l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__10___rarg(x_1, x_2, x_14, x_15, x_3);
+x_14 = lean_nat_sub(x_4, x_5);
+x_15 = lean_ctor_get(x_1, 1);
+x_16 = l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__10___rarg(x_1, x_2, x_15, x_14, x_3);
 return x_16;
 }
 }

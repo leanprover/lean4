@@ -233,7 +233,7 @@ modify fun s => { s with syntheticMVars := [] };
 finally
   (do
      a ← k;
-     synthesizeSyntheticMVars false;
+     synthesizeSyntheticMVarsNoPostponing;
      pure a)
   (modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved })
 

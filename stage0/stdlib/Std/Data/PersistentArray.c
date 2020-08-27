@@ -3231,12 +3231,12 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = lean_ctor_get(x_3, 1);
-lean_inc(x_16);
-x_17 = lean_nat_sub(x_6, x_7);
+x_16 = lean_nat_sub(x_6, x_7);
 lean_dec(x_7);
-x_18 = l_Array_iterateMAux___main___at_Std_PersistentArray_foldlFromM___spec__2___rarg(x_1, lean_box(0), x_3, x_4, x_16, x_17, x_5);
-lean_dec(x_17);
+x_17 = lean_ctor_get(x_3, 1);
+lean_inc(x_17);
+x_18 = l_Array_iterateMAux___main___at_Std_PersistentArray_foldlFromM___spec__2___rarg(x_1, lean_box(0), x_3, x_4, x_17, x_16, x_5);
+lean_dec(x_16);
 return x_18;
 }
 }
@@ -4922,9 +4922,9 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_1, 1);
-x_15 = lean_nat_sub(x_4, x_5);
-x_16 = l_Array_iterateMAux___main___at_Std_PersistentArray_foldlFrom___spec__9___rarg(x_1, x_2, x_14, x_15, x_3);
+x_14 = lean_nat_sub(x_4, x_5);
+x_15 = lean_ctor_get(x_1, 1);
+x_16 = l_Array_iterateMAux___main___at_Std_PersistentArray_foldlFrom___spec__9___rarg(x_1, x_2, x_15, x_14, x_3);
 return x_16;
 }
 }

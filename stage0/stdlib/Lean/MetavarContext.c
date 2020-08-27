@@ -32570,9 +32570,9 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_18 = lean_ctor_get(x_1, 1);
-x_19 = lean_nat_sub(x_4, x_5);
-x_20 = l_Array_iterateMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__49___rarg(x_1, x_2, x_18, x_19, x_3);
+x_18 = lean_nat_sub(x_4, x_5);
+x_19 = lean_ctor_get(x_1, 1);
+x_20 = l_Array_iterateMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__49___rarg(x_1, x_2, x_19, x_18, x_3);
 return x_20;
 }
 }

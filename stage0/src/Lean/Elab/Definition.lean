@@ -66,7 +66,7 @@ def mkDef? (view : DefView) (declName : Name) (scopeLevelNames allUserLevelNames
 withRef view.ref do
 Term.synthesizeSyntheticMVars;
 val     ← withRef view.val $ Term.ensureHasType type val;
-Term.synthesizeSyntheticMVars false;
+Term.synthesizeSyntheticMVarsNoPostponing;
 type    ← instantiateMVars type;
 val     ← instantiateMVars val;
 if view.kind.isExample then pure none
@@ -132,7 +132,7 @@ withDeclId view.declId $ fun name => do
     decl? ← match view.type? with
       | some typeStx => do
         type ← Term.elabType typeStx;
-        Term.synthesizeSyntheticMVars false;
+        Term.synthesizeSyntheticMVarsNoPostponing;
         type ← instantiateMVars type;
         withUsedWhen' vars xs type view.kind.isTheorem $ fun vars => do
           val  ← elabDefVal view.val type;
@@ -145,7 +145,7 @@ withDeclId view.declId $ fun name => do
     match decl? with
     | none      => pure ()
     | some decl => do
-      -- ensureNoUnassignedMVars decl; -- TODO
+      Term.ensureNoUnassignedMVars decl;
       addDecl decl;
       applyAttributes declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
       compileDecl decl;

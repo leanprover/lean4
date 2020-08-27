@@ -108,7 +108,7 @@ decls ← withSynthesize do {
   headers ← mkLetRecDeclHeaders view;
   withAuxLocalDecls headers fun _ => do
     values ← elabLetRecDeclValues view headers;
-    synthesizeSyntheticMVars false;
+    synthesizeSyntheticMVarsNoPostponing;
     -- We abort if there are synthetic sorry's
     values.forM abortIfContainsSyntheticSorry;
     headers.forM fun header => abortIfContainsSyntheticSorry header.type;

@@ -20,11 +20,20 @@ registerInternalExceptionId `unsupportedSyntax
 @[init registerUnsupportedSyntaxId]
 constant unsupportedSyntaxExceptionId : InternalExceptionId := arbitrary _
 
+def registerAbortElabId : IO InternalExceptionId :=
+registerInternalExceptionId `abortElab
+@[init registerAbortElabId]
+constant abortExceptionId : InternalExceptionId := arbitrary _
+
 def throwPostpone {α m} [MonadExcept Exception m] : m α :=
 throw $ Exception.internal postponeExceptionId
 
 def throwUnsupportedSyntax {α m} [MonadExcept Exception m] : m α :=
 throw $ Exception.internal unsupportedSyntaxExceptionId
+
+-- Throw exception to abort elaboration without producing any error message
+def throwAbort {α m} [MonadExcept Exception m] : m α :=
+throw $ Exception.internal abortExceptionId
 
 def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : Message :=
 let pos := fileMap.toPosition pos;

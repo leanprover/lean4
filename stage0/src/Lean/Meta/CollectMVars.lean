@@ -9,11 +9,32 @@ import Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
-/-- Collect unassigned metavariables -/
-def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit := do
-e ← instantiateMVars e;
-s ← get;
-set $ e.collectMVars s
+/--
+  Collect unassigned metavariables occuring in the given expression.
+
+  Remark: if `e` contains `?m` and there is a `t` assigned to `?m`, we
+  collect unassigned metavariables occurring in `t`.
+
+  Remark: if `e` contains `?m` and `?m` is delayed assigned to some term `t`,
+  we collect `?m` and unassigned metavariables occurring in `t`.
+  We collect `?m` because it has not been assigned yet. -/
+partial def collectMVarsAux : Expr → StateRefT CollectMVars.State MetaM Unit
+| e => do
+  e ← instantiateMVars e;
+  s ← get;
+  let resultSavedSize := s.result.size;
+  let s := e.collectMVars s;
+  set s;
+  s.result.forFromM
+    (fun mvarId => do
+      d? ← getDelayedAssignment? mvarId;
+      match d? with
+      | none   => pure ()
+      | some d => collectMVarsAux d.val)
+    resultSavedSize
+
+def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
+collectMVarsAux e
 
 variables {m : Type → Type} [MonadLiftT MetaM m]
 
@@ -21,6 +42,7 @@ def getMVarsImp (e : Expr) : MetaM (Array MVarId) := do
 (_, s) ← (collectMVars e).run {};
 pure s.result
 
+/-- Return metavariables in occuring the given expression. See `collectMVars` -/
 def getMVars (e : Expr) : m (Array MVarId) :=
 liftM $ getMVarsImp e
 
@@ -33,6 +55,8 @@ pure s.result
 
 def getMVarsAtDecl (d : Declaration) : m (Array MVarId) :=
 liftM $ getMVarsAtDeclImp d
+
+
 
 end Meta
 end Lean

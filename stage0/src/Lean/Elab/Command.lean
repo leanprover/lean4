@@ -243,14 +243,16 @@ s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
 def logException (ex : Exception) : CommandElabM Unit := do
 match ex with
 | Exception.error ref msg => withRef ref $ logError msg
-| Exception.internal id   => do
-  name ← liftIO $ id.getName;
-  logError ("internal exception: " ++ name)
+| Exception.internal id   =>
+  unless (id == abortExceptionId) do
+    name ← liftIO $ id.getName;
+    logError ("internal exception: " ++ name)
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
-catch x (fun ex => match ex with
-  | Exception.error _ _ => do logException ex; pure ()
-  | _                   => unreachable!)
+catch x
+  (fun ex => match ex with
+    | Exception.error _ _  => logException ex
+    | Exception.internal _ => pure ()) -- ignore internal exceptions
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
@@ -508,7 +510,7 @@ fun stx => do
   let term := stx.getArg 1;
   withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
     e    ← Term.elabTerm term none;
-    Term.synthesizeSyntheticMVars false;
+    Term.synthesizeSyntheticMVarsNoPostponing;
     type ← inferType e;
     logInfo (e ++ " : " ++ type);
     pure ()
@@ -556,7 +558,7 @@ fun stx => withoutModifyingEnv do
   let elabMetaEval : CommandElabM Unit := do {
     act : IO Environment ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
-      Term.synthesizeSyntheticMVars false;
+      Term.synthesizeSyntheticMVarsNoPostponing;
         e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
           withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do {
             e ← mkAppM `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
@@ -580,7 +582,7 @@ fun stx => withoutModifyingEnv do
     -- modify e to `HasEval.eval (hideUnit := false) e`
     act : IO Unit ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
-      Term.synthesizeSyntheticMVars false;
+      Term.synthesizeSyntheticMVarsNoPostponing;
       e ← mkAppM `Lean.HasEval.eval #[e, toExpr false];
       addAndCompile e;
       env ← getEnv;
@@ -607,7 +609,7 @@ fun stx => do
   let term := stx.getArg 1;
   withoutModifyingEnv $ runTermElabM `_synth_cmd $ fun _ => do
     inst ← Term.elabTerm term none;
-    Term.synthesizeSyntheticMVars false;
+    Term.synthesizeSyntheticMVarsNoPostponing;
     inst ← instantiateMVars inst;
     val  ← synthInstance inst;
     logInfo val;

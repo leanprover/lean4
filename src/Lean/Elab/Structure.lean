@@ -454,7 +454,7 @@ unless (validStructType type) $ throwErrorAt view.type "expected Type";
 withRef view.ref do
 withParents view 0 #[] fun fieldInfos =>
 withFields view.fields 0 fieldInfos fun fieldInfos => do
-  Term.synthesizeSyntheticMVars false;  -- resolve pending
+  Term.synthesizeSyntheticMVarsNoPostponing;
   u ← getResultUniverse type;
   inferLevel ← shouldInferResultUniverse u;
   withUsed view.scopeVars view.params fieldInfos $ fun scopeVars => do
@@ -471,7 +471,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
       type ← instantiateMVars type;
       let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType };
       let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe;
-      -- ensureNoUnassignedMVars decl -- TODO
+      Term.ensureNoUnassignedMVars decl;
       addDecl decl;
       let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
         { declName := info.declName, inferMod := info.inferMod : ProjectionInfo };

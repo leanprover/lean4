@@ -62,7 +62,7 @@ fun stx => match_syntax stx with
       decl ← getMVarDecl g;
       val  ← elabTerm e none true;
       gs'  ← liftMetaM $ Meta.apply g val;
-      liftTermElabM $ Term.synthesizeSyntheticMVars false;
+      liftTermElabM $ Term.synthesizeSyntheticMVarsNoPostponing;
       pure gs'
     };
     -- TODO: handle optParam and autoParam

@@ -99,6 +99,7 @@ structure ElabAppArgsCtx :=
 (namedArgs     : Array NamedArg)      -- remaining named arguments to be processed
 (instMVars     : Array MVarId := #[]) -- metavariables for the instance implicit arguments that have already been processed
 (typeMVars     : Array MVarId := #[]) -- metavariables for implicit arguments of the form `{α : Sort u}` that have already been processed
+(toSetErrorCtx : Array MVarId := #[]) -- metavariables that we need the set the error context using the application being built
 (foundExplicit : Bool := false)       -- true if an explicit argument has already been processed
 
 /- Auxiliary function for retrieving the resulting type of a function application.
@@ -208,6 +209,7 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
       pure ()
     };
     synthesizeAppInstMVars ctx.instMVars;
+    ctx.toSetErrorCtx.forM fun mvarId => registerMVarErrorContext mvarId ctx.ref e;
     pure e
   };
   eType ← whnfForall eType;
@@ -258,8 +260,7 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
           else do
             a ← mkFreshExprMVar d;
             typeMVars ← condM (isTypeFormer a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
-            elabAppArgsAux { ctx with typeMVars := typeMVars } (mkApp e a) (b.instantiate1 a)
-
+            elabAppArgsAux { ctx with typeMVars := typeMVars, toSetErrorCtx := ctx.toSetErrorCtx.push a.mvarId! } (mkApp e a) (b.instantiate1 a)
         | BinderInfo.instImplicit =>
           if ctx.explicit && nextArgIsHole ctx then do
             /- Recall that if '@' has been used, and the argument is '_', then we still use

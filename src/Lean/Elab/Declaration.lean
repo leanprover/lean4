@@ -88,7 +88,7 @@ withDeclId declId $ fun name => do
   runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do
     applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
     type ← Term.elabType typeStx;
-    Term.synthesizeSyntheticMVars false;
+    Term.synthesizeSyntheticMVarsNoPostponing;
     type ← instantiateMVars type;
     type ← mkForallFVars xs type;
     (type, _) ← mkForallUsedOnly vars type;
@@ -103,7 +103,7 @@ withDeclId declId $ fun name => do
         type     := type,
         isUnsafe := modifiers.isUnsafe
       };
-      -- ensureNoUnassignedMVars decl; -- TODO
+      Term.ensureNoUnassignedMVars decl;
       addDecl decl;
       applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
       applyAttributes declName modifiers.attrs AttributeApplicationTime.afterCompilation

@@ -8,6 +8,7 @@ import Lean.Structure
 import Lean.Meta.ExprDefEq
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
+import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Util
 import Lean.Hygiene
 import Lean.Util.RecDepth
@@ -61,12 +62,18 @@ inductive SyntheticMVarKind
 structure SyntheticMVarDecl :=
 (mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
 
+structure MVarErrorContext :=
+(mvarId : MVarId)
+(ref    : Syntax)
+(ctx?   : Option Expr := none)
+
 structure State :=
-(syntheticMVars  : List SyntheticMVarDecl := [])
-(messages        : MessageLog := {})
-(instImplicitIdx : Nat := 1)
-(anonymousIdx    : Nat := 1)
-(nextMacroScope  : Nat := firstFrontendMacroScope + 1)
+(syntheticMVars    : List SyntheticMVarDecl := [])
+(mvarErrorContexts : List MVarErrorContext := [])
+(messages          : MessageLog := {})
+(instImplicitIdx   : Nat := 1)
+(anonymousIdx      : Nat := 1)
+(nextMacroScope    : Nat := firstFrontendMacroScope + 1)
 
 instance State.inhabited : Inhabited State := ⟨{}⟩
 
@@ -286,6 +293,53 @@ modify $ fun s => { s with syntheticMVars := { mvarId := mvarId, stx := stx, kin
 def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
 ref ← getRef;
 registerSyntheticMVar ref mvarId kind
+
+def registerMVarErrorContext (mvarId : MVarId) (ref : Syntax) (ctx? : Option Expr := none) : TermElabM Unit := do
+modify fun s => { s with mvarErrorContexts := { mvarId := mvarId, ref := ref, ctx? := ctx? } :: s.mvarErrorContexts }
+
+def MVarErrorContext.logError (mvarErrorContext : MVarErrorContext) : TermElabM Unit := do
+let optionExprToMessageData (e? : Option Expr) : TermElabM MessageData :=
+  match e? with
+  | none   => pure Format.nil
+  | some e => do {
+    e ← instantiateMVars e;
+    if e.isApp then
+      let f    := e.getAppFn;
+      let args := e.getAppArgs;
+      let msg  := args.foldl
+        (fun (msg : MessageData) (arg : Expr) =>
+          if arg.getAppFn.isMVar then
+            msg ++ " " ++ arg.getAppFn
+          else
+            msg ++ " …")
+        ("@" ++ MessageData.ofExpr f);
+      pure $ MessageData.nestD (Format.line ++ msg)
+    else
+      pure e
+};
+let msg : MessageData := "don't know how to synthesize placeholder";
+ctx ← optionExprToMessageData mvarErrorContext.ctx?;
+let msg := msg ++ ctx;
+let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorContext.mvarId;
+withRef mvarErrorContext.ref $ logError msg
+
+/-- Ensure metavariables registered using `registerMVarErrorContext` (and used in the given declaration) have been assigned. -/
+def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
+pendingMVarIds ← getMVarsAtDecl decl;
+s ← get;
+let errorCtxs := s.mvarErrorContexts;
+foundError ← errorCtxs.foldlM
+  (fun foundError mvarErrorContext => do
+    /- The metavariable `mvarErrorContext.mvarId` may have been assigned or
+       delayed assigned to another metavariable that is unassigned. -/
+    mvarDeps ← getMVars (mkMVar mvarErrorContext.mvarId);
+    if mvarDeps.any pendingMVarIds.contains then do
+      mvarErrorContext.logError;
+      pure true
+    else
+      pure foundError)
+  false;
+when foundError throwAbort
 
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
@@ -644,9 +698,10 @@ match expectedType? with
 def logException (ex : Exception) : TermElabM Unit := do
 match ex with
 | Exception.error ref msg => withRef ref $ logError msg
-| Exception.internal id   => do
-  name ← liftIO $ id.getName;
-  logError ("internal exception: " ++ name)
+| Exception.internal id   =>
+  unless (id == abortExceptionId) do
+    name ← liftIO $ id.getName;
+    logError ("internal exception: " ++ name)
 
 private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
@@ -930,12 +985,17 @@ fun stx _ => do
   pure $ mkSort (mkLevelSucc u)
 
 @[builtinTermElab «hole»] def elabHole : TermElab :=
-fun stx expectedType? => mkFreshExprMVar expectedType?
+fun stx expectedType? => do
+  mvar ← mkFreshExprMVar expectedType?;
+  registerMVarErrorContext mvar.mvarId! stx;
+  pure mvar
 
 @[builtinTermElab «namedHole»] def elabNamedHole : TermElab :=
-fun stx expectedType? =>
+fun stx expectedType? => do
   let name := stx.getIdAt 1;
-  mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque name
+  mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque name;
+  registerMVarErrorContext mvar.mvarId! stx;
+  pure mvar
 
 def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
 mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque `main;

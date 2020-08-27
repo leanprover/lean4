@@ -469,7 +469,7 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
         pure (indType :: indTypes))
       [];
     let indTypes := indTypes.reverse;
-    Term.synthesizeSyntheticMVars false;  -- resolve pending
+    Term.synthesizeSyntheticMVarsNoPostponing;
     u ← getResultingUniverse indTypes;
     inferLevel ← shouldInferResultUniverse u;
     withUsed vars indTypes $ fun vars => do
@@ -484,7 +484,7 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
         indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
         let indTypes := applyInferMod views numParams indTypes;
         let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe;
-        -- ensureNoUnassignedMVars decl -- TODO
+        Term.ensureNoUnassignedMVars decl;
         addDecl decl;
         mkAuxConstructions views;
         -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.

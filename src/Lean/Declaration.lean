@@ -114,6 +114,24 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
 | Declaration.inductDecl _ _ _ isUnsafe => isUnsafe
 | _ => false
 
+@[specialize] def Declaration.foldExprM {α} {m : Type → Type} [Monad m] (d : Declaration) (f : α → Expr → m α) (a : α) : m α :=
+match d with
+| Declaration.quotDecl                                        => pure a
+| Declaration.axiomDecl { type := type, .. }                  => f a type
+| Declaration.defnDecl { type := type, value := value, .. }   => do a ← f a type; f a value
+| Declaration.opaqueDecl { type := type, value := value, .. } => do a ← f a type; f a value
+| Declaration.thmDecl { type := type, value := value, .. }    => do a ← f a type; f a value.get
+| Declaration.mutualDefnDecl vals                             => vals.foldlM (fun a v => do a ← f a v.type; f a v.value) a
+| Declaration.inductDecl _ _ inductTypes _                    =>
+  inductTypes.foldlM
+    (fun a inductType => do
+      a ← f a inductType.type;
+      inductType.ctors.foldlM (fun a ctor => f a ctor.type) a)
+    a
+
+@[inline] def Declaration.forExprM {m : Type → Type} [Monad m] (d : Declaration) (f : Expr → m Unit) : m Unit :=
+d.foldExprM (fun _ a => f a) ()
+
 
 /-- The kernel compiles (mutual) inductive declarations (see `inductiveDecls`) into a set of
     - `Declaration.inductDecl` (for each inductive datatype in the mutual Declaration),

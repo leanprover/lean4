@@ -1491,6 +1491,23 @@ extern "C" object * lean_mk_string(char const * s) {
     return r;
 }
 
+extern "C" obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
+    size_t sz  = lean_sarray_size(a);
+    size_t len = utf8_strlen(reinterpret_cast<char *>(lean_sarray_cptr(a)), sz);
+    size_t rsz = sz + 1;
+    obj_res r  = lean_alloc_string(rsz, rsz, len);
+    memcpy(w_string_cstr(r), lean_sarray_cptr(a), sz);
+    w_string_cstr(r)[sz] = 0;
+    return r;
+}
+
+extern "C" obj_res lean_string_to_utf8(b_obj_arg s) {
+    size_t sz = lean_string_size(s) - 1;
+    obj_res r = lean_alloc_sarray(1, sz, sz);
+    memcpy(lean_sarray_cptr(r), lean_string_cstr(s), sz);
+    return r;
+}
+
 object * mk_string(std::string const & s) {
     size_t sz  = s.size();
     size_t len = utf8_strlen(s);

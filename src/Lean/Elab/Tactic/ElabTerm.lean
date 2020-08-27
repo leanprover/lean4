@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Assert
 import Lean.Elab.Tactic.Basic
@@ -45,7 +46,8 @@ fun stx => match_syntax stx with
       val  ← elabTerm e decl.type;
       val  ← ensureHasType decl.type val;
       assignExprMVar g val;
-      gs'  ← collectMVars val;
+      gs'  ← getMVars val;
+      let gs' := gs'.toList;
       tagUntaggedGoals decl.userName `refine gs';
       pure gs'
     };

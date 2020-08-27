@@ -1000,7 +1000,8 @@ fun stx expectedType? => do
 def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
 mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque `main;
 let mvarId := mvar.mvarId!;
-registerSyntheticMVar tacticCode mvarId $ SyntheticMVarKind.tactic tacticCode;
+ref ← getRef;
+registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic tacticCode;
 pure mvar
 
 @[builtinTermElab tacticBlock] def elabTacticBlock : TermElab :=

@@ -45,6 +45,22 @@ def set! : ByteArray → (@& Nat) → UInt8 → ByteArray
 def isEmpty (s : ByteArray) : Bool :=
 s.size == 0
 
+/--
+  Copy the slice at `[srcOff, srcOff + len)` in `src` to `[destOff, destOff + len)` in `dest`, growing `dest` if necessary.
+  If `exact` is `false`, the capacity will be doubled when grown. -/
+@[extern "lean_byte_array_copy_slice"]
+def copySlice (src : @& ByteArray) (srcOff : Nat) (dest : ByteArray) (destOff len : Nat) (exact : Bool := true) : ByteArray :=
+⟨dest.data.extract 0 destOff ++ src.data.extract srcOff len ++ dest.data.extract (destOff + len) dest.data.size⟩
+
+def extract (a : ByteArray) (b e : Nat) : ByteArray :=
+a.copySlice b empty 0 (e - b)
+
+protected def append (a : ByteArray) (b : ByteArray) : ByteArray :=
+-- we assume that `append`s may be repeated, so use asymptotic growing; use `copySlice` directly to customize
+b.copySlice 0 a a.size b.size false
+
+instance : HasAppend ByteArray := ⟨ByteArray.append⟩
+
 partial def toListAux (bs : ByteArray) : Nat → List UInt8 → List UInt8
 | i, r =>
   if i < bs.size then
@@ -54,6 +70,16 @@ partial def toListAux (bs : ByteArray) : Nat → List UInt8 → List UInt8
 
 def toList (bs : ByteArray) : List UInt8 :=
 toListAux bs 0 []
+
+@[specialize] partial def findIdxAux (a : ByteArray) (p : UInt8 → Bool) : Nat → Option Nat
+| i =>
+  if i < a.size then
+    if p (a.get! i) then some i else findIdxAux (i+1)
+  else
+    none
+
+@[inline] def findIdx? (a : ByteArray) (p : UInt8 → Bool) : Option Nat :=
+findIdxAux a p 0
 
 end ByteArray
 

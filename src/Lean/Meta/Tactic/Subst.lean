@@ -110,15 +110,18 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
 withMVarContext mvarId $ do
   hLocalDecl ← getLocalDecl hFVarId;
   match hLocalDecl.type.eq? with
-  | some (α, lhs, rhs) =>
+  | some (α, lhs, rhs) => do
+    rhs ← whnf rhs;
     if rhs.isFVar then
       Prod.snd <$> substCore mvarId hFVarId true
-    else if lhs.isFVar then
-      Prod.snd <$> substCore mvarId hFVarId
-    else
-      throwTacticEx `subst mvarId $
-        "invalid equality proof, it is not of the form (x = t) or (t = x)"
-        ++ indentExpr hLocalDecl.type
+    else do
+      lhs ← whnf lhs;
+      if lhs.isFVar then
+        Prod.snd <$> substCore mvarId hFVarId
+      else do
+        throwTacticEx `subst mvarId $
+          "invalid equality proof, it is not of the form (x = t) or (t = x)"
+          ++ indentExpr hLocalDecl.type
   | none => do
     mctx ← getMCtx;
     lctx ← getLCtx;

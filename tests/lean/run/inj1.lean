@@ -34,3 +34,11 @@ theorem test6 (n : Nat) (h : n+1 = 0) : 0 > 1 :=
 begin
   injection h
 end
+
+theorem test7 (n m k : Nat) (h : n + 1 = m + 1) : m = k → n = k :=
+begin
+  injection h with h₁;
+  subst h₁;
+  intro h₂;
+  exact h₂
+end

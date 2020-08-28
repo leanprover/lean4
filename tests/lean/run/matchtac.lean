@@ -21,3 +21,12 @@ begin
   match h with
   | (a, b, c) => exact (b, a, c)
 end
+
+theorem tst4 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
+begin
+  match h:xs with
+  | []    => _
+  | z::zs => _;
+  case match_2 exact h₁ z zs h;
+  exact h₂ h
+end

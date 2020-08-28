@@ -202,6 +202,10 @@ gs ← gs.filterM $ fun g => not <$> isExprMVarAssigned g;
 setGoals gs
 def getUnsolvedGoals : TacticM (List MVarId) := do pruneSolvedGoals; getGoals
 def getMainGoal : TacticM (MVarId × List MVarId) := do (g::gs) ← getUnsolvedGoals | throwError "no goals to be solved"; pure (g, gs)
+def getMainTag : TacticM Name := do
+(g, _) ← getMainGoal;
+mvarDecl ← getMVarDecl g;
+pure mvarDecl.userName
 def ensureHasNoMVars (e : Expr) : TacticM Unit := do
 e ← instantiateMVars e;
 when e.hasMVar $ throwError ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)

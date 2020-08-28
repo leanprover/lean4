@@ -315,28 +315,39 @@ def currentDir : m String := liftIO Prim.currentDir
 
 end
 
-/-
-namespace Proc
-def child : Type :=
-MonadIOProcess.child ioCore
+namespace Process
+inductive Stdio
+| piped
+| inherit
+| null
 
-def child.stdin : child → Handle :=
-MonadIOProcess.stdin
+structure SpawnArgs :=
+/- Command name. -/
+(cmd : String)
+/- Arguments for the process -/
+(args : Array String := #[])
+/- Configuration for the process' stdin handle. -/
+(stdin := Stdio.inherit)
+/- Configuration for the process' stdout handle. -/
+(stdout := Stdio.inherit)
+/- Configuration for the process' stderr handle. -/
+(stderr := Stdio.inherit)
+/- Working directory for the process. Inherit from current process if `none`. -/
+(cwd : Option String := none)
+/- Add or remove environment variables for the process. -/
+(env : Array (String × Option String) := #[])
 
-def child.stdout : child → Handle :=
-MonadIOProcess.stdout
+structure Child :=
+(stdin  : FS.Handle)
+(stdout : FS.Handle)
+(stderr : FS.Handle)
 
-def child.stderr : child → Handle :=
-MonadIOProcess.stderr
+@[extern "lean_io_process_spawn"]
+constant spawn : SpawnArgs → IO Child := arbitrary _
 
-def spawn (p : IO.process.spawnArgs) : IO child :=
-MonadIOProcess.spawn ioCore p
-
-def wait (c : child) : IO Nat :=
-MonadIOProcess.wait c
-
-end Proc
--/
+@[extern "lean_io_process_child_wait"]
+constant Child.wait : @& Child → IO UInt32 := arbitrary _
+end Process
 
 structure AccessRight :=
 (read write execution : Bool := false)

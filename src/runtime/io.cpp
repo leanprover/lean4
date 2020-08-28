@@ -115,13 +115,15 @@ extern "C" obj_res lean_io_initializing(obj_arg) {
 static lean_external_class * g_io_handle_external_class = nullptr;
 
 static void io_handle_finalizer(void * h) {
-    fclose(static_cast<FILE *>(h));
+    if (h) {
+        fclose(static_cast<FILE *>(h));
+    }
 }
 
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
 }
 
-static lean_object * io_wrap_handle(FILE *hfile) {
+lean_object * io_wrap_handle(FILE *hfile) {
     return lean_alloc_external(g_io_handle_external_class, hfile);
 }
 

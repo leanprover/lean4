@@ -394,26 +394,21 @@ structure Buffer :=
 def ofBuffer (r : Ref Buffer) : Stream := {
   isEof   := do b ← r.get; pure $ b.pos >= b.data.size,
   flush   := pure (),
-  read    := fun n => do
-    b ← r.get;
+  read    := fun n => r.modifyGet fun b =>
     let data := b.data.extract b.pos (b.pos + n.toNat);
-    r.set { b with pos := b.pos + data.size };
-    pure data,
+    (data, { b with pos := b.pos + data.size }),
   write   := fun data => r.modify fun b =>
     -- set `exact` to `false` so that repeatedly writing to the stream does not impose quadratic run time
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
-  getLine := do
-    b ← r.get;
+  getLine := r.modifyGet fun b =>
     let pos := match b.data.findIdxAux (fun u => u == 0 || u = '\n'.toNat.toUInt8) b.pos with
     -- include '\n', but not '\0'
     | some pos => if b.data.get! pos == 0 then pos else pos + 1
     | none     => b.data.size;
-    r.set { b with pos := pos };
-    pure $ String.fromUTF8Unchecked $ b.data.extract b.pos pos,
-  putStr  := fun s =>
+    (String.fromUTF8Unchecked $ b.data.extract b.pos pos, { b with pos := pos }),
+  putStr  := fun s => r.modify fun b =>
     let data := s.toUTF8;
-    r.modify fun b =>
-      { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
+    { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
 }
 end Stream
 

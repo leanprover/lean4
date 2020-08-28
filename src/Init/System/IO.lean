@@ -133,10 +133,6 @@ constant setStdout : FS.Stream → IO FS.Stream := arbitrary _
 @[extern "lean_get_set_stderr"]
 constant setStderr : FS.Stream → IO FS.Stream := arbitrary _
 
-/-- Run action with `stdin` closed and `stdout+stderr` captured into a `String`. -/
-@[extern "lean_with_isolated_streams"]
-constant withIsolatedStreams {α : Type} : IO α → IO (String × Except IO.Error α) := arbitrary _
-
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
   v ← f a;
@@ -296,6 +292,9 @@ liftIO $ out.putStr $ toString s
 
 def println {α} [HasToString α] (s : α) : m Unit := print s *> print "\n"
 
+@[export lean_io_println]
+private def printlnAux (s : String) : IO Unit := println s
+
 def eprint {α} [HasToString α] (s : α) : m Unit := do
 out ← getStderr;
 liftIO $ out.putStr $ toString s
@@ -417,6 +416,19 @@ def ofBuffer (r : Ref Buffer) : Stream := {
       { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
 }
 end Stream
+
+/-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
+def withIsolatedStreams {α : Type} (x : IO α) : IO (String × Except IO.Error α) := do
+bIn ← mkRef { : Stream.Buffer };
+bOut ← mkRef { : Stream.Buffer };
+r ← withStdin (Stream.ofBuffer bIn) $
+  withStdout (Stream.ofBuffer bOut) $
+    withStderr (Stream.ofBuffer bOut) $
+      observing x;
+bOut ← bOut.get;
+let out := String.fromUTF8Unchecked bOut.data;
+pure (out, r)
+
 end FS
 end IO
 
@@ -438,5 +450,8 @@ instance Unit.hasEval : HasEval Unit :=
 
 instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
 ⟨fun x _ => do a ← x; HasEval.eval a⟩
+
+def runEval {α : Type u} [HasEval α] (a : α) : IO (String × Except IO.Error Unit) :=
+IO.FS.withIsolatedStreams (HasEval.eval a false)
 
 end Lean

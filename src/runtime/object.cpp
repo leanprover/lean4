@@ -2018,27 +2018,15 @@ extern "C" object * lean_max_small_nat(object *) {
 // =======================================
 // Debugging helper functions
 
-void dbg_print_str(object * o) {
-    lean_assert(is_string(o));
-    std::cout << string_cstr(o) << "\n";
+extern "C" obj_res lean_io_println(obj_arg s, obj_arg w);
+void io_println(obj_arg s) {
+    object * r = lean_io_println(s, lean_io_mk_world());
+    lean_assert(lean_io_result_is_ok(r));
+    lean_dec(r);
 }
-
-void dbg_print_num(object * o) {
-    if (is_scalar(o)) {
-        std::cout << unbox(o) << "\n";
-    } else {
-        std::cout << mpz_value(o) << "\n";
-    }
-}
-
-static mutex g_dbg_mutex;
 
 extern "C" object * lean_dbg_trace(obj_arg s, obj_arg fn) {
-    {
-        unique_lock<mutex> lock(g_dbg_mutex);
-        std::cout << lean_string_cstr(s) << std::endl;
-    }
-    lean_dec(s);
+    io_println(s);
     return lean_apply_1(fn, lean_box(0));
 }
 
@@ -2050,10 +2038,8 @@ extern "C" object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 
 extern "C" object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
     if (lean_is_shared(a)) {
-        unique_lock<mutex> lock(g_dbg_mutex);
-        std::cout << "shared RC " << lean_string_cstr(s) << std::endl;
+        io_println(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }
-    lean_dec(s);
     return a;
 }
 
@@ -2083,6 +2069,3 @@ void finalize_object() {
     delete g_ext_classes_mutex;
 }
 }
-
-extern "C" void lean_dbg_print_str(lean::object* o) { lean::dbg_print_str(o); }
-extern "C" void lean_dbg_print_num(lean::object* o) { lean::dbg_print_num(o); }

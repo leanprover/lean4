@@ -136,16 +136,6 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → Ta
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
 adaptTheReader Term.Context (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
-instance : MonadMacroAdapter TacticM :=
-{ getEnv                 := getEnv,
-  getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← getThe Term.State; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modifyThe Term.State $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
-  getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
-  throwError             := fun α ref msg => throwErrorAt ref msg,
-  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax }
-
 @[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit
 | []    => throwErrorAt stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")
 | m::ms => do

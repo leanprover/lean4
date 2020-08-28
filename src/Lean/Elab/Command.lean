@@ -159,14 +159,9 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 adaptReader (fun (ctx : Context) => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM :=
-{ getEnv                 := getEnv,
-  getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
-  getMaxRecDepth         := do s ← get; pure s.maxRecDepth,
-  throwError             := fun α ref msg => throwErrorAt ref msg,
-  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
+{ getCurrMacroScope := getCurrMacroScope,
+  getNextMacroScope := do s ← get; pure s.nextMacroScope,
+  setNextMacroScope := fun next => modify $ fun s => { s with nextMacroScope := next } }
 
 instance : MonadRecDepth CommandElabM :=
 { withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,

@@ -779,14 +779,9 @@ match table.find? k with
 | none         => throwError ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 instance : MonadMacroAdapter TermElabM :=
-{ getEnv                 := getEnv,
-  getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
-  getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
-  throwError             := fun α ref msg => throwErrorAt ref msg,
-  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
+{ getCurrMacroScope := getCurrMacroScope,
+  getNextMacroScope := do s ← get; pure s.nextMacroScope,
+  setNextMacroScope := fun next => modify $ fun s => { s with nextMacroScope := next } }
 
 private def isExplicit (stx : Syntax) : Bool :=
 match_syntax stx with

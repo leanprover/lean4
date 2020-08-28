@@ -194,7 +194,7 @@ modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := 
 -- It produces "unknown free variable: _kernel_fresh.<some idx>"  at step `csimp.cpp`
 def processIdAuxAux (stx : Syntax) (mustBeCtor : Bool) (env : Environment) (f : Expr) : M Nat :=
 match f with
-| Expr.const fName _ _ =>
+| Expr.const fName _ _ => do
   match env.find? fName with
   | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams val
   | some $ info =>
@@ -498,26 +498,20 @@ partial def main : Expr → M Pattern
     newE ← whnf e;
     if newE != e then
       main newE
-    else match e.getAppFn with
-      | Expr.const declName us _ => do
-        env ← getEnv;
-        match env.find? declName with
-        | ConstantInfo.ctorInfo v =>  do
-          let args := e.getAppArgs;
-          unless (args.size == v.nparams + v.nfields) $ throwInvalidPattern e;
-          let params := args.extract 0 v.nparams;
-          let fields := args.extract v.nparams args.size;
-          let binderInfos := getFieldsBinderInfo v;
-          fields ← fields.mapIdxM fun i field => do {
-            let binderInfo := binderInfos.get! i;
-            if binderInfo.isExplicit then
-              main field
-            else
-              mkInaccessible field
-          };
-          pure $ Pattern.ctor declName us params.toList fields.toList
-        | _ => throwInvalidPattern e
-      | _ => throwInvalidPattern e
+    else matchConstCtor e.getAppFn (fun _ => throwInvalidPattern e) fun v us => do
+      let args := e.getAppArgs;
+      unless (args.size == v.nparams + v.nfields) $ throwInvalidPattern e;
+      let params := args.extract 0 v.nparams;
+      let fields := args.extract v.nparams args.size;
+      let binderInfos := getFieldsBinderInfo v;
+      fields ← fields.mapIdxM fun i field => do {
+        let binderInfo := binderInfos.get! i;
+        if binderInfo.isExplicit then
+          main field
+        else
+          mkInaccessible field
+      };
+      pure $ Pattern.ctor v.name us params.toList fields.toList
 
 end ToDepElimPattern
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter
-// Imports: Init Lean.Delaborator Lean.PrettyPrinter.Parenthesizer Lean.PrettyPrinter.Formatter
+// Imports: Init Lean.Delaborator Lean.PrettyPrinter.Parenthesizer Lean.PrettyPrinter.Formatter Lean.Parser.Module
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -620,6 +620,7 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Delaborator(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Formatter(lean_object*);
+lean_object* initialize_Lean_Parser_Module(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_PrettyPrinter(lean_object* w) {
 lean_object * res;
@@ -635,6 +636,9 @@ res = initialize_Lean_PrettyPrinter_Parenthesizer(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Formatter(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Module(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Array_iterateMAux___main___at_Lean_PrettyPrinter_ppModule___spec__1___closed__1 = _init_l_Array_iterateMAux___main___at_Lean_PrettyPrinter_ppModule___spec__1___closed__1();

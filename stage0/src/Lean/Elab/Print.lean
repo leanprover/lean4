@@ -48,10 +48,9 @@ env ← getEnv;
 m ← mkHeader "inductive" id lparams type isUnsafe;
 let m := m ++ Format.line ++ "constructors:";
 m ← ctors.foldlM
-  (fun (m : MessageData) ctor =>
-    match env.find? ctor with
-    | some v => pure $ m ++ Format.line ++ ctor ++ " : " ++ v.type
-    | none   => pure m)
+  (fun (m : MessageData) ctor => do
+    cinfo ← getConstInfo ctor;
+    pure $ m ++ Format.line ++ ctor ++ " : " ++ cinfo.type)
   m;
 logInfo m
 

@@ -125,106 +125,62 @@ static lean_object * io_wrap_handle(FILE *hfile) {
     return lean_alloc_external(g_io_handle_external_class, hfile);
 }
 
-static object * g_handle_stdin  = nullptr;
-static object * g_handle_stdout = nullptr;
-static object * g_handle_stderr = nullptr;
+extern "C" obj_res lean_stream_of_handle(obj_arg h);
 
-/* stdin : IO FS.Handle */
+static object * g_stream_stdin  = nullptr;
+static object * g_stream_stdout = nullptr;
+static object * g_stream_stderr = nullptr;
+MK_THREAD_LOCAL_GET(object *, get_stream_current_stdin,  g_stream_stdin);
+MK_THREAD_LOCAL_GET(object *, get_stream_current_stdout, g_stream_stdout);
+MK_THREAD_LOCAL_GET(object *, get_stream_current_stderr, g_stream_stderr);
+
+/* getStdin : IO FS.Stream */
 extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
-    inc_ref(g_handle_stdin);
-    return set_io_result(g_handle_stdin);
+    object * r = get_stream_current_stdin();
+    inc_ref(r);
+    return set_io_result(r);
 }
 
-/* stdout : IO FS.Handle */
+/* getStdout : IO FS.Stream */
 extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
-    inc_ref(g_handle_stdout);
-    return set_io_result(g_handle_stdout);
+    object * r = get_stream_current_stdout();
+    inc_ref(r);
+    return set_io_result(r);
 }
 
-/* stderr : IO FS.Handle */
+/* getStderr : IO FS.Stream */
 extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
-    inc_ref(g_handle_stderr);
-    return set_io_result(g_handle_stderr);
+    object * r = get_stream_current_stderr();
+    inc_ref(r);
+    return set_io_result(r);
+}
+
+/* setStdin  : FS.Stream -> IO FS.Stream */
+extern "C" obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
+    object * & x = get_stream_current_stdin();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
+}
+
+/* setStdout  : FS.Stream -> IO FS.Stream */
+extern "C" obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
+    object * & x = get_stream_current_stdout();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
+}
+
+/* setStderr  : FS.Stream -> IO FS.Stream */
+extern "C" obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
+    object * & x = get_stream_current_stderr();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
 }
 
 static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
-}
-
-void with_isolated_streams(std::string & streams_out, std::function<void()> fn) {
-    // When running `#eval`, we want to temporarily close stdin and capture stdout/stderr of the evaluated program
-    // so it doesn't interfere with the server I/O. We could do this on the Lean API level (i.e. `IO.getLine/putStr`),
-    // but that wouldn't affect direct access to `IO.stdin/...` nor FFI-called code. Instead, we directly work on file
-    // descriptors.
-    // Create a fresh file descriptor we can point stdout/stderr to
-#if defined(__linux__)
-    // On Linux, we can simply open an anonymous file in memory
-    int buf_fd = memfd_create("lean-eval", 0);
-#elif 0
-    // On macOS, we can open exclusive shared memory object, guessing a hopefully unique name
-    // ...or at least we should be able to, but it doesn't work for some reason.
-    // NOTE: what doesn't work: `funopen` returns a `FILE *` stream without a file descriptor
-    std::string shm_name = (sstream() << "lean-eval-" << getpid()).str();
-    int buf_fd = shm_open(shm_name.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRWXU);
-    lean_always_assert(shm_unlink(shm_name.c_str()) == 0);
-#else
-    // On Windows we can open an actual file I guess
-    FILE * buf_f = tmpfile(); lean_always_assert(buf_f != nullptr);
-    int buf_fd = fileno(buf_f);
-#endif
-    lean_always_assert(buf_fd >= 0);
-    // NOTE: what doesn't work: `pipe` creates file descriptors, but we would need a separate consumer thread so
-    // the evaluated program doesn't block on a full pipe
-
-    // make sure to drain user-level buffers
-    fflush(stdout); fflush(stderr);
-    // copy stdout/stderr, then set them to `buf_fd`
-#ifdef __linux__
-    // On Linux, we also redirect stdin so it appears as empty. This doesn't seem to work on other platforms.
-    // NOTE: Since we can't flush stdin, this only really works if we are on a line ending (assuming stdin is line buffered).
-    // This should be the case for the server, which is line-based.
-    int old_stdin  = dup(STDIN_FILENO);  lean_always_assert(old_stdin  >= 0); lean_always_assert(dup2(buf_fd, STDIN_FILENO)  >= 0);
-#endif
-    int old_stdout = dup(STDOUT_FILENO); lean_always_assert(old_stdout >= 0); lean_always_assert(dup2(buf_fd, STDOUT_FILENO) >= 0);
-    int old_stderr = dup(STDERR_FILENO); lean_always_assert(old_stderr >= 0); lean_always_assert(dup2(buf_fd, STDERR_FILENO) >= 0);
-
-    std::function<void()> finally = [&]() {
-        fflush(stdout); fflush(stderr);
-        // restore old streams
-#ifdef __linux__
-        lean_always_assert(dup2(old_stdin,  STDIN_FILENO)  >= 0); lean_always_assert(close(old_stdin) == 0);
-#endif
-        lean_always_assert(dup2(old_stdout, STDOUT_FILENO) >= 0); lean_always_assert(close(old_stdout) == 0);
-        lean_always_assert(dup2(old_stderr, STDERR_FILENO) >= 0); lean_always_assert(close(old_stderr) == 0);
-        // write `buf_fd` contents to `out`
-        off_t buf_sz = lseek(buf_fd, 0, SEEK_CUR);
-        lseek(buf_fd, 0, SEEK_SET);
-        std::string buf_s(buf_sz, '\0');
-        lean_always_assert(read(buf_fd, static_cast<void *>(&buf_s[0]), buf_sz) == buf_sz);
-        lean_always_assert(close(buf_fd) == 0);
-        streams_out = buf_s;
-    };
-
-    try {
-        fn();
-    } catch (exception &) {
-        finally();
-        throw;
-    }
-
-    finally();
-}
-
-/* withIsolatedStreams {α : Type} : IO α → IO (String × Except IO.Error α) */
-extern "C" obj_res lean_with_isolated_streams(obj_arg act, obj_arg w) {
-    std::string streams_out;
-    object_ref act_res;
-    with_isolated_streams(streams_out, [&]() { act_res = object_ref(apply_1(act, w)); });
-    if (io_result_is_ok(act_res.raw())) {
-        return set_io_result(mk_cnstr(0, mk_string(streams_out), mk_except_ok(object_ref(io_result_get_value(act_res.raw()), true))).steal());
-    } else {
-        return set_io_result(mk_cnstr(0, mk_string(streams_out), mk_except_error(object_ref(io_result_get_error(act_res.raw()), true))).steal());
-    }
 }
 
 obj_res decode_io_error(int errnum, b_obj_arg fname) {
@@ -689,12 +645,12 @@ void initialize_io() {
     _setmode(_fileno(stderr), _O_BINARY);
     _setmode(_fileno(stdin), _O_BINARY);
 #endif
-    g_handle_stdout = io_wrap_handle(stdout);
-    mark_persistent(g_handle_stdout);
-    g_handle_stderr = io_wrap_handle(stderr);
-    mark_persistent(g_handle_stderr);
-    g_handle_stdin  = io_wrap_handle(stdin);
-    mark_persistent(g_handle_stdin);
+    g_stream_stdout = lean_stream_of_handle(io_wrap_handle(stdout));
+    mark_persistent(g_stream_stdout);
+    g_stream_stderr = lean_stream_of_handle(io_wrap_handle(stderr));
+    mark_persistent(g_stream_stderr);
+    g_stream_stdin  = lean_stream_of_handle(io_wrap_handle(stdin));
+    mark_persistent(g_stream_stdin);
 }
 
 void finalize_io() {

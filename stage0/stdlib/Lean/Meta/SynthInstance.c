@@ -212,6 +212,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Meta_SynthInstance_getInstance
 lean_object* l_Lean_Meta_SynthInstance_GeneratorNode_inhabited;
 lean_object* l_Array_back___at_Lean_Meta_SynthInstance_getNextToResume___spec__1___boxed(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Meta_SynthInstance_mkTableKey___spec__2(lean_object*);
+lean_object* l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_normalizeLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___at_Lean_Meta_SynthInstance_getInstances___spec__6___closed__7;
 lean_object* l_Lean_Meta_getGlobalInstances___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__4;
@@ -334,7 +335,6 @@ lean_object* l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances__
 lean_object* l___private_Lean_Meta_Basic_14__forallTelescopeReducingAux___at_Lean_Meta_SynthInstance_getInstances___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__2;
-lean_object* l_Lean_Meta_instantiateLevelMVars___at___private_Lean_Meta_InferType_13__isArrowProp___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_mkTableKey(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Meta_SynthInstance_findEntry_x3f___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -22512,7 +22512,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_10 = lean_ctor_get(x_2, 0);
 x_11 = lean_ctor_get(x_2, 1);
-x_12 = l_Lean_Meta_instantiateLevelMVars___at___private_Lean_Meta_InferType_13__isArrowProp___main___spec__1(x_10, x_3, x_4, x_5, x_6, x_7);
+x_12 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_normalizeLevel___spec__1(x_10, x_3, x_4, x_5, x_6, x_7);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
@@ -22554,7 +22554,7 @@ x_22 = lean_ctor_get(x_2, 1);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_2);
-x_23 = l_Lean_Meta_instantiateLevelMVars___at___private_Lean_Meta_InferType_13__isArrowProp___main___spec__1(x_21, x_3, x_4, x_5, x_6, x_7);
+x_23 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_normalizeLevel___spec__1(x_21, x_3, x_4, x_5, x_6, x_7);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);

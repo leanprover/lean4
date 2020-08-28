@@ -1491,6 +1491,23 @@ extern "C" object * lean_mk_string(char const * s) {
     return r;
 }
 
+extern "C" obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
+    size_t sz  = lean_sarray_size(a);
+    size_t len = utf8_strlen(reinterpret_cast<char *>(lean_sarray_cptr(a)), sz);
+    size_t rsz = sz + 1;
+    obj_res r  = lean_alloc_string(rsz, rsz, len);
+    memcpy(w_string_cstr(r), lean_sarray_cptr(a), sz);
+    w_string_cstr(r)[sz] = 0;
+    return r;
+}
+
+extern "C" obj_res lean_string_to_utf8(b_obj_arg s) {
+    size_t sz = lean_string_size(s) - 1;
+    obj_res r = lean_alloc_sarray(1, sz, sz);
+    memcpy(lean_sarray_cptr(r), lean_string_cstr(s), sz);
+    return r;
+}
+
 object * mk_string(std::string const & s) {
     size_t sz  = s.size();
     size_t len = utf8_strlen(s);
@@ -1786,13 +1803,22 @@ extern "C" usize lean_string_hash(b_obj_arg s) {
 // =======================================
 // ByteArray & FloatArray
 
-extern "C" obj_res lean_copy_sarray(obj_arg a, bool expand) {
+size_t lean_nat_to_size_t(obj_arg n) {
+    if (lean_is_scalar(n)) {
+        return lean_unbox(n);
+    } else {
+        mpz const & v = mpz_value(n);
+        if (!v.is_size_t()) lean_panic_out_of_memory();
+        size_t sz = v.get_size_t();
+        lean_dec(n);
+        return sz;
+    }
+}
+
+extern "C" obj_res lean_copy_sarray(obj_arg a, size_t cap) {
     unsigned esz   = lean_sarray_elem_size(a);
     size_t sz      = lean_sarray_size(a);
-    size_t cap     = lean_sarray_capacity(a);
     lean_assert(cap >= sz);
-    if (expand) cap = (cap + 1) * 2;
-    lean_assert(!expand || cap > sz);
     object * r     = lean_alloc_sarray(esz, sz, cap);
     uint8 * it     = lean_sarray_cptr(a);
     uint8 * dest   = lean_sarray_cptr(r);
@@ -1801,8 +1827,27 @@ extern "C" obj_res lean_copy_sarray(obj_arg a, bool expand) {
     return r;
 }
 
+obj_res lean_sarray_ensure_exclusive(obj_arg a) {
+    if (lean_is_exclusive(a)) {
+        return a;
+    } else {
+        return lean_copy_sarray(a, lean_sarray_capacity(a));
+    }
+}
+
+/* Ensure that `a` has capacity at least `min_cap`, copying `a` otherwise.
+   If `exact` is false, double the capacity on copying. */
+extern "C" obj_res lean_sarray_ensure_capacity(obj_arg a, size_t min_cap, bool exact) {
+    size_t cap = lean_sarray_capacity(a);
+    if (min_cap <= cap) {
+        return a;
+    } else {
+        return lean_copy_sarray(a, exact ? min_cap : min_cap * 2);
+    }
+}
+
 extern "C" obj_res lean_copy_byte_array(obj_arg a) {
-    return lean_copy_sarray(a, false);
+    return lean_copy_sarray(a, lean_sarray_capacity(a));
 }
 
 extern "C" obj_res lean_byte_array_mk(obj_arg a) {
@@ -1832,16 +1877,7 @@ extern "C" obj_res lean_byte_array_data(obj_arg a) {
 }
 
 extern "C" obj_res lean_byte_array_push(obj_arg a, uint8 b) {
-    object * r;
-    if (lean_is_exclusive(a)) {
-        if (lean_sarray_capacity(a) > lean_sarray_size(a))
-            r = a;
-        else
-            r = lean_copy_sarray(a, true);
-    } else {
-        r = lean_copy_sarray(a, lean_sarray_capacity(a) < 2*lean_sarray_size(a) + 1);
-    }
-    lean_assert(lean_sarray_capacity(r) > lean_sarray_size(r));
+    object * r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(a, lean_sarray_size(a) + 1, /* exact */ false));
     size_t & sz  = lean_to_sarray(r)->m_size;
     uint8 * it   = lean_sarray_cptr(r) + sz;
     *it = b;
@@ -1849,8 +1885,28 @@ extern "C" obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
+    extern "C" obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+    size_t ssz = lean_sarray_size(src);
+    size_t dsz = lean_sarray_size(dest);
+    size_t src_off = lean_nat_to_size_t(o_src_off);
+    if (src_off > ssz) {
+        return dest;
+    }
+    size_t len = std::min(lean_nat_to_size_t(o_len), ssz - src_off);
+    size_t dest_off = lean_nat_to_size_t(o_dest_off);
+    if (dest_off > dsz) {
+        dest_off = dsz;
+    }
+    size_t new_dsz = std::max(dsz, dest_off + len);
+    object * r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(dest, new_dsz, exact));
+    lean_to_sarray(r)->m_size = new_dsz;
+    // `r` is exclusive, so the ranges definitely cannot overlap
+    memcpy(lean_sarray_cptr(r) + dest_off, lean_sarray_cptr(src) + src_off, len);
+    return r;
+}
+
 extern "C" obj_res lean_copy_float_array(obj_arg a) {
-    return lean_copy_sarray(a, false);
+    return lean_copy_sarray(a, lean_sarray_capacity(a));
 }
 
 extern "C" obj_res lean_float_array_mk(obj_arg a) {
@@ -1881,16 +1937,7 @@ extern "C" obj_res lean_float_array_data(obj_arg a) {
 }
 
 extern "C" obj_res lean_float_array_push(obj_arg a, double d) {
-    object * r;
-    if (lean_is_exclusive(a)) {
-        if (lean_sarray_capacity(a) > lean_sarray_size(a))
-            r = a;
-        else
-            r = lean_copy_sarray(a, true);
-    } else {
-        r = lean_copy_sarray(a, lean_sarray_capacity(a) < 2*lean_sarray_size(a) + 1);
-    }
-    lean_assert(lean_sarray_capacity(r) > lean_sarray_size(r));
+    object * r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(a, lean_sarray_size(a) + 1, /* exact */ false));
     size_t & sz  = lean_to_sarray(r)->m_size;
     double * it  = reinterpret_cast<double*>(lean_sarray_cptr(r)) + sz;
     *it = d;
@@ -1971,27 +2018,15 @@ extern "C" object * lean_max_small_nat(object *) {
 // =======================================
 // Debugging helper functions
 
-void dbg_print_str(object * o) {
-    lean_assert(is_string(o));
-    std::cout << string_cstr(o) << "\n";
+extern "C" obj_res lean_io_println(obj_arg s, obj_arg w);
+void io_println(obj_arg s) {
+    object * r = lean_io_println(s, lean_io_mk_world());
+    lean_assert(lean_io_result_is_ok(r));
+    lean_dec(r);
 }
-
-void dbg_print_num(object * o) {
-    if (is_scalar(o)) {
-        std::cout << unbox(o) << "\n";
-    } else {
-        std::cout << mpz_value(o) << "\n";
-    }
-}
-
-static mutex g_dbg_mutex;
 
 extern "C" object * lean_dbg_trace(obj_arg s, obj_arg fn) {
-    {
-        unique_lock<mutex> lock(g_dbg_mutex);
-        std::cout << lean_string_cstr(s) << std::endl;
-    }
-    lean_dec(s);
+    io_println(s);
     return lean_apply_1(fn, lean_box(0));
 }
 
@@ -2003,10 +2038,8 @@ extern "C" object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 
 extern "C" object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
     if (lean_is_shared(a)) {
-        unique_lock<mutex> lock(g_dbg_mutex);
-        std::cout << "shared RC " << lean_string_cstr(s) << std::endl;
+        io_println(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }
-    lean_dec(s);
     return a;
 }
 
@@ -2036,6 +2069,3 @@ void finalize_object() {
     delete g_ext_classes_mutex;
 }
 }
-
-extern "C" void lean_dbg_print_str(lean::object* o) { lean::dbg_print_str(o); }
-extern "C" void lean_dbg_print_num(lean::object* o) { lean::dbg_print_num(o); }

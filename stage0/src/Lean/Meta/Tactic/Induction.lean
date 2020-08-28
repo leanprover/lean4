@@ -182,9 +182,10 @@ withMVarContext mvarId $ do
     withMVarContext mvarId $ do
       target ← getMVarType mvarId;
       targetLevel ← getLevel target;
+      targetLevel ← normalizeLevel targetLevel;
       majorLocalDecl ← getLocalDecl majorFVarId;
       some majorType ← whnfUntil majorLocalDecl.type recInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type;
-      majorType.withApp $ fun majorTypeFn majorTypeArgs => do
+      majorType.withApp fun majorTypeFn majorTypeArgs => do
         match majorTypeFn with
         | Expr.const majorTypeFnName majorTypeFnLevels _ => do
           let majorTypeFnLevels := majorTypeFnLevels.toArray;

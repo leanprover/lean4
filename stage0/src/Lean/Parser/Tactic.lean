@@ -41,7 +41,8 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticParser
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize" >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
-def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> (Term.hole <|> Term.namedHole <|> tacticParser)
+def holeOrTactic := Term.hole <|> Term.namedHole <|> tacticParser
+def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> holeOrTactic
 def inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 def withAlts : Parser := optional (" with " >> inductionAlts)
 def usingRec : Parser := optional (" using " >> ident)
@@ -50,7 +51,7 @@ def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
 def withIds : Parser := optional (" with " >> many1 ident')
 
-def matchAlt  : Parser :=  group (sepBy1 termParser ", " >> darrow >> tacticParser)
+def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> holeOrTactic
 def matchAlts : Parser := withPosition $ fun pos => (optional "| ") >> sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds

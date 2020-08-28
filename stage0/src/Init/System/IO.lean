@@ -6,7 +6,7 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Control.EState
 import Init.Control.Reader
-import Init.Data.String.Basic
+import Init.Data.String
 import Init.Data.ByteArray
 import Init.System.IOError
 import Init.System.FilePath
@@ -105,19 +105,33 @@ inductive FS.Mode
 
 constant FS.Handle : Type := Unit
 
+/--
+  A pure-Lean abstraction of POSIX streams. We use `Stream`s for the standard streams stdin/stdout/stderr so we can
+  capture output of `#eval` commands into memory. -/
+structure FS.Stream :=
+(isEof   : IO Bool)
+(flush   : IO Unit)
+(read    : forall (bytes : USize), IO ByteArray)
+(write   : ByteArray → IO Unit)
+(getLine : IO String)
+(putStr  : String → IO Unit)
+
 namespace Prim
 open FS
 
 @[extern "lean_get_stdin"]
-constant stdin  : IO FS.Handle := arbitrary _
+constant getStdin  : IO FS.Stream := arbitrary _
 @[extern "lean_get_stdout"]
-constant stdout : IO FS.Handle := arbitrary _
+constant getStdout : IO FS.Stream := arbitrary _
 @[extern "lean_get_stderr"]
-constant stderr : IO FS.Handle := arbitrary _
+constant getStderr : IO FS.Stream := arbitrary _
 
-/-- Run action with `stdin` closed and `stdout+stderr` captured into a `String`. -/
-@[extern "lean_with_isolated_streams"]
-constant withIsolatedStreams {α : Type} : IO α → IO (String × Except IO.Error α) := arbitrary _
+@[extern "lean_get_set_stdin"]
+constant setStdin  : FS.Stream → IO FS.Stream := arbitrary _
+@[extern "lean_get_set_stdout"]
+constant setStdout : FS.Stream → IO FS.Stream := arbitrary _
+@[extern "lean_get_set_stderr"]
+constant setStderr : FS.Stream → IO FS.Stream := arbitrary _
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
@@ -143,7 +157,6 @@ constant Handle.mk (s : @& String) (mode : @& String) : IO Handle := arbitrary _
 constant Handle.isEof (h : @& Handle) : IO Bool := arbitrary _
 @[extern "lean_io_prim_handle_flush"]
 constant Handle.flush (h : @& Handle) : IO Unit := arbitrary _
--- TODO: replace `String` with byte buffer
 @[extern "lean_io_prim_handle_read"]
 constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray := arbitrary _
 @[extern "lean_io_prim_handle_write"]
@@ -228,29 +241,63 @@ def lines (fname : String) : m (Array String) := do
 h ← Handle.mk fname Mode.read false;
 linesAux h #[]
 
+namespace Stream
+
+def putStrLn (strm : FS.Stream) (s : String) : m Unit :=
+liftIO (strm.putStr s) *> liftIO (strm.putStr "\n")
+
+end Stream
+
 end FS
 
 section
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
-def stdin : m FS.Handle :=
-liftIO Prim.stdin
+def getStdin : m FS.Stream :=
+liftIO Prim.getStdin
 
-def stdout : m FS.Handle :=
-liftIO Prim.stdout
+def getStdout : m FS.Stream :=
+liftIO Prim.getStdout
 
-def stderr : m FS.Handle :=
-liftIO Prim.stderr
+def getStderr : m FS.Stream :=
+liftIO Prim.getStderr
+
+/-- Replaces the stdin stream of the current thread and returns its previous value. -/
+def setStdin : FS.Stream → m FS.Stream :=
+liftIO ∘ Prim.setStdin
+
+/-- Replaces the stdout stream of the current thread and returns its previous value. -/
+def setStdout : FS.Stream → m FS.Stream :=
+liftIO ∘ Prim.setStdout
+
+/-- Replaces the stderr stream of the current thread and returns its previous value. -/
+def setStderr : FS.Stream → m FS.Stream :=
+liftIO ∘ Prim.setStderr
+
+def withStdin [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
+prev ← setStdin h;
+finally x (discard $ setStdin prev)
+
+def withStdout [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
+prev ← setStdout h;
+finally x (discard $ setStdout prev)
+
+def withStderr [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
+prev ← setStderr h;
+finally x (discard $ setStderr prev)
 
 def print {α} [HasToString α] (s : α) : m Unit := do
-out ← stdout;
-out.putStr $ toString s
+out ← getStdout;
+liftIO $ out.putStr $ toString s
 
 def println {α} [HasToString α] (s : α) : m Unit := print s *> print "\n"
 
+@[export lean_io_println]
+private def printlnAux (s : String) : IO Unit := println s
+
 def eprint {α} [HasToString α] (s : α) : m Unit := do
-out ← stderr;
-out.putStr $ toString s
+out ← getStderr;
+liftIO $ out.putStr $ toString s
 
 def eprintln {α} [HasToString α] (s : α) : m Unit := eprint s *> eprint "\n"
 
@@ -327,6 +374,57 @@ instance st2eio {ε} : MonadLift (ST IO.RealWorld) (EIO ε) :=
 def mkRef {α : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
 ST.mkRef a
 
+namespace FS
+namespace Stream
+
+@[export lean_stream_of_handle]
+def ofHandle (h : Handle) : Stream := {
+  isEof   := Prim.Handle.isEof h,
+  flush   := Prim.Handle.flush h,
+  read    := Prim.Handle.read h,
+  write   := Prim.Handle.write h,
+  getLine := Prim.Handle.getLine h,
+  putStr  := Prim.Handle.putStr h,
+}
+
+structure Buffer :=
+(data : ByteArray := ByteArray.empty)
+(pos : Nat := 0)
+
+def ofBuffer (r : Ref Buffer) : Stream := {
+  isEof   := do b ← r.get; pure $ b.pos >= b.data.size,
+  flush   := pure (),
+  read    := fun n => r.modifyGet fun b =>
+    let data := b.data.extract b.pos (b.pos + n.toNat);
+    (data, { b with pos := b.pos + data.size }),
+  write   := fun data => r.modify fun b =>
+    -- set `exact` to `false` so that repeatedly writing to the stream does not impose quadratic run time
+    { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
+  getLine := r.modifyGet fun b =>
+    let pos := match b.data.findIdxAux (fun u => u == 0 || u = '\n'.toNat.toUInt8) b.pos with
+    -- include '\n', but not '\0'
+    | some pos => if b.data.get! pos == 0 then pos else pos + 1
+    | none     => b.data.size;
+    (String.fromUTF8Unchecked $ b.data.extract b.pos pos, { b with pos := pos }),
+  putStr  := fun s => r.modify fun b =>
+    let data := s.toUTF8;
+    { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
+}
+end Stream
+
+/-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
+def withIsolatedStreams {α : Type} (x : IO α) : IO (String × Except IO.Error α) := do
+bIn ← mkRef { : Stream.Buffer };
+bOut ← mkRef { : Stream.Buffer };
+r ← withStdin (Stream.ofBuffer bIn) $
+  withStdout (Stream.ofBuffer bOut) $
+    withStderr (Stream.ofBuffer bOut) $
+      observing x;
+bOut ← bOut.get;
+let out := String.fromUTF8Unchecked bOut.data;
+pure (out, r)
+
+end FS
 end IO
 
 universe u
@@ -347,5 +445,8 @@ instance Unit.hasEval : HasEval Unit :=
 
 instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
 ⟨fun x _ => do a ← x; HasEval.eval a⟩
+
+def runEval {α : Type u} [HasEval α] (a : α) : IO (String × Except IO.Error Unit) :=
+IO.FS.withIsolatedStreams (HasEval.eval a false)
 
 end Lean

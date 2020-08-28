@@ -9,7 +9,6 @@ hygiene workings and data types.
 import Lean.Syntax
 import Lean.Elab.ResolveName
 import Lean.Elab.Term
-import Lean.Parser -- TODO: remove after removing old elaborator
 
 /- TODO
 

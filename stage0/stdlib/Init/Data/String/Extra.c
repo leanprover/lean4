@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Extra
-// Imports: Init.Util
+// Imports: Init.Control.Except Init.Data.ByteArray Init.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,8 +16,12 @@ extern "C" {
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_foldlAux___main___at_String_toNat_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 uint8_t l_String_isNat(lean_object*);
+lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_String_toUTF8___boxed(lean_object*);
+lean_object* l_String_fromUTF8Unchecked___boxed(lean_object*);
 lean_object* l_String_toNat_x21___boxed(lean_object*);
 lean_object* l_String_toNat_x21___closed__1;
 lean_object* l_String_toNat_x21___closed__2;
@@ -45,7 +49,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_String_toNat_x21___closed__1;
-x_2 = lean_unsigned_to_nat(15u);
+x_2 = lean_unsigned_to_nat(17u);
 x_3 = lean_unsigned_to_nat(2u);
 x_4 = l_String_toNat_x21___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -85,12 +89,38 @@ lean_dec(x_1);
 return x_2;
 }
 }
+lean_object* l_String_fromUTF8Unchecked___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_string_from_utf8_unchecked(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_String_toUTF8___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_string_to_utf8(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* initialize_Init_Control_Except(lean_object*);
+lean_object* initialize_Init_Data_ByteArray(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_String_Extra(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Control_Except(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ByteArray(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Util(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

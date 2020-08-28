@@ -17,19 +17,24 @@ lean_object* l_ByteArray_push___boxed(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* lean_byte_array_data(lean_object*);
+lean_object* l_ByteArray_findIdx_x3f(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_ByteArray_data___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_ByteArray_toListAux___main(lean_object*, lean_object*, lean_object*);
+lean_object* l_ByteArray_findIdxAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_empty;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_ByteArray_toListAux___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toByteArrayAux___main(lean_object*, lean_object*);
 lean_object* l_ByteArray_empty___closed__1;
 lean_object* l_List_toByteArrayAux(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
+lean_object* l_ByteArray_HasAppend___closed__1;
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
@@ -40,12 +45,21 @@ lean_object* l_ByteArray_get_x21___boxed(lean_object*, lean_object*);
 uint8_t l_ByteArray_isEmpty(lean_object*);
 lean_object* lean_byte_array_mk(lean_object*);
 lean_object* l_ByteArray_toListAux___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_ByteArray_copySlice___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toString___at_ByteArray_HasToString___spec__1(lean_object*);
+lean_object* l_ByteArray_append___boxed(lean_object*, lean_object*);
+lean_object* l_ByteArray_findIdxAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_HasToString(lean_object*);
 lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_ByteArray_Inhabited;
+lean_object* l_ByteArray_findIdxAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_toListAux(lean_object*, lean_object*, lean_object*);
+lean_object* l_ByteArray_HasAppend;
+lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_ByteArray_isEmpty___boxed(lean_object*);
+lean_object* l_ByteArray_findIdx_x3f___boxed(lean_object*, lean_object*);
+lean_object* l_ByteArray_extract___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_ByteArray_append(lean_object*, lean_object*);
 lean_object* l_List_toByteArray(lean_object*);
 uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* l_ByteArray_toList(lean_object*);
@@ -55,6 +69,7 @@ lean_object* l_ByteArray_mk___boxed(lean_object*);
 lean_object* l_ByteArray_HasToString___boxed(lean_object*);
 lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8_t, lean_object*);
 lean_object* l_ByteArray_mkEmpty___boxed(lean_object*);
+lean_object* l_ByteArray_findIdxAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 lean_object* l_ByteArray_size___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -170,6 +185,76 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+lean_object* l_ByteArray_copySlice___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = lean_unbox(x_6);
+lean_dec(x_6);
+x_8 = lean_byte_array_copy_slice(x_1, x_2, x_3, x_4, x_5, x_7);
+lean_dec(x_1);
+return x_8;
+}
+}
+lean_object* l_ByteArray_extract(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+x_4 = lean_nat_sub(x_3, x_2);
+x_5 = l_ByteArray_empty;
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = 1;
+x_8 = lean_byte_array_copy_slice(x_1, x_2, x_5, x_6, x_4, x_7);
+return x_8;
+}
+}
+lean_object* l_ByteArray_extract___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ByteArray_extract(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_ByteArray_append(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
+x_3 = lean_byte_array_size(x_1);
+x_4 = lean_byte_array_size(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = 0;
+x_7 = lean_byte_array_copy_slice(x_2, x_5, x_1, x_3, x_4, x_6);
+return x_7;
+}
+}
+lean_object* l_ByteArray_append___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ByteArray_append(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* _init_l_ByteArray_HasAppend___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_ByteArray_append___boxed), 2, 0);
+return x_1;
+}
+}
+lean_object* _init_l_ByteArray_HasAppend() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_ByteArray_HasAppend___closed__1;
+return x_1;
+}
+}
 lean_object* l_ByteArray_toListAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -244,6 +329,94 @@ lean_object* x_2;
 x_2 = l_ByteArray_toList(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* l_ByteArray_findIdxAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_byte_array_size(x_1);
+x_5 = lean_nat_dec_lt(x_3, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+uint8_t x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = lean_byte_array_get(x_1, x_3);
+x_8 = lean_box(x_7);
+lean_inc(x_2);
+x_9 = lean_apply_1(x_2, x_8);
+x_10 = lean_unbox(x_9);
+lean_dec(x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_add(x_3, x_11);
+lean_dec(x_3);
+x_3 = x_12;
+goto _start;
+}
+else
+{
+lean_object* x_14; 
+lean_dec(x_2);
+x_14 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_14, 0, x_3);
+return x_14;
+}
+}
+}
+}
+lean_object* l_ByteArray_findIdxAux___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ByteArray_findIdxAux___main(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_ByteArray_findIdxAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ByteArray_findIdxAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_ByteArray_findIdxAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ByteArray_findIdxAux(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_ByteArray_findIdx_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_ByteArray_findIdxAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_ByteArray_findIdx_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ByteArray_findIdx_x3f(x_1, x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* l_List_toByteArrayAux___main(lean_object* x_1, lean_object* x_2) {
@@ -422,6 +595,10 @@ l_ByteArray_empty = _init_l_ByteArray_empty();
 lean_mark_persistent(l_ByteArray_empty);
 l_ByteArray_Inhabited = _init_l_ByteArray_Inhabited();
 lean_mark_persistent(l_ByteArray_Inhabited);
+l_ByteArray_HasAppend___closed__1 = _init_l_ByteArray_HasAppend___closed__1();
+lean_mark_persistent(l_ByteArray_HasAppend___closed__1);
+l_ByteArray_HasAppend = _init_l_ByteArray_HasAppend();
+lean_mark_persistent(l_ByteArray_HasAppend);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

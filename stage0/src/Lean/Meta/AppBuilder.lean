@@ -295,14 +295,10 @@ match type.eq? with
 | none           => throwAppBuilderException `noConfusion ("equality expected" ++ hasTypeMsg h type)
 | some (α, a, b) => do
   α ← whnf α;
-  env ← getEnv;
-  let f := α.getAppFn;
-  matchConst env f (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) $ fun cinfo us =>
-    match cinfo with
-    | ConstantInfo.inductInfo v => do
-      u ← getLevel target;
-      pure $ mkAppN (mkConst (mkNameStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
-    | _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)
+  matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun v us => do
+    u ← getLevel target;
+    pure $ mkAppN (mkConst (mkNameStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+
 def mkNoConfusion (target : Expr) (h : Expr) : m Expr := liftMetaM $ mkNoConfusionImp target h
 
 def mkPure (monad : Expr) (e : Expr) : m Expr :=

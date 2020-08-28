@@ -46,6 +46,14 @@ pure s.result
 def getMVars (e : Expr) : m (Array MVarId) :=
 liftM $ getMVarsImp e
 
+def getMVarsNoDelayedImp (e : Expr) : MetaM (Array MVarId) := do
+mvarIds ← getMVars e;
+mvarIds.filterM fun mvarId => not <$> isDelayedAssigned mvarId
+
+/-- Similar to getMVars, but removes delayed assignments. -/
+def getMVarsNoDelayed (e : Expr) : m (Array MVarId) :=
+liftM $ getMVarsNoDelayedImp e
+
 def collectMVarsAtDecl (d : Declaration) : StateRefT CollectMVars.State MetaM Unit :=
 d.forExprM collectMVars
 

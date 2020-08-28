@@ -122,6 +122,7 @@ lean_object* l_Lean_Meta_getDecLevel(lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___closed__8;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_normalizeLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_6__solveSelfMax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___lambda__1___closed__1;
@@ -170,7 +171,6 @@ lean_object* l___private_Lean_Util_Trace_2__addNode___at___private_Lean_Meta_Lev
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_isDefEqNoConstantApprox___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_isMVar(lean_object*);
-lean_object* l_Lean_Meta_instantiateLevelMVars___at___private_Lean_Meta_InferType_13__isArrowProp___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___closed__7;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -2318,7 +2318,7 @@ block_608:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 lean_inc(x_1);
-x_11 = l_Lean_Meta_instantiateLevelMVars___at___private_Lean_Meta_InferType_13__isArrowProp___main___spec__1(x_1, x_3, x_4, x_5, x_6, x_10);
+x_11 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_normalizeLevel___spec__1(x_1, x_3, x_4, x_5, x_6, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
@@ -2327,7 +2327,7 @@ lean_dec(x_11);
 x_14 = l_Lean_Level_normalize___main(x_12);
 lean_dec(x_12);
 lean_inc(x_2);
-x_15 = l_Lean_Meta_instantiateLevelMVars___at___private_Lean_Meta_InferType_13__isArrowProp___main___spec__1(x_2, x_3, x_4, x_5, x_6, x_13);
+x_15 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_normalizeLevel___spec__1(x_2, x_3, x_4, x_5, x_6, x_13);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);

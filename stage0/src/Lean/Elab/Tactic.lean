@@ -9,3 +9,4 @@ import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Induction
 import Lean.Elab.Tactic.Generalize
 import Lean.Elab.Tactic.Injection
+import Lean.Elab.Tactic.Match

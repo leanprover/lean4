@@ -109,13 +109,9 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 liftMetaMAtMain $ fun mvarId => do
   majorType ← inferType major;
   majorType ← whnf majorType;
-  match majorType.getAppFn with
-  | Expr.const n _ _ => do
-    env ← getEnv;
-    match env.find? n with
-    | ConstantInfo.inductInfo val => pure val
-    | _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType)
-  | _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType)
+  matchConstInduct majorType.getAppFn
+    (fun _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType))
+    (fun val _ => pure val)
 
 private partial def getRecFromUsingLoop (baseRecName : Name) : Expr → TacticM (Option Meta.RecursorInfo)
 | majorType => do
@@ -235,7 +231,7 @@ else do
     pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
-private def isTermRHS (rhs : Syntax) : Bool :=
+def isHoleRHS (rhs : Syntax) : Bool :=
 rhs.isOfKind `Lean.Parser.Term.namedHole || rhs.isOfKind `Lean.Parser.Term.hole
 
 private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) : TacticM Unit := do
@@ -251,12 +247,11 @@ else do
       let rhs     := altRHSs.get! i;
       let ref     := rhs;
       let mvarId  := subgoal.mvarId;
-      if isTermRHS rhs then withMVarContext mvarId $ withRef rhs do
+      if isHoleRHS rhs then withMVarContext mvarId $ withRef rhs do
         mvarDecl ← getMVarDecl mvarId;
-        val ← elabTerm rhs mvarDecl.type;
-        val ← ensureHasType mvarDecl.type val;
+        val ← elabTermEnsuringType rhs mvarDecl.type;
         assignExprMVar mvarId val;
-        gs'  ← getMVars val;
+        gs' ← getMVarsNoDelayed val;
         let gs' := gs'.toList;
         tagUntaggedGoals mvarDecl.userName `induction gs';
         pure (gs ++ gs')

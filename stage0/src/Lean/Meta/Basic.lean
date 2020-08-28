@@ -889,11 +889,14 @@ let (a, mctx) := x.run mctx;
 setMCtx mctx;
 pure a
 
-def instantiateLevelMVars (lvl : Level) : m Level :=
-liftMetaM $ liftStateMCtx $ MetavarContext.instantiateLevelMVars lvl
+def instantiateLevelMVars (u : Level) : m Level :=
+liftMetaM $ liftStateMCtx $ MetavarContext.instantiateLevelMVars u
 
-def assignLevelMVar (mvarId : MVarId) (lvl : Level) : m Unit :=
-modifyMCtx fun mctx => mctx.assignLevel mvarId lvl
+def normalizeLevel (u : Level) : m Level :=
+liftMetaM do u ← instantiateLevelMVars u; pure u.normalize
+
+def assignLevelMVar (mvarId : MVarId) (u : Level) : m Unit :=
+modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
 def whnfD [MonadLiftT MetaM n] (e : Expr) : n Expr :=
 withTransparency TransparencyMode.default $ whnf e

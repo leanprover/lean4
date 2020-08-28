@@ -44,8 +44,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
 pure (matchTerm, s.cases)
 
 def mkTacticSeq (ref : Syntax) (tacs : Array Syntax) : Syntax :=
-let seq := mkSepStx tacs (mkAtomFrom ref "; ");
-Syntax.node `Lean.Parser.Tactic.seq #[seq]
+mkSepStx tacs (mkAtomFrom ref "; ")
 
 @[builtinTactic Lean.Parser.Tactic.match] def evalMatch : Tactic :=
 fun stx => do

@@ -58,11 +58,9 @@ forallTelescope e $ fun xs b => do
   ensureType b;
   check b
 
-private def checkConstant (c : Name) (lvls : List Level) : MetaM Unit := do
-env ← getEnv;
-match env.find? c with
-| none       => throwUnknownConstant c
-| some cinfo => unless (lvls.length == cinfo.lparams.length) $ throwIncorrectNumberOfLevels c lvls
+private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
+cinfo ← getConstInfo constName;
+unless (us.length == cinfo.lparams.length) $ throwIncorrectNumberOfLevels constName us
 
 private def getFunctionDomain (f : Expr) : MetaM Expr := do
 fType ← inferType f;

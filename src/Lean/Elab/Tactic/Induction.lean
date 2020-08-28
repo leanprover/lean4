@@ -109,13 +109,9 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 liftMetaMAtMain $ fun mvarId => do
   majorType ← inferType major;
   majorType ← whnf majorType;
-  match majorType.getAppFn with
-  | Expr.const n _ _ => do
-    env ← getEnv;
-    match env.find? n with
-    | ConstantInfo.inductInfo val => pure val
-    | _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType)
-  | _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType)
+  matchConstInduct majorType.getAppFn
+    (fun _ => Meta.throwTacticEx `induction mvarId ("major premise type is not an inductive type " ++ indentExpr majorType))
+    (fun val _ => pure val)
 
 private partial def getRecFromUsingLoop (baseRecName : Name) : Expr → TacticM (Option Meta.RecursorInfo)
 | majorType => do

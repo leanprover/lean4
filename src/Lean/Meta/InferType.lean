@@ -31,46 +31,37 @@ def throwIncorrectNumberOfLevels {α} (constName : Name) (us : List Level) : Met
 throwError $ "incorrect number of universe levels " ++ mkConst constName us
 
 private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
-env ← getEnv;
-match env.find? c with
-| some cinfo =>
-  if cinfo.lparams.length == us.length then
-    pure $ cinfo.instantiateTypeLevelParams us
-  else
-    throwIncorrectNumberOfLevels c us
-| none =>
-  throwUnknownConstant c
+cinfo ← getConstInfo c;
+if cinfo.lparams.length == us.length then
+  pure $ cinfo.instantiateTypeLevelParams us
+else
+  throwIncorrectNumberOfLevels c us
 
 private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
 let failed : Unit → MetaM Expr := fun _ => throwError $ "invalide projection" ++ indentExpr (mkProj structName idx e);
 structType ← inferType e;
 structType ← whnf structType;
-env ← getEnv;
-matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
-  match structInfo with
-  | ConstantInfo.inductInfo { nparams := n, ctors := [ctor], .. } =>
-    let structParams := structType.getAppArgs;
-    if n != structParams.size then failed ()
-    else match env.find? ctor with
-      | none            => failed ()
-      | some (ctorInfo) => do
-        ctorType ← inferAppType (mkConst ctor structLvls) structParams;
-        ctorType ← idx.foldM
-          (fun i ctorType => do
-            ctorType ← whnf ctorType;
-            match ctorType with
-            | Expr.forallE _ _ body _ =>
-              if body.hasLooseBVars then
-                pure $ body.instantiate1 $ mkProj structName i e
-              else
-                pure body
-            | _ => failed ())
-          ctorType;
+matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
+  let n := structVal.nparams;
+  let structParams := structType.getAppArgs;
+  if n != structParams.size then failed ()
+  else do
+    ctorType ← inferAppType (mkConst ctorVal.name structLvls) structParams;
+    ctorType ← idx.foldM
+      (fun i ctorType => do
         ctorType ← whnf ctorType;
         match ctorType with
-        | Expr.forallE _ d _ _ => pure d
-        | _                    => failed ()
-  | _ => failed ()
+        | Expr.forallE _ _ body _ =>
+          if body.hasLooseBVars then
+            pure $ body.instantiate1 $ mkProj structName i e
+          else
+            pure body
+        | _ => failed ())
+      ctorType;
+    ctorType ← whnf ctorType;
+    match ctorType with
+    | Expr.forallE _ d _ _ => pure d
+    | _                    => failed ()
 
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=
 throwError $ "type expected " ++ indentExpr type

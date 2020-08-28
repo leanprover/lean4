@@ -149,20 +149,14 @@ whnfRef.set whnfImpl
 
 /- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/
 def reduceProj? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
-env ← getEnv;
 e   ← whnf e;
-match e.getAppFn with
-| Expr.const name _ _ =>
-  match env.find? name with
-  | some (ConstantInfo.ctorInfo ctorVal) =>
-    let numArgs := e.getAppNumArgs;
-    let idx := ctorVal.nparams + i;
-    if idx < numArgs then
-      pure (some (e.getArg! idx))
-    else
-      pure none
-  | _ => pure none
-| _ => pure none
+matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
+  let numArgs := e.getAppNumArgs;
+  let idx := ctorVal.nparams + i;
+  if idx < numArgs then
+    pure (some (e.getArg! idx))
+  else
+    pure none
 
 @[specialize] partial def whnfHeadPredAux (pred : Expr → MetaM Bool) : Expr → MetaM Expr
 | e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment? e $ fun e => do
@@ -174,7 +168,6 @@ match e.getAppFn with
       | some e => whnfHeadPredAux e
       | none   => pure e)
     (pure e)
-
 
 @[inline] def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : m Expr :=
 liftMetaM $ whnfHeadPredAux pred e

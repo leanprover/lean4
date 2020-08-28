@@ -45,18 +45,11 @@ fun stx expectedType? => match_syntax stx with
     expectedType ← instantiateMVars expectedType;
     let expectedType := expectedType.consumeMData;
     expectedType ← whnf expectedType;
-    match expectedType.getAppFn with
-    | Expr.const constName _ _ => do
-      env ← getEnv;
-      match env.find? constName with
-      | some (ConstantInfo.inductInfo val) =>
-        match val.ctors with
-        | [ctor] => do
-          newStx ← `($(mkCIdentFrom stx ctor) $(args.getSepElems)*);
-          withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-        | _ => throwError ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
-      | _ => throwError ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
-    | _ => throwError ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
+    matchConstStruct expectedType.getAppFn
+      (fun _ => throwError ("invalid constructor ⟨...⟩, expected type must be a structure " ++ indentExpr expectedType))
+      (fun val _ ctor => do
+        newStx ← `($(mkCIdentFrom stx ctor.name) $(args.getSepElems)*);
+        withMacroExpansion stx newStx $ elabTerm newStx expectedType?)
   | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
 | _ => throwUnsupportedSyntax
 

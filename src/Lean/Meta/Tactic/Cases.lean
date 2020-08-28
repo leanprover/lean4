@@ -16,16 +16,12 @@ private def throwInductiveTypeExpected {α} (type : Expr) : MetaM α := do
 throwError ("failed to compile pattern matching, inductive type expected" ++ indentExpr type)
 
 def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
-env ← getEnv;
 type ← whnfD type;
-matchConst env type.getAppFn (fun _ => throwInductiveTypeExpected type) fun info us =>
-  match info with
-  | ConstantInfo.inductInfo val =>
-    let I      := type.getAppFn;
-    let Iargs  := type.getAppArgs;
-    let params := Iargs.extract 0 val.nparams;
-    pure (us, params)
-  | _ => throwInductiveTypeExpected type
+matchConstInduct type.getAppFn (fun _ => throwInductiveTypeExpected type) fun val us =>
+  let I      := type.getAppFn;
+  let Iargs  := type.getAppArgs;
+  let params := Iargs.extract 0 val.nparams;
+  pure (us, params)
 
 private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
 lhsType ← inferType lhs;
@@ -76,44 +72,40 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
 withMVarContext mvarId $ do
   lctx       ← getLCtx;
   localInsts ← getLocalInstances;
-  env        ← getEnv;
   checkNotAssigned mvarId `generalizeIndices;
   fvarDecl ← getLocalDecl fvarId;
   type ← whnf fvarDecl.type;
-  type.withApp $ fun f args => matchConst env f (fun _ => throwTacticEx `generalizeIndices mvarId "inductive type expected") $
-    fun cinfo _ => match cinfo with
-    | ConstantInfo.inductInfo val => do
-      unless (val.nindices > 0) $ throwTacticEx `generalizeIndices mvarId "indexed inductive type expected";
-      unless (args.size == val.nindices + val.nparams) $ throwTacticEx `generalizeIndices mvarId "ill-formed inductive datatype";
-      let indices := args.extract (args.size - val.nindices) args.size;
-      let IA := mkAppN f (args.extract 0 val.nparams); -- `I A`
-      IAType ← inferType IA;
-      forallTelescopeReducing IAType $ fun newIndices _ => do
-      let newType := mkAppN IA newIndices;
-      withLocalDeclD fvarDecl.userName newType $ fun h' =>
-      withNewIndexEqs indices newIndices $ fun newEqs newRefls => do
-      (newEqType, newRefl) ← mkEqAndProof fvarDecl.toExpr h';
-      let newRefls := newRefls.push newRefl;
-      withLocalDeclD `h newEqType $ fun newEq => do
-      let newEqs := newEqs.push newEq;
-      /- auxType `forall (j' : J) (h' : I A j'), j == j' -> h == h' -> target -/
-      target  ← getMVarType mvarId;
-      tag     ← getMVarTag mvarId;
-      auxType ← mkForallFVars newEqs target;
-      auxType ← mkForallFVars #[h'] auxType;
-      auxType ← mkForallFVars newIndices auxType;
-      newMVar ← mkFreshExprMVarAt lctx localInsts auxType MetavarKind.syntheticOpaque tag;
-      /- assign mvarId := newMVar indices h refls -/
-      assignExprMVar mvarId (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls);
-      (indicesFVarIds, newMVarId) ← introN newMVar.mvarId! newIndices.size [] false;
-      (fvarId, newMVarId) ← intro1 newMVarId false;
-      pure {
-        mvarId         := newMVarId,
-        indicesFVarIds := indicesFVarIds,
-        fvarId         := fvarId,
-        numEqs         := newEqs.size
-      }
-    | _ => throwTacticEx `generalizeIndices mvarId "inductive type expected"
+  type.withApp fun f args => matchConstInduct f (fun _ => throwTacticEx `generalizeIndices mvarId "inductive type expected") fun val _ => do
+    unless (val.nindices > 0) $ throwTacticEx `generalizeIndices mvarId "indexed inductive type expected";
+    unless (args.size == val.nindices + val.nparams) $ throwTacticEx `generalizeIndices mvarId "ill-formed inductive datatype";
+    let indices := args.extract (args.size - val.nindices) args.size;
+    let IA := mkAppN f (args.extract 0 val.nparams); -- `I A`
+    IAType ← inferType IA;
+    forallTelescopeReducing IAType $ fun newIndices _ => do
+    let newType := mkAppN IA newIndices;
+    withLocalDeclD fvarDecl.userName newType $ fun h' =>
+    withNewIndexEqs indices newIndices $ fun newEqs newRefls => do
+    (newEqType, newRefl) ← mkEqAndProof fvarDecl.toExpr h';
+    let newRefls := newRefls.push newRefl;
+    withLocalDeclD `h newEqType $ fun newEq => do
+    let newEqs := newEqs.push newEq;
+    /- auxType `forall (j' : J) (h' : I A j'), j == j' -> h == h' -> target -/
+    target  ← getMVarType mvarId;
+    tag     ← getMVarTag mvarId;
+    auxType ← mkForallFVars newEqs target;
+    auxType ← mkForallFVars #[h'] auxType;
+    auxType ← mkForallFVars newIndices auxType;
+    newMVar ← mkFreshExprMVarAt lctx localInsts auxType MetavarKind.syntheticOpaque tag;
+    /- assign mvarId := newMVar indices h refls -/
+    assignExprMVar mvarId (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls);
+    (indicesFVarIds, newMVarId) ← introN newMVar.mvarId! newIndices.size [] false;
+    (fvarId, newMVarId) ← intro1 newMVarId false;
+    pure {
+      mvarId         := newMVarId,
+      indicesFVarIds := indicesFVarIds,
+      fvarId         := fvarId,
+      numEqs         := newEqs.size
+    }
 
 structure CasesSubgoal extends InductionSubgoal :=
 (ctorName : Name)
@@ -135,12 +127,11 @@ if !env.contains `Eq || !env.contains `HEq then pure none
 else do
   majorDecl ← getLocalDecl majorFVarId;
   majorType ← whnf majorDecl.type;
-  majorType.withApp $ fun f args => matchConst env f (fun _ => pure none) $ fun cinfo _ => do
-    match cinfo with
-    | ConstantInfo.inductInfo ival =>
-      if args.size != ival.nindices + ival.nparams then pure none
-      else match env.find? (mkNameStr ival.name "casesOn") with
-      | ConstantInfo.defnInfo cval => pure $ some {
+  majorType.withApp fun f args => matchConstInduct f (fun _ => pure none) fun ival _ =>
+    if args.size != ival.nindices + ival.nparams then pure none
+    else match env.find? (mkNameStr ival.name "casesOn") with
+      | ConstantInfo.defnInfo cval =>
+        pure $ some {
           inductiveVal  := ival,
           casesOnVal    := cval,
           majorDecl     := majorDecl,
@@ -148,7 +139,6 @@ else do
           majorTypeArgs := args
         }
       | _ => pure none
-    | _                           => pure none
 
 /-
 We say the major premise has independent indices IF

@@ -1105,16 +1105,13 @@ num.foldM (fun _ us => do u ← mkFreshLevelMVar; pure $ u::us) []
   Remark: fresh universe metavariables are created if the constant has more universe
   parameters than `explicitLevels`. -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-env ← getEnv;
-match env.find? constName with
-| none       => throwError ("unknown constant '" ++ constName ++ "'")
-| some cinfo =>
-  if explicitLevels.length > cinfo.lparams.length then
-    throwError ("too many explicit universe levels")
-  else do
-    let numMissingLevels := cinfo.lparams.length - explicitLevels.length;
-    us ← mkFreshLevelMVars numMissingLevels;
-    pure $ Lean.mkConst constName (explicitLevels ++ us)
+cinfo ← getConstInfo constName;
+if explicitLevels.length > cinfo.lparams.length then
+  throwError ("too many explicit universe levels")
+else do
+  let numMissingLevels := cinfo.lparams.length - explicitLevels.length;
+  us ← mkFreshLevelMVars numMissingLevels;
+  pure $ Lean.mkConst constName (explicitLevels ++ us)
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
 env ← getEnv;

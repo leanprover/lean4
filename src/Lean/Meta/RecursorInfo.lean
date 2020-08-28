@@ -78,29 +78,27 @@ instance : HasToString RecursorInfo :=
 end RecursorInfo
 
 private def mkRecursorInfoForKernelRec (declName : Name) (val : RecursorVal) : MetaM RecursorInfo := do
-indInfo ← getConstInfo val.getInduct;
-match indInfo with
-| ConstantInfo.inductInfo ival =>
-  let numLParams    := ival.lparams.length;
-  let univLevelPos  := (List.range numLParams).map RecursorUnivLevelPos.majorType;
-  let univLevelPos  := if val.lparams.length == numLParams then univLevelPos else RecursorUnivLevelPos.motive :: univLevelPos;
-  let produceMotive := List.replicate val.nminors true;
-  let paramsPos     := (List.range val.nparams).map some;
-  let indicesPos    := (List.range val.nindices).map (fun pos => val.nparams + pos);
-  let numArgs       := val.nindices + val.nparams + val.nminors + val.nmotives + 1;
-  pure {
-   recursorName  := declName,
-   typeName      := val.getInduct,
-   univLevelPos  := univLevelPos,
-   majorPos      := val.getMajorIdx,
-   depElim       := true,
-   recursive     := ival.isRec,
-   produceMotive := produceMotive,
-   paramsPos     := paramsPos,
-   indicesPos    := indicesPos,
-   numArgs       := numArgs
-  }
-| _ => throwError "ill-formed builtin recursor"
+ival ← getConstInfoInduct val.getInduct;
+let numLParams    := ival.lparams.length;
+let univLevelPos  := (List.range numLParams).map RecursorUnivLevelPos.majorType;
+let univLevelPos  := if val.lparams.length == numLParams then univLevelPos else RecursorUnivLevelPos.motive :: univLevelPos;
+let produceMotive := List.replicate val.nminors true;
+let paramsPos     := (List.range val.nparams).map some;
+let indicesPos    := (List.range val.nindices).map (fun pos => val.nparams + pos);
+let numArgs       := val.nindices + val.nparams + val.nminors + val.nmotives + 1;
+pure {
+  recursorName  := declName,
+  typeName      := val.getInduct,
+  univLevelPos  := univLevelPos,
+  majorPos      := val.getMajorIdx,
+  depElim       := true,
+  recursive     := ival.isRec,
+  produceMotive := produceMotive,
+  paramsPos     := paramsPos,
+  indicesPos    := indicesPos,
+  numArgs       := numArgs
+}
+
 
 private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat) : MetaM (Option Nat) :=
 if majorPos?.isSome then pure majorPos?
@@ -112,10 +110,8 @@ else do
     if s != recOnSuffix && s != casesOnSuffix && s != brecOnSuffix then
       pure none
     else do
-      recInfo ← getConstInfo (mkRecFor p);
-      match recInfo with
-      | ConstantInfo.recInfo val => pure (some (val.nparams + val.nindices + (if s == casesOnSuffix then 1 else val.nmotives)))
-      | _                        => throwError "unexpected recursor information"
+      val ← getConstInfoRec (mkRecFor p);
+      pure $ some (val.nparams + val.nindices + (if s == casesOnSuffix then 1 else val.nmotives))
   | _ => pure none
 
 private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Expr) : MetaM Unit :=

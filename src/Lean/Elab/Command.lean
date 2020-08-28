@@ -556,22 +556,21 @@ fun stx => withoutModifyingEnv do
     addAndCompile decl
   };
   let elabMetaEval : CommandElabM Unit := do {
-    act : IO Environment ← runTermElabM (some n) fun _ => do {
+    act ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
       Term.synthesizeSyntheticMVarsNoPostponing;
         e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
           withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do {
-            e ← mkAppM `Lean.MetaHasEval.eval #[env, opts, e, toExpr false];
+            e ← mkAppM `Lean.runMetaEval #[env, opts, e];
             mkLambdaFVars #[env, opts] e
           };
         addAndCompile e;
         env ← getEnv;
         opts ← getOptions;
-        match env.evalConst (Environment → Options → IO Environment) n with
-        | Except.error e => throwError e
-        | Except.ok act  => pure $ act env opts
+      act ← ofExcept $ env.evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n;
+      pure $ act env opts
     };
-    (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;
+    (out, res) ← liftIO act;
     logInfo out;
     match res with
     | Except.error e => throw $ Exception.error ref e.toString
@@ -579,18 +578,16 @@ fun stx => withoutModifyingEnv do
   };
   let elabEval : CommandElabM Unit := do {
     -- fall back to non-meta eval if MetaHasEval hasn't been defined yet
-    -- modify e to `HasEval.eval (hideUnit := false) e`
-    act : IO Unit ← runTermElabM (some n) fun _ => do {
+    -- modify e to `runEval e`
+    act ← runTermElabM (some n) fun _ => do {
       e    ← Term.elabTerm term none;
       Term.synthesizeSyntheticMVarsNoPostponing;
-      e ← mkAppM `Lean.HasEval.eval #[e, toExpr false];
+      e ← mkAppM `Lean.runEval #[e];
       addAndCompile e;
       env ← getEnv;
-      match env.evalConst (IO Unit) n with
-      | Except.error e => throwError e
-      | Except.ok act  => pure act
+      ofExcept $ env.evalConst (IO (String × Except IO.Error Unit)) n
     };
-    (out, res) ← liftIO $ IO.Prim.withIsolatedStreams act;
+    (out, res) ← liftIO act;
     logInfo out;
     match res with
     | Except.error e => throw $ Exception.error ref e.toString

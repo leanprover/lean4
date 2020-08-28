@@ -331,8 +331,6 @@ environment hide_cmd(parser & p) {
     return new_env;
 }
 
-void with_isolated_streams(std::string & streams_out, std::function<void()> fn);
-
 static environment eval_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     auto pos = p.pos();
@@ -356,8 +354,8 @@ static environment eval_cmd(parser & p) {
         expr env = tc.push_local("env", mk_const({"Lean", "Environment"}));
         expr opts = tc.push_local("opts", mk_const({"Lean", "Options"}));
         e = tc.mk_lambda(env, tc.mk_lambda(opts,
-                                           mk_app(tc, {"Lean", "MetaHasEval", "eval"}, 6,
-                                                  {type, *meta_eval_instance, env, opts, e, mk_bool_false()})));
+                                           mk_app(tc, {"Lean", "runMetaEval"}, 5,
+                                                  {type, *meta_eval_instance, env, opts, e})));
         // run `Environment -> Options -> IO Unit`
         args = { p.env().to_obj_arg(), p.get_options().to_obj_arg(), io_mk_world() };
     } else {
@@ -369,7 +367,7 @@ static environment eval_cmd(parser & p) {
 
         if (eval_instance) {
             /* Modify the 'program' to (HasEval.eval (hideUnit := false) e) */
-            e = mk_app(tc, {"Lean", "HasEval", "eval"}, 4, {type, *eval_instance, e, mk_bool_false()});
+            e = mk_app(tc, {"Lean", "runEval"}, 3, {type, *eval_instance, e});
             // run `IO Unit`
             args = { io_mk_world() };
         } else {
@@ -388,32 +386,27 @@ static environment eval_cmd(parser & p) {
 
     std::string streams_out;
     object_ref r;
-    try {
-        with_isolated_streams(streams_out, [&]() {
-            scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
-            time_task t("#eval execution",
-                        message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-            r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
-        });
-    } catch (exception &) {
-        out << streams_out;
-        out.report();
-        throw;
+    {
+        scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
+        time_task t("#eval execution",
+                    message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+        r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
     }
-    out << streams_out;
+    lean_assert(io_result_is_ok(r.raw()));
+    r = object_ref(io_result_get_value(r.raw()), true);
+    out << cnstr_get_ref_t<string_ref>(r, 0).to_std_string();
     out.report();
 
-    if (io_result_is_error(r.raw())) {
+    // `Except IO.Error _`
+    r = cnstr_get_ref(r, 1);
+    if (cnstr_tag(r.raw()) == 0) {
         message_builder msg = p.mk_message(p.cmd_pos(), p.pos(), ERROR);
-        object * err = io_result_get_error(r.raw());
-        inc(err);
-        object * str = lean_io_error_to_string(err);
-        msg << string_to_std(str);
+        string_ref str(lean_io_error_to_string(cnstr_get_ref_t<string_ref>(r, 0).to_obj_arg()));
+        msg << str.to_std_string();
         msg.report();
-        dec_ref(str);
         return p.env();
     } else if (meta_eval_instance) {
-        return environment(io_result_get_value(r.raw()), true);
+        return cnstr_get_ref_t<environment>(r, 0);
     } else {
         return p.env();
     }

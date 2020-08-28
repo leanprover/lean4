@@ -6,6 +6,7 @@ Authors: Sebastian Ullrich
 import Lean.Delaborator
 import Lean.PrettyPrinter.Parenthesizer
 import Lean.PrettyPrinter.Formatter
+import Lean.Parser.Module
 
 namespace Lean
 namespace PrettyPrinter

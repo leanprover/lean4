@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.Trace
-import Lean.Parser
+import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 
 namespace Lean

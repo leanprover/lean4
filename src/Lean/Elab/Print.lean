@@ -68,12 +68,16 @@ match env.find? id with
   printInduct id us nparams nindices t ctors u
 | none => throwUnknownId id
 
-private def printId (id : Name) : CommandElabM Unit := do
+def resolveId (id : Name) : CommandElabM (List Name) := do
 cs ← liftTermElabM none $ Term.resolveGlobalName id;
 let cs := cs.filter fun ⟨_, ps⟩ => ps.isEmpty;
 let cs := cs.map fun ⟨c, _⟩ => c;
 when cs.isEmpty $ throwUnknownId id;
-cs.forM fun c => printIdCore c
+pure cs
+
+private def printId (id : Name) : CommandElabM Unit := do
+cs ← resolveId id;
+cs.forM printIdCore
 
 @[builtinCommandElab «print»] def elabPrint : CommandElab :=
 fun stx =>
@@ -87,6 +91,48 @@ fun stx =>
       | none     => throwError "WIP"
   else
     throwError "invalid #print command"
+
+namespace CollectAxioms
+
+structure State :=
+(visited : NameSet := {})
+(axioms  : Array Name := #[])
+
+abbrev M := ReaderT Environment $ StateM State
+
+partial def collect : Name → M Unit
+| c => do
+  let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM collect;
+  s ← get;
+  unless (s.visited.contains c) do
+    modify fun s => { s with visited := s.visited.insert c };
+    env ← read;
+    match env.find? c with
+    | some (ConstantInfo.axiomInfo _)  => modify fun s => { s with axioms := s.axioms.push c }
+    | some (ConstantInfo.defnInfo v)   => collectExpr v.type *> collectExpr v.value
+    | some (ConstantInfo.thmInfo v)    => collectExpr v.type *> collectExpr v.value.get
+    | some (ConstantInfo.opaqueInfo v) => collectExpr v.type *> collectExpr v.value
+    | some (ConstantInfo.quotInfo _)   => pure ()
+    | some (ConstantInfo.ctorInfo v)   => collectExpr v.type
+    | some (ConstantInfo.recInfo v)    => collectExpr v.type
+    | some (ConstantInfo.inductInfo v) => collectExpr v.type *> v.ctors.forM collect
+    | none                             => pure ()
+
+end CollectAxioms
+
+private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
+env ← getEnv;
+let (_, s) := ((CollectAxioms.collect constName).run env).run {};
+if s.axioms.isEmpty then
+  logInfo ("'" ++ constName ++ "' does not depend on any axioms")
+else
+  logInfo ("'" ++ constName ++ "' depends on axioms: " ++ toString s.axioms.toList)
+
+@[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab :=
+fun stx => do
+  let id := (stx.getArg 2).getId;
+  cs ← resolveId id;
+  cs.forM printAxiomsOf
 
 end Command
 end Elab

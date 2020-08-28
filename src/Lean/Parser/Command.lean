@@ -82,7 +82,7 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def synth          := parser! "#synth " >> termParser
 @[builtinCommandParser] def exit           := parser! "#exit"
 @[builtinCommandParser] def print          := parser! "#print " >> (ident <|> strLit)
-@[builtinCommandParser] def printAxioms    := parser! "#print " >> "axioms " >> optional ident
+@[builtinCommandParser] def printAxioms    := parser! "#print " >> "axioms " >> ident
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)

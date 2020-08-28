@@ -34,3 +34,5 @@ We managed to prove `False` using the unsound annotation `implementedBy` above.
 -/
 theorem unsound : False :=
 Bool.noConfusion trueEqFalse
+
+#print axioms unsound -- axiom 'Lean.ofReduceBool' is listed

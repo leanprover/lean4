@@ -1049,4 +1049,13 @@ let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alre
   expr          := e }
 
 end MetavarContext
+
+class MonadMCtx (m : Type → Type) :=
+(getMCtx : m MetavarContext)
+
+export MonadMCtx (getMCtx)
+
+instance monadMCtxTrans (m n) [MonadMCtx m] [MonadLift m n] : MonadMCtx n :=
+{ getMCtx := liftM (getMCtx : m _) }
+
 end Lean

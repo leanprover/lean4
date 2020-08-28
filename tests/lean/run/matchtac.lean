@@ -30,3 +30,13 @@ begin
   case match_2 exact h₁ z zs h;
   exact h₂ h
 end
+
+theorem tst5 {p q r} (h : p ∨ q ∨ r) : r ∨ q ∨ p:=
+begin
+  match h with
+  | Or.inl h          => exact Or.inr (Or.inr h)
+  | Or.inr (Or.inl h) => ?c1
+  | Or.inr (Or.inr h) => ?c2;
+  case c2 { apply Or.inl; assumption };
+  { apply Or.inr; apply Or.inl; assumption }
+end

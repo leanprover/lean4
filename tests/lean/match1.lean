@@ -46,3 +46,8 @@ match b, t with
 | _, Image.mk a => a
 
 #eval inv (mkImage Nat.succ 10)
+
+theorem foo {p q} (h : p ∨ q) : q ∨ p :=
+match h with
+| Or.inl h => Or.inr h
+| Or.inr h => Or.inl h

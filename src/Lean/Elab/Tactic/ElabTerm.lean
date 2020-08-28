@@ -23,34 +23,38 @@ withRef stx $ liftTermElabM $ adaptReader (fun (ctx : Term.Context) => { ctx wit
   Term.synthesizeSyntheticMVars mayPostpone;
   instantiateMVars e
 
+def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
+e ← elabTerm stx expectedType? mayPostpone;
+ensureHasType expectedType? e
+
 @[builtinTactic «exact»] def evalExact : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| exact $e) => do
     (g, gs) ← getMainGoal;
     withMVarContext g $ do {
       decl ← getMVarDecl g;
-      val  ← elabTerm e decl.type;
-      val  ← ensureHasType decl.type val;
+      val  ← elabTermEnsuringType e decl.type;
       ensureHasNoMVars val;
       assignExprMVar g val
     };
     setGoals gs
   | _ => throwUnsupportedSyntax
 
+def refineCore (mvarId : MVarId) (stx : Syntax) (tagSuffix : Name) : TacticM (List MVarId) :=
+withMVarContext mvarId do
+  decl ← getMVarDecl mvarId;
+  val  ← elabTermEnsuringType stx decl.type;
+  assignExprMVar mvarId val;
+  newMVarIds ← getMVarsNoDelayed val;
+  let newMVarIds := newMVarIds.toList;
+  tagUntaggedGoals decl.userName tagSuffix newMVarIds;
+  pure newMVarIds
+
 @[builtinTactic «refine»] def evalRefine : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| refine $e) => do
     (g, gs) ← getMainGoal;
-    gs' ← withMVarContext g $ do {
-      decl ← getMVarDecl g;
-      val  ← elabTerm e decl.type;
-      val  ← ensureHasType decl.type val;
-      assignExprMVar g val;
-      gs'  ← getMVarsNoDelayed val;
-      let gs' := gs'.toList;
-      tagUntaggedGoals decl.userName `refine gs';
-      pure gs'
-    };
+    gs' ← refineCore g e `refine;
     setGoals (gs' ++ gs)
   | _ => throwUnsupportedSyntax
 

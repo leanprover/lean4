@@ -95,12 +95,6 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := lif
 def reportUnsolvedGoals (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals goals
 def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
-instance monadLog : MonadLog TacticM :=
-{ getFileMap  := liftTermElabM getFileMap,
-  getFileName := liftTermElabM getFileName,
-  addContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,
-  logMessage  := fun msg => liftTermElabM $ logMessage msg }
-
 protected def getCurrMacroScope : TacticM MacroScope := do ctx ← readThe Term.Context; pure ctx.currMacroScope
 protected def getMainModule     : TacticM Name       := do env ← getEnv; pure env.mainModule
 

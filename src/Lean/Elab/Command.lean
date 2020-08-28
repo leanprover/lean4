@@ -117,7 +117,8 @@ instance : MonadIO CommandElabM :=
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
 
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
-{ getFileMap  := do ctx ← read; pure ctx.fileMap,
+{ getRef      := getRef,
+  getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := Command.addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
@@ -239,14 +240,6 @@ match ea with
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
 s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
-
-def logException (ex : Exception) : CommandElabM Unit := do
-match ex with
-| Exception.error ref msg => withRef ref $ logError msg
-| Exception.internal id   =>
-  unless (id == abortExceptionId) do
-    name ← liftIO $ id.getName;
-    logError ("internal exception: " ++ name)
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x
@@ -633,7 +626,7 @@ fun stx => do
   match val with
   | Syntax.atom _ "true"  => setOption optionName (DataValue.ofBool true)
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
-  | _ => withRef val $ logError ("unexpected set_option value " ++ toString val)
+  | _ => logErrorAt val ("unexpected set_option value " ++ toString val)
 
 /-
   `declId` is of the form

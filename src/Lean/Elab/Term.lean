@@ -188,7 +188,8 @@ instance MonadError : MonadError TermElabM :=
     pure (ref, msg) }
 
 instance monadLog : MonadLog TermElabM :=
-{ getFileMap  := do ctx ← read; pure ctx.fileMap,
+{ getRef      := getRef,
+  getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
@@ -321,7 +322,7 @@ let msg : MessageData := "don't know how to synthesize placeholder";
 ctx ← optionExprToMessageData mvarErrorContext.ctx?;
 let msg := msg ++ ctx;
 let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorContext.mvarId;
-withRef mvarErrorContext.ref $ logError msg
+logErrorAt mvarErrorContext.ref msg
 
 /-- Ensure metavariables registered using `registerMVarErrorContext` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
@@ -694,14 +695,6 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr) : TermElabM Expr :=
 match expectedType? with
 | none => pure e
 | _    => do eType ← inferType e; ensureHasTypeAux expectedType? eType e
-
-def logException (ex : Exception) : TermElabM Unit := do
-match ex with
-| Exception.error ref msg => withRef ref $ logError msg
-| Exception.internal id   =>
-  unless (id == abortExceptionId) do
-    name ← liftIO $ id.getName;
-    logError ("internal exception: " ++ name)
 
 private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with

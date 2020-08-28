@@ -9,59 +9,72 @@ import Lean.Elab.Exception
 namespace Lean
 namespace Elab
 
-class MonadPosInfo (m : Type → Type) :=
+class MonadLog (m : Type → Type) :=
+(getRef       : m Syntax)
 (getFileMap   : m FileMap)
 (getFileName  : m String)
 (addContext   : MessageData → m MessageData)
-
-export MonadPosInfo (getFileMap getFileName)
-
-class MonadLog (m : Type → Type) extends MonadPosInfo m :=
 (logMessage   : Message → m Unit)
 
-export MonadLog (logMessage)
+instance monadLogTrans (m n) [MonadLog m] [MonadLift m n] : MonadLog n :=
+{ getRef      := liftM (MonadLog.getRef : m _),
+  getFileMap  := liftM (MonadLog.getFileMap : m _),
+  getFileName := liftM (MonadLog.getFileName : m _),
+  addContext  := fun msgData => liftM (MonadLog.addContext msgData : m _),
+  logMessage  := fun msg => liftM (MonadLog.logMessage msg : m _ ) }
 
-variables {m : Type → Type} [Monad m] [MonadError m]
+export MonadLog (getFileMap getFileName logMessage)
+open MonadLog (getRef)
 
-def getRefPos [MonadPosInfo m] : m String.Pos := do
+variables {m : Type → Type} [Monad m] [MonadLog m]
+
+def getRefPos : m String.Pos := do
 ref ← getRef;
 pure $ ref.getPos.getD 0
 
-def getRefPosition [MonadPosInfo m] : m Position := do
+def getRefPosition : m Position := do
 pos ← getRefPos;
 fileMap ← getFileMap;
 pure $ fileMap.toPosition pos
 
-def mkMessageAt [MonadPosInfo m] (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : m Message := do
-fileMap ← getFileMap;
+def logAt (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit := do
+currRef  ← getRef;
+let ref  := replaceRef ref currRef;
+let pos  := ref.getPos.getD 0;
+fileMap  ← getFileMap;
 fileName ← getFileName;
-let pos := fileMap.toPosition pos;
-msgData ← MonadPosInfo.addContext msgData;
-pure { fileName := fileName, pos := pos, data := msgData, severity := severity }
+msgData  ← MonadLog.addContext msgData;
+logMessage { fileName := fileName, pos := fileMap.toPosition pos, data := msgData, severity := severity }
 
-def mkMessage [MonadPosInfo m] (msgData : MessageData) (severity : MessageSeverity) : m Message := do
-pos ← getRefPos;
-mkMessageAt msgData severity pos
+def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
+logAt ref msgData MessageSeverity.error
 
-def logAt [MonadLog m] (pos : String.Pos) (severity : MessageSeverity) (msgData : MessageData) : m Unit := do
-msg ← mkMessageAt msgData severity pos;
-logMessage msg
+def logWarningAt (ref : Syntax) (msgData : MessageData) : m Unit :=
+logAt ref msgData MessageSeverity.warning
 
-def logInfoAt [MonadLog m] (pos : String.Pos) (msgData : MessageData) : m Unit :=
-logAt pos MessageSeverity.information msgData
+def logInfoAt (ref : Syntax) (msgData : MessageData) : m Unit :=
+logAt ref msgData MessageSeverity.information
 
-def log [MonadLog m] (severity : MessageSeverity) (msgData : MessageData) : m Unit := do
-pos ← getRefPos;
-logAt pos severity msgData
+def log (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit := do
+ref ← getRef;
+logAt ref msgData severity
 
-def logError [MonadLog m] (msgData : MessageData) : m Unit :=
-log MessageSeverity.error msgData
+def logError (msgData : MessageData) : m Unit :=
+log msgData MessageSeverity.error
 
-def logWarning [MonadLog m] (msgData : MessageData) : m Unit :=
-log MessageSeverity.warning msgData
+def logWarning (msgData : MessageData) : m Unit :=
+log msgData MessageSeverity.warning
 
-def logInfo [MonadLog m] (msgData : MessageData) : m Unit :=
-log MessageSeverity.information msgData
+def logInfo (msgData : MessageData) : m Unit :=
+log msgData MessageSeverity.information
+
+def logException [MonadIO m] (ex : Exception) : m Unit := do
+match ex with
+| Exception.error ref msg => logErrorAt ref msg
+| Exception.internal id   =>
+  unless (id == abortExceptionId) do
+    name ← liftIO $ id.getName;
+    logError ("internal exception: " ++ name)
 
 end Elab
 end Lean

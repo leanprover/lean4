@@ -1731,8 +1731,13 @@ namespace Lean
   This is extra 30k lines of code. More importantly, you will probably not be able to check your developement using
   external type checkers (e.g., Trepplein) that do not implement this feature.
   Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-  So, you are mainly losing the capability of type checking your developement using external checkers. -/
-def reduceBool (b : Bool) : Bool := b
+  So, you are mainly losing the capability of type checking your developement using external checkers.
+
+  Recall that the compiler trusts the correctness of all `[implementedBy ...]` and `[extern ...]` annotations.
+  If an extern function is executed, then the trusted code base will also include the implementation of the associated
+  foreign function.
+-/
+constant reduceBool (b : Bool) : Bool := b
 
 /--
   Similar to `Lean.reduceBool` for closed `Nat` terms.
@@ -1740,10 +1745,10 @@ def reduceBool (b : Bool) : Bool := b
   Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
   The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
   We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection). -/
-def reduceNat (n : Nat) : Nat := n
+constant reduceNat (n : Nat) : Nat := n
 
-def ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b := h
-def ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b := h
+axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
+axiom ofReduceNat (a b : Nat) (h : reduceNat a = b)    : a = b
 
 end Lean
 

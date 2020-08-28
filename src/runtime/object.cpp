@@ -1076,7 +1076,7 @@ object * alloc_mpz(mpz const & m) {
 }
 
 object * mpz_to_nat_core(mpz const & m) {
-    lean_assert(m > LEAN_MAX_SMALL_NAT);
+    lean_assert(!m.is_size_t() || m.get_size_t() > LEAN_MAX_SMALL_NAT);
     return alloc_mpz(m);
 }
 

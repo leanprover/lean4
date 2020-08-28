@@ -272,7 +272,7 @@ ctx ← read;
 ref ← getRef;
 mctx ← getMCtx;
 ngen ← getNGen;
-let lvlCtx : Level.Context := { fileName := ctx.fileName, fileMap := ctx.fileMap, ref := ref, levelNames := ctx.levelNames };
+let lvlCtx : Level.Context := { ref := ref, levelNames := ctx.levelNames };
   match (x lvlCtx).run { ngen := ngen, mctx := mctx } with
   | EStateM.Result.ok a newS  => do setMCtx newS.mctx; setNGen newS.ngen; pure a
   | EStateM.Result.error ex _ => throw ex

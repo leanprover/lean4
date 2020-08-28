@@ -12,8 +12,6 @@ namespace Elab
 namespace Level
 
 structure Context :=
-(fileName   : String)
-(fileMap    : FileMap)
 (ref        : Syntax)
 (levelNames : List Name)
 
@@ -27,11 +25,6 @@ instance : MonadError LevelElabM :=
 { getRef      := do ctx ← read; pure ctx.ref,
   withRef     := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x,
   addContext  := fun ref msg => pure (ref, msg) }
-
-instance : MonadPosInfo LevelElabM :=
-{ getFileMap  := do ctx ← read; pure ctx.fileMap,
-  getFileName := do ctx ← read; pure ctx.fileName,
-  addContext  := fun msg => pure msg }
 
 instance : MonadNameGenerator LevelElabM :=
 { getNGen := do s ← get; pure s.ngen,

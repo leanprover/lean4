@@ -191,7 +191,6 @@ instance monadLog : MonadLog TermElabM :=
 { getRef      := getRef,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  addContext  := addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
 protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
@@ -234,22 +233,6 @@ def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyTh
 
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
-
-def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
-env  ← getEnv;
-mctx ← getMCtx;
-lctx ← getLCtx;
-opts ← getOptions;
-logInfo $
-  MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } $
-    MessageData.tagged cls msg
-
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : TermElabM Unit := do
-opts ← getOptions;
-when (checkTraceOption opts cls) $ logTrace cls (msg ())
-
-def logDbgTrace (msg : MessageData) : TermElabM Unit := do
-trace `Elab.debug $ fun _ => msg
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do

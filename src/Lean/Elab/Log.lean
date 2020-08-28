@@ -13,20 +13,18 @@ class MonadLog (m : Type → Type) :=
 (getRef       : m Syntax)
 (getFileMap   : m FileMap)
 (getFileName  : m String)
-(addContext   : MessageData → m MessageData)
 (logMessage   : Message → m Unit)
 
 instance monadLogTrans (m n) [MonadLog m] [MonadLift m n] : MonadLog n :=
 { getRef      := liftM (MonadLog.getRef : m _),
   getFileMap  := liftM (MonadLog.getFileMap : m _),
   getFileName := liftM (MonadLog.getFileName : m _),
-  addContext  := fun msgData => liftM (MonadLog.addContext msgData : m _),
   logMessage  := fun msg => liftM (MonadLog.logMessage msg : m _ ) }
 
 export MonadLog (getFileMap getFileName logMessage)
 open MonadLog (getRef)
 
-variables {m : Type → Type} [Monad m] [MonadLog m]
+variables {m : Type → Type} [Monad m] [MonadLog m] [MonadEnv m] [MonadOptions m] [MonadLCtx m] [MonadMCtx m]
 
 def getRefPos : m String.Pos := do
 ref ← getRef;
@@ -43,7 +41,11 @@ let ref  := replaceRef ref currRef;
 let pos  := ref.getPos.getD 0;
 fileMap  ← getFileMap;
 fileName ← getFileName;
-msgData  ← MonadLog.addContext msgData;
+env ← getEnv;
+mctx ← getMCtx;
+lctx ← getLCtx;
+opts ← getOptions;
+let msgData := MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData;
 logMessage { fileName := fileName, pos := fileMap.toPosition pos, data := msgData, severity := severity }
 
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
@@ -75,6 +77,16 @@ match ex with
   unless (id == abortExceptionId) do
     name ← liftIO $ id.getName;
     logError ("internal exception: " ++ name)
+
+def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
+logInfo (MessageData.tagged cls msgData)
+
+@[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
+opts ← getOptions;
+when (checkTraceOption opts cls) $ logTrace cls (msg ())
+
+def logDbgTrace (msg : MessageData) : m Unit := do
+trace `Elab.debug fun _ => msg
 
 end Elab
 end Lean

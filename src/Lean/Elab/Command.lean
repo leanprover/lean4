@@ -115,20 +115,18 @@ instance : MonadIO CommandElabM :=
 
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
 
+instance : MonadLCtx CommandElabM :=
+{ getLCtx := pure {} }
+
+instance : MonadMCtx CommandElabM :=
+{ getMCtx := pure {} }
+
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
 { getRef      := getRef,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  addContext  := Command.addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
-def logTrace (cls : Name) (msg : MessageData) : CommandElabM Unit := do
-msg ← Command.addContext' $ MessageData.tagged cls msg;
-logInfo msg
-
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : CommandElabM Unit := do
-opts ← getOptions;
-when (checkTraceOption opts cls) $ logTrace cls (msg ())
 
 protected def getCurrMacroScope : CommandElabM Nat  := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure env.mainModule

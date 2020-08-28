@@ -112,10 +112,6 @@ unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 @[init mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
 
-def logTrace (cls : Name) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls msg
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls msg
-@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
-
 private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do
   let refFmt := stx.prettyPrint;

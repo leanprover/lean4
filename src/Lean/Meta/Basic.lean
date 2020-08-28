@@ -122,6 +122,12 @@ instance : MonadError MetaM :=
   withRef    := fun α => withRef,
   addContext := fun ref msg => do msg ← Meta.addTraceContext msg; pure (ref, msg) }
 
+instance : MonadLCtx MetaM :=
+{ getLCtx := do ctx ← read; pure ctx.lctx }
+
+instance : MonadMCtx MetaM :=
+{ getMCtx := do s ← get; pure s.mctx }
+
 instance : SimpleMonadTracerAdapter MetaM :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
@@ -164,10 +170,8 @@ section Methods
 variables {m : Type → Type} [MonadLiftT MetaM m]
 variables {n : Type → Type} [MonadControlT MetaM n] [Monad n]
 
-def getLCtx : m LocalContext := liftMetaM do ctx ← read; pure ctx.lctx
 def getLocalInstances : m LocalInstances := liftMetaM do ctx ← read; pure ctx.localInstances
 def getConfig : m Config := liftMetaM do ctx ← read; pure ctx.config
-def getMCtx : m MetavarContext := liftMetaM do s ← get; pure s.mctx
 def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
 @[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : m Unit :=
 liftMetaM $ modify fun s => { s with mctx := f s.mctx }

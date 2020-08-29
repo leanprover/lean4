@@ -65,48 +65,21 @@ whenM (isTracingEnabledFor cls) (addTrace cls (msg ()))
 @[inline] protected def traceM (cls : Name) (mkMsg : m MessageData) : m Unit :=
 whenM (isTracingEnabledFor cls) (do msg ← mkMsg; addTrace cls msg)
 
-@[inline] def traceCtx (cls : Name) (ctx : m α) : m α := do
+@[inline] def traceCtx [MonadFinally m] (cls : Name) (ctx : m α) : m α := do
 b ← isTracingEnabledFor cls;
-if !b then do old ← enableTracing false; a ← ctx; _ ← enableTracing old; pure a
+if !b then do old ← enableTracing false; finally ctx (enableTracing old)
 else do
   oldCurrTraces ← getResetTraces;
-  a ← ctx;
-  addNode oldCurrTraces cls;
-  pure a
+  finally ctx (addNode oldCurrTraces cls)
 
-end
-
-section
-variables {ε : Type} {m : Type → Type}
-variables [MonadExcept ε m] [Monad m] [MonadTracerAdapter m]
-variables {α : Type}
-
-/- Version of `traceCtx` with exception handling support. -/
-@[inline] protected def traceCtxExcept (cls : Name) (ctx : m α) : m α := do
-b ← isTracingEnabledFor cls;
-if !b then do
-  old ← enableTracing false;
-  catch
-    (do a ← ctx; _ ← enableTracing old; pure a)
-    (fun e => do _ ← enableTracing old; throw e)
-else do
-  oldCurrTraces ← getResetTraces;
-  catch
-    (do a ← ctx; addNode oldCurrTraces cls; pure a)
-    (fun e => do addNode oldCurrTraces cls; throw e)
 end
 
 end MonadTracerAdapter
 
-instance monadTracerAdapter {m : Type → Type} [Monad m] [MonadTracerAdapter m] : MonadTracer m :=
-{ traceCtx := @MonadTracerAdapter.traceCtx _ _ _,
-  trace    := @MonadTracerAdapter.trace _ _ _,
-  traceM   := @MonadTracerAdapter.traceM _ _ _ }
-
-instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [MonadExcept ε m] [MonadTracerAdapter m] : MonadTracer m :=
-{ traceCtx := @MonadTracerAdapter.traceCtxExcept _ _ _ _ _,
-  trace    := @MonadTracerAdapter.trace _ _ _,
-  traceM   := @MonadTracerAdapter.traceM _ _ _ }
+instance monadTracerAdapter {m : Type → Type} [Monad m] [MonadTracerAdapter m] [MonadFinally m] : MonadTracer m :=
+{ traceCtx := fun α cls x => MonadTracerAdapter.traceCtx cls x,
+  trace    := fun cls msg => MonadTracerAdapter.trace cls msg,
+  traceM   := fun cls msg => MonadTracerAdapter.traceM cls msg }
 
 instance liftMonadTracerAdapter {m n : Type → Type} [MonadTracerAdapter n] [MonadLift n m] : MonadTracerAdapter m :=
 { isTracingEnabledFor := fun cls => liftM (MonadTracerAdapter.isTracingEnabledFor cls : n _),

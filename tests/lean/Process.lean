@@ -15,3 +15,9 @@ open IO.Process
   child.stdin.flush;
   child.wait;
   child.stdout.readToEnd
+
+#eval do
+  child ← spawn { cmd := "true", stdin := Stdio.piped };
+  child.wait;
+  child.stdin.putStrLn "ha!";
+  child.stdin.flush <|> IO.println "flush of broken pipe failed"

@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
 #endif
+#ifndef LEAN_WINDOWS
+#include <csignal>
+#endif
 #include <fcntl.h>
 #include <iostream>
 #include <chrono>
@@ -653,6 +656,10 @@ void initialize_io() {
     mark_persistent(g_stream_stderr);
     g_stream_stdin  = lean_stream_of_handle(io_wrap_handle(stdin));
     mark_persistent(g_stream_stdin);
+#ifndef LEAN_WINDOWS
+    // We want to handle SIGPIPE ourselves
+    lean_always_assert(signal(SIGPIPE, SIG_IGN) != SIG_ERR);
+#endif
 }
 
 void finalize_io() {

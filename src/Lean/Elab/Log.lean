@@ -41,11 +41,7 @@ let ref  := replaceRef ref currRef;
 let pos  := ref.getPos.getD 0;
 fileMap  ← getFileMap;
 fileName ← getFileName;
-env ← getEnv;
-mctx ← getMCtx;
-lctx ← getLCtx;
-opts ← getOptions;
-let msgData := MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData;
+msgData ← addWithContext msgData;
 logMessage { fileName := fileName, pos := fileMap.toPosition pos, data := msgData, severity := severity }
 
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=

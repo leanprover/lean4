@@ -173,10 +173,6 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   | none   => unreachable!
 def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
-private def addContext' (msg : MessageData) : TermElabM MessageData := do
-env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
-pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
-
 instance MonadError : MonadError TermElabM :=
 { getRef     := getRef,
   withRef    := fun α => withRef,
@@ -184,7 +180,7 @@ instance MonadError : MonadError TermElabM :=
     ctx ← read;
     let ref := getBetterRef ref ctx.macroStack;
     let msg := if ctx.macroStackAtErr then addMacroStack msg ctx.macroStack else msg;
-    msg ← addContext' msg;
+    msg ← addWithContext msg;
     pure (ref, msg) }
 
 instance monadLog : MonadLog TermElabM :=

@@ -63,10 +63,14 @@ liftM $ (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)
 instance : MonadIO CoreM :=
 { liftIO := @liftIOCore }
 
-instance : SimpleMonadTracerAdapter CoreM :=
-{ getOptions       := getOptions,
-  getTraceState    := do s ← get; pure s.traceState,
-  addTraceContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,
+instance : MonadLCtx CoreM :=
+{ getLCtx := pure {} }
+
+instance : MonadMCtx CoreM :=
+{ getMCtx := pure {} }
+
+instance : MonadTrace CoreM :=
+{ getTraceState    := do s ← get; pure s.traceState,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
 
 @[inline] def CoreM.run {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=

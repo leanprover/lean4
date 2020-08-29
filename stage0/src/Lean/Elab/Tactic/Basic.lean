@@ -280,8 +280,8 @@ fun stx => liftMetaTactic $ fun mvarId => do Meta.assumption mvarId; pure []
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| intro)    => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
-  | `(tactic| intro $h) => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
+  | `(tactic| intro)               => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
+--   | `(tactic| intro $h) => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
   | _                   => throwUnsupportedSyntax
 
 private def getIntrosSize : Expr → Nat

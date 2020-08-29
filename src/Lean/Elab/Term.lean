@@ -180,7 +180,7 @@ instance MonadError : MonadError TermElabM :=
     ctx ← read;
     let ref := getBetterRef ref ctx.macroStack;
     let msg := if ctx.macroStackAtErr then addMacroStack msg ctx.macroStack else msg;
-    msg ← addWithContext msg;
+    msg ← addMessageDataContext msg;
     pure (ref, msg) }
 
 instance monadLog : MonadLog TermElabM :=

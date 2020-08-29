@@ -683,4 +683,15 @@ constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool :
 constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr := arbitrary _
 
 end Kernel
+
+class MonadEnv (m : Type → Type) :=
+(getEnv    : m Environment)
+(modifyEnv : (Environment → Environment) → m Unit)
+
+export MonadEnv (getEnv modifyEnv)
+
+instance monadEnvFromLift (m n) [MonadEnv m] [MonadLift m n] : MonadEnv n :=
+{ getEnv    := liftM (getEnv : m Environment),
+  modifyEnv := fun f => liftM (modifyEnv f : m Unit) }
+
 end Lean

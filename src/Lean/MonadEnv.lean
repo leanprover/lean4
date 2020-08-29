@@ -8,16 +8,6 @@ import Lean.Exception
 
 namespace Lean
 
-class MonadEnv (m : Type → Type) :=
-(getEnv    : m Environment)
-(modifyEnv : (Environment → Environment) → m Unit)
-
-export MonadEnv (getEnv modifyEnv)
-
-instance monadEnvFromLift (m n) [MonadEnv m] [MonadLift m n] : MonadEnv n :=
-{ getEnv    := liftM (getEnv : m Environment),
-  modifyEnv := fun f => liftM (modifyEnv f : m Unit) }
-
 section Methods
 
 variables {m : Type → Type} [MonadEnv m]

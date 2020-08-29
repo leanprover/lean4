@@ -116,10 +116,13 @@ instance : MonadLCtx MetaM :=
 instance : MonadMCtx MetaM :=
 { getMCtx := do s ← get; pure s.mctx }
 
+instance : AddMessageDataContext MetaM :=
+{ addMessageDataContext := addMessageDataContextFull }
+
 instance : MonadError MetaM :=
 { getRef     := getRef,
   withRef    := fun α => withRef,
-  addContext := fun ref msg => do msg ← addWithContext msg; pure (ref, msg) }
+  addContext := fun ref msg => do msg ← addMessageDataContext msg; pure (ref, msg) }
 
 @[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
 (x.run ctx).run s

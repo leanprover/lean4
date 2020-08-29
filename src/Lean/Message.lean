@@ -219,4 +219,25 @@ match e with
 | other msg                           => "(kernel) " ++ msg
 
 end KernelException
+
+class AddMessageDataContext (m : Type → Type) :=
+(addMessageDataContext : MessageData → m MessageData)
+
+export AddMessageDataContext (addMessageDataContext)
+
+instance addMessageDataContextTrans (m n) [AddMessageDataContext m] [MonadLift m n] : AddMessageDataContext n :=
+{ addMessageDataContext := fun msg => liftM (addMessageDataContext msg : m _) }
+
+def addMessageDataContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
+env ← getEnv;
+opts ← getOptions;
+pure $ MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
+
+def addMessageDataContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
+env ← getEnv;
+mctx ← getMCtx;
+lctx ← getLCtx;
+opts ← getOptions;
+pure $ MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
+
 end Lean

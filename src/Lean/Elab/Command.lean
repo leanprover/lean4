@@ -113,13 +113,10 @@ liftEIO $ adaptExcept (fun (ex : IO.Error) => Exception.error ctx.ref ex.toStrin
 instance : MonadIO CommandElabM :=
 { liftIO := fun α => liftIO }
 
+instance : AddMessageDataContext CommandElabM :=
+{ addMessageDataContext := addMessageDataContextPartial }
+
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
-
-instance : MonadLCtx CommandElabM :=
-{ getLCtx := pure {} }
-
-instance : MonadMCtx CommandElabM :=
-{ getMCtx := pure {} }
 
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
 { getRef      := getRef,

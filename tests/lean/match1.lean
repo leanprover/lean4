@@ -51,3 +51,7 @@ theorem foo {p q} (h : p ∨ q) : q ∨ p :=
 match h with
 | Or.inl h => Or.inr h
 | Or.inr h => Or.inl h
+
+def f (x : Nat × Nat) : Bool × Bool × Bool → Nat :=
+match x with
+| (a, b) => fun _ => a

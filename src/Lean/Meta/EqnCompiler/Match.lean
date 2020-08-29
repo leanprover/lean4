@@ -667,9 +667,10 @@ private partial def process : Problem → StateRefT State MetaM Unit
   else
     liftM $ throwNonSupported p
 
-def mkElim (elimName : Name) (motiveType : Expr) (lhss : List AltLHS) : MetaM ElimResult :=
+def mkElim (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM ElimResult :=
 withLocalDeclD `motive motiveType fun motive => do
-forallTelescopeReducing motiveType fun majors _ => do
+trace! `Meta.EqnCompiler.matchDebug ("motiveType: " ++ motiveType);
+forallBoundedTelescope motiveType numDiscrs fun majors _ => do
 checkNumPatterns majors lhss;
 let mvarType  := mkAppN motive majors;
 trace! `Meta.EqnCompiler.matchDebug ("target: " ++ mvarType);
@@ -716,7 +717,7 @@ def mkElimTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (in
 sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
   motiveType ← mkForallFVars majors sortv;
-  mkElim elimName motiveType lhss
+  mkElim elimName motiveType majors.size lhss
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.EqnCompiler.match;

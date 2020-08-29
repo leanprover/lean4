@@ -95,12 +95,6 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := lif
 def reportUnsolvedGoals (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals goals
 def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
-instance monadLog : MonadLog TacticM :=
-{ getFileMap  := liftTermElabM getFileMap,
-  getFileName := liftTermElabM getFileName,
-  addContext  := fun msg => Prod.snd <$> addContext Syntax.missing msg,
-  logMessage  := fun msg => liftTermElabM $ logMessage msg }
-
 protected def getCurrMacroScope : TacticM MacroScope := do ctx ← readThe Term.Context; pure ctx.currMacroScope
 protected def getMainModule     : TacticM Name       := do env ← getEnv; pure env.mainModule
 
@@ -117,10 +111,6 @@ instance monadQuotation : MonadQuotation TacticM := {
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 @[init mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
-
-def logTrace (cls : Name) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls msg
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls msg
-@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
 
 private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do
@@ -141,16 +131,6 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → Ta
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
 adaptTheReader Term.Context (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
-
-instance : MonadMacroAdapter TacticM :=
-{ getEnv                 := getEnv,
-  getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← getThe Term.State; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modifyThe Term.State $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
-  getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
-  throwError             := fun α ref msg => throwErrorAt ref msg,
-  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax }
 
 @[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit
 | []    => throwErrorAt stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")

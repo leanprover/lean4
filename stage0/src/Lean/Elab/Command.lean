@@ -3,7 +3,6 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Init.Control.StateRef
 import Lean.Elab.Alias
 import Lean.Elab.Log
 import Lean.Elab.ResolveName
@@ -116,19 +115,18 @@ instance : MonadIO CommandElabM :=
 
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
 
+instance : MonadLCtx CommandElabM :=
+{ getLCtx := pure {} }
+
+instance : MonadMCtx CommandElabM :=
+{ getMCtx := pure {} }
+
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
-{ getFileMap  := do ctx ← read; pure ctx.fileMap,
+{ getRef      := getRef,
+  getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  addContext  := Command.addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
-def logTrace (cls : Name) (msg : MessageData) : CommandElabM Unit := do
-msg ← Command.addContext' $ MessageData.tagged cls msg;
-logInfo msg
-
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : CommandElabM Unit := do
-opts ← getOptions;
-when (checkTraceOption opts cls) $ logTrace cls (msg ())
 
 protected def getCurrMacroScope : CommandElabM Nat  := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure env.mainModule
@@ -159,14 +157,9 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 adaptReader (fun (ctx : Context) => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM :=
-{ getEnv                 := getEnv,
-  getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← read; pure ctx.currRecDepth,
-  getMaxRecDepth         := do s ← get; pure s.maxRecDepth,
-  throwError             := fun α ref msg => throwErrorAt ref msg,
-  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
+{ getCurrMacroScope := getCurrMacroScope,
+  getNextMacroScope := do s ← get; pure s.nextMacroScope,
+  setNextMacroScope := fun next => modify $ fun s => { s with nextMacroScope := next } }
 
 instance : MonadRecDepth CommandElabM :=
 { withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,
@@ -239,14 +232,6 @@ match ea with
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
 s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
-
-def logException (ex : Exception) : CommandElabM Unit := do
-match ex with
-| Exception.error ref msg => withRef ref $ logError msg
-| Exception.internal id   =>
-  unless (id == abortExceptionId) do
-    name ← liftIO $ id.getName;
-    logError ("internal exception: " ++ name)
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x
@@ -633,7 +618,7 @@ fun stx => do
   match val with
   | Syntax.atom _ "true"  => setOption optionName (DataValue.ofBool true)
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
-  | _ => withRef val $ logError ("unexpected set_option value " ++ toString val)
+  | _ => logErrorAt val ("unexpected set_option value " ++ toString val)
 
 /-
   `declId` is of the form

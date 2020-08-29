@@ -583,6 +583,7 @@ if (x_18 == 0)
 lean_object* x_51; lean_object* x_52; 
 x_51 = lean_ctor_get(x_16, 0);
 lean_inc(x_51);
+lean_inc(x_7);
 x_52 = l_Lean_Meta_getLocalDecl___at_Lean_Meta_getFVarLocalDecl___spec__1(x_51, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_52) == 0)
 {

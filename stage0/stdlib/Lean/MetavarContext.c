@@ -104,6 +104,7 @@ lean_object* l_Lean_LocalContext_foldlFromM___at___private_Lean_MetavarContext_1
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl___closed__2;
 lean_object* l___private_Lean_MetavarContext_11__reduceLocalContext(lean_object*, lean_object*);
+lean_object* l_Lean_monadMCtxTrans(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_mkBinding(uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl___closed__1;
 lean_object* l_Array_umapMAux___main___at___private_Lean_MetavarContext_21__elimMVarDepsApp___main___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -420,6 +421,7 @@ uint8_t l_Std_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_isDe
 lean_object* l___private_Lean_MetavarContext_24__visit(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_MetavarContext_exprDependsOn___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
+lean_object* l_Lean_monadMCtxTrans___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___main___at_Lean_MetavarContext_localDeclDependsOn___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_findLevelDepth_x3f___boxed(lean_object*, lean_object*);
@@ -42892,6 +42894,22 @@ lean_ctor_set(x_15, 1, x_13);
 lean_ctor_set(x_15, 2, x_14);
 lean_ctor_set(x_15, 3, x_11);
 return x_15;
+}
+}
+lean_object* l_Lean_monadMCtxTrans___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_2(x_2, lean_box(0), x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_monadMCtxTrans(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_monadMCtxTrans___rarg), 2, 0);
+return x_3;
 }
 }
 lean_object* initialize_Init(lean_object*);

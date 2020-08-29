@@ -316,7 +316,7 @@ private partial def collect : Syntax → M Syntax
 
 def main (alt : MatchAltView) : M MatchAltView := do
 patterns ← alt.patterns.mapM fun p => do {
-  liftM $ trace `Elab.match fun _ => "collecting variables at pattern: " ++ p;
+  trace `Elab.match fun _ => "collecting variables at pattern: " ++ p;
   collect p
 };
 pure { alt with patterns := patterns }

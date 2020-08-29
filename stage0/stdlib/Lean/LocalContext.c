@@ -85,6 +85,7 @@ lean_object* l_Lean_LocalDecl_binderInfo___boxed(lean_object*);
 uint8_t l_Lean_LocalContext_containsFVar(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_index___boxed(lean_object*);
+lean_object* l_Lean_monadLCtxTrans(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_Inhabited___closed__1;
 lean_object* lean_local_ctx_find_from_user_name(lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_isSubPrefixOfAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -383,6 +384,7 @@ uint8_t l_Lean_LocalContext_isSubPrefixOfAux___main(lean_object*, lean_object*, 
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_allM___spec__5___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_LocalContext_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_containsFVar___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_monadLCtxTrans___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlMAux___main___at_Lean_LocalContext_foldlFrom___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_containsAux___main___at_Lean_LocalContext_contains___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_allM___spec__4(lean_object*);
@@ -7783,6 +7785,22 @@ x_3 = l_Lean_LocalContext_all(x_1, x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+lean_object* l_Lean_monadLCtxTrans___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_2(x_2, lean_box(0), x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_monadLCtxTrans(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_monadLCtxTrans___rarg), 2, 0);
+return x_3;
 }
 }
 lean_object* initialize_Init(lean_object*);

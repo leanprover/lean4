@@ -348,4 +348,13 @@ Id.run $ lctx.anyM p
 Id.run $ lctx.allM p
 
 end LocalContext
+
+class MonadLCtx (m : Type → Type) :=
+(getLCtx : m LocalContext)
+
+export MonadLCtx (getLCtx)
+
+instance monadLCtxTrans (m n) [MonadLCtx m] [MonadLift m n] : MonadLCtx n :=
+{ getLCtx := liftM (getLCtx : m _) }
+
 end Lean

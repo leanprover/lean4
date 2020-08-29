@@ -173,10 +173,6 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   | none   => unreachable!
 def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
-private def addContext' (msg : MessageData) : TermElabM MessageData := do
-env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
-pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
-
 instance MonadError : MonadError TermElabM :=
 { getRef     := getRef,
   withRef    := fun α => withRef,
@@ -184,13 +180,13 @@ instance MonadError : MonadError TermElabM :=
     ctx ← read;
     let ref := getBetterRef ref ctx.macroStack;
     let msg := if ctx.macroStackAtErr then addMacroStack msg ctx.macroStack else msg;
-    msg ← addContext' msg;
+    msg ← addWithContext msg;
     pure (ref, msg) }
 
 instance monadLog : MonadLog TermElabM :=
-{ getFileMap  := do ctx ← read; pure ctx.fileMap,
+{ getRef      := getRef,
+  getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  addContext  := addContext',
   logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
 
 protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
@@ -234,22 +230,6 @@ def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyTh
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
 
-def logTrace (cls : Name) (msg : MessageData) : TermElabM Unit := do
-env  ← getEnv;
-mctx ← getMCtx;
-lctx ← getLCtx;
-opts ← getOptions;
-logInfo $
-  MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } $
-    MessageData.tagged cls msg
-
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : TermElabM Unit := do
-opts ← getOptions;
-when (checkTraceOption opts cls) $ logTrace cls (msg ())
-
-def logDbgTrace (msg : MessageData) : TermElabM Unit := do
-trace `Elab.debug $ fun _ => msg
-
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
 s ← get;
@@ -272,7 +252,7 @@ ctx ← read;
 ref ← getRef;
 mctx ← getMCtx;
 ngen ← getNGen;
-let lvlCtx : Level.Context := { fileName := ctx.fileName, fileMap := ctx.fileMap, ref := ref, levelNames := ctx.levelNames };
+let lvlCtx : Level.Context := { ref := ref, levelNames := ctx.levelNames };
   match (x lvlCtx).run { ngen := ngen, mctx := mctx } with
   | EStateM.Result.ok a newS  => do setMCtx newS.mctx; setNGen newS.ngen; pure a
   | EStateM.Result.error ex _ => throw ex
@@ -321,7 +301,7 @@ let msg : MessageData := "don't know how to synthesize placeholder";
 ctx ← optionExprToMessageData mvarErrorContext.ctx?;
 let msg := msg ++ ctx;
 let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorContext.mvarId;
-withRef mvarErrorContext.ref $ logError msg
+logErrorAt mvarErrorContext.ref msg
 
 /-- Ensure metavariables registered using `registerMVarErrorContext` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
@@ -695,14 +675,6 @@ match expectedType? with
 | none => pure e
 | _    => do eType ← inferType e; ensureHasTypeAux expectedType? eType e
 
-def logException (ex : Exception) : TermElabM Unit := do
-match ex with
-| Exception.error ref msg => withRef ref $ logError msg
-| Exception.internal id   =>
-  unless (id == abortExceptionId) do
-    name ← liftIO $ id.getName;
-    logError ("internal exception: " ++ name)
-
 private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
   | none              => mkFreshTypeMVar
@@ -786,14 +758,9 @@ match table.find? k with
 | none         => throwError ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 instance : MonadMacroAdapter TermElabM :=
-{ getEnv                 := getEnv,
-  getCurrMacroScope      := getCurrMacroScope,
-  getNextMacroScope      := do s ← get; pure s.nextMacroScope,
-  setNextMacroScope      := fun next => modify $ fun s => { s with nextMacroScope := next },
-  getCurrRecDepth        := do ctx ← readThe Core.Context; pure ctx.currRecDepth,
-  getMaxRecDepth         := do ctx ← readThe Core.Context; pure ctx.maxRecDepth,
-  throwError             := fun α ref msg => throwErrorAt ref msg,
-  throwUnsupportedSyntax := fun α => throwUnsupportedSyntax}
+{ getCurrMacroScope := getCurrMacroScope,
+  getNextMacroScope := do s ← get; pure s.nextMacroScope,
+  setNextMacroScope := fun next => modify $ fun s => { s with nextMacroScope := next } }
 
 private def isExplicit (stx : Syntax) : Bool :=
 match_syntax stx with

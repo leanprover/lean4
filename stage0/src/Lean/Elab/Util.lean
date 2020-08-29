@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.Trace
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
+import Lean.Elab.Exception
 
 namespace Lean
 
@@ -111,27 +112,27 @@ fun stx =>
   | none          => throw Macro.Exception.unsupportedSyntax
 
 class MonadMacroAdapter (m : Type → Type) :=
-(getEnv                             : m Environment)
 (getCurrMacroScope                  : m MacroScope)
 (getNextMacroScope                  : m MacroScope)
 (setNextMacroScope                  : MacroScope → m Unit)
-(getCurrRecDepth                    : m Nat)
-(getMaxRecDepth                     : m Nat)
-(throwError  {α : Type}             : Syntax → MessageData → m α)
-(throwUnsupportedSyntax  {α : Type} : m α)
 
-@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : MacroM α) : m α := do
+instance monadMacroAdapterTrans (m n) [MonadMacroAdapter m] [MonadLift m n] : MonadMacroAdapter n :=
+{ getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _),
+  getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _),
+  setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _) }
+
+@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] (x : MacroM α) : m α := do
 scp  ← MonadMacroAdapter.getCurrMacroScope;
-env  ← MonadMacroAdapter.getEnv;
+env  ← getEnv;
 next ← MonadMacroAdapter.getNextMacroScope;
-currRecDepth ← MonadMacroAdapter.getCurrRecDepth;
-maxRecDepth ← MonadMacroAdapter.getMaxRecDepth;
+currRecDepth ← MonadRecDepth.getRecDepth;
+maxRecDepth ← MonadRecDepth.getMaxRecDepth;
 match x { currMacroScope := scp, mainModule := env.mainModule, currRecDepth := currRecDepth, maxRecDepth := maxRecDepth } next with
-| EStateM.Result.error Macro.Exception.unsupportedSyntax _ => MonadMacroAdapter.throwUnsupportedSyntax
-| EStateM.Result.error (Macro.Exception.error ref msg) _   => MonadMacroAdapter.throwError ref msg
+| EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax
+| EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg
 | EStateM.Result.ok a nextMacroScope                       => do MonadMacroAdapter.setNextMacroScope nextMacroScope; pure a
 
-@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : Macro) (stx : Syntax) : m Syntax :=
+@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] (x : Macro) (stx : Syntax) : m Syntax :=
 liftMacroM (x stx)
 
 partial def expandMacros (env : Environment) : Syntax → MacroM Syntax

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.MonadEnv
-// Imports: Init Init.Control.Option Lean.Environment Lean.Exception
+// Imports: Init Lean.Environment Lean.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1324,7 +1324,6 @@ return x_7;
 }
 }
 lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Init_Control_Option(lean_object*);
 lean_object* initialize_Lean_Environment(lean_object*);
 lean_object* initialize_Lean_Exception(lean_object*);
 static bool _G_initialized = false;
@@ -1333,9 +1332,6 @@ lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Option(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Environment(lean_io_mk_world());

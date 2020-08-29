@@ -17,9 +17,9 @@ lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_o
 extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_assert___closed__2;
-lean_object* l_ReaderT_bind___at_Lean_Meta_getLCtx___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_define(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assert___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_4__getLevelImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assert___closed__1;
@@ -73,6 +73,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = 0;
 x_18 = l_Lean_mkForall(x_2, x_17, x_3, x_15);
+lean_inc(x_6);
 x_19 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_18, x_12, x_6, x_7, x_8, x_9, x_16);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
@@ -82,6 +83,7 @@ lean_dec(x_19);
 lean_inc(x_20);
 x_22 = l_Lean_mkApp(x_20, x_4);
 x_23 = l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_4__getLevelImp___spec__3(x_1, x_22, x_6, x_7, x_8, x_9, x_21);
+lean_dec(x_6);
 x_24 = !lean_is_exclusive(x_23);
 if (x_24 == 0)
 {
@@ -111,6 +113,7 @@ else
 {
 uint8_t x_30; 
 lean_dec(x_12);
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -137,6 +140,7 @@ return x_33;
 else
 {
 uint8_t x_34; 
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -194,7 +198,7 @@ lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
 lean_closure_set(x_12, 2, x_3);
 lean_closure_set(x_12, 3, x_4);
-x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_getLCtx___spec__2___rarg), 7, 2);
+x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg), 7, 2);
 lean_closure_set(x_13, 0, x_11);
 lean_closure_set(x_13, 1, x_12);
 x_14 = l_Lean_Meta_getMVarDecl___at_Lean_Meta_isReadOnlyExprMVar___spec__1(x_1, x_5, x_6, x_7, x_8, x_9);
@@ -294,7 +298,6 @@ x_11 = l_Lean_Meta_assert___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_2);
 return x_11;
@@ -326,6 +329,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = 0;
 x_18 = l_Lean_mkLet(x_2, x_3, x_4, x_15, x_17);
+lean_inc(x_6);
 x_19 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_18, x_12, x_6, x_7, x_8, x_9, x_16);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
@@ -334,6 +338,7 @@ lean_inc(x_21);
 lean_dec(x_19);
 lean_inc(x_20);
 x_22 = l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_4__getLevelImp___spec__3(x_1, x_20, x_6, x_7, x_8, x_9, x_21);
+lean_dec(x_6);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -363,6 +368,7 @@ else
 {
 uint8_t x_29; 
 lean_dec(x_12);
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -389,6 +395,7 @@ return x_32;
 else
 {
 uint8_t x_33; 
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -446,7 +453,7 @@ lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
 lean_closure_set(x_12, 2, x_3);
 lean_closure_set(x_12, 3, x_4);
-x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_getLCtx___spec__2___rarg), 7, 2);
+x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg), 7, 2);
 lean_closure_set(x_13, 0, x_11);
 lean_closure_set(x_13, 1, x_12);
 x_14 = l_Lean_Meta_getMVarDecl___at_Lean_Meta_isReadOnlyExprMVar___spec__1(x_1, x_5, x_6, x_7, x_8, x_9);
@@ -546,7 +553,6 @@ x_11 = l_Lean_Meta_define___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_2);
 return x_11;
@@ -612,6 +618,7 @@ x_26 = l_Lean_mkApp3(x_24, x_2, x_25, x_3);
 x_27 = 0;
 x_28 = l_Lean_mkForall(x_4, x_27, x_26, x_16);
 x_29 = l_Lean_mkForall(x_5, x_27, x_2, x_28);
+lean_inc(x_7);
 x_30 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_29, x_13, x_7, x_8, x_9, x_10, x_20);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
@@ -804,7 +811,7 @@ lean_closure_set(x_13, 1, x_3);
 lean_closure_set(x_13, 2, x_4);
 lean_closure_set(x_13, 3, x_5);
 lean_closure_set(x_13, 4, x_2);
-x_14 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_getLCtx___spec__2___rarg), 7, 2);
+x_14 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg), 7, 2);
 lean_closure_set(x_14, 0, x_12);
 lean_closure_set(x_14, 1, x_13);
 x_15 = l_Lean_Meta_getMVarDecl___at_Lean_Meta_isReadOnlyExprMVar___spec__1(x_1, x_6, x_7, x_8, x_9, x_10);

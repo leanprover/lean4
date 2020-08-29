@@ -110,23 +110,16 @@ instance : MonadIO MetaM :=
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
-protected def addTraceContext (msg : MessageData) : MetaM MessageData := do
-ctxCore ← readThe Core.Context;
-sCore   ← getThe Core.State;
-ctx     ← read;
-s       ← get;
-pure $ MessageData.withContext { env := sCore.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctxCore.options } msg
+instance : MonadLCtx MetaM :=
+{ getLCtx := do ctx ← read; pure ctx.lctx }
+
+instance : MonadMCtx MetaM :=
+{ getMCtx := do s ← get; pure s.mctx }
 
 instance : MonadError MetaM :=
 { getRef     := getRef,
   withRef    := fun α => withRef,
-  addContext := fun ref msg => do msg ← Meta.addTraceContext msg; pure (ref, msg) }
-
-instance : SimpleMonadTracerAdapter MetaM :=
-{ getOptions       := getOptions,
-  getTraceState    := getTraceState,
-  modifyTraceState := fun f => liftM (modifyTraceState f : CoreM _),
-  addTraceContext  := Meta.addTraceContext }
+  addContext := fun ref msg => do msg ← addWithContext msg; pure (ref, msg) }
 
 @[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
 (x.run ctx).run s
@@ -164,10 +157,8 @@ section Methods
 variables {m : Type → Type} [MonadLiftT MetaM m]
 variables {n : Type → Type} [MonadControlT MetaM n] [Monad n]
 
-def getLCtx : m LocalContext := liftMetaM do ctx ← read; pure ctx.lctx
 def getLocalInstances : m LocalInstances := liftMetaM do ctx ← read; pure ctx.localInstances
 def getConfig : m Config := liftMetaM do ctx ← read; pure ctx.config
-def getMCtx : m MetavarContext := liftMetaM do s ← get; pure s.mctx
 def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
 @[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : m Unit :=
 liftMetaM $ modify fun s => { s with mctx := f s.mctx }

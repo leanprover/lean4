@@ -42,6 +42,7 @@ lean_object* l_Lean_Elab_Frontend_processCommandsAux___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Frontend_1__ioErrorFromEmpty___boxed(lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Parser_Module_4__testModuleParserAux___main___closed__1;
+lean_object* l_Lean_Elab_logException___at_Lean_Elab_Command_withLogging___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCommand___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos(lean_object*, lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
@@ -57,7 +58,6 @@ lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, le
 extern lean_object* l_Std_PersistentArray_empty___closed__3;
 lean_object* l_Lean_Elab_Frontend_processCommand___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
-lean_object* l_Lean_Elab_Command_logException(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_getInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_getCommandState(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_getParserState(lean_object*, lean_object*);
@@ -331,7 +331,8 @@ lean_object* x_34; lean_object* x_35;
 x_34 = lean_ctor_get(x_23, 1);
 lean_inc(x_34);
 lean_dec(x_23);
-x_35 = l_Lean_Elab_Command_logException(x_33, x_19, x_21, x_34);
+x_35 = l_Lean_Elab_logException___at_Lean_Elab_Command_withLogging___spec__1(x_33, x_19, x_21, x_34);
+lean_dec(x_19);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 

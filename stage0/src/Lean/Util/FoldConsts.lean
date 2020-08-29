@@ -58,6 +58,9 @@ end FoldConstsImpl
 @[implementedBy FoldConstsImpl.foldUnsafe]
 constant foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
 
+def getUsedConstants (e : Expr) : Array Name :=
+e.foldConsts #[] fun c cs => cs.push c
+
 end Expr
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=

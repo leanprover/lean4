@@ -39,7 +39,11 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticParser
-@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize" >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
+@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
+def location : Parser := "at " >> ("*" <|> (many ident >> optional (unicodeSymbol "⊢" "|-")))
+@[builtinTacticParser] def change     := parser! nonReservedSymbol "change " >> termParser >> optional location
+@[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
+
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
 def holeOrTactic := Term.hole <|> Term.namedHole <|> tacticParser
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> holeOrTactic

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___at_Lean_Meta_Match_mkElim___spec__8___lambda__4___closed__3;
 extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l_Lean_Meta_Match_Example_applyFVarSubst(lean_object*, lean_object*);
@@ -158,7 +159,6 @@ lean_object* l___private_Lean_Meta_Basic_13__forallTelescopeReducingAuxAux___mai
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___at_Lean_Meta_Match_mkElim___spec__8___lambda__2___closed__6;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_EqnCompiler_Match_27__processConstructor___spec__10___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_addWithContext___at_Lean_Meta_Match_Unify_assign___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___at___private_Lean_Meta_EqnCompiler_Match_24__expandVarIntoCtor_x3f___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEqAux___main___lambda__1___closed__3;
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_36__traceStep(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -378,12 +378,10 @@ uint8_t l_List_foldr___main___at___private_Lean_Meta_EqnCompiler_Match_16__isNat
 lean_object* l_List_foldl___main___at_Lean_Meta_Match_Pattern_toMessageData___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_joinSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_counterExampleToMessageData(lean_object*);
-lean_object* l_Lean_addWithContext___at_Lean_Meta_Lean_MonadError___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArrayLit___at___private_Lean_Meta_EqnCompiler_CaseArraySizes_2__introArrayLitAux___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replaceFVarId(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_36__traceStep___lambda__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_11__hasArrayLitPattern___boxed(lean_object*);
-lean_object* l_Lean_addWithContext___at_Lean_Meta_Lean_MonadError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_22__inLocalDecls___boxed(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___lambda__1___closed__1;
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_40__getUnusedLevelParam___closed__2;
@@ -436,7 +434,6 @@ lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___
 uint8_t l___private_Lean_Meta_EqnCompiler_Match_10__hasVarPattern(lean_object*);
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_39__process___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___at_Lean_Meta_Match_mkElim___spec__8___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addWithContext___at_Lean_Meta_Match_Unify_assign___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_getFVarLocalDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_2__withAltsAux(lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Meta_EqnCompiler_Match_35__expandNatValuePattern___spec__1(lean_object*);
@@ -626,6 +623,7 @@ lean_object* l_List_filterMapMAux___main___at___private_Lean_Meta_EqnCompiler_Ma
 lean_object* l_Lean_Meta_Match_Alt_applyFVarSubst(lean_object*, lean_object*);
 lean_object* l_List_filterMapMAux___main___at___private_Lean_Meta_EqnCompiler_Match_27__processConstructor___spec__9___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_main___main(lean_object*, lean_object*);
+lean_object* l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_41__mkElimSort___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Meta_EqnCompiler_Match_34__processArrayLit___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Unify_isAltVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2193,7 +2191,7 @@ lean_ctor_set(x_19, 0, x_18);
 x_20 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_20, 0, x_17);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = lean_alloc_closure((void*)(l_Lean_addWithContext___at_Lean_Meta_Lean_MonadError___spec__1___boxed), 6, 1);
+x_21 = lean_alloc_closure((void*)(l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1___boxed), 6, 1);
 lean_closure_set(x_21, 0, x_20);
 x_22 = l_Lean_Meta_withExistingLocalDecls___at_Lean_Meta_Match_Alt_toMessageData___spec__3___rarg(x_7, x_21, x_2, x_3, x_4, x_5, x_6);
 return x_22;
@@ -8664,78 +8662,11 @@ lean_ctor_set(x_12, 1, x_8);
 return x_12;
 }
 }
-lean_object* l_Lean_addWithContext___at_Lean_Meta_Match_Unify_assign___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_9 = lean_st_ref_get(x_7, x_8);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 1);
-lean_inc(x_11);
-lean_dec(x_9);
-x_12 = lean_ctor_get(x_10, 0);
-lean_inc(x_12);
-lean_dec(x_10);
-x_13 = lean_st_ref_get(x_5, x_11);
-x_14 = !lean_is_exclusive(x_13);
-if (x_14 == 0)
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_15 = lean_ctor_get(x_13, 0);
-x_16 = lean_ctor_get(x_15, 0);
-lean_inc(x_16);
-lean_dec(x_15);
-x_17 = lean_ctor_get(x_4, 1);
-x_18 = lean_ctor_get(x_6, 0);
-lean_inc(x_18);
-lean_inc(x_17);
-x_19 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_19, 0, x_12);
-lean_ctor_set(x_19, 1, x_16);
-lean_ctor_set(x_19, 2, x_17);
-lean_ctor_set(x_19, 3, x_18);
-x_20 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_1);
-lean_ctor_set(x_13, 0, x_20);
-return x_13;
-}
-else
-{
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_21 = lean_ctor_get(x_13, 0);
-x_22 = lean_ctor_get(x_13, 1);
-lean_inc(x_22);
-lean_inc(x_21);
-lean_dec(x_13);
-x_23 = lean_ctor_get(x_21, 0);
-lean_inc(x_23);
-lean_dec(x_21);
-x_24 = lean_ctor_get(x_4, 1);
-x_25 = lean_ctor_get(x_6, 0);
-lean_inc(x_25);
-lean_inc(x_24);
-x_26 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_26, 0, x_12);
-lean_ctor_set(x_26, 1, x_23);
-lean_ctor_set(x_26, 2, x_24);
-lean_ctor_set(x_26, 3, x_25);
-x_27 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_1);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_22);
-return x_28;
-}
-}
-}
 lean_object* l_Lean_addTrace___at_Lean_Meta_Match_Unify_assign___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_10 = l_Lean_addWithContext___at_Lean_Meta_Match_Unify_assign___spec__4(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_10 = l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(x_2, x_5, x_6, x_7, x_8, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
@@ -9246,20 +9177,6 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Lean_Util_Trace_3__checkTraceOptionM___at_Lean_Meta_Match_Unify_assign___spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_9;
-}
-}
-lean_object* l_Lean_addWithContext___at_Lean_Meta_Match_Unify_assign___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Lean_addWithContext___at_Lean_Meta_Match_Unify_assign___spec__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -22885,7 +22802,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_5, 3);
-x_9 = l_Lean_addWithContext___at_Lean_Meta_Lean_MonadError___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
+x_9 = l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {

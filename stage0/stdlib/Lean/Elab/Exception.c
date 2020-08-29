@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
 lean_object* l_Lean_Elab_throwPostpone___rarg(lean_object*);
 lean_object* l_Lean_Elab_registerUnsupportedSyntaxId(lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1;
@@ -21,20 +22,25 @@ lean_object* l_Lean_Elab_throwAbort___rarg___closed__1;
 lean_object* l_Lean_Elab_registerUnsupportedSyntaxId___closed__2;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object*);
 lean_object* l_Lean_Elab_registerUnsupportedSyntaxId___closed__1;
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Elab_throwPostpone(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerPostponeId(lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1;
 lean_object* l_Lean_Elab_throwAbort___rarg(lean_object*);
 lean_object* l_Lean_Elab_throwAbort(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
 lean_object* l_Lean_Elab_postponeExceptionId;
 lean_object* l_Lean_Elab_throwPostpone___rarg___closed__1;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerAbortElabId___closed__1;
+lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_abortExceptionId;
 lean_object* l_Lean_Elab_registerAbortElabId(lean_object*);
 lean_object* l_Lean_Elab_registerPostponeId___closed__2;
@@ -181,6 +187,51 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwUnsupportedSyntax___rarg), 1, 
 return x_3;
 }
 }
+lean_object* _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("ill-formed syntax");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
+x_4 = l_Lean_throwError___rarg(x_1, x_2, lean_box(0), x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwIllFormedSyntax___rarg), 2, 0);
+return x_3;
+}
+}
 lean_object* _init_l_Lean_Elab_throwAbort___rarg___closed__1() {
 _start:
 {
@@ -287,6 +338,12 @@ l_Lean_Elab_throwPostpone___rarg___closed__1 = _init_l_Lean_Elab_throwPostpone__
 lean_mark_persistent(l_Lean_Elab_throwPostpone___rarg___closed__1);
 l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1 = _init_l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1);
+l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1 = _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1();
+lean_mark_persistent(l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1);
+l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2 = _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2();
+lean_mark_persistent(l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2);
+l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3 = _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3();
+lean_mark_persistent(l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3);
 l_Lean_Elab_throwAbort___rarg___closed__1 = _init_l_Lean_Elab_throwAbort___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_throwAbort___rarg___closed__1);
 return lean_mk_io_result(lean_box(0));

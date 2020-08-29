@@ -28,7 +28,7 @@ size_t l_USize_sub(size_t, size_t);
 lean_object* l_Std_PersistentArray_get_x21___at___private_Lean_Util_Trace_1__toFormat___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_TraceState_HasToString___closed__1;
 lean_object* l_Lean_enableTracing___rarg___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_trace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_trace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l_Lean_setTrace(lean_object*, lean_object*);
 lean_object* l_Lean_resetTraceState___rarg___closed__1;
@@ -45,9 +45,8 @@ lean_object* l_Lean_MessageData_formatAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_getTraces(lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
-lean_object* l_Lean_addWithContext___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_2__checkTraceOptionAux___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_traceM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_traceM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_TraceState_HasToString___spec__1(lean_object*);
 lean_object* l___private_Lean_Util_Trace_5__getResetTraces(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -59,13 +58,13 @@ lean_object* l_Lean_monadTraceTrans___rarg___lambda__1(lean_object*, lean_object
 lean_object* l_Lean_setTraceState(lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_2__checkTraceOptionAux(lean_object*, lean_object*);
 lean_object* l_Lean_TraceState_HasToString___closed__2;
-lean_object* l_Lean_traceM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_traceM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_enableTracing___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_modifyTraces(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_2__checkTraceOptionAux___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_MessageData_Inhabited;
@@ -79,7 +78,6 @@ lean_object* l_Lean_registerTraceClass___closed__2;
 lean_object* l_Lean_traceCtx___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_monadTraceTrans(lean_object*, lean_object*);
 lean_object* l_Lean_traceM(lean_object*);
-lean_object* l_Lean_addWithContext___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__7___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__2___closed__1;
 lean_object* l_Lean_isTracingEnabledFor(lean_object*);
@@ -96,11 +94,10 @@ lean_object* l___private_Lean_Util_Trace_4__addNode(lean_object*, lean_object*);
 extern lean_object* l_Lean_Options_empty;
 lean_object* l___private_Lean_Util_Trace_5__getResetTraces___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_enableTracing(lean_object*);
-lean_object* l_Lean_addWithContext___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__7___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__7(lean_object*);
 lean_object* l_Lean_modifyTraces___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_MonadTracer_trace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadTracer_trace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_finally___rarg___closed__1;
 lean_object* l_Lean_addTrace___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -127,8 +124,8 @@ lean_object* l_Lean_setTrace___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_getAux___main___at___private_Lean_Util_Trace_1__toFormat___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
-lean_object* l_Lean_traceCtx___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_traceCtx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_traceCtx___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_traceCtx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_enableTracing___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_get_stdout(lean_object*);
 lean_object* l_Lean_enableTracing___rarg___lambda__2(lean_object*, uint8_t, lean_object*);
@@ -137,8 +134,8 @@ lean_object* l_Lean_printTraces(lean_object*);
 lean_object* l_Lean_checkTraceOption___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_setTraceState___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_checkTraceOption___closed__1;
-lean_object* l_Lean_addWithContext___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_traceM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_traceM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addTrace___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace(lean_object*);
 lean_object* l_Lean_resetTraceState___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_TraceState_Inhabited___closed__1;
@@ -151,7 +148,7 @@ lean_object* l_Lean_enableTracing___rarg___lambda__1(uint8_t, lean_object*);
 lean_object* l_Std_PersistentArray_forM___at_Lean_printTraces___spec__3(lean_object*);
 lean_object* l___private_Lean_Util_Trace_1__toFormat(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_4__addNode___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_trace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_trace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__5___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -161,9 +158,8 @@ lean_object* l_IO_print___at___private_Init_System_IO_1__printlnAux___spec__2(le
 lean_object* l_Lean_printTraces___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getTraces___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forM___at_Lean_printTraces___spec__3___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_trace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_trace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addWithContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__1(lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
@@ -171,7 +167,6 @@ lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM___rarg___boxed(lea
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getTraces___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_addWithContext(lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM(lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__3(lean_object*, uint8_t, lean_object*);
@@ -180,103 +175,6 @@ lean_object* l_Lean_checkTraceOption___closed__2;
 lean_object* l_Lean_modifyTraces___boxed(lean_object*, lean_object*);
 lean_object* l_IO_print___at_Lean_printTraces___spec__2(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Lean_addWithContext___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_7, 1);
-lean_inc(x_8);
-lean_dec(x_7);
-x_9 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_9, 0, x_2);
-lean_ctor_set(x_9, 1, x_3);
-lean_ctor_set(x_9, 2, x_4);
-lean_ctor_set(x_9, 3, x_6);
-x_10 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_5);
-x_11 = lean_apply_2(x_8, lean_box(0), x_10);
-return x_11;
-}
-}
-lean_object* l_Lean_addWithContext___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_alloc_closure((void*)(l_Lean_addWithContext___rarg___lambda__1), 6, 5);
-lean_closure_set(x_8, 0, x_1);
-lean_closure_set(x_8, 1, x_2);
-lean_closure_set(x_8, 2, x_3);
-lean_closure_set(x_8, 3, x_7);
-lean_closure_set(x_8, 4, x_4);
-x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_8);
-return x_9;
-}
-}
-lean_object* l_Lean_addWithContext___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_inc(x_4);
-x_8 = lean_alloc_closure((void*)(l_Lean_addWithContext___rarg___lambda__2), 7, 6);
-lean_closure_set(x_8, 0, x_1);
-lean_closure_set(x_8, 1, x_2);
-lean_closure_set(x_8, 2, x_7);
-lean_closure_set(x_8, 3, x_3);
-lean_closure_set(x_8, 4, x_4);
-lean_closure_set(x_8, 5, x_5);
-x_9 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_8);
-return x_9;
-}
-}
-lean_object* l_Lean_addWithContext___rarg___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_inc(x_3);
-x_8 = lean_alloc_closure((void*)(l_Lean_addWithContext___rarg___lambda__3), 7, 6);
-lean_closure_set(x_8, 0, x_1);
-lean_closure_set(x_8, 1, x_7);
-lean_closure_set(x_8, 2, x_2);
-lean_closure_set(x_8, 3, x_3);
-lean_closure_set(x_8, 4, x_4);
-lean_closure_set(x_8, 5, x_5);
-x_9 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_6, x_8);
-return x_9;
-}
-}
-lean_object* l_Lean_addWithContext___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-lean_dec(x_2);
-lean_inc(x_7);
-x_9 = lean_alloc_closure((void*)(l_Lean_addWithContext___rarg___lambda__4), 7, 6);
-lean_closure_set(x_9, 0, x_1);
-lean_closure_set(x_9, 1, x_6);
-lean_closure_set(x_9, 2, x_7);
-lean_closure_set(x_9, 3, x_5);
-lean_closure_set(x_9, 4, x_4);
-lean_closure_set(x_9, 5, x_3);
-x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
-return x_10;
-}
-}
-lean_object* l_Lean_addWithContext(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_addWithContext___rarg), 6, 0);
-return x_2;
-}
-}
 lean_object* _init_l_Lean_TraceState_Inhabited___closed__1() {
 _start:
 {
@@ -1735,201 +1633,201 @@ x_6 = lean_apply_1(x_4, x_5);
 return x_6;
 }
 }
-lean_object* l_Lean_addTrace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Lean_addTrace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-x_10 = l_Lean_addWithContext___rarg(x_1, x_3, x_4, x_5, x_6, x_8);
-x_11 = lean_alloc_closure((void*)(l_Lean_addTrace___rarg___lambda__2), 3, 2);
-lean_closure_set(x_11, 0, x_2);
-lean_closure_set(x_11, 1, x_7);
-x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_11);
-return x_12;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_apply_1(x_3, x_6);
+x_9 = lean_alloc_closure((void*)(l_Lean_addTrace___rarg___lambda__2), 3, 2);
+lean_closure_set(x_9, 0, x_2);
+lean_closure_set(x_9, 1, x_5);
+x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
+return x_10;
 }
 }
 lean_object* l_Lean_addTrace(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_addTrace___rarg), 8, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_addTrace___rarg___boxed), 6, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_trace___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, uint8_t x_9) {
+lean_object* l_Lean_addTrace___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-if (x_9 == 0)
+lean_object* x_7; 
+x_7 = l_Lean_addTrace___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+return x_7;
+}
+}
+lean_object* l_Lean_trace___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7) {
+_start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_8);
-lean_dec(x_7);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
 lean_dec(x_1);
-x_11 = lean_ctor_get(x_10, 1);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = lean_box(0);
-x_13 = lean_apply_2(x_11, lean_box(0), x_12);
-return x_13;
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_box(0);
+x_11 = lean_apply_2(x_9, lean_box(0), x_10);
+return x_11;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_box(0);
-x_15 = lean_apply_1(x_2, x_14);
-x_16 = l_Lean_addTrace___rarg(x_1, x_3, x_4, x_5, x_6, x_7, x_8, x_15);
-return x_16;
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_box(0);
+x_13 = lean_apply_1(x_2, x_12);
+x_14 = l_Lean_addTrace___rarg(x_1, x_3, x_4, x_5, x_6, x_13);
+return x_14;
 }
 }
 }
-lean_object* l_Lean_trace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Lean_trace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_2, 1);
-lean_inc(x_10);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_inc(x_6);
+x_8 = lean_ctor_get(x_2, 1);
+lean_inc(x_8);
+lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
-x_11 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
+x_9 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_2);
+lean_closure_set(x_9, 2, x_4);
+lean_closure_set(x_9, 3, x_5);
+lean_inc(x_7);
+x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
+x_11 = lean_alloc_closure((void*)(l_Lean_trace___rarg___lambda__1___boxed), 7, 6);
 lean_closure_set(x_11, 0, x_1);
-lean_closure_set(x_11, 1, x_2);
-lean_closure_set(x_11, 2, x_6);
-lean_closure_set(x_11, 3, x_7);
-lean_inc(x_9);
-x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_11);
-x_13 = lean_alloc_closure((void*)(l_Lean_trace___rarg___lambda__1___boxed), 9, 8);
-lean_closure_set(x_13, 0, x_1);
-lean_closure_set(x_13, 1, x_8);
-lean_closure_set(x_13, 2, x_2);
-lean_closure_set(x_13, 3, x_3);
-lean_closure_set(x_13, 4, x_4);
-lean_closure_set(x_13, 5, x_5);
-lean_closure_set(x_13, 6, x_6);
-lean_closure_set(x_13, 7, x_7);
-x_14 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_12, x_13);
-return x_14;
+lean_closure_set(x_11, 1, x_6);
+lean_closure_set(x_11, 2, x_2);
+lean_closure_set(x_11, 3, x_3);
+lean_closure_set(x_11, 4, x_4);
+lean_closure_set(x_11, 5, x_5);
+x_12 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_10, x_11);
+return x_12;
 }
 }
 lean_object* l_Lean_trace(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_trace___rarg), 8, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_trace___rarg), 6, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_trace___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+lean_object* l_Lean_trace___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_10; lean_object* x_11; 
-x_10 = lean_unbox(x_9);
-lean_dec(x_9);
-x_11 = l_Lean_trace___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_10);
-return x_11;
+uint8_t x_8; lean_object* x_9; 
+x_8 = lean_unbox(x_7);
+lean_dec(x_7);
+x_9 = l_Lean_trace___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
+lean_dec(x_5);
+return x_9;
 }
 }
-lean_object* l_Lean_traceM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, uint8_t x_10) {
+lean_object* l_Lean_traceM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8) {
 _start:
 {
-if (x_10 == 0)
+if (x_8 == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_9);
-lean_dec(x_8);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
+x_9 = lean_ctor_get(x_1, 0);
+lean_inc(x_9);
 lean_dec(x_1);
-x_12 = lean_ctor_get(x_11, 1);
-lean_inc(x_12);
-lean_dec(x_11);
-x_13 = lean_box(0);
-x_14 = lean_apply_2(x_12, lean_box(0), x_13);
-return x_14;
+x_10 = lean_ctor_get(x_9, 1);
+lean_inc(x_10);
+lean_dec(x_9);
+x_11 = lean_box(0);
+x_12 = lean_apply_2(x_10, lean_box(0), x_11);
+return x_12;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_alloc_closure((void*)(l_Lean_addTrace___rarg), 8, 7);
-lean_closure_set(x_15, 0, x_1);
-lean_closure_set(x_15, 1, x_2);
-lean_closure_set(x_15, 2, x_3);
-lean_closure_set(x_15, 3, x_4);
-lean_closure_set(x_15, 4, x_5);
-lean_closure_set(x_15, 5, x_6);
-lean_closure_set(x_15, 6, x_7);
-x_16 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_15);
-return x_16;
-}
-}
-}
-lean_object* l_Lean_traceM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_2, 1);
-lean_inc(x_10);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_2);
-lean_inc(x_1);
-x_11 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
-lean_closure_set(x_11, 0, x_1);
-lean_closure_set(x_11, 1, x_2);
-lean_closure_set(x_11, 2, x_6);
-lean_closure_set(x_11, 3, x_7);
-lean_inc(x_9);
-x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_11);
-lean_inc(x_9);
-x_13 = lean_alloc_closure((void*)(l_Lean_traceM___rarg___lambda__1___boxed), 10, 9);
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_alloc_closure((void*)(l_Lean_addTrace___rarg___boxed), 6, 5);
 lean_closure_set(x_13, 0, x_1);
 lean_closure_set(x_13, 1, x_2);
 lean_closure_set(x_13, 2, x_3);
 lean_closure_set(x_13, 3, x_4);
 lean_closure_set(x_13, 4, x_5);
-lean_closure_set(x_13, 5, x_6);
-lean_closure_set(x_13, 6, x_7);
-lean_closure_set(x_13, 7, x_9);
-lean_closure_set(x_13, 8, x_8);
-x_14 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_12, x_13);
+x_14 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_7, x_13);
 return x_14;
+}
+}
+}
+lean_object* l_Lean_traceM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_2, 1);
+lean_inc(x_8);
+lean_inc(x_5);
+lean_inc(x_4);
+lean_inc(x_2);
+lean_inc(x_1);
+x_9 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_2);
+lean_closure_set(x_9, 2, x_4);
+lean_closure_set(x_9, 3, x_5);
+lean_inc(x_7);
+x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
+lean_inc(x_7);
+x_11 = lean_alloc_closure((void*)(l_Lean_traceM___rarg___lambda__1___boxed), 8, 7);
+lean_closure_set(x_11, 0, x_1);
+lean_closure_set(x_11, 1, x_2);
+lean_closure_set(x_11, 2, x_3);
+lean_closure_set(x_11, 3, x_4);
+lean_closure_set(x_11, 4, x_5);
+lean_closure_set(x_11, 5, x_7);
+lean_closure_set(x_11, 6, x_6);
+x_12 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_10, x_11);
+return x_12;
 }
 }
 lean_object* l_Lean_traceM(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_traceM___rarg), 8, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_traceM___rarg), 6, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_traceM___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+lean_object* l_Lean_traceM___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-uint8_t x_11; lean_object* x_12; 
-x_11 = lean_unbox(x_10);
-lean_dec(x_10);
-x_12 = l_Lean_traceM___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_11);
-return x_12;
+uint8_t x_9; lean_object* x_10; 
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+x_10 = l_Lean_traceM___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
+return x_10;
 }
 }
 lean_object* l_Lean_traceCtx___rarg___lambda__1(lean_object* x_1) {
@@ -2112,43 +2010,43 @@ return x_15;
 }
 }
 }
-lean_object* l_Lean_traceCtx___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+lean_object* l_Lean_traceCtx___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_2, 1);
-lean_inc(x_11);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
+x_9 = lean_ctor_get(x_2, 1);
+lean_inc(x_9);
+lean_inc(x_6);
 lean_inc(x_2);
 lean_inc(x_1);
-x_12 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
-lean_closure_set(x_12, 0, x_1);
-lean_closure_set(x_12, 1, x_2);
-lean_closure_set(x_12, 2, x_6);
-lean_closure_set(x_12, 3, x_8);
-lean_inc(x_10);
-lean_inc(x_11);
-x_13 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_11, x_12);
-lean_inc(x_10);
-x_14 = lean_alloc_closure((void*)(l_Lean_traceCtx___rarg___lambda__7___boxed), 8, 7);
-lean_closure_set(x_14, 0, x_2);
-lean_closure_set(x_14, 1, x_1);
-lean_closure_set(x_14, 2, x_10);
-lean_closure_set(x_14, 3, x_11);
-lean_closure_set(x_14, 4, x_7);
-lean_closure_set(x_14, 5, x_9);
-lean_closure_set(x_14, 6, x_8);
-x_15 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_14);
-return x_15;
+x_10 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
+lean_closure_set(x_10, 0, x_1);
+lean_closure_set(x_10, 1, x_2);
+lean_closure_set(x_10, 2, x_4);
+lean_closure_set(x_10, 3, x_6);
+lean_inc(x_8);
+lean_inc(x_9);
+x_11 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_10);
+lean_inc(x_8);
+x_12 = lean_alloc_closure((void*)(l_Lean_traceCtx___rarg___lambda__7___boxed), 8, 7);
+lean_closure_set(x_12, 0, x_2);
+lean_closure_set(x_12, 1, x_1);
+lean_closure_set(x_12, 2, x_8);
+lean_closure_set(x_12, 3, x_9);
+lean_closure_set(x_12, 4, x_5);
+lean_closure_set(x_12, 5, x_7);
+lean_closure_set(x_12, 6, x_6);
+x_13 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_11, x_12);
+return x_13;
 }
 }
 lean_object* l_Lean_traceCtx(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_traceCtx___rarg___boxed), 9, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_traceCtx___rarg___boxed), 7, 0);
 return x_3;
 }
 }
@@ -2203,54 +2101,50 @@ x_10 = l_Lean_traceCtx___rarg___lambda__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9
 return x_10;
 }
 }
-lean_object* l_Lean_traceCtx___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+lean_object* l_Lean_traceCtx___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_10; 
-x_10 = l_Lean_traceCtx___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_object* x_8; 
+x_8 = l_Lean_traceCtx___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_3);
-return x_10;
+return x_8;
 }
 }
-lean_object* l_Lean_MonadTracer_trace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Lean_MonadTracer_trace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_2, 1);
-lean_inc(x_10);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_inc(x_6);
+x_8 = lean_ctor_get(x_2, 1);
+lean_inc(x_8);
+lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
-x_11 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
+x_9 = lean_alloc_closure((void*)(l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed), 5, 4);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_2);
+lean_closure_set(x_9, 2, x_4);
+lean_closure_set(x_9, 3, x_5);
+lean_inc(x_7);
+x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
+x_11 = lean_alloc_closure((void*)(l_Lean_trace___rarg___lambda__1___boxed), 7, 6);
 lean_closure_set(x_11, 0, x_1);
-lean_closure_set(x_11, 1, x_2);
-lean_closure_set(x_11, 2, x_6);
-lean_closure_set(x_11, 3, x_7);
-lean_inc(x_9);
-x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_11);
-x_13 = lean_alloc_closure((void*)(l_Lean_trace___rarg___lambda__1___boxed), 9, 8);
-lean_closure_set(x_13, 0, x_1);
-lean_closure_set(x_13, 1, x_8);
-lean_closure_set(x_13, 2, x_2);
-lean_closure_set(x_13, 3, x_3);
-lean_closure_set(x_13, 4, x_4);
-lean_closure_set(x_13, 5, x_5);
-lean_closure_set(x_13, 6, x_6);
-lean_closure_set(x_13, 7, x_7);
-x_14 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_12, x_13);
-return x_14;
+lean_closure_set(x_11, 1, x_6);
+lean_closure_set(x_11, 2, x_2);
+lean_closure_set(x_11, 3, x_3);
+lean_closure_set(x_11, 4, x_4);
+lean_closure_set(x_11, 5, x_5);
+x_12 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_10, x_11);
+return x_12;
 }
 }
 lean_object* l_Lean_MonadTracer_trace(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_MonadTracer_trace___rarg), 8, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_MonadTracer_trace___rarg), 6, 0);
 return x_2;
 }
 }

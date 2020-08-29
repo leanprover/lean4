@@ -180,7 +180,7 @@ instance MonadError : MonadError TermElabM :=
     ctx ← read;
     let ref := getBetterRef ref ctx.macroStack;
     let msg := if ctx.macroStackAtErr then addMacroStack msg ctx.macroStack else msg;
-    msg ← addWithContext msg;
+    msg ← addMessageDataContext msg;
     pure (ref, msg) }
 
 instance monadLog : MonadLog TermElabM :=
@@ -1124,13 +1124,13 @@ fun stx _ => throwError "invalid occurrence of `·` notation, it must be surroun
 fun stx _ => do
   match stx.isStrLit? with
   | some val => pure $ mkStrLit val
-  | none     => throwError "ill-formed syntax"
+  | none     => throwIllFormedSyntax
 
 @[builtinTermElab numLit] def elabNumLit : TermElab :=
 fun stx expectedType? => do
   val ← match stx.isNatLit? with
     | some val => pure (mkNatLit val)
-    | none     => throwError "ill-formed syntax";
+    | none     => throwIllFormedSyntax;
   typeMVar ← mkFreshTypeMVar MetavarKind.synthetic;
   registerSyntheticMVar stx typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat));
   match expectedType? with
@@ -1145,13 +1145,13 @@ fun stx expectedType? => do
 fun stx _ => do
   match stx.isCharLit? with
   | some val => pure $ mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
-  | none     => throwError "ill-formed syntax"
+  | none     => throwIllFormedSyntax
 
 @[builtinTermElab quotedName] def elabQuotedName : TermElab :=
 fun stx _ =>
   match (stx.getArg 0).isNameLit? with
   | some val => pure $ toExpr val
-  | none     => throwError "ill-formed syntax"
+  | none     => throwIllFormedSyntax
 
 private def mkSomeContext : Context :=
 { fileName      := "<TermElabM>",

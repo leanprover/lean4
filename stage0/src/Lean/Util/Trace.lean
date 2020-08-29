@@ -9,13 +9,6 @@ universe u
 
 namespace Lean
 
-def addWithContext {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
-env ← getEnv;
-mctx ← getMCtx;
-lctx ← getLCtx;
-opts ← getOptions;
-pure $ MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
-
 open Std (PersistentArray)
 
 structure TraceState :=
@@ -104,10 +97,10 @@ modifyTraces $ fun _ => {};
 pure oldTraces
 
 section
-variables [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m]
+variables [AddMessageDataContext m] [MonadOptions m]
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
-msg ← addWithContext msg;
+msg ← addMessageDataContext msg;
 modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=

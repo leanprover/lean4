@@ -451,7 +451,6 @@ lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_findDefaultMissing_x3f___
 lean_object* l_Std_HashMapImp_expand___at___private_Lean_Elab_StructInst_12__mkFieldMap___spec__5(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_17__groupFields___lambda__2(lean_object*, lean_object*);
-lean_object* l_Lean_addWithContext___at_Lean_Elab_Term_MonadError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_mkDefaultValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -551,6 +550,7 @@ lean_object* l_List_foldlM___main___at___private_Lean_Elab_StructInst_12__mkFiel
 lean_object* l_Lean_findField_x3f___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_tryToSynthesizeDefaultAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_StructInst_DefaultFields_reduce___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_5__getStructName___boxed(lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at___private_Lean_Elab_StructInst_3__isModifyOp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_collectStructNames___boxed(lean_object*, lean_object*);
@@ -25805,12 +25805,12 @@ lean_inc(x_14);
 x_15 = l_Lean_Elab_getBetterRef(x_13, x_14);
 lean_dec(x_13);
 x_16 = lean_ctor_get_uint8(x_5, sizeof(void*)*8 + 2);
+lean_dec(x_5);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
 lean_dec(x_14);
-x_17 = l_Lean_addWithContext___at_Lean_Elab_Term_MonadError___spec__1(x_2, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_5);
+x_17 = l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(x_2, x_7, x_8, x_9, x_10, x_11);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)
 {
@@ -25844,8 +25844,7 @@ else
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_25 = l_Lean_Elab_addMacroStack(x_2, x_14);
-x_26 = l_Lean_addWithContext___at_Lean_Elab_Term_MonadError___spec__1(x_25, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_5);
+x_26 = l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(x_25, x_7, x_8, x_9, x_10, x_11);
 x_27 = !lean_is_exclusive(x_26);
 if (x_27 == 0)
 {

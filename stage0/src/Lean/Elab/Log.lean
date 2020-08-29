@@ -24,7 +24,7 @@ instance monadLogTrans (m n) [MonadLog m] [MonadLift m n] : MonadLog n :=
 export MonadLog (getFileMap getFileName logMessage)
 open MonadLog (getRef)
 
-variables {m : Type → Type} [Monad m] [MonadLog m] [MonadEnv m] [MonadOptions m] [MonadLCtx m] [MonadMCtx m]
+variables {m : Type → Type} [Monad m] [MonadLog m] [AddMessageDataContext m]
 
 def getRefPos : m String.Pos := do
 ref ← getRef;
@@ -41,7 +41,7 @@ let ref  := replaceRef ref currRef;
 let pos  := ref.getPos.getD 0;
 fileMap  ← getFileMap;
 fileName ← getFileName;
-msgData ← addWithContext msgData;
+msgData ← addMessageDataContext msgData;
 logMessage { fileName := fileName, pos := fileMap.toPosition pos, data := msgData, severity := severity }
 
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
@@ -77,11 +77,11 @@ match ex with
 def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
 logInfo (MessageData.tagged cls msgData)
 
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
+@[inline] def trace [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
 opts ← getOptions;
 when (checkTraceOption opts cls) $ logTrace cls (msg ())
 
-def logDbgTrace (msg : MessageData) : m Unit := do
+def logDbgTrace [MonadOptions m] (msg : MessageData) : m Unit := do
 trace `Elab.debug fun _ => msg
 
 end Elab

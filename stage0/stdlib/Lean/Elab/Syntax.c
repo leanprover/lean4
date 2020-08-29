@@ -602,7 +602,6 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__57;
 lean_object* l_Lean_Elab_Command_elabSyntaxAbbrev___closed__4;
 extern lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__22;
 lean_object* l_Array_findIdxAux___main___at___private_Lean_Elab_Syntax_8__antiquote___main___spec__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addWithContext___at_Lean_Elab_Term_MonadError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__122;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__139;
 lean_object* l_List_filterAux___main___at_Lean_Elab_Term_toParserDescrAux___main___spec__2(lean_object*, lean_object*, lean_object*);
@@ -718,6 +717,7 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__35;
 extern lean_object* l_Lean_Syntax_isQuot___closed__1;
 lean_object* l_Lean_Elab_Command_expandMacroArgIntoSyntaxItem___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabSyntax___closed__2;
+lean_object* l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__12;
 lean_object* l___private_Lean_Elab_Syntax_6__declareSyntaxCatQuotParser___closed__31;
 lean_object* l___private_Lean_Elab_Syntax_6__declareSyntaxCatQuotParser___closed__59;
@@ -1198,12 +1198,12 @@ lean_inc(x_14);
 x_15 = l_Lean_Elab_getBetterRef(x_13, x_14);
 lean_dec(x_13);
 x_16 = lean_ctor_get_uint8(x_5, sizeof(void*)*8 + 2);
+lean_dec(x_5);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
 lean_dec(x_14);
-x_17 = l_Lean_addWithContext___at_Lean_Elab_Term_MonadError___spec__1(x_2, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_5);
+x_17 = l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(x_2, x_7, x_8, x_9, x_10, x_11);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)
 {
@@ -1237,8 +1237,7 @@ else
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_25 = l_Lean_Elab_addMacroStack(x_2, x_14);
-x_26 = l_Lean_addWithContext___at_Lean_Elab_Term_MonadError___spec__1(x_25, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_5);
+x_26 = l_Lean_addMessageDataContextFull___at_Lean_Meta_Lean_AddMessageDataContext___spec__1(x_25, x_7, x_8, x_9, x_10, x_11);
 x_27 = !lean_is_exclusive(x_26);
 if (x_27 == 0)
 {

@@ -24,11 +24,14 @@ registerInternalExceptionId `abortElab
 @[init registerAbortElabId]
 constant abortExceptionId : InternalExceptionId := arbitrary _
 
-def throwPostpone {α m} [MonadExcept Exception m] : m α :=
+def throwPostpone {α m} [MonadExceptOf Exception m] : m α :=
 throw $ Exception.internal postponeExceptionId
 
-def throwUnsupportedSyntax {α m} [MonadExcept Exception m] : m α :=
+def throwUnsupportedSyntax {α m} [MonadExceptOf Exception m] : m α :=
 throw $ Exception.internal unsupportedSyntaxExceptionId
+
+def throwIllFormedSyntax {α m} [Monad m] [MonadError m] : m α :=
+throwError "ill-formed syntax"
 
 -- Throw exception to abort elaboration without producing any error message
 def throwAbort {α m} [MonadExcept Exception m] : m α :=

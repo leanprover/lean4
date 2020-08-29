@@ -61,7 +61,7 @@ partial def elabLevel : Syntax → LevelElabM Level
   else if kind == numLitKind then do
     match stx.isNatLit? with
     | some val => pure (Level.ofNat val)
-    | none     => throwError "ill-formed universe level syntax"
+    | none     => throwIllFormedSyntax
   else if kind == identKind then do
     let paramName := stx.getId;
     ctx ← read;
@@ -71,7 +71,7 @@ partial def elabLevel : Syntax → LevelElabM Level
     lvl ← elabLevel (stx.getArg 0);
     match (stx.getArg 2).isNatLit? with
     | some val => pure (lvl.addOffset val)
-    | none     => throwError "ill-formed universe level syntax"
+    | none     => throwIllFormedSyntax
   else
     throwError "unexpected universe level syntax kind"
 

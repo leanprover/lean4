@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Syntax_replaceM___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_data(lean_object*);
 lean_object* l_Lean_WHNF_reduceQuotRec___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_getStuckMVar_x3f___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -101,7 +102,6 @@ lean_object* l_Lean_WHNF_whnfCore___main___rarg___lambda__7(lean_object*, lean_o
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfMain(lean_object*);
 lean_object* l___private_Lean_Util_WHNF_1__getFirstCtor___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_mreplace___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfCore(lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 lean_object* l_Lean_WHNF_toCtorIfLit___closed__13;
@@ -1280,7 +1280,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24;
 lean_inc(x_14);
 lean_inc(x_8);
 x_21 = l___private_Lean_Util_WHNF_4__toCtorWhenK___rarg(x_8, x_10, x_11, x_12, x_13, x_1, x_14);
-x_22 = lean_alloc_closure((void*)(l_Lean_Syntax_mreplace___main___rarg___lambda__1), 3, 2);
+x_22 = lean_alloc_closure((void*)(l_Lean_Syntax_replaceM___main___rarg___lambda__1), 3, 2);
 lean_closure_set(x_22, 0, x_8);
 lean_closure_set(x_22, 1, x_14);
 lean_inc(x_9);

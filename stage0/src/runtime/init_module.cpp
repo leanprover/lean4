@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <lean/object.h>
 #include <lean/io.h>
 #include <lean/stack_overflow.h>
+#include <lean/process.h>
 
 namespace lean {
 extern "C" void lean_initialize_runtime_module() {
@@ -20,6 +21,7 @@ extern "C" void lean_initialize_runtime_module() {
     initialize_io();
     initialize_serializer();
     initialize_thread();
+    initialize_process();
     initialize_stack_overflow();
 }
 void initialize_runtime_module() {
@@ -27,6 +29,7 @@ void initialize_runtime_module() {
 }
 void finalize_runtime_module() {
     finalize_stack_overflow();
+    finalize_process();
     finalize_thread();
     finalize_serializer();
     finalize_io();

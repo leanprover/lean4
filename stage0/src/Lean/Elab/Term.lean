@@ -303,12 +303,15 @@ let msg := msg ++ ctx;
 let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorContext.mvarId;
 logErrorAt mvarErrorContext.ref msg
 
-/-- Ensure metavariables registered using `registerMVarErrorContext` (and used in the given declaration) have been assigned. -/
-def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
-pendingMVarIds ← getMVarsAtDecl decl;
+/--
+  Try to log errors for the unassigned metavariables `pendingMVarIds`.
+  Return `true` if at least one error was logged.
+  Remark: This method only succeeds if we have information for at least one given metavariable
+  at `mvarErrorContexts`. -/
+def logUnassignedUsingErrorContext (pendingMVarIds : Array MVarId) : TermElabM Bool := do
 s ← get;
 let errorCtxs := s.mvarErrorContexts;
-foundError ← errorCtxs.foldlM
+errorCtxs.foldlM
   (fun foundError mvarErrorContext => do
     /- The metavariable `mvarErrorContext.mvarId` may have been assigned or
        delayed assigned to another metavariable that is unassigned. -/
@@ -318,7 +321,12 @@ foundError ← errorCtxs.foldlM
       pure true
     else
       pure foundError)
-  false;
+  false
+
+/-- Ensure metavariables registered using `registerMVarErrorContext` (and used in the given declaration) have been assigned. -/
+def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
+pendingMVarIds ← getMVarsAtDecl decl;
+foundError ← logUnassignedUsingErrorContext pendingMVarIds;
 when foundError throwAbort
 
 /-

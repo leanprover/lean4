@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
 #endif
+#ifndef LEAN_WINDOWS
+#include <csignal>
+#endif
 #include <fcntl.h>
 #include <iostream>
 #include <chrono>
@@ -121,7 +124,7 @@ static void io_handle_finalizer(void * h) {
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
 }
 
-static lean_object * io_wrap_handle(FILE *hfile) {
+lean_object * io_wrap_handle(FILE *hfile) {
     return lean_alloc_external(g_io_handle_external_class, hfile);
 }
 
@@ -651,6 +654,10 @@ void initialize_io() {
     mark_persistent(g_stream_stderr);
     g_stream_stdin  = lean_stream_of_handle(io_wrap_handle(stdin));
     mark_persistent(g_stream_stdin);
+#ifndef LEAN_WINDOWS
+    // We want to handle SIGPIPE ourselves
+    lean_always_assert(signal(SIGPIPE, SIG_IGN) != SIG_ERR);
+#endif
 }
 
 void finalize_io() {

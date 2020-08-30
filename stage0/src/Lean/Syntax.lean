@@ -123,22 +123,22 @@ match stx with
 def getIdAt (stx : Syntax) (i : Nat) : Name :=
 (stx.getArg i).getId
 
-@[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m (Syntax)
+@[specialize] partial def replaceM {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m (Syntax)
 | stx@(node kind args) => do
   o ← fn stx;
   match o with
   | some stx => pure stx
-  | none     => do args ← args.mapM mreplace; pure (node kind args)
+  | none     => do args ← args.mapM replaceM; pure (node kind args)
 | stx => do o ← fn stx; pure $ o.getD stx
 
-@[specialize] partial def mrewriteBottomUp {m : Type → Type} [Monad m] (fn : Syntax → m (Syntax)) : Syntax → m (Syntax)
+@[specialize] partial def rewriteBottomUpM {m : Type → Type} [Monad m] (fn : Syntax → m (Syntax)) : Syntax → m (Syntax)
 | node kind args   => do
-  args ← args.mapM mrewriteBottomUp;
+  args ← args.mapM rewriteBottomUpM;
   fn (node kind args)
 | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
-Id.run $ stx.mrewriteBottomUp fn
+Id.run $ stx.rewriteBottomUpM fn
 
 private def updateInfo : SourceInfo → String.Pos → SourceInfo
 | {leading := some {str := s, startPos := _, stopPos := _}, pos := some pos, trailing := trailing}, last =>
@@ -173,7 +173,7 @@ private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
     Note that, the `SourceInfo.trailing` fields are correct.
     The implementation of this Function relies on this property. -/
 def updateLeading : Syntax → Syntax :=
-fun stx => (mreplace updateLeadingAux stx).run' 0
+fun stx => (replaceM updateLeadingAux stx).run' 0
 
 partial def updateTrailing (trailing : Option Substring) : Syntax → Syntax
 | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val

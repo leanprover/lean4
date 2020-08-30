@@ -321,31 +321,48 @@ match fvar? with
 | some fvar => pure fvar.fvarId!
 | none      => throwError ("unknown variable '" ++ toString id.getId ++ "'")
 
-def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) :=
-ids.mapM getFVarId
+def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
+withMainMVarContext $ ids.mapM getFVarId
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| revert $hs*) => do
      (g, gs) ← getMainGoal;
-     withMVarContext g $ do
-       fvarIds ← getFVarIds hs;
-       (_, g) ← liftMetaM $ Meta.revert g fvarIds;
-       setGoals (g :: gs)
+     fvarIds ← getFVarIds hs;
+     (_, g) ← liftMetaM $ Meta.revert g fvarIds;
+     setGoals (g :: gs)
   | _                     => throwUnsupportedSyntax
+
+/- Sort free variables using an order `x < y` iff `x` was defined after `y` -/
+private def sortFVarIds (fvarIds : Array FVarId) : TacticM (Array FVarId) :=
+withMainMVarContext do
+  lctx ← getLCtx;
+  pure $ fvarIds.qsort fun fvarId₁ fvarId₂ =>
+    match lctx.find? fvarId₁, lctx.find? fvarId₂ with
+    | some d₁, some d₂ => d₁.index > d₂.index
+    | some _,  none    => false
+    | none,    some _  => true
+    | none,    none    => Name.quickLt fvarId₁ fvarId₂
+
+@[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| clear $hs*) => do
+    fvarIds ← getFVarIds hs;
+    fvarIds ← sortFVarIds fvarIds;
+    fvarIds.forM fun fvarId => do
+      (g, gs) ← getMainGoal;
+      withMVarContext g do
+        g ← liftMetaM $ clear g fvarId;
+        setGoals (g :: gs)
+  | _ => throwUnsupportedSyntax
 
 def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit :=
 hs.forM $ fun h => do
   (g, gs) ← getMainGoal;
-  withMVarContext g $ do
+  withMVarContext g do
     fvarId ← getFVarId h;
     g ← liftMetaM $ tac g fvarId;
     setGoals (g :: gs)
-
-@[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic :=
-fun stx => match_syntax stx with
-  | `(tactic| clear $hs*) => forEachVar hs Meta.clear
-  | _                     => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.subst] def evalSubst : Tactic :=
 fun stx => match_syntax stx with

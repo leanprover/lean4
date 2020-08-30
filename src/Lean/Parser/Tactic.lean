@@ -64,6 +64,13 @@ def matchAlts : Parser := withPosition $ fun pos => (optional "| ") >> sepBy1 ma
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
 @[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1
 
+/- Term binders as tactics. They are all implemented as macros using the triad: named holes, hygiene, and `refine` tactic. -/
+@[builtinTacticParser] def «have»     := parser! "have " >> Term.optIdent >> termParser >> (Term.haveAssign <|> Term.fromTerm) >> "; " >> tacticParser
+@[builtinTacticParser] def «suffices» := parser! "suffices " >> Term.optIdent >> termParser >> Term.fromTerm >> "; " >> tacticParser
+@[builtinTacticParser] def «show»     := parser! "show " >> termParser >> " from " >> tacticParser
+@[builtinTacticParser] def «let»      := parser! "let "  >> Term.letDecl >> "; " >> tacticParser
+@[builtinTacticParser] def «let!»     := parser! "let! " >> Term.letDecl >> "; " >> tacticParser
+
 end Tactic
 end Parser
 end Lean

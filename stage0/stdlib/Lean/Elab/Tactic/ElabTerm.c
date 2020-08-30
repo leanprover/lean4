@@ -16,9 +16,8 @@ extern "C" {
 lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_elabAsFVar___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_mkTacticAttribute___closed__8;
-lean_object* l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__2;
-lean_object* l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__1;
 extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
+extern lean_object* l_Lean_Elab_Tactic_evalIntro___closed__10;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalChoiceAux___main___spec__1___rarg(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalExact(lean_object*);
 lean_object* l_Lean_Meta_getMVarsNoDelayed___at_Lean_Elab_Tactic_refineCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2625,24 +2624,6 @@ return x_97;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("h");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Elab_Tactic_elabAsFVar___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
@@ -2720,7 +2701,7 @@ x_28 = lean_st_ref_set(x_12, x_23, x_24);
 x_29 = lean_ctor_get(x_28, 1);
 lean_inc(x_29);
 lean_dec(x_28);
-x_30 = l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__2;
+x_30 = l_Lean_Elab_Tactic_evalIntro___closed__10;
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -2879,7 +2860,7 @@ x_66 = lean_st_ref_set(x_12, x_65, x_24);
 x_67 = lean_ctor_get(x_66, 1);
 lean_inc(x_67);
 lean_dec(x_66);
-x_68 = l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__2;
+x_68 = l_Lean_Elab_Tactic_evalIntro___closed__10;
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -3630,10 +3611,6 @@ lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalApply___closed__1);
 res = l___regBuiltin_Lean_Elab_Tactic_evalApply(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__1 = _init_l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__1);
-l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__2 = _init_l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_elabAsFVar___lambda__1___closed__2);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

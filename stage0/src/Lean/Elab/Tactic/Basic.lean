@@ -278,11 +278,23 @@ fun stx => do
 @[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic $ fun mvarId => do Meta.assumption mvarId; pure []
 
+private def introStep (n : Name) : TacticM Unit :=
+liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId n; pure [mvarId]
+
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| intro)               => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
---   | `(tactic| intro $h) => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
-  | _                   => throwUnsupportedSyntax
+  | `(tactic| intro)           => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
+  | `(tactic| intro $h:ident)  => introStep h.getId
+  | `(tactic| intro _)         => introStep `_
+  | `(tactic| intro $pat:term) => do
+    stxNew ← `(tactic| intro h; match h with | $pat:term => _; clear h);
+    withMacroExpansion stx stxNew $ evalTactic stxNew
+  | `(tactic| intro $hs*) => do
+    let h0 := hs.get! 0;
+    let hs := hs.extract 1 hs.size;
+    stxNew ← `(tactic| intro $h0:term; intro $hs*);
+    withMacroExpansion stx stxNew $ evalTactic stxNew
+  | _ => throwUnsupportedSyntax
 
 private def getIntrosSize : Expr → Nat
 | Expr.forallE _ _ b _ => getIntrosSize b + 1
@@ -309,31 +321,48 @@ match fvar? with
 | some fvar => pure fvar.fvarId!
 | none      => throwError ("unknown variable '" ++ toString id.getId ++ "'")
 
-def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) :=
-ids.mapM getFVarId
+def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
+withMainMVarContext $ ids.mapM getFVarId
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| revert $hs*) => do
      (g, gs) ← getMainGoal;
-     withMVarContext g $ do
-       fvarIds ← getFVarIds hs;
-       (_, g) ← liftMetaM $ Meta.revert g fvarIds;
-       setGoals (g :: gs)
+     fvarIds ← getFVarIds hs;
+     (_, g) ← liftMetaM $ Meta.revert g fvarIds;
+     setGoals (g :: gs)
   | _                     => throwUnsupportedSyntax
+
+/- Sort free variables using an order `x < y` iff `x` was defined after `y` -/
+private def sortFVarIds (fvarIds : Array FVarId) : TacticM (Array FVarId) :=
+withMainMVarContext do
+  lctx ← getLCtx;
+  pure $ fvarIds.qsort fun fvarId₁ fvarId₂ =>
+    match lctx.find? fvarId₁, lctx.find? fvarId₂ with
+    | some d₁, some d₂ => d₁.index > d₂.index
+    | some _,  none    => false
+    | none,    some _  => true
+    | none,    none    => Name.quickLt fvarId₁ fvarId₂
+
+@[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| clear $hs*) => do
+    fvarIds ← getFVarIds hs;
+    fvarIds ← sortFVarIds fvarIds;
+    fvarIds.forM fun fvarId => do
+      (g, gs) ← getMainGoal;
+      withMVarContext g do
+        g ← liftMetaM $ clear g fvarId;
+        setGoals (g :: gs)
+  | _ => throwUnsupportedSyntax
 
 def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit :=
 hs.forM $ fun h => do
   (g, gs) ← getMainGoal;
-  withMVarContext g $ do
+  withMVarContext g do
     fvarId ← getFVarId h;
     g ← liftMetaM $ tac g fvarId;
     setGoals (g :: gs)
-
-@[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic :=
-fun stx => match_syntax stx with
-  | `(tactic| clear $hs*) => forEachVar hs Meta.clear
-  | _                     => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.subst] def evalSubst : Tactic :=
 fun stx => match_syntax stx with

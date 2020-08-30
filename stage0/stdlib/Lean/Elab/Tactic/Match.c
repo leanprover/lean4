@@ -76,7 +76,6 @@ lean_object* l_Lean_Elab_Tactic_evalTactic___main(lean_object*, lean_object*, le
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_filterAux___main___at___private_Lean_Elab_Match_8__getMatchAlts___spec__1___closed__1;
-extern lean_object* l___regBuiltin_Lean_Elab_Term_elabNamedHole___closed__2;
 lean_object* l_Array_mapSepElemsM___at___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Tactic_Basic_1__evalTacticUsing___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,6 +86,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Match_2__mkAuxiliaryMatchTerm(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___regBuiltin_Lean_Elab_Term_elabSyntheticHole___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___lambda__1___closed__6;
 lean_object* l_Lean_Elab_Tactic_evalMatch___closed__1;
 extern lean_object* l_Lean_Elab_Term_elabMatch___closed__1;
@@ -304,7 +304,7 @@ x_6 = l_Array_filterAux___main___at___private_Lean_Elab_Match_8__getMatchAlts___
 x_7 = l_Lean_Syntax_updateKind(x_2, x_6);
 x_8 = lean_unsigned_to_nat(2u);
 x_9 = l_Lean_Syntax_getArg(x_7, x_8);
-x_10 = l___regBuiltin_Lean_Elab_Term_elabNamedHole___closed__2;
+x_10 = l___regBuiltin_Lean_Elab_Term_elabSyntheticHole___closed__2;
 lean_inc(x_9);
 x_11 = l_Lean_Syntax_isOfKind(x_9, x_10);
 if (x_11 == 0)

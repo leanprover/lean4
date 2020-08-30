@@ -45,7 +45,7 @@ def location : Parser := "at " >> ("*" <|> (many ident >> optional (unicodeSymbo
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
 
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
-def holeOrTactic := Term.hole <|> Term.namedHole <|> tacticParser
+def holeOrTactic := Term.hole <|> Term.syntheticHole <|> tacticParser
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> holeOrTactic
 def inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 def withAlts : Parser := optional (" with " >> inductionAlts)
@@ -65,11 +65,11 @@ def matchAlts : Parser := withPosition $ fun pos => (optional "| ") >> sepBy1 ma
 @[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1
 
 /- Term binders as tactics. They are all implemented as macros using the triad: named holes, hygiene, and `refine` tactic. -/
-@[builtinTacticParser] def «have»     := parser! "have " >> Term.optIdent >> termParser >> (Term.haveAssign <|> Term.fromTerm) >> "; " >> tacticParser
-@[builtinTacticParser] def «suffices» := parser! "suffices " >> Term.optIdent >> termParser >> Term.fromTerm >> "; " >> tacticParser
-@[builtinTacticParser] def «show»     := parser! "show " >> termParser >> " from " >> tacticParser
-@[builtinTacticParser] def «let»      := parser! "let "  >> Term.letDecl >> "; " >> tacticParser
-@[builtinTacticParser] def «let!»     := parser! "let! " >> Term.letDecl >> "; " >> tacticParser
+@[builtinTacticParser] def «have»     := parser! "have " >> Term.haveDecl
+@[builtinTacticParser] def «suffices» := parser! "suffices " >> Term.sufficesDecl
+@[builtinTacticParser] def «show»     := parser! "show " >> termParser
+@[builtinTacticParser] def «let»      := parser! "let "  >> Term.letDecl
+@[builtinTacticParser] def «let!»     := parser! "let! " >> Term.letDecl
 
 end Tactic
 end Parser

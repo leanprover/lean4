@@ -186,7 +186,7 @@ else do
   Recall that
   ```
   inductionAlt  : Parser :=
-    nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> (hole <|> namedHole <|> tacticParser)
+    nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> (hole <|> syntheticHole <|> tacticParser)
   inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
   withAlts : Parser := optional (" with " >> inductionAlts)
   usingRec : Parser := optional (" using " >> ident)
@@ -232,7 +232,7 @@ else do
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=
-rhs.isOfKind `Lean.Parser.Term.namedHole || rhs.isOfKind `Lean.Parser.Term.hole
+rhs.isOfKind `Lean.Parser.Term.syntheticHole || rhs.isOfKind `Lean.Parser.Term.hole
 
 private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) : TacticM Unit := do
 if altRHSs.isEmpty then

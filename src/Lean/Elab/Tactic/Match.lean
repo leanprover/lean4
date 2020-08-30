@@ -20,7 +20,7 @@ let alts := (matchTac.getArg 5).getArgs;
 newAlts ← alts.mapSepElemsM fun alt => do {
   let alt    := alt.updateKind `Lean.Parser.Term.matchAlt;
   let holeOrTactic := alt.getArg 2;
-  if holeOrTactic.isOfKind `Lean.Parser.Term.namedHole then
+  if holeOrTactic.isOfKind `Lean.Parser.Term.syntheticHole then
     pure alt
   else if holeOrTactic.isOfKind `Lean.Parser.Term.hole then do
     s ← get;

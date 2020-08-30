@@ -53,7 +53,7 @@ def leadPrec := maxPrec - 1
 @[builtinTermParser] def sort := parser! "Sort" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
 @[builtinTermParser] def prop := parser! "Prop"
 @[builtinTermParser] def hole := parser! "_"
-@[builtinTermParser] def namedHole := parser! "?" >> ident
+@[builtinTermParser] def syntheticHole := parser! "?" >> (ident <|> hole)
 @[builtinTermParser] def «sorry» := parser! "sorry"
 @[builtinTermParser] def cdot   := parser! "·"
 @[builtinTermParser] def emptyC := parser! "∅"
@@ -66,8 +66,10 @@ def optIdent : Parser := optional (try (ident >> " : "))
 @[builtinTermParser] def «if»  := parser!:leadPrec "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
 def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
-@[builtinTermParser] def «have» := parser!:leadPrec "have " >> optIdent >> termParser >> (haveAssign <|> fromTerm) >> "; " >> termParser
-@[builtinTermParser] def «suffices» := parser!:leadPrec "suffices " >> optIdent >> termParser >> fromTerm >> "; " >> termParser
+def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm)
+@[builtinTermParser] def «have» := parser!:leadPrec "have " >> haveDecl >> "; " >> termParser
+def sufficesDecl := optIdent >> termParser >> fromTerm
+@[builtinTermParser] def «suffices» := parser!:leadPrec "suffices " >> sufficesDecl >> "; " >> termParser
 @[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> fromTerm
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
@@ -92,7 +94,8 @@ def bracketedBinder (requireType := false) := explicitBinder requireType <|> imp
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall " >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
-def funBinder : Parser := implicitBinder <|> instBinder <|> termParser maxPrec
+def funImplicitBinder := try (lookahead ("{" >> many1 binderIdent >> " : ")) >> implicitBinder
+def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPrec
 @[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ " "fun " >> many1 funBinder >> darrow >> termParser
 
 def matchAlt : Parser :=

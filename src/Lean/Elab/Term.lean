@@ -957,7 +957,7 @@ fun stx expectedType? => do
   registerMVarErrorContext mvar.mvarId! stx;
   pure mvar
 
-@[builtinTermElab «namedHole»] def elabNamedHole : TermElab :=
+@[builtinTermElab «syntheticHole»] def elabSyntheticHole : TermElab :=
 fun stx expectedType? => do
   let arg  := stx.getArg 1;
   let name := if arg.isIdent then arg.getId else Name.anonymous;

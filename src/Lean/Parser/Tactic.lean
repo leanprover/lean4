@@ -45,7 +45,7 @@ def location : Parser := "at " >> ("*" <|> (many ident >> optional (unicodeSymbo
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
 
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
-def holeOrTactic := Term.hole <|> Term.namedHole <|> tacticParser
+def holeOrTactic := Term.hole <|> Term.syntheticHole <|> tacticParser
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> holeOrTactic
 def inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 def withAlts : Parser := optional (" with " >> inductionAlts)

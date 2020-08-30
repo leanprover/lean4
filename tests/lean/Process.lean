@@ -1,6 +1,10 @@
 open IO.Process
 
 #eval do
+  child ← spawn { cmd := "sh", args := #["-c", "exit 1"] };
+  child.wait
+
+#eval do
   child ← spawn { cmd := "sh", args := #["-c", "echo hi!"] };
   child.wait
 

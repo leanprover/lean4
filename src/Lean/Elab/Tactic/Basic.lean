@@ -378,12 +378,21 @@ fun stx => evalTactic (stx.getArg 1)
 @[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlock : Tactic :=
 fun stx => focus (evalTactic (stx.getArg 1))
 
+/--
+  First method searches for a metavariable `g` s.t. `tag` is a suffix of its name.
+  If none is found, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
+private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
+g? ← gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isSuffixOf mvarDecl.userName);
+match g? with
+| some g => pure g
+| none   => gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isPrefixOf mvarDecl.userName)
+
 @[builtinTactic «case»] def evalCase : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| case $tag $tac) => do
      let tag := tag.getId;
      gs ← getUnsolvedGoals;
-     some g ← gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isSuffixOf mvarDecl.userName) | throwError "tag not found";
+     some g ← findTag? gs tag | throwError "tag not found";
      let gs := gs.erase g;
      setGoals [g];
      evalTactic tac;

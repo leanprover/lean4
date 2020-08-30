@@ -278,11 +278,23 @@ fun stx => do
 @[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic $ fun mvarId => do Meta.assumption mvarId; pure []
 
+private def introStep (n : Name) : TacticM Unit :=
+liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId n; pure [mvarId]
+
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| intro)               => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
---   | `(tactic| intro $h) => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
-  | _                   => throwUnsupportedSyntax
+  | `(tactic| intro)           => liftMetaTactic $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
+  | `(tactic| intro $h:ident)  => introStep h.getId
+  | `(tactic| intro _)         => introStep `_
+  | `(tactic| intro $pat:term) => do
+    stxNew ← `(tactic| intro h; match h with | $pat:term => _; clear h);
+    withMacroExpansion stx stxNew $ evalTactic stxNew
+  | `(tactic| intro $hs*) => do
+    let h0 := hs.get! 0;
+    let hs := hs.extract 1 hs.size;
+    stxNew ← `(tactic| intro $h0:term; intro $hs*);
+    withMacroExpansion stx stxNew $ evalTactic stxNew
+  | _ => throwUnsupportedSyntax
 
 private def getIntrosSize : Expr → Nat
 | Expr.forallE _ _ b _ => getIntrosSize b + 1

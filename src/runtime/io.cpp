@@ -118,9 +118,7 @@ extern "C" obj_res lean_io_initializing(obj_arg) {
 static lean_external_class * g_io_handle_external_class = nullptr;
 
 static void io_handle_finalizer(void * h) {
-    if (h) {
-        fclose(static_cast<FILE *>(h));
-    }
+    fclose(static_cast<FILE *>(h));
 }
 
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {

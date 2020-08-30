@@ -321,32 +321,62 @@ inductive Stdio
 | inherit
 | null
 
-structure SpawnArgs :=
-/- Command name. -/
-(cmd : String)
-/- Arguments for the process -/
-(args : Array String := #[])
+def Stdio.toHandleType : Stdio → Type
+| Stdio.piped   => FS.Handle
+| Stdio.inherit => Unit
+| Stdio.null    => Unit
+
+structure StdioConfig :=
 /- Configuration for the process' stdin handle. -/
 (stdin := Stdio.inherit)
 /- Configuration for the process' stdout handle. -/
 (stdout := Stdio.inherit)
 /- Configuration for the process' stderr handle. -/
 (stderr := Stdio.inherit)
+
+structure SpawnArgs extends StdioConfig :=
+/- Command name. -/
+(cmd : String)
+/- Arguments for the process -/
+(args : Array String := #[])
 /- Working directory for the process. Inherit from current process if `none`. -/
 (cwd : Option String := none)
 /- Add or remove environment variables for the process. -/
 (env : Array (String × Option String) := #[])
 
-structure Child :=
-(stdin  : FS.Handle)
-(stdout : FS.Handle)
-(stderr : FS.Handle)
+-- TODO(Sebastian): constructor must be private
+structure Child (cfg : StdioConfig) :=
+(stdin  : cfg.stdin.toHandleType)
+(stdout : cfg.stdout.toHandleType)
+(stderr : cfg.stderr.toHandleType)
 
 @[extern "lean_io_process_spawn"]
-constant spawn : SpawnArgs → IO Child := arbitrary _
+constant spawn (args : SpawnArgs) : IO (Child args.toStdioConfig) := arbitrary _
 
 @[extern "lean_io_process_child_wait"]
-constant Child.wait : @& Child → IO UInt32 := arbitrary _
+constant Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32 := arbitrary _
+
+structure Output :=
+(exitCode : UInt32)
+(stdout   : String)
+(stderr   : String)
+
+/-- Run process to completion and caputre output. -/
+def output (args : SpawnArgs) : IO Output := do
+child ← spawn { args with stdout := Stdio.piped, stderr := Stdio.piped };
+-- BUG: this will block indefinitely if the process fills the stderr pipe
+stdout ← child.stdout.readToEnd;
+stderr ← child.stderr.readToEnd;
+exitCode ← child.wait;
+pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
+
+/-- Run process to completion and return stdout on success. -/
+def run (args : SpawnArgs) : IO String := do
+out ← output args;
+when (out.exitCode != 0) $
+  throw $ IO.userError $ "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode;
+pure out.stdout
+
 end Process
 
 structure AccessRight :=

@@ -53,7 +53,7 @@ lean_object * wrap_win_handle(HANDLE h) {
     return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
 }
 
-extern "C" obj_res lean_io_process_child_wait(b_obj_arg child, obj_arg) {
+extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
     WaitForSingleObject(h, INFINITE);
@@ -66,7 +66,7 @@ static FILE * from_win_handle(HANDLE handle, char const * mode) {
     return fdopen(fd, mode);
 }
 
-static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, FILE ** ours, bool in, stdio cfg) {
+static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object ** ours, bool in, stdio cfg) {
     /* Setup stdio based on process configuration. */
     switch (cfg) {
     case stdio::INHERIT:
@@ -79,7 +79,7 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, FILE ** o
         HANDLE writeh;
         if (!CreatePipe(&readh, &writeh, saAttr, 0))
             throw errno;
-        *ours = in ? from_win_handle(writeh, "w") : from_win_handle(readh, "r");
+        *ours = io_wrap_handle(in ? from_win_handle(writeh, "w") : from_win_handle(readh, "r"));
         *theirs = in ? readh : writeh;
         // Ensure the write handle to the pipe for STDIN is not inherited.
         lean_always_assert(SetHandleInformation(in ? writeh : readh, HANDLE_FLAG_INHERIT, 0));
@@ -106,9 +106,9 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     saAttr.bInheritHandle = TRUE;
     saAttr.lpSecurityDescriptor = NULL;
 
-    FILE * parent_stdin  = nullptr; setup_stdio(&saAttr, &child_stdin,  &parent_stdin,  true, stdin_mode);
-    FILE * parent_stdout = nullptr; setup_stdio(&saAttr, &child_stdout, &parent_stdout, false, stdout_mode);
-    FILE * parent_stderr = nullptr; setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
+    object * parent_stdin  = box(0); setup_stdio(&saAttr, &child_stdin,  &parent_stdin,  true, stdin_mode);
+    object * parent_stdout = box(0); setup_stdio(&saAttr, &child_stdout, &parent_stdout, false, stdout_mode);
+    object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
 
     std::string command = proc_name.to_std_string();
 
@@ -182,8 +182,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     if (stdout_mode == stdio::PIPED) CloseHandle(child_stdout);
     if (stderr_mode == stdio::PIPED) CloseHandle(child_stderr);
 
-    object_ref r = mk_cnstr(0, io_wrap_handle(parent_stdin), io_wrap_handle(parent_stdout), io_wrap_handle(parent_stderr),
-                            wrap_win_handle(piProcInfo.hProcess));
+    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_win_handle(piProcInfo.hProcess));
     return lean_mk_io_result(r.steal());
 }
 
@@ -194,7 +193,7 @@ void finalize_process() {}
 
 #else
 
-extern "C" obj_res lean_io_process_child_wait(obj_arg child, obj_arg) {
+extern "C" obj_res lean_io_process_child_wait(b_obj_arg, obj_arg child, obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     int status;
@@ -284,25 +283,25 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         throw errno;
     }
 
-    /* We want to setup the parent's view of the file descriptors. */
-    FILE * parent_stdin = nullptr, * parent_stdout = nullptr, * parent_stderr = nullptr;
-
+    object * parent_stdin  = box(0);
+    object * parent_stdout = box(0);
+    object * parent_stderr = box(0);
     if (stdin_pipe) {
         close(stdin_pipe->m_read_fd);
-        parent_stdin = fdopen(stdin_pipe->m_write_fd, "w");
+        parent_stdin = io_wrap_handle(fdopen(stdin_pipe->m_write_fd, "w"));
     }
 
     if (stdout_pipe) {
         close(stdout_pipe->m_write_fd);
-        parent_stdout = fdopen(stdout_pipe->m_read_fd, "r");
+        parent_stdout = io_wrap_handle(fdopen(stdout_pipe->m_read_fd, "r"));
     }
 
     if (stderr_pipe) {
         close(stderr_pipe->m_write_fd);
-        parent_stderr = fdopen(stderr_pipe->m_read_fd, "r");
+        parent_stderr = io_wrap_handle(fdopen(stderr_pipe->m_read_fd, "r"));
     }
 
-    object_ref r = mk_cnstr(0, io_wrap_handle(parent_stdin), io_wrap_handle(parent_stdout), io_wrap_handle(parent_stderr), sizeof(pid_t));
+    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, sizeof(pid_t));
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     cnstr_set_uint32(r.raw(), 3 * sizeof(object *), pid);
     return lean_mk_io_result(r.steal());
@@ -315,21 +314,22 @@ void finalize_process() {}
 
 extern "C" obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
     object_ref args(args_);
-    stdio stdin_mode  = static_cast<stdio>(cnstr_get_uint8(args_, 4 * sizeof(object *) + 0));
-    stdio stdout_mode = static_cast<stdio>(cnstr_get_uint8(args_, 4 * sizeof(object *) + 1));
-    stdio stderr_mode = static_cast<stdio>(cnstr_get_uint8(args_, 4 * sizeof(object *) + 2));
+    object_ref stdio_cfg = cnstr_get_ref(args, 0);
+    stdio stdin_mode  = static_cast<stdio>(cnstr_get_uint8(stdio_cfg.raw(), 0));
+    stdio stdout_mode = static_cast<stdio>(cnstr_get_uint8(stdio_cfg.raw(), 1));
+    stdio stderr_mode = static_cast<stdio>(cnstr_get_uint8(stdio_cfg.raw(), 2));
     if (stdin_mode == stdio::INHERIT) {
         std::cout.flush();
     }
     try {
         return spawn(
-                cnstr_get_ref_t<string_ref>(args, 0),
-                cnstr_get_ref_t<array_ref<string_ref>>(args, 1),
+                cnstr_get_ref_t<string_ref>(args, 1),
+                cnstr_get_ref_t<array_ref<string_ref>>(args, 2),
                 stdin_mode,
                 stdout_mode,
                 stderr_mode,
-                cnstr_get_ref_t<option_ref<string_ref>>(args, 2),
-                cnstr_get_ref_t<array_ref<pair_ref<string_ref, option_ref<string_ref>>>>(args, 3));
+                cnstr_get_ref_t<option_ref<string_ref>>(args, 3),
+                cnstr_get_ref_t<array_ref<pair_ref<string_ref, option_ref<string_ref>>>>(args, 4));
     } catch (int err) {
         return lean_mk_io_error(decode_io_error(err, nullptr));
     }

@@ -15,11 +15,11 @@ macro "obtain " p:term " from " d:term "; " body:tactic : tactic =>
 `(tactic| match $d:term with | $p:term => _; $body)
 
 theorem tst3 {p q r} (h : p ∧ q ∧ r) : q ∧ p ∧ r :=
-begin
+by {
   obtain ⟨h₁, ⟨h₂, h₃⟩⟩ from h;
   apply And.intro;
   assumption;
   apply And.intro;
   assumption;
   assumption
-end
+}

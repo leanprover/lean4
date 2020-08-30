@@ -1,42 +1,42 @@
 new_frontend
 
 theorem tst1 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
-begin
+by {
   match h:xs with
   | []    => exact h₂ h
   | z::zs => { apply h₁ z zs; assumption }
-end
+}
 
 theorem tst2 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
-begin
+by {
   match h:xs with
   | []    => ?nilCase
   | z::zs => ?consCase;
   case consCase exact h₁ z zs h;
   case nilCase exact h₂ h;
-end
+}
 
 def tst3 {α β γ : Type} (h : α × β × γ) : β × α × γ :=
-begin
+by {
   match h with
   | (a, b, c) => exact (b, a, c)
-end
+}
 
 theorem tst4 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
-begin
+by {
   match h:xs with
   | []    => _
   | z::zs => _;
   case match_2 exact h₁ z zs h;
   exact h₂ h
-end
+}
 
 theorem tst5 {p q r} (h : p ∨ q ∨ r) : r ∨ q ∨ p:=
-begin
+by {
   match h with
   | Or.inl h          => exact Or.inr (Or.inr h)
   | Or.inr (Or.inl h) => ?c1
   | Or.inr (Or.inr h) => ?c2;
   case c2 { apply Or.inl; assumption };
   { apply Or.inr; apply Or.inl; assumption }
-end
+}

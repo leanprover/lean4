@@ -24,7 +24,7 @@ elab "try" t:tactic : tactic => do
   Lean.Elab.Tactic.evalTactic t'
 
 theorem tst (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
   try exact h1; -- `exact h1` fails
@@ -32,4 +32,4 @@ begin
   try exact h3;
   traceState;
   try exact h1;
-end
+}

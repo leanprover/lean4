@@ -42,15 +42,15 @@ def apply := "hello"
 #check apply
 
 theorem simple1 (x y : Nat) (h : x = y) : x = y :=
-begin
+by {
   assumption
-end
+}
 
 theorem simple2 (x y : Nat) : x = y → x = y :=
-begin
+by {
   intro h;
   assumption
-end
+}
 
 syntax "intro2" : tactic
 
@@ -58,10 +58,10 @@ macro_rules
 | `(tactic| intro2) => `(tactic| intro; intro )
 
 theorem simple3 (x y : Nat) : x = x → x = y → x = y :=
-begin
+by {
   intro2;
   assumption
-end
+}
 
 macro intro3 : tactic => `(intro; intro; intro)
 macro check2 x:term : command => `(#check $x #check $x)
@@ -73,71 +73,71 @@ check2 0+1
 check2 foo 0,1
 
 theorem simple4 (x y : Nat) : y = y → x = x → x = y → x = y :=
-begin
+by {
   intro3;
   assumption
-end
+}
 
 theorem simple5 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro _; intro h3;
   exact Eq.trans h3 h1
-end
+}
 
 theorem simple6 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro _; intro h3;
   refine Eq.trans _ h1;
   assumption
-end
+}
 
 theorem simple7 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro _; intro h3;
   refine Eq.trans ?pre ?post;
   exact y;
   { exact h3 };
   { exact h1 }
-end
+}
 
 theorem simple8 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro _; intro h3;
   refine Eq.trans ?pre ?post;
   case post { exact h1 };
   case pre { exact h3 };
-end
+}
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intros h1 _ h3;
   traceState;
   { refine Eq.trans ?pre ?post;
     (exact h1) <|> (exact y; exact h3; assumption) }
-end
+}
 
 namespace Foo
   def Prod.mk := 1
   #check (⟨2, 3⟩ : Prod _ _)
-end Foo
+} Foo
 
 theorem simple10 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro h2; intro h3;
   skip;
   apply Eq.trans;
   exact h3;
   assumption
-end
+}
 
 theorem simple11 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
   traceState;
   exact h3;
   assumption
-end
+}
 
 macro try t:tactic : tactic => `($t <|> skip)
 
@@ -147,7 +147,7 @@ macro_rules
 
 
 theorem simple12 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
   try exact h1; -- `exact h1` fails
@@ -155,38 +155,38 @@ begin
   try exact h3;
   traceState;
   try exact h1;
-end
+}
 
 theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intros h1 h2 h3;
   traceState;
   apply @Eq.trans;
   case main.b exact y;
   traceState;
   repeat assumption
-end
+}
 
 theorem simple14 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intros;
   apply @Eq.trans;
   case main.b exact y;
   repeat assumption
-end
+}
 
 theorem simple15 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intros h1 h2 h3;
   revert y;
   intros y h1 h3;
   apply Eq.trans;
   exact h3;
   exact h1
-end
+}
 
 theorem simple16 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-begin
+by {
   intros h1 h2 h3;
   try (clear x); -- should fail
   clear h2;
@@ -194,7 +194,7 @@ begin
   apply Eq.trans;
   exact h3;
   exact h1
-end
+}
 
 macro "blabla" : tactic => `(assumption)
 
@@ -204,7 +204,7 @@ def blabla := 100
 #check blabla
 
 theorem simple17 (x : Nat) (h : x = 0) : x = 0 :=
-begin blabla end
+by blabla
 
 theorem simple18 (x : Nat) (h : x = 0) : x = 0 :=
 by blabla

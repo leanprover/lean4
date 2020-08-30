@@ -55,15 +55,15 @@ inductive directSubcoroutine : coroutine α δ β → coroutine α δ β → Pro
 | mk : ∀ (k : α → coroutineResult α δ β) (a : α) (d : δ) (c : coroutine α δ β), k a = yielded d c → directSubcoroutine c (mk k)
 
 theorem directSubcoroutineWf : WellFounded (@directSubcoroutine α δ β) :=
-begin
-  Constructor, intro c,
+by {
+  constructor, intro c,
   apply @coroutine.ind _ _ _
           (fun c => Acc directSubcoroutine c)
           (fun r => ∀ (d : δ) (c : coroutine α δ β), r = yielded d c → Acc directSubcoroutine c),
   { intros k ih, dsimp at ih, Constructor, intros c' h, cases h, apply ih hA hD, assumption },
   { intros, contradiction },
   { intros d c ih d₁ c₁ Heq, injection Heq, subst c, assumption }
-end
+}
 
 /-- Transitive closure of directSubcoroutine. It is not used here, but may be useful when defining
     more complex procedures. -/

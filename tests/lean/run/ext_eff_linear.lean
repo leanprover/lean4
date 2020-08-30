@@ -37,7 +37,7 @@ if h : member.idx eff effs = @member.idx _ u.eff effs u.mem then
 else none
 
 @[inline] def union.decomp (u : union (eff::effs) α) : eff α ⊕ union effs α :=
-begin
+by {
   have prf := @member.prf _ u.eff (eff::effs) u.mem,
   cases h : @member.idx _ u.eff (eff::effs) u.mem,
   case Nat.zero {
@@ -50,7 +50,7 @@ begin
     rw [h] at prf,
     exact Sum.inr { mem := ⟨idx, prf⟩, ..u }
   }
-end
+}
 end
 
 inductive ftcQueue (m : Type → Type 1) : Type → Type → Type 1
@@ -140,11 +140,11 @@ meta instance {σ effs} [member (State σ) effs] : MonadState σ (eff effs) :=
            pure a⟩
 
 meta def State.run {σ effs α} (st : σ) : eff (State σ :: effs) α → eff effs (α × σ) :=
-eff.handleRelayΣ (fun st a => pure (a, st)) (fun β st x k => begin
+eff.handleRelayΣ (fun st a => pure (a, st)) (fun β st x k => by {
   cases x,
   case State.get { exact k st st },
   case State.put : st' { exact k st' () }
-end) st
+}) st
 
 inductive Exception (ε α : Type) : Type
 | throw {} (ex : ε) : Exception

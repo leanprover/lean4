@@ -55,3 +55,12 @@ match h with
 def f (x : Nat × Nat) : Bool × Bool × Bool → Nat :=
 match x with
 | (a, b) => fun _ => a
+
+structure S :=
+(x y z : Nat := 0)
+
+def f1 : S → S :=
+fun { x := x, ..} => { y := x }
+
+theorem ex2 : f1 { x := 10 } = { y := 10 } :=
+rfl

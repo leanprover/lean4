@@ -236,12 +236,10 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
             match evalSyntaxConstant env tacticDecl with
             | Except.error err       => throwError err
             | Except.ok tacticSyntax => do
-              tacticBlock ← `(begin $(tacticSyntax.getArgs)* end);
-              -- tacticBlock does not have any position information
-              -- use ctx.ref.getHeadInfo if available
-              let tacticBlock := match ctx.ref.getHeadInfo with
-                | some info => tacticBlock.replaceInfo info
-                | _         => tacticBlock;
+              tacticBlock ← `(by { $(tacticSyntax.getArgs)* });
+              -- tacticBlock does not have any position information.
+              -- So, we use ctx.ref
+              let tacticBlock := tacticBlock.copyInfo ctx.ref;
               let d := d.getArg! 0; -- `autoParam type := by tactic` ==> `type`
               argElab ← elabArg e (Arg.stx tacticBlock) d;
               elabAppArgsAux ctx (mkApp e argElab) (b.instantiate1 argElab)

@@ -372,11 +372,8 @@ fun stx => match_syntax stx with
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalTactic (stx.getArg 1)
 
-@[builtinTactic nestedTacticBlock] def evalNestedTacticBlock : Tactic :=
+@[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlock : Tactic :=
 fun stx => focus (evalTactic (stx.getArg 1))
-
-@[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlockCurly : Tactic :=
-evalNestedTacticBlock
 
 @[builtinTactic «case»] def evalCase : Tactic :=
 fun stx => match_syntax stx with

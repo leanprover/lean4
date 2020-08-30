@@ -244,6 +244,10 @@ def MetavarKind.isSyntheticOpaque : MetavarKind → Bool
 | MetavarKind.syntheticOpaque => true
 | _                           => false
 
+def MetavarKind.isNatural : MetavarKind → Bool
+| MetavarKind.natural => true
+| _                   => false
+
 structure MetavarDecl :=
 (userName       : Name := Name.anonymous)
 (lctx           : LocalContext)

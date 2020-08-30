@@ -45,7 +45,7 @@ theorem tst5 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 by {
   induction h using elim2 with
   | right h => _
-  | left h  => { refine Or.inr _; exact h };
+  | left h  => { refine Or.inr ?_; exact h };
   case right { exact Or.inl h }
 }
 

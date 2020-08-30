@@ -40,13 +40,25 @@ fun stx => match_syntax stx with
     setGoals gs
   | _ => throwUnsupportedSyntax
 
-def refineCore (mvarId : MVarId) (stx : Syntax) (tagSuffix : Name) : TacticM (List MVarId) :=
+/- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
+   Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
+   filled by typing constraints.
+   "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
+def refineCore (mvarId : MVarId) (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool := false) : TacticM (List MVarId) :=
 withMVarContext mvarId do
   decl ← getMVarDecl mvarId;
   val  ← elabTermEnsuringType stx decl.type;
   assignExprMVar mvarId val;
   newMVarIds ← getMVarsNoDelayed val;
-  let newMVarIds := newMVarIds.toList;
+  newMVarIds ←
+    if allowNaturalHoles then
+      pure newMVarIds.toList
+    else do {
+      naturalMVarIds ← newMVarIds.filterM fun mvarId => do { mvarDecl ← getMVarDecl mvarId; pure mvarDecl.kind.isNatural };
+      syntheticMVarIds ← newMVarIds.filterM fun mvarId => do { mvarDecl ← getMVarDecl mvarId; pure $ !mvarDecl.kind.isNatural };
+      liftM $ Term.logUnassignedUsingErrorContext naturalMVarIds;
+      pure syntheticMVarIds.toList
+    };
   tagUntaggedGoals decl.userName tagSuffix newMVarIds;
   pure newMVarIds
 
@@ -54,7 +66,17 @@ withMVarContext mvarId do
 fun stx => match_syntax stx with
   | `(tactic| refine $e) => do
     (g, gs) ← getMainGoal;
+    /- Remark: only synthetic holes become new goals (we are using `allowNaturalHoles == false`). -/
     gs' ← refineCore g e `refine;
+    setGoals (gs' ++ gs)
+  | _ => throwUnsupportedSyntax
+
+@[builtinTactic «refine!»] def evalRefineBang : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| refine! $e) => do
+    (g, gs) ← getMainGoal;
+    /- Remark all unassigned metavariables become new goals. We consider delayed assignments as assignments here. -/
+    gs' ← refineCore g e `refine true;
     setGoals (gs' ++ gs)
   | _ => throwUnsupportedSyntax
 

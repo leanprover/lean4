@@ -230,7 +230,7 @@ p
 
 @[combinatorFormatter Lean.Parser.lookahead]
 def lookahead.formatter (p : Formatter) : Formatter :=
-p
+pure ()
 
 @[combinatorFormatter Lean.Parser.andthen]
 def andthen.formatter (p1 p2 : Formatter) : Formatter :=

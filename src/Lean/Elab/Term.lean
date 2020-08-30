@@ -972,12 +972,6 @@ ref ← getRef;
 registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic tacticCode;
 pure mvar
 
-@[builtinTermElab tacticBlock] def elabTacticBlock : TermElab :=
-fun stx expectedType? =>
-  match expectedType? with
-  | some expectedType => mkTacticMVar expectedType (stx.getArg 1)
-  | none => throwError ("invalid tactic block, expected type has not been provided")
-
 @[builtinTermElab byTactic] def elabByTactic : TermElab :=
 fun stx expectedType? =>
   match expectedType? with

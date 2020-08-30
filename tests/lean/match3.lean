@@ -33,10 +33,10 @@ match a', h₁, h₂ with
 | _, rfl, h₂ => h₂
 
 theorem ex6  {α β : Sort u} {b : β} {a a' : α} (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
-begin
+by {
   subst h₁;
   assumption
-end
+}
 
 theorem ex7 (a : Bool) (p q : Prop) (h₁ : a = true → p) (h₂ : a = false → q) : p ∨ q :=
 match h:a with

@@ -222,7 +222,6 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
 
-@[builtinTermParser] def tacticBlock := parser! "begin " >> Tactic.seq >> "end"
 @[builtinTermParser] def byTactic    := parser!:leadPrec "by " >> Tactic.nonEmptySeq
 
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"

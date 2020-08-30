@@ -119,7 +119,7 @@ by {
 namespace Foo
   def Prod.mk := 1
   #check (⟨2, 3⟩ : Prod _ _)
-} Foo
+end Foo
 
 theorem simple10 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {

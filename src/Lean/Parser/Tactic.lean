@@ -60,7 +60,6 @@ def matchAlts : Parser := withPosition $ fun pos => (optional "| ") >> sepBy1 ma
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
 @[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
-@[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
 @[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1
 

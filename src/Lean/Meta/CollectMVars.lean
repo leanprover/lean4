@@ -64,7 +64,5 @@ pure s.result
 def getMVarsAtDecl (d : Declaration) : m (Array MVarId) :=
 liftM $ getMVarsAtDeclImp d
 
-
-
 end Meta
 end Lean

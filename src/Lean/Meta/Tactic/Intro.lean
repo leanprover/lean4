@@ -9,7 +9,7 @@ namespace Lean
 namespace Meta
 
 @[specialize]
-def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ → Name × σ)
+partial def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ → Name × σ)
     : Nat → LocalContext → Array Expr → Nat → σ → Expr → MetaM (Array Expr × MVarId)
 | 0, lctx, fvars, j, _, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
@@ -47,7 +47,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
     withNewLocalInstances fvars j $ do
       newType ← whnf type;
       if newType.isForall then
-        introNCoreAux i lctx fvars fvars.size s newType
+        introNCoreAux (i+1) lctx fvars fvars.size s newType
       else
         throwTacticEx `introN mvarId "insufficient number of binders"
 

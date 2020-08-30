@@ -8,3 +8,9 @@ new_frontend
 
 def tst : Nat :=
 f (fun n => (fun x => x, true))
+
+theorem ex : id (Nat → Nat) :=
+begin
+  intro;
+  assumption
+end

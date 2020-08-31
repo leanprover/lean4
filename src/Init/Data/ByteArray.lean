@@ -5,4 +5,3 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.ByteArray.Basic
-import Init.Data.ByteArray.Utf8

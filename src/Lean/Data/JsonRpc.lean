@@ -152,19 +152,19 @@ instance Message.hasFromJson : HasFromJson Message :=
 end JsonRpc
 end Lean
 
-namespace IO.FS.Handle
+namespace IO.FS.Stream
 
 open Lean
 open Lean.JsonRpc
 open IO
 
-def readMessage (h : FS.Handle) (nBytes : Nat) : IO Message := do
+def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do
 j ← h.readJson nBytes;
 match fromJson? j with
 | some m => pure m
 | none   => throw (userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message"))
 
-def readRequestAs (h : FS.Handle) (nBytes : Nat) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO (Request α) := do
+def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO (Request α) := do
 m ← h.readMessage nBytes;
 match m with
 | Message.request id method params? =>
@@ -180,7 +180,7 @@ match m with
     throw (userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'"))
 | _ => throw (userError "expected request, got other type of message")
 
-def readNotificationAs (h : FS.Handle) (nBytes : Nat) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO α := do
+def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type*) [HasFromJson α] : IO α := do
 m ← h.readMessage nBytes;
 match m with
 | Message.notification method params? =>
@@ -196,10 +196,10 @@ match m with
     throw (userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'"))
 | _ => throw (userError "expected notification, got other type of message")
 
-def writeMessage (h : FS.Handle) (m : Message) : IO Unit :=
+def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
 h.writeJson (toJson m)
 
-def writeResponse {α : Type*} [HasToJson α] (h : FS.Handle) (id : RequestID) (r : α) : IO Unit :=
+def writeResponse {α : Type*} [HasToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
 h.writeMessage (Message.response id (toJson r))
 
-end IO.FS.Handle
+end IO.FS.Stream

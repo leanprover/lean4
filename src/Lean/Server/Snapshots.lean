@@ -67,6 +67,9 @@ pure { beginPos := 0,
        data := SnapshotData.headerData headerEnv msgLog opts
      }
 
+private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
+Empty.rec _ ex
+
 /-- Compiles the next command occurring after the given snapshot.
 If there is no next command (file ended), returns messages produced
 through the file. -/
@@ -84,15 +87,14 @@ else do
   cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog };
   let cmdCtx : Elab.Command.Context :=
     { cmdPos := snap.endPos,
-      stateRef := cmdStateRef,
       fileName := inputCtx.fileName,
       fileMap := inputCtx.fileMap
     };
-  EIO.adaptExcept
-    (fun e => Empty.rec _ e)
+  adaptExcept
+    ioErrorFromEmpty
     (Elab.Command.catchExceptions
       (Elab.Command.elabCommand cmdStx)
-      cmdCtx);
+      cmdCtx cmdStateRef);
   postCmdState ← cmdStateRef.get;
   let postCmdSnap : Snapshot :=
     { beginPos := cmdPos,

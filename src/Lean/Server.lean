@@ -81,7 +81,7 @@ abbrev DocumentMap :=
   RBMap DocumentUri EditableDocument (fun a b => Decidable.decide (a < b))
 
 structure ServerContext :=
-(hIn hOut : FS.Handle)
+(hIn hOut : FS.Stream)
 (openDocumentsRef : IO.Ref DocumentMap)
 -- TODO (requestsInFlight : IO.Ref (Array (Task (Σ α, Response α))))
 
@@ -226,7 +226,7 @@ def mkLeanServerCapabilities : ServerCapabilities :=
   hoverProvider := true,
 }
 
-def initAndRunServer (i o : FS.Handle) : IO Unit := do
+def initAndRunServer (i o : FS.Stream) : IO Unit := do
 openDocumentsRef ← IO.mkRef (RBMap.empty : DocumentMap);
 runReader
   (do
@@ -246,12 +246,12 @@ runReader
 namespace Test
 
 def runWithInputFile (fn : String) (searchPath : Option String) : IO Unit := do
-o ← IO.stdout;
-e ← IO.stderr;
+o ← IO.getStdout;
+e ← IO.getStderr;
 FS.withFile fn FS.Mode.read (fun hFile => do
   Lean.initSearchPath searchPath;
   catch
-    (Lean.Server.initAndRunServer hFile o)
+    (Lean.Server.initAndRunServer (FS.Stream.ofHandle hFile) o)
     (fun err => e.putStrLn (toString err)))
 
 end Test

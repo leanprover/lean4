@@ -322,6 +322,7 @@ lean_object* l_Lean_Parser_Term_nativeDecide___closed__3;
 lean_object* l_Lean_Parser_Term_forall___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_dollarProj_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_optType_parenthesizer___closed__1;
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_lookahead_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Term_ge_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_not___closed__5;
 lean_object* l_Lean_Parser_Term_pow___elambda__1___closed__3;
@@ -3327,7 +3328,6 @@ lean_object* l_Lean_Parser_Term_letrec___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_structInst_formatter___closed__16;
 lean_object* l_Lean_Parser_Term_haveAssign___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Term_if_formatter___closed__9;
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_lookahead_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_nativeDecide___closed__7;
 lean_object* l_Lean_Parser_Term_nativeDecide_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_nameLit_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36678,7 +36678,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Term_funImplicitBinder_parenthesizer___closed__3;
-x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_lookahead_parenthesizer), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_lookahead_parenthesizer___boxed), 5, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -79075,7 +79075,7 @@ lean_object* initialize_Lean_Parser_Level(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Parser_Term(lean_object* w) {
 lean_object * res;
-if (_G_initialized) return lean_mk_io_result(lean_box(0));
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
@@ -85823,7 +85823,7 @@ lean_mark_persistent(l___regBuiltin_Lean_Parser_Level_quot_parenthesizer___close
 res = l___regBuiltin_Lean_Parser_Level_quot_parenthesizer(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_mk_io_result(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

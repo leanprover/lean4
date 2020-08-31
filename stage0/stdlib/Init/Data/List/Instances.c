@@ -510,7 +510,7 @@ lean_object* initialize_Init_Control_Monad(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_List_Instances(lean_object* w) {
 lean_object * res;
-if (_G_initialized) return lean_mk_io_result(lean_box(0));
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_List_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
@@ -551,7 +551,7 @@ l_List_Alternative___closed__3 = _init_l_List_Alternative___closed__3();
 lean_mark_persistent(l_List_Alternative___closed__3);
 l_List_Alternative = _init_l_List_Alternative();
 lean_mark_persistent(l_List_Alternative);
-return lean_mk_io_result(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

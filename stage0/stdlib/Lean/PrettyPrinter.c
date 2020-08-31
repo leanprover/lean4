@@ -58,7 +58,7 @@ extern lean_object* l_Lean_TraceState_Inhabited___closed__1;
 lean_object* l_Lean_PrettyPrinter_ppExprFnUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_ppExprFnUnsafe___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-extern lean_object* l___regBuiltin_Lean_Parser_Module_header_formatter___closed__1;
+extern lean_object* l_Lean_Parser_Module_module_formatter___closed__6;
 lean_object* l_Lean_PrettyPrinter_ppExprFnUnsafe___closed__2;
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -299,7 +299,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_Lean_Syntax_getArg(x_1, x_5);
-x_7 = l___regBuiltin_Lean_Parser_Module_header_formatter___closed__1;
+x_7 = l_Lean_Parser_Module_module_formatter___closed__6;
 lean_inc(x_3);
 lean_inc(x_2);
 x_8 = l_Lean_PrettyPrinter_format(x_7, x_6, x_2, x_3, x_4);
@@ -624,7 +624,7 @@ lean_object* initialize_Lean_Parser_Module(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_PrettyPrinter(lean_object* w) {
 lean_object * res;
-if (_G_initialized) return lean_mk_io_result(lean_box(0));
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
@@ -655,7 +655,7 @@ l_Lean_PrettyPrinter_ppExprFnUnsafe___closed__4 = _init_l_Lean_PrettyPrinter_ppE
 lean_mark_persistent(l_Lean_PrettyPrinter_ppExprFnUnsafe___closed__4);
 l_Lean_PrettyPrinter_registerPPTerm___closed__1 = _init_l_Lean_PrettyPrinter_registerPPTerm___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_registerPPTerm___closed__1);
-return lean_mk_io_result(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

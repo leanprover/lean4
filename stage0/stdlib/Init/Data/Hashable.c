@@ -302,7 +302,7 @@ lean_object* initialize_Init_Data_String(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Hashable(lean_object* w) {
 lean_object * res;
-if (_G_initialized) return lean_mk_io_result(lean_box(0));
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_UInt(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
@@ -318,7 +318,7 @@ l_Nat_Hashable___closed__1 = _init_l_Nat_Hashable___closed__1();
 lean_mark_persistent(l_Nat_Hashable___closed__1);
 l_Nat_Hashable = _init_l_Nat_Hashable();
 lean_mark_persistent(l_Nat_Hashable);
-return lean_mk_io_result(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

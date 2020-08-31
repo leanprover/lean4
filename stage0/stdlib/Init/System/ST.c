@@ -921,7 +921,7 @@ lean_object* initialize_Init_Control_Reader(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_System_ST(lean_object* w) {
 lean_object * res;
-if (_G_initialized) return lean_mk_io_result(lean_box(0));
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Control_EState(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
@@ -937,7 +937,7 @@ l_EST_MonadExceptOf___closed__2 = _init_l_EST_MonadExceptOf___closed__2();
 lean_mark_persistent(l_EST_MonadExceptOf___closed__2);
 l_ST_RefPointed = _init_l_ST_RefPointed();
 lean_mark_persistent(l_ST_RefPointed);
-return lean_mk_io_result(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

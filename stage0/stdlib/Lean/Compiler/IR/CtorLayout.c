@@ -236,7 +236,7 @@ lean_object* initialize_Lean_Compiler_IR_Format(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Compiler_IR_CtorLayout(lean_object* w) {
 lean_object * res;
-if (_G_initialized) return lean_mk_io_result(lean_box(0));
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
@@ -267,7 +267,7 @@ l_Lean_IR_CtorFieldInfo_Lean_HasFormat___closed__1 = _init_l_Lean_IR_CtorFieldIn
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_Lean_HasFormat___closed__1);
 l_Lean_IR_CtorFieldInfo_Lean_HasFormat = _init_l_Lean_IR_CtorFieldInfo_Lean_HasFormat();
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_Lean_HasFormat);
-return lean_mk_io_result(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

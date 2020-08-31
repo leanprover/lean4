@@ -1771,7 +1771,6 @@ static inline lean_obj_res lean_io_result_mk_ok(lean_obj_arg a) {
     lean_ctor_set(r, 1, lean_box(0));
     return r;
 }
-static inline lean_obj_res lean_mk_io_result(lean_obj_arg a) { return lean_io_result_mk_ok(a); }
 static inline lean_obj_res lean_io_result_mk_error(lean_obj_arg e) {
     lean_object * r = lean_alloc_ctor(1, 2, 0);
     lean_ctor_set(r, 0, e);

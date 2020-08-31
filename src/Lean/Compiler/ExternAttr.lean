@@ -7,6 +7,7 @@ import Lean.Expr
 import Lean.Environment
 import Lean.Attributes
 import Lean.ProjFns
+import Lean.Meta.Basic
 
 namespace Lean
 
@@ -28,10 +29,10 @@ inductive ExternEntry
 - `@[extern cpp "foo" llvm adhoc]`
    encoding: ```.entries = [standard `cpp "foo", adhoc `llvm]```
 - `@[extern 2 cpp "io_prim_println"]`
-   encoding: ```.arity = 2, .entries = [standard `cpp "ioPrimPrintln"]```
+   encoding: ```.arity? = 2, .entries = [standard `cpp "ioPrimPrintln"]```
 -/
 structure ExternAttrData :=
-(arity    : Option Nat := none)
+(arity?   : Option Nat := none)
 (entries  : List ExternEntry)
 
 instance ExternAttrData.inhabited : Inhabited ExternAttrData := ⟨{ entries := [] }⟩
@@ -67,11 +68,11 @@ match s with
     match (args.get! i).isStrLit? with
     | some str =>
       if args.size == i+1 then
-        Except.ok { arity := arity, entries := [ ExternEntry.standard `all str ] }
+        Except.ok { arity? := arity, entries := [ ExternEntry.standard `all str ] }
       else
         Except.error "invalid extern attribute"
     | none => match syntaxToExternEntries args i [] with
-      | Except.ok entries => Except.ok { arity := arity, entries := entries }
+      | Except.ok entries => Except.ok { arity? := arity, entries := entries }
       | Except.error msg  => Except.error msg
 | _ => Except.error "unexpected kind of argument"
 
@@ -157,5 +158,22 @@ match entry with
 | ExternEntry.standard _ n => pure n
 | ExternEntry.foreign _ n  => pure n
 | _ => failure
+
+def getExternConstArity (declName : Name) : CoreM (Option Nat) := do
+env ← getEnv;
+match getExternAttrData env declName with
+| none      => pure none
+| some data => match data.arity? with
+  | some arity => pure arity
+  | none       => do
+    cinfo ← getConstInfo declName;
+    (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run;
+    pure (some arity)
+
+@[export lean_get_extern_const_arity]
+def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) :=
+catch
+  (do (arity?, _) ← (getExternConstArity declName).toIO {} { env := env }; pure arity?)
+  (fun _ => pure none)
 
 end Lean

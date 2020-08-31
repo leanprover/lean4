@@ -324,6 +324,10 @@ p
 def lookahead.parenthesizer (p : Parenthesizer) : Parenthesizer :=
 pure ()
 
+@[combinatorParenthesizer Lean.Parser.notFollowedBy]
+def notFollowedBy.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+pure ()
+
 @[combinatorParenthesizer Lean.Parser.andthen]
 def andthen.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer :=
 p2 *> p1

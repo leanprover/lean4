@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
+#include <lean/io.h>
 #include <lean/utf8.h>
 #include <lean/object.h>
 #include <lean/thread.h>
@@ -75,28 +76,14 @@ extern "C" void lean_io_result_show_error(b_obj_arg r) {
     dec_ref(str);
 }
 
-obj_res set_io_result(obj_arg a) {
-    object * new_r = alloc_cnstr(0, 2, 0);
-    cnstr_set(new_r, 0, a);
-    cnstr_set(new_r, 1, box(0));
-    return new_r;
-}
-
-obj_res set_io_error(obj_arg e) {
-    object * new_r = alloc_cnstr(1, 2, 0);
-    cnstr_set(new_r, 0, e);
-    cnstr_set(new_r, 1, box(0));
-    return new_r;
-}
-
 extern "C" object * mk_io_user_error(object * str);
 
-obj_res set_io_error(char const * msg) {
-    return set_io_error(mk_io_user_error(mk_string(msg)));
+obj_res io_result_mk_error(char const * msg) {
+    return io_result_mk_error(mk_io_user_error(mk_string(msg)));
 }
 
-obj_res set_io_error(std::string const & msg) {
-    return set_io_error(mk_io_user_error(mk_string(msg)));
+obj_res io_result_mk_error(std::string const & msg) {
+    return io_result_mk_error(mk_io_user_error(mk_string(msg)));
 }
 
 static bool g_initializing = true;
@@ -108,11 +95,11 @@ static obj_res mk_file_not_found_error(b_obj_arg fname) {
     inc(fname);
     int errnum = ENOENT;
     object * details = mk_string("");
-    return set_io_error(lean_mk_io_error_no_file_or_directory(fname, errnum, details));
+    return io_result_mk_error(lean_mk_io_error_no_file_or_directory(fname, errnum, details));
 }
 
 extern "C" obj_res lean_io_initializing(obj_arg) {
-    return set_io_result(box(g_initializing));
+    return io_result_mk_ok(box(g_initializing));
 }
 
 static lean_external_class * g_io_handle_external_class = nullptr;
@@ -141,21 +128,21 @@ MK_THREAD_LOCAL_GET(object *, get_stream_current_stderr, g_stream_stderr);
 extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
     object * r = get_stream_current_stdin();
     inc_ref(r);
-    return set_io_result(r);
+    return io_result_mk_ok(r);
 }
 
 /* getStdout : IO FS.Stream */
 extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
     object * r = get_stream_current_stdout();
     inc_ref(r);
-    return set_io_result(r);
+    return io_result_mk_ok(r);
 }
 
 /* getStderr : IO FS.Stream */
 extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
     object * r = get_stream_current_stderr();
     inc_ref(r);
-    return set_io_result(r);
+    return io_result_mk_ok(r);
 }
 
 /* setStdin  : FS.Stream -> IO FS.Stream */
@@ -163,7 +150,7 @@ extern "C" obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
     object * & x = get_stream_current_stdin();
     object * r = x;
     x = h;
-    return set_io_result(r);
+    return io_result_mk_ok(r);
 }
 
 /* setStdout  : FS.Stream -> IO FS.Stream */
@@ -171,7 +158,7 @@ extern "C" obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
     object * & x = get_stream_current_stdout();
     object * r = x;
     x = h;
-    return set_io_result(r);
+    return io_result_mk_ok(r);
 }
 
 /* setStderr  : FS.Stream -> IO FS.Stream */
@@ -179,7 +166,7 @@ extern "C" obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
     object * & x = get_stream_current_stderr();
     object * r = x;
     x = h;
-    return set_io_result(r);
+    return io_result_mk_ok(r);
 }
 
 static FILE * io_get_handle(lean_object * hfile) {
@@ -281,9 +268,9 @@ obj_res decode_io_error(int errnum, b_obj_arg fname) {
 /* IO.setAccessRights (filename : @& String) (mode : UInt32) : IO Handle */
 extern "C" obj_res lean_chmod (b_obj_arg filename, uint32_t mode, obj_arg /* w */) {
     if (!chmod(lean_string_cstr(filename), mode)) {
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     } else {
-        return set_io_error(decode_io_error(errno, filename));
+        return io_result_mk_error(decode_io_error(errno, filename));
     }
 }
 
@@ -291,25 +278,25 @@ extern "C" obj_res lean_chmod (b_obj_arg filename, uint32_t mode, obj_arg /* w *
 extern "C" obj_res lean_io_prim_handle_mk(b_obj_arg filename, b_obj_arg modeStr, obj_arg /* w */) {
     FILE *fp = fopen(lean_string_cstr(filename), lean_string_cstr(modeStr));
     if (!fp) {
-        return set_io_error(decode_io_error(errno, filename));
+        return io_result_mk_error(decode_io_error(errno, filename));
     } else {
-        return set_io_result(io_wrap_handle(fp));
+        return io_result_mk_ok(io_wrap_handle(fp));
     }
 }
 
 /* Handle.isEof : (@& Handle) → IO Bool */
 extern "C" obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    return set_io_result(box(std::feof(fp) != 0));
+    return io_result_mk_ok(box(std::feof(fp) != 0));
 }
 
 /* Handle.flush : (@& Handle) → IO Bool */
 extern "C" obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (!std::fflush(fp)) {
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     } else {
-        return set_io_error(decode_io_error(errno, nullptr));
+        return io_result_mk_error(decode_io_error(errno, nullptr));
     }
 }
 
@@ -319,19 +306,19 @@ static object * g_io_error_eof = nullptr;
 extern "C" obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (feof(fp)) {
-        return set_io_error(g_io_error_eof);
+        return io_result_mk_error(g_io_error_eof);
     }
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
     if (n > 0) {
         lean_sarray_set_size(res, n);
-        return set_io_result(res);
+        return io_result_mk_ok(res);
     } else if (feof(fp)) {
         dec_ref(res);
-        return set_io_result(alloc_sarray(1, 0, 0));
+        return io_result_mk_ok(alloc_sarray(1, 0, 0));
     } else {
         dec_ref(res);
-        return set_io_error(decode_io_error(errno, nullptr));
+        return io_result_mk_error(decode_io_error(errno, nullptr));
     }
 }
 
@@ -341,9 +328,9 @@ extern "C" obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg buf, obj_arg
     usize n = lean_sarray_size(buf);
     usize m = std::fwrite(lean_sarray_cptr(buf), 1, n, fp);
     if (m == n) {
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     } else {
-        return set_io_error(decode_io_error(errno, nullptr));
+        return io_result_mk_error(decode_io_error(errno, nullptr));
     }
 }
 
@@ -357,7 +344,7 @@ static object * g_io_error_getline = nullptr;
 extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (feof(fp)) {
-        return set_io_result(mk_string(""));
+        return io_result_mk_ok(mk_string(""));
     }
     const int buf_sz = 64;
     char buf_str[buf_sz]; // NOLINT
@@ -368,17 +355,17 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
         if (out != nullptr) {
             if (strlen(buf_str) < buf_sz-1 || buf_str[buf_sz-2] == '\n') {
                 if (first) {
-                    return set_io_result(mk_string(out));
+                    return io_result_mk_ok(mk_string(out));
                 } else {
                     result.append(out);
-                    return set_io_result(mk_string(result));
+                    return io_result_mk_ok(mk_string(result));
                 }
             }
             result.append(out);
         } else if (std::feof(fp)) {
-            return set_io_result(mk_string(result));
+            return io_result_mk_ok(mk_string(result));
         } else {
-            return set_io_error(g_io_error_getline);
+            return io_result_mk_error(g_io_error_getline);
         }
         first = false;
     }
@@ -388,9 +375,9 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
 extern "C" obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (std::fputs(lean_string_cstr(s), fp) != EOF) {
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     } else {
-        return set_io_error(decode_io_error(errno, nullptr));
+        return io_result_mk_error(decode_io_error(errno, nullptr));
     }
 }
 
@@ -420,21 +407,21 @@ extern "C" obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_arg w) {
 extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
     char * val = std::getenv(string_cstr(env_var));
     if (val) {
-        return set_io_result(mk_option_some(mk_string(val)));
+        return io_result_mk_ok(mk_option_some(mk_string(val)));
     } else {
-        return set_io_result(mk_option_none());
+        return io_result_mk_ok(mk_option_none());
     }
 }
 
 extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
 #if defined(LEAN_EMSCRIPTEN)
-    return set_io_result(fname);
+    return io_result_mk_ok(fname);
 #elif defined(LEAN_WINDOWS)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
     if (retval == 0 || retval > BufferSize) {
-        return set_io_result(fname);
+        return io_result_mk_ok(fname);
     } else {
         dec_ref(fname);
         // Hack for making sure disk is lower case
@@ -442,7 +429,7 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
         if (strlen(buffer) >= 2 && buffer[1] == ':') {
             buffer[0] = tolower(buffer[0]);
         }
-        return set_io_result(mk_string(buffer));
+        return io_result_mk_ok(mk_string(buffer));
     }
 #else
     constexpr unsigned BufferSize = 8192;
@@ -451,7 +438,7 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
     if (tmp) {
         obj_res s = mk_string(tmp);
         dec_ref(fname);
-        return set_io_result(s);
+        return io_result_mk_ok(s);
     } else {
         obj_res res = mk_file_not_found_error(fname);
         dec_ref(fname);
@@ -464,15 +451,15 @@ extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg) {
     struct stat st;
     if (stat(string_cstr(fname), &st) == 0) {
         bool b = S_ISDIR(st.st_mode);
-        return set_io_result(box(b));
+        return io_result_mk_ok(box(b));
     } else {
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     }
 }
 
 extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg) {
     bool b = !!std::ifstream(string_cstr(fname));
-    return set_io_result(box(b));
+    return io_result_mk_ok(box(b));
 }
 
 extern "C" obj_res lean_io_app_dir(obj_arg) {
@@ -487,16 +474,16 @@ extern "C" obj_res lean_io_app_dir(obj_arg) {
     if (pathstr.size() >= 2 && pathstr[1] == ':') {
         pathstr[0] = tolower(pathstr[0]);
     }
-    return set_io_result(mk_string(pathstr));
+    return io_result_mk_ok(mk_string(pathstr));
 #elif defined(__APPLE__)
     char buf1[PATH_MAX];
     char buf2[PATH_MAX];
     uint32_t bufsize = PATH_MAX;
     if (_NSGetExecutablePath(buf1, &bufsize) != 0)
-        return set_io_error("failed to locate application");
+        return io_result_mk_error("failed to locate application");
     if (!realpath(buf1, buf2))
-        return set_io_error("failed to resolve symbolic links when locating application");
-    return set_io_result(mk_string(buf2));
+        return io_result_mk_error("failed to resolve symbolic links when locating application");
+    return io_result_mk_ok(mk_string(buf2));
 #else
     // Linux version
     char path[PATH_MAX];
@@ -505,9 +492,9 @@ extern "C" obj_res lean_io_app_dir(obj_arg) {
     pid_t pid = getpid();
     snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
     if (readlink(path, dest, PATH_MAX) == -1) {
-        return set_io_error("failed to locate application");
+        return io_result_mk_error("failed to locate application");
     } else {
-        return set_io_result(mk_string(dest));
+        return io_result_mk_ok(mk_string(dest));
     }
 #endif
 }
@@ -516,9 +503,9 @@ extern "C" obj_res lean_io_current_dir(obj_arg) {
     char buffer[PATH_MAX];
     char * cwd = getcwd(buffer, sizeof(buffer));
     if (cwd) {
-        return set_io_result(mk_string(cwd));
+        return io_result_mk_ok(mk_string(cwd));
     } else {
-        return set_io_error("failed to retrieve current working directory");
+        return io_result_mk_error("failed to retrieve current working directory");
     }
 }
 
@@ -528,7 +515,7 @@ extern "C" obj_res lean_st_mk_ref(obj_arg a, obj_arg) {
     lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
     lean_set_st_header((lean_object*)o, LeanRef, 0);
     o->m_value = a;
-    return set_io_result((lean_object*)o);
+    return io_result_mk_ok((lean_object*)o);
 }
 
 static object * g_io_error_nullptr_read = nullptr;
@@ -562,14 +549,14 @@ extern "C" obj_res lean_st_ref_get(b_obj_arg ref, obj_arg) {
                     /* this may happen if another thread wrote `ref` */
                     dec(tmp);
                 }
-                return set_io_result(val);
+                return io_result_mk_ok(val);
             }
         }
     } else {
         object * val = lean_to_ref(ref)->m_value;
         lean_assert(val != nullptr);
         inc(val);
-        return set_io_result(val);
+        return io_result_mk_ok(val);
     }
 }
 
@@ -579,13 +566,13 @@ extern "C" obj_res lean_st_ref_take(b_obj_arg ref, obj_arg) {
         while (true) {
             object * val = val_addr->exchange(nullptr);
             if (val != nullptr)
-                return set_io_result(val);
+                return io_result_mk_ok(val);
         }
     } else {
         object * val = lean_to_ref(ref)->m_value;
         lean_assert(val != nullptr);
         lean_to_ref(ref)->m_value = nullptr;
-        return set_io_result(val);
+        return io_result_mk_ok(val);
     }
 }
 
@@ -601,12 +588,12 @@ extern "C" obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a, obj_arg) {
         object * old_a = val_addr->exchange(a);
         if (old_a != nullptr)
             dec(old_a);
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     } else {
         if (lean_to_ref(ref)->m_value != nullptr)
             dec(lean_to_ref(ref)->m_value);
         lean_to_ref(ref)->m_value = a;
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     }
 }
 
@@ -618,21 +605,21 @@ extern "C" obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
         while (true) {
             object * old_a = val_addr->exchange(a);
             if (old_a != nullptr)
-                return set_io_result(old_a);
+                return io_result_mk_ok(old_a);
         }
     } else {
         object * old_a = lean_to_ref(ref)->m_value;
         if (old_a == nullptr)
-            return set_io_error(g_io_error_nullptr_read);
+            return io_result_mk_error(g_io_error_nullptr_read);
         lean_to_ref(ref)->m_value = a;
-        return set_io_result(old_a);
+        return io_result_mk_ok(old_a);
     }
 }
 
 extern "C" obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
     // TODO(Leo): ref_maybe_mt
     bool r = lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
-    return set_io_result(box(r));
+    return io_result_mk_ok(box(r));
 }
 
 void initialize_io() {

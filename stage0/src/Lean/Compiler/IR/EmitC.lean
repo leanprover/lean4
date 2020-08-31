@@ -696,7 +696,7 @@ emitLns [
   "static bool _G_initialized = false;",
   "lean_object* initialize_" ++ modName.mangle "" ++ "(lean_object* w) {",
   "lean_object * res;",
-  "if (_G_initialized) return lean_mk_io_result(lean_box(0));",
+  "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
   "_G_initialized = true;"
 ];
 env.imports.forM $ fun imp => emitLns [
@@ -705,7 +705,7 @@ env.imports.forM $ fun imp => emitLns [
   "lean_dec_ref(res);"];
 let decls := getDecls env;
 decls.reverse.forM emitDeclInit;
-emitLns ["return lean_mk_io_result(lean_box(0));", "}"]
+emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
 
 def main : M Unit := do
 emitFileHeader;

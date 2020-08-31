@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include <lean/object.h>
 
 namespace lean {
-obj_res set_io_result(obj_arg a);
-obj_res set_io_error(obj_arg e);
-obj_res set_io_error(char const * msg);
-obj_res set_io_error(std::string const & msg);
+inline obj_res io_result_mk_ok(obj_arg a) { return lean_io_result_mk_ok(a); }
+inline obj_res io_result_mk_error(obj_arg e) { return lean_io_result_mk_error(e); }
+obj_res io_result_mk_error(char const * msg);
+obj_res io_result_mk_error(std::string const & msg);
 obj_res decode_io_error(int errnum, b_obj_arg fname);
 obj_res io_wrap_handle(FILE * hfile);
 void initialize_io();

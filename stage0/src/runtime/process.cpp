@@ -58,7 +58,7 @@ extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_ar
     DWORD exit_code;
     WaitForSingleObject(h, INFINITE);
     GetExitCodeProcess(h, &exit_code);
-    return lean_mk_io_result(box(exit_code));
+    return lean_io_result_mk_ok(box(exit_code));
 }
 
 static FILE * from_win_handle(HANDLE handle, char const * mode) {
@@ -183,7 +183,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     if (stderr_mode == stdio::PIPED) CloseHandle(child_stderr);
 
     object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_win_handle(piProcInfo.hProcess));
-    return lean_mk_io_result(r.steal());
+    return lean_io_result_mk_ok(r.steal());
 }
 
 void initialize_process() {
@@ -199,11 +199,11 @@ extern "C" obj_res lean_io_process_child_wait(b_obj_arg, obj_arg child, obj_arg)
     int status;
     waitpid(pid, &status, 0);
     if (WIFEXITED(status)) {
-        return lean_mk_io_result(box(static_cast<unsigned>(WEXITSTATUS(status))));
+        return lean_io_result_mk_ok(box(static_cast<unsigned>(WEXITSTATUS(status))));
     } else {
         lean_assert(WIFSIGNALED(status));
         // use bash's convention
-        return lean_mk_io_result(box(128 + static_cast<unsigned>(WTERMSIG(status))));
+        return lean_io_result_mk_ok(box(128 + static_cast<unsigned>(WTERMSIG(status))));
     }
 }
 
@@ -304,7 +304,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, sizeof(pid_t));
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     cnstr_set_uint32(r.raw(), 3 * sizeof(object *), pid);
-    return lean_mk_io_result(r.steal());
+    return lean_io_result_mk_ok(r.steal());
 }
 
 void initialize_process() {}
@@ -331,7 +331,7 @@ extern "C" obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
                 cnstr_get_ref_t<option_ref<string_ref>>(args, 3),
                 cnstr_get_ref_t<array_ref<pair_ref<string_ref, option_ref<string_ref>>>>(args, 4));
     } catch (int err) {
-        return lean_mk_io_error(decode_io_error(err, nullptr));
+        return lean_io_result_mk_error(decode_io_error(err, nullptr));
     }
 }
 

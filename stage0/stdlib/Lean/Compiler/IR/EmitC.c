@@ -12778,7 +12778,7 @@ lean_object* _init_l_Lean_IR_EmitC_emitInitFn___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("if (_G_initialized) return lean_mk_io_result(lean_box(0));");
+x_1 = lean_mk_string("if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));");
 return x_1;
 }
 }
@@ -12826,7 +12826,7 @@ lean_object* _init_l_Lean_IR_EmitC_emitInitFn___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("return lean_mk_io_result(lean_box(0));");
+x_1 = lean_mk_string("return lean_io_result_mk_ok(lean_box(0));");
 return x_1;
 }
 }

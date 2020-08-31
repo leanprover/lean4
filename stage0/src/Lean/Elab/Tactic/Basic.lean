@@ -228,18 +228,20 @@ focusAux (do a ← tactic; done; pure a)
 
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.
-  If there are multiple new goals, they are named using `<parentTag>.<newSuffix>_<idx>` where `idx > 0`.
-  If there is only one new goal, then we just use `parentTag` -/
+  If there are multiple new untagged goals, they are named using `<parentTag>.<newSuffix>_<idx>` where `idx > 0`.
+  If there is only one new untagged goal, then we just use `parentTag` -/
 def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVarId) : TacticM Unit := do
 mctx ← getMCtx;
-match newGoals with
-| [g] => modifyMCtx $ fun mctx => if mctx.isAnonymousMVar g then mctx.renameMVar g parentTag else mctx
-| _   => modifyMCtx $ fun mctx =>
+let numAnonymous := newGoals.foldl (fun n g => if mctx.isAnonymousMVar g then n + 1 else n) 0;
+modifyMCtx fun mctx =>
   let (mctx, _) := newGoals.foldl
     (fun (acc : MetavarContext × Nat) (g : MVarId) =>
        let (mctx, idx) := acc;
        if mctx.isAnonymousMVar g then
-         (mctx.renameMVar g (parentTag ++ newSuffix.appendIndexAfter idx), idx+1)
+         if numAnonymous == 1 then
+           (mctx.renameMVar g parentTag, idx+1)
+         else
+           (mctx.renameMVar g (parentTag ++ newSuffix.appendIndexAfter idx), idx+1)
        else
          acc)
     (mctx, 1);
@@ -378,12 +380,21 @@ fun stx => evalTactic (stx.getArg 1)
 @[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlock : Tactic :=
 fun stx => focus (evalTactic (stx.getArg 1))
 
+/--
+  First method searches for a metavariable `g` s.t. `tag` is a suffix of its name.
+  If none is found, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
+private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
+g? ← gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isSuffixOf mvarDecl.userName);
+match g? with
+| some g => pure g
+| none   => gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isPrefixOf mvarDecl.userName)
+
 @[builtinTactic «case»] def evalCase : Tactic :=
 fun stx => match_syntax stx with
   | `(tactic| case $tag $tac) => do
      let tag := tag.getId;
      gs ← getUnsolvedGoals;
-     some g ← gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isSuffixOf mvarDecl.userName) | throwError "tag not found";
+     some g ← findTag? gs tag | throwError "tag not found";
      let gs := gs.erase g;
      setGoals [g];
      evalTactic tac;

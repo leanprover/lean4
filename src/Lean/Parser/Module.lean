@@ -12,8 +12,13 @@ namespace Parser
 namespace Module
 def «prelude»  := parser! "prelude"
 def «import»   := parser! "import " >> optional "runtime" >> ident
-@[runParserAttributeHooks]
 def header     := parser! optional «prelude» >> many «import»
+/--
+  Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that
+  return the same syntax tree structure, but add error recovery. Still, it is helpful to have a `Parser` definition
+  for it in order to auto-generate helpers such as the pretty printer. -/
+@[runParserAttributeHooks]
+def module     := parser! header >> many commandParser
 
 def updateTokens (c : ParserContext) : ParserContext :=
 { c with
@@ -123,8 +128,9 @@ def parseFile (env : Environment) (fname : String) : IO Syntax := do
 fname ← IO.realPath fname;
 contents ← IO.FS.readFile fname;
 let inputCtx := mkInputContext contents fname;
-let (stx, state, messages) := parseHeader env inputCtx;
-parseFileAux env inputCtx state messages #[stx]
+let (header, state, messages) := parseHeader env inputCtx;
+cmds ← parseFileAux env inputCtx state messages #[];
+pure $ Syntax.node `Lean.Parser.module #[header, cmds]
 
 end Parser
 end Lean

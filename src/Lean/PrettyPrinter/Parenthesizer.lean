@@ -322,7 +322,7 @@ p
 
 @[combinatorParenthesizer Lean.Parser.lookahead]
 def lookahead.parenthesizer (p : Parenthesizer) : Parenthesizer :=
-p
+pure ()
 
 @[combinatorParenthesizer Lean.Parser.andthen]
 def andthen.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer :=

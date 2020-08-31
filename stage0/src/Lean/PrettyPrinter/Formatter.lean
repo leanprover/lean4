@@ -232,6 +232,10 @@ p
 def lookahead.formatter (p : Formatter) : Formatter :=
 pure ()
 
+@[combinatorFormatter Lean.Parser.notFollowedBy]
+def notFollowedBy.formatter (p : Formatter) : Formatter :=
+pure ()
+
 @[combinatorFormatter Lean.Parser.andthen]
 def andthen.formatter (p1 p2 : Formatter) : Formatter :=
 p2 *> p1

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_unreachable_x21___rarg(lean_object*);
+lean_object* lean_run_frontend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_ModuleParserState_inhabited___closed__1;
@@ -51,7 +52,6 @@ lean_object* l_IO_mkRef___at_Lean_Elab_IO_processCommands___spec__1(lean_object*
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main(lean_object*);
 lean_object* l_Lean_Elab_Frontend_liftIOCore_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(lean_object*, lean_object*, lean_object*);
-lean_object* lean_run_frontend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main___boxed(lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux(lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*);

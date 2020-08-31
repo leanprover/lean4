@@ -33,7 +33,7 @@ lean_object* l_Lean_FileMap_ofString___closed__1;
 extern lean_object* l_Sigma_HasRepr___rarg___closed__2;
 lean_object* l_Lean_Position_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Position_2__toColumnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Position_2__toColumnAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Position_Lean_HasFormat(lean_object*);
@@ -47,7 +47,7 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Lean_Data_Position_1__ofStringAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Position_2__toColumnAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Position_2__toColumnAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_Lean_Position_Lean_HasFormat___closed__2;
@@ -416,23 +416,22 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l___private_Lean_Data_Position_2__toColumnAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Lean_Data_Position_2__toColumnAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Lean_Data_Position_2__toColumnAux___main(x_1, x_3, x_4, x_5);
-return x_6;
+lean_object* x_5; 
+x_5 = l___private_Lean_Data_Position_2__toColumnAux___main(x_1, x_2, x_3, x_4);
+return x_5;
 }
 }
-lean_object* l___private_Lean_Data_Position_2__toColumnAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Lean_Data_Position_2__toColumnAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Lean_Data_Position_2__toColumnAux(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
+lean_object* x_5; 
+x_5 = l___private_Lean_Data_Position_2__toColumnAux(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_6;
+return x_5;
 }
 }
 lean_object* l___private_Lean_Data_Position_3__toPositionAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

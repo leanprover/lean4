@@ -87,6 +87,12 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
         }
         in.close();
         compacted_region * region = new compacted_region(size - header_size, buffer);
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        // do not report as leak
+        __lsan_ignore_object(region);
+#endif
+#endif
         object * mod = region->read();
         object * mod_region = alloc_cnstr(0, 2, 0);
         cnstr_set(mod_region, 0, mod);

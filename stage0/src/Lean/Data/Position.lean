@@ -53,7 +53,7 @@ private partial def ofStringAux (s : String) : String.Pos → Nat → Array Stri
 def ofString (s : String) : FileMap :=
 ofStringAux s 0 1 (#[0]) (#[1])
 
-private partial def toColumnAux (str : String) (lineBeginPos : String.Pos) (pos : String.Pos) : String.Pos → Nat → Nat
+private partial def toColumnAux (str : String) (pos : String.Pos) : String.Pos → Nat → Nat
 | i, c =>
   if i == pos || str.atEnd i then c
   else toColumnAux (str.next i) (c+1)
@@ -62,7 +62,7 @@ private partial def toColumnAux (str : String) (lineBeginPos : String.Pos) (pos 
 private partial def toPositionAux (str : String) (ps : Array Nat) (lines : Array Nat) (pos : String.Pos) : Nat → Nat → Position
 | b, e =>
   let posB := ps.get! b;
-  if e == b + 1 then { line := lines.get! b, column := toColumnAux str posB pos posB 0 }
+  if e == b + 1 then { line := lines.get! b, column := toColumnAux str pos posB 0 }
   else
     let m := (b + e) / 2;
     let posM := ps.get! m;

@@ -20,34 +20,40 @@ lean_object* l_Lean_Json_getNum_x3f___boxed(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f___boxed(lean_object*);
 lean_object* l_Lean_JsonNumber_hasToJson(lean_object*);
+lean_object* l_Lean_Json_Structured_hasToJson(lean_object*);
+lean_object* l_Lean_Json_Structured_hasFromJson(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Int_hasFromJson___closed__1;
 lean_object* l_Lean_JsonNumber_hasFromJson;
+lean_object* l_Lean_Json_opt(lean_object*);
 lean_object* l_Lean_Int_hasToJson(lean_object*);
 lean_object* l_Lean_String_hasFromJson;
 extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Lean_String_hasToJson(lean_object*);
 lean_object* l_Lean_Int_hasFromJson;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___main___at_Lean_Array_hasToJson___spec__1(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Array_hasFromJson(lean_object*);
+lean_object* l_Lean_Json_Structured_hasFromJson___boxed(lean_object*);
 lean_object* l_Lean_Nat_hasFromJson___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_List_hasToJson___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_List_hasToJson___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_hasFromJson(lean_object*);
 lean_object* l_Lean_Json_getNat_x3f___boxed(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Array_hasFromJson___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Nat_hasToJson(lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_List_hasToJson___spec__1(lean_object*);
+lean_object* l_Lean_Json_opt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_Bool_hasToJson___boxed(lean_object*);
-lean_object* l_Lean_List_hasToJson(lean_object*);
+lean_object* l_Lean_Array_hasToJson___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getBool_x3f___boxed(lean_object*);
 lean_object* l_Lean_Bool_hasFromJson___closed__1;
 lean_object* l_Lean_JsonNumber_hasFromJson___closed__1;
+lean_object* l_Lean_Json_Structured_hasToJson___boxed(lean_object*);
 lean_object* l_Lean_Bool_hasFromJson;
 lean_object* l_Lean_Array_hasFromJson___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Array_hasToJson(lean_object*);
+lean_object* l_Array_umapMAux___main___at_Lean_Array_hasToJson___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Bool_hasToJson(uint8_t);
@@ -306,7 +312,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Array_hasFromJson___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_List_hasToJson___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Array_umapMAux___main___at_Lean_Array_hasToJson___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -341,32 +347,108 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_List_hasToJson___spec__1(lean_object* x_1) {
+lean_object* l_Array_umapMAux___main___at_Lean_Array_hasToJson___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at_Lean_List_hasToJson___spec__1___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at_Lean_Array_hasToJson___spec__1___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_List_hasToJson___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Array_hasToJson___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = x_2;
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Array_umapMAux___main___at_Lean_List_hasToJson___spec__1___rarg(x_1, x_4, x_3);
+x_5 = l_Array_umapMAux___main___at_Lean_Array_hasToJson___spec__1___rarg(x_1, x_4, x_3);
 x_6 = x_5;
 x_7 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_List_hasToJson(lean_object* x_1) {
+lean_object* l_Lean_Array_hasToJson(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_List_hasToJson___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Array_hasToJson___rarg), 2, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_Json_Structured_hasFromJson(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 4:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+x_4 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
+}
+case 5:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
+}
+default: 
+{
+lean_object* x_8; 
+x_8 = lean_box(0);
+return x_8;
+}
+}
+}
+}
+lean_object* l_Lean_Json_Structured_hasFromJson___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Json_Structured_hasFromJson(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Json_Structured_hasToJson(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+x_5 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_5, 0, x_4);
+return x_5;
+}
+}
+}
+lean_object* l_Lean_Json_Structured_hasToJson___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Json_Structured_hasToJson(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
@@ -401,6 +483,43 @@ x_5 = l_Lean_Json_getObjValAs_x3f(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_5;
+}
+}
+lean_object* l_Lean_Json_opt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = lean_apply_1(x_1, x_5);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 1, x_6);
+x_8 = lean_box(0);
+x_9 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
+}
+}
+}
+lean_object* l_Lean_Json_opt(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Json_opt___rarg), 3, 0);
+return x_2;
 }
 }
 lean_object* initialize_Init(lean_object*);

@@ -541,6 +541,10 @@ extern "C" obj_res lean_st_ref_get(b_obj_arg ref, obj_arg) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
+            /*
+              We cannot simply read `val` from the ref and `inc` it like in the `else` branch since someone else could
+              write to the ref in between and remove the last owning reference to the object. Instead, we must take
+              ownership of the RC token in the ref via `exchange`, duplicate it, then put one RC token back. */
             object * val = val_addr->exchange(nullptr);
             if (val != nullptr) {
                 inc(val);

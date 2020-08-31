@@ -134,3 +134,14 @@ FOREACH(T ${LEANT0TESTS})
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust0"
            COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
+
+# LEAN SERVER TESTS
+file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/server/*.lean")
+FOREACH(T ${LEANTESTS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leanservertest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/server"
+             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+  endif()
+ENDFOREACH(T)

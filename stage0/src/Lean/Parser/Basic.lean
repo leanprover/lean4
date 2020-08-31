@@ -475,6 +475,21 @@ fun c s =>
 { info := p.info,
   fn   := lookaheadFn p.fn }
 
+@[inline] def notFollowedByFn (p : ParserFn) : ParserFn :=
+fun c s =>
+  let iniSz  := s.stackSize;
+  let iniPos := s.pos;
+  let s      := p c s;
+  if s.hasError then
+    s.restore iniSz iniPos
+  else
+    let s := s.restore iniSz iniPos;
+    s.mkError "notFollowedBy"
+
+@[inline] def notFollowedBy (p : Parser) : Parser :=
+{ info := p.info,
+  fn   := notFollowedByFn p.fn }
+
 @[specialize] partial def manyAux (p : ParserFn) : ParserFn
 | c, s =>
   let iniSz  := s.stackSize;

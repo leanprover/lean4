@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Attributes
+import Lean.MonadEnv
 
 namespace Lean
 namespace Compiler
@@ -22,8 +23,18 @@ registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) f
 constant implementedByAttr : ParametricAttribute Name := arbitrary _
 
 @[export lean_get_implemented_by]
-def getImplementedBy (env : Environment) (n : Name) : Option Name :=
-implementedByAttr.getParam env n
+def getImplementedBy (env : Environment) (declName : Name) : Option Name :=
+implementedByAttr.getParam env declName
+
+def setImplementedBy (env : Environment) (declName : Name) (impName : Name) : Except String Environment :=
+implementedByAttr.setParam env declName impName
 
 end Compiler
+
+def setImplementedBy {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (impName : Name) : m Unit := do
+env ← getEnv;
+match Compiler.setImplementedBy env declName impName with
+| Except.ok env   => setEnv env
+| Except.error ex => throwError ex
+
 end Lean

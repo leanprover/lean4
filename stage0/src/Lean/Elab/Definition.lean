@@ -7,7 +7,8 @@ import Std.ShareCommon
 import Lean.Util.CollectLevelParams
 import Lean.Util.FoldConsts
 import Lean.Elab.CollectFVars
-import Lean.Elab.DeclModifiers
+import Lean.Elab.Command
+import Lean.Elab.SyntheticMVars
 import Lean.Elab.Binders
 
 namespace Lean

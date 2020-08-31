@@ -110,27 +110,30 @@ timeit (fileName ++ " parser") $ do
   when displayStx (IO.println stx);
   testModuleParserAux env inputCtx displayStx s messages
 
-partial def parseFileAux (env : Environment) (inputCtx : InputContext) : ModuleParserState → MessageLog → Array Syntax → IO Syntax
+partial def parseModuleAux (env : Environment) (inputCtx : InputContext) : ModuleParserState → MessageLog → Array Syntax → IO (Array Syntax)
 | state, msgs, stxs =>
   match parseCommand env inputCtx state msgs with
   | (stx, state, msgs) =>
     if isEOI stx then
       if msgs.isEmpty then
-        let stx := mkListNode stxs;
-        pure stx.updateLeading
+        pure stxs
       else do
         msgs.forM $ fun msg => IO.println msg;
         throw (IO.userError "failed to parse file")
     else
-      parseFileAux state msgs (stxs.push stx)
+      parseModuleAux state msgs (stxs.push stx)
 
-def parseFile (env : Environment) (fname : String) : IO Syntax := do
+def parseModule (env : Environment) (fname contents : String) : IO Syntax := do
 fname ← IO.realPath fname;
-contents ← IO.FS.readFile fname;
 let inputCtx := mkInputContext contents fname;
 let (header, state, messages) := parseHeader env inputCtx;
-cmds ← parseFileAux env inputCtx state messages #[];
-pure $ Syntax.node `Lean.Parser.module #[header, cmds]
+cmds ← parseModuleAux env inputCtx state messages #[];
+let stx := Syntax.node `Lean.Parser.Module.module #[header, mkListNode cmds];
+pure stx.updateLeading
+
+def parseFile (env : Environment) (fname : String) : IO Syntax := do
+contents ← IO.FS.readFile fname;
+parseModule env fname contents
 
 end Parser
 end Lean

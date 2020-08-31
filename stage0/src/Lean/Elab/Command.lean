@@ -9,6 +9,7 @@ import Lean.Elab.ResolveName
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
+import Lean.Elab.DeclModifiers
 
 namespace Lean
 namespace Elab
@@ -682,6 +683,11 @@ match allUserParams.find? $ fun u => !usedParams.contains u && !scopeParams.elem
   let remaining := usedParams.filter (fun levelParam => !allUserParams.elem levelParam);
   let remaining := remaining.qsort Name.lt;
   pure $ result ++ remaining.toList
+
+def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
+currNamespace ← getCurrNamespace;
+let declName := currNamespace ++ atomicName;
+applyVisibility modifiers.visibility declName
 
 end Command
 end Elab

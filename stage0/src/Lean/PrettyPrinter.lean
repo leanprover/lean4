@@ -22,12 +22,7 @@ def ppCommand (stx : Syntax) : CoreM Format :=
 parenthesizeCommand stx >>= formatCommand
 
 def ppModule (stx : Syntax) : CoreM Format := do
-let header := stx.getArg 0;
-f ← format Lean.Parser.Module.header.formatter header;
-let cmds := stx.getArgs.extract 1 stx.getArgs.size;
-cmds.foldlM (fun f cmd => do
-  cmdF ← ppCommand cmd;
-  pure $ f ++ "\n\n" ++ cmdF) f
+parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
 /-
 Kha: this is a temporary hack since ppExprFnRef contains a pure function.

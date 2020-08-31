@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json
-// Imports: Init Lean.Data.Json.Printer Lean.Data.Json.Parser Lean.Data.Json.FromToJson
+// Imports: Init Lean.Data.Json.Stream Lean.Data.Json.Printer Lean.Data.Json.Parser Lean.Data.Json.FromToJson
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* initialize_Init(lean_object*);
+lean_object* initialize_Lean_Data_Json_Stream(lean_object*);
 lean_object* initialize_Lean_Data_Json_Printer(lean_object*);
 lean_object* initialize_Lean_Data_Json_Parser(lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson(lean_object*);
@@ -23,6 +24,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Json_Stream(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Printer(lean_io_mk_world());

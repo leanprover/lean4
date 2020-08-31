@@ -82,7 +82,7 @@ end JsonNumber
 
 def strLt (a b : String) := Decidable.decide (a < b)
 
-open Std (RBNode)
+open Std (RBNode RBNode.leaf)
 
 inductive Json
 | null
@@ -96,6 +96,10 @@ inductive Json
 | obj (kvPairs : RBNode String (fun _ => Json))
 
 namespace Json
+
+-- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
+def mkObj (o : List (String × Json)) : Json :=
+obj (o.foldr (fun ⟨k, v⟩ acc => acc.insert strLt k v) RBNode.leaf)
 
 instance natToJson : HasCoe Nat Json := ⟨fun n => Json.num n⟩
 instance intToJson : HasCoe Int Json := ⟨fun n => Json.num n⟩
@@ -140,6 +144,15 @@ def getArrVal? : Json → Nat → Option Json
 
 def getObjValD (j : Json) (k : String) : Json :=
 (j.getObjVal? k).getD null
+
+inductive Structured
+| arr (elems : Array Json)
+| obj (kvPairs : RBNode String (fun _ => Json))
+
+instance arrayToStructured : HasCoe (Array Json) Structured :=
+⟨Structured.arr⟩
+instance kvPairsToStructured : HasCoe (RBNode String (fun _ => Json)) Structured :=
+⟨Structured.obj⟩
 
 end Json
 end Lean

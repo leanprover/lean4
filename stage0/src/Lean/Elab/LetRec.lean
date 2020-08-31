@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.Attributes
 import Lean.Elab.Binders
 import Lean.Elab.DeclModifiers
+import Lean.Elab.SyntheticMVars
 
 namespace Lean
 namespace Elab

@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Elab.Command
+import Lean.Modifiers
 import Lean.Elab.Attributes
 
 namespace Lean
@@ -22,8 +22,6 @@ match privateToUserName? declName with
 | some declName =>
   when (env.contains declName) $
     throwError ("a non-private declaration '" ++ declName ++ "' has already been declared")
-
-namespace Command
 
 inductive Visibility
 | regular | «protected» | «private»
@@ -71,7 +69,7 @@ instance Modifiers.hasFormat : HasFormat Modifiers :=
 
 instance Modifiers.hasToString : HasToString Modifiers := ⟨toString ∘ format⟩
 
-def elabModifiers (stx : Syntax) : CommandElabM Modifiers := do
+def elabModifiers {m} [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) : m Modifiers := do
 let docCommentStx := stx.getArg 0;
 let attrsStx      := stx.getArg 1;
 let visibilityStx := stx.getArg 2;
@@ -102,7 +100,7 @@ pure {
   attrs           := attrs
 }
 
-def applyVisibility (visibility : Visibility) (declName : Name) : CommandElabM Name :=
+def applyVisibility {m} [Monad m] [MonadEnv m] [MonadError m] (visibility : Visibility) (declName : Name) : m Name :=
 match visibility with
 | Visibility.private => do
   env ← getEnv;
@@ -119,11 +117,5 @@ match visibility with
   checkNotAlreadyDeclared declName;
   pure declName
 
-def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
-currNamespace ← getCurrNamespace;
-let declName := currNamespace ++ atomicName;
-applyVisibility modifiers.visibility declName
-
-end Command
 end Elab
 end Lean

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Attributes
+import Lean.MonadEnv
 
 namespace Lean
 namespace Compiler
@@ -29,4 +30,11 @@ def setImplementedBy (env : Environment) (declName : Name) (impName : Name) : Ex
 implementedByAttr.setParam env declName impName
 
 end Compiler
+
+def setImplementedBy {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (impName : Name) : m Unit := do
+env ← getEnv;
+match Compiler.setImplementedBy env declName impName with
+| Except.ok env   => setEnv env
+| Except.error ex => throwError ex
+
 end Lean

@@ -7,6 +7,8 @@ Authors: Leonardo de Moura
 #include <string>
 #include <lean/sstream.h>
 #include "util/object_ref.h"
+#include "util/option_ref.h"
+#include "util/io.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
 #include "library/util.h"
@@ -27,52 +29,15 @@ bool is_extern_constant(environment const & env, name const & c) {
     return static_cast<bool>(get_extern_attr_data(env, c));
 }
 
-static optional<unsigned> get_given_arity(environment const & env, name const & c) {
-    optional<extern_attr_data_value> v = get_extern_attr_data(env, c);
-    lean_assert(v);
-    object * arity = cnstr_get(v->raw(), 0);
-    if (is_scalar(arity)) return optional<unsigned>(); // none
-    // arity is (some v)
-    arity = cnstr_get(arity, 0);
-    if (is_scalar(arity)) return optional<unsigned>(unbox(arity));
-    return optional<unsigned>(); // ignore big nums
-}
-
-bool is_io(expr const & type) {
-    return is_app_of(type, get_io_name()) || is_app_of(type, get_eio_name()) || is_app_of(type, get_st_name());
-}
-
-/*
-  Similar to lean::get_arity, but adds `1` if resultant type is of the form `IO a`.
-  Motivation: we want to correctly guess the IO extern primitive without user help.
-  By user help, we mean a definition such as
-  ```
-  @[extern 2 "lean_io_getenv"]
-  constant getEnv (var : @& String) : IO (Option String) := default _
-  ```
-  were we explicitly say `getEnv` has arity 2.
-*/
-static unsigned get_arity_for_extern(expr type) {
-    unsigned r = 0;
-    while (is_pi(type)) {
-        type = binding_body(type);
-        r++;
-    }
-    if (is_io(type)) {
-        r++;
-    }
-    return r;
-}
+extern "C" object * lean_get_extern_const_arity(object* env, object*, object* w);
 
 optional<unsigned> get_extern_constant_arity(environment const & env, name const & c) {
-    if (is_extern_constant(env, c)) {
-        if (optional<unsigned> given_arity = get_given_arity(env, c)) {
-            return given_arity;
-        }
-        /* Infer arity from type */
-        return optional<unsigned>(get_arity_for_extern(env.get(c).get_type()));
+    auto arity = get_io_result<option_ref<nat>>(lean_get_extern_const_arity(env.to_obj_arg(), c.to_obj_arg(), lean_io_mk_world()));
+    if (optional<nat> aux = arity.get()) {
+        return optional<unsigned>(aux->get_small_value());
+    } else {
+        return optional<unsigned>();
     }
-    return optional<unsigned>();
 }
 
 bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bool> & borrowed_args, bool & borrowed_res) {
@@ -87,18 +52,14 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
             type = binding_body(type);
         }
         borrowed_res = false;
-        if (optional<unsigned> given_arity = get_given_arity(env, c)) {
-            if (*given_arity < arity) {
-                borrowed_args.shrink(*given_arity);
+        if (optional<unsigned> c_arity = get_extern_constant_arity(env, c)) {
+            if (*c_arity < arity) {
+                borrowed_args.shrink(*c_arity);
                 return true;
-            } else if (*given_arity > arity) {
-                borrowed_args.resize(*given_arity, false);
+            } else if (*c_arity > arity) {
+                borrowed_args.resize(*c_arity, false);
                 return true;
             }
-        } else if (is_io(type)) {
-            /* See: `get_arity_for_extern`. We have special code for guessing
-               the arity for external IO primitives. */
-            borrowed_args.push_back(false);
         }
         borrowed_res = is_borrowed(type);
         return true;
@@ -126,23 +87,17 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
         }
         type = instantiate_rev(type, locals.size(), locals.data());
         expr ll_type;
-        if (optional<unsigned> given_arity = get_given_arity(env, c)) {
-            if (arity < *given_arity) {
+        if (optional<unsigned> c_arity = get_extern_constant_arity(env, c)) {
+            if (arity < *c_arity) {
                 /* Fill with `_obj` */
-                arg_ll_types.resize(*given_arity, mk_enf_object_type());
+                arg_ll_types.resize(*c_arity, mk_enf_object_type());
                 ll_type = mk_enf_object_type();
-            } else if (arity > *given_arity) {
-                arg_ll_types.shrink(*given_arity);
+            } else if (arity > *c_arity) {
+                arg_ll_types.shrink(*c_arity);
                 ll_type = mk_enf_object_type(); /* Result is a closure */
             } else {
                 ll_type = mk_runtime_type(st, lctx, type);
             }
-        } else if (is_io(type)) {
-            /* Add "world".
-               See: `get_arity_for_extern`. We have special code for guessing
-               the arity for external IO primitives. */
-            arg_ll_types.push_back(mk_enf_object_type());
-            ll_type = mk_enf_object_type();
         } else {
             ll_type = mk_runtime_type(st, lctx, type);
         }

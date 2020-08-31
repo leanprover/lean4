@@ -112,7 +112,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_IR_findEnvDecl___spec__5___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___closed__5;
-lean_object* l_Lean_IR_getDecl___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_mkDeclMapExtension___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l_Lean_IR_declMapExt___elambda__2(lean_object*);
@@ -212,6 +211,7 @@ lean_object* l_Lean_IR_declMapExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_IR_mkDeclMapExtension___spec__15(lean_object*, lean_object*);
+extern lean_object* l_Lean_addClass___closed__1;
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_IR_mkDeclMapExtension___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_tracePrefixOptionName___closed__2;
@@ -3177,14 +3177,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_getDecl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unknown declaration '");
-return x_1;
-}
-}
 lean_object* l_Lean_IR_getDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3204,7 +3196,7 @@ x_7 = lean_ctor_get(x_4, 0);
 lean_dec(x_7);
 x_8 = l_System_FilePath_dirName___closed__1;
 x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_1);
-x_10 = l_Lean_IR_getDecl___closed__1;
+x_10 = l_Lean_addClass___closed__1;
 x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
 x_12 = l_Char_HasRepr___closed__1;
@@ -3221,7 +3213,7 @@ lean_inc(x_14);
 lean_dec(x_4);
 x_15 = l_System_FilePath_dirName___closed__1;
 x_16 = l_Lean_Name_toStringWithSep___main(x_15, x_1);
-x_17 = l_Lean_IR_getDecl___closed__1;
+x_17 = l_Lean_addClass___closed__1;
 x_18 = lean_string_append(x_17, x_16);
 lean_dec(x_16);
 x_19 = l_Char_HasRepr___closed__1;
@@ -3663,7 +3655,7 @@ x_8 = lean_ctor_get(x_5, 0);
 lean_dec(x_8);
 x_9 = l_System_FilePath_dirName___closed__1;
 x_10 = l_Lean_Name_toStringWithSep___main(x_9, x_1);
-x_11 = l_Lean_IR_getDecl___closed__1;
+x_11 = l_Lean_addClass___closed__1;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);
 x_13 = l_Char_HasRepr___closed__1;
@@ -3680,7 +3672,7 @@ lean_inc(x_15);
 lean_dec(x_5);
 x_16 = l_System_FilePath_dirName___closed__1;
 x_17 = l_Lean_Name_toStringWithSep___main(x_16, x_1);
-x_18 = l_Lean_IR_getDecl___closed__1;
+x_18 = l_Lean_addClass___closed__1;
 x_19 = lean_string_append(x_18, x_17);
 lean_dec(x_17);
 x_20 = l_Char_HasRepr___closed__1;
@@ -3810,8 +3802,6 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_IR_declMapExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_IR_declMapExt);
 lean_dec_ref(res);
-l_Lean_IR_getDecl___closed__1 = _init_l_Lean_IR_getDecl___closed__1();
-lean_mark_persistent(l_Lean_IR_getDecl___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

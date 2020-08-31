@@ -95,9 +95,7 @@ def openOnly         := parser! try (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 
-def mutualElement := «declaration» <|> «variable» <|> «variables» <|> «universe» <|> «universes» <|> «open» <|> «check»
-
-@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 mutualElement >> "end"
+@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (notFollowedBy «end» >> commandParser) >> "end"
 
 end Command
 end Parser

@@ -135,13 +135,16 @@ match x { currMacroScope := scp, mainModule := env.mainModule, currRecDepth := c
 @[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] (x : Macro) (stx : Syntax) : m Syntax :=
 liftMacroM (x stx)
 
+def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syntax) := do
+catch
+  (do newStx ← getMacros env stx; pure (some newStx))
+  (fun ex => match ex with
+    | Macro.Exception.unsupportedSyntax => pure none
+    | _                                 => throw ex)
+
 partial def expandMacros (env : Environment) : Syntax → MacroM Syntax
 | stx@(Syntax.node k args) => do
-  stxNew? ← catch
-    (do newStx ← getMacros env stx; pure (some newStx))
-    (fun ex => match ex with
-      | Macro.Exception.unsupportedSyntax => pure none
-      | _                                 => throw ex);
+  stxNew? ← expandMacro? env stx;
   match stxNew? with
   | some stxNew => expandMacros stxNew
   | none        => do

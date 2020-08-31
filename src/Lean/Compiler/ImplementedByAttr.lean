@@ -22,8 +22,11 @@ registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) f
 constant implementedByAttr : ParametricAttribute Name := arbitrary _
 
 @[export lean_get_implemented_by]
-def getImplementedBy (env : Environment) (n : Name) : Option Name :=
-implementedByAttr.getParam env n
+def getImplementedBy (env : Environment) (declName : Name) : Option Name :=
+implementedByAttr.getParam env declName
+
+def setImplementedBy (env : Environment) (declName : Name) (impName : Name) : Except String Environment :=
+implementedByAttr.setParam env declName impName
 
 end Compiler
 end Lean

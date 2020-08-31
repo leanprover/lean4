@@ -13,11 +13,9 @@ let (debug, f) : Bool × String := match args with
   | _         => panic! "usage: file [-d]";
 env ← mkEmptyEnvironment;
 stx ← Lean.Parser.parseFile env args.head!;
-(f, _) ← (PrettyPrinter.ppModule stx).toIO { options := Options.empty.setBool `trace.PrettyPrinter.format debug } { env := env };
+(f, _) ← (finally (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
 IO.print f;
-let inputCtx := Parser.mkInputContext (toString f) "<foo>";
-let (stx', state, messages) := Parser.parseHeader env inputCtx;
-stx' ← Parser.parseFileAux env inputCtx state messages #[stx'];
+stx' ← Lean.Parser.parseModule env args.head! (toString f);
 pure ()
 -- TODO: this doesn't quite work yet because the parenthesizer adds unnecessary parentheses in one case
 /-

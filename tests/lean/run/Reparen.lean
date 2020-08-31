@@ -27,10 +27,10 @@ stx ← Lean.Parser.parseFile env args.head!;
 let header := stx.getArg 0;
 some s ← pure header.reprint | throw $ IO.userError "header reprint failed";
 IO.print s;
-let cmds := stx.getArgs.extract 1 stx.getArgs.size;
+let cmds := (stx.getArg 1).getArgs;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
-  (cmd, _) ← (PrettyPrinter.parenthesizeCommand cmd).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
+  (cmd, _) ← (finally (PrettyPrinter.parenthesizeCommand cmd) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
   some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 

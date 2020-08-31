@@ -45,16 +45,16 @@ static S g_s(0, 0, "");
 
 extern "C" lean_object * lean_S_global_append(b_lean_obj_arg str, lean_object /* w */) {
     g_s.m_s += lean_string_cstr(str);
-    return lean::set_io_result(lean_box(0));
+    return lean::io_result_mk_ok(lean_box(0));
 }
 
 extern "C" lean_object * lean_S_global_string(lean_object /* w */) {
-    return lean::set_io_result(lean::mk_string(g_s.m_s));
+    return lean::io_result_mk_ok(lean::mk_string(g_s.m_s));
 }
 
 extern "C" lean_object * lean_S_update_global(b_lean_obj_arg s, lean_object /* w */) {
     g_s.m_x = to_S(s)->m_x;
     g_s.m_y = to_S(s)->m_y;
     g_s.m_s = to_S(s)->m_s;
-    return lean::set_io_result(lean_box(0));
+    return lean::io_result_mk_ok(lean_box(0));
 }

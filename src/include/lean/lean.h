@@ -1765,13 +1765,14 @@ static inline b_lean_obj_res lean_io_result_get_value(b_lean_obj_arg r) { assert
 static inline b_lean_obj_res lean_io_result_get_error(b_lean_obj_arg r) { assert(lean_io_result_is_error(r)); return lean_ctor_get(r, 0); }
 void lean_io_result_show_error(b_lean_obj_arg r);
 void lean_io_mark_end_initialization();
-static inline lean_obj_res lean_mk_io_result(lean_obj_arg a) {
+static inline lean_obj_res lean_io_result_mk_ok(lean_obj_arg a) {
     lean_object * r = lean_alloc_ctor(0, 2, 0);
     lean_ctor_set(r, 0, a);
     lean_ctor_set(r, 1, lean_box(0));
     return r;
 }
-static inline lean_obj_res lean_mk_io_error(lean_obj_arg e) {
+static inline lean_obj_res lean_mk_io_result(lean_obj_arg a) { return lean_io_result_mk_ok(a); }
+static inline lean_obj_res lean_io_result_mk_error(lean_obj_arg e) {
     lean_object * r = lean_alloc_ctor(1, 2, 0);
     lean_ctor_set(r, 0, e);
     lean_ctor_set(r, 1, lean_box(0));

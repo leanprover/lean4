@@ -44,16 +44,16 @@ extern "C" object * lean_save_module_data(object * fname, object * mdata, object
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
         if (out.fail()) {
-            return set_io_error((sstream() << "failed to create file '" << olean_fn << "'").str());
+            return io_result_mk_error((sstream() << "failed to create file '" << olean_fn << "'").str());
         }
         object_compactor compactor;
         compactor(mdata_ref.raw());
         out.write(g_olean_header, strlen(g_olean_header));
         out.write(static_cast<char const *>(compactor.data()), compactor.size());
         out.close();
-        return set_io_result(box(0));
+        return io_result_mk_ok(box(0));
     } catch (exception & ex) {
-        return set_io_error((sstream() << "failed to write '" << olean_fn << "': " << ex.what()).str());
+        return io_result_mk_error((sstream() << "failed to write '" << olean_fn << "': " << ex.what()).str());
     }
 }
 
@@ -63,7 +63,7 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
         shared_file_lock olean_lock(olean_fn);
         std::ifstream in(olean_fn, std::ios_base::binary);
         if (in.fail()) {
-            return set_io_error((sstream() << "failed to open file '" << olean_fn << "'").str());
+            return io_result_mk_error((sstream() << "failed to open file '" << olean_fn << "'").str());
         }
         /* Get file size */
         in.seekg(0, in.end);
@@ -71,19 +71,19 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
         in.seekg(0);
         size_t header_size = strlen(g_olean_header);
         if (size < header_size) {
-            return set_io_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
+            return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
         char * header = new char[header_size];
         in.read(header, header_size);
         if (strncmp(header, g_olean_header, header_size) != 0) {
-            return set_io_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
+            return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
         delete[] header;
         // use `malloc` here as expected by `compacted_region`
         char * buffer = static_cast<char *>(malloc(size - header_size));
         in.read(buffer, size - header_size);
         if (!in) {
-            return set_io_error((sstream() << "failed to read file '" << olean_fn << "'").str());
+            return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
         }
         in.close();
         compacted_region * region = new compacted_region(size - header_size, buffer);
@@ -91,9 +91,9 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
         object * mod_region = alloc_cnstr(0, 2, 0);
         cnstr_set(mod_region, 0, mod);
         cnstr_set(mod_region, 1, box_size_t(reinterpret_cast<size_t>(region)));
-        return set_io_result(mod_region);
+        return io_result_mk_ok(mod_region);
     } catch (exception & ex) {
-        return set_io_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
+        return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
     }
 }
 
@@ -153,9 +153,9 @@ extern "C" object * lean_serialize_modifications(object * mod_list, object *) {
         object * r = alloc_sarray(1, bytes.size(), bytes.size());
         memcpy(sarray_cptr(r), bytes.data(), bytes.size());
 
-        return set_io_result(r);
+        return io_result_mk_ok(r);
     } catch (exception & ex) {
-        return set_io_error(ex.what());
+        return io_result_mk_error(ex.what());
     }
 }
 
@@ -185,9 +185,9 @@ extern "C" object * lean_perform_serialized_modifications(object * env0, object 
         if (!in.good()) {
             throw exception(sstream() << "olean file has been corrupted");
         }
-        return set_io_result(env.steal());
+        return io_result_mk_ok(env.steal());
     } catch (exception & ex) {
-        return set_io_error(ex.what());
+        return io_result_mk_error(ex.what());
     }
 }
 

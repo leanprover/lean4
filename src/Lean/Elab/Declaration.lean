@@ -202,6 +202,18 @@ views ← elems.mapM $ fun stx => do {
 };
 elabInductiveViews views
 
+/- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
+private def isMutualDef (stx : Syntax) : Bool :=
+(stx.getArg 1).getArgs.all $ fun elem =>
+  let decl     := elem.getArg 1;
+  let declKind := decl.getKind;
+  declKind == `Lean.Parser.Command.def ||
+  declKind == `Lean.Parser.Command.abbrev ||
+  declKind == `Lean.Parser.Command.theorem
+
+private def elabMutualDef (elems : Array Syntax) : CommandElabM Unit :=
+throwError "WIP mutual def"
+
 private def isMutualPreambleCommand (stx : Syntax) : Bool :=
 let k := stx.getKind;
 k == `Lean.Parser.Command.variable ||
@@ -235,6 +247,22 @@ match splitMutualPreamble (stx.getArg 1).getArgs 0 with
 | none =>
   pure none
 
+private def expandMutualElement? (stx : Syntax) : CommandElabM (Option Syntax) := do
+env ← getEnv;
+let elems := (stx.getArg 1).getArgs;
+(elemsNew, modified) ← elems.foldlM
+  (fun (acc : Array Syntax × Bool) elem => do
+     let (elemsNew, modified) := acc;
+     elem? ← liftMacroM $ expandMacro? env elem;
+     match elem? with
+     | some elemNew => pure (elemsNew.push elemNew, true)
+     | none         => pure (elemsNew.push elem, modified))
+  (#[], false);
+if modified then
+  pure (some (stx.setArg 1 (mkNullNode elemsNew)))
+else
+  pure none
+
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab :=
 fun stx => do
@@ -244,8 +272,13 @@ fun stx => do
   | none        =>
     if isMutualInductive stx then
       elabMutualInductive (stx.getArg 1).getArgs
-    else
-      throwError "invalid mutual block"
+    else if isMutualDef stx then
+      elabMutualDef (stx.getArg 1).getArgs
+    else do
+      stxNew? ← expandMutualElement? stx;
+      match stxNew? with
+      | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
+      | none        => throwError "invalid mutual block"
 
 end Command
 end Elab

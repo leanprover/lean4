@@ -8,9 +8,9 @@ import Init.System.IO
 import Lean.Server
 
 def main (n : List String) : IO UInt32 := do
-i ← IO.stdin;
-o ← IO.stdout;
-e ← IO.stderr;
+i ← IO.getStdin;
+o ← IO.getStdout;
+e ← IO.getStderr;
 Lean.initSearchPath;
 catch
   (Lean.Server.initAndRunServer i o)

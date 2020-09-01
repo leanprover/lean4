@@ -10,6 +10,7 @@ import Lean.Elab.CollectFVars
 import Lean.Elab.Command
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Binders
+import Lean.Elab.DeclUtil
 
 namespace Lean
 namespace Elab
@@ -42,6 +43,26 @@ structure DefView :=
 (binders       : Syntax)
 (type?         : Option Syntax)
 (val           : Syntax)
+
+def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
+-- parser! "abbrev " >> declId >> optDeclSig >> declVal
+let (binders, type) := expandOptDeclSig (stx.getArg 2);
+let modifiers       := modifiers.addAttribute { name := `inline };
+let modifiers       := modifiers.addAttribute { name := `reducible };
+{ ref := stx, kind := DefKind.abbrev, modifiers := modifiers,
+  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3 }
+
+def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
+-- parser! "def " >> declId >> optDeclSig >> declVal
+let (binders, type) := expandOptDeclSig (stx.getArg 2);
+{ ref := stx, kind := DefKind.def, modifiers := modifiers,
+  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3 }
+
+def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
+-- parser! "theorem " >> declId >> declSig >> declVal
+let (binders, type) := expandDeclSig (stx.getArg 2);
+{ ref := stx, kind := DefKind.theorem, modifiers := modifiers,
+  declId := stx.getArg 1, binders := binders, type? := some type, val := stx.getArg 3 }
 
 private def removeUnused (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do

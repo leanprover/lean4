@@ -60,30 +60,13 @@ else
     none
 
 def elabAbbrev (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
--- parser! "abbrev " >> declId >> optDeclSig >> declVal
-let (binders, type) := expandOptDeclSig (stx.getArg 2);
-let modifiers       := modifiers.addAttribute { name := `inline };
-let modifiers       := modifiers.addAttribute { name := `reducible };
-elabDefLike {
-  ref := stx, kind := DefKind.abbrev, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3
-}
+elabDefLike $ mkDefViewOfAbbrev modifiers stx
 
 def elabDef (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
--- parser! "def " >> declId >> optDeclSig >> declVal
-let (binders, type) := expandOptDeclSig (stx.getArg 2);
-elabDefLike {
-  ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3
-}
+elabDefLike $ mkDefViewOfDef modifiers stx
 
 def elabTheorem (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
--- parser! "theorem " >> declId >> declSig >> declVal
-let (binders, type) := expandDeclSig (stx.getArg 2);
-elabDefLike {
-  ref := stx, kind := DefKind.theorem, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := some type, val := stx.getArg 3
-}
+elabDefLike $ mkDefViewOfTheorem modifiers stx
 
 def elabConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 -- parser! "constant " >> declId >> declSig >> optional declValSimple

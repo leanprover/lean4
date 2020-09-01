@@ -1,11 +1,11 @@
-letrec1.lean:6:7: error: 'f1.g' has already been declared
+letrec1.lean:6:8: error: 'f1.g' has already been declared
 with resulting expansion
-  letrec g : Nat → Nat -- Error f1.g has already been declared
+  let rec g : Nat → Nat -- Error f1.g has already been declared
      :=   fun  x  => match   x  with  0   => x
     | y+1 => 2 * g y;
   g (g x) 
 while expanding
-  letrec g : Nat → Nat -- Error f1.g has already been declared
+  let rec g : Nat → Nat -- Error f1.g has already been declared
     | 0   => x
     | y+1 => 2 * g y;
   g (g x) 
@@ -17,7 +17,7 @@ while expanding
 while expanding
   { y : Nat // y < g x } 
 while expanding
-  letrec
+  let rec
     g : Nat → Nat
     | 0   => 1
     | y+1 => (h y).val,

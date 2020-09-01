@@ -185,7 +185,7 @@ p1 <|> p2
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
-@[extern 8 "lean_mk_antiquot_formatter"]
+@[extern "lean_mk_antiquot_formatter"]
 constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
 arbitrary _
 

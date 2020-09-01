@@ -241,7 +241,7 @@ private def expandMutualPreamble? (stx : Syntax) : MacroM (Option Syntax) :=
 match splitMutualPreamble (stx.getArg 1).getArgs 0 with
 | some (preamble, rest) => do
   secCmd    ← `(section);
-  newMutual ← `(mutual $rest* end);
+  let newMutual := stx.setArg 1 (mkNullNode rest);
   endCmd    ← `(end);
   pure (some (mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])))
 | none =>

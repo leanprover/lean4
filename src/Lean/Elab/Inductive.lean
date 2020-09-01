@@ -454,8 +454,7 @@ scopeLevelNames ← Term.getLevelNames;
 checkLevelNames views;
 let allUserLevelNames := view0.levelNames;
 let isUnsafe          := view0.modifiers.isUnsafe;
-withRef view0.ref $
-adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNames }) do
+withRef view0.ref $ Term.withLevelNames allUserLevelNames do
   rs ← elabHeader views;
   withInductiveLocalDecls rs fun params indFVars => do
     let numExplicitParams := params.size;

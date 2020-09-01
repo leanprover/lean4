@@ -625,7 +625,7 @@ fun stx => do
   ```
   but we also accept a single identifier to users to make macro writing more convenient .
 -/
-def expandDeclId (declId : Syntax) : Name × Syntax :=
+def expandDeclIdCore (declId : Syntax) : Name × Syntax :=
 if declId.isIdent then
   (declId.getId, mkNullNode)
 else
@@ -633,9 +633,9 @@ else
   let optUnivDeclStx := declId.getArg 1;
   (id, optUnivDeclStx)
 
-def withDeclId {α} (declId : Syntax) (f : Name → CommandElabM α) : CommandElabM α := do
+def expandDeclId (declId : Syntax) : CommandElabM (Name × List Name) := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-let (id, optUnivDeclStx) := expandDeclId declId;
+let (id, optUnivDeclStx) := expandDeclIdCore declId;
 savedLevelNames ← getLevelNames;
 levelNames      ←
   if optUnivDeclStx.isNone then
@@ -651,18 +651,9 @@ levelNames      ←
           pure (id :: levelNames))
       savedLevelNames
   };
-withRef declId $
--- extract (optional) namespace part of id, after decoding macro scopes that would interfere with the check
-let scpView := extractMacroScopes id;
-match scpView.name with
-| Name.str pre s _ =>
-  /- Add back macro scopes. We assume a declaration like `def a.b[1,2] ...` with macro scopes `[1,2]`
-     is always meant to mean `namespace a def b[1,2] ...`. -/
-  let id := { scpView with name := mkNameSimple s }.review;
-  withNamespace pre $ do
-    modifyScope $ fun scope => { scope with levelNames := levelNames };
-    finally (f id) (modifyScope $ fun scope => { scope with levelNames := savedLevelNames })
-| _ => throwError "invalid declaration name"
+unless (extractMacroScopes id).name.isAtomic $
+  throwErrorAt declId "atomic identifier expected";
+pure (id, levelNames)
 
 /--
   Sort the given list of `usedParams` using the following order:

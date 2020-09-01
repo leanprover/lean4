@@ -17,7 +17,7 @@ open Meta
 
 /- Auxiliary function for `expandDeclNamespace?` -/
 def expandDeclIdNamespace? (declId : Syntax) : Option (Name × Syntax) :=
-let (id, optUnivDeclStx) := expandDeclId declId;
+let (id, optUnivDeclStx) := expandDeclIdCore declId;
 let scpView := extractMacroScopes id;
 match scpView.name with
 | Name.str Name.anonymous s _ => none
@@ -125,31 +125,30 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 scopeLevelNames ← getLevelNames;
-withDeclId declId $ fun name => do
-  declName          ← mkDeclName modifiers name;
-  allUserLevelNames ← getLevelNames;
-  runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do
-    applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
-    type ← Term.elabType typeStx;
-    Term.synthesizeSyntheticMVarsNoPostponing;
-    type ← instantiateMVars type;
-    type ← mkForallFVars xs type;
-    (type, _) ← mkForallUsedOnly vars type;
-    (type, _) ← Term.levelMVarToParam type;
-    let usedParams  := (collectLevelParams {} type).params;
-    match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
-    | Except.error msg      => throwErrorAt stx msg
-    | Except.ok levelParams => do
-      let decl := Declaration.axiomDecl {
-        name     := declName,
-        lparams  := levelParams,
-        type     := type,
-        isUnsafe := modifiers.isUnsafe
-      };
-      Term.ensureNoUnassignedMVars decl;
-      addDecl decl;
-      applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-      applyAttributes declName modifiers.attrs AttributeApplicationTime.afterCompilation
+(name, allUserLevelNames) ← expandDeclId declId;
+declName          ← mkDeclName modifiers name;
+runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
+  applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
+  type ← Term.elabType typeStx;
+  Term.synthesizeSyntheticMVarsNoPostponing;
+  type ← instantiateMVars type;
+  type ← mkForallFVars xs type;
+  (type, _) ← mkForallUsedOnly vars type;
+  (type, _) ← Term.levelMVarToParam type;
+  let usedParams  := (collectLevelParams {} type).params;
+  match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
+  | Except.error msg      => throwErrorAt stx msg
+  | Except.ok levelParams => do
+    let decl := Declaration.axiomDecl {
+      name     := declName,
+      lparams  := levelParams,
+      type     := type,
+      isUnsafe := modifiers.isUnsafe
+    };
+    Term.ensureNoUnassignedMVars decl;
+    addDecl decl;
+    applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+    applyAttributes declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
@@ -161,34 +160,33 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTo
 checkValidInductiveModifier modifiers;
 let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
 let declId           := decl.getArg numTokens;
-withDeclId declId fun name => do
-  levelNames ← getLevelNames;
-  declName   ← mkDeclName modifiers name;
-  ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => withRef ctor do {
-    -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
-    ctorModifiers ← elabModifiers (ctor.getArg 1);
-    when (ctorModifiers.isPrivate && modifiers.isPrivate) $
-      throwError "invalid 'private' constructor in a 'private' inductive datatype";
-    when (ctorModifiers.isProtected && modifiers.isPrivate) $
-      throwError "invalid 'protected' constructor in a 'private' inductive datatype";
-    checkValidCtorModifier ctorModifiers;
-    let ctorName := ctor.getIdAt 2;
-    let ctorName := declName ++ ctorName;
-    ctorName ← withRef (ctor.getArg 2) $ applyVisibility ctorModifiers.visibility ctorName;
-    let inferMod := !(ctor.getArg 3).isNone;
-    let (binders, type?) := expandOptDeclSig (ctor.getArg 4);
-    pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
-  };
-  pure {
-    ref           := decl,
-    modifiers     := modifiers,
-    shortDeclName := name,
-    declName      := declName,
-    levelNames    := levelNames,
-    binders       := binders,
-    type?         := type?,
-    ctors         := ctors
-  }
+(name, levelNames) ← expandDeclId declId;
+declName   ← withRef declId $ mkDeclName modifiers name;
+ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => withRef ctor do {
+  -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
+  ctorModifiers ← elabModifiers (ctor.getArg 1);
+  when (ctorModifiers.isPrivate && modifiers.isPrivate) $
+    throwError "invalid 'private' constructor in a 'private' inductive datatype";
+  when (ctorModifiers.isProtected && modifiers.isPrivate) $
+    throwError "invalid 'protected' constructor in a 'private' inductive datatype";
+  checkValidCtorModifier ctorModifiers;
+  let ctorName := ctor.getIdAt 2;
+  let ctorName := declName ++ ctorName;
+  ctorName ← withRef (ctor.getArg 2) $ applyVisibility ctorModifiers.visibility ctorName;
+  let inferMod := !(ctor.getArg 3).isNone;
+  let (binders, type?) := expandOptDeclSig (ctor.getArg 4);
+  pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
+};
+pure {
+  ref           := decl,
+  modifiers     := modifiers,
+  shortDeclName := name,
+  declName      := declName,
+  levelNames    := levelNames,
+  binders       := binders,
+  type?         := type?,
+  ctors         := ctors
+}
 
 private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=
 inductiveSyntaxToView modifiers decl 2

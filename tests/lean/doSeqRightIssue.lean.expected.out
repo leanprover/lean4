@@ -1,6 +1,6 @@
 doSeqRightIssue.lean:5:24: error: unknown universe level v
 doSeqRightIssue.lean:5:24: error: unknown universe level v
-doSeqRightIssue.lean:7:8: error: don't know how to synthesize placeholder
+doSeqRightIssue.lean:7:0: error: don't know how to synthesize placeholder
 context:
 p₁ p₂ : (sorryAx (Sort u_1))
 h₁ : (sorryAx ?m.319)=(sorryAx ?m.319)
@@ -8,7 +8,7 @@ h : (sorryAx (?m.320 _))≅_
 _a_1 _a_2 : (sorryAx (Sort u_1))
 _a_3 : (sorryAx ?m.319)=(sorryAx ?m.319)
 ⊢ Prop
-doSeqRightIssue.lean:7:8: error: don't know how to synthesize placeholder
+doSeqRightIssue.lean:7:0: error: don't know how to synthesize placeholder
 context:
 p₁ p₂ : (sorryAx (Sort u_1))
 h₁ : (sorryAx ?m.319)=(sorryAx ?m.319)

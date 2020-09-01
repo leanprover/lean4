@@ -125,32 +125,31 @@ else
 def elabDefLike (view : DefView) : CommandElabM Unit :=
 withRef view.ref do
 scopeLevelNames ← getLevelNames;
-withDeclId view.declId $ fun name => do
-  declName          ← withRef view.declId $ mkDeclName view.modifiers name;
-  allUserLevelNames ← getLevelNames;
-  runTermElabM declName $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs => do
-    applyAttributes declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
-    decl? ← match view.type? with
-      | some typeStx => do
-        type ← Term.elabType typeStx;
-        Term.synthesizeSyntheticMVarsNoPostponing;
-        type ← instantiateMVars type;
-        withUsedWhen' vars xs type view.kind.isTheorem $ fun vars => do
-          val  ← elabDefVal view.val type;
-          mkDef? view declName scopeLevelNames allUserLevelNames vars xs type val
-      | none => do {
-          type ← withRef view.binders $ mkFreshTypeMVar;
-          val  ← elabDefVal view.val type;
-          mkDef? view declName scopeLevelNames allUserLevelNames vars xs type val
-        };
-    match decl? with
-    | none      => pure ()
-    | some decl => do
-      Term.ensureNoUnassignedMVars decl;
-      addDecl decl;
-      applyAttributes declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-      compileDecl decl;
-      applyAttributes declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
+(name, allUserLevelNames) ← expandDeclId view.declId;
+declName          ← withRef view.declId $ mkDeclName view.modifiers name;
+runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders view.binders.getArgs fun xs => do
+  applyAttributes declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
+  decl? ← match view.type? with
+    | some typeStx => do
+      type ← Term.elabType typeStx;
+      Term.synthesizeSyntheticMVarsNoPostponing;
+      type ← instantiateMVars type;
+      withUsedWhen' vars xs type view.kind.isTheorem $ fun vars => do
+        val  ← elabDefVal view.val type;
+        mkDef? view declName scopeLevelNames allUserLevelNames vars xs type val
+    | none => do {
+        type ← withRef view.binders $ mkFreshTypeMVar;
+        val  ← elabDefVal view.val type;
+        mkDef? view declName scopeLevelNames allUserLevelNames vars xs type val
+      };
+  match decl? with
+  | none      => pure ()
+  | some decl => do
+    Term.ensureNoUnassignedMVars decl;
+    addDecl decl;
+    applyAttributes declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+    compileDecl decl;
+    applyAttributes declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.definition;

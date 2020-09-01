@@ -526,8 +526,7 @@ let parents   := if exts.isNone then #[] else ((exts.getArg 0).getArg 1).getArgs
 let optType   := stx.getArg 4;
 type ← if optType.isNone then `(Type _) else pure $ (optType.getArg 0).getArg 1;
 scopeLevelNames ← getLevelNames;
-(name, allUserLevelNames) ← expandDeclId declId;
-declName ← mkDeclName modifiers name;
+⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers;
 ctor ← expandCtor stx modifiers declName;
 fields ← expandFields stx modifiers declName;
 runTermElabM declName $ fun scopeVars => Term.withLevelNames allUserLevelNames $ Term.elabBinders params fun params => elabStructureView {

@@ -618,43 +618,6 @@ fun stx => do
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
   | _ => logErrorAt val ("unexpected set_option value " ++ toString val)
 
-/-
-  `declId` is of the form
-  ```
-  parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-  ```
-  but we also accept a single identifier to users to make macro writing more convenient .
--/
-def expandDeclIdCore (declId : Syntax) : Name × Syntax :=
-if declId.isIdent then
-  (declId.getId, mkNullNode)
-else
-  let id             := declId.getIdAt 0;
-  let optUnivDeclStx := declId.getArg 1;
-  (id, optUnivDeclStx)
-
-def expandDeclId (declId : Syntax) : CommandElabM (Name × List Name) := do
--- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-let (id, optUnivDeclStx) := expandDeclIdCore declId;
-savedLevelNames ← getLevelNames;
-levelNames      ←
-  if optUnivDeclStx.isNone then
-    pure savedLevelNames
-  else do {
-    let extraLevels := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
-    extraLevels.foldlM
-      (fun levelNames idStx =>
-        let id := idStx.getId;
-        if levelNames.elem id then
-          withRef idStx $ throwAlreadyDeclaredUniverseLevel id
-        else
-          pure (id :: levelNames))
-      savedLevelNames
-  };
-unless (extractMacroScopes id).name.isAtomic $
-  throwErrorAt declId "atomic identifier expected";
-pure (id, levelNames)
-
 /--
   Sort the given list of `usedParams` using the following order:
   - If it is an explicit level `allUserParams`, then use user given order.
@@ -676,9 +639,52 @@ match allUserParams.find? $ fun u => !usedParams.contains u && !scopeParams.elem
   pure $ result ++ remaining.toList
 
 def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
+unless (extractMacroScopes atomicName).name.isAtomic $
+  throwError ("atomic identifier expected '" ++ atomicName ++ "'");
 currNamespace ← getCurrNamespace;
 let declName := currNamespace ++ atomicName;
 applyVisibility modifiers.visibility declName
+
+/-
+  `declId` is of the form
+  ```
+  parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+  ```
+  but we also accept a single identifier to users to make macro writing more convenient .
+-/
+def expandDeclIdCore (declId : Syntax) : Name × Syntax :=
+if declId.isIdent then
+  (declId.getId, mkNullNode)
+else
+  let id             := declId.getIdAt 0;
+  let optUnivDeclStx := declId.getArg 1;
+  (id, optUnivDeclStx)
+
+structure ExpandDeclIdResult :=
+(shortName  : Name)
+(declName   : Name)
+(levelNames : List Name)
+
+def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
+-- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+let (shortName, optUnivDeclStx) := expandDeclIdCore declId;
+savedLevelNames ← getLevelNames;
+levelNames      ←
+  if optUnivDeclStx.isNone then
+    pure savedLevelNames
+  else do {
+    let extraLevels := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
+    extraLevels.foldlM
+      (fun levelNames idStx =>
+        let id := idStx.getId;
+        if levelNames.elem id then
+          withRef idStx $ throwAlreadyDeclaredUniverseLevel id
+        else
+          pure (id :: levelNames))
+      savedLevelNames
+  };
+declName ← withRef declId $ mkDeclName modifiers shortName;
+pure { shortName := shortName, declName := declName, levelNames := levelNames }
 
 end Command
 end Elab

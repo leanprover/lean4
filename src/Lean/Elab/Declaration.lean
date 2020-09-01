@@ -125,8 +125,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 scopeLevelNames ← getLevelNames;
-(name, allUserLevelNames) ← expandDeclId declId;
-declName          ← mkDeclName modifiers name;
+⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers;
 runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
   applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   type ← Term.elabType typeStx;
@@ -160,8 +159,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTo
 checkValidInductiveModifier modifiers;
 let (binders, type?) := expandOptDeclSig (decl.getArg (numTokens + 1));
 let declId           := decl.getArg numTokens;
-(name, levelNames) ← expandDeclId declId;
-declName   ← withRef declId $ mkDeclName modifiers name;
+⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers;
 ctors      ← (decl.getArg (numTokens + 2)).getArgs.mapM fun ctor => withRef ctor do {
   -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
   ctorModifiers ← elabModifiers (ctor.getArg 1);

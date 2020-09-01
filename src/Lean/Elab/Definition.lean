@@ -125,8 +125,7 @@ else
 def elabDefLike (view : DefView) : CommandElabM Unit :=
 withRef view.ref do
 scopeLevelNames ← getLevelNames;
-(name, allUserLevelNames) ← expandDeclId view.declId;
-declName          ← withRef view.declId $ mkDeclName view.modifiers name;
+⟨name, declName, allUserLevelNames⟩ ← expandDeclId view.declId view.modifiers;
 runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders view.binders.getArgs fun xs => do
   applyAttributes declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
   decl? ← match view.type? with

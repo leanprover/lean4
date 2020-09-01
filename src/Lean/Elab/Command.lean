@@ -318,9 +318,6 @@ modify $ fun s =>
 def getLevelNames : CommandElabM (List Name) := do
 scope ← getScope; pure scope.levelNames
 
-def throwAlreadyDeclaredUniverseLevel {α} (u : Name) : CommandElabM α :=
-throwError ("a universe level named '" ++ toString u ++ "' has already been declared")
-
 def addUnivLevel (idStx : Syntax) : CommandElabM Unit :=
 withRef idStx do
 let id := idStx.getId;
@@ -638,53 +635,10 @@ match allUserParams.find? $ fun u => !usedParams.contains u && !scopeParams.elem
   let remaining := remaining.qsort Name.lt;
   pure $ result ++ remaining.toList
 
-def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
-unless (extractMacroScopes atomicName).name.isAtomic $
-  throwError ("atomic identifier expected '" ++ atomicName ++ "'");
-currNamespace ← getCurrNamespace;
-let declName := currNamespace ++ atomicName;
-applyVisibility modifiers.visibility declName
-
-/-
-  `declId` is of the form
-  ```
-  parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-  ```
-  but we also accept a single identifier to users to make macro writing more convenient .
--/
-def expandDeclIdCore (declId : Syntax) : Name × Syntax :=
-if declId.isIdent then
-  (declId.getId, mkNullNode)
-else
-  let id             := declId.getIdAt 0;
-  let optUnivDeclStx := declId.getArg 1;
-  (id, optUnivDeclStx)
-
-structure ExpandDeclIdResult :=
-(shortName  : Name)
-(declName   : Name)
-(levelNames : List Name)
-
 def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
--- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-let (shortName, optUnivDeclStx) := expandDeclIdCore declId;
-savedLevelNames ← getLevelNames;
-levelNames      ←
-  if optUnivDeclStx.isNone then
-    pure savedLevelNames
-  else do {
-    let extraLevels := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
-    extraLevels.foldlM
-      (fun levelNames idStx =>
-        let id := idStx.getId;
-        if levelNames.elem id then
-          withRef idStx $ throwAlreadyDeclaredUniverseLevel id
-        else
-          pure (id :: levelNames))
-      savedLevelNames
-  };
-declName ← withRef declId $ mkDeclName modifiers shortName;
-pure { shortName := shortName, declName := declName, levelNames := levelNames }
+currNamespace ← getCurrNamespace;
+currLevelNames ← getLevelNames;
+Lean.Elab.expandDeclId currNamespace currLevelNames declId modifiers
 
 end Command
 end Elab

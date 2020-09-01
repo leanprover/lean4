@@ -33,6 +33,9 @@ throw $ Exception.internal unsupportedSyntaxExceptionId
 def throwIllFormedSyntax {α m} [Monad m] [MonadError m] : m α :=
 throwError "ill-formed syntax"
 
+def throwAlreadyDeclaredUniverseLevel {α m} [Monad m] [MonadError m] (u : Name) : m α :=
+throwError ("a universe level named '" ++ toString u ++ "' has already been declared")
+
 -- Throw exception to abort elaboration without producing any error message
 def throwAbort {α m} [MonadExcept Exception m] : m α :=
 throw $ Exception.internal abortExceptionId

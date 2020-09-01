@@ -236,8 +236,7 @@ private def isMutualDef (stx : Syntax) : Bool :=
   let decl     := elem.getArg 1;
   let declKind := decl.getKind;
   declKind == `Lean.Parser.Command.def ||
-  declKind == `Lean.Parser.Command.abbrev ||
-  declKind == `Lean.Parser.Command.theorem
+  declKind == `Lean.Parser.Command.abbrev
 
 private def isMutualPreambleCommand (stx : Syntax) : Bool :=
 let k := stx.getKind;

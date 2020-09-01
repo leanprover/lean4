@@ -8,6 +8,7 @@ import Lean.Elab.DeclUtil
 import Lean.Elab.Definition
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
+import Lean.Elab.MutualDef
 
 namespace Lean
 namespace Elab
@@ -254,9 +255,6 @@ private def isMutualDef (stx : Syntax) : Bool :=
   declKind == `Lean.Parser.Command.def ||
   declKind == `Lean.Parser.Command.abbrev ||
   declKind == `Lean.Parser.Command.theorem
-
-private def elabMutualDef (elems : Array Syntax) : CommandElabM Unit :=
-throwError "WIP mutual def"
 
 private def isMutualPreambleCommand (stx : Syntax) : Bool :=
 let k := stx.getKind;

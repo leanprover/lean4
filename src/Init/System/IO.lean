@@ -207,7 +207,7 @@ def Handle.putStr (h : Handle) (s : String) : m Unit :=
 liftIO $ Prim.Handle.putStr h s
 
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
-h.putStr s *> h.putStr "\n"
+h.putStr (s.push '\n')
 
 -- TODO: support for binary files
 partial def Handle.readToEndAux (h : Handle) : String → m String
@@ -244,7 +244,7 @@ linesAux h #[]
 namespace Stream
 
 def putStrLn (strm : FS.Stream) (s : String) : m Unit :=
-liftIO (strm.putStr s) *> liftIO (strm.putStr "\n")
+liftIO (strm.putStr (s.push '\n'))
 
 end Stream
 
@@ -290,7 +290,7 @@ def print {α} [HasToString α] (s : α) : m Unit := do
 out ← getStdout;
 liftIO $ out.putStr $ toString s
 
-def println {α} [HasToString α] (s : α) : m Unit := print s *> print "\n"
+def println {α} [HasToString α] (s : α) : m Unit := print ((toString s).push '\n')
 
 @[export lean_io_println]
 private def printlnAux (s : String) : IO Unit := println s
@@ -299,7 +299,7 @@ def eprint {α} [HasToString α] (s : α) : m Unit := do
 out ← getStderr;
 liftIO $ out.putStr $ toString s
 
-def eprintln {α} [HasToString α] (s : α) : m Unit := eprint s *> eprint "\n"
+def eprintln {α} [HasToString α] (s : α) : m Unit := eprint ((toString s).push '\n')
 
 def getEnv : String → m (Option String) := liftIO ∘ Prim.getEnv
 def realPath : String → m String := liftIO ∘ Prim.realPath

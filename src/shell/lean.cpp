@@ -428,9 +428,9 @@ int main(int argc, char ** argv) {
     bool only_deps = false;
     bool new_frontend = false;
     bool stats = false;
-    // unsigned num_threads    = 0;
+    unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
-    // num_threads = hardware_concurrency();
+    num_threads = hardware_concurrency();
 #endif
 #if defined(LEAN_JSON)
     bool json_output = false;
@@ -461,7 +461,7 @@ int main(int argc, char ** argv) {
                 lean_set_exit_on_panic(true);
                 break;
             case 'j':
-                // num_threads = static_cast<unsigned>(atoi(optarg));
+                num_threads = static_cast<unsigned>(atoi(optarg));
                 break;
             case 'v':
                 display_header(std::cout);
@@ -573,6 +573,7 @@ int main(int argc, char ** argv) {
 
     if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
 
+    scoped_task_manager scope_task_man(num_threads);
     scope_global_ios scope_ios(ios);
     type_context_old trace_ctx(env, opts);
     scope_trace_env scope_trace(env, opts, trace_ctx);
@@ -699,7 +700,6 @@ int main(int argc, char ** argv) {
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
 
-        environment_free_regions(std::move(env));
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
         std::cerr << lean::message_builder(env, ios, mod_fn, lean::pos_info(1, 1), lean::ERROR).set_exception(

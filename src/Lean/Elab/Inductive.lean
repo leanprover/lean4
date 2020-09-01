@@ -10,6 +10,7 @@ import Lean.Util.Constructions
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
 import Lean.Elab.Definition
+import Lean.Elab.DeclUtil
 
 namespace Lean
 namespace Elab
@@ -126,42 +127,20 @@ private def eqvFirstTypeResult (firstType type : Expr) : MetaM Bool :=
 forallTelescopeReducing firstType fun _ firstTypeResult => isDefEq firstTypeResult type
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
-private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr → Expr → TermElabM Unit
-| i, type, firstType => do
-  type ← whnf type;
-  if i < numParams then do
-    firstType ← whnf firstType;
-    match type, firstType with
-    | Expr.forallE n₁ d₁ b₁ c₁, Expr.forallE n₂ d₂ b₂ c₂ => do
-      unless (n₁ == n₂) $
-        let msg : MessageData :=
-          "invalid mutually inductive types, parameter name mismatch '" ++ n₁ ++ "', expected '" ++ n₂ ++ "'";
-        throwError msg;
-      unlessM (Term.isDefEq d₁ d₂) $
-        let msg : MessageData :=
-          "invalid mutually inductive types, type mismatch at parameter '" ++ n₁ ++ "'" ++ indentExpr d₁
-          ++ Format.line ++ "expected type" ++ indentExpr d₂;
-        throwError msg;
-      unless (c₁.binderInfo == c₂.binderInfo) $
-        -- TODO: improve this error message?
-        throwError ("invalid mutually inductive types, binder annotation mismatch at parameter '" ++ n₁ ++ "'");
-      withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
-        let type      := b₁.instantiate1 x;
-        let firstType := b₂.instantiate1 x;
-        checkParamsAndResultType (i+1) type firstType
-    | _, _ => throwUnexpectedInductiveType
-  else
-    match type with
-    | Expr.forallE n d b c =>
-      withLocalDecl n c.binderInfo d fun x =>
-        let type      := b.instantiate1 x;
-        checkParamsAndResultType (i+1) type firstType
-    | Expr.sort _ _        =>
-      unlessM (Term.liftMetaM $ eqvFirstTypeResult firstType type) $
-        let msg : MessageData :=
-          "invalid mutually inductive types, resulting universe mismatch, given " ++ indentExpr type ++ Format.line ++ "expected type" ++ indentExpr firstType;
-        throwError msg
-    | _ => throwUnexpectedInductiveType
+private partial def checkParamsAndResultType (type firstType : Expr) (numParams : Nat) : TermElabM Unit := do
+catch
+  (do forallTelescopeCompatible type firstType numParams fun _ type firstType =>
+      forallTelescopeReducing type fun _ type =>
+      forallTelescopeReducing firstType fun _ firstType =>
+      match type with
+      | Expr.sort _ _        =>
+        unlessM (isDefEq firstType type) $
+          throwError ("resulting universe mismatch, given " ++ indentExpr type ++ Format.line ++ "expected type" ++ indentExpr firstType)
+      | _ =>
+        throwError "unexpected inductive resulting type")
+  (fun ex => match ex with
+    | Exception.error ref msg => throw (Exception.error ref ("invalid mutually inductive types, " ++ msg))
+    | _ => throw ex)
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private def checkHeader (r : ElabHeaderResult) (numParams : Nat) (firstType? : Option Expr) : TermElabM Expr := do
@@ -169,7 +148,7 @@ type ← mkTypeFor r;
 match firstType? with
 | none           => pure type
 | some firstType => do
-  withRef r.view.ref $ checkParamsAndResultType numParams 0 type firstType;
+  withRef r.view.ref $ checkParamsAndResultType type firstType numParams;
   pure firstType
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.

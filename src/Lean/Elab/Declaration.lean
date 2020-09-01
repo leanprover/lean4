@@ -15,6 +15,49 @@ namespace Command
 
 open Meta
 
+/- Auxiliary function for `expandDeclNamespace?` -/
+def expandDeclIdNamespace? (declId : Syntax) : Option (Name × Syntax) :=
+let (id, optUnivDeclStx) := expandDeclId declId;
+let scpView := extractMacroScopes id;
+match scpView.name with
+| Name.str Name.anonymous s _ => none
+| Name.str pre s _            =>
+  let nameNew := { scpView with name := mkNameSimple s }.review;
+  if declId.isIdent then
+    some (pre, mkIdentFrom declId nameNew)
+  else
+    some (pre, declId.setArg 0 (mkIdentFrom declId nameNew))
+| _ => none
+
+/- given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)` -/
+def expandDeclNamespace? (stx : Syntax) : Option (Name × Syntax) :=
+if !stx.isOfKind `Lean.Parser.Command.declaration then none
+else
+  let decl := stx.getArg 1;
+  let k := decl.getKind;
+  if k == `Lean.Parser.Command.abbrev ||
+     k == `Lean.Parser.Command.def ||
+     k == `Lean.Parser.Command.theorem ||
+     k == `Lean.Parser.Command.constant ||
+     k == `Lean.Parser.Command.axiom ||
+     k == `Lean.Parser.Command.inductive ||
+     k == `Lean.Parser.Command.structure then
+    match expandDeclIdNamespace? (decl.getArg 1) with
+    | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 declId))
+    | none              => none
+  else if k == `Lean.Parser.Command.instance then
+    let optDeclId := decl.getArg 1;
+    if optDeclId.isNone then none
+    else match expandDeclIdNamespace? (optDeclId.getArg 0) with
+      | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 (optDeclId.setArg 0 declId)))
+      | none              => none
+  else if k == `Lean.Parser.Command.classInductive then
+    match expandDeclIdNamespace? (decl.getArg 2) with
+    | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 2 declId))
+    | none              => none
+  else
+    none
+
 def elabAbbrev (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 -- parser! "abbrev " >> declId >> optDeclSig >> declVal
 let (binders, type) := expandOptDeclSig (stx.getArg 2);
@@ -161,7 +204,12 @@ elabInductiveViews #[v]
 
 @[builtinCommandElab declaration]
 def elabDeclaration : CommandElab :=
-fun stx => do
+fun stx => match expandDeclNamespace? stx with
+| some (ns, newStx) => do
+  let ns := mkIdentFrom stx ns;
+  newStx ← `(namespace $ns:ident $newStx end $ns:ident);
+  withMacroExpansion stx newStx $ elabCommand newStx
+| none => do
   modifiers ← elabModifiers (stx.getArg 0);
   let decl     := stx.getArg 1;
   let declKind := decl.getKind;
@@ -263,22 +311,49 @@ if modified then
 else
   pure none
 
+private def expandMutualNamespace? (stx : Syntax) : MacroM (Option Syntax) := do
+let elems := (stx.getArg 1).getArgs;
+(ns?, elems) ← elems.foldlM
+  (fun (acc : Option Name × Array Syntax) (elem : Syntax) =>
+    let (ns?, elems) := acc;
+    match ns?, expandDeclNamespace? elem with
+    | _, none                         => pure (ns?, elems.push elem)
+    | none, some (ns, elem)           => pure (some ns, elems.push elem)
+    | some nsCurr, some (nsNew, elem) =>
+      if nsCurr == nsNew then
+        pure (ns?, elems.push elem)
+      else
+        Macro.throwError elem
+          ("conflicting namespaces in mutual declaration, using namespace '" ++ toString nsNew ++ "', but used '" ++ toString nsCurr ++ "' in previous declaration"))
+  (none, #[]);
+match ns? with
+| none    => pure none
+| some ns =>
+  let ns := mkIdentFrom stx ns;
+  let stxNew := stx.setArg 1 (mkNullNode elems);
+  `(namespace $ns:ident $stxNew end $ns:ident)
+
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab :=
 fun stx => do
   stxNew? ← liftMacroM $ expandMutualPreamble? stx;
   match stxNew? with
   | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
-  | none        =>
-    if isMutualInductive stx then
-      elabMutualInductive (stx.getArg 1).getArgs
-    else if isMutualDef stx then
-      elabMutualDef (stx.getArg 1).getArgs
-    else do
-      stxNew? ← expandMutualElement? stx;
-      match stxNew? with
-      | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
-      | none        => throwError "invalid mutual block"
+  | none        => do
+  stxNew? ← expandMutualElement? stx;
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
+  | none => do
+  stxNew? ← liftMacroM $ expandMutualNamespace? stx;
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
+  | none =>
+  if isMutualInductive stx then
+    elabMutualInductive (stx.getArg 1).getArgs
+  else if isMutualDef stx then
+    elabMutualDef (stx.getArg 1).getArgs
+  else
+    throwError "invalid mutual block"
 
 end Command
 end Elab

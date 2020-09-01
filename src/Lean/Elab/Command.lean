@@ -32,6 +32,7 @@ structure State :=
 (scopes         : List Scope := [{ kind := "root", header := "" }])
 (nextMacroScope : Nat := firstFrontendMacroScope + 1)
 (maxRecDepth    : Nat)
+(nextInstIdx    : Nat := 1) -- for generating anonymous instance names
 (ngen           : NameGenerator := {})
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _, maxRecDepth := 0 }⟩

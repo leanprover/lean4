@@ -52,5 +52,13 @@ let binders := stx.getArg 0;
 let typeSpec := stx.getArg 1;
 (binders, typeSpec.getArg 1)
 
+def mkFreshInstanceName (env : Environment) (nextIdx : Nat) : Name :=
+(env.mainModule ++ `_instance).appendIndexAfter nextIdx
+
+def isFreshInstanceName (name : Name) : Bool :=
+match name with
+| Name.str _ s _ => "_instance".isPrefixOf s
+| _              => false
+
 end Elab
 end Lean

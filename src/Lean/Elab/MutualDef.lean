@@ -23,16 +23,7 @@ structure MutualDefView :=
 namespace Term
 
 open Meta
-open Command (DefView mkDefViewOfAbbrev mkDefViewOfDef mkDefViewOfTheorem)
-
-private def mkDefView {m} [Monad m] [MonadError m] (modifiers : Modifiers) (decl : Syntax) : m DefView :=
-let k := decl.getKind;
-if k == `Lean.Parser.Command.«abbrev» then
-  pure (mkDefViewOfAbbrev modifiers decl)
-else if k == `Lean.Parser.Command.«def» then
-  pure (mkDefViewOfDef modifiers decl)
-else
-  throwError "unexpected kind of definition"
+open Command (DefView)
 
 def checkModifiers (m₁ m₂ : Modifiers) : TermElabM Unit := do
 unless (m₁.isUnsafe == m₂.isUnsafe) $
@@ -43,11 +34,9 @@ unless (m₁.isPartial == m₂.isPartial) $
   throwError "cannot mix partial and non-partial definitions";
 pure ()
 
-def elabHeaders (ds : Array Syntax) : TermElabM (Array MutualDefView) :=
-ds.foldlM
-  (fun (headers : Array MutualDefView) (d : Syntax) => withRef d do
-    modifiers ← elabModifiers (d.getArg 0);
-    view ← mkDefView modifiers (d.getArg 1);
+def elabHeaders (views : Array DefView) : TermElabM (Array MutualDefView) :=
+views.foldlM
+  (fun (headers : Array MutualDefView) (view : DefView) => withRef view.ref do
     currNamespace ← getCurrNamespace;
     currLevelNames ← getLevelNames;
     ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId currNamespace currLevelNames view.declId view.modifiers;
@@ -70,7 +59,7 @@ ds.foldlM
               throwError "number of parameters mismatch";
             unless (levelNames == firstHeader.levelNames) $
               throwError "universe parameters mismatch in mutual definition";
-            checkModifiers modifiers firstHeader.modifiers;
+            checkModifiers view.modifiers firstHeader.modifiers;
             forallTelescopeCompatible type firstHeader.type xs.size fun _ _ _ => pure ())
           (fun ex => match ex with
             | Exception.error ref msg => throw (Exception.error ref ("invalid mutually recursive definitions, " ++ msg))
@@ -78,8 +67,8 @@ ds.foldlM
       else
         pure ();
       pure $ headers.push {
-        ref           := d,
-        modifiers     := modifiers,
+        ref           := view.ref,
+        modifiers     := view.modifiers,
         kind          := view.kind,
         shortDeclName := shortDeclName,
         declName      := declName,
@@ -90,16 +79,20 @@ ds.foldlM
       })
   #[]
 
-def elabMutualDef (vars : Array Expr) (ds : Array Syntax) : TermElabM Unit := do
-views ← elabHeaders ds;
+def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
+views ← elabHeaders views;
 throwError "WIP mutual def"
 
 end Term
 
 namespace Command
 
-def elabMutualDef (ds : Array Syntax) : CommandElabM Unit :=
-runTermElabM none fun vars => Term.elabMutualDef vars ds
+def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
+views ← ds.mapM fun d => do {
+  modifiers ← elabModifiers (d.getArg 0);
+  mkDefView modifiers (d.getArg 1)
+};
+runTermElabM none fun vars => Term.elabMutualDef vars views
 
 end Command
 end Elab

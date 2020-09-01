@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Modifiers
 import Lean.Elab.Attributes
 import Lean.Elab.Exception
+import Lean.Elab.DeclUtil
 
 namespace Lean
 namespace Elab
@@ -122,9 +123,9 @@ match visibility with
   checkNotAlreadyDeclared declName;
   pure declName
 
-
 def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (atomicName : Name) : m Name := do
-unless (extractMacroScopes atomicName).name.isAtomic $
+let name := (extractMacroScopes atomicName).name;
+unless (name.isAtomic || isFreshInstanceName name) $
   throwError ("atomic identifier expected '" ++ atomicName ++ "'");
 let declName := currNamespace ++ atomicName;
 applyVisibility modifiers.visibility declName

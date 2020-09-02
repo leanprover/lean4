@@ -12,16 +12,14 @@ namespace Term
 
 open Meta
 
-def collectUsedFVars (used : CollectFVars.State) (e : Expr) : TermElabM CollectFVars.State := do
+def collectUsedFVars (e : Expr) : StateRefT CollectFVars.State TermElabM Unit := do
 e ← instantiateMVars e;
-pure $ collectFVars used e
+modify fun used => collectFVars used e
 
-def collectUsedFVarsAtFVars (used : CollectFVars.State) (fvars : Array Expr) : TermElabM CollectFVars.State :=
-fvars.foldlM
-  (fun used fvar => do
-    fvarType ← inferType fvar;
-    collectUsedFVars used fvarType)
-  used
+def collectUsedFVarsAtFVars (fvars : Array Expr) : StateRefT CollectFVars.State TermElabM Unit :=
+fvars.forM fun fvar => do
+  fvarType ← inferType fvar;
+  collectUsedFVars fvarType
 
 def removeUnused (vars : Array Expr) (used : CollectFVars.State) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 localInsts ← getLocalInstances;
@@ -31,7 +29,7 @@ lctx ← getLCtx;
     let (lctx, localInsts, newVars, used) := result;
     if used.fvarSet.contains var.fvarId! then do
       varType ← inferType var;
-      used ← Term.collectUsedFVars used varType;
+      (_, used) ← (collectUsedFVars varType).run used;
       pure (lctx, localInsts, newVars.push var, used)
     else
       pure (lctx.erase var.fvarId!, localInsts.erase var.fvarId!, newVars, used))

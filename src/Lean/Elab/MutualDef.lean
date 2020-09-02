@@ -41,11 +41,15 @@ unless (k₁.isTheorem == k₂.isTheorem) $
   throwError "cannot mix theorems and definitions"; -- Reason: we will eventually elaborate theorems in `Task`s.
 pure ()
 
-private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewElabHeader) : TermElabM Unit :=
+private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewElabHeader) : TermElabM Unit := do
+when (newHeader.kind.isTheorem && newHeader.modifiers.isUnsafe) $
+  throwError "unsafe theorems are not allowed";
 if h : 0 < prevHeaders.size then
   let firstHeader := prevHeaders.get ⟨0, h⟩;
   catch
    (do
+     unless (newHeader.levelNames == firstHeader.levelNames) $
+       throwError "universe parameters mismatch";
      checkModifiers newHeader.modifiers firstHeader.modifiers;
      checkKinds newHeader.kind firstHeader.kind)
    (fun ex => match ex with
@@ -71,6 +75,7 @@ views.foldlM
     currNamespace ← getCurrNamespace;
     currLevelNames ← getLevelNames;
     ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId currNamespace currLevelNames view.declId view.modifiers;
+    applyAttributes declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
     withLevelNames levelNames $ elabBinders view.binders.getArgs fun xs => do
       type ← elabFunType xs view;
       let newHeader : DefViewElabHeader := {
@@ -120,17 +125,53 @@ else
   Macro.throwError declVal "unexpected definition value"
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
-headers.mapM fun header => withDeclName header.declName do
+headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do
   valStx ← liftMacroM $ declValToTerm header.declVal;
-  forallBoundedTelescope header.type header.numParams fun _ type =>
-    elabTermEnsuringType valStx type
+  forallBoundedTelescope header.type header.numParams fun xs type => do
+    val ← elabTermEnsuringType valStx type;
+    mkLambdaFVars xs val
+
+private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
+    : StateRefT CollectFVars.State TermElabM Unit := do
+headers.forM fun header => collectUsedFVars header.type;
+values.forM collectUsedFVars;
+toLift.forM fun letRecToLift => do {
+  collectUsedFVars letRecToLift.type;
+  collectUsedFVars letRecToLift.val
+}
+
+private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
+    : TermElabM (LocalContext × LocalInstances × Array Expr) := do
+(_, used) ← (collectUsed headers values toLift).run {};
+removeUnused vars used
+
+private def withUsedWhen {α} (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
+    (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
+if cond then do
+ (lctx, localInsts, vars) ← removeUnusedVars vars headers values toLift;
+ withLCtx lctx localInsts $ k vars
+else
+ k vars
+
+private def isExample (views : Array DefView) : Bool :=
+views.any fun view => view.kind.isExample
+
+private def isTheorem (views : Array DefView) : Bool :=
+views.any fun view => view.kind.isTheorem
 
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
+scopeLevelNames ← getLevelNames;
 headers ← elabHeaders views;
 withFunLocalDecls headers fun funFVars => do
-values ← elabFunValues headers;
-values.forM fun val => IO.println (toString val);
-throwError "WIP mutual def"
+  values ← elabFunValues headers;
+  Term.synthesizeSyntheticMVarsNoPostponing;
+  if isExample views then pure ()
+  else do
+    letRecsToLift ← getLetRecsToLift;
+    withUsedWhen vars headers values letRecsToLift (not $ isTheorem views) fun vars => do
+
+      values.forM fun val => IO.println (toString val);
+      throwError "WIP mutual def"
 
 end Term
 

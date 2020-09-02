@@ -139,9 +139,9 @@ else
 private def removeUnused (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 let used : CollectFVars.State := {};
-used ← Term.collectUsedFVars used eType;
-used ← Term.collectUsedFVars used e;
-used ← Term.collectUsedFVarsAtFVars used xs;
+(_, used) ← (Term.collectUsedFVars eType).run used;
+(_, used) ← (Term.collectUsedFVars e).run used;
+(_, used) ← (Term.collectUsedFVarsAtFVars xs).run used;
 Term.removeUnused vars used
 
 private def withUsedWhen {α} (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=

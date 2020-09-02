@@ -310,21 +310,22 @@ match type with
 | Expr.sort u _ => pure u
 | _             => throwError "unexpected structure resulting type"
 
+private def collectUsed (params : Array Expr) (fieldInfos : Array StructFieldInfo) : StateRefT CollectFVars.State TermElabM Unit := do
+params.forM fun p => do {
+  type ← inferType p;
+  Term.collectUsedFVars type
+};
+fieldInfos.forM fun info => do {
+  fvarType ← inferType info.fvar;
+  Term.collectUsedFVars fvarType;
+  match info.value? with
+  | none       => pure ()
+  | some value => Term.collectUsedFVars value
+}
+
 private def removeUnused (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
-used ← params.foldlM
-   (fun (used : CollectFVars.State) p => do
-     type ← inferType p;
-     Term.collectUsedFVars used type)
-   {};
-used ← fieldInfos.foldlM
-  (fun (used : CollectFVars.State) info => do
-    fvarType ← inferType info.fvar;
-    used ← Term.collectUsedFVars used fvarType;
-    match info.value? with
-    | none       => pure used
-    | some value => Term.collectUsedFVars used value)
-  used;
+(_, used) ← (collectUsed params fieldInfos).run {};
 Term.removeUnused scopeVars used
 
 private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (k : Array Expr → TermElabM α)

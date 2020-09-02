@@ -68,7 +68,7 @@ views.foldlM
               throwError "universe parameters mismatch in mutual definition";
             checkModifiers view.modifiers firstHeader.modifiers;
             checkKinds view.kind firstHeader.kind;
-            forallTelescopeCompatible type firstHeader.type xs.size fun _ _ _ => pure ())
+            pure ())
           (fun ex => match ex with
             | Exception.error ref msg => throw (Exception.error ref ("invalid mutually recursive definitions, " ++ msg))
             | _ => throw ex)

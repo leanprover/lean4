@@ -110,6 +110,14 @@ pure (fn ())
 @[extern "lean_io_as_task"]
 constant asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) := arbitrary _
 
+/-- See `IO.asTask`. -/
+@[extern "lean_io_map_task"]
+constant mapTask {α β : Type} (f : α → IO β) (t : Task α) : IO (Task (Except IO.Error β)) := arbitrary _
+
+/-- See `IO.asTask`. -/
+@[extern "lean_io_bind_task"]
+constant bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) : IO (Task (Except IO.Error β)) := arbitrary _
+
 inductive FS.Mode
 | read | write | readWrite | append
 

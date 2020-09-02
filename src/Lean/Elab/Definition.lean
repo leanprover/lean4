@@ -14,9 +14,6 @@ import Lean.Elab.DeclUtil
 
 namespace Lean
 namespace Elab
-namespace Command
-
-open Meta
 
 inductive DefKind
 | «def» | «theorem» | «example» | «opaque» | «abbrev»
@@ -43,6 +40,10 @@ structure DefView :=
 (binders       : Syntax)
 (type?         : Option Syntax)
 (val           : Syntax)
+
+namespace Command
+
+open Meta
 
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
 -- parser! "abbrev " >> declId >> optDeclSig >> declVal
@@ -132,6 +133,8 @@ else if declKind == `Lean.Parser.Command.«example» then
   pure $ mkDefViewOfExample modifiers stx
 else
   throwError "unexpected kind of definition"
+
+/- TODO Remove the rest of the file after we finish `MutualDef.lean`, and rename it to `DefView.lean` -/
 
 private def removeUnused (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do

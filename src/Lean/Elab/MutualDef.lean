@@ -9,10 +9,11 @@ import Lean.Elab.Definition
 namespace Lean
 namespace Elab
 
-structure MutualDefView :=
+/- DefView after elaborating the header. -/
+structure DefViewElabHeader :=
 (ref           : Syntax)
 (modifiers     : Modifiers)
-(kind          : Command.DefKind)
+(kind          : DefKind)
 (shortDeclName : Name)
 (declName      : Name)
 (levelNames    : List Name)
@@ -23,7 +24,6 @@ structure MutualDefView :=
 namespace Term
 
 open Meta
-open Command (DefView)
 
 def checkModifiers (m₁ m₂ : Modifiers) : TermElabM Unit := do
 unless (m₁.isUnsafe == m₂.isUnsafe) $
@@ -34,9 +34,9 @@ unless (m₁.isPartial == m₂.isPartial) $
   throwError "cannot mix partial and non-partial definitions";
 pure ()
 
-def elabHeaders (views : Array DefView) : TermElabM (Array MutualDefView) :=
+def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) :=
 views.foldlM
-  (fun (headers : Array MutualDefView) (view : DefView) => withRef view.ref do
+  (fun (headers : Array DefViewElabHeader) (view : DefView) => withRef view.ref do
     currNamespace ← getCurrNamespace;
     currLevelNames ← getLevelNames;
     ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId currNamespace currLevelNames view.declId view.modifiers;

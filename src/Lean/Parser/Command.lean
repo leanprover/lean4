@@ -97,6 +97,8 @@ def openSimple       := parser! many1 ident
 
 @[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (notFollowedBy «end» >> commandParser) >> "end"
 
+@[builtinCommandParser] def «in»  := tparser! " in " >> commandParser
+
 end Command
 end Parser
 end Lean

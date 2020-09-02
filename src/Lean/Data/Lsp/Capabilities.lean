@@ -23,6 +23,9 @@ inductive ClientCapabilities where
 instance : FromJson ClientCapabilities :=
   ⟨fun j => ClientCapabilities.mk⟩
 
+instance ClientCapabilities.hasToJson : HasToJson ClientCapabilities :=
+⟨fun o => mkObj []⟩
+
 -- TODO largely unimplemented
 structure ServerCapabilities where
   textDocumentSync? : Option TextDocumentSyncOptions := none

@@ -207,7 +207,16 @@ def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) 
 def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
   h.writeJson (toJson m)
 
-def writeResponse {α} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
+def writeRequest {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : IO Unit :=
+  h.writeMessage (Message.request id method (fromJson? (toJson params)))
+
+def writeNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) (params : α) : IO Unit :=
+  h.writeMessage (Message.notification method (fromJson? (toJson params)))
+
+def writeResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
   h.writeMessage (Message.response id (toJson r))
+
+def writeResponseError {α : Type} [HasToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
+  h.writeMessage (Message.responseError id code message (toJson data))
 
 end IO.FS.Stream

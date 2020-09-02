@@ -626,6 +626,23 @@ extern "C" obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
     return io_result_mk_ok(box(r));
 }
 
+static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
+    object_ref r(apply_1(act, io_mk_world()));
+    if (io_result_is_ok(r.raw())) {
+        return mk_except_ok(object_ref(io_result_get_value(r.raw()), true));
+    } else {
+        return mk_except_error(object_ref(io_result_get_error(r.raw()), true));
+    }
+}
+
+/* asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) */
+extern "C" obj_res lean_io_as_task(obj_arg act, obj_arg) {
+    object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
+    lean_closure_set(c, 0, act);
+    object * t = lean_mk_task_with_prio(c, 0, /* keep_alive */ true);
+    return io_result_mk_ok(t);
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = mk_io_user_error(mk_string("null reference read"));
     mark_persistent(g_io_error_nullptr_read);

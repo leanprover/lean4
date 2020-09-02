@@ -25,7 +25,7 @@ namespace Term
 
 open Meta
 
-def checkModifiers (m₁ m₂ : Modifiers) : TermElabM Unit := do
+private def checkModifiers (m₁ m₂ : Modifiers) : TermElabM Unit := do
 unless (m₁.isUnsafe == m₂.isUnsafe) $
   throwError "cannot mix unsafe and safe definitions";
 unless (m₁.isNoncomputable == m₂.isNoncomputable) $
@@ -34,12 +34,36 @@ unless (m₁.isPartial == m₂.isPartial) $
   throwError "cannot mix partial and non-partial definitions";
 pure ()
 
-def checkKinds (k₁ k₂ : DefKind) : TermElabM Unit := do
+private def checkKinds (k₁ k₂ : DefKind) : TermElabM Unit := do
 unless (k₁.isExample == k₂.isExample) $
   throwError "cannot mix examples and definitions"; -- Reason: we should discard examples
 unless (k₁.isTheorem == k₂.isTheorem) $
   throwError "cannot mix theorems and definitions"; -- Reason: we will eventually elaborate theorems in `Task`s.
 pure ()
+
+private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewElabHeader) : TermElabM Unit :=
+if h : 0 < prevHeaders.size then
+  let firstHeader := prevHeaders.get ⟨0, h⟩;
+  catch
+   (do
+     checkModifiers newHeader.modifiers firstHeader.modifiers;
+     checkKinds newHeader.kind firstHeader.kind)
+   (fun ex => match ex with
+     | Exception.error ref msg => throw (Exception.error ref ("invalid mutually recursive definitions, " ++ msg))
+     | _ => throw ex)
+else
+  pure ()
+
+private def elabFunType (xs : Array Expr) (view : DefView) : TermElabM Expr :=
+match view.type? with
+| some typeStx => do
+  type ← elabType typeStx;
+  synthesizeSyntheticMVarsNoPostponing;
+  type ← instantiateMVars type;
+  mkForallFVars xs type
+| none => do
+  type ← withRef view.binders $ mkFreshTypeMVar;
+  mkForallFVars xs type
 
 def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) :=
 views.foldlM
@@ -48,33 +72,8 @@ views.foldlM
     currLevelNames ← getLevelNames;
     ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId currNamespace currLevelNames view.declId view.modifiers;
     withLevelNames levelNames $ elabBinders view.binders.getArgs fun xs => do
-      type ← match view.type? with
-        | some typeStx => do
-          type ← elabType typeStx;
-          synthesizeSyntheticMVarsNoPostponing;
-          type ← instantiateMVars type;
-          mkForallFVars xs type
-        | none => do {
-          type ← withRef view.binders $ mkFreshTypeMVar;
-          mkForallFVars xs type
-        };
-      if h : 0 < headers.size then
-        let firstHeader := headers.get ⟨0, h⟩;
-        catch
-          (do
-            unless (xs.size == firstHeader.numParams) $
-              throwError "number of parameters mismatch";
-            unless (levelNames == firstHeader.levelNames) $
-              throwError "universe parameters mismatch in mutual definition";
-            checkModifiers view.modifiers firstHeader.modifiers;
-            checkKinds view.kind firstHeader.kind;
-            pure ())
-          (fun ex => match ex with
-            | Exception.error ref msg => throw (Exception.error ref ("invalid mutually recursive definitions, " ++ msg))
-            | _ => throw ex)
-      else
-        pure ();
-      pure $ headers.push {
+      type ← elabFunType xs view;
+      let newHeader : DefViewElabHeader := {
         ref           := view.ref,
         modifiers     := view.modifiers,
         kind          := view.kind,
@@ -84,7 +83,9 @@ views.foldlM
         numParams     := xs.size,
         type          := type,
         val           := view.val
-      })
+      };
+      check headers newHeader;
+      pure $ headers.push newHeader)
   #[]
 
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do

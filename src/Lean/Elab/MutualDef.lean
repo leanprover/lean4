@@ -19,7 +19,7 @@ structure DefViewElabHeader :=
 (levelNames    : List Name)
 (numParams     : Nat)
 (type          : Expr) -- including the parameters
-(val           : Syntax)
+(declVal       : Syntax)
 
 namespace Term
 
@@ -65,7 +65,7 @@ match view.type? with
   type ← withRef view.binders $ mkFreshTypeMVar;
   mkForallFVars xs type
 
-def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) :=
+private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) :=
 views.foldlM
   (fun (headers : Array DefViewElabHeader) (view : DefView) => withRef view.ref do
     currNamespace ← getCurrNamespace;
@@ -82,14 +82,54 @@ views.foldlM
         levelNames    := levelNames,
         numParams     := xs.size,
         type          := type,
-        val           := view.val
+        declVal       := view.val
       };
       check headers newHeader;
       pure $ headers.push newHeader)
   #[]
 
+private partial def withFunLocalDeclsAux {α} (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) : Nat → Array Expr → TermElabM α
+| i, fvars =>
+  if h : i < headers.size then do
+    let header := headers.get ⟨i, h⟩;
+    withLocalDeclD header.shortDeclName header.type fun fvar => withFunLocalDeclsAux (i+1) (fvars.push fvar)
+  else
+    k fvars
+
+private def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) : TermElabM α :=
+withFunLocalDeclsAux headers k 0 #[]
+
+/-
+Recall that
+```
+def matchAlts (optionalFirstBar := true) : Parser :=
+withPosition $ fun pos =>
+  (if optionalFirstBar then optional "| " else "| ") >>
+  sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+def declValSimple    := parser! " := " >> termParser
+def declValEqns      := parser! Term.matchAlts false
+def declVal          := declValSimple <|> declValEqns
+```
+-/
+private def declValToTerm (declVal : Syntax) : MacroM Syntax :=
+if declVal.isOfKind `Lean.Parser.Command.declValSimple then
+  pure $ declVal.getArg 1
+else if declVal.isOfKind `Lean.Parser.Command.declValEqns then
+  expandMatchAltsIntoMatch declVal (declVal.getArg 1)
+else
+  Macro.throwError declVal "unexpected definition value"
+
+private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
+headers.mapM fun header => withDeclName header.declName do
+  valStx ← liftMacroM $ declValToTerm header.declVal;
+  forallBoundedTelescope header.type header.numParams fun _ type =>
+    elabTermEnsuringType valStx type
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
-views ← elabHeaders views;
+headers ← elabHeaders views;
+withFunLocalDecls headers fun funFVars => do
+values ← elabFunValues headers;
+values.forM fun val => IO.println (toString val);
 throwError "WIP mutual def"
 
 end Term

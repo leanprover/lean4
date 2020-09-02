@@ -526,25 +526,23 @@ let parents   := if exts.isNone then #[] else ((exts.getArg 0).getArg 1).getArgs
 let optType   := stx.getArg 4;
 type ← if optType.isNone then `(Type _) else pure $ (optType.getArg 0).getArg 1;
 scopeLevelNames ← getLevelNames;
-withDeclId declId $ fun name => do
-  declName ← mkDeclName modifiers name;
-  allUserLevelNames ← getLevelNames;
-  ctor ← expandCtor stx modifiers declName;
-  fields ← expandFields stx modifiers declName;
-  runTermElabM declName $ fun scopeVars => Term.elabBinders params $ fun params => elabStructureView {
-    ref               := stx,
-    modifiers         := modifiers,
-    scopeLevelNames   := scopeLevelNames,
-    allUserLevelNames := allUserLevelNames,
-    declName          := declName,
-    isClass           := isClass,
-    scopeVars         := scopeVars,
-    params            := params,
-    parents           := parents,
-    type              := type,
-    ctor              := ctor,
-    fields            := fields
-  }
+⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers;
+ctor ← expandCtor stx modifiers declName;
+fields ← expandFields stx modifiers declName;
+runTermElabM declName $ fun scopeVars => Term.withLevelNames allUserLevelNames $ Term.elabBinders params fun params => elabStructureView {
+  ref               := stx,
+  modifiers         := modifiers,
+  scopeLevelNames   := scopeLevelNames,
+  allUserLevelNames := allUserLevelNames,
+  declName          := declName,
+  isClass           := isClass,
+  scopeVars         := scopeVars,
+  params            := params,
+  parents           := parents,
+  type              := type,
+  ctor              := ctor,
+  fields            := fields
+}
 
 end Command
 end Elab

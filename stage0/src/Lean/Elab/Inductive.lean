@@ -10,6 +10,7 @@ import Lean.Util.Constructions
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
 import Lean.Elab.Definition
+import Lean.Elab.DeclUtil
 
 namespace Lean
 namespace Elab
@@ -126,42 +127,20 @@ private def eqvFirstTypeResult (firstType type : Expr) : MetaM Bool :=
 forallTelescopeReducing firstType fun _ firstTypeResult => isDefEq firstTypeResult type
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
-private partial def checkParamsAndResultType (numParams : Nat) : Nat → Expr → Expr → TermElabM Unit
-| i, type, firstType => do
-  type ← whnf type;
-  if i < numParams then do
-    firstType ← whnf firstType;
-    match type, firstType with
-    | Expr.forallE n₁ d₁ b₁ c₁, Expr.forallE n₂ d₂ b₂ c₂ => do
-      unless (n₁ == n₂) $
-        let msg : MessageData :=
-          "invalid mutually inductive types, parameter name mismatch '" ++ n₁ ++ "', expected '" ++ n₂ ++ "'";
-        throwError msg;
-      unlessM (Term.isDefEq d₁ d₂) $
-        let msg : MessageData :=
-          "invalid mutually inductive types, type mismatch at parameter '" ++ n₁ ++ "'" ++ indentExpr d₁
-          ++ Format.line ++ "expected type" ++ indentExpr d₂;
-        throwError msg;
-      unless (c₁.binderInfo == c₂.binderInfo) $
-        -- TODO: improve this error message?
-        throwError ("invalid mutually inductive types, binder annotation mismatch at parameter '" ++ n₁ ++ "'");
-      withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
-        let type      := b₁.instantiate1 x;
-        let firstType := b₂.instantiate1 x;
-        checkParamsAndResultType (i+1) type firstType
-    | _, _ => throwUnexpectedInductiveType
-  else
-    match type with
-    | Expr.forallE n d b c =>
-      withLocalDecl n c.binderInfo d fun x =>
-        let type      := b.instantiate1 x;
-        checkParamsAndResultType (i+1) type firstType
-    | Expr.sort _ _        =>
-      unlessM (Term.liftMetaM $ eqvFirstTypeResult firstType type) $
-        let msg : MessageData :=
-          "invalid mutually inductive types, resulting universe mismatch, given " ++ indentExpr type ++ Format.line ++ "expected type" ++ indentExpr firstType;
-        throwError msg
-    | _ => throwUnexpectedInductiveType
+private partial def checkParamsAndResultType (type firstType : Expr) (numParams : Nat) : TermElabM Unit := do
+catch
+  (do forallTelescopeCompatible type firstType numParams fun _ type firstType =>
+      forallTelescopeReducing type fun _ type =>
+      forallTelescopeReducing firstType fun _ firstType =>
+      match type with
+      | Expr.sort _ _        =>
+        unlessM (isDefEq firstType type) $
+          throwError ("resulting universe mismatch, given " ++ indentExpr type ++ Format.line ++ "expected type" ++ indentExpr firstType)
+      | _ =>
+        throwError "unexpected inductive resulting type")
+  (fun ex => match ex with
+    | Exception.error ref msg => throw (Exception.error ref ("invalid mutually inductive types, " ++ msg))
+    | _ => throw ex)
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private def checkHeader (r : ElabHeaderResult) (numParams : Nat) (firstType? : Option Expr) : TermElabM Expr := do
@@ -169,7 +148,7 @@ type ← mkTypeFor r;
 match firstType? with
 | none           => pure type
 | some firstType => do
-  withRef r.view.ref $ checkParamsAndResultType numParams 0 type firstType;
+  withRef r.view.ref $ checkParamsAndResultType type firstType numParams;
   pure firstType
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
@@ -192,7 +171,6 @@ private partial def withInductiveLocalDeclsAux {α} (namesAndTypes : Array (Name
 | i, indFVars =>
   if h : i < namesAndTypes.size then do
     let (id, type) := namesAndTypes.get ⟨i, h⟩;
-    type ← instantiateForall type params;
     withLocalDeclD id type fun indFVar => withInductiveLocalDeclsAux (i+1) (indFVars.push indFVar)
   else
     x params indFVars
@@ -212,10 +190,10 @@ let params := r0.params;
 withLCtx r0.lctx r0.localInsts $ withRef r0.view.ref $
   withInductiveLocalDeclsAux namesAndTypes params x 0 #[]
 
-private def isInductiveFamily (indFVar : Expr) : TermElabM Bool := do
+private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do
 indFVarType ← inferType indFVar;
-indFVarType ← whnf indFVarType;
-pure !indFVarType.isSort
+forallTelescopeReducing indFVarType fun xs _ =>
+  pure $ xs.size > numParams
 
 /-
   Elaborate constructor types.
@@ -226,14 +204,14 @@ pure !indFVarType.isSort
   - Universe constraints (the kernel checks for it). -/
 private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) :=
 withRef r.view.ref do
-indFamily ← isInductiveFamily indFVar;
+indFamily ← isInductiveFamily params.size indFVar;
 r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
   withRef ctorView.ref $ do
   type ← match ctorView.type? with
     | none          => do
       when indFamily $
         throwError "constructor resulting type must be specified in inductive family declaration";
-      pure indFVar
+      pure (mkAppN indFVar params)
     | some ctorType => do {
       type ← Term.elabTerm ctorType none;
       resultingType ← getResultingType type;
@@ -349,7 +327,7 @@ pure $ indTypes.map fun indType =>
 
 private def traceIndTypes (indTypes : List InductiveType) : TermElabM Unit :=
 indTypes.forM fun indType =>
-  indType.ctors.forM fun ctor => _root_.dbgTrace ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type) fun _ => pure ()
+  indType.ctors.forM fun ctor => IO.println ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type)
 
 private def removeUnused (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 used ← indTypes.foldlM
@@ -391,17 +369,20 @@ views.size.fold
     m.insert indFVar (mkConst view.declName levelParams))
   {}
 
-private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) (numParams : Nat) (indTypes : List InductiveType)
-    : TermElabM (List InductiveType) :=
-withRef (views.get! 0).ref $
+/- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
+   and `numParams` is `numVars` + number of explicit parameters provided in the declaration. -/
+private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name)
+    (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
 let indFVar2Const := mkIndFVar2Const views indFVars levelNames;
 indTypes.mapM fun indType => do
   ctors ← indType.ctors.mapM fun ctor => do {
-    type ← forallBoundedTelescope ctor.type numParams fun params type => do {
-      let type := type.replace fun e => if !e.isFVar then none else
-        match indFVar2Const.find? e with
-        | some c => some $ mkAppN c params
-        | none   => none;
+     type ← forallBoundedTelescope ctor.type numParams fun params type => do {
+      let type := type.replace fun e =>
+        if !e.isFVar then
+          none
+        else match indFVar2Const.find? e with
+          | none   => none
+          | some c => mkAppN c (params.extract 0 numVars);
       mkForallFVars params type
     };
     pure { ctor with type := type }
@@ -454,8 +435,7 @@ scopeLevelNames ← Term.getLevelNames;
 checkLevelNames views;
 let allUserLevelNames := view0.levelNames;
 let isUnsafe          := view0.modifiers.isUnsafe;
-withRef view0.ref $
-adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNames }) do
+withRef view0.ref $ Term.withLevelNames allUserLevelNames do
   rs ← elabHeader views;
   withInductiveLocalDecls rs fun params indFVars => do
     let numExplicitParams := params.size;
@@ -473,7 +453,8 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
     u ← getResultingUniverse indTypes;
     inferLevel ← shouldInferResultUniverse u;
     withUsed vars indTypes $ fun vars => do
-      let numParams := vars.size + numExplicitParams;
+      let numVars   := vars.size;
+      let numParams := numVars + numExplicitParams;
       indTypes ← updateParams vars indTypes;
       indTypes ← levelMVarToParam indTypes;
       indTypes ← if inferLevel then updateResultingUniverse numParams indTypes else pure indTypes;
@@ -481,7 +462,7 @@ adaptReader (fun (ctx : Term.Context) => { ctx with levelNames := allUserLevelNa
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
       | Except.error msg      => throwError msg
       | Except.ok levelParams => do
-        indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
+        indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes;
         let indTypes := applyInferMod views numParams indTypes;
         let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe;
         Term.ensureNoUnassignedMVars decl;

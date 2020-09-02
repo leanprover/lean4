@@ -230,6 +230,9 @@ def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyTh
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
 
+def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { ctx with levelNames := levelNames }) x
+
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
 s ← get;

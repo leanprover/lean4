@@ -632,46 +632,49 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_15 = lean_ctor_get(x_6, 0);
 x_16 = lean_ctor_get(x_6, 2);
 x_17 = lean_ctor_get(x_6, 3);
 x_18 = lean_ctor_get(x_6, 4);
 x_19 = lean_ctor_get(x_6, 5);
+x_20 = lean_ctor_get(x_6, 6);
+lean_inc(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_6);
-x_20 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_20, 0, x_15);
-lean_ctor_set(x_20, 1, x_1);
-lean_ctor_set(x_20, 2, x_16);
-lean_ctor_set(x_20, 3, x_17);
-lean_ctor_set(x_20, 4, x_18);
-lean_ctor_set(x_20, 5, x_19);
-x_21 = lean_st_ref_set(x_4, x_20, x_7);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-x_23 = lean_ctor_get(x_21, 1);
+x_21 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_21, 0, x_15);
+lean_ctor_set(x_21, 1, x_1);
+lean_ctor_set(x_21, 2, x_16);
+lean_ctor_set(x_21, 3, x_17);
+lean_ctor_set(x_21, 4, x_18);
+lean_ctor_set(x_21, 5, x_19);
+lean_ctor_set(x_21, 6, x_20);
+x_22 = lean_st_ref_set(x_4, x_21, x_7);
+x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
-if (lean_is_exclusive(x_21)) {
- lean_ctor_release(x_21, 0);
- lean_ctor_release(x_21, 1);
- x_24 = x_21;
+x_24 = lean_ctor_get(x_22, 1);
+lean_inc(x_24);
+if (lean_is_exclusive(x_22)) {
+ lean_ctor_release(x_22, 0);
+ lean_ctor_release(x_22, 1);
+ x_25 = x_22;
 } else {
- lean_dec_ref(x_21);
- x_24 = lean_box(0);
+ lean_dec_ref(x_22);
+ x_25 = lean_box(0);
 }
-if (lean_is_scalar(x_24)) {
- x_25 = lean_alloc_ctor(0, 2, 0);
+if (lean_is_scalar(x_25)) {
+ x_26 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_25 = x_24;
+ x_26 = x_25;
 }
-lean_ctor_set(x_25, 0, x_22);
-lean_ctor_set(x_25, 1, x_23);
-return x_25;
+lean_ctor_set(x_26, 0, x_23);
+lean_ctor_set(x_26, 1, x_24);
+return x_26;
 }
 }
 }

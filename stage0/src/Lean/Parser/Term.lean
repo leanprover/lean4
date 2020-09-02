@@ -125,7 +125,7 @@ def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ try (letIdLhs >> " := ")
 def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
 def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
-def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (letIdDecl <|> letPatDecl <|> letEqnsDecl)
+def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
 @[builtinTermParser] def «let» := parser!:leadPrec "let " >> letDecl >> "; " >> termParser
 @[builtinTermParser] def «let!» := parser!:leadPrec "let! " >> letDecl >> "; " >> termParser
 def attrArg : Parser := ident <|> strLit <|> numLit
@@ -133,7 +133,7 @@ def attrArg : Parser := ident <|> strLit <|> numLit
 def attrInstance     := parser! rawIdent >> many attrArg
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 @[builtinTermParser] def «letrec» :=
-    parser!:leadPrec "letrec " >> optional ("partial ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser
+    parser!:leadPrec group ("let " >> nonReservedSymbol "rec ") >> optional ("partial ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser
 
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
 def doLet  := parser! "let ">> letDecl

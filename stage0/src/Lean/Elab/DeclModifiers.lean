@@ -5,6 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Modifiers
 import Lean.Elab.Attributes
+import Lean.Elab.Exception
+import Lean.Elab.DeclUtil
 
 namespace Lean
 namespace Elab
@@ -69,7 +71,11 @@ instance Modifiers.hasFormat : HasFormat Modifiers :=
 
 instance Modifiers.hasToString : HasToString Modifiers := ⟨toString ∘ format⟩
 
-def elabModifiers {m} [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) : m Modifiers := do
+section Methods
+
+variables {m : Type → Type} [Monad m] [MonadEnv m] [MonadError m]
+
+def elabModifiers (stx : Syntax) : m Modifiers := do
 let docCommentStx := stx.getArg 0;
 let attrsStx      := stx.getArg 1;
 let visibilityStx := stx.getArg 2;
@@ -100,7 +106,7 @@ pure {
   attrs           := attrs
 }
 
-def applyVisibility {m} [Monad m] [MonadEnv m] [MonadError m] (visibility : Visibility) (declName : Name) : m Name :=
+def applyVisibility (visibility : Visibility) (declName : Name) : m Name :=
 match visibility with
 | Visibility.private => do
   env ← getEnv;
@@ -116,6 +122,55 @@ match visibility with
 | _                  => do
   checkNotAlreadyDeclared declName;
   pure declName
+
+def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (atomicName : Name) : m Name := do
+let name := (extractMacroScopes atomicName).name;
+unless (name.isAtomic || isFreshInstanceName name) $
+  throwError ("atomic identifier expected '" ++ atomicName ++ "'");
+let declName := currNamespace ++ atomicName;
+applyVisibility modifiers.visibility declName
+
+/-
+  `declId` is of the form
+  ```
+  parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+  ```
+  but we also accept a single identifier to users to make macro writing more convenient .
+-/
+def expandDeclIdCore (declId : Syntax) : Name × Syntax :=
+if declId.isIdent then
+  (declId.getId, mkNullNode)
+else
+  let id             := declId.getIdAt 0;
+  let optUnivDeclStx := declId.getArg 1;
+  (id, optUnivDeclStx)
+
+structure ExpandDeclIdResult :=
+(shortName  : Name)
+(declName   : Name)
+(levelNames : List Name)
+
+def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
+-- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+let (shortName, optUnivDeclStx) := expandDeclIdCore declId;
+levelNames      ←
+  if optUnivDeclStx.isNone then
+    pure currLevelNames
+  else do {
+    let extraLevels := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
+    extraLevels.foldlM
+      (fun levelNames idStx =>
+        let id := idStx.getId;
+        if levelNames.elem id then
+          withRef idStx $ throwAlreadyDeclaredUniverseLevel id
+        else
+          pure (id :: levelNames))
+      currLevelNames
+  };
+declName ← withRef declId $ mkDeclName currNamespace modifiers shortName;
+pure { shortName := shortName, declName := declName, levelNames := levelNames }
+
+end Methods
 
 end Elab
 end Lean

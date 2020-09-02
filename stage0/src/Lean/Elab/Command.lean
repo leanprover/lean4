@@ -32,6 +32,7 @@ structure State :=
 (scopes         : List Scope := [{ kind := "root", header := "" }])
 (nextMacroScope : Nat := firstFrontendMacroScope + 1)
 (maxRecDepth    : Nat)
+(nextInstIdx    : Nat := 1) -- for generating anonymous instance names
 (ngen           : NameGenerator := {})
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _, maxRecDepth := 0 }⟩
@@ -317,9 +318,6 @@ modify $ fun s =>
 
 def getLevelNames : CommandElabM (List Name) := do
 scope ← getScope; pure scope.levelNames
-
-def throwAlreadyDeclaredUniverseLevel {α} (u : Name) : CommandElabM α :=
-throwError ("a universe level named '" ++ toString u ++ "' has already been declared")
 
 def addUnivLevel (idStx : Syntax) : CommandElabM Unit :=
 withRef idStx do
@@ -618,52 +616,6 @@ fun stx => do
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
   | _ => logErrorAt val ("unexpected set_option value " ++ toString val)
 
-/-
-  `declId` is of the form
-  ```
-  parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-  ```
-  but we also accept a single identifier to users to make macro writing more convenient .
--/
-def expandDeclId (declId : Syntax) : Name × Syntax :=
-if declId.isIdent then
-  (declId.getId, mkNullNode)
-else
-  let id             := declId.getIdAt 0;
-  let optUnivDeclStx := declId.getArg 1;
-  (id, optUnivDeclStx)
-
-def withDeclId {α} (declId : Syntax) (f : Name → CommandElabM α) : CommandElabM α := do
--- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-let (id, optUnivDeclStx) := expandDeclId declId;
-savedLevelNames ← getLevelNames;
-levelNames      ←
-  if optUnivDeclStx.isNone then
-    pure savedLevelNames
-  else do {
-    let extraLevels := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
-    extraLevels.foldlM
-      (fun levelNames idStx =>
-        let id := idStx.getId;
-        if levelNames.elem id then
-          withRef idStx $ throwAlreadyDeclaredUniverseLevel id
-        else
-          pure (id :: levelNames))
-      savedLevelNames
-  };
-withRef declId $
--- extract (optional) namespace part of id, after decoding macro scopes that would interfere with the check
-let scpView := extractMacroScopes id;
-match scpView.name with
-| Name.str pre s _ =>
-  /- Add back macro scopes. We assume a declaration like `def a.b[1,2] ...` with macro scopes `[1,2]`
-     is always meant to mean `namespace a def b[1,2] ...`. -/
-  let id := { scpView with name := mkNameSimple s }.review;
-  withNamespace pre $ do
-    modifyScope $ fun scope => { scope with levelNames := levelNames };
-    finally (f id) (modifyScope $ fun scope => { scope with levelNames := savedLevelNames })
-| _ => throwError "invalid declaration name"
-
 /--
   Sort the given list of `usedParams` using the following order:
   - If it is an explicit level `allUserParams`, then use user given order.
@@ -684,10 +636,10 @@ match allUserParams.find? $ fun u => !usedParams.contains u && !scopeParams.elem
   let remaining := remaining.qsort Name.lt;
   pure $ result ++ remaining.toList
 
-def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
+def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
 currNamespace ← getCurrNamespace;
-let declName := currNamespace ++ atomicName;
-applyVisibility modifiers.visibility declName
+currLevelNames ← getLevelNames;
+Lean.Elab.expandDeclId currNamespace currLevelNames declId modifiers
 
 end Command
 end Elab

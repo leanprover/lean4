@@ -34,6 +34,13 @@ unless (m₁.isPartial == m₂.isPartial) $
   throwError "cannot mix partial and non-partial definitions";
 pure ()
 
+def checkKinds (k₁ k₂ : DefKind) : TermElabM Unit := do
+unless (k₁.isExample == k₂.isExample) $
+  throwError "cannot mix examples and definitions"; -- Reason: we should discard examples
+unless (k₁.isTheorem == k₂.isTheorem) $
+  throwError "cannot mix theorems and definitions"; -- Reason: we will eventually elaborate theorems in `Task`s.
+pure ()
+
 def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) :=
 views.foldlM
   (fun (headers : Array DefViewElabHeader) (view : DefView) => withRef view.ref do
@@ -60,6 +67,7 @@ views.foldlM
             unless (levelNames == firstHeader.levelNames) $
               throwError "universe parameters mismatch in mutual definition";
             checkModifiers view.modifiers firstHeader.modifiers;
+            checkKinds view.kind firstHeader.kind;
             forallTelescopeCompatible type firstHeader.type xs.size fun _ _ _ => pure ())
           (fun ex => match ex with
             | Exception.error ref msg => throw (Exception.error ref ("invalid mutually recursive definitions, " ++ msg))

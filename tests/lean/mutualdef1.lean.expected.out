@@ -6,3 +6,5 @@ mutualdef1.lean:22:0: error: invalid mutually recursive definitions, parameter n
 mutualdef1.lean:35:0: error: invalid mutually recursive definitions, binder annotation mismatch at parameter 'x'
 mutualdef1.lean:47:0: error: invalid mutually recursive definitions, number of parameters mismatch
 mutualdef1.lean:59:0: error: invalid mutually recursive definitions, universe parameters mismatch in mutual definition
+mutualdef1.lean:72:0: error: invalid mutually recursive definitions, cannot mix theorems and definitions
+mutualdef1.lean:84:0: error: invalid mutually recursive definitions, cannot mix examples and definitions

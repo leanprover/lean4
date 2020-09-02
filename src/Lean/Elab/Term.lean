@@ -16,6 +16,7 @@ import Lean.Elab.Log
 import Lean.Elab.Alias
 import Lean.Elab.ResolveName
 import Lean.Elab.Level
+import Lean.Elab.Attributes
 
 namespace Lean
 namespace Elab
@@ -67,6 +68,16 @@ structure MVarErrorContext :=
 (ref    : Syntax)
 (ctx?   : Option Expr := none)
 
+structure LetRecToLift :=
+(ref      : Syntax)
+(fvarId   : FVarId)
+(attrs    : Array Attribute)
+(declName : Name)
+(lctx     : LocalContext)
+(type     : Expr)
+(val      : Expr)
+(mvarId   : MVarId)
+
 structure State :=
 (syntheticMVars    : List SyntheticMVarDecl := [])
 (mvarErrorContexts : List MVarErrorContext := [])
@@ -74,6 +85,7 @@ structure State :=
 (instImplicitIdx   : Nat := 1)
 (anonymousIdx      : Nat := 1)
 (nextMacroScope    : Nat := firstFrontendMacroScope + 1)
+(letRecsToLift     : List LetRecToLift := [])
 
 instance State.inhabited : Inhabited State := ⟨{}⟩
 

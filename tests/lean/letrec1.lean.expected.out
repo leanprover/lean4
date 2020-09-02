@@ -1,14 +1,4 @@
-letrec1.lean:6:8: error: 'f1.g' has already been declared
-with resulting expansion
-  let rec g : Nat → Nat -- Error f1.g has already been declared
-     :=   fun  x  => match   x  with  0   => x
-    | y+1 => 2 * g y;
-  g (g x) 
-while expanding
-  let rec g : Nat → Nat -- Error f1.g has already been declared
-    | 0   => x
-    | y+1 => 2 * g y;
-  g (g x) 
+letrec1.lean:6:0: error: 'f1.g' has already been declared
 letrec1.lean:18:35: error: unknown identifier 'g'
 with resulting expansion
   HasLess.Less._@._internal._hyg.0 y g x 
@@ -16,12 +6,3 @@ while expanding
   y < g x 
 while expanding
   { y : Nat // y < g x } 
-while expanding
-  let rec
-    g : Nat → Nat
-    | 0   => 1
-    | y+1 => (h y).val,
-    h : (x : Nat) → { y : Nat // y < g x } -- unknown identifier `g`
-    | 0 => ⟨10, Ax⟩
-    | _ => ⟨20, Ax⟩;
-  10 

@@ -171,7 +171,6 @@ private partial def withInductiveLocalDeclsAux {α} (namesAndTypes : Array (Name
 | i, indFVars =>
   if h : i < namesAndTypes.size then do
     let (id, type) := namesAndTypes.get ⟨i, h⟩;
-    type ← instantiateForall type params;
     withLocalDeclD id type fun indFVar => withInductiveLocalDeclsAux (i+1) (indFVars.push indFVar)
   else
     x params indFVars
@@ -191,10 +190,10 @@ let params := r0.params;
 withLCtx r0.lctx r0.localInsts $ withRef r0.view.ref $
   withInductiveLocalDeclsAux namesAndTypes params x 0 #[]
 
-private def isInductiveFamily (indFVar : Expr) : TermElabM Bool := do
+private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do
 indFVarType ← inferType indFVar;
-indFVarType ← whnf indFVarType;
-pure !indFVarType.isSort
+forallTelescopeReducing indFVarType fun xs _ =>
+  pure $ xs.size > numParams
 
 /-
   Elaborate constructor types.
@@ -205,14 +204,14 @@ pure !indFVarType.isSort
   - Universe constraints (the kernel checks for it). -/
 private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) :=
 withRef r.view.ref do
-indFamily ← isInductiveFamily indFVar;
+indFamily ← isInductiveFamily params.size indFVar;
 r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
   withRef ctorView.ref $ do
   type ← match ctorView.type? with
     | none          => do
       when indFamily $
         throwError "constructor resulting type must be specified in inductive family declaration";
-      pure indFVar
+      pure (mkAppN indFVar params)
     | some ctorType => do {
       type ← Term.elabTerm ctorType none;
       resultingType ← getResultingType type;
@@ -328,7 +327,7 @@ pure $ indTypes.map fun indType =>
 
 private def traceIndTypes (indTypes : List InductiveType) : TermElabM Unit :=
 indTypes.forM fun indType =>
-  indType.ctors.forM fun ctor => _root_.dbgTrace ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type) fun _ => pure ()
+  indType.ctors.forM fun ctor => IO.println ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type)
 
 private def removeUnused (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 used ← indTypes.foldlM
@@ -370,17 +369,20 @@ views.size.fold
     m.insert indFVar (mkConst view.declName levelParams))
   {}
 
-private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) (numParams : Nat) (indTypes : List InductiveType)
-    : TermElabM (List InductiveType) :=
-withRef (views.get! 0).ref $
+/- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
+   and `numParams` is `numVars` + number of explicit parameters provided in the declaration. -/
+private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name)
+    (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
 let indFVar2Const := mkIndFVar2Const views indFVars levelNames;
 indTypes.mapM fun indType => do
   ctors ← indType.ctors.mapM fun ctor => do {
-    type ← forallBoundedTelescope ctor.type numParams fun params type => do {
-      let type := type.replace fun e => if !e.isFVar then none else
-        match indFVar2Const.find? e with
-        | some c => some $ mkAppN c params
-        | none   => none;
+     type ← forallBoundedTelescope ctor.type numParams fun params type => do {
+      let type := type.replace fun e =>
+        if !e.isFVar then
+          none
+        else match indFVar2Const.find? e with
+          | none   => none
+          | some c => mkAppN c (params.extract 0 numVars);
       mkForallFVars params type
     };
     pure { ctor with type := type }
@@ -451,7 +453,8 @@ withRef view0.ref $ Term.withLevelNames allUserLevelNames do
     u ← getResultingUniverse indTypes;
     inferLevel ← shouldInferResultUniverse u;
     withUsed vars indTypes $ fun vars => do
-      let numParams := vars.size + numExplicitParams;
+      let numVars   := vars.size;
+      let numParams := numVars + numExplicitParams;
       indTypes ← updateParams vars indTypes;
       indTypes ← levelMVarToParam indTypes;
       indTypes ← if inferLevel then updateResultingUniverse numParams indTypes else pure indTypes;
@@ -459,7 +462,7 @@ withRef view0.ref $ Term.withLevelNames allUserLevelNames do
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
       | Except.error msg      => throwError msg
       | Except.ok levelParams => do
-        indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numParams indTypes;
+        indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes;
         let indTypes := applyInferMod views numParams indTypes;
         let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe;
         Term.ensureNoUnassignedMVars decl;

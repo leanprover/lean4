@@ -112,7 +112,7 @@ inductive T1 : Nat → Type
 
 inductive A (α : Type u) (β : Type v)
 | nil {}
-| protected cons : α → β → A → A
+| protected cons : α → β → A α β → A α β
 
 open A
 #check cons -- unknown `cons`, it is protected

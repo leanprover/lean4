@@ -36,7 +36,7 @@ match x with
 #print "---- inv"
 
 inductive Image {α β : Type} (f : α → β) : β → Type
-| mk (a : α) : Image (f a)
+| mk (a : α) : Image f (f a)
 
 def mkImage {α β : Type} (f : α → β) (a : α) : Image f (f a) :=
 Image.mk a

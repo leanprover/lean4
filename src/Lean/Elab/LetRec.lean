@@ -41,6 +41,7 @@ decls ← (letRec.getArg 1).getArgs.getSepElems.mapM fun attrDeclStx => do {
     currDeclName? ← getDeclName?;
     let declName := currDeclName?.getD Name.anonymous ++ shortDeclName;
     checkNotAlreadyDeclared declName;
+    applyAttributes declName attrs AttributeApplicationTime.beforeElaboration;
     let binders := (decl.getArg 1).getArgs;
     let typeStx := expandOptType decl (decl.getArg 2);
     (type, numParams) ← elabBinders binders fun xs => do {

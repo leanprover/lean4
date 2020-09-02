@@ -300,10 +300,10 @@ public:
     ~scoped_task_manager();
 };
 
-inline obj_res mk_task(obj_arg c, unsigned prio = 0) { return lean_mk_task_with_prio(c, prio); }
+inline obj_res mk_task(obj_arg c, unsigned prio = 0, bool keep_alive = false) { return lean_mk_task_with_prio(c, prio, keep_alive); }
 inline obj_res task_pure(obj_arg a) { return lean_task_pure(a); }
-inline obj_res task_bind(obj_arg x, obj_arg f, unsigned prio = 0) { return lean_task_bind_with_prio(x, f, prio); }
-inline obj_res task_map(obj_arg f, obj_arg t, unsigned prio = 0) { return lean_task_map_with_prio(f, t, prio); }
+inline obj_res task_bind(obj_arg x, obj_arg f, unsigned prio = 0, bool keep_alive = false) { return lean_task_bind_with_prio(x, f, prio, keep_alive); }
+inline obj_res task_map(obj_arg f, obj_arg t, unsigned prio = 0, bool keep_alive = false) { return lean_task_map_with_prio(f, t, prio, keep_alive); }
 inline b_obj_res task_get(b_obj_arg t) { return lean_task_get(t); }
 
 /* primitive for implementing `io.check_interrupt : io bool` */

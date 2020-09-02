@@ -100,19 +100,14 @@ match e with
 def lazyPure {α : Type} (fn : Unit → α) : IO α :=
 pure (fn ())
 
-/-
-  Fork the world. This implementation is safe because all Lean function are (currently) maximally eta-expanded and
-  values are never lifted out of lambdas, so `Task.mk` is run only after the `RealWorld` token has been applied and the
-  effects of `act` happen no sooner than if `act` had been run directly. We add `noinline` just to be safe that
-  particular callers do not break these assumptions. -/
-@[noinline] unsafe def asTaskUnsafe {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) :=
-pure (Task.mk fun _ => unsafeIO act)
-
 /--
   Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
   except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
-  computation. -/
-@[implementedBy asTaskUnsafe]
+  computation.
+  Unlike with pure tasks created by `Task.mk`, tasks created by this function will be run even if the last reference
+  to the task is dropped. `act` should manually check for cancellation via `IO.checkInterrupt` if it wants to react
+  to that. -/
+@[extern "lean_io_as_task"]
 constant asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) := arbitrary _
 
 inductive FS.Mode

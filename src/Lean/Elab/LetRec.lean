@@ -18,30 +18,20 @@ structure LetRecDeclView :=
 
 structure LetRecView :=
 (ref       : Syntax)
-(isPartial : Bool)
 (decls     : Array LetRecDeclView)
 (body      : Syntax)
 
 private def mkLetRecView (letRec : Syntax) : LetRecView :=
-let decls     := (letRec.getArg 2).getArgs.getSepElems.map fun attrDeclSyntax =>
+let decls     := (letRec.getArg 1).getArgs.getSepElems.map fun attrDeclSyntax =>
   { attrs := attrDeclSyntax.getArg 0, decl := (attrDeclSyntax.getArg 1).getArg 0 : LetRecDeclView };
 { decls     := decls,
   ref       := letRec,
-  isPartial := !(letRec.getArg 1).isNone,
-  body      := letRec.getArg 4 }
+  body      := letRec.getArg 3 }
 
 def LetRecView.review (view : LetRecView) : Syntax :=
 let result := view.ref;
-let result := result.setArg 4 view.body;
-let result :=
-  if view.isPartial then
-    if (result.getArg 1).isNone then
-      result.setArg 1 (mkNullNode #[mkAtomFrom result "partial "])
-    else
-      result
-  else
-    result.setArg 1 mkNullNode;
-let result := result.setArg 2 $ mkSepStx
+let result := result.setArg 3 view.body;
+let result := result.setArg 1 $ mkSepStx
     (view.decls.map fun decl => mkNullNode #[decl.attrs, mkNode `Lean.Parser.Term.letDecl #[decl.decl]])
     (mkAtomFrom result ", ");
 result

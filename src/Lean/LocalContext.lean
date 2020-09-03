@@ -11,65 +11,65 @@ namespace Lean
 
 inductive LocalDecl
 | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
-| ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr)
+| ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
 
 @[export lean_mk_local_decl]
 def mkLocalDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) : LocalDecl :=
 LocalDecl.cdecl index fvarId userName type bi
 @[export lean_mk_let_decl]
 def mkLetDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : LocalDecl :=
-LocalDecl.ldecl index fvarId userName type val
+LocalDecl.ldecl index fvarId userName type val false
 @[export lean_local_decl_binder_info]
 def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
 | LocalDecl.cdecl _ _ _ _ bi => bi
 | _                          => BinderInfo.default
 
 namespace LocalDecl
-instance : Inhabited LocalDecl := ⟨ldecl (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _)⟩
+instance : Inhabited LocalDecl := ⟨ldecl (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) false⟩
 
 def isLet : LocalDecl → Bool
-| cdecl _ _ _ _ _ => false
-| ldecl _ _ _ _ _ => true
+| cdecl _ _ _ _ _   => false
+| ldecl _ _ _ _ _ _ => true
 
 def index : LocalDecl → Nat
-| cdecl idx _ _ _ _ => idx
-| ldecl idx _ _ _ _ => idx
+| cdecl idx _ _ _ _   => idx
+| ldecl idx _ _ _ _ _ => idx
 
 def setIndex : LocalDecl → Nat → LocalDecl
-| cdecl _  id n t bi, idx => cdecl idx id n t bi
-| ldecl _  id n t v,  idx => ldecl idx id n t v
+| cdecl _  id n t bi,   idx => cdecl idx id n t bi
+| ldecl _  id n t v nd, idx => ldecl idx id n t v nd
 
 def fvarId : LocalDecl → FVarId
-| cdecl _ id _ _ _ => id
-| ldecl _ id _ _ _ => id
+| cdecl _ id _ _ _   => id
+| ldecl _ id _ _ _ _ => id
 
 def userName : LocalDecl → Name
-| cdecl _ _ n _ _ => n
-| ldecl _ _ n _ _ => n
+| cdecl _ _ n _ _   => n
+| ldecl _ _ n _ _ _ => n
 
 def type : LocalDecl → Expr
-| cdecl _ _ _ t _ => t
-| ldecl _ _ _ t _ => t
+| cdecl _ _ _ t _   => t
+| ldecl _ _ _ t _ _ => t
 
 def binderInfo : LocalDecl → BinderInfo
-| cdecl _ _ _ _ bi => bi
-| ldecl _ _ _ _ _  => BinderInfo.default
+| cdecl _ _ _ _ bi  => bi
+| ldecl _ _ _ _ _ _ => BinderInfo.default
 
 def value? : LocalDecl → Option Expr
-| cdecl _ _ _ _ _ => none
-| ldecl _ _ _ _ v => some v
+| cdecl _ _ _ _ _   => none
+| ldecl _ _ _ _ v _ => some v
 
 def value : LocalDecl → Expr
-| cdecl _ _ _ _ _ => panic! "let declaration expected"
-| ldecl _ _ _ _ v => v
+| cdecl _ _ _ _ _   => panic! "let declaration expected"
+| ldecl _ _ _ _ v _ => v
 
 def updateUserName : LocalDecl → Name → LocalDecl
-| cdecl index id _ type bi,  userName => cdecl index id userName type bi
-| ldecl index id _ type val, userName => ldecl index id userName type val
+| cdecl index id _ type bi,     userName => cdecl index id userName type bi
+| ldecl index id _ type val nd, userName => ldecl index id userName type val nd
 
 def updateBinderInfo : LocalDecl → BinderInfo → LocalDecl
 | cdecl index id n type _,  bi => cdecl index id n type bi
-| ldecl _ _ _ _ _, _           => panic! "unexpected let declaration"
+| ldecl _ _ _ _ _ _, _         => panic! "unexpected let declaration"
 
 def toExpr (decl : LocalDecl) : Expr :=
 mkFVar decl.fvarId
@@ -106,11 +106,11 @@ match lctx with
   { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_mk_let_decl]
-def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) : LocalContext :=
+def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep := false) : LocalContext :=
 match lctx with
 | { fvarIdToDecl := map, decls := decls } =>
   let idx  := decls.size;
-  let decl := LocalDecl.ldecl idx fvarId userName type value;
+  let decl := LocalDecl.ldecl idx fvarId userName type value nonDep;
   { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 /- Low level API -/
@@ -310,11 +310,11 @@ xs.size.foldRev (fun i b =>
       Lean.mkLambda n bi ty b
     else
       Lean.mkForall n bi ty b
-  | some (LocalDecl.ldecl _ _ n ty val) =>
+  | some (LocalDecl.ldecl _ _ n ty val nonDep) =>
     if b.hasLooseBVar 0 then
       let ty  := ty.abstractRange i xs;
       let val := val.abstractRange i xs;
-      mkLet n ty val b
+      mkLet n ty val b nonDep
     else
       b.lowerLooseBVars 1 1
   | none => panic! "unknown free variable") b

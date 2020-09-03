@@ -92,9 +92,9 @@ fvarId   ← mkFreshFVarId;
 modify $ fun s => { s with lctxOutput := s.lctxOutput.mkLocalDecl fvarId userName type bi };
 pure $ mkFVar fvarId
 
-def mkLetDecl (userName : Name) (type : Expr) (value : Expr) : ClosureM Expr := do
+def mkLetDecl (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) : ClosureM Expr := do
 fvarId   ← mkFreshFVarId;
-modify $ fun s => { s with lctxOutput := s.lctxOutput.mkLetDecl fvarId userName type value };
+modify $ fun s => { s with lctxOutput := s.lctxOutput.mkLetDecl fvarId userName type value nonDep };
 pure $ mkFVar fvarId
 
 @[inline] def visitExpr (f : Expr → ClosureM Expr) (e : Expr) : ClosureM Expr :=
@@ -140,7 +140,7 @@ partial def collectExprAux : Expr → ClosureM Expr
       x    ← mkLocalDecl userName type bi;
       modify $ fun s => { s with exprClosure := s.exprClosure.push e };
       pure x
-    | some (LocalDecl.ldecl _ _ userName type value) =>
+    | some (LocalDecl.ldecl _ _ userName type value nonDep) =>
       if ctx.zeta then do
         value ← instantiateMVars value;
         collect value
@@ -150,7 +150,7 @@ partial def collectExprAux : Expr → ClosureM Expr
         value ← instantiateMVars value;
         value ← collect value;
         -- Note that let-declarations do not need to be provided to the closure being constructed.
-        mkLetDecl userName type value
+        mkLetDecl userName type value nonDep
   | e => pure e
 
 def collectExpr (e : Expr) : ClosureM Expr := do

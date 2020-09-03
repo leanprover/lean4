@@ -400,7 +400,7 @@ if ctx.mvarDecl.lctx.containsFVar fvar then pure fvar
 else do
   let lctx := ctxMeta.lctx;
   match lctx.findFVar? fvar with
-  | some (LocalDecl.ldecl _ _ _ _ v) => visit check v
+  | some (LocalDecl.ldecl _ _ _ _ v _) => visit check v
   | _ =>
     if ctx.fvars.contains fvar then pure fvar
     else do
@@ -527,7 +527,7 @@ partial def check
 | e@(Expr.fvar fvarId _)   =>
   if mvarDecl.lctx.contains fvarId then true
   else match lctx.find? fvarId with
-    | some (LocalDecl.ldecl _ _ _ _ v) => false -- need expensive CheckAssignment.check
+    | some (LocalDecl.ldecl _ _ _ _ v _) => false -- need expensive CheckAssignment.check
     | _ =>
       if fvars.any $ fun x => x.fvarId! == fvarId then true
       else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it

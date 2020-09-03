@@ -43,8 +43,8 @@ partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Exp
     | ⟨e@(Expr.fvar fvarId _), type, false⟩ => do
       localDecl ← getLocalDecl fvarId;
       match localDecl with
-      | LocalDecl.cdecl _ _ _ _ _ => generalizeTelescopeAux entries (i+1) nextVarIdx (fvars.push e)
-      | LocalDecl.ldecl _ _ _ _ _ => replace e type
+      | LocalDecl.cdecl _ _ _ _ _   => generalizeTelescopeAux entries (i+1) nextVarIdx (fvars.push e)
+      | LocalDecl.ldecl _ _ _ _ _ _ => replace e type
     | ⟨e, type, modified⟩ => do
       when modified $ unlessM (isTypeCorrect type) $
         throwError $ "failed to create telescope generalizing " ++ (entries.map Entry.expr);

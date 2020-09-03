@@ -573,13 +573,13 @@ lctx.foldl
   (fun (result : LocalContext × MetavarContext) ldecl =>
      let (lctx, mctx) := result;
      match ldecl with
-     | LocalDecl.cdecl _ fvarId userName type bi    =>
+     | LocalDecl.cdecl _ fvarId userName type bi =>
        let (type, mctx) := mctx.instantiateMVars type;
        (lctx.mkLocalDecl fvarId userName type bi, mctx)
-     | LocalDecl.ldecl _ fvarId userName type value =>
+     | LocalDecl.ldecl _ fvarId userName type value nonDep =>
        let (type, mctx)  := mctx.instantiateMVars type;
        let (value, mctx) := mctx.instantiateMVars value;
-       (lctx.mkLetDecl fvarId userName type value, mctx))
+       (lctx.mkLetDecl fvarId userName type value nonDep, mctx))
   ({}, mctx)
 
 def instantiateMVarDeclMVars (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
@@ -641,8 +641,8 @@ end DependsOn
   depends on a free variable `x` s.t. `p x` is `true`. -/
 @[inline] def findLocalDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (p : FVarId → Bool) : Bool :=
 match localDecl with
-| LocalDecl.cdecl _ _ _ type _     => findExprDependsOn mctx type p
-| LocalDecl.ldecl _ _ _ type value => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
+| LocalDecl.cdecl _ _ _ type _       => findExprDependsOn mctx type p
+| LocalDecl.ldecl _ _ _ type value _ => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
 
 def exprDependsOn (mctx : MetavarContext) (e : Expr) (fvarId : FVarId) : Bool :=
 findExprDependsOn mctx e $ fun fvarId' => fvarId == fvarId'
@@ -776,11 +776,11 @@ xs.size.foldRevM
       let type := type.headBeta;
       type ← abstractRangeAux elimMVarDeps xs i type;
       pure $ Lean.mkForall n bi type e
-    | LocalDecl.ldecl _ _ n type value => do
+    | LocalDecl.ldecl _ _ n type value nonDep => do
       let type := type.headBeta;
       type  ← abstractRangeAux elimMVarDeps xs i type;
       value ← abstractRangeAux elimMVarDeps xs i value;
-      let e := mkLet n type value e;
+      let e := mkLet n type value e nonDep;
       match kind with
       | MetavarKind.syntheticOpaque =>
         -- See "Gruesome details" section in the beginning of the file
@@ -921,11 +921,11 @@ xs.size.foldRevM
           pure (Lean.mkForall n bi type e, num + 1)
       else
         pure (e.lowerLooseBVars 1 1, num)
-    | LocalDecl.ldecl _ _ n type value => do
+    | LocalDecl.ldecl _ _ n type value nonDep => do
       if e.hasLooseBVar 0 then do
         type  ← abstractRange xs i type;
         value ← abstractRange xs i value;
-        pure (mkLet n type value e, num + 1)
+        pure (mkLet n type value e nonDep, num + 1)
       else
         pure (e.lowerLooseBVars 1 1, num))
   (e, 0)

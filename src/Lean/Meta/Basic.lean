@@ -358,10 +358,10 @@ match localDecl with
   | LocalDecl.cdecl idx id n type bi  => do
     type ← instantiateMVars type;
     pure $ LocalDecl.cdecl idx id n type bi
-  | LocalDecl.ldecl idx id n type val => do
+  | LocalDecl.ldecl idx id n type val nonDep => do
     type ← instantiateMVars type;
     val ← instantiateMVars val;
-    pure $ LocalDecl.ldecl idx id n type val
+    pure $ LocalDecl.ldecl idx id n type val nonDep
 
 @[inline] private def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α := do
 mctx ← getMCtx;

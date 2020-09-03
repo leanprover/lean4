@@ -59,7 +59,7 @@ env ← getEnv;
 match env.find? id with
 | ConstantInfo.axiomInfo { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
 | ConstantInfo.defnInfo  { lparams := us, type := t, value := v, isUnsafe := u, .. } => printDefLike "def" id us t v u
-| ConstantInfo.thmInfo  { lparams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v.get
+| ConstantInfo.thmInfo  { lparams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
 | ConstantInfo.opaqueInfo  { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constant" id us t u
 | ConstantInfo.quotInfo  { kind := kind, lparams := us, type := t, .. } => printQuot kind id us t
 | ConstantInfo.ctorInfo { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
@@ -110,7 +110,7 @@ partial def collect : Name → M Unit
     match env.find? c with
     | some (ConstantInfo.axiomInfo _)  => modify fun s => { s with axioms := s.axioms.push c }
     | some (ConstantInfo.defnInfo v)   => collectExpr v.type *> collectExpr v.value
-    | some (ConstantInfo.thmInfo v)    => collectExpr v.type *> collectExpr v.value.get
+    | some (ConstantInfo.thmInfo v)    => collectExpr v.type *> collectExpr v.value
     | some (ConstantInfo.opaqueInfo v) => collectExpr v.type *> collectExpr v.value
     | some (ConstantInfo.quotInfo _)   => pure ()
     | some (ConstantInfo.ctorInfo v)   => collectExpr v.type

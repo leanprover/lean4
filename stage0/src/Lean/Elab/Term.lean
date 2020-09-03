@@ -16,6 +16,7 @@ import Lean.Elab.Log
 import Lean.Elab.Alias
 import Lean.Elab.ResolveName
 import Lean.Elab.Level
+import Lean.Elab.Attributes
 
 namespace Lean
 namespace Elab
@@ -67,6 +68,18 @@ structure MVarErrorContext :=
 (ref    : Syntax)
 (ctx?   : Option Expr := none)
 
+structure LetRecToLift :=
+(ref            : Syntax)
+(fvarId         : FVarId)
+(attrs          : Array Attribute)
+(shortDeclName  : Name)
+(declName       : Name)
+(lctx           : LocalContext)
+(localInstances : LocalInstances)
+(type           : Expr)
+(val            : Expr)
+(mvarId         : MVarId)
+
 structure State :=
 (syntheticMVars    : List SyntheticMVarDecl := [])
 (mvarErrorContexts : List MVarErrorContext := [])
@@ -74,6 +87,7 @@ structure State :=
 (instImplicitIdx   : Nat := 1)
 (anonymousIdx      : Nat := 1)
 (nextMacroScope    : Nat := firstFrontendMacroScope + 1)
+(letRecsToLift     : List LetRecToLift := [])
 
 instance State.inhabited : Inhabited State := ⟨{}⟩
 
@@ -223,6 +237,7 @@ instance LVal.hasToString : HasToString LVal :=
 def getDeclName? : TermElabM (Option Name) := do ctx ← read; pure ctx.declName?
 def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
 def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
+def getLetRecsToLift : TermElabM (List LetRecToLift) := do s ← get; pure s.letRecsToLift
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }

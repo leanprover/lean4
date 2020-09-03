@@ -139,9 +139,9 @@ else
 private def removeUnused (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
 let used : CollectFVars.State := {};
-used ← Term.collectUsedFVars used eType;
-used ← Term.collectUsedFVars used e;
-used ← Term.collectUsedFVarsAtFVars used xs;
+(_, used) ← (Term.collectUsedFVars eType).run used;
+(_, used) ← (Term.collectUsedFVars e).run used;
+(_, used) ← (Term.collectUsedFVarsAtFVars xs).run used;
 Term.removeUnused vars used
 
 private def withUsedWhen {α} (vars : Array Expr) (xs : Array Expr) (e : Expr) (eType : Expr) (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
@@ -188,8 +188,7 @@ else withUsedWhen vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars =>
   | Except.ok levelParams =>
     match view.kind with
     | DefKind.theorem =>
-      -- TODO theorem elaboration in parallel
-      pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := Task.pure val }
+      pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := val }
     | DefKind.opaque  =>
       pure $ some $ Declaration.opaqueDecl { name := declName, lparams := levelParams, type := type, value := val, isUnsafe := view.modifiers.isUnsafe }
     | DefKind.abbrev =>

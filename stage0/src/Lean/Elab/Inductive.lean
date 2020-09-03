@@ -329,12 +329,13 @@ private def traceIndTypes (indTypes : List InductiveType) : TermElabM Unit :=
 indTypes.forM fun indType =>
   indType.ctors.forM fun ctor => IO.println ("  >> " ++ toString ctor.name ++ " : " ++ toString ctor.type)
 
+private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State TermElabM Unit := do
+indTypes.forM fun indType => do
+    Term.collectUsedFVars indType.type;
+    indType.ctors.forM fun ctor => Term.collectUsedFVars ctor.type
+
 private def removeUnused (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
-used ← indTypes.foldlM
-  (fun (used : CollectFVars.State) indType => do
-    used ← Term.collectUsedFVars used indType.type;
-    indType.ctors.foldlM (fun (used : CollectFVars.State) ctor => Term.collectUsedFVars used ctor.type) used)
-  {};
+(_, used) ← (collectUsed indTypes).run {};
 Term.removeUnused vars used
 
 private def withUsed {α} (vars : Array Expr) (indTypes : List InductiveType) (k : Array Expr → TermElabM α) : TermElabM α := do

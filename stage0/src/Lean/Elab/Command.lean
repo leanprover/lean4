@@ -616,6 +616,12 @@ fun stx => do
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
   | _ => logErrorAt val ("unexpected set_option value " ++ toString val)
 
+@[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro :=
+fun stx => do
+  let cmd₁ := stx.getArg 0;
+  let cmd₂ := stx.getArg 2;
+  `(section $cmd₁:command $cmd₂:command end)
+
 /--
   Sort the given list of `usedParams` using the following order:
   - If it is an explicit level `allUserParams`, then use user given order.

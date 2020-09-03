@@ -385,6 +385,41 @@ if optType.isNone then
 else
   (optType.getArg 0).getArg 1
 
+/- Helper function for `expandEqnsIntoMatch` -/
+private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
+let alt0 := matchAlts.getArg 0;
+let pats := (alt0.getArg 0).getArgs.getSepElems;
+pats.size
+
+/- Helper function for `expandMatchAltsIntoMatch` -/
+private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) : Nat → Array Syntax → MacroM Syntax
+| 0,   discrs =>
+  pure $ Syntax.node `Lean.Parser.Term.match
+    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", mkNullNode, matchAlts]
+| n+1, discrs => withFreshMacroScope do
+  x ← `(x);
+  let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", ";
+  let discrs := discrs.push $ Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, x];
+  body ← expandMatchAltsIntoMatchAux n discrs;
+  `(fun $x => $body)
+
+/--
+  Expand `matchAlts` syntax into a full `match`-expression.
+  Example
+    ```
+    | 0, true => 1
+    | i, _    => 2
+    ```
+    expands intro
+    ```
+    fun x_1 x_2 =>
+    match x_1, x_2 with
+    | 0, true => 1
+    | i, _    => 2
+    ``` -/
+def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
+expandMatchAltsIntoMatchAux ref matchAlts (getMatchAltNumPatterns matchAlts) #[]
+
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `(fun (x : type) => body) val` -/
 def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
@@ -425,11 +460,6 @@ let type    := expandOptType letIdDecl optType;
 let value   := letIdDecl.getArg 4;
 { id := id, binders := binders, type := type, value := value }
 
-private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
-let alt0 := matchAlts.getArg 0;
-let pats := (alt0.getArg 0).getArgs.getSepElems;
-pats.size
-
 private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array Syntax → MacroM Syntax
 | 0,   discrs =>
   pure $ Syntax.node `Lean.Parser.Term.match
@@ -442,10 +472,9 @@ private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array 
   `(fun $x => $body)
 
 def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
-let ref     := letDecl;
-let alts    := letDecl.getArg 4;
-let numPats := getMatchAltNumPatterns alts;
-val ← expandLetEqnsDeclVal ref alts numPats #[];
+let ref       := letDecl;
+let matchAlts := letDecl.getArg 4;
+val ← expandMatchAltsIntoMatch ref matchAlts;
 pure $ Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do

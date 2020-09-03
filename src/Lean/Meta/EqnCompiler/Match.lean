@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectLevelParams
 import Lean.Meta.Check
+import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.EqnCompiler.MVarRenaming

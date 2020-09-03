@@ -22,3 +22,4 @@ import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.EqnCompiler
 import Lean.Meta.ReduceEval
 import Lean.Meta.Partial
+import Lean.Meta.Closure

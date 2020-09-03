@@ -7,8 +7,11 @@ import Std.ShareCommon
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.FoldConsts
+import Lean.Meta.Basic
 
 namespace Lean
+namespace Meta
+
 namespace Closure
 
 structure Context :=
@@ -218,6 +221,45 @@ pure {
   exprClosure  := r.exprClosure,
   mctx         := r.mctx
 }
-
 end Closure
+
+variables {m : Type → Type} [MonadLiftT MetaM m]
+
+private def mkAuxDefinitionImp (name : Name) (type : Expr) (value : Expr) (zeta : Bool) : MetaM Expr := do
+opts  ← getOptions;
+mctx  ← getMCtx;
+lctx  ← getLCtx;
+match Closure.mkValueTypeClosure mctx lctx type value zeta with
+| Except.error ex  => throwError ex
+| Except.ok result  => do
+  env ← getEnv;
+  let decl := Declaration.defnDecl {
+    name     := name,
+    lparams  := result.levelParams.toList,
+    type     := result.type,
+    value    := result.value,
+    hints    := ReducibilityHints.regular (getMaxHeight env result.value + 1),
+    isUnsafe := env.hasUnsafe result.type || env.hasUnsafe result.value
+  };
+  setMCtx result.mctx;
+  addAndCompile decl;
+  pure $ mkAppN (mkConst name result.levelClosure.toList) result.exprClosure
+
+/--
+  Create an auxiliary definition with the given name, type and value.
+  The parameters `type` and `value` may contain free and meta variables.
+  A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
+  returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
+  and `t_j`s are free and meta variables `type` and `value` depend on. -/
+def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) : m Expr := liftMetaM do
+mkAuxDefinitionImp name type value zeta
+
+/-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
+def mkAuxDefinitionFor (name : Name) (value : Expr) : m Expr := liftMetaM do
+type ← inferType value;
+let type := type.headBeta;
+mkAuxDefinition name type value
+
+
+end Meta
 end Lean

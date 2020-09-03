@@ -31,6 +31,9 @@ lambdaTelescope c.value?.get! fun xs body =>
     let ys := ys.toList.map mkFVar;
     print ys;
     check $ pure $ ys.length == 2;
+    mkAuxDefinitionFor `foo body;
     pure ()
 
 #eval tst1
+
+#print foo

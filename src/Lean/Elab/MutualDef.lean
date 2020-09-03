@@ -317,10 +317,11 @@ ps.mapM fun (p : Array Expr × LetRecToLift) => do
       | some p => some (mkAppN (Lean.mkConst p.2.declName) p.1)
       | none => none
     | _ => none;
-  -- Apply closure
-  let type := lctx.mkForall xs type;
-  let val  := lctx.mkLambda xs val;
-  pure { toLift with type := type, val := val }
+  withLCtx lctx toLift.localInstances do
+    -- Apply closure
+    type ← mkForallFVars xs type;
+    val  ← mkLambdaFVars xs val;
+    pure { toLift with type := type, val := val }
 
 end LetRecClosure
 

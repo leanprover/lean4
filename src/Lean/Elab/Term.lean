@@ -69,15 +69,16 @@ structure MVarErrorContext :=
 (ctx?   : Option Expr := none)
 
 structure LetRecToLift :=
-(ref           : Syntax)
-(fvarId        : FVarId)
-(attrs         : Array Attribute)
-(shortDeclName : Name)
-(declName      : Name)
-(lctx          : LocalContext)
-(type          : Expr)
-(val           : Expr)
-(mvarId        : MVarId)
+(ref            : Syntax)
+(fvarId         : FVarId)
+(attrs          : Array Attribute)
+(shortDeclName  : Name)
+(declName       : Name)
+(lctx           : LocalContext)
+(localInstances : LocalInstances)
+(type           : Expr)
+(val            : Expr)
+(mvarId         : MVarId)
 
 structure State :=
 (syntheticMVars    : List SyntheticMVarDecl := [])

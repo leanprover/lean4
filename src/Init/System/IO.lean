@@ -379,7 +379,7 @@ structure Output :=
 (stdout   : String)
 (stderr   : String)
 
-/-- Run process to completion and caputre output. -/
+/-- Run process to completion and capture output. -/
 def output (args : SpawnArgs) : IO Output := do
 child ← spawn { args with stdout := Stdio.piped, stderr := Stdio.piped };
 -- BUG: this will block indefinitely if the process fills the stderr pipe

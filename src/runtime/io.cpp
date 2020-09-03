@@ -639,7 +639,7 @@ static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
 extern "C" obj_res lean_io_as_task(obj_arg act, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
-    object * t = lean_mk_task_with_prio(c, 0, /* keep_alive */ true);
+    object * t = lean_task_spawn_with_prio(c, 0, /* keep_alive */ true);
     return io_result_mk_ok(t);
 }
 

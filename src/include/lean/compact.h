@@ -63,6 +63,7 @@ class compacted_region {
     void fix_array(object * o);
     void fix_thunk(object * o);
     void fix_ref(object * o);
+    void fix_task(object * o);
     void fix_mpz(object * o);
 public:
     /* Creates a compacted object region using the given region in memory.

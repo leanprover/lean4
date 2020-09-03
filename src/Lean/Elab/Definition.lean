@@ -188,8 +188,7 @@ else withUsedWhen vars xs val type view.kind.isDefOrAbbrevOrOpaque $ fun vars =>
   | Except.ok levelParams =>
     match view.kind with
     | DefKind.theorem =>
-      -- TODO theorem elaboration in parallel
-      pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := Task.pure val }
+      pure $ some $ Declaration.thmDecl { name := declName, lparams := levelParams, type := type, value := val }
     | DefKind.opaque  =>
       pure $ some $ Declaration.opaqueDecl { name := declName, lparams := levelParams, type := type, value := val, isUnsafe := view.modifiers.isUnsafe }
     | DefKind.abbrev =>

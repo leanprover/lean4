@@ -79,7 +79,7 @@ def mkDefinitionValEx (name : Name) (lparams : List Name) (type : Expr) (val : E
 @[export lean_definition_val_is_unsafe] def DefinitionVal.isUnsafeEx (v : DefinitionVal) : Bool := v.isUnsafe
 
 structure TheoremVal extends ConstantVal :=
-(value : Task Expr)
+(value : Expr)
 
 /- Value for an opaque constant declaration `constant x : t := e` -/
 structure OpaqueVal extends ConstantVal :=
@@ -120,7 +120,7 @@ match d with
 | Declaration.axiomDecl { type := type, .. }                  => f a type
 | Declaration.defnDecl { type := type, value := value, .. }   => do a ← f a type; f a value
 | Declaration.opaqueDecl { type := type, value := value, .. } => do a ← f a type; f a value
-| Declaration.thmDecl { type := type, value := value, .. }    => do a ← f a type; f a value.get
+| Declaration.thmDecl { type := type, value := value, .. }    => do a ← f a type; f a value
 | Declaration.mutualDefnDecl vals                             => vals.foldlM (fun a v => do a ← f a v.type; f a v.value) a
 | Declaration.inductDecl _ _ inductTypes _                    =>
   inductTypes.foldlM
@@ -271,7 +271,7 @@ d.toConstantVal.type
 
 def value? : ConstantInfo → Option Expr
 | defnInfo {value := r, ..} => some r
-| thmInfo  {value := r, ..} => some r.get
+| thmInfo  {value := r, ..} => some r
 | _                         => none
 
 def hasValue : ConstantInfo → Bool
@@ -281,7 +281,7 @@ def hasValue : ConstantInfo → Bool
 
 def value! : ConstantInfo → Expr
 | defnInfo {value := r, ..} => r
-| thmInfo  {value := r, ..} => r.get
+| thmInfo  {value := r, ..} => r
 | _                         => panic! "declaration with value expected"
 
 def hints : ConstantInfo → ReducibilityHints

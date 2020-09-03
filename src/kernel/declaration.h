@@ -128,7 +128,7 @@ public:
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    expr get_value() const;
+    expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
 };
 
 /*

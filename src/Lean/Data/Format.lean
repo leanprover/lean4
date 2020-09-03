@@ -52,7 +52,10 @@ else
 def spaceUptoLine : Format → Bool → Nat → SpaceResult
 | nil,          flatten, w => {}
 | line,         flatten, w => if flatten then { space := 1 } else { foundLine := true }
-| text s,       flatten, w => { space := s.length }
+| text s,       flatten, w =>
+  let p := s.posOf '\n';
+  let off := s.offsetOfPos p;
+  { foundLine := p != s.bsize, space := off }
 | append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten w)
 | nest _ f,     flatten, w => spaceUptoLine f flatten w
 | group f,      flatten, w => spaceUptoLine f true w
@@ -61,12 +64,24 @@ def spaceUptoLine' : List (Bool × Nat × Format) → Nat → SpaceResult
 | [],    w => {}
 | (fl, _, f)::ps, w => merge w (spaceUptoLine f fl w) (spaceUptoLine' ps w)
 
+private def setFlattened (fl : Bool) (z : List (Bool × Nat × Format)) : List (Bool × Nat × Format) :=
+z.map fun ⟨_, i, f⟩ => (fl, i, f)
+
 partial def be : Nat → Nat → String → List (Bool × Nat × Format) → String
 | w, k, out, []                       => out
 | w, k, out, (fl, i, nil)::z          => be w k out z
 | w, k, out, (fl, i, append f₁ f₂)::z => be w k out ((fl, i, f₁)::(fl, i, f₂)::z)
 | w, k, out, (fl, i, nest n f)::z     => be w k out ((fl, i+n, f)::z)
-| w, k, out, (fl, i, text s)::z       => be w (k + s.length) (out ++ s) z
+| w, k, out, (fl, i, text s)::z       =>
+  let p := s.posOf '\n';
+  if p == s.bsize then be w (k + s.length) (out ++ s) z
+  else
+    let out := out ++ s.extract 0 p ++ "\n".pushn ' ' i;
+    let k := i;
+    let z := (false, i, text $ s.extract (s.next p) s.bsize)::z;
+    let z' := setFlattened true z;
+    let r := spaceUptoLine' z' (w-k);
+    if r.space > w-k then be w k out (setFlattened false z) else be w k out z'
 -- flatten line = text " "
 | w, k, out, (true,  i, line)::z      => be w (k + 1) (out ++ " ") z
 | w, k, out, (false, i, line)::z      => be w i ((out ++ "\n").pushn ' ' i) z

@@ -49,7 +49,7 @@ decls ← (letRec.getArg 1).getArgs.getSepElems.mapM fun attrDeclStx => do {
         type ← mkForallFVars xs type;
         pure (type, xs.size)
     };
-    mvar ← mkFreshExprMVar type MetavarKind.synthetic;
+    mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque;
     valStx ←
       if decl.isOfKind `Lean.Parser.Term.letIdDecl then
         pure $ decl.getArg 4

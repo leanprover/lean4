@@ -19,3 +19,23 @@ let rec
   | 0 => ⟨10, Ax⟩
   | _ => ⟨20, Ax⟩;
 10
+
+
+mutual
+
+def f (x : Nat) : Nat :=
+let rec g (y : Nat) (h : y = f x) : Nat :=  -- error type is using 'f'
+  f y + 1;
+x + 1
+
+end
+
+mutual
+
+def f (x : Nat) : Nat :=
+let rec g (y : Nat) : Nat :=
+  let rec h (z : Nat) (h : z = g z) : Nat := z + 1; -- error type is using 'g'
+  f y + 1;
+x + 1
+
+end

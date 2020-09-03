@@ -6,3 +6,5 @@ while expanding
   y < g x 
 while expanding
   { y : Nat // y < g x } 
+letrec1.lean:27:8: error: invalid type in 'let rec', it uses 'f' which is being defined simultaneously
+letrec1.lean:37:10: error: invalid type in 'let rec', it uses 'g' which is being defined simultaneously

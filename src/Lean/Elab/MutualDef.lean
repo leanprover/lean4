@@ -159,6 +159,46 @@ views.any fun view => view.kind.isExample
 private def isTheorem (views : Array DefView) : Bool :=
 views.any fun view => view.kind.isTheorem
 
+private def instantiateMVarsAtHeader (header : DefViewElabHeader) : TermElabM DefViewElabHeader := do
+type ← instantiateMVars header.type;
+pure { header with type := type }
+
+private def instantiateMVarsAtLetRecToLift (toLift : LetRecToLift) : TermElabM LetRecToLift := do
+type ← instantiateMVars toLift.type;
+val ← instantiateMVars toLift.val;
+pure { toLift with type := type, val := val }
+
+private def typeHasRecFun (type : Expr) (funFVars : Array Expr) (letRecsToLift : List LetRecToLift) : Option FVarId :=
+let occ? := type.find? fun e => match e with
+  | Expr.fvar fvarId _ => funFVars.contains e || letRecsToLift.any fun toLift => toLift.fvarId == fvarId
+  | _ => false;
+match occ? with
+| some (Expr.fvar fvarId _) => some fvarId
+| _ => none
+
+private def getFunName (fvarId : FVarId) (letRecsToLift : List LetRecToLift) : TermElabM Name := do
+decl? ← findLocalDecl? fvarId;
+match decl? with
+| some decl => pure decl.userName
+| none =>
+  /- Recall that the FVarId of nested let-recs are not in the current local context. -/
+  match letRecsToLift.findSome? fun (toLift : LetRecToLift) => if toLift.fvarId == fvarId then some toLift.shortDeclName else none with
+  | none   => throwError "unknown function"
+  | some n => pure n
+
+/-
+Ensures that the of let-rec definitions do not contain functions being defined.
+In principle, this test can be improved. We could perform it after we separate the set of functions is strongly connected components.
+However, this extra complication doesn't seem worth it.
+-/
+private def checkLetRecsToLiftTypes (funVars : Array Expr) (letRecsToLift : List LetRecToLift) : TermElabM Unit :=
+letRecsToLift.forM fun toLift => do
+  match typeHasRecFun toLift.type funVars letRecsToLift with
+  | none        => pure ()
+  | some fvarId => do
+    fnName ← getFunName fvarId letRecsToLift;
+    throwErrorAt toLift.ref ("invalid type in 'let rec', it uses '" ++ fnName ++ "' which is being defined simultaneously")
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
 scopeLevelNames ← getLevelNames;
 headers ← elabHeaders views;
@@ -167,9 +207,12 @@ withFunLocalDecls headers fun funFVars => do
   Term.synthesizeSyntheticMVarsNoPostponing;
   if isExample views then pure ()
   else do
+    values ← values.mapM instantiateMVars;
+    headers ← headers.mapM instantiateMVarsAtHeader;
     letRecsToLift ← getLetRecsToLift;
+    letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift;
+    checkLetRecsToLiftTypes funFVars letRecsToLift;
     withUsedWhen vars headers values letRecsToLift (not $ isTheorem views) fun vars => do
-
       values.forM fun val => IO.println (toString val);
       throwError "WIP mutual def"
 

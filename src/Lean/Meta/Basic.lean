@@ -332,6 +332,10 @@ pure $ mctx.hasAssignableMVar e
 def throwUnknownFVar {α} (fvarId : FVarId) : MetaM α :=
 throwError ("unknown free variable '" ++ mkFVar fvarId ++ "'")
 
+def findLocalDecl? (fvarId : FVarId) : m (Option LocalDecl) := liftMetaM do
+lctx ← getLCtx;
+pure $ lctx.find? fvarId
+
 def getLocalDecl (fvarId : FVarId) : m LocalDecl := liftMetaM do
 lctx ← getLCtx;
 match lctx.find? fvarId with

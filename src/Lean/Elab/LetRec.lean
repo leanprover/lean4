@@ -97,15 +97,16 @@ when e.hasSyntheticSorry $ throwAbort
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
 lctx ← getLCtx;
-let toLift := views.mapIdx fun i view => {
-  ref      := view.ref,
-  fvarId   := (fvars.get! i).fvarId!,
-  attrs    := view.attrs,
-  declName := view.declName,
-  lctx     := lctx,
-  type     := view.type,
-  val      := values.get! i,
-  mvarId   := view.mvar.mvarId!
+let toLift      := views.mapIdx fun i view => {
+  ref           := view.ref,
+  fvarId        := (fvars.get! i).fvarId!,
+  attrs         := view.attrs,
+  shortDeclName := view.shortDeclName,
+  declName      := view.declName,
+  lctx          := lctx,
+  type          := view.type,
+  val           := values.get! i,
+  mvarId        := view.mvar.mvarId!
   : LetRecToLift };
 modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 

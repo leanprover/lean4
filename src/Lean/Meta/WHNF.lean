@@ -208,9 +208,16 @@ liftM $ getStuckMVarImp? e
 | e@(Expr.letE _ _ _ _ _),  k => k e
 | e@(Expr.fvar fvarId _),   k => do
   decl ← getLocalDecl fvarId;
-  match decl.value? with
-  | none   => pure e
-  | some v => whnfEasyCases v k
+  match decl with
+  | LocalDecl.cdecl _ _ _ _ _        => pure e
+  | LocalDecl.ldecl _ _ _ _ v nonDep => do
+    cfg ← getConfig;
+    if nonDep && !cfg.zetaNonDep then
+      pure e
+    else do
+      when cfg.trackZeta $
+        modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId };
+      whnfEasyCases v k
 | e@(Expr.mvar mvarId _),   k => do
   v? ← getExprMVarAssignment? mvarId;
   match v? with

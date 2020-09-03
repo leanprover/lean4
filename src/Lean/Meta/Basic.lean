@@ -31,14 +31,14 @@ namespace Lean
 namespace Meta
 
 structure Config :=
-(foApprox           : Bool    := false)
-(ctxApprox          : Bool    := false)
-(quasiPatternApprox : Bool    := false)
+(foApprox           : Bool := false)
+(ctxApprox          : Bool := false)
+(quasiPatternApprox : Bool := false)
 /- When `constApprox` is set to true,
    we solve `?m t =?= c` using
    `?m := fun _ => c`
    when `?m t` is not a higher-order pattern and `c` is not an application as -/
-(constApprox        : Bool    := false)
+(constApprox        : Bool := false)
 /-
   When the following flag is set,
   `isDefEq` throws the exeption `Exeption.isDefEqStuck`
@@ -47,8 +47,12 @@ structure Config :=
   This feature is useful for type class resolution where
   we may want to notify the caller that the TC problem may be solveable
   later after it assigns `?m`. -/
-(isDefEqStuckEx     : Bool    := false)
+(isDefEqStuckEx     : Bool := false)
 (transparency       : TransparencyMode := TransparencyMode.default)
+/- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
+(zetaNonDep         : Bool := true)
+/- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
+(trackZeta          : Bool := false)
 
 structure ParamInfo :=
 (implicit     : Bool      := false)
@@ -91,9 +95,11 @@ structure PostponedEntry :=
 (rhs       : Level)
 
 structure State :=
-(mctx           : MetavarContext       := {})
-(cache          : Cache                := {})
-(postponed      : PersistentArray PostponedEntry := {})
+(mctx        : MetavarContext := {})
+(cache       : Cache := {})
+(postponed   : PersistentArray PostponedEntry := {})
+/- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
+(zetaFVarIds : NameSet := {})
 
 instance State.inhabited : Inhabited State := ⟨{}⟩
 
@@ -165,6 +171,8 @@ def getConfig : m Config := liftMetaM do ctx ← read; pure ctx.config
 def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
 @[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : m Unit :=
 liftMetaM $ modify fun s => { s with mctx := f s.mctx }
+def resetZetaFVarIds : m Unit := liftMetaM $ modify fun s => { s with zetaFVarIds := {} }
+def getZetaFVarIds : m NameSet := liftMetaM do s ← get; pure s.zetaFVarIds
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
@@ -394,6 +402,9 @@ if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e
 
 @[inline] def withConfig {α} (f : Config → Config) : n α → n α :=
 mapMetaM fun _ => adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config })
+
+@[inline] def withTrackingZeta {α} (x : n α) : n α :=
+withConfig (fun cfg => { cfg with trackZeta := true }) x
 
 @[inline] def withTransparency {α} (mode : TransparencyMode) : n α → n α :=
 mapMetaM fun _ => withConfig (fun config => { config with transparency := mode })

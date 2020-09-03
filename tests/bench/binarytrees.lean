@@ -35,7 +35,7 @@ partial def sumT : UInt32 -> UInt32 -> UInt32 -> UInt32
 partial def depth : Nat -> Nat -> List (Nat × Nat × Task UInt32)
 | d, m => if d ≤ m then
     let n := 2 ^ (m - d + minN);
-    (n, d, Task.mk (fun _ => sumT (UInt32.ofNat d) (UInt32.ofNat n) 0)) :: depth (d+2) m
+    (n, d, Task.spawn (fun _ => sumT (UInt32.ofNat d) (UInt32.ofNat n) 0)) :: depth (d+2) m
   else []
 
 def main : List String → IO UInt32

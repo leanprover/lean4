@@ -6,7 +6,7 @@ n.repeat (fun r =>
 
 def tst (n : Nat) : IO UInt32 :=
 let ys := (List.replicate n 1);
-let ts : List (Task Nat) := (List.iota 10).map (fun i => Task.mk $ fun _ => run1 (i+1) n ys);
+let ts : List (Task Nat) := (List.iota 10).map (fun i => Task.spawn fun _ => run1 (i+1) n ys);
 let ns : List Nat := ts.map Task.get;
 IO.println (">> " ++ toString ns) *>
 pure 0

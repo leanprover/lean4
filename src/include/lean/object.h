@@ -292,15 +292,13 @@ inline obj_res thunk_bind(obj_arg x, obj_arg f) { return lean_thunk_bind(x, f); 
 // =======================================
 // Tasks
 
-/* If num_workers == 0, then tasks primitives will just create thunks.
-   It must not be used if task objects have already been created. */
 class scoped_task_manager {
 public:
     scoped_task_manager(unsigned num_workers);
     ~scoped_task_manager();
 };
 
-inline obj_res mk_task(obj_arg c, unsigned prio = 0, bool keep_alive = false) { return lean_mk_task_with_prio(c, prio, keep_alive); }
+inline obj_res task_spawn(obj_arg c, unsigned prio = 0, bool keep_alive = false) { return lean_task_spawn_with_prio(c, prio, keep_alive); }
 inline obj_res task_pure(obj_arg a) { return lean_task_pure(a); }
 inline obj_res task_bind(obj_arg x, obj_arg f, unsigned prio = 0, bool keep_alive = false) { return lean_task_bind_with_prio(x, f, prio, keep_alive); }
 inline obj_res task_map(obj_arg f, obj_arg t, unsigned prio = 0, bool keep_alive = false) { return lean_task_map_with_prio(f, t, prio, keep_alive); }

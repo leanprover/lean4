@@ -789,8 +789,7 @@ class task_manager {
         object * it = task_list;
         while (!is_scalar(it)) {
             object * head = lean_ctor_get(it, 0);
-            lean_assert(lean_is_thunk(head) || lean_is_task(head));
-            if (lean_is_thunk(head) || lean_to_task(head)->m_value)
+            if (lean_to_task(head)->m_value)
                 return head;
             it = cnstr_get(it, 1);
         }
@@ -921,8 +920,13 @@ scoped_task_manager::~scoped_task_manager() {
 }
 
 void deactivate_task(lean_task_object * t) {
-    lean_assert(g_task_manager);
-    g_task_manager->deactivate_task(t);
+    if (g_task_manager) {
+        g_task_manager->deactivate_task(t);
+    } else {
+        lean_assert(t->m_value != nullptr);
+        lean_dec(t->m_value);
+        free_task(t);
+    }
 }
 
 static inline void lean_set_task_header(lean_object * o) {
@@ -955,9 +959,9 @@ static lean_task_object * alloc_task(obj_arg v) {
 }
 
 
-extern "C" obj_res lean_mk_task_with_prio(obj_arg c, unsigned prio, bool keep_alive) {
+extern "C" obj_res lean_task_spawn_with_prio(obj_arg c, unsigned prio, bool keep_alive) {
     if (!g_task_manager) {
-        return lean_mk_thunk(c);
+        return lean_task_pure(apply_1(c, box(0)));
     } else {
         lean_task_object * new_task = alloc_task(c, prio, keep_alive);
         g_task_manager->enqueue(new_task);
@@ -966,17 +970,11 @@ extern "C" obj_res lean_mk_task_with_prio(obj_arg c, unsigned prio, bool keep_al
 }
 
 extern "C" obj_res lean_task_pure(obj_arg a) {
-    if (!g_task_manager) {
-        return lean_thunk_pure(a);
-    } else {
-        return (lean_object*)alloc_task(a);
-    }
+    return (lean_object*)alloc_task(a);
 }
 
 static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
-    lean_assert(lean_is_thunk(t) || lean_is_task(t));
-    b_obj_res v;
-    if (lean_is_thunk(t)) v = lean_thunk_get(t); else v = lean_to_task(t)->m_value;
+    b_obj_res v = lean_to_task(t)->m_value;
     lean_assert(v != nullptr);
     lean_inc(v);
     lean_dec_ref(t);
@@ -985,29 +983,21 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
 
 extern "C" obj_res lean_task_map_with_prio(obj_arg f, obj_arg t, unsigned prio, bool keep_alive) {
     if (!g_task_manager) {
-        lean_assert(lean_is_thunk(t));
-        return lean_thunk_map(f, t);
+        return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), prio, keep_alive);
-        if (lean_is_thunk(t))
-            g_task_manager->enqueue(new_task);
-        else
-            g_task_manager->add_dep(lean_to_task(t), new_task);
+        g_task_manager->add_dep(lean_to_task(t), new_task);
         return (lean_object*)new_task;
     }
 }
 
 extern "C" b_obj_res lean_task_get(b_obj_arg t) {
-    if (lean_is_thunk(t)) {
-        return lean_thunk_get(t);
-    } else {
-        if (object * v = lean_to_task(t)->m_value)
-            return v;
-        g_task_manager->wait_for(lean_to_task(t));
-        lean_assert(lean_to_task(t)->m_value != nullptr);
-        object * r = lean_to_task(t)->m_value;
-        return r;
-    }
+    if (object * v = lean_to_task(t)->m_value)
+        return v;
+    g_task_manager->wait_for(lean_to_task(t));
+    lean_assert(lean_to_task(t)->m_value != nullptr);
+    object * r = lean_to_task(t)->m_value;
+    return r;
 }
 
 static obj_res task_bind_fn2(obj_arg t, obj_arg) {
@@ -1019,39 +1009,25 @@ static obj_res task_bind_fn2(obj_arg t, obj_arg) {
 }
 
 static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
-    lean_assert(lean_is_thunk(x) || lean_is_task(x));
-    b_obj_res v;
-    if (lean_is_thunk(x)) v = lean_thunk_get(x); else v = lean_to_task(x)->m_value;
+    b_obj_res v = lean_to_task(x)->m_value;
     lean_assert(v != nullptr);
     lean_inc(v);
     lean_dec_ref(x);
     obj_res new_task = lean_apply_1(f, v);
-    lean_assert(lean_is_thunk(new_task) || lean_is_task(new_task));
-    if (lean_is_thunk(new_task)) {
-        b_obj_res r = lean_thunk_get(new_task);
-        lean_inc(r);
-        lean_dec_ref(new_task);
-        return r;
-    } else {
-        lean_assert(lean_is_task(new_task));
-        lean_assert(g_current_task_object->m_imp);
-        lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
-        g_current_task_object->m_imp->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
-        g_task_manager->add_dep(lean_to_task(new_task), g_current_task_object);
-        return nullptr; /* notify queue that task did not finish yet. */
-    }
+    lean_assert(lean_is_task(new_task));
+    lean_assert(g_current_task_object->m_imp);
+    lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
+    g_current_task_object->m_imp->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
+    g_task_manager->add_dep(lean_to_task(new_task), g_current_task_object);
+    return nullptr; /* notify queue that task did not finish yet. */
 }
 
 extern "C" obj_res lean_task_bind_with_prio(obj_arg x, obj_arg f, unsigned prio, bool keep_alive) {
-    lean_assert(lean_is_thunk(x) || lean_is_task(x));
     if (!g_task_manager) {
-        return lean_thunk_bind(x, f);
+        return apply_1(f, lean_task_get_own(x));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), prio, keep_alive);
-        if (lean_is_thunk(x))
-            g_task_manager->enqueue(new_task);
-        else
-            g_task_manager->add_dep(lean_to_task(x), new_task);
+        g_task_manager->add_dep(lean_to_task(x), new_task);
         return (lean_object*)new_task;
     }
 }
@@ -1065,15 +1041,13 @@ extern "C" bool lean_io_check_interrupt_core() {
 }
 
 extern "C" void lean_io_request_interrupt_core(b_obj_arg t) {
-    lean_assert(lean_is_thunk(t) || lean_is_task(t));
-    if (lean_is_thunk(t) || lean_to_task(t)->m_value)
+    if (lean_to_task(t)->m_value)
         return;
     g_task_manager->request_interrupt(lean_to_task(t));
 }
 
 extern "C" bool lean_io_has_finished_core(b_obj_arg t) {
-    lean_assert(lean_is_thunk(t) || lean_is_task(t));
-    return lean_is_thunk(t) || lean_to_task(t)->m_value != nullptr;
+    return lean_to_task(t)->m_value != nullptr;
 }
 
 extern "C" b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {

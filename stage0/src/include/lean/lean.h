@@ -1170,6 +1170,9 @@ void lean_init_task_manager_using(unsigned num_workers);
 lean_obj_res lean_mk_task_with_prio(lean_obj_arg c, unsigned prio);
 /* Convert a closure `Unit -> A` into a `Task A` */
 static inline lean_obj_res lean_mk_task(lean_obj_arg c) { return lean_mk_task_with_prio(c, 0); }
+lean_obj_res lean_task_spawn_with_prio(lean_obj_arg c, unsigned prio, bool keep_alive);
+/* Run a closure `Unit -> A` as a `Task A` */
+static inline lean_obj_res lean_task_spawn(lean_obj_arg c) { return lean_task_spawn_with_prio(c, 0, false); }
 /* Convert a value `a : A` into `Task A` */
 lean_obj_res lean_task_pure(lean_obj_arg a);
 lean_obj_res lean_task_bind_with_prio(lean_obj_arg x, lean_obj_arg f, unsigned prio);
@@ -1180,9 +1183,10 @@ lean_obj_res lean_task_map_with_prio(lean_obj_arg f, lean_obj_arg t, unsigned pr
 static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t) { return lean_task_map_with_prio(f, t, 0); }
 b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 /* Primitive for implementing Task.get : Task A -> A */
-static inline lean_obj_res lean_task_get_own(b_lean_obj_arg t) {
+static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
     lean_object * r = lean_task_get(t);
     lean_inc(r);
+    lean_dec(t);
     return r;
 }
 

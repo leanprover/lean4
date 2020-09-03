@@ -1,5 +1,5 @@
 #eval do
-  t1 ← IO.mapTask IO.println (Task.mk fun _ => "ha");
+  t1 ← IO.mapTask IO.println (Task.spawn fun _ => "ha");
   pure ()
 
 #eval do

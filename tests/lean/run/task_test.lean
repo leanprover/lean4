@@ -13,8 +13,8 @@ dbgTrace ("f2: " ++ toString x) $ fun  _ =>
   g x
 
 def tst (n : Nat) : IO UInt32 :=
-let t1 := Task.mk $ (fun _ => f1 n);
-let t2 := Task.mk $ (fun _ => f2 n);
+let t1 := Task.spawn fun _ => f1 n;
+let t2 := Task.spawn fun _ => f2 n;
 dbgSleep 1000 $ fun _ =>
 IO.println (toString t1.get ++ " " ++ toString t2.get) *>
 pure 0

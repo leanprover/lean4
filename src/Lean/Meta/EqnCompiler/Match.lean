@@ -16,12 +16,6 @@ namespace Lean
 namespace Meta
 namespace Match
 
-def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
-if d.fvarId == fvarId then d
-else match d with
-  | LocalDecl.cdecl idx id n type bi => LocalDecl.cdecl idx id n (type.replaceFVarId fvarId e) bi
-  | LocalDecl.ldecl idx id n type val nonDep => LocalDecl.ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) nonDep
-
 inductive Pattern : Type
 | inaccessible (e : Expr) : Pattern
 | var          (fvarId : FVarId) : Pattern

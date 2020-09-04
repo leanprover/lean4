@@ -2,10 +2,13 @@ import Lean.Meta
 open Lean
 open Lean.Meta
 
+def fact : Nat → Nat
+| 0 => 1
+| n+1 => (n+1)*fact n
+
 set_option trace.Meta true
-set_option trace.Meta.isDefEq.step false
-set_option trace.Meta.isDefEq.delta false
-set_option trace.Meta.isDefEq.assign false
+set_option trace.Meta.isDefEq false
+set_option trace.Meta.check false
 
 def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
@@ -13,8 +16,8 @@ trace! `Meta.debug msg
 def check (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throwError "check failed"
 
-def ex : Nat × Nat :=
-let x  := 10;
+def ex (x_1 x_2 x_3 : Nat) : Nat × Nat :=
+let x  := fact (10 + x_1 + x_2 + x_3);
 let ty := Nat → Nat;
 let f  : ty := fun x => x;
 let n  := 20;
@@ -31,7 +34,9 @@ lambdaTelescope c.value?.get! fun xs body =>
     let ys := ys.toList.map mkFVar;
     print ys;
     check $ pure $ ys.length == 2;
-    mkAuxDefinitionFor `foo body;
+    c ← mkAuxDefinitionFor `foo body;
+    print c;
+    Meta.check c;
     pure ()
 
 #eval tst1

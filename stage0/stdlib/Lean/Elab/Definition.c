@@ -137,6 +137,7 @@ extern lean_object* l_Lean_Compiler_mkInlineAttrs___closed__4;
 lean_object* l___private_Lean_Elab_Definition_1__removeUnused(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef_x3f___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_mkDef_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_ShareCommonT_withShareCommon___at_Lean_Elab_Command_mkDef_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef_x3f___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_getCurrMacroScope(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_SourceInfo_inhabited___closed__1;
@@ -1654,6 +1655,14 @@ lean_dec(x_4);
 x_14 = l___private_Lean_Elab_Definition_3__withUsedWhen_x27___rarg(x_1, x_2, x_3, x_13, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_2);
 return x_14;
+}
+}
+lean_object* l_Std_ShareCommonT_withShareCommon___at_Lean_Elab_Command_mkDef_x3f___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_state_sharecommon(x_2, x_1);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_Elab_Command_mkDef_x3f___lambda__1___closed__1() {

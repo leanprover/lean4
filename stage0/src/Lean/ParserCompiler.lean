@@ -36,7 +36,7 @@ open Meta
 partial def compileParserBody {α} (ctx : Context α) : Expr → MetaM Expr | e => do
 e ← whnfCore e;
 match e with
-| e@(Expr.lam _ _ _ _)     => lambdaTelescope e fun xs b => compileParserBody b >>= mkLambdaFVars xs
+| e@(Expr.lam _ _ _ _)     => lambdaLetTelescope e fun xs b => compileParserBody b >>= mkLambdaFVars xs
 | e@(Expr.fvar _ _)        => pure e
 | _ => do
   let fn := e.getAppFn;

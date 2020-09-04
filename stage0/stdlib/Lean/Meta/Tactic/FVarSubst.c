@@ -1037,27 +1037,29 @@ return x_2;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_18 = lean_ctor_get(x_2, 0);
 x_19 = lean_ctor_get(x_2, 1);
 x_20 = lean_ctor_get(x_2, 2);
 x_21 = lean_ctor_get(x_2, 3);
 x_22 = lean_ctor_get(x_2, 4);
+x_23 = lean_ctor_get_uint8(x_2, sizeof(void*)*5);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_2);
-x_23 = l_Lean_Meta_FVarSubst_apply(x_1, x_21);
-x_24 = l_Lean_Meta_FVarSubst_apply(x_1, x_22);
-x_25 = lean_alloc_ctor(1, 5, 0);
-lean_ctor_set(x_25, 0, x_18);
-lean_ctor_set(x_25, 1, x_19);
-lean_ctor_set(x_25, 2, x_20);
-lean_ctor_set(x_25, 3, x_23);
-lean_ctor_set(x_25, 4, x_24);
-return x_25;
+x_24 = l_Lean_Meta_FVarSubst_apply(x_1, x_21);
+x_25 = l_Lean_Meta_FVarSubst_apply(x_1, x_22);
+x_26 = lean_alloc_ctor(1, 5, 1);
+lean_ctor_set(x_26, 0, x_18);
+lean_ctor_set(x_26, 1, x_19);
+lean_ctor_set(x_26, 2, x_20);
+lean_ctor_set(x_26, 3, x_24);
+lean_ctor_set(x_26, 4, x_25);
+lean_ctor_set_uint8(x_26, sizeof(void*)*5, x_23);
+return x_26;
 }
 }
 }

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectLevelParams
 import Lean.Meta.Check
+import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.EqnCompiler.MVarRenaming
@@ -14,12 +15,6 @@ import Lean.Meta.EqnCompiler.CaseArraySizes
 namespace Lean
 namespace Meta
 namespace Match
-
-def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
-if d.fvarId == fvarId then d
-else match d with
-  | LocalDecl.cdecl idx id n type bi  => LocalDecl.cdecl idx id n (type.replaceFVarId fvarId e) bi
-  | LocalDecl.ldecl idx id n type val => LocalDecl.ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e)
 
 inductive Pattern : Type
 | inaccessible (e : Expr) : Pattern

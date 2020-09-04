@@ -36,7 +36,7 @@ match mctx.findDecl? mvarId with
          else
            let fmt := pushPending varNames prevType? fmt;
            ([varName], some type, fmt)
-       | LocalDecl.ldecl _ _ varName type val =>
+       | LocalDecl.ldecl _ _ varName type val _ =>
          let fmt  := pushPending varNames prevType? fmt;
          let fmt  := addLine fmt;
          let type := instMVars type;

@@ -359,20 +359,6 @@ else do
   resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) $ withLCtx s.lctx s.localInsts $
     x s.fvars s.expectedType?
 
-@[builtinTermElab «fun»] def elabFun : TermElab :=
-fun stx expectedType? => do
--- `fun` term+ `=>` term
-let binders := (stx.getArg 1).getArgs;
-let body := stx.getArg 3;
-(binders, body, expandedPattern) ← expandFunBinders binders body;
-if expandedPattern then do
-  newStx ← `(fun $binders* => $body);
-  withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-else
-  elabFunBinders binders expectedType? $ fun xs expectedType? => do
-    e ← elabTerm body expectedType?;
-    mkLambdaFVars xs e
-
 /-
   Recall that
   ```
@@ -419,6 +405,25 @@ private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) : Na
     ``` -/
 def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
 expandMatchAltsIntoMatchAux ref matchAlts (getMatchAltNumPatterns matchAlts) #[]
+
+@[builtinTermElab «fun»] def elabFun : TermElab :=
+fun stx expectedType? =>
+-- "fun " >> ((many1 funBinder >> darrow >> termParser) <|> funMatchAlts)
+-- funMatchAlts := parser! matchAlts false
+if (stx.getArg 1).isOfKind `Lean.Parser.Term.funMatchAlts then do
+  stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx ((stx.getArg 1).getArg 1);
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+else do
+  let binders := (stx.getArg 1).getArgs;
+  let body := stx.getArg 3;
+  (binders, body, expandedPattern) ← expandFunBinders binders body;
+  if expandedPattern then do
+    newStx ← `(fun $binders* => $body);
+    withMacroExpansion stx newStx $ elabTerm newStx expectedType?
+  else
+    elabFunBinders binders expectedType? $ fun xs expectedType? => do
+      e ← elabTerm body expectedType?;
+      mkLambdaFVars xs e
 
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `(fun (x : type) => body) val` -/

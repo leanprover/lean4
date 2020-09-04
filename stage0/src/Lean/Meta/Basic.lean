@@ -9,7 +9,6 @@ import Lean.Class
 import Lean.ReducibilityAttrs
 import Lean.Util.Trace
 import Lean.Util.RecDepth
-import Lean.Util.Closure
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.Exception
 import Lean.Meta.TransparencyMode
@@ -31,14 +30,14 @@ namespace Lean
 namespace Meta
 
 structure Config :=
-(foApprox           : Bool    := false)
-(ctxApprox          : Bool    := false)
-(quasiPatternApprox : Bool    := false)
+(foApprox           : Bool := false)
+(ctxApprox          : Bool := false)
+(quasiPatternApprox : Bool := false)
 /- When `constApprox` is set to true,
    we solve `?m t =?= c` using
    `?m := fun _ => c`
    when `?m t` is not a higher-order pattern and `c` is not an application as -/
-(constApprox        : Bool    := false)
+(constApprox        : Bool := false)
 /-
   When the following flag is set,
   `isDefEq` throws the exeption `Exeption.isDefEqStuck`
@@ -47,8 +46,12 @@ structure Config :=
   This feature is useful for type class resolution where
   we may want to notify the caller that the TC problem may be solveable
   later after it assigns `?m`. -/
-(isDefEqStuckEx     : Bool    := false)
+(isDefEqStuckEx     : Bool := false)
 (transparency       : TransparencyMode := TransparencyMode.default)
+/- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
+(zetaNonDep         : Bool := true)
+/- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
+(trackZeta          : Bool := false)
 
 structure ParamInfo :=
 (implicit     : Bool      := false)
@@ -91,9 +94,11 @@ structure PostponedEntry :=
 (rhs       : Level)
 
 structure State :=
-(mctx           : MetavarContext       := {})
-(cache          : Cache                := {})
-(postponed      : PersistentArray PostponedEntry := {})
+(mctx        : MetavarContext := {})
+(cache       : Cache := {})
+(postponed   : PersistentArray PostponedEntry := {})
+/- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
+(zetaFVarIds : NameSet := {})
 
 instance State.inhabited : Inhabited State := ⟨{}⟩
 
@@ -165,6 +170,8 @@ def getConfig : m Config := liftMetaM do ctx ← read; pure ctx.config
 def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
 @[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : m Unit :=
 liftMetaM $ modify fun s => { s with mctx := f s.mctx }
+def resetZetaFVarIds : m Unit := liftMetaM $ modify fun s => { s with zetaFVarIds := {} }
+def getZetaFVarIds : m NameSet := liftMetaM do s ← get; pure s.zetaFVarIds
 
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
@@ -358,10 +365,10 @@ match localDecl with
   | LocalDecl.cdecl idx id n type bi  => do
     type ← instantiateMVars type;
     pure $ LocalDecl.cdecl idx id n type bi
-  | LocalDecl.ldecl idx id n type val => do
+  | LocalDecl.ldecl idx id n type val nonDep => do
     type ← instantiateMVars type;
     val ← instantiateMVars val;
-    pure $ LocalDecl.ldecl idx id n type val
+    pure $ LocalDecl.ldecl idx id n type val nonDep
 
 @[inline] private def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α := do
 mctx ← getMCtx;
@@ -394,6 +401,9 @@ if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e
 
 @[inline] def withConfig {α} (f : Config → Config) : n α → n α :=
 mapMetaM fun _ => adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config })
+
+@[inline] def withTrackingZeta {α} (x : n α) : n α :=
+withConfig (fun cfg => { cfg with trackZeta := true }) x
 
 @[inline] def withTransparency {α} (mode : TransparencyMode) : n α → n α :=
 mapMetaM fun _ => withConfig (fun config => { config with transparency := mode })
@@ -659,33 +669,37 @@ map2MetaM (fun _ k => forallTelescopeReducingAux isClassExpensive? type maxFVars
 /-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
 private partial def lambdaTelescopeAux {α}
     (k : Array Expr → Expr → MetaM α)
-    : LocalContext → Array Expr → Nat → Expr → MetaM α
-| lctx, fvars, j, Expr.lam n d b c => do
+    : Bool → LocalContext → Array Expr → Nat → Expr → MetaM α
+| consumeLet, lctx, fvars, j, Expr.lam n d b c => do
   let d := d.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let lctx := lctx.mkLocalDecl fvarId n d c.binderInfo;
   let fvar := mkFVar fvarId;
-  lambdaTelescopeAux lctx (fvars.push fvar) j b
-| lctx, fvars, j, Expr.letE n t v b _ => do
+  lambdaTelescopeAux consumeLet lctx (fvars.push fvar) j b
+| true, lctx, fvars, j, Expr.letE n t v b _ => do
   let t := t.instantiateRevRange j fvars.size fvars;
   let v := v.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let lctx := lctx.mkLetDecl fvarId n t v;
   let fvar := mkFVar fvarId;
-  lambdaTelescopeAux lctx (fvars.push fvar) j b
-| lctx, fvars, j, e =>
+  lambdaTelescopeAux true lctx (fvars.push fvar) j b
+| _, lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstancesImpl isClassExpensive? fvars j $ do
       k fvars e
 
-private def lambdaTelescopeImpl {α} (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+private def lambdaTelescopeImpl {α} (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) : MetaM α := do
 lctx ← getLCtx;
-lambdaTelescopeAux k lctx #[] 0 e
+lambdaTelescopeAux k consumeLet lctx #[] 0 e
 
 /-- Similar to `forallTelescope` but for lambda and let expressions. -/
+@[inline] def lambdaLetTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
+map2MetaM (fun _ k => lambdaTelescopeImpl type true k) k
+
+/-- Similar to `forallTelescope` but for lambda expressions. -/
 @[inline] def lambdaTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
-map2MetaM (fun _ k => lambdaTelescopeImpl type k) k
+map2MetaM (fun _ k => lambdaTelescopeImpl type false k) k
 
 def getParamNamesImpl (declName : Name) : MetaM (Array Name) := do
 cinfo ← getConstInfo declName;
@@ -898,41 +912,6 @@ modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
 def whnfD [MonadLiftT MetaM n] (e : Expr) : n Expr :=
 withTransparency TransparencyMode.default $ whnf e
-
-private def mkAuxDefinitionImp (name : Name) (type : Expr) (value : Expr) (zeta : Bool) : MetaM Expr := do
-opts  ← getOptions;
-mctx  ← getMCtx;
-lctx  ← getLCtx;
-match Closure.mkValueTypeClosure mctx lctx type value zeta with
-| Except.error ex  => throwError ex
-| Except.ok result  => do
-  env ← getEnv;
-  let decl := Declaration.defnDecl {
-    name     := name,
-    lparams  := result.levelParams.toList,
-    type     := result.type,
-    value    := result.value,
-    hints    := ReducibilityHints.regular (getMaxHeight env result.value + 1),
-    isUnsafe := env.hasUnsafe result.type || env.hasUnsafe result.value
-  };
-  setMCtx result.mctx;
-  addAndCompile decl;
-  pure $ mkAppN (mkConst name result.levelClosure.toList) result.exprClosure
-
-/--
-  Create an auxiliary definition with the given name, type and value.
-  The parameters `type` and `value` may contain free and meta variables.
-  A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
-  returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
-  and `t_j`s are free and meta variables `type` and `value` depend on. -/
-def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) : m Expr := liftMetaM do
-mkAuxDefinitionImp name type value zeta
-
-/-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) : m Expr := liftMetaM do
-type ← inferType value;
-let type := type.headBeta;
-mkAuxDefinition name type value
 
 def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): m Unit := liftMetaM do
 env ← getEnv;

@@ -696,6 +696,11 @@ as.any $ fun b => a == b
 def elem [HasBeq α] (a : α) (as : Array α) : Bool :=
 as.contains a
 
+def erase [HasBeq α] (as : Array α) (a : α) : Array α :=
+match as.indexOf a with
+| none   => as
+| some i => as.feraseIdx i
+
 partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
 | as, j =>
   if i == j then as
@@ -792,5 +797,12 @@ We also need
 
 Then using Array.extLit, we have that a = List.toArray $ toListLitAux a n hsz n _ []
 -/
+
+@[specialize] def getMax? {α : Type u} (as : Array α) (lt : α → α → Bool) : Option α :=
+if h : 0 < as.size then
+  let a0 := as.get ⟨0, h⟩;
+  some $ as.foldlFrom (fun best a => if lt best a then a else best) a0 1
+else
+  none
 
 end Array

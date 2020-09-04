@@ -125,6 +125,7 @@ lean_object* l_Lean_Delaborator_annotateCurPos___boxed(lean_object*, lean_object
 lean_object* l_Lean_Delaborator_delabLam___lambda__1___closed__4;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_Level_HasQuote___closed__1;
+lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_1__inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabOfNat(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Delaborator_getImplicitParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_quote___main___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -433,7 +434,6 @@ lean_object* l_Lean_getPPExplicit___closed__1;
 lean_object* l_Lean_Delaborator_getExprKind___closed__6;
 lean_object* l_Lean_Delaborator_mkDelabAttribute___closed__12;
 lean_object* l_Array_toList___rarg(lean_object*);
-lean_object* l_Lean_Meta_inferType___at_Lean_Meta_mkAuxDefinitionFor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabSort___closed__1;
 lean_object* l___regBuiltin_Lean_Delaborator_delabMVar___closed__1;
 lean_object* l_Lean_Delaborator_delabAttribute;
@@ -10002,7 +10002,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_Meta_inferType___at_Lean_Meta_mkAuxDefinitionFor___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_1__inferAppType___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 

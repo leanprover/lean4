@@ -15,7 +15,6 @@ import Lean.Util.Profile
 import Lean.Util.RecDepth
 import Lean.Util.Sorry
 import Lean.Util.Trace
-import Lean.Util.WHNF
 import Lean.Util.FindExpr
 import Lean.Util.ReplaceExpr
 import Lean.Util.ReplaceLevel

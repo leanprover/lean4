@@ -19,7 +19,7 @@ _ ← getLevel e; pure ()
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 lctx ← getLCtx;
 match lctx.find? fvarId with
-| some (LocalDecl.ldecl _ n t v b) => do
+| some (LocalDecl.ldecl _ n t v b _) => do
   vType ← inferType v;
   throwError $
      "invalid let declaration, term" ++ indentExpr v
@@ -30,14 +30,14 @@ match lctx.find? fvarId with
 @[specialize] private def checkLambdaLet
     (check   : Expr → MetaM Unit)
     (e : Expr) : MetaM Unit :=
-lambdaTelescope e $ fun xs b => do
+lambdaLetTelescope e $ fun xs b => do
   xs.forM $ fun x => do {
     xDecl ← getFVarLocalDecl x;
     match xDecl with
     | LocalDecl.cdecl _ _ _ t _ => do
       ensureType t;
       check t
-    | LocalDecl.ldecl _ _ _ t v => do
+    | LocalDecl.ldecl _ _ _ t v _ => do
       ensureType t;
       check t;
       vType ← inferType v;

@@ -94,10 +94,6 @@ def bracketedBinder (requireType := false) := explicitBinder requireType <|> imp
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall " >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
-def funImplicitBinder := try (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
-def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPrec
-@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ " "fun " >> many1 funBinder >> darrow >> termParser
-
 def matchAlt : Parser :=
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
   sepBy1 termParser ", " >> darrow >> termParser
@@ -111,6 +107,12 @@ def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space befo
 
 @[builtinTermParser] def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch»  := parser!:leadPrec "nomatch " >> termParser
+
+def funImplicitBinder := try (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
+def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPrec
+def funMatchAlts := parser! matchAlts false
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ " "fun " >> ((many1 funBinder >> darrow >> termParser) <|> funMatchAlts)
+
 def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser

@@ -754,6 +754,7 @@ class task_manager {
                         } else if (v != nullptr) {
                             lean_assert(t->m_imp->m_closure == nullptr);
                             handle_finished(t);
+                            mark_mt(v);
                             t->m_value = v;
                             /* After the task has been finished and we propagated
                                dependecies, we can release `m_imp` and keep just the value */

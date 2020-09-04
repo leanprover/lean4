@@ -26,6 +26,7 @@ fun c s =>
 def ident' : Parser := ident <|> underscore
 
 @[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> many (termParser maxPrec)
+@[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> Term.funMatchAlts
 @[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many ident'
 @[builtinTacticParser] def «revert»     := parser! nonReservedSymbol "revert " >> many1 ident
 @[builtinTacticParser] def «clear»      := parser! nonReservedSymbol "clear " >> many1 ident

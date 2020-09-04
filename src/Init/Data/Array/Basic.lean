@@ -793,4 +793,11 @@ We also need
 Then using Array.extLit, we have that a = List.toArray $ toListLitAux a n hsz n _ []
 -/
 
+@[specialize] def getMax? {α : Type u} (as : Array α) (lt : α → α → Bool) : Option α :=
+if h : 0 < as.size then
+  let a0 := as.get ⟨0, h⟩;
+  some $ as.foldlFrom (fun best a => if lt best a then a else best) a0 1
+else
+  none
+
 end Array

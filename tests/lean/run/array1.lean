@@ -45,3 +45,8 @@ def tst : IO (List Nat) :=
   if x % 2 == 0 then pure $ some (x + 10) else pure none
 
 #eval tst
+
+#eval #[1, 3, 6, 2].getMax? (fun a b => a < b)
+#eval #[].getMax? (fun (a b : Nat) => a < b)
+#eval #[1, 8].getMax? (fun a b => a < b)
+#eval #[8, 1].getMax? (fun a b => a < b)

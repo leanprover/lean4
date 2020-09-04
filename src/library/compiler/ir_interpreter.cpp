@@ -948,8 +948,11 @@ extern "C" object * lean_eval_const(object * env, object * c) {
 
 void initialize_ir_interpreter() {
     ir::g_mangle_prefix = new string_ref("l_");
+    mark_persistent(ir::g_mangle_prefix->raw());
     ir::g_boxed_suffix = new string_ref("_boxed");
+    mark_persistent(ir::g_boxed_suffix->raw());
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
+    mark_persistent(ir::g_boxed_mangled_suffix->raw());
     DEBUG_CODE({
         register_trace_class({"interpreter"});
         register_trace_class({"interpreter", "call"});
@@ -958,8 +961,5 @@ void initialize_ir_interpreter() {
 }
 
 void finalize_ir_interpreter() {
-    delete ir::g_boxed_mangled_suffix;
-    delete ir::g_boxed_suffix;
-    delete ir::g_mangle_prefix;
 }
 }

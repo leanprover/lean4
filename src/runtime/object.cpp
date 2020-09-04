@@ -685,7 +685,7 @@ class task_manager {
             m_max_prio = prio;
         m_queues[prio].push_back(t);
         m_queues_size++;
-        if (m_workers_to_be_created > 0)
+        if (m_workers_to_be_created > 0 && !m_shutting_down)
             spawn_worker();
         else
             m_queue_cv.notify_one();
@@ -718,11 +718,10 @@ class task_manager {
                     save_stack_info(false);
                     unique_lock<mutex> lock(m_mutex);
                     while (true) {
-                        if (m_shutting_down) {
-                            break;
-                        }
-
                         if (m_queues_size == 0) {
+                            if (m_shutting_down) {
+                                break;
+                            }
                             m_queue_cv.wait(lock);
                             continue;
                         }
@@ -802,25 +801,14 @@ public:
     }
 
     ~task_manager() {
-        unique_lock<mutex> lock(m_mutex);
-        for (worker_info * info : m_workers) {
-            if (info->m_task) {
-                lean_assert(info->m_task->m_imp);
-                info->m_task->m_imp->m_canceled = true;
-            }
+        {
+            unique_lock<mutex> lock(m_mutex);
+            m_shutting_down = true;
         }
-        m_shutting_down = true;
         m_queue_cv.notify_all();
-        lock.unlock();
         for (worker_info * w : m_workers) {
             w->m_thread->join();
             delete w;
-        }
-        for (std::deque<lean_task_object *> const & q : m_queues) {
-            for (lean_task_object * o : q) {
-                lean_assert(o->m_imp && o->m_imp->m_deleted);
-                free_task(o);
-            }
         }
     }
 

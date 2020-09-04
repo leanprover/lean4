@@ -744,7 +744,8 @@ class task_manager {
                             lock.lock();
                         }
                         lean_assert(t->m_imp);
-                        if (t->m_imp->m_keep_alive && !lean_nonzero_rc((lean_object *)t)) {
+                        // deactivate keep-alive tasks without live references only after their final execution (`v != nulltpr`)
+                        if (v != nullptr && t->m_imp->m_keep_alive && !lean_nonzero_rc((lean_object *)t)) {
                             deactivate_task_core(lock, t);
                         }
                         if (t->m_imp->m_deleted) {

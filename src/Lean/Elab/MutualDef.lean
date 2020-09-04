@@ -295,7 +295,7 @@ let rec
     | x+1 => f x + z
 ```
 `y` is free variable in `f`, and `z` is a free variable in `g`.
-To close `f` and `g`, we `y` and `z` must be in the closure of both.
+To close `f` and `g`, `y` and `z` must be in the closure of both.
 That is, we need to generate the top-level definitions.
 ```
 def f (y z x : Nat) := g y z x + y

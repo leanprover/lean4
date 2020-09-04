@@ -211,7 +211,7 @@ typedef struct {
     struct lean_task *   m_head_dep;
     struct lean_task *   m_next_dep;
     unsigned             m_prio;
-    uint8_t              m_interrupted;
+    uint8_t              m_canceled;
     // If true, task will not be freed until finished
     uint8_t              m_keep_alive;
     uint8_t              m_deleted;
@@ -1189,13 +1189,13 @@ static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
     return r;
 }
 
-/* primitive for implementing `IO.checkInterrupt : IO bool` */
-bool lean_io_check_interrupt_core();
-/* primitive for implementing `IO.requestInterrupt : Task a -> IO Unit` */
-void lean_io_request_interrupt_core(b_lean_obj_arg t);
+/* primitive for implementing `IO.checkCanceled : IO Bool` */
+bool lean_io_check_canceled_core();
+/* primitive for implementing `IO.cancel : Task a -> IO Unit` */
+void lean_io_cancel_core(b_lean_obj_arg t);
 /* primitive for implementing `IO.hasFinished : Task a -> IO Unit` */
 bool lean_io_has_finished_core(b_lean_obj_arg t);
-/* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a) */
+/* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a)` */
 b_lean_obj_res lean_io_wait_any_core(b_lean_obj_arg task_list);
 
 /* External objects */

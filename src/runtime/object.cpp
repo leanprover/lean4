@@ -623,7 +623,7 @@ static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive)
     imp->m_head_dep    = nullptr;
     imp->m_next_dep    = nullptr;
     imp->m_prio        = prio;
-    imp->m_interrupted = false;
+    imp->m_canceled    = false;
     imp->m_keep_alive  = keep_alive;
     imp->m_deleted     = false;
     return imp;
@@ -772,8 +772,8 @@ class task_manager {
         lean_task_object * it = t->m_imp->m_head_dep;
         t->m_imp->m_head_dep = nullptr;
         while (it) {
-            if (t->m_imp->m_interrupted)
-                it->m_imp->m_interrupted = true;
+            if (t->m_imp->m_canceled)
+                it->m_imp->m_canceled = true;
             lean_task_object * next_it = it->m_imp->m_next_dep;
             it->m_imp->m_next_dep = nullptr;
             if (it->m_imp->m_deleted) {
@@ -806,7 +806,7 @@ public:
         for (worker_info * info : m_workers) {
             if (info->m_task) {
                 lean_assert(info->m_task->m_imp);
-                info->m_task->m_imp->m_interrupted = true;
+                info->m_task->m_imp->m_canceled = true;
             }
         }
         m_shutting_down = true;
@@ -883,10 +883,10 @@ public:
         }
     }
 
-    void request_interrupt(lean_task_object * t) {
+    void cancel(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
         if (t->m_imp)
-            t->m_imp->m_interrupted = true;
+            t->m_imp->m_canceled = true;
     }
 };
 
@@ -1032,18 +1032,18 @@ extern "C" obj_res lean_task_bind_with_prio(obj_arg x, obj_arg f, unsigned prio,
     }
 }
 
-extern "C" bool lean_io_check_interrupt_core() {
+extern "C" bool lean_io_check_canceled_core() {
     if (lean_task_object * t = g_current_task_object) {
         lean_assert(t->m_imp); // task is being executed
-        return t->m_imp->m_interrupted;
+        return t->m_imp->m_canceled;
     }
     return false;
 }
 
-extern "C" void lean_io_request_interrupt_core(b_obj_arg t) {
+extern "C" void lean_io_cancel_core(b_obj_arg t) {
     if (lean_to_task(t)->m_value)
         return;
-    g_task_manager->request_interrupt(lean_to_task(t));
+    g_task_manager->cancel(lean_to_task(t));
 }
 
 extern "C" bool lean_io_has_finished_core(b_obj_arg t) {

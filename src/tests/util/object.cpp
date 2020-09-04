@@ -200,7 +200,7 @@ void tst6() {
 
 obj_res task4_fn(obj_arg) {
     show_msg("task 4 started...\n");
-    while (!io_check_interrupt_core()) {
+    while (!io_check_canceled_core()) {
         show_msg("task 4 loop...\n");
         this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -215,7 +215,7 @@ void tst7() {
     std::cout << "task4 has finished: " << io_has_finished_core(task4.raw()) << "\n";
     this_thread::sleep_for(std::chrono::milliseconds(100));
     show_msg("request interrupt...\n");
-    io_request_interrupt_core(task4.raw());
+    io_cancel_core(task4.raw());
     object * r = task_get(task4.raw());
     std::cout << "task4 has finished after get: " << io_has_finished_core(task4.raw()) << "\n";
     std::cout << "r: " << unbox(r) << "\n";
@@ -250,7 +250,7 @@ void tst8() {
 }
 
 obj_res loop_until_interrupt_fn(obj_arg) {
-    while (!io_check_interrupt_core()) {
+    while (!io_check_canceled_core()) {
         this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     return box(0);
@@ -283,8 +283,8 @@ void tst9() {
     show_msg("wait_any returned...\n");
     object * v = task_get(t);
     lean_assert(unbox(v) == 42);
-    io_request_interrupt_core(t1.raw());
-    io_request_interrupt_core(t2.raw());
+    io_cancel_core(t1.raw());
+    io_cancel_core(t2.raw());
     task_get(t1.raw());
     task_get(t2.raw());
 }
@@ -315,7 +315,7 @@ void tst11() {
 static atomic<bool> g_finished;
 
 obj_res loop_until_interrupt_fn2(obj_arg) {
-    while (!io_check_interrupt_core()) {
+    while (!io_check_canceled_core()) {
         this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     g_finished = true;

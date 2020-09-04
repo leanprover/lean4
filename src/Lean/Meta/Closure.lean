@@ -10,6 +10,90 @@ import Lean.Util.FoldConsts
 import Lean.Meta.Basic
 import Lean.Meta.Check
 
+/-
+
+This module provides functions for "closing" open terms and
+creating auxiliary definitions. Here, we say a term is "open" if
+it contains free/meta-variables.
+
+The "closure" is performed by lambda abstracting the
+free/meta-variables. Recall that in dependent type theory
+lambda abstracting a let-variable may produce type incorrect terms.
+For example, given the context
+```lean
+(n : Nat := 20)
+(x : Vector α n)
+(y : Vector α 20)
+```
+the term `x = y` is correct. However, its closure using lambda abstractions
+is not.
+```lean
+fun (n : Nat) (x : Vector α n) (y : Vector α 20) => x = y
+```
+A previous version of this module would address this issue by
+always use let-expressions to abstract let-vars. In the example above,
+it would produce
+```lean
+let n : Nat := 20; fun (x : Vector α n) (y : Vector α 20) => x = y
+```
+This approach produces correct result, but produces unsatisfactory
+results when we want to create auxiliary definitions.
+For example, consider the context
+```lean
+(x : Nat)
+(y : Nat := fact x)
+```
+and the term `h (g y)`, now suppose we want to create an auxiliary definition for `y`.
+ The previous version of this module would compute the auxiliary definition
+```lean
+def aux := fun (x : Nat) => let y : Nat := fact x; h (g y)
+```
+and would return the term `aux x` as a substitute for `h (g y)`.
+This is correct, but we will re-evaluate `fact x` whenever we use `aux`.
+In this module, we produce
+```lean
+def aux := fun (y : Nat) => h (g y)
+```
+Note that in this particular case, it is safe to lambda abstract the let-varible `y`.
+This module uses the following approach to decide whether it is safe or not to lambda
+abstract a let-variable.
+1) We enable zeta-expansion tracking in `MetaM`. That is, whenever we perform type checking
+   if a let-variable needs to zeta expanded, we store it in the set `zetaFVarIds`.
+   We say a let-variable is zeta expanded when we replace it with its value.
+2) We use the `MetaM` type checker `check` to type check the expression we want to close,
+   and the type of the binders.
+3) If a let-variable is not in `zetaFVarIds`, we lambda abstract it.
+
+Remark: We still use let-expressions for let-variables in `zetaFVarIds`, but we move the
+`let` inside the lambdas. The idea is to make sure the auxiliary definition does not have
+an interleaving of `lambda` and `let` expressions. Thus, if the let-variable occurs in
+the type of one of the lambdas, we simply zeta-expand it there.
+As a final example consider the context
+```lean
+(x_1 : Nat)
+(x_2 : Nat)
+(x_3 : Nat)
+(x   : Nat := fact (10 + x_1 + x_2 + x_3))
+(ty  : Type := Nat → Nat)
+(f   : ty := fun x => x)
+(n   : Nat := 20)
+(z   : f 10)
+```
+and we use this module to compute an auxiliary definition for the term
+```lean
+(let y  : { v : Nat // v = n } := ⟨20, rfl⟩; y.1 + n + f x, z + 10)
+```
+we obtain
+```lean
+def aux (x : Nat) (f : Nat → Nat) (z : Nat) : Nat×Nat :=
+let n : Nat := 20;
+(let y : {v // v=n} := {val := 20, property := ex._proof_1}; y.val+n+f x, z+10)
+```
+
+BTW, this module also provides the `zeta : Bool` flag. When set to true, it
+expands all let-variables occurring in the target expression.
+-/
+
 namespace Lean
 namespace Meta
 namespace Closure

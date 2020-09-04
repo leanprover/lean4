@@ -397,6 +397,21 @@ m.dAssignment.contains mvarId
 def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
 { m with dAssignment := m.dAssignment.erase mvarId }
 
+/- Given a sequence of delayed assignments
+   ```
+   mvarId₁ := mvarId₂ ...;
+   ...
+   mvarIdₙ := mvarId_root ...  -- where `mvarId_root` is not delayed assigned
+   ```
+   in `mctx`, `getDelayedRoot mctx mvarId₁` return `mvarId_root`.
+   If `mvarId₁` is not delayed assigned then return `mvarId₁` -/
+partial def getDelayedRoot (m : MetavarContext) : MVarId → MVarId
+| mvarId => match getDelayedAssignment? m mvarId with
+  | some d => match d.val.getAppFn with
+    | Expr.mvar mvarId _ => getDelayedRoot mvarId
+    | _                  => mvarId
+  | none   => mvarId
+
 def isLevelAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
 match mctx.lDepth.find? mvarId with
 | some d => d == mctx.depth

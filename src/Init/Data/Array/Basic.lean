@@ -696,6 +696,11 @@ as.any $ fun b => a == b
 def elem [HasBeq α] (a : α) (as : Array α) : Bool :=
 as.contains a
 
+def erase [HasBeq α] (as : Array α) (a : α) : Array α :=
+match as.indexOf a with
+| none   => as
+| some i => as.feraseIdx i
+
 partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
 | as, j =>
   if i == j then as

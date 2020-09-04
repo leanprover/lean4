@@ -1008,7 +1008,9 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     lean_assert(lean_is_task(new_task));
     lean_assert(g_current_task_object->m_imp);
     lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
-    g_current_task_object->m_imp->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
+    obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
+    mark_mt(c);
+    g_current_task_object->m_imp->m_closure = c;
     g_task_manager->add_dep(lean_to_task(new_task), g_current_task_object);
     return nullptr; /* notify queue that task did not finish yet. */
 }

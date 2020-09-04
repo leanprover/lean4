@@ -677,6 +677,30 @@ extern "C" obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg) {
     return io_result_mk_ok(t2);
 }
 
+extern "C" obj_res lean_io_check_canceled(obj_arg) {
+    return io_result_mk_ok(box(lean_io_check_canceled_core()));
+}
+
+extern "C" obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
+    lean_io_cancel_core(t);
+    return io_result_mk_ok(box(0));
+}
+
+extern "C" obj_res lean_io_has_finished(b_obj_arg t, obj_arg) {
+    return io_result_mk_ok(box(lean_io_has_finished_core(t)));
+}
+
+extern "C" obj_res lean_io_wait(obj_arg t, obj_arg) {
+    return io_result_mk_ok(lean_task_get_own(t));
+}
+
+extern "C" obj_res lean_io_wait_any(b_obj_arg task_list) {
+    object * t = lean_io_wait_any_core(task_list);
+    object * v = lean_task_get(t);
+    lean_inc(v);
+    return io_result_mk_ok(v);
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = mk_io_user_error(mk_string("null reference read"));
     mark_persistent(g_io_error_nullptr_read);

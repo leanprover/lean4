@@ -118,6 +118,26 @@ constant mapTask {α β : Type} (f : α → IO β) (t : Task α) : IO (Task (Exc
 @[extern "lean_io_bind_task"]
 constant bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) : IO (Task (Except IO.Error β)) := arbitrary _
 
+/-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
+@[extern "lean_io_check_canceled"]
+constant checkCanceled : IO Bool := arbitrary _
+
+/-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
+@[extern "lean_io_cancel"]
+constant cancel {α : Type} : @& Task α → IO Unit := arbitrary _
+
+/-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
+@[extern "lean_io_has_finished"]
+constant hasFinished {α : Type} : @& Task α → IO Unit := arbitrary _
+
+/-- Wait for the task to finish, then return its result. -/
+@[extern "lean_io_wait"]
+constant wait {α : Type} : Task α → IO α := arbitrary _
+
+/-- Wait until any of the tasks in the given list has finished, then return its result. -/
+@[extern "lean_io_wait_any"]
+constant waitAny {α : Type} : @& List (Task α) → IO α := arbitrary _
+
 inductive FS.Mode
 | read | write | readWrite | append
 

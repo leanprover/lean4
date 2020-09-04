@@ -943,6 +943,7 @@ static inline void lean_set_task_header(lean_object * o) {
 }
 
 static lean_task_object * alloc_task(obj_arg c, unsigned prio, bool keep_alive) {
+    lean_mark_mt(c);
     lean_task_object * o = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
     lean_set_task_header((lean_object*)o);
     o->m_value = nullptr;

@@ -30,7 +30,7 @@ match lctx.find? fvarId with
 @[specialize] private def checkLambdaLet
     (check   : Expr → MetaM Unit)
     (e : Expr) : MetaM Unit :=
-lambdaTelescope e $ fun xs b => do
+lambdaLetTelescope e $ fun xs b => do
   xs.forM $ fun x => do {
     xDecl ← getFVarLocalDecl x;
     match xDecl with

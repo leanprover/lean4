@@ -97,7 +97,7 @@ forallTelescope e $ fun xs e => do
 
 /- Infer type of lambda and let expressions -/
 private def inferLambdaType (e : Expr) : MetaM Expr :=
-lambdaTelescope e $ fun xs e => do
+lambdaLetTelescope e $ fun xs e => do
   type ← inferType e;
   mkForallFVars xs type
 

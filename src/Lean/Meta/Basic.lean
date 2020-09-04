@@ -669,33 +669,37 @@ map2MetaM (fun _ k => forallTelescopeReducingAux isClassExpensive? type maxFVars
 /-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
 private partial def lambdaTelescopeAux {α}
     (k : Array Expr → Expr → MetaM α)
-    : LocalContext → Array Expr → Nat → Expr → MetaM α
-| lctx, fvars, j, Expr.lam n d b c => do
+    : Bool → LocalContext → Array Expr → Nat → Expr → MetaM α
+| consumeLet, lctx, fvars, j, Expr.lam n d b c => do
   let d := d.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let lctx := lctx.mkLocalDecl fvarId n d c.binderInfo;
   let fvar := mkFVar fvarId;
-  lambdaTelescopeAux lctx (fvars.push fvar) j b
-| lctx, fvars, j, Expr.letE n t v b _ => do
+  lambdaTelescopeAux consumeLet lctx (fvars.push fvar) j b
+| true, lctx, fvars, j, Expr.letE n t v b _ => do
   let t := t.instantiateRevRange j fvars.size fvars;
   let v := v.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let lctx := lctx.mkLetDecl fvarId n t v;
   let fvar := mkFVar fvarId;
-  lambdaTelescopeAux lctx (fvars.push fvar) j b
-| lctx, fvars, j, e =>
+  lambdaTelescopeAux true lctx (fvars.push fvar) j b
+| _, lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstancesImpl isClassExpensive? fvars j $ do
       k fvars e
 
-private def lambdaTelescopeImpl {α} (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+private def lambdaTelescopeImpl {α} (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) : MetaM α := do
 lctx ← getLCtx;
-lambdaTelescopeAux k lctx #[] 0 e
+lambdaTelescopeAux k consumeLet lctx #[] 0 e
 
 /-- Similar to `forallTelescope` but for lambda and let expressions. -/
+@[inline] def lambdaLetTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
+map2MetaM (fun _ k => lambdaTelescopeImpl type true k) k
+
+/-- Similar to `forallTelescope` but for lambda expressions. -/
 @[inline] def lambdaTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
-map2MetaM (fun _ k => lambdaTelescopeImpl type k) k
+map2MetaM (fun _ k => lambdaTelescopeImpl type false k) k
 
 def getParamNamesImpl (declName : Name) : MetaM (Array Name) := do
 cinfo ← getConstInfo declName;

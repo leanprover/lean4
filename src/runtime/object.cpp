@@ -625,6 +625,7 @@ static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive)
     imp->m_prio        = prio;
     imp->m_canceled    = false;
     imp->m_keep_alive  = keep_alive;
+    imp->m_kept_alive  = false;
     imp->m_deleted     = false;
     return imp;
 }
@@ -744,10 +745,13 @@ class task_manager {
                             lock.lock();
                         }
                         lean_assert(t->m_imp);
-                        // deactivate keep-alive tasks without live references only after their final execution (`v != nulltpr`)
-                        if (v != nullptr && t->m_imp->m_keep_alive && !lean_nonzero_rc((lean_object *)t)) {
+                        // If deactivation was delayed by `m_keep_alive`, deactivate after the final execution (`v != nulltpr`)
+                        if (v != nullptr && t->m_imp->m_kept_alive) {
+                            lean_assert(!lean_nonzero_rc((lean_object *)t));
                             deactivate_task_core(lock, t);
                         }
+                        // Note: if deactivation was not delayed yet, `m_keep_alive` will be discarded below when
+                        // `m_imp` is freed
                         if (t->m_imp->m_deleted) {
                             if (v) lean_dec(v);
                             free_task(t);
@@ -867,6 +871,7 @@ public:
             lean_assert(t->m_imp);
             if (t->m_imp->m_keep_alive) {
                 t->m_imp->m_canceled = true;
+                t->m_imp->m_kept_alive = true;
             } else {
                 deactivate_task_core(lock, t);
             }

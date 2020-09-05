@@ -546,6 +546,7 @@ withPatternVars patternVars fun patternVarDecls => do
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
     rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;
     trace `Elab.match fun _ => "rhs: " ++ rhs;
+    -- TODO: we should promote `.(?m ...)` to pattern variables too. This can happen when users misuse `{}` in constructors
     -- TODO: check whether altLHS still has metavariables
     pure (altLHS, rhs)
 

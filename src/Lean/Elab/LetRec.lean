@@ -54,7 +54,7 @@ decls ← (letRec.getArg 1).getArgs.getSepElems.mapM fun attrDeclStx => do {
       if decl.isOfKind `Lean.Parser.Term.letIdDecl then
         pure $ decl.getArg 4
       else
-        liftMacroM $ expandMatchAltsIntoMatch decl (decl.getArg 4);
+        liftMacroM $ expandMatchAltsIntoMatch decl (decl.getArg 3);
     pure {
       ref           := decl,
       attrs         := attrs,

@@ -26,4 +26,4 @@
 "`a._@.UnhygienicMain._hyg.1"
 "(Term.explicitUniv `a._@.UnhygienicMain._hyg.1 \".{\" [(numLit \"0\")] \"}\")"
 "#[]"
-StxQuot.lean:40:74: error: expected '=>'
+StxQuot.lean:42:0: error: unexpected antiquotation splice

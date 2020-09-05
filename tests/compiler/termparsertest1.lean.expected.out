@@ -146,8 +146,7 @@ match x with
  [(Term.matchDiscr [] `x)]
  []
  "with"
- ["|"]
- [(Term.matchAlt [(Term.app `some [`x])] "=>" `true) "|" (Term.matchAlt [`none] "=>" `false)])
+ (Term.matchAlts ["|"] [(Term.matchAlt [(Term.app `some [`x])] "=>" `true) "|" (Term.matchAlt [`none] "=>" `false)]))
 
 match x with
 | some y => match y with
@@ -160,21 +159,23 @@ match x with
  [(Term.matchDiscr [] `x)]
  []
  "with"
- ["|"]
- [(Term.matchAlt
-   [(Term.app `some [`y])]
-   "=>"
-   (Term.match
-    "match"
-    [(Term.matchDiscr [] `y)]
-    []
-    "with"
-    ["|"]
-    [(Term.matchAlt [(Term.app `some [(Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")")])] "=>" (Term.add `a "+" `b))
-     "|"
-     (Term.matchAlt [`none] "=>" (numLit "1"))]))
-  "|"
-  (Term.matchAlt [`none] "=>" (numLit "0"))])
+ (Term.matchAlts
+  ["|"]
+  [(Term.matchAlt
+    [(Term.app `some [`y])]
+    "=>"
+    (Term.match
+     "match"
+     [(Term.matchDiscr [] `y)]
+     []
+     "with"
+     (Term.matchAlts
+      ["|"]
+      [(Term.matchAlt [(Term.app `some [(Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")")])] "=>" (Term.add `a "+" `b))
+       "|"
+       (Term.matchAlt [`none] "=>" (numLit "1"))])))
+   "|"
+   (Term.matchAlt [`none] "=>" (numLit "0"))]))
 Type u
 (Term.type "Type" [`u])
 Sort v
@@ -312,10 +313,11 @@ f 20
    `f
    []
    [(Term.typeSpec ":" (Term.arrow `Nat "→" (Term.arrow `Nat "→" `Nat)))]
-   "|"
-   [(Term.matchAlt [(numLit "0") "," `a] "=>" (Term.add `a "+" (numLit "10")))
+   (Term.matchAlts
     "|"
-    (Term.matchAlt [(Term.add `n "+" (numLit "1")) "," `b] "=>" (Term.mul `n "*" `b))]))
+    [(Term.matchAlt [(numLit "0") "," `a] "=>" (Term.add `a "+" (numLit "10")))
+     "|"
+     (Term.matchAlt [(Term.add `n "+" (numLit "1")) "," `b] "=>" (Term.mul `n "*" `b))])))
  ";"
  (Term.app `f [(numLit "20")]))
 max a b

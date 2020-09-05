@@ -686,9 +686,10 @@ else do
   let stx := stx.setArg 2 (mkOptType matchType);
   newDiscrs ← mkNewDiscrs discrs 0 #[];
   let stx := stx.setArg 1 (mkNullNode newDiscrs);
-  let alts := (stx.getArg 5).getArgs;
+  let matchAlts := stx.getArg 4;
+  let alts      := (matchAlts.getArg 1).getArgs;
   newAlts ← mkNewAlts discrs alts;
-  let stx := stx.setArg 5 (mkNullNode newAlts);
+  let stx := stx.setArg 4 (matchAlts.setArg 1 (mkNullNode newAlts));
   pure stx
 
 -- parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts

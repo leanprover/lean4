@@ -373,45 +373,59 @@ else
 
 /- Helper function for `expandEqnsIntoMatch` -/
 private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
-let alt0 := matchAlts.getArg 0;
+let alt0 := (matchAlts.getArg 1).getArg 0;
 let pats := (alt0.getArg 0).getArgs.getSepElems;
 pats.size
 
 /- Helper function for `expandMatchAltsIntoMatch` -/
-private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) : Nat → Array Syntax → MacroM Syntax
+private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) (matchTactic : Bool) : Nat → Array Syntax → MacroM Syntax
 | 0,   discrs =>
-  pure $ Syntax.node `Lean.Parser.Term.match
-    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", mkNullNode, matchAlts]
+  pure $ Syntax.node (if matchTactic then `Lean.Parser.Tactic.match else `Lean.Parser.Term.match)
+    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", matchAlts]
 | n+1, discrs => withFreshMacroScope do
   x ← `(x);
   let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", ";
   let discrs := discrs.push $ Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, x];
   body ← expandMatchAltsIntoMatchAux n discrs;
-  `(fun $x => $body)
+  if matchTactic then
+    `(tactic| intro $x:term; $body:tactic)
+  else
+    `(fun $x => $body)
 
 /--
   Expand `matchAlts` syntax into a full `match`-expression.
   Example
     ```
-    | 0, true => 1
-    | i, _    => 2
+    | 0, true => alt_1
+    | i, _    => alt_2
     ```
-    expands intro
+    expands intro (for tactic == false)
     ```
     fun x_1 x_2 =>
     match x_1, x_2 with
-    | 0, true => 1
-    | i, _    => 2
-    ``` -/
-def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
-expandMatchAltsIntoMatchAux ref matchAlts (getMatchAltNumPatterns matchAlts) #[]
+    | 0, true => alt_1
+    | i, _    => alt_2
+    ```
+    and (for tactic == true)
+    ```
+    intro x_1; intro x_2;
+    match x_1, x_2 with
+    | 0, true => alt_1
+    | i, _    => alt_2
+    ```
+ -/
+def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (tactic := false) : MacroM Syntax :=
+expandMatchAltsIntoMatchAux ref matchAlts tactic (getMatchAltNumPatterns matchAlts) #[]
+
+def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
+expandMatchAltsIntoMatchAux ref matchAlts true (getMatchAltNumPatterns matchAlts) #[]
 
 @[builtinTermElab «fun»] def elabFun : TermElab :=
 fun stx expectedType? =>
 -- "fun " >> ((many1 funBinder >> darrow >> termParser) <|> funMatchAlts)
 -- funMatchAlts := parser! matchAlts false
 if (stx.getArg 1).isOfKind `Lean.Parser.Term.funMatchAlts then do
-  stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx ((stx.getArg 1).getArg 1);
+  stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx ((stx.getArg 1).getArg 0);
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else do
   let binders := (stx.getArg 1).getArgs;

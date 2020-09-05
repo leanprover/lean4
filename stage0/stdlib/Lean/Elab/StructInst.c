@@ -377,6 +377,7 @@ lean_object* l_Lean_Elab_Term_StructInst_throwFailedToElabField___rarg___closed_
 lean_object* l_Std_AssocList_find_x3f___main___at___private_Lean_Elab_StructInst_12__mkFieldMap___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_4__elabModifyOp___closed__22;
+extern lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__9;
 uint8_t l_Lean_Expr_isMVar(lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at___private_Lean_Elab_StructInst_3__isModifyOp_x3f___spec__1___closed__5;
 lean_object* l_Lean_Elab_Term_StructInst_Struct_modifyFieldsM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -446,7 +447,6 @@ lean_object* l_Lean_Meta_mkFreshLevelMVar___at_Lean_Elab_Term_ensureType___spec_
 extern lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l___private_Lean_Elab_StructInst_17__groupFields___lambda__3___closed__1;
 lean_object* l_Lean_Elab_Term_StructInst_elabStructInst___closed__3;
-extern lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__5;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_findDefaultMissing_x3f___main___boxed(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at___private_Lean_Elab_StructInst_12__mkFieldMap___spec__5(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
@@ -9341,7 +9341,7 @@ lean_object* _init_l_Lean_Elab_Term_StructInst_formatStruct___main___closed__5()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__5;
+x_1 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

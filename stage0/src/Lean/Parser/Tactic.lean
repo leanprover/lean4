@@ -25,8 +25,7 @@ fun c s =>
 
 def ident' : Parser := ident <|> underscore
 
-@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> many (termParser maxPrec)
-@[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> Term.funMatchAlts
+@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notFollowedBy "|" >> many (termParser maxPrec)
 @[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many ident'
 @[builtinTacticParser] def «revert»     := parser! nonReservedSymbol "revert " >> many1 ident
 @[builtinTacticParser] def «clear»      := parser! nonReservedSymbol "clear " >> many1 ident
@@ -58,8 +57,10 @@ def generalizingVars := optional (" generalizing " >> many1 ident)
 def withIds : Parser := optional (" with " >> many1 ident')
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> holeOrTactic
-def matchAlts : Parser := withPosition $ fun pos => (optional "| ") >> sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+def matchAlts : Parser := group $ withPosition $ fun pos => (optional "| ") >> sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
+@[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts
+
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
 @[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"

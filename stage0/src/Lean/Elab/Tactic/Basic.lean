@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Revert
 import Lean.Meta.Tactic.Subst
 import Lean.Elab.Util
 import Lean.Elab.Term
+import Lean.Elab.Binders
 
 namespace Lean
 namespace Elab
@@ -294,12 +295,18 @@ fun stx => match_syntax stx with
   | `(tactic| intro $pat:term) => do
     stxNew ← `(tactic| intro h; match h with | $pat:term => _; clear h);
     withMacroExpansion stx stxNew $ evalTactic stxNew
-  | `(tactic| intro $hs*) => do
+  | `(tactic| intro $hs:term*) => do
     let h0 := hs.get! 0;
     let hs := hs.extract 1 hs.size;
-    stxNew ← `(tactic| intro $h0:term; intro $hs*);
+    stxNew ← `(tactic| intro $h0:term; intro $hs:term*);
     withMacroExpansion stx stxNew $ evalTactic stxNew
   | _ => throwUnsupportedSyntax
+
+@[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic :=
+fun stx => do
+  let matchAlts := stx.getArg 1;
+  stxNew ← liftMacroM $ Term.expandMatchAltsIntoMatchTactic stx matchAlts;
+  withMacroExpansion stx stxNew $ evalTactic stxNew
 
 private def getIntrosSize : Expr → Nat
 | Expr.forallE _ _ b _ => getIntrosSize b + 1

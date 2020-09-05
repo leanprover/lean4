@@ -16,10 +16,10 @@ extern "C" {
 lean_object* l___private_Lean_Elab_Tactic_Generalize_5__evalGeneralizeFallback___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
-extern lean_object* l_Lean_Elab_Tactic_mkTacticAttribute___closed__8;
 lean_object* l_Lean_Meta_introN(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_1__getAuxHypothesisName___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
+extern lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot___closed__1;
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_5__evalGeneralizeFallback___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_AppBuilder_5__mkEqReflImp___closed__2;
@@ -1480,7 +1480,7 @@ lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_mkTacticAttribute___closed__8;
+x_1 = l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot___closed__1;
 x_2 = l_Lean_Meta_generalize___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -479,6 +479,7 @@ extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_Elab_Command_Lean_MonadRecDepth___closed__4;
 extern lean_object* l_Lean_Syntax_inhabited;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabCheck___closed__1;
+extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__17;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabCheckFailure___closed__3;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_List_drop___main___rarg(lean_object*, lean_object*);
@@ -529,7 +530,6 @@ lean_object* l___private_Lean_Elab_Command_3__elabCommandUsing___main(lean_objec
 lean_object* l_Lean_Elab_Command_elabEnd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__3;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Tactic_evalIntro___closed__17;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabCommand___main___spec__8(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_elabUsingElabFns___closed__3;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_setOption___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16986,7 +16986,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_Lean_Elab_Tactic_evalIntro___closed__17;
+x_2 = l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__17;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -17040,7 +17040,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_Lean_Elab_Tactic_evalIntro___closed__17;
+x_2 = l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__17;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

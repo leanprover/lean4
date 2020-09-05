@@ -16,7 +16,8 @@ structure AuxMatchTermState :=
 (cases   : Array Syntax := #[])
 
 private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : StateT AuxMatchTermState MacroM Syntax := do
-let alts := (matchTac.getArg 5).getArgs;
+let matchAlts := matchTac.getArg 4;
+let alts      := (matchAlts.getArg 1).getArgs;
 newAlts ← alts.mapSepElemsM fun alt => do {
   let alt    := alt.updateKind `Lean.Parser.Term.matchAlt;
   let holeOrTactic := alt.getArg 2;
@@ -36,7 +37,7 @@ newAlts ← alts.mapSepElemsM fun alt => do {
     pure $ alt.setArg 2 newHole
 };
 let result  := matchTac.updateKind `Lean.Parser.Term.match;
-let result  := result.setArg 5 (mkNullNode newAlts);
+let result  := result.setArg 4 (matchAlts.setArg 1 (mkNullNode newAlts));
 pure result
 
 private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Syntax × Array Syntax) := do

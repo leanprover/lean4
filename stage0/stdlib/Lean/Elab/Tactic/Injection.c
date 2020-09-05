@@ -15,8 +15,8 @@ extern "C" {
 #endif
 extern lean_object* l_Lean_Meta_injectionCore___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Injection_1__getInjectionNewIds___boxed(lean_object*);
-extern lean_object* l_Lean_Elab_Tactic_mkTacticAttribute___closed__8;
 lean_object* l___private_Lean_Elab_Tactic_Injection_2__checkUnusedIds___closed__3;
+extern lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot___closed__1;
 lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_liftMetaTactic___closed__1;
@@ -720,7 +720,7 @@ lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_mkTacticAttribute___closed__8;
+x_1 = l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot___closed__1;
 x_2 = l_Lean_Meta_injectionCore___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -21,7 +21,7 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
   sepBy1 termParser ", " >> darrow >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
-withPosition $ fun pos =>
+group $ withPosition $ fun pos =>
   (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 
@@ -92,7 +92,7 @@ matchAlts.mapM fun matchAlt => do
 
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts (stx : Syntax) : Array MatchAltView :=
-let alts : Array Syntax := (stx.getArg 5).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt;
+let alts : Array Syntax := ((stx.getArg 4).getArg 1).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt;
 alts.map mkMatchAltView
 
 /--

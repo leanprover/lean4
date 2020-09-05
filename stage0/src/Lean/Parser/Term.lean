@@ -99,7 +99,7 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
   sepBy1 termParser ", " >> darrow >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
-withPosition $ fun pos =>
+parser! withPosition $ fun pos =>
   (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 
@@ -110,8 +110,7 @@ def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space befo
 
 def funImplicitBinder := try (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
 def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPrec
-def funMatchAlts := parser! matchAlts false
-@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ " "fun " >> ((many1 funBinder >> darrow >> termParser) <|> funMatchAlts)
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ " "fun " >> ((many1 funBinder >> darrow >> termParser) <|> matchAlts false)
 
 def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser

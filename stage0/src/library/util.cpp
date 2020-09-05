@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include "util/fresh_name.h"
+#include "util/option_ref.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
@@ -998,18 +999,15 @@ name get_dep_cases_on(environment const &, name const & n) {
     return name(n, g_cases_on);
 }
 
-static char const * g_unsafe_rec_prefix = "_unsafe_rec";
+extern "C" object * lean_mk_unsafe_rec_name(object *);
+extern "C" object * lean_is_unsafe_rec_name(object *);
 
 name mk_unsafe_rec_name(name const & n) {
-    return name(n, g_unsafe_rec_prefix);
+    return name(lean_mk_unsafe_rec_name(n.to_obj_arg()));
 }
 
 optional<name> is_unsafe_rec_name(name const & n) {
-    if (!n.is_atomic() && n.is_string() && n.get_string() == g_unsafe_rec_prefix) {
-        return optional<name>(n.get_prefix());
-    } else {
-        return optional<name>();
-    }
+    return option_ref<name>(lean_is_unsafe_rec_name(n.to_obj_arg())).get();
 }
 
 optional<name> name_lit_to_name(expr const & name_lit) {

@@ -214,6 +214,12 @@ typedef struct {
     uint8_t              m_canceled;
     // If true, task will not be freed until finished
     uint8_t              m_keep_alive;
+    // If true, task should be destroyed when finished.
+    // Invariant: m_kept_alive ==> m_keep_alive && RC == 0
+    // The reverse direction is violated only in the window between `lean_dec`
+    // and `deactivate_task`, which is not covered by the task_manager mutex.
+    // Thus we need this additional flag, which is covered.
+    uint8_t              m_kept_alive;
     uint8_t              m_deleted;
 } lean_task_imp;
 

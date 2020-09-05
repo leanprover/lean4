@@ -21,7 +21,7 @@ structure DefViewElabHeader :=
 (levelNames    : List Name)
 (numParams     : Nat)
 (type          : Expr) -- including the parameters
-(declVal       : Syntax)
+(valueStx      : Syntax)
 
 instance DefViewElabHeader.inhabited : Inhabited DefViewElabHeader :=
 ⟨⟨arbitrary _, {}, DefKind.«def», arbitrary _, arbitrary _, [], 0, arbitrary _, arbitrary _⟩⟩
@@ -92,7 +92,7 @@ views.foldlM
         levelNames    := levelNames,
         numParams     := xs.size,
         type          := type,
-        declVal       := view.val
+        valueStx      := view.value
       };
       check headers newHeader;
       pure $ headers.push newHeader)
@@ -131,7 +131,7 @@ else
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
 headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do
-  valStx ← liftMacroM $ declValToTerm header.declVal;
+  valStx ← liftMacroM $ declValToTerm header.valueStx;
   forallBoundedTelescope header.type header.numParams fun xs type => do
     val ← elabTermEnsuringType valStx type;
     mkLambdaFVars xs val
@@ -210,7 +210,7 @@ structure PreDeclaration :=
 (modifiers : Modifiers)
 (declName  : Name)
 (type      : Expr)
-(val       : Expr)
+(value     : Expr)
 
 namespace MutualClosure
 
@@ -498,7 +498,7 @@ mainHeaders.size.foldM
       lparams   := [], -- we set it later
       modifiers := header.modifiers,
       type      := type,
-      val       := val
+      value     := val
     })
   preDecls
 
@@ -513,7 +513,7 @@ letRecClosures.foldl
       lparams   := [], -- we set it later
       modifiers := { modifiers with attrs := c.toLift.attrs },
       type      := type,
-      val       := val
+      value     := val
     })
   preDecls
 
@@ -571,9 +571,9 @@ else
 
 private def instantiateMVarsAtPreDecls (preDecls : Array PreDeclaration) : TermElabM (Array PreDeclaration) :=
 preDecls.mapM fun preDecl => do
-  type ← instantiateMVars preDecl.type;
-  val  ← instantiateMVars preDecl.val;
-  pure { preDecl with type := type, val := val }
+  type  ← instantiateMVars preDecl.type;
+  value ← instantiateMVars preDecl.value;
+  pure { preDecl with type := type, value := value }
 
 private def levelMVarToParamExpr (e : Expr) : StateRefT Nat TermElabM Expr := do
 nextIdx ← get;
@@ -583,9 +583,9 @@ pure e
 
 private def levelMVarToParamPreDeclsAux (preDecls : Array PreDeclaration) : StateRefT Nat TermElabM (Array PreDeclaration) :=
 preDecls.mapM fun preDecl => do
-  type ← levelMVarToParamExpr preDecl.type;
-  val ← levelMVarToParamExpr preDecl.val;
-  pure { preDecl with type := type, val := val }
+  type  ← levelMVarToParamExpr preDecl.type;
+  value ← levelMVarToParamExpr preDecl.value;
+  pure { preDecl with type := type, value := value }
 
 private def levelMVarToParamPreDecls (preDecls : Array PreDeclaration) : TermElabM (Array PreDeclaration) :=
 (levelMVarToParamPreDeclsAux preDecls).run' 1
@@ -597,7 +597,7 @@ private def getLevelParamsPreDecls (preDecls : Array PreDeclaration) (scopeLevel
 let (_, s) := StateT.run
   (preDecls.forM fun preDecl => do {
     collectLevelParamsExpr preDecl.type;
-    collectLevelParamsExpr preDecl.val })
+    collectLevelParamsExpr preDecl.value })
   {};
 match sortDeclLevelParams scopeLevelNames allUserLevelNames s.params with
 | Except.error msg      => throwError msg
@@ -606,9 +606,9 @@ match sortDeclLevelParams scopeLevelNames allUserLevelNames s.params with
 private def shareCommon (preDecls : Array PreDeclaration) : Array PreDeclaration :=
 let result : Std.ShareCommonM (Array PreDeclaration) :=
   preDecls.mapM fun preDecl => do {
-    type ← Std.withShareCommon preDecl.type;
-    val ← Std.withShareCommon preDecl.val;
-    pure { preDecl with type := type, val := val }
+    type  ← Std.withShareCommon preDecl.type;
+    value ← Std.withShareCommon preDecl.value;
+    pure { preDecl with type := type, value := value }
   };
 result.run
 
@@ -623,7 +623,7 @@ let fixExpr (e : Expr) : Expr :=
 pure $ preDecls.map fun preDecl =>
   { preDecl with
     type    := fixExpr preDecl.type,
-    val     := fixExpr preDecl.val,
+    value   := fixExpr preDecl.value,
     lparams := lparams }
 
 private def applyAttributesOf (preDecls : Array PreDeclaration) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
@@ -635,16 +635,16 @@ let decl :=
   match preDecl.kind with
   | DefKind.«example» => unreachable!
   | DefKind.«theorem» =>
-    Declaration.thmDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val }
+    Declaration.thmDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value }
   | DefKind.«opaque»  =>
-    Declaration.opaqueDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val,
+    Declaration.opaqueDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value,
                              isUnsafe := preDecl.modifiers.isUnsafe }
   | DefKind.«abbrev»  =>
-    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val,
+    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value,
                            hints := ReducibilityHints.«abbrev», isUnsafe := preDecl.modifiers.isUnsafe }
   | DefKind.«def»  =>
-    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val,
-                           hints := ReducibilityHints.regular (getMaxHeight env preDecl.val + 1),
+    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value,
+                           hints := ReducibilityHints.regular (getMaxHeight env preDecl.value + 1),
                            isUnsafe := preDecl.modifiers.isUnsafe };
 addDecl decl;
 applyAttributesOf #[preDecl] AttributeApplicationTime.afterTypeChecking;
@@ -657,7 +657,7 @@ let decl := Declaration.mutualDefnDecl $ preDecls.toList.map fun preDecl => {
     name     := preDecl.declName,
     lparams  := preDecl.lparams,
     type     := preDecl.type,
-    value    := preDecl.val,
+    value    := preDecl.value,
     isUnsafe := true,
     hints    := ReducibilityHints.opaque
   };

@@ -39,7 +39,7 @@ structure DefView :=
 (declId        : Syntax)
 (binders       : Syntax)
 (type?         : Option Syntax)
-(val           : Syntax)
+(value         : Syntax)
 
 namespace Command
 
@@ -51,19 +51,19 @@ let (binders, type) := expandOptDeclSig (stx.getArg 2);
 let modifiers       := modifiers.addAttribute { name := `inline };
 let modifiers       := modifiers.addAttribute { name := `reducible };
 { ref := stx, kind := DefKind.abbrev, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3 }
+  declId := stx.getArg 1, binders := binders, type? := type, value := stx.getArg 3 }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
 -- parser! "def " >> declId >> optDeclSig >> declVal
 let (binders, type) := expandOptDeclSig (stx.getArg 2);
 { ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3 }
+  declId := stx.getArg 1, binders := binders, type? := type, value := stx.getArg 3 }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
 -- parser! "theorem " >> declId >> declSig >> declVal
 let (binders, type) := expandDeclSig (stx.getArg 2);
 { ref := stx, kind := DefKind.theorem, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := some type, val := stx.getArg 3 }
+  declId := stx.getArg 1, binders := binders, type? := some type, value := stx.getArg 3 }
 
 def mkFreshInstanceName : CommandElabM Name := do
 s ← get;
@@ -82,7 +82,7 @@ val ← match (stx.getArg 3).getOptional? with
   };
 pure {
   ref := stx, kind := DefKind.opaque, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := some type, val := val
+  declId := stx.getArg 1, binders := binders, type? := some type, value := val
 }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
@@ -97,7 +97,7 @@ declId ← match (stx.getArg 1).getOptional? with
   };
 pure {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := declId, binders := binders, type? := type, val := stx.getArg 3
+  declId := declId, binders := binders, type? := type, value := stx.getArg 3
 }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
@@ -106,7 +106,7 @@ let (binders, type) := expandDeclSig (stx.getArg 1);
 let id              := mkIdentFrom stx `_example;
 let declId          := Syntax.node `Lean.Parser.Command.declId #[id, mkNullNode];
 { ref := stx, kind := DefKind.example, modifiers := modifiers,
-  declId := declId, binders := binders, type? := some type, val := stx.getArg 2 }
+  declId := declId, binders := binders, type? := some type, value := stx.getArg 2 }
 
 def isDefLike (stx : Syntax) : Bool :=
 let declKind := stx.getKind;
@@ -159,7 +159,7 @@ def mkDef? (view : DefView) (declName : Name) (scopeLevelNames allUserLevelNames
     : TermElabM (Option Declaration) := do
 withRef view.ref do
 Term.synthesizeSyntheticMVars;
-val     ← withRef view.val $ Term.ensureHasType type val;
+val     ← withRef view.value $ Term.ensureHasType type val;
 Term.synthesizeSyntheticMVarsNoPostponing;
 type    ← instantiateMVars type;
 val     ← instantiateMVars val;
@@ -226,11 +226,11 @@ runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term
       Term.synthesizeSyntheticMVarsNoPostponing;
       type ← instantiateMVars type;
       withUsedWhen' vars xs type view.kind.isTheorem $ fun vars => do
-        val  ← elabDefVal view.val type;
+        val  ← elabDefVal view.value type;
         mkDef? view declName scopeLevelNames allUserLevelNames vars xs type val
     | none => do {
         type ← withRef view.binders $ mkFreshTypeMVar;
-        val  ← elabDefVal view.val type;
+        val  ← elabDefVal view.value type;
         mkDef? view declName scopeLevelNames allUserLevelNames vars xs type val
       };
   match decl? with

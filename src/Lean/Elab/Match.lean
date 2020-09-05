@@ -219,7 +219,11 @@ match stx with
   | []  => do processVar stx.getId mustBeCtor; pure 0
   | [f] => processIdAuxAux stx mustBeCtor env f
   | _   => throwAmbiguous fs
-| _ => unreachable!
+| _ =>
+  if stx.isOfKind `Lean.Parser.Term.explicit then
+    throwError "identifier expected, '@' is not allowed in patterns"
+  else
+    throwError "identifier expected"
 
 private def processCtor (stx : Syntax) : M Nat :=
 processIdAux stx true

@@ -1278,7 +1278,7 @@ lean_inc(x_64);
 x_65 = lean_ctor_get(x_63, 1);
 lean_inc(x_65);
 lean_dec(x_63);
-x_66 = lean_unsigned_to_nat(4u);
+x_66 = lean_unsigned_to_nat(3u);
 x_67 = l_Lean_Syntax_getArg(x_32, x_66);
 x_68 = l_Lean_Elab_Term_getCurrMacroScope(x_3, x_4, x_5, x_6, x_7, x_8, x_65);
 x_69 = lean_ctor_get(x_68, 0);

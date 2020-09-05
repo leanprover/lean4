@@ -422,10 +422,9 @@ expandMatchAltsIntoMatchAux ref matchAlts true (getMatchAltNumPatterns matchAlts
 
 @[builtinTermElab «fun»] def elabFun : TermElab :=
 fun stx expectedType? =>
--- "fun " >> ((many1 funBinder >> darrow >> termParser) <|> funMatchAlts)
--- funMatchAlts := parser! matchAlts false
-if (stx.getArg 1).isOfKind `Lean.Parser.Term.funMatchAlts then do
-  stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx ((stx.getArg 1).getArg 0);
+-- "fun " >> ((many1 funBinder >> darrow >> termParser) <|> matchAlts)
+if (stx.getArg 1).isOfKind `Lean.Parser.Term.matchAlts then do
+  stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx (stx.getArg 1);
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else do
   let binders := (stx.getArg 1).getArgs;
@@ -482,7 +481,7 @@ let value   := letIdDecl.getArg 4;
 private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array Syntax → MacroM Syntax
 | 0,   discrs =>
   pure $ Syntax.node `Lean.Parser.Term.match
-    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", mkNullNode, alts]
+    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", alts]
 | n+1, discrs => withFreshMacroScope do
   x ← `(x);
   let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", ";
@@ -492,7 +491,7 @@ private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array 
 
 def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
 let ref       := letDecl;
-let matchAlts := letDecl.getArg 4;
+let matchAlts := letDecl.getArg 3;
 val ← expandMatchAltsIntoMatch ref matchAlts;
 pure $ Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val]
 
@@ -509,7 +508,7 @@ else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   let optType := letDecl.getArg 2;
   let type    := expandOptType stx optType;
   let val     := letDecl.getArg 4;
-  stxNew ← `(let x : $type := $val; match x with $pat => $body);
+  stxNew ← `(let x : $type := $val; match x with | $pat => $body);
   let stxNew  := if useLetExpr then stxNew else stxNew.updateKind `Lean.Parser.Term.«let!»;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then do

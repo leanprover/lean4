@@ -667,6 +667,12 @@ compileDecl decl;
 applyAttributesOf preDecls AttributeApplicationTime.afterCompilation;
 pure ()
 
+private def partitionNonRec (preDecls : Array PreDeclaration) : Array PreDeclaration × Array PreDeclaration :=
+preDecls.partition fun predDecl =>
+  Option.isNone $ predDecl.value.find? fun c => match c with
+    | Expr.const declName _ _ => preDecls.any fun preDecl => preDecl.declName == declName
+    | _ => false
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
 scopeLevelNames ← getLevelNames;
 headers ← elabHeaders views;
@@ -686,6 +692,8 @@ withFunLocalDecls headers fun funFVars => do
       preDecls ← levelMVarToParamPreDecls preDecls;
       preDecls ← instantiateMVarsAtPreDecls preDecls;
       preDecls ← fixLevelParams preDecls scopeLevelNames allUserLevelNames;
+      let (preDeclsNonRec, preDecls) := partitionNonRec preDecls;
+      preDeclsNonRec.forM addAndCompileNonRec;
       -- TODO
       addAndCompileAsUnsafe preDecls
 

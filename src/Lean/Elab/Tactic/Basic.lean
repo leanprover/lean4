@@ -304,7 +304,7 @@ fun stx => match_syntax stx with
 
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic :=
 fun stx => do
-  let matchAlts := stx.getArg 2;
+  let matchAlts := stx.getArg 1;
   stxNew ← liftMacroM $ Term.expandMatchAltsIntoMatchTactic stx matchAlts;
   withMacroExpansion stx stxNew $ evalTactic stxNew
 

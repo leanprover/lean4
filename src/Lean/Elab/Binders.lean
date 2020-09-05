@@ -373,7 +373,7 @@ else
 
 /- Helper function for `expandEqnsIntoMatch` -/
 private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
-let alt0 := matchAlts.getArg 0;
+let alt0 := (matchAlts.getArg 1).getArg 0;
 let pats := (alt0.getArg 0).getArgs.getSepElems;
 pats.size
 
@@ -381,7 +381,7 @@ pats.size
 private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) (matchTactic : Bool) : Nat → Array Syntax → MacroM Syntax
 | 0,   discrs =>
   pure $ Syntax.node (if matchTactic then `Lean.Parser.Tactic.match else `Lean.Parser.Term.match)
-    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", mkNullNode, matchAlts]
+    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", matchAlts]
 | n+1, discrs => withFreshMacroScope do
   x ← `(x);
   let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", ";
@@ -425,7 +425,7 @@ fun stx expectedType? =>
 -- "fun " >> ((many1 funBinder >> darrow >> termParser) <|> funMatchAlts)
 -- funMatchAlts := parser! matchAlts false
 if (stx.getArg 1).isOfKind `Lean.Parser.Term.funMatchAlts then do
-  stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx ((stx.getArg 1).getArg 1);
+  stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx ((stx.getArg 1).getArg 0);
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else do
   let binders := (stx.getArg 1).getArgs;

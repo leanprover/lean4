@@ -57,7 +57,7 @@ def generalizingVars := optional (" generalizing " >> many1 ident)
 def withIds : Parser := optional (" with " >> many1 ident')
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> holeOrTactic
-def matchAlts : Parser := withPosition $ fun pos => (optional "| ") >> sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+def matchAlts : Parser := group $ withPosition $ fun pos => (optional "| ") >> sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts
 

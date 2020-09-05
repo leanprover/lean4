@@ -206,6 +206,7 @@ letRecsToLift.forM fun toLift => do
 
 structure PreDeclaration :=
 (kind      : DefKind)
+(lparams   : List Name)
 (modifiers : Modifiers)
 (declName  : Name)
 (type      : Expr)
@@ -494,13 +495,14 @@ mainHeaders.size.foldM
     pure $ preDecls.push {
       kind      := header.kind,
       declName  := header.declName,
+      lparams   := [], -- we set it later
       modifiers := header.modifiers,
       type      := type,
       val       := val
     })
   preDecls
 
-def pushLetRecs (preDecls : Array PreDeclaration) (letRecClosures : List LetRecClosure) (kind : DefKind) : Array PreDeclaration :=
+def pushLetRecs (preDecls : Array PreDeclaration) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : Array PreDeclaration :=
 letRecClosures.foldl
   (fun (preDecls : Array PreDeclaration) (c : LetRecClosure) =>
     let type := Closure.mkForall c.localDecls c.toLift.type;
@@ -508,7 +510,8 @@ letRecClosures.foldl
     preDecls.push {
       kind      := kind,
       declName  := c.toLift.declName,
-      modifiers := { attrs := c.toLift.attrs },
+      lparams   := [], -- we set it later
+      modifiers := { modifiers with attrs := c.toLift.attrs },
       type      := type,
       val       := val
     })
@@ -517,6 +520,11 @@ letRecClosures.foldl
 def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
 if mainHeaders.any fun h => h.kind.isTheorem then DefKind.«theorem»
 else DefKind.«def»
+
+def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :=
+{ isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable,
+  isPartial       := mainHeaders.any fun h => h.modifiers.isPartial,
+  isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe }
 
 /-
 - `sectionVars`:   The section variables used in the `mutual` block.
@@ -549,13 +557,97 @@ let mainVals       := mainVals.map r.apply;
 let mainHeaders    := mainHeaders.map fun h => { h with type := r.apply h.type };
 let letRecClosures := letRecClosures.map fun c => { c with toLift := { c.toLift with type := r.apply c.toLift.type, val := r.apply c.toLift.val } };
 let letRecKind     := getKindForLetRecs mainHeaders;
-pushMain (pushLetRecs #[] letRecClosures letRecKind) sectionVars mainHeaders mainVals
+let letRecMods     := getModifiersForLetRecs mainHeaders;
+pushMain (pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals
 
 end MutualClosure
+
+private def getAllUserLevelNames (headers : Array DefViewElabHeader) : List Name :=
+if h : 0 < headers.size then
+  -- Recall that all top-level functions must have the same levels. See `check` method above
+  (headers.get ⟨0, h⟩).levelNames
+else
+  []
+
+private def instantiateMVarsAtPreDecls (preDecls : Array PreDeclaration) : TermElabM (Array PreDeclaration) :=
+preDecls.mapM fun preDecl => do
+  type ← instantiateMVars preDecl.type;
+  val  ← instantiateMVars preDecl.val;
+  pure { preDecl with type := type, val := val }
+
+private def levelMVarToParamExpr (e : Expr) : StateRefT Nat TermElabM Expr := do
+nextIdx ← get;
+(e, nextIdx) ← liftM $ levelMVarToParam e nextIdx;
+set nextIdx;
+pure e
+
+private def levelMVarToParamPreDeclsAux (preDecls : Array PreDeclaration) : StateRefT Nat TermElabM (Array PreDeclaration) :=
+preDecls.mapM fun preDecl => do
+  type ← levelMVarToParamExpr preDecl.type;
+  val ← levelMVarToParamExpr preDecl.val;
+  pure { preDecl with type := type, val := val }
+
+private def levelMVarToParamPreDecls (preDecls : Array PreDeclaration) : TermElabM (Array PreDeclaration) :=
+(levelMVarToParamPreDeclsAux preDecls).run' 1
+
+private def collectLevelParamsExpr (e : Expr) : StateM CollectLevelParams.State Unit := do
+modify fun s => collectLevelParams s e
+
+private def getLevelParamsPreDecls (preDecls : Array PreDeclaration) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) :=
+let (_, s) := StateT.run
+  (preDecls.forM fun preDecl => do {
+    collectLevelParamsExpr preDecl.type;
+    collectLevelParamsExpr preDecl.val })
+  {};
+match sortDeclLevelParams scopeLevelNames allUserLevelNames s.params with
+| Except.error msg      => throwError msg
+| Except.ok levelParams => pure levelParams
+
+private def shareCommon (preDecls : Array PreDeclaration) : Array PreDeclaration :=
+let result : Std.ShareCommonM (Array PreDeclaration) :=
+  preDecls.mapM fun preDecl => do {
+    type ← Std.withShareCommon preDecl.type;
+    val ← Std.withShareCommon preDecl.val;
+    pure { preDecl with type := type, val := val }
+  };
+result.run
+
+private def fixLevelParams (preDecls : Array PreDeclaration) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDeclaration) := do
+let preDecls := shareCommon preDecls;
+lparams ← getLevelParamsPreDecls preDecls scopeLevelNames allUserLevelNames;
+let us := lparams.map mkLevelParam;
+let fixExpr (e : Expr) : Expr :=
+  e.replace fun c => match c with
+    | Expr.const declName _ _ => if preDecls.any fun preDecl => preDecl.declName == declName then some $ Lean.mkConst declName us else none
+    | _ => none;
+pure $ preDecls.map fun preDecl =>
+  { preDecl with
+    type    := fixExpr preDecl.type,
+    val     := fixExpr preDecl.val,
+    lparams := lparams }
+
+private def applyAttributesOf (preDecls : Array PreDeclaration) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
+preDecls.forM fun preDecl => applyAttributes preDecl.declName preDecl.modifiers.attrs applicationTime
+
+private def addAndCompileAsUnsafe (preDecls : Array PreDeclaration) : TermElabM Unit := do
+let decl := Declaration.mutualDefnDecl $ preDecls.toList.map fun preDecl => {
+    name     := preDecl.declName,
+    lparams  := preDecl.lparams,
+    type     := preDecl.type,
+    value    := preDecl.val,
+    isUnsafe := true,
+    hints    := ReducibilityHints.opaque
+  };
+addDecl decl;
+applyAttributesOf preDecls AttributeApplicationTime.afterTypeChecking;
+compileDecl decl;
+applyAttributesOf preDecls AttributeApplicationTime.afterCompilation;
+pure ()
 
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
 scopeLevelNames ← getLevelNames;
 headers ← elabHeaders views;
+let allUserLevelNames := getAllUserLevelNames headers;
 withFunLocalDecls headers fun funFVars => do
   values ← elabFunValues headers;
   Term.synthesizeSyntheticMVarsNoPostponing;
@@ -568,9 +660,11 @@ withFunLocalDecls headers fun funFVars => do
     checkLetRecsToLiftTypes funFVars letRecsToLift;
     withUsedWhen vars headers values letRecsToLift (not $ isTheorem views) fun vars => do
       preDecls ← MutualClosure.main vars headers funFVars values letRecsToLift;
+      preDecls ← levelMVarToParamPreDecls preDecls;
+      preDecls ← instantiateMVarsAtPreDecls preDecls;
+      preDecls ← fixLevelParams preDecls scopeLevelNames allUserLevelNames;
       -- TODO
-      preDecls.forM fun preDecl => IO.println (toString preDecl.declName ++ " : " ++ toString preDecl.type ++ " :=\n" ++ toString preDecl.val ++ "\n");
-      throwError "WIP mutual def"
+      addAndCompileAsUnsafe preDecls
 
 end Term
 namespace Command

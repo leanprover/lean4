@@ -219,7 +219,11 @@ match stx with
   | []  => do processVar stx.getId mustBeCtor; pure 0
   | [f] => processIdAuxAux stx mustBeCtor env f
   | _   => throwAmbiguous fs
-| _ => unreachable!
+| _ =>
+  if stx.isOfKind `Lean.Parser.Term.explicit then
+    throwError "identifier expected, '@' is not allowed in patterns"
+  else
+    throwError "identifier expected"
 
 private def processCtor (stx : Syntax) : M Nat :=
 processIdAux stx true
@@ -542,6 +546,7 @@ withPatternVars patternVars fun patternVarDecls => do
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
     rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;
     trace `Elab.match fun _ => "rhs: " ++ rhs;
+    -- TODO: we should promote `.(?m ...)` to pattern variables too. This can happen when users misuse `{}` in constructors
     -- TODO: check whether altLHS still has metavariables
     pure (altLHS, rhs)
 

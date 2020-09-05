@@ -109,6 +109,7 @@ extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___clos
 lean_object* l_Lean_getMaxHeight(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Command_isDefLike(lean_object*);
 lean_object* l_Lean_Elab_Command_mkFreshInstanceName___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_sortDeclLevelParams(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Definition_2__withUsedWhen___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_Util_4__regTraceClasses___closed__1;
 lean_object* l_Lean_compileDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -120,7 +121,6 @@ extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
 uint8_t l_Lean_Elab_DefKind_isTheorem(uint8_t);
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_Elab_Command_mkFreshInstanceName(lean_object*);
-lean_object* l_Lean_Elab_Command_sortDeclLevelParams(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__3;
 lean_object* l_Lean_Elab_Command_mkDef_x3f___lambda__1___closed__4;
@@ -1862,7 +1862,7 @@ x_55 = l_Lean_CollectLevelParams_main___main(x_51, x_54);
 x_56 = lean_ctor_get(x_55, 2);
 lean_inc(x_56);
 lean_dec(x_55);
-x_57 = l_Lean_Elab_Command_sortDeclLevelParams(x_4, x_5, x_56);
+x_57 = l_Lean_Elab_sortDeclLevelParams(x_4, x_5, x_56);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 

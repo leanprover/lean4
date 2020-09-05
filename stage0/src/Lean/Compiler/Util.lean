@@ -82,5 +82,19 @@ match env.find? n with
 | none => Except.error "unknow declaration"
 | _    => Except.error "declaration is not a definition"
 
+/--
+  We generate auxiliary unsafe definitions for regular recursive definitions.
+  The auxiliary unsafe definition has a clear runtime cost execution model.
+  This function returns the auxiliary unsafe definition name for the given name. -/
+@[export lean_mk_unsafe_rec_name]
+def mkUnsafeRecName (declName : Name) : Name :=
+mkNameStr declName "_unsafe_rec"
+
+/-- Return `some _` if the given name was created using `mkUnsafeRecName` -/
+@[export lean_is_unsafe_rec_name]
+def isUnsafeRecName? : Name → Option Name
+| Name.str n "_unsafe_rec" _ => some n
+| _ => none
+
 end Compiler
 end Lean

@@ -233,6 +233,7 @@ lean_object* l_Lean_Elab_Command_elabStructure___closed__3;
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Structure_17__levelMVarToParamFVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_11__withFields___main___rarg___closed__5;
 extern lean_object* l___private_Lean_Meta_AppBuilder_25__mkProjectionImp___main___closed__7;
+lean_object* l_Lean_Elab_sortDeclLevelParams(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_accLevelAtCtor___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_collectUsedFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
@@ -249,7 +250,6 @@ extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
 lean_object* l___private_Lean_Elab_Structure_11__withFields___main___rarg___closed__3;
 extern lean_object* l_Lean_registerClassAttr___closed__2;
 lean_object* l_Lean_LocalContext_updateBinderInfo(lean_object*, lean_object*, uint8_t);
-lean_object* l_Lean_Elab_Command_sortDeclLevelParams(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_elabModifiers___rarg___closed__3;
 lean_object* l_Lean_Elab_Command_checkValidFieldModifier___closed__11;
 extern lean_object* l___private_Lean_Elab_Quotation_5__explodeHeadPat___lambda__1___closed__2;
@@ -18999,7 +18999,7 @@ x_22 = lean_ctor_get(x_3, 2);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_3, 3);
 lean_inc(x_23);
-x_24 = l_Lean_Elab_Command_sortDeclLevelParams(x_22, x_23, x_20);
+x_24 = l_Lean_Elab_sortDeclLevelParams(x_22, x_23, x_20);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 

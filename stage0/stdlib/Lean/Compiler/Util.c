@@ -47,6 +47,7 @@ lean_object* l_Lean_Compiler_atMostOnce___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkLcProof(lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Compiler_Util_1__getDeclNamesForCodeGen___spec__1(lean_object*);
+lean_object* lean_mk_unsafe_rec_name(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_HasAndthen;
 lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
@@ -58,17 +59,20 @@ lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___main___boxed(lean_object
 lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_seq(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_objectType___closed__1;
+lean_object* lean_is_unsafe_rec_name(lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__5;
 lean_object* l_Lean_Compiler_unreachableExpr___closed__2;
+lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_skip(lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
 lean_object* lean_mk_eager_lambda_lifting_name(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 uint8_t lean_at_most_once(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_unreachableExpr___closed__1;
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_unreachableExpr___closed__3;
 lean_object* _init_l_Lean_Compiler_neutralExpr___closed__1() {
 _start:
@@ -990,6 +994,61 @@ return x_7;
 }
 }
 }
+lean_object* _init_l_Lean_Compiler_mkUnsafeRecName___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("_unsafe_rec");
+return x_1;
+}
+}
+lean_object* lean_mk_unsafe_rec_name(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Compiler_mkUnsafeRecName___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* lean_is_unsafe_rec_name(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 1)
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = l_Lean_Compiler_mkUnsafeRecName___closed__1;
+x_5 = lean_string_dec_eq(x_3, x_4);
+lean_dec(x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_2);
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_2);
+return x_7;
+}
+}
+else
+{
+lean_object* x_8; 
+lean_dec(x_1);
+x_8 = lean_box(0);
+return x_8;
+}
+}
+}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Environment(lean_object*);
 static bool _G_initialized = false;
@@ -1061,6 +1120,8 @@ l_Lean_Compiler_checkIsDefinition___closed__4 = _init_l_Lean_Compiler_checkIsDef
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__4);
 l_Lean_Compiler_checkIsDefinition___closed__5 = _init_l_Lean_Compiler_checkIsDefinition___closed__5();
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__5);
+l_Lean_Compiler_mkUnsafeRecName___closed__1 = _init_l_Lean_Compiler_mkUnsafeRecName___closed__1();
+lean_mark_persistent(l_Lean_Compiler_mkUnsafeRecName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

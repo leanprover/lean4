@@ -626,6 +626,24 @@ pure $ preDecls.map fun preDecl =>
     val     := fixExpr preDecl.val,
     lparams := lparams }
 
+private def applyAttributesOf (preDecls : Array PreDeclaration) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
+preDecls.forM fun preDecl => applyAttributes preDecl.declName preDecl.modifiers.attrs applicationTime
+
+private def addAndCompileAsUnsafe (preDecls : Array PreDeclaration) : TermElabM Unit := do
+let decl := Declaration.mutualDefnDecl $ preDecls.toList.map fun preDecl => {
+    name     := preDecl.declName,
+    lparams  := preDecl.lparams,
+    type     := preDecl.type,
+    value    := preDecl.val,
+    isUnsafe := true,
+    hints    := ReducibilityHints.opaque
+  };
+addDecl decl;
+applyAttributesOf preDecls AttributeApplicationTime.afterTypeChecking;
+compileDecl decl;
+applyAttributesOf preDecls AttributeApplicationTime.afterCompilation;
+pure ()
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
 scopeLevelNames ← getLevelNames;
 headers ← elabHeaders views;
@@ -646,8 +664,7 @@ withFunLocalDecls headers fun funFVars => do
       preDecls ← instantiateMVarsAtPreDecls preDecls;
       preDecls ← fixLevelParams preDecls scopeLevelNames allUserLevelNames;
       -- TODO
-      preDecls.forM fun preDecl => IO.println (toString preDecl.declName ++ " : " ++ toString preDecl.type ++ " :=\n" ++ toString preDecl.val ++ "\n");
-      throwError "WIP mutual def"
+      addAndCompileAsUnsafe preDecls
 
 end Term
 namespace Command

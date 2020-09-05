@@ -500,7 +500,7 @@ mainHeaders.size.foldM
     })
   preDecls
 
-def pushLetRecs (preDecls : Array PreDeclaration) (letRecClosures : List LetRecClosure) (kind : DefKind) : Array PreDeclaration :=
+def pushLetRecs (preDecls : Array PreDeclaration) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : Array PreDeclaration :=
 letRecClosures.foldl
   (fun (preDecls : Array PreDeclaration) (c : LetRecClosure) =>
     let type := Closure.mkForall c.localDecls c.toLift.type;
@@ -508,7 +508,7 @@ letRecClosures.foldl
     preDecls.push {
       kind      := kind,
       declName  := c.toLift.declName,
-      modifiers := { attrs := c.toLift.attrs },
+      modifiers := { modifiers with attrs := c.toLift.attrs },
       type      := type,
       val       := val
     })
@@ -517,6 +517,11 @@ letRecClosures.foldl
 def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
 if mainHeaders.any fun h => h.kind.isTheorem then DefKind.«theorem»
 else DefKind.«def»
+
+def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :=
+{ isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable,
+  isPartial       := mainHeaders.any fun h => h.modifiers.isPartial,
+  isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe }
 
 /-
 - `sectionVars`:   The section variables used in the `mutual` block.
@@ -549,7 +554,8 @@ let mainVals       := mainVals.map r.apply;
 let mainHeaders    := mainHeaders.map fun h => { h with type := r.apply h.type };
 let letRecClosures := letRecClosures.map fun c => { c with toLift := { c.toLift with type := r.apply c.toLift.type, val := r.apply c.toLift.val } };
 let letRecKind     := getKindForLetRecs mainHeaders;
-pushMain (pushLetRecs #[] letRecClosures letRecKind) sectionVars mainHeaders mainVals
+let letRecMods     := getModifiersForLetRecs mainHeaders;
+pushMain (pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals
 
 end MutualClosure
 

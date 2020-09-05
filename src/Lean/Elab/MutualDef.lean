@@ -629,6 +629,29 @@ pure $ preDecls.map fun preDecl =>
 private def applyAttributesOf (preDecls : Array PreDeclaration) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
 preDecls.forM fun preDecl => applyAttributes preDecl.declName preDecl.modifiers.attrs applicationTime
 
+private def addAndCompileNonRec (preDecl : PreDeclaration) : TermElabM Unit := do
+env ← getEnv;
+let decl :=
+  match preDecl.kind with
+  | DefKind.«example» => unreachable!
+  | DefKind.«theorem» =>
+    Declaration.thmDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val }
+  | DefKind.«opaque»  =>
+    Declaration.opaqueDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val,
+                             isUnsafe := preDecl.modifiers.isUnsafe }
+  | DefKind.«abbrev»  =>
+    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val,
+                           hints := ReducibilityHints.«abbrev», isUnsafe := preDecl.modifiers.isUnsafe }
+  | DefKind.«def»  =>
+    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.val,
+                           hints := ReducibilityHints.regular (getMaxHeight env preDecl.val + 1),
+                           isUnsafe := preDecl.modifiers.isUnsafe };
+addDecl decl;
+applyAttributesOf #[preDecl] AttributeApplicationTime.afterTypeChecking;
+compileDecl decl;
+applyAttributesOf #[preDecl] AttributeApplicationTime.afterCompilation;
+pure ()
+
 private def addAndCompileAsUnsafe (preDecls : Array PreDeclaration) : TermElabM Unit := do
 let decl := Declaration.mutualDefnDecl $ preDecls.toList.map fun preDecl => {
     name     := preDecl.declName,

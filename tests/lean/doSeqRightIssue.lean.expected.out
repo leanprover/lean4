@@ -4,41 +4,41 @@ doSeqRightIssue.lean:7:0: error: don't know how to synthesize placeholder
 context:
 α : Type u
 β : α → (sorryAx (Sort u_1))
-ex : ∀ {p₁p₂ : (sorryAx (Sort u_2))} (h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)), (sorryAx (?m.336 h₁))≅_ → p₁=p₂
+ex : ∀ {p₁p₂ : (sorryAx (Sort u_2))} (h₁ : (sorryAx ?m.343)=(sorryAx ?m.343)), (sorryAx (?m.344 h₁))≅_ → p₁=p₂
 p₁ p₂ : (sorryAx (Sort u_2))
-h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
-h : (sorryAx (?m.336 _))≅_
+h₁ : (sorryAx ?m.343)=(sorryAx ?m.343)
+h : (sorryAx (?m.344 _))≅_
 _a_1 _a_2 : (sorryAx (Sort u_2))
-_a_3 : (sorryAx ?m.335)=(sorryAx ?m.335)
+_a_3 : (sorryAx ?m.343)=(sorryAx ?m.343)
 ⊢ Prop
 doSeqRightIssue.lean:7:0: error: don't know how to synthesize placeholder
 context:
 α : Type u
 β : α → (sorryAx (Sort u_1))
-ex : ∀ {p₁p₂ : (sorryAx (Sort u_2))} (h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)), (sorryAx (?m.336 h₁))≅_ → p₁=p₂
+ex : ∀ {p₁p₂ : (sorryAx (Sort u_2))} (h₁ : (sorryAx ?m.343)=(sorryAx ?m.343)), (sorryAx (?m.344 h₁))≅_ → p₁=p₂
 p₁ p₂ : (sorryAx (Sort u_2))
-h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
-h : (sorryAx (?m.336 _))≅_
+h₁ : (sorryAx ?m.343)=(sorryAx ?m.343)
+h : (sorryAx (?m.344 _))≅_
 _a_1 _a_2 : (sorryAx (Sort u_2))
 ⊢ Prop
 doSeqRightIssue.lean:7:66: error: don't know how to synthesize placeholder
-  @HEq ?m.336 … … …
+  @HEq ?m.344 … … …
 context:
 α : Type u
 β : α → (sorryAx (Sort u_1))
 p₁ p₂ : (sorryAx (Sort u_2))
-h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
+h₁ : (sorryAx ?m.343)=(sorryAx ?m.343)
 ⊢ Prop
 doSeqRightIssue.lean:7:66: error: don't know how to synthesize placeholder
-  @HEq ?m.336 … … …
+  @HEq ?m.344 … … …
 context:
 α : Type u
 β : α → (sorryAx (Sort u_1))
 p₁ p₂ : (sorryAx (Sort u_2))
-h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
+h₁ : (sorryAx ?m.343)=(sorryAx ?m.343)
 ⊢ Prop
 doSeqRightIssue.lean:7:48: error: don't know how to synthesize placeholder
-  @Eq ?m.335 … …
+  @Eq ?m.343 … …
 context:
 α : Type u
 β : α → (sorryAx (Sort u_1))

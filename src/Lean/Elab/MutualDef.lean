@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Closure
 import Lean.Meta.Check
 import Lean.Elab.Command
-import Lean.Elab.Definition
+import Lean.Elab.DefView
 
 namespace Lean
 namespace Elab

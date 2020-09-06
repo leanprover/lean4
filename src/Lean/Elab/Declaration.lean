@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectLevelParams
 import Lean.Elab.DeclUtil
-import Lean.Elab.Definition
+import Lean.Elab.DefView
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.MutualDef

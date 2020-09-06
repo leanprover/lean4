@@ -89,6 +89,9 @@ instance coeOfTC {α : Sort u} {β : Sort v} (a : α) [CoeTC α β] : CoeT α a 
 instance coeOfDep {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeT α a β :=
 { coe := coeD a }
 
+instance coeId {α : Sort u} (a : α) : CoeT α a α :=
+{ coe := a }
+
 instance coeFunTrans {α : Sort u} {β : Sort v} {γ : β → Sort w} [CoeFun β γ] [Coe α β] : CoeFun α (fun a => γ (coe a)) :=
 { coe := fun a => coeFun (coeB a : β) }
 

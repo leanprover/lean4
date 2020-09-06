@@ -157,9 +157,7 @@ fun stx => match expandDeclNamespace? stx with
   else if declKind == `Lean.Parser.Command.structure then
     elabStructure modifiers decl
   else if isDefLike decl then do
-    -- TODO: use `elabMutualDef #[stx]`
-    view ← mkDefView modifiers decl;
-    elabDefLike view
+    elabMutualDef #[stx]
   else
     throwError "unexpected declaration"
 

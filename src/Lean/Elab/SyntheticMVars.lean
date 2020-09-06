@@ -45,11 +45,11 @@ adaptReader (fun (ctx : Context) => { ctx with errToSorry := ctx.errToSorry && e
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
-private def resumePostponed (macroStack : MacroStack) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
+private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
 withRef stx $ withMVarContext mvarId $ do
   s ← get;
   catch
-    (adaptReader (fun (ctx : Context) => { ctx with macroStack := macroStack }) $ do
+    (adaptReader (fun (ctx : Context) => { ctx with macroStack := macroStack, declName? := declName? }) $ do
       mvarDecl     ← getMVarDecl mvarId;
       expectedType ← instantiateMVars mvarDecl.type;
       result       ← resumeElabTerm stx expectedType (!postponeOnError);
@@ -102,17 +102,18 @@ pure $ !val.getAppFn.isMVar
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
 withRef mvarSyntheticDecl.stx $
 match mvarSyntheticDecl.kind with
-| SyntheticMVarKind.typeClass                   => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.coe expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId expectedType eType e f?
+| SyntheticMVarKind.typeClass                      => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.coe expectedType eType e f?    => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId expectedType eType e f?
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-| SyntheticMVarKind.withDefault _               => checkWithDefault mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.postponed macroStack        => resumePostponed macroStack mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
-| SyntheticMVarKind.tactic tacticCode           =>
-  if runTactics then do
-    runTactic mvarSyntheticDecl.mvarId tacticCode;
-    pure true
-  else
-    pure false
+| SyntheticMVarKind.withDefault _                  => checkWithDefault mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.postponed macroStack declName? => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
+| SyntheticMVarKind.tactic declName? tacticCode    =>
+  adaptReader (fun (ctx : Context) => { ctx with declName? := declName? }) $
+    if runTactics then do
+      runTactic mvarSyntheticDecl.mvarId tacticCode;
+      pure true
+    else
+      pure false
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.

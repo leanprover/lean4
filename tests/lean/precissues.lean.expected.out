@@ -3,7 +3,7 @@ id (fun (x : ?m.4) => x) : ?m.4 → ?m.4
 f 1 (fun (x : Nat) => x) : Nat
 0 : Nat
 f 1 (fun (x : Nat) => x) : Nat
-id : ?m.73 → ?m.73
+id : ?m.84 → ?m.84
 precissues.lean:15:10: error: expected command
 1 : Nat
 id ((fun (this : True) => this) True.intro) : True

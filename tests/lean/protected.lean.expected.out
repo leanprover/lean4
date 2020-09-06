@@ -1,7 +1,7 @@
 protected.lean:10:7: error: unknown identifier 'x'
-(sorryAx ?m.24) : ?m.24
+(sorryAx ?m.23) : ?m.23
 Foo.x : Nat
 Bla.Foo.y : Nat
 protected.lean:22:7: error: unknown identifier 'y'
-(sorryAx ?m.70) : ?m.70
+(sorryAx ?m.67) : ?m.67
 Bla.Foo.z : Nat

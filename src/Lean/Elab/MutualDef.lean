@@ -646,6 +646,7 @@ let decl :=
     Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value,
                            hints := ReducibilityHints.regular (getMaxHeight env preDecl.value + 1),
                            isUnsafe := preDecl.modifiers.isUnsafe };
+ensureNoUnassignedMVars decl;
 addDecl decl;
 applyAttributesOf #[preDecl] AttributeApplicationTime.afterTypeChecking;
 compileDecl decl;
@@ -661,6 +662,7 @@ let decl := Declaration.mutualDefnDecl $ preDecls.toList.map fun preDecl => {
     isUnsafe := true,
     hints    := ReducibilityHints.opaque
   };
+ensureNoUnassignedMVars decl;
 addDecl decl;
 applyAttributesOf preDecls AttributeApplicationTime.afterTypeChecking;
 compileDecl decl;
@@ -692,6 +694,7 @@ withFunLocalDecls headers fun funFVars => do
       preDecls ← levelMVarToParamPreDecls preDecls;
       preDecls ← instantiateMVarsAtPreDecls preDecls;
       preDecls ← fixLevelParams preDecls scopeLevelNames allUserLevelNames;
+      preDecls.forM fun preDecl => trace `Elab.definition.body fun _ => preDecl.declName ++ " : " ++ preDecl.type ++ " :=" ++ Format.line ++ preDecl.value;
       let (preDeclsNonRec, preDecls) := partitionNonRec preDecls;
       preDeclsNonRec.forM addAndCompileNonRec;
       -- TODO

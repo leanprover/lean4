@@ -27,4 +27,4 @@ inductive1.lean:105:0: error: unexpected constructor resulting type, type expect
 inductive1.lean:108:0: error: unexpected constructor resulting type
   Nat
 inductive1.lean:118:7: error: unknown identifier 'cons'
-(sorryAx ?m.139) : ?m.139
+(sorryAx ?m.137) : ?m.137

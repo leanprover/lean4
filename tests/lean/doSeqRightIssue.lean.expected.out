@@ -2,39 +2,45 @@ doSeqRightIssue.lean:5:24: error: unknown universe level v
 doSeqRightIssue.lean:5:24: error: unknown universe level v
 doSeqRightIssue.lean:7:0: error: don't know how to synthesize placeholder
 context:
-p₁ p₂ : (sorryAx (Sort u_1))
-h₁ : (sorryAx ?m.319)=(sorryAx ?m.319)
-h : (sorryAx (?m.320 _))≅_
-_a_1 _a_2 : (sorryAx (Sort u_1))
-_a_3 : (sorryAx ?m.319)=(sorryAx ?m.319)
+α : Type u
+β : α → (sorryAx (Sort u_1))
+ex : ∀ {p₁p₂ : (sorryAx (Sort u_2))} (h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)), (sorryAx (?m.336 h₁))≅_ → p₁=p₂
+p₁ p₂ : (sorryAx (Sort u_2))
+h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
+h : (sorryAx (?m.336 _))≅_
+_a_1 _a_2 : (sorryAx (Sort u_2))
+_a_3 : (sorryAx ?m.335)=(sorryAx ?m.335)
 ⊢ Prop
 doSeqRightIssue.lean:7:0: error: don't know how to synthesize placeholder
 context:
-p₁ p₂ : (sorryAx (Sort u_1))
-h₁ : (sorryAx ?m.319)=(sorryAx ?m.319)
-h : (sorryAx (?m.320 _))≅_
-_a_1 _a_2 : (sorryAx (Sort u_1))
+α : Type u
+β : α → (sorryAx (Sort u_1))
+ex : ∀ {p₁p₂ : (sorryAx (Sort u_2))} (h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)), (sorryAx (?m.336 h₁))≅_ → p₁=p₂
+p₁ p₂ : (sorryAx (Sort u_2))
+h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
+h : (sorryAx (?m.336 _))≅_
+_a_1 _a_2 : (sorryAx (Sort u_2))
 ⊢ Prop
 doSeqRightIssue.lean:7:66: error: don't know how to synthesize placeholder
-  @HEq ?m.320 … … …
+  @HEq ?m.336 … … …
 context:
 α : Type u
-β : α → (sorryAx (Sort ?))
-p₁ p₂ : (sorryAx (Sort u_1))
-h₁ : (sorryAx ?m.319)=(sorryAx ?m.319)
+β : α → (sorryAx (Sort u_1))
+p₁ p₂ : (sorryAx (Sort u_2))
+h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
 ⊢ Prop
 doSeqRightIssue.lean:7:66: error: don't know how to synthesize placeholder
-  @HEq ?m.320 … … …
+  @HEq ?m.336 … … …
 context:
 α : Type u
-β : α → (sorryAx (Sort ?))
-p₁ p₂ : (sorryAx (Sort u_1))
-h₁ : (sorryAx ?m.319)=(sorryAx ?m.319)
+β : α → (sorryAx (Sort u_1))
+p₁ p₂ : (sorryAx (Sort u_2))
+h₁ : (sorryAx ?m.335)=(sorryAx ?m.335)
 ⊢ Prop
 doSeqRightIssue.lean:7:48: error: don't know how to synthesize placeholder
-  @Eq ?m.319 … …
+  @Eq ?m.335 … …
 context:
 α : Type u
-β : α → (sorryAx (Sort ?))
-p₁ p₂ : (sorryAx (Sort u_1))
-⊢ Sort u_2
+β : α → (sorryAx (Sort u_1))
+p₁ p₂ : (sorryAx (Sort u_2))
+⊢ Sort u_3

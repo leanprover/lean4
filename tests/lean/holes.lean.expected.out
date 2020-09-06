@@ -2,21 +2,25 @@ holes.lean:4:4: error: placeholders '_' cannot be used where a function is expec
 holes.lean:11:8: error: don't know how to synthesize placeholder
 context:
 case hole
+f3 : Nat → Nat
 x : Nat
 y : Nat := g x+g x
 ⊢ Nat
 holes.lean:11:4: error: don't know how to synthesize placeholder
 context:
+f3 : Nat → Nat
 x : Nat
 y : Nat := g x+g x
 ⊢ Nat
 holes.lean:10:15: error: don't know how to synthesize placeholder
-  @g … ?m.39 …
+  @g … ?m.49 …
 context:
+f3 : Nat → Nat
 x : Nat
 ⊢ Type
 holes.lean:10:9: error: don't know how to synthesize placeholder
-  @g … ?m.38 …
+  @g … ?m.48 …
 context:
+f3 : Nat → Nat
 x : Nat
 ⊢ Type

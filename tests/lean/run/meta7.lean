@@ -42,3 +42,34 @@ lambdaTelescope c.value?.get! fun xs body =>
 #eval tst1
 
 #print foo
+
+def tst2 : MetaM Unit := do
+print "----- tst2 -----";
+let nat := mkConst `Nat;
+let t0  := mkApp (mkConst `IO) nat;
+let t   := mkForall `_ BinderInfo.default nat t0;
+print t;
+Meta.check t;
+forallBoundedTelescope t (some 1) fun xs b => do
+  print b;
+  check $ pure $ xs.size == 1;
+  check $ pure $ b == t0;
+  pure ()
+
+#eval tst2
+
+
+def tst3 : MetaM Unit := do
+print "----- tst2 -----";
+let nat := mkConst `Nat;
+let t0  := mkApp (mkConst `IO) nat;
+let t   := t0;
+print t;
+Meta.check t;
+forallBoundedTelescope t (some 0) fun xs b => do
+  print b;
+  check $ pure $ xs.size == 0;
+  check $ pure $ b == t0;
+  pure ()
+
+#eval tst3

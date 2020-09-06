@@ -547,6 +547,11 @@ mapMetaM fun _ => withNewLocalInstanceImpl className fvar
   else
     k
 
+private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : Bool :=
+match maxFVars? with
+| some maxFVars => fvars.size < maxFVars
+| none          => true
+
 /--
   `forallTelescopeAux whnf k lctx fvars j type`
   Remarks:
@@ -586,21 +591,18 @@ mapMetaM fun _ => withNewLocalInstanceImpl className fvar
     let fvars := fvars.push fvar;
     forallTelescopeReducingAuxAux lctx fvars j b
   };
-  match maxFVars? with
-  | none          => process ()
-  | some maxFVars =>
-    if fvars.size < maxFVars then
-      process ()
-    else
-      let type := type.instantiateRevRange j fvars.size fvars;
-      adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
-        withNewLocalInstancesImpl isClassExpensive? fvars j $
-          k fvars type
+  if fvarsSizeLtMaxFVars fvars maxFVars? then
+    process ()
+  else
+    let type := type.instantiateRevRange j fvars.size fvars;
+    adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+      withNewLocalInstancesImpl isClassExpensive? fvars j $
+        k fvars type
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
     withNewLocalInstancesImpl isClassExpensive? fvars j $
-      if reducing? then do
+      if reducing? && fvarsSizeLtMaxFVars fvars maxFVars? then do
         newType ← whnf type;
         if newType.isForall then
           forallTelescopeReducingAuxAux lctx fvars fvars.size newType
@@ -614,12 +616,15 @@ mapMetaM fun _ => withNewLocalInstanceImpl className fvar
 @[specialize] private def forallTelescopeReducingAux {α}
     (isClassExpensive? : Expr → MetaM (Option Name))
     (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α := do
-newType ← whnf type;
-if newType.isForall then do
-  lctx ← getLCtx;
-  forallTelescopeReducingAuxAux isClassExpensive? true maxFVars? k lctx #[] 0 newType
-else
-  k #[] type
+match maxFVars? with
+| some 0 => k #[] type
+| _ => do
+  newType ← whnf type;
+  if newType.isForall then do
+    lctx ← getLCtx;
+    forallTelescopeReducingAuxAux isClassExpensive? true maxFVars? k lctx #[] 0 newType
+  else
+    k #[] type
 
 private partial def isClassExpensive? : Expr → MetaM (Option Name)
 | type => withReducible $ -- when testing whether a type is a type class, we only unfold reducible constants.

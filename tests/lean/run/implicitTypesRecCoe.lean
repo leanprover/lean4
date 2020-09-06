@@ -1,6 +1,6 @@
 new_frontend
 
-def f (n : Nat) :=
+unsafe def f (n : Nat) :=
 let rec g (x : Nat) :=
 if x > 0 then
   /- This example relies on the instance `coeId {α} (a : α) : CoeT α a α`,

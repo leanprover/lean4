@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.SCC
 import Lean.Elab.Term
 import Lean.Elab.DefView
 
@@ -23,11 +24,14 @@ structure PreDefinition :=
 (type      : Expr)
 (value     : Expr)
 
+instance PreDefinition.inhabited : Inhabited PreDefinition :=
+⟨⟨DefKind.«def», [], {}, arbitrary _, arbitrary _, arbitrary _⟩⟩
+
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
-preDefs.mapM fun preDecl => do
-  type  ← instantiateMVars preDecl.type;
-  value ← instantiateMVars preDecl.value;
-  pure { preDecl with type := type, value := value }
+preDefs.mapM fun preDef => do
+  type  ← instantiateMVars preDef.type;
+  value ← instantiateMVars preDef.value;
+  pure { preDef with type := type, value := value }
 
 private def levelMVarToParamExpr (e : Expr) : StateRefT Nat TermElabM Expr := do
 nextIdx ← get;
@@ -36,10 +40,10 @@ set nextIdx;
 pure e
 
 private def levelMVarToParamPreDeclsAux (preDefs : Array PreDefinition) : StateRefT Nat TermElabM (Array PreDefinition) :=
-preDefs.mapM fun preDecl => do
-  type  ← levelMVarToParamExpr preDecl.type;
-  value ← levelMVarToParamExpr preDecl.value;
-  pure { preDecl with type := type, value := value }
+preDefs.mapM fun preDef => do
+  type  ← levelMVarToParamExpr preDef.type;
+  value ← levelMVarToParamExpr preDef.value;
+  pure { preDef with type := type, value := value }
 
 def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
 (levelMVarToParamPreDeclsAux preDefs).run' 1
@@ -49,9 +53,9 @@ modify fun s => collectLevelParams s e
 
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) :=
 let (_, s) := StateT.run
-  (preDefs.forM fun preDecl => do {
-    collectLevelParamsExpr preDecl.type;
-    collectLevelParamsExpr preDecl.value })
+  (preDefs.forM fun preDef => do {
+    collectLevelParamsExpr preDef.type;
+    collectLevelParamsExpr preDef.value })
   {};
 match sortDeclLevelParams scopeLevelNames allUserLevelNames s.params with
 | Except.error msg      => throwError msg
@@ -59,10 +63,10 @@ match sortDeclLevelParams scopeLevelNames allUserLevelNames s.params with
 
 private def shareCommon (preDefs : Array PreDefinition) : Array PreDefinition :=
 let result : Std.ShareCommonM (Array PreDefinition) :=
-  preDefs.mapM fun preDecl => do {
-    type  ← Std.withShareCommon preDecl.type;
-    value ← Std.withShareCommon preDecl.value;
-    pure { preDecl with type := type, value := value }
+  preDefs.mapM fun preDef => do {
+    type  ← Std.withShareCommon preDef.type;
+    value ← Std.withShareCommon preDef.value;
+    pure { preDef with type := type, value := value }
   };
 result.run
 
@@ -72,47 +76,47 @@ lparams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames;
 let us := lparams.map mkLevelParam;
 let fixExpr (e : Expr) : Expr :=
   e.replace fun c => match c with
-    | Expr.const declName _ _ => if preDefs.any fun preDecl => preDecl.declName == declName then some $ Lean.mkConst declName us else none
+    | Expr.const declName _ _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
     | _ => none;
-pure $ preDefs.map fun preDecl =>
-  { preDecl with
-    type    := fixExpr preDecl.type,
-    value   := fixExpr preDecl.value,
+pure $ preDefs.map fun preDef =>
+  { preDef with
+    type    := fixExpr preDef.type,
+    value   := fixExpr preDef.value,
     lparams := lparams }
 
 private def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
-preDefs.forM fun preDecl => applyAttributes preDecl.declName preDecl.modifiers.attrs applicationTime
+preDefs.forM fun preDef => applyAttributes preDef.declName preDef.modifiers.attrs applicationTime
 
-private def addAndCompileNonRec (preDecl : PreDefinition) : TermElabM Unit := do
+private def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
 env ← getEnv;
 let decl :=
-  match preDecl.kind with
+  match preDef.kind with
   | DefKind.«example» => unreachable!
   | DefKind.«theorem» =>
-    Declaration.thmDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value }
+    Declaration.thmDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value }
   | DefKind.«opaque»  =>
-    Declaration.opaqueDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value,
-                             isUnsafe := preDecl.modifiers.isUnsafe }
+    Declaration.opaqueDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
+                             isUnsafe := preDef.modifiers.isUnsafe }
   | DefKind.«abbrev»  =>
-    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value,
-                           hints := ReducibilityHints.«abbrev», isUnsafe := preDecl.modifiers.isUnsafe }
+    Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
+                           hints := ReducibilityHints.«abbrev», isUnsafe := preDef.modifiers.isUnsafe }
   | DefKind.«def»  =>
-    Declaration.defnDecl { name := preDecl.declName, lparams := preDecl.lparams, type := preDecl.type, value := preDecl.value,
-                           hints := ReducibilityHints.regular (getMaxHeight env preDecl.value + 1),
-                           isUnsafe := preDecl.modifiers.isUnsafe };
+    Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
+                           hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
+                           isUnsafe := preDef.modifiers.isUnsafe };
 ensureNoUnassignedMVars decl;
 addDecl decl;
-applyAttributesOf #[preDecl] AttributeApplicationTime.afterTypeChecking;
+applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking;
 compileDecl decl;
-applyAttributesOf #[preDecl] AttributeApplicationTime.afterCompilation;
+applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation;
 pure ()
 
 private def addAndCompileAsUnsafe (preDefs : Array PreDefinition) : TermElabM Unit := do
-let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDecl => {
-    name     := preDecl.declName,
-    lparams  := preDecl.lparams,
-    type     := preDecl.type,
-    value    := preDecl.value,
+let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
+    name     := preDef.declName,
+    lparams  := preDef.lparams,
+    type     := preDef.type,
+    value    := preDef.value,
     isUnsafe := true,
     hints    := ReducibilityHints.opaque
   };
@@ -123,18 +127,31 @@ compileDecl decl;
 applyAttributesOf preDefs AttributeApplicationTime.afterCompilation;
 pure ()
 
-private def partitionNonRec (preDefs : Array PreDefinition) : Array PreDefinition × Array PreDefinition :=
-preDefs.partition fun predDecl =>
-  Option.isNone $ predDecl.value.find? fun c => match c with
-    | Expr.const declName _ _ => preDefs.any fun preDecl => preDecl.declName == declName
-    | _ => false
+private def isNonRecursive (preDef : PreDefinition) : Bool :=
+Option.isNone $ preDef.value.find? fun c => match c with
+  | Expr.const declName _ _ => preDef.declName == declName
+  | _ => false
+
+private def partitionPreDefs (preDefs : Array PreDefinition) : Array (Array PreDefinition) :=
+let getPreDef    := fun declName => (preDefs.find? fun preDef => preDef.declName == declName).get!;
+let vertices     := preDefs.toList.map fun preDef => preDef.declName;
+let successorsOf := fun declName => (getPreDef declName).value.foldConsts [] fun declName successors =>
+  if preDefs.any fun preDef => preDef.declName == declName then
+    declName :: successors
+  else
+    successors;
+let sccs := SCC.scc vertices successorsOf;
+sccs.toArray.map fun scc => scc.toArray.map getPreDef
 
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
-preDefs.forM fun preDecl => trace `Elab.definition.body fun _ => preDecl.declName ++ " : " ++ preDecl.type ++ " :=" ++ Format.line ++ preDecl.value;
-let (preDefsNonRec, preDefs) := partitionNonRec preDefs;
-preDefsNonRec.forM addAndCompileNonRec;
--- TODO
-addAndCompileAsUnsafe preDefs
+preDefs.forM fun preDef => trace `Elab.definition.body fun _ => preDef.declName ++ " : " ++ preDef.type ++ " :=" ++ Format.line ++ preDef.value;
+(partitionPreDefs preDefs).forM fun preDefs => do
+  if preDefs.size == 1 && isNonRecursive (preDefs.get! 0) then
+    addAndCompileNonRec (preDefs.get! 0)
+  else do
+    trace `Elab.definition.scc fun _ => toString $ preDefs.map fun preDef => preDef.declName;
+    -- TODO
+    addAndCompileAsUnsafe preDefs
 
 end Elab
 end Lean

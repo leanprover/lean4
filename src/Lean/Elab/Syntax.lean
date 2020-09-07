@@ -298,9 +298,14 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(macro_rules [$kind] | $alts:matchAlt*) => elabMacroRulesAux kind.getId alts
 | _                                        => throwUnsupportedSyntax
 
-/- We just ignore Lean3 notation declaration commands. -/
-@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
-@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
+@[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro :=
+fun stx => match_syntax stx with
+| `(infix:$prec $op => $f)   => `(infixl:$prec $op => $f)
+| `(infixr:$prec $op => $f)  => `(notation:$prec lhs $op:strLit rhs:$prec => $f lhs rhs)
+| `(infixl:$prec $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(notation:$prec lhs $op:strLit rhs:$prec1 => $f lhs rhs)
+| `(prefix:$prec $op => $f)  => `(notation:$prec $op:strLit arg:$prec => $f arg)
+| `(postfix:$prec $op => $f) => `(notation:$prec arg $op:strLit => $f arg)
+| _ => Macro.throwUnsupported
 
 /- Wrap all occurrences of the given `ident` nodes in antiquotations -/
 private partial def antiquote (vars : Array Syntax) : Syntax → Syntax

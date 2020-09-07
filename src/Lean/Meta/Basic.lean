@@ -650,8 +650,11 @@ match c? with
 def isClass? (type : Expr) : m (Option Name) :=
 liftMetaM $ isClassImp? type
 
-partial def withNewLocalInstances {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
+private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
 mapMetaM fun _ => withNewLocalInstancesImp isClassExpensive? fvars j
+
+def withNewLocalInstances {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
+mapMetaM fun _ => withNewLocalInstancesImpAux fvars j
 
 private def forallTelescopeImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
 lctx ← getLCtx;

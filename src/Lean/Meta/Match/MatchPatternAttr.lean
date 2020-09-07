@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 import Lean.Attributes
 
 namespace Lean
-namespace EqnCompiler
 
 def mkMatchPatternAttr : IO TagAttribute :=
 registerTagAttribute `matchPattern "mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)"
@@ -18,5 +17,4 @@ constant matchPatternAttr : TagAttribute := arbitrary _
 def hasMatchPatternAttribute (env : Environment) (n : Name) : Bool :=
 matchPatternAttr.hasTag env n
 
-end EqnCompiler
 end Lean

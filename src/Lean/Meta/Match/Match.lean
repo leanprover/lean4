@@ -8,9 +8,9 @@ import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
-import Lean.Meta.EqnCompiler.MVarRenaming
-import Lean.Meta.EqnCompiler.CaseValues
-import Lean.Meta.EqnCompiler.CaseArraySizes
+import Lean.Meta.Match.MVarRenaming
+import Lean.Meta.Match.CaseValues
+import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean
 namespace Meta
@@ -202,7 +202,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
   let minorType := if minorType.isForall then minorType else mkThunkType minorType;
   let idx       := alts.length;
   let minorName := (`h).appendIndexAfter (idx+1);
-  trace! `Meta.EqnCompiler.matchDebug ("minor premise " ++ minorName ++ " : " ++ minorType);
+  trace! `Meta.Match.debug ("minor premise " ++ minorName ++ " : " ++ minorType);
   withLocalDeclD minorName minorType fun minor => do
     let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs;
     let minors := minors.push minor;
@@ -367,21 +367,21 @@ def occurs (fvarId : FVarId) (v : Expr) : Bool :=
 
 def assign (fvarId : FVarId) (v : Expr) : M Bool :=
 if occurs fvarId v then do
-  trace! `Meta.EqnCompiler.matchUnify ("assign occurs check failed, " ++ mkFVar fvarId ++ " := " ++ v);
+  trace! `Meta.Match.unify ("assign occurs check failed, " ++ mkFVar fvarId ++ " := " ++ v);
   pure false
 else do
   ctx ← read;
   condM (isAltVar fvarId)
     (do
-      trace! `Meta.EqnCompiler.matchUnify (mkFVar fvarId ++ " := " ++ v);
+      trace! `Meta.Match.unify (mkFVar fvarId ++ " := " ++ v);
       modify fun s => { s with fvarSubst := s.fvarSubst.insert fvarId v }; pure true)
     (do
-      trace! `Meta.EqnCompiler.matchUnify ("assign failed variable is not local, " ++ mkFVar fvarId ++ " := " ++ v);
+      trace! `Meta.Match.unify ("assign failed variable is not local, " ++ mkFVar fvarId ++ " := " ++ v);
       pure false)
 
 partial def unify : Expr → Expr → M Bool
 | a, b => do
-  trace! `Meta.EqnCompiler.matchUnify (a ++ " =?= " ++ b);
+  trace! `Meta.Match.unify (a ++ " =?= " ++ b);
   condM (isDefEq a b) (pure true) do
   a' ← expandIfVar a;
   b' ← expandIfVar b;
@@ -394,7 +394,7 @@ partial def unify : Expr → Expr → M Bool
     | a, Expr.fvar bFVarId _ => assign bFVarId a
     | Expr.app aFn aArg _, Expr.app bFn bArg _ => unify aFn bFn <&&> unify aArg bArg
     | _, _ => do
-      trace! `Meta.EqnCompiler.matchUnify ("unify failed @" ++ a ++ " =?= " ++ b);
+      trace! `Meta.Match.unify ("unify failed @" ++ a ++ " =?= " ++ b);
       pure false
 
 end Unify
@@ -450,7 +450,7 @@ match val? with
 | _        => pure false
 
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.EqnCompiler.match ("constructor step");
+trace! `Meta.Match.match ("constructor step");
 env ← getEnv;
 match p.vars with
 | []      => unreachable!
@@ -493,7 +493,7 @@ match p.vars with
         | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
         | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
         | Pattern.inaccessible e :: ps     => do
-          trace! `Meta.EqnCompiler.match ("inaccessible in ctor step " ++ e);
+          trace! `Meta.Match.match ("inaccessible in ctor step " ++ e);
           e ← whnfD e;
           match e.constructorApp? env with
           | some (ctorVal, ctorArgs) => do
@@ -521,7 +521,7 @@ match alt.patterns with
 | _                  => false
 
 private def processValue (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.EqnCompiler.match ("value step");
+trace! `Meta.Match.match ("value step");
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -577,7 +577,7 @@ withExistingLocalDecls alt.fvarDecls do
   expandVarIntoArrayLitAux alt fvarId arrayElemType fvarDecl.userName arraySize #[]
 
 private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.EqnCompiler.match ("array literal step");
+trace! `Meta.Match.match ("array literal step");
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -616,10 +616,10 @@ let alts := p.alts.map fun alt => match alt.patterns with
 { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit :=
-liftM (trace! `Meta.EqnCompiler.match (msg ++ " step") : MetaM Unit)
+liftM (trace! `Meta.Match.match (msg ++ " step") : MetaM Unit)
 
 private def traceState (p : Problem) : MetaM Unit :=
-withGoalOf p (traceM `Meta.EqnCompiler.match p.toMessageData)
+withGoalOf p (traceM `Meta.Match.match p.toMessageData)
 
 private def throwNonSupported (p : Problem) : MetaM Unit := do
 msg ← p.toMessageData;
@@ -664,11 +664,11 @@ private partial def process : Problem → StateRefT State MetaM Unit
 
 def mkElim (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM ElimResult :=
 withLocalDeclD `motive motiveType fun motive => do
-trace! `Meta.EqnCompiler.matchDebug ("motiveType: " ++ motiveType);
+trace! `Meta.Match.debug ("motiveType: " ++ motiveType);
 forallBoundedTelescope motiveType numDiscrs fun majors _ => do
 checkNumPatterns majors lhss;
 let mvarType  := mkAppN motive majors;
-trace! `Meta.EqnCompiler.matchDebug ("target: " ++ mvarType);
+trace! `Meta.Match.debug ("target: " ++ mvarType);
 withAlts motive lhss fun alts minors => do
   mvar ← mkFreshExprMVar mvarType;
   let examples := majors.toList.map fun major => Example.var major.fvarId!;
@@ -676,10 +676,10 @@ withAlts motive lhss fun alts minors => do
   let args := #[motive] ++ majors ++ minors;
   type ← mkForallFVars args mvarType;
   val  ← mkLambdaFVars args mvar;
-  trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
+  trace! `Meta.Match.debug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
   elim ← mkAuxDefinition elimName type val;
   setInlineAttribute elimName;
-  trace! `Meta.EqnCompiler.matchDebug ("eliminator: " ++ elim);
+  trace! `Meta.Match.debug ("eliminator: " ++ elim);
   let unusedAltIdxs : List Nat := lhss.length.fold
     (fun i r => if s.used.contains i then r else i::r)
     [];
@@ -715,9 +715,9 @@ generalizeTelescope majors.toArray `_d fun majors => do
   mkElim elimName motiveType majors.size lhss
 
 @[init] private def regTraceClasses : IO Unit := do
-registerTraceClass `Meta.EqnCompiler.match;
-registerTraceClass `Meta.EqnCompiler.matchDebug;
-registerTraceClass `Meta.EqnCompiler.matchUnify;
+registerTraceClass `Meta.Match.match;
+registerTraceClass `Meta.Match.debug;
+registerTraceClass `Meta.Match.unify;
 pure ()
 
 end Match

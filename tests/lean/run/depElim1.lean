@@ -1,4 +1,4 @@
-import Lean.Meta.EqnCompiler.Match
+import Lean.Meta.Match
 
 open Lean
 open Lean.Meta
@@ -213,8 +213,8 @@ def ex6 (α : Type u) (n : Nat) (xs : Vec α n) :
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
 arbitrary _
 
-set_option trace.Meta.EqnCompiler.match true
-set_option trace.Meta.EqnCompiler.matchDebug true
+set_option trace.Meta.Match.match true
+set_option trace.Meta.Match.debug true
 
 #eval test `ex6 2 `elimTest6
 #print elimTest6
@@ -321,7 +321,7 @@ def ex14 (x y : Nat) :
 × LHS (forall (x y : Nat), Pat x × Pat y) :=
 arbitrary _
 
-set_option trace.Meta.EqnCompiler true
+set_option trace.Meta.Match true
 
 #eval test `ex14 2 `elimTest14
 #print elimTest14

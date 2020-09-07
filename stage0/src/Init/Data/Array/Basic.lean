@@ -805,4 +805,17 @@ if h : 0 < as.size then
 else
   none
 
+@[specialize] partial def partitionAux {α : Type u} (p : α → Bool) (as : Array α) : Nat → Array α → Array α → Array α × Array α
+| i, bs, cs =>
+  if h : i < as.size then
+    let a := as.get ⟨i, h⟩;
+    match p a with
+    | true  => partitionAux (i+1) (bs.push a) cs
+    | false => partitionAux (i+1) bs (cs.push a)
+  else
+    (bs, cs)
+
+@[inline] def partition {α : Type u} (p : α → Bool) (as : Array α) : Array α × Array α :=
+partitionAux p as 0 #[] #[]
+
 end Array

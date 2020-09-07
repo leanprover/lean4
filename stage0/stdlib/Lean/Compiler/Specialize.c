@@ -41,7 +41,6 @@ lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Compiler_getCachedSpecial
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Compiler_getSpecializationInfo___spec__6___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l_Lean_Compiler_mkSpecExtension___lambda__1___boxed(lean_object*);
@@ -174,7 +173,6 @@ lean_object* l_Lean_Compiler_SpecState_Inhabited___closed__5;
 lean_object* l_Array_iterateMAux___main___at_Lean_Compiler_mkSpecExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Compiler_getCachedSpecialization___spec__3(lean_object*, size_t, lean_object*);
 uint8_t l_Std_AssocList_contains___main___at_Lean_Compiler_SpecState_addEntry___spec__18(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_Inhabited___closed__3;
@@ -185,7 +183,6 @@ lean_object* l_Lean_Compiler_mkSpecExtension(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_has_nospecialize_attribute(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getSpecializationInfo___spec__1(lean_object*, lean_object*);
@@ -194,6 +191,7 @@ lean_object* l_Array_binSearchAux___main___at___private_Lean_Compiler_Specialize
 lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Compiler_SpecState_Inhabited___spec__3(lean_object*);
 lean_object* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__8___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__3;
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_Compiler_SpecState_addEntry___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
@@ -206,6 +204,7 @@ lean_object* l_Lean_Compiler_SpecState_Inhabited___closed__2;
 lean_object* l_Std_AssocList_replace___main___at_Lean_Compiler_SpecState_addEntry___spec__22(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_Inhabited;
 lean_object* l_Lean_Compiler_specExtension___elambda__1___boxed(lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_Inhabited___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
@@ -232,6 +231,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___main___at_Lean_Compiler_SpecState_addEntry___spec__10(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Array_qsortAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -363,7 +363,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1() {
+lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -376,7 +376,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -394,7 +394,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_9 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
+x_9 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
 x_10 = lean_array_get(x_9, x_3, x_5);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -445,7 +445,7 @@ x_14 = lean_nat_add(x_2, x_3);
 x_15 = lean_unsigned_to_nat(2u);
 x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);
-x_42 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
+x_42 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
 x_43 = lean_array_get(x_42, x_1, x_16);
 x_44 = lean_array_get(x_42, x_1, x_2);
 x_45 = lean_ctor_get(x_43, 0);
@@ -472,7 +472,7 @@ goto block_41;
 block_41:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_18 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
+x_18 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
 x_19 = lean_array_get(x_18, x_17, x_3);
 x_20 = lean_array_get(x_18, x_17, x_2);
 x_21 = lean_ctor_get(x_19, 0);
@@ -497,7 +497,7 @@ if (x_26 == 0)
 lean_object* x_27; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_27 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_19, x_17, x_2, x_2);
+x_27 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_19, x_17, x_2, x_2);
 lean_dec(x_19);
 x_4 = x_27;
 goto block_12;
@@ -510,7 +510,7 @@ x_28 = lean_array_swap(x_17, x_16, x_3);
 lean_dec(x_16);
 x_29 = lean_array_get(x_18, x_28, x_3);
 lean_inc_n(x_2, 2);
-x_30 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_29, x_28, x_2, x_2);
+x_30 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_29, x_28, x_2, x_2);
 lean_dec(x_29);
 x_4 = x_30;
 goto block_12;
@@ -537,7 +537,7 @@ if (x_36 == 0)
 lean_object* x_37; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_37 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_33, x_31, x_2, x_2);
+x_37 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_33, x_31, x_2, x_2);
 lean_dec(x_33);
 x_4 = x_37;
 goto block_12;
@@ -550,7 +550,7 @@ x_38 = lean_array_swap(x_31, x_16, x_3);
 lean_dec(x_16);
 x_39 = lean_array_get(x_18, x_38, x_3);
 lean_inc_n(x_2, 2);
-x_40 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_39, x_38, x_2, x_2);
+x_40 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_3, x_39, x_38, x_2, x_2);
 lean_dec(x_39);
 x_4 = x_40;
 goto block_12;
@@ -1600,11 +1600,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
@@ -1750,7 +1750,7 @@ x_7 = lean_nat_add(x_3, x_4);
 x_8 = lean_unsigned_to_nat(2u);
 x_9 = lean_nat_div(x_7, x_8);
 lean_dec(x_7);
-x_10 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
+x_10 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
 x_11 = lean_array_get(x_10, x_1, x_9);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
@@ -5555,8 +5555,8 @@ l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1 = _init_l_Lean_Compil
 lean_mark_persistent(l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1);
 l_Lean_Compiler_SpecializeAttributeKind_HasBeq = _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq();
 lean_mark_persistent(l_Lean_Compiler_SpecializeAttributeKind_HasBeq);
-l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1 = _init_l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1();
-lean_mark_persistent(l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1);
+l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1 = _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1();
+lean_mark_persistent(l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1);
 l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__1 = _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__1();
 lean_mark_persistent(l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__1);
 l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__2 = _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__2();

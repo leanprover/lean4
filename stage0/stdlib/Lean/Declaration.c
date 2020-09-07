@@ -26,6 +26,7 @@ uint8_t lean_constructor_val_is_unsafe(lean_object*);
 lean_object* l_Lean_ConstantVal_inhabited___closed__1;
 lean_object* lean_mk_reducibility_hints_regular(uint32_t);
 uint8_t lean_opaque_val_is_unsafe(lean_object*);
+lean_object* l_Lean_Declaration_inhabited;
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_forExprM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object*);
@@ -413,6 +414,14 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_opaque_val_is_unsafe(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+lean_object* _init_l_Lean_Declaration_inhabited() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(4);
+return x_1;
 }
 }
 lean_object* lean_mk_inductive_decl(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
@@ -1533,7 +1542,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_ConstantInfo_value_x21___closed__1;
-x_2 = lean_unsigned_to_nat(285u);
+x_2 = lean_unsigned_to_nat(287u);
 x_3 = lean_unsigned_to_nat(31u);
 x_4 = l_Lean_ConstantInfo_value_x21___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -1693,6 +1702,8 @@ l_Lean_ConstantVal_inhabited___closed__2 = _init_l_Lean_ConstantVal_inhabited___
 lean_mark_persistent(l_Lean_ConstantVal_inhabited___closed__2);
 l_Lean_ConstantVal_inhabited = _init_l_Lean_ConstantVal_inhabited();
 lean_mark_persistent(l_Lean_ConstantVal_inhabited);
+l_Lean_Declaration_inhabited = _init_l_Lean_Declaration_inhabited();
+lean_mark_persistent(l_Lean_Declaration_inhabited);
 l_Lean_ConstructorVal_inhabited___closed__1 = _init_l_Lean_ConstructorVal_inhabited___closed__1();
 lean_mark_persistent(l_Lean_ConstructorVal_inhabited___closed__1);
 l_Lean_ConstructorVal_inhabited = _init_l_Lean_ConstructorVal_inhabited();

@@ -7307,7 +7307,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_3);
 x_18 = l_Lean_Meta_mkAppM___at___private_Lean_Elab_Term_8__isMonad_x3f___spec__1(x_17, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_14);
-lean_dec(x_16);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -7559,7 +7558,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_3);
 x_18 = l_Lean_Meta_mkAppM___at___private_Lean_Elab_Term_8__isMonad_x3f___spec__1(x_17, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_14);
-lean_dec(x_16);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 

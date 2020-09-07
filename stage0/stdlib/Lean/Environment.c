@@ -24,6 +24,7 @@ lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isNamespace___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_importModulesAux___main___closed__1;
 size_t l_USize_add(size_t, size_t);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerPersistentEnvExtensionUnsafe___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_displayStats___closed__2;
 lean_object* l_Lean_monadEnvFromLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -283,6 +284,7 @@ lean_object* l_Lean_withImportModules___rarg___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_EnvExtension_getState___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___main___at_Lean_Environment_addAux___spec__11(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_registerEnvExtensionUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkTagDeclarationExtension___spec__6___closed__2;
@@ -480,13 +482,11 @@ lean_object* l_Lean_getNamespaceSet___boxed(lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 lean_object* lean_perform_serialized_modifications(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_importModulesAux___main___closed__2;
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_modifyStateUnsafe(lean_object*);
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_Environment_contains___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_TagDeclarationExtension_isTagged___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension___lambda__3(lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__3(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerPersistentEnvExtensionUnsafe___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtension___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isNamespace(lean_object*, lean_object*);
@@ -5478,7 +5478,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -5580,7 +5580,7 @@ if (x_23 == 0)
 lean_object* x_24; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_24 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_19, x_17, x_2, x_2);
+x_24 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_19, x_17, x_2, x_2);
 lean_dec(x_19);
 x_4 = x_24;
 goto block_12;
@@ -5593,7 +5593,7 @@ x_25 = lean_array_swap(x_17, x_16, x_3);
 lean_dec(x_16);
 x_26 = lean_array_get(x_18, x_25, x_3);
 lean_inc_n(x_2, 2);
-x_27 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_26, x_25, x_2, x_2);
+x_27 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_26, x_25, x_2, x_2);
 lean_dec(x_26);
 x_4 = x_27;
 goto block_12;
@@ -5613,7 +5613,7 @@ if (x_31 == 0)
 lean_object* x_32; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_32 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_30, x_28, x_2, x_2);
+x_32 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_30, x_28, x_2, x_2);
 lean_dec(x_30);
 x_4 = x_32;
 goto block_12;
@@ -5626,7 +5626,7 @@ x_33 = lean_array_swap(x_28, x_16, x_3);
 lean_dec(x_16);
 x_34 = lean_array_get(x_18, x_33, x_3);
 lean_inc_n(x_2, 2);
-x_35 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_34, x_33, x_2, x_2);
+x_35 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_3, x_34, x_33, x_2, x_2);
 lean_dec(x_34);
 x_4 = x_35;
 goto block_12;
@@ -6219,11 +6219,11 @@ x_7 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkTagDeclarationExte
 return x_7;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;

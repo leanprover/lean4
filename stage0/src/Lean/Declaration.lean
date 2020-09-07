@@ -106,6 +106,8 @@ inductive Declaration
 | mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe`
 | inductDecl      (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool)
 
+instance Declaration.inhabited : Inhabited Declaration := ⟨Declaration.quotDecl⟩
+
 @[export lean_mk_inductive_decl]
 def mkInductiveDeclEs (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool) : Declaration :=
 Declaration.inductDecl lparams nparams types isUnsafe

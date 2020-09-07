@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectLevelParams
 import Lean.Elab.DeclUtil
-import Lean.Elab.Definition
+import Lean.Elab.DefView
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.MutualDef
@@ -157,9 +157,7 @@ fun stx => match expandDeclNamespace? stx with
   else if declKind == `Lean.Parser.Command.structure then
     elabStructure modifiers decl
   else if isDefLike decl then do
-    -- TODO: use `elabMutualDef #[stx]`
-    view ← mkDefView modifiers decl;
-    elabDefLike view
+    elabMutualDef #[stx]
   else
     throwError "unexpected declaration"
 

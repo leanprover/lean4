@@ -29,6 +29,7 @@ lean_object* l___private_Lean_Expr_4__getAppRevArgsAux___main(lean_object*, lean
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l___private_Lean_Expr_3__getAppArgsAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_20__useWHNFCache___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_optionToExpr___rarg___lambda__1___closed__4;
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__3;
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__16;
@@ -99,6 +100,7 @@ lean_object* l_Std_PersistentHashMap_insert___at___private_Lean_Meta_InferType_1
 lean_object* l___private_Lean_Meta_WHNF_7__reduceRec___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_smartUnfoldingSuffix;
 lean_object* l___private_Lean_Meta_WHNF_3__getFirstCtor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__4;
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__12;
 lean_object* l_Lean_Meta_reduceBoolNative___rarg(lean_object*);
@@ -122,7 +124,6 @@ uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__10;
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__10;
-extern lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___rarg___closed__1;
 lean_object* l___private_Lean_Meta_WHNF_21__cached_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Nat_HasAdd___closed__1;
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__11;
@@ -256,7 +257,6 @@ lean_object* l_Lean_Meta_reduceNativeConst___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__15;
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_21__cached_x3f(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__2;
 extern lean_object* l_Lean_Expr_isCharLit___closed__2;
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__14;
@@ -1299,7 +1299,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_11 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_9, x_3, x_4, x_5, x_6, x_10);
+x_11 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_9, x_3, x_4, x_5, x_6, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 uint8_t x_12; 
@@ -3107,7 +3107,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_54 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_53, x_6, x_7, x_8, x_9, x_10);
+x_54 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_53, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_54) == 0)
 {
 uint8_t x_55; 
@@ -3385,7 +3385,7 @@ else
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = lean_array_fget(x_4, x_11);
 lean_dec(x_11);
-x_17 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___rarg___closed__1;
+x_17 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__4;
 x_18 = l_Lean_Meta_whnf___rarg(x_17, x_16);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -3489,7 +3489,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_19 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_18, x_6, x_7, x_8, x_9, x_10);
+x_19 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_18, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
@@ -3716,7 +3716,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_72 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_71, x_6, x_7, x_8, x_9, x_10);
+x_72 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_71, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; 
@@ -3983,7 +3983,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_17 = lean_array_fget(x_4, x_13);
-x_18 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___rarg___closed__1;
+x_18 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__4;
 x_19 = l_Lean_Meta_whnf___rarg(x_18, x_17);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -4055,7 +4055,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_33 = lean_array_fget(x_4, x_29);
-x_34 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___rarg___closed__1;
+x_34 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__4;
 x_35 = l_Lean_Meta_whnf___rarg(x_34, x_33);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -4166,7 +4166,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_17 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_16, x_4, x_5, x_6, x_7, x_8);
+x_17 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_16, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -4234,7 +4234,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_31 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_30, x_4, x_5, x_6, x_7, x_8);
+x_31 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_30, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -4326,7 +4326,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_16 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_15, x_4, x_5, x_6, x_7, x_8);
+x_16 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_15, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -4598,7 +4598,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_57 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_56, x_2, x_3, x_4, x_5, x_6);
+x_57 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_56, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; 
@@ -4722,7 +4722,7 @@ case 1:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_ctor_get(x_1, 0);
 lean_inc(x_11);
-x_12 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___rarg___closed__1;
+x_12 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__4;
 lean_inc(x_11);
 x_13 = l_Lean_Meta_getLocalDecl___rarg(x_12, x_11);
 lean_inc(x_6);
@@ -5069,7 +5069,7 @@ case 2:
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
 x_87 = lean_ctor_get(x_1, 0);
 lean_inc(x_87);
-x_88 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImpl___main___rarg___closed__1;
+x_88 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__4;
 x_89 = l_Lean_Meta_getExprMVarAssignment_x3f___rarg(x_88, x_87);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -6687,7 +6687,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_260 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_259, x_2, x_3, x_4, x_5, x_6);
+x_260 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_259, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_260) == 0)
 {
 uint8_t x_261; 
@@ -8773,7 +8773,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_8 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_1, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
@@ -9144,7 +9144,7 @@ lean_object* l_Lean_Meta_reduceUnaryNatOp(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
@@ -9622,7 +9622,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_9 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_2, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_2, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -9705,7 +9705,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_25 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_15);
+x_25 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_15);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; 
@@ -10295,7 +10295,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_163 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_152);
+x_163 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_152);
 if (lean_obj_tag(x_163) == 0)
 {
 lean_object* x_164; 
@@ -10924,7 +10924,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_291 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_289);
+x_291 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_289);
 if (lean_obj_tag(x_291) == 0)
 {
 lean_object* x_292; 
@@ -11589,7 +11589,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_9 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_2, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_2, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -11668,7 +11668,7 @@ else
 {
 lean_object* x_25; 
 lean_free_object(x_9);
-x_25 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_15);
+x_25 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_15);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; 
@@ -12123,7 +12123,7 @@ return x_121;
 else
 {
 lean_object* x_122; 
-x_122 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_111);
+x_122 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_111);
 if (lean_obj_tag(x_122) == 0)
 {
 lean_object* x_123; 
@@ -12573,7 +12573,7 @@ lean_dec(x_9);
 x_199 = lean_ctor_get(x_197, 0);
 lean_inc(x_199);
 lean_dec(x_197);
-x_200 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_198);
+x_200 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_3, x_4, x_5, x_6, x_7, x_198);
 if (lean_obj_tag(x_200) == 0)
 {
 lean_object* x_201; 
@@ -16172,7 +16172,7 @@ _start:
 {
 lean_object* x_8; 
 lean_inc(x_6);
-x_8 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_1, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 

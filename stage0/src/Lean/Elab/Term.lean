@@ -54,9 +54,9 @@ inductive SyntheticMVarKind
 -- we use "type mismatch" or "application type mismatch" (when `f?` is some) instead of "failed to synthesize"
 | coe (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
 -- tactic block execution
-| tactic (tacticCode : Syntax)
+| tactic (declName? : Option Name) (tacticCode : Syntax)
 -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
-| postponed (macroStack : MacroStack)
+| postponed (macroStack : MacroStack) (declName? : Option Name)
 -- type defaulting (currently: defaulting numeric literals to `Nat`)
 | withDefault (defaultVal : Expr)
 
@@ -731,7 +731,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
 trace `Elab.postpone $ fun _ => stx ++ " : " ++ expectedType?;
 mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque;
 ctx ← read;
-registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
+registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack ctx.declName?);
 pure mvar
 
 /-
@@ -995,7 +995,8 @@ def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
 mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque `main;
 let mvarId := mvar.mvarId!;
 ref ← getRef;
-registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic tacticCode;
+declName? ← getDeclName?;
+registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic declName? tacticCode;
 pure mvar
 
 @[builtinTermElab byTactic] def elabByTactic : TermElab :=

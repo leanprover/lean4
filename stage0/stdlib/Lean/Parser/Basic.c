@@ -240,6 +240,7 @@ lean_object* l_Lean_Parser_many1Fn(lean_object*, uint8_t, lean_object*, lean_obj
 lean_object* l_Lean_Parser_satisfyFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_rawIdent___closed__3;
 lean_object* l_Lean_Parser_symbolNoWsInfo___elambda__1(lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_forSepArgsM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_foldSepRevArgsM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_identEqFn(lean_object*, lean_object*, lean_object*);
@@ -462,6 +463,7 @@ lean_object* l_Lean_Parser_FirstTokens_merge(lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l_Lean_Parser_strLit___elambda__1___closed__1;
 lean_object* l_Lean_Parser_pushNone___elambda__1___rarg(lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_fieldIdx___closed__5;
 lean_object* l_Lean_Parser_symbolInfo___elambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeWhileFn___at_Lean_Parser_hexNumberFn___spec__2(lean_object*, lean_object*);
@@ -640,7 +642,6 @@ lean_object* l___private_Lean_Parser_Basic_6__nameLitAux___closed__1;
 lean_object* l_Lean_Parser_antiquotNestedExpr___closed__6;
 lean_object* l_Lean_Parser_mkAntiquot___closed__22;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_many1Indent___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_many1Indent___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -801,7 +802,6 @@ uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Parser_unicodeSymbolInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_identNoAntiquot;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkCategoryParserFnRef(lean_object*);
 lean_object* l_Lean_Parser_ParserState_keepPrevError___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_strAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1679,7 +1679,7 @@ x_2 = l___private_Lean_Parser_Basic_1__expectedToString___main(x_1);
 return x_2;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -1781,7 +1781,7 @@ if (x_23 == 0)
 lean_object* x_24; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_24 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_19, x_17, x_2, x_2);
+x_24 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_19, x_17, x_2, x_2);
 lean_dec(x_19);
 x_4 = x_24;
 goto block_12;
@@ -1794,7 +1794,7 @@ x_25 = lean_array_swap(x_17, x_16, x_3);
 lean_dec(x_16);
 x_26 = lean_array_get(x_18, x_25, x_3);
 lean_inc_n(x_2, 2);
-x_27 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_26, x_25, x_2, x_2);
+x_27 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_26, x_25, x_2, x_2);
 lean_dec(x_26);
 x_4 = x_27;
 goto block_12;
@@ -1814,7 +1814,7 @@ if (x_31 == 0)
 lean_object* x_32; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_32 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_30, x_28, x_2, x_2);
+x_32 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_30, x_28, x_2, x_2);
 lean_dec(x_30);
 x_4 = x_32;
 goto block_12;
@@ -1827,7 +1827,7 @@ x_33 = lean_array_swap(x_28, x_16, x_3);
 lean_dec(x_16);
 x_34 = lean_array_get(x_18, x_33, x_3);
 lean_inc_n(x_2, 2);
-x_35 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_34, x_33, x_2, x_2);
+x_35 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_3, x_34, x_33, x_2, x_2);
 lean_dec(x_34);
 x_4 = x_35;
 goto block_12;
@@ -2094,11 +2094,11 @@ return x_46;
 }
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Parser_Error_toString___spec__2(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;

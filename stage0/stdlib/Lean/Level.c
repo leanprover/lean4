@@ -25,6 +25,7 @@ lean_object* l_Lean_Level_data___boxed(lean_object*);
 lean_object* l_Lean_Level_mvarId_x21___closed__1;
 lean_object* l_Lean_Level_mvarId_x21___boxed(lean_object*);
 lean_object* l___private_Lean_Level_5__mkMaxAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 size_t l_UInt32_toUSize(uint32_t);
 uint8_t l_Lean_Name_lt___main(lean_object*, lean_object*);
@@ -78,6 +79,7 @@ lean_object* l_Lean_Level_isSucc___boxed(lean_object*);
 lean_object* l_Lean_Level_updateIMax_x21___closed__1;
 lean_object* l_Lean_Level_mvarId_x21(lean_object*);
 lean_object* l___private_Lean_Level_6__skipExplicit___main(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_levelZero;
 lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___main___spec__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -117,7 +119,6 @@ lean_object* l___private_Lean_Level_9__formatLst___main___at_Lean_Level_LevelToF
 uint64_t l_Lean_Level_mkData(size_t, lean_object*, uint8_t, uint8_t);
 lean_object* lean_level_update_max(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Level_7__isExplicitSubsumedAux(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint32_t l_UInt64_toUInt32(uint64_t);
 lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
@@ -202,7 +203,6 @@ lean_object* l_Lean_Level_updateSucc_x21___closed__2;
 lean_object* l_Lean_Level_LevelToFormat_Result_succ(lean_object*);
 uint8_t l_Lean_Level_isMVar(lean_object*);
 lean_object* lean_format_group(lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_toResult___main(lean_object*);
 uint64_t l_UInt32_toUInt64(uint32_t);
 lean_object* lean_level_mk_imax(lean_object*, lean_object*);
@@ -2812,7 +2812,7 @@ return x_11;
 }
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -2917,7 +2917,7 @@ if (x_24 == 0)
 lean_object* x_25; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_25 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_19, x_17, x_2, x_2);
+x_25 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_19, x_17, x_2, x_2);
 lean_dec(x_19);
 x_4 = x_25;
 goto block_12;
@@ -2930,7 +2930,7 @@ x_26 = lean_array_swap(x_17, x_16, x_3);
 lean_dec(x_16);
 x_27 = lean_array_get(x_18, x_26, x_3);
 lean_inc_n(x_2, 2);
-x_28 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_27, x_26, x_2, x_2);
+x_28 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_27, x_26, x_2, x_2);
 lean_dec(x_27);
 x_4 = x_28;
 goto block_12;
@@ -2950,7 +2950,7 @@ if (x_32 == 0)
 lean_object* x_33; 
 lean_dec(x_16);
 lean_inc_n(x_2, 2);
-x_33 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_31, x_29, x_2, x_2);
+x_33 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_31, x_29, x_2, x_2);
 lean_dec(x_31);
 x_4 = x_33;
 goto block_12;
@@ -2963,7 +2963,7 @@ x_34 = lean_array_swap(x_29, x_16, x_3);
 lean_dec(x_16);
 x_35 = lean_array_get(x_18, x_34, x_3);
 lean_inc_n(x_2, 2);
-x_36 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_35, x_34, x_2, x_2);
+x_36 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3(x_3, x_35, x_34, x_2, x_2);
 lean_dec(x_35);
 x_4 = x_36;
 goto block_12;
@@ -3126,11 +3126,11 @@ x_5 = l___private_Lean_Level_3__getMaxArgsAux___main___at_Lean_Level_normalize__
 return x_5;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Level_normalize___main___spec__3(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Level_normalize___main___spec__3(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;

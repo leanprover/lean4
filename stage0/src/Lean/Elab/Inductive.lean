@@ -9,7 +9,7 @@ import Lean.Util.CollectLevelParams
 import Lean.Util.Constructions
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
-import Lean.Elab.Definition
+import Lean.Elab.DefView
 import Lean.Elab.DeclUtil
 
 namespace Lean

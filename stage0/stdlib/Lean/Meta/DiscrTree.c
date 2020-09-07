@@ -31,6 +31,7 @@ lean_object* l___private_Lean_Expr_4__getAppRevArgsAux___main(lean_object*, lean
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Meta_DiscrTree_format___spec__2(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_9__createNodes(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_9__createNodes___main(lean_object*);
+lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_DiscrTree_insertCore___spec__8(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_format___closed__4;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getMatch___spec__1(lean_object*);
@@ -301,7 +302,6 @@ lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_DiscrTree_insertCore_
 lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_15__getMatchAux___main___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_format___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_insertCore(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___main___spec__2___rarg(lean_object*, lean_object*);
@@ -1076,7 +1076,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_15__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 

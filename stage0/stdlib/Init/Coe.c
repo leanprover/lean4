@@ -56,6 +56,7 @@ lean_object* l_coeDecidableEq___boxed(lean_object*);
 lean_object* l_coeOfDep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_optionCoe(lean_object*);
+lean_object* l_coeId(lean_object*);
 lean_object* l_subtypeCoe___rarg(lean_object*);
 lean_object* l_coeFun___rarg(lean_object*, lean_object*);
 lean_object* l_coeB(lean_object*, lean_object*);
@@ -65,6 +66,8 @@ lean_object* l_coeOfHeafOfTCOfTail___rarg(lean_object*, lean_object*, lean_objec
 lean_object* l_coe___rarg___boxed(lean_object*);
 lean_object* l_boolToProp;
 lean_object* l_coeHead___rarg(lean_object*, lean_object*);
+lean_object* l_coeId___rarg(lean_object*);
+lean_object* l_coeId___rarg___boxed(lean_object*);
 lean_object* l_coeD___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_decPropToBool(lean_object*);
 lean_object* l_coeOfHeafOfTCOfTail(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -396,6 +399,30 @@ lean_object* x_4;
 x_4 = l_coeOfDep(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+lean_object* l_coeId___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_coeId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_coeId___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_coeId___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_coeId___rarg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_coeFunTrans___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

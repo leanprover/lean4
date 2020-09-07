@@ -109,10 +109,10 @@ lean_object* l_Std_PersistentArray_foldlM___at___private_Lean_Meta_LevelDefEq_11
 lean_object* lean_metavar_ctx_get_level_assignment(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___rarg___closed__1;
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__8;
+extern lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__2;
 lean_object* l_Lean_Meta_isLevelDefEqAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__9;
 lean_object* l_Lean_Meta_commitWhenSome_x3f___at_Lean_Meta_isExprDefEq___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_13__forallTelescopeReducingAuxAux___main___rarg___closed__2;
 lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwIsDefEqStuck___rarg(lean_object*);
@@ -9396,7 +9396,7 @@ lean_object* l_Lean_Meta_commitWhen(lean_object* x_1, lean_object* x_2, lean_obj
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = l___private_Lean_Meta_Basic_13__forallTelescopeReducingAuxAux___main___rarg___closed__2;
+x_7 = l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__2;
 x_8 = l_Lean_Meta_commitWhen___closed__1;
 x_9 = lean_alloc_closure((void*)(l_ReaderT_bind___rarg), 6, 5);
 lean_closure_set(x_9, 0, x_7);

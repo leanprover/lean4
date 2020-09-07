@@ -508,11 +508,16 @@ mapMetaM fun _ => resettingSynthInstanceCacheImpl
 @[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : n α) : n α :=
 if b then resettingSynthInstanceCache x else x
 
-private def withNewLocalInstanceImp {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
-resettingSynthInstanceCache $
-  adaptReader
-    (fun (ctx : Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
-    k
+private def withNewLocalInstanceImp {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
+localDecl ← getFVarLocalDecl fvar;
+/- Recall that we use `auxDecl` binderInfo when compiling recursive declarations. -/
+match localDecl.binderInfo with
+| BinderInfo.auxDecl => k
+| _ =>
+  resettingSynthInstanceCache $
+    adaptReader
+      (fun (ctx : Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
+      k
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`.

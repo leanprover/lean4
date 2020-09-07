@@ -103,7 +103,7 @@ private partial def withFunLocalDeclsAux {α} (headers : Array DefViewElabHeader
 | i, fvars =>
   if h : i < headers.size then do
     let header := headers.get ⟨i, h⟩;
-    withLocalDeclD header.shortDeclName header.type fun fvar => withFunLocalDeclsAux (i+1) (fvars.push fvar)
+    withLocalDecl header.shortDeclName BinderInfo.auxDecl header.type fun fvar => withFunLocalDeclsAux (i+1) (fvars.push fvar)
   else
     k fvars
 

@@ -555,8 +555,8 @@ forallBoundedTelescope matchType numDiscrs fun xs matchType => do
   u ← getLevel matchType;
   mkForallFVars xs (mkSort u)
 
-def mkElim (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM ElimResult :=
-liftMetaM $ Meta.Match.mkElim elimName motiveType numDiscrs lhss
+def mkMatcher (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM ElimResult :=
+liftMetaM $ Meta.Match.mkMatcher elimName motiveType numDiscrs lhss
 
 def reportElimResultErrors (result : ElimResult) : TermElabM Unit := do
 -- TODO: improve error messages
@@ -577,8 +577,8 @@ let altLHSS := alts.map Prod.fst;
 let numDiscrs := discrs.size;
 motiveType ← mkMotiveType matchType numDiscrs;
 motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType;
-elimName ← mkAuxName `elim;
-elimResult ← mkElim elimName motiveType numDiscrs altLHSS.toList;
+elimName ← mkAuxName `match;
+elimResult ← mkMatcher elimName motiveType numDiscrs altLHSS.toList;
 reportElimResultErrors elimResult;
 let r := mkApp elimResult.elim motive;
 let r := mkAppN r discrs;

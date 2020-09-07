@@ -135,11 +135,40 @@ instance LHS.inhabited {α} (a : α) : Inhabited (LHS a) := ⟨LHS.mk⟩
 @[init] def register : IO Unit :=
 registerTraceClass `Meta.mkElim
 
+
+/- Helper methods for testins mkElim -/
+
+private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
+let s : CollectLevelParams.State := {};
+s ← majors.foldlM
+  (fun s major => do
+    major ← instantiateMVars major;
+    majorType ← inferType major;
+    majorType ← instantiateMVars majorType;
+    let s := collectLevelParams s major;
+    pure $ collectLevelParams s majorType)
+  s;
+pure s.getUnusedLevelParam
+
+/- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
+private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool) : MetaM Expr :=
+if inProp then
+  pure $ mkSort $ levelZero
+else do
+  v ← getUnusedLevelParam majors lhss;
+  pure $ mkSort $ v
+
+def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
+sortv ← mkElimSort majors lhss inProp;
+generalizeTelescope majors.toArray `_d fun majors => do
+  motiveType ← mkForallFVars majors sortv;
+  Match.mkMatcher elimName motiveType majors.size lhss
+
 def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit :=
 withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug ("majors: " ++ majors.toArray);
-  r ← mkElimTester elimName majors alts inProp;
+  r ← mkTester elimName majors alts inProp;
   unless r.counterExamples.isEmpty $
     throwError ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
   unless r.unusedAltIdxs.isEmpty $

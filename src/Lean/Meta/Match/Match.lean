@@ -662,7 +662,7 @@ private partial def process : Problem → StateRefT State MetaM Unit
   else
     liftM $ throwNonSupported p
 
-def mkElim (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM ElimResult :=
+def mkMatcher (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM ElimResult :=
 withLocalDeclD `motive motiveType fun motive => do
 trace! `Meta.Match.debug ("motiveType: " ++ motiveType);
 forallBoundedTelescope motiveType numDiscrs fun majors _ => do
@@ -684,35 +684,6 @@ withAlts motive lhss fun alts minors => do
     (fun i r => if s.used.contains i then r else i::r)
     [];
   pure { elim := elim, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
-
-
-/- Helper methods for testins mkElim -/
-
-private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
-let s : CollectLevelParams.State := {};
-s ← majors.foldlM
-  (fun s major => do
-    major ← instantiateMVars major;
-    majorType ← inferType major;
-    majorType ← instantiateMVars majorType;
-    let s := collectLevelParams s major;
-    pure $ collectLevelParams s majorType)
-  s;
-pure s.getUnusedLevelParam
-
-/- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
-private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool) : MetaM Expr :=
-if inProp then
-  pure $ mkSort $ levelZero
-else do
-  v ← getUnusedLevelParam majors lhss;
-  pure $ mkSort $ v
-
-def mkElimTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
-sortv ← mkElimSort majors lhss inProp;
-generalizeTelescope majors.toArray `_d fun majors => do
-  motiveType ← mkForallFVars majors sortv;
-  mkElim elimName motiveType majors.size lhss
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.Match.match;

@@ -158,7 +158,7 @@ else do
   v ← getUnusedLevelParam majors lhss;
   pure $ mkSort $ v
 
-def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
+def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM MatcherResult := do
 sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
   motiveType ← mkForallFVars majors sortv;

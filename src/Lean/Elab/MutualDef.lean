@@ -126,7 +126,7 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax :=
 if declVal.isOfKind `Lean.Parser.Command.declValSimple then
   pure $ declVal.getArg 1
 else if declVal.isOfKind `Lean.Parser.Command.declValEqns then
-  expandMatchAltsIntoMatch declVal (declVal.getArg 1)
+  expandMatchAltsIntoMatch declVal (declVal.getArg 0)
 else
   Macro.throwError declVal "unexpected definition value"
 

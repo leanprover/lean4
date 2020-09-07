@@ -26,3 +26,11 @@ theorem ex3 {p q r : Prop} : p ∨ q → r → (q ∧ r) ∨ (p ∧ r) :=
 by intro
  | Or.inl hp, h => { apply Or.inr; apply And.intro; assumption; assumption }
  | Or.inr hq, h => { apply Or.inl; exact ⟨hq, h⟩ }
+
+inductive C
+| mk₁ : Nat → C
+| mk₂ : Nat → Nat → C
+
+def C.x : C → Nat
+| C.mk₁ x   => x
+| C.mk₂ x _ => x

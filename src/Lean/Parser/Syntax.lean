@@ -50,7 +50,13 @@ def «infixl»   := parser! "infixl"
 def «infixr»   := parser! "infixr"
 def «postfix»  := parser! "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
-@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> «precedence» >> strLit >> darrow >> termParser
+-- TODO: after we remove old frontend
+--  * remove " := "
+--  * remove quotedSymbol and unquotedSymbol alternative
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> (strLit <|> quotedSymbol <|> unquotedSymbol) >> (darrow <|> " := ") >> termParser
+
+-- TODO: remove
+@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbol >> optPrecedence
 
 def identPrec  := parser! ident >> optPrecedence
 def optKind : Parser := optional ("[" >> ident >> "]")

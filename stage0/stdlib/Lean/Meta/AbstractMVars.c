@@ -67,7 +67,6 @@ lean_object* l_Lean_Meta_abstractMVars___closed__1;
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Std_AssocList_contains___main___at___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_22__lambdaMetaTelescopeAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__8___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___main___at___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__7(lean_object*, lean_object*);
@@ -114,6 +113,7 @@ lean_object* l_Lean_Meta_instantiateMVars___at_Lean_Meta_instantiateLocalDeclMVa
 lean_object* l_Lean_Meta_abstractMVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___main___at___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__4(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7___boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_23__lambdaMetaTelescopeAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
 lean_object* l_Lean_Meta_abstractMVars___closed__2;
@@ -3461,7 +3461,7 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Array_empty___closed__1;
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l___private_Lean_Meta_Basic_22__lambdaMetaTelescopeAux___main(x_2, x_8, x_8, x_9, x_1, x_3, x_4, x_5, x_6, x_7);
+x_10 = l___private_Lean_Meta_Basic_23__lambdaMetaTelescopeAux___main(x_2, x_8, x_8, x_9, x_1, x_3, x_4, x_5, x_6, x_7);
 return x_10;
 }
 }

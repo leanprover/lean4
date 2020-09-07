@@ -18,6 +18,7 @@ lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensiv
 lean_object* l___private_Lean_Meta_InferType_18__isProofImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Nat_foldMAux___main___at_Lean_Meta_reduceAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_21__lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduce(lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -36,7 +37,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_20__lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceAux___main___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_21__isTypeImp___at_Lean_Meta_isType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -483,7 +483,7 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = 0;
-x_9 = l___private_Lean_Meta_Basic_20__lambdaTelescopeImp___rarg(x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
+x_9 = l___private_Lean_Meta_Basic_21__lambdaTelescopeImp___rarg(x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 

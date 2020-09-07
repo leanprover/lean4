@@ -71,6 +71,7 @@ lean_object* l_Lean_Meta_Match_Example_applyFVarSubst___main___boxed(lean_object
 lean_object* l_Lean_Meta_Match_Unify_unify___main___lambda__1___closed__3;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_EqnCompiler_Match_39__process___main___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Meta_EqnCompiler_Match_34__processArrayLit___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_27__withExistingLocalDeclsImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Meta_EqnCompiler_Match_39__process___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Unify_isAltVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,7 +164,6 @@ lean_object* l_List_foldr___main___at___private_Lean_Meta_EqnCompiler_Match_15__
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_Closure_mkBinding___spec__1(lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_Occurrences_contains___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_mkElim___lambda__4___closed__1;
-lean_object* l___private_Lean_Meta_Basic_26__withExistingLocalDeclsImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Meta_Match_Unify_unify___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Example_replaceFVarId___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_EqnCompiler_Match_34__processArrayLit___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1927,7 +1927,7 @@ lean_object* l_Lean_Meta_withExistingLocalDecls___at_Lean_Meta_Match_Alt_toMessa
 _start:
 {
 lean_object* x_8; 
-x_8 = l___private_Lean_Meta_Basic_26__withExistingLocalDeclsImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Lean_Meta_Basic_27__withExistingLocalDeclsImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 

@@ -35,6 +35,7 @@ lean_object* l___private_Lean_Meta_InferType_18__isProofImp(lean_object*, lean_o
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l___private_Lean_Meta_InferType_14__isPropQuickApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_22__isTypeFormerTypeImp___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_21__lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTypeExcepted___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_20__isTypeQuickApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_7__withLocalDecl(lean_object*);
@@ -48,6 +49,7 @@ lean_object* l_Lean_Meta_setInferTypeRef(lean_object*);
 lean_object* l_Lean_Meta_throwFunctionExpected(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_17__isProofQuickApp___main___at_Lean_Meta_isProofQuick___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_25__withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_13__isArrowProp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTypeExcepted___rarg___closed__1;
 lean_object* l_Lean_Meta_isProp___rarg(lean_object*, lean_object*);
@@ -71,7 +73,6 @@ size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_1__inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_14__isPropQuickApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setMCtx___at___private_Lean_Meta_Basic_6__liftMkBindingM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_18__forallTelescopeImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_19__isArrowType___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_19__isArrowType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,6 +88,7 @@ lean_object* l___private_Lean_Meta_InferType_16__isArrowProposition___main(lean_
 lean_object* l_Lean_Literal_type(lean_object*);
 lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_InferType_10__checkInferTypeCache___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_19__forallTelescopeImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_mkProj(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,7 +96,6 @@ lean_object* l___private_Lean_Meta_InferType_12__isAlwaysZero___boxed(lean_objec
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_21__isTypeImp___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_20__lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_11__inferTypeAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_16__isArrowProposition(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -231,7 +232,6 @@ lean_object* l_Lean_Meta_isType(lean_object*);
 lean_object* l_Lean_Meta_isProofQuick(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___main___at___private_Lean_Meta_InferType_10__checkInferTypeCache___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_20__isTypeQuickApp___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_24__withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_22__isTypeFormerTypeImp___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -2815,7 +2815,7 @@ lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_5__i
 _start:
 {
 lean_object* x_8; 
-x_8 = l___private_Lean_Meta_Basic_18__forallTelescopeImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Lean_Meta_Basic_19__forallTelescopeImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 
@@ -3213,7 +3213,7 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = 1;
-x_9 = l___private_Lean_Meta_Basic_20__lambdaTelescopeImp___rarg(x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
+x_9 = l___private_Lean_Meta_Basic_21__lambdaTelescopeImp___rarg(x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -10156,7 +10156,7 @@ lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_InferType_22__is
 _start:
 {
 lean_object* x_10; 
-x_10 = l___private_Lean_Meta_Basic_24__withLocalDeclImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_10 = l___private_Lean_Meta_Basic_25__withLocalDeclImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; 

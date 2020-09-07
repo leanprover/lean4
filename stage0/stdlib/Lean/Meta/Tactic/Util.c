@@ -49,6 +49,7 @@ lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprMVarAssigned___at___private_Lean_Meta_SynthInstance_11__synthPendingImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSorry___at_Lean_Meta_admit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Util_1__regTraceClasses(lean_object*);
+lean_object* l___private_Lean_Meta_Basic_30__withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,7 +59,6 @@ lean_object* l_Lean_Meta_admit___lambda__1(lean_object*, uint8_t, lean_object*, 
 lean_object* l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_appendTagSuffix___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_29__withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_admit___closed__2;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -865,7 +865,7 @@ lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(l
 _start:
 {
 lean_object* x_8; 
-x_8 = l___private_Lean_Meta_Basic_29__withMVarContextImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Lean_Meta_Basic_30__withMVarContextImp___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 

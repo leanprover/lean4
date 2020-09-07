@@ -169,6 +169,7 @@ lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_objec
 lean_object* l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___closed__1;
 extern lean_object* l___private_Lean_Meta_Basic_9__isClassQuick_x3f___main___closed__1;
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__1;
+lean_object* l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -204,7 +205,6 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConfig___at___private_Lean_Meta_WHNF_17__whnfCoreImp___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_induction___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__5;
-lean_object* l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__3;
 lean_object* l_Lean_Meta_induction(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_Lean_Meta_Tactic_Induction_4__finalizeAux___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6008,7 +6008,7 @@ block_90:
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; 
 lean_inc(x_33);
 x_40 = x_33;
-x_41 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_29, x_40);
+x_41 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_29, x_40);
 x_42 = x_41;
 x_43 = lean_array_push(x_42, x_2);
 x_44 = 1;
@@ -6466,7 +6466,7 @@ block_189:
 lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; uint8_t x_143; lean_object* x_144; 
 lean_inc(x_132);
 x_139 = x_132;
-x_140 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_128, x_139);
+x_140 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_128, x_139);
 x_141 = x_140;
 x_142 = lean_array_push(x_141, x_2);
 x_143 = 1;
@@ -6924,7 +6924,7 @@ block_288:
 lean_object* x_238; lean_object* x_239; lean_object* x_240; lean_object* x_241; uint8_t x_242; lean_object* x_243; 
 lean_inc(x_231);
 x_238 = x_231;
-x_239 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_227, x_238);
+x_239 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_227, x_238);
 x_240 = x_239;
 x_241 = lean_array_push(x_240, x_2);
 x_242 = 1;
@@ -7382,7 +7382,7 @@ block_387:
 lean_object* x_337; lean_object* x_338; lean_object* x_339; lean_object* x_340; uint8_t x_341; lean_object* x_342; 
 lean_inc(x_330);
 x_337 = x_330;
-x_338 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_326, x_337);
+x_338 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_326, x_337);
 x_339 = x_338;
 x_340 = lean_array_push(x_339, x_2);
 x_341 = 1;
@@ -7840,7 +7840,7 @@ block_486:
 lean_object* x_436; lean_object* x_437; lean_object* x_438; lean_object* x_439; uint8_t x_440; lean_object* x_441; 
 lean_inc(x_429);
 x_436 = x_429;
-x_437 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_425, x_436);
+x_437 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_425, x_436);
 x_438 = x_437;
 x_439 = lean_array_push(x_438, x_2);
 x_440 = 1;
@@ -8315,7 +8315,7 @@ block_591:
 lean_object* x_541; lean_object* x_542; lean_object* x_543; lean_object* x_544; uint8_t x_545; lean_object* x_546; 
 lean_inc(x_534);
 x_541 = x_534;
-x_542 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_530, x_541);
+x_542 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_530, x_541);
 x_543 = x_542;
 x_544 = lean_array_push(x_543, x_2);
 x_545 = 1;
@@ -8773,7 +8773,7 @@ block_690:
 lean_object* x_640; lean_object* x_641; lean_object* x_642; lean_object* x_643; uint8_t x_644; lean_object* x_645; 
 lean_inc(x_633);
 x_640 = x_633;
-x_641 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_629, x_640);
+x_641 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_629, x_640);
 x_642 = x_641;
 x_643 = lean_array_push(x_642, x_2);
 x_644 = 1;
@@ -9231,7 +9231,7 @@ block_789:
 lean_object* x_739; lean_object* x_740; lean_object* x_741; lean_object* x_742; uint8_t x_743; lean_object* x_744; 
 lean_inc(x_732);
 x_739 = x_732;
-x_740 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_728, x_739);
+x_740 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_728, x_739);
 x_741 = x_740;
 x_742 = lean_array_push(x_741, x_2);
 x_743 = 1;
@@ -9689,7 +9689,7 @@ block_888:
 lean_object* x_838; lean_object* x_839; lean_object* x_840; lean_object* x_841; uint8_t x_842; lean_object* x_843; 
 lean_inc(x_831);
 x_838 = x_831;
-x_839 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_827, x_838);
+x_839 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_827, x_838);
 x_840 = x_839;
 x_841 = lean_array_push(x_840, x_2);
 x_842 = 1;
@@ -10147,7 +10147,7 @@ block_987:
 lean_object* x_937; lean_object* x_938; lean_object* x_939; lean_object* x_940; uint8_t x_941; lean_object* x_942; 
 lean_inc(x_930);
 x_937 = x_930;
-x_938 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_926, x_937);
+x_938 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_926, x_937);
 x_939 = x_938;
 x_940 = lean_array_push(x_939, x_2);
 x_941 = 1;
@@ -10605,7 +10605,7 @@ block_1086:
 lean_object* x_1036; lean_object* x_1037; lean_object* x_1038; lean_object* x_1039; uint8_t x_1040; lean_object* x_1041; 
 lean_inc(x_1029);
 x_1036 = x_1029;
-x_1037 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_1025, x_1036);
+x_1037 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_1025, x_1036);
 x_1038 = x_1037;
 x_1039 = lean_array_push(x_1038, x_2);
 x_1040 = 1;
@@ -11063,7 +11063,7 @@ block_1185:
 lean_object* x_1135; lean_object* x_1136; lean_object* x_1137; lean_object* x_1138; uint8_t x_1139; lean_object* x_1140; 
 lean_inc(x_1128);
 x_1135 = x_1128;
-x_1136 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__5(x_1124, x_1135);
+x_1136 = l_Array_umapMAux___main___at_Lean_Meta_introN___spec__4(x_1124, x_1135);
 x_1137 = x_1136;
 x_1138 = lean_array_push(x_1137, x_2);
 x_1139 = 1;

@@ -83,6 +83,7 @@ lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___a
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Elab_Term_elabImplicitLambdaAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_19__checkLetRecsToLiftTypes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_21__lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Term_4__liftMetaMFinalizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___at_Lean_Elab_Command_elabMutualDef___spec__1___closed__10;
 lean_object* l___private_Lean_Elab_MutualDef_21__isModified___boxed(lean_object*);
@@ -205,7 +206,6 @@ lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___a
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Elab_MutualDef_9__elabFunValues___spec__35(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Elab_MutualDef_9__elabFunValues___spec__69___rarg___boxed(lean_object**);
 lean_object* l___private_Lean_Elab_MutualDef_3__check___closed__6;
-lean_object* l___private_Lean_Meta_Basic_34__instantiateForallAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_1__checkModifiers___closed__2;
 lean_object* l___private_Lean_Elab_MutualDef_29__mkFreeVarMap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Elab_MutualDef_9__elabFunValues___spec__20(lean_object*);
@@ -235,7 +235,6 @@ lean_object* l_Lean_Meta_Closure_mkLambda(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Elab_MutualDef_9__elabFunValues___spec__67(lean_object*);
 lean_object* l_Lean_Meta_getZetaFVarIds___at___private_Lean_Elab_MutualDef_34__mkClosureForAux___main___spec__3(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_20__lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Elab_MutualDef_9__elabFunValues___spec__61(lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_36__mkLetRecClosures(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_MutualClosure_getModifiersForLetRecs(lean_object*);
@@ -435,6 +434,7 @@ extern lean_object* l_Std_HashSet_Inhabited___closed__1;
 lean_object* l___private_Lean_Elab_MutualDef_26__merge___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Elab_MutualDef_14__isTheorem(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_MutualClosure_main___spec__8(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_35__instantiateForallAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Elab_MutualDef_9__elabFunValues___spec__26(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_MutualClosure_main___spec__8___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_MutualClosure_main___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33150,7 +33150,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_23 = l___private_Lean_Meta_Basic_34__instantiateForallAux___main(x_2, x_22, x_1, x_5, x_6, x_7, x_8, x_21);
+x_23 = l___private_Lean_Meta_Basic_35__instantiateForallAux___main(x_2, x_22, x_1, x_5, x_6, x_7, x_8, x_21);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
@@ -33243,7 +33243,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_45 = l___private_Lean_Meta_Basic_34__instantiateForallAux___main(x_2, x_44, x_1, x_5, x_6, x_7, x_8, x_43);
+x_45 = l___private_Lean_Meta_Basic_35__instantiateForallAux___main(x_2, x_44, x_1, x_5, x_6, x_7, x_8, x_43);
 if (lean_obj_tag(x_45) == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
@@ -33366,7 +33366,7 @@ lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_3);
 lean_closure_set(x_10, 2, x_4);
 x_11 = 0;
-x_12 = l___private_Lean_Meta_Basic_20__lambdaTelescopeImp___rarg(x_1, x_11, x_10, x_5, x_6, x_7, x_8, x_9);
+x_12 = l___private_Lean_Meta_Basic_21__lambdaTelescopeImp___rarg(x_1, x_11, x_10, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 

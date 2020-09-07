@@ -263,6 +263,7 @@ lean_object* l_Lean_Elab_Tactic_getMainGoal___closed__1;
 lean_object* l_List_erase___main___at_Lean_Elab_Tactic_evalCase___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_elabUsingElabFns___closed__6;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Tactic_evalTactic___main___spec__2(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_30__withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalChoice___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalAssumption___closed__1;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -348,7 +349,6 @@ lean_object* l_List_foldl___main___at_Lean_Elab_Tactic_tagUntaggedGoals___spec__
 lean_object* l_Lean_Meta_instantiateMVars___at_Lean_Elab_Tactic_ensureHasNoMVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_revert___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalIntros___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_29__withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntros___closed__2;
 lean_object* l_Array_forMAux___main___at_Lean_Elab_Tactic_forEachVar___spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_appendGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7432,7 +7432,7 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_apply_4(x_2, x_3, x_4, x_5, x_6);
-x_13 = l___private_Lean_Meta_Basic_29__withMVarContextImp___rarg(x_1, x_12, x_7, x_8, x_9, x_10, x_11);
+x_13 = l___private_Lean_Meta_Basic_30__withMVarContextImp___rarg(x_1, x_12, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 

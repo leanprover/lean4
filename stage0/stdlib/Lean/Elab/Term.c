@@ -143,6 +143,7 @@ lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabQuotedName___closed__2;
 lean_object* l_Lean_Elab_Term_withDeclName(lean_object*);
 lean_object* l___private_Lean_Elab_Term_12__elabUsingElabFnsAux___main___closed__2;
+lean_object* l___private_Lean_Meta_Basic_25__withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_throwAbort___rarg___closed__1;
 extern lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__3;
 lean_object* l_Lean_Elab_logAt___at_Lean_Elab_Term_traceAtCmdPos___spec__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -913,7 +914,6 @@ lean_object* l_Lean_Elab_Term_monadLog___lambda__2(lean_object*, lean_object*, l
 lean_object* l_Lean_Elab_Term_TermElabM_toIO(lean_object*);
 lean_object* l_Lean_Elab_Term_expandCDot_x3f(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
-lean_object* l___private_Lean_Meta_Basic_24__withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___main___at_Lean_Elab_Term_logUnassignedUsingErrorContext___spec__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Term_18__elabOptLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBadCDot___rarg___closed__2;
@@ -21827,7 +21827,7 @@ x_12 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_
 lean_closure_set(x_12, 0, x_4);
 lean_closure_set(x_12, 1, x_5);
 lean_closure_set(x_12, 2, x_6);
-x_13 = l___private_Lean_Meta_Basic_24__withLocalDeclImp___rarg(x_1, x_2, x_3, x_12, x_7, x_8, x_9, x_10, x_11);
+x_13 = l___private_Lean_Meta_Basic_25__withLocalDeclImp___rarg(x_1, x_2, x_3, x_12, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 

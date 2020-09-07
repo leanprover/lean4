@@ -49,15 +49,10 @@ def «infix»    := parser! "infix"
 def «infixl»   := parser! "infixl"
 def «infixr»   := parser! "infixr"
 def «postfix»  := parser! "postfix"
-
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
--- TODO delete reserve after old frontend is gone
-@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbol >> optPrecedence
-def mixfixSymbol := (quotedSymbol >> optPrecedence /- TODO: remove precedence after we delete old precedence -/) <|> unquotedSymbol
-def identPrec  := parser! ident >> optPrecedence
--- TODO: remove " := " after old frontend is gone
-@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> mixfixSymbol >> (" := " <|> darrow) >> termParser
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> «precedence» >> strLit >> darrow >> termParser
 
+def identPrec  := parser! ident >> optPrecedence
 def optKind : Parser := optional ("[" >> ident >> "]")
 def notationItem := withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> quotedSymbol <|> identPrec)
 -- TODO: remove " := " after old frontend is gone

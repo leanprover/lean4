@@ -19,6 +19,6 @@ import Lean.Meta.Tactic
 import Lean.Meta.KAbstract
 import Lean.Meta.RecursorInfo
 import Lean.Meta.GeneralizeTelescope
-import Lean.Meta.EqnCompiler
+import Lean.Meta.Match
 import Lean.Meta.ReduceEval
 import Lean.Meta.Closure

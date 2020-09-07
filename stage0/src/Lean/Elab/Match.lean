@@ -3,8 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.EqnCompiler.MatchPatternAttr
-import Lean.Meta.EqnCompiler.Match
+import Lean.Meta.Match.MatchPatternAttr
+import Lean.Meta.Match.Match
 import Lean.Elab.SyntheticMVars
 
 namespace Lean
@@ -198,7 +198,7 @@ match f with
   match env.find? fName with
   | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams val
   | some $ info =>
-    if EqnCompiler.hasMatchPatternAttribute env fName then pure 0
+    if hasMatchPatternAttribute env fName then pure 0
     else do processVar stx.getId mustBeCtor; pure 0
   | none => throwCtorExpected
 | _ => do processVar stx.getId mustBeCtor; pure 0
@@ -401,7 +401,7 @@ patternVarDecls.foldlM
       | _ => pure decls)
   #[]
 
-open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS ElimResult)
+open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS MatcherResult)
 
 namespace ToDepElimPattern
 
@@ -555,10 +555,10 @@ forallBoundedTelescope matchType numDiscrs fun xs matchType => do
   u ← getLevel matchType;
   mkForallFVars xs (mkSort u)
 
-def mkElim (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM ElimResult :=
-liftMetaM $ Meta.Match.mkElim elimName motiveType numDiscrs lhss
+def mkMatcher (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
+liftMetaM $ Meta.Match.mkMatcher elimName motiveType numDiscrs lhss
 
-def reportElimResultErrors (result : ElimResult) : TermElabM Unit := do
+def reportMatcherResultErrors (result : MatcherResult) : TermElabM Unit := do
 -- TODO: improve error messages
 unless result.counterExamples.isEmpty $
   throwError ("missing cases:" ++ Format.line ++ Meta.Match.counterExamplesToMessageData result.counterExamples);
@@ -577,10 +577,10 @@ let altLHSS := alts.map Prod.fst;
 let numDiscrs := discrs.size;
 motiveType ← mkMotiveType matchType numDiscrs;
 motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType;
-elimName ← mkAuxName `elim;
-elimResult ← mkElim elimName motiveType numDiscrs altLHSS.toList;
-reportElimResultErrors elimResult;
-let r := mkApp elimResult.elim motive;
+matcherName ← mkAuxName `match;
+matcherResult ← mkMatcher matcherName motiveType numDiscrs altLHSS.toList;
+reportMatcherResultErrors matcherResult;
+let r := mkApp matcherResult.matcher motive;
 let r := mkAppN r discrs;
 let r := mkAppN r rhss;
 trace `Elab.match fun _ => "result: " ++ r;

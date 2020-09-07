@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Lean.Meta.EqnCompiler.MVarRenaming
+// Module: Lean.Meta.Match.MVarRenaming
 // Imports: Init Lean.Util.ReplaceExpr
 #include <lean/lean.h>
 #if defined(__clang__)
@@ -724,7 +724,7 @@ return x_3;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_ReplaceExpr(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Meta_EqnCompiler_MVarRenaming(lean_object* w) {
+lean_object* initialize_Lean_Meta_Match_MVarRenaming(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

@@ -8,9 +8,9 @@ import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.GeneralizeTelescope
-import Lean.Meta.EqnCompiler.MVarRenaming
-import Lean.Meta.EqnCompiler.CaseValues
-import Lean.Meta.EqnCompiler.CaseArraySizes
+import Lean.Meta.Match.MVarRenaming
+import Lean.Meta.Match.CaseValues
+import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean
 namespace Meta
@@ -179,8 +179,8 @@ examplesToMessageData cex
 def counterExamplesToMessageData (cexs : List CounterExample) : MessageData :=
 MessageData.joinSep (cexs.map counterExampleToMessageData) Format.line
 
-structure ElimResult :=
-(elim            : Expr) -- The eliminator. It is not just `Expr.const elimName` because the type of the major premises may contain free variables.
+structure MatcherResult :=
+(matcher         : Expr) -- The matcher. It is not just `Expr.const matcherName` because the type of the major premises may contain free variables.
 (counterExamples : List CounterExample)
 (unusedAltIdxs   : List Nat)
 
@@ -202,7 +202,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
   let minorType := if minorType.isForall then minorType else mkThunkType minorType;
   let idx       := alts.length;
   let minorName := (`h).appendIndexAfter (idx+1);
-  trace! `Meta.EqnCompiler.matchDebug ("minor premise " ++ minorName ++ " : " ++ minorType);
+  trace! `Meta.Match.debug ("minor premise " ++ minorName ++ " : " ++ minorType);
   withLocalDeclD minorName minorType fun minor => do
     let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs;
     let minors := minors.push minor;
@@ -367,21 +367,21 @@ def occurs (fvarId : FVarId) (v : Expr) : Bool :=
 
 def assign (fvarId : FVarId) (v : Expr) : M Bool :=
 if occurs fvarId v then do
-  trace! `Meta.EqnCompiler.matchUnify ("assign occurs check failed, " ++ mkFVar fvarId ++ " := " ++ v);
+  trace! `Meta.Match.unify ("assign occurs check failed, " ++ mkFVar fvarId ++ " := " ++ v);
   pure false
 else do
   ctx ← read;
   condM (isAltVar fvarId)
     (do
-      trace! `Meta.EqnCompiler.matchUnify (mkFVar fvarId ++ " := " ++ v);
+      trace! `Meta.Match.unify (mkFVar fvarId ++ " := " ++ v);
       modify fun s => { s with fvarSubst := s.fvarSubst.insert fvarId v }; pure true)
     (do
-      trace! `Meta.EqnCompiler.matchUnify ("assign failed variable is not local, " ++ mkFVar fvarId ++ " := " ++ v);
+      trace! `Meta.Match.unify ("assign failed variable is not local, " ++ mkFVar fvarId ++ " := " ++ v);
       pure false)
 
 partial def unify : Expr → Expr → M Bool
 | a, b => do
-  trace! `Meta.EqnCompiler.matchUnify (a ++ " =?= " ++ b);
+  trace! `Meta.Match.unify (a ++ " =?= " ++ b);
   condM (isDefEq a b) (pure true) do
   a' ← expandIfVar a;
   b' ← expandIfVar b;
@@ -394,7 +394,7 @@ partial def unify : Expr → Expr → M Bool
     | a, Expr.fvar bFVarId _ => assign bFVarId a
     | Expr.app aFn aArg _, Expr.app bFn bArg _ => unify aFn bFn <&&> unify aArg bArg
     | _, _ => do
-      trace! `Meta.EqnCompiler.matchUnify ("unify failed @" ++ a ++ " =?= " ++ b);
+      trace! `Meta.Match.unify ("unify failed @" ++ a ++ " =?= " ++ b);
       pure false
 
 end Unify
@@ -450,7 +450,7 @@ match val? with
 | _        => pure false
 
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.EqnCompiler.match ("constructor step");
+trace! `Meta.Match.match ("constructor step");
 env ← getEnv;
 match p.vars with
 | []      => unreachable!
@@ -493,7 +493,7 @@ match p.vars with
         | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
         | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
         | Pattern.inaccessible e :: ps     => do
-          trace! `Meta.EqnCompiler.match ("inaccessible in ctor step " ++ e);
+          trace! `Meta.Match.match ("inaccessible in ctor step " ++ e);
           e ← whnfD e;
           match e.constructorApp? env with
           | some (ctorVal, ctorArgs) => do
@@ -521,7 +521,7 @@ match alt.patterns with
 | _                  => false
 
 private def processValue (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.EqnCompiler.match ("value step");
+trace! `Meta.Match.match ("value step");
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -577,7 +577,7 @@ withExistingLocalDecls alt.fvarDecls do
   expandVarIntoArrayLitAux alt fvarId arrayElemType fvarDecl.userName arraySize #[]
 
 private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.EqnCompiler.match ("array literal step");
+trace! `Meta.Match.match ("array literal step");
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -616,10 +616,10 @@ let alts := p.alts.map fun alt => match alt.patterns with
 { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit :=
-liftM (trace! `Meta.EqnCompiler.match (msg ++ " step") : MetaM Unit)
+liftM (trace! `Meta.Match.match (msg ++ " step") : MetaM Unit)
 
 private def traceState (p : Problem) : MetaM Unit :=
-withGoalOf p (traceM `Meta.EqnCompiler.match p.toMessageData)
+withGoalOf p (traceM `Meta.Match.match p.toMessageData)
 
 private def throwNonSupported (p : Problem) : MetaM Unit := do
 msg ← p.toMessageData;
@@ -662,13 +662,67 @@ private partial def process : Problem → StateRefT State MetaM Unit
   else
     liftM $ throwNonSupported p
 
-def mkElim (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM ElimResult :=
+/--
+A "matcher" auxiliary declaration has the following structure:
+- `numParams` parameters
+- motive
+- `numDiscrs` discriminators (aka major premises)
+- `numAlts` alternatives (aka minor premises)
+-/
+structure MatcherInfo :=
+(numParams : Nat) (numDiscrs : Nat) (numAlts : Nat)
+
+namespace Extension
+
+structure Entry :=
+(name : Name) (info : MatcherInfo)
+
+structure State :=
+(map : SMap Name MatcherInfo := {})
+
+instance State.inhabited : Inhabited State :=
+⟨{}⟩
+
+def State.addEntry (s : State) (e : Entry) : State := { s with map  := s.map.insert e.name e.info }
+def State.switch (s : State) : State :=  { s with map := s.map.switch }
+
+def mkExtension : IO (SimplePersistentEnvExtension Entry State) :=
+registerSimplePersistentEnvExtension {
+  name          := `matcher,
+  addEntryFn    := State.addEntry,
+  addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
+}
+
+@[init mkExtension]
+constant extension : SimplePersistentEnvExtension Entry State :=
+arbitrary _
+
+def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
+extension.addEntry env { name := matcherName, info := info }
+
+def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
+(extension.getState env).map.find? declName
+
+end Extension
+
+def addMatcherInfo (matcherName : Name) (info : MatcherInfo) : MetaM Unit :=
+modifyEnv fun env => Extension.addMatcherInfo env matcherName info
+
+def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) := do
+env ← getEnv;
+pure $ Extension.getMatcherInfo? env declName
+
+def isMatcher (declName : Name) : MetaM Bool := do
+info? ← getMatcherInfo? declName;
+pure info?.isSome
+
+def mkMatcher (matcherName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
 withLocalDeclD `motive motiveType fun motive => do
-trace! `Meta.EqnCompiler.matchDebug ("motiveType: " ++ motiveType);
+trace! `Meta.Match.debug ("motiveType: " ++ motiveType);
 forallBoundedTelescope motiveType numDiscrs fun majors _ => do
 checkNumPatterns majors lhss;
 let mvarType  := mkAppN motive majors;
-trace! `Meta.EqnCompiler.matchDebug ("target: " ++ mvarType);
+trace! `Meta.Match.debug ("target: " ++ mvarType);
 withAlts motive lhss fun alts minors => do
   mvar ← mkFreshExprMVar mvarType;
   let examples := majors.toList.map fun major => Example.var major.fvarId!;
@@ -676,48 +730,20 @@ withAlts motive lhss fun alts minors => do
   let args := #[motive] ++ majors ++ minors;
   type ← mkForallFVars args mvarType;
   val  ← mkLambdaFVars args mvar;
-  trace! `Meta.EqnCompiler.matchDebug ("eliminator value: " ++ val ++ "\ntype: " ++ type);
-  elim ← mkAuxDefinition elimName type val;
-  setInlineAttribute elimName;
-  trace! `Meta.EqnCompiler.matchDebug ("eliminator: " ++ elim);
+  trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type);
+  matcher ← mkAuxDefinition matcherName type val;
+  addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := majors.size, numAlts := minors.size };
+  setInlineAttribute matcherName;
+  trace! `Meta.Match.debug ("matcher: " ++ matcher);
   let unusedAltIdxs : List Nat := lhss.length.fold
     (fun i r => if s.used.contains i then r else i::r)
     [];
-  pure { elim := elim, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
-
-
-/- Helper methods for testins mkElim -/
-
-private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
-let s : CollectLevelParams.State := {};
-s ← majors.foldlM
-  (fun s major => do
-    major ← instantiateMVars major;
-    majorType ← inferType major;
-    majorType ← instantiateMVars majorType;
-    let s := collectLevelParams s major;
-    pure $ collectLevelParams s majorType)
-  s;
-pure s.getUnusedLevelParam
-
-/- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
-private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool) : MetaM Expr :=
-if inProp then
-  pure $ mkSort $ levelZero
-else do
-  v ← getUnusedLevelParam majors lhss;
-  pure $ mkSort $ v
-
-def mkElimTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM ElimResult := do
-sortv ← mkElimSort majors lhss inProp;
-generalizeTelescope majors.toArray `_d fun majors => do
-  motiveType ← mkForallFVars majors sortv;
-  mkElim elimName motiveType majors.size lhss
+  pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
 
 @[init] private def regTraceClasses : IO Unit := do
-registerTraceClass `Meta.EqnCompiler.match;
-registerTraceClass `Meta.EqnCompiler.matchDebug;
-registerTraceClass `Meta.EqnCompiler.matchUnify;
+registerTraceClass `Meta.Match.match;
+registerTraceClass `Meta.Match.debug;
+registerTraceClass `Meta.Match.unify;
 pure ()
 
 end Match

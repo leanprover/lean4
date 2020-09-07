@@ -173,6 +173,10 @@ let successorsOf := fun declName => (getPreDef declName).value.foldConsts [] fun
 let sccs := SCC.scc vertices successorsOf;
 sccs.toArray.map fun scc => scc.toArray.map getPreDef
 
+private def tryStructuralRecursion? (preDef : PreDefinition) : TermElabM (Option PreDefinition) := do
+trace `Elab.definition fun _ => preDef.declName ++ ":=\n" ++ preDef.value;
+throwError "WIP"
+
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
 preDefs.forM fun preDef => trace `Elab.definition.body fun _ => preDef.declName ++ " : " ++ preDef.type ++ " :=" ++ Format.line ++ preDef.value;
 (partitionPreDefs preDefs).forM fun preDefs => do
@@ -182,6 +186,9 @@ preDefs.forM fun preDef => trace `Elab.definition.body fun _ => preDef.declName 
     addAndCompileUnsafe preDefs
   else if preDefs.any fun preDef => preDef.modifiers.isPartial then
     addAndCompilePartial preDefs
+  else if preDefs.size == 1 then do
+    tryStructuralRecursion? (preDefs.get! 0);
+    pure ()
   else
     -- TODO
     throwError "WIP"

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.SCC
+import Lean.Elab.MkInhabitant
 import Lean.Elab.Term
 import Lean.Elab.DefView
 
@@ -87,7 +88,7 @@ pure $ preDefs.map fun preDef =>
 private def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
 preDefs.forM fun preDef => applyAttributes preDef.declName preDef.modifiers.attrs applicationTime
 
-private def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit := do
 env ← getEnv;
 let decl :=
   match preDef.kind with
@@ -107,11 +108,18 @@ let decl :=
 ensureNoUnassignedMVars decl;
 addDecl decl;
 applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking;
-compileDecl decl;
+when compile $
+  compileDecl decl;
 applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation;
 pure ()
 
-private def addAndCompileAsUnsafe (preDefs : Array PreDefinition) : TermElabM Unit := do
+private def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
+addNonRecAux preDef true
+
+private def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
+addNonRecAux preDef false
+
+private def addAndCompileUnsafe (preDefs : Array PreDefinition) : TermElabM Unit := do
 let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
     name     := preDef.declName,
     lparams  := preDef.lparams,
@@ -126,6 +134,28 @@ applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking;
 compileDecl decl;
 applyAttributesOf preDefs AttributeApplicationTime.afterCompilation;
 pure ()
+
+private def addAndCompileUnsafeRec (preDefs : Array PreDefinition) : TermElabM Unit := do
+addAndCompileUnsafe $ preDefs.map fun preDef =>
+  { preDef with
+    declName  := Compiler.mkUnsafeRecName preDef.declName,
+    value     := preDef.value.replace fun e => match e with
+      | Expr.const declName us _ =>
+        if preDefs.any fun preDef => preDef.declName == declName then
+          some $ mkConst (Compiler.mkUnsafeRecName declName) us
+        else
+          none
+      | _ => none,
+    modifiers := {} }
+
+private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Unit := do
+preDefs.forM fun preDef =>
+  forallTelescopeReducing preDef.type fun xs type => do
+    inh ← liftM $ mkInhabitantFor preDef.declName xs type;
+    addNonRec { preDef with
+      kind  := DefKind.«opaque»,
+      value := inh };
+addAndCompileUnsafeRec preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=
 Option.isNone $ preDef.value.find? fun c => match c with
@@ -148,10 +178,13 @@ preDefs.forM fun preDef => trace `Elab.definition.body fun _ => preDef.declName 
 (partitionPreDefs preDefs).forM fun preDefs => do
   if preDefs.size == 1 && isNonRecursive (preDefs.get! 0) then
     addAndCompileNonRec (preDefs.get! 0)
-  else do
-    trace `Elab.definition.scc fun _ => toString $ preDefs.map fun preDef => preDef.declName;
+  else if preDefs.any fun preDef => preDef.modifiers.isUnsafe then
+    addAndCompileUnsafe preDefs
+  else if preDefs.any fun preDef => preDef.modifiers.isPartial then
+    addAndCompilePartial preDefs
+  else
     -- TODO
-    addAndCompileAsUnsafe preDefs
+    throwError "WIP"
 
 end Elab
 end Lean

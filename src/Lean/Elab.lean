@@ -23,3 +23,6 @@ import Lean.Elab.StructInst
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.Print
+import Lean.Elab.MutualDef
+import Lean.Elab.PreDefinition
+import Lean.Elab.MkInhabitant

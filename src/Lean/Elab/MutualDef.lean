@@ -49,7 +49,17 @@ pure ()
 
 private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewElabHeader) : TermElabM Unit := do
 when (newHeader.kind.isTheorem && newHeader.modifiers.isUnsafe) $
-  throwError "unsafe theorems are not allowed";
+  throwError "'unsafe' theorems are not allowed";
+when (newHeader.kind.isTheorem && newHeader.modifiers.isPartial) $
+  throwError "'partial' theorems are not allowed, 'partial' is a code generation directive";
+when (newHeader.kind.isTheorem && newHeader.modifiers.isNoncomputable) $
+  throwError "'theorem' subsumes 'noncomputable', code is not generated for theorems";
+when (newHeader.modifiers.isNoncomputable && newHeader.modifiers.isUnsafe) $
+  throwError "'noncomputable unsafe' is not allowed";
+when (newHeader.modifiers.isNoncomputable && newHeader.modifiers.isPartial) $
+  throwError "'noncomputable partial' is not allowed";
+when (newHeader.modifiers.isPartial && newHeader.modifiers.isUnsafe) $
+  throwError "'unsafe' subsumes 'partial'";
 if h : 0 < prevHeaders.size then
   let firstHeader := prevHeaders.get ⟨0, h⟩;
   catch

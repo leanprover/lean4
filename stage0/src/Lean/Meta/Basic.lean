@@ -667,17 +667,23 @@ forallTelescopeReducingAuxAux isClassExpensive? false none k lctx #[] 0 type
 def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
 map2MetaM (fun _ k => forallTelescopeImp type k) k
 
+@[noinline] private def forallTelescopeReducingImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+forallTelescopeReducingAux isClassExpensive? type none k
+
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues bulding the telescope if it is a `forall`. -/
 def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
-map2MetaM (fun _ k => forallTelescopeReducingAux isClassExpensive? type none k) k
+map2MetaM (fun _ k => forallTelescopeReducingImp type k) k
+
+@[noinline] private def forallBoundedTelescopeImp {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+forallTelescopeReducingAux isClassExpensive? type maxFVars? k
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`. -/
 def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) : n α :=
-map2MetaM (fun _ k => forallTelescopeReducingAux isClassExpensive? type maxFVars? k) k
+map2MetaM (fun _ k => forallBoundedTelescopeImp type maxFVars? k) k
 
 /-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
 private partial def lambdaTelescopeAux {α}

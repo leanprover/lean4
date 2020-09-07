@@ -294,12 +294,31 @@ elabAppArgsAux {ref := ref, args := args, expectedType? := expectedType?, explic
 inductive LValResolution
 | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
 | projIdx  (structName : Name) (idx : Nat)
-| const    (baseName : Name) (constName : Name)
+| const    (baseStructName : Name) (structName : Name) (constName : Name)
 | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
 | getOp    (fullName : Name) (idx : Syntax)
 
 private def throwLValError {α} (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
 throwError $ msg ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr eType
+
+/-- `findMethod? env S fName`.
+    1- If `env` contains `S ++ fName`, return `(S, S++fName)`
+    2- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
+    3- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname` -/
+private partial def findMethod? (env : Environment) : Name → Name → Option (Name × Name)
+| structName, fieldName =>
+  let fullName := structName ++ fieldName;
+  match env.find? fullName with
+  | some _ => some (structName, fullName)
+  | none   =>
+    let fullNamePrv := mkPrivateName env fullName;
+    match env.find? fullNamePrv with
+    | some _ => some (structName, fullNamePrv)
+    | none   =>
+      if isStructureLike env structName then
+        (getParentStructures env structName).findSome? fun parentStructName => findMethod? parentStructName fieldName
+      else
+        none
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution :=
 match eType.getAppFn, lval with
@@ -321,16 +340,11 @@ match eType.getAppFn, lval with
     throwLValError e eType ("invalid projection, structure has only " ++ toString fieldNames.size ++ " field(s)")
 | Expr.const structName _ _, LVal.fieldName fieldName => do
   env ← getEnv;
-  let searchEnv (fullName : Name) : TermElabM LValResolution := do {
-    match env.find? fullName with
-    | some _ => pure $ LValResolution.const structName fullName
-    | none   =>
-      let fullNamePrv := mkPrivateName env fullName;
-      match env.find? fullNamePrv with
-      | some _ => pure $ LValResolution.const structName fullNamePrv
-      | none   =>
-        throwLValError e eType $
-        "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"
+  let searchEnv : Unit → TermElabM LValResolution := fun _ => do {
+    match findMethod? env structName fieldName with
+    | some (baseStructName, fullName) => pure $ LValResolution.const baseStructName structName fullName
+    | none   => throwLValError e eType $
+        "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ (structName ++ fieldName) ++ "'"
   };
   -- search local context first, then environment
   let searchCtx : Unit → TermElabM LValResolution := fun _ => do {
@@ -344,8 +358,8 @@ match eType.getAppFn, lval with
         /- LVal notation is being used to make a "local" recursive call. -/
         pure $ LValResolution.localRec structName fullName localDecl.toExpr
       else
-        searchEnv fullName
-    | none => searchEnv fullName
+        searchEnv ()
+    | none => searchEnv ()
   };
   if isStructure env structName then
     match findField? env structName fieldName with
@@ -438,11 +452,12 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     else do
       f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f }] #[] none false;
       elabAppLValsAux f lvals
-  | LValResolution.const baseName constName => do
+  | LValResolution.const baseStructName structName constName => do
+    f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f;
     projFn ← mkConst constName;
     if lvals.isEmpty then do
       projFnType ← inferType projFn;
-      args ← addLValArg baseName constName f args 0 namedArgs projFnType;
+      args ← addLValArg baseStructName constName f args 0 namedArgs projFnType;
       elabAppArgs projFn namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs projFn #[] #[Arg.expr f] none false;

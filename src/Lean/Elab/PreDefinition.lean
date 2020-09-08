@@ -105,7 +105,6 @@ let decl :=
     Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
                            hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
                            isUnsafe := preDef.modifiers.isUnsafe };
-ensureNoUnassignedMVars decl;
 addDecl decl;
 applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking;
 when compile $
@@ -128,7 +127,6 @@ let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
     isUnsafe := true,
     hints    := ReducibilityHints.opaque
   };
-ensureNoUnassignedMVars decl;
 addDecl decl;
 applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking;
 compileDecl decl;
@@ -177,8 +175,22 @@ private def tryStructuralRecursion? (preDef : PreDefinition) : TermElabM (Option
 trace `Elab.definition fun _ => preDef.declName ++ ":=\n" ++ preDef.value;
 throwError "WIP"
 
+private def collectMVarsAtPreDef (preDef : PreDefinition) : StateRefT CollectMVars.State MetaM Unit := do
+collectMVars preDef.value;
+collectMVars preDef.type
+
+private def getMVarsAtPreDef (preDef : PreDefinition) : MetaM (Array MVarId) := do
+(_, s) ← (collectMVarsAtPreDef preDef).run {};
+pure s.result
+
+private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM Unit := do
+pendingMVarIds ← liftMetaM $ getMVarsAtPreDef preDef;
+foundError ← logUnassignedUsingErrorContext pendingMVarIds;
+when foundError throwAbort
+
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
 preDefs.forM fun preDef => trace `Elab.definition.body fun _ => preDef.declName ++ " : " ++ preDef.type ++ " :=" ++ Format.line ++ preDef.value;
+preDefs.forM ensureNoUnassignedMVarsAtPreDef;
 (partitionPreDefs preDefs).forM fun preDefs => do
   if preDefs.size == 1 && isNonRecursive (preDefs.get! 0) then
     addAndCompileNonRec (preDefs.get! 0)

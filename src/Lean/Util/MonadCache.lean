@@ -52,17 +52,25 @@ instance {α β : Type} {m : Type → Type} [HasBeq α] [Hashable α] [Monad m] 
 
 end MonadHashMapCacheAdapter
 
-abbrev MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [HasBeq α] [Hashable α] := StateRefT (HashMap α β) m
+def MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [HasBeq α] [Hashable α] := StateRefT (HashMap α β) m
 
 namespace MonadCacheT
 
-instance {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [HasBeq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
-    : MonadHashMapCacheAdapter α β (MonadCacheT α β m) :=
-{ getCache    := get,
-  modifyCache := modify }
+variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [HasBeq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
-@[inline] def run {ω α β m σ} [STWorld ω m] [HasBeq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m] (x : MonadCacheT α β m σ) : m σ :=
+instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) :=
+{ getCache    := (get : StateRefT _ _ _),
+  modifyCache := fun f => (modify f : StateRefT _ _ _) }
+
+@[inline] def run {σ} (x : MonadCacheT α β m σ) : m σ :=
 x.run' Std.mkHashMap
+
+instance : Monad (MonadCacheT α β m) := inferInstanceAs (Monad (StateRefT _ _))
+instance : MonadLift m (MonadCacheT α β m) := inferInstanceAs (MonadLift m (StateRefT _ _))
+instance [MonadIO m] : MonadIO (MonadCacheT α β m) := inferInstanceAs (MonadIO (StateRefT _ _))
+instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (MonadCacheT α β m) := inferInstanceAs (MonadExceptOf ε (StateRefT _ _))
+instance : MonadControl m (MonadCacheT α β m) := inferInstanceAs (MonadControl m (StateRefT _ _))
+instance [MonadFinally m] : MonadFinally (MonadCacheT α β m) := inferInstanceAs (MonadFinally (StateRefT _ _))
 
 end MonadCacheT
 

@@ -837,4 +837,20 @@ if h : as.size ≤ bs.size then
 else
   false
 
+private def allDiffAuxAux {α} [HasBeq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
+| 0,   h => true
+| i+1, h =>
+  have i < as.size from Nat.ltTrans (Nat.ltSuccSelf _) h;
+  a != as.get ⟨i, this⟩ && allDiffAuxAux i this
+
+private partial def allDiffAux {α} [HasBeq α] (as : Array α) : Nat → Bool
+| i =>
+  if h : i < as.size then
+    allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux (i+1)
+  else
+    true
+
+def allDiff {α} [HasBeq α] (as : Array α) : Bool :=
+allDiffAux as 0
+
 end Array

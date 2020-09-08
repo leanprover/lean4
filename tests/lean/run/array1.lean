@@ -64,3 +64,16 @@ unless b $ throw $ IO.userError "check failed"
 #eval check $ ! #[2, 3, 4].isPrefixOf #[2, 3]
 #eval check $ ! #[2].isPrefixOf #[]
 #eval check $ ! #[4, 3].isPrefixOf #[2, 3, 4, 5]
+
+#eval check $ #[1, 2, 3].allDiff
+#eval check $ !#[1, 2, 1, 3].allDiff
+#eval check $ #[1, 2, 4, 3].allDiff
+#eval check $ (#[] : Array Nat).allDiff
+#eval check $ !#[1, 1].allDiff
+#eval check $ !#[1, 2, 3, 4, 5, 1].allDiff
+#eval check $ #[1, 2, 3, 4, 5].allDiff
+#eval check $ !#[1, 2, 3, 4, 5, 5].allDiff
+#eval check $ !#[1, 3, 3, 4, 5].allDiff
+#eval check $ !#[1, 2, 3, 4, 5, 3].allDiff
+#eval check $ !#[1, 2, 3, 4, 5, 4].allDiff
+#eval check $ #[1, 2, 3, 4, 5, 6].allDiff

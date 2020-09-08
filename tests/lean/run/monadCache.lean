@@ -36,3 +36,10 @@ partial def visitNoCache : Expr → CoreM Expr
 
 -- The following is super slow
 -- #eval do e ← visitNoCache (mkTower 30); (depth e).run
+
+def displayConsts (e : Expr) : CoreM Unit :=
+e.forEach fun e => match e with
+  | Expr.const c _ _ => do IO.println c
+  | _ => pure ()
+
+#eval do e ← (visit (mkTower 100)).run; displayConsts e

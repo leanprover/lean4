@@ -51,6 +51,10 @@ def type : LocalDecl → Expr
 | cdecl _ _ _ t _   => t
 | ldecl _ _ _ t _ _ => t
 
+def setType : LocalDecl → Expr → LocalDecl
+| cdecl idx id n _ bi, t   => cdecl idx id n t bi
+| ldecl idx id n _ v nd, t => ldecl idx id n t v nd
+
 def binderInfo : LocalDecl → BinderInfo
 | cdecl _ _ _ _ bi  => bi
 | ldecl _ _ _ _ _ _ => BinderInfo.default
@@ -62,6 +66,10 @@ def value? : LocalDecl → Option Expr
 def value : LocalDecl → Expr
 | cdecl _ _ _ _ _   => panic! "let declaration expected"
 | ldecl _ _ _ _ v _ => v
+
+def setValue : LocalDecl → Expr → LocalDecl
+| ldecl idx id n t _ nd, v => ldecl idx id n t v nd
+| d, _                     => d
 
 def updateUserName : LocalDecl → Name → LocalDecl
 | cdecl index id _ type bi,     userName => cdecl index id userName type bi
@@ -214,15 +222,22 @@ match lctx with
     { fvarIdToDecl := map.insert decl.fvarId decl,
       decls        := decls.set decl.index decl }
 
-def updateBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
+/--
+  Low-level function for updating the local context.
+  Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+  the `index` nor `fvarId` are modified.  -/
+@[inline] def modifyLocalDecl (lctx : LocalContext) (fvarId : FVarId) (f : LocalDecl → LocalDecl) : LocalContext :=
 match lctx with
 | { fvarIdToDecl := map, decls := decls } =>
   match lctx.find? fvarId with
   | none      => lctx
   | some decl =>
-    let decl := decl.updateBinderInfo bi;
+    let decl := f decl;
     { fvarIdToDecl := map.insert decl.fvarId decl,
       decls        := decls.set decl.index decl }
+
+def updateBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
+modifyLocalDecl lctx fvarId fun decl => decl.updateBinderInfo bi
 
 @[export lean_local_ctx_num_indices]
 def numIndices (lctx : LocalContext) : Nat :=

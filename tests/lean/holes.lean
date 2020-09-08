@@ -20,3 +20,7 @@ f a
 
 partial def f7 (x : Nat) :=
 f7 x
+
+partial def f8 (x : Nat) :=
+let rec aux (y : Nat) := aux y;
+x + 1

@@ -49,3 +49,8 @@ holes.lean:21:25: error: don't know how to synthesize placeholder
 context:
 x : Nat
 ⊢ Sort ?
+holes.lean:25:8: error: don't know how to synthesize placeholder
+context:
+f8 : Nat → Nat
+x y : Nat
+⊢ Sort ?

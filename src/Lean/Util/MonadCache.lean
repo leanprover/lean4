@@ -52,6 +52,20 @@ instance {α β : Type} {m : Type → Type} [HasBeq α] [Hashable α] [Monad m] 
 
 end MonadHashMapCacheAdapter
 
+abbrev MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [HasBeq α] [Hashable α] := StateRefT (HashMap α β) m
+
+namespace MonadCacheT
+
+instance {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [HasBeq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
+    : MonadHashMapCacheAdapter α β (MonadCacheT α β m) :=
+{ getCache    := get,
+  modifyCache := modify }
+
+@[inline] def run {ω α β m σ} [STWorld ω m] [HasBeq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m] (x : MonadCacheT α β m σ) : m σ :=
+x.run' Std.mkHashMap
+
+end MonadCacheT
+
 /-- Auxiliary structure for "adding" a `HashMap` to a state object. -/
 structure WithHashMapCache (α β σ : Type) [HasBeq α] [Hashable α] :=
 (state : σ)

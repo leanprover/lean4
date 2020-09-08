@@ -425,6 +425,7 @@ private partial def mkClosureForAux : Array FVarId → StateRefT ClosureState Te
   match pickMaxFVar? lctx toProcess with
   | none        => pure ()
   | some fvarId => do
+    trace `Elab.definition.mkClosure fun _ => "toProcess: " ++ (toProcess.map mkFVar) ++ ", maxVar: " ++ mkFVar fvarId;
     let toProcess := toProcess.erase fvarId;
     localDecl ← getLocalDecl fvarId;
     match localDecl with
@@ -450,6 +451,13 @@ private partial def mkClosureForAux : Array FVarId → StateRefT ClosureState Te
         };
         mkClosureForAux (pushNewVars toProcess (collectFVars (collectFVars {} type) val))
 
+private partial def mkClosureFor (freeVars : Array FVarId) (localDecls : Array LocalDecl) : TermElabM ClosureState := do
+(_, s) ← (mkClosureForAux freeVars).run { localDecls := localDecls };
+pure { s with
+  newLocalDecls := s.newLocalDecls.reverse,
+  newLetDecls   := s.newLetDecls.reverse,
+  exprArgs      := s.exprArgs.reverse }
+
 structure LetRecClosure :=
 (localDecls : Array LocalDecl)
 (closed     : Expr) -- expression used to replace occurrences of the let-rec FVarId
@@ -461,7 +469,7 @@ withLCtx lctx toLift.localInstances do
 lambdaTelescope toLift.val fun xs val => do
   type ← instantiateForall toLift.type xs;
   lctx ← getLCtx;
-  (_, s) ← (mkClosureForAux freeVars).run { localDecls := xs.map fun x => lctx.get! x.fvarId! };
+  s ← mkClosureFor freeVars $ xs.map fun x => lctx.get! x.fvarId!;
   let type := Closure.mkForall s.localDecls $ Closure.mkForall s.newLetDecls type;
   let val  := Closure.mkLambda s.localDecls $ Closure.mkLambda s.newLetDecls val;
   let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs;

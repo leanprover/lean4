@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.SCC
+import Lean.Meta.AbstractNestedProofs
 import Lean.Elab.MkInhabitant
 import Lean.Elab.Term
 import Lean.Elab.DefView
@@ -88,7 +89,14 @@ pure $ preDefs.map fun preDef =>
 def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
 preDefs.forM fun preDef => applyAttributes preDef.declName preDef.modifiers.attrs applicationTime
 
+def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
+if preDef.kind.isTheorem || preDef.kind.isExample then pure preDef
+else do
+  value ← Meta.abstractNestedProofs preDef.declName preDef.value;
+  pure { preDef with value := value }
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit := do
+preDef ← liftM $ abstractNestedProofs preDef;
 env ← getEnv;
 let decl :=
   match preDef.kind with
@@ -107,7 +115,7 @@ let decl :=
                            isUnsafe := preDef.modifiers.isUnsafe };
 addDecl decl;
 applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking;
-when compile $
+when (compile && !preDef.kind.isTheorem) $
   compileDecl decl;
 applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation;
 pure ()

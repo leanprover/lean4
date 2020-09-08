@@ -13,13 +13,13 @@ x : Nat
 y : Nat := g x+g x
 ⊢ Nat
 holes.lean:10:15: error: don't know how to synthesize placeholder
-  @g … ?m.49 …
+  @g … ?m.60 …
 context:
 f3 : Nat → Nat
 x : Nat
 ⊢ Type
 holes.lean:10:9: error: don't know how to synthesize placeholder
-  @g … ?m.48 …
+  @g … ?m.59 …
 context:
 f3 : Nat → Nat
 x : Nat
@@ -33,12 +33,12 @@ context:
 α : Sort u_1
 ⊢ Sort ?
 holes.lean:19:0: error: don't know how to synthesize placeholder
-  @_uniq.114 … ?m.122 …
+  @_uniq.125 … ?m.133 …
 context:
 f6 : Nat → Nat
 a : Nat
-f : ∀ {α : Type} {β : ?m.121 a}, α → α := fun {α : Type} {β : ?m.121 a} (a : α) => a
-⊢ ?m.121 a
+f : ∀ {α : Type} {β : ?m.132 a}, α → α := fun {α : Type} {β : ?m.132 a} (a : α) => a
+⊢ ?m.132 a
 holes.lean:18:6: error: don't know how to synthesize placeholder
 context:
 f6 : Nat → Nat

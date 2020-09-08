@@ -4,5 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural
-import Lean.Elab.PreDefinition.Main
+
+namespace Lean
+namespace Elab
+open Meta
+
+def WFRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
+throwError "WIP"
+
+end Elab
+end Lean

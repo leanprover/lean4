@@ -939,20 +939,11 @@ u ← mkFreshLevelMVar;
 type ← elabTerm stx (mkSort u);
 withRef stx $ ensureType type
 
-private partial def mkAuxNameAux (env : Environment) (base : Name) : Nat → Name
-| i =>
-  let candidate := base.appendIndexAfter i;
-  if env.contains candidate then
-    mkAuxNameAux (i+1)
-  else
-    candidate
-
 def mkAuxName (suffix : Name) : TermElabM Name := do
-env ← getEnv;
 ctx ← read;
 match ctx.declName? with
 | none          => throwError "auxiliary declaration cannot be created when declaration name is not available"
-| some declName => pure $ mkAuxNameAux env (declName ++ suffix) 1
+| some declName => Lean.mkAuxName (declName ++ suffix) 1
 
 /- =======================================
        Builtin elaboration functions

@@ -43,7 +43,25 @@ matchConst e failK fun cinfo us =>
   | _                        => failK ()
 
 section
-variables [Monad m] [MonadError m]
+variables [Monad m]
+
+def hasConst (constName : Name) : m Bool := do
+env ← getEnv;
+pure $ env.contains constName
+
+private partial def mkAuxNameAux (env : Environment) (base : Name) : Nat → Name
+| i =>
+  let candidate := base.appendIndexAfter i;
+  if env.contains candidate then
+    mkAuxNameAux (i+1)
+  else
+    candidate
+
+def mkAuxName (baseName : Name) (idx : Nat) : m Name := do
+env ← getEnv;
+pure $ mkAuxNameAux env baseName idx
+
+variables [MonadError m]
 
 def getConstInfo (constName : Name) : m ConstantInfo := do
 env ← getEnv;

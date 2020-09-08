@@ -17,3 +17,6 @@ def f5 {α} {β : _} (a : α) := a
 def f6 (a : Nat) :=
 let f {α β} (a : α) := a;
 f a
+
+partial def f7 (x : Nat) :=
+f7 x

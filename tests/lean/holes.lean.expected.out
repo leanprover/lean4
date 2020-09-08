@@ -45,3 +45,7 @@ f6 : Nat → Nat
 a : Nat
 α : Type
 ⊢ Sort ?
+holes.lean:21:25: error: don't know how to synthesize placeholder
+context:
+x : Nat
+⊢ Sort ?

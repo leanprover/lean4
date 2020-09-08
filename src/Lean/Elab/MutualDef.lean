@@ -74,7 +74,7 @@ if h : 0 < prevHeaders.size then
 else
   pure ()
 
-private def elabFunType (xs : Array Expr) (view : DefView) : TermElabM Expr :=
+private def elabFunType (ref : Syntax) (xs : Array Expr) (view : DefView) : TermElabM Expr :=
 match view.type? with
 | some typeStx => do
   type ← elabType typeStx;
@@ -82,7 +82,8 @@ match view.type? with
   type ← instantiateMVars type;
   mkForallFVars xs type
 | none => do
-  type ← withRef view.binders $ mkFreshTypeMVar;
+  let hole := mkHole ref;
+  type ← elabType hole;
   mkForallFVars xs type
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) :=
@@ -93,7 +94,8 @@ views.foldlM
     ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId currNamespace currLevelNames view.declId view.modifiers;
     applyAttributes declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
     withLevelNames levelNames $ elabBinders view.binders.getArgs fun xs => do
-      type ← elabFunType xs view;
+      let refForElabFunType := view.value;
+      type ← elabFunType refForElabFunType xs view;
       let newHeader : DefViewElabHeader := {
         ref           := view.ref,
         modifiers     := view.modifiers,

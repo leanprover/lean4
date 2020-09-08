@@ -680,6 +680,15 @@ instance : HasToString Expr :=
 instance : HasRepr Expr :=
 ⟨Expr.dbgToString⟩
 
+def isAtomic : Expr → Bool
+| Expr.const _ _ _ => true
+| Expr.sort _ _    => true
+| Expr.bvar _ _    => true
+| Expr.lit _ _     => true
+| Expr.mvar _ _    => true
+| Expr.fvar _ _    => true
+| _                => false
+
 end Expr
 
 def mkAppB (f a b : Expr) := mkApp (mkApp f a) b

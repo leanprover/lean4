@@ -22,3 +22,4 @@ import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match
 import Lean.Meta.ReduceEval
 import Lean.Meta.Closure
+import Lean.Meta.AbstractNestedProofs

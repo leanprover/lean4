@@ -52,3 +52,15 @@ def tst : IO (List Nat) :=
 #eval #[8, 1].getMax? (fun a b => a < b)
 
 #eval #[1, 6, 5, 3, 8, 2, 0].partition fun x => x % 2 == 0
+
+def check (b : Bool) : IO Unit :=
+unless b $ throw $ IO.userError "check failed"
+
+#eval check $ #[].isPrefixOf #[2, 3]
+#eval check $ (#[] : Array Nat).isPrefixOf #[]
+#eval check $ #[2, 3].isPrefixOf #[2, 3]
+#eval check $ #[2, 3].isPrefixOf #[2, 3, 4, 5]
+#eval check $ ! #[2, 4].isPrefixOf #[2, 3]
+#eval check $ ! #[2, 3, 4].isPrefixOf #[2, 3]
+#eval check $ ! #[2].isPrefixOf #[]
+#eval check $ ! #[4, 3].isPrefixOf #[2, 3, 4, 5]

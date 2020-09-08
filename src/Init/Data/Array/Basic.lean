@@ -818,4 +818,23 @@ else
 @[inline] def partition {α : Type u} (p : α → Bool) (as : Array α) : Array α × Array α :=
 partitionAux p as 0 #[] #[]
 
+partial def isPrefixOfAux {α : Type u} [HasBeq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
+| i =>
+  if h : i < as.size then
+    let a := as.get ⟨i, h⟩;
+    let b := bs.get ⟨i, Nat.ltOfLtOfLe h hle⟩;
+    if a == b then
+      isPrefixOfAux (i+1)
+    else
+      false
+  else
+    true
+
+/- Return true iff `as` is a prefix of `bs` -/
+def isPrefixOf  {α : Type u} [HasBeq α] (as bs : Array α) : Bool :=
+if h : as.size ≤ bs.size then
+  isPrefixOfAux as bs h 0
+else
+  false
+
 end Array

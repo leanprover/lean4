@@ -621,20 +621,20 @@ let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.erase d.fvarId
 let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.addDecl d) lctx;
 adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ k localDecls patterns
 
-private def withElaboratedLHS {α} (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr)
+private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr)
   (k : AltLHS → Expr → TermElabM α) : TermElabM α := do
 (patterns, matchType) ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
 localDecls ← finalizePatternDecls patternVarDecls;
 patterns ← patterns.mapM instantiateMVars;
 withDepElimPatterns localDecls patterns fun localDecls patterns =>
-  k { fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
+  k { ref := ref, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (AltLHS × Expr) :=
 withRef alt.ref do
 (patternVars, alt) ← collectPatternVars alt;
 trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
-  withElaboratedLHS patternVarDecls alt.patterns matchType fun altLHS matchType => do
+  withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
     rhs ← elabTermEnsuringType alt.rhs matchType;
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
     rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;

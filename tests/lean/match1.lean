@@ -64,3 +64,19 @@ fun { x := x, ..} => { y := x }
 
 theorem ex2 : f1 { x := 10 } = { y := 10 } :=
 rfl
+
+universes u
+
+inductive Vec (α : Type u) : Nat → Type u
+| nil : Vec α 0
+| cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
+
+inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop
+| nil   : VecPred P Vec.nil
+| cons  {n : Nat} {head : α} {tail : Vec α n} : P head → VecPred P tail → VecPred P (Vec.cons head tail)
+
+theorem ex3 {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
+| _, Vec.cons head _, VecPred.cons h _ => ⟨head, h⟩
+
+theorem ex4 {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
+| _, Vec.cons head _, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩  -- ERROR

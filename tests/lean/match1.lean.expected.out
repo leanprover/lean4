@@ -10,3 +10,7 @@
 4
 ---- inv
 10
+match1.lean:82:2: error: type mismatch during dependent match-elimination at pattern variable 'w' with type
+  VecPred P Vec.nil
+expected type
+  VecPred P tail

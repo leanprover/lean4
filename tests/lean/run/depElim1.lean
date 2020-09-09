@@ -99,7 +99,7 @@ partial def decodeAltLHS (e : Expr) : MetaM AltLHS :=
 forallTelescopeReducing e fun args body => do
   decls ← args.toList.mapM (fun arg => getLocalDecl arg.fvarId!);
   pats  ← decodePats body;
-  pure { fvarDecls := decls, patterns := pats }
+  pure { ref := Syntax.missing, fvarDecls := decls, patterns := pats }
 
 partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
 | e =>

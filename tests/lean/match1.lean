@@ -80,3 +80,8 @@ theorem ex3 {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) �
 
 theorem ex4 {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
 | _, Vec.cons head _, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩  -- ERROR
+
+axiom someNat : Nat
+
+noncomputable def f2 (x : Nat) := -- must mark as noncomputable since it uses axiom `someNat`
+x + someNat

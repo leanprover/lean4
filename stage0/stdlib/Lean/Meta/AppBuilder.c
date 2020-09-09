@@ -3499,7 +3499,6 @@ lean_dec(x_25);
 x_37 = 0;
 lean_inc(x_35);
 x_38 = l_Lean_mkLambda(x_34, x_37, x_35, x_36);
-lean_dec(x_34);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);

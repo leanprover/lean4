@@ -133,7 +133,6 @@ lean_object* l_Array_forMAux___main___at_Lean_Elab_applyAttributesImp___spec__1(
 lean_object* l___private_Lean_Elab_Inductive_15__isInductiveFamily(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_ibelow(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_35__mkInductiveDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_14__forallTelescopeReducingAuxAux___main___rarg___closed__1;
 lean_object* l___private_Lean_Elab_Inductive_29__collectLevelParamsInInductive(lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_20__collectUniversesFromCtorTypeAux___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_7__getResultingType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -191,6 +190,7 @@ lean_object* l_Array_contains___at_Lean_Elab_Command_accLevelAtCtor___main___spe
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabInductiveViews(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_find_x21___rarg___closed__2;
+extern lean_object* l_Lean_MonadCacheT_MonadLift___closed__1;
 lean_object* l___private_Lean_Elab_Inductive_1__elabHeaderAux___main___lambda__1___closed__2;
 lean_object* l___private_Lean_Elab_Inductive_11__checkHeaders___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_26__removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13206,7 +13206,7 @@ x_37 = l___private_Lean_Elab_Inductive_34__mkAuxConstructions(x_4, x_10, x_11, x
 x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec(x_37);
-x_39 = l___private_Lean_Meta_Basic_14__forallTelescopeReducingAuxAux___main___rarg___closed__1;
+x_39 = l_Lean_MonadCacheT_MonadLift___closed__1;
 x_40 = l_ReaderT_MonadLift___closed__1;
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = l_Array_forMAux___main___at___private_Lean_Elab_Inductive_35__mkInductiveDecl___spec__3(x_39, x_40, x_39, x_40, x_4, x_41, x_10, x_11, x_12, x_13, x_14, x_15, x_38);

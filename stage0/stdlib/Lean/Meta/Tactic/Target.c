@@ -1059,7 +1059,6 @@ block_41:
 uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_16 = (uint8_t)((x_14 << 24) >> 61);
 x_17 = l_Lean_mkForall(x_11, x_16, x_3, x_13);
-lean_dec(x_11);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -1291,7 +1290,6 @@ block_97:
 uint8_t x_73; lean_object* x_74; lean_object* x_75; 
 x_73 = 0;
 x_74 = l_Lean_mkLet(x_68, x_3, x_70, x_71, x_73);
-lean_dec(x_68);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);

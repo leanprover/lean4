@@ -95,7 +95,6 @@ lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_4__ge
 lean_object* l_Lean_Meta_intro1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
-lean_object* l_Lean_Meta_caseValueAux___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__5___closed__7;
 lean_object* l___private_Lean_Util_Trace_4__addNode___at_Lean_Meta_check___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM___at_Lean_Meta_check___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1274,6 +1273,7 @@ x_23 = l_Lean_mkApp(x_22, x_20);
 x_24 = 0;
 lean_inc(x_16);
 lean_inc(x_20);
+lean_inc(x_4);
 x_25 = l_Lean_mkForall(x_4, x_24, x_20, x_16);
 x_26 = l_Lean_mkForall(x_4, x_24, x_23, x_16);
 lean_inc(x_7);
@@ -1693,6 +1693,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_1);
 x_123 = !lean_is_exclusive(x_19);
 if (x_123 == 0)
@@ -1723,6 +1724,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1755,6 +1757,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1787,7 +1790,7 @@ lean_inc(x_1);
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_getMVarTag___boxed), 6, 1);
 lean_closure_set(x_11, 0, x_1);
 lean_inc(x_1);
-x_12 = lean_alloc_closure((void*)(l_Lean_Meta_caseValueAux___lambda__5___boxed), 11, 5);
+x_12 = lean_alloc_closure((void*)(l_Lean_Meta_caseValueAux___lambda__5), 11, 5);
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
 lean_closure_set(x_12, 2, x_3);
@@ -1839,15 +1842,6 @@ lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_10;
-}
-}
-lean_object* l_Lean_Meta_caseValueAux___lambda__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l_Lean_Meta_caseValueAux___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_4);
-return x_12;
 }
 }
 lean_object* _init_l_Lean_Meta_caseValue___closed__1() {

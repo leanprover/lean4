@@ -327,6 +327,15 @@ private def eraseMacroScopesAux : Name → Name
 def Name.eraseMacroScopes (n : Name) : Name :=
 if n.hasMacroScopes then eraseMacroScopesAux n else n
 
+private def simpMacroScopesAux : Name → Name
+| Name.num p i _ => mkNameNum (simpMacroScopesAux p) i
+| n              => eraseMacroScopesAux n
+
+/- Helper function we use to create binder names that do not need to be unique. -/
+@[export lean_simp_macro_scopes]
+def Name.simpMacroScopes (n : Name) : Name :=
+if n.hasMacroScopes then simpMacroScopesAux n else n
+
 structure MacroScopesView :=
 (name       : Name)
 (imported   : Name)

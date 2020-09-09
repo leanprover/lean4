@@ -76,7 +76,6 @@ lean_object* l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(lean_object*, lean_object*
 lean_object* l_Lean_Elab_logTrace___at_Lean_Elab_Term_traceAtCmdPos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTermEnsuringType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_20__elabCDot___spec__1___rarg(lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -106,6 +105,7 @@ lean_object* l___private_Lean_Elab_DoNotation_11__processDoElemsAux___main(lean_
 lean_object* l___private_Lean_Elab_DoNotation_13__regTraceClasses(lean_object*);
 lean_object* l___private_Lean_Elab_DoNotation_4__hasLiftMethod___main___closed__3;
 lean_object* l___private_Lean_Elab_DoNotation_9__extractTypeFormerAppArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_19__elabCDot___spec__1___rarg(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l___private_Lean_Elab_DoNotation_8__expandDoElems(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_DoNotation_4__hasLiftMethod___boxed(lean_object*);
@@ -5556,7 +5556,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_167 = l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_20__elabCDot___spec__1___rarg(x_130);
+x_167 = l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_19__elabCDot___spec__1___rarg(x_130);
 x_168 = !lean_is_exclusive(x_167);
 if (x_168 == 0)
 {

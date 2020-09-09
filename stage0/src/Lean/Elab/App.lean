@@ -613,7 +613,7 @@ else
   else
     withRef f $ mergeFailures candidates
 
-private partial def expandApp (stx : Syntax) : TermElabM (Syntax × Array NamedArg × Array Arg) := do
+partial def expandApp (stx : Syntax) : TermElabM (Syntax × Array NamedArg × Array Arg) := do
 let f    := stx.getArg 0;
 (namedArgs, args) ← (stx.getArg 1).getArgs.foldlM
   (fun (acc : Array NamedArg × Array Arg) (stx : Syntax) => do

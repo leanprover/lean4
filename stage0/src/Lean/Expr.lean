@@ -302,7 +302,7 @@ Expr.app f a $ mkData (mixHash 29 $ mixHash (hash f) (hash a))
   (f.hasLevelParam || a.hasLevelParam)
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-let x := x.eraseMacroScopes;
+-- let x := x.eraseMacroScopes;
 Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
   (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
   (t.hasFVar || b.hasFVar)
@@ -312,7 +312,7 @@ Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
   bi
 
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-let x := x.eraseMacroScopes;
+-- let x := x.eraseMacroScopes;
 Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
   (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
   (t.hasFVar || b.hasFVar)
@@ -330,7 +330,7 @@ def mkThunk (type : Expr) : Expr :=
 mkLambda `_ BinderInfo.default (Lean.mkConst `Unit) type
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
-let x := x.eraseMacroScopes;
+-- let x := x.eraseMacroScopes;
 Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
   (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
   (t.hasFVar || v.hasFVar || b.hasFVar)
@@ -679,6 +679,15 @@ instance : HasToString Expr :=
 -- TODO: should not use dbgToString, but constructors.
 instance : HasRepr Expr :=
 ⟨Expr.dbgToString⟩
+
+def isAtomic : Expr → Bool
+| Expr.const _ _ _ => true
+| Expr.sort _ _    => true
+| Expr.bvar _ _    => true
+| Expr.lit _ _     => true
+| Expr.mvar _ _    => true
+| Expr.fvar _ _    => true
+| _                => false
 
 end Expr
 

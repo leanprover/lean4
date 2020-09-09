@@ -250,7 +250,7 @@ else
 lean_object* x_7; lean_object* x_8; double x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_add(x_2, x_7);
-x_9 = lean_float_array_get(x_1, x_2);
+x_9 = lean_float_array_fget(x_1, x_2);
 lean_dec(x_2);
 x_10 = lean_box_float(x_9);
 x_11 = lean_alloc_ctor(1, 2, 0);

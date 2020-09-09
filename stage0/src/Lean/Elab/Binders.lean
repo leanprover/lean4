@@ -17,9 +17,9 @@ open Meta
     a) (`:` term)?
     b) `:` term
   return `term` if it is present, or a hole if not. -/
-private def expandBinderType (stx : Syntax) : Syntax :=
+private def expandBinderType (ref : Syntax) (stx : Syntax) : Syntax :=
 if stx.getNumArgs == 0 then
-  mkHole stx
+  mkHole ref
 else
   stx.getArg 1
 
@@ -108,14 +108,14 @@ match stx with
   else if k == `Lean.Parser.Term.explicitBinder then do
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     ids ← getBinderIds (args.get! 1);
-    let type        := expandBinderType (args.get! 2);
+    let type        := expandBinderType stx (args.get! 2);
     let optModifier := args.get! 3;
     type ← expandBinderModifier type optModifier;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.implicitBinder then do
     -- `{` binderIdent+ binderType `}`
     ids ← getBinderIds (args.get! 1);
-    let type := expandBinderType (args.get! 2);
+    let type := expandBinderType stx (args.get! 2);
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.implicit }
   else if k == `Lean.Parser.Term.instBinder then do
     -- `[` optIdent type `]`
@@ -390,7 +390,7 @@ private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) (mat
   if matchTactic then
     `(tactic| intro $x:term; $body:tactic)
   else
-    `(fun $x => $body)
+    `(@fun $x => $body)
 
 /--
   Expand `matchAlts` syntax into a full `match`-expression.

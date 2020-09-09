@@ -63,8 +63,8 @@ s.size == 0
 
 partial def toListAux (ds : FloatArray) : Nat → List Float → List Float
 | i, r =>
-  if i < ds.size then
-    toListAux (i+1) (ds.get! i :: r)
+  if h : i < ds.size then
+    toListAux (i+1) (ds.get ⟨i, h⟩ :: r)
   else
     r.reverse
 

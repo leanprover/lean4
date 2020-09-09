@@ -19,6 +19,7 @@ lean_object* l_Lean_Meta_recursorAttribute;
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_RecursorInfo_6__getParamsPos___spec__2___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_2__getMajorPosIfAuxRecursor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_brecOnSuffix___closed__1;
+lean_object* l_Lean_Meta_binductionOnSuffix;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec___at___private_Lean_Meta_RecursorInfo_2__getMajorPosIfAuxRecursor_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__2;
@@ -176,6 +177,7 @@ lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString__
 extern lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__3___closed__3;
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_mkRecursorAttr___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkBInductionOnFor(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
@@ -325,6 +327,7 @@ lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 extern lean_object* l_Nat_Inhabited;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_6__getParamsPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_binductionOnSuffix___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_2__getMajorPosIfAuxRecursor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString___spec__2___closed__1;
@@ -404,6 +407,22 @@ x_1 = l_Lean_Meta_brecOnSuffix___closed__1;
 return x_1;
 }
 }
+lean_object* _init_l_Lean_Meta_binductionOnSuffix___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("binductionOn");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Meta_binductionOnSuffix() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_binductionOnSuffix___closed__1;
+return x_1;
+}
+}
 lean_object* l_Lean_Meta_mkCasesOnFor(lean_object* x_1) {
 _start:
 {
@@ -427,6 +446,15 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_brecOnSuffix;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Meta_mkBInductionOnFor(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Meta_binductionOnSuffix;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -11374,6 +11402,10 @@ l_Lean_Meta_brecOnSuffix___closed__1 = _init_l_Lean_Meta_brecOnSuffix___closed__
 lean_mark_persistent(l_Lean_Meta_brecOnSuffix___closed__1);
 l_Lean_Meta_brecOnSuffix = _init_l_Lean_Meta_brecOnSuffix();
 lean_mark_persistent(l_Lean_Meta_brecOnSuffix);
+l_Lean_Meta_binductionOnSuffix___closed__1 = _init_l_Lean_Meta_binductionOnSuffix___closed__1();
+lean_mark_persistent(l_Lean_Meta_binductionOnSuffix___closed__1);
+l_Lean_Meta_binductionOnSuffix = _init_l_Lean_Meta_binductionOnSuffix();
+lean_mark_persistent(l_Lean_Meta_binductionOnSuffix);
 l_Lean_Meta_RecursorUnivLevelPos_hasToString___closed__1 = _init_l_Lean_Meta_RecursorUnivLevelPos_hasToString___closed__1();
 lean_mark_persistent(l_Lean_Meta_RecursorUnivLevelPos_hasToString___closed__1);
 l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString___spec__2___closed__1 = _init_l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString___spec__2___closed__1();

@@ -157,7 +157,8 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser!:65 "-" >> termParser 100
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 (checkWsBefore "expected space" >> (namedArgument <|> termParser maxPrec))
+def ellipsis       := parser! ".."
+@[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 (checkWsBefore "expected space" >> (namedArgument <|> termParser maxPrec <|> ellipsis))
 
 @[builtinTermParser] def proj     := tparser! symbolNoWs "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25

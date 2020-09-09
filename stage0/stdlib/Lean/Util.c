@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util
-// Imports: Init Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.PPGoal Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.Sorry Lean.Util.Trace Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.ReplaceLevel Lean.Util.FoldConsts Lean.Util.Constructions Lean.Util.SCC
+// Imports: Init Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.PPGoal Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.Sorry Lean.Util.Trace Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.ForEachExpr Lean.Util.ReplaceLevel Lean.Util.FoldConsts Lean.Util.Constructions Lean.Util.SCC
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -28,6 +28,7 @@ lean_object* initialize_Lean_Util_Sorry(lean_object*);
 lean_object* initialize_Lean_Util_Trace(lean_object*);
 lean_object* initialize_Lean_Util_FindExpr(lean_object*);
 lean_object* initialize_Lean_Util_ReplaceExpr(lean_object*);
+lean_object* initialize_Lean_Util_ForEachExpr(lean_object*);
 lean_object* initialize_Lean_Util_ReplaceLevel(lean_object*);
 lean_object* initialize_Lean_Util_FoldConsts(lean_object*);
 lean_object* initialize_Lean_Util_Constructions(lean_object*);
@@ -80,6 +81,9 @@ res = initialize_Lean_Util_FindExpr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_ReplaceExpr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_ForEachExpr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_ReplaceLevel(lean_io_mk_world());

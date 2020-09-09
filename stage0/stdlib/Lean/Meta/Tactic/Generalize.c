@@ -227,6 +227,7 @@ if (x_62 == 0)
 lean_object* x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; 
 lean_dec(x_22);
 lean_dec(x_12);
+lean_dec(x_3);
 lean_dec(x_2);
 x_63 = l_Lean_Meta_generalize___lambda__1___closed__6;
 x_64 = lean_box(0);
@@ -415,6 +416,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_57 = !lean_is_exclusive(x_25);
@@ -447,6 +449,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_70 = !lean_is_exclusive(x_21);
@@ -478,6 +481,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_74 = !lean_is_exclusive(x_14);
@@ -508,6 +512,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_78 = !lean_is_exclusive(x_11);
@@ -586,7 +591,6 @@ _start:
 lean_object* x_11; 
 x_11 = l_Lean_Meta_generalize___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_5);
-lean_dec(x_3);
 return x_11;
 }
 }

@@ -37,8 +37,8 @@ structure MatchAltView :=
 (patterns : Array Syntax)
 (rhs      : Syntax)
 
-def mkMatchAltView (matchAlt : Syntax) : MatchAltView :=
-{ ref := matchAlt, patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
+def mkMatchAltView (ref : Syntax) (matchAlt : Syntax) : MatchAltView :=
+{ ref := ref, patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
 
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 newStx ← `(let $lhsVar := $discr; $rhs);
@@ -91,10 +91,24 @@ matchAlts.mapM fun matchAlt => do
   patterns ← liftMacroM $ matchAlt.patterns.mapM $ expandMacros env;
   pure $ { matchAlt with patterns := patterns }
 
+private partial def getMatchAltsAux (args : Array Syntax) : Nat → Syntax → Array MatchAltView → Array MatchAltView
+| i, ref, result =>
+  if h : i < args.size then
+    let arg := args.get ⟨i, h⟩;
+    let ref := if ref.isNone then arg else ref; -- The first vertical is optional
+    if arg.getKind == `Lean.Parser.Term.matchAlt then
+      getMatchAltsAux (i+1) ref (result.push (mkMatchAltView ref arg))
+    else
+      -- current `arg` is the vertical bar delimiter
+      getMatchAltsAux (i+1) arg result
+  else
+    result
+
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts (stx : Syntax) : Array MatchAltView :=
-let alts : Array Syntax := ((stx.getArg 4).getArg 1).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt;
-alts.map mkMatchAltView
+let matchAlts  := stx.getArg 4;
+let firstVBar  := matchAlts.getArg 0;
+getMatchAltsAux (matchAlts.getArg 1).getArgs 0 firstVBar #[]
 
 /--
   Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and

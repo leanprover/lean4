@@ -183,8 +183,11 @@ end MessageLog
 def MessageData.nestD (msg : MessageData) : MessageData :=
 MessageData.nest 2 msg
 
-def indentExpr (msg : MessageData) : MessageData :=
+def indentD (msg : MessageData) : MessageData :=
 MessageData.nestD (Format.line ++ msg)
+
+def indentExpr (e : Expr) : MessageData :=
+indentD e
 
 namespace KernelException
 

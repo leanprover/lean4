@@ -550,18 +550,22 @@ match p.vars with
       newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
         | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
         | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
-        | Pattern.inaccessible e :: ps     => do
+        | p@(Pattern.inaccessible e) :: ps => do
           trace! `Meta.Match.match ("inaccessible in ctor step " ++ e);
-          e ← whnfD e;
-          match e.constructorApp? env with
-          | some (ctorVal, ctorArgs) => do
-            if ctorVal.name == subgoal.ctorName then
-              let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
-              let fields := fields.toList.map Pattern.inaccessible;
-              pure $ some { alt with patterns := fields ++ ps }
-            else
-              pure none
-          | _ => pure none
+          withExistingLocalDecls alt.fvarDecls do
+            -- Try to push inaccessible annotations.
+            e ← whnfD e;
+            match e.constructorApp? env with
+            | some (ctorVal, ctorArgs) => do
+              if ctorVal.name == subgoal.ctorName then
+                let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
+                let fields := fields.toList.map Pattern.inaccessible;
+                pure $ some { alt with patterns := fields ++ ps }
+              else
+                pure none
+            | _ => throwErrorAt alt.ref $
+              "dependent match elimination failed, inaccessible pattern found " ++ indentD p.toMessageData ++
+              Format.line ++ "constructor expected"
         | _                                => unreachable!;
       pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 

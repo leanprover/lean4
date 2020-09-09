@@ -85,3 +85,38 @@ axiom someNat : Nat
 
 noncomputable def f2 (x : Nat) := -- must mark as noncomputable since it uses axiom `someNat`
 x + someNat
+
+inductive Parity : Nat -> Type
+| even (n) : Parity (n + n)
+| odd  (n) : Parity (Nat.succ (n + n))
+
+axiom nDiv2 (n : Nat)     : n % 2 = 0 → n = n/2 + n/2
+axiom nDiv2Succ (n : Nat) : n % 2 ≠ 0 → n = Nat.succ (n/2 + n/2)
+
+def parity (n : Nat) : Parity n :=
+if h : n % 2 = 0 then
+  Eq.ndrec (Parity.even (n/2)) (nDiv2 n h).symm
+else
+  Eq.ndrec (Parity.odd (n/2)) (nDiv2Succ n h).symm
+
+partial def natToBin : (n : Nat) → List Bool
+| 0 => []
+| n => match n, parity n with
+  | _, Parity.even j => false :: natToBin j
+  | _, Parity.odd  j => true  :: natToBin j
+
+#eval natToBin 6
+
+partial def natToBinBad (n : Nat) : List Bool :=
+match n, parity n with
+| 0, _             => []
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
+
+partial def natToBin2 (n : Nat) : List Bool :=
+match n, parity n with
+| _, Parity.even 0 => []
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
+
+#eval natToBin2 6

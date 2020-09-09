@@ -17,3 +17,11 @@ variable [r : Monad m]
 ```
 because `Monad.to* methods have bad binder annotations
 -/
+
+theorem aux (a b c : Nat) (h₁ : a = b) (h₂ : c = b) : a = c :=
+by {
+  let! aux := h₂.symm;
+  subst aux;
+  subst h₁;
+  exact rfl
+}

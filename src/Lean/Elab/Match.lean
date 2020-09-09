@@ -215,6 +215,7 @@ structure Context :=
 (funId         : Syntax)
 (ctorVal?      : Option ConstructorVal) -- It is `some`, if constructor application
 (explicit      : Bool)
+(ellipsis      : Bool)
 (paramDecls    : Array LocalDecl)
 (paramDeclIdx  : Nat := 0)
 (namedArgs     : Array NamedArg)
@@ -222,7 +223,7 @@ structure Context :=
 (newArgs       : Array Syntax := #[])
 
 instance Context.inhabited : Inhabited Context :=
-⟨⟨arbitrary _, none, true, #[], 0, #[], [], #[]⟩⟩
+⟨⟨arbitrary _, none, false, false, #[], 0, #[], [], #[]⟩⟩
 
 private def isDone (ctx : Context) : Bool :=
 ctx.paramDeclIdx ≥ ctx.paramDecls.size
@@ -261,8 +262,11 @@ match arg with
 private def processExplicitArg (collect : Syntax → M Syntax) (accessible : Bool) (ctx : Context) : M Context :=
 match ctx.args with
 | [] =>
-  -- TODO: add support for `..`
-  throwError ("explicit parameter is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
+  if ctx.ellipsis then do
+    hole ← `(_);
+    pushNewArg collect accessible ctx (Arg.stx hole)
+  else
+    throwError ("explicit parameter is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
 | arg::args => do
   let ctx := { ctx with args := args };
   pushNewArg collect accessible ctx arg
@@ -293,7 +297,7 @@ private partial def processCtorAppAux (collect : Syntax → M Syntax) : Context 
       | _                       => processExplicitArg collect accessible ctx;
       processCtorAppAux ctx
 
-def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) : M Syntax := do
+def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) : M Syntax := do
 let args := args.toList;
 (fId, explicit) ← match_syntax f with
 | `($fId:ident)  => pure (fId, false)
@@ -305,22 +309,24 @@ forallTelescopeReducing fInfo.type fun xs _ => do
 paramDecls ← xs.mapM getFVarLocalDecl;
 match fInfo with
 | ConstantInfo.ctorInfo val =>
-  processCtorAppAux collect { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args }
+  processCtorAppAux collect
+    { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
 | _ => do
   env ← getEnv;
   if hasMatchPatternAttribute env fName then
-    processCtorAppAux collect { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args }
+    processCtorAppAux collect
+      { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
   else
     throwCtorExpected
 
 end CtorApp
 
 def processCtorApp (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
-(f, namedArgs, args) ← liftM $ expandApp stx;
-CtorApp.processCtorApp collect f namedArgs args
+(f, namedArgs, args, ellipsis) ← liftM $ expandApp stx true;
+CtorApp.processCtorApp collect f namedArgs args ellipsis
 
 def processCtor (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
-CtorApp.processCtorApp collect stx #[] #[]
+CtorApp.processCtorApp collect stx #[] #[] false
 
 private def processVar (idStx : Syntax) : M Syntax := do
 unless idStx.isIdent $

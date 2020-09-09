@@ -74,3 +74,25 @@ def Vec.mapHead2 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β
 def Vec.mapHead3 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none
 | _, cons (tail := as) (head := a), cons b bs,   f => some (f a b)
+
+inductive Foo
+| mk₁ (x y z w : Nat)
+| mk₂ (x y z w : Nat)
+
+def Foo.z : Foo → Nat
+| mk₁ (z := z) .. => z
+| mk₂ (z := z) .. => z
+
+#eval (Foo.mk₁ 10 20 30 40).z
+
+theorem ex7 : (Foo.mk₁ 10 20 30 40).z = 30 :=
+rfl
+
+def Foo.addY? : Foo × Foo → Option Nat
+| (mk₁ (y := y₁) .., mk₁ (y := y₂) ..) => some (y₁ + y₂)
+| _ => none
+
+#eval Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40)
+
+theorem ex8 : Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40) = some 22 :=
+rfl

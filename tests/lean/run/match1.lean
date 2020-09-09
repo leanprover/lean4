@@ -96,3 +96,12 @@ def Foo.addY? : Foo × Foo → Option Nat
 
 theorem ex8 : Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40) = some 22 :=
 rfl
+
+instance {α} : Inhabited (Sigma fun m => Vec α m) :=
+⟨⟨0, Vec.nil⟩⟩
+
+partial def filter {α} (p : α → Bool) : {n : Nat} → Vec α n → Sigma fun m => Vec α m
+| _, Vec.nil        => ⟨0, Vec.nil⟩
+| _, Vec.cons x xs  => match p x, filter p xs with
+  | true,  ⟨_, ys⟩ => ⟨_, Vec.cons x ys⟩
+  | false, ys      => ys

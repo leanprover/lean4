@@ -390,7 +390,7 @@ private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) (mat
   if matchTactic then
     `(tactic| intro $x:term; $body:tactic)
   else
-    `(fun $x => $body)
+    `(@fun $x => $body)
 
 /--
   Expand `matchAlts` syntax into a full `match`-expression.

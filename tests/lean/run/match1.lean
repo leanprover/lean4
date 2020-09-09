@@ -34,3 +34,27 @@ inductive C
 def C.x : C → Nat
 | C.mk₁ x   => x
 | C.mk₂ x _ => x
+
+def head : {α : Type} → List α → Option α
+| _, a::as => some a
+| _, _     => none
+
+theorem ex4 : head [1, 2] = some 1 :=
+rfl
+
+def head2 : {α : Type} → List α → Option α :=
+@fun
+  | _, a::as => some a
+  | _, _     => none
+
+theorem ex5 : head2 [1, 2] = some 1 :=
+rfl
+
+def head3 {α : Type} (xs : List α) : Option α :=
+let rec aux : {α : Type} → List α → Option α
+  | _, a::as => some a
+  | _, _     => none;
+aux xs
+
+theorem ex6 : head3 [1, 2] = some 1 :=
+rfl

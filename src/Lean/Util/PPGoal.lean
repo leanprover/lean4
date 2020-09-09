@@ -30,6 +30,7 @@ match mctx.findDecl? mvarId with
        let (varNames, prevType?, fmt) := acc;
        match localDecl with
        | LocalDecl.cdecl _ _ varName type _   =>
+         let varName := varName.simpMacroScopes;
          let type := instMVars type;
          if prevType? == none || prevType? == some type then
            (varName :: varNames, some type, fmt)
@@ -37,6 +38,7 @@ match mctx.findDecl? mvarId with
            let fmt := pushPending varNames prevType? fmt;
            ([varName], some type, fmt)
        | LocalDecl.ldecl _ _ varName type val _ =>
+         let varName := varName.simpMacroScopes;
          let fmt  := pushPending varNames prevType? fmt;
          let fmt  := addLine fmt;
          let type := instMVars type;

@@ -654,10 +654,18 @@ auto pretty_fn::pp_meta(expr const & e) -> result {
 */
 }
 
+
+extern "C" object * lean_simp_macro_scopes(object * n);
+
+name simp_macro_scopes(name const & n) {
+    return name(lean_simp_macro_scopes(n.to_obj_arg()));
+}
+
 auto pretty_fn::pp_fvar(expr const & e) -> result {
     if (optional<name> n0 = m_ctx.get_local_pp_name(e)) {
         name n = sanitize_if_fresh(*n0);
         n = sanitize_name_generator_name(n);
+        n = simp_macro_scopes(n);
         if (m_locals_full_names)
             return result(format("<") + format(n + local_name(e)) + format(">"));
         else
@@ -666,8 +674,12 @@ auto pretty_fn::pp_fvar(expr const & e) -> result {
     return format(fvar_name(e));
 }
 
+name s_local_pp_name(expr const & e) {
+    return simp_macro_scopes(local_pp_name(e));
+}
+
 auto pretty_fn::pp_local(expr const & e) -> result {
-    name n = sanitize_if_fresh(local_pp_name(e));
+    name n = sanitize_if_fresh(s_local_pp_name(e));
     n = sanitize_name_generator_name(n);
     if (m_locals_full_names)
         return result(format("<") + format(n + local_name(e)) + format(">"));
@@ -788,7 +800,7 @@ format pretty_fn::pp_binder(expr const & local) {
     auto bi = local_info(local);
     if (!is_default(bi))
         r += format(open_binder_string(bi, m_unicode));
-    r += escape(local_pp_name(local));
+    r += escape(s_local_pp_name(local));
     if (m_binder_types) {
         r += space();
         r += compose(format(":"), nest(m_indent, compose(line(), pp_child(local_type(local), 0).fmt())));
@@ -820,18 +832,18 @@ format pretty_fn::pp_binders(buffer<expr> const & locals) {
     expr local       = locals[0];
     expr   type      = local_type(local);
     binder_info bi   = local_info(local);
-    names.push_back(local_pp_name(local));
+    names.push_back(s_local_pp_name(local));
     format r;
     for (unsigned i = 1; i < num; i++) {
         expr local = locals[i];
         if (!is_inst_implicit(bi) && local_type(local) == type && local_info(local) == bi) {
-            names.push_back(local_pp_name(local));
+            names.push_back(s_local_pp_name(local));
         } else {
             r += group(compose(line(), pp_binder_block(names, type, bi)));
             names.clear();
             type = local_type(local);
             bi   = local_info(local);
-            names.push_back(local_pp_name(local));
+            names.push_back(s_local_pp_name(local));
         }
     }
     r += group(compose(line(), pp_binder_block(names, type, bi)));
@@ -897,7 +909,7 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     auto p       = binding_body_fresh(binding, true);
     expr local   = p.second;
     expr body    = p.first;
-    name const & n = local_pp_name(local);
+    name const & n = s_local_pp_name(local);
     format type_fmt  = pp_child(local_type(local), 0).fmt();
     format proof_fmt = pp_child(proof, 0).fmt();
     format body_fmt  = pp_child(body, 0).fmt();
@@ -1052,7 +1064,7 @@ auto pretty_fn::pp_let(expr e) -> result {
     for (unsigned i = 0; i < sz; i++) {
         expr l, t, v;
         std::tie(l, t, v) = decls[i];
-        name const & n = local_pp_name(l);
+        name const & n = s_local_pp_name(l);
         format beg     = i == 0 ? space() : line();
         format sep     = i < sz - 1 ? format(",") : format();
         format entry   = format(n);
@@ -1480,7 +1492,7 @@ auto pretty_fn::pp_subtype(expr const & e) -> result {
     auto p     = binding_body_fresh(pred, true);
     expr body  = p.first;
     expr local = p.second;
-    format r   = bracket("{", format(local_pp_name(local)) + space() + format("//") + space() + pp_child(body, 0).fmt(), "}");
+    format r   = bracket("{", format(s_local_pp_name(local)) + space() + format("//") + space() + pp_child(body, 0).fmt(), "}");
     return result(r);
 }
 
@@ -1568,7 +1580,7 @@ auto pretty_fn::pp_sep(expr const & e) -> result {
     expr local = p.second;
     format in  = format(m_unicode ? "∈" : "in");
     format r   = bracket("{",
-                         format(local_pp_name(local)) + space() + in + space() +
+                         format(s_local_pp_name(local)) + space() + in + space() +
                          pp_child(s, 0).fmt() + space() + format("|") + space() +
                          pp_child(body, 0).fmt(), "}");
     return result(r);

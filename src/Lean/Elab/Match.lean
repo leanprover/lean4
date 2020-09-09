@@ -184,13 +184,6 @@ forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ =>
 private def throwAmbiguous {α} (fs : List Expr) : M α :=
 throwError ("ambiguous pattern, use fully qualified name, possible interpretations " ++ fs)
 
-private def processVar (id : Name) (mustBeCtor : Bool := false) : M Unit := do
-when mustBeCtor $ throwCtorExpected;
-unless id.eraseMacroScopes.isAtomic $ throwError "invalid pattern variable, must be atomic";
-s ← get;
-when (s.found.contains id) $ throwError ("invalid pattern, variable '" ++ id ++ "' occurred more than once");
-modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
-
 def resolveId? (stx : Syntax) : M (Option Expr) :=
 match stx with
 | Syntax.ident _ _ val preresolved => do
@@ -203,48 +196,164 @@ match stx with
   | _   => throwAmbiguous fs
 | _ => throwError "identifier expected"
 
-/- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute)
-   If `mustBeCtor == true`, then `stx` cannot be a pattern variable.
+private def throwInvalidPattern {α} : M α :=
+throwError "invalid pattern"
 
-   If `stx` is a constructor, then return the number of explicit arguments that are inductive type parameters. -/
-private def processIdAux (stx : Syntax) (mustBeCtor : Bool) : M Nat :=
-withRef stx do
+namespace CtorApp
+
+/-
+An application in a pattern can be
+
+1- A constructor application
+   The elaborator assumes fields are accessible and inductive parameters are not accessible.
+
+2- A regular application `(f ...)` where `f` is tagged with `[matchPattern]`.
+   The elaborator assumes implicit arguments are not accessible and explicit ones are accessible.
+-/
+
+structure Context :=
+(funId         : Syntax)
+(ctorVal?      : Option ConstructorVal) -- It is `some`, if constructor application
+(explicit      : Bool)
+(paramDecls    : Array LocalDecl)
+(paramDeclIdx  : Nat := 0)
+(namedArgs     : Array NamedArg)
+(args          : List Arg)
+(newArgs       : Array Syntax := #[])
+
+instance Context.inhabited : Inhabited Context :=
+⟨⟨arbitrary _, none, true, #[], 0, #[], [], #[]⟩⟩
+
+private def isDone (ctx : Context) : Bool :=
+ctx.paramDeclIdx ≥ ctx.paramDecls.size
+
+private def finalize (ctx : Context) : M Syntax :=
+if ctx.namedArgs.isEmpty && ctx.args.isEmpty then do
+  fStx ← `(@$(ctx.funId):ident);
+  pure $ mkAppStx fStx ctx.newArgs
+else
+  throwError "too many arguments"
+
+private def isNextArgAccessible (ctx : Context) : Bool :=
+let i := ctx.paramDeclIdx;
+match ctx.ctorVal? with
+| some ctorVal => i ≥ ctorVal.nparams -- For constructor applications only fields are accessible
+| none =>
+  if h : i < ctx.paramDecls.size then
+    -- For `[matchPattern]` applications, only explicit parameters are accessible.
+    let d := ctx.paramDecls.get ⟨i, h⟩;
+    d.binderInfo.isExplicit
+  else
+    false
+
+private def getNextParam (ctx : Context) : LocalDecl × Context :=
+let i := ctx.paramDeclIdx;
+let d := ctx.paramDecls.get! i;
+(d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
+
+private def pushNewArg (collect : Syntax → M Syntax) (accessible : Bool) (ctx : Context) (arg : Arg) : M Context :=
+match arg with
+| Arg.stx stx => do
+  stx ← if accessible then collect stx else pure stx;
+  pure { ctx with newArgs := ctx.newArgs.push stx }
+| _           => unreachable!
+
+private def processExplicitArg (collect : Syntax → M Syntax) (accessible : Bool) (ctx : Context) : M Context :=
+match ctx.args with
+| [] =>
+  -- TODO: add support for `..`
+  throwError ("explicit parameter is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
+| arg::args => do
+  let ctx := { ctx with args := args };
+  pushNewArg collect accessible ctx arg
+
+private def processImplicitArg (collect : Syntax → M Syntax) (accessible : Bool) (ctx : Context) : M Context :=
+if ctx.explicit then
+  processExplicitArg collect accessible ctx
+else do
+  hole ← `(_);
+  pushNewArg collect accessible ctx (Arg.stx hole)
+
+private partial def processCtorAppAux (collect : Syntax → M Syntax) : Context → M Syntax
+| ctx =>
+  if isDone ctx then finalize ctx
+  else
+    let accessible := isNextArgAccessible ctx;
+    let (d, ctx)   := getNextParam ctx;
+    match ctx.namedArgs.findIdx? (fun namedArg => namedArg.name == d.userName) with
+    | some idx => do
+      let arg := ctx.namedArgs.get! idx;
+      let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx };
+      ctx ← pushNewArg collect accessible ctx arg.val;
+      processCtorAppAux ctx
+    | none => do
+      ctx ← match d.binderInfo with
+      | BinderInfo.implicit     => processImplicitArg collect accessible ctx
+      | BinderInfo.instImplicit => processImplicitArg collect accessible ctx
+      | _                       => processExplicitArg collect accessible ctx;
+      processCtorAppAux ctx
+
+def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) : M Syntax := do
+let args := args.toList;
+(fId, explicit) ← match_syntax f with
+| `($fId:ident)  => pure (fId, false)
+| `(@$fId:ident) => pure (fId, true)
+| _              => throwError "identifier expected";
+some (Expr.const fName _ _) ← resolveId? fId | throwCtorExpected;
+fInfo ← getConstInfo fName;
+forallTelescopeReducing fInfo.type fun xs _ => do
+paramDecls ← xs.mapM getFVarLocalDecl;
+match fInfo with
+| ConstantInfo.ctorInfo val =>
+  processCtorAppAux collect { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args }
+| _ => do
+  env ← getEnv;
+  if hasMatchPatternAttribute env fName then
+    processCtorAppAux collect { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args }
+  else
+    throwCtorExpected
+
+end CtorApp
+
+def processCtorApp (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
+(f, namedArgs, args) ← liftM $ expandApp stx;
+CtorApp.processCtorApp collect f namedArgs args
+
+def processCtor (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
+CtorApp.processCtorApp collect stx #[] #[]
+
+private def processVar (idStx : Syntax) : M Syntax := do
+unless idStx.isIdent $
+  throwErrorAt idStx "identifier expected";
+let id := idStx.getId;
+unless id.eraseMacroScopes.isAtomic $ throwError "invalid pattern variable, must be atomic";
+s ← get;
+when (s.found.contains id) $ throwError ("invalid pattern, variable '" ++ id ++ "' occurred more than once");
+modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id };
+pure idStx
+
+/- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
+private def processId (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
 env ← getEnv;
 f? ← resolveId? stx;
 match f? with
-| none   => do processVar stx.getId mustBeCtor; pure 0
+| none   => processVar stx
 | some f => match f with
   | Expr.const fName _ _ => do
     match env.find? fName with
-    | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams val
-    | some $ info =>
-      if hasMatchPatternAttribute env fName then pure 0
-      else do processVar stx.getId mustBeCtor; pure 0
-    |   none => throwCtorExpected
-  | _ => do processVar stx.getId mustBeCtor; pure 0
-
-private def processCtor (stx : Syntax) : M Nat :=
-processIdAux stx true
-
-private def processId (stx : Syntax) : M Unit := do
-_ ← processIdAux stx false; pure ()
-
-private def throwInvalidPattern {α} : M α :=
-throwError "invalid pattern"
+    | some (ConstantInfo.ctorInfo _) => processCtor collect stx
+    | some _ =>
+      if hasMatchPatternAttribute env fName then
+        processCtor collect stx
+      else
+        processVar stx
+    | none => throwCtorExpected
+  | _ => processVar stx
 
 private partial def collect : Syntax → M Syntax
 | stx@(Syntax.node k args) => withRef stx $ withFreshMacroScope $
   if k == `Lean.Parser.Term.app then do
-    let appFn   := args.get! 0;
-    let appArgs := (args.get! 1).getArgs;
-    appArgs.forM fun appArg =>
-      when (appArg.isOfKind `Lean.Parser.Term.namedPattern) $
-        throwErrorAt appArg "named parameters are not allowed in patterns";
-    /- We must skip explict inducitve datatype parameters since they are by default inaccessible.
-       Example: `A` is inaccessible term at `Sum.inl A b` -/
-    numArgsToSkip ← processCtor appFn;
-    appArgs ← appArgs.mapIdxM fun i arg => if i < numArgsToSkip then pure arg else collect arg;
-    pure $ Syntax.node k $ args.set! 1 (mkNullNode appArgs)
+    processCtorApp collect stx
   else if k == `Lean.Parser.Term.anonymousCtor then do
     elems ← (args.get! 1).getArgs.mapSepElemsM $ collect;
     pure $ Syntax.node k $ args.set! 1 $ mkNullNode elems
@@ -288,13 +397,12 @@ private partial def collect : Syntax → M Syntax
         let arg       := arg.setArg 1 s;
         pure $ Syntax.node k $ args.set! 1 arg
   else if k == `Lean.Parser.Term.explicitUniv then do
-    _ ← processCtor (stx.getArg 0);
-    pure stx
+    processCtor collect (stx.getArg 0)
   else if k == `Lean.Parser.Term.namedPattern then do
     /- Recall that
        def namedPattern := check... >> tparser! "@" >> termParser -/
     let id := stx.getArg 0;
-    processVar id.getId;
+    processVar id;
     let pat := stx.getArg 2;
     pat ← collect pat;
     `(namedPattern $id $pat)
@@ -310,9 +418,8 @@ private partial def collect : Syntax → M Syntax
     throwError "invalid pattern, notation is ambiguous"
   else
     throwInvalidPattern
-| stx@(Syntax.ident _ _ _ _) => do
-  processId stx;
-  pure stx
+| stx@(Syntax.ident _ _ _ _) =>
+  processId collect stx
 | stx =>
   throwInvalidPattern
 
@@ -420,14 +527,6 @@ modify $ fun s => { s with found := s.found.insert fvarId }
 private def throwInvalidPattern {α} (e : Expr) : M α :=
 throwError ("invalid pattern " ++ indentExpr e)
 
-private def getFieldsBinderInfoAux (ctorVal : ConstructorVal) : Nat → Expr → Array BinderInfo → Array BinderInfo
-| i, Expr.forallE _ d b c, bis =>
-  if i < ctorVal.nparams then
-    getFieldsBinderInfoAux (i+1) b bis
-  else
-    getFieldsBinderInfoAux (i+1) b (bis.push c.binderInfo)
-| _, _, bis => bis
-
 /- Create a new LocalDecl `x` for the metavariable `mvar`, and return `Pattern.var x` -/
 private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
 let mvarId := mvar.mvarId!;
@@ -451,9 +550,6 @@ match val? with
       | none   => s.localDecls.push newDecl -- None of the existing declarations depend on `mvar`
       | some i => s.localDecls.insertAt i newDecl };
   pure $ Pattern.var fvarId
-
-private def getFieldsBinderInfo (ctorVal : ConstructorVal) : Array BinderInfo :=
-getFieldsBinderInfoAux ctorVal 0 ctorVal.type #[]
 
 partial def main : Expr → M Pattern
 | e =>
@@ -505,14 +601,7 @@ partial def main : Expr → M Pattern
       unless (args.size == v.nparams + v.nfields) $ throwInvalidPattern e;
       let params := args.extract 0 v.nparams;
       let fields := args.extract v.nparams args.size;
-      let binderInfos := getFieldsBinderInfo v;
-      fields ← fields.mapIdxM fun i field => do {
-        let binderInfo := binderInfos.get! i;
-        if binderInfo.isExplicit then
-          main field
-        else
-          mkInaccessible field
-      };
+      fields ← fields.mapM main;
       pure $ Pattern.ctor v.name us params.toList fields.toList
 
 end ToDepElimPattern
@@ -544,7 +633,6 @@ withPatternVars patternVars fun patternVarDecls => do
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
     rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;
     trace `Elab.match fun _ => "rhs: " ++ rhs;
-    -- TODO: we should promote `.(?m ...)` to pattern variables too. This can happen when users misuse `{}` in constructors
     -- TODO: check whether altLHS still has metavariables
     pure (altLHS, rhs)
 

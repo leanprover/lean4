@@ -58,3 +58,19 @@ aux xs
 
 theorem ex6 : head3 [1, 2] = some 1 :=
 rfl
+
+inductive Vec.{u} (α : Type u) : Nat → Type u
+| nil : Vec α 0
+| cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
+
+def Vec.mapHead1 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
+| _,   nil,       nil,       f => none
+| _, cons a as, cons b bs,   f => some (f a b)
+
+def Vec.mapHead2 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
+| _, nil,            nil,         f => none
+| _, @cons _ n a as, cons b bs,   f => some (f a b)
+
+def Vec.mapHead3 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
+| _, nil,            nil,         f => none
+| _, cons (tail := as) (head := a), cons b bs,   f => some (f a b)

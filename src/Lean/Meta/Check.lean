@@ -19,7 +19,7 @@ _ ← getLevel e; pure ()
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 lctx ← getLCtx;
 match lctx.find? fvarId with
-| some (LocalDecl.ldecl _ n t v b _) => do
+| some (LocalDecl.ldecl _ _ n t v _) => do
   vType ← inferType v;
   throwError $
      "invalid let declaration, term" ++ indentExpr v

@@ -10,13 +10,15 @@ import Lean.Meta.ExprDefEq
 namespace Lean
 namespace Meta
 
-def casesOnSuffix := "casesOn"
-def recOnSuffix   := "recOn"
-def brecOnSuffix  := "brecOn"
+def casesOnSuffix       := "casesOn"
+def recOnSuffix         := "recOn"
+def brecOnSuffix        := "brecOn"
+def binductionOnSuffix  := "binductionOn"
 
 def mkCasesOnFor (indDeclName : Name) : Name := mkNameStr indDeclName casesOnSuffix
 def mkRecOnFor (indDeclName : Name) : Name   := mkNameStr indDeclName recOnSuffix
 def mkBRecOnFor (indDeclName : Name) : Name  := mkNameStr indDeclName brecOnSuffix
+def mkBInductionOnFor (indDeclName : Name) : Name  := mkNameStr indDeclName binductionOnSuffix
 
 inductive RecursorUnivLevelPos
 | motive                -- marks where the universe of the motive should go

@@ -953,6 +953,11 @@ private partial def instantiateForallAux (ps : Array Expr) : Nat → Expr → Me
 def instantiateForall (e : Expr) (ps : Array Expr) : m Expr :=
 liftMetaM $ instantiateForallAux ps 0 e
 
+/-- Return true iff `e` depends on the free variable `fvarId` -/
+def dependsOn (e : Expr) (fvarId : FVarId) : m Bool := liftMetaM do
+mctx ← getMCtx;
+pure $ mctx.exprDependsOn e fvarId
+
 end Methods
 end Meta
 

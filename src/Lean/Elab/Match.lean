@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Elab.SyntheticMVars
+import Lean.Elab.App
 
 namespace Lean
 namespace Elab
@@ -144,7 +145,7 @@ fun stx expectedType? => do
   Patterns define new local variables.
   This module collect them and preprocess `_` occurring in patterns.
   Recall that an `_` may represent anonymous variables or inaccessible terms
-  that implied by typing constraints. Thus, we represent them with fresh named holes `?x`.
+  that are implied by typing constraints. Thus, we represent them with fresh named holes `?x`.
   After we elaborate the pattern, if the metavariable remains unassigned, we transform it into
   a regular pattern variable. Otherwise, it becomes an inaccessible term.
 
@@ -190,18 +191,17 @@ s ← get;
 when (s.found.contains id) $ throwError ("invalid pattern, variable '" ++ id ++ "' occurred more than once");
 modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
 
--- HACK: inlining this function crashes the compiler
--- It produces "unknown free variable: _kernel_fresh.<some idx>"  at step `csimp.cpp`
-def processIdAuxAux (stx : Syntax) (mustBeCtor : Bool) (env : Environment) (f : Expr) : M Nat :=
-match f with
-| Expr.const fName _ _ => do
-  match env.find? fName with
-  | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams val
-  | some $ info =>
-    if hasMatchPatternAttribute env fName then pure 0
-    else do processVar stx.getId mustBeCtor; pure 0
-  | none => throwCtorExpected
-| _ => do processVar stx.getId mustBeCtor; pure 0
+def resolveId? (stx : Syntax) : M (Option Expr) :=
+match stx with
+| Syntax.ident _ _ val preresolved => do
+  rs ← liftM $ catch (resolveName val preresolved []) (fun _ => pure []);
+  let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty;
+  let fs := rs.map fun ⟨f, _⟩ => f;
+  match fs with
+  | []  => pure none
+  | [f] => pure (some f)
+  | _   => throwAmbiguous fs
+| _ => throwError "identifier expected"
 
 /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute)
    If `mustBeCtor == true`, then `stx` cannot be a pattern variable.
@@ -210,20 +210,18 @@ match f with
 private def processIdAux (stx : Syntax) (mustBeCtor : Bool) : M Nat :=
 withRef stx do
 env ← getEnv;
-match stx with
-| Syntax.ident _ _ val preresolved => do
-  rs ← liftM $ catch (resolveName val preresolved []) (fun _ => pure []);
-  let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty;
-  let fs := rs.map fun ⟨f, _⟩ => f;
-  match fs with
-  | []  => do processVar stx.getId mustBeCtor; pure 0
-  | [f] => processIdAuxAux stx mustBeCtor env f
-  | _   => throwAmbiguous fs
-| _ =>
-  if stx.isOfKind `Lean.Parser.Term.explicit then
-    throwError "identifier expected, '@' is not allowed in patterns"
-  else
-    throwError "identifier expected"
+f? ← resolveId? stx;
+match f? with
+| none   => do processVar stx.getId mustBeCtor; pure 0
+| some f => match f with
+  | Expr.const fName _ _ => do
+    match env.find? fName with
+    | some $ ConstantInfo.ctorInfo val => liftM $ getNumExplicitCtorParams val
+    | some $ info =>
+      if hasMatchPatternAttribute env fName then pure 0
+      else do processVar stx.getId mustBeCtor; pure 0
+    |   none => throwCtorExpected
+  | _ => do processVar stx.getId mustBeCtor; pure 0
 
 private def processCtor (stx : Syntax) : M Nat :=
 processIdAux stx true
@@ -242,7 +240,7 @@ private partial def collect : Syntax → M Syntax
     appArgs.forM fun appArg =>
       when (appArg.isOfKind `Lean.Parser.Term.namedPattern) $
         throwErrorAt appArg "named parameters are not allowed in patterns";
-    /- We must skip explict inducitve datatype parameters since they are by defaul inaccessible.
+    /- We must skip explict inducitve datatype parameters since they are by default inaccessible.
        Example: `A` is inaccessible term at `Sum.inl A b` -/
     numArgsToSkip ← processCtor appFn;
     appArgs ← appArgs.mapIdxM fun i arg => if i < numArgsToSkip then pure arg else collect arg;
@@ -353,7 +351,7 @@ private partial def withPatternVarsAux {α} (pVars : Array PatternVar) (k : Arra
         withPatternVarsAux (i+1) (decls.push (PatternVarDecl.localVar x.fvarId!))
   else do
     /- We must create the metavariables for `PatternVar.anonymousVar` AFTER we create the new local decls using `withLocalDecl`.
-       Reason: their scope must include the new local decls since some of them will be assigned by typing constraints. -/
+       Reason: their scope must include the new local decls since some of them are assigned by typing constraints. -/
     decls.forM fun decl => match decl with
       | PatternVarDecl.anonymousVar mvarId fvarId => do
         type ← inferType (mkFVar fvarId);
@@ -388,7 +386,7 @@ patternVarDecls.foldlM
       pure $ decls.push decl
     | PatternVarDecl.anonymousVar mvarId fvarId => do
       e ← instantiateMVars (mkMVar mvarId);
-      trace `Elab.match fun _ => "finalizePatternDecls: mvarId: " ++ mkMVar mvarId ++ " := " ++ e ++ ", fvarId: " ++ mkFVar fvarId;
+      trace `Elab.match fun _ => "finalizePatternDecls: mvarId: " ++ mvarId ++ " := " ++ e ++ ", fvarId: " ++ mkFVar fvarId;
       match e with
       | Expr.mvar newMVarId _ => do
         /- Metavariable was not assigned, or assigned to another metavariable. So,

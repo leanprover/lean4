@@ -105,3 +105,16 @@ partial def filter {α} (p : α → Bool) : {n : Nat} → Vec α n → Sigma fun
 | _, Vec.cons x xs  => match p x, filter p xs with
   | true,  ⟨_, ys⟩ => ⟨_, Vec.cons x ys⟩
   | false, ys      => ys
+
+inductive Bla
+| ofNat  (x : Nat)
+| ofBool (x : Bool)
+
+def Bla.optional? : Bla → Option Nat
+| ofNat x  => some x
+| ofBool _ => none
+
+def Bla.isNat? (b : Bla) : Option { x : Nat // optional? b = some x } :=
+match h:b.optional? with
+| some x => some ⟨x, h⟩  -- here `h` is a proof for `b.optional?=some x`
+| none   => none         -- here `h` is a proof for `b.optional?=none`

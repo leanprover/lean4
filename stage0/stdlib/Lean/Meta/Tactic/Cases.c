@@ -389,16 +389,14 @@ return x_2;
 lean_object* l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_7, 0, x_1);
-x_8 = l_Lean_indentExpr(x_7);
-x_9 = l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__3;
-x_10 = lean_alloc_ctor(9, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(x_10, x_2, x_3, x_4, x_5, x_6);
-return x_11;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = l_Lean_indentExpr(x_1);
+x_8 = l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__3;
+x_9 = lean_alloc_ctor(9, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_7);
+x_10 = l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(x_9, x_2, x_3, x_4, x_5, x_6);
+return x_10;
 }
 }
 lean_object* l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected(lean_object* x_1) {

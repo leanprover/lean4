@@ -242,7 +242,6 @@ lean_object* l_Lean_Elab_elabModifiers___at_Lean_Elab_Command_elabMutualDef___sp
 lean_object* l_Lean_Elab_Term_MutualClosure_insertReplacementForLetRecs(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttrs___at_Lean_Elab_Command_elabMutualDef___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_MessageData_coeOfArrayExpr___closed__2;
 lean_object* l_Lean_Elab_elabModifiers___at_Lean_Elab_Command_elabMutualDef___spec__1___closed__3;
 lean_object* l___private_Lean_Elab_MutualDef_35__mkClosureFor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Lean_Elab_MutualDef_19__checkLetRecsToLiftTypes___spec__1___closed__2;
@@ -295,6 +294,7 @@ lean_object* l_Lean_Elab_Term_collectUsedFVars(lean_object*, lean_object*, lean_
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_MutualDef_20__mkInitialUsedFVarsMap___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Term_monadLog___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_MessageData_hasCoeOfArrayExpr___closed__2;
 lean_object* l___private_Lean_Elab_MutualDef_8__declValToTerm(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_3__check___closed__17;
@@ -8647,7 +8647,7 @@ x_173 = x_1;
 x_174 = lean_unsigned_to_nat(0u);
 x_175 = l_Array_umapMAux___main___at_Lean_LocalContext_getFVars___spec__1(x_174, x_173);
 x_176 = x_175;
-x_177 = l_Lean_MessageData_coeOfArrayExpr___closed__2;
+x_177 = l_Lean_MessageData_hasCoeOfArrayExpr___closed__2;
 x_178 = l_Lean_MessageData_arrayExpr_toMessageData___main(x_176, x_174, x_177);
 lean_dec(x_176);
 x_179 = l___private_Lean_Elab_MutualDef_34__mkClosureForAux___main___closed__5;

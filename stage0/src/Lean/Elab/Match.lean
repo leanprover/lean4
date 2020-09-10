@@ -37,8 +37,8 @@ structure MatchAltView :=
 (patterns : Array Syntax)
 (rhs      : Syntax)
 
-def mkMatchAltView (matchAlt : Syntax) : MatchAltView :=
-{ ref := matchAlt, patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
+def mkMatchAltView (ref : Syntax) (matchAlt : Syntax) : MatchAltView :=
+{ ref := ref, patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
 
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 newStx ← `(let $lhsVar := $discr; $rhs);
@@ -91,10 +91,24 @@ matchAlts.mapM fun matchAlt => do
   patterns ← liftMacroM $ matchAlt.patterns.mapM $ expandMacros env;
   pure $ { matchAlt with patterns := patterns }
 
+private partial def getMatchAltsAux (args : Array Syntax) : Nat → Syntax → Array MatchAltView → Array MatchAltView
+| i, ref, result =>
+  if h : i < args.size then
+    let arg := args.get ⟨i, h⟩;
+    let ref := if ref.isNone then arg else ref; -- The first vertical is optional
+    if arg.getKind == `Lean.Parser.Term.matchAlt then
+      getMatchAltsAux (i+1) ref (result.push (mkMatchAltView ref arg))
+    else
+      -- current `arg` is the vertical bar delimiter
+      getMatchAltsAux (i+1) arg result
+  else
+    result
+
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts (stx : Syntax) : Array MatchAltView :=
-let alts : Array Syntax := ((stx.getArg 4).getArg 1).getArgs.filter fun alt => alt.getKind == `Lean.Parser.Term.matchAlt;
-alts.map mkMatchAltView
+let matchAlts  := stx.getArg 4;
+let firstVBar  := matchAlts.getArg 0;
+getMatchAltsAux (matchAlts.getArg 1).getArgs 0 firstVBar #[]
 
 /--
   Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
@@ -215,6 +229,7 @@ structure Context :=
 (funId         : Syntax)
 (ctorVal?      : Option ConstructorVal) -- It is `some`, if constructor application
 (explicit      : Bool)
+(ellipsis      : Bool)
 (paramDecls    : Array LocalDecl)
 (paramDeclIdx  : Nat := 0)
 (namedArgs     : Array NamedArg)
@@ -222,7 +237,7 @@ structure Context :=
 (newArgs       : Array Syntax := #[])
 
 instance Context.inhabited : Inhabited Context :=
-⟨⟨arbitrary _, none, true, #[], 0, #[], [], #[]⟩⟩
+⟨⟨arbitrary _, none, false, false, #[], 0, #[], [], #[]⟩⟩
 
 private def isDone (ctx : Context) : Bool :=
 ctx.paramDeclIdx ≥ ctx.paramDecls.size
@@ -261,8 +276,11 @@ match arg with
 private def processExplicitArg (collect : Syntax → M Syntax) (accessible : Bool) (ctx : Context) : M Context :=
 match ctx.args with
 | [] =>
-  -- TODO: add support for `..`
-  throwError ("explicit parameter is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
+  if ctx.ellipsis then do
+    hole ← `(_);
+    pushNewArg collect accessible ctx (Arg.stx hole)
+  else
+    throwError ("explicit parameter is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
 | arg::args => do
   let ctx := { ctx with args := args };
   pushNewArg collect accessible ctx arg
@@ -293,7 +311,7 @@ private partial def processCtorAppAux (collect : Syntax → M Syntax) : Context 
       | _                       => processExplicitArg collect accessible ctx;
       processCtorAppAux ctx
 
-def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) : M Syntax := do
+def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) : M Syntax := do
 let args := args.toList;
 (fId, explicit) ← match_syntax f with
 | `($fId:ident)  => pure (fId, false)
@@ -305,22 +323,24 @@ forallTelescopeReducing fInfo.type fun xs _ => do
 paramDecls ← xs.mapM getFVarLocalDecl;
 match fInfo with
 | ConstantInfo.ctorInfo val =>
-  processCtorAppAux collect { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args }
+  processCtorAppAux collect
+    { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
 | _ => do
   env ← getEnv;
   if hasMatchPatternAttribute env fName then
-    processCtorAppAux collect { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args }
+    processCtorAppAux collect
+      { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
   else
     throwCtorExpected
 
 end CtorApp
 
 def processCtorApp (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
-(f, namedArgs, args) ← liftM $ expandApp stx;
-CtorApp.processCtorApp collect f namedArgs args
+(f, namedArgs, args, ellipsis) ← liftM $ expandApp stx true;
+CtorApp.processCtorApp collect f namedArgs args ellipsis
 
 def processCtor (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
-CtorApp.processCtorApp collect stx #[] #[]
+CtorApp.processCtorApp collect stx #[] #[] false
 
 private def processVar (idStx : Syntax) : M Syntax := do
 unless idStx.isIdent $
@@ -615,20 +635,20 @@ let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.erase d.fvarId
 let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.addDecl d) lctx;
 adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ k localDecls patterns
 
-private def withElaboratedLHS {α} (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr)
+private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr)
   (k : AltLHS → Expr → TermElabM α) : TermElabM α := do
 (patterns, matchType) ← withSynthesize $ elabPatternsAux patternStxs 0 matchType #[];
 localDecls ← finalizePatternDecls patternVarDecls;
 patterns ← patterns.mapM instantiateMVars;
 withDepElimPatterns localDecls patterns fun localDecls patterns =>
-  k { fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
+  k { ref := ref, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (AltLHS × Expr) :=
 withRef alt.ref do
 (patternVars, alt) ← collectPatternVars alt;
 trace `Elab.match fun _ => "patternVars: " ++ toString patternVars;
 withPatternVars patternVars fun patternVarDecls => do
-  withElaboratedLHS patternVarDecls alt.patterns matchType fun altLHS matchType => do
+  withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
     rhs ← elabTermEnsuringType alt.rhs matchType;
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
     rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;

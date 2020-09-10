@@ -55,7 +55,11 @@ preDefs.forM fun preDef => trace `Elab.definition.body fun _ => preDef.declName 
 preDefs.forM ensureNoUnassignedMVarsAtPreDef;
 (partitionPreDefs preDefs).forM fun preDefs => do
   if preDefs.size == 1 && isNonRecursive (preDefs.get! 0) then
-    addAndCompileNonRec (preDefs.get! 0)
+    let preDef := preDefs.get! 0;
+    if preDef.modifiers.isNoncomputable then
+      addNonRec preDef
+    else
+      addAndCompileNonRec preDef
   else if preDefs.any fun preDef => preDef.modifiers.isUnsafe then
     addAndCompileUnsafe preDefs
   else if preDefs.any fun preDef => preDef.modifiers.isPartial then

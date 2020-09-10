@@ -192,7 +192,7 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
 e ← instantiateMVars e;
 pendingMVars ← getMVars e;
 liftM $ Term.logUnassignedUsingErrorContext pendingMVars;
-when e.hasMVar $ throwError ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
+when e.hasExprMVar $ throwError ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
 
 def withMainMVarContext {α} (x : TacticM α) : TacticM α := do
 (mvarId, _) ← getMainGoal;

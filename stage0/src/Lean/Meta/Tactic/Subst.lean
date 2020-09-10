@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
+import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Revert
 import Lean.Meta.Tactic.Intro
@@ -17,9 +18,10 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
 withMVarContext mvarId $ do
   tag     ← getMVarTag mvarId;
   checkNotAssigned mvarId `subst;
-  hLocalDecl ← getLocalDecl hFVarId;
   let hFVarIdOriginal := hFVarId;
-  match hLocalDecl.type.eq? with
+  hLocalDecl ← getLocalDecl hFVarId;
+  eq? ← matchEq? hLocalDecl.type;
+  match eq? with
   | none => throwTacticEx `subst mvarId "argument must be an equality proof"
   | some (α, lhs, rhs) => do
     let a := if symm then rhs else lhs;
@@ -44,7 +46,8 @@ withMVarContext mvarId $ do
         mvarDecl   ← getMVarDecl mvarId;
         let type   := mvarDecl.type;
         hLocalDecl ← getLocalDecl hFVarId;
-        match hLocalDecl.type.eq? with
+        eq? ← matchEq? hLocalDecl.type;
+        match eq? with
         | none => unreachable!
         | some (α, lhs, rhs) => do
           let b       := if symm then lhs else rhs;
@@ -109,7 +112,8 @@ withMVarContext mvarId $ do
 def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
 withMVarContext mvarId $ do
   hLocalDecl ← getLocalDecl hFVarId;
-  match hLocalDecl.type.eq? with
+  eq? ← matchEq? hLocalDecl.type;
+  match eq? with
   | some (α, lhs, rhs) => do
     rhs ← whnf rhs;
     if rhs.isFVar then
@@ -126,7 +130,9 @@ withMVarContext mvarId $ do
     mctx ← getMCtx;
     lctx ← getLCtx;
     some (fvarId, symm) ← lctx.findDeclM?
-      (fun localDecl => match localDecl.type.eq? with
+      (fun localDecl => do
+       eq? ← matchEq? localDecl.type;
+       match eq? with
        | some (α, lhs, rhs) =>
          if rhs.isFVar && rhs.fvarId! == hFVarId && !mctx.exprDependsOn lhs hFVarId then
            pure $ some (localDecl.fvarId, true)

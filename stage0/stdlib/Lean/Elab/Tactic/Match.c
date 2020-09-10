@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Syntax_updateKind(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_object*);
+extern lean_object* l___private_Lean_Elab_Match_37__elabMatchAux___closed__2;
 lean_object* l_Lean_Elab_Tactic_getMainTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__3;
 lean_object* l_Lean_Elab_Tactic_evalMatch___closed__2;
@@ -58,7 +59,6 @@ lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_
 lean_object* l___private_Init_LeanInit_15__mapSepElemsMAux___main___at___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_FirstTokens_toStr___closed__3;
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
-extern lean_object* l___private_Lean_Elab_Match_36__elabMatchAux___closed__2;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkSepStx(lean_object*, lean_object*);
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
@@ -335,7 +335,7 @@ if (x_45 == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_46 = lean_ctor_get(x_3, 0);
-x_47 = l___private_Lean_Elab_Match_36__elabMatchAux___closed__2;
+x_47 = l___private_Lean_Elab_Match_37__elabMatchAux___closed__2;
 lean_inc(x_46);
 x_48 = l_Lean_Name_appendIndexAfter(x_47, x_46);
 x_49 = l_Lean_Name_append___main(x_1, x_48);
@@ -367,7 +367,7 @@ x_60 = lean_ctor_get(x_3, 1);
 lean_inc(x_60);
 lean_inc(x_59);
 lean_dec(x_3);
-x_61 = l___private_Lean_Elab_Match_36__elabMatchAux___closed__2;
+x_61 = l___private_Lean_Elab_Match_37__elabMatchAux___closed__2;
 lean_inc(x_59);
 x_62 = l_Lean_Name_appendIndexAfter(x_61, x_59);
 x_63 = l_Lean_Name_append___main(x_1, x_62);

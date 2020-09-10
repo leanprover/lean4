@@ -613,9 +613,17 @@ else
   else
     withRef f $ mergeFailures candidates
 
-partial def expandApp (stx : Syntax) : TermElabM (Syntax × Array NamedArg × Array Arg) := do
+partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × Array NamedArg × Array Arg × Bool) := do
 let f    := stx.getArg 0;
-(namedArgs, args) ← (stx.getArg 1).getArgs.foldlM
+let args := (stx.getArg 1).getArgs;
+let (args, ellipsis) :=
+  if args.back.isOfKind `Lean.Parser.Term.ellipsis then
+    (args.pop, true)
+  else
+    (args, false);
+unless (pattern || !ellipsis) $
+  throwErrorAt args.back "'..' is only allowed in patterns";
+(namedArgs, args) ← args.foldlM
   (fun (acc : Array NamedArg × Array Arg) (stx : Syntax) => do
     let (namedArgs, args) := acc;
     if stx.getKind == `Lean.Parser.Term.namedArgument then do
@@ -624,14 +632,16 @@ let f    := stx.getArg 0;
       let val  := stx.getArg 3;
       namedArgs ← addNamedArg namedArgs { name := name, val := Arg.stx val };
       pure (namedArgs, args)
+    else if stx.getKind == `Lean.Parser.Term.ellipsis then do
+      throwErrorAt stx "unexpected '..'"
     else
       pure (namedArgs, args.push $ Arg.stx stx))
   (#[], #[]);
-pure (f, namedArgs, args)
+pure (f, namedArgs, args, ellipsis)
 
 @[builtinTermElab app] def elabApp : TermElab :=
 fun stx expectedType? => do
-  (f, namedArgs, args) ← expandApp stx;
+  (f, namedArgs, args, _) ← expandApp stx;
   elabAppAux f namedArgs args expectedType?
 
 def elabAtom : TermElab :=

@@ -90,7 +90,24 @@ def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >>
 def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
 def instBinder := parser! "[" >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
+
+/-
+It is feasible to support dependent arrows such as `{α} → α → α` without sacrificing the quality of the error messages for the longer case.
+`{α} → α → α` would be short for `{α : Type} → α → α`
+Here is the encoding:
+```
+def implicitShortBinder := node `Lean.Parser.Term.implicitBinder $ "{" >> many1 binderIdent >> pushNone >> "}"
+def depArrowShortPrefix := try (implicitShortBinder >> checkPrec 25 >> unicodeSymbol " → " " -> ")
+def depArrowLongPrefix  := bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> "
+def depArrowPrefix      := depArrowShortPrefix <|> depArrowLongPrefix
+@[builtinTermParser] def depArrow := parser! depArrowPrefix >> termParser
+```
+Note that no changes in the elaborator are needed.
+We decided to not use it because terms such as `{α} → α → α` may look too cryptic.
+Note that we did not add a `explicitShortBinder` parser since `(α) → α → α` is really cryptic as a short for `(α : Type) → α → α`.
+-/
 @[builtinTermParser] def depArrow := parser! bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser
+
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall " >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
 
@@ -224,9 +241,16 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
 
-@[builtinTermParser] def byTactic    := parser!:leadPrec "by " >> Tactic.nonEmptySeq
+@[builtinTermParser] def byTactic    := parser!:maxPrec "by " >> Tactic.nonEmptySeq
 
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
+
+@[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
+@[builtinTermParser] def unreachable := parser!:leadPrec "unreachable! " >> termParser
+@[builtinTermParser] def dbgTrace    := parser!:leadPrec "dbgTrace! " >> termParser >> "; " >> termParser
+@[builtinTermParser] def assert      := parser!:leadPrec "assert! " >> termParser >> "; " >> termParser
+@[builtinTermParser] def «return»    := parser!:leadPrec "return " >> termParser
+
 end Term
 
 -- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.quot`

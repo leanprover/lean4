@@ -126,3 +126,11 @@ def registerTraceClass (traceClassName : Name) : IO Unit :=
 registerOption (`trace ++ traceClassName) { group := "trace", defValue := false, descr := "enable/disable tracing for the given module and submodules" }
 
 end Lean
+
+new_frontend
+
+namespace Lean
+
+macro:max "trace!" id:term:max msg:term : term => `(trace $id fun _ => ($msg : MessageData))
+
+end Lean

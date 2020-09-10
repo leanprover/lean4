@@ -74,12 +74,21 @@ instance : HasAppend MessageData := ⟨compose⟩
 instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
 instance : HasToString MessageData := ⟨fun d => toString (format d)⟩
 
-instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
-instance coeOfLevel     : HasCoe Level MessageData  := ⟨ofLevel⟩
-instance coeOfExpr      : HasCoe Expr MessageData   := ⟨ofExpr⟩
-instance coeOfName      : HasCoe Name MessageData   := ⟨ofName⟩
-instance coeOfSyntax    : HasCoe Syntax MessageData := ⟨ofSyntax⟩
-instance coeOfOptExpr   : HasCoe (Option Expr) MessageData :=
+instance hasCoeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
+instance hasCoeOfLevel     : HasCoe Level MessageData  := ⟨ofLevel⟩
+instance hasCoeOfExpr      : HasCoe Expr MessageData   := ⟨ofExpr⟩
+instance hasCoeOfName      : HasCoe Name MessageData   := ⟨ofName⟩
+instance hasCoeOfSyntax    : HasCoe Syntax MessageData := ⟨ofSyntax⟩
+instance hasCoeOfOptExpr   : HasCoe (Option Expr) MessageData :=
+⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
+
+instance coeOfString    : Coe String MessageData := ⟨ofFormat ∘ format⟩
+instance coeOfFormat    : Coe Format MessageData := ⟨ofFormat⟩
+instance coeOfLevel     : Coe Level MessageData  := ⟨ofLevel⟩
+instance coeOfExpr      : Coe Expr MessageData   := ⟨ofExpr⟩
+instance coeOfName      : Coe Name MessageData   := ⟨ofName⟩
+instance coeOfSyntax    : Coe Syntax MessageData := ⟨ofSyntax⟩
+instance coeOfOptExpr   : Coe (Option Expr) MessageData :=
 ⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
 
 partial def arrayExpr.toMessageData (es : Array Expr) : Nat → MessageData → MessageData
@@ -91,7 +100,9 @@ partial def arrayExpr.toMessageData (es : Array Expr) : Nat → MessageData → 
   else
     acc ++ "]"
 
-instance coeOfArrayExpr : HasCoe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
+instance hasCoeOfArrayExpr : HasCoe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
+
+instance coeOfArrayExpr : Coe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
 def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length $ l ++ f ++ r)
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
@@ -106,8 +117,11 @@ def ofList: List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
 ofList msgs.toList
 
-instance coeOfList     : HasCoe (List MessageData) MessageData := ⟨ofList⟩
-instance coeOfListExpr : HasCoe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
+instance hasCoeOfList     : HasCoe (List MessageData) MessageData := ⟨ofList⟩
+instance hasCoeOfListExpr : HasCoe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
+
+instance coeOfList     : Coe (List MessageData) MessageData := ⟨ofList⟩
+instance coeOfListExpr : Coe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
 
 end MessageData
 

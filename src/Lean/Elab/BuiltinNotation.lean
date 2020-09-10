@@ -250,6 +250,40 @@ fun stx => do
 @[builtinMacro Lean.Parser.Term.not] def expandNot : Macro := expandPrefixOp `Not
 @[builtinMacro Lean.Parser.Term.bnot] def expandBNot : Macro := expandPrefixOp `not
 
+@[builtinTermElab panic] def elabPanic : TermElab :=
+fun stx expectedType? => do
+  let arg := stx.getArg 1;
+  pos ← getRefPosition;
+  env ← getEnv;
+  declName? ← getDeclName?;
+  stxNew ← match declName? with
+  | some declName => `(panicWithPosWithDecl $(quote (toString env.mainModule)) $(quote (toString declName)) $(quote pos.line) $(quote pos.column) $arg)
+  | none => `(panicWithPos $(quote (toString env.mainModule)) $(quote pos.line) $(quote pos.column) $arg);
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+
+@[builtinMacro Lean.Parser.Term.unreachable]  def expandUnreachable : Macro :=
+fun stx => `(panic! "unreachable code has been reached")
+
+@[builtinMacro Lean.Parser.Term.assert]  def expandAssert : Macro :=
+fun stx =>
+  -- TODO: support for disabling runtime assertions
+  let cond := stx.getArg 1;
+  let body := stx.getArg 3;
+  match cond.reprint with
+  | some code => `(if $cond then $body else panic! ("assertion violation: " ++ $(quote code)))
+  | none => `(if $cond then $body else panic! ("assertion violation"))
+
+@[builtinMacro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro :=
+fun stx =>
+  let arg  := stx.getArg 1;
+  let body := stx.getArg 3;
+  `(dbgTrace $arg fun _ => $body)
+
+@[builtinMacro Lean.Parser.Term.return]  def expandReturn : Macro :=
+fun stx =>
+  let arg := stx.getArg 1;
+  `(pure $arg)
+
 /-
 TODO
 @[builtinTermElab] def elabsubst : TermElab := expandInfixOp infixR " ▸ " 75

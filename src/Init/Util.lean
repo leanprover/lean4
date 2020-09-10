@@ -38,6 +38,12 @@ constant panic {α : Type u} [Inhabited α] (msg : String) : α := arbitrary _
 @[neverExtract, inline] def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
 panic (mkPanicMessage modName line col msg)
 
+@[noinline] private def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
+"PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+
+@[neverExtract, inline] def panicWithPosWithDecl {α : Type u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
+panic (mkPanicMessageWithDecl modName declName line col msg)
+
 -- TODO: should be a macro
 @[neverExtract, noinline, nospecialize] def unreachable! {α : Type u} [Inhabited α] : α :=
 panic! "unreachable"

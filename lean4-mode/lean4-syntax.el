@@ -19,7 +19,7 @@
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "attributes" "raw" "replacing" "generalizing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "rec" "forall" "Pi" "fun"
-    "exists" "if" "then" "else" "assume" "from" "init_quot"
+    "exists" "if" "then" "else" "assume" "from" "init_quot" "return"
     "mutual" "def" "run_cmd")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean4-keywords1-regexp
@@ -42,6 +42,9 @@
 (defconst lean4-warnings '("sorry" "exit") "lean warnings")
 (defconst lean4-warnings-regexp
   (eval `(rx word-start (or ,@lean4-warnings) word-end)))
+(defconst lean4-debugging '("unreachable" "panic" "assert" "dbgTrace") "lean debugging")
+(defconst lean4-debugging-regexp
+  (eval `(rx word-start (or ,@lean4-debugging))))
 
 
 (defconst lean4-syntax-table
@@ -168,6 +171,7 @@
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; warnings
      (,lean4-warnings-regexp . 'font-lock-warning-face)
+     (,lean4-debugging-regexp . 'font-lock-warning-face)
      ;; escaped identifiers
      (,(rx (and (group "«") (group (one-or-more (not (any "»")))) (group "»")))
       (1 font-lock-comment-face t)

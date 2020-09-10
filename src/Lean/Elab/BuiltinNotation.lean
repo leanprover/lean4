@@ -284,6 +284,9 @@ fun stx =>
   let arg := stx.getArg 1;
   `(pure $arg)
 
+@[builtinMacro Lean.Parser.Term.«sorry»]  def expandSorry : Macro :=
+fun _ => `(sorryAx _ false)
+
 /-
 TODO
 @[builtinTermElab] def elabsubst : TermElab := expandInfixOp infixR " ▸ " 75

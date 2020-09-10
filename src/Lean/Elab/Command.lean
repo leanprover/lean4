@@ -536,46 +536,40 @@ fun stx => withoutModifyingEnv do
       value := value, hints := ReducibilityHints.opaque, isUnsafe := true };
     addAndCompile decl
   };
-  let elabMetaEval : CommandElabM Unit := do {
-    act ← runTermElabM (some n) fun _ => do {
-      e    ← Term.elabTerm term none;
-      Term.synthesizeSyntheticMVarsNoPostponing;
-        e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
-          withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do {
-            e ← mkAppM `Lean.runMetaEval #[env, opts, e];
-            mkLambdaFVars #[env, opts] e
-          };
-        addAndCompile e;
-        env ← getEnv;
-        opts ← getOptions;
-      act ← ofExcept $ env.evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n;
-      pure $ act env opts
-    };
-    (out, res) ← liftIO act;
+  let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do {
+    e ← Term.elabTerm term none;
+    Term.synthesizeSyntheticMVarsNoPostponing;
+    e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
+        withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do {
+          e ← mkAppM `Lean.runMetaEval #[env, opts, e];
+          mkLambdaFVars #[env, opts] e
+        };
+    addAndCompile e;
+    env ← getEnv;
+    opts ← getOptions;
+    act ← evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n;
+    (out, res) ← MonadIO.liftIO $ act env opts;
     logInfo out;
     match res with
-    | Except.error e => throw $ Exception.error ref e.toString
+    | Except.error e => throwError e.toString
     | Except.ok env  => do setEnv env; pure ()
   };
-  let elabEval : CommandElabM Unit := do {
+  let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do {
     -- fall back to non-meta eval if MetaHasEval hasn't been defined yet
     -- modify e to `runEval e`
-    act ← runTermElabM (some n) fun _ => do {
-      e    ← Term.elabTerm term none;
-      Term.synthesizeSyntheticMVarsNoPostponing;
-      e ← mkAppM `Lean.runEval #[e];
-      addAndCompile e;
-      env ← getEnv;
-      ofExcept $ env.evalConst (IO (String × Except IO.Error Unit)) n
-    };
-    (out, res) ← liftIO act;
+    e    ← Term.elabTerm term none;
+    Term.synthesizeSyntheticMVarsNoPostponing;
+    e ← mkAppM `Lean.runEval #[e];
+    addAndCompile e;
+    act ← evalConst (IO (String × Except IO.Error Unit)) n;
+    (out, res) ← MonadIO.liftIO act;
     logInfo out;
     match res with
-    | Except.error e => throw $ Exception.error ref e.toString
+    | Except.error e => throwError e.toString
     | Except.ok _    => pure ()
   };
   if env.contains `Lean.MetaHasEval then do
-     elabMetaEval
+    elabMetaEval
   else
     elabEval
 

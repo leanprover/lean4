@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_panicWithPosWithDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
@@ -42,10 +43,12 @@ lean_object* l_dbgTraceVal___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_withPtrAddr___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrEq(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_Iterator_HasRepr___closed__2;
 lean_object* l_withPtrEqDecEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe(lean_object*, lean_object*);
 lean_object* lean_dbg_trace_if_shared(lean_object*, lean_object*);
+lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 lean_object* l_withPtrEqUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21(lean_object*);
@@ -53,8 +56,10 @@ lean_object* l_unreachable_x21___rarg___closed__3;
 lean_object* l_dbgTraceVal___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos(lean_object*);
+lean_object* l_panicWithPosWithDecl(lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_unreachable_x21___rarg___closed__1;
 lean_object* l_withPtrAddr___rarg___boxed__const__1;
@@ -66,6 +71,7 @@ lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ptrAddrUnsafe___boxed(lean_object*, lean_object*);
 lean_object* l_dbgTraceVal(lean_object*);
+lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -228,6 +234,69 @@ lean_dec(x_2);
 return x_6;
 }
 }
+lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_6 = l___private_Init_Util_1__mkPanicMessage___closed__1;
+x_7 = lean_string_append(x_6, x_2);
+x_8 = l_String_Iterator_HasRepr___closed__2;
+x_9 = lean_string_append(x_7, x_8);
+x_10 = lean_string_append(x_9, x_1);
+x_11 = l___private_Init_Util_1__mkPanicMessage___closed__2;
+x_12 = lean_string_append(x_10, x_11);
+x_13 = l_Nat_repr(x_3);
+x_14 = lean_string_append(x_12, x_13);
+lean_dec(x_13);
+x_15 = lean_string_append(x_14, x_11);
+x_16 = l_Nat_repr(x_4);
+x_17 = lean_string_append(x_15, x_16);
+lean_dec(x_16);
+x_18 = l___private_Init_Util_1__mkPanicMessage___closed__3;
+x_19 = lean_string_append(x_17, x_18);
+x_20 = lean_string_append(x_19, x_5);
+return x_20;
+}
+}
+lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_6;
+}
+}
+lean_object* l_panicWithPosWithDecl___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_2, x_3, x_4, x_5, x_6);
+x_8 = lean_panic_fn(x_1, x_7);
+return x_8;
+}
+}
+lean_object* l_panicWithPosWithDecl(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_panicWithPosWithDecl___rarg___boxed), 6, 0);
+return x_2;
+}
+}
+lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_panicWithPosWithDecl___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_6);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_7;
+}
+}
 lean_object* _init_l_unreachable_x21___rarg___closed__1() {
 _start:
 {
@@ -249,7 +318,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_unreachable_x21___rarg___closed__1;
-x_2 = lean_unsigned_to_nat(43u);
+x_2 = lean_unsigned_to_nat(49u);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_unreachable_x21___rarg___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

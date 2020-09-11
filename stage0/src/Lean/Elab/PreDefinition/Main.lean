@@ -14,7 +14,7 @@ open Term
 
 private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Unit := do
 preDefs.forM fun preDef =>
-  forallTelescopeReducing preDef.type fun xs type => do
+  forallTelescope preDef.type fun xs type => do
     inh ← liftM $ mkInhabitantFor preDef.declName xs type;
     addNonRec { preDef with
       kind  := DefKind.«opaque»,

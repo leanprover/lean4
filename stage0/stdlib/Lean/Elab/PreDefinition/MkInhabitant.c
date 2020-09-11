@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Lean.Elab.MkInhabitant
+// Module: Lean.Elab.PreDefinition.MkInhabitant
 // Imports: Init Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
@@ -13,45 +13,45 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Lean_Elab_MkInhabitant_4__mkFnInhabitant_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2;
 lean_object* l_Lean_Meta_mkAppM___at_Lean_Meta_mkDecideProof___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_4__mkFnInhabitant_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor___closed__4;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor___closed__1;
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_1__inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor___closed__2;
 lean_object* l_Lean_Elab_mkInhabitantFor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Array_findMAux___main___at___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_SynthInstance_tryResolveCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor___closed__6;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor___closed__5;
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_4__mkFnInhabitant_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Meta_isDefEqNoConstantApprox___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor___closed__3;
-lean_object* l___private_Lean_Elab_MkInhabitant_4__mkFnInhabitant_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
-lean_object* l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__1;
 lean_object* l_Lean_Meta_mkForallFVars___at___private_Lean_Meta_InferType_6__inferLambdaType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__2;
-lean_object* l_Array_findMAux___main___at___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__1() {
+lean_object* _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -59,23 +59,23 @@ x_1 = lean_mk_string("arbitrary");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__2() {
+lean_object* _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__1;
+x_2 = l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = l_Lean_mkOptionalNode___closed__2;
 x_8 = lean_array_push(x_7, x_1);
-x_9 = l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__2;
+x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2;
 x_10 = l_Lean_Meta_mkAppM___at_Lean_Meta_mkDecideProof___spec__1(x_9, x_8, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -135,7 +135,7 @@ return x_23;
 }
 }
 }
-lean_object* l_Array_findMAux___main___at___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; uint8_t x_10; 
@@ -299,34 +299,34 @@ return x_37;
 }
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_findMAux___main___at___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___spec__1(x_2, x_1, x_8, x_3, x_4, x_5, x_6, x_7);
+x_9 = l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1(x_2, x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
-lean_object* l_Array_findMAux___main___at___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Array_findMAux___main___at___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_2);
 return x_9;
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_1);
 return x_8;
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; uint8_t x_10; 
@@ -357,7 +357,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_18);
-x_20 = l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f(x_18, x_4, x_5, x_6, x_7, x_19);
+x_20 = l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f(x_18, x_4, x_5, x_6, x_7, x_19);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 if (lean_obj_tag(x_21) == 0)
@@ -537,51 +537,51 @@ else
 {
 lean_object* x_54; 
 lean_dec(x_2);
-x_54 = l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f(x_3, x_4, x_5, x_6, x_7, x_8);
+x_54 = l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f(x_3, x_4, x_5, x_6, x_7, x_8);
 return x_54;
 }
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___main(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___main(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_1);
 return x_9;
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___main(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___main(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_9;
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_1);
 return x_9;
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_4__mkFnInhabitant_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_4__mkFnInhabitant_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_array_get_size(x_1);
-x_9 = l___private_Lean_Elab_MkInhabitant_3__mkFnInhabitantAux_x3f___main(x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
+x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f___main(x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
-lean_object* l___private_Lean_Elab_MkInhabitant_4__mkFnInhabitant_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_4__mkFnInhabitant_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l___private_Lean_Elab_MkInhabitant_4__mkFnInhabitant_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Lean_Elab_PreDefinition_MkInhabitant_4__mkFnInhabitant_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_1);
 return x_8;
 }
@@ -651,7 +651,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_9 = l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f(x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f(x_3, x_4, x_5, x_6, x_7, x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 if (lean_obj_tag(x_10) == 0)
@@ -666,7 +666,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_13 = l_Array_findMAux___main___at___private_Lean_Elab_MkInhabitant_2__findAssumption_x3f___spec__1(x_3, x_2, x_12, x_4, x_5, x_6, x_7, x_11);
+x_13 = l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1(x_3, x_2, x_12, x_4, x_5, x_6, x_7, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
@@ -682,7 +682,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_16 = l___private_Lean_Elab_MkInhabitant_4__mkFnInhabitant_x3f(x_2, x_3, x_4, x_5, x_6, x_7, x_15);
+x_16 = l___private_Lean_Elab_PreDefinition_MkInhabitant_4__mkFnInhabitant_x3f(x_2, x_3, x_4, x_5, x_6, x_7, x_15);
 lean_dec(x_2);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -805,7 +805,7 @@ return x_37;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Elab_MkInhabitant(lean_object* w) {
+lean_object* initialize_Lean_Elab_PreDefinition_MkInhabitant(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
@@ -815,10 +815,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__1 = _init_l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__1();
-lean_mark_persistent(l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__1);
-l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__2 = _init_l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__2();
-lean_mark_persistent(l___private_Lean_Elab_MkInhabitant_1__mkInhabitant_x3f___closed__2);
+l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1 = _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1);
+l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2 = _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2);
 l_Lean_Elab_mkInhabitantFor___closed__1 = _init_l_Lean_Elab_mkInhabitantFor___closed__1();
 lean_mark_persistent(l_Lean_Elab_mkInhabitantFor___closed__1);
 l_Lean_Elab_mkInhabitantFor___closed__2 = _init_l_Lean_Elab_mkInhabitantFor___closed__2();

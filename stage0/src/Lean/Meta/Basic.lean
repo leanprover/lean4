@@ -9,6 +9,7 @@ import Lean.Class
 import Lean.ReducibilityAttrs
 import Lean.Util.Trace
 import Lean.Util.RecDepth
+import Lean.Util.PPExt
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.Exception
 import Lean.Meta.TransparencyMode
@@ -957,6 +958,16 @@ liftMetaM $ instantiateForallAux ps 0 e
 def dependsOn (e : Expr) (fvarId : FVarId) : m Bool := liftMetaM do
 mctx ← getMCtx;
 pure $ mctx.exprDependsOn e fvarId
+
+def ppExprImp (e : Expr) : MetaM Format := do
+env  ← getEnv;
+mctx ← getMCtx;
+lctx ← getLCtx;
+opts ← getOptions;
+pure $ Lean.ppExpr env mctx lctx opts e
+
+def ppExpr (e : Expr) : m Format :=
+liftMetaM $ ppExprImp e
 
 end Methods
 end Meta

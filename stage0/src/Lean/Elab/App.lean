@@ -344,7 +344,7 @@ match eType.getAppFn, lval with
     match findMethod? env structName fieldName with
     | some (baseStructName, fullName) => pure $ LValResolution.const baseStructName structName fullName
     | none   => throwLValError e eType $
-        "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ (structName ++ fieldName) ++ "'"
+        "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ (structName ++ fieldName : Name) ++ "'"
   };
   -- search local context first, then environment
   let searchCtx : Unit → TermElabM LValResolution := fun _ => do {

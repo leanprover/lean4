@@ -161,7 +161,9 @@ instance SynthM.inhabited {α} : Inhabited (SynthM α) :=
 ⟨fun _ => arbitrary _⟩
 
 /-- Return globals and locals instances that may unify with `type` -/
-def getInstances (type : Expr) : MetaM (Array Expr) :=
+def getInstances (type : Expr) : MetaM (Array Expr) := do
+-- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
+localInstances ← getLocalInstances;
 forallTelescopeReducing type $ fun _ type => do
   className? ← isClass? type;
   match className? with
@@ -173,7 +175,6 @@ forallTelescopeReducing type $ fun _ type => do
       | Expr.const constName us _ => do us ← us.mapM (fun _ => mkFreshLevelMVar); pure $ c.updateConst! us
       | _ => panic! "global instance is not a constant";
     trace! `Meta.synthInstance.globalInstances (type ++ " " ++ result);
-    localInstances ← getLocalInstances;
     let result := localInstances.foldl
       (fun (result : Array Expr) linst => if linst.className == className then result.push linst.fvar else result)
       result;

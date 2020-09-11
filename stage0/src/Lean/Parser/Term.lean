@@ -246,7 +246,7 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
-@[builtinTermParser] def unreachable := parser!:leadPrec "unreachable! " >> termParser
+@[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"
 @[builtinTermParser] def dbgTrace    := parser!:leadPrec "dbgTrace! " >> termParser >> "; " >> termParser
 @[builtinTermParser] def assert      := parser!:leadPrec "assert! " >> termParser >> "; " >> termParser
 @[builtinTermParser] def «return»    := parser!:leadPrec "return " >> termParser

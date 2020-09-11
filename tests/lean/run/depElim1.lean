@@ -1,5 +1,5 @@
 import Lean.Meta.Match
-
+new_frontend
 open Lean
 open Lean.Meta
 open Lean.Meta.Match
@@ -16,13 +16,13 @@ def val {α : Sort u} (a : α) : α := a
 def As {α : Sort u} (v a : α) : α := a
 
 inductive Pat {α : Sort u} (a : α) : Type u
-| mk : Pat
+| mk : Pat a
 
-inductive ArrayLit0 (α : Sort u) : Type u | mk : ArrayLit0
-inductive ArrayLit1 {α : Sort u} (a : α) : Type u | mk : ArrayLit1
-inductive ArrayLit2 {α : Sort u} (a b : α) : Type u | mk : ArrayLit2
-inductive ArrayLit3 {α : Sort u} (a b c : α) : Type u | mk : ArrayLit3
-inductive ArrayLit4 {α : Sort u} (a b c d : α) : Type u | mk : ArrayLit4
+inductive ArrayLit0 (α : Sort u) : Type u | mk : ArrayLit0 α
+inductive ArrayLit1 {α : Sort u} (a : α) : Type u | mk : ArrayLit1 a
+inductive ArrayLit2 {α : Sort u} (a b : α) : Type u | mk : ArrayLit2 a b
+inductive ArrayLit3 {α : Sort u} (a b c : α) : Type u | mk : ArrayLit3 a b c
+inductive ArrayLit4 {α : Sort u} (a b c d : α) : Type u | mk : ArrayLit4 a b c d
 
 private def getConstructorVal (ctorName : Name) (fn : Expr) (args : Array Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
 env ← getEnv;
@@ -124,7 +124,7 @@ forallTelescopeReducing cinfo.type fun args body =>
     k xs alts
 
 inductive LHS {α : Sort u} (a : α) : Type u
-| mk : LHS
+| mk : LHS a
 
 instance LHS.inhabited {α} (a : α) : Inhabited (LHS a) := ⟨LHS.mk⟩
 
@@ -173,6 +173,8 @@ withDepElimFrom ex numPats fun majors alts => do
     throwError ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
   unless r.unusedAltIdxs.isEmpty $
     throwError ("unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)));
+  cinfo ← getConstInfo elimName;
+  IO.println (toString cinfo.name ++ " : " ++ toString cinfo.type);
   pure ()
 
 def testFailure (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit := do
@@ -197,8 +199,8 @@ def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 #print elimTest1
 
 inductive Vec (α : Type u) : Nat → Type u
-| nil            : Vec 0
-| cons {n : Nat} : α → Vec n → Vec (n+1)
+| nil            : Vec α 0
+| cons {n : Nat} : α → Vec α n → Vec α (n+1)
 
 def ex2 (α : Type u) (n : Nat) (xs : Vec α n) (ys : Vec α n) :
   LHS (Pat (inaccessible 0) × Pat (Vec.nil : Vec α 0) × Pat (Vec.nil : Vec α 0))

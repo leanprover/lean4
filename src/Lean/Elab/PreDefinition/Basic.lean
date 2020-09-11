@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.SCC
 import Lean.Meta.AbstractNestedProofs
-import Lean.Elab.MkInhabitant
 import Lean.Elab.Term
 import Lean.Elab.DefView
+import Lean.Elab.PreDefinition.MkInhabitant
 
 namespace Lean
 namespace Elab

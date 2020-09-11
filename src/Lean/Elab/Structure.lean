@@ -261,7 +261,9 @@ match view.type? with
 | some typeStx => do
   type ← Term.elabType typeStx;
   match view.value? with
-  | none        => pure (type, none)
+  | none        => do
+    type  ← mkForallFVars params type;
+    pure (type, none)
   | some valStx => do
     value ← Term.elabTermEnsuringType valStx type;
     type  ← mkForallFVars params type;

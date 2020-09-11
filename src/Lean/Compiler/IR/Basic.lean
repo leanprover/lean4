@@ -46,8 +46,7 @@ end JoinPointId
 
 abbrev MData := KVMap
 namespace MData
-abbrev empty : MData := { : KVMap }
-instance : HasEmptyc MData := ⟨empty⟩
+abbrev empty : MData := {}
 end MData
 
 /- Low Level IR types. Most are self explanatory.

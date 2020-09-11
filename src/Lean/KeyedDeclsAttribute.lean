@@ -118,7 +118,7 @@ match env.addAndCompile {} decl with
 
 /- TODO: add support for scoped attributes -/
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDeclsAttribute γ) := do
-tableRef : IO.Ref (Table γ) ← IO.mkRef {};
+tableRef : IO.Ref (Table γ) ← IO.mkRef ({} : Table γ);
 ext : Extension γ ← registerPersistentEnvExtension {
   name            := df.name,
   mkInitial       := mkInitial tableRef,

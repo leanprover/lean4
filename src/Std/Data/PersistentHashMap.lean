@@ -42,8 +42,6 @@ variables {α : Type u} {β : Type v}
 
 def empty [HasBeq α] [Hashable α] : PersistentHashMap α β := {}
 
-instance [HasBeq α] [Hashable α] : HasEmptyc (PersistentHashMap α β) := ⟨empty⟩
-
 def isEmpty [HasBeq α] [Hashable α] (m : PersistentHashMap α β) : Bool :=
 m.size == 0
 

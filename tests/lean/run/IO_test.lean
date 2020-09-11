@@ -2,6 +2,8 @@ prelude
 import Init.System.IO
 import Init.Data.List.Control
 
+new_frontend
+
 open IO.FS
 
 instance : HasRepr UInt8 := ⟨ toString ⟩

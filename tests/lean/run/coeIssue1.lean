@@ -1,5 +1,6 @@
 -- From @joehendrix
 -- The imul doesn't type check as Lean won't try to coerce from a reg (bv 64) to a expr (bv ?u)
+new_frontend
 
 inductive MCType
 | bv : Nat → MCType
@@ -34,8 +35,6 @@ type inference will enforce that `?m_1` must be 64, and TC will be able
 to synthesize the instance.
 -/
 def sext {s:Nat} (x : Expr (bv s)) (n:Nat) : Expr (bv (s+n)) := Expr.sextC x (s+n)
-
-new_frontend
 
 open MCType
 

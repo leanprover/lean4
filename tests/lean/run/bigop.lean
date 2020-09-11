@@ -1,3 +1,5 @@
+new_frontend
+
 def Seq (α : Type) := List α
 
 def BigBody (β α) :=  α × (β → β → β) × Bool × β
@@ -11,7 +13,7 @@ r.foldr (applyBig ∘ body) idx
 
 def bigop := @reducebig
 
-def iota : Nat → Nat → List Nat
+partial def iota : Nat → Nat → List Nat
 | m, 0   => []
 | m, n+1 => m :: iota (m+1) n
 
@@ -26,11 +28,11 @@ instance : Enumerable Bool :=
 instance {α β} [Enumerable α] [Enumerable β]: Enumerable (α × β) :=
 { elems := do a ← Enumerable.elems α; b ← Enumerable.elems β; pure (a, b) }
 
-def finElemsAux (n : Nat) : forall (i : Nat), i < n → List (Fin n)
+partial def finElemsAux (n : Nat) : (i : Nat) → i < n → List (Fin n)
 | 0,   h => [⟨0, h⟩]
-| i+1, h => ⟨i+1, h⟩ :: finElemsAux i (Nat.ltOfSuccLt h)
+| i+1, h => ⟨i+1, h⟩ :: finElemsAux n i (Nat.ltOfSuccLt h)
 
-def finElems : forall (n : Nat), List (Fin n)
+partial def finElems : (n : Nat) → List (Fin n)
 | 0     => []
 | (n+1) => finElemsAux (n+1) n (Nat.ltSuccSelf n)
 
@@ -39,8 +41,6 @@ instance {n} : Enumerable (Fin n) :=
 
 instance {n} : HasOfNat (Fin (Nat.succ n)) :=
 ⟨Fin.ofNat⟩
-
-new_frontend
 
 -- Declare a new syntax category for "indexing" big operators
 declare_syntax_cat index

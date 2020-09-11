@@ -1,3 +1,5 @@
+new_frontend
+
 def f : List Int → Bool := fun _ => true
 
 def ex3 : IO Bool :=
@@ -12,8 +14,6 @@ inductive Expr
 instance : Coe Nat Expr := ⟨Expr.val⟩
 
 def foo : Expr → Expr := fun e => e
-
-new_frontend
 
 def ex1 : Bool :=
 f [1, 2, 3]  -- Works

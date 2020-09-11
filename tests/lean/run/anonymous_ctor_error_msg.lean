@@ -1,9 +1,9 @@
+new_frontend
+
 structure Foo := (n : Nat)
 
 def Foo.sum (xs : List Foo) : Foo :=
 xs.foldl (λ s x => ⟨s.n + x.n⟩) ⟨0⟩
-
-new_frontend
 
 #check
 let x1 := ⟨1⟩;

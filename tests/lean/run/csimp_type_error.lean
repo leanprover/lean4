@@ -1,3 +1,5 @@
+new_frontend
+
 namespace scratch
 
 inductive type

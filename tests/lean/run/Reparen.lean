@@ -1,6 +1,6 @@
 /-! Reprint file after removing all parentheses and then passing it through the parenthesizer -/
 import Lean.Parser
-
+new_frontend
 open Lean
 open Lean.Format
 
@@ -43,8 +43,6 @@ f ← PrettyPrinter.formatTerm stx';
 IO.println f;
 when (stx != stx') $
   throwError "reparenthesization failed"
-
-new_frontend
 
 open Lean
 

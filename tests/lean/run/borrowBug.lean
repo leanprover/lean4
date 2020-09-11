@@ -1,3 +1,5 @@
+new_frontend
+
 @[noinline] def g (x : Nat) : Nat × Nat := (x, x)
 @[noinline] def p (x : Nat) : Bool := x > 10
 

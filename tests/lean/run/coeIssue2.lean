@@ -1,3 +1,5 @@
+new_frontend
+
 structure A :=
 (a : Nat)
 
@@ -8,9 +10,8 @@ structure C :=
 (a : Nat)
 
 instance : Coe A B := ⟨fun s => ⟨s.1⟩⟩
-instance : Coe A C := ⟨fun s => ⟨s.1⟩⟩
 
-new_frontend
+instance : Coe A C := ⟨fun s => ⟨s.1⟩⟩
 
 def f {α} (a b : α) := a
 def forceB {α} (b : B) (a : α) := a

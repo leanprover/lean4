@@ -1,3 +1,4 @@
+new_frontend
 #check @Array.mk
 
 def v : Array Nat := @Array.mk Nat 10 (fun ⟨i, _⟩ => i)
@@ -5,8 +6,10 @@ def v : Array Nat := @Array.mk Nat 10 (fun ⟨i, _⟩ => i)
 def w : Array Nat :=
 (mkArray 9 1).push 3
 
+#check @Array.casesOn
+
 def f : Fin w.sz → Nat :=
-Array.casesOn w (fun _ f => f)
+@Array.casesOn _ (fun w => Fin w.sz → Nat)  w (fun _ f => f)
 
 def arraySum (a : Array Nat) : Nat :=
 a.foldl Nat.add 0
@@ -46,10 +49,10 @@ def tst : IO (List Nat) :=
 
 #eval tst
 
-#eval #[1, 3, 6, 2].getMax? (fun a b => a < b)
-#eval #[].getMax? (fun (a b : Nat) => a < b)
-#eval #[1, 8].getMax? (fun a b => a < b)
-#eval #[8, 1].getMax? (fun a b => a < b)
+#eval #[1, 3, 6, 2].getMax? (fun a b => decide $ a < b)
+#eval #[].getMax? (fun (a b : Nat) => decide $ a < b)
+#eval #[1, 8].getMax? (fun a b => decide $ a < b)
+#eval #[8, 1].getMax? (fun a b => decide $ a < b)
 
 #eval #[1, 6, 5, 3, 8, 2, 0].partition fun x => x % 2 == 0
 

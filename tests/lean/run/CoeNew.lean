@@ -1,3 +1,5 @@
+new_frontend
+
 universes u v w
 
 instance boolToNat : Coe Bool Nat :=
@@ -15,7 +17,6 @@ structure ConstantFunction (α β : Type) :=
 instance constantFunctionCoe {α β : Type} : CoeFun (ConstantFunction α β) (fun _ => α → β) :=
 { coe := fun c => c.f }
 
-new_frontend
 set_option pp.implicit true
 
 #synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Nat

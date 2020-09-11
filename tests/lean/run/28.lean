@@ -1,3 +1,5 @@
+new_frontend
+
 structure bv (w : Nat) := (u:Unit)
 
 inductive val : Type
@@ -11,24 +13,19 @@ inductive instr : Type
 | store : Unit -> Unit -> Unit -> instr
 
 structure sim (a:Type) :=
-  (runSim :
-     ∀{z:Type},
-     (IO.Error → z)  /- error continuation -/ →
-     (a → z) /- normal continuation -/ →
-     z)
+(runSim : {z:Type} → (IO.Error → z) /- error continuation -/ → (a → z) /- normal continuation -/ →  z)
 
 instance monad : Monad sim :=
-  { bind := λa b mx mf => sim.mk (λz kerr k =>
-       mx.runSim kerr (λx => (mf x).runSim kerr k))
-  , pure := λa x => sim.mk (λz _ k => k x)
-  }
+{ bind := λ mx mf => sim.mk (λ kerr k =>
+       mx.runSim kerr (λx => (mf x).runSim kerr k)),
+  pure := fun a => sim.mk $ fun _ k => k a }
 
 instance monadExcept : MonadExcept IO.Error sim :=
-  { throw := λa err => sim.mk (λz kerr _k => kerr err)
-  , catch := λa m handle => sim.mk (λz kerr k =>
+{ throw := λ err => sim.mk (λ kerr _k => kerr err),
+  catch := λ m handle => sim.mk (λ kerr k =>
       let kerr' := λerr => (handle err).runSim kerr k;
       m.runSim kerr' k)
-  }.
+  }
 
 def f : sim val := throw (IO.userError "ASDF")
 def g : sim Unit := throw (IO.userError "ASDF")

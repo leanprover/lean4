@@ -1,3 +1,5 @@
+new_frontend
+
 universe u
 
 structure Group :=
@@ -5,8 +7,6 @@ structure Group :=
 
 instance GroupToType : CoeSort Group (Type u) :=
 CoeSort.mk (fun g => g.carrier)
-
-new_frontend
 
 variable (g : Group.{1})
 

@@ -1,3 +1,5 @@
+new_frontend
+
 partial def foo : ∀ (n : Nat), StateM Unit Unit
 | n =>
   if n == 0 then pure () else

@@ -1,4 +1,5 @@
 import Init.System.IO
+new_frontend
 
 structure MyState :=
 (bs : Nat := 0) -- backtrackable state

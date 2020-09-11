@@ -1,3 +1,5 @@
+new_frontend
+
 structure ConstantFunction (α β : Type) :=
 (f : α → β)
 (h : ∀ a₁ a₂, f a₁ = f a₂)
@@ -12,8 +14,6 @@ def myFun {α : Type} : ConstantFunction α (Option α) :=
 def myFun' (α : Type) : ConstantFunction α (Option α) :=
 { f := fun a => none,
   h := fun a₁ a₂ => rfl }
-
-new_frontend
 
 set_option pp.all true
 

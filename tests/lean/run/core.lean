@@ -1,4 +1,5 @@
 import Lean.CoreM
+new_frontend
 open Lean
 open Lean.Core
 

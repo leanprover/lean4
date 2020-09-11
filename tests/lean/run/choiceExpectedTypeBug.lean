@@ -5,8 +5,6 @@ new_frontend
 structure A :=
 (x : Nat := 10)
 
-syntax "{" "}"  : term -- overload `{ }` notation
-
 def f : A :=
 { }
 

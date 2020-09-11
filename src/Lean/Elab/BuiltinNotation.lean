@@ -287,6 +287,11 @@ fun stx =>
 @[builtinMacro Lean.Parser.Term.«sorry»]  def expandSorry : Macro :=
 fun _ => `(sorryAx _ false)
 
+@[builtinTermElab emptyC] def expandEmptyC : TermElab :=
+fun stx expectedType? => do
+  stxNew ← `(HasEmptyc.emptyc);
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+
 /-
 TODO
 @[builtinTermElab] def elabsubst : TermElab := expandInfixOp infixR " ▸ " 75

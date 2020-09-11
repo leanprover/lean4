@@ -16,7 +16,4 @@ instance : HasEmptyc A :=
 ⟨{ x := 10 }⟩
 
 def boo : A :=
-{} -- this HasEmptyc.emptyc
-
-theorem ex3 : boo.x = 10 :=
-rfl
+{}  -- this is ambiguous

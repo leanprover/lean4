@@ -774,7 +774,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
         else
           throw ex)
 
-def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
+private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
 s ← saveAllState;
 env ← getEnv;
 let table := (termElabAttribute.ext.getState env).table;
@@ -804,7 +804,7 @@ match_syntax stx with
 | `(fun $binders* => $body) => binders.any $ fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
 | _                         => false
 
-partial def dropTermParens : Syntax → Syntax | stx =>
+private partial def dropTermParens : Syntax → Syntax | stx =>
 match_syntax stx with
 | `(($stx)) => dropTermParens stx
 | _         => stx
@@ -817,7 +817,7 @@ isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx
 /--
   Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and
   `blockImplicitLambda stx` is not true, else return `none`. -/
-def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
+private def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
 if blockImplicitLambda stx then pure none
 else match expectedType? with
   | some expectedType => do
@@ -827,14 +827,14 @@ else match expectedType? with
     | _                    => pure $ none
   | _         => pure $ none
 
-def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
+private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
 body ← elabUsingElabFns stx expectedType catchExPostpone;
 -- body ← ensureHasType stx expectedType body;
 r ← mkLambdaFVars fvars body;
 trace `Elab.implicitForall $ fun _ => r;
 pure r
 
-partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
+private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
 | type@(Expr.forallE n d b c), fvars =>
   if c.binderInfo.isExplicit then
     elabImplicitLambdaAux stx catchExPostpone type fvars
@@ -847,7 +847,7 @@ partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr �
   elabImplicitLambdaAux stx catchExPostpone type fvars
 
 /- Main loop for `elabTerm` -/
-partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
+private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
 | stx => withFreshMacroScope $ withIncRecDepth do
   trace `Elab.step $ fun _ => expectedType? ++ " " ++ stx;
   env ← getEnv;

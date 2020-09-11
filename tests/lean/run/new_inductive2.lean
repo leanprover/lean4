@@ -1,7 +1,9 @@
+new_frontend
+
 universes u v
 
 inductive arrow (α : Type u) (β : Type v)
-| mk : (α → β) → arrow
+| mk : (α → β) → arrow α β
 
 inductive foo
 | mk : arrow Nat foo → foo
@@ -11,10 +13,14 @@ inductive foo
 set_option pp.all true
 #print foo.below
 
-mutual inductive foo2, arrow2
-with foo2 : Type
+mutual
+
+inductive foo2 : Type
 | mk : arrow2 → foo2
-with arrow2 : Type
+
+inductive arrow2 : Type
 | mk : (Nat → foo2) → arrow2
+
+end
 
 #print foo2.brecOn

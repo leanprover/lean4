@@ -1,3 +1,5 @@
+new_frontend
+
 def foo {α} (a : Option α) (b : α) : α  :=
 match a with
 | some a => a
@@ -5,8 +7,6 @@ match a with
 
 structure S :=
 (x : Nat)
-
-new_frontend
 
 #check if 0 == 1 then true else false
 

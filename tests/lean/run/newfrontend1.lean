@@ -1,6 +1,5 @@
-def x := 1
-
 new_frontend
+def x := 1
 
 #check x
 

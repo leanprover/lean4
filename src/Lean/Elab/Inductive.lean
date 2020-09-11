@@ -321,9 +321,11 @@ unless (r.isParam) $
   throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly";
 us ← collectUniverses r rOffset numParams indTypes;
 let rNew := Level.mkNaryMax us.toList;
+let updateLevel (e : Expr) : Expr := e.replaceLevel fun u => if u == tmpIndParam then some rNew else none;
 pure $ indTypes.map fun indType =>
-  let type := indType.type.replaceLevel fun u => if u == tmpIndParam then some rNew else none;
-  { indType with type := type }
+  let type := updateLevel indType.type;
+  let ctors := indType.ctors.map fun ctor => { ctor with type := updateLevel ctor.type };
+  { indType with type := type, ctors := ctors }
 
 private def traceIndTypes (indTypes : List InductiveType) : TermElabM Unit :=
 indTypes.forM fun indType =>

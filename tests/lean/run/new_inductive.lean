@@ -19,7 +19,7 @@ end
 
 #print bla
 
-inductive Term (α : Type) (β : Type) : Type
+inductive Term (α : Type) (β : Type)
 | var : α → bla (Term α β) (fun _ => Term α β) 10 → Term α β
 | foo (p : Nat → myPair (Term α β) (myList $ Term α β)) (n : β) : myList (myList $ Term α β) → Term α β
 
@@ -33,9 +33,9 @@ inductive arrow (α β : Type)
 | mk (s : Nat → myPair α β) : arrow α β
 
 mutual
-inductive tst1 : Type
+inductive tst1
 | mk : (arrow (myPair tst2 Bool) tst2) → tst1
-inductive tst2 : Type
+inductive tst2
 | mk : tst1 → tst2
 end
 
@@ -66,10 +66,15 @@ end Rbnode
 def Rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
 {t : Rbnode α // t.WellFormed lt }
 
-inductive Trie : Type
+inductive Trie
 | Empty : Trie
 | mk    : Char → Rbnode (myPair Char Trie) → Trie
 
 #print Trie.rec
 #print Trie.noConfusion
 end test
+
+inductive Foo
+| mk : List Foo → Foo
+
+#check Foo

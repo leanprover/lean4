@@ -612,12 +612,10 @@ else
   if successes.size == 1 then
     applyResult $ successes.get! 0
   else if successes.size > 1 then do
-    env ← getEnv;
     lctx ← getLCtx;
-    mctx ← getMCtx;
     opts ← getOptions;
     let msgs : Array MessageData := successes.map $ fun success => match success with
-      | EStateM.Result.ok e s => MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } e
+      | EStateM.Result.ok e s => MessageData.withContext { env := s.core.env, mctx := s.meta.mctx, lctx := lctx, opts := opts } e
       | _                     => unreachable!;
     throwErrorAt f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
   else

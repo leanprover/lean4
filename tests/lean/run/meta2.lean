@@ -1,11 +1,12 @@
 import Lean.Meta
+new_frontend
 open Lean
 open Lean.Meta
 
-set_option trace.Meta true
-set_option trace.Meta.isDefEq.step false
-set_option trace.Meta.isDefEq.delta false
-set_option trace.Meta.isDefEq.assign false
+-- set_option trace.Meta true
+--set_option trace.Meta.isDefEq.step false
+-- set_option trace.Meta.isDefEq.delta false
+set_option trace.Meta.debug true
 
 def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg

@@ -1,5 +1,4 @@
 -- List decidable equality using `withPtrEqDecEq`
-
 def listDecEqAux {α} [s : DecidableEq α] : ∀ (as bs : List α), Decidable (as = bs)
 | [],    []    => isTrue rfl
 | [],    b::bs => isFalse $ fun h => List.noConfusion h

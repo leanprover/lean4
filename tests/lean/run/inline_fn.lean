@@ -1,7 +1,9 @@
+new_frontend
+
 def f {α : Type} [HasAdd α] (x : α) :=
 x + x + x
 
-def h : Nat → Nat
+partial def h : Nat → Nat
 | 0     => 10
 | n+1   => n * h n
 

@@ -1,4 +1,5 @@
 import Lean.Level
+new_frontend
 open Lean
 
 #eval levelZero == levelZero

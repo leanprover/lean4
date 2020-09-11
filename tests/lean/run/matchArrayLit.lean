@@ -1,3 +1,4 @@
+new_frontend
 universes u v
 
 theorem eqLitOfSize0 {α : Type u} (a : Array α) (hsz : a.size = 0) : a = #[] :=

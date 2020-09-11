@@ -1,3 +1,5 @@
+new_frontend
+
 def tst : IO Unit :=
 do
 let bs := [(1 : Float), 2, 3].toFloatArray;

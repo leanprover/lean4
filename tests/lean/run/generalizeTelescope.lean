@@ -1,10 +1,11 @@
 import Lean
+new_frontend
 open Lean
 open Lean.Meta
 
 inductive Vec (α : Type) : Nat → Type
-| nil      : Vec 0
-| cons {n} : α → Vec n → Vec (n+1)
+| nil      : Vec α 0
+| cons {n} : α → Vec α n → Vec α (n+1)
 
 set_option trace.Meta.debug true
 

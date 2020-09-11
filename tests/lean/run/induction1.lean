@@ -1,8 +1,8 @@
+new_frontend
+
 @[recursor 4]
 def Or.elim2 {p q r : Prop} (major : p ∨ q) (left : p → r) (right : q → r) : r :=
 Or.elim major left right
-
-new_frontend
 
 theorem tst0 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 by {

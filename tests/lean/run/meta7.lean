@@ -1,13 +1,13 @@
 import Lean.Meta
+new_frontend
 open Lean
 open Lean.Meta
 
-def fact : Nat → Nat
+partial def fact : Nat → Nat
 | 0 => 1
 | n+1 => (n+1)*fact n
 
-set_option trace.Meta true
-set_option trace.Meta.isDefEq false
+set_option trace.Meta.debug true
 set_option trace.Meta.check false
 
 def print (msg : MessageData) : MetaM Unit :=

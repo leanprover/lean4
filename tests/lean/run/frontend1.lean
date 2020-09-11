@@ -1,4 +1,5 @@
 import Lean.Elab
+new_frontend
 open Lean
 open Lean.Elab
 
@@ -91,7 +92,7 @@ structure S (α : Type) :=
 (map : Std.HashMap String α := {})
 
 inductive D (α : Type)
-| mk (a : α) (s : S4) : D
+| mk (a : α) (s : S4) : D α
 
 def s : S Nat := { field3 := 0 }
 def d : D Nat := D.mk 10 {}

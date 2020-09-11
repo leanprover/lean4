@@ -1,4 +1,5 @@
 import Lean.Meta
+new_frontend
 open Lean
 open Lean.Meta
 
@@ -26,12 +27,10 @@ check $ fullApproxDefEq $ isDefEq lhs rhs;
 pure ()
 
 set_option pp.all true
-set_option trace.Meta.isDefEq true
 
 #eval tst1
 
-set_option trace.Meta true
-set_option trace.Meta.isDefEq false
+set_option trace.Meta.debug true
 
 def tst2 : MetaM Unit := do
 print "----- tst2 -----";
@@ -63,8 +62,8 @@ pure ()
 #eval tst3
 
 inductive Vec.{u} (α : Type u) : Nat → Type u
-| nil            : Vec 0
-| cons {n : Nat} : α → Vec n → Vec (n+1)
+| nil            : Vec α 0
+| cons {n : Nat} : α → Vec α n → Vec α (n+1)
 
 def tst4 : MetaM Unit :=
 withLocalDeclD `x nat fun x =>

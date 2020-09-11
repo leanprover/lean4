@@ -1,5 +1,5 @@
 import Lean
-
+new_frontend
 open Lean
 
 def checkDefEq (a b : Name) : CoreM Unit := do

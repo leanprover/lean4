@@ -1,4 +1,5 @@
 import Lean.Meta
+new_frontend
 open Lean
 open Lean.Meta
 

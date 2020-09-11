@@ -1,3 +1,5 @@
+new_frontend
+
 def tstGetLine (str : String) : IO Unit := do
 let path := "tmp_file";
 IO.FS.withFile path IO.FS.Mode.write $ λ (h : IO.FS.Handle) =>

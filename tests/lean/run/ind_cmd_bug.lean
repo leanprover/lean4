@@ -1,3 +1,5 @@
+new_frontend
+
 structure D (α : Type) :=
 (a : α)
 

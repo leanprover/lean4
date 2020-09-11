@@ -1,7 +1,8 @@
 import Lean
+new_frontend
 open Lean
 
-def mkTower : Nat → Expr
+partial def mkTower : Nat → Expr
 | 0   => mkConst `a
 | n+1 => mkApp2 (mkConst `f) (mkTower n) (mkTower n)
 
@@ -25,7 +26,10 @@ partial def visit : Expr → MonadCacheT Expr Expr CoreM Expr
 
 #eval (visit (mkTower 4)).run
 
-#eval do e ← (visit (mkTower 100)).run; (depth e).run
+def tst : CoreM Nat := do
+e ← (visit (mkTower 100)).run; (depth e).run
+
+#eval tst
 
 partial def visitNoCache : Expr → CoreM Expr
 | e =>
@@ -42,4 +46,7 @@ e.forEach fun e => match e with
   | Expr.const c _ _ => do IO.println c
   | _ => pure ()
 
-#eval do e ← (visit (mkTower 100)).run; displayConsts e
+def tst2 : CoreM Unit := do
+e ← (visit (mkTower 100)).run; displayConsts e
+
+#eval tst2

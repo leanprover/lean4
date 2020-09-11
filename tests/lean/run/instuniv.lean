@@ -1,4 +1,5 @@
 import Lean
+new_frontend
 open Lean
 
 unsafe def tst : IO Unit :=

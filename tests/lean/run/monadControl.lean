@@ -1,3 +1,5 @@
+new_frontend
+
 @[inline] def f {α} (s : String) (x : IO α) : IO α := do
 IO.println "started";
 IO.println s;

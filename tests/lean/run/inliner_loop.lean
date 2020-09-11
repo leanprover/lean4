@@ -1,3 +1,5 @@
+new_frontend
+
 unsafe inductive t
 | mk : (t → t) → t
 

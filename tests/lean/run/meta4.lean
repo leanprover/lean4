@@ -1,4 +1,5 @@
 import Lean.Meta
+new_frontend
 open Lean
 open Lean.Meta
 
@@ -10,7 +11,7 @@ unlessM x $ throwError "check failed"
 
 axiom Ax : forall (α β : Type), α → β → DecidableEq β
 
-set_option trace.Meta true
+set_option trace.Meta.debug true
 
 def tst1 : MetaM Unit := do
 cinfo ← getConstInfo `Ax;

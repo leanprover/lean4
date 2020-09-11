@@ -1,3 +1,5 @@
+new_frontend
+
 universes u v w r s
 
 set_option trace.compiler.stage1 true
@@ -34,7 +36,7 @@ let p := (fun x => Nat.succ x, Nat.zero) ;
 let f := fun (p : (Nat → Nat) × Nat) => p.1;
 f p n
 
-def add' : Nat → Nat → Nat
+partial def add' : Nat → Nat → Nat
 | 0, b     => Nat.succ b
 | a+1,   b => Nat.succ (Nat.succ (add' a b))
 
@@ -62,9 +64,11 @@ def bla' (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
 @And.casesOn _ _ (fun _ => Nat) h (fun h₁ h₂ => aux i h₁ + aux i h₁)
 
 inductive vec (α : Type u) : Nat → Type u
-| nil   : vec 0
-| cons  : ∀ {n}, α → vec n → vec (Nat.succ n)
+| nil   : vec α 0
+| cons  : ∀ {n}, α → vec α n → vec α (Nat.succ n)
 
+/-
 def vec.map {α β σ : Type u} (f : α → β → σ) : ∀ {n : Nat}, vec α n → vec β n → vec σ n
-| _, vec.nil, vec.nil                 => vec.nil
-| _, vec.cons a as,   vec.cons b bs   => vec.cons (f a b) (vec.map as bs)
+| _, nil, nil               => nil
+| _, cons a as, cons b bs   => cons (f a b) (map f as bs)
+-/

@@ -1,24 +1,27 @@
+new_frontend
 universes u v
 
 inductive myList (α : Type u)
-| nil  : myList
-| cons : α → myList → myList
+| nil  : myList α
+| cons : α → myList α → myList α
 
 inductive myPair (α : Type u) (β : Type v)
-| mk : α → β → myPair
+| mk : α → β → myPair α β
 
-mutual inductive bla, boo (α : Type u) (m : α → Type v)
-with bla : Nat → Type (max u v)
+mutual
+variables (α : Type u) (m : α → Type v)
+inductive bla : Nat → Type (max u v)
 | mk₁ (n : Nat) : α → boo n → bla (n+1)
 | mk₂ (a : α)   : m a → String → bla 0
-with boo : Nat → Type (max u v)
+inductive boo : Nat → Type (max u v)
 | mk₃ (n : Nat) : bla n → bla (n+1) → boo (n+2)
+end
 
 #print bla
 
-inductive Term (α : Type) (β : Type)
-| var : α → bla Term (fun _ => Term) 10 → Term
-| foo (p : Nat → myPair Term (myList Term)) (n : β) : myList (myList Term) → Term
+inductive Term (α : Type) (β : Type) : Type
+| var : α → bla (Term α β) (fun _ => Term α β) 10 → Term α β
+| foo (p : Nat → myPair (Term α β) (myList $ Term α β)) (n : β) : myList (myList $ Term α β) → Term α β
 
 #print Term
 #print Term.below
@@ -27,13 +30,14 @@ inductive Term (α : Type) (β : Type)
 #print Term.noConfusion
 
 inductive arrow (α β : Type)
-| mk (s : Nat → myPair α β) : arrow
+| mk (s : Nat → myPair α β) : arrow α β
 
-mutual inductive tst1, tst2
-with tst1 : Type
+mutual
+inductive tst1 : Type
 | mk : (arrow (myPair tst2 Bool) tst2) → tst1
-with tst2 : Type
+inductive tst2 : Type
 | mk : tst1 → tst2
+end
 
 #check @tst1.casesOn
 #check @tst2.casesOn
@@ -42,9 +46,9 @@ with tst2 : Type
 namespace test
 
 inductive Rbnode (α : Type u)
-| leaf                                                    : Rbnode
-| redNode   (lchild : Rbnode) (val : α) (rchild : Rbnode) : Rbnode
-| blackNode (lchild : Rbnode) (val : α) (rchild : Rbnode) : Rbnode
+| leaf                                                        : Rbnode α
+| redNode   (lchild : Rbnode α) (val : α) (rchild : Rbnode α) : Rbnode α
+| blackNode (lchild : Rbnode α) (val : α) (rchild : Rbnode α) : Rbnode α
 
 #check @Rbnode.brecOn
 
@@ -54,15 +58,15 @@ variables {α : Type u}
 constant insert (lt : α → α → Prop) [DecidableRel lt] (t : Rbnode α) (x : α) : Rbnode α := Rbnode.leaf
 
 inductive WellFormed (lt : α → α → Prop) : Rbnode α → Prop
-| leafWff : WellFormed leaf
-| insertWff {n n' : Rbnode α} {x : α} (s : DecidableRel lt) : WellFormed n → n' = insert lt n x → WellFormed n'
+| leafWff : WellFormed lt leaf
+| insertWff {n n' : Rbnode α} {x : α} (s : DecidableRel lt) : WellFormed lt n → n' = insert lt n x → WellFormed lt n'
 
 end Rbnode
 
 def Rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
 {t : Rbnode α // t.WellFormed lt }
 
-inductive Trie
+inductive Trie : Type
 | Empty : Trie
 | mk    : Char → Rbnode (myPair Char Trie) → Trie
 

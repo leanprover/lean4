@@ -1,4 +1,5 @@
 import Lean.Meta
+new_frontend
 open Lean
 open Lean.Meta
 
@@ -22,7 +23,7 @@ do v? ← getExprMVarAssignment? m.mvarId!;
 
 unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
-   let x := do { x; printTraces };
+   let x : MetaM Unit := do { x; printTraces };
    _ ← x.toIO { options := opts } { env := env };
    pure ()
 

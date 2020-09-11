@@ -524,12 +524,11 @@ when succeeded $
 fun stx => failIfSucceeds $ elabCheck stx
 
 unsafe def elabEvalUnsafe : CommandElab :=
-fun stx => withoutModifyingEnv do
+fun stx => do
   let ref  := stx;
   let term := stx.getArg 1;
   let n := `_eval;
   ctx ← read;
-  env ← getEnv;
   let addAndCompile (value : Expr) : TermElabM Unit := do {
     type ← inferType value;
     let decl := Declaration.defnDecl { name := n, lparams := [], type := type,
@@ -544,11 +543,10 @@ fun stx => withoutModifyingEnv do
           e ← mkAppM `Lean.runMetaEval #[env, opts, e];
           mkLambdaFVars #[env, opts] e
         };
-    addAndCompile e;
     env ← getEnv;
     opts ← getOptions;
-    act ← evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n;
-    (out, res) ← MonadIO.liftIO $ act env opts;
+    act ← finally (do addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n) (setEnv env);
+    (out, res) ← MonadIO.liftIO $ act env opts; -- we execute `act` using the environment
     logInfo out;
     match res with
     | Except.error e => throwError e.toString
@@ -560,14 +558,15 @@ fun stx => withoutModifyingEnv do
     e    ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVarsNoPostponing;
     e ← mkAppM `Lean.runEval #[e];
-    addAndCompile e;
-    act ← evalConst (IO (String × Except IO.Error Unit)) n;
+    env ← getEnv;
+    act ← finally (do addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n ) (setEnv env);
     (out, res) ← MonadIO.liftIO act;
     logInfo out;
     match res with
     | Except.error e => throwError e.toString
     | Except.ok _    => pure ()
   };
+  env ← getEnv;
   if env.contains `Lean.MetaHasEval then do
     elabMetaEval
   else

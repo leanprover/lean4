@@ -1,5 +1,6 @@
 /- Benchmark for new code generator -/
 import Init.System.IO
+new_frontend
 
 inductive Expr
 | Val : Int → Expr
@@ -54,12 +55,12 @@ def ln : Expr → Expr
 unsafe def d (x : String) : Expr → Expr
 | Val _     => Val 0
 | Var y     => if x = y then Val 1 else Val 0
-| Add f g   => add (d f) (d g)
-| Mul f g   => add (mul f (d g)) (mul g (d f))
-| Pow f g   => mul (pow f g) (add (mul (mul g (d f)) (pow f (Val (-1)))) (mul (ln f) (d g)))
-| Ln f      => mul (d f) (pow f (Val (-1)))
+| Add f g   => add (d x f) (d x g)
+| Mul f g   => add (mul f (d x g)) (mul g (d x f))
+| Pow f g   => mul (pow f g) (add (mul (mul g (d x f)) (pow f (Val (0 - 1)))) (mul (ln f) (d x g)))
+| Ln f      => mul (d x f) (pow f (Val (0 - 1)))
 
-def count : Expr → Nat
+partial def count : Expr → Nat
 | Val _   => 1
 | Var _   => 1
 | Add f g   => count f + count g
@@ -67,20 +68,20 @@ def count : Expr → Nat
 | Pow f g   => count f + count g
 | Ln f      => count f
 
-def Expr.toString : Expr → String
-| Val n   => toString n
+partial def Expr.toString : Expr → String
+| Val n   => HasToString.toString n
 | Var x   => x
-| Add f g   => "(" ++ Expr.toString f ++ " + " ++ Expr.toString g ++ ")"
-| Mul f g   => "(" ++ Expr.toString f ++ " * " ++ Expr.toString g ++ ")"
-| Pow f g   => "(" ++ Expr.toString f ++ " ^ " ++ Expr.toString g ++ ")"
-| Ln f      => "ln(" ++ Expr.toString f ++ ")"
+| Add f g   => "(" ++ toString f ++ " + " ++ toString g ++ ")"
+| Mul f g   => "(" ++ toString f ++ " * " ++ toString g ++ ")"
+| Pow f g   => "(" ++ toString f ++ " ^ " ++ toString g ++ ")"
+| Ln f      => "ln(" ++ toString f ++ ")"
 
 instance : HasToString Expr :=
 ⟨Expr.toString⟩
 
 unsafe def nest (f : Expr → IO Expr) : Nat → Expr → IO Expr
 | 0,     x => pure x
-| n+1,   x => f x >>= nest n
+| n+1,   x => f x >>= nest f n
 
 unsafe def deriv (f : Expr) : IO Expr :=
 do

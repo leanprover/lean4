@@ -773,6 +773,17 @@ else
   let stxNew   := stx.setArg 4 mkNullNode;
   `(($stxNew : $expected))
 
+private def isEmptyStructInst (stx : Syntax) : Bool :=
+(stx.getArg 1).isNone &&
+(stx.getArg 2).isNone &&
+(stx.getArg 3).isNone &&
+(stx.getArg 4).isNone
+
+@[builtinTermElab emptyC] def expandEmptyC : TermElab :=
+fun stx expectedType? => do
+  stxNew ← `(HasEmptyc.emptyc);
+  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+
 @[builtinTermElab structInst] def elabStructInst : TermElab :=
 fun stx expectedType? => do
   stxNew? ← liftMacroM $ expandStructInstExpectedType stx;
@@ -784,11 +795,22 @@ fun stx expectedType? => do
     | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
     | none => do
       sourceView ← getStructSource stx;
-      modifyOp?  ← isModifyOp? stx;
-      match modifyOp?, sourceView with
-      | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
-      | some _,        _                        => throwError ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
-      | _,             _                        => elabStructInstAux stx expectedType? sourceView
+      if isEmptyStructInst stx then do
+        /- Recall that we also want to use `{}` as notation for `HasEmptyc.emptyc` -/
+        tryPostponeIfNoneOrMVar expectedType?;
+        match expectedType? with
+        | none => expandEmptyC stx expectedType?
+        | some expectedType =>
+          /- We first try to create `@HasEmptyc.emptyc expectedType _`, if it fails, we elaborate as the empty structure. -/
+          catch
+            (mkAppOptM `HasEmptyc.emptyc #[expectedType, none])
+            (fun _ => elabStructInstAux stx expectedType? sourceView)
+      else do
+        modifyOp?  ← isModifyOp? stx;
+        match modifyOp?, sourceView with
+        | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
+        | some _,        _                        => throwError ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
+        | _,             _                        => elabStructInstAux stx expectedType? sourceView
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.struct;

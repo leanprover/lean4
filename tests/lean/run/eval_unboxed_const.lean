@@ -1,4 +1,6 @@
 import Lean
+new_frontend
+
 open Lean
 
 def c1 : Bool := true

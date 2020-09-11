@@ -1,10 +1,10 @@
+new_frontend
+
 instance : Coe Nat Int :=
 ⟨fun n => Int.ofNat n⟩
 
 def f (x : Nat) : List Int :=
 [x]
-
-new_frontend
 
 def g1 (x : Nat) : List Int :=
 [x, x]

@@ -662,9 +662,6 @@ fun stx expectedType? => match_syntax stx with
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
-/- A raw identiier is not a valid term,
-   but it is nice to have a handler for them because it allows `macros` to insert them into terms. -/
-@[builtinTermElab ident] def elabRawIdent : TermElab := elabAtom
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.app;

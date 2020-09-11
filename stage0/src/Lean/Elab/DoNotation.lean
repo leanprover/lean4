@@ -52,6 +52,7 @@ else
 private partial def hasLiftMethod : Syntax → Bool
 | Syntax.node k args =>
   if k == `Lean.Parser.Term.do then false
+  else if k == `Lean.Parser.Term.quot then false
   else if k == `Lean.Parser.Term.liftMethod then true
   else args.any hasLiftMethod
 | _ => false
@@ -59,6 +60,7 @@ private partial def hasLiftMethod : Syntax → Bool
 private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) MacroM Syntax
 | stx@(Syntax.node k args) =>
   if k == `Lean.Parser.Term.do then pure stx
+  else if k == `Lean.Parser.Term.quot then pure stx
   else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
     let term := args.get! 1;
     term ← expandLiftMethodAux term;

@@ -392,7 +392,6 @@ extern lean_object* l_Lean_numLitKind___closed__2;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__121;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__153;
 lean_object* l___regBuiltin_Lean_Elab_Command_expandMixfix___closed__1;
-lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_elabTermAux___main___spec__2___rarg(lean_object*);
 lean_object* l___private_Lean_Elab_Syntax_6__declareSyntaxCatQuotParser___closed__12;
 extern lean_object* l_Lean_mkAppStx___closed__6;
 extern lean_object* l_Lean_Elab_Term_expandArrayLit___closed__9;
@@ -517,6 +516,7 @@ lean_object* l_Lean_Elab_Command_expandMixfix___closed__17;
 uint8_t l_Lean_Parser_isParserCategory(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__6;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__125;
+lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__2___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_getCurrMacroScope(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_SourceInfo_inhabited___closed__1;
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__31;
@@ -1025,7 +1025,7 @@ else
 {
 lean_object* x_20; 
 lean_dec(x_9);
-x_20 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_elabTermAux___main___spec__2___rarg(x_8);
+x_20 = l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__2___rarg(x_8);
 return x_20;
 }
 }

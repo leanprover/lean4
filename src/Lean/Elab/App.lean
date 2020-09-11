@@ -557,12 +557,18 @@ private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Arra
     elabAppFn (f.getArg 1) lvals namedArgs args expectedType? true acc
   | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
   | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
-  | _ => do
-    s ← observing $ do {
-      f ← elabTerm f none;
-      elabAppLVals f lvals namedArgs args expectedType? explicit
-    };
-    pure $ acc.push s
+  | _ =>
+    if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then do
+      /- Recall that elabAppFn is used for elaborating atomics terms **and** choice nodes that may contain
+         arbitrary terms. If they are not being used as a function, we should elaborate using the expectedType. -/
+      s ← observing $ elabTerm f expectedType?;
+      pure $ acc.push s
+    else do
+      s ← observing $ do {
+        f ← elabTerm f none;
+        elabAppLVals f lvals namedArgs args expectedType? explicit
+      };
+      pure $ acc.push s
 
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
 candidates.filter $ fun c => match c with
@@ -644,7 +650,7 @@ fun stx expectedType? => do
   (f, namedArgs, args, _) ← expandApp stx;
   elabAppAux f namedArgs args expectedType?
 
-def elabAtom : TermElab :=
+private def elabAtom : TermElab :=
 fun stx expectedType? => elabAppAux stx #[] #[] expectedType?
 
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom

@@ -90,6 +90,7 @@ lean_object* l_Lean_Delaborator_delabCoeFun(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Delaborator_descend___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_tailD___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_11____closed__22;
+extern lean_object* l_Lean_Meta_isDefEqBindingDomain___main___closed__1;
 lean_object* l_Lean_Level_dec___main(lean_object*);
 lean_object* l_Lean_Level_quote___main___closed__5;
 extern lean_object* l_Lean_Expr_ctorName___closed__2;
@@ -438,7 +439,6 @@ extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_11____closed__9;
 lean_object* l___private_Lean_Delaborator_1__shouldGroupWithNext___closed__2;
 lean_object* l_Lean_Delaborator_descend___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Delaborator_delabFor___main___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__1;
 lean_object* l_Lean_Delaborator_mkDelabAttribute___closed__11;
 lean_object* l_Lean_Delaborator_delabProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_withAppFnArgs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2257,7 +2257,7 @@ lean_object* _init_l_Lean_Delaborator_Alternative___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
-x_1 = l_Lean_Meta_CheckAssignment_checkFVar___closed__1;
+x_1 = l_Lean_Meta_isDefEqBindingDomain___main___closed__1;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = !lean_is_exclusive(x_2);

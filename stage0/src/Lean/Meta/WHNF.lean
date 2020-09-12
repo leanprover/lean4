@@ -77,7 +77,7 @@ else if majorType.hasExprMVar && majorType.getAppArgs.anyFrom rec.nparams Expr.h
 else do
   (some newCtorApp) ← mkNullaryCtor majorType rec.nparams | pure none;
   newType ← inferType newCtorApp;
-  defeq ← Meta.isExprDefEqAux majorType newType;
+  defeq ← isDefEq majorType newType;
   pure $ if defeq then newCtorApp else none
 
 /-- Auxiliary function for reducing recursor applications. -/

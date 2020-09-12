@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.InferType
+import Lean.Meta.LevelDefEq
 
 /-
 This is not the Kernel type checker, but an auxiliary method for checking
@@ -41,7 +42,7 @@ lambdaLetTelescope e $ fun xs b => do
       ensureType t;
       check t;
       vType ← inferType v;
-      unlessM (Meta.isExprDefEqAux t vType) $ throwLetTypeMismatchMessage x.fvarId!;
+      unlessM (isDefEq t vType) $ throwLetTypeMismatchMessage x.fvarId!;
       check v
   };
   check b
@@ -90,7 +91,7 @@ fType ← whnf fType;
 match fType with
 | Expr.forallE _ d _ _ => do
   aType ← inferType a;
-  unlessM (Meta.isExprDefEqAux d aType) $ throwAppTypeMismatch f a
+  unlessM (isDefEq d aType) $ throwAppTypeMismatch f a
 | _ => throwFunctionExpected (mkApp f a)
 
 private partial def checkAux : Expr → MetaM Unit
@@ -109,7 +110,7 @@ traceCtx `Meta.check $
 
 def isTypeCorrect (e : Expr) : MetaM Bool :=
 catch
-  (traceCtx `Meta.check $ do checkAux e; pure true)
+  (do check e; pure true)
   (fun ex => do
     trace! `Meta.typeError ex.toMessageData;
     pure false)

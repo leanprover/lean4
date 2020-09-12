@@ -90,14 +90,9 @@ structure Cache :=
 (whnfDefault   : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.default`
 (whnfAll       : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.all`
 
-structure PostponedEntry :=
-(lhs       : Level)
-(rhs       : Level)
-
 structure State :=
 (mctx        : MetavarContext := {})
 (cache       : Cache := {})
-(postponed   : PersistentArray PostponedEntry := {})
 /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
 (zetaFVarIds : NameSet := {})
 
@@ -108,7 +103,13 @@ structure Context :=
 (lctx           : LocalContext   := {})
 (localInstances : LocalInstances := #[])
 
-abbrev MetaM := ReaderT Context $ StateRefT State $ CoreM
+abbrev MetaM  := ReaderT Context $ StateRefT State $ CoreM
+
+structure PostponedEntry :=
+(lhs       : Level)
+(rhs       : Level)
+
+abbrev DefEqM := StateRefT (PersistentArray PostponedEntry) MetaM
 
 instance : MonadIO MetaM :=
 { liftIO := fun α x => liftM (liftIO x : CoreM α) }
@@ -143,7 +144,7 @@ pure (a, sCore, s)
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
 ⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run'⟩
 
-protected def throwIsDefEqStuck {α} : MetaM α :=
+protected def throwIsDefEqStuck {α} : DefEqM α :=
 throw $ Exception.internal isDefEqStuckExceptionId
 
 @[init] private def regTraceClasses : IO Unit := do
@@ -184,10 +185,10 @@ IO.mkRef $ fun _ => throwError "inferType implementation was not set"
 
 @[init mkInferTypeRef] def inferTypeRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
 
-def mkIsExprDefEqAuxRef : IO (IO.Ref (Expr → Expr → MetaM Bool)) :=
+def mkIsExprDefEqAuxRef : IO (IO.Ref (Expr → Expr → DefEqM Bool)) :=
 IO.mkRef $ fun _ _ => throwError "isDefEq implementation was not set"
 
-@[init mkIsExprDefEqAuxRef] def isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) := arbitrary _
+@[init mkIsExprDefEqAuxRef] def isExprDefEqAuxRef : IO.Ref (Expr → Expr → DefEqM Bool) := arbitrary _
 
 def mkSynthPendingRef : IO (IO.Ref (MVarId → MetaM Bool)) :=
 IO.mkRef $ fun _ => pure false
@@ -208,7 +209,7 @@ liftMetaM $ withIncRecDepth do
   fn ← liftIO inferTypeRef.get;
   fn e
 
-protected def isExprDefEqAux (t s : Expr) : MetaM Bool :=
+protected def isExprDefEqAux (t s : Expr) : DefEqM Bool :=
 withIncRecDepth do
   fn ← liftIO isExprDefEqAuxRef.get;
   fn t s
@@ -968,6 +969,25 @@ pure $ Lean.ppExpr env mctx lctx opts e
 
 def ppExpr (e : Expr) : m Format :=
 liftMetaM $ ppExprImp e
+
+@[inline] protected def orelse {α} (x y : MetaM α) : MetaM α := do
+env  ← getEnv;
+mctx ← getMCtx;
+catch x (fun _ => do setEnv env; setMCtx mctx; y)
+
+instance Meta.hasOrelse {α} : HasOrelse (MetaM α) := ⟨Meta.orelse⟩
+
+/-- `commitWhenSome? x` executes `x` and keep modifications when it returns `some a`. -/
+@[specialize] def commitWhenSome? {α} (x? : MetaM (Option α)) : MetaM (Option α) := do
+env  ← getEnv;
+mctx ← getMCtx;
+catch
+  (do
+    a? ← x?;
+    match a? with
+    | some a => pure a?
+    | none   => do setEnv env; setMCtx mctx; pure none)
+  (fun ex => do setEnv env; setMCtx mctx; throw ex)
 
 end Methods
 end Meta

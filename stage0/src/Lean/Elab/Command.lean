@@ -533,6 +533,7 @@ fun stx => do
     type ← inferType value;
     let decl := Declaration.defnDecl { name := n, lparams := [], type := type,
       value := value, hints := ReducibilityHints.opaque, isUnsafe := true };
+    Term.ensureNoUnassignedMVars decl;
     addAndCompile decl
   };
   let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do {

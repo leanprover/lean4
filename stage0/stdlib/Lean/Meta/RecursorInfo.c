@@ -96,6 +96,7 @@ lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString__
 lean_object* l___private_Lean_Meta_RecursorInfo_11__checkMotiveResultType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__21;
 extern lean_object* l_Lean_auxRecExt;
+extern lean_object* l_Lean_Meta_State_inhabited___closed__7;
 lean_object* l_Lean_Meta_mkRecursorAttr___closed__3;
 lean_object* l___private_Lean_Meta_RecursorInfo_3__checkMotive___closed__9;
 lean_object* l___private_Lean_Meta_RecursorInfo_13__syntaxToMajorPos___closed__2;
@@ -349,7 +350,6 @@ lean_object* l_Lean_Meta_mkRecursorAttr___closed__2;
 lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__11;
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__1___closed__2;
 lean_object* l_Lean_Meta_recOnSuffix___closed__1;
-extern lean_object* l_Lean_Meta_MetaM_run_x27___rarg___closed__3;
 lean_object* l___private_Lean_Meta_RecursorInfo_9__getUnivLevelPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkRecursorAttr___closed__1;
 lean_object* l_Lean_Meta_mkRecursorAttr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10826,7 +10826,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_2);
-x_7 = l_Lean_Meta_MetaM_run_x27___rarg___closed__3;
+x_7 = l_Lean_Meta_State_inhabited___closed__7;
 x_8 = lean_st_mk_ref(x_7, x_5);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

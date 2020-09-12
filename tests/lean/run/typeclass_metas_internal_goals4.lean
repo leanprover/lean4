@@ -1,3 +1,4 @@
+new_frontend
 class Foo (α β γ : Type) := (u:Unit)
 class Bar (α β γ : Type) := (u:Unit)
 class Top := (u:Unit)
@@ -12,8 +13,6 @@ instance Foo₂₃ (α : Type) : Foo α Unit Nat := {u:=()}
 instance Foo₃₁ (β : Type) : Foo Nat β Unit := {u:=()}
 
 instance Bar0 : Bar Unit Int (List Int) := {u:=()}
-
-new_frontend
 
 set_option pp.all true
 

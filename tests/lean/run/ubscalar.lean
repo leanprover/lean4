@@ -1,3 +1,5 @@
+new_frontend
+
 structure Foo :=
 (flag : Bool   := false)
 (x    : UInt16 := 0)

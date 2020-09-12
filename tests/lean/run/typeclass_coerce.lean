@@ -6,6 +6,8 @@ Authors: Daniel Selsam, Leonardo de Moura
 Declare new, simpler coercion class without the special support for transitivity.
 Test that new tabled typeclass resolution deals with loops and diamonds correctly.
 -/
+new_frontend
+
 class HasCoerce (a b : Type) :=
 (coerce : a → b)
 
@@ -64,8 +66,6 @@ axiom Top (α : Type) (n : Nat) : Type
 @[instance] axiom BotToRight (α : Type) (n : Nat) : HasCoerce (Bot α n) (Right α n)
 
 #print "-----"
-
-new_frontend
 
 #synth HasCoerce (Top Unit Nat.zero)
                  (Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ)

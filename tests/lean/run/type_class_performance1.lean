@@ -1,3 +1,5 @@
+new_frontend
+
 #print USize
 
 def foo1 (a b : UInt64) : Bool :=

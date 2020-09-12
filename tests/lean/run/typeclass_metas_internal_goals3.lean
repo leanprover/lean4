@@ -1,3 +1,5 @@
+new_frontend
+
 class Base (α : Type) := (u:Unit)
 class Depends (α : Type) [Base α] := (u:Unit)
 class Top := (u:Unit)
@@ -11,8 +13,6 @@ instance BaseAsImplicit₂ {α : Type} {_:Base α} [Depends α] : Top := {u:=()}
 
 axiom K : Type
 instance BaseK : Base K := {u:=()}
-
-new_frontend
 
 set_option pp.all true
 

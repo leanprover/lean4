@@ -90,10 +90,10 @@ private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
 n ← mkFreshLevelMVar;
 assignLevelMVar mvarId $ mkMaxArgsDiff mvarId v n
 
-private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
-modify $ fun s => { s with postponed := s.postponed.push { lhs := lhs, rhs := rhs } }
+private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : DefEqM Unit :=
+modify fun postponed => postponed.push { lhs := lhs, rhs := rhs }
 
-@[specialize] private def solve (isLevelDefEqAux : Level → Level → MetaM Bool) (u v : Level) : MetaM LBool := do
+@[specialize] private def solve (isLevelDefEqAux : Level → Level → DefEqM Bool) (u v : Level) : DefEqM LBool := do
 match u, v with
 | Level.mvar mvarId _, _ =>
   condM (isReadOnlyLevelMVar mvarId)
@@ -101,7 +101,7 @@ match u, v with
     (if !u.occurs v then do
        assignLevelMVar u.mvarId! v; pure LBool.true
      else if !strictOccursMax u v then  do
-       solveSelfMax u.mvarId! v; pure LBool.true
+       liftM $ solveSelfMax u.mvarId! v; pure LBool.true
      else
        pure LBool.undef)
 | Level.zero _, Level.max v₁ v₂ _ =>
@@ -115,7 +115,7 @@ match u, v with
   | none   => pure LBool.undef
 | _, _ => pure LBool.undef
 
-partial def isLevelDefEqAux : Level → Level → MetaM Bool
+partial def isLevelDefEqAux : Level → Level → DefEqM Bool
 | Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
 | lhs, rhs =>
   if lhs == rhs then
@@ -144,23 +144,22 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
       else do
         postponeIsLevelDefEq lhs rhs; pure true
 
-def isListLevelDefEqAux : List Level → List Level → MetaM Bool
+def isListLevelDefEqAux : List Level → List Level → DefEqM Bool
 | [],    []    => pure true
 | u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs
 | _,     _     => pure false
 
-private def getNumPostponed : MetaM Nat := do
-s ← get; pure s.postponed.size
+private def getNumPostponed : DefEqM Nat := do
+s ← get; pure s.size
 
 open Std (PersistentArray)
 
-private def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
-s ← get;
-let ps := s.postponed;
-modify $ fun s => { s with postponed := {} };
+private def getResetPostponed : DefEqM (PersistentArray PostponedEntry) := do
+ps ← get;
+modify fun _ => {};
 pure ps
 
-private def processPostponedStep : MetaM Bool :=
+private def processPostponedStep : DefEqM Bool :=
 traceCtx `Meta.isLevelDefEq.postponed.step $ do
   ps ← getResetPostponed;
   ps.foldlM
@@ -171,7 +170,7 @@ traceCtx `Meta.isLevelDefEq.postponed.step $ do
         pure false)
     true
 
-private partial def processPostponedAux : Unit → MetaM Bool
+private partial def processPostponedAux : Unit → DefEqM Bool
 | _ => do
   numPostponed ← getNumPostponed;
   if numPostponed == 0 then
@@ -191,59 +190,47 @@ private partial def processPostponedAux : Unit → MetaM Bool
         trace! `Meta.isLevelDefEq.postponed (format "no progress solving pending is-def-eq level constraints");
         pure false
 
-private def processPostponed : MetaM Bool := do
+private def processPostponed : DefEqM Bool := do
 numPostponed ← getNumPostponed;
 if numPostponed == 0 then pure true
 else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
 
-def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit := do
+private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : DefEqM Unit := do
 setEnv env;
-modify $ fun s => { s with mctx := mctx, postponed := postponed }
+setMCtx mctx;
+set postponed
 
 /--
-  `commitWhenSome? x` executes `x` and process all postponed universe level constraints produced by `x`.
-  We keep the modifications only if `processPostponed` return true and `x` returned `some a`.
+  `commitWhen x` executes `x` and process all postponed universe level constraints produced by `x`.
+  We keep the modifications only if `processPostponed` return true and `x` returned `true`.
 
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
-@[specialize] def commitWhenSome? {α} (x? : MetaM (Option α)) : MetaM (Option α) := do
-env ← getEnv;
-s ← get;
-let mctx      := s.mctx;
-let postponed := s.postponed;
-modify $ fun s => { s with postponed := {} };
+@[specialize] def commitWhen (x : DefEqM Bool) : DefEqM Bool := do
+env  ← getEnv;
+mctx ← getMCtx;
+postponed ← getResetPostponed;
 catch
   (do
-    a? ← x?;
-    match a? with
-    | some a =>
+    condM x
       (condM processPostponed
-        (pure (some a))
-        (do restore env mctx postponed; pure none))
-    | none => do
-      restore env mctx postponed; pure none)
+        (pure true)
+        (do restore env mctx postponed; pure false))
+      (do restore env mctx postponed; pure false))
   (fun ex => do restore env mctx postponed; throw ex)
 
-@[specialize] def commitWhen (x : MetaM Bool) : MetaM Bool := do
-r? ← commitWhenSome? (condM x (pure $ some ()) (pure none));
-match r? with
-| some _ => pure true
-| none   => pure false
-
-@[init] private def regTraceClasses : IO Unit := do
-registerTraceClass `Meta.isLevelDefEq;
-registerTraceClass `Meta.isLevelDefEq.step;
-registerTraceClass `Meta.isLevelDefEq.postponed
+private def runDefEqM (x : DefEqM Bool) : MetaM Bool :=
+(commitWhen x).run' {}
 
 def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
-traceCtx `Meta.isLevelDefEq $ do
-  b ← Meta.commitWhen $ Meta.isLevelDefEqAux u v;
+traceCtx `Meta.isLevelDefEq do
+  b ← runDefEqM $ Meta.isLevelDefEqAux u v;
   trace! `Meta.isLevelDefEq (u ++ " =?= " ++ v ++ " ... " ++ if b then "success" else "failure");
   pure b
 
 def isExprDefEq (t s : Expr) : m Bool := liftMetaM do
 traceCtx `Meta.isDefEq $ do
-  b ← Meta.commitWhen $ Meta.isExprDefEqAux t s;
+  b ← runDefEqM $ Meta.isExprDefEqAux t s;
   trace! `Meta.isDefEq (t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure");
   pure b
 
@@ -252,6 +239,11 @@ isExprDefEq t s
 
 def isDefEqNoConstantApprox (t s : Expr) : m Bool := liftMetaM do
 approxDefEq $ isDefEq t s
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta.isLevelDefEq;
+registerTraceClass `Meta.isLevelDefEq.step;
+registerTraceClass `Meta.isLevelDefEq.postponed
 
 end Meta
 end Lean

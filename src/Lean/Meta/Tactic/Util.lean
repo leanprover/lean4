@@ -41,13 +41,6 @@ mctx ← getMCtx;
 opts ← getOptions;
 pure $ ppGoal env mctx opts mvarId
 
-@[inline] protected def orelse {α} (x y : MetaM α) : MetaM α := do
-env ← getEnv;
-s ← get;
-catch x (fun _ => do restore env s.mctx s.postponed; y)
-
-instance Meta.hasOrelse {α} : HasOrelse (MetaM α) := ⟨Meta.orelse⟩
-
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic
 

@@ -1,6 +1,5 @@
-#print Nat
-
 new_frontend
+#print Nat
 
 private def foo (x : Nat) : Nat := x + 1
 

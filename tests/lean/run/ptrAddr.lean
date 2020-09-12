@@ -1,3 +1,5 @@
+new_frontend
+
 axiom TrustMe {p : Prop} : p
 
 def x := (1, 2)

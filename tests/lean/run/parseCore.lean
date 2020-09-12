@@ -1,5 +1,5 @@
 import Lean.Parser
-
+new_frontend
 def test : IO Unit :=
 if System.Platform.isWindows then
   pure () -- TODO investigate why the following doesn't work on Windows

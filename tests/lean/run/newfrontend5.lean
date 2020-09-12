@@ -1,7 +1,7 @@
-def foo {α} (f : forall {β}, β → β) (a : α) : α :=
-f a
-
 new_frontend
+
+def foo {α} (f : {β : Type _} → β → β) (a : α) : α :=
+f a
 
 #check_failure let g := id; foo g true -- fails
 /-

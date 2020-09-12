@@ -1,10 +1,10 @@
 import Init.Control.Option
+new_frontend
 
 universes u v
 
 def OptionT2 (m : Type u → Type v) (α : Type u) : Type v :=
 m (Option α)
-
 
 namespace OptionT2
 variables {m : Type u → Type v} [Monad m] {α β : Type u}
@@ -18,7 +18,7 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
 } : m (Option β))
 
 @[inline] protected def pure (a : α) : OptionT2 m α :=
-(pure (some a) : m (Option α))
+(HasPure.pure (some a) : m (Option α))
 
 @[inline] protected def orelse (ma : OptionT2 m α) (mb : OptionT2 m α) : OptionT2 m α :=
 (do { a? ← ma;
@@ -30,8 +30,6 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
 (pure none : m (Option α))
 
 end OptionT2
-
-new_frontend
 
 instance optMonad1 {m} [Monad m] : Monad (OptionT2 m) :=
 { pure := OptionT2.pure, bind := OptionT2.bind }

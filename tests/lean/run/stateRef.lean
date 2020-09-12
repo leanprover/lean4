@@ -1,3 +1,5 @@
+new_frontend
+
 def f (v : Nat) : StateRefT Nat IO Nat := do
 IO.println "hello";
 modify fun s => s - v;
@@ -8,7 +10,7 @@ def g : IO Nat :=
 
 #eval (f 5).run' 20
 
-#eval (do set 100; f 5).run' 0
+#eval (do set 100; f 5 : StateRefT Nat IO Nat).run' 0
 
 def f2 : ReaderT Nat (StateRefT Nat IO) Nat := do
 v ← read;

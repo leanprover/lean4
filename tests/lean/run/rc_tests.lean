@@ -1,3 +1,4 @@
+new_frontend
 universes u v
 
 -- setOption pp.binderTypes False
@@ -50,9 +51,9 @@ end x4
 
 namespace x5
 
-def myMap {α : Type u} {β : Type v} (f : α → β) : List α → List β
+partial def myMap {α : Type u} {β : Type v} (f : α → β) : List α → List β
 | []      => []
-| x::xs   => f x :: myMap xs
+| x::xs   => f x :: myMap f xs
 
 end x5
 

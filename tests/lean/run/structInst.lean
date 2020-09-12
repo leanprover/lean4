@@ -1,3 +1,5 @@
+new_frontend
+
 namespace Ex1
 
 structure A :=
@@ -46,8 +48,6 @@ structure C extends B :=
 (z : Nat := 2*y) (x := z + 3)
 
 end Ex4
-
-new_frontend
 
 namespace Ex1
 

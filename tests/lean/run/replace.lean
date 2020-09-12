@@ -1,8 +1,8 @@
 import Lean
-
+new_frontend
 open Lean
 
-def mkBig : Nat → Expr
+partial def mkBig : Nat → Expr
 | 0     => mkConst `a
 | (n+1) => mkApp2 (mkConst `f []) (mkBig n) (mkBig n)
 

@@ -1,11 +1,11 @@
-def fact : Nat → Nat
+new_frontend
+
+partial def fact : Nat → Nat
 | 0     => 1
 | (n+1) => (n+1)*fact n
 
 #eval fact 10
 #eval fact 100
-
-new_frontend
 
 theorem tst1 : fact 10 = 3628800 :=
 nativeRefl! (fact 10)

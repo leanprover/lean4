@@ -88,7 +88,6 @@ lean_object* l_Lean_setOptionFromString___closed__2;
 lean_object* l_String_toNat_x3f(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_timeoutOption___closed__3;
-lean_object* l_Lean_Options_HasEmptyc;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_monadOptsFromLift___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_OptionDecls_inhabited;
@@ -107,14 +106,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = lean_box(0);
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Options_HasEmptyc() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Options_empty;
 return x_1;
 }
 }
@@ -1533,8 +1524,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Options_empty = _init_l_Lean_Options_empty();
 lean_mark_persistent(l_Lean_Options_empty);
-l_Lean_Options_HasEmptyc = _init_l_Lean_Options_HasEmptyc();
-lean_mark_persistent(l_Lean_Options_HasEmptyc);
 l_Lean_Options_Inhabited = _init_l_Lean_Options_Inhabited();
 lean_mark_persistent(l_Lean_Options_Inhabited);
 l_Lean_Options_HasToString___closed__1 = _init_l_Lean_Options_HasToString___closed__1();

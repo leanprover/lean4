@@ -148,6 +148,7 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_4__expandBinderModifier___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_declareTacticSyntax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Elab_Term_isDefEqNoConstantApprox___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_mkExplicitBinder___closed__7;
 lean_object* l___private_Lean_Elab_Binders_4__expandBinderModifier___closed__1;
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__9;
@@ -260,7 +261,6 @@ lean_object* l_Lean_Elab_Term_FunBinders_elabFunBindersAux___main(lean_object*, 
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabLetBangDecl___closed__1;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_isDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at___private_Lean_Elab_Binders_7__elabBinderViews___main___spec__1___rarg___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__3;
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -13945,7 +13945,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_4);
 lean_inc(x_2);
-x_30 = l_Lean_Elab_Term_isDefEq(x_2, x_28, x_4, x_5, x_6, x_7, x_8, x_9, x_21);
+x_30 = l_Lean_Meta_isExprDefEq___at_Lean_Elab_Term_isDefEqNoConstantApprox___spec__1(x_2, x_28, x_4, x_5, x_6, x_7, x_8, x_9, x_21);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -14174,7 +14174,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_4);
 lean_inc(x_2);
-x_66 = l_Lean_Elab_Term_isDefEq(x_2, x_64, x_4, x_5, x_6, x_7, x_8, x_9, x_57);
+x_66 = l_Lean_Meta_isExprDefEq___at_Lean_Elab_Term_isDefEqNoConstantApprox___spec__1(x_2, x_64, x_4, x_5, x_6, x_7, x_8, x_9, x_57);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_object* x_67; lean_object* x_68; 

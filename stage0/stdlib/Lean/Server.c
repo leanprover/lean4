@@ -132,7 +132,6 @@ lean_object* l_Lean_Server_parseParams___rarg(lean_object*, lean_object*, lean_o
 lean_object* lean_stream_of_handle(lean_object*);
 lean_object* l_Lean_Server_Test_runWithInputFile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_readLspRequestAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_ServerCapabilities_hasToJson___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_parseParams___at_Lean_Server_handleNotification___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_parseParams___at_Lean_Server_handleNotification___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -247,7 +246,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-x_5 = l_Lean_Options_empty;
+x_5 = lean_box(0);
 lean_inc(x_4);
 x_6 = l_Lean_Server_Snapshots_compileHeader(x_4, x_5, x_3);
 if (lean_obj_tag(x_6) == 0)

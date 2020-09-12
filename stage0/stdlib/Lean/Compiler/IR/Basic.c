@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_IR_CtorInfo_beq___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_IR_MData_HasEmptyc;
 lean_object* l_Lean_IR_LocalContext_getValue___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_body___boxed(lean_object*);
 lean_object* l_Lean_IR_CtorInfo_HasBeq___closed__1;
@@ -415,14 +414,6 @@ return x_3;
 }
 }
 lean_object* _init_l_Lean_IR_MData_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-lean_object* _init_l_Lean_IR_MData_HasEmptyc() {
 _start:
 {
 lean_object* x_1; 
@@ -13299,8 +13290,6 @@ l_Lean_IR_JoinPointId_HasToString___closed__1 = _init_l_Lean_IR_JoinPointId_HasT
 lean_mark_persistent(l_Lean_IR_JoinPointId_HasToString___closed__1);
 l_Lean_IR_MData_empty = _init_l_Lean_IR_MData_empty();
 lean_mark_persistent(l_Lean_IR_MData_empty);
-l_Lean_IR_MData_HasEmptyc = _init_l_Lean_IR_MData_HasEmptyc();
-lean_mark_persistent(l_Lean_IR_MData_HasEmptyc);
 l_Lean_IR_IRType_HasBeq___closed__1 = _init_l_Lean_IR_IRType_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_IR_IRType_HasBeq___closed__1);
 l_Lean_IR_IRType_HasBeq = _init_l_Lean_IR_IRType_HasBeq();

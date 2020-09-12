@@ -74,7 +74,6 @@ lean_object* l_Lean_Lsp_DiagnosticSeverity_hasToJson___closed__1;
 lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Diagnostic_hasFromJson___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_DiagnosticSeverity_hasToJson___boxed(lean_object*);
 extern lean_object* l_Lean_Lsp_Range_hasFromJson___closed__1;
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_DocumentFilter_hasToJson___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Diagnostic_hasToJson___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_DiagnosticSeverity_hasFromJson___closed__1;
@@ -2575,7 +2574,7 @@ lean_inc(x_7);
 lean_dec(x_2);
 x_8 = lean_box(0);
 x_9 = l_Lean_MessageData_formatAux___main(x_8, x_7);
-x_10 = l_Lean_Options_empty;
+x_10 = lean_box(0);
 x_11 = l_Lean_Format_pretty(x_9, x_10);
 if (lean_obj_tag(x_5) == 0)
 {

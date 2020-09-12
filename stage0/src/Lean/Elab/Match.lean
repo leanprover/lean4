@@ -70,12 +70,12 @@ private partial def elabDiscrsAux (discrStxs : Array Syntax) (expectedType : Exp
     matchType ← whnf matchType;
     match matchType with
     | Expr.forallE _ d b _ => do
-      discr ← elabTermEnsuringType discrStx d;
+      discr ← fullApproxDefEq $ elabTermEnsuringType discrStx d;
       trace `Elab.match fun _ => "discr #" ++ toString i ++ " " ++ discr ++ " : " ++ d;
       elabDiscrsAux (i+1) (b.instantiate1 discr) (discrs.push discr)
     | _ => throwError ("invalid type provided to match-expression, function type with arity #" ++ toString discrStxs ++ " expected")
   else do
-    unlessM (isDefEq matchType expectedType) $
+    unlessM (fullApproxDefEq $ isDefEq matchType expectedType) $
       throwError ("invalid result type provided to match-expression" ++ indentExpr matchType ++ Format.line ++ "expected type" ++ indentExpr expectedType);
     pure discrs
 
@@ -370,6 +370,16 @@ match f? with
     | none => throwCtorExpected
   | _ => processVar stx
 
+private def nameToPattern : Name → TermElabM Syntax
+| Name.anonymous => `(Name.anonymous)
+| Name.str p s _ => do p ← nameToPattern p; `(Name.str $p $(quote s) _)
+| Name.num p n _ => do p ← nameToPattern p; `(Name.num $p $(quote n) _)
+
+private def quotedNameToPattern (stx : Syntax) : TermElabM Syntax :=
+match (stx.getArg 0).isNameLit? with
+| some val => nameToPattern val
+| none     => throwIllFormedSyntax
+
 private partial def collect : Syntax → M Syntax
 | stx@(Syntax.node k args) => withRef stx $ withFreshMacroScope $
   if k == `Lean.Parser.Term.app then do
@@ -434,6 +444,11 @@ private partial def collect : Syntax → M Syntax
     pure stx
   else if k == charLitKind then
     pure stx
+  else if k == `Lean.Parser.Term.quotedName then
+    /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.
+       Note that macro expansion is not a good option since it produces a term using the smart constructors `mkNameStr`, `mkNameNum`
+       instead of the constructors `Name.str` and `Name.num` -/
+    liftM $ quotedNameToPattern stx
   else if k == choiceKind then
     throwError "invalid pattern, notation is ambiguous"
   else

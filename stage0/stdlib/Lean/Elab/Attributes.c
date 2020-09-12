@@ -43,7 +43,6 @@ lean_object* l_Lean_Elab_applyAttributes___rarg___boxed(lean_object*, lean_objec
 lean_object* l_Lean_Elab_elabAttrs(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttr(lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Elab_applyAttributesImp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Attribute_hasFormat(lean_object*);
 lean_object* l_Lean_Elab_Attribute_hasFormat___closed__2;
@@ -124,7 +123,7 @@ x_8 = lean_box(0);
 x_9 = 0;
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Lean_Syntax_formatStxAux___main(x_8, x_9, x_10, x_6);
-x_12 = l_Lean_Options_empty;
+x_12 = lean_box(0);
 x_13 = l_Lean_Format_pretty(x_11, x_12);
 x_14 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_14, 0, x_13);

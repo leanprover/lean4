@@ -47,7 +47,6 @@ lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*,
 lean_object* l_Std_PersistentHashMap_forM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_toList___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_HasToString___closed__1;
-lean_object* l_Std_PersistentHashMap_HasEmptyc___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_Stats_toString(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -139,7 +138,6 @@ lean_object* l_Std_PersistentHashMap_foldlM___at_Std_PersistentHashMap_toList___
 lean_object* l_Std_PersistentHashMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_HasEmptyc___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f(lean_object*, lean_object*);
 size_t l_Std_PersistentHashMap_div2Shift(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_mod2Shift___boxed(lean_object*, lean_object*);
@@ -225,7 +223,6 @@ lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Std_PersistentHashMap
 lean_object* l_Std_PersistentHashMap_eraseAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_HasEmptyc(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_Entry_inhabited(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -345,32 +342,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_PersistentHashMap_empty___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Std_PersistentHashMap_HasEmptyc___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_PersistentHashMap_empty___rarg(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Std_PersistentHashMap_HasEmptyc(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_HasEmptyc___rarg___boxed), 2, 0);
-return x_3;
-}
-}
-lean_object* l_Std_PersistentHashMap_HasEmptyc___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_PersistentHashMap_HasEmptyc___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -1564,7 +1535,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Std_PersistentHashMap_find_x21___rarg___closed__1;
-x_2 = lean_unsigned_to_nat(165u);
+x_2 = lean_unsigned_to_nat(163u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Std_PersistentHashMap_find_x21___rarg___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

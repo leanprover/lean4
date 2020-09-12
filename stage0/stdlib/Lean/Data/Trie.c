@@ -58,7 +58,6 @@ lean_object* l_Std_RBNode_insert___at___private_Lean_Data_Trie_2__insertAux___ma
 lean_object* l___private_Lean_Data_Trie_1__insertEmptyAux___main(lean_object*);
 lean_object* l_Lean_Parser_Trie_matchPrefix(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l___private_Lean_Data_Trie_2__insertAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___main___at___private_Lean_Data_Trie_2__insertAux___main___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Trie_HasToString(lean_object*);
@@ -10792,7 +10791,7 @@ x_2 = l___private_Lean_Data_Trie_6__toStringAux___main___rarg(x_1);
 x_3 = lean_box(1);
 x_4 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Lean_Options_empty;
+x_5 = lean_box(0);
 x_6 = l_Lean_Format_pretty(x_4, x_5);
 return x_6;
 }

@@ -334,6 +334,7 @@ lean_object* l_Lean_Meta_InfoCacheKey_Hashable___boxed(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__48___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_1__regTraceClasses___closed__2;
 lean_object* l_Lean_Meta_withMVarContext(lean_object*);
+lean_object* l_Lean_Meta_State_inhabited___closed__7;
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__43___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MetaM_inhabited___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLetFVars___rarg(lean_object*, lean_object*, lean_object*);
@@ -598,8 +599,6 @@ lean_object* l_Lean_Meta_throwUnknownConstant___rarg___boxed(lean_object*, lean_
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__31(lean_object*);
 lean_object* l_Lean_Meta_isDelayedAssigned___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2;
-lean_object* l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1___closed__1;
 lean_object* l_Lean_Meta_savingCache___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferTypeRef;
 lean_object* l_Lean_Meta_getDelayedAssignment_x3f(lean_object*);
@@ -670,7 +669,6 @@ lean_object* l___private_Lean_Meta_Basic_18__withNewLocalInstancesImpAux___at_Le
 lean_object* l_Lean_Meta_withNewLocalInstances(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__59___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Meta_approxDefEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_22__lambdaTelescopeAux___main(lean_object*);
 lean_object* l_Lean_Meta_setInlineAttribute___rarg(lean_object*, lean_object*, uint8_t);
@@ -746,7 +744,6 @@ lean_object* l_Lean_Meta_getParamNamesImp___closed__1;
 lean_object* l_Lean_Meta_withLocalDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprMVarAssigned___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
-lean_object* l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_Meta_State_inhabited___closed__2;
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__24___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -914,7 +911,6 @@ lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___a
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__61___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_metavar_ctx_mk_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_synthPendingRef;
-lean_object* l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2___closed__1;
 lean_object* lean_metavar_ctx_assign_level(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__25___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__60___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1271,6 +1267,7 @@ lean_object* l___private_Lean_Meta_Basic_6__liftMkBindingM___rarg___closed__1;
 lean_object* l___private_Lean_Meta_Basic_2__mkFreshExprMVarAtCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withTransparency___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateLocalDeclMVars___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_State_inhabited___closed__6;
 lean_object* l_monadControlRefl___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_19__forallTelescopeImp___spec__14(lean_object*);
 lean_object* _init_l_Lean_Meta_ParamInfo_inhabited___closed__1() {
@@ -1448,47 +1445,19 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PersistentHashMap_empty___rarg___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1___closed__1;
-return x_1;
-}
-}
-lean_object* _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PersistentHashMap_empty___rarg___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2___closed__1;
-return x_1;
-}
-}
 lean_object* _init_l_Lean_Meta_State_inhabited___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_PersistentHashMap_empty___rarg___closed__2;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Meta_State_inhabited___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1496,7 +1465,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_HasBeq___boxed), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_State_inhabited___closed__2() {
+lean_object* _init_l_Lean_Meta_State_inhabited___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1504,7 +1473,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_Hashable___boxed), 1, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_State_inhabited___closed__3() {
+lean_object* _init_l_Lean_Meta_State_inhabited___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1516,13 +1485,25 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_State_inhabited___closed__4() {
+lean_object* _init_l_Lean_Meta_State_inhabited___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_PersistentHashMap_empty___rarg___closed__2;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Meta_State_inhabited___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1;
-x_2 = l_Lean_Meta_State_inhabited___closed__3;
-x_3 = l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2;
+x_1 = l_Lean_Meta_State_inhabited___closed__1;
+x_2 = l_Lean_Meta_State_inhabited___closed__4;
+x_3 = l_Lean_Meta_State_inhabited___closed__5;
 x_4 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1532,12 +1513,12 @@ lean_ctor_set(x_4, 4, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Meta_State_inhabited___closed__5() {
+lean_object* _init_l_Lean_Meta_State_inhabited___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_Inhabited___closed__1;
-x_2 = l_Lean_Meta_State_inhabited___closed__4;
+x_2 = l_Lean_Meta_State_inhabited___closed__6;
 x_3 = l_Std_PersistentArray_empty___closed__3;
 x_4 = l_Lean_NameSet_empty;
 x_5 = lean_alloc_ctor(0, 4, 0);
@@ -1552,7 +1533,7 @@ lean_object* _init_l_Lean_Meta_State_inhabited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_State_inhabited___closed__5;
+x_1 = l_Lean_Meta_State_inhabited___closed__7;
 return x_1;
 }
 }
@@ -2351,7 +2332,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_Inhabited___closed__1;
-x_2 = l_Lean_Meta_State_inhabited___closed__4;
+x_2 = l_Lean_Meta_State_inhabited___closed__6;
 x_3 = l_Std_PersistentArray_empty___closed__3;
 x_4 = l_Lean_NameSet_empty;
 x_5 = lean_alloc_ctor(0, 4, 0);
@@ -2541,7 +2522,7 @@ lean_inc(x_32);
 lean_dec(x_29);
 x_33 = lean_box(0);
 x_34 = l_Lean_MessageData_formatAux___main(x_33, x_32);
-x_35 = l_Lean_Options_empty;
+x_35 = lean_box(0);
 x_36 = l_Lean_Format_pretty(x_34, x_35);
 x_37 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
@@ -2559,7 +2540,7 @@ lean_inc(x_39);
 lean_dec(x_29);
 x_40 = lean_box(0);
 x_41 = l_Lean_MessageData_formatAux___main(x_40, x_39);
-x_42 = l_Lean_Options_empty;
+x_42 = lean_box(0);
 x_43 = l_Lean_Format_pretty(x_41, x_42);
 x_44 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
@@ -2786,7 +2767,7 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = lean_box(0);
 x_11 = l_Lean_MessageData_formatAux___main(x_10, x_9);
-x_12 = l_Lean_Options_empty;
+x_12 = lean_box(0);
 x_13 = l_Lean_Format_pretty(x_11, x_12);
 x_14 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -10844,7 +10825,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_12, 2);
 lean_dec(x_17);
-x_18 = l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2;
+x_18 = l_Lean_Meta_State_inhabited___closed__5;
 lean_ctor_set(x_12, 2, x_18);
 x_19 = lean_st_ref_set(x_1, x_11, x_13);
 x_20 = !lean_is_exclusive(x_19);
@@ -10880,7 +10861,7 @@ lean_inc(x_26);
 lean_inc(x_25);
 lean_inc(x_24);
 lean_dec(x_12);
-x_28 = l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2;
+x_28 = l_Lean_Meta_State_inhabited___closed__5;
 x_29 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_29, 0, x_24);
 lean_ctor_set(x_29, 1, x_25);
@@ -10938,7 +10919,7 @@ if (lean_is_exclusive(x_12)) {
  lean_dec_ref(x_12);
  x_41 = lean_box(0);
 }
-x_42 = l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2;
+x_42 = l_Lean_Meta_State_inhabited___closed__5;
 if (lean_is_scalar(x_41)) {
  x_43 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -90486,14 +90467,6 @@ l_Lean_Meta_InfoCacheKey_Inhabited___closed__1 = _init_l_Lean_Meta_InfoCacheKey_
 lean_mark_persistent(l_Lean_Meta_InfoCacheKey_Inhabited___closed__1);
 l_Lean_Meta_InfoCacheKey_Inhabited = _init_l_Lean_Meta_InfoCacheKey_Inhabited();
 lean_mark_persistent(l_Lean_Meta_InfoCacheKey_Inhabited);
-l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1___closed__1 = _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1___closed__1();
-lean_mark_persistent(l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1___closed__1);
-l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1 = _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1();
-lean_mark_persistent(l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__1);
-l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2___closed__1 = _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2___closed__1();
-lean_mark_persistent(l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2___closed__1);
-l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2 = _init_l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2();
-lean_mark_persistent(l_Std_PersistentHashMap_empty___at_Lean_Meta_State_inhabited___spec__2);
 l_Lean_Meta_State_inhabited___closed__1 = _init_l_Lean_Meta_State_inhabited___closed__1();
 lean_mark_persistent(l_Lean_Meta_State_inhabited___closed__1);
 l_Lean_Meta_State_inhabited___closed__2 = _init_l_Lean_Meta_State_inhabited___closed__2();
@@ -90504,6 +90477,10 @@ l_Lean_Meta_State_inhabited___closed__4 = _init_l_Lean_Meta_State_inhabited___cl
 lean_mark_persistent(l_Lean_Meta_State_inhabited___closed__4);
 l_Lean_Meta_State_inhabited___closed__5 = _init_l_Lean_Meta_State_inhabited___closed__5();
 lean_mark_persistent(l_Lean_Meta_State_inhabited___closed__5);
+l_Lean_Meta_State_inhabited___closed__6 = _init_l_Lean_Meta_State_inhabited___closed__6();
+lean_mark_persistent(l_Lean_Meta_State_inhabited___closed__6);
+l_Lean_Meta_State_inhabited___closed__7 = _init_l_Lean_Meta_State_inhabited___closed__7();
+lean_mark_persistent(l_Lean_Meta_State_inhabited___closed__7);
 l_Lean_Meta_State_inhabited = _init_l_Lean_Meta_State_inhabited();
 lean_mark_persistent(l_Lean_Meta_State_inhabited);
 l_Lean_Meta_Lean_MonadLCtx___closed__1 = _init_l_Lean_Meta_Lean_MonadLCtx___closed__1();

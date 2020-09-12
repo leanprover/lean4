@@ -22,6 +22,57 @@ namespace Lean
 namespace Elab
 namespace Term
 
+/-
+  Set isDefEq configuration for the elaborator.
+  Note that we enable all approximations but `quasiPatternApprox`
+
+  In Lean3 and Lean 4, we used to use the quasi-pattern approximation during elaboration.
+  The example:
+  ```
+  def ex : StateT δ (StateT σ Id) σ :=
+  monadLift (get : StateT σ Id σ)
+  ```
+  demonstrates why it produces counterintuitive behavior.
+  We have the `Monad-lift` application:
+  ```
+  @monadLift ?m ?n ?c ?α (get : StateT σ id σ) : ?n ?α
+  ```
+  It produces the following unification problem when we process the expected type:
+  ```
+  ?n ?α =?= StateT δ (StateT σ id) σ
+  ==> (approximate using first-order unification)
+  ?n := StateT δ (StateT σ id)
+  ?α := σ
+  ```
+  Then, we need to solve:
+  ```
+  ?m ?α =?= StateT σ id σ
+  ==> instantiate metavars
+  ?m σ =?= StateT σ id σ
+  ==> (approximate since it is a quasi-pattern unification constraint)
+  ?m := fun σ => StateT σ id σ
+  ```
+  Note that the constraint is not a Milner pattern because σ is in
+  the local context of `?m`. We are ignoring the other possible solutions:
+  ```
+  ?m := fun σ' => StateT σ id σ
+  ?m := fun σ' => StateT σ' id σ
+  ?m := fun σ' => StateT σ id σ'
+
+  We need the quasi-pattern approximation for elaborating recursor-like expressions (e.g., dependent `match with` expressions).
+
+  If we had use first-order unification, then we would have produced
+  the right answer: `?m := StateT σ id`
+
+  Haskell would work on this example since it always uses
+  first-order unification.
+
+  We do not change the
+
+-/
+def setElabConfig (cfg : Meta.Config) : Meta.Config :=
+{ cfg with foApprox := true, ctxApprox := true, constApprox := true, quasiPatternApprox := false }
+
 structure Context :=
 (fileName        : String)
 (fileMap         : FileMap)
@@ -258,8 +309,9 @@ when s.messages.hasErrors $
 withRef Syntax.missing $ trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
-def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := approxDefEq $ Meta.isDefEq t s
-def isDefEq (t s : Expr) : TermElabM Bool := fullApproxDefEq $ Meta.isDefEq t s
+
+def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := do
+withConfig (fun config => { config with constApprox := false }) $ isDefEq t s
 
 @[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
 mctx ← getMCtx;
@@ -1172,7 +1224,7 @@ private def mkSomeContext : Context :=
   currNamespace := Name.anonymous }
 
 @[inline] def TermElabM.run {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
-(x.run ctx).run s
+withConfig setElabConfig ((x.run ctx).run s)
 
 @[inline] def TermElabM.run' {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM α :=
 Prod.fst <$> x.run ctx s

@@ -36,9 +36,7 @@ namespace SMap
 variables {α : Type u} {β : Type v} [HasBeq α] [Hashable α]
 
 instance : Inhabited (SMap α β) := ⟨{}⟩
-
 def empty : SMap α β := {}
-instance : HasEmptyc (SMap α β) := ⟨SMap.empty⟩
 
 @[specialize] def insert : SMap α β → α → β → SMap α β
 | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩

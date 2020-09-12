@@ -128,7 +128,6 @@ lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM___rarg___lambda__1
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_4__addNode(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__6;
-extern lean_object* l_Lean_Options_empty;
 lean_object* l___private_Lean_Util_Trace_5__getResetTraces___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_enableTracing(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_11____closed__12;
@@ -556,7 +555,7 @@ lean_dec(x_3);
 x_6 = lean_ctor_get(x_4, 5);
 lean_inc(x_6);
 lean_dec(x_4);
-x_7 = l_Lean_Options_empty;
+x_7 = lean_box(0);
 x_8 = l_Lean_Format_pretty(x_1, x_7);
 x_9 = lean_apply_2(x_6, x_8, x_5);
 return x_9;

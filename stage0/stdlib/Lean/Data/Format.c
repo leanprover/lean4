@@ -129,7 +129,6 @@ lean_object* l_Lean_formatKVMap(lean_object*);
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_prodHasFormat(lean_object*, lean_object*);
 lean_object* l_Lean_HasRepr___lambda__1(lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Format_repr___main___closed__18;
 lean_object* l_Lean_Format_repr___main___closed__15;
 lean_object* l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3126,7 +3125,7 @@ lean_object* l_Lean_formatHasToString(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Options_empty;
+x_2 = lean_box(0);
 x_3 = l_Lean_Format_pretty(x_1, x_2);
 return x_3;
 }
@@ -3135,7 +3134,7 @@ lean_object* l_Lean_HasRepr___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Options_empty;
+x_2 = lean_box(0);
 x_3 = l_Lean_Format_pretty(x_1, x_2);
 return x_3;
 }

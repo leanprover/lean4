@@ -35,11 +35,9 @@ extern lean_object* l_Lean_Meta_MetaM_run_x27___rarg___closed__1;
 lean_object* l_Nat_repr(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_parenthesize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_PrettyPrinter_ppExprFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_format(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
-extern lean_object* l_Lean_Meta_State_inhabited___closed__4;
 lean_object* l_Lean_PrettyPrinter_ppExprFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatCommand(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -53,6 +51,7 @@ lean_object* l_Lean_PrettyPrinter_ppExprFnUnsafe(lean_object*, lean_object*, lea
 lean_object* l_Lean_PrettyPrinter_ppExprFnUnsafe___closed__1;
 lean_object* l_Lean_PrettyPrinter_ppExprFnUnsafe___closed__2;
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
+extern lean_object* l_Lean_Meta_State_inhabited___closed__6;
 lean_object* l_Lean_PrettyPrinter_ppTerm(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -292,7 +291,7 @@ x_27 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_3);
 lean_ctor_set(x_27, 2, x_26);
-x_28 = l_Lean_Meta_State_inhabited___closed__4;
+x_28 = l_Lean_Meta_State_inhabited___closed__6;
 x_29 = l_Std_PersistentArray_empty___closed__3;
 x_30 = l_Lean_NameSet_empty;
 x_31 = lean_alloc_ctor(0, 4, 0);
@@ -363,7 +362,7 @@ lean_inc(x_51);
 lean_dec(x_50);
 x_52 = lean_box(0);
 x_53 = l_Lean_MessageData_formatAux___main(x_52, x_51);
-x_54 = l_Lean_Options_empty;
+x_54 = lean_box(0);
 x_55 = l_Lean_Format_pretty(x_53, x_54);
 x_56 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_56, 0, x_55);

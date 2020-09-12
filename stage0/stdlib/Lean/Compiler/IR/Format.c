@@ -113,7 +113,6 @@ lean_object* l___private_Lean_Compiler_IR_Format_4__formatExpr___closed__23;
 lean_object* l_Lean_IR_declHasFormat;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__20;
 extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_IR_exprHasFormat___closed__1;
 lean_object* l_Lean_IR_ctorInfoHasFormat___closed__1;
 lean_object* l___private_Lean_Compiler_IR_Format_2__formatLitVal(lean_object*);
@@ -1432,7 +1431,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l___private_Lean_Compiler_IR_Format_4__formatExpr(x_1);
-x_3 = l_Lean_Options_empty;
+x_3 = lean_box(0);
 x_4 = l_Lean_Format_pretty(x_2, x_3);
 return x_4;
 }
@@ -3941,7 +3940,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_unsigned_to_nat(2u);
 x_3 = l_Lean_IR_formatFnBody___main(x_2, x_1);
-x_4 = l_Lean_Options_empty;
+x_4 = lean_box(0);
 x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }
@@ -4115,7 +4114,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_unsigned_to_nat(2u);
 x_3 = l_Lean_IR_formatDecl(x_2, x_1);
-x_4 = l_Lean_Options_empty;
+x_4 = lean_box(0);
 x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }

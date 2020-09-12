@@ -109,7 +109,6 @@ lean_object* l_Lean_IR_Borrow_InitParamMap_initBorrow(lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_IR_Borrow_ownArgsUsingParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_IR_Borrow_infer(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_Borrow_collectDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitDecls___boxed(lean_object*, lean_object*, lean_object*);
@@ -1005,7 +1004,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_IR_Borrow_ParamMap_fmt(x_1);
-x_3 = l_Lean_Options_empty;
+x_3 = lean_box(0);
 x_4 = l_Lean_Format_pretty(x_2, x_3);
 return x_4;
 }

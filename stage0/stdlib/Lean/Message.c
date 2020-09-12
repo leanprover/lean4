@@ -130,7 +130,6 @@ lean_object* l_Lean_Message_toString___closed__2;
 lean_object* l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1___boxed(lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___main___at_Lean_MessageLog_hasErrors___spec__2___boxed(lean_object*);
 lean_object* l_Std_PersistentArray_foldlMAux___main___at_Lean_MessageLog_toList___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__34;
 lean_object* l_Lean_MessageData_getSyntaxMaxDepth___boxed(lean_object*);
@@ -989,7 +988,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_box(0);
 x_3 = l_Lean_MessageData_formatAux___main(x_2, x_1);
-x_4 = l_Lean_Options_empty;
+x_4 = lean_box(0);
 x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }
@@ -1746,7 +1745,7 @@ x_10 = lean_ctor_get(x_1, 4);
 lean_inc(x_10);
 lean_dec(x_1);
 x_11 = l_Lean_fmt___at_Lean_Message_toString___spec__1(x_10);
-x_12 = l_Lean_Options_empty;
+x_12 = lean_box(0);
 x_13 = l_Lean_Format_pretty(x_11, x_12);
 switch (x_6) {
 case 0:
@@ -1926,7 +1925,7 @@ x_2 = lean_ctor_get(x_1, 4);
 lean_inc(x_2);
 lean_dec(x_1);
 x_3 = l_Lean_fmt___at_Lean_Message_toString___spec__1(x_2);
-x_4 = l_Lean_Options_empty;
+x_4 = lean_box(0);
 x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }

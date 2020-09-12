@@ -72,7 +72,6 @@ lean_object* l_Array_forMAux___main___at_Lean_IR_Checker_checkFnBody___main___sp
 lean_object* l_Lean_IR_Checker_checkEqTypes___closed__2;
 uint8_t l_Lean_IR_IRType_beq___main(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore___main___at_Lean_IR_Checker_markIndex___spec__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_IR_Checker_checkPartialApp___closed__3;
 lean_object* l_Lean_IR_checkDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_checkDecls___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -691,7 +690,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_7 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
 lean_dec(x_1);
-x_8 = l_Lean_Options_empty;
+x_8 = lean_box(0);
 x_9 = l_Lean_Format_pretty(x_7, x_8);
 x_10 = l_Lean_IR_Checker_checkType___closed__1;
 x_11 = lean_string_append(x_10, x_9);
@@ -735,7 +734,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_6 = l_Lean_Options_empty;
+x_6 = lean_box(0);
 x_7 = l_Lean_Format_pretty(x_5, x_6);
 x_8 = l_Lean_IR_Checker_checkType___closed__1;
 x_9 = lean_string_append(x_8, x_7);
@@ -779,7 +778,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_6 = l_Lean_Options_empty;
+x_6 = lean_box(0);
 x_7 = l_Lean_Format_pretty(x_5, x_6);
 x_8 = l_Lean_IR_Checker_checkType___closed__1;
 x_9 = lean_string_append(x_8, x_7);
@@ -948,7 +947,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_23 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_20);
 lean_dec(x_20);
-x_24 = l_Lean_Options_empty;
+x_24 = lean_box(0);
 x_25 = l_Lean_Format_pretty(x_23, x_24);
 x_26 = l_Lean_IR_Checker_checkType___closed__1;
 x_27 = lean_string_append(x_26, x_25);
@@ -984,7 +983,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_34 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_31);
 lean_dec(x_31);
-x_35 = l_Lean_Options_empty;
+x_35 = lean_box(0);
 x_36 = l_Lean_Format_pretty(x_34, x_35);
 x_37 = l_Lean_IR_Checker_checkType___closed__1;
 x_38 = lean_string_append(x_37, x_36);
@@ -1030,7 +1029,7 @@ if (x_47 == 0)
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 x_48 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_44);
 lean_dec(x_44);
-x_49 = l_Lean_Options_empty;
+x_49 = lean_box(0);
 x_50 = l_Lean_Format_pretty(x_48, x_49);
 x_51 = l_Lean_IR_Checker_checkType___closed__1;
 x_52 = lean_string_append(x_51, x_50);
@@ -1153,7 +1152,7 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_21 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_19);
 lean_dec(x_19);
-x_22 = l_Lean_Options_empty;
+x_22 = lean_box(0);
 x_23 = l_Lean_Format_pretty(x_21, x_22);
 x_24 = l_Lean_IR_Checker_checkType___closed__1;
 x_25 = lean_string_append(x_24, x_23);
@@ -1186,7 +1185,7 @@ if (x_30 == 0)
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_31 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_29);
 lean_dec(x_29);
-x_32 = l_Lean_Options_empty;
+x_32 = lean_box(0);
 x_33 = l_Lean_Format_pretty(x_31, x_32);
 x_34 = l_Lean_IR_Checker_checkType___closed__1;
 x_35 = lean_string_append(x_34, x_33);
@@ -1229,7 +1228,7 @@ if (x_43 == 0)
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 x_44 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_41);
 lean_dec(x_41);
-x_45 = l_Lean_Options_empty;
+x_45 = lean_box(0);
 x_46 = l_Lean_Format_pretty(x_44, x_45);
 x_47 = l_Lean_IR_Checker_checkType___closed__1;
 x_48 = lean_string_append(x_47, x_46);
@@ -1352,7 +1351,7 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_21 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_19);
 lean_dec(x_19);
-x_22 = l_Lean_Options_empty;
+x_22 = lean_box(0);
 x_23 = l_Lean_Format_pretty(x_21, x_22);
 x_24 = l_Lean_IR_Checker_checkType___closed__1;
 x_25 = lean_string_append(x_24, x_23);
@@ -1385,7 +1384,7 @@ if (x_30 == 0)
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_31 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_29);
 lean_dec(x_29);
-x_32 = l_Lean_Options_empty;
+x_32 = lean_box(0);
 x_33 = l_Lean_Format_pretty(x_31, x_32);
 x_34 = l_Lean_IR_Checker_checkType___closed__1;
 x_35 = lean_string_append(x_34, x_33);
@@ -1428,7 +1427,7 @@ if (x_43 == 0)
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 x_44 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_41);
 lean_dec(x_41);
-x_45 = l_Lean_Options_empty;
+x_45 = lean_box(0);
 x_46 = l_Lean_Format_pretty(x_44, x_45);
 x_47 = l_Lean_IR_Checker_checkType___closed__1;
 x_48 = lean_string_append(x_47, x_46);
@@ -2692,7 +2691,7 @@ lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean
 lean_dec(x_94);
 x_95 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_92);
 lean_dec(x_92);
-x_96 = l_Lean_Options_empty;
+x_96 = lean_box(0);
 x_97 = l_Lean_Format_pretty(x_95, x_96);
 x_98 = l_Lean_IR_Checker_checkExpr___closed__1;
 x_99 = lean_string_append(x_98, x_97);
@@ -2800,7 +2799,7 @@ if (x_148 == 0)
 {
 lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; 
 x_149 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_150 = l_Lean_Options_empty;
+x_150 = lean_box(0);
 x_151 = l_Lean_Format_pretty(x_149, x_150);
 x_152 = l_Lean_IR_Checker_checkType___closed__1;
 x_153 = lean_string_append(x_152, x_151);
@@ -2832,7 +2831,7 @@ if (x_159 == 0)
 {
 lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; 
 x_160 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_161 = l_Lean_Options_empty;
+x_161 = lean_box(0);
 x_162 = l_Lean_Format_pretty(x_160, x_161);
 x_163 = l_Lean_IR_Checker_checkType___closed__1;
 x_164 = lean_string_append(x_163, x_162);
@@ -2878,7 +2877,7 @@ if (x_173 == 0)
 {
 lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; 
 x_174 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_175 = l_Lean_Options_empty;
+x_175 = lean_box(0);
 x_176 = l_Lean_Format_pretty(x_174, x_175);
 x_177 = l_Lean_IR_Checker_checkType___closed__1;
 x_178 = lean_string_append(x_177, x_176);
@@ -3368,7 +3367,7 @@ if (x_280 == 0)
 lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_285; lean_object* x_286; lean_object* x_287; 
 x_281 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_279);
 lean_dec(x_279);
-x_282 = l_Lean_Options_empty;
+x_282 = lean_box(0);
 x_283 = l_Lean_Format_pretty(x_281, x_282);
 x_284 = l_Lean_IR_Checker_checkType___closed__1;
 x_285 = lean_string_append(x_284, x_283);
@@ -3402,7 +3401,7 @@ if (x_290 == 0)
 lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; lean_object* x_298; 
 x_291 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_289);
 lean_dec(x_289);
-x_292 = l_Lean_Options_empty;
+x_292 = lean_box(0);
 x_293 = l_Lean_Format_pretty(x_291, x_292);
 x_294 = l_Lean_IR_Checker_checkType___closed__1;
 x_295 = lean_string_append(x_294, x_293);
@@ -3446,7 +3445,7 @@ if (x_303 == 0)
 lean_object* x_304; lean_object* x_305; lean_object* x_306; lean_object* x_307; lean_object* x_308; lean_object* x_309; lean_object* x_310; lean_object* x_311; lean_object* x_312; 
 x_304 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_301);
 lean_dec(x_301);
-x_305 = l_Lean_Options_empty;
+x_305 = lean_box(0);
 x_306 = l_Lean_Format_pretty(x_304, x_305);
 x_307 = l_Lean_IR_Checker_checkType___closed__1;
 x_308 = lean_string_append(x_307, x_306);
@@ -3662,7 +3661,7 @@ if (x_352 == 0)
 {
 lean_object* x_353; lean_object* x_354; lean_object* x_355; lean_object* x_356; lean_object* x_357; lean_object* x_358; lean_object* x_359; 
 x_353 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_354 = l_Lean_Options_empty;
+x_354 = lean_box(0);
 x_355 = l_Lean_Format_pretty(x_353, x_354);
 x_356 = l_Lean_IR_Checker_checkType___closed__1;
 x_357 = lean_string_append(x_356, x_355);
@@ -3694,7 +3693,7 @@ if (x_363 == 0)
 {
 lean_object* x_364; lean_object* x_365; lean_object* x_366; lean_object* x_367; lean_object* x_368; lean_object* x_369; lean_object* x_370; lean_object* x_371; 
 x_364 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_365 = l_Lean_Options_empty;
+x_365 = lean_box(0);
 x_366 = l_Lean_Format_pretty(x_364, x_365);
 x_367 = l_Lean_IR_Checker_checkType___closed__1;
 x_368 = lean_string_append(x_367, x_366);
@@ -3740,7 +3739,7 @@ if (x_377 == 0)
 {
 lean_object* x_378; lean_object* x_379; lean_object* x_380; lean_object* x_381; lean_object* x_382; lean_object* x_383; lean_object* x_384; lean_object* x_385; lean_object* x_386; 
 x_378 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
-x_379 = l_Lean_Options_empty;
+x_379 = lean_box(0);
 x_380 = l_Lean_Format_pretty(x_378, x_379);
 x_381 = l_Lean_IR_Checker_checkType___closed__1;
 x_382 = lean_string_append(x_381, x_380);

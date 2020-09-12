@@ -93,21 +93,27 @@ assignLevelMVar mvarId $ mkMaxArgsDiff mvarId v n
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
 modify $ fun s => { s with postponed := s.postponed.push { lhs := lhs, rhs := rhs } }
 
-inductive LevelConstraintKind
-| mvarEq         -- ?m =?= l         where ?m does not occur in l
-| mvarEqSelfMax  -- ?m =?= max ?m l  where ?m does not occur in l
-| other
-
-private def getLevelConstraintKind (u v : Level) : MetaM LevelConstraintKind :=
-match u with
-| Level.mvar mvarId _ =>
+@[specialize] private def solve (isLevelDefEqAux : Level → Level → MetaM Bool) (u v : Level) : MetaM LBool := do
+match u, v with
+| Level.mvar mvarId _, _ =>
   condM (isReadOnlyLevelMVar mvarId)
-    (pure LevelConstraintKind.other)
-    (if !u.occurs v then pure LevelConstraintKind.mvarEq
-     else if !strictOccursMax u v then pure LevelConstraintKind.mvarEqSelfMax
-     else pure LevelConstraintKind.other)
-| _ =>
-  pure LevelConstraintKind.other
+    (pure LBool.undef)
+    (if !u.occurs v then do
+       assignLevelMVar u.mvarId! v; pure LBool.true
+     else if !strictOccursMax u v then  do
+       solveSelfMax u.mvarId! v; pure LBool.true
+     else
+       pure LBool.undef)
+| Level.zero _, Level.max v₁ v₂ _ =>
+  Bool.toLBool <$> (isLevelDefEqAux levelZero v₁ <&&> isLevelDefEqAux levelZero v₂)
+| Level.zero _, Level.imax _ v₂ _ =>
+  Bool.toLBool <$> isLevelDefEqAux levelZero v₂
+| Level.succ u _, v               => do
+  v? ← Meta.decLevel? v;
+  match v? with
+  | some v => Bool.toLBool <$> isLevelDefEqAux u v
+  | none   => pure LBool.undef
+| _, _ => pure LBool.undef
 
 partial def isLevelDefEqAux : Level → Level → MetaM Bool
 | Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
@@ -123,6 +129,10 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
     if lhs != lhs' || rhs != rhs' then
       isLevelDefEqAux lhs' rhs'
     else do
+      r ← solve isLevelDefEqAux lhs rhs;
+      if r != LBool.undef then pure $ r == LBool.true else do
+      r ← solve isLevelDefEqAux rhs lhs;
+      if r != LBool.undef then pure $ r == LBool.true else do
       mctx ← getMCtx;
       if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then do
         ctx ← read;
@@ -132,30 +142,7 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
         else
           pure false
       else do
-        k ← getLevelConstraintKind lhs rhs;
-        match k with
-        | LevelConstraintKind.mvarEq        => do assignLevelMVar lhs.mvarId! rhs; pure true
-        | LevelConstraintKind.mvarEqSelfMax => do solveSelfMax lhs.mvarId! rhs; pure true
-        | _ => do
-          k ← getLevelConstraintKind rhs lhs;
-          match k with
-          | LevelConstraintKind.mvarEq        => do assignLevelMVar rhs.mvarId! lhs; pure true
-          | LevelConstraintKind.mvarEqSelfMax => do solveSelfMax rhs.mvarId! lhs; pure true
-          | _ =>
-            if lhs.isMVar || rhs.isMVar then
-              pure false
-            else
-              let isSuccEq (u v : Level) : MetaM Bool :=
-                match u with
-                | Level.succ u _ => do
-                  v? ← Meta.decLevel? v;
-                  match v? with
-                  | some v => isLevelDefEqAux u v
-                  | none   => pure false
-                | _ => pure false;
-              condM (isSuccEq lhs rhs) (pure true) $
-              condM (isSuccEq rhs lhs) (pure true) $ do
-              postponeIsLevelDefEq lhs rhs; pure true
+        postponeIsLevelDefEq lhs rhs; pure true
 
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
 | [],    []    => pure true

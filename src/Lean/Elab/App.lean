@@ -378,26 +378,40 @@ match eType.getAppFn, lval with
 | _, _ =>
   throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
-private partial def resolveLValLoop (e : Expr) (lval : LVal) : Expr → Array Exception → TermElabM LValResolution
-| eType, previousExceptions => do
+/- whnfCore + implicit consumption.
+   Example: given `e` with `eType := {α : Type} → (fun β => List β) α `, it produces `(e ?m, List ?m)` where `?m` is fresh metavariable. -/
+private partial def consumeImplicits : Expr → Expr → TermElabM (Expr × Expr)
+| e, eType => do
   eType ← whnfCore eType;
+  match eType with
+  | Expr.forallE n d b c =>
+    if !c.binderInfo.isExplicit then do
+      mvar ← mkFreshExprMVar d;
+      consumeImplicits (mkApp e mvar) (b.instantiate1 mvar)
+    else
+      pure (e, eType)
+  | _ => pure (e, eType)
+
+private partial def resolveLValLoop (lval : LVal) : Expr → Expr → Array Exception → TermElabM (Expr × LValResolution)
+| e, eType, previousExceptions => do
+  (e, eType) ← consumeImplicits e eType;
   tryPostponeIfMVar eType;
   catch
-    (resolveLValAux e eType lval)
+    (do lvalRes ← resolveLValAux e eType lval; pure (e, lvalRes))
     (fun ex =>
       match ex with
       | Exception.error _ _ => do
         eType? ← unfoldDefinition? eType;
         match eType? with
-        | some eType => resolveLValLoop eType (previousExceptions.push ex)
+        | some eType => resolveLValLoop e eType (previousExceptions.push ex)
         | none       => do
           previousExceptions.forM $ fun ex => logException ex;
           throw ex
       | Exception.internal _ => throw ex)
 
-private def resolveLVal (e : Expr) (lval : LVal) : TermElabM LValResolution := do
+private def resolveLVal (e : Expr) (lval : LVal) : TermElabM (Expr × LValResolution) := do
 eType ← inferType e;
-resolveLValLoop e lval eType #[]
+resolveLValLoop lval e eType #[]
 
 private partial def mkBaseProjections (baseStructName : Name) (structName : Name) (e : Expr) : TermElabM Expr := do
 env ← getEnv;
@@ -438,7 +452,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     : Expr → List LVal → TermElabM Expr
 | f, []          => elabAppArgs f namedArgs args expectedType? explicit
 | f, lval::lvals => do
-  lvalRes ← resolveLVal f lval;
+  (f, lvalRes) ← resolveLVal f lval;
   match lvalRes with
   | LValResolution.projIdx structName idx =>
     let f := mkProj structName idx f;

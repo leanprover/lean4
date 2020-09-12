@@ -7,3 +7,5 @@ evalWithMVar.lean:13:20: error: don't know how to synthesize placeholder
   @c ?m.177
 context:
 ⊢ Type ?
+Sum.someRight c : Option Nat
+Sum.someRight c : Option Nat

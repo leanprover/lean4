@@ -11,3 +11,7 @@ match s with
 #check Sum.someRight c
 
 #eval Sum.someRight c
+
+#check Sum.someRight (s := c)
+
+#check c.someRight

@@ -613,7 +613,7 @@ msgs ← failures.mapM $ fun failure =>
   match failure with
   | EStateM.Result.ok _ _     => unreachable!
   | EStateM.Result.error ex _ => toMessageData ex;
-throwError ("overloaded, errors " ++ MessageData.ofArray msgs)
+throwError ("overloaded, errors " ++ indentD (MessageData.joinSep msgs.toList (Format.line ++ Format.line)))
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) : TermElabM Expr := do
 let explicit := false;

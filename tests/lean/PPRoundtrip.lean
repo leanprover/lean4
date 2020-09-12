@@ -19,7 +19,7 @@ def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermE
   | Except.error e => throwErrorAt stx e
   | Except.ok stx'' => do
     e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
-    unlessM (Term.isDefEq e e') $
+    unlessM (isDefEq e e') $
       throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
 -- set_option trace.PrettyPrinter.parenthesize true

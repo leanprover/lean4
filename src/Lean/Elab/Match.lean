@@ -70,12 +70,12 @@ private partial def elabDiscrsAux (discrStxs : Array Syntax) (expectedType : Exp
     matchType ← whnf matchType;
     match matchType with
     | Expr.forallE _ d b _ => do
-      discr ← elabTermEnsuringType discrStx d;
+      discr ← fullApproxDefEq $ elabTermEnsuringType discrStx d;
       trace `Elab.match fun _ => "discr #" ++ toString i ++ " " ++ discr ++ " : " ++ d;
       elabDiscrsAux (i+1) (b.instantiate1 discr) (discrs.push discr)
     | _ => throwError ("invalid type provided to match-expression, function type with arity #" ++ toString discrStxs ++ " expected")
   else do
-    unlessM (isDefEq matchType expectedType) $
+    unlessM (fullApproxDefEq $ isDefEq matchType expectedType) $
       throwError ("invalid result type provided to match-expression" ++ indentExpr matchType ++ Format.line ++ "expected type" ++ indentExpr expectedType);
     pure discrs
 

@@ -534,7 +534,8 @@ private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := do
 opts ← getOptions;
 let fuel := getMaxSteps opts;
 inputConfig ← getConfig;
-withConfig (fun config => { config with transparency := TransparencyMode.reducible, foApprox := true, ctxApprox := true }) $ do
+withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.reducible,
+                                        foApprox := true, ctxApprox := true, constApprox := false }) do
   type ← instantiateMVars type;
   type ← preprocess type;
   s ← get;
@@ -573,11 +574,10 @@ withConfig (fun config => { config with transparency := TransparencyMode.reducib
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
-private def trySynthInstanceImp (type : Expr) : MetaM (LOption Expr) :=
-adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with isDefEqStuckEx := true } }) $
-  catchInternalId isDefEqStuckExceptionId
-    (toLOptionM $ synthInstanceImp? type)
-    (fun _ => pure LOption.undef)
+private def trySynthInstanceImp (type : Expr) : MetaM (LOption Expr) := do
+catchInternalId isDefEqStuckExceptionId
+  (toLOptionM $ synthInstanceImp? type)
+  (fun _ => pure LOption.undef)
 
 private def synthInstanceImp (type : Expr) : MetaM Expr := do
 result? ← synthInstanceImp? type;

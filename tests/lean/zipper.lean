@@ -1,3 +1,5 @@
+new_frontend
+
 structure ListZipper (α : Type) :=
 (xs : List α) (bs : List α)
 
@@ -50,7 +52,7 @@ partial def testAux : ListZipper Nat → ListZipper Nat
   else if z.curr > 20 then
     testAux z.erase
   else
-    testAux z.goForward
+    testAux z.goForward -- testAux z.goForward
 
 def test (xs : List Nat) : List Nat :=
 (testAux xs.toListZipper).toList

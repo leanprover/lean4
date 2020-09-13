@@ -9,10 +9,10 @@ but is expected to have type
 failed to synthesize instance
   CoeT (Std.PersistentHashMap Nat Nat) m (Std.PersistentHashMap Nat Nat)
 phashmap_inst_coherence.lean:12:0: error: application type mismatch
-  Lean.runEval (sorryAx ?m.317)
+  Lean.runEval (sorryAx ?m.307)
 argument
-  (sorryAx ?m.317)
+  (sorryAx ?m.307)
 has type
-  ?m.317
+  ?m.307
 but is expected to have type
-  ?m.319
+  ?m.309

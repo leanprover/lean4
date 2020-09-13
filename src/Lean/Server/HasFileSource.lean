@@ -9,7 +9,7 @@ import Lean.Data.Lsp
 namespace Lean
 namespace Lsp
 
-class HasFileSource (α : Type*) := 
+class HasFileSource (α : Type*) :=
 (fileSource : α → DocumentUri)
 export HasFileSource (fileSource)
 

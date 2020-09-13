@@ -12,13 +12,9 @@ import Lean.Server.Snapshots
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-namespace Lean
-namespace Server
-
-/-
-Each file worker process manages a single file. File workers are launched and terminated
-by a watchdog process. See Watchdog.lean for a description of how file workers are expected 
-to interact with the watchdog process.
+/-!
+For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
+This module implements per-file worker processes.
 
 File processing and requests+notifications against a file should be concurrent for two reasons:
 - By the LSP standard, requests should be cancellable.
@@ -32,11 +28,14 @@ On didChange notifications, we search for the task in which the change occured. 
 a task that has not yet finished before finding the task we're looking for, we terminate it
 and start the elaboration there, otherwise we start the elaboration at the task where the change occured.
 
-Requests iterate over tasks until they find the command that they need to answer the request. 
+Requests iterate over tasks until they find the command that they need to answer the request.
 In order to not block the main thread, this is done in a request task.
 If a task that the request task waits for is terminated, a change occured somewhere before the
 command that the request is looking for and the request sends a "content changed" error.
 -/
+
+namespace Lean
+namespace Server
 
 open Lsp
 open IO
@@ -69,7 +68,7 @@ t ← asTask act;
 pure $ t.map $ fun error => match error with
 | Except.ok e => e
 | Except.error ioError => Except.error (TaskError.ioError ioError)
-  
+
 private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : Snapshot → IO (Except TaskError ElabTask)
 | parent => do
   result ← compileNextCmd contents.source parent;
@@ -78,7 +77,7 @@ private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
     sendDiagnosticsCore h uri version contents snap.msgLog;
     -- TODO(MH): check for interrupt (maybe with increased precision even in compileNextCmd, but not after runTask!)
     t ← runTask (runCore snap);
-    pure (Except.ok ⟨snap, t⟩)  
+    pure (Except.ok ⟨snap, t⟩)
   | Sum.inr msgLog => pure (Except.error TaskError.eof)
 
 def run (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) (parent : Snapshot) : IO ElabTask := do
@@ -135,7 +134,7 @@ partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (con
     -- next might finish before it sees the interrupt, so we must chase down the chain of tasks
     -- interruptAfter task; -- TODO(MH): we may not need to interrupt since tasks without refs are marked as cancelled by the GC
     pure newNext
-  
+
 end ElabTask
 
 /-- A document editable in the sense that we track the environment

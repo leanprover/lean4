@@ -1218,8 +1218,8 @@ fun c s =>
 def unquotedSymbol : Parser :=
 { fn := unquotedSymbolFn }
 
-instance stringToParserCoe : HasCoe String Parser :=
-⟨fun s => symbol s ⟩
+instance stringToParserCoeOld : HasCoe String Parser := ⟨fun s => symbol s ⟩
+instance stringToParserCoe : Coe String Parser := ⟨fun s => symbol s ⟩
 
 namespace ParserState
 

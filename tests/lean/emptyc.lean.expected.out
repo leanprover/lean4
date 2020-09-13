@@ -1,1 +1,4 @@
-emptyc.lean:19:0: error: ambiguous, possible interpretations [{x := 0}, ∅]
+emptyc.lean:19:0: error: ambiguous, possible interpretations 
+  {x := 0}
+  
+  ∅

@@ -1,3 +1,4 @@
+new_frontend
 #eval ("abc" ++ "cde").length
 #eval ("abcd".mkIterator.nextn 2).remainingToString
 #eval ("abcd".mkIterator.nextn 10).remainingToString

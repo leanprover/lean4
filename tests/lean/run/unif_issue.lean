@@ -1,4 +1,5 @@
 import Lean
+new_frontend
 open Lean
 
 #eval toString $
@@ -19,10 +20,6 @@ open Lean
 #check (pure 0 : Id Nat)
 
 #check (let rhs := fun a => pure a; rhs 0 : Id Nat)
-
-new_frontend
-
-open Lean
 
 #check toString $
   Unhygienic.run $

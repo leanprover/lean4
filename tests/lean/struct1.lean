@@ -1,10 +1,10 @@
+new_frontend
+
 structure A (α : Type) :=
 (x : α)
 
 structure B (α : Type) :=
 (x : α)
-
-new_frontend
 
 structure S : Nat := -- error expected Type
 (x : Nat)

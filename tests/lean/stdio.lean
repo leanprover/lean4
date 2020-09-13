@@ -1,14 +1,15 @@
+new_frontend
 open IO.FS
-
-#eval do
+def usingIO {α} (x : IO α) := x
+#eval usingIO do
 out ← IO.getStdout;
 (out.putStrLn "print stdout" : IO Unit)
 
-#eval do
+#eval usingIO do
 err ← IO.getStderr;
 (err.putStr "print stderr" : IO Unit)
 
-open IO
+open usingIO IO
 
 def test : IO Unit := do
 FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do

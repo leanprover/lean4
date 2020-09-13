@@ -525,7 +525,7 @@ forallTelescope type $ fun xs typeBody =>
   | _ => pure type
 
 @[init] def maxStepsOption : IO Unit :=
-registerOption `synthInstance.maxSteps { defValue := (10000 : Nat), group := "", descr := "maximum steps for the type class instance synthesis procedure" }
+registerOption `synthInstance.maxSteps { defValue := (1000 : Nat), group := "", descr := "maximum steps for the type class instance synthesis procedure" }
 
 private def getMaxSteps (opts : Options) : Nat :=
 opts.getNat `synthInstance.maxSteps 10000

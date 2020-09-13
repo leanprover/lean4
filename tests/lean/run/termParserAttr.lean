@@ -1,4 +1,5 @@
 import Lean
+new_frontend
 open Lean
 open Lean.Elab
 
@@ -60,8 +61,6 @@ adaptExpander $ fun stx => match_syntax stx with
 
 #eval run "#check (| id 1 |)"
 #eval run "#check (| id 1, id 2 |)"
-
-new_frontend
 
 declare_syntax_cat foo
 

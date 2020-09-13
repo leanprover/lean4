@@ -1,4 +1,5 @@
 import Lean.Meta
+new_frontend
 open Lean
 open Lean.Meta
 
@@ -26,14 +27,14 @@ instance coerceNatToInt : HasCoerce Nat Int :=
 def print {α} [HasToString α] (a : α) : MetaM Unit :=
 trace! `Meta.synthInstance (toString a)
 
-set_option trace.Meta.synthInstance true
-set_option trace.Meta.synthInstance.tryResolve false
 
 def tst1 : MetaM Unit :=
 do inst ← mkAppM `HasCoerce #[mkConst `Nat, mkSort levelZero];
    r ← synthInstance inst;
    print r
 
+set_option trace.Meta.synthInstance true in
+set_option trace.Meta.synthInstance.tryResolve false in
 #eval tst1
 
 def tst2 : MetaM Unit :=
@@ -46,6 +47,8 @@ do inst ← mkAppM `HasBind #[mkConst `IO];
    print r;
    pure ()
 
+set_option trace.Meta.synthInstance true in
+set_option trace.Meta.synthInstance.tryResolve false in
 #eval tst2
 
 def tst3 : MetaM Unit :=
@@ -54,4 +57,6 @@ do inst ← mkAppM `HasBeq #[mkConst `Nat];
    print r;
    pure ()
 
+set_option trace.Meta.synthInstance true in
+set_option trace.Meta.synthInstance.tryResolve false in
 #eval tst3

@@ -1,3 +1,5 @@
+new_frontend
+
 def run1 (i : Nat) (n : Nat) (xs : List Nat) : Nat :=
 n.repeat (fun r =>
   dbgTrace (">> [" ++ toString i ++ "] " ++ toString r) $ fun _ =>

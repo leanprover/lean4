@@ -1,10 +1,9 @@
 import Lean
+new_frontend
 
 open Lean
 open Lean.Elab
 open Lean.Elab.Term
-
-set_option trace.Elab.debug true
 
 def tst1 : TermElabM Unit := do
 opt ← getOptions;

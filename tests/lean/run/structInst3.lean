@@ -1,3 +1,4 @@
+new_frontend
 universes u
 
 namespace Ex1
@@ -13,7 +14,6 @@ structure C (α : Type u) extends B α :=
 
 end Ex1
 
-new_frontend
 open Ex1
 
 def c1 : C Nat := { x := 1 }

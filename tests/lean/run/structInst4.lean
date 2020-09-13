@@ -1,3 +1,4 @@
+new_frontend
 universes u
 
 def a : Array ((Nat × Nat) × Bool) := #[]
@@ -6,8 +7,6 @@ def b : Array Nat := #[]
 structure Foo :=
 (x : Array ((Nat × Nat) × Bool) := #[])
 (y : Nat := 0)
-
-new_frontend
 
 #check (b).modifyOp (idx := 1) (fun s => 2)
 

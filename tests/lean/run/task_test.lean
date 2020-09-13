@@ -1,3 +1,5 @@
+new_frontend
+
 def g (x : Nat) : Nat :=
 dbgTrace ("g: " ++ toString x) $ fun _ =>
   x + 1

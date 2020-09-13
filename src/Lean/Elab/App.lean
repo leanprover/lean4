@@ -528,23 +528,27 @@ false, no elaboration function executed by `x` will reset it to
 -/
 
 private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
-    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool) (acc : Array TermElabResult)
+    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool) (overloaded : Bool) (acc : Array TermElabResult)
     : TermElabM (Array TermElabResult) :=
 match fIdent with
 | Syntax.ident _ _ n preresolved => do
   funLVals ← withRef fIdent $ resolveName n preresolved fExplicitUnivs;
+  let overloaded := overloaded || funLVals.length > 1;
   -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
   adaptReader (fun (ctx : Context) => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) $
     funLVals.foldlM
       (fun acc ⟨f, fields⟩ => do
         let lvals' := fields.map LVal.fieldName;
-        s ← observing $ elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit;
+        s ← observing do {
+          e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit;
+          if overloaded then ensureHasType expectedType? e else pure e
+        };
         pure $ acc.push s)
       acc
 | _ => throwUnsupportedSyntax
 
 private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Array Arg → Option Expr → Bool → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
-| f, lvals, namedArgs, args, expectedType?, explicit, insideChoice, acc =>
+| f, lvals, namedArgs, args, expectedType?, explicit, overloaded, acc =>
   if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     adaptReader (fun (ctx : Context) => { ctx with errToSorry := false }) do
@@ -552,42 +556,43 @@ private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Arra
   else match_syntax f with
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!;
-    elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit insideChoice acc
+    elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit overloaded acc
   | `($(e).$field:ident) =>
     let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName (toString n));
-    elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit insideChoice acc
+    elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit overloaded acc
   | `($e[$idx]) =>
-    elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit insideChoice acc
+    elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit overloaded acc
   | `($id:ident@$t:term) =>
     throwError "unexpected occurrence of named pattern"
   | `($id:ident) => do
-    elabAppFnId id [] lvals namedArgs args expectedType? explicit acc
+    elabAppFnId id [] lvals namedArgs args expectedType? explicit overloaded acc
   | `($id:ident.{$us*}) => do
     us ← elabExplicitUnivs us.getSepElems;
-    elabAppFnId id us lvals namedArgs args expectedType? explicit acc
+    elabAppFnId id us lvals namedArgs args expectedType? explicit overloaded acc
   | `(@$id:ident) =>
-    elabAppFn id lvals namedArgs args expectedType? true insideChoice acc
+    elabAppFn id lvals namedArgs args expectedType? true overloaded acc
   | `(@$id:ident.{$us*}) =>
-    elabAppFn (f.getArg 1) lvals namedArgs args expectedType? true insideChoice acc
+    elabAppFn (f.getArg 1) lvals namedArgs args expectedType? true overloaded acc
   | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
   | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
   | _ =>
-    let catchPostpone := !insideChoice;
+    let catchPostpone := !overloaded;
     /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
        Recall that `observing` does not catch `postponeExceptionId`. -/
     if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then do
       /- Recall that elabAppFn is used for elaborating atomics terms **and** choice nodes that may contain
          arbitrary terms. If they are not being used as a function, we should elaborate using the expectedType. -/
       s ←
-        if insideChoice then
+        if overloaded then
           observing $ elabTermEnsuringType f expectedType? catchPostpone
         else
           observing $ elabTerm f expectedType?;
       pure $ acc.push s
     else do
-      s ← observing $ do {
+      s ← observing do {
         f ← elabTerm f none catchPostpone;
-        elabAppLVals f lvals namedArgs args expectedType? explicit
+        e ← elabAppLVals f lvals namedArgs args expectedType? explicit;
+        if overloaded then ensureHasType expectedType? e else pure e
       };
       pure $ acc.push s
 
@@ -620,8 +625,8 @@ throwError ("overloaded, errors " ++ toMessageList msgs)
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) : TermElabM Expr := do
 let explicit := false;
-let insideChoice := false;
-candidates ← elabAppFn f [] namedArgs args expectedType? explicit insideChoice #[];
+let overloaded := false;
+candidates ← elabAppFn f [] namedArgs args expectedType? explicit overloaded #[];
 if candidates.size == 1 then
   applyResult $ candidates.get! 0
 else

@@ -608,12 +608,15 @@ match ex.getRef.getPos with
     let exPosition := fileMap.toPosition exPos;
     pure $ toString exPosition.line ++ ":" ++ toString exPosition.column ++ " " ++ ex.toMessageData
 
+private def toMessageList (msgs : Array MessageData) : MessageData :=
+indentD (MessageData.joinSep msgs.toList (Format.line ++ Format.line))
+
 private def mergeFailures {α} (failures : Array TermElabResult) : TermElabM α := do
 msgs ← failures.mapM $ fun failure =>
   match failure with
   | EStateM.Result.ok _ _     => unreachable!
   | EStateM.Result.error ex _ => toMessageData ex;
-throwError ("overloaded, errors " ++ indentD (MessageData.joinSep msgs.toList (Format.line ++ Format.line)))
+throwError ("overloaded, errors " ++ toMessageList msgs)
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) : TermElabM Expr := do
 let explicit := false;
@@ -631,7 +634,7 @@ else
     let msgs : Array MessageData := successes.map $ fun success => match success with
       | EStateM.Result.ok e s => MessageData.withContext { env := s.core.env, mctx := s.meta.mctx, lctx := lctx, opts := opts } e
       | _                     => unreachable!;
-    throwErrorAt f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
+    throwErrorAt f ("ambiguous, possible interpretations " ++ toMessageList msgs)
   else
     withRef f $ mergeFailures candidates
 

@@ -1090,6 +1090,9 @@ let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alre
   nextParamIdx  := s.nextParamIdx,
   expr          := e }
 
+def getExprAssignmentDomain (mctx : MetavarContext) : Array MVarId :=
+mctx.eAssignment.foldl (fun a mvarId _ => Array.push a mvarId) #[]
+
 end MetavarContext
 
 class MonadMCtx (m : Type → Type) :=

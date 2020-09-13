@@ -707,11 +707,39 @@ xs.foldlFrom
     if decl.index < d.index then decl else d)
   d 1
 
-/-- Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
-    return a new array of free variables that contains `toRevert` and all free variables
-    in `lctx` that may depend on `toRevert`.
+/--
+  Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
+  return a new array of free variables that contains `toRevert` and all free variables
+  in `lctx` that may depend on `toRevert`.
 
-    Remark: the result is sorted by `LocalDecl` indices. -/
+  Remark: the result is sorted by `LocalDecl` indices.
+
+  Remark: We used to throw an `Exception.revertFailure` exception when an auxiliary declaration
+  had to be reversed. Recall that auxiliary declarations are created when compiling (mutually)
+  recursive definitions. The `revertFailure` due to auxiliary declaration dependency was originally
+  introduced in Lean3 to address issue https://github.com/leanprover/lean/issues/1258.
+  In Lean4, this solution is not satisfactory because all definitions/theorems are potentially
+  recursive. So, even an simple (incomplete) definition such as
+  ```
+  variables {α : Type} in
+  def f (a : α) : List α :=
+  _
+  ```
+  would trigger the `Exception.revertFailure` exception. In the definition above,
+  the elaborator creates the auxiliary definition `f : {α : Type} → List α`.
+  The `_` is elaborated as a new fresh variable `?m` that contains `α : Type`, `a : α`, and `f : α → List α` in its context,
+  When we try to create the lambda `fun {α : Type} (a : α) => ?m`, we first need to create
+  an auxiliary `?n` which do not contain `α` and `a` in its context. That is,
+  we create the metavariable `?n : {α : Type} → (a : α) → (f : α → List α) → List α`,
+  add the delayed assignment `?n #[α, a, f] := ?m α a f`, and create the lambda
+  `fun {α : Type} (a : α) => ?n α a f`.
+  See `elimMVarDeps` for more information.
+  If we kept using the Lean3 approach, we would get the `Exception.revertFailure` exception because we are
+  reverting the auxiliary definition `f`.
+
+  Note that https://github.com/leanprover/lean/issues/1258 is not an issue in Lean4 because
+  we have changed how we compile recursive definitions.
+-/
 private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (preserveOrder : Bool) : Except Exception (Array Expr) :=
 if toRevert.size == 0 then pure toRevert
 else do
@@ -721,8 +749,6 @@ else do
     toRevert.size.forM $ fun i => do
       let fvar := toRevert.get! i;
       let decl := lctx.getFVar! fvar;
-      when decl.binderInfo.isAuxDecl $
-        throw (Exception.revertFailure mctx lctx toRevert decl);
       i.forM $ fun j =>
         let prevFVar := toRevert.get! j;
         let prevDecl := lctx.getFVar! prevFVar;
@@ -738,10 +764,7 @@ else do
       else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
         pure (newToRevert.push decl.toExpr)
       else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) then
-        if decl.binderInfo.isAuxDecl then
-          throw (Exception.revertFailure mctx lctx toRevert decl)
-        else
-          pure (newToRevert.push decl.toExpr)
+        pure (newToRevert.push decl.toExpr)
       else
         pure newToRevert)
     newToRevert

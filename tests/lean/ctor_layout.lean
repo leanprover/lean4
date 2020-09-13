@@ -1,4 +1,5 @@
 import Lean.Compiler.IR
+new_frontend
 open Lean
 open Lean.IR
 

@@ -1,4 +1,5 @@
 import Lean.MetavarContext
+new_frontend
 open Lean
 
 def check (b : Bool) : IO Unit :=
@@ -72,7 +73,7 @@ def t3 := lctx5.mkLambda #[α, x, y] $ mkAppN f #[m3, x]
 #eval check (mctx10.instantiateMVars t3).1.hasFVar
 #eval (mctx7.instantiateMVars t3).1
 
-def mkDiamond : Nat → Expr
+partial def mkDiamond : Nat → Expr
 | 0     => m1
 | (n+1) => mkAppN f #[mkDiamond n, mkDiamond n]
 

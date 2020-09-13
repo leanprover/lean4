@@ -1,4 +1,5 @@
 import Lean
+new_frontend
 open Lean
 open Lean.Elab
 open Lean.Elab.Term

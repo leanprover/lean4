@@ -1,2 +1,1 @@
-f._main._cstage2 : _obj → UInt8
-ll_infer_type_bug.lean:7:0: warning: using 'exit' to interrupt Lean
+f._cstage2 : _obj → UInt8

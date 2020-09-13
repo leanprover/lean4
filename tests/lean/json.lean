@@ -1,6 +1,6 @@
 import Lean.Data.Json.Parser
 import Lean.Data.Json.Printer
-
+new_frontend
 def test (s : String) : String :=
 match Lean.Json.parse s with
 | Except.ok res    => toString res

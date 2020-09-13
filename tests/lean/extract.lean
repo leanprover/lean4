@@ -1,3 +1,4 @@
+new_frontend
 #eval "abc"
 
 /- some "a" -/

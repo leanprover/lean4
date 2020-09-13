@@ -1,3 +1,4 @@
+new_frontend
 def inc (r : IO.Ref Nat) : IO Unit :=
 do v ← r.get;
    r.set (v+1);

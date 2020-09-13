@@ -1,5 +1,5 @@
+new_frontend
 open Lean
-
 def check (b : Bool) : IO Unit :=
 unless b $ throw $ IO.userError "check failed"
 

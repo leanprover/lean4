@@ -1,8 +1,18 @@
-phashmap_inst_coherence.lean:11:0: error: type mismatch at application
-  PersistentHashMap.find? m
-term
+phashmap_inst_coherence.lean:12:6: error: application type mismatch
+  Std.PersistentHashMap.find? m
+argument
   m
 has type
-  @PersistentHashMap Nat Nat (@beqOfEq Nat (fun (ab : Nat) => Nat.DecidableEq a b)) Nat.Hashable
+  Std.PersistentHashMap Nat Nat
 but is expected to have type
-  @PersistentHashMap Nat Nat (@beqOfEq Nat (fun (ab : Nat) => Nat.DecidableEq a b)) natDiffHash
+  Std.PersistentHashMap Nat Nat
+failed to synthesize instance
+  CoeT (Std.PersistentHashMap Nat Nat) m (Std.PersistentHashMap Nat Nat)
+phashmap_inst_coherence.lean:12:0: error: application type mismatch
+  Lean.runEval (sorryAx ?m.317)
+argument
+  (sorryAx ?m.317)
+has type
+  ?m.317
+but is expected to have type
+  ?m.319

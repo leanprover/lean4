@@ -1,5 +1,5 @@
 import Lean.Level
-
+new_frontend
 namespace Lean
 namespace Level
 

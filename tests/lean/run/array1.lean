@@ -49,10 +49,10 @@ def tst : IO (List Nat) :=
 
 #eval tst
 
-#eval #[1, 3, 6, 2].getMax? (fun a b => decide $ a < b)
-#eval #[].getMax? (fun (a b : Nat) => decide $ a < b)
-#eval #[1, 8].getMax? (fun a b => decide $ a < b)
-#eval #[8, 1].getMax? (fun a b => decide $ a < b)
+#eval #[1, 3, 6, 2].getMax? (fun a b => a < b)
+#eval #[].getMax? (fun (a b : Nat) => a < b)
+#eval #[1, 8].getMax? (fun a b => a < b)
+#eval #[8, 1].getMax? (fun a b => a < b)
 
 #eval #[1, 6, 5, 3, 8, 2, 0].partition fun x => x % 2 == 0
 

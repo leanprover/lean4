@@ -7,9 +7,9 @@ def tst (n : Nat) : IO Unit :=
 do
 let as := mkAssocArray n Array.empty;
 IO.println as;
-let as := as.qsort (fun a b => decide $ a.1 < b.1);
+let as := as.qsort (fun a b => a.1 < b.1);
 (2*n).forM $ fun i => do
-  let entry := as.binSearch (i, false) (fun a b => decide $ a.1 < b.1);
+  let entry := as.binSearch (i, false) (fun a b => a.1 < b.1);
   IO.println (">> " ++ toString i ++ " ==> " ++ toString entry)
 
 #eval tst 10

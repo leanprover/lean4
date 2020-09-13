@@ -14,7 +14,11 @@ withMVarContext mvarId $ do
   checkNotAssigned mvarId `assumption;
   mvarType ← getMVarType mvarId;
   lctx ← getLCtx;
-  h? ← lctx.findDeclRevM? $ fun decl => condM (isDefEq mvarType decl.type) (pure (some decl.toExpr)) (pure none);
+  h? ← lctx.findDeclRevM? $ fun decl =>
+    if decl.isAuxDecl then
+      pure none
+    else
+      condM (isDefEq mvarType decl.type) (pure (some decl.toExpr)) (pure none);
   match h? with
   | some h => do assignExprMVar mvarId h; pure true
   | none   => pure false

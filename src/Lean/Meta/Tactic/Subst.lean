@@ -130,7 +130,7 @@ withMVarContext mvarId $ do
     mctx ← getMCtx;
     lctx ← getLCtx;
     some (fvarId, symm) ← lctx.findDeclM?
-      (fun localDecl => do
+      (fun localDecl => if localDecl.isAuxDecl then pure none else do
        eq? ← matchEq? localDecl.type;
        match eq? with
        | some (α, lhs, rhs) =>

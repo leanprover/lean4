@@ -59,6 +59,9 @@ def binderInfo : LocalDecl → BinderInfo
 | cdecl _ _ _ _ bi  => bi
 | ldecl _ _ _ _ _ _ => BinderInfo.default
 
+def isAuxDecl (d : LocalDecl) : Bool :=
+d.binderInfo.isAuxDecl
+
 def value? : LocalDecl → Option Expr
 | cdecl _ _ _ _ _   => none
 | ldecl _ _ _ _ v _ => some v

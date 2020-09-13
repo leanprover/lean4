@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.FindMVar
 import Lean.Elab.Term
 import Lean.Elab.Binders
+import Lean.Elab.SyntheticMVars
 
 namespace Lean
 namespace Elab
@@ -276,9 +277,18 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
     if ctx.namedArgs.isEmpty && ctx.argIdx == ctx.args.size then
       finalize ()
     else do
-      e ← tryCoeFun eType e;
-      eType ← inferType e;
-      elabAppArgsAux ctx e eType
+      -- eType may become a forallE after we synthesize pending metavariables
+      synthesizeAppInstMVars ctx.instMVars;
+      synthesizeSyntheticMVars;
+      let ctx := { ctx with instMVars := #[] };
+      -- try to normalize again.
+      eType ← whnfForall eType;
+      match eType with
+      | Expr.forallE _ _ _ _ => elabAppArgsAux ctx e eType
+      | _ => do
+        e ← tryCoeFun eType e;
+        eType ← inferType e;
+        elabAppArgsAux ctx e eType
 
 private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do

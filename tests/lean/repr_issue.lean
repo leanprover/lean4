@@ -1,3 +1,4 @@
+new_frontend
 def foo {m} [Monad m] [MonadExcept String m] [MonadState (Array Nat) m] : m Nat :=
 catch (do modify $ fun (a : Array Nat) => a.set! 0 33;
           throw "error")

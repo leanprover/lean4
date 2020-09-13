@@ -12,46 +12,51 @@ import Lean.Elab.Import
 import Lean.Data.Lsp
 import Lean.Server.HasFileSource
 
+/-!
+For general server architecture, see `README.md`. This module implements the watchdog process.
+
+## Watchdog state
+
+Most LSP clients only send us file diffs, so to facilitate sending entire file contents to freshly restarted workers,
+the watchdog needs to maintain the current state of each file. It can also use this state to detect changes
+to the header and thus restart the corresponding worker, freeing its imports.
+
+TODO(WN):
+We may eventually want to keep track of approximately (since this isn't knowable exactly) where in the file a worker
+crashed. Then on restart, we said worker to only parse up to that point and query the user about how to proceed
+(continue OR allow the user to fix the bug and then continue OR ..). Without this, if the crash is deterministic,
+the worker could get into a restart loop.
+
+## Watchdog <-> worker communication
+
+The watchdog process and its file worker processes communicate via LSP. If the necessity arises,
+we might add non-standard commands similarly based on JSON-RPC. Most requests and notifications
+are forwarded to the corresponding file worker process, with the exception of these notifications:
+
+- textDocument/didOpen: Launch the file worker, create the associated watchdog state and launch a task to asynchronously
+                        receive LSP packets from the worker (e.g. request responses).
+- textDocument/didChange: Update the local file state. If the header was mutated,
+                          signal a shutdown to the file worker by closing the I/O channels.
+                          Then restart the file worker. Otherwise, forward the `didChange` notification.
+- textDocument/didClose: Signal a shutdown to the file worker and remove the associated watchdog state.
+
+Moreover, we don't implement the full protocol at this level:
+
+- Upon starting, the `initialize` request is forwarded to the worker, but it must not respond with its server capabilities.
+  Consequently, the watchdog will not send an `initialized` notification to the worker.
+- After `initialize`, the watchdog sends the corresponding `didOpen` notification with the full current state of the file.
+  No additional `didOpen` notifications will be forwarded to the worker process.
+- File workers will never receive a `shutdown` request or an `exit` notification. File workers are always terminated
+  by closing their I/O channels. Similarly, they never receive a `didClose` notification.
+
+## Watchdog <-> client communication
+
+The watchdog itself should implement the LSP standard as closely as possible. However we reserve the right to add non-standard
+extensions in case they're needed, for example to communicate tactic state.
+-/
+
 namespace Lean
 namespace Server
-
-/-
-The server architecture consists of a watchdog process that communicates with the user
-and one file worker process for each open file. 
-This is because processing the header of a file creates objects that need to be freed manually. 
-Unfortunately, it is very difficult to ensure that these objects are not still in use by some user code,
-potentially leading to segfaults when freeing these objects. 
-To contain this issue, each open file is processed by one dedicated process. 
-When the header is mutated, the process is killed and restarted by the watchdog process.
-Lean elaboration can also be very expensive due to the tactic framework essentially allowing for arbitrary user
-programs: If the user code for one file causes a stack overflow, we would not want the entire server to die.
-Hence, isolating user code at a file-level and potentially restarting file worker processes upon error has the added
-benefit of increased stability. 
-
-To communicate the file state to the file worker upon restarting, the watchdog needs to maintain
-the current state of the file, which it can also use to detect changes to the header and thus terminate
-the corresponding file worker.
-
-The watchdog process and its file worker processes communicate via LSP. Most requests and notifications
-are forwarded to the corresponding file worker process, with the exception of these notifications:
-- didOpen: launch the file worker, create the associated watchdog state and launch a task to forward
-           incoming packets from the watchdog (e.g. request responses).
-- didChange: update the local file state. if the header was mutated, 
-             signal a shutdown to the file worker by closing the I/O channels and restart the file worker.
-             otherwise, forward the didChange notification.
-- didClose: signal a shutdown to the file worker and remove the associated watchdog state.
-Writes to Lean I/O channels are atomic, and hence we do not need additional synchronization for the tasks
-that read file worker responses.
-
-While the communication between the watchdog and its file workers uses LSP packets, it does not implement the
-full protocol:
-- Upon starting, the initialize request is forwarded to the file worker, but it must not respond with its server capabilities.
-  Consequently, the watchdog will not send an initialized notification to the file worker.
-- After initialize, the watch dog sends the corresponding didOpen notification with the full current state of the file.
-  No additional didOpen notifications will be forwarded to the file worker process.
-- File workers will never receive a shutdown request or an exit notification. File workers are always terminated
-  by closing their I/O channels. Similarly, they never receive a didClose notification. 
--/
 
 open IO
 open Std (RBMap RBMap.empty)
@@ -65,13 +70,12 @@ let pre := text.source.extract 0 start;
 let post := text.source.extract «end» text.source.bsize;
 (pre ++ newText ++ post).toFileMap
 
-def parsedImportsEndPos (input : String) : IO String.Pos := do
+private def parsedImportsEndPos (input : String) : IO String.Pos := do
 env ← mkEmptyEnvironment;
 let fileName := "<input>";
 let inputCtx := Parser.mkInputContext input fileName;
-match Parser.parseHeader env inputCtx with
-| (header, parserState, messages) => do
-  pure parserState.pos
+let (_, parserState, _) := Parser.parseHeader env inputCtx;
+pure parserState.pos
 
 structure EditableDocument :=
 (version : Nat)
@@ -86,7 +90,7 @@ structure FileWorker :=
 
 namespace FileWorker
 
-def spawnArgs : Process.SpawnArgs := {workerCfg with cmd := "fileworker"} 
+def spawnArgs : Process.SpawnArgs := {workerCfg with cmd := "fileworker"}
 
 def spawn (doc : EditableDocument) : IO FileWorker := do
 proc ← Process.spawn spawnArgs;
@@ -131,7 +135,7 @@ def readUserLspMessage : ServerM JsonRpc.Message :=
 fun st => monadLift $ readLspMessage st.hIn
 
 def readWorkerLspRequestAs (key : DocumentUri) (expectedMethod : String) (α : Type*) [HasFromJson α] : ServerM (Request α) :=
-findFileWorker key >>= fun fw => monadLift $ readLspRequestAs fw.stdout expectedMethod α 
+findFileWorker key >>= fun fw => monadLift $ readLspRequestAs fw.stdout expectedMethod α
 
 def readUserLspRequestAs (expectedMethod : String) (α : Type*) [HasFromJson α] : ServerM (Request α) :=
 fun st => monadLift $ readLspRequestAs st.hIn expectedMethod α
@@ -171,7 +175,7 @@ st ← read;
 writeWorkerLspRequest key (0 : Nat) "initialize" st.initParams
 
 def writeWorkerDidOpenNotification (key : DocumentUri) : ServerM Unit := do
-findFileWorker key >>= fun fw => writeWorkerLspNotification key "textDocument/didOpen" 
+findFileWorker key >>= fun fw => writeWorkerLspNotification key "textDocument/didOpen"
   (DidOpenTextDocumentParams.mk ⟨key, "lean", fw.doc.version, fw.doc.text.source⟩)
 
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
@@ -187,6 +191,7 @@ partial def forwardFileWorkerPackets (fw : FileWorker) : Unit → ServerM Unit
   -- TODO(MH): detect closed stream somehow and terminate gracefully
   -- TODO(MH): potentially catch unintended termination (e.g. due to stack overflow) and restart process
   msg ← monadLift $ readLspMessage fw.stdout;
+  -- NOTE: Writes to Lean I/O streams are atomic, so we don't need to synchronise these in principle.
   writeUserLspMessage msg;
   forwardFileWorkerPackets ⟨⟩
 
@@ -200,7 +205,7 @@ writeWorkerDidOpenNotification key;
 -- TODO(MH): Sebastian said something about this better being implemented as threads
 -- (due to the long running nature of these tasks) but i did not yet have time to
 -- look into this.
-let _ := Task.mk (forwardFileWorkerPackets fw); 
+let _ := Task.mk (forwardFileWorkerPackets fw);
 pure ⟨⟩
 
 -- TODO(MH)
@@ -230,6 +235,10 @@ else changes.forM $ fun change =>
     let newDocText := replaceLspRange oldDoc.text range newText;
     let oldHeaderEndPos := oldDoc.headerEndPos;
     if startOff < oldHeaderEndPos then do
+      /- The header changed, restart worker. -/
+      -- TODO(WN): we should amortize this somehow;
+      -- when the user is typing in an import, this
+      -- may rapidly destroy/create new processes
       terminateFileWorker fw;
       startFileWorker doc.uri newVersion newDocText
     else

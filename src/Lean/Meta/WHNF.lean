@@ -399,7 +399,8 @@ else match e with
 
 
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
--- We cache only closed terms without expr metavars
+-- We cache only closed terms without expr metavars.
+-- Potential refinement: cache if `e` is not stuck at a metavariable
 if e.hasFVar || e.hasExprMVar then pure false
 else do
   ctx ← read;

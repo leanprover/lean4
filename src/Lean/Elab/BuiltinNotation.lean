@@ -55,16 +55,19 @@ fun stx expectedType? => match_syntax stx with
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro :=
 fun stx => match_syntax stx with
-| `(show $type from $val) => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $thisId)
-| _                       => Macro.throwUnsupported
+| `(show $type from $val)         => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $thisId)
+| `(show $type by $tac:tacticSeq) => `(show $type from by $tac:tacticSeq)
+| _                               => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro :=
 fun stx => match_syntax stx with
-| `(have $type from $val; $body)      => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
-| `(have $type := $val; $body)        => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
-| `(have $x : $type from $val; $body) => `(let! $x:ident : $type := $val; $body)
-| `(have $x : $type := $val; $body)   => `(let! $x:ident : $type := $val; $body)
-| _                                   => Macro.throwUnsupported
+| `(have $type from $val; $body)              => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
+| `(have $type by $tac:tacticSeq; $body)      => `(have $type from by $tac:tacticSeq; $body)
+| `(have $type := $val; $body)                => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
+| `(have $x : $type from $val; $body)         => `(let! $x:ident : $type := $val; $body)
+| `(have $x : $type by $tac:tacticSeq; $body) => `(have $x : $type from by $tac:tacticSeq; $body)
+| `(have $x : $type := $val; $body)           => `(let! $x:ident : $type := $val; $body)
+| _                                           => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.where] def expandWhere : Macro :=
 fun stx => match_syntax stx with

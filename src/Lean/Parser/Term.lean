@@ -45,7 +45,7 @@ def leadPrec := maxPrec - 1
 
 /- Built-in parsers -/
 
-@[builtinTermParser] def byTactic := parser!:maxPrec "by " >> Tactic.indentedNonEmptySeq
+@[builtinTermParser] def byTactic := parser!:leadPrec "by " >> Tactic.indentedNonEmptySeq
 
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident

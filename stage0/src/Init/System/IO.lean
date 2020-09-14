@@ -100,6 +100,44 @@ match e with
 def lazyPure {α : Type} (fn : Unit → α) : IO α :=
 pure (fn ())
 
+/--
+  Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
+  except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
+  computation.
+  Unlike with pure tasks created by `Task.mk`, tasks created by this function will be run even if the last reference
+  to the task is dropped. `act` should manually check for cancellation via `IO.checkInterrupt` if it wants to react
+  to that. -/
+@[extern "lean_io_as_task"]
+constant asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) := arbitrary _
+
+/-- See `IO.asTask`. -/
+@[extern "lean_io_map_task"]
+constant mapTask {α β : Type} (f : α → IO β) (t : Task α) : IO (Task (Except IO.Error β)) := arbitrary _
+
+/-- See `IO.asTask`. -/
+@[extern "lean_io_bind_task"]
+constant bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) : IO (Task (Except IO.Error β)) := arbitrary _
+
+/-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
+@[extern "lean_io_check_canceled"]
+constant checkCanceled : IO Bool := arbitrary _
+
+/-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
+@[extern "lean_io_cancel"]
+constant cancel {α : Type} : @& Task α → IO Unit := arbitrary _
+
+/-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
+@[extern "lean_io_has_finished"]
+constant hasFinished {α : Type} : @& Task α → IO Unit := arbitrary _
+
+/-- Wait for the task to finish, then return its result. -/
+@[extern "lean_io_wait"]
+constant wait {α : Type} : Task α → IO α := arbitrary _
+
+/-- Wait until any of the tasks in the given list has finished, then return its result. -/
+@[extern "lean_io_wait_any"]
+constant waitAny {α : Type} : @& List (Task α) → IO α := arbitrary _
+
 inductive FS.Mode
 | read | write | readWrite | append
 
@@ -207,7 +245,7 @@ def Handle.putStr (h : Handle) (s : String) : m Unit :=
 liftIO $ Prim.Handle.putStr h s
 
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
-h.putStr s *> h.putStr "\n"
+h.putStr (s.push '\n')
 
 -- TODO: support for binary files
 partial def Handle.readToEndAux (h : Handle) : String → m String
@@ -244,7 +282,7 @@ linesAux h #[]
 namespace Stream
 
 def putStrLn (strm : FS.Stream) (s : String) : m Unit :=
-liftIO (strm.putStr s) *> liftIO (strm.putStr "\n")
+liftIO (strm.putStr (s.push '\n'))
 
 end Stream
 
@@ -290,7 +328,7 @@ def print {α} [HasToString α] (s : α) : m Unit := do
 out ← getStdout;
 liftIO $ out.putStr $ toString s
 
-def println {α} [HasToString α] (s : α) : m Unit := print s *> print "\n"
+def println {α} [HasToString α] (s : α) : m Unit := print ((toString s).push '\n')
 
 @[export lean_io_println]
 private def printlnAux (s : String) : IO Unit := println s
@@ -299,7 +337,7 @@ def eprint {α} [HasToString α] (s : α) : m Unit := do
 out ← getStderr;
 liftIO $ out.putStr $ toString s
 
-def eprintln {α} [HasToString α] (s : α) : m Unit := eprint s *> eprint "\n"
+def eprintln {α} [HasToString α] (s : α) : m Unit := eprint ((toString s).push '\n')
 
 def getEnv : String → m (Option String) := liftIO ∘ Prim.getEnv
 def realPath : String → m String := liftIO ∘ Prim.realPath
@@ -361,7 +399,7 @@ structure Output :=
 (stdout   : String)
 (stderr   : String)
 
-/-- Run process to completion and caputre output. -/
+/-- Run process to completion and capture output. -/
 def output (args : SpawnArgs) : IO Output := do
 child ← spawn { args with stdout := Stdio.piped, stderr := Stdio.piped };
 -- BUG: this will block indefinitely if the process fills the stderr pipe

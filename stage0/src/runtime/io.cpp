@@ -626,6 +626,81 @@ extern "C" obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
     return io_result_mk_ok(box(r));
 }
 
+static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
+    object_ref r(apply_1(act, io_mk_world()));
+    if (io_result_is_ok(r.raw())) {
+        return mk_except_ok(object_ref(io_result_get_value(r.raw()), true));
+    } else {
+        return mk_except_error(object_ref(io_result_get_error(r.raw()), true));
+    }
+}
+
+/* asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) */
+extern "C" obj_res lean_io_as_task(obj_arg act, obj_arg) {
+    object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
+    lean_closure_set(c, 0, act);
+    object * t = lean_task_spawn_with_prio(c, 0, /* keep_alive */ true);
+    return io_result_mk_ok(t);
+}
+
+static obj_res lean_io_map_task_fn(obj_arg f, obj_arg a) {
+    object_ref r(apply_2(f, a, io_mk_world()));
+    if (io_result_is_ok(r.raw())) {
+        return mk_except_ok(object_ref(io_result_get_value(r.raw()), true));
+    } else {
+        return mk_except_error(object_ref(io_result_get_error(r.raw()), true));
+    }
+}
+
+/*  mapTask {α β : Type} (f : α → IO β) (t : Task α) : IO (Task (Except IO.Error β)) */
+extern "C" obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg) {
+    object * c = lean_alloc_closure((void*)lean_io_map_task_fn, 2, 1);
+    lean_closure_set(c, 0, f);
+    object * t2 = lean_task_map_with_prio(c, t, 0, /* keep_alive */ true);
+    return io_result_mk_ok(t2);
+}
+
+static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
+    object_ref r(apply_2(f, a, io_mk_world()));
+    if (io_result_is_ok(r.raw())) {
+        return object_ref(io_result_get_value(r.raw()), true).steal();
+    } else {
+        return task_pure(mk_except_error(object_ref(io_result_get_error(r.raw()), true)));
+    }
+}
+
+/*  bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) : IO (Task (Except IO.Error β)) */
+extern "C" obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg) {
+    object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
+    lean_closure_set(c, 0, f);
+    object * t2 = lean_task_bind_with_prio(t, c, 0, /* keep_alive */ true);
+    return io_result_mk_ok(t2);
+}
+
+extern "C" obj_res lean_io_check_canceled(obj_arg) {
+    return io_result_mk_ok(box(lean_io_check_canceled_core()));
+}
+
+extern "C" obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
+    lean_io_cancel_core(t);
+    return io_result_mk_ok(box(0));
+}
+
+extern "C" obj_res lean_io_has_finished(b_obj_arg t, obj_arg) {
+    return io_result_mk_ok(box(lean_io_has_finished_core(t)));
+}
+
+extern "C" obj_res lean_io_wait(obj_arg t, obj_arg) {
+    return io_result_mk_ok(lean_task_get_own(t));
+}
+
+extern "C" obj_res lean_io_wait_any(b_obj_arg task_list) {
+    object * t = lean_io_wait_any_core(task_list);
+    object * v = lean_task_get(t);
+    lean_inc(v);
+    return io_result_mk_ok(v);
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = mk_io_user_error(mk_string("null reference read"));
     mark_persistent(g_io_error_nullptr_read);

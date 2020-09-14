@@ -260,21 +260,10 @@ bool object_compactor::insert_task(object * o) {
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
-    /* We save the task as a thunk.
-       Reason: when multi-threading is disabled the task primitives
-       create thunk objects instead of task objects. This may create
-       problems when there is a mismatch when creating and reading a
-       compacted region. For example, multi-threading support was
-       enabled when creating the region, and disabled when reading it.
-       To cope with this issue, we always save tasks as thunks,
-       and rely on the fact that all task API accepts thunks as arguments
-       even when multi-threading is enabled. */
-    size_t sz = sizeof(lean_thunk_object);
-    lean_thunk_object * new_o = (lean_thunk_object*)alloc(sz);
-    lean_set_non_heap_header((lean_object*)new_o, sz, LeanThunk, 0);
-    new_o->m_value   = c;
-    new_o->m_closure = (lean_object*)0;
-    save_max_sharing(o, (lean_object*)(new_o), sz);
+    object * r = copy_object(o);
+    lean_assert(lean_to_task(r)->m_imp == nullptr);
+    lean_to_task(r)->m_value = c;
+    save_max_sharing(o, r, lean_object_byte_size(o));
     return true;
 }
 
@@ -434,6 +423,11 @@ inline void compacted_region::fix_ref(object * o) {
     move(sizeof(lean_ref_object));
 }
 
+inline void compacted_region::fix_task(object * o) {
+    lean_to_task(o)->m_value = fix_object_ptr(lean_to_task(o)->m_value);
+    move(sizeof(lean_task_object));
+}
+
 void compacted_region::fix_mpz(object * o) {
     move(sizeof(mpz_object));
     /* convert string after mpz_object into a mpz value */
@@ -475,7 +469,7 @@ object * compacted_region::read() {
             case LeanMPZ:             fix_mpz(curr); break;
             case LeanThunk:           fix_thunk(curr); break;
             case LeanRef:             fix_ref(curr); break;
-            case LeanTask:            lean_unreachable();
+            case LeanTask:            fix_task(curr); break;
             case LeanExternal:        lean_unreachable();
             case LeanReserved: {
                 object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;

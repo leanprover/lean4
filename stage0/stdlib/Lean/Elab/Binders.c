@@ -16077,7 +16077,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_12 = l_Lean_Elab_Term_elabTerm(x_1, x_3, x_11, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_12 = l_Lean_Elab_Term_elabTermEnsuringType(x_1, x_3, x_11, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 

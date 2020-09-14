@@ -39,9 +39,11 @@ lean_object* l_Lean_LocalContext_findDeclRev_x3f___rarg___boxed(lean_object*, le
 uint8_t l_Array_anyRangeMAux___main___at_Lean_LocalContext_any___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_LocalContext_find_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeRevM_x3f___at_Lean_LocalContext_findDeclRev_x3f___spec__2(lean_object*);
+uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_isSubPrefixOfAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___main___at_Lean_LocalContext_anyM___spec__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_LocalDecl_isAuxDecl___boxed(lean_object*);
 lean_object* l_Std_PersistentArray_findSomeMAux___main___at_Lean_LocalContext_findDecl_x3f___spec__3(lean_object*);
 uint8_t l_Std_PersistentHashMap_isEmpty___at_Lean_LocalContext_isEmpty___spec__1(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -241,6 +243,7 @@ lean_object* l_Array_findSomeMAux___main___at_Lean_LocalContext_findDecl_x3f___s
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_BinderInfo_isAuxDecl(uint8_t);
 lean_object* l_Std_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_getFVarIds___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -766,6 +769,25 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; 
+x_2 = l_Lean_LocalDecl_binderInfo(x_1);
+x_3 = l_Lean_BinderInfo_isAuxDecl(x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_LocalDecl_isAuxDecl___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_LocalDecl_isAuxDecl(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object* x_1) {
 _start:
 {
@@ -816,7 +838,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
-x_2 = lean_unsigned_to_nat(67u);
+x_2 = lean_unsigned_to_nat(70u);
 x_3 = lean_unsigned_to_nat(23u);
 x_4 = l_Lean_LocalDecl_value___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -982,7 +1004,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
-x_2 = lean_unsigned_to_nat(80u);
+x_2 = lean_unsigned_to_nat(83u);
 x_3 = lean_unsigned_to_nat(34u);
 x_4 = l_Lean_LocalDecl_updateBinderInfo___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -2044,7 +2066,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
-x_2 = lean_unsigned_to_nat(142u);
+x_2 = lean_unsigned_to_nat(145u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Lean_LocalContext_get_x21___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -6085,7 +6107,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
-x_2 = lean_unsigned_to_nat(335u);
+x_2 = lean_unsigned_to_nat(338u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Lean_LocalContext_get_x21___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

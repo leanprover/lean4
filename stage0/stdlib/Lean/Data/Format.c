@@ -82,7 +82,6 @@ lean_object* l_Lean_Format_defWidth;
 lean_object* l_Lean_Format_joinSuffix(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__13;
-extern lean_object* l_IO_FS_Handle_putStrLn___rarg___closed__1;
 lean_object* l_Lean_Format_pretty___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Option_format(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__6;
@@ -147,6 +146,7 @@ lean_object* l_Lean_Format_HasCoe(lean_object*);
 uint8_t l_Lean_Format_isNil(lean_object*);
 lean_object* l_Lean_Format_getUnicode___boxed(lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Format_be___main___closed__1;
 lean_object* l_Lean_Format_be___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__14;
 lean_object* l_Lean_Format_unicodeOption___closed__3;
@@ -831,6 +831,14 @@ lean_dec(x_1);
 return x_3;
 }
 }
+lean_object* _init_l_Lean_Format_be___main___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("\n");
+return x_1;
+}
+}
 lean_object* l_Lean_Format_be___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -867,7 +875,7 @@ lean_dec(x_4);
 x_10 = lean_ctor_get(x_5, 0);
 lean_inc(x_10);
 lean_dec(x_5);
-x_11 = l_IO_FS_Handle_putStrLn___rarg___closed__1;
+x_11 = l_Lean_Format_be___main___closed__1;
 x_12 = lean_string_append(x_3, x_11);
 x_13 = 32;
 lean_inc(x_10);
@@ -3497,7 +3505,7 @@ lean_object* l_String_toFormat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_IO_FS_Handle_putStrLn___rarg___closed__1;
+x_2 = l_Lean_Format_be___main___closed__1;
 x_3 = l_String_splitOn(x_1, x_2);
 x_4 = lean_box(1);
 x_5 = l_Lean_Format_joinSep___main___at_String_toFormat___spec__1(x_3, x_4);
@@ -3541,6 +3549,8 @@ l_Lean_Format_spaceUptoLine___main___closed__1 = _init_l_Lean_Format_spaceUptoLi
 lean_mark_persistent(l_Lean_Format_spaceUptoLine___main___closed__1);
 l_Lean_Format_spaceUptoLine___main___closed__2 = _init_l_Lean_Format_spaceUptoLine___main___closed__2();
 lean_mark_persistent(l_Lean_Format_spaceUptoLine___main___closed__2);
+l_Lean_Format_be___main___closed__1 = _init_l_Lean_Format_be___main___closed__1();
+lean_mark_persistent(l_Lean_Format_be___main___closed__1);
 l_Lean_Format_paren___closed__1 = _init_l_Lean_Format_paren___closed__1();
 lean_mark_persistent(l_Lean_Format_paren___closed__1);
 l_Lean_Format_paren___closed__2 = _init_l_Lean_Format_paren___closed__2();

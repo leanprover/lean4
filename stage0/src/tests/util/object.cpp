@@ -147,7 +147,7 @@ obj_res task3_fn(obj_arg val, obj_arg) {
 obj_res mk_task3_fn(obj_arg val) {
     object * c     = alloc_closure(task3_fn, 1);
     closure_set(c, 0, val);
-    return mk_task(c);
+    return task_spawn(c);
 }
 
 obj_res mk_task2(b_obj_arg task1) {
@@ -175,7 +175,7 @@ void tst6_core(object * task1) {
 void tst6() {
     {
         scoped_task_manager m(8);
-        object_ref task1(mk_task(alloc_closure(task1_fn, 0)));
+        object_ref task1(task_spawn(alloc_closure(task1_fn, 0)));
         tst6_core(task1.raw());
     }
     {
@@ -185,14 +185,14 @@ void tst6() {
     }
     {
         scoped_task_manager m(8);
-        object_ref task1(thunk_pure(box(10)));
+        object_ref task1(task_pure(box(10)));
         lean_assert(unbox(task_get(task1.raw())) == 10);
         lean_assert(io_has_finished_core(task1.raw()));
         tst6_core(task1.raw());
     }
     {
         scoped_task_manager m(8);
-        object_ref task1(mk_thunk(alloc_closure(f, 0)));
+        object_ref task1(task_spawn(alloc_closure(f, 0)));
         lean_assert(io_has_finished_core(task1.raw()));
         tst6_core(task1.raw());
     }
@@ -200,7 +200,7 @@ void tst6() {
 
 obj_res task4_fn(obj_arg) {
     show_msg("task 4 started...\n");
-    while (!io_check_interrupt_core()) {
+    while (!io_check_canceled_core()) {
         show_msg("task 4 loop...\n");
         this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -211,11 +211,11 @@ obj_res task4_fn(obj_arg) {
 void tst7() {
     scoped_task_manager m(8);
     std::cout << ">> tst7 started...\n";
-    object_ref task4(mk_task(alloc_closure(task4_fn, 0)));
+    object_ref task4(task_spawn(alloc_closure(task4_fn, 0)));
     std::cout << "task4 has finished: " << io_has_finished_core(task4.raw()) << "\n";
     this_thread::sleep_for(std::chrono::milliseconds(100));
     show_msg("request interrupt...\n");
-    io_request_interrupt_core(task4.raw());
+    io_cancel_core(task4.raw());
     object * r = task_get(task4.raw());
     std::cout << "task4 has finished after get: " << io_has_finished_core(task4.raw()) << "\n";
     std::cout << "r: " << unbox(r) << "\n";
@@ -231,7 +231,7 @@ obj_res task5_fn(obj_arg id, obj_arg) {
 obj_res mk_task5(obj_arg id) {
     object * c = alloc_closure(task5_fn, 1);
     closure_set(c, 0, id);
-    return mk_task(c);
+    return task_spawn(c);
 }
 
 void tst8() {
@@ -250,7 +250,7 @@ void tst8() {
 }
 
 obj_res loop_until_interrupt_fn(obj_arg) {
-    while (!io_check_interrupt_core()) {
+    while (!io_check_canceled_core()) {
         this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     return box(0);
@@ -274,17 +274,17 @@ obj_res mk_cons(b_obj_arg h, obj_arg t) {
 void tst9() {
     scoped_task_manager m(8);
     std::cout << ">> tst9 started...\n";
-    object_ref t1(mk_task(alloc_closure(loop_until_interrupt_fn, 0)));
-    object_ref t2(mk_task(alloc_closure(loop_until_interrupt_fn, 0)));
-    object_ref t3(mk_task(alloc_closure(task6_fn, 0)));
+    object_ref t1(task_spawn(alloc_closure(loop_until_interrupt_fn, 0)));
+    object_ref t2(task_spawn(alloc_closure(loop_until_interrupt_fn, 0)));
+    object_ref t3(task_spawn(alloc_closure(task6_fn, 0)));
     object_ref ts(mk_cons(t1.raw(), mk_cons(t2.raw(), mk_cons(t3.raw(), box(0)))));
     show_msg("invoke wait_any...\n");
     object * t = io_wait_any_core(ts.raw());
     show_msg("wait_any returned...\n");
     object * v = task_get(t);
     lean_assert(unbox(v) == 42);
-    io_request_interrupt_core(t1.raw());
-    io_request_interrupt_core(t2.raw());
+    io_cancel_core(t1.raw());
+    io_cancel_core(t2.raw());
     task_get(t1.raw());
     task_get(t2.raw());
 }
@@ -292,7 +292,7 @@ void tst9() {
 void tst10() {
     scoped_task_manager m(8);
     std::cout << ">> tst10 started...\n";
-    object_ref t1(mk_task(alloc_closure(task6_fn, 0)));
+    object_ref t1(task_spawn(alloc_closure(task6_fn, 0)));
     {
         object_ref t2(mk_task2(t1.raw()));
     }
@@ -305,7 +305,7 @@ void tst11() {
         scoped_task_manager m(2);
         std::vector<object_ref> tasks;
         for (unsigned i = 0; i < 100; i++) {
-            tasks.push_back(object_ref(mk_task(alloc_closure(loop_until_interrupt_fn, 0))));
+            tasks.push_back(object_ref(task_spawn(alloc_closure(loop_until_interrupt_fn, 0))));
         }
         this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -315,7 +315,7 @@ void tst11() {
 static atomic<bool> g_finished;
 
 obj_res loop_until_interrupt_fn2(obj_arg) {
-    while (!io_check_interrupt_core()) {
+    while (!io_check_canceled_core()) {
         this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     g_finished = true;
@@ -328,7 +328,7 @@ void tst12() {
     g_finished = false;
     scoped_task_manager m(8);
     {
-        object_ref t(mk_task(alloc_closure(loop_until_interrupt_fn2, 0)));
+        object_ref t(task_spawn(alloc_closure(loop_until_interrupt_fn2, 0)));
         this_thread::sleep_for(std::chrono::milliseconds(10));
         /* task t must be interrupted automatically */
     }
@@ -352,7 +352,7 @@ obj_res task7_fn(obj_arg val, obj_arg) {
 obj_res mk_task7_fn(obj_arg val) {
     object * c     = alloc_closure(task7_fn, 1);
     closure_set(c, 0, val);
-    return mk_task(c);
+    return task_spawn(c);
 }
 
 obj_res mk_task7(obj_arg t) {
@@ -366,7 +366,7 @@ object * mul2(object * a) {
 void tst13() {
     scoped_task_manager m(8);
     std::cout << "tst13 started ...\n";
-    object * curr = mk_task(alloc_closure(task1_fn, 0));
+    object * curr = task_spawn(alloc_closure(task1_fn, 0));
     std::vector<object *> children;
     for (unsigned i = 0; i < 1000; i++) {
         curr = mk_task7(curr);

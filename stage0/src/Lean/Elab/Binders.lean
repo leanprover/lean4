@@ -435,7 +435,10 @@ else do
     withMacroExpansion stx newStx $ elabTerm newStx expectedType?
   else
     elabFunBinders binders expectedType? $ fun xs expectedType? => do
-      e ← elabTerm body expectedType?;
+      /- We ensure the expectedType here since it will force coercions to be applied if needed.
+         If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
+         and another instance for the dependent version. -/
+      e ← elabTermEnsuringType body expectedType?;
       mkLambdaFVars xs e
 
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.

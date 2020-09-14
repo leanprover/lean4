@@ -71,6 +71,7 @@ lean_object* l_Subtype_Inhabited(lean_object*, lean_object*);
 lean_object* l_Prod_HasSizeof___rarg(lean_object*, lean_object*);
 lean_object* l_Bool_sizeof(uint8_t);
 lean_object* l_Subtype_DecidableEq___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_task_spawn(lean_object*);
 lean_object* l_List_sizeof(lean_object*);
 lean_object* l_Function_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_sizeof(lean_object*, lean_object*);
@@ -266,7 +267,6 @@ lean_object* l_Decidable_recOnTrue___rarg___boxed(lean_object*, lean_object*, le
 lean_object* l_cast(lean_object*, lean_object*, lean_object*);
 lean_object* l_prodHasDecidableLt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_rec(lean_object*, lean_object*, lean_object*);
-lean_object* l_Task_mk___boxed(lean_object*, lean_object*);
 lean_object* l_std_prec_maxPlus;
 lean_object* l_Decidable_decide___rarg___boxed(lean_object*);
 lean_object* l_PSigma_sizeof(lean_object*, lean_object*);
@@ -284,7 +284,6 @@ lean_object* l_Eq_ndrecOn___boxed(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Function_combine(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Fun_Inhabited(lean_object*, lean_object*);
 lean_object* l_Quotient_rec___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_task(lean_object*);
 lean_object* l_Task_pure___boxed(lean_object*, lean_object*);
 uint8_t l_Xor_Decidable___rarg(uint8_t, uint8_t);
 lean_object* l_Not_Decidable___rarg___boxed(lean_object*);
@@ -327,6 +326,7 @@ lean_object* l_decidableOfDecidableOfIff(lean_object*, lean_object*);
 lean_object* l_bit0___rarg(lean_object*, lean_object*);
 lean_object* l_beqOfEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_DecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Task_spawn___boxed(lean_object*, lean_object*);
 lean_object* l_Decidable_recOnTrue___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_std_priority_max;
 lean_object* l_Sum_sizeof(lean_object*, lean_object*);
@@ -575,14 +575,6 @@ x_5 = lean_thunk_bind(x_3, x_4);
 return x_5;
 }
 }
-lean_object* l_Task_mk___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_mk_task(x_2);
-return x_3;
-}
-}
 lean_object* l_Task_pure___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -596,7 +588,14 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_task_get_own(x_2);
-lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_Task_spawn___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_task_spawn(x_2);
 return x_3;
 }
 }

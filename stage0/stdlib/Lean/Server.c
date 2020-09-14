@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Server_mainLoop___main___rarg___closed__1;
+lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Lean_Server_mainLoop___main___rarg___closed__2;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_aux1___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Server_handleNotification___closed__2;
@@ -81,7 +82,6 @@ lean_object* l_Lean_Server_clearDiagnostics___closed__1;
 lean_object* l_Lean_Server_mainLoop___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_handleDidChange___closed__3;
 lean_object* l_Array_umapMAux___main___at_Lean_Server_sendDiagnostics___spec__5(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_FS_Handle_putStrLn___rarg___closed__1;
 lean_object* l_Lean_Server_handleHover___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Server_mkLeanServerCapabilities;
 lean_object* l_Lean_Server_handleNotification___closed__5;
@@ -7130,45 +7130,14 @@ return x_2;
 lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 5);
 lean_inc(x_4);
 lean_dec(x_1);
-lean_inc(x_4);
-x_5 = lean_apply_2(x_4, x_2, x_3);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = l_IO_FS_Handle_putStrLn___rarg___closed__1;
-x_8 = lean_apply_2(x_4, x_7, x_6);
-return x_8;
-}
-else
-{
-uint8_t x_9; 
-lean_dec(x_4);
-x_9 = !lean_is_exclusive(x_5);
-if (x_9 == 0)
-{
-return x_5;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_5, 0);
-x_11 = lean_ctor_get(x_5, 1);
-lean_inc(x_11);
-lean_inc(x_10);
-lean_dec(x_5);
-x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_11);
-return x_12;
-}
-}
+x_5 = 10;
+x_6 = lean_string_push(x_2, x_5);
+x_7 = lean_apply_2(x_4, x_6, x_3);
+return x_7;
 }
 }
 lean_object* l_Lean_Server_Test_runWithInputFile(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

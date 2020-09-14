@@ -19,8 +19,9 @@ registerBuiltinDynamicParserAttribute `tacticParser `tactic
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
 categoryParser `tactic rbp
 
-def Tactic.seq : Parser         := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
-def Tactic.nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
+def Tactic.indentedNonEmptySeq : Parser :=
+nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.seq $ withPosition fun pos =>
+  sepBy1 tacticParser (try ("; " >>  checkColGe pos.column "tatic must be indented"))
 
 def darrow : Parser := " => "
 
@@ -44,6 +45,8 @@ def leadPrec := maxPrec - 1
 
 /- Built-in parsers -/
 
+@[builtinTermParser] def byTactic := parser!:leadPrec "by " >> Tactic.indentedNonEmptySeq
+
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
 @[builtinTermParser] def num : Parser := checkPrec maxPrec >> numLit
@@ -66,11 +69,11 @@ def optIdent : Parser := optional (try (ident >> " : "))
 @[builtinTermParser] def «if»  := parser!:leadPrec "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
 def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
-def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm)
+def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
 @[builtinTermParser] def «have» := parser!:leadPrec "have " >> haveDecl >> "; " >> termParser
 def sufficesDecl := optIdent >> termParser >> fromTerm
 @[builtinTermParser] def «suffices» := parser!:leadPrec "suffices " >> sufficesDecl >> "; " >> termParser
-@[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> fromTerm
+@[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
@@ -84,7 +87,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def inaccessible := parser! ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
-def binderTactic  := parser! try (" := " >> " by ") >> Tactic.nonEmptySeq
+def binderTactic  := parser! try (" := " >> " by ") >> Tactic.indentedNonEmptySeq
 def binderDefault := parser! " := " >> termParser
 def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
@@ -116,7 +119,7 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
   sepBy1 termParser ", " >> darrow >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
-parser! withPosition $ fun pos =>
+parser! withPosition fun pos =>
   (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 
@@ -159,8 +162,8 @@ def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
-def doSeq  := sepBy1 doElem "; "
-def bracketedDoSeq := parser! "{" >> doSeq >> "}"
+def doSeq  := withPosition fun pos => sepBy1 doElem (try ("; " >> checkColGe pos.column "do-elements must be indented"))
+def bracketedDoSeq := parser! "{" >> sepBy1 doElem "; " >> "}"
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> (bracketedDoSeq <|> doSeq)
 
@@ -240,8 +243,6 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def seqLeft     := tparser! infixL " <* "  60
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
-
-@[builtinTermParser] def byTactic    := parser!:maxPrec "by " >> Tactic.nonEmptySeq
 
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
 

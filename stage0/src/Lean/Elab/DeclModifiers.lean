@@ -123,12 +123,18 @@ match visibility with
   checkNotAlreadyDeclared declName;
   pure declName
 
-def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (atomicName : Name) : m Name := do
-let name := (extractMacroScopes atomicName).name;
+def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do
+let name := (extractMacroScopes shortName).name;
 unless (name.isAtomic || isFreshInstanceName name) $
-  throwError ("atomic identifier expected '" ++ atomicName ++ "'");
-let declName := currNamespace ++ atomicName;
-applyVisibility modifiers.visibility declName
+  throwError ("atomic identifier expected '" ++ shortName ++ "'");
+let declName := currNamespace ++ shortName;
+declName ← applyVisibility modifiers.visibility declName;
+match modifiers.visibility with
+| Visibility.protected =>
+  match currNamespace with
+  | Name.str _ s _ => pure (declName, mkNameSimple s ++ shortName)
+  | _ => throwError ("protected declarations must be in a namespace")
+| _ => pure (declName, shortName)
 
 /-
   `declId` is of the form
@@ -167,7 +173,7 @@ levelNames      ←
           pure (id :: levelNames))
       currLevelNames
   };
-declName ← withRef declId $ mkDeclName currNamespace modifiers shortName;
+(declName, shortName) ← withRef declId $ mkDeclName currNamespace modifiers shortName;
 pure { shortName := shortName, declName := declName, levelNames := levelNames }
 
 end Methods

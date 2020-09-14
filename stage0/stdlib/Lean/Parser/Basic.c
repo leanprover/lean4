@@ -619,6 +619,7 @@ lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_many1Indent___spec__2
 lean_object* l_Array_findRevMAux___main___at___private_Lean_Parser_Basic_9__pickNonNone___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Array_foldSepBy___spec__1(lean_object*);
 lean_object* l_Lean_Parser_ParserState_keepNewError___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_stringToParserCoeOld___boxed(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_TokenMap_insert___spec__5___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedErrorAt(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_quotedSymbolKind___closed__2;
@@ -850,6 +851,7 @@ lean_object* l_Lean_Parser_mkAntiquot___closed__2;
 lean_object* l_Lean_Parser_Parser_inhabited___closed__1;
 lean_object* l_Lean_Syntax_getTailInfo___main(lean_object*);
 lean_object* l_Lean_Parser_categoryParserOfStack___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_stringToParserCoeOld(lean_object*);
 lean_object* l_Lean_Parser_identFn(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_decimalNumberFn___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_Parser_Error_toString___spec__1(lean_object*, lean_object*, lean_object*);
@@ -11659,6 +11661,30 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Parser_unquotedSymbol___closed__2;
 return x_1;
+}
+}
+lean_object* l_Lean_Parser_stringToParserCoeOld(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = l_String_trim(x_1);
+lean_inc(x_2);
+x_3 = l_Lean_Parser_symbolInfo(x_2);
+x_4 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
+lean_closure_set(x_4, 0, x_2);
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_Parser_stringToParserCoeOld___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Parser_stringToParserCoeOld(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_Parser_stringToParserCoe(lean_object* x_1) {

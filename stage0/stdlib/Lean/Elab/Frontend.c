@@ -18,6 +18,7 @@ lean_object* lean_run_frontend(lean_object*, lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_ModuleParserState_inhabited___closed__1;
+lean_object* l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_IO_processCommands(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_runFrontend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___rarg___boxed(lean_object*, lean_object*);
@@ -51,7 +52,6 @@ lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_Elab_IO_processCommands___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main(lean_object*);
 lean_object* l_Lean_Elab_Frontend_liftIOCore_x21___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main___boxed(lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux(lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*);
@@ -1529,7 +1529,7 @@ x_11 = lean_ctor_get(x_8, 1);
 lean_inc(x_11);
 lean_dec(x_8);
 x_12 = l___private_Lean_Parser_Module_4__testModuleParserAux___main___closed__1;
-x_13 = l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__6(x_12, x_11, x_9);
+x_13 = l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__testModuleParserAux___main___spec__4(x_12, x_11, x_9);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 

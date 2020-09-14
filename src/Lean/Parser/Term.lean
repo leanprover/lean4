@@ -45,6 +45,8 @@ def leadPrec := maxPrec - 1
 
 /- Built-in parsers -/
 
+@[builtinTermParser] def byTactic := parser!:maxPrec "by " >> Tactic.indentedNonEmptySeq
+
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
 @[builtinTermParser] def num : Parser := checkPrec maxPrec >> numLit
@@ -67,11 +69,11 @@ def optIdent : Parser := optional (try (ident >> " : "))
 @[builtinTermParser] def «if»  := parser!:leadPrec "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
 def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
-def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm)
+def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
 @[builtinTermParser] def «have» := parser!:leadPrec "have " >> haveDecl >> "; " >> termParser
 def sufficesDecl := optIdent >> termParser >> fromTerm
 @[builtinTermParser] def «suffices» := parser!:leadPrec "suffices " >> sufficesDecl >> "; " >> termParser
-@[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> fromTerm
+@[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := parser! structInstLVal >> " := " >> termParser
@@ -241,8 +243,6 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def seqLeft     := tparser! infixL " <* "  60
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
-
-@[builtinTermParser] def byTactic    := parser!:maxPrec "by " >> Tactic.indentedNonEmptySeq
 
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
 

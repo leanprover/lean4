@@ -220,17 +220,24 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
 ctx ← read;
 s   ← get;
 let scope := s.scopes.head!;
-let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := s.messages, nextMacroScope := s.nextMacroScope };
+-- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
+-- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
+let messages         := s.messages;
+let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {}, nextMacroScope := s.nextMacroScope };
 let x : CoreM _      := x.run mkMetaContext {};
 let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
 (((ea, termS), _), coreS) ← liftEIO x;
-modify fun s => { s with env := coreS.env, messages := termS.messages, ngen := coreS.ngen };
+modify fun s => { s with env := coreS.env, messages := messages ++ termS.messages, ngen := coreS.ngen };
 match ea with
 | Except.ok a     => pure a
 | Except.error ex => throw ex
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
-s ← get; liftTermElabM declName? (Term.elabBinders (getVarDecls s) elabFn)
+s ← get;
+liftTermElabM declName?
+  -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
+  -- So, we use `Term.resetMessageLog`.
+  (Term.elabBinders (getVarDecls s) (fun xs => do Term.resetMessageLog; elabFn xs))
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x

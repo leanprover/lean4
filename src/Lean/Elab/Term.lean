@@ -169,6 +169,9 @@ set s.core; set s.meta; set s.elab
 abbrev TermElabResult := EStateM.Result Exception SavedState Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
+def resetMessageLog : TermElabM Unit := do
+modify fun s => { s with messages := {} }
+
 /--
   Execute `x`, save resulting expression and new state.
   If `x` fails, then it also stores exception and new state.

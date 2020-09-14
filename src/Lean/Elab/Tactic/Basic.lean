@@ -398,7 +398,7 @@ match g? with
 
 @[builtinTactic «case»] def evalCase : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| case $tag $tac) => do
+  | `(tactic| case $tag => $tac:tacticSeq) => do
      let tag := tag.getId;
      gs ← getUnsolvedGoals;
      some g ← findTag? gs tag | throwError "tag not found";

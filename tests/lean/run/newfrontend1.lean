@@ -103,8 +103,8 @@ theorem simple8 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intro h1; intro _; intro h3;
   refine! Eq.trans ?pre ?post;
-  case post { exact h1 };
-  case pre { exact h3 };
+  case post => exact h1;
+  case pre => exact h3;
 }
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z :=
@@ -159,7 +159,7 @@ by {
   intros h1 h2 h3;
   traceState;
   apply @Eq.trans;
-  case main.b exact y;
+  case main.b => exact y;
   traceState;
   repeat assumption
 }
@@ -168,7 +168,7 @@ theorem simple14 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intros;
   apply @Eq.trans;
-  case main.b exact y;
+  case main.b => exact y;
   repeat assumption
 }
 

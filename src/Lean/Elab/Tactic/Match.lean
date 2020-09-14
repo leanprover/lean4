@@ -20,19 +20,19 @@ let matchAlts := matchTac.getArg 4;
 let alts      := (matchAlts.getArg 1).getArgs;
 newAlts ← alts.mapSepElemsM fun alt => do {
   let alt    := alt.updateKind `Lean.Parser.Term.matchAlt;
-  let holeOrTactic := alt.getArg 2;
-  if holeOrTactic.isOfKind `Lean.Parser.Term.syntheticHole then
+  let holeOrTacticSeq := alt.getArg 2;
+  if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
     pure alt
-  else if holeOrTactic.isOfKind `Lean.Parser.Term.hole then do
+  else if holeOrTacticSeq.isOfKind `Lean.Parser.Term.hole then do
     s ← get;
-    let holeName := mkIdentFrom holeOrTactic (parentTag ++ (`match).appendIndexAfter s.nextIdx);
+    let holeName := mkIdentFrom holeOrTacticSeq (parentTag ++ (`match).appendIndexAfter s.nextIdx);
     newHole ← `(?$holeName:ident);
     modify fun s => { s with nextIdx := s.nextIdx + 1};
     pure $ alt.setArg 2 newHole
   else withFreshMacroScope do
     newHole ← `(?rhs);
     let newHoleId := newHole.getArg 1;
-    newCase ← `(tactic| case $newHoleId $holeOrTactic);
+    newCase ← `(tactic| case $newHoleId => $holeOrTacticSeq:tacticSeq );
     modify fun s => { s with cases := s.cases.push newCase };
     pure $ alt.setArg 2 newHole
 };

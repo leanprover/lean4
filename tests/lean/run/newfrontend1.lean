@@ -108,12 +108,10 @@ by {
 }
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-by {
-  intros h1 _ h3;
-  traceState;
-  { refine! Eq.trans ?pre ?post;
-    (exact h1) <|> (exact y; exact h3; assumption) }
-}
+by intros h1 _ h3;
+   traceState;
+   { refine! Eq.trans ?pre ?post;
+   (exact h1) <|> (exact y; exact h3; assumption) }
 
 namespace Foo
   def Prod.mk := 1
@@ -337,3 +335,17 @@ macro_rules
 
 def tst4 : {α : Type} → {β : Type} → α → β → α × β :=
 function α β a b => (a, b)
+
+theorem simple20 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+by intros h1 h2 h3;
+   try (clear x); -- should fail
+   clear h2;
+   traceState;
+   apply Eq.trans;
+   exact h3;
+   exact h1
+
+theorem simple21 (x y z : Nat) : y = z → x = x → y = x → x = z :=
+fun h1 _ h3 =>
+  have x = y from by apply Eq.symm; assumption;
+  Eq.trans this (by assumption)

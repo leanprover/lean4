@@ -19,8 +19,9 @@ registerBuiltinDynamicParserAttribute `tacticParser `tactic
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
 categoryParser `tactic rbp
 
-def Tactic.seq : Parser         := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
-def Tactic.nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
+def Tactic.indentedNonEmptySeq : Parser :=
+node `Lean.Parser.Tactic.seq $ withPosition fun pos =>
+  sepBy1 tacticParser (try ("; " >>  checkColGe pos.column "tatic must be indented"))
 
 def darrow : Parser := " => "
 
@@ -84,7 +85,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def inaccessible := parser! ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
-def binderTactic  := parser! try (" := " >> " by ") >> Tactic.nonEmptySeq
+def binderTactic  := parser! try (" := " >> " by ") >> Tactic.indentedNonEmptySeq
 def binderDefault := parser! " := " >> termParser
 def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
@@ -116,7 +117,7 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
   sepBy1 termParser ", " >> darrow >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
-parser! withPosition $ fun pos =>
+parser! withPosition fun pos =>
   (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 
@@ -159,7 +160,7 @@ def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
-def doSeq  := withPosition $ fun pos => sepBy1 doElem (try ("; " >> checkColGe pos.column "do-elements must be indented"))
+def doSeq  := withPosition fun pos => sepBy1 doElem (try ("; " >> checkColGe pos.column "do-elements must be indented"))
 def bracketedDoSeq := parser! "{" >> sepBy1 doElem "; " >> "}"
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> (bracketedDoSeq <|> doSeq)
@@ -241,7 +242,7 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
 @[builtinTermParser] def map         := tparser! infixR " <$> " 100
 
-@[builtinTermParser] def byTactic    := parser!:maxPrec "by " >> Tactic.nonEmptySeq
+@[builtinTermParser] def byTactic    := parser!:maxPrec "by " >> Tactic.indentedNonEmptySeq
 
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
 

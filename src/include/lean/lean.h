@@ -205,7 +205,7 @@ typedef struct {
 struct lean_task;
 
 /* Data required for executing a Lean task. It is released as soon as
-   the task terminates. */
+   the task terminates even if the task object itself is still referenced. */
 typedef struct {
     lean_object *        m_closure;
     struct lean_task *   m_head_dep;
@@ -223,6 +223,66 @@ typedef struct {
     uint8_t              m_deleted;
 } lean_task_imp;
 
+/* Object of type `Task _`. The lifetime of a `lean_task` object can be represented as a state machine with atomic
+   state transitions.
+
+   In the following, `condition` describes a predicate uniquely identifying a state.
+
+   creation:
+   * Task.spawn ==> Queued
+   * Task.map/bind ==> Waiting
+   * Task.pure ==> Finished
+
+   states:
+   * Queued
+     * condition: in task_manager::m_queues && m_imp != nullptr && !m_imp->m_deleted
+     * invariant: m_value == nullptr
+     * transition: RC becomes 0 && !m_imp->m_keep_alive ==> Deactivated (`deactivate_task` lock)
+     * transition: dequeued by worker thread            ==> Running     (`spawn_worker` lock)
+   * Waiting
+     * condition: reachable from task via `m_head_dep->m_next_dep->...` && !m_imp->m_deleted
+     * invariant: m_imp != nullptr && m_value == nullptr
+     * invariant: task dependency is Queued/Waiting/Running
+       * It cannot become Deactivated because this task should be holding an owned reference to it
+     * transition: RC becomes 0 && !m_imp->m_keep_alive ==> Deactivated (`deactivate_task` lock)
+     * transition: task dependency Finished ==> Queued (`handle_finished` under `spawn_worker` lock)
+   * Running
+     * condition: m_imp != nullptr && m_imp->m_closure == nullptr
+       * The worker takes ownership of the closure when running it
+     * invariant: m_value == nullptr
+     * transition: RC becomes 0 && !m_imp->m_keep_alive ==> Deactivated (`deactivate_task` lock)
+     * transition: finished execution                   ==> Finished    (`spawn_worker` lock)
+   * Deactivated
+     * condition: m_imp != nullptr && m_imp->m_deleted
+     * invariant: RC == 0 && !m_imp->m_keep_alive
+     * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr (both freed by `deactivate_task_core`)
+       * Note that all dependent tasks must have already been Deactivated by the converse of the second Waiting invariant
+     * invariant: m_value == nullptr
+     * transition: dequeued by worker thread   ==> freed
+     * transition: finished execution          ==> freed
+     * transition: task dependency Finished    ==> freed
+     * We must keep the task object alive until one of these transitions because in either case, we have live
+       (internal, unowned) references to the task up to that point
+     * transition: task dependency Deactivated ==> freed
+   * Finished
+     * condition: m_value != nullptr
+     * invariant: m_imp == nullptr
+     * transition: RC becomes 0 ==> freed (`deactivate_task` lock)
+
+   Queued/Waiting/Running tasks can also enter the following sub-state, which is used in place of Deactivated to make
+   sure that IO tasks are always executed even when no live references to them exist. All transitions of the super-state
+   still hold (i.e. a waiting kept-alive task is still enqueued, then run, and finally freed).
+   * Queued/Waiting/Running
+     * transition: RC becomes 0 && m_imp->m_keep_alive ==> KeptAlive (`deactivate_task` lock)
+   * KeptAlive
+     * condition: m_imp != nullptr && m_imp->m_kept_alive
+     * invariant: RC == 0 && m_imp->m_keep_alive
+     * invariant: m_imp->canceled
+       * This is the reason we cannot simply keep the task alive by holding an extra RC token: we want it canceled when
+         the RC becomes 0!
+     * invariant: m_value == nullptr
+     * transition: finished execution ==> freed
+       * actually implemented as two transitions "... ==> Deactivated ==> freed" */
 typedef struct lean_task {
     lean_object            m_header;
     _Atomic(lean_object *) m_value;

@@ -52,11 +52,10 @@ def tst3 : MetaM Unit :=
 do print "----- tst3 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
-   lambdaTelescope t $ fun xs _ => do {
+   lambdaTelescope t fun xs _ => do
      let x := xs.get! 0;
      check $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
-     pure ()
-   };
+     pure ();
    v ← getAssignment mvar;
    print v;
    pure ()
@@ -66,7 +65,7 @@ do print "----- tst3 -----";
 def tst4 : MetaM Unit :=
 do print "----- tst4 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
-   lambdaTelescope t $ fun xs _ => do {
+   lambdaTelescope t fun xs _ => do
      let x := xs.get! 0;
      mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
      -- the following `isExprDefEq` fails because `x` is also in the context of `mvar`
@@ -74,8 +73,7 @@ do print "----- tst4 -----";
      check $ approxDefEq $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
      v ← getAssignment mvar;
      print v;
-     pure ()
-   };
+     pure ();
    pure ()
 
 #eval tst4
@@ -199,7 +197,7 @@ do print "----- tst11 -----";
    check $ isType (mkArrow nat nat);
    check $ not <$> isType add;
    check $ not <$> isType (mkNatLit 1);
-   withLocalDeclD `x nat $ fun x => do {
+   withLocalDeclD `x nat fun x => do
      check $ not <$> isType x;
      check $ not <$> (mkLambdaFVars #[x] x >>= isType);
      check $ not <$> (mkLambdaFVars #[x] nat >>= isType);
@@ -207,15 +205,14 @@ do print "----- tst11 -----";
      (t, _) ← mkForallUsedOnly #[x] t;
      print t;
      check $ isType t;
-     pure ()
-   };
+     pure ();
    pure ()
 
 #eval tst11
 
 def tst12 : MetaM Unit :=
 do print "----- tst12 -----";
-   withLocalDeclD `x nat $ fun x => do {
+   withLocalDeclD `x nat $ fun x => do
      t ← mkEqRefl x >>= mkLambdaFVars #[x];
      print t;
      type ← inferType t;
@@ -223,8 +220,7 @@ do print "----- tst12 -----";
      isProofQuick t >>= fun b => print (toString b);
      isProofQuick nat >>= fun b => print (toString b);
      isProofQuick type >>= fun b => print (toString b);
-     pure ()
-   };
+     pure ();
    pure ()
 
 #eval tst12

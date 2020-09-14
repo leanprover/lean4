@@ -159,8 +159,8 @@ def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
-def doSeq  := sepBy1 doElem "; "
-def bracketedDoSeq := parser! "{" >> doSeq >> "}"
+def doSeq  := withPosition $ fun pos => sepBy1 doElem (try ("; " >> checkColGe pos.column "do-elements must be indented"))
+def bracketedDoSeq := parser! "{" >> sepBy1 doElem "; " >> "}"
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> (bracketedDoSeq <|> doSeq)
 

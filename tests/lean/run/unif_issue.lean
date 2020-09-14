@@ -3,8 +3,8 @@ new_frontend
 open Lean
 
 #eval toString $
-  Unhygienic.run $
-    do a ← `(Nat.one);
+  Unhygienic.run do
+    a ← `(Nat.one);
     let rhs_0 : _ := fun (a : Lean.Syntax) (b : Lean.Syntax) => pure Syntax.missing;
     let rhs_1 : _ := fun (_a : _) => pure Lean.Syntax.missing;
     let discr_2 : _ := a;
@@ -22,8 +22,8 @@ open Lean
 #check (let rhs := fun a => pure a; rhs 0 : Id Nat)
 
 #check toString $
-  Unhygienic.run $
-    do a ← `(Nat.one);
+  Unhygienic.run do
+    a ← `(Nat.one);
     let rhs_0 : _ := fun (a : Lean.Syntax) (b : Lean.Syntax) => pure Syntax.missing;
     let rhs_1 : _ := fun (_a : _) => pure Lean.Syntax.missing;
     let discr_2 : _ := a;

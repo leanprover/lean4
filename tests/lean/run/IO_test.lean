@@ -17,17 +17,17 @@ unless (expected == actual) $ throw $ IO.userError $
 def test : IO Unit := do
 let xs : ByteArray := ⟨#[1,2,3,4]⟩;
 let fn := "foo.txt";
-withFile fn Mode.write $ fun h => do
-{ h.write xs;
+withFile fn Mode.write fun h => do
   h.write xs;
-  pure () };
+  h.write xs;
+  pure ();
 ys ← withFile "foo.txt" Mode.read $ fun h => h.read 10;
 check_eq "1" (xs.toList ++ xs.toList) ys.toList;
-withFile fn Mode.append $ fun h => do
-{ h.write ⟨#[5,6,7,8]⟩;
-  pure () };
-withFile "foo.txt" Mode.read $ fun h => do
-  { ys ← h.read 10;
+withFile fn Mode.append fun h => do
+  h.write ⟨#[5,6,7,8]⟩;
+  pure ();
+withFile "foo.txt" Mode.read fun h => do
+    ys ← h.read 10;
     check_eq "2" [1,2,3,4,1,2,3,4,5,6] ys.toList;
     ys ← h.read 2;
     check_eq "3" [7,8] ys.toList;
@@ -38,7 +38,7 @@ withFile "foo.txt" Mode.read $ fun h => do
     check_eq "5" [] ys.toList;
     b ← h.isEof;
     unless b
-      (throw $ IO.userError $ "wrong (6): ") };
+      (throw $ IO.userError $ "wrong (6): ");
 pure ()
 
 #eval test

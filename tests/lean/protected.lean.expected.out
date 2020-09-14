@@ -1,9 +1,9 @@
 protected.lean:10:7: error: unknown identifier 'x'
-(sorryAx ?m.23) : ?m.23
+(sorryAx ?m) : ?m
 Foo.x : Nat
 Bla.Foo.y : Nat
 protected.lean:22:7: error: unknown identifier 'y'
-(sorryAx ?m.67) : ?m.67
+(sorryAx ?m) : ?m
 Bla.Foo.z : Nat
 protected.lean:25:14: error: protected declarations must be in a namespace
 protected.lean:28:14: error: unknown identifier 'f'
@@ -26,11 +26,11 @@ while expanding
   if x > 0 then g (x-1) * 2 else 1 
 protected.lean:47:6: error: unknown identifier 'g'
 protected.lean:47:0: error: application type mismatch
-  Lean.runEval (sorryAx ?m.781)
+  Lean.runEval (sorryAx ?m)
 argument
-  (sorryAx ?m.781)
+  (sorryAx ?m)
 has type
-  ?m.781
+  ?m
 but is expected to have type
-  ?m.783
+  ?m
 8

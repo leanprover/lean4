@@ -38,19 +38,19 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «exact»      := parser! nonReservedSymbol "exact " >> termParser
 @[builtinTacticParser] def «refine»     := parser! nonReservedSymbol "refine " >> termParser
 @[builtinTacticParser] def «refine!»    := parser! nonReservedSymbol "refine! " >> termParser
-@[builtinTacticParser] def «case»       := parser! nonReservedSymbol "case " >> ident >> tacticParser
-@[builtinTacticParser] def «allGoals»   := parser! nonReservedSymbol "allGoals " >> tacticParser
+@[builtinTacticParser] def «case»       := parser! nonReservedSymbol "case " >> ident >> darrow >> indentedNonEmptySeq
+@[builtinTacticParser] def «allGoals»   := parser! nonReservedSymbol "allGoals " >> indentedNonEmptySeq
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
-@[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticParser
+@[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> indentedNonEmptySeq
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
 def location : Parser := "at " >> ("*" <|> (many ident >> optional (unicodeSymbol "⊢" "|-")))
 @[builtinTacticParser] def change     := parser! nonReservedSymbol "change " >> termParser >> optional location
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
 
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
-def holeOrTactic := Term.hole <|> Term.syntheticHole <|> tacticParser
-def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> holeOrTactic
+def altRHS := Term.hole <|> Term.syntheticHole <|> indentedNonEmptySeq
+def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> altRHS
 def inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 def withAlts : Parser := optional (" with " >> inductionAlts)
 def usingRec : Parser := optional (" using " >> ident)
@@ -59,7 +59,7 @@ def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
 def withIds : Parser := optional (" with " >> many1 ident')
 
-def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> holeOrTactic
+def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> altRHS
 def matchAlts : Parser := group $ withPosition $ fun pos => (optional "| ") >> sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts

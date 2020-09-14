@@ -5,3 +5,32 @@ Bla.Foo.y : Nat
 protected.lean:22:7: error: unknown identifier 'y'
 (sorryAx ?m.67) : ?m.67
 Bla.Foo.z : Nat
+protected.lean:25:14: error: protected declarations must be in a namespace
+protected.lean:28:14: error: unknown identifier 'f'
+with resulting expansion
+  HasMul.mul._@._internal._hyg.0 f (x-1) 2 
+while expanding
+  f (x-1) * 2 
+while expanding
+  if x > 0 then f (x-1) * 2 else 1 
+while expanding
+  protected partial def Foo.f (x : Nat) :=
+  if x > 0 then f (x-1) * 2 else 1 
+8
+protected.lean:38:14: error: unknown identifier 'g'
+with resulting expansion
+  HasMul.mul._@._internal._hyg.0 g (x-1) 2 
+while expanding
+  g (x-1) * 2 
+while expanding
+  if x > 0 then g (x-1) * 2 else 1 
+protected.lean:47:6: error: unknown identifier 'g'
+protected.lean:47:0: error: application type mismatch
+  Lean.runEval (sorryAx ?m.781)
+argument
+  (sorryAx ?m.781)
+has type
+  ?m.781
+but is expected to have type
+  ?m.783
+8

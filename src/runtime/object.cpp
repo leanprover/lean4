@@ -807,11 +807,16 @@ public:
     }
 
     ~task_manager() {
-        {
-            unique_lock<mutex> lock(m_mutex);
-            m_shutting_down = true;
+        unique_lock<mutex> lock(m_mutex);
+        for (worker_info * info : m_workers) {
+            if (info->m_task) {
+                lean_assert(info->m_task->m_imp);
+                info->m_task->m_imp->m_canceled = true;
+            }
         }
+        m_shutting_down = true;
         m_queue_cv.notify_all();
+        lock.unlock();
         for (worker_info * w : m_workers) {
             w->m_thread->join();
             delete w;

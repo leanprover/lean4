@@ -71,3 +71,7 @@ inductive MyEq {α : Type} (a : α) : α → Prop
 | refl : MyEq a a
 
 #check @MyEq.refl
+
+inductive ListLast {α : Type u} : List α → Type u
+| empty    : ListLast []
+| nonEmpty : (as : List α) → (a : α) → ListLast (as ++ [a])

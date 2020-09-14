@@ -25,12 +25,17 @@ function compile_lean {
     leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
 }
 
+function exec_capture {
+    # mvar suffixes like in `?m.123` are deterministic but prone to change on minor changes, so strip them
+    "$@" 2>&1 | sed -E 's/(\?\w)\.[0-9]+/\1/g' > "$f.produced.out"
+}
+
 # Remark: `${var+x}` is a parameter expansion which evaluates to nothing if `var` is unset, and substitutes the string `x` otherwise.
 function exec_check {
     ret=0
     [ -n "${expected_ret+x}" ] || expected_ret=0
     [ -f "$f.expected.ret" ] && expected_ret=$(< "$f.expected.ret")
-    "$@" > "$f.produced.out" 2>&1 || ret=$?
+    exec_capture "$@" || ret=$?
     if [ -n "$expected_ret" ] && [ $ret -ne $expected_ret ]; then
         echo "Unexpected return code $ret executing '$@'; expected $expected_ret. Output:"
         cat "$f.produced.out"

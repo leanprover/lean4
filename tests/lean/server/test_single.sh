@@ -2,5 +2,5 @@
 source ../../common.sh
 
 # these tests don't have to succeed
-lean "$f" > "$f.produced.out" 2>&1 || true
+exec_capture lean "$f" || true
 diff_produced

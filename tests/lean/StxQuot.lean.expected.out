@@ -32,8 +32,8 @@ with resulting expansion
 while expanding
   run $ do a ← `(match a with | a => 1 | _ => 2); match_syntax a with `(match $e with $eqns*) => pure eqns | _ => pure #[] 
 StxQuot.lean:40:6: error: failed to create type class instance for 
-  HasToString ?m.9733
+  HasToString ?m
 StxQuot.lean:40:6: error: don't know how to synthesize placeholder
-  @Lean.run ?m.9733 ?m.9734 …
+  @Lean.run ?m ?m …
 context:
 ⊢ Type

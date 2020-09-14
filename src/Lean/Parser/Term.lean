@@ -20,7 +20,7 @@ registerBuiltinDynamicParserAttribute `tacticParser `tactic
 categoryParser `tactic rbp
 
 def Tactic.indentedNonEmptySeq : Parser :=
-node `Lean.Parser.Tactic.seq $ withPosition fun pos =>
+nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.seq $ withPosition fun pos =>
   sepBy1 tacticParser (try ("; " >>  checkColGe pos.column "tatic must be indented"))
 
 def darrow : Parser := " => "

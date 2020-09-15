@@ -16,6 +16,6 @@ expected type
   VecPred P tail
 [false, true, true]
 match1.lean:113:0: error: dependent match elimination failed, inaccessible pattern found 
-  .(j+j)
+  .(j + j)
 constructor expected
 [false, true, true]

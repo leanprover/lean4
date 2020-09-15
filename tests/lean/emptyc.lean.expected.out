@@ -1,4 +1,4 @@
 emptyc.lean:19:0: error: ambiguous, possible interpretations 
-  {x := 0}
+  { x := 0 }
   
-  ∅
+  HasEmptyc.emptyc

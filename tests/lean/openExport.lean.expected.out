@@ -1,15 +1,15 @@
-A.x : Nat
-B.y : Nat
-A.x : Nat
-A.x : Nat
+x : Nat
+y : Nat
+B.x : Nat
+B.x : Nat
 B.y : Nat
 openExport.lean:19:7: error: unknown identifier 'x'
-(sorryAx ?m) : ?m
+sorryAx ?m : ?m
 openExport.lean:20:7: error: unknown identifier 'y'
-(sorryAx ?m) : ?m
-A.x : Nat
-B.y : Nat
-A.x : Nat
-B.y : Nat
-B.z : Nat
-B.z : Nat
+sorryAx ?m : ?m
+x : Nat
+y : Nat
+x : Nat
+y : Nat
+z : Nat
+z : Nat

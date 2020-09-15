@@ -1,33 +1,33 @@
 shadow.lean:6:0: error: type mismatch
   h
 has type
-  x✝¹=x✝¹
+  x✝¹ = x✝¹
 but it is expected to have type
-  x=x
+  x = x
 failed to synthesize instance
-  CoeT (x✝¹=x✝¹) _ (x=x)
+  CoeT (x✝¹ = x✝¹) h (x = x)
 shadow.lean:10:0: error: type mismatch
   h
 has type
-  x=x
+  x = x
 but it is expected to have type
-  x=x
+  x = x
 failed to synthesize instance
-  CoeT (x=x) _ (x=x)
+  CoeT (x = x) h (x = x)
 shadow.lean:13:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
 inst✝² : Inhabited α
 inst✝¹ inst : α
 β✝¹ δ✝¹ : Type
-⊢ α → β✝¹ → δ✝¹ → α×β✝¹×δ✝¹
+⊢ α → β✝¹ → δ✝¹ → α × β✝¹ × δ✝¹
 shadow.lean:17:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
 inst.16 : Inhabited α
 inst inst : α
 β.41 δ.42 : Type
-⊢ α → β.41 → δ.42 → α×β.41×δ.42
+⊢ α → β._@.shadow._hyg.41 → δ._@.shadow._hyg.42 → α × β._@.shadow._hyg.41 × δ._@.shadow._hyg.42
 shadow.lean:20:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
@@ -37,4 +37,4 @@ b : β
 inst : α
 inst✝¹ : Inhabited α
 β✝¹ δ✝¹ : Type
-⊢ α → β✝¹ → δ✝¹ → α×β✝¹×δ✝¹
+⊢ α → β✝¹ → δ✝¹ → α × β✝¹ × δ✝¹

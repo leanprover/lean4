@@ -2,10 +2,10 @@ Sum.someRight c : Option Nat
 evalWithMVar.lean:13:6: error: don't know how to synthesize placeholder
   @Sum.someRight ?m … …
 context:
-⊢ Type ?
+⊢ Type _
 evalWithMVar.lean:13:20: error: don't know how to synthesize placeholder
   @c ?m
 context:
-⊢ Type ?
+⊢ Type _
 Sum.someRight c : Option Nat
 Sum.someRight c : Option Nat

@@ -6,11 +6,3 @@ but it is expected to have type
   α
 failed to synthesize instance
   CoeT False _ α
-with resulting expansion
-  match xs ,  Eq.refl  _  ,   (  x  :  _  )  → xs  =  x  →  _ with
-  | []   , he=> h he
-  | x::_ , he=> x 
-while expanding
-  match he:xs with
-  | []   => h he
-  | x::_ => x 

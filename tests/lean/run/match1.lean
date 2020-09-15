@@ -115,6 +115,15 @@ def Bla.optional? : Bla → Option Nat
 | ofBool _ => none
 
 def Bla.isNat? (b : Bla) : Option { x : Nat // optional? b = some x } :=
-match h:b.optional? with
-| some x => some ⟨x, h⟩  -- here `h` is a proof for `b.optional?=some x`
-| none   => none         -- here `h` is a proof for `b.optional?=none`
+match b.optional? with
+| some y => some ⟨y, rfl⟩
+| none   => none
+
+def foo (b : Bla) : Option Nat := b.optional?
+theorem fooEq (b : Bla) : foo b = b.optional? :=
+rfl
+
+def Bla.isNat2? (b : Bla) : Option { x : Nat // optional? b = some x } :=
+match h:foo b with
+| some y => some ⟨y, Eq.trans (fooEq b).symm h⟩
+| none   => none

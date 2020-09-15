@@ -71,11 +71,11 @@ axiom backEq {α} [Inhabited α] : (xs : List α) → (x : α) → back (xs ++ [
 axiom popBackEq {α} : (xs : List α) → (x : α) → popBack (xs ++ [x]) = xs
 
 theorem tst8 {α} [Inhabited α] (xs : List α) : xs ≠ [] → xs = popBack xs ++ [back xs] :=
-match xs, last xs with
+match xs, h:last xs with
 | _, ListLast.empty         => fun h => absurd rfl h
 | _, ListLast.nonEmpty ys y => fun _ => sorry
 
 theorem tst9 {α} [Inhabited α] (xs : List α) : xs ≠ [] → xs = popBack xs ++ [back xs] := by
-match xs, last xs with
+match xs, h:last xs with
 | _, ListLast.empty         => intro h; exact absurd rfl h
 | _, ListLast.nonEmpty ys y => intro; exact  sorry

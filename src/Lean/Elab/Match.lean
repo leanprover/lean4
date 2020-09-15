@@ -51,7 +51,7 @@ withMacroExpansion stx newStx $ elabTerm newStx expectedType?
 private partial def elabDiscrsWitMatchTypeAux (discrStxs : Array Syntax) (expectedType : Expr) : Nat → Expr → Array Expr → TermElabM (Array Expr)
 | i, matchType, discrs =>
   if h : i < discrStxs.size then do
-    let discrStx := discrStxs.get ⟨i, h⟩;
+    let discrStx := (discrStxs.get ⟨i, h⟩).getArg 1;
     matchType ← whnf matchType;
     match matchType with
     | Expr.forallE _ d b _ => do
@@ -72,25 +72,41 @@ match e with
 | Expr.fvar fvarId _ => do localDecl ← getLocalDecl fvarId; pure localDecl.userName
 | _ => mkFreshUserName
 
-private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (expectedType : Expr) : TermElabM (Array Expr × Expr) :=
+private def elabMatchTypeAndDiscrsAux (discrStxs : Array Syntax) : Nat → Array Expr → Expr → Array MatchAltView → TermElabM (Array Expr × Expr × Array MatchAltView)
+| 0,   discrs, matchType, matchAltViews => pure (discrs.reverse, matchType, matchAltViews)
+| i+1, discrs, matchType, matchAltViews => do
+  let discrStx := discrStxs.get! i;
+  discr ← elabTerm (discrStx.getArg 1) none;
+  discr ← instantiateMVars discr;
+  discrType ← inferType discr;
+  discrType ← instantiateMVars discrType;
+  matchTypeBody ← kabstract matchType discr;
+  userName ← mkUserNameFor discr;
+  if (discrStx.getArg 0).isNone then do
+    elabMatchTypeAndDiscrsAux i (discrs.push discr) (Lean.mkForall userName BinderInfo.default discrType matchTypeBody) matchAltViews
+  else
+    let identStx := (discrStx.getArg 0).getArg 0;
+    withLocalDeclD userName discrType fun x => do
+    eqType ← mkEq discr x;
+    withLocalDeclD identStx.getId eqType fun h => do
+    let matchTypeBody := matchTypeBody.instantiate1 x;
+    matchType ← mkForallFVars #[x, h] matchTypeBody;
+    refl ← mkEqRefl discr;
+    let discrs := (discrs.push refl).push discr;
+    let matchAltViews := matchAltViews.map fun altView =>
+      { altView with patterns := altView.patterns.insertAt (i+1) identStx };
+    elabMatchTypeAndDiscrsAux i discrs matchType matchAltViews
+
+private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
+    : TermElabM (Array Expr × Expr × Array MatchAltView) :=
 let numDiscrs := discrStxs.size;
 if matchOptType.isNone then do
-  discrs ← discrStxs.mapM fun discrStx => elabTerm discrStx none;
-  matchType ← discrs.foldrM
-    (fun (discr : Expr) (matchType : Expr) => do
-      discr ← instantiateMVars discr;
-      discrType ← inferType discr;
-      discrType ← instantiateMVars discrType;
-      matchTypeBody ← kabstract matchType discr;
-      userName ← mkUserNameFor discr;
-      pure $ Lean.mkForall userName BinderInfo.default discrType matchTypeBody)
-    expectedType;
-  pure (discrs, matchType)
+  elabMatchTypeAndDiscrsAux discrStxs discrStxs.size #[] expectedType matchAltViews
 else do
   let matchTypeStx := (matchOptType.getArg 0).getArg 1;
   matchType ← elabType matchTypeStx;
   discrs ← elabDiscrsWitMatchType discrStxs matchType expectedType;
-  pure (discrs, matchType)
+  pure (discrs, matchType, matchAltViews)
 
 /-
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ sepBy1 termParser ", " >> darrow >> termParser
@@ -699,7 +715,7 @@ unless result.unusedAltIdxs.isEmpty $
 
 private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
-(discrs, matchType) ← elabMatchTypeAndDiscrs discrStxs matchOptType expectedType;
+(discrs, matchType, altViews) ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType;
 matchAlts ← expandMacrosInPatterns altViews;
 trace `Elab.match fun _ => "matchType: " ++ matchType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
@@ -731,102 +747,10 @@ Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expa
 -/
 private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType ← waitExpectedType expectedType?;
-let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d.getArg 1;
+let discrStxs := (stx.getArg 1).getArgs.getSepElems.map fun d => d;
 let altViews  := getMatchAlts stx;
 let matchOptType := stx.getArg 2;
 elabMatchAux discrStxs altViews matchOptType expectedType
-
-/- Auxiliary method for `expandMatchDiscr?` -/
-private partial def mkMatchType (discrs : Array Syntax) : Nat → MacroM Syntax
-| i => withFreshMacroScope $
-  if h : i < discrs.size then
-    let discr := discrs.get ⟨i, h⟩;
-    if discr.isOfKind `Lean.Parser.Term.matchDiscr then do
-      type ← mkMatchType (i+1);
-      if (discr.getArg 0).isNone then
-        `(_ → $type)
-      else
-        let t := discr.getArg 1;
-        `((x : _) → $t = x → $type)
-    else
-      mkMatchType (i+1)
-  else
-    `(_)
-
-private def mkOptType (typeStx : Syntax) : Syntax :=
-mkNullNode #[mkNode `Lean.Parser.Term.typeSpec #[mkAtomFrom typeStx ", ", typeStx]]
-
-/- Auxiliary method for `expandMatchDiscr?` -/
-private partial def mkNewDiscrs (discrs : Array Syntax) : Nat → Array Syntax → MacroM (Array Syntax)
-| i, newDiscrs =>
-  if h : i < discrs.size then
-    let discr := discrs.get ⟨i, h⟩;
-    if discr.isOfKind `Lean.Parser.Term.matchDiscr then do
-      if (discr.getArg 0).isNone then
-        mkNewDiscrs (i+1) (newDiscrs.push discr)
-      else do
-        let newDiscrs := newDiscrs.push $ discr.setArg 0 mkNullNode;
-        let newDiscrs := newDiscrs.push $ mkAtomFrom discr ", ";
-        eqPrf ← `(Eq.refl _);
-        let newDiscrs := newDiscrs.push $ mkNode `Lean.Parser.Term.matchDiscr #[mkNullNode, eqPrf];
-        mkNewDiscrs (i+1) newDiscrs
-    else
-      mkNewDiscrs (i+1) (newDiscrs.push discr)
-  else
-    pure newDiscrs
-
-/- Auxiliary method for `expandMatchDiscr?` -/
-private partial def mkNewPatterns (ref : Syntax) (discrs patterns : Array Syntax) : Nat → Array Syntax → MacroM (Array Syntax)
-| i, newPatterns =>
-  if h : i < discrs.size then
-    let discr := discrs.get ⟨i, h⟩;
-    if h : i < patterns.size then
-      let pattern := patterns.get ⟨i, h⟩;
-      if discr.isOfKind `Lean.Parser.Term.matchDiscr then do
-        if (discr.getArg 0).isNone then
-          mkNewPatterns (i+1) (newPatterns.push pattern)
-        else
-          let newPatterns := newPatterns.push pattern;
-          let newPatterns := newPatterns.push $ mkAtomFrom pattern ", ";
-          let ident       := (discr.getArg 0).getArg 0;
-          let newPatterns := newPatterns.push ident;
-          mkNewPatterns (i+1) newPatterns
-      else
-        -- it is a ", "
-        mkNewPatterns (i+1) (newPatterns.push pattern)
-    else
-      throw $ Macro.Exception.error ref ("invalid number of patterns, expected #" ++ toString discrs.size)
-  else
-    pure newPatterns
-
-/- Auxiliary method for `expandMatchDiscr?` -/
-private partial def mkNewAlt (discrs : Array Syntax) (alt : Syntax) : MacroM Syntax := do
-let patterns := (alt.getArg 0).getArgs;
-newPatterns ← mkNewPatterns alt discrs patterns 0 #[];
-pure $ alt.setArg 0 (mkNullNode newPatterns)
-
-/- Auxiliary method for `expandMatchDiscr?` -/
-private partial def mkNewAlts (discrs : Array Syntax) (alts : Array Syntax) : MacroM (Array Syntax) :=
-alts.mapSepElemsM $ mkNewAlt discrs
-
-/-- Expand discriminants of the form `h : t` -/
-private def expandMatchDiscr? (stx : Syntax) : MacroM (Option Syntax) := do
-let discrs := (stx.getArg 1).getArgs;
-if discrs.getSepElems.all fun d => (d.getArg 0).isNone then
-  pure none -- nothing to be done
-else do
-  unless (stx.getArg 2).isNone $
-    throw $ Macro.Exception.error (stx.getArg 2) "match expected type should not be provided when discriminants with equality proofs are used";
-  matchType ← mkMatchType discrs 0;
-  let matchType := matchType.copyInfo stx;
-  let stx := stx.setArg 2 (mkOptType matchType);
-  newDiscrs ← mkNewDiscrs discrs 0 #[];
-  let stx := stx.setArg 1 (mkNullNode newDiscrs);
-  let matchAlts := stx.getArg 4;
-  let alts      := (matchAlts.getArg 1).getArgs;
-  newAlts ← mkNewAlts discrs alts;
-  let stx := stx.setArg 4 (matchAlts.setArg 1 (mkNullNode newAlts));
-  pure stx
 
 -- parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermElab «match»] def elabMatch : TermElab :=
@@ -836,10 +760,11 @@ fun stx expectedType? => match_syntax stx with
   | `(match $discr:term : $type with $y:ident => $rhs:term)   => expandSimpleMatchWithType stx discr y type rhs expectedType?
   | `(match $discr:term : $type with | $y:ident => $rhs:term) => expandSimpleMatchWithType stx discr y type rhs expectedType?
   | _ => do
-    stxNew? ← liftMacroM $ expandMatchDiscr? stx;
-    match stxNew? with
-    | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-    | none        => elabMatchCore stx expectedType?
+    let discrs := (stx.getArg 1).getArgs;
+    let matchOptType := stx.getArg 2;
+    when (!matchOptType.isNone && discrs.getSepElems.any fun d => !(d.getArg 0).isNone) $
+      throwErrorAt matchOptType "match expected type should not be provided when discriminants with equality proofs are used";
+    elabMatchCore stx expectedType?
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.match;
@@ -848,8 +773,9 @@ pure ()
 -- parser!:leadPrec "nomatch " >> termParser
 @[builtinTermElab «nomatch»] def elabNoMatch : TermElab :=
 fun stx expectedType? => match_syntax stx with
-  | `(nomatch $discr) => do
+  | `(nomatch $discrExpr) => do
       expectedType ← waitExpectedType expectedType?;
+      let discr := Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr];
       elabMatchAux #[discr] #[] mkNullNode expectedType
   | _ => throwUnsupportedSyntax
 

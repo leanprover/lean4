@@ -1,9 +1,7 @@
 auxDeclIssue.lean:5:3: error: tactic 'assumption' failed, 
-case main
 ex1 : False
 ⊢ False
 auxDeclIssue.lean:11:2: error: tactic 'subst' failed, did not find equation for eliminating 'x'
-case main
 x y : Nat
 ex2 : x=y
 ⊢ x=y

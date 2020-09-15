@@ -4,9 +4,9 @@ A.x : Nat
 A.x : Nat
 B.y : Nat
 openExport.lean:19:7: error: unknown identifier 'x'
-(sorryAx ?m.44) : ?m.44
+(sorryAx ?m) : ?m
 openExport.lean:20:7: error: unknown identifier 'y'
-(sorryAx ?m.46) : ?m.46
+(sorryAx ?m) : ?m
 A.x : Nat
 B.y : Nat
 A.x : Nat

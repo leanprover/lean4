@@ -159,7 +159,7 @@ by {
   intros h1 h2 h3;
   traceState;
   apply @Eq.trans;
-  case main.b => exact y;
+  case b => exact y;
   traceState;
   repeat assumption
 }
@@ -168,7 +168,7 @@ theorem simple14 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intros;
   apply @Eq.trans;
-  case main.b => exact y;
+  case b => exact y;
   repeat assumption
 }
 

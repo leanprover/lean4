@@ -5,4 +5,4 @@ has type
 but it is expected to have type
   α
 failed to synthesize instance
-  CoeT False _ α
+  CoeT False (h he) α

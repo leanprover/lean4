@@ -3,12 +3,12 @@ holes.lean:11:8: error: don't know how to synthesize placeholder
 context:
 case hole
 x : Nat
-y : Nat := g x+g x
+y : Nat := g x + g x
 ⊢ Nat
 holes.lean:11:4: error: don't know how to synthesize placeholder
 context:
 x : Nat
-y : Nat := g x+g x
+y : Nat := g x + g x
 ⊢ Nat
 holes.lean:10:15: error: don't know how to synthesize placeholder
   @g … ?m …
@@ -23,27 +23,27 @@ x : Nat
 holes.lean:13:7: error: don't know how to synthesize placeholder
 context:
 α : Sort u_1
-⊢ Sort ?
+⊢ Sort _
 holes.lean:15:16: error: don't know how to synthesize placeholder
 context:
 α : Sort u_1
-⊢ Sort ?
+⊢ Sort _
 holes.lean:19:0: error: don't know how to synthesize placeholder
   @_uniq.125 … ?m …
 context:
 a : Nat
-f : ∀ {α : Type} {β : ?m a}, α → α := fun {α : Type} {β : ?m a} (a : α) => a
+f : {α : Type} → {β : ?m a} → α → α := fun {α : Type} (a_1 : α) => a_1
 ⊢ ?m a
 holes.lean:18:6: error: don't know how to synthesize placeholder
 context:
 a : Nat
 α : Type
-⊢ Sort ?
+⊢ Sort _
 holes.lean:21:25: error: don't know how to synthesize placeholder
 context:
 x : Nat
-⊢ Sort ?
+⊢ Sort _
 holes.lean:25:8: error: don't know how to synthesize placeholder
 context:
 x y : Nat
-⊢ Sort ?
+⊢ Sort _

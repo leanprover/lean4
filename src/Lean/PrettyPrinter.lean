@@ -37,8 +37,7 @@ let pp : MetaM Format := adaptExcept (fun ex => match ex with
 (fmt, _, _) ← pp.toIO { options := ppCtx.opts } { env := ppCtx.env } { lctx := ppCtx.lctx } { mctx := ppCtx.mctx };
 pure fmt
 
--- TODO: activate when ready
-/-@[init]-/ def registerPPTerm : IO Unit := do
+@[init] def registerPPTerm : IO Unit := do
 ppExprFnRef.set ppExprFn
 
 @[init] private def regTraceClasses : IO Unit := do

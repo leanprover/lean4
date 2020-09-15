@@ -1,10 +1,10 @@
 protected.lean:10:7: error: unknown identifier 'x'
-(sorryAx ?m) : ?m
+sorryAx ?m : ?m
 Foo.x : Nat
-Bla.Foo.y : Nat
+Foo.y : Nat
 protected.lean:22:7: error: unknown identifier 'y'
-(sorryAx ?m) : ?m
-Bla.Foo.z : Nat
+sorryAx ?m : ?m
+z : Nat
 protected.lean:25:14: error: protected declarations must be in a namespace
 protected.lean:28:14: error: unknown identifier 'f'
 8
@@ -13,7 +13,7 @@ protected.lean:47:6: error: unknown identifier 'g'
 protected.lean:47:0: error: application type mismatch
   Lean.runEval (sorryAx ?m)
 argument
-  (sorryAx ?m)
+  sorryAx ?m
 has type
   ?m
 but is expected to have type

@@ -247,6 +247,7 @@ pure $ mkIdent l.userName
 @[builtinDelab mvar]
 def delabMVar : Delab := do
 Expr.mvar n _ ← getExpr | unreachable!;
+let n := n.replacePrefix `_uniq `m;
 `(?$(mkIdent n))
 
 @[builtinDelab sort]

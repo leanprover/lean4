@@ -51,6 +51,6 @@ match mctx.findDecl? mvarId with
   let fmt := fmt ++ "⊢" ++ " " ++ Format.nest indent (pp mvarDecl.type);
   match mvarDecl.userName with
   | Name.anonymous => fmt
-  | name           => "case " ++ format name ++ Format.line ++ fmt
+  | name           => "case " ++ format name.eraseMacroScopes ++ Format.line ++ fmt
 
 end Lean

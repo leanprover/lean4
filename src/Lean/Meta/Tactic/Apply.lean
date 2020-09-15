@@ -43,7 +43,7 @@ unless parentTag.isAnonymous $
     unlessM (isExprMVarAssigned newMVarId) $
     unless (binderInfos.get! i).isInstImplicit $ do
       currTag ← getMVarTag newMVarId;
-      renameMVar newMVarId (parentTag ++ currTag.eraseMacroScopes)
+      setMVarTag newMVarId (appendTag parentTag currTag)
 
 def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
 synthAppInstances tacticName mvarId newMVars binderInfos;

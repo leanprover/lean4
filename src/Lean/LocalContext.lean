@@ -214,6 +214,12 @@ else suggestion
 def lastDecl (lctx : LocalContext) : Option LocalDecl :=
 lctx.decls.get! (lctx.decls.size - 1)
 
+def setUserName (lctx : LocalContext) (fvarId : FVarId) (userName : Name) : LocalContext :=
+let decl := lctx.get! fvarId;
+let decl := decl.updateUserName userName;
+{ fvarIdToDecl := lctx.fvarIdToDecl.insert decl.fvarId decl,
+  decls        := lctx.decls.set decl.index decl }
+
 @[export lean_local_ctx_rename_user_name]
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
 match lctx with
@@ -364,6 +370,31 @@ Id.run $ lctx.anyM p
 
 @[inline] def all (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
 Id.run $ lctx.allM p
+
+partial def renameShadowedUserName (usedNames : NameMap Nat) (userName : Name) : Nat → Name × NameMap Nat
+| i =>
+  let userNameNew := mkNameNum (mkNameStr userName "_shadowed") i;
+  if usedNames.contains userNameNew then
+    renameShadowedUserName (i+1)
+  else
+    (userNameNew, usedNames.insert userName (i+1))
+
+def sanitizeNames (lctx : LocalContext) : LocalContext :=
+Prod.fst $ lctx.decls.size.foldRev
+  (fun i (acc : LocalContext × NameMap Nat) =>
+    let (lctx, usedNames) := acc;
+    match lctx.decls.get! i with
+    | none      => acc
+    | some decl =>
+      let userName := decl.userName;
+      if userName.hasMacroScopes then acc
+      else match usedNames.find? userName with
+      | none     => (lctx, usedNames.insert userName 1)
+      | some idx =>
+        let (userNameNew, usedNames) := renameShadowedUserName usedNames userName idx;
+        let lctx := lctx.setUserName decl.fvarId userNameNew;
+        (lctx, usedNames))
+  (lctx, {})
 
 end LocalContext
 

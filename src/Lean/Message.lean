@@ -53,6 +53,17 @@ registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "m
 def getSyntaxMaxDepth (opts : Options) : Nat :=
 opts.getNat `syntaxMaxDepth 2
 
+def sanitizeNamesDefault := true
+@[init] def sanitizeNamesOption : IO Unit :=
+registerOption `pp.sanitizeNames { defValue := sanitizeNamesDefault, group := "pp", descr := "add suffix '_{<idx>}' to shadowed variables when pretty printing" }
+def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
+
+private def sanitizeNames (ctx : MessageDataContext) : MessageDataContext :=
+if getSanitizeNames ctx.opts then
+  { ctx with lctx := ctx.lctx.sanitizeNames }
+else
+  ctx
+
 partial def formatAux : Option MessageDataContext → MessageData → Format
 | _,         ofFormat fmt      => fmt
 | _,         ofLevel u         => fmt u
@@ -63,15 +74,18 @@ partial def formatAux : Option MessageDataContext → MessageData → Format
 | some ctx,  ofExpr e          => ppExpr ctx.env ctx.mctx ctx.lctx ctx.opts e
 | none,      ofGoal mvarId     => "goal " ++ format (mkMVar mvarId)
 | some ctx,  ofGoal mvarId     => ppGoal ctx.env ctx.mctx ctx.opts mvarId
-| _,         withContext ctx d => formatAux (some ctx) d
+| _,         withContext ctx d => formatAux (some $ sanitizeNames ctx) d
 | ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
 | ctx,       nest n d          => Format.nest n (formatAux ctx d)
 | ctx,       compose d₁ d₂     => formatAux ctx d₁ ++ formatAux ctx d₂
 | ctx,       group d           => Format.group (formatAux ctx d)
 | ctx,       node ds           => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
 
+protected def format (msgData : MessageData) : Format :=
+formatAux none msgData
+
 instance : HasAppend MessageData := ⟨compose⟩
-instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
+instance : HasFormat MessageData := ⟨fun d => MessageData.format d⟩
 instance : HasToString MessageData := ⟨fun d => toString (format d)⟩
 
 instance hasCoeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩

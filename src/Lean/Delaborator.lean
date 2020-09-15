@@ -242,8 +242,9 @@ delabFor k <|> (liftM $ show MetaM Syntax from throwError $ "don't know how to d
 @[builtinDelab fvar]
 def delabFVar : Delab := do
 Expr.fvar id _ ← getExpr | unreachable!;
-l ← getLocalDecl id;
-pure $ mkIdent l.userName
+catch
+  do { l ← getLocalDecl id; pure $ mkIdent l.userName }
+  fun _ => pure $ mkIdent id
 
 @[builtinDelab mvar]
 def delabMVar : Delab := do

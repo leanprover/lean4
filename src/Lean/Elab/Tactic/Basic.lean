@@ -405,7 +405,9 @@ fun stx => match_syntax stx with
      some g ← findTag? gs tag | throwError "tag not found";
      let gs := gs.erase g;
      setGoals [g];
-     evalTactic tac;
+     savedTag ← liftM $ getMVarTag g;
+     liftM $ setMVarTag g Name.anonymous;
+     finally (evalTactic tac) (liftM $ setMVarTag g savedTag);
      done;
      setGoals gs
   | _ => throwUnsupportedSyntax

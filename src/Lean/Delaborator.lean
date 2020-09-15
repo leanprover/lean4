@@ -274,13 +274,23 @@ if ls.isEmpty || !ppUnivs then
 else
   `($(mkIdent c).{$(ls.toArray.map quote)*})
 
-/-- Return array with n-th element set to `true` iff n-th parameter of `e` is implicit. -/
-def getImplicitParams (e : Expr) : MetaM (Array Bool) := do
+inductive ParamKind
+| explicit
+-- combines implicit params, optParams, and autoParams
+| implicit (defVal : Option Expr)
+
+/-- Return array with n-th element set to kind of n-th parameter of `e`. -/
+def getParamKinds (e : Expr) : MetaM (Array ParamKind) := do
 t ← inferType e;
 forallTelescopeReducing t $ fun params _ =>
   params.mapM $ fun param => do
     l ← getLocalDecl param.fvarId!;
-    pure (!l.binderInfo.isExplicit)
+    match l.type.getOptParamDefault? with
+    | some val => pure $ ParamKind.implicit val
+    | _ => if l.type.isAutoParam || !l.binderInfo.isExplicit then
+        pure $ ParamKind.implicit none
+      else
+        pure ParamKind.explicit
 
 @[builtinDelab app]
 def delabAppExplicit : Delab := do
@@ -288,8 +298,8 @@ def delabAppExplicit : Delab := do
   (do
     fn ← getExpr;
     stx ← if fn.isConst then delabConst else delab;
-    implicitParams ← liftM $ getImplicitParams fn <|> pure #[];
-    stx ← if implicitParams.any id then `(@$stx) else pure stx;
+    paramKinds ← liftM $ getParamKinds fn <|> pure #[];
+    stx ← if paramKinds.any (fun k => match k with | ParamKind.explicit => false | _ => true) then `(@$stx) else pure stx;
     pure (stx, #[]))
   (fun ⟨fnStx, argStxs⟩ => do
     argStx ← delab;
@@ -303,13 +313,19 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit $ do
   (do
     fn ← getExpr;
     stx ← if fn.isConst then delabConst else delab;
-    implicitParams ← liftM $ getImplicitParams fn <|> pure #[];
-    pure (stx, implicitParams.toList, #[]))
-  (fun ⟨fnStx, implicitParams, argStxs⟩ => match implicitParams with
-    | true :: implicitParams => pure (fnStx, implicitParams, argStxs)
-    | _ => do
+    paramKinds ← liftM $ getParamKinds fn <|> pure #[];
+    pure (stx, paramKinds.toList, #[]))
+  (fun ⟨fnStx, paramKinds, argStxs⟩ => do
+    arg ← getExpr;
+    let implicit := match paramKinds with
+      | [ParamKind.implicit (some v)] => !v.hasLooseBVars && v == arg
+      | ParamKind.implicit none :: _ => true
+      | _                            => false;
+    if implicit then
+      pure (fnStx, paramKinds.tailD [], argStxs)
+    else do
       argStx ← delab;
-      pure (fnStx, implicitParams.tailD [], argStxs.push argStx));
+      pure (fnStx, paramKinds.tailD [], argStxs.push argStx));
 -- avoid degenerate `app` node
 if argStxs.isEmpty then pure fnStx else `($fnStx $argStxs*)
 

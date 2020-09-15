@@ -155,8 +155,8 @@ match alt.fvarDecls.find? fun (fvarDecl : LocalDecl) => fvarDecl.fvarId == fvarI
 | some fvarDecl => do
   vType ← inferType v;
   unlessM (isDefEqGuarded fvarDecl.type vType) $
-    throwErrorAt alt.ref $
-      "type mismatch during dependent match-elimination at pattern variable '" ++ fvarDecl.userName.simpMacroScopes ++ "' with type" ++ indentExpr fvarDecl.type ++
+    withExistingLocalDecls alt.fvarDecls $ throwErrorAt alt.ref $
+      "type mismatch during dependent match-elimination at pattern variable '" ++ mkFVar fvarDecl.fvarId ++ "' with type" ++ indentExpr fvarDecl.type ++
       Format.line ++ "expected type" ++ indentExpr vType;
   pure $ replaceFVarId fvarId v alt
 

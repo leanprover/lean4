@@ -22,9 +22,7 @@ def goalsToMessageData (goals : List MVarId) : MessageData :=
 MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
-ref ← getRef;
-let tailRef := ref.getTailWithPos.getD ref;
-throwErrorAt tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
+throwError $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
 
 namespace Tactic
 
@@ -398,7 +396,7 @@ match g? with
 
 @[builtinTactic «case»] def evalCase : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| case $tag $tac) => do
+  | `(tactic| case $tag => $tac:tacticSeq) => do
      let tag := tag.getId;
      gs ← getUnsolvedGoals;
      some g ← findTag? gs tag | throwError "tag not found";

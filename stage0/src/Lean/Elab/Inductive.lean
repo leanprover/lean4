@@ -120,6 +120,7 @@ private def throwUnexpectedInductiveType {α} : TermElabM α :=
 throwError "unexpected inductive resulting type"
 
 -- Given `e` of the form `forall As, B`, return `B`.
+-- It assumes `B` doesn't depend on `As`.
 private def getResultingType (e : Expr) : TermElabM Expr :=
 forallTelescopeReducing e fun _ r => pure r
 
@@ -219,6 +220,14 @@ r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getAr
         throwError ("unexpected constructor resulting type" ++ indentExpr resultingType);
       unlessM (isType resultingType) $
         throwError ("unexpected constructor resulting type, type expected" ++ indentExpr resultingType);
+      let args := resultingType.getAppArgs;
+      params.size.forM fun i => do {
+        let param := params.get! i;
+        let arg   := args.get! i;
+        unlessM (isDefEq param arg) $
+          throwError ("inductive datatype parameter mismatch" ++ indentExpr arg ++ Format.line ++ "expected" ++ indentExpr param);
+        pure ()
+      };
       pure type
     };
   type ← mkForallFVars ctorParams type;

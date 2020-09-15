@@ -9244,6 +9244,7 @@ lean_inc(x_25);
 lean_dec(x_24);
 x_26 = l_Lean_Elab_Tactic_done(x_4, x_5, x_6, x_7, x_9, x_10, x_11, x_12, x_25);
 lean_dec(x_12);
+lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_7);

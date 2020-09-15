@@ -41,6 +41,8 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «case»       := parser! nonReservedSymbol "case " >> ident >> darrow >> indentedNonEmptySeq
 @[builtinTacticParser] def «allGoals»   := parser! nonReservedSymbol "allGoals " >> indentedNonEmptySeq
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
+@[builtinTacticParser] def «done»       := parser! nonReservedSymbol "done"
+@[builtinTacticParser] def «admit»      := parser! nonReservedSymbol "admit"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> indentedNonEmptySeq
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident

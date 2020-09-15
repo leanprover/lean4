@@ -57,6 +57,7 @@ def getPPCoercions (o : Options) : Bool := o.get `pp.coercions true
 def getPPExplicit (o : Options) : Bool := o.get `pp.explicit false
 def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections true
 def getPPUniverses (o : Options) : Bool := o.get `pp.universes false
+def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names false
 def getPPAll (o : Options) : Bool := o.get `pp.all false
 
 @[init] def ppOptions : IO Unit := do
@@ -264,6 +265,9 @@ match expr with
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
 Expr.const c ls _ ← getExpr | unreachable!;
+c ← condM (getPPOption getPPPrivateNames)
+  (pure c)
+  (pure $ (privateToUserName? c).getD c);
 ppUnivs ← getPPOption getPPUniverses;
 if ls.isEmpty || !ppUnivs then
   pure $ mkIdent c

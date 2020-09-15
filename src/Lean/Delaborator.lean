@@ -197,9 +197,11 @@ descend e.bindingDomain! 0 d
 
 def withBindingBody {α} (n : Name) (d : DelabM α) : DelabM α := do
 e ← getExpr;
-fun ctx => withLocalDecl n e.binderInfo e.bindingDomain! $ fun fvar =>
+withLocalDecl n e.binderInfo e.bindingDomain! (fun fvar =>
   let b := e.bindingBody!.instantiate1 fvar;
-  descend b 1 d ctx
+  descend b 1 d)
+  -- we don't care about instances, and don't want ill-typed binders to crash the delaborator
+  false
 
 def withProj {α} (d : DelabM α) : DelabM α := do
 Expr.app fn _ _ ← getExpr | unreachable!;
@@ -281,7 +283,7 @@ def delabAppExplicit : Delab := do
   (do
     fn ← getExpr;
     stx ← if fn.isConst then delabConst else delab;
-    implicitParams ← liftM $ getImplicitParams fn;
+    implicitParams ← liftM $ getImplicitParams fn <|> pure #[];
     stx ← if implicitParams.any id then `(@$stx) else pure stx;
     pure (stx, #[]))
   (fun ⟨fnStx, argStxs⟩ => do
@@ -296,7 +298,7 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit $ do
   (do
     fn ← getExpr;
     stx ← if fn.isConst then delabConst else delab;
-    implicitParams ← liftM $ getImplicitParams fn;
+    implicitParams ← liftM $ getImplicitParams fn <|> pure #[];
     pure (stx, implicitParams.toList, #[]))
   (fun ⟨fnStx, implicitParams, argStxs⟩ => match implicitParams with
     | true :: implicitParams => pure (fnStx, implicitParams, argStxs)

@@ -24,8 +24,17 @@ parenthesizeCommand stx >>= formatCommand
 def ppModule (stx : Syntax) : CoreM Format := do
 parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
+private partial def noContext : MessageData → MessageData
+| MessageData.withContext ctx msg => noContext msg
+| msg => msg
+
 def ppExprFn (ppCtx : PPContext) (e : Expr) : IO Format := do
-(fmt, _, _) ← (ppExpr e).toIO { options := ppCtx.opts } { env := ppCtx.env } { lctx := ppCtx.lctx } { mctx := ppCtx.mctx };
+let pp : MetaM Format := adaptExcept (fun ex => match ex with
+  -- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error
+  | Exception.error ref msg => Exception.error ref (noContext msg)
+  | e                       => e)
+  (ppExpr e);
+(fmt, _, _) ← pp.toIO { options := ppCtx.opts } { env := ppCtx.env } { lctx := ppCtx.lctx } { mctx := ppCtx.mctx };
 pure fmt
 
 -- TODO: activate when ready

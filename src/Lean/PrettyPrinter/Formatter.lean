@@ -308,13 +308,21 @@ goLeft
 def identNoAntiquot.formatter : Formatter := do
 checkKind identKind;
 stx ← getCur;
-let s := stx.getId.toString;
--- try to parse `s` as-is; if it fails, escape
-pst ← parseToken s;
-let s := if pst.stxStack == #[stx] then s else match stx.getId with
-  | Name.str Name.anonymous s _ => "«" ++ s ++ "»"
-  | _                           => panic! "unimplemented: escaping non-atomic identifiers (is anyone even using those?)";
-pushToken s;
+let id := stx.getId;
+let s := id.toString;
+if id.isAnonymous then
+  pushToken "[anonymous]"
+else if id.components.any Name.isNum then
+  -- not parsable anyway, output as-is
+  pushToken s
+else do {
+  -- try to parse `s` as-is; if it fails, escape
+  pst ← parseToken s;
+  let s := if pst.stxStack == #[stx] then s else match stx.getId with
+    | Name.str Name.anonymous s _ => "«" ++ s ++ "»"
+    | _                           => panic! "unimplemented: escaping non-atomic identifiers (is anyone even using those?)";
+  pushToken s
+};
 goLeft
 
 @[combinatorFormatter rawIdent] def rawIdent.formatter : Formatter := do

@@ -214,6 +214,9 @@ def done : TacticM Unit := do
 gs ← getUnsolvedGoals;
 unless gs.isEmpty $ reportUnsolvedGoals gs
 
+@[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic :=
+fun _ => done
+
 def focusAux {α} (tactic : TacticM α) : TacticM α := do
 (g, gs) ← getMainGoal;
 setGoals [g];

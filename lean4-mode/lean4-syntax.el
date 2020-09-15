@@ -39,7 +39,7 @@
              (one-or-more digit) (optional (and "." (zero-or-more digit)))
              word-end)))
 
-(defconst lean4-warnings '("sorry" "exit") "lean warnings")
+(defconst lean4-warnings '("sorry" "exit" "admit") "lean warnings")
 (defconst lean4-warnings-regexp
   (eval `(rx word-start (or ,@lean4-warnings) word-end)))
 (defconst lean4-debugging '("unreachable" "panic" "assert" "dbgTrace") "lean debugging")

@@ -70,7 +70,7 @@ elabDiscrsWitMatchTypeAux discrStxs expectedType 0 matchType #[]
 private def mkUserNameFor (e : Expr) : TermElabM Name :=
 match e with
 | Expr.fvar fvarId _ => do localDecl ← getLocalDecl fvarId; pure localDecl.userName
-| _ => withFreshMacroScope do x ← `(x); pure x.getId
+| _ => mkFreshUserName
 
 private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (expectedType : Expr) : TermElabM (Array Expr × Expr) :=
 let numDiscrs := discrStxs.size;
@@ -495,7 +495,8 @@ private partial def withPatternVarsAux {α} (pVars : Array PatternVar) (k : Arra
     match pVars.get ⟨i, h⟩ with
     | PatternVar.anonymousVar mvarId => do
       type ← mkFreshTypeMVar;
-      withLocalDecl ((`_x).appendIndexAfter i) BinderInfo.default type fun x =>
+      userName ← mkFreshUserName;
+      withLocalDecl userName BinderInfo.default type fun x =>
         withPatternVarsAux (i+1) (decls.push (PatternVarDecl.anonymousVar mvarId x.fvarId!))
     | PatternVar.localVar userName   => do
       type ← mkFreshTypeMVar;
@@ -585,8 +586,7 @@ match val? with
   /- HACK: `fvarId` is not in the scope of `mvarId`
      If this generates problems in the future, we should update the metavariable declarations. -/
   assignExprMVar mvarId (mkFVar fvarId);
-  -- TODO: use macro scopes for creating userName
-  let userName := (`_x).appendIndexAfter (s.localDecls.size+1);
+  userName ← liftM $ mkFreshUserName;
   let newDecl := LocalDecl.cdecl (arbitrary _) fvarId userName type BinderInfo.default;
   modify $ fun s =>
     { s with

@@ -26,7 +26,7 @@ else
 /-- Given syntax of the form `ident <|> hole`, return `ident`. If `hole`, then we create a new anonymous name. -/
 private def expandBinderIdent (stx : Syntax) : TermElabM Syntax :=
 match_syntax stx with
-| `(_) => mkFreshAnonymousIdent stx
+| `(_) => mkFreshIdent stx
 | _    => pure stx
 
 /-- Given syntax of the form `(ident >> " : ")?`, return `ident`, or a new instance name. -/
@@ -205,7 +205,7 @@ private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → T
      else do
        (some acc) ← getFunBinderIdsAux? false f acc | pure none;
        getFunBinderIdsAux? true a acc
-  | `(_) => do { ident ← mkFreshAnonymousIdent stx; pure (some (acc.push ident)) }
+  | `(_) => do { ident ← mkFreshIdent stx; pure (some (acc.push ident)) }
   | `($id:ident) => pure (some (acc.push id))
   | _ => pure none
 
@@ -225,7 +225,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
     let binder := binders.get ⟨i, h⟩;
     let processAsPattern : Unit → TermElabM (Array Syntax × Syntax × Bool) := fun _ => do {
       let pattern := binder;
-      major ← mkFreshAnonymousIdent binder;
+      major ← mkFreshIdent binder;
       (binders, newBody, _) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder));
       newBody ← `(match $major:ident with | $pattern => $newBody);
       pure (binders, newBody, true)
@@ -235,7 +235,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
     | Syntax.node `Lean.Parser.Term.instBinder _     => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.explicitBinder _ => expandFunBindersAux body (i+1) (newBinders.push binder)
     | Syntax.node `Lean.Parser.Term.hole _ => do
-      ident ← mkFreshAnonymousIdent binder;
+      ident ← mkFreshIdent binder;
       let type := binder;
       expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
     | Syntax.node `Lean.Parser.Term.paren args =>

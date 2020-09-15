@@ -135,8 +135,6 @@ structure State :=
 (syntheticMVars    : List SyntheticMVarDecl := [])
 (mvarErrorContexts : List MVarErrorContext := [])
 (messages          : MessageLog := {})
-(instImplicitIdx   : Nat := 1)
-(anonymousIdx      : Nat := 1)
 (nextMacroScope    : Nat := firstFrontendMacroScope + 1)
 (letRecsToLift     : List LetRecToLift := [])
 
@@ -435,28 +433,25 @@ pure e
 /--
   Auxiliary method for creating fresh binder names.
   Do not confuse with the method for creating fresh free/meta variable ids. -/
-def mkFreshAnonymousName : TermElabM Name := do
-s ← get;
-let anonymousIdx := s.anonymousIdx;
-modify $ fun s => { s with anonymousIdx := s.anonymousIdx + 1 };
-pure $ (`_a).appendIndexAfter anonymousIdx
+def mkFreshUserName : TermElabM Name :=
+withFreshMacroScope do
+  x ← `(x);
+  pure x.getId
 
 /--
   Auxiliary method for creating a `Syntax.ident` containing
   a fresh name. This method is intended for creating fresh binder names.
-  It is just a thin layer on top of `mkFreshAnonymousName`. -/
-def mkFreshAnonymousIdent (ref : Syntax) : TermElabM Syntax := do
-n ← mkFreshAnonymousName;
+  It is just a thin layer on top of `mkFreshUserName`. -/
+def mkFreshIdent (ref : Syntax) : TermElabM Syntax := do
+n ← mkFreshUserName;
 pure $ mkIdentFrom ref n
 
 /--
-  Auxiliary method for creating binder names for local instances.
-  Users expect them to be named as `_inst_<idx>`. -/
-def mkFreshInstanceName : TermElabM Name := do
-s ← get;
-let instIdx := s.instImplicitIdx;
-modify $ fun s => { s with instImplicitIdx := s.instImplicitIdx + 1 };
-pure $ (`_inst).appendIndexAfter instIdx
+  Auxiliary method for creating binder names for local instances. -/
+def mkFreshInstanceName : TermElabM Name :=
+withFreshMacroScope do
+  inst ← `(inst);
+  pure inst.getId
 
 private partial def hasCDot : Syntax → Bool
 | Syntax.node k args =>

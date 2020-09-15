@@ -9,14 +9,14 @@ import Lean.Meta.Tactic.Util
 namespace Lean
 namespace Meta
 
-def generalize (mvarId : MVarId) (e : Expr) (x : Name) : MetaM MVarId := do
+def generalize (mvarId : MVarId) (e : Expr) (x : Name) (failIfNotInTarget : Bool := true) : MetaM MVarId := do
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `generalize;
   tag ← getMVarTag mvarId;
   target ← getMVarType mvarId;
   target ← instantiateMVars target;
   targetAbst ← kabstract target e;
-  unless targetAbst.hasLooseBVars $
+  when (failIfNotInTarget && !targetAbst.hasLooseBVars) $
     throwTacticEx `generalize mvarId ("failed to find expression in the target");
   eType ← inferType e;
   let targetNew := Lean.mkForall x BinderInfo.default eType targetAbst;

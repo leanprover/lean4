@@ -1032,7 +1032,7 @@ fun stx expectedType? => do
   registerMVarErrorContext mvar.mvarId! stx;
   pure mvar
 
-def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
+private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
 mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque `main;
 let mvarId := mvar.mvarId!;
 ref ← getRef;
@@ -1043,7 +1043,7 @@ pure mvar
 @[builtinTermElab byTactic] def elabByTactic : TermElab :=
 fun stx expectedType? =>
   match expectedType? with
-  | some expectedType => mkTacticMVar expectedType (stx.getArg 1)
+  | some expectedType => mkTacticMVar expectedType stx
   | none => throwError ("invalid 'by' tactic, expected type has not been provided")
 
 /-- Main loop for `mkPairs`. -/

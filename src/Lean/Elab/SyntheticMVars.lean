@@ -26,14 +26,33 @@ def ensureAssignmentHasNoMVars (mvarId : MVarId) : TermElabM Unit := do
 val ← instantiateMVars (mkMVar mvarId);
 when val.hasExprMVar $ throwError ("tactic failed, result still contain metavariables" ++ indentExpr val)
 
-def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
-modifyThe Meta.State $ fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId };
-remainingGoals ← liftTacticElabM mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
+private partial def getTacticRCurly? : Syntax → Option Syntax
+| stx =>
+  if stx.isOfKind `Lean.Parser.Term.byTactic then
+    getTacticRCurly? $ stx.getArg 1
+  else if stx.isOfKind `Lean.Parser.Tactic.seq && stx.getArgs.size == 1 then
+    getTacticRCurly? $ stx.getArg 0
+  else if stx.isOfKind `Lean.Parser.Tactic.nestedTacticBlockCurly then
+    some (stx.getArg 2)
+  else
+    none
+
+private def getTacticErrorRef (tacticCode : Syntax) : TermElabM Syntax := do
 ref ← getRef;
-let tailRef := ref.getTailWithPos.getD ref;
-withRef tailRef do
-unless remainingGoals.isEmpty (reportUnsolvedGoals remainingGoals);
-ensureAssignmentHasNoMVars mvarId
+match getTacticRCurly? tacticCode with
+| some rcurly => pure $ replaceRef rcurly ref
+| none        => pure $ replaceRef tacticCode ref
+
+def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
+/- Recall, `tacticCode` is the whole `by ...` expression.
+   We store the `by` because in the future we want to save the initial state information at the `by` position. -/
+let code := tacticCode.getArg 1;
+modifyThe Meta.State $ fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId };
+remainingGoals ← liftTacticElabM mvarId $ do { evalTactic code; getUnsolvedGoals };
+ref ← getTacticErrorRef tacticCode;
+withRef ref do
+  unless remainingGoals.isEmpty (reportUnsolvedGoals remainingGoals);
+  ensureAssignmentHasNoMVars mvarId
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=

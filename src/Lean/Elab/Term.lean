@@ -1033,7 +1033,7 @@ fun stx expectedType? => do
   pure mvar
 
 private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
-mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque `main;
+mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque;
 let mvarId := mvar.mvarId!;
 ref ← getRef;
 declName? ← getDeclName?;

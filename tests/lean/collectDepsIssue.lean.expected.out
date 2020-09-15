@@ -1,6 +1,5 @@
 collectDepsIssue.lean:5:0: error: don't know how to synthesize placeholder
 context:
 α : Type
-f : α → List α
 a : α
 ⊢ List α

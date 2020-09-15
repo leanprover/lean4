@@ -11,3 +11,9 @@ by {
   subst x; -- should not use the auxiliary declaration `ex2 : x = y`
   exact rfl
 }
+
+set_option pp.showAuxDecls true in
+theorem ex1 : False :=
+by {
+   assumption -- should not use the auxiliary declaration `ex1 : False`
+}

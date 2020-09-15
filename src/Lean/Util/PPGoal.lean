@@ -7,12 +7,18 @@ import Lean.Util.PPExt
 
 namespace Lean
 
+def showAuxDeclsDefault := false
+@[init] def showAuxDeclsOption : IO Unit :=
+registerOption `pp.showAuxDecls { defValue := showAuxDeclsDefault, group := "pp", descr := "show auxiliary declarations used to compile recursive functions" }
+def getShowAuxDecls (o : Options) : Bool:= o.get `pp.showAuxDecls showAuxDeclsDefault
+
 def ppGoal (env : Environment) (mctx : MetavarContext) (opts : Options) (mvarId : MVarId) : Format :=
 match mctx.findDecl? mvarId with
 | none          => "unknown goal"
 | some mvarDecl =>
-  let indent := 2; -- Use option
-  let lctx   := mvarDecl.lctx;
+  let indent       := 2; -- Use option
+  let showAuxDecls := getShowAuxDecls opts;
+  let lctx         := mvarDecl.lctx;
   let pp (e : Expr) : Format := ppExpr env mctx lctx opts e;
   let instMVars (e : Expr) : Expr := (mctx.instantiateMVars e).1;
   let addLine (fmt : Format) : Format := if fmt.isNil then fmt else fmt ++ Format.line;
@@ -27,6 +33,7 @@ match mctx.findDecl? mvarId with
       | _, some type => fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ pp type)).group;
   let (varNames, type?, fmt) := mvarDecl.lctx.foldl
     (fun (acc : List Name × Option Expr × Format) (localDecl : LocalDecl) =>
+       if !showAuxDecls && localDecl.isAuxDecl then acc else
        let (varNames, prevType?, fmt) := acc;
        match localDecl with
        | LocalDecl.cdecl _ _ varName type _   =>

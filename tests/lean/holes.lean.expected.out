@@ -2,26 +2,22 @@ holes.lean:4:4: error: placeholders '_' cannot be used where a function is expec
 holes.lean:11:8: error: don't know how to synthesize placeholder
 context:
 case hole
-f3 : Nat → Nat
 x : Nat
 y : Nat := g x+g x
 ⊢ Nat
 holes.lean:11:4: error: don't know how to synthesize placeholder
 context:
-f3 : Nat → Nat
 x : Nat
 y : Nat := g x+g x
 ⊢ Nat
 holes.lean:10:15: error: don't know how to synthesize placeholder
   @g … ?m …
 context:
-f3 : Nat → Nat
 x : Nat
 ⊢ Type
 holes.lean:10:9: error: don't know how to synthesize placeholder
   @g … ?m …
 context:
-f3 : Nat → Nat
 x : Nat
 ⊢ Type
 holes.lean:13:7: error: don't know how to synthesize placeholder
@@ -35,13 +31,11 @@ context:
 holes.lean:19:0: error: don't know how to synthesize placeholder
   @_uniq.125 … ?m …
 context:
-f6 : Nat → Nat
 a : Nat
 f : ∀ {α : Type} {β : ?m a}, α → α := fun {α : Type} {β : ?m a} (a : α) => a
 ⊢ ?m a
 holes.lean:18:6: error: don't know how to synthesize placeholder
 context:
-f6 : Nat → Nat
 a : Nat
 α : Type
 ⊢ Sort ?
@@ -51,6 +45,5 @@ x : Nat
 ⊢ Sort ?
 holes.lean:25:8: error: don't know how to synthesize placeholder
 context:
-f8 : Nat → Nat
 x y : Nat
 ⊢ Sort ?

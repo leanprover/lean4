@@ -996,10 +996,10 @@ mkBinding false xs e true
 partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr → Bool
 | Expr.mdata _ e _         => isWellFormed e
 | Expr.proj _ _ e _        => isWellFormed e
-| e@(Expr.app f a _)       => (e.hasExprMVar || e.hasFVar) && isWellFormed f && isWellFormed a
-| e@(Expr.lam _ d b _)     => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
-| e@(Expr.forallE _ d b _) => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
-| e@(Expr.letE _ t v b _)  => (e.hasExprMVar || e.hasFVar) && isWellFormed t && isWellFormed v && isWellFormed b
+| e@(Expr.app f a _)       => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed f && isWellFormed a)
+| e@(Expr.lam _ d b _)     => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed d && isWellFormed b)
+| e@(Expr.forallE _ d b _) => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed d && isWellFormed b)
+| e@(Expr.letE _ t v b _)  => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed t && isWellFormed v && isWellFormed b)
 | Expr.const _ _ _         => true
 | Expr.bvar _ _            => true
 | Expr.sort _ _            => true

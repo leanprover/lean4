@@ -251,8 +251,13 @@ liftTermElabM declName?
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x
   (fun ex => match ex with
-    | Exception.error _ _  => logException ex
-    | Exception.internal _ => pure ()) -- ignore internal exceptions
+    | Exception.error _ _   => logException ex
+    | Exception.internal id =>
+      if id == abortExceptionId then
+        pure ()
+      else do
+        idName ← liftIO $ id.getName;
+        logError ("internal exception " ++ toString idName))
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())

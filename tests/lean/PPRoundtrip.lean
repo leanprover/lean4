@@ -11,7 +11,7 @@ open Lean.Meta
 def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
   stx ← stx;
   e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
-  stx' ← liftMetaM $ delab e optionsPerPos;
+  stx' ← liftMetaM $ delab Name.anonymous [] e optionsPerPos;
   stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
   f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
   IO.println $ toString f';

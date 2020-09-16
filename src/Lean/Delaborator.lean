@@ -57,6 +57,7 @@ def getPPCoercions (o : Options) : Bool := o.get `pp.coercions true
 def getPPExplicit (o : Options) : Bool := o.get `pp.explicit false
 def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections true
 def getPPUniverses (o : Options) : Bool := o.get `pp.universes false
+def getPPFullNames (o : Options) : Bool := o.get `pp.full_names false
 def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names false
 def getPPAll (o : Options) : Bool := o.get `pp.all false
 
@@ -79,6 +80,8 @@ structure Context :=
 (pos            : Nat := 1)
 (defaultOptions : Options)
 (optionsPerPos  : OptionsPerPos)
+(currNamespace  : Name)
+(openDecls      : List OpenDecl)
 
 -- Exceptions from delaborators are not expected. We use an internal exception to signal whether
 -- the delaborator was able to produce a Syntax object.
@@ -263,9 +266,40 @@ match expr with
   | none    => `(Sort $(quote l))
 | _ => unreachable!
 
+-- find shorter names for constants, in reverse to Lean.Elab.ResolveName
+
+private def unresolveQualifiedName (ns : Name) (c : Name) : DelabM Name := do
+let c' := c.replacePrefix ns Name.anonymous;
+env ← getEnv;
+guard $ c' != c && !c'.isAnonymous && (!c'.isAtomic || !isProtected env c);
+pure c'
+
+private def unresolveUsingNamespace (c : Name) : Name → DelabM Name
+| ns@(Name.str p _ _) => do
+  unresolveQualifiedName ns c <|> unresolveUsingNamespace p
+| _ => failure
+
+private def unresolveOpenDecls (c : Name) : List OpenDecl → DelabM Name
+| [] => failure
+| OpenDecl.simple ns exs :: openDecls =>
+  let c' := c.replacePrefix ns Name.anonymous;
+  if c' != c && exs.elem c' then unresolveOpenDecls openDecls
+  else
+    unresolveQualifiedName ns c <|> unresolveOpenDecls openDecls
+| OpenDecl.explicit openedId resolvedId :: openDecls =>
+  guard (c == resolvedId) *> pure openedId <|> unresolveOpenDecls openDecls
+
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
 Expr.const c ls _ ← getExpr | unreachable!;
+c ← condM (getPPOption getPPFullNames) (pure c) do {
+  ctx ← read;
+  env ← getEnv;
+  let as := getRevAliases env c;
+  -- might want to use a more clever heuristic such as selecting the shortest alias...
+  let c := as.headD c;
+  unresolveUsingNamespace c ctx.currNamespace <|> unresolveOpenDecls c ctx.openDecls <|> pure c
+};
 c ← condM (getPPOption getPPPrivateNames)
   (pure c)
   (pure $ (privateToUserName? c).getD c);
@@ -499,10 +533,10 @@ def delabCoeFun : Delab := delabCoe
 end Delaborator
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
-def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
+def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
 opts ← getOptions;
 catchInternalId Delaborator.delabFailureId
-  (Delaborator.delab.run { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos })
+  (Delaborator.delab.run { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls })
   (fun _ => unreachable!)
 
 end Lean

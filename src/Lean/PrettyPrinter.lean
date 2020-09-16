@@ -14,8 +14,8 @@ namespace PrettyPrinter
 def ppTerm (stx : Syntax) : CoreM Format :=
 parenthesizeTerm stx >>= formatTerm
 
-def ppExpr (e : Expr) : MetaM Format := do
-stx ← delab e;
+def ppExpr (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) : MetaM Format := do
+stx ← delab currNamespace openDecls e;
 liftM $ ppTerm stx
 
 def ppCommand (stx : Syntax) : CoreM Format :=
@@ -33,7 +33,7 @@ let pp : MetaM Format := adaptExcept (fun ex => match ex with
   -- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error
   | Exception.error ref msg => Exception.error ref (noContext msg)
   | e                       => e)
-  (ppExpr e);
+  (ppExpr ppCtx.currNamespace ppCtx.openDecls e);
 (fmt, _, _) ← pp.toIO { options := ppCtx.opts } { env := ppCtx.env } { lctx := ppCtx.lctx } { mctx := ppCtx.mctx };
 pure fmt
 

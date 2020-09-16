@@ -7,7 +7,9 @@ import Lean.Environment
 
 namespace Lean
 
-/- We use aliases to implement the `export <id> (<id>+)` command. -/
+/-!
+  We use aliases to implement the `export <id> (<id>+)` command.
+  An `export A (x)` in the namespace `B` produces an alias `B.x ~> A.x`. -/
 
 abbrev AliasState := SMap Name (List Name)
 abbrev AliasEntry := Name × Name
@@ -36,5 +38,9 @@ def getAliases (env : Environment) (a : Name) : List Name :=
 match (aliasExtension.getState env).find? a with
 | none    => []
 | some es => es
+
+-- slower, but only used in the pretty printer
+def getRevAliases (env : Environment) (e : Name) : List Name :=
+(aliasExtension.getState env).fold (fun as a es => if List.contains es e then a :: as else as) []
 
 end Lean

@@ -6,7 +6,7 @@ but it is expected to have type
   x=x
 failed to synthesize instance
   CoeT (x✝¹=x✝¹) _ (x=x)
-shadow.lean:9:0: error: type mismatch
+shadow.lean:8:0: error: type mismatch
   h
 has type
   x=x
@@ -14,3 +14,26 @@ but it is expected to have type
   x=x
 failed to synthesize instance
   CoeT (x=x) _ (x=x)
+with resulting expansion
+   section set_option pp.sanitizeNames false theorem ex2 {α} (x : α) (h : x = x) (x : α) : x = x :=
+  h -- this error is confusing because we have disabled `pp.sanitizeNames`
+  
+   end 
+while expanding
+  set_option pp.sanitizeNames false in
+  theorem ex2 {α} (x : α) (h : x = x) (x : α) : x = x :=
+  h 
+shadow.lean:12:0: error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+inst✝² : Inhabited α
+inst✝¹ inst : α
+β✝¹ δ✝¹ : Type
+⊢ α → β✝¹ → δ✝¹ → α×β✝¹×δ✝¹
+shadow.lean:16:0: error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+inst.19 : Inhabited α
+inst inst : α
+β.44 δ.45 : Type
+⊢ α → β.44 → δ.45 → α×β.44×δ.45

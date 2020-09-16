@@ -395,13 +395,6 @@ def isInaccessibleUserName : Name → Bool
 | Name.num p idx _ => isInaccessibleUserName p
 | _                => false
 
-private def sanitizeMacroScopes (unicode : Bool) (mainModule : Name) (userName : Name) : Name :=
-if !userName.hasMacroScopes then
-  userName
-else
-  let userName := if (extractMacroScopes userName).mainModule == mainModule then userName.simpMacroScopes else userName;
-  mkInaccessibleUserName unicode userName
-
 private partial def mkFreshInaccessibleUserName (unicode : Bool) (usedName2Idx : NameMap Nat) (userName : Name) : Nat → Name × NameMap Nat
 | idx =>
   let userNameNew := mkInaccessibleUserName unicode (mkNameNum userName idx);
@@ -410,21 +403,33 @@ private partial def mkFreshInaccessibleUserName (unicode : Bool) (usedName2Idx :
   else
    (userNameNew, usedName2Idx.insert userName (idx+1))
 
-def sanitizeNames (lctx : LocalContext) (options : Options) (mainModule : Name) : LocalContext :=
+def sanitizeNamesDefault := true
+@[init] def sanitizeNamesOption : IO Unit :=
+registerOption `pp.sanitizeNames { defValue := sanitizeNamesDefault, group := "pp", descr := "add suffix '_{<idx>}' to shadowed variables when pretty printing" }
+def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
+
+def sanitizeNames (lctx : LocalContext) (options : Options) : LocalContext :=
+if !getSanitizeNames options then lctx else
 let unicode   := Format.getUnicode options;
 let (lctx, _) := lctx.decls.size.foldRev
   (fun i (acc : LocalContext × NameMap Nat) =>
     let (lctx, usedName2Idx) := acc;
     match lctx.decls.get! i with
     | none      => acc
-    | some decl => do
-      let userName := decl.userName.eraseMacroScopes;
-      match usedName2Idx.find? userName with
-      | none     => (lctx, usedName2Idx.insert userName 1)
-      | some idx =>
+    | some decl =>
+      let mkFreshUserName (userName : Name) (idx : Nat) : LocalContext × NameMap Nat :=
         let (userNameNew, usedName2Idx) := mkFreshInaccessibleUserName unicode usedName2Idx userName idx;
         let lctx := lctx.setUserName decl.fvarId userNameNew;
-        (lctx, usedName2Idx))
+        (lctx, usedName2Idx);
+      let userName := decl.userName;
+      if userName.hasMacroScopes then
+        let userName := userName.eraseMacroScopes;
+        let idx      := (usedName2Idx.find? userName).getD 1;
+        mkFreshUserName userName idx
+      else
+        match usedName2Idx.find? userName with
+        | none => (lctx, usedName2Idx.insert userName 1)
+        | some idx => mkFreshUserName userName idx)
   (lctx, {});
 lctx
 

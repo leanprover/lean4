@@ -211,6 +211,10 @@ def withProj {α} (d : DelabM α) : DelabM α := do
 Expr.app fn _ _ ← getExpr | unreachable!;
 descend fn 0 d
 
+def withMDataExpr {α} (d : DelabM α) : DelabM α := do
+Expr.mdata _ e _ ← getExpr | unreachable!;
+descend e 0 d
+
 partial def annotatePos (pos : Nat) : Syntax → Syntax
 | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo { pos := pos }
 -- app => annotate function
@@ -363,6 +367,11 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit $ do
       pure (fnStx, paramKinds.tailD [], argStxs.push argStx));
 -- avoid degenerate `app` node
 if argStxs.isEmpty then pure fnStx else `($fnStx $argStxs*)
+
+@[builtinDelab mdata]
+def elabMData : Delab :=
+-- ignore mdata by default
+withMDataExpr delab
 
 /--
 Check for a `Syntax.ident` of the given name anywhere in the tree.

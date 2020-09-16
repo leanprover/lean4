@@ -45,7 +45,7 @@ match major with
 | Expr.fvar _ _ => pure major
 | _ => do
   liftMetaTacticAux fun mvarId => do
-    mvarId ← Meta.generalize mvarId major `x;
+    mvarId ← Meta.generalize mvarId major `x false;
     (fvarId, mvarId) ← Meta.intro1 mvarId;
     pure (mkFVar fvarId, [mvarId])
 

@@ -43,6 +43,7 @@ lean_object* l_Unit_HasRepr___closed__1;
 lean_object* l_Sum_HasRepr(lean_object*, lean_object*);
 lean_object* l_Unit_HasRepr___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l_Nat_toSuperDigitsAux(lean_object*, lean_object*);
 lean_object* l_String_quoteAux(lean_object*);
 lean_object* l_id_HasRepr___rarg___boxed(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
@@ -76,12 +77,16 @@ lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_List_reprAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_id_HasRepr(lean_object*);
+lean_object* l_Nat_toSuperscriptString(lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
 lean_object* l_String_quoteAux___main(lean_object*);
 lean_object* l_Substring_HasRepr(lean_object*);
 lean_object* l_String_Iterator_HasRepr___closed__2;
+uint32_t l_Nat_superDigitChar(lean_object*);
 lean_object* l_Nat_toDigitsCore(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_superDigitChar___boxed(lean_object*);
 lean_object* l_Fin_HasRepr___rarg(lean_object*);
+lean_object* l_Nat_toSuperDigits(lean_object*);
 lean_object* l_Substring_HasRepr___closed__1;
 lean_object* l_Decidable_HasRepr___rarg(uint8_t);
 lean_object* l_Char_quoteCore___closed__3;
@@ -97,6 +102,7 @@ lean_object* l_String_quote(lean_object*);
 lean_object* l_hexDigitRepr(lean_object*);
 lean_object* l_Nat_HasRepr;
 lean_object* l_Bool_HasRepr___closed__2;
+lean_object* l_Nat_toSuperDigitsAux___main(lean_object*, lean_object*);
 lean_object* l_Nat_toDigitsCore___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Bool_HasRepr___boxed(lean_object*);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
@@ -972,6 +978,205 @@ x_2 = lean_unsigned_to_nat(10u);
 x_3 = l_Nat_toDigits(x_2, x_1);
 x_4 = lean_string_mk(x_3);
 return x_4;
+}
+}
+uint32_t l_Nat_superDigitChar(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_nat_dec_eq(x_1, x_2);
+if (x_3 == 0)
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_dec_eq(x_1, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_unsigned_to_nat(2u);
+x_7 = lean_nat_dec_eq(x_1, x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_unsigned_to_nat(3u);
+x_9 = lean_nat_dec_eq(x_1, x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; uint8_t x_11; 
+x_10 = lean_unsigned_to_nat(4u);
+x_11 = lean_nat_dec_eq(x_1, x_10);
+if (x_11 == 0)
+{
+lean_object* x_12; uint8_t x_13; 
+x_12 = lean_unsigned_to_nat(5u);
+x_13 = lean_nat_dec_eq(x_1, x_12);
+if (x_13 == 0)
+{
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_unsigned_to_nat(6u);
+x_15 = lean_nat_dec_eq(x_1, x_14);
+if (x_15 == 0)
+{
+lean_object* x_16; uint8_t x_17; 
+x_16 = lean_unsigned_to_nat(7u);
+x_17 = lean_nat_dec_eq(x_1, x_16);
+if (x_17 == 0)
+{
+lean_object* x_18; uint8_t x_19; 
+x_18 = lean_unsigned_to_nat(8u);
+x_19 = lean_nat_dec_eq(x_1, x_18);
+if (x_19 == 0)
+{
+lean_object* x_20; uint8_t x_21; 
+x_20 = lean_unsigned_to_nat(9u);
+x_21 = lean_nat_dec_eq(x_1, x_20);
+if (x_21 == 0)
+{
+uint32_t x_22; 
+x_22 = 42;
+return x_22;
+}
+else
+{
+uint32_t x_23; 
+x_23 = 8313;
+return x_23;
+}
+}
+else
+{
+uint32_t x_24; 
+x_24 = 8312;
+return x_24;
+}
+}
+else
+{
+uint32_t x_25; 
+x_25 = 8311;
+return x_25;
+}
+}
+else
+{
+uint32_t x_26; 
+x_26 = 8310;
+return x_26;
+}
+}
+else
+{
+uint32_t x_27; 
+x_27 = 8309;
+return x_27;
+}
+}
+else
+{
+uint32_t x_28; 
+x_28 = 8308;
+return x_28;
+}
+}
+else
+{
+uint32_t x_29; 
+x_29 = 179;
+return x_29;
+}
+}
+else
+{
+uint32_t x_30; 
+x_30 = 178;
+return x_30;
+}
+}
+else
+{
+uint32_t x_31; 
+x_31 = 185;
+return x_31;
+}
+}
+else
+{
+uint32_t x_32; 
+x_32 = 8304;
+return x_32;
+}
+}
+}
+lean_object* l_Nat_superDigitChar___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; lean_object* x_3; 
+x_2 = l_Nat_superDigitChar(x_1);
+lean_dec(x_1);
+x_3 = lean_box_uint32(x_2);
+return x_3;
+}
+}
+lean_object* l_Nat_toSuperDigitsAux___main(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_3 = lean_unsigned_to_nat(10u);
+x_4 = lean_nat_mod(x_1, x_3);
+x_5 = l_Nat_superDigitChar(x_4);
+lean_dec(x_4);
+x_6 = lean_nat_div(x_1, x_3);
+lean_dec(x_1);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_nat_dec_eq(x_6, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_box_uint32(x_5);
+x_10 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_10, 1, x_2);
+x_1 = x_6;
+x_2 = x_10;
+goto _start;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; 
+lean_dec(x_6);
+x_12 = lean_box_uint32(x_5);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_2);
+return x_13;
+}
+}
+}
+lean_object* l_Nat_toSuperDigitsAux(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Nat_toSuperDigitsAux___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Nat_toSuperDigits(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = l_Nat_toSuperDigitsAux___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Nat_toSuperscriptString(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Nat_toSuperDigits(x_1);
+x_3 = lean_string_mk(x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Nat_HasRepr___closed__1() {

@@ -253,7 +253,10 @@ instance monadLog : MonadLog TermElabM :=
 { getRef      := getRef,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
+  logMessage  := fun msg => do
+    ctx ← read;
+    let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
+    modify $ fun s => { s with messages := s.messages.add msg } }
 
 protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.mainModule
@@ -1027,13 +1030,45 @@ fun stx expectedType? => do
 @[builtinTermElab «syntheticHole»] def elabSyntheticHole : TermElab :=
 fun stx expectedType? => do
   let arg  := stx.getArg 1;
-  let name := if arg.isIdent then arg.getId else Name.anonymous;
-  mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque name;
-  registerMVarErrorContext mvar.mvarId! stx;
-  pure mvar
+  let userName := if arg.isIdent then arg.getId else Name.anonymous;
+  let mkNewHole : Unit → TermElabM Expr := fun _ => do {
+    mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque userName;
+    registerMVarErrorContext mvar.mvarId! stx;
+    pure mvar
+  };
+  if userName.isAnonymous then
+    mkNewHole ()
+  else do
+    mctx ← getMCtx;
+    match mctx.findUserName? userName with
+    | none => mkNewHole ()
+    | some mvarId => do
+      let mvar := mkMVar mvarId;
+      mvarDecl ← getMVarDecl mvarId;
+      lctx ← getLCtx;
+      if mvarDecl.lctx.isSubPrefixOf lctx then
+        pure mvar
+      else match mctx.getExprAssignment? mvarId with
+      | some val => do
+        val ← instantiateMVars val;
+        if mctx.isWellFormed lctx val then
+          pure val
+        else do
+          withLCtx mvarDecl.lctx mvarDecl.localInstances $
+            throwError $ "synthetic hole has already been defined and assigned to value incompatible with the current context" ++ indentExpr val
+      | none =>
+        if mctx.isDelayedAssigned mvarId then do
+          -- We can try to improve this case if needed.
+          throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
+        else if lctx.isSubPrefixOf mvarDecl.lctx then do
+          mvarNew ← mkNewHole ();
+          modifyMCtx fun mctx => mctx.assignExpr mvarId mvarNew;
+          pure mvarNew
+        else
+          throwError "synthetic hole has already been defined with an incompatible local context"
 
 private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
-mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque `main;
+mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque;
 let mvarId := mvar.mvarId!;
 ref ← getRef;
 declName? ← getDeclName?;

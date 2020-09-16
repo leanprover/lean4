@@ -328,6 +328,13 @@ match mctx.decls.find? mvarId with
 | some decl => decl
 | none      => panic! "unknown metavariable"
 
+def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
+let search : Except MVarId Unit := mctx.decls.forM fun mvarId decl =>
+  if decl.userName == userName then throw mvarId else pure ();
+match search with
+| Except.ok _         => none
+| Except.error mvarId => some mvarId
+
 def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) : MetavarContext :=
 let decl := mctx.getDecl mvarId;
 { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
@@ -996,10 +1003,10 @@ mkBinding false xs e true
 partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr → Bool
 | Expr.mdata _ e _         => isWellFormed e
 | Expr.proj _ _ e _        => isWellFormed e
-| e@(Expr.app f a _)       => (e.hasExprMVar || e.hasFVar) && isWellFormed f && isWellFormed a
-| e@(Expr.lam _ d b _)     => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
-| e@(Expr.forallE _ d b _) => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
-| e@(Expr.letE _ t v b _)  => (e.hasExprMVar || e.hasFVar) && isWellFormed t && isWellFormed v && isWellFormed b
+| e@(Expr.app f a _)       => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed f && isWellFormed a)
+| e@(Expr.lam _ d b _)     => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed d && isWellFormed b)
+| e@(Expr.forallE _ d b _) => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed d && isWellFormed b)
+| e@(Expr.letE _ t v b _)  => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed t && isWellFormed v && isWellFormed b)
 | Expr.const _ _ _         => true
 | Expr.bvar _ _            => true
 | Expr.sort _ _            => true

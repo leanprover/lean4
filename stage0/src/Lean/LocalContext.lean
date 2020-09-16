@@ -214,6 +214,12 @@ else suggestion
 def lastDecl (lctx : LocalContext) : Option LocalDecl :=
 lctx.decls.get! (lctx.decls.size - 1)
 
+def setUserName (lctx : LocalContext) (fvarId : FVarId) (userName : Name) : LocalContext :=
+let decl := lctx.get! fvarId;
+let decl := decl.updateUserName userName;
+{ fvarIdToDecl := lctx.fvarIdToDecl.insert decl.fvarId decl,
+  decls        := lctx.decls.set decl.index decl }
+
 @[export lean_local_ctx_rename_user_name]
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
 match lctx with
@@ -364,6 +370,63 @@ Id.run $ lctx.anyM p
 
 @[inline] def all (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
 Id.run $ lctx.allM p
+
+private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat) : Name :=
+if unicode then
+  name.appendAfter ("✝" ++ idx.toSuperscriptString)
+else
+  name ++ mkNameNum "_inaccessible" idx
+
+private def mkInaccessibleUserName (unicode : Bool) : Name → Name
+| Name.num p@(Name.str _ _ _) idx _ =>
+  mkInaccessibleUserNameAux unicode p idx
+| Name.num Name.anonymous idx _     =>
+  mkInaccessibleUserNameAux unicode Name.anonymous idx
+| Name.num p idx _ =>
+  if unicode then
+    (mkInaccessibleUserName p).appendAfter ("⁻" ++ idx.toSuperscriptString)
+  else
+    mkNameNum (mkInaccessibleUserName p) idx
+| n => n
+
+@[export lean_is_inaccessible_user_name]
+def isInaccessibleUserName : Name → Bool
+| Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
+| Name.num p idx _ => isInaccessibleUserName p
+| _                => false
+
+private def sanitizeMacroScopes (unicode : Bool) (mainModule : Name) (userName : Name) : Name :=
+if !userName.hasMacroScopes then
+  userName
+else
+  let userName := if (extractMacroScopes userName).mainModule == mainModule then userName.simpMacroScopes else userName;
+  mkInaccessibleUserName unicode userName
+
+private partial def mkFreshInaccessibleUserName (unicode : Bool) (usedName2Idx : NameMap Nat) (userName : Name) : Nat → Name × NameMap Nat
+| idx =>
+  let userNameNew := mkInaccessibleUserName unicode (mkNameNum userName idx);
+  if usedName2Idx.contains userNameNew then
+    mkFreshInaccessibleUserName (idx+1)
+  else
+   (userNameNew, usedName2Idx.insert userName (idx+1))
+
+def sanitizeNames (lctx : LocalContext) (options : Options) (mainModule : Name) : LocalContext :=
+let unicode   := Format.getUnicode options;
+let (lctx, _) := lctx.decls.size.foldRev
+  (fun i (acc : LocalContext × NameMap Nat) =>
+    let (lctx, usedName2Idx) := acc;
+    match lctx.decls.get! i with
+    | none      => acc
+    | some decl => do
+      let userName := decl.userName.eraseMacroScopes;
+      match usedName2Idx.find? userName with
+      | none     => (lctx, usedName2Idx.insert userName 1)
+      | some idx =>
+        let (userNameNew, usedName2Idx) := mkFreshInaccessibleUserName unicode usedName2Idx userName idx;
+        let lctx := lctx.setUserName decl.fvarId userNameNew;
+        (lctx, usedName2Idx))
+  (lctx, {});
+lctx
 
 end LocalContext
 

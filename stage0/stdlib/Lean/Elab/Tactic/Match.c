@@ -47,7 +47,6 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_Binders_11__expandFunBindersAux___main___closed__18;
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Match_38__elabMatchAux___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_evalRefine___closed__3;
@@ -71,6 +70,7 @@ lean_object* l_Lean_Elab_Tactic_evalTactic___main(lean_object*, lean_object*, le
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__4;
 lean_object* l_Lean_Elab_Tactic_evalMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Elab_Match_39__elabMatchAux___closed__2;
 lean_object* l_Array_mapSepElemsM___at___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Tactic_Basic_1__evalTacticUsing___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -338,7 +338,7 @@ if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
 x_48 = lean_ctor_get(x_3, 0);
-x_49 = l___private_Lean_Elab_Match_38__elabMatchAux___closed__2;
+x_49 = l___private_Lean_Elab_Match_39__elabMatchAux___closed__2;
 lean_inc(x_48);
 x_50 = l_Lean_Name_appendIndexAfter(x_49, x_48);
 x_51 = l_Lean_Name_append___main(x_1, x_50);
@@ -370,7 +370,7 @@ x_62 = lean_ctor_get(x_3, 1);
 lean_inc(x_62);
 lean_inc(x_61);
 lean_dec(x_3);
-x_63 = l___private_Lean_Elab_Match_38__elabMatchAux___closed__2;
+x_63 = l___private_Lean_Elab_Match_39__elabMatchAux___closed__2;
 lean_inc(x_61);
 x_64 = l_Lean_Name_appendIndexAfter(x_63, x_61);
 x_65 = l_Lean_Name_append___main(x_1, x_64);

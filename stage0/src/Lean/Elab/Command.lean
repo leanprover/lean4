@@ -120,12 +120,21 @@ instance : AddMessageDataContext CommandElabM :=
 
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
 
+def getCurrNamespace : CommandElabM Name := do
+scope ← getScope; pure scope.currNamespace
+
+def getOpenDecls : CommandElabM (List OpenDecl) := do
+scope ← getScope; pure scope.openDecls
+
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
 { getRef      := getRef,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
-
+  logMessage  := fun msg => do
+    currNamespace ← getCurrNamespace;
+    openDecls ← getOpenDecls;
+    let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data };
+    modify $ fun s => { s with messages := s.messages.add msg } }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure env.mainModule
@@ -201,7 +210,7 @@ instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
 
 private def mkMetaContext : Meta.Context :=
-{ config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true } }
+{ config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true } }
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
 let scope      := s.scopes.head!;
@@ -242,14 +251,16 @@ liftTermElabM declName?
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
 catch x
   (fun ex => match ex with
-    | Exception.error _ _  => logException ex
-    | Exception.internal _ => pure ()) -- ignore internal exceptions
+    | Exception.error _ _   => logException ex
+    | Exception.internal id =>
+      if id == abortExceptionId then
+        pure ()
+      else do
+        idName ← liftIO $ id.getName;
+        logError ("internal exception " ++ toString idName))
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
-
-def getCurrNamespace : CommandElabM Name := do
-scope ← getScope; pure scope.currNamespace
 
 private def addScope (kind : String) (header : String) (newNamespace : Name) : CommandElabM Unit :=
 modify $ fun s => {
@@ -365,9 +376,6 @@ fun stx => do
   | Except.error ex => do
     opts ← getOptions;
     throwError (ex.toMessageData opts)
-
-def getOpenDecls : CommandElabM (List OpenDecl) := do
-scope ← getScope; pure scope.openDecls
 
 def logUnknownDecl (declName : Name) : CommandElabM Unit :=
 logError ("unknown declaration '" ++ toString declName ++ "'")

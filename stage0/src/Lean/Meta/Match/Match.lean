@@ -104,9 +104,6 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
     decls.map $ replaceFVarIdAtLocalDecl fvarId v,
   rhs       := alt.rhs.replaceFVarId fvarId v }
 
-def isDefEqGuarded (a b : Expr) : MetaM Bool :=
-catch (isDefEq a b) (fun _ => pure false)
-
 /-
   Similar to `checkAndReplaceFVarId`, but ensures type of `v` is definitionally equal to type of `fvarId`.
   This extra check is necessary when performing dependent elimination and inaccessible terms have been used.
@@ -155,8 +152,8 @@ match alt.fvarDecls.find? fun (fvarDecl : LocalDecl) => fvarDecl.fvarId == fvarI
 | some fvarDecl => do
   vType ← inferType v;
   unlessM (isDefEqGuarded fvarDecl.type vType) $
-    throwErrorAt alt.ref $
-      "type mismatch during dependent match-elimination at pattern variable '" ++ fvarDecl.userName.simpMacroScopes ++ "' with type" ++ indentExpr fvarDecl.type ++
+    withExistingLocalDecls alt.fvarDecls $ throwErrorAt alt.ref $
+      "type mismatch during dependent match-elimination at pattern variable '" ++ mkFVar fvarDecl.fvarId ++ "' with type" ++ indentExpr fvarDecl.type ++
       Format.line ++ "expected type" ++ indentExpr vType;
   pure $ replaceFVarId fvarId v alt
 

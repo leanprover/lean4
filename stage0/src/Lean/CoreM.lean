@@ -76,12 +76,12 @@ instance : AddMessageDataContext CoreM :=
 @[inline] def CoreM.run' {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
 Prod.fst <$> x.run ctx s
 
-@[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) :=
-adaptExcept
-  (fun (ex : Exception) => match ex with
-    | Exception.error _ msg => IO.userError $ toString $ format msg
-    | Exception.internal id => IO.userError $ toString $ "internal exception #" ++ toString id.idx)
-  (x.run ctx s)
+@[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
+e ← (x.run ctx s).toIO';
+match e with
+| Except.error (Exception.error _ msg) => do e ← msg.toString; throw $ IO.userError e
+| Except.error (Exception.internal id) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
+| Except.ok a => pure a
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 ⟨fun env opts x _ => do

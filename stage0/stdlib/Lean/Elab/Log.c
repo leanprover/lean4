@@ -743,7 +743,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* 
 x_5 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = l_Lean_Elab_logException___rarg___lambda__1___closed__3;
-x_7 = lean_alloc_ctor(9, 2, 0);
+x_7 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
 x_8 = 2;
@@ -822,7 +822,7 @@ lean_object* l_Lean_Elab_logTrace___rarg(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_alloc_ctor(10, 2, 0);
+x_6 = lean_alloc_ctor(11, 2, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
 x_7 = 0;

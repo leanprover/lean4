@@ -6,6 +6,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 Message Type used by the Lean frontend
 -/
 import Lean.Data.Position
+import Lean.Data.OpenDecl
 import Lean.Syntax
 import Lean.MetavarContext
 import Lean.Environment
@@ -22,26 +23,30 @@ inductive MessageSeverity
 structure MessageDataContext :=
 (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options)
 
+structure NamingContext :=
+(currNamespace : Name) (openDecls : List OpenDecl)
+
 /- Structure message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData
-| ofFormat    : Format → MessageData
-| ofSyntax    : Syntax → MessageData
-| ofExpr      : Expr → MessageData
-| ofLevel     : Level → MessageData
-| ofName      : Name  → MessageData
-| ofGoal      : MVarId → MessageData
+| ofFormat          : Format → MessageData
+| ofSyntax          : Syntax → MessageData
+| ofExpr            : Expr → MessageData
+| ofLevel           : Level → MessageData
+| ofName            : Name  → MessageData
+| ofGoal            : MVarId → MessageData
 /- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
-| withContext : MessageDataContext → MessageData → MessageData
+| withContext       : MessageDataContext → MessageData → MessageData
+| withNamingContext : NamingContext → MessageData → MessageData
 /- Lifted `Format.nest` -/
-| nest        : Nat → MessageData → MessageData
+| nest              : Nat → MessageData → MessageData
 /- Lifted `Format.group` -/
-| group       : MessageData → MessageData
+| group             : MessageData → MessageData
 /- Lifted `Format.compose` -/
-| compose     : MessageData → MessageData → MessageData
+| compose           : MessageData → MessageData → MessageData
 /- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
    Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
-| tagged      : Name → MessageData → MessageData
-| node        : Array MessageData → MessageData
+| tagged            : Name → MessageData → MessageData
+| node              : Array MessageData → MessageData
 
 namespace MessageData
 
@@ -53,26 +58,47 @@ registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "m
 def getSyntaxMaxDepth (opts : Options) : Nat :=
 opts.getNat `syntaxMaxDepth 2
 
-partial def formatAux : Option MessageDataContext → MessageData → Format
-| _,         ofFormat fmt      => fmt
-| _,         ofLevel u         => fmt u
-| _,         ofName n          => fmt n
-| some ctx,  ofSyntax s        => s.formatStx (getSyntaxMaxDepth ctx.opts)
-| none,      ofSyntax s        => s.formatStx
-| none,      ofExpr e          => format (toString e)
-| some ctx,  ofExpr e          => ppExpr ctx.env ctx.mctx ctx.lctx ctx.opts e
-| none,      ofGoal mvarId     => "goal " ++ format (mkMVar mvarId)
-| some ctx,  ofGoal mvarId     => ppGoal ctx.env ctx.mctx ctx.opts mvarId
-| _,         withContext ctx d => formatAux (some ctx) d
-| ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
-| ctx,       nest n d          => Format.nest n (formatAux ctx d)
-| ctx,       compose d₁ d₂     => formatAux ctx d₁ ++ formatAux ctx d₂
-| ctx,       group d           => Format.group (formatAux ctx d)
-| ctx,       node ds           => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
+def sanitizeNamesDefault := true
+@[init] def sanitizeNamesOption : IO Unit :=
+registerOption `pp.sanitizeNames { defValue := sanitizeNamesDefault, group := "pp", descr := "add suffix '_{<idx>}' to shadowed variables when pretty printing" }
+def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
+
+private def sanitizeNames (ctx : MessageDataContext) : MessageDataContext :=
+if getSanitizeNames ctx.opts then
+  { ctx with lctx := ctx.lctx.sanitizeNames ctx.opts ctx.env.mainModule }
+else
+  ctx
+
+def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
+{ env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
+  currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls }
+
+partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
+| _,    _,         ofFormat fmt             => pure fmt
+| _,    _,         ofLevel u                => pure $ fmt u
+| _,    _,         ofName n                 => pure $ fmt n
+| _,    some ctx,  ofSyntax s               => pure $ s.formatStx (getSyntaxMaxDepth ctx.opts)
+| _,    none,      ofSyntax s               => pure $ s.formatStx
+| _,    none,      ofExpr e                 => pure $ format (toString e)
+| nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e
+| _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
+| nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
+| nCtx, _,         withContext ctx d        => formatAux nCtx (some $ sanitizeNames ctx) d
+| _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
+| nCtx, ctx,       tagged cls d             => do d ← formatAux nCtx ctx d; pure $ Format.sbracket (format cls) ++ " " ++ d
+| nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
+| nCtx, ctx,       compose d₁ d₂            => do d₁ ← formatAux nCtx ctx d₁; d₂ ← formatAux nCtx ctx d₂; pure $ d₁ ++ d₂
+| nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
+| nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => do d ← formatAux nCtx ctx d; pure $ r ++ Format.line ++ d) Format.nil
+
+protected def format (msgData : MessageData) : IO Format :=
+formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
+
+protected def toString (msgData : MessageData) : IO String := do
+fmt ← msgData.format;
+pure $ toString fmt
 
 instance : HasAppend MessageData := ⟨compose⟩
-instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
-instance : HasToString MessageData := ⟨fun d => toString (format d)⟩
 
 instance hasCoeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
 instance hasCoeOfLevel     : HasCoe Level MessageData  := ⟨ofLevel⟩
@@ -138,23 +164,24 @@ def mkMessageEx (fileName : String) (pos : Position) (endPos : Option Position) 
 { fileName := fileName, pos := pos, endPos := endPos, severity := severity, caption := caption, data := text }
 namespace Message
 
-protected def toString (msg : Message) : String :=
-mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
+protected def toString (msg : Message) : IO String := do
+str ← msg.data.toString;
+pure $ mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
  ((match msg.severity with
    | MessageSeverity.information => ""
    | MessageSeverity.warning => "warning: "
    | MessageSeverity.error => "error: ") ++
-  (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ toString (fmt msg.data))
+  (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ str)
 
 instance : Inhabited Message :=
 ⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary _}⟩
 
-instance : HasToString Message :=
-⟨Message.toString⟩
-
 @[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
 @[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity
-@[export lean_message_string] def getMessageStringEx (msg : Message) : String := toString (fmt msg.data)
+@[export lean_message_string] unsafe def getMessageStringEx (msg : Message) : String :=
+match unsafeIO (msg.data.toString) with -- hack: this is going to be deleted
+| Except.ok msg => msg
+| _             => "error"
 
 end Message
 

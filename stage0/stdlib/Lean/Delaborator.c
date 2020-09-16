@@ -67,7 +67,6 @@ lean_object* l_Array_findIdxAux___main___at_Lean_Delaborator_annotatePos___main_
 lean_object* l_Lean_Delaborator_DelabM_inhabited___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabLam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_whenNotPPOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getPPBinderTypes___closed__3;
 lean_object* l_Lean_Delaborator_getExprKind___closed__1;
 lean_object* l_Lean_Delaborator_getExprKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPStructureProjections___closed__1;
@@ -145,6 +144,7 @@ lean_object* l_Lean_Delaborator_Alternative;
 extern lean_object* l_Lean_mkAppStx___closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_get_projection_info(lean_object*, lean_object*);
+extern lean_object* l_Lean_showAuxDeclsOption___closed__1;
 uint8_t l_Lean_getPPBinderTypes(lean_object*);
 lean_object* l_Lean_Delaborator_delabAppImplicit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_getExprKind___closed__10;
@@ -183,6 +183,7 @@ lean_object* l_Lean_Delaborator_delab___closed__1;
 lean_object* l_Lean_Delaborator_failure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_Alternative___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_11____closed__24;
+extern lean_object* l_Lean_showAuxDeclsOption___closed__2;
 lean_object* l_Lean_Delaborator_delabLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
@@ -491,7 +492,6 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Delaborator_delabForall___spe
 lean_object* l_Lean_Level_quote___main___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Delaborator_delabAttribute___spec__1(lean_object*);
 extern lean_object* l_Lean_Elab_Level_elabLevel___main___closed__4;
-lean_object* l_Lean_getPPBinderTypes___closed__4;
 extern lean_object* l_Lean_mkAppStx___closed__1;
 lean_object* l_Lean_getPPStructureProjections___boxed(lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabOfNat___closed__2;
@@ -1204,7 +1204,7 @@ lean_object* _init_l_Lean_getPPBinderTypes___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string("binder_types");
 return x_1;
 }
 }
@@ -1212,26 +1212,8 @@ lean_object* _init_l_Lean_getPPBinderTypes___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_showAuxDeclsOption___closed__2;
 x_2 = l_Lean_getPPBinderTypes___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_getPPBinderTypes___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("binder_types");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_getPPBinderTypes___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getPPBinderTypes___closed__2;
-x_2 = l_Lean_getPPBinderTypes___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1240,7 +1222,7 @@ uint8_t l_Lean_getPPBinderTypes(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; uint8_t x_4; 
-x_2 = l_Lean_getPPBinderTypes___closed__4;
+x_2 = l_Lean_getPPBinderTypes___closed__2;
 x_3 = 1;
 x_4 = l_Lean_KVMap_getBool(x_1, x_2, x_3);
 return x_4;
@@ -1268,7 +1250,7 @@ lean_object* _init_l_Lean_getPPCoercions___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getPPBinderTypes___closed__2;
+x_1 = l_Lean_showAuxDeclsOption___closed__2;
 x_2 = l_Lean_getPPCoercions___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1298,7 +1280,7 @@ lean_object* _init_l_Lean_getPPExplicit___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getPPBinderTypes___closed__2;
+x_1 = l_Lean_showAuxDeclsOption___closed__2;
 x_2 = l___private_Lean_Elab_Term_14__isExplicit___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1336,7 +1318,7 @@ lean_object* _init_l_Lean_getPPStructureProjections___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getPPBinderTypes___closed__2;
+x_1 = l_Lean_showAuxDeclsOption___closed__2;
 x_2 = l_Lean_getPPStructureProjections___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1374,7 +1356,7 @@ lean_object* _init_l_Lean_getPPUniverses___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getPPBinderTypes___closed__2;
+x_1 = l_Lean_showAuxDeclsOption___closed__2;
 x_2 = l_Lean_getPPUniverses___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1412,7 +1394,7 @@ lean_object* _init_l_Lean_getPPAll___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getPPBinderTypes___closed__2;
+x_1 = l_Lean_showAuxDeclsOption___closed__2;
 x_2 = l_Lean_getPPAll___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1451,7 +1433,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_registerTraceClass___closed__1;
-x_2 = l_Lean_getPPBinderTypes___closed__1;
+x_2 = l_Lean_showAuxDeclsOption___closed__1;
 x_3 = l_Lean_ppOptions___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -7321,11 +7303,11 @@ lean_ctor_set(x_12, 0, x_11);
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 x_14 = l_Lean_Delaborator_delab___closed__3;
-x_15 = lean_alloc_ctor(9, 2, 0);
+x_15 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
 x_16 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
-x_17 = lean_alloc_ctor(9, 2, 0);
+x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
 lean_inc(x_5);
@@ -15549,10 +15531,6 @@ l_Lean_getPPBinderTypes___closed__1 = _init_l_Lean_getPPBinderTypes___closed__1(
 lean_mark_persistent(l_Lean_getPPBinderTypes___closed__1);
 l_Lean_getPPBinderTypes___closed__2 = _init_l_Lean_getPPBinderTypes___closed__2();
 lean_mark_persistent(l_Lean_getPPBinderTypes___closed__2);
-l_Lean_getPPBinderTypes___closed__3 = _init_l_Lean_getPPBinderTypes___closed__3();
-lean_mark_persistent(l_Lean_getPPBinderTypes___closed__3);
-l_Lean_getPPBinderTypes___closed__4 = _init_l_Lean_getPPBinderTypes___closed__4();
-lean_mark_persistent(l_Lean_getPPBinderTypes___closed__4);
 l_Lean_getPPCoercions___closed__1 = _init_l_Lean_getPPCoercions___closed__1();
 lean_mark_persistent(l_Lean_getPPCoercions___closed__1);
 l_Lean_getPPCoercions___closed__2 = _init_l_Lean_getPPCoercions___closed__2();

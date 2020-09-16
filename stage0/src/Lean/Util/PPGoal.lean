@@ -7,50 +7,67 @@ import Lean.Util.PPExt
 
 namespace Lean
 
-def ppGoal (env : Environment) (mctx : MetavarContext) (opts : Options) (mvarId : MVarId) : Format :=
+def showAuxDeclsDefault := false
+@[init] def showAuxDeclsOption : IO Unit :=
+registerOption `pp.showAuxDecls { defValue := showAuxDeclsDefault, group := "pp", descr := "show auxiliary declarations used to compile recursive functions" }
+def getShowAuxDecls (o : Options) : Bool:= o.get `pp.showAuxDecls showAuxDeclsDefault
+
+def ppGoal (ppCtx : PPContext) (mvarId : MVarId) : IO Format :=
+let env  := ppCtx.env;
+let mctx := ppCtx.mctx;
+let opts := ppCtx.opts;
 match mctx.findDecl? mvarId with
-| none          => "unknown goal"
-| some mvarDecl =>
-  let indent := 2; -- Use option
-  let lctx   := mvarDecl.lctx;
-  let pp (e : Expr) : Format := ppExpr env mctx lctx opts e;
+| none          => pure "unknown goal"
+| some mvarDecl => do
+  let indent       := 2; -- Use option
+  let showAuxDecls := getShowAuxDecls opts;
+  let lctx         := mvarDecl.lctx;
+  let ppCtx        := { ppCtx with lctx := lctx };
+  let pp (e : Expr) : IO Format := ppExpr ppCtx e;
   let instMVars (e : Expr) : Expr := (mctx.instantiateMVars e).1;
   let addLine (fmt : Format) : Format := if fmt.isNil then fmt else fmt ++ Format.line;
-  let pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : Format :=
+  let pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : IO Format :=
     if ids.isEmpty then
-      fmt
+      pure fmt
     else
       let fmt := addLine fmt;
       match ids, type? with
-      | [], _        => fmt
-      | _, none      => fmt
-      | _, some type => fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ pp type)).group;
-  let (varNames, type?, fmt) := mvarDecl.lctx.foldl
+      | [], _        => pure fmt
+      | _, none      => pure fmt
+      | _, some type => do {
+        typeFmt ← pp type;
+        pure $ fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
+      };
+  (varNames, type?, fmt) ← mvarDecl.lctx.foldlM
     (fun (acc : List Name × Option Expr × Format) (localDecl : LocalDecl) =>
+       if !showAuxDecls && localDecl.isAuxDecl then pure acc else
        let (varNames, prevType?, fmt) := acc;
        match localDecl with
        | LocalDecl.cdecl _ _ varName type _   =>
          let varName := varName.simpMacroScopes;
          let type := instMVars type;
          if prevType? == none || prevType? == some type then
-           (varName :: varNames, some type, fmt)
-         else
-           let fmt := pushPending varNames prevType? fmt;
-           ([varName], some type, fmt)
-       | LocalDecl.ldecl _ _ varName type val _ =>
+           pure (varName :: varNames, some type, fmt)
+         else do
+           fmt ← pushPending varNames prevType? fmt;
+           pure ([varName], some type, fmt)
+       | LocalDecl.ldecl _ _ varName type val _ => do
          let varName := varName.simpMacroScopes;
-         let fmt  := pushPending varNames prevType? fmt;
+         fmt ←  pushPending varNames prevType? fmt;
          let fmt  := addLine fmt;
          let type := instMVars type;
          let val  := instMVars val;
-         let fmt  := fmt ++ (format varName ++ " : " ++ pp type ++ " :=" ++ Format.nest indent (Format.line ++ pp val)).group;
-         ([], none, fmt))
+         typeFmt ← pp type;
+         valFmt ← pp val;
+         let fmt  := fmt ++ (format varName ++ " : " ++ typeFmt ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)).group;
+         pure ([], none, fmt))
     ([], none, Format.nil);
-  let fmt := pushPending varNames type? fmt;
+  fmt ← pushPending varNames type? fmt;
   let fmt := addLine fmt;
-  let fmt := fmt ++ "⊢" ++ " " ++ Format.nest indent (pp mvarDecl.type);
+  typeFmt ← pp mvarDecl.type;
+  let fmt := fmt ++ "⊢" ++ " " ++ Format.nest indent typeFmt;
   match mvarDecl.userName with
-  | Name.anonymous => fmt
-  | name           => "case " ++ format name ++ Format.line ++ fmt
+  | Name.anonymous => pure fmt
+  | name           => pure $ "case " ++ format name.eraseMacroScopes ++ Format.line ++ fmt
 
 end Lean

@@ -214,6 +214,9 @@ def done : TacticM Unit := do
 gs ← getUnsolvedGoals;
 unless gs.isEmpty $ reportUnsolvedGoals gs
 
+@[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic :=
+fun _ => done
+
 def focusAux {α} (tactic : TacticM α) : TacticM α := do
 (g, gs) ← getMainGoal;
 setGoals [g];
@@ -402,7 +405,9 @@ fun stx => match_syntax stx with
      some g ← findTag? gs tag | throwError "tag not found";
      let gs := gs.erase g;
      setGoals [g];
-     evalTactic tac;
+     savedTag ← liftM $ getMVarTag g;
+     liftM $ setMVarTag g Name.anonymous;
+     finally (evalTactic tac) (liftM $ setMVarTag g savedTag);
      done;
      setGoals gs
   | _ => throwUnsupportedSyntax

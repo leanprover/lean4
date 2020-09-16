@@ -691,7 +691,7 @@ x_38 = l_Lean_MessageData_hasCoeOfArrayExpr___closed__2;
 x_39 = l_Lean_MessageData_arrayExpr_toMessageData___main(x_37, x_35, x_38);
 lean_dec(x_37);
 x_40 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___main___rarg___closed__3;
-x_41 = lean_alloc_ctor(9, 2, 0);
+x_41 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_39);
 x_42 = l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(x_41, x_7, x_8, x_9, x_10, x_33);

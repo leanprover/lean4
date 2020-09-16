@@ -18,9 +18,14 @@ pure mvarDecl.userName
 def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
 modify $ fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
 
+def appendTag (tag : Name) (suffix : Name) : Name :=
+let view := extractMacroScopes tag;
+let view := { view with name := view.name ++ suffix.eraseMacroScopes };
+view.review
+
 def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
 tag ← getMVarTag mvarId;
-setMVarTag mvarId (tag ++ suffix)
+setMVarTag mvarId (appendTag tag suffix)
 
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
 mkFreshExprMVar type MetavarKind.syntheticOpaque userName
@@ -39,7 +44,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
 env  ← getEnv;
 mctx ← getMCtx;
 opts ← getOptions;
-pure $ ppGoal env mctx opts mvarId
+liftIO $ Lean.ppGoal { env := env, mctx := mctx, opts := opts } mvarId
 
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic

@@ -245,7 +245,7 @@ match type? with
 | some type => mkFreshExprMVarCore type kind userName
 | none      => do
   u ← mkFreshLevelMVar;
-  type ← mkFreshExprMVarCore (mkSort u) kind Name.anonymous;
+  type ← mkFreshExprMVarCore (mkSort u) MetavarKind.natural Name.anonymous;
   mkFreshExprMVarCore type kind userName
 
 def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) : m Expr :=
@@ -965,7 +965,7 @@ env  ← getEnv;
 mctx ← getMCtx;
 lctx ← getLCtx;
 opts ← getOptions;
-pure $ Lean.ppExpr env mctx lctx opts e
+liftIO $ Lean.ppExpr { env := env, mctx := mctx, lctx := lctx, opts := opts } e
 
 def ppExpr (e : Expr) : m Format :=
 liftMetaM $ ppExprImp e

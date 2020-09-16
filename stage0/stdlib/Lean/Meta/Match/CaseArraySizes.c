@@ -204,7 +204,7 @@ lean_free_object(x_10);
 lean_dec(x_12);
 x_17 = l_Lean_indentExpr(x_1);
 x_18 = l_Lean_Meta_getArrayArgType___closed__3;
-x_19 = lean_alloc_ctor(9, 2, 0);
+x_19 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_17);
 x_20 = l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(x_19, x_2, x_3, x_4, x_5, x_13);
@@ -262,7 +262,7 @@ lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean
 lean_dec(x_26);
 x_31 = l_Lean_indentExpr(x_1);
 x_32 = l_Lean_Meta_getArrayArgType___closed__3;
-x_33 = lean_alloc_ctor(9, 2, 0);
+x_33 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_31);
 x_34 = l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(x_33, x_2, x_3, x_4, x_5, x_27);

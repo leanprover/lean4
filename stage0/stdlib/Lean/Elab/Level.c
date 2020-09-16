@@ -1189,7 +1189,7 @@ lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint
 x_52 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_52, 0, x_50);
 x_53 = l_Lean_Elab_Level_elabLevel___main___closed__14;
-x_54 = lean_alloc_ctor(9, 2, 0);
+x_54 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_54, 0, x_53);
 lean_ctor_set(x_54, 1, x_52);
 x_55 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___main___spec__1___rarg(x_54, x_2, x_3);
@@ -1567,7 +1567,7 @@ lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; 
 x_144 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_144, 0, x_142);
 x_145 = l_Lean_Elab_Level_elabLevel___main___closed__14;
-x_146 = lean_alloc_ctor(9, 2, 0);
+x_146 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_146, 0, x_145);
 lean_ctor_set(x_146, 1, x_144);
 x_147 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___main___spec__1___rarg(x_146, x_110, x_3);

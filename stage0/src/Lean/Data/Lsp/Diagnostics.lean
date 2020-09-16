@@ -130,7 +130,7 @@ instance PublishDiagnosticsParams.hasToJson : HasToJson PublishDiagnosticsParams
     ⟨"diagnostics", toJson o.diagnostics⟩]⟩
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
-def msgToDiagnostic (text : FileMap) (m : Message) : Diagnostic :=
+def msgToDiagnostic (text : FileMap) (m : Message) : IO Diagnostic := do
 let low : Lsp.Position := text.leanPosToLspPos m.pos;
 let high : Lsp.Position := match m.endPos with
 | some endPos => text.leanPosToLspPos endPos
@@ -141,8 +141,8 @@ let severity := match m.severity with
 | MessageSeverity.warning     => DiagnosticSeverity.warning
 | MessageSeverity.error       => DiagnosticSeverity.error;
 let source := "Lean 4 server";
-let message := toString (format m.data);
-{ range := range,
+message ← m.data.toString;
+pure { range := range,
   severity? := severity,
   source? := source,
   message := message,

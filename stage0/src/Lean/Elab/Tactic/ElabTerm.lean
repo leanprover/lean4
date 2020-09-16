@@ -40,6 +40,9 @@ fun stx => match_syntax stx with
     setGoals gs
   | _ => throwUnsupportedSyntax
 
+@[builtinMacro Lean.Parser.Tactic.admit] def expandAdmit : Macro :=
+fun _ => `(tactic| exact sorry)
+
 /- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
    Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
    filled by typing constraints.

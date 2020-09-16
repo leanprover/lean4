@@ -286,11 +286,11 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_9, 0, x_1);
 x_10 = l_Lean_Elab_elabAttr___rarg___lambda__2___closed__3;
-x_11 = lean_alloc_ctor(9, 2, 0);
+x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
 x_12 = l_Lean_MessageData_arrayExpr_toMessageData___main___closed__1;
-x_13 = lean_alloc_ctor(9, 2, 0);
+x_13 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
 x_14 = l_Lean_throwError___rarg(x_3, x_4, lean_box(0), x_13);

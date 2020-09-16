@@ -35,7 +35,7 @@ pure [mvarId']
 
 private def evalGeneralizeWithEq (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
 liftMetaTactic $ fun mvarId => do
-  mvarId      ← Meta.generalize mvarId e x;
+  mvarId      ← Meta.generalize mvarId e x false;
   mvarDecl    ← getMVarDecl mvarId;
   match mvarDecl.type with
   | Expr.forallE _ _ b _ => do
@@ -60,7 +60,7 @@ liftMetaTactic $ fun mvarId => do
 def evalGeneralizeAux (h? : Option Name) (e : Expr) (x : Name) : TacticM Unit :=
 match h? with
 | none   => liftMetaTactic $ fun mvarId => do
-  mvarId ← Meta.generalize mvarId e x;
+  mvarId ← Meta.generalize mvarId e x false;
   (_, mvarId) ← Meta.intro1 mvarId false;
   pure [mvarId]
 | some h =>

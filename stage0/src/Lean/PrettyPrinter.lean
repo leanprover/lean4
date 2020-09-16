@@ -24,24 +24,9 @@ parenthesizeCommand stx >>= formatCommand
 def ppModule (stx : Syntax) : CoreM Format := do
 parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
-/-
-Kha: this is a temporary hack since ppExprFnRef contains a pure function.
-Possible solution: we change the type of
-```
-abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → Format
-```
-to
-```
-abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → CoreM Format
-```
--/
-unsafe def ppExprFnUnsafe (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
-match unsafeIO $ (ppExpr e).toIO { options := opts } { env := env } { lctx := lctx } { mctx := mctx }  with
-| Except.ok  (fmt, _, _) => fmt
-| Except.error e         => "<pretty printer error: " ++ toString e ++ ">"
-
-@[implementedBy ppExprFnUnsafe]
-constant ppExprFn (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format := arbitrary _
+def ppExprFn (ppCtx : PPContext) (e : Expr) : IO Format := do
+(fmt, _, _) ← (ppExpr e).toIO { options := ppCtx.opts } { env := ppCtx.env } { lctx := ppCtx.lctx } { mctx := ppCtx.mctx };
+pure fmt
 
 -- TODO: activate when ready
 /-@[init]-/ def registerPPTerm : IO Unit := do

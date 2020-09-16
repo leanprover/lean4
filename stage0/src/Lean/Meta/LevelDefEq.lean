@@ -237,6 +237,12 @@ traceCtx `Meta.isDefEq $ do
 abbrev isDefEq (t s : Expr) : m Bool :=
 isExprDefEq t s
 
+def isExprDefEqGuarded (a b : Expr) : m Bool := liftMetaM do
+catch (isExprDefEq a b) (fun _ => pure false)
+
+abbrev isDefEqGuarded (t s : Expr) : m Bool :=
+isExprDefEqGuarded t s
+
 def isDefEqNoConstantApprox (t s : Expr) : m Bool := liftMetaM do
 approxDefEq $ isDefEq t s
 

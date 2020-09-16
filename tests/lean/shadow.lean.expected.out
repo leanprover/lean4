@@ -1,4 +1,4 @@
-shadow.lean:4:0: error: type mismatch
+shadow.lean:6:0: error: type mismatch
   h
 has type
   x✝¹=x✝¹
@@ -6,7 +6,7 @@ but it is expected to have type
   x=x
 failed to synthesize instance
   CoeT (x✝¹=x✝¹) _ (x=x)
-shadow.lean:8:0: error: type mismatch
+shadow.lean:10:0: error: type mismatch
   h
 has type
   x=x
@@ -23,20 +23,20 @@ while expanding
   set_option pp.sanitizeNames false in
   theorem ex2 {α} (x : α) (h : x = x) (x : α) : x = x :=
   h 
-shadow.lean:12:0: error: don't know how to synthesize placeholder
+shadow.lean:13:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
 inst✝² : Inhabited α
 inst✝¹ inst : α
 β✝¹ δ✝¹ : Type
 ⊢ α → β✝¹ → δ✝¹ → α×β✝¹×δ✝¹
-shadow.lean:16:0: error: don't know how to synthesize placeholder
+shadow.lean:17:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
-inst.19 : Inhabited α
+inst.16 : Inhabited α
 inst inst : α
-β.44 δ.45 : Type
-⊢ α → β.44 → δ.45 → α×β.44×δ.45
+β.41 δ.42 : Type
+⊢ α → β.41 → δ.42 → α×β.41×δ.42
 shadow.lean:20:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1

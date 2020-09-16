@@ -465,6 +465,20 @@ delabBinders $ fun curNames stxBody => do
   | BinderInfo.instImplicit => `([$curNames.back : $stxT] → $stxBody)
   | _                       => unreachable!
 
+@[builtinDelab letE]
+def delabLetE : Delab := do
+Expr.letE n t v b _ ← getExpr | unreachable!;
+lctx ← getLCtx;
+let n := lctx.getUnusedName n;
+stxT ← descend t 0 delab;
+stxV ← descend v 1 delab;
+stxB ← withLetDecl n t v (fun fvar =>
+  let b := b.instantiate1 fvar;
+  descend b 2 delab)
+  -- we don't care about instances, and don't want ill-typed binders to crash the delaborator
+  false;
+`(let $(mkIdent n) : $stxT := $stxV; $stxB)
+
 @[builtinDelab lit]
 def delabLit : Delab := do
 Expr.lit l _ ← getExpr | unreachable!;

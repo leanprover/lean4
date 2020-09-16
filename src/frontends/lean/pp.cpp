@@ -545,7 +545,15 @@ optional<name> pretty_fn::is_aliased(name const & n) const {
     }
 }
 
+extern "C" uint8 lean_is_inaccessible_user_name(object * n);
+
+bool is_inaccessible_user_name(name const & n) {
+    return lean_is_inaccessible_user_name(n.to_obj_arg()) != 0;
+}
+
 format pretty_fn::escape(name const & n) {
+    if (is_inaccessible_user_name(n))
+        return format(n);
     // also escape keyword-like names
     if (n.is_atomic() && n.is_string() && find(m_token_table, n.get_string().data())) { // HACK: accessing Lean string as C String
         sstream ss;

@@ -285,7 +285,7 @@ environment open_export_cmd(parser & p, bool open) {
         if (!open) {
             // Workaround for "exporting" old frontend exports to new frontend
             for (auto p : renames) {
-                env = add_lean4_alias(env, p.first, p.second);
+                env = add_lean4_alias(env, get_namespace(env) + p.first, p.second);
             }
         }
         export_decl edecl(ns, as, found_explicit, renames, exception_names);

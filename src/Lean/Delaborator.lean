@@ -209,8 +209,8 @@ withLocalDecl n e.binderInfo e.bindingDomain! (fun fvar =>
   false
 
 def withProj {α} (d : DelabM α) : DelabM α := do
-Expr.app fn _ _ ← getExpr | unreachable!;
-descend fn 0 d
+Expr.proj _ _ e _ ← getExpr | unreachable!;
+descend e 0 d
 
 def withMDataExpr {α} (d : DelabM α) : DelabM α := do
 Expr.mdata _ e _ ← getExpr | unreachable!;
@@ -515,7 +515,7 @@ function.
 -/
 @[builtinDelab proj]
 def delabProj : Delab := do
-Expr.proj _ idx e _ ← getExpr | unreachable!;
+Expr.proj _ idx _ _ ← getExpr | unreachable!;
 e ← withProj delab;
 -- not perfectly authentic: elaborates to the `idx`-th named projection
 -- function (e.g. `e.1` is `Prod.fst e`), which unfolds to the actual

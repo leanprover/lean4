@@ -210,7 +210,7 @@ instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
 
 private def mkMetaContext : Meta.Context :=
-{ config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true } }
+{ config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true } }
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
 let scope      := s.scopes.head!;

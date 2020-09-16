@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.FindMVar
 import Lean.Meta.ExprDefEq
 import Lean.Meta.SynthInstance
+import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Util
 
 namespace Lean
@@ -87,10 +88,14 @@ withMVarContext mvarId $ do
   (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType (some numArgs);
   unlessM (isDefEq eType targetType) $ throwApplyError mvarId eType targetType;
   postprocessAppMVars `apply mvarId newMVars binderInfos;
+  e ← instantiateMVars e;
   assignExprMVar mvarId (mkAppN e newMVars);
   newMVars ← newMVars.filterM $ fun mvar => not <$> isExprMVarAssigned mvar.mvarId!;
+  otherMVarIds ← getMVarsNoDelayed e;
   -- TODO: add option `ApplyNewGoals` and implement other orders
-  reorderNonDependentFirst newMVars
+  newMVarIds ← reorderNonDependentFirst newMVars;
+  let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId;
+  pure $ newMVarIds ++ otherMVarIds.toList
 
 end Meta
 end Lean

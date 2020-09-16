@@ -26,6 +26,22 @@ by {
   exact rfl
 }
 
-def ex : {α : Type} → {a b c : α} → a = b → b = c → a = c :=
+def ex1 : {α : Type} → {a b c : α} → a = b → b = c → a = c :=
 @(by intro α a b c h₁ h₂;
      exact Eq.trans h₁ h₂)
+
+def f1 (x : Nat) : Nat := by
+apply (· + ?hole);
+exact 1;
+case hole => exact x
+
+theorem ex2 (x : Nat) : f1 x = 1 + x :=
+rfl
+
+def f2 (x : Nat) : Nat := by
+apply Nat.add _;
+exact 1;
+exact x
+
+theorem ex3 (x : Nat) : f2 x = x + 1 :=
+rfl

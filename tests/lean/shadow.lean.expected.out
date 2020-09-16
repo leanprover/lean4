@@ -1,11 +1,11 @@
 shadow.lean:4:0: error: type mismatch
   h
 has type
-  x._shadowed.1=x._shadowed.1
+  x✝¹=x✝¹
 but it is expected to have type
   x=x
 failed to synthesize instance
-  CoeT (x._shadowed.1=x._shadowed.1) _ (x=x)
+  CoeT (x✝¹=x✝¹) _ (x=x)
 shadow.lean:9:0: error: type mismatch
   h
 has type

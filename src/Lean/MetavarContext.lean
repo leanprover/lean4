@@ -328,6 +328,13 @@ match mctx.decls.find? mvarId with
 | some decl => decl
 | none      => panic! "unknown metavariable"
 
+def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
+let search : Except MVarId Unit := mctx.decls.forM fun mvarId decl =>
+  if decl.userName == userName then throw mvarId else pure ();
+match search with
+| Except.ok _         => none
+| Except.error mvarId => some mvarId
+
 def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) : MetavarContext :=
 let decl := mctx.getDecl mvarId;
 { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }

@@ -18,7 +18,7 @@ fun (a b : Nat) => a
 fun (a : Nat)(b : Bool) => a
 fun {a b : Nat} => a
 typeAs ({α : Type} → α → α) fun {α : Type}(a : α) => a
-fun {α : Type}[inst : HasToString α](a : α) => @HasToString.toString α inst a
+fun {α : Type}[inst : HasToString α](a : α) => @toString α inst a
 (α : Type) → α
 (α β : Type) → α
 Type → Type → Type

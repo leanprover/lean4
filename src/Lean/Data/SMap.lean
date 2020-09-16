@@ -71,6 +71,9 @@ if m.stage₁ then { m with stage₁ := false } else m
 @[inline] def foldStage2 {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β) : σ :=
 m.map₂.foldl f s
 
+def fold {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β) : σ :=
+m.map₂.foldl f $ m.map₁.fold f s
+
 def size (m : SMap α β) : Nat :=
 m.map₁.size + m.map₂.size
 

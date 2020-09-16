@@ -37,3 +37,13 @@ inst.19 : Inhabited α
 inst inst : α
 β.44 δ.45 : Type
 ⊢ α → β.44 → δ.45 → α×β.44×δ.45
+shadow.lean:20:0: error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+β : Sort u_2
+inst✝² : α
+b : β
+inst : α
+inst✝¹ : Inhabited α
+β✝¹ δ✝¹ : Type
+⊢ α → β✝¹ → δ✝¹ → α×β✝¹×δ✝¹

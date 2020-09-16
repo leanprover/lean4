@@ -20,6 +20,18 @@ def c1 : C Nat := { x := 1 }
 
 #check { c1 with z := 2 }
 
+#check { c1 with z := 2 }
+
+theorem ex1 : { c1 with z := 2 }.z = 2 :=
+rfl
+
+#check ex1
+
+theorem ex2 : { c1 with z := 2 }.x = c1.x :=
+rfl
+
+#check ex2
+
 def c2 : C (Nat × Nat) := { z := (1, 1) }
 
 #check { c2 with x.fst := 2 }

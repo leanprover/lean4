@@ -70,7 +70,7 @@ pure (MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts
 protected def addContext (ref : Syntax) (msg : MessageData) : CommandElabM (Syntax × MessageData) := do
 ctx ← read;
 let ref := getBetterRef ref ctx.macroStack;
-let msg := addMacroStack msg ctx.macroStack;
+msg ← addMacroStack msg ctx.macroStack;
 msg ← Command.addContext' msg;
 pure (ref, msg)
 
@@ -103,7 +103,7 @@ match ea with
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
 let ref := getBetterRef ref ctx.macroStack;
-mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeverity.error
+mkMessageAux ctx ref (toString err) MessageSeverity.error
 
 @[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α :=
 liftM x

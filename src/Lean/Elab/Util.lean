@@ -39,13 +39,21 @@ match ref.getPos with
   | some elem => elem.before
   | none      => ref
 
-def addMacroStack (msgData : MessageData) (macroStack : MacroStack) : MessageData :=
+def ppMacroStackDefault := false
+@[init] def ppMacroStackOption : IO Unit :=
+registerOption `pp.macroStack { defValue := ppMacroStackDefault, group := "pp", descr := "dispaly macro expansion stack" }
+def getMacroStackOption (o : Options) : Bool:= o.get `pp.macroStack ppMacroStackDefault
+def setMacroStackOption (o : Options) (flag : Bool) : Options := o.setBool `pp.macroStack flag
+
+def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroStack : MacroStack) : m MessageData := do
+options ← getOptions;
+if !getMacroStackOption options then pure msgData else
 match macroStack with
-| []             => msgData
+| []             => pure msgData
 | stack@(top::_) =>
   let topFmt  := top.after.prettyPrint;
   let msgData := msgData ++ Format.line ++ "with resulting expansion" ++ MessageData.nest 2 (Format.line ++ topFmt);
-  stack.foldl
+  pure $ stack.foldl
     (fun (msgData : MessageData) (elem : MacroStackElem) =>
       let macroFmt := elem.before.prettyPrint;
       msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt))

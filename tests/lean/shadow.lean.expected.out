@@ -14,15 +14,6 @@ but it is expected to have type
   x=x
 failed to synthesize instance
   CoeT (x=x) _ (x=x)
-with resulting expansion
-   section set_option pp.sanitizeNames false theorem ex2 {α} (x : α) (h : x = x) (x : α) : x = x :=
-  h -- this error is confusing because we have disabled `pp.sanitizeNames`
-  
-   end 
-while expanding
-  set_option pp.sanitizeNames false in
-  theorem ex2 {α} (x : α) (h : x = x) (x : α) : x = x :=
-  h 
 shadow.lean:13:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1

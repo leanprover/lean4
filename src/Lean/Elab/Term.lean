@@ -94,8 +94,6 @@ structure Context :=
    That is, it is safe to transition `errToSorry` from `true` to `false`, but
    we must not set `errToSorry` to `true` when it is currently set to `false`. -/
 (errToSorry      : Bool            := true)
-/- If `macroStackAtErr == true`, we include it in error messages. -/
-(macroStackAtErr : Bool            := true)
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind
@@ -245,7 +243,7 @@ instance MonadError : MonadError TermElabM :=
   addContext := fun ref msg => do
     ctx ← read;
     let ref := getBetterRef ref ctx.macroStack;
-    let msg := if ctx.macroStackAtErr then addMacroStack msg ctx.macroStack else msg;
+    msg ← addMacroStack msg ctx.macroStack;
     msg ← addMessageDataContext msg;
     pure (ref, msg) }
 
@@ -509,7 +507,7 @@ match f? with
 | some f => liftMetaM $ Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with macroStackAtErr := false }) x
+adaptTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := setMacroStackOption ctx.options false }) x
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide

@@ -12,7 +12,7 @@ by {
   exact rfl
 }
 
-set_option pp.showAuxDecls true in
+set_option pp.auxDecls true in
 theorem ex1 : False :=
 by {
    assumption -- should not use the auxiliary declaration `ex1 : False`

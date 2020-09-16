@@ -251,7 +251,14 @@ def delabFVar : Delab := do
 Expr.fvar id _ ← getExpr | unreachable!;
 catch
   do { l ← getLocalDecl id; pure $ mkIdent l.userName }
+  -- loose free variable, use internal name
   fun _ => pure $ mkIdent id
+
+-- loose bound variable, use pseudo syntax
+@[builtinDelab bvar]
+def delabBVar : Delab := do
+Expr.bvar idx _ ← getExpr | unreachable!;
+pure $ mkIdent $ "#" ++ toString idx
 
 @[builtinDelab mvar]
 def delabMVar : Delab := do

@@ -22,6 +22,7 @@ match mctx.findDecl? mvarId with
   let indent       := 2; -- Use option
   let showAuxDecls := getShowAuxDecls opts;
   let lctx         := mvarDecl.lctx;
+  let lctx         := lctx.sanitizeNames opts;
   let ppCtx        := { ppCtx with lctx := lctx };
   let pp (e : Expr) : IO Format := ppExpr ppCtx e;
   let instMVars (e : Expr) : Expr := (mctx.instantiateMVars e).1;
@@ -38,7 +39,7 @@ match mctx.findDecl? mvarId with
         typeFmt ← pp type;
         pure $ fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
       };
-  (varNames, type?, fmt) ← mvarDecl.lctx.foldlM
+  (varNames, type?, fmt) ← lctx.foldlM
     (fun (acc : List Name × Option Expr × Format) (localDecl : LocalDecl) =>
        if !showAuxDecls && localDecl.isAuxDecl then pure acc else
        let (varNames, prevType?, fmt) := acc;

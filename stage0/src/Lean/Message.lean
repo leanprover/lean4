@@ -58,16 +58,8 @@ registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "m
 def getSyntaxMaxDepth (opts : Options) : Nat :=
 opts.getNat `syntaxMaxDepth 2
 
-def sanitizeNamesDefault := true
-@[init] def sanitizeNamesOption : IO Unit :=
-registerOption `pp.sanitizeNames { defValue := sanitizeNamesDefault, group := "pp", descr := "add suffix '_{<idx>}' to shadowed variables when pretty printing" }
-def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
-
 private def sanitizeNames (ctx : MessageDataContext) : MessageDataContext :=
-if getSanitizeNames ctx.opts then
-  { ctx with lctx := ctx.lctx.sanitizeNames ctx.opts ctx.env.mainModule }
-else
-  ctx
+{ ctx with lctx := ctx.lctx.sanitizeNames ctx.opts }
 
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 { env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,

@@ -144,7 +144,6 @@ lean_object* l_Lean_Delaborator_Alternative;
 extern lean_object* l_Lean_mkAppStx___closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_get_projection_info(lean_object*, lean_object*);
-extern lean_object* l_Lean_showAuxDeclsOption___closed__1;
 uint8_t l_Lean_getPPBinderTypes(lean_object*);
 lean_object* l_Lean_Delaborator_delabAppImplicit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_getExprKind___closed__10;
@@ -183,7 +182,6 @@ lean_object* l_Lean_Delaborator_delab___closed__1;
 lean_object* l_Lean_Delaborator_failure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_Alternative___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_11____closed__24;
-extern lean_object* l_Lean_showAuxDeclsOption___closed__2;
 lean_object* l_Lean_Delaborator_delabLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
@@ -457,6 +455,7 @@ lean_object* l_Lean_Delaborator_delabAppExplicit___closed__2;
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_sanitizeNamesOption___closed__2;
 lean_object* l_Lean_Delaborator_delabAttribute___closed__5;
 lean_object* l_Lean_Delaborator_delabCoe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Delaborator_DelabM_monadQuotation___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -488,6 +487,7 @@ lean_object* l_Lean_Delaborator_delabConst___closed__3;
 lean_object* l___regBuiltin_Lean_Delaborator_delabForall(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Delaborator_hasIdent___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
+extern lean_object* l_Lean_LocalContext_sanitizeNamesOption___closed__1;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Delaborator_delabForall___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_quote___main___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Delaborator_delabAttribute___spec__1(lean_object*);
@@ -1212,7 +1212,7 @@ lean_object* _init_l_Lean_getPPBinderTypes___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_showAuxDeclsOption___closed__2;
+x_1 = l_Lean_LocalContext_sanitizeNamesOption___closed__2;
 x_2 = l_Lean_getPPBinderTypes___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1250,7 +1250,7 @@ lean_object* _init_l_Lean_getPPCoercions___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_showAuxDeclsOption___closed__2;
+x_1 = l_Lean_LocalContext_sanitizeNamesOption___closed__2;
 x_2 = l_Lean_getPPCoercions___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1280,7 +1280,7 @@ lean_object* _init_l_Lean_getPPExplicit___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_showAuxDeclsOption___closed__2;
+x_1 = l_Lean_LocalContext_sanitizeNamesOption___closed__2;
 x_2 = l___private_Lean_Elab_Term_14__isExplicit___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1318,7 +1318,7 @@ lean_object* _init_l_Lean_getPPStructureProjections___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_showAuxDeclsOption___closed__2;
+x_1 = l_Lean_LocalContext_sanitizeNamesOption___closed__2;
 x_2 = l_Lean_getPPStructureProjections___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1356,7 +1356,7 @@ lean_object* _init_l_Lean_getPPUniverses___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_showAuxDeclsOption___closed__2;
+x_1 = l_Lean_LocalContext_sanitizeNamesOption___closed__2;
 x_2 = l_Lean_getPPUniverses___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1394,7 +1394,7 @@ lean_object* _init_l_Lean_getPPAll___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_showAuxDeclsOption___closed__2;
+x_1 = l_Lean_LocalContext_sanitizeNamesOption___closed__2;
 x_2 = l_Lean_getPPAll___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1433,7 +1433,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_registerTraceClass___closed__1;
-x_2 = l_Lean_showAuxDeclsOption___closed__1;
+x_2 = l_Lean_LocalContext_sanitizeNamesOption___closed__1;
 x_3 = l_Lean_ppOptions___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

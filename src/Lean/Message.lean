@@ -65,7 +65,7 @@ def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeName
 
 private def sanitizeNames (ctx : MessageDataContext) : MessageDataContext :=
 if getSanitizeNames ctx.opts then
-  { ctx with lctx := ctx.lctx.sanitizeNames }
+  { ctx with lctx := ctx.lctx.sanitizeNames ctx.opts ctx.env.mainModule }
 else
   ctx
 

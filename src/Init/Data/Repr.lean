@@ -93,6 +93,32 @@ toDigitsCore base (n+1) n []
 protected def repr (n : Nat) : String :=
 (toDigits 10 n).asString
 
+def superDigitChar (n : Nat) : Char :=
+if n = 0 then '⁰' else
+if n = 1 then '¹' else
+if n = 2 then '²' else
+if n = 3 then '³' else
+if n = 4 then '⁴' else
+if n = 5 then '⁵' else
+if n = 6 then '⁶' else
+if n = 7 then '⁷' else
+if n = 8 then '⁸' else
+if n = 9 then '⁹' else
+'*'
+
+partial def toSuperDigitsAux : Nat → List Char → List Char
+| n, ds =>
+  let d  := superDigitChar $ n % 10;
+  let n' := n / 10;
+  if n' = 0 then d::ds
+  else toSuperDigitsAux n' (d::ds)
+
+def toSuperDigits (n : Nat) : List Char :=
+toSuperDigitsAux n []
+
+def toSuperscriptString (n : Nat) : String :=
+(toSuperDigits n).asString
+
 end Nat
 
 instance : HasRepr Nat :=

@@ -59,6 +59,7 @@ def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projec
 def getPPUniverses (o : Options) : Bool := o.get `pp.universes false
 def getPPFullNames (o : Options) : Bool := o.get `pp.full_names false
 def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names false
+def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPAll (o : Options) : Bool := o.get `pp.all false
 
 @[init] def ppOptions : IO Unit := do
@@ -268,14 +269,13 @@ let n := n.replacePrefix `_uniq `m;
 
 @[builtinDelab sort]
 def delabSort : Delab := do
-expr ← getExpr;
-match expr with
-| Expr.sort (Level.zero _) _ => `(Prop)
-| Expr.sort (Level.succ (Level.zero _) _) _ => `(Type)
-| Expr.sort l _ => match l.dec with
+Expr.sort l _ ← getExpr | unreachable!;
+match l with
+| Level.zero _ => `(Prop)
+| Level.succ (Level.zero _) _ => `(Type)
+| _ => match l.dec with
   | some l' => `(Type $(quote l'))
   | none    => `(Sort $(quote l))
-| _ => unreachable!
 
 -- find shorter names for constants, in reverse to Lean.Elab.ResolveName
 
@@ -433,7 +433,7 @@ private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab
 @[builtinDelab lam]
 def delabLam : Delab :=
 delabBinders $ fun curNames stxBody => do
-  e ← getExpr | unreachable!;
+  e ← getExpr;
   stxT ← withBindingDomain delab;
   ppTypes ← getPPOption getPPBinderTypes;
   expl ← getPPOption getPPExplicit;
@@ -559,6 +559,69 @@ match_syntax stx with
 -- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
 @[builtinDelab app.coeFun]
 def delabCoeFun : Delab := delabCoe
+
+def delabInfixOp (op : Bool → Syntax → Syntax → Delab) : Delab := do
+stx ← delabAppImplicit <|> delabAppExplicit;
+guard $ stx.isOfKind `Lean.Parser.Term.app && (stx.getArg 1).getNumArgs == 2;
+unicode ← getPPOption getPPUnicode;
+let args := stx.getArg 1;
+op unicode (args.getArg 0) (args.getArg 1)
+
+def delabPrefixOp (op : Bool → Syntax → Delab) : Delab := do
+stx ← delabAppImplicit <|> delabAppExplicit;
+guard $ stx.isOfKind `Lean.Parser.Term.app && (stx.getArg 1).getNumArgs == 1;
+unicode ← getPPOption getPPUnicode;
+let args := stx.getArg 1;
+op unicode (args.getArg 0)
+
+@[builtinDelab app.Prod] def delabProd : Delab := delabInfixOp fun _ x y => `($x × $y)
+@[builtinDelab app.Function.comp] def delabFComp : Delab := delabInfixOp fun _ x y => `($x ∘ $y)
+
+@[builtinDelab app.HasAdd.add] def delabAdd : Delab := delabInfixOp fun _ x y => `($x + $y)
+@[builtinDelab app.HasSub.sub] def delabSub : Delab := delabInfixOp fun _ x y => `($x - $y)
+@[builtinDelab app.HasMul.mul] def delabMul : Delab := delabInfixOp fun _ x y => `($x * $y)
+@[builtinDelab app.HasDiv.div] def delabDiv : Delab := delabInfixOp fun _ x y => `($x / $y)
+@[builtinDelab app.HasMod.mod] def delabMod : Delab := delabInfixOp fun _ x y => `($x % $y)
+@[builtinDelab app.HasModN.modn] def delabModN : Delab := delabInfixOp fun _ x y => `($x %ₙ $y)
+@[builtinDelab app.HasPow.pow] def delabPow : Delab := delabInfixOp fun _ x y => `($x ^ $y)
+
+@[builtinDelab app.HasLessEq.LessEq] def delabLE : Delab := delabInfixOp fun b x y => cond b `($x ≤ $y) `($x <= $y)
+@[builtinDelab app.GreaterEq] def delabGE : Delab := delabInfixOp fun b x y => cond b `($x ≥ $y) `($x >= $y)
+@[builtinDelab app.HasLess.Less] def delabLT : Delab := delabInfixOp fun _ x y => `($x < $y)
+@[builtinDelab app.Greater] def delabGT : Delab := delabInfixOp fun _ x y => `($x > $y)
+@[builtinDelab app.Eq] def delabEq : Delab := delabInfixOp fun _ x y => `($x = $y)
+@[builtinDelab app.Ne] def delabNe : Delab := delabInfixOp fun _ x y => `($x ≠ $y)
+@[builtinDelab app.HasBeq.beq] def delabBEq : Delab := delabInfixOp fun _ x y => `($x == $y)
+@[builtinDelab app.bne] def delabBNe : Delab := delabInfixOp fun _ x y => `($x != $y)
+@[builtinDelab app.HEq] def delabHEq : Delab := delabInfixOp fun b x y => cond b `($x ≅ $y) `($x ~= $y)
+@[builtinDelab app.HasEquiv.Equiv] def delabEquiv : Delab := delabInfixOp fun _ x y => `($x ≈ $y)
+
+@[builtinDelab app.And] def delabAnd : Delab := delabInfixOp fun b x y => cond b `($x ∧ $y) `($x /\ $y)
+@[builtinDelab app.Or] def delabOr : Delab := delabInfixOp fun b x y => cond b `($x ∨ $y) `($x || $y)
+@[builtinDelab app.Iff] def delabIff : Delab := delabInfixOp fun b x y => cond b `($x ↔ $y) `($x <-> $y)
+
+@[builtinDelab app.and] def delabBAnd : Delab := delabInfixOp fun _ x y => `($x && $y)
+@[builtinDelab app.or] def delabBOr : Delab := delabInfixOp fun _ x y => `($x || $y)
+
+@[builtinDelab app.HasAppend.append] def delabAppend : Delab := delabInfixOp fun _ x y => `($x ++ $y)
+@[builtinDelab app.List.cons] def delabCons : Delab := delabInfixOp fun _ x y => `($x :: $y)
+
+@[builtinDelab app.HasAndthen.andthen] def delabAndThen : Delab := delabInfixOp fun _ x y => `($x >> $y)
+@[builtinDelab app.HasBind.bind] def delabBind : Delab := delabInfixOp fun _ x y => `($x >>= $y)
+
+@[builtinDelab app.HasSeq.seq] def delabseq : Delab := delabInfixOp fun _ x y => `($x <*> $y)
+@[builtinDelab app.HasSeqLeft.seqLeft] def delabseqLeft : Delab := delabInfixOp fun _ x y => `($x <* $y)
+@[builtinDelab app.HasSeqRight.seqRight] def delabseqRight : Delab := delabInfixOp fun _ x y => `($x *> $y)
+
+@[builtinDelab app.Functor.map] def delabMap : Delab := delabInfixOp fun _ x y => `($x <$> $y)
+@[builtinDelab app.Functor.mapRev] def delabMapRev : Delab := delabInfixOp fun _ x y => `($x <&> $y)
+
+@[builtinDelab app.HasOrelse.orelse] def delabOrElse : Delab := delabInfixOp fun _ x y => `($x <|> $y)
+@[builtinDelab app.orM] def delabOrM : Delab := delabInfixOp fun _ x y => `($x <||> $y)
+@[builtinDelab app.andM] def delabAndM : Delab := delabInfixOp fun _ x y => `($x <&&> $y)
+
+@[builtinDelab app.Not] def delabNot : Delab := delabPrefixOp fun _ x => `(¬ $x)
+@[builtinDelab app.not] def delabBNot : Delab := delabPrefixOp fun _ x => `(! $x)
 
 end Delaborator
 

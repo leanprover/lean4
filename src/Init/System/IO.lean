@@ -47,6 +47,9 @@ abbrev IO : Type → Type := EIO IO.Error
 @[inline] def EIO.toIO {α ε} (f : ε → IO.Error) (x : EIO ε α) : IO α :=
 x.adaptExcept f
 
+@[inline] def EIO.toIO' {α ε} (x : EIO ε α) : IO (Except ε α) :=
+EIO.toIO (fun _ => unreachable!) (observing x)
+
 @[inline] def IO.toEIO {α ε} (f : IO.Error → ε) (x : IO α) : EIO ε α :=
 x.adaptExcept f
 

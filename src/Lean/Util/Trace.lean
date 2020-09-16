@@ -19,16 +19,12 @@ namespace TraceState
 
 instance : Inhabited TraceState := ⟨{}⟩
 
-private def toFormat (traces : PersistentArray MessageData) (sep : Format) : Format :=
-traces.size.fold
-  (fun i r =>
-    let curr := format $ traces.get! i;
-    if i > 0 then r ++ sep ++ curr else r ++ curr)
+private def toFormat (traces : PersistentArray MessageData) (sep : Format) : IO Format :=
+traces.size.foldM
+  (fun i r => do
+    curr ← (traces.get! i).format;
+    pure $ if i > 0 then r ++ sep ++ curr else r ++ curr)
   Format.nil
-
-instance : HasFormat TraceState := ⟨fun s => toFormat s.traces Format.line⟩
-
-instance : HasToString TraceState := ⟨toString ∘ fmt⟩
 
 end TraceState
 
@@ -46,7 +42,7 @@ variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m]
 
 def printTraces {m} [Monad m] [MonadTrace m] [MonadIO m] : m Unit := do
 traceState ← getTraceState;
-traceState.traces.forM $ fun m => liftIO $ IO.println $ format m
+traceState.traces.forM $ fun m => do d ← liftIO m.format; liftIO $ IO.println d
 
 def resetTraceState {m} [MonadTrace m] : m Unit :=
 modifyTraceState (fun _ => {})

@@ -96,7 +96,7 @@ private partial def testModuleParserAux (env : Environment) (inputCtx : InputCon
   match parseCommand env inputCtx s messages with
   | (stx, s, messages) =>
     if isEOI stx || isExitCommand stx then do
-      messages.forM $ fun msg => IO.println msg;
+      messages.forM $ fun msg => msg.toString >>= IO.println;
       pure (!messages.hasErrors)
     else do
       when displayStx (IO.println stx);
@@ -118,7 +118,7 @@ partial def parseModuleAux (env : Environment) (inputCtx : InputContext) : Modul
       if msgs.isEmpty then
         pure stxs
       else do
-        msgs.forM $ fun msg => IO.println msg;
+        msgs.forM $ fun msg => msg.toString >>= IO.println;
         throw (IO.userError "failed to parse file")
     else
       parseModuleAux state msgs (stxs.push stx)

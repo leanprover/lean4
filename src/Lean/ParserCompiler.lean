@@ -82,7 +82,7 @@ match e with
       env ← getEnv;
       env ← match env.addAndCompile {} decl with
       | Except.ok    env => pure env
-      | Except.error kex => throwError $ toString $ fmt $ kex.toMessageData {};
+      | Except.error kex => do { d ← liftIO $ (kex.toMessageData {}).toString; throwError d };
       setEnv $ ctx.combinatorAttr.setDeclFor env c c';
       mkCall c'
     else do

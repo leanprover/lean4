@@ -44,7 +44,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
 env  ← getEnv;
 mctx ← getMCtx;
 opts ← getOptions;
-pure $ ppGoal env mctx opts mvarId
+liftIO $ Lean.ppGoal { env := env, mctx := mctx, opts := opts } mvarId
 
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic

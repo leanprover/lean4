@@ -5,16 +5,25 @@ Author: Leonardo de Moura
 -/
 import Lean.Environment
 import Lean.MetavarContext
+import Lean.Data.OpenDecl
 
 namespace Lean
 
-abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → Format
+structure PPContext :=
+(env           : Environment)
+(mctx          : MetavarContext := {})
+(lctx          : LocalContext := {})
+(opts          : Options := {})
+(currNamespace : Name := Name.anonymous)
+(openDecls     : List OpenDecl := [])
+
+abbrev PPExprFn := PPContext → Expr → IO Format
 
 /- TODO: delete after we implement the new pretty printer in Lean -/
 @[extern "lean_pp_expr"]
 constant ppOld : Environment → MetavarContext → LocalContext → Options → Expr → Format := arbitrary _
 
-def mkPPExprFnRef : IO (IO.Ref PPExprFn) := IO.mkRef ppOld
+def mkPPExprFnRef : IO (IO.Ref PPExprFn) := IO.mkRef (fun ctx e => pure $ ppOld ctx.env ctx.mctx ctx.lctx ctx.opts e)
 @[init mkPPExprFnRef] def ppExprFnRef : IO.Ref PPExprFn := arbitrary _
 
 def mkPPExprFnExtension : IO (EnvExtension PPExprFn) :=
@@ -23,12 +32,12 @@ registerEnvExtension $ ppExprFnRef.get
 @[init mkPPExprFnExtension]
 constant ppExprExt : EnvExtension PPExprFn := arbitrary _
 
-def ppExpr (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
-let e := (mctx.instantiateMVars e).1;
-if opts.getBool `ppOld true then
-  (ppExprExt.getState env) env mctx lctx opts e
+def ppExpr (ctx : PPContext) (e : Expr) : IO Format :=
+let e := (ctx.mctx.instantiateMVars e).1;
+if ctx.opts.getBool `ppOld true then
+  (ppExprExt.getState ctx.env) ctx e
 else
-  format (toString e)
+  pure $ format (toString e)
 
 -- TODO: remove after we remove ppOld
 @[init] def ppOldOption : IO Unit :=

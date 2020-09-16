@@ -117,7 +117,7 @@ match Parser.parseHeader env inputCtx with
 @[export lean_run_frontend]
 def runFrontendExport (env : Environment) (input : String) (fileName : String) (opts : Options) : IO (Option Environment) := do
 (env, messages) ← runFrontend env input opts (some fileName);
-messages.forM $ fun msg => IO.println msg;
+messages.forM fun msg => msg.toString >>= IO.println;
 if messages.hasErrors then
   pure none
 else

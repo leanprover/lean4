@@ -113,7 +113,9 @@ let val  := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.v
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
-| Except.error e => throw (IO.userError ("failed to emit registration code for builtin '" ++ toString declName ++ "': " ++ toString (format $ e.toMessageData {})))
+| Except.error e => do
+  msg ← (e.toMessageData {}).toString;
+  throw (IO.userError ("failed to emit registration code for builtin '" ++ toString declName ++ "': " ++ msg))
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
 /- TODO: add support for scoped attributes -/

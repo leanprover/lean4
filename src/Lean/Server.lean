@@ -121,8 +121,8 @@ writeLspNotification "textDocument/publishDiagnostics"
     diagnostics := #[] : PublishDiagnosticsParams }
 
 def sendDiagnostics (uri : DocumentUri) (doc : EditableDocument) (log : MessageLog)
-  : ServerM Unit :=
-let diagnostics := log.msgs.map (msgToDiagnostic doc.text);
+  : ServerM Unit := do
+diagnostics ← log.msgs.mapM fun msg => liftM $ msgToDiagnostic doc.text msg;
 writeLspNotification "textDocument/publishDiagnostics"
   { uri := uri,
     version? := doc.version,

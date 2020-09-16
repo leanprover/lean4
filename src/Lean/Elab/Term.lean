@@ -253,7 +253,10 @@ instance monadLog : MonadLog TermElabM :=
 { getRef      := getRef,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
+  logMessage  := fun msg => do
+    ctx ← read;
+    let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
+    modify $ fun s => { s with messages := s.messages.add msg } }
 
 protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.mainModule

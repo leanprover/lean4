@@ -120,12 +120,21 @@ instance : AddMessageDataContext CommandElabM :=
 
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
 
+def getCurrNamespace : CommandElabM Name := do
+scope ← getScope; pure scope.currNamespace
+
+def getOpenDecls : CommandElabM (List OpenDecl) := do
+scope ← getScope; pure scope.openDecls
+
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
 { getRef      := getRef,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
-  logMessage  := fun msg => modify $ fun s => { s with messages := s.messages.add msg } }
-
+  logMessage  := fun msg => do
+    currNamespace ← getCurrNamespace;
+    openDecls ← getOpenDecls;
+    let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data };
+    modify $ fun s => { s with messages := s.messages.add msg } }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do ctx ← read; pure ctx.currMacroScope
 protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure env.mainModule
@@ -248,9 +257,6 @@ catch x
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
-def getCurrNamespace : CommandElabM Name := do
-scope ← getScope; pure scope.currNamespace
-
 private def addScope (kind : String) (header : String) (newNamespace : Name) : CommandElabM Unit :=
 modify $ fun s => {
   s with
@@ -365,9 +371,6 @@ fun stx => do
   | Except.error ex => do
     opts ← getOptions;
     throwError (ex.toMessageData opts)
-
-def getOpenDecls : CommandElabM (List OpenDecl) := do
-scope ← getScope; pure scope.openDecls
 
 def logUnknownDecl (declName : Name) : CommandElabM Unit :=
 logError ("unknown declaration '" ++ toString declName ++ "'")

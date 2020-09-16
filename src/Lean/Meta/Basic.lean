@@ -965,7 +965,7 @@ env  ← getEnv;
 mctx ← getMCtx;
 lctx ← getLCtx;
 opts ← getOptions;
-pure $ Lean.ppExpr env mctx lctx opts e
+liftIO $ Lean.ppExpr { env := env, mctx := mctx, lctx := lctx, opts := opts } e
 
 def ppExpr (e : Expr) : m Format :=
 liftMetaM $ ppExprImp e

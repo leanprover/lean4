@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Parser_Command_infixl___elambda__1___closed__8;
+extern lean_object* l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__7;
 lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_Command_notation___elambda__1___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_macroHead___closed__3;
 lean_object* l_Lean_Parser_Command_syntax___elambda__1___closed__6;
@@ -574,7 +575,6 @@ lean_object* l_Lean_Parser_Syntax_sepBy_parenthesizer(lean_object*, lean_object*
 lean_object* l_Lean_Parser_Command_elabTail___elambda__1(lean_object*, lean_object*);
 lean_object* l___regBuiltinParser_Lean_Parser_Command_macro__rules(lean_object*);
 lean_object* l_Lean_Parser_optPrecedence_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_location___elambda__1___closed__13;
 extern lean_object* l_Lean_Parser_Term_typeAscription___elambda__1___closed__3;
 lean_object* l___regBuiltin_Lean_Parser_Command_elab_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Command_elab_parenthesizer___closed__3;
@@ -8138,7 +8138,7 @@ lean_dec(x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = l_Lean_Parser_Tactic_location___elambda__1___closed__13;
+x_16 = l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__7;
 x_17 = l_Lean_Parser_ParserState_mkErrorsAt(x_9, x_16, x_8);
 x_18 = l_Lean_Parser_Syntax_many___elambda__1___closed__2;
 x_19 = l_Lean_Parser_ParserState_mkTrailingNode(x_17, x_18, x_7);
@@ -8159,7 +8159,7 @@ else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_12);
-x_22 = l_Lean_Parser_Tactic_location___elambda__1___closed__13;
+x_22 = l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__7;
 x_23 = l_Lean_Parser_ParserState_mkErrorsAt(x_9, x_22, x_8);
 x_24 = l_Lean_Parser_Syntax_many___elambda__1___closed__2;
 x_25 = l_Lean_Parser_ParserState_mkTrailingNode(x_23, x_24, x_7);
@@ -8171,7 +8171,7 @@ else
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_10);
-x_26 = l_Lean_Parser_Tactic_location___elambda__1___closed__13;
+x_26 = l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__7;
 x_27 = l_Lean_Parser_ParserState_mkErrorsAt(x_9, x_26, x_8);
 x_28 = l_Lean_Parser_Syntax_many___elambda__1___closed__2;
 x_29 = l_Lean_Parser_ParserState_mkTrailingNode(x_27, x_28, x_7);

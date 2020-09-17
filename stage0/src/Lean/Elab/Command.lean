@@ -70,7 +70,7 @@ pure (MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts
 protected def addContext (ref : Syntax) (msg : MessageData) : CommandElabM (Syntax × MessageData) := do
 ctx ← read;
 let ref := getBetterRef ref ctx.macroStack;
-let msg := addMacroStack msg ctx.macroStack;
+msg ← addMacroStack msg ctx.macroStack;
 msg ← Command.addContext' msg;
 pure (ref, msg)
 
@@ -103,7 +103,7 @@ match ea with
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
 let ref := getBetterRef ref ctx.macroStack;
-mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeverity.error
+mkMessageAux ctx ref (toString err) MessageSeverity.error
 
 @[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α :=
 liftM x
@@ -174,8 +174,19 @@ instance : MonadRecDepth CommandElabM :=
   getRecDepth    := do ctx ← read; pure ctx.currRecDepth,
   getMaxRecDepth := do s ← get; pure s.maxRecDepth }
 
+@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
+catch x
+  (fun ex => match ex with
+    | Exception.error _ _   => logException ex
+    | Exception.internal id =>
+      if id == abortExceptionId then
+        pure ()
+      else do
+        idName ← liftIO $ id.getName;
+        logError ("internal exception " ++ toString idName))
+
 partial def elabCommand : Syntax → CommandElabM Unit
-| stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
+| stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ withLogging $ match stx with
   | Syntax.node k args =>
     if k == nullKind then
       -- list of commands => elaborate in order
@@ -247,17 +258,6 @@ liftTermElabM declName?
   -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
   -- So, we use `Term.resetMessageLog`.
   (Term.elabBinders (getVarDecls s) (fun xs => do Term.resetMessageLog; elabFn xs))
-
-@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
-catch x
-  (fun ex => match ex with
-    | Exception.error _ _   => logException ex
-    | Exception.internal id =>
-      if id == abortExceptionId then
-        pure ()
-      else do
-        idName ← liftIO $ id.getName;
-        logError ("internal exception " ++ toString idName))
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())

@@ -29,7 +29,7 @@ fun ctx => do
   EIO.catchExceptions (do (_, s) ← (x cmdCtx).run cmdState; ctx.commandStateRef.set s) (fun _ => pure ())
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit :=
-runCommandElabM (Command.withLogging $ Command.elabCommand stx)
+runCommandElabM (Command.elabCommand stx)
 
 def updateCmdPos : FrontendM Unit :=
 fun ctx => do

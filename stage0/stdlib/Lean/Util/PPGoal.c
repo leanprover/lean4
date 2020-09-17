@@ -15,39 +15,39 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
-lean_object* l_Lean_showAuxDeclsOption___closed__5;
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__3;
 lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
-lean_object* l_Lean_getShowAuxDecls___boxed(lean_object*);
 lean_object* l_Lean_ppGoal___closed__2;
 extern lean_object* l_Lean_Format_flatten___main___closed__1;
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Lean_ppAuxDeclsOption___closed__5;
 lean_object* l_Std_PersistentArray_foldlMAux___main___at_Lean_ppGoal___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal___closed__6;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_showAuxDeclsOption___closed__1;
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal___closed__4;
-lean_object* l_Lean_showAuxDeclsOption___closed__2;
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__5;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__4;
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_showAuxDeclsDefault;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_ppGoal___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_showAuxDeclsOption___closed__4;
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 lean_object* l_Lean_ppExpr(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_ppAuxDeclsDefault;
 uint8_t l_Lean_Format_isNil(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__2;
+lean_object* l_Lean_ppAuxDeclsOption___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__7(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ppAuxDeclsOption(lean_object*);
+lean_object* l_Lean_ppAuxDeclsOption___closed__2;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
+lean_object* l_Lean_ppAuxDeclsOption___closed__4;
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_ppGoal___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
@@ -55,12 +55,11 @@ lean_object* lean_format_group(lean_object*);
 lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_ppGoal___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal___closed__5;
-uint8_t l_Lean_getShowAuxDecls(lean_object*);
-lean_object* l_Lean_showAuxDeclsOption___closed__3;
+lean_object* l_Lean_getAuxDeclsOption___boxed(lean_object*);
+lean_object* l_Lean_ppAuxDeclsOption___closed__3;
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_ppGoal___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_simp_macro_scopes(lean_object*);
 lean_object* l_Std_PersistentArray_foldlMAux___main___at_Lean_ppGoal___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_showAuxDeclsOption(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
@@ -70,11 +69,12 @@ lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__5___boxed(lean_
 lean_object* l_Lean_ppGoal___closed__8;
 extern lean_object* l_Lean_LocalContext_sanitizeNamesOption___closed__1;
 lean_object* l_Lean_ppGoal___closed__7;
+uint8_t l_Lean_getAuxDeclsOption(lean_object*);
 lean_object* l_Lean_ppGoal___closed__1;
 lean_object* l_Lean_LocalContext_sanitizeNames(lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinSep___main___at_Lean_ppGoal___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t _init_l_Lean_showAuxDeclsDefault() {
+uint8_t _init_l_Lean_ppAuxDeclsDefault() {
 _start:
 {
 uint8_t x_1; 
@@ -82,49 +82,49 @@ x_1 = 0;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_showAuxDeclsOption___closed__1() {
+lean_object* _init_l_Lean_ppAuxDeclsOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("showAuxDecls");
+x_1 = lean_mk_string("auxDecls");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_showAuxDeclsOption___closed__2() {
+lean_object* _init_l_Lean_ppAuxDeclsOption___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_LocalContext_sanitizeNamesOption___closed__2;
-x_2 = l_Lean_showAuxDeclsOption___closed__1;
+x_2 = l_Lean_ppAuxDeclsOption___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_showAuxDeclsOption___closed__3() {
+lean_object* _init_l_Lean_ppAuxDeclsOption___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
-x_1 = l_Lean_showAuxDeclsDefault;
+x_1 = l_Lean_ppAuxDeclsDefault;
 x_2 = lean_alloc_ctor(1, 0, 1);
 lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_showAuxDeclsOption___closed__4() {
+lean_object* _init_l_Lean_ppAuxDeclsOption___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("show auxiliary declarations used to compile recursive functions");
+x_1 = lean_mk_string("display auxiliary declarations used to compile recursive functions");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_showAuxDeclsOption___closed__5() {
+lean_object* _init_l_Lean_ppAuxDeclsOption___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_showAuxDeclsOption___closed__3;
+x_1 = l_Lean_ppAuxDeclsOption___closed__3;
 x_2 = l_Lean_LocalContext_sanitizeNamesOption___closed__1;
-x_3 = l_Lean_showAuxDeclsOption___closed__4;
+x_3 = l_Lean_ppAuxDeclsOption___closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -132,31 +132,31 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_showAuxDeclsOption(lean_object* x_1) {
+lean_object* l_Lean_ppAuxDeclsOption(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_showAuxDeclsOption___closed__2;
-x_3 = l_Lean_showAuxDeclsOption___closed__5;
+x_2 = l_Lean_ppAuxDeclsOption___closed__2;
+x_3 = l_Lean_ppAuxDeclsOption___closed__5;
 x_4 = lean_register_option(x_2, x_3, x_1);
 return x_4;
 }
 }
-uint8_t l_Lean_getShowAuxDecls(lean_object* x_1) {
+uint8_t l_Lean_getAuxDeclsOption(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; uint8_t x_4; 
-x_2 = l_Lean_showAuxDeclsOption___closed__2;
-x_3 = l_Lean_showAuxDeclsDefault;
+x_2 = l_Lean_ppAuxDeclsOption___closed__2;
+x_3 = l_Lean_ppAuxDeclsDefault;
 x_4 = l_Lean_KVMap_getBool(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_getShowAuxDecls___boxed(lean_object* x_1) {
+lean_object* l_Lean_getAuxDeclsOption___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_getShowAuxDecls(x_1);
+x_2 = l_Lean_getAuxDeclsOption(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
@@ -39779,7 +39779,7 @@ lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_obje
 x_14 = lean_ctor_get(x_11, 0);
 lean_inc(x_14);
 lean_dec(x_11);
-x_15 = l_Lean_getShowAuxDecls(x_7);
+x_15 = l_Lean_getAuxDeclsOption(x_7);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 x_17 = l_Lean_LocalContext_sanitizeNames(x_16, x_7);
@@ -43647,7 +43647,7 @@ lean_object* x_986; uint8_t x_987; lean_object* x_988; lean_object* x_989; lean_
 x_986 = lean_ctor_get(x_983, 0);
 lean_inc(x_986);
 lean_dec(x_983);
-x_987 = l_Lean_getShowAuxDecls(x_980);
+x_987 = l_Lean_getAuxDeclsOption(x_980);
 x_988 = lean_ctor_get(x_986, 1);
 lean_inc(x_988);
 x_989 = l_Lean_LocalContext_sanitizeNames(x_988, x_980);
@@ -45493,18 +45493,18 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_PPExt(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_showAuxDeclsDefault = _init_l_Lean_showAuxDeclsDefault();
-l_Lean_showAuxDeclsOption___closed__1 = _init_l_Lean_showAuxDeclsOption___closed__1();
-lean_mark_persistent(l_Lean_showAuxDeclsOption___closed__1);
-l_Lean_showAuxDeclsOption___closed__2 = _init_l_Lean_showAuxDeclsOption___closed__2();
-lean_mark_persistent(l_Lean_showAuxDeclsOption___closed__2);
-l_Lean_showAuxDeclsOption___closed__3 = _init_l_Lean_showAuxDeclsOption___closed__3();
-lean_mark_persistent(l_Lean_showAuxDeclsOption___closed__3);
-l_Lean_showAuxDeclsOption___closed__4 = _init_l_Lean_showAuxDeclsOption___closed__4();
-lean_mark_persistent(l_Lean_showAuxDeclsOption___closed__4);
-l_Lean_showAuxDeclsOption___closed__5 = _init_l_Lean_showAuxDeclsOption___closed__5();
-lean_mark_persistent(l_Lean_showAuxDeclsOption___closed__5);
-res = l_Lean_showAuxDeclsOption(lean_io_mk_world());
+l_Lean_ppAuxDeclsDefault = _init_l_Lean_ppAuxDeclsDefault();
+l_Lean_ppAuxDeclsOption___closed__1 = _init_l_Lean_ppAuxDeclsOption___closed__1();
+lean_mark_persistent(l_Lean_ppAuxDeclsOption___closed__1);
+l_Lean_ppAuxDeclsOption___closed__2 = _init_l_Lean_ppAuxDeclsOption___closed__2();
+lean_mark_persistent(l_Lean_ppAuxDeclsOption___closed__2);
+l_Lean_ppAuxDeclsOption___closed__3 = _init_l_Lean_ppAuxDeclsOption___closed__3();
+lean_mark_persistent(l_Lean_ppAuxDeclsOption___closed__3);
+l_Lean_ppAuxDeclsOption___closed__4 = _init_l_Lean_ppAuxDeclsOption___closed__4();
+lean_mark_persistent(l_Lean_ppAuxDeclsOption___closed__4);
+l_Lean_ppAuxDeclsOption___closed__5 = _init_l_Lean_ppAuxDeclsOption___closed__5();
+lean_mark_persistent(l_Lean_ppAuxDeclsOption___closed__5);
+res = l_Lean_ppAuxDeclsOption(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1 = _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1();

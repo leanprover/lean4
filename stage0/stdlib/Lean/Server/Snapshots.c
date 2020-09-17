@@ -20,7 +20,6 @@ lean_object* l_Lean_Server_Snapshots_compileCmdsAfter___main(lean_object*, lean_
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_toCmdState(lean_object*);
-lean_object* l_Lean_Elab_log___at_Lean_Elab_Command_elabCommand___main___spec__10(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileCmdsAfter(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
 extern lean_object* l_Lean_Elab_parseImports___closed__1;
@@ -53,6 +52,7 @@ extern lean_object* l_Nat_Inhabited;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
+lean_object* l_Lean_Elab_log___at_Lean_Elab_Command_withLogging___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object* x_1) {
 _start:
@@ -528,7 +528,7 @@ x_63 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_63, 0, x_62);
 lean_ctor_set(x_63, 1, x_61);
 x_64 = 2;
-x_65 = l_Lean_Elab_log___at_Lean_Elab_Command_elabCommand___main___spec__10(x_63, x_64, x_44, x_22, x_57);
+x_65 = l_Lean_Elab_log___at_Lean_Elab_Command_withLogging___spec__3(x_63, x_64, x_44, x_22, x_57);
 lean_dec(x_44);
 x_66 = lean_ctor_get(x_65, 1);
 lean_inc(x_66);
@@ -712,7 +712,7 @@ x_113 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_113, 0, x_112);
 lean_ctor_set(x_113, 1, x_111);
 x_114 = 2;
-x_115 = l_Lean_Elab_log___at_Lean_Elab_Command_elabCommand___main___spec__10(x_113, x_114, x_94, x_76, x_107);
+x_115 = l_Lean_Elab_log___at_Lean_Elab_Command_withLogging___spec__3(x_113, x_114, x_94, x_76, x_107);
 lean_dec(x_94);
 x_116 = lean_ctor_get(x_115, 1);
 lean_inc(x_116);

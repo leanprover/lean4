@@ -46,9 +46,19 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> indentedNonEmptySeq
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
-def location : Parser := "at " >> ("*" <|> (many ident >> optional (unicodeSymbol "⊢" "|-")))
+
+def locationWildcard := parser! "*"
+def locationTarget   := parser! unicodeSymbol "⊢" "|-"
+def locationHyp      := parser! many1 ident
+def location         := parser! "at " >> (locationWildcard <|> locationTarget <|> locationHyp)
+
 @[builtinTacticParser] def change     := parser! nonReservedSymbol "change " >> termParser >> optional location
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
+
+def rwRule    := parser! optional (unicodeSymbol "←" "<-") >> termParser
+def rwRuleSeq := parser! "[" >> sepBy1 rwRule "; " true >> "]"
+@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRule >> optional location
+@[builtinTacticParser] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
 
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
 def altRHS := Term.hole <|> Term.syntheticHole <|> indentedNonEmptySeq

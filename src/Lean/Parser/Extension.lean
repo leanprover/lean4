@@ -352,8 +352,10 @@ let s := whitespace c s;
 let s := categoryParserFnImpl catName c s;
 if s.hasError then
   Except.error (s.toErrorMsg c)
-else
+else if input.atEnd s.pos then
   Except.ok s.stxStack.back
+else
+  Except.error ((s.mkError "end of input").toErrorMsg c)
 
 def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;

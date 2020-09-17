@@ -260,7 +260,7 @@ if stx.getKind == `Lean.Parser.Term.structInstArrayRef then
 else
   -- Note that the representation of the first field is different.
   let stx := if stx.getKind == nullKind then stx.getArg 1 else stx;
-  if stx.isIdent then pure $ FieldLHS.fieldName stx stx.getId
+  if stx.isIdent then pure $ FieldLHS.fieldName stx stx.getId.eraseMacroScopes
   else match stx.isFieldIdx? with
     | some idx => pure $ FieldLHS.fieldIndex stx idx
     | none     => throw "unexpected structure syntax"

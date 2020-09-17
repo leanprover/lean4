@@ -510,21 +510,18 @@ fun c s =>
 { info := noFirstTokenInfo p.info,
   fn   := manyFn p.fn }
 
-@[inline] def many1Fn (p : ParserFn) (unboxSingleton : Bool) : ParserFn :=
+@[inline] def many1Fn (p : ParserFn) : ParserFn :=
 fun c s =>
   let iniSz  := s.stackSize;
   let s := andthenFn p (manyAux p) c s;
-  if s.stackSize - iniSz == 1 && unboxSingleton then
-    s
-  else
-    s.mkNode nullKind iniSz
+  s.mkNode nullKind iniSz
 
-@[inline] def many1 (p : Parser) (unboxSingleton := false) : Parser :=
+@[inline] def many1 (p : Parser) : Parser :=
 { info := p.info,
-  fn   := many1Fn p.fn unboxSingleton }
+  fn   := many1Fn p.fn }
 
 @[specialize] private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool)
-    (iniSz : Nat) (unboxSingleton : Bool)  : Bool → ParserFn
+    (iniSz : Nat) : Bool → ParserFn
 | pOpt, c, s =>
   let sz  := s.stackSize;
   let pos := s.pos;
@@ -533,10 +530,7 @@ fun c s =>
     if s.pos > pos then s
     else if pOpt then
       let s := s.restore sz pos;
-      if s.stackSize - iniSz == 2 && unboxSingleton then
-        s.popSyntax
-      else
-        s.mkNode nullKind iniSz
+      s.mkNode nullKind iniSz
     else
       -- append `Syntax.missing` to make clear that List is incomplete
       let s := s.pushSyntax Syntax.missing;
@@ -547,22 +541,19 @@ fun c s =>
     let s   := sep c s;
     if s.hasError then
       let s := s.restore sz pos;
-      if s.stackSize - iniSz == 1 && unboxSingleton then
-        s
-      else
-        s.mkNode nullKind iniSz
+      s.mkNode nullKind iniSz
     else
       sepByFnAux allowTrailingSep c s
 
 @[specialize] def sepByFn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn
 | c, s =>
   let iniSz := s.stackSize;
-  sepByFnAux p sep allowTrailingSep iniSz false true c s
+  sepByFnAux p sep allowTrailingSep iniSz true c s
 
-@[specialize] def sepBy1Fn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) (unboxSingleton : Bool) : ParserFn
+@[specialize] def sepBy1Fn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn
 | c, s =>
   let iniSz := s.stackSize;
-  sepByFnAux p sep allowTrailingSep iniSz unboxSingleton false c s
+  sepByFnAux p sep allowTrailingSep iniSz false c s
 
 @[noinline] def sepByInfo (p sep : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens ∘ sep.collectTokens,
@@ -577,9 +568,9 @@ fun c s =>
 { info := sepByInfo p.info sep.info,
   fn   := sepByFn allowTrailingSep p.fn sep.fn }
 
-@[inline] def sepBy1 (p sep : Parser) (allowTrailingSep : Bool := false) (unboxSingleton := false) : Parser :=
+@[inline] def sepBy1 (p sep : Parser) (allowTrailingSep : Bool := false) : Parser :=
 { info := sepBy1Info p.info sep.info,
-  fn   := sepBy1Fn allowTrailingSep p.fn sep.fn unboxSingleton }
+  fn   := sepBy1Fn allowTrailingSep p.fn sep.fn }
 
 /- Apply `f` to the syntax object produced by `p` -/
 @[inline] def withResultOfFn (p : ParserFn) (f : Syntax → Syntax) : ParserFn :=

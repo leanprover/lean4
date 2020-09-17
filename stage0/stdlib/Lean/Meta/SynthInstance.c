@@ -192,6 +192,7 @@ lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Meta_SynthInstance_ne
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__4(lean_object*);
 extern lean_object* l_Lean_Meta_isDefEqStuckExceptionId;
 lean_object* l_Lean_Meta_isExprMVarAssigned___at___private_Lean_Meta_SynthInstance_11__synthPendingImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isClass_x3f___at___private_Lean_Meta_Basic_26__withNewFVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_generate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_SynthInstance_newSubgoal___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -366,7 +367,6 @@ lean_object* l_Lean_Meta_isExprMVarAssigned___at___private_Lean_Meta_SynthInstan
 lean_object* lean_level_update_succ(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___lambda__3___closed__3;
 lean_object* l_Lean_Meta_openAbstractMVarsResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_17__isClassImp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_modifyTop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___lambda__2___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_resume___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2708,7 +2708,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_9 = l___private_Lean_Meta_Basic_17__isClassImp_x3f(x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_Meta_isClass_x3f___at___private_Lean_Meta_Basic_26__withNewFVar___spec__1(x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -16198,7 +16198,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_12);
-x_13 = l___private_Lean_Meta_Basic_17__isClassImp_x3f(x_12, x_2, x_3, x_4, x_5, x_11);
+x_13 = l_Lean_Meta_isClass_x3f___at___private_Lean_Meta_Basic_26__withNewFVar___spec__1(x_12, x_2, x_3, x_4, x_5, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 

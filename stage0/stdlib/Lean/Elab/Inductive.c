@@ -105,6 +105,7 @@ lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_17__levelMVar
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l_Lean_Prod_hasQuote___rarg___closed__2;
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Inductive_4__checkLevelNames___spec__1___closed__2;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Lean_Elab_Inductive_24__traceIndTypes___spec__4___closed__1;
@@ -291,7 +292,6 @@ lean_object* l___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___rarg(le
 lean_object* l___private_Lean_Elab_Inductive_1__elabHeaderAux___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at___private_Lean_Elab_Inductive_16__elabCtors___spec__1___closed__1;
 lean_object* l___private_Lean_Elab_Inductive_30__mkIndFVar2Const___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_prodToExpr___rarg___lambda__1___closed__2;
 lean_object* l_Nat_forMAux___main___at___private_Lean_Elab_Inductive_16__elabCtors___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinders___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13040,7 +13040,7 @@ x_16 = l_Lean_Environment_contains(x_12, x_15);
 x_17 = l___private_Lean_Elab_Inductive_34__mkAuxConstructions___closed__2;
 lean_inc(x_12);
 x_18 = l_Lean_Environment_contains(x_12, x_17);
-x_19 = l_Lean_prodToExpr___rarg___lambda__1___closed__2;
+x_19 = l_Lean_Prod_hasQuote___rarg___closed__2;
 x_20 = l_Lean_Environment_contains(x_12, x_19);
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = l_Array_forMAux___main___at___private_Lean_Elab_Inductive_34__mkAuxConstructions___spec__1(x_14, x_16, x_18, x_20, x_1, x_21, x_2, x_3, x_4, x_5, x_6, x_7, x_11);

@@ -408,6 +408,10 @@ else
 def optional.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 visitArgs p
 
+@[combinatorParenthesizer Lean.Parser.withResultOf]
+def withResultOf.parenthesizer (p : Parenthesizer) (f : Syntax → Syntax) : Parenthesizer := do
+visitArgs p
+
 @[combinatorParenthesizer Lean.Parser.sepBy]
 def sepBy.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 stx ← getCur;
@@ -435,6 +439,7 @@ p
 @[combinatorParenthesizer Lean.Parser.checkNoImmediateColon] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkInsideQuot] def checkInsideQuot.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkOutsideQuot] def checkOutsideQuot.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.skip] def skip.parenthesizer : Parenthesizer := pure ()
 
 @[combinatorParenthesizer Lean.Parser.pushNone] def pushNone.parenthesizer : Parenthesizer := goLeft
 

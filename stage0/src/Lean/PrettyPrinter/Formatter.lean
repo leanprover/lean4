@@ -130,52 +130,6 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
-/-
-/--
-  Call an appropriate `[formatter]` depending on the `Parser` `Expr` `p`. After the call, the traverser position
-  should be to the left of all nodes produced by `p`, or at the left-most child if there are no other nodes left. -/
-partial def visit : Formatter := do
-stx ← getCur;
--- do reductions _except_ for definition unfolding
-p ← liftM $ whnfCore p;
-trace! `PrettyPrinter.format ("formatting" ++ MessageData.nest 2 (line ++ stx) ++ line ++ "using" ++ MessageData.nest 2 (line ++ p));
-sp ← getStackSize;
-let c := Expr.constName? p.getAppFn;
--- TODO: delete after adapting parenthesizer compiler approach
-let p := match c with
-| `ident => mkConst `Lean.Parser.Term.ident
-| `charLit => mkConst `Lean.Parser.Term.char
-| `numLit => mkConst `Lean.Parser.Term.num
-| `strLit => mkConst `Lean.Parser.Term.str
-:= p;
-env ← liftM getEnv;
-match c >>= (formatterAttribute.ext.getState env).table.find? with
-| some (f::_) => do
-  -- call first matching formatter
-  f p
-| _           =>
-  -- `choice` is not an actual parser, so special-case it here
-  if c == some `choice then do
-    visitArgs do {
-      stx ← getCur;
-      sp ← getStackSize;
-      stx.getArgs.forM fun _ => visit (mkConst stx.getKind);
-      stack ← getStack;
-      when (stack.size > sp && stack.anyRange sp stack.size fun f => pretty f != pretty (stack.get! sp))
-        panic! "Formatter.visit: inequal choice children";
-      -- discard all but one child format
-      setStack $ stack.extract 0 (sp+1)
-    }
-  else do {
-    -- (try to) unfold definition and recurse
-    some p' ← liftM $ unfoldDefinition? p
-      | throw $ Exception.other Syntax.missing $ "no known formatter for '" ++ toString p ++ "'";
-    visit p'
-  };
-stack ← getStack;
-trace! `PrettyPrinter.format (" => " ++ (stack.extract sp stack.size).foldl (fun acc f => repr (toString f) ++ " " ++ acc) "")
--/
-
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
 -- them in turn. Uses the syntax traverser non-linearly!
@@ -308,13 +262,25 @@ goLeft
 def identNoAntiquot.formatter : Formatter := do
 checkKind identKind;
 stx ← getCur;
-let s := stx.getId.toString;
--- try to parse `s` as-is; if it fails, escape
-pst ← parseToken s;
-let s := if pst.stxStack == #[stx] then s else match stx.getId with
-  | Name.str Name.anonymous s _ => "«" ++ s ++ "»"
-  | _                           => panic! "unimplemented: escaping non-atomic identifiers (is anyone even using those?)";
-pushToken s;
+let id := stx.getId;
+let id := id.simpMacroScopes;
+let s := id.toString;
+if id.isAnonymous then
+  pushToken "[anonymous]"
+else if LocalContext.isInaccessibleUserName id || id.components.any Name.isNum then
+  -- not parsable anyway, output as-is
+  pushToken s
+else do {
+  -- try to parse `s` as-is; if it fails, escape
+  pst ← parseToken s;
+  if pst.stxStack == #[stx] then
+    pushToken s
+  else
+    let n := stx.getId;
+    -- TODO: do something better than escaping all parts
+    let n := (n.components.map fun c => "«" ++ toString c ++ "»").foldl mkNameStr Name.anonymous;
+    pushToken n.toString
+};
 goLeft
 
 @[combinatorFormatter rawIdent] def rawIdent.formatter : Formatter := do
@@ -357,6 +323,10 @@ else
 def optional.formatter (p : Formatter) : Formatter := do
 concatArgs p
 
+@[combinatorFormatter Parser.withResultOf]
+def withResultOf.formatter (p : Formatter) (f : Syntax → Syntax) : Formatter := do
+concatArgs p
+
 @[combinatorFormatter sepBy]
 def sepBy.formatter (p pSep : Formatter) : Formatter := do
 stx ← getCur;
@@ -388,6 +358,10 @@ push " "
 @[combinatorFormatter checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkInsideQuot] def checkInsideQuot.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkOutsideQuot] def checkOutsideQuot.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.skip] def skip.formatter : Formatter := pure ()
+
+@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := push " "
+@[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

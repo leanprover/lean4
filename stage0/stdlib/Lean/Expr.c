@@ -95,7 +95,6 @@ lean_object* l_List_map___main___at_Lean_Expr_instantiateLevelParams___spec__4__
 lean_object* l_Lean_Expr_hash___boxed(lean_object*);
 lean_object* l_Lean_Expr_betaRev___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_verboseOption___closed__3;
-lean_object* l_Lean_Literal_type___closed__5;
 lean_object* l_Lean_Expr_mvarId_x21___boxed(lean_object*);
 lean_object* l___private_Lean_Expr_2__mkAppRangeAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_5__withAppRevAux(lean_object*);
@@ -116,6 +115,7 @@ lean_object* l_Lean_annotation_x3f___boxed(lean_object*, lean_object*);
 uint64_t l_Lean_Expr_mkDataForBinder(size_t, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
 lean_object* lean_expr_mk_local(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_annotation_x3f(lean_object*, lean_object*);
+extern lean_object* l_Lean_Substring_HasQuote___closed__2;
 lean_object* l_Lean_Expr_constName_x3f___boxed(lean_object*);
 lean_object* l_Lean_Expr_binderInfoEx___boxed(lean_object*);
 lean_object* l_Lean_Expr_InstantiateLevelParams_instantiate___main___at_Lean_Expr_instantiateLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
@@ -231,7 +231,6 @@ lean_object* l_Lean_Expr_updateSort_x21(lean_object*, lean_object*);
 uint8_t lean_expr_has_expr_mvar(lean_object*);
 extern lean_object* l_List_Monad;
 lean_object* l___private_Lean_Expr_3__getAppArgsAux(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Literal_type___closed__6;
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_Expr_updateConst_x21(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -3109,27 +3108,9 @@ return x_3;
 lean_object* _init_l_Lean_Literal_type___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("String");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Literal_type___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Literal_type___closed__4;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_Literal_type___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Literal_type___closed__5;
+x_2 = l_Lean_Substring_HasQuote___closed__2;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -3146,7 +3127,7 @@ return x_2;
 else
 {
 lean_object* x_3; 
-x_3 = l_Lean_Literal_type___closed__6;
+x_3 = l_Lean_Literal_type___closed__4;
 return x_3;
 }
 }
@@ -10985,10 +10966,6 @@ l_Lean_Literal_type___closed__3 = _init_l_Lean_Literal_type___closed__3();
 lean_mark_persistent(l_Lean_Literal_type___closed__3);
 l_Lean_Literal_type___closed__4 = _init_l_Lean_Literal_type___closed__4();
 lean_mark_persistent(l_Lean_Literal_type___closed__4);
-l_Lean_Literal_type___closed__5 = _init_l_Lean_Literal_type___closed__5();
-lean_mark_persistent(l_Lean_Literal_type___closed__5);
-l_Lean_Literal_type___closed__6 = _init_l_Lean_Literal_type___closed__6();
-lean_mark_persistent(l_Lean_Literal_type___closed__6);
 l_Lean_mkThunkType___closed__1 = _init_l_Lean_mkThunkType___closed__1();
 lean_mark_persistent(l_Lean_mkThunkType___closed__1);
 l_Lean_mkThunkType___closed__2 = _init_l_Lean_mkThunkType___closed__2();

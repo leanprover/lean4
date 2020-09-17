@@ -130,6 +130,14 @@ def isAnonymous : Name → Bool
 | anonymous         => true
 | _                 => false
 
+def isStr : Name → Bool
+| str _ _ _ => true
+| _         => false
+
+def isNum : Name → Bool
+| num _ _ _ => true
+| _         => false
+
 end Name
 
 open Std (RBMap RBTree mkRBMap mkRBTree)

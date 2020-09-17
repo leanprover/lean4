@@ -135,15 +135,16 @@ else do
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
 tryPostponeIfNoneOrMVar expectedType?;
 let useSource : Unit → TermElabM Name := fun _ =>
-  match sourceView with
-  | Source.explicit _ src => do
+  match sourceView, expectedType? with
+  | Source.explicit _ src, _ => do
     srcType ← inferType src;
     srcType ← whnf srcType;
     tryPostponeIfMVar srcType;
     match srcType.getAppFn with
     | Expr.const constName _ _ => pure constName
     | _ => throwError ("invalid {...} notation, source type is not of the form (C ...)" ++ indentExpr srcType)
-  | _ => throwError ("invalid {...} notation, expected type is not of the form (C ...)" ++ indentExpr expectedType?.get!);
+  | _, some expectedType => throwError ("invalid {...} notation, expected type is not of the form (C ...)" ++ indentExpr expectedType)
+  | _, none              => throwError ("invalid {...} notation, expected type must be known");
 match expectedType? with
 | none => useSource ()
 | some expectedType => do
@@ -260,7 +261,7 @@ if stx.getKind == `Lean.Parser.Term.structInstArrayRef then
 else
   -- Note that the representation of the first field is different.
   let stx := if stx.getKind == nullKind then stx.getArg 1 else stx;
-  if stx.isIdent then pure $ FieldLHS.fieldName stx stx.getId
+  if stx.isIdent then pure $ FieldLHS.fieldName stx stx.getId.eraseMacroScopes
   else match stx.isFieldIdx? with
     | some idx => pure $ FieldLHS.fieldIndex stx idx
     | none     => throw "unexpected structure syntax"

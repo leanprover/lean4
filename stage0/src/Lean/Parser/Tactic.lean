@@ -56,8 +56,8 @@ def location         := parser! "at " >> (locationWildcard <|> locationTarget <|
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
 
 def rwRule    := parser! optional (unicodeSymbol "←" "<-") >> termParser
-def rwRuleSeq := parser! "[" >> sepBy1 rwRule "; " true >> "]"
-@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRule >> optional location
+def rwRuleSeq := parser! "[" >> sepBy1 rwRule ", " true >> "]"
+@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> notFollowedBy "[" >> rwRule >> optional location
 @[builtinTacticParser] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
 
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser

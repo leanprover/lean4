@@ -650,7 +650,7 @@ match c? with
 | LOption.undef  => isClassExpensive? type
 
 def isClass? (type : Expr) : m (Option Name) :=
-liftMetaM $ isClassImp? type
+liftMetaM $ catch (isClassImp? type) (fun _ => pure none)
 
 private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
 mapMetaM fun _ => withNewLocalInstancesImp isClassExpensive? fvars j

@@ -11,3 +11,4 @@ import Lean.Elab.Tactic.Generalize
 import Lean.Elab.Tactic.Injection
 import Lean.Elab.Tactic.Match
 import Lean.Elab.Tactic.Binders
+import Lean.Elab.Tactic.Rewrite

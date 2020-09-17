@@ -25,6 +25,7 @@ extern lean_object* l_addParenHeuristic___closed__2;
 lean_object* l_Lean_KernelException_toMessageData___closed__49;
 lean_object* l_Array_umapMAux___main___at_Lean_MessageLog_errorsToWarnings___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList___closed__3;
+lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__7;
 lean_object* l_Array_umapMAux___main___at_Lean_MessageLog_errorsToWarnings___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofArray___boxed(lean_object*);
@@ -2960,57 +2961,62 @@ lean_object* _init_l_Lean_Message_getMessageStringEx___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("error");
+x_1 = lean_mk_string("error formatting message: ");
 return x_1;
 }
 }
 lean_object* lean_message_string(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_1, 4);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_box(0);
-x_8 = l_Lean_MessageData_toString(x_6, x_7);
-if (lean_obj_tag(x_8) == 0)
-{
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_ctor_get(x_8, 0);
+lean_object* x_2; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_1, 4);
 lean_inc(x_9);
-lean_dec(x_8);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-x_2 = x_10;
-goto block_5;
+lean_dec(x_1);
+x_10 = lean_box(0);
+x_11 = l_Lean_MessageData_toString(x_9, x_10);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+lean_dec(x_11);
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
+x_2 = x_13;
+goto block_8;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_ctor_get(x_8, 0);
-lean_inc(x_11);
-lean_dec(x_8);
-x_12 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
-x_2 = x_12;
-goto block_5;
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_ctor_get(x_11, 0);
+lean_inc(x_14);
+lean_dec(x_11);
+x_15 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+x_2 = x_15;
+goto block_8;
 }
-block_5:
+block_8:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
 lean_dec(x_2);
-x_3 = l_Lean_Message_getMessageStringEx___closed__1;
-return x_3;
+x_4 = lean_io_error_to_string(x_3);
+x_5 = l_Lean_Message_getMessageStringEx___closed__1;
+x_6 = lean_string_append(x_5, x_4);
+lean_dec(x_4);
+return x_6;
 }
 else
 {
-lean_object* x_4; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
 lean_dec(x_2);
-return x_4;
+return x_7;
 }
 }
 }

@@ -8166,13 +8166,27 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = l_Nat_toSuperscriptString(x_3);
-x_8 = l___private_Lean_LocalContext_4__mkInaccessibleUserNameAux___closed__3;
-x_9 = lean_string_append(x_8, x_7);
-lean_dec(x_7);
-x_10 = l_Lean_Name_appendAfter(x_2, x_9);
-return x_10;
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_nat_dec_eq(x_3, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_9 = l_Nat_toSuperscriptString(x_3);
+x_10 = l___private_Lean_LocalContext_4__mkInaccessibleUserNameAux___closed__3;
+x_11 = lean_string_append(x_10, x_9);
+lean_dec(x_9);
+x_12 = l_Lean_Name_appendAfter(x_2, x_11);
+return x_12;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+lean_dec(x_3);
+x_13 = l___private_Lean_LocalContext_4__mkInaccessibleUserNameAux___closed__3;
+x_14 = l_Lean_Name_appendAfter(x_2, x_13);
+return x_14;
+}
 }
 }
 }
@@ -8625,7 +8639,7 @@ x_27 = l_Std_RBNode_find___main___at_Lean_LocalContext_sanitizeNames___spec__1(x
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; uint8_t x_29; 
-x_28 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_26, x_6);
+x_28 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_26, x_4);
 x_29 = !lean_is_exclusive(x_28);
 if (x_29 == 0)
 {
@@ -8717,7 +8731,7 @@ x_54 = l_Std_RBNode_find___main___at_Lean_LocalContext_sanitizeNames___spec__1(x
 if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_55; uint8_t x_56; 
-x_55 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_53, x_6);
+x_55 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_53, x_4);
 x_56 = !lean_is_exclusive(x_55);
 if (x_56 == 0)
 {
@@ -8835,7 +8849,7 @@ x_89 = l_Std_RBNode_find___main___at_Lean_LocalContext_sanitizeNames___spec__1(x
 if (lean_obj_tag(x_89) == 0)
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
-x_90 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_88, x_6);
+x_90 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_88, x_4);
 x_91 = lean_ctor_get(x_90, 0);
 lean_inc(x_91);
 x_92 = lean_ctor_get(x_90, 1);
@@ -8910,7 +8924,7 @@ x_108 = l_Std_RBNode_find___main___at_Lean_LocalContext_sanitizeNames___spec__1(
 if (lean_obj_tag(x_108) == 0)
 {
 lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; 
-x_109 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_107, x_6);
+x_109 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_12, x_107, x_4);
 x_110 = lean_ctor_get(x_109, 0);
 lean_inc(x_110);
 x_111 = lean_ctor_get(x_109, 1);
@@ -9047,7 +9061,7 @@ x_142 = l_Std_RBNode_find___main___at_Lean_LocalContext_sanitizeNames___spec__1(
 if (lean_obj_tag(x_142) == 0)
 {
 lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; 
-x_143 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_127, x_141, x_6);
+x_143 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_127, x_141, x_4);
 x_144 = lean_ctor_get(x_143, 0);
 lean_inc(x_144);
 x_145 = lean_ctor_get(x_143, 1);
@@ -9125,7 +9139,7 @@ x_163 = l_Std_RBNode_find___main___at_Lean_LocalContext_sanitizeNames___spec__1(
 if (lean_obj_tag(x_163) == 0)
 {
 lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; lean_object* x_169; lean_object* x_170; lean_object* x_171; 
-x_164 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_127, x_162, x_6);
+x_164 = l___private_Lean_LocalContext_6__mkFreshInaccessibleUserName___main(x_1, x_127, x_162, x_4);
 x_165 = lean_ctor_get(x_164, 0);
 lean_inc(x_165);
 x_166 = lean_ctor_get(x_164, 1);

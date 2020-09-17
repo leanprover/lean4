@@ -112,7 +112,7 @@ Note that we did not add a `explicitShortBinder` parser since `(α) → α → �
 @[builtinTermParser] def depArrow := parser! bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser
 
 def simpleBinder := parser! many1 binderIdent
-@[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall " >> many1 (simpleBinder <|> bracketedBinder) >> ", " >> termParser
+@[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
 
 def matchAlt : Parser :=
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
@@ -130,7 +130,7 @@ def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space befo
 
 def funImplicitBinder := try (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
 def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPrec
-@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ " "fun " >> ((many1 funBinder >> darrow >> termParser) <|> matchAlts false)
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> ((many1 (ppSpace >> funBinder) >> darrow >> termParser) <|> matchAlts false)
 
 def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
@@ -141,7 +141,7 @@ def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «match_syntax» := parser!:leadPrec "match_syntax" >> termParser >> " with " >> matchAlts
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
-def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
+def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> bracketedBinder) >> optType
 def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ try (letIdLhs >> " := ") >> termParser
 def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
 def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false

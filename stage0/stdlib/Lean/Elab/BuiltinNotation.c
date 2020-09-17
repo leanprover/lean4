@@ -278,7 +278,6 @@ lean_object* l___regBuiltin_Lean_Elab_Term_elabNativeDecide___closed__1;
 lean_object* l___private_Lean_Elab_BuiltinNotation_1__elabParserMacroAux___closed__6;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandMod___closed__1;
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_11____closed__24;
-extern lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSeq___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandReturn___closed__2;
 extern lean_object* l_Lean_Meta_mkDecideProof___rarg___closed__1;
 lean_object* l___private_Lean_Elab_BuiltinNotation_2__elabTParserMacroAux___closed__4;
@@ -287,7 +286,6 @@ lean_object* l_Lean_Elab_Term_expandDiv___closed__1;
 lean_object* l___private_Lean_Elab_BuiltinNotation_1__elabParserMacroAux___closed__20;
 extern lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__42;
 lean_object* l_Lean_Elab_Term_elabNativeRefl___closed__9;
-extern lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSeq___closed__1;
 lean_object* l_Lean_Elab_Term_expandPow(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandBAnd___closed__1;
 lean_object* l___private_Lean_Elab_BuiltinNotation_2__elabTParserMacroAux___closed__9;
@@ -504,6 +502,7 @@ lean_object* l___regBuiltin_Lean_Elab_Term_expandOr___closed__2;
 lean_object* l___private_Lean_Elab_BuiltinNotation_4__elabClosedTerm___closed__2;
 lean_object* l_Lean_Elab_Term_expandLE(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_beq___main___at___private_Lean_Elab_BuiltinNotation_1__elabParserMacroAux___spec__1(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__4;
 lean_object* l_Lean_Elab_Term_expandShow___closed__13;
 extern lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__7;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandShow(lean_object*);
@@ -608,6 +607,7 @@ lean_object* l_Lean_Elab_Term_expandAssert___closed__19;
 lean_object* l_Lean_Elab_getRefPos___at_Lean_Elab_Term_elabPanic___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_consumeMData___main(lean_object*);
 extern lean_object* l___private_Init_LeanInit_16__quoteOption___rarg___closed__5;
+extern lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__5;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandCons___closed__2;
 lean_object* l_Lean_Elab_Term_ExpandFComp___closed__3;
 lean_object* l_Lean_Elab_Term_expandDollarProj___closed__2;
@@ -2958,7 +2958,7 @@ else
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = l_Lean_Syntax_getArg(x_10, x_7);
 lean_dec(x_10);
-x_16 = l___regBuiltin_Lean_Elab_Tactic_evalSeq___closed__2;
+x_16 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__5;
 lean_inc(x_15);
 x_17 = l_Lean_Syntax_isOfKind(x_15, x_16);
 if (x_17 == 0)
@@ -3387,7 +3387,7 @@ else
 lean_object* x_61; lean_object* x_62; uint8_t x_63; 
 x_61 = l_Lean_Syntax_getArg(x_17, x_7);
 lean_dec(x_17);
-x_62 = l___regBuiltin_Lean_Elab_Tactic_evalSeq___closed__2;
+x_62 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__5;
 lean_inc(x_61);
 x_63 = l_Lean_Syntax_isOfKind(x_61, x_62);
 if (x_63 == 0)
@@ -3678,7 +3678,7 @@ else
 lean_object* x_194; lean_object* x_195; uint8_t x_196; 
 x_194 = l_Lean_Syntax_getArg(x_149, x_7);
 lean_dec(x_149);
-x_195 = l___regBuiltin_Lean_Elab_Tactic_evalSeq___closed__2;
+x_195 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__5;
 lean_inc(x_194);
 x_196 = l_Lean_Syntax_isOfKind(x_194, x_195);
 if (x_196 == 0)
@@ -10199,7 +10199,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_expandseq___closed__2;
-x_2 = l___regBuiltin_Lean_Elab_Tactic_evalSeq___closed__1;
+x_2 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -10228,7 +10228,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l___regBuiltin_Lean_Elab_Tactic_evalSeq___closed__1;
+x_2 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -56,6 +56,8 @@ def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
 def getPPCoercions (o : Options) : Bool := o.get `pp.coercions true
 def getPPExplicit (o : Options) : Bool := o.get `pp.explicit false
 def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections true
+def getPPStructureInstances (o : Options) : Bool := o.get `pp.structure_instances true
+def getPPStructureInstanceType (o : Options) : Bool := o.get `pp.structure_instance_type false
 def getPPUniverses (o : Options) : Bool := o.get `pp.universes false
 def getPPFullNames (o : Options) : Bool := o.get `pp.full_names false
 def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names false
@@ -64,6 +66,7 @@ def getPPAll (o : Options) : Bool := o.get `pp.all false
 
 @[init] def ppOptions : IO Unit := do
 registerOption `pp.explicit { defValue := false, group := "pp", descr := "(pretty printer) display implicit arguments" };
+registerOption `pp.structure_instance_type { defValue := false, group := "pp", descr := "(pretty printer) display type of structure instances" };
 -- TODO: register other options when old pretty printer is removed
 --registerOption `pp.universes { defValue := false, group := "pp", descr := "(pretty printer) display universes" };
 pure ()
@@ -541,6 +544,38 @@ expl ← getPPOption getPPExplicit;
 guard $ !expl || info.nparams == 0;
 appStx ← withAppArg delab;
 `($(appStx).$(mkIdent f):ident)
+
+@[builtinDelab app]
+def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
+env ← getEnv;
+e ← getExpr;
+some s ← pure $ e.isConstructorApp? env | failure;
+guard $ isStructure env s.induct;
+/- If implicit arguments should be shown, and the structure has parameters, we should not
+   pretty print using { ... }, because we will not be able to see the parameters. -/
+explicit ← getPPOption getPPExplicit;
+guard !(explicit && s.nparams > 0);
+let fieldNames := getStructureFields env s.induct;
+(_, fields) ← withAppFnArgs (pure (0, #[])) fun ⟨idx, fields⟩ => if idx < s.nparams then pure (idx + 1, fields) else do {
+  val ← delab;
+  let field := Syntax.node `Lean.Parser.Term.structInstField #[
+    mkIdent $ fieldNames.get! (idx - s.nparams),
+    mkNullNode,
+    mkAtom ":=",
+    val
+  ];
+  pure (idx + 1, fields.push field)
+};
+let fields := (mkSepStx fields (mkAtom ",")).getArgs;
+condM (getPPOption getPPStructureInstanceType)
+  (do
+    ty ← inferType e;
+    -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that
+    -- index 2 is unused.
+    stxTy ← descend ty 2 delab;
+    `({ $fields:structInstField* : $stxTy }))
+  `({ $fields:structInstField* })
+
 
 -- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
 @[builtinDelab app.coe]

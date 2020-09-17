@@ -79,6 +79,8 @@ end
 #eval check `(42)
 #eval check `("hi")
 
+set_option pp.structure_instance_type true in
+#eval check `({ type := Nat, val := 0 : PointedType })
 #eval check `((1,2).fst)
 
 #eval check `(1 < 2 || true)

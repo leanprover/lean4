@@ -41,5 +41,9 @@ pure fmt
 /-@[init]-/ def registerPPTerm : IO Unit := do
 ppExprFnRef.set ppExprFn
 
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `PrettyPrinter;
+pure ()
+
 end PrettyPrinter
 end Lean

@@ -27,7 +27,7 @@ context:
 inst.16 : Inhabited α
 inst inst : α
 β.41 δ.42 : Type
-⊢ α → β._@.shadow._hyg.41 → δ._@.shadow._hyg.42 → α × β._@.shadow._hyg.41 × δ._@.shadow._hyg.42
+⊢ α → β.41 → δ.42 → α × β.41 × δ.42
 shadow.lean:20:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1

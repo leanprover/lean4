@@ -263,6 +263,7 @@ def identNoAntiquot.formatter : Formatter := do
 checkKind identKind;
 stx ← getCur;
 let id := stx.getId;
+let id := id.simpMacroScopes;
 let s := id.toString;
 if id.isAnonymous then
   pushToken "[anonymous]"

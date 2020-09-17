@@ -30,6 +30,8 @@ Type → Type → Type
 1
 42
 "hi"
-(Prod.mk 1 2).fst
+{ type := Nat, val := 0 : PointedType }
+(1, 2, 3)
+(1, 2).fst
 1 < 2 || true
 id (fun (a : Nat) => a) 0

@@ -55,6 +55,7 @@ end Level
 def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
 def getPPCoercions (o : Options) : Bool := o.get `pp.coercions true
 def getPPExplicit (o : Options) : Bool := o.get `pp.explicit false
+def getPPNotation (o : Options) : Bool := o.get `pp.notation true
 def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections true
 def getPPStructureInstances (o : Options) : Bool := o.get `pp.structure_instances true
 def getPPStructureInstanceType (o : Options) : Bool := o.get `pp.structure_instance_type false
@@ -576,6 +577,17 @@ condM (getPPOption getPPStructureInstanceType)
     `({ $fields:structInstField* : $stxTy }))
   `({ $fields:structInstField* })
 
+@[builtinDelab app.Prod.mk]
+def delabTuple : Delab := whenPPOption getPPNotation do
+e ← getExpr;
+guard $ e.getAppNumArgs == 4;
+a ← withAppFn $ withAppArg delab;
+b ← withAppArg delab;
+match_syntax b with
+| `(($b, $bs*)) =>
+  let bs := #[b, mkAtom ","] ++ bs;
+  `(($a, $bs*))
+| _ => `(($a, $b))
 
 -- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
 @[builtinDelab app.coe]
@@ -596,14 +608,14 @@ match_syntax stx with
 @[builtinDelab app.coeFun]
 def delabCoeFun : Delab := delabCoe
 
-def delabInfixOp (op : Bool → Syntax → Syntax → Delab) : Delab := do
+def delabInfixOp (op : Bool → Syntax → Syntax → Delab) : Delab := whenPPOption getPPNotation do
 stx ← delabAppImplicit <|> delabAppExplicit;
 guard $ stx.isOfKind `Lean.Parser.Term.app && (stx.getArg 1).getNumArgs == 2;
 unicode ← getPPOption getPPUnicode;
 let args := stx.getArg 1;
 op unicode (args.getArg 0) (args.getArg 1)
 
-def delabPrefixOp (op : Bool → Syntax → Delab) : Delab := do
+def delabPrefixOp (op : Bool → Syntax → Delab) : Delab := whenPPOption getPPNotation do
 stx ← delabAppImplicit <|> delabAppExplicit;
 guard $ stx.isOfKind `Lean.Parser.Term.app && (stx.getArg 1).getNumArgs == 1;
 unicode ← getPPOption getPPUnicode;

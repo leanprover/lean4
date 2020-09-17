@@ -524,11 +524,11 @@ forallTelescope type $ fun xs typeBody =>
       mkForallFVars xs (mkAppN c args)
   | _ => pure type
 
+def maxStepsDefault := 1000
 @[init] def maxStepsOption : IO Unit :=
-registerOption `synthInstance.maxSteps { defValue := (1000 : Nat), group := "", descr := "maximum steps for the type class instance synthesis procedure" }
-
+registerOption `synthInstance.maxSteps { defValue := maxStepsDefault, group := "", descr := "maximum steps for the type class instance synthesis procedure" }
 private def getMaxSteps (opts : Options) : Nat :=
-opts.getNat `synthInstance.maxSteps 10000
+opts.getNat `synthInstance.maxSteps maxStepsDefault
 
 private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := do
 opts ← getOptions;

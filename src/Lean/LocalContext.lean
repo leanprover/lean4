@@ -373,7 +373,10 @@ Id.run $ lctx.allM p
 
 private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat) : Name :=
 if unicode then
-  name.appendAfter ("✝" ++ idx.toSuperscriptString)
+  if idx == 0 then
+    name.appendAfter "✝"
+  else
+    name.appendAfter ("✝" ++ idx.toSuperscriptString)
 else
   name ++ mkNameNum "_inaccessible" idx
 
@@ -420,7 +423,7 @@ let (lctx, _, _) := lctx.decls.size.foldRev
       let userName := decl.userName;
       if userName.hasMacroScopes || usedNames.contains userName then
         let userName := userName.eraseMacroScopes;
-        let idx      := (usedName2Idx.find? userName).getD 1;
+        let idx      := (usedName2Idx.find? userName).getD 0;
         let (userNameNew, usedName2Idx) := mkFreshInaccessibleUserName unicode usedName2Idx userName idx;
         let lctx := lctx.setUserName decl.fvarId userNameNew;
         (lctx, usedNames, usedName2Idx)

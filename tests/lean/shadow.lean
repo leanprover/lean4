@@ -16,5 +16,5 @@ set_option pp.sanitizeNames false in
 def foo2 {α} [Inhabited α] (inst inst : α) : {β δ : Type} → α → β → δ → α × β × δ :=
 _
 
-def foo3 {α β} (inst : α) (b : β) (inst : α) [Inhabited α] : {β δ : Type} → α → β → δ → α × β × δ :=
+def foo3 {α β} (inst : α) (inst : β) (b : β) (inst : α) [Inhabited α] : {β δ : Type} → α → β → δ → α × β × δ :=
 _

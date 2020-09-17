@@ -266,7 +266,7 @@ let id := stx.getId;
 let s := id.toString;
 if id.isAnonymous then
   pushToken "[anonymous]"
-else if id.components.any Name.isNum then
+else if LocalContext.isInaccessibleUserName id || id.components.any Name.isNum then
   -- not parsable anyway, output as-is
   pushToken s
 else do {

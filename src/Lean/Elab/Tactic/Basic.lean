@@ -152,9 +152,8 @@ partial def evalTactic : Syntax → TacticM Unit
 | stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
   | Syntax.node k args =>
     if k == nullKind then
-      -- list of tactics separated by `;` => evaluate in order
-      -- Syntax quotations can return multiple ones
-      stx.forSepArgsM evalTactic
+      -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
+      stx.getArgs.forM evalTactic
     else do
       trace `Elab.step fun _ => stx;
       env ← getEnv;

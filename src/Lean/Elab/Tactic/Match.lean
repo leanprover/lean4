@@ -44,15 +44,12 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
 (matchTerm, s) ← (mkAuxiliaryMatchTermAux parentTag matchTac).run {};
 pure (matchTerm, s.cases)
 
-def mkTacticSeq (ref : Syntax) (tacs : Array Syntax) : Syntax :=
-mkSepStx tacs (mkAtomFrom ref "; ")
-
 @[builtinTactic Lean.Parser.Tactic.match] def evalMatch : Tactic :=
 fun stx => do
   tag ← getMainTag;
   (matchTerm, cases) ← liftMacroM $ mkAuxiliaryMatchTerm tag stx;
   refineMatchTerm ← `(tactic| refine $matchTerm);
-  let stxNew := mkTacticSeq stx (#[refineMatchTerm] ++ cases);
+  let stxNew := mkNullNode (#[refineMatchTerm] ++ cases);
   withMacroExpansion stx stxNew $ evalTactic stxNew
 
 end Tactic

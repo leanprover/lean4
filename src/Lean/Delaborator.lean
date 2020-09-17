@@ -206,11 +206,9 @@ descend e.bindingDomain! 0 d
 
 def withBindingBody {α} (n : Name) (d : DelabM α) : DelabM α := do
 e ← getExpr;
-withLocalDecl n e.binderInfo e.bindingDomain! (fun fvar =>
+withLocalDecl n e.binderInfo e.bindingDomain! fun fvar =>
   let b := e.bindingBody!.instantiate1 fvar;
-  descend b 1 d)
-  -- we don't care about instances, and don't want ill-typed binders to crash the delaborator
-  false
+  descend b 1 d
 
 def withProj {α} (d : DelabM α) : DelabM α := do
 Expr.proj _ _ e _ ← getExpr | unreachable!;
@@ -494,9 +492,7 @@ stxT ← descend t 0 delab;
 stxV ← descend v 1 delab;
 stxB ← withLetDecl n t v (fun fvar =>
   let b := b.instantiate1 fvar;
-  descend b 2 delab)
-  -- we don't care about instances, and don't want ill-typed binders to crash the delaborator
-  false;
+  descend b 2 delab);
 `(let $(mkIdent n) : $stxT := $stxV; $stxB)
 
 @[builtinDelab lit]

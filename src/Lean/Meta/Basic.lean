@@ -650,7 +650,7 @@ match c? with
 | LOption.undef  => isClassExpensive? type
 
 def isClass? (type : Expr) : m (Option Name) :=
-liftMetaM $ isClassImp? type
+liftMetaM $ catch (isClassImp? type) (fun _ => pure none)
 
 private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
 mapMetaM fun _ => withNewLocalInstancesImp isClassExpensive? fvars j
@@ -803,36 +803,36 @@ private partial def lambdaMetaTelescopeAux (maxMVars? : Option Nat)
 def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : m (Array Expr × Array BinderInfo × Expr) :=
 liftMetaM $ lambdaMetaTelescopeAux maxMVars? #[] #[] 0 e
 
-private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) (introduceInstances := true) : MetaM α := do
-c? ← if introduceInstances then isClass? fvarType else pure none;
+private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
+c? ← isClass? fvarType;
 match c? with
 | none   => k fvar
 | some c => withNewLocalInstance c fvar $ k fvar
 
-private def withLocalDeclImp {α} (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) (introduceInstances := true) : MetaM α := do
+private def withLocalDeclImp {α} (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) : MetaM α := do
 fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
 let fvar := mkFVar fvarId;
 adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
-  withNewFVar fvar type k introduceInstances
+  withNewFVar fvar type k
 
-def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) (introduceInstances := true) : n α :=
-map1MetaM (fun _ k => withLocalDeclImp name bi type k introduceInstances) k
+def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
+map1MetaM (fun _ k => withLocalDeclImp name bi type k) k
 
-def withLocalDeclD {α} (name : Name) (type : Expr) (k : Expr → n α) (introduceInstances := true) : n α :=
-withLocalDecl name BinderInfo.default type k introduceInstances
+def withLocalDeclD {α} (name : Name) (type : Expr) (k : Expr → n α) : n α :=
+withLocalDecl name BinderInfo.default type k
 
-private def withLetDeclImp {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (introduceInstances := true) : MetaM α := do
+private def withLetDeclImp {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α := do
 fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLetDecl fvarId n type val;
 let fvar := mkFVar fvarId;
 adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
-  withNewFVar fvar type k introduceInstances
+  withNewFVar fvar type k
 
-def withLetDecl {α} (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (introduceInstances := true) : n α :=
-map1MetaM (fun _ k => withLetDeclImp name type val k introduceInstances) k
+def withLetDecl {α} (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) : n α :=
+map1MetaM (fun _ k => withLetDeclImp name type val k) k
 
 private def withExistingLocalDeclsImp {α} (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
 ctx ← read;

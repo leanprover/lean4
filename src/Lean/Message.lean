@@ -172,8 +172,8 @@ instance : Inhabited Message :=
 @[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity
 @[export lean_message_string] unsafe def getMessageStringEx (msg : Message) : String :=
 match unsafeIO (msg.data.toString) with -- hack: this is going to be deleted
-| Except.ok msg => msg
-| _             => "error"
+| Except.ok msg  => msg
+| Except.error e => "error formatting message: " ++ toString e
 
 end Message
 

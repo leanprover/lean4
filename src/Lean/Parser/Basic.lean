@@ -1665,6 +1665,15 @@ withAntiquot (mkAntiquot "fieldIdx" `fieldIdx)
   { fn   := fieldIdxFn,
     info := mkAtomicInfo "fieldIdx" }
 
+@[inline] def skip : Parser :=
+{ fn   := fun c s => s,
+  info := epsilonInfo }
+
+/-- No-op parser that advises the pretty printer to emit a space/soft line break. -/
+@[inline] def ppSpace : Parser := skip
+/-- No-op parser that advises the pretty printer to emit a hard line break. -/
+@[inline] def ppLine : Parser := skip
+
 end Parser
 
 namespace Syntax

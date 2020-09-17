@@ -46,7 +46,12 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> indentedNonEmptySeq
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
-def location : Parser := "at " >> ("*" <|> (many ident >> optional (unicodeSymbol "⊢" "|-")))
+
+def locationWildcard := parser! "*"
+def locationTarget   := parser! unicodeSymbol "⊢" "|-"
+def locationHyp      := parser! many1 ident
+def location         := parser! "at " >> (locationWildcard <|> locationTarget <|> locationHyp)
+
 @[builtinTacticParser] def change     := parser! nonReservedSymbol "change " >> termParser >> optional location
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
 

@@ -589,8 +589,15 @@ fun c s =>
 { info := withResultOfInfo p.info,
   fn   := withResultOfFn p.fn f }
 
-abbrev unboxSingleton (p : Parser) : Parser :=
-withResultOf p fun stx => if stx.getNumArgs == 1 then stx.getArg 0 else stx
+@[inline] def many1Unbox (p : Parser) : Parser :=
+withResultOf (many1 p) fun stx => if stx.getNumArgs == 1 then stx.getArg 0 else stx
+
+@[inline] def nodeSepBy1Unbox (k : SyntaxNodeKind) (p sep : Parser) (allowTrailingSep := false) : Parser :=
+withResultOf (node k (sepBy1 p sep allowTrailingSep)) fun stx =>
+  if (stx.getArg 0).getNumArgs < 2 then
+    (stx.getArg 0).getArg 0
+  else
+    stx
 
 @[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn
 | c, s =>

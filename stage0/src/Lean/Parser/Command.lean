@@ -23,7 +23,7 @@ categoryParser `command rbp
   Multiple command will be put in a `null node, but a single command will not (so that you can directly
   match against a quotation in a command kind's elaborator). -/
 -- TODO: use two separate quotation parsers with parser priorities instead
-@[builtinTermParser] def Term.quot := parser! "`(" >> toggleInsideQuot (termParser <|> unboxSingleton (many1 commandParser)) >> ")"
+@[builtinTermParser] def Term.quot := parser! "`(" >> toggleInsideQuot (termParser <|> many1Unbox commandParser) >> ")"
 
 namespace Command
 def commentBody : Parser :=

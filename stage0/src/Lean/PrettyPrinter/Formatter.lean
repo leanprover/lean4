@@ -311,21 +311,20 @@ def many.formatter (p : Formatter) : Formatter := do
 stx ← getCur;
 concatArgs $ stx.getArgs.size.forM fun _ => p
 
-@[combinatorFormatter many1] def many1.formatter (p : Formatter) : Formatter := do
-stx ← getCur;
-if stx.getKind == nullKind then do
-  many.formatter p
-else
-  -- can happen with `unboxSingleton = true`
-  p
+@[combinatorFormatter many1] def many1.formatter (p : Formatter) : Formatter :=
+many.formatter p
 
 @[combinatorFormatter Parser.optional]
 def optional.formatter (p : Formatter) : Formatter := do
 concatArgs p
 
-@[combinatorFormatter Parser.withResultOf]
-def withResultOf.formatter (p : Formatter) (f : Syntax → Syntax) : Formatter := do
-concatArgs p
+@[combinatorFormatter Parser.many1Unbox]
+def many1Unbox.formatter (p : Formatter) : Formatter := do
+stx ← getCur;
+if stx.getKind == nullKind then do
+  many.formatter p
+else
+  p
 
 @[combinatorFormatter sepBy]
 def sepBy.formatter (p pSep : Formatter) : Formatter := do
@@ -333,6 +332,14 @@ stx ← getCur;
 concatArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
 
 @[combinatorFormatter sepBy1] def sepBy1.formatter := sepBy.formatter
+
+@[combinatorFormatter Parser.nodeSepBy1Unbox]
+def nodeSepBy1Unbox.formatter (k : SyntaxNodeKind) (p sep : Formatter) : Formatter := do
+stx ← getCur;
+if stx.getKind == k then do
+  node.formatter k $ sepBy.formatter p sep
+else
+  p
 
 @[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Position → Formatter) : Formatter := do
 -- call closure with dummy position

@@ -11,10 +11,15 @@ namespace Elab
 namespace Tactic
 
 @[builtinMacro Lean.Parser.Tactic.rewriteSeq] def expandRewriteTactic : Macro :=
-fun stx => throw $ Macro.Exception.error stx "WIP"
+fun stx =>
+  let seq := ((stx.getArg 1).getArg 1).getArgs.getSepElems;
+  let loc := stx.getArg 2;
+  pure $ mkNullNode $ seq.map fun rwRule => Syntax.node `Lean.Parser.Tactic.rewrite #[stx.getArg 0, rwRule, loc]
 
 @[builtinTactic «rewrite»] def evalRewrite : Tactic :=
-fun stx => throwError "WIP"
+fun stx =>  do
+  logInfo $ "WIP " ++ stx;
+  pure ()
 
 end Tactic
 end Elab

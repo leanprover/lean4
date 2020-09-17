@@ -9,7 +9,8 @@ namespace Lean
 namespace Parser
 namespace Tactic
 
-def nonEmptySeq := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
+def seq  := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
+def seq1 := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
 
 def underscoreFn : ParserFn :=
 fun c s =>
@@ -76,7 +77,7 @@ def matchAlts : Parser := group $ withPosition $ fun pos => (optional "| ") >> s
 @[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts
 
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
-@[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
+@[builtinTacticParser] def paren        := parser! "(" >> seq1 >> ")"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
 @[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1
 

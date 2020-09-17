@@ -397,19 +397,18 @@ visitArgs $ stx.getArgs.size.forM fun _ => p
 
 @[combinatorParenthesizer Lean.Parser.many1]
 def many1.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+many.parenthesizer p
+
+@[combinatorParenthesizer Lean.Parser.many1Unbox]
+def many1Unbox.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 stx ← getCur;
 if stx.getKind == nullKind then
   many.parenthesizer p
 else
-  -- can happen with `unboxSingleton = true`
   p
 
 @[combinatorParenthesizer Lean.Parser.optional]
 def optional.parenthesizer (p : Parenthesizer) : Parenthesizer := do
-visitArgs p
-
-@[combinatorParenthesizer Lean.Parser.withResultOf]
-def withResultOf.parenthesizer (p : Parenthesizer) (f : Syntax → Syntax) : Parenthesizer := do
 visitArgs p
 
 @[combinatorParenthesizer Lean.Parser.sepBy]
@@ -418,6 +417,14 @@ stx ← getCur;
 visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
 
 @[combinatorParenthesizer Lean.Parser.sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
+
+@[combinatorParenthesizer Lean.Parser.nodeSepBy1Unbox]
+def nodeSepBy1Unbox.parenthesizer (k : SyntaxNodeKind) (p pSep : Parenthesizer) : Parenthesizer := do
+stx ← getCur;
+if stx.getKind == k then
+  node.parenthesizer k $ sepBy.parenthesizer p pSep
+else
+  p
 
 @[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Position → Parenthesizer) : Parenthesizer := do
 -- call closure with dummy position

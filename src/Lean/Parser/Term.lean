@@ -254,16 +254,9 @@ stx.isAntiquot || stx.isIdent
 
 end Term
 
-def Tactic.seq := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
--- Similar to `unboxSingleton`, but for `Tactic.seq
-def Tactic.unboxSeq :=
-withResultOf Tactic.seq fun stx =>
-  if (stx.getArg 0).getNumArgs < 2 then
-    (stx.getArg 0).getArg 0
-  else
-    stx
+def Tactic.seq1Unbox := nodeSepBy1Unbox `Lean.Parser.Tactic.seq tacticParser "; " true
 
-@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.unboxSeq >> ")"
+@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.seq1Unbox >> ")"
 @[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"
 
 end Parser

@@ -26,10 +26,3 @@
 "`a._@.UnhygienicMain._hyg.1"
 "(Term.explicitUniv `a._@.UnhygienicMain._hyg.1 \".{\" [(numLit \"0\")] \"}\")"
 "#[]"
-StxQuot.lean:40:90: error: unexpected antiquotation splice
-StxQuot.lean:40:6: error: failed to create type class instance for 
-  HasToString ?m
-StxQuot.lean:40:6: error: don't know how to synthesize placeholder
-  @Lean.run ?m ?m …
-context:
-⊢ Type

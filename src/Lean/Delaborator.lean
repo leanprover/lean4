@@ -520,7 +520,8 @@ e ← withProj delab;
 -- not perfectly authentic: elaborates to the `idx`-th named projection
 -- function (e.g. `e.1` is `Prod.fst e`), which unfolds to the actual
 -- `proj`.
-`($(e).$(mkStxNumLitAux idx):fieldIdx)
+let idx := mkStxLit fieldIdxKind (toString (idx + 1));
+`($(e).$idx:fieldIdx)
 
 /-- Delaborate a call to a projection function such as `Prod.fst`. -/
 @[builtinDelab app]

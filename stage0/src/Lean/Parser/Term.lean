@@ -254,8 +254,16 @@ stx.isAntiquot || stx.isIdent
 
 end Term
 
--- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.quot`
-@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> toggleInsideQuot (sepBy1 tacticParser "; " true true) >> ")"
+def Tactic.seq := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
+-- Similar to `unboxSingleton`, but for `Tactic.seq
+def Tactic.unboxSeq :=
+withResultOf Tactic.seq fun stx =>
+  if (stx.getArg 0).getNumArgs < 2 then
+    (stx.getArg 0).getArg 0
+  else
+    stx
+
+@[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.unboxSeq >> ")"
 @[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"
 
 end Parser

@@ -10,7 +10,6 @@ namespace Parser
 namespace Tactic
 
 def nonEmptySeq := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
-def seq         := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
 
 def underscoreFn : ParserFn :=
 fun c s =>

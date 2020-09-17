@@ -350,6 +350,10 @@ push " "
 @[combinatorFormatter checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkInsideQuot] def checkInsideQuot.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkOutsideQuot] def checkOutsideQuot.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.skip] def skip.formatter : Formatter := pure ()
+
+@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := push " "
+@[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

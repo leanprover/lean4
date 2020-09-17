@@ -272,10 +272,13 @@ else if id.components.any Name.isNum then
 else do {
   -- try to parse `s` as-is; if it fails, escape
   pst ← parseToken s;
-  let s := if pst.stxStack == #[stx] then s else match stx.getId with
-    | Name.str Name.anonymous s _ => "«" ++ s ++ "»"
-    | _                           => panic! "unimplemented: escaping non-atomic identifiers (is anyone even using those?)";
-  pushToken s
+  if pst.stxStack == #[stx] then
+    pushToken s
+  else
+    let n := stx.getId;
+    -- TODO: do something better than escaping all parts
+    let n := (n.components.map fun c => "«" ++ toString c ++ "»").foldl mkNameStr Name.anonymous;
+    pushToken n.toString
 };
 goLeft
 

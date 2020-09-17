@@ -26,7 +26,7 @@ namespace Level
 @[builtinLevelParser] def hole   := parser! "_"
 @[builtinLevelParser] def num    := checkPrec maxPrec >> numLit
 @[builtinLevelParser] def ident  := checkPrec maxPrec >> ident
-@[builtinLevelParser] def addLit := tparser!:65 "+" >> numLit
+@[builtinLevelParser] def addLit := tparser!:65 " + " >> numLit
 
 end Level
 

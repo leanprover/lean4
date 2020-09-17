@@ -3,7 +3,7 @@ Type
 Type
 Type 1
 Type _
-Type (_+2)
+Type (_ + 2)
 Nat
 List Nat
 id Nat

@@ -581,6 +581,26 @@ fun c s =>
 { info := sepBy1Info p.info sep.info,
   fn   := sepBy1Fn allowTrailingSep p.fn sep.fn unboxSingleton }
 
+/- Apply `f` to the syntax object produced by `p` -/
+@[inline] def withResultOfFn (p : ParserFn) (f : Syntax → Syntax) : ParserFn :=
+fun c s =>
+  let s := p c s;
+  if s.hasError then s
+  else
+    let stx := s.stxStack.back;
+    s.popSyntax.pushSyntax (f stx)
+
+@[noinline] def withResultOfInfo (p : ParserInfo) : ParserInfo :=
+{ collectTokens := p.collectTokens,
+  collectKinds  := p.collectKinds }
+
+@[inline] def withResultOf (p : Parser) (f : Syntax → Syntax) : Parser :=
+{ info := withResultOfInfo p.info,
+  fn   := withResultOfFn p.fn f }
+
+abbrev unboxSingleton (p : Parser) : Parser :=
+withResultOf p fun stx => if stx.getNumArgs == 1 then stx.getArg 0 else stx
+
 @[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn
 | c, s =>
   let i := s.pos;

@@ -408,6 +408,10 @@ else
 def optional.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 visitArgs p
 
+@[combinatorParenthesizer Lean.Parser.withResultOf]
+def withResultOf.parenthesizer (p : Parenthesizer) (f : Syntax → Syntax) : Parenthesizer := do
+visitArgs p
+
 @[combinatorParenthesizer Lean.Parser.sepBy]
 def sepBy.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 stx ← getCur;

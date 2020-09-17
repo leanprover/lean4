@@ -323,6 +323,10 @@ else
 def optional.formatter (p : Formatter) : Formatter := do
 concatArgs p
 
+@[combinatorFormatter Parser.withResultOf]
+def withResultOf.formatter (p : Formatter) (f : Syntax → Syntax) : Formatter := do
+concatArgs p
+
 @[combinatorFormatter sepBy]
 def sepBy.formatter (p pSep : Formatter) : Formatter := do
 stx ← getCur;

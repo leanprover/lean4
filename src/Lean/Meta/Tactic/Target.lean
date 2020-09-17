@@ -14,8 +14,8 @@ namespace Meta
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- targetNew` using an equality proof `eqProof : target = targetNew`.
   It assumes `eqProof` has type `target = targetNew` -/
-def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : MetaM MVarId := do
-withMVarContext mvarId $ do
+def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : MetaM MVarId :=
+withMVarContext mvarId do
   checkNotAssigned mvarId `replaceTarget;
   tag      ← getMVarTag mvarId;
   newMVar  ← mkFreshExprSyntheticOpaqueMVar targetNew tag;
@@ -35,7 +35,7 @@ withMVarContext mvarId $ do
   ```
   to create a checkpoint. -/
 def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
-withMVarContext mvarId $ do
+withMVarContext mvarId do
   checkNotAssigned mvarId `change;
   target  ← getMVarType mvarId;
   if target == targetNew then pure mvarId
@@ -47,7 +47,7 @@ withMVarContext mvarId $ do
     pure newMVar.mvarId!
 
 def change (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
-withMVarContext mvarId $ do
+withMVarContext mvarId do
   target ← getMVarType mvarId;
   unlessM (isDefEq target targetNew) $
     throwTacticEx `change mvarId

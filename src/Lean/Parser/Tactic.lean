@@ -55,6 +55,11 @@ def location         := parser! "at " >> (locationWildcard <|> locationTarget <|
 @[builtinTacticParser] def change     := parser! nonReservedSymbol "change " >> termParser >> optional location
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location
 
+def rwRule    := parser! optional (unicodeSymbol "←" "<-") >> termParser
+def rwRuleSeq := parser! "[" >> sepBy1 rwRule "; " true >> "]"
+@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRule >> optional location
+@[builtinTacticParser] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
+
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
 def altRHS := Term.hole <|> Term.syntheticHole <|> indentedNonEmptySeq
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> altRHS

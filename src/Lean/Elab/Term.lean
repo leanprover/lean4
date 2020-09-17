@@ -1268,7 +1268,12 @@ Prod.fst <$> x.run ctx s
 pure (a, sCore, sMeta, s)
 
 instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
-⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run' mkSomeContext⟩
+⟨fun env opts x _ =>
+  let x := finally x do {
+    s ← get;
+    liftIO $ s.messages.forM fun msg => msg.toString >>= IO.println
+  };
+  MetaHasEval.eval env opts $ x.run' mkSomeContext⟩
 
 end Term
 

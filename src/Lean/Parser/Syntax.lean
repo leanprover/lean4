@@ -70,9 +70,9 @@ def notationItem := withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec
 def macroArg  := try strLit <|> try macroArgSimple
 def macroHead := macroArg <|> try ident
-def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> ("`(" >> Tactic.seq1Unbox >> ")" <|> termParser)
-def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> ("`(" >> many1Unbox commandParser >> ")" <|> termParser)
-def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> (("`(" >> categoryParserOfStack 2 >> ")") <|> termParser)
+def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> ("`(" >> toggleInsideQuot Tactic.seq1Unbox >> ")" <|> termParser)
+def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
+def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
 @[builtinCommandParser] def «macro»       := parser! "macro " >> optPrecedence >> macroHead >> many macroArg >> macroTail
 

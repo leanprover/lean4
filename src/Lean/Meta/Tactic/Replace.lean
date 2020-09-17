@@ -7,6 +7,8 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Revert
 import Lean.Meta.Tactic.Intro
+import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.Assert
 
 namespace Lean
 namespace Meta
@@ -45,6 +47,14 @@ withMVarContext mvarId do
     newVal  ← mkExpectedTypeHint newMVar target;
     assignExprMVar mvarId newMVar;
     pure newMVar.mvarId!
+
+def replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (newType : Expr) (eqProof : Expr) : MetaM (FVarId × MVarId) := do
+withMVarContext mvarId $ do
+  localDecl ← getLocalDecl fvarId;
+  newTypePr ← mkEqMP eqProof (mkFVar fvarId);
+  mvarId ← assert mvarId localDecl.userName newType newTypePr;
+  (fvarIdNew, mvarId) ← intro1 mvarId;
+  (do mvarId ← clear mvarId fvarId; pure (fvarIdNew, mvarId)) <|> pure (fvarIdNew, mvarId)
 
 def change (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
 withMVarContext mvarId do

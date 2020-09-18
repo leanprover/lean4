@@ -606,10 +606,13 @@ private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Arra
       };
       pure $ acc.push s
 
+private def isSuccess (candidate : TermElabResult) : Bool :=
+match candidate with
+| EStateM.Result.ok _ _ => true
+| _ => false
+
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
-candidates.filter $ fun c => match c with
-  | EStateM.Result.ok _ _ => true
-  | _ => false
+candidates.filter isSuccess
 
 private def toMessageData (ex : Exception) : TermElabM MessageData := do
 pos ← getRefPos;
@@ -641,8 +644,9 @@ if candidates.size == 1 then
   applyResult $ candidates.get! 0
 else
   let successes := getSuccess candidates;
-  if successes.size == 1 then
-    applyResult $ successes.get! 0
+  if successes.size == 1 then do
+    e ← applyResult $ successes.get! 0;
+    pure e
   else if successes.size > 1 then do
     lctx ← getLCtx;
     opts ← getOptions;

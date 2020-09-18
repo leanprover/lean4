@@ -4494,7 +4494,7 @@ return x_2;
 lean_object* l_Lean_LocalContext_foldlFromM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_3, 1);
 lean_inc(x_7);
 lean_dec(x_3);
@@ -4502,10 +4502,8 @@ lean_inc(x_1);
 x_8 = lean_alloc_closure((void*)(l_Lean_LocalContext_foldlM___rarg___lambda__1), 4, 2);
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_4);
-x_9 = l_Lean_LocalDecl_index(x_6);
-x_10 = l_Std_PersistentArray_foldlFromM___rarg(x_1, lean_box(0), x_7, x_8, x_5, x_9);
-lean_dec(x_9);
-return x_10;
+x_9 = l_Std_PersistentArray_foldlFromM___rarg(x_1, lean_box(0), x_7, x_8, x_5, x_6);
+return x_9;
 }
 }
 lean_object* l_Lean_LocalContext_foldlFromM(lean_object* x_1) {
@@ -5806,14 +5804,12 @@ return x_5;
 lean_object* l_Lean_LocalContext_foldlFromM___at_Lean_LocalContext_foldlFrom___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_alloc_closure((void*)(l_Lean_LocalContext_foldlFromM___at_Lean_LocalContext_foldlFrom___spec__1___rarg___lambda__1), 3, 1);
 lean_closure_set(x_6, 0, x_1);
-x_7 = l_Lean_LocalDecl_index(x_4);
-x_8 = l_Std_PersistentArray_foldlFromM___at_Lean_LocalContext_foldlFrom___spec__2___rarg(x_5, x_6, x_3, x_7);
-lean_dec(x_7);
-return x_8;
+x_7 = l_Std_PersistentArray_foldlFromM___at_Lean_LocalContext_foldlFrom___spec__2___rarg(x_5, x_6, x_3, x_4);
+return x_7;
 }
 }
 lean_object* l_Lean_LocalContext_foldlFromM___at_Lean_LocalContext_foldlFrom___spec__1(lean_object* x_1) {

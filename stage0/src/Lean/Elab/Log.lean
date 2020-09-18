@@ -24,7 +24,7 @@ instance monadLogTrans (m n) [MonadLog m] [MonadLift m n] : MonadLog n :=
 export MonadLog (getFileMap getFileName logMessage)
 open MonadLog (getRef)
 
-variables {m : Type → Type} [Monad m] [MonadLog m] [AddMessageDataContext m]
+variables {m : Type → Type} [Monad m] [MonadLog m] [AddMessageContext m]
 
 def getRefPos : m String.Pos := do
 ref ← getRef;
@@ -41,7 +41,7 @@ let ref  := replaceRef ref currRef;
 let pos  := ref.getPos.getD 0;
 fileMap  ← getFileMap;
 fileName ← getFileName;
-msgData ← addMessageDataContext msgData;
+msgData ← addMessageContext msgData;
 logMessage { fileName := fileName, pos := fileMap.toPosition pos, data := msgData, severity := severity }
 
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=

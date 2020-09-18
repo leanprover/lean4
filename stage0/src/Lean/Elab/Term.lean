@@ -160,13 +160,23 @@ elab ← get;
 pure { core := core, meta := meta, elab := elab }
 
 def SavedState.restore (s : SavedState) : TermElabM Unit := do
-set s.core; set s.meta; set s.elab
+traceState ← getTraceState; -- We never backtrack trace message
+set s.core;
+set s.meta;
+set s.elab;
+setTraceState traceState
 
 abbrev TermElabResult := EStateM.Result Exception SavedState Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
+def setMessageLog (messages : MessageLog) : TermElabM Unit :=
+modify fun s => { s with messages := messages }
+
 def resetMessageLog : TermElabM Unit := do
-modify fun s => { s with messages := {} }
+setMessageLog {}
+
+def getMessageLog : TermElabM MessageLog := do
+s ← get; pure s.messages
 
 /--
   Execute `x`, save resulting expression and new state.
@@ -175,53 +185,33 @@ modify fun s => { s with messages := {} }
 @[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult := do
 s ← saveAllState;
 catch
-  (do e ← x; newS ← saveAllState; s.restore; pure (EStateM.Result.ok e newS))
-  (fun ex => match ex with
-    | Exception.error _ _   => do
-      newS ← saveAllState;
+  (do e ← x;
+      sNew ← saveAllState;
       s.restore;
-      pure (EStateM.Result.error ex newS)
-    | Exception.internal id => do
-      when (id == postponeExceptionId) s.restore;
-      throw ex)
+      pure (EStateM.Result.ok e sNew))
+  (fun ex => do
+     match ex with
+     | Exception.error _ _   => do
+       sNew ← saveAllState;
+       s.restore;
+       pure (EStateM.Result.error ex sNew)
+     | Exception.internal id => do
+       when (id == postponeExceptionId) s.restore;
+       throw ex)
 
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
 def applyResult (result : TermElabResult) : TermElabM Expr :=
 match result with
-| EStateM.Result.ok e s     => do s.restore; pure e
-| EStateM.Result.error ex s => do s.restore; throw ex
-
-/-- Auxiliary function for `liftMetaM` -/
-private def mkMessageAux (ref : Syntax) (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-let pos := ref.getPos.getD 0;
-mkMessageCore ctx.fileName ctx.fileMap msgData severity pos
-
-@[inline] private def liftMetaMCore {α} (x : MetaM α) : TermElabM α := do
-liftM $ x
+| EStateM.Result.ok e r     => do r.restore; pure e
+| EStateM.Result.error ex r => do r.restore; throw ex
 
 instance : MonadIO TermElabM :=
-{ liftIO := fun α x => liftMetaMCore $ liftIO x }
-
-private def saveTraceAsMessages (traceState : TraceState) : TermElabM Unit :=
-unless traceState.traces.isEmpty do
-  ref ← getRef;
-  ctx ← read;
-  modify fun s =>
-    { s with messages := traceState.traces.foldl
-        (fun (messages : MessageLog) trace => messages.add (mkMessageAux ref ctx trace MessageSeverity.information))
-        s.messages }
-
-private def liftMetaMFinalizer (oldTraceState : TraceState) : TermElabM Unit := do
-newTraceState ← getTraceState;
-saveTraceAsMessages newTraceState;
-setTraceState oldTraceState
+{ liftIO := fun α x => liftMetaM $ liftIO x }
 
 @[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α := do
-oldTraceState ← getTraceState;
-setTraceState {};
-finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
+liftM $ x
 
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
 Term.liftMetaM $ liftM x
@@ -235,17 +225,18 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   match lctx.find? fvar.fvarId! with
   | some d => pure d
   | none   => unreachable!
-def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
-instance MonadError : MonadError TermElabM :=
+instance : Ref TermElabM :=
 { getRef     := getRef,
-  withRef    := fun α => withRef,
-  addContext := fun ref msg => do
-    ctx ← read;
-    let ref := getBetterRef ref ctx.macroStack;
-    msg ← addMacroStack msg ctx.macroStack;
-    msg ← addMessageDataContext msg;
-    pure (ref, msg) }
+  withRef    := fun α => withRef }
+
+instance : AddErrorMessageContext TermElabM :=
+{ add := fun ref msg => do
+  ctx ← read;
+  let ref := getBetterRef ref ctx.macroStack;
+  msg ← addMessageContext msg;
+  msg ← addMacroStack msg ctx.macroStack;
+  pure (ref, msg) }
 
 instance monadLog : MonadLog TermElabM :=
 { getRef      := getRef,
@@ -618,11 +609,9 @@ Given an expected type of the form `n β`, if `eType` is of the form `α`
 
 If `eType` is of the form `m α`. We use the following approaches.
 
-1- Try to unify `n` and `m`. If it succeeds, then we rely on `tryCoe`, and
-   the instances
+1- Try to unify `n` and `m`. If it succeeds, then we use
    ```
-   instance coeMethod {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] : Coe (m α) (m β)
-   instance pureCoeDepProp {m : Type → Type v} [HasPure m] {p : Prop} [Decidable p] : CoeDep (m Prop) (pure p) (m Bool)
+   coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β
    ```
 
 2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
@@ -670,7 +659,7 @@ match eNew? with
 | some eNew => pure eNew
 | none      => do
 some (m, α) ← isTypeApp? eType | tryCoe expectedType eType e f?;
-condM (isDefEq m n) (tryCoe expectedType eType e f?) $
+condM (isDefEq m n) (mkAppOptM `coeM #[m, α, β, none, monadInst, e]) $
   catch
     (do
       -- Construct lift from `m` to `n`

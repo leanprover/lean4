@@ -612,7 +612,6 @@ lean_object* l___private_Lean_Elab_Tactic_Generalize_4__evalGeneralizeWithEq(lea
 _start:
 {
 lean_object* x_13; 
-lean_inc(x_6);
 x_13 = l_Lean_Elab_Tactic_getMainGoal(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -807,7 +806,6 @@ lean_object* l___private_Lean_Elab_Tactic_Generalize_5__evalGeneralizeFallback(l
 _start:
 {
 lean_object* x_13; 
-lean_inc(x_6);
 x_13 = l_Lean_Elab_Tactic_getMainGoal(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -998,7 +996,6 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_13; 
-lean_inc(x_6);
 x_13 = l_Lean_Elab_Tactic_getMainGoal(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
 {

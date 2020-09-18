@@ -88,7 +88,7 @@ partial def toMessageData (alt : Alt) : MetaM MessageData := do
 withExistingLocalDecls alt.fvarDecls do
   let msg : List MessageData := alt.fvarDecls.map fun d => d.toExpr ++ ":(" ++ d.type ++ ")";
   let msg : MessageData := msg ++ " |- " ++ (alt.patterns.map Pattern.toMessageData) ++ " => " ++ alt.rhs;
-  addMessageDataContext msg
+  addMessageContext msg
 
 def applyFVarSubst (s : FVarSubst) (alt : Alt) : Alt :=
 { alt with

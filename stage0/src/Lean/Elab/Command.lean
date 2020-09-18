@@ -63,21 +63,20 @@ instance : MonadOptions CommandElabM :=
 protected def getRef : CommandElabM Syntax :=
 do ctx ← read; pure ctx.ref
 
-protected def addContext' (msg : MessageData) : CommandElabM MessageData := do
-env ← getEnv; opts ← getOptions;
-pure (MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msg)
+instance : AddMessageContext CommandElabM :=
+{ addMessageContext := addMessageContextPartial }
 
-protected def addContext (ref : Syntax) (msg : MessageData) : CommandElabM (Syntax × MessageData) := do
-ctx ← read;
-let ref := getBetterRef ref ctx.macroStack;
-msg ← addMacroStack msg ctx.macroStack;
-msg ← Command.addContext' msg;
-pure (ref, msg)
-
-instance : MonadError CommandElabM :=
+instance : Ref CommandElabM :=
 { getRef     := Command.getRef,
-  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x,
-  addContext := Command.addContext }
+  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x }
+
+instance : AddErrorMessageContext CommandElabM :=
+{ add := fun ref msg => do
+  ctx ← read;
+  let ref := getBetterRef ref ctx.macroStack;
+  msg ← addMessageContext msg;
+  msg ← addMacroStack msg ctx.macroStack;
+  pure (ref, msg) }
 
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
@@ -114,9 +113,6 @@ liftEIO $ adaptExcept (fun (ex : IO.Error) => Exception.error ctx.ref ex.toStrin
 
 instance : MonadIO CommandElabM :=
 { liftIO := fun α => liftIO }
-
-instance : AddMessageDataContext CommandElabM :=
-{ addMessageDataContext := addMessageDataContextPartial }
 
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
 
@@ -236,6 +232,19 @@ let scope      := s.scopes.head!;
   declName?      := declName?
 }
 
+/-- Auxiliary function for `liftMetaM` -/
+private def mkMessageAux (ref : Syntax) (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
+let pos := ref.getPos.getD 0;
+mkMessageCore ctx.fileName ctx.fileMap msgData severity pos
+
+private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
+traceState.traces.foldl
+  (fun (log : MessageLog) traceElem =>
+    let ref := replaceRef traceElem.ref ctx.ref;
+    let pos := ref.getPos.getD 0;
+    log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos))
+  log
+
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
 ctx ← read;
 s   ← get;
@@ -247,7 +256,7 @@ let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { mess
 let x : CoreM _      := x.run mkMetaContext {};
 let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
 (((ea, termS), _), coreS) ← liftEIO x;
-modify fun s => { s with env := coreS.env, messages := messages ++ termS.messages, ngen := coreS.ngen };
+modify fun s => { s with env := coreS.env, messages := addTraceAsMessages ctx (messages ++ termS.messages) coreS.traceState, ngen := coreS.ngen };
 match ea with
 | Except.ok a     => pure a
 | Except.error ex => throw ex

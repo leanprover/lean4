@@ -775,7 +775,7 @@ else do
       else
         pure newToRevert)
     newToRevert
-    firstDeclToVisit
+    firstDeclToVisit.index
 
 /-- Create a new `LocalContext` by removing the free variables in `toRevert` from `lctx`.
     We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/

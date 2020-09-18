@@ -52,9 +52,3 @@ condM c (pure ()) t
 @[inline] def coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
 a ← x;
 pure $ coe a
-
-instance coeMethod {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] : Coe (m α) (m β) :=
-{ coe := coeM }
-
-instance pureCoeDepProp {m : Type → Type v} [HasPure m] {p : Prop} [Decidable p] : CoeDep (m Prop) (pure p) (m Bool) :=
-{ coe := pure $ decide $ p }

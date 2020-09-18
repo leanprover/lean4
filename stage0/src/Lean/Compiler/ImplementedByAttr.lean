@@ -31,7 +31,8 @@ implementedByAttr.setParam env declName impName
 
 end Compiler
 
-def setImplementedBy {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (impName : Name) : m Unit := do
+def setImplementedBy {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+    (declName : Name) (impName : Name) : m Unit := do
 env ← getEnv;
 match Compiler.setImplementedBy env declName impName with
 | Except.ok env   => setEnv env

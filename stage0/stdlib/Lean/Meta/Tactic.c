@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic
-// Imports: Init Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Target Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.LocalDecl Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases
+// Imports: Init Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,10 +20,9 @@ lean_object* initialize_Lean_Meta_Tactic_Apply(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Revert(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Clear(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Assert(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Target(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rewrite(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Generalize(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_LocalDecl(lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Replace(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Induction(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Cases(lean_object*);
 static bool _G_initialized = false;
@@ -52,16 +51,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Assert(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Target(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Rewrite(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Generalize(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_LocalDecl(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Replace(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Induction(lean_io_mk_world());

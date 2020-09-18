@@ -1619,6 +1619,7 @@ x_5 = lean_box(0);
 lean_inc(x_1);
 x_6 = lean_alloc_closure((void*)(l_Lean_Elab_Term_resolveGlobalName___boxed), 8, 1);
 lean_closure_set(x_6, 0, x_1);
+lean_inc(x_2);
 x_7 = l_Lean_Elab_Command_liftTermElabM___rarg(x_5, x_6, x_2, x_3, x_4);
 if (lean_obj_tag(x_7) == 0)
 {

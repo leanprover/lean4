@@ -24,7 +24,7 @@ lean_object* l_Lean_Elab_registerUnsupportedSyntaxId___closed__2;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
 lean_object* l_Lean_Elab_registerUnsupportedSyntaxId___closed__1;
-lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Elab_throwPostpone(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerPostponeId(lean_object*);
@@ -45,7 +45,7 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
 lean_object* l_Lean_Elab_registerAbortElabId___closed__1;
-lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4;
 lean_object* l_Lean_Elab_abortExceptionId;
 lean_object* l_Lean_Elab_registerAbortElabId(lean_object*);
@@ -53,7 +53,7 @@ lean_object* l_Lean_Elab_registerPostponeId___closed__2;
 lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerPostponeId___closed__1;
 lean_object* _init_l_Lean_Elab_registerPostponeId___closed__1() {
@@ -225,20 +225,20 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
-x_4 = l_Lean_throwError___rarg(x_1, x_2, lean_box(0), x_3);
-return x_4;
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
+x_6 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_5);
+return x_6;
 }
 }
 lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwIllFormedSyntax___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwIllFormedSyntax___rarg), 4, 0);
 return x_3;
 }
 }
@@ -298,33 +298,33 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_4 = l_System_FilePath_dirName___closed__1;
-x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_3);
-x_6 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
-x_9 = lean_alloc_ctor(10, 2, 0);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_6 = l_System_FilePath_dirName___closed__1;
+x_7 = l_Lean_Name_toStringWithSep___main(x_6, x_5);
+x_8 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_7);
-x_10 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__6;
+x_10 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
 x_11 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_throwError___rarg(x_1, x_2, lean_box(0), x_11);
-return x_12;
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_9);
+x_12 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__6;
+x_13 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+x_14 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_13);
+return x_14;
 }
 }
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg), 5, 0);
 return x_3;
 }
 }

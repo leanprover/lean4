@@ -723,7 +723,6 @@ lean_object* l_Lean_Elab_Tactic_evalMatch(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_49; 
-lean_inc(x_4);
 x_49 = l_Lean_Elab_Tactic_getMainTag(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_49) == 0)
 {
@@ -846,10 +845,10 @@ x_88 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_88, 0, x_87);
 x_89 = l_Lean_throwErrorAt___at___private_Lean_Elab_Tactic_Basic_1__evalTacticUsing___main___spec__1___rarg(x_85, x_88, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_61);
 lean_dec(x_9);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_85);

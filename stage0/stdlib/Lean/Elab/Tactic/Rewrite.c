@@ -26,6 +26,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_log___at_Lean_Elab_Tactic_evalTactic___main___spec__10(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Term_elabParen___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -37,7 +38,6 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__1;
 extern lean_object* l_Lean_Elab_macroAttribute;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__3;
-lean_object* l_Lean_Elab_log___at_Lean_Elab_Tactic_evalTactic___main___spec__11(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -234,7 +234,7 @@ x_13 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
 x_14 = 0;
-x_15 = l_Lean_Elab_log___at_Lean_Elab_Tactic_evalTactic___main___spec__11(x_13, x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_15 = l_Lean_Elab_log___at_Lean_Elab_Tactic_evalTactic___main___spec__10(x_13, x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_16 = !lean_is_exclusive(x_15);
 if (x_16 == 0)
 {

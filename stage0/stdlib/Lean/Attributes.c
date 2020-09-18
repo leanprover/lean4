@@ -133,7 +133,6 @@ lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
 lean_object* l_Std_RBNode_find___main___at_Lean_EnumAttributes_getValue___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__4___closed__3;
 lean_object* l_Lean_attributeExtension___elambda__4(lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 uint8_t l_Lean_AttributeApplicationTime_beq(uint8_t, uint8_t);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_mkAttributeImplOfBuilder___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___main___at_Lean_ParametricAttribute_getParam___spec__1(lean_object*);
@@ -272,6 +271,7 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkAttributeExtension___
 uint8_t l_Array_anyRangeMAux___main___at_Lean_mkAttributeExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getBuiltinAttributeNames___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_HashMapImp_contains___at_Lean_registerAttributeImplBuilder___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_Lean_AddMessageContext___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
 lean_object* l_Lean_AttributeImpl_inhabited___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_registerParametricAttribute___spec__8(lean_object*);
@@ -354,7 +354,6 @@ lean_object* l_Lean_registerParametricAttribute___rarg___lambda__5(lean_object*,
 lean_object* l_Array_anyRangeMAux___main___at_Lean_registerTagAttribute___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__3(lean_object*, lean_object*);
-extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerParametricAttribute___spec__5(lean_object*);
 lean_object* l_Lean_registerTagAttribute___closed__4;
 lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5180,66 +5179,36 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_2, 3);
-x_6 = lean_st_ref_get(x_3, x_4);
+x_6 = l_Lean_addMessageContextPartial___at_Lean_Core_Lean_AddMessageContext___spec__1(x_1, x_2, x_3, x_4);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_6, 0);
-x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
-lean_dec(x_8);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = l_Lean_MetavarContext_Inhabited___closed__1;
-x_12 = l_Lean_LocalContext_Inhabited___closed__2;
-lean_inc(x_10);
-x_13 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_13, 0, x_9);
-lean_ctor_set(x_13, 1, x_11);
-lean_ctor_set(x_13, 2, x_12);
-lean_ctor_set(x_13, 3, x_10);
-x_14 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_1);
 lean_inc(x_5);
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_5);
-lean_ctor_set(x_15, 1, x_14);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_8);
 lean_ctor_set_tag(x_6, 1);
-lean_ctor_set(x_6, 0, x_15);
+lean_ctor_set(x_6, 0, x_9);
 return x_6;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_16 = lean_ctor_get(x_6, 0);
-x_17 = lean_ctor_get(x_6, 1);
-lean_inc(x_17);
-lean_inc(x_16);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_6, 0);
+x_11 = lean_ctor_get(x_6, 1);
+lean_inc(x_11);
+lean_inc(x_10);
 lean_dec(x_6);
-x_18 = lean_ctor_get(x_16, 0);
-lean_inc(x_18);
-lean_dec(x_16);
-x_19 = lean_ctor_get(x_2, 0);
-x_20 = l_Lean_MetavarContext_Inhabited___closed__1;
-x_21 = l_Lean_LocalContext_Inhabited___closed__2;
-lean_inc(x_19);
-x_22 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_22, 0, x_18);
-lean_ctor_set(x_22, 1, x_20);
-lean_ctor_set(x_22, 2, x_21);
-lean_ctor_set(x_22, 3, x_19);
-x_23 = lean_alloc_ctor(6, 2, 0);
-lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_1);
 lean_inc(x_5);
-x_24 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_24, 0, x_5);
-lean_ctor_set(x_24, 1, x_23);
-x_25 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_25, 0, x_24);
-lean_ctor_set(x_25, 1, x_17);
-return x_25;
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_5);
+lean_ctor_set(x_12, 1, x_10);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_11);
+return x_13;
 }
 }
 }

@@ -232,6 +232,19 @@ let scope      := s.scopes.head!;
   declName?      := declName?
 }
 
+/-- Auxiliary function for `liftMetaM` -/
+private def mkMessageAux (ref : Syntax) (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
+let pos := ref.getPos.getD 0;
+mkMessageCore ctx.fileName ctx.fileMap msgData severity pos
+
+private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
+traceState.traces.foldl
+  (fun (log : MessageLog) traceElem =>
+    let ref := replaceRef traceElem.ref ctx.ref;
+    let pos := ref.getPos.getD 0;
+    log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos))
+  log
+
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
 ctx ← read;
 s   ← get;
@@ -243,7 +256,7 @@ let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { mess
 let x : CoreM _      := x.run mkMetaContext {};
 let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
 (((ea, termS), _), coreS) ← liftEIO x;
-modify fun s => { s with env := coreS.env, messages := messages ++ termS.messages, ngen := coreS.ngen };
+modify fun s => { s with env := coreS.env, messages := addTraceAsMessages ctx (messages ++ termS.messages) coreS.traceState, ngen := coreS.ngen };
 match ea with
 | Except.ok a     => pure a
 | Except.error ex => throw ex

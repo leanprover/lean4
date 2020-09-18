@@ -160,9 +160,13 @@ elab ← get;
 pure { core := core, meta := meta, elab := elab }
 
 def SavedState.restore (s : SavedState) : TermElabM Unit := do
-set s.core; set s.meta; set s.elab
+traceState ← getTraceState; -- We never backtrack trace message
+set s.core;
+set s.meta;
+set s.elab;
+setTraceState traceState
 
-abbrev TermElabResult := EStateM.Result Exception (SavedState × MessageLog) Expr
+abbrev TermElabResult := EStateM.Result Exception SavedState Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
 def setMessageLog (messages : MessageLog) : TermElabM Unit :=
@@ -180,81 +184,34 @@ s ← get; pure s.messages
   Remark: we do not capture `Exception.postpone`. -/
 @[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult := do
 s ← saveAllState;
-resetMessageLog;
 catch
   (do e ← x;
-      newMessages ← getMessageLog;
-      setMessageLog (s.elab.messages ++ newMessages);
       sNew ← saveAllState;
-      s.restore; pure (EStateM.Result.ok e (sNew, newMessages)))
+      s.restore;
+      pure (EStateM.Result.ok e sNew))
   (fun ex => do
-     newMessages ← getMessageLog;
-     setMessageLog (s.elab.messages ++ newMessages);
      match ex with
      | Exception.error _ _   => do
        sNew ← saveAllState;
        s.restore;
-       pure (EStateM.Result.error ex (sNew, newMessages))
+       pure (EStateM.Result.error ex sNew)
      | Exception.internal id => do
        when (id == postponeExceptionId) s.restore;
        throw ex)
-
-/-- Given `result` obtained by `observing x`, return the messages produced during `x`s execution. -/
-def getNewMessagesFrom (result : TermElabResult) : MessageLog :=
-match result with
-| EStateM.Result.ok _ r    => r.2
-| EStateM.Result.error _ r => r.2
-
-/--
-  Given `result` obtained by `observing x`, copy all messages produced during `x`s execution to current message log.
-  This is useful when we do not want to use `result` (i.e., use `applyResult result`) because there is an error or ambiguity, but
-  we do want to copy the messages produced. -/
-def copyMessagesFrom (result : TermElabResult) : TermElabM Unit :=
-modify fun s => { s with messages := s.messages ++ getNewMessagesFrom result }
-
-/--
-  Similar to `copyMessagesFrom`, but only copy `information` messages. This is useful when we are applying another `TermElabM` that
-  succeeded, but we don't want to lose the trace messages produced by `result`. -/
-def copyInfoMessagesFrom (result : TermElabResult) : TermElabM Unit :=
-modify fun s => { s with messages := s.messages ++ (getNewMessagesFrom result).getInfoMessages }
 
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
 def applyResult (result : TermElabResult) : TermElabM Expr :=
 match result with
-| EStateM.Result.ok e r     => do r.1.restore; pure e
-| EStateM.Result.error ex r => do r.1.restore; throw ex
-
-/-- Auxiliary function for `liftMetaM` -/
-private def mkMessageAux (ref : Syntax) (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-let pos := ref.getPos.getD 0;
-mkMessageCore ctx.fileName ctx.fileMap msgData severity pos
-
-@[inline] private def liftMetaMCore {α} (x : MetaM α) : TermElabM α := do
-liftM $ x
+| EStateM.Result.ok e r     => do r.restore; pure e
+| EStateM.Result.error ex r => do r.restore; throw ex
 
 instance : MonadIO TermElabM :=
-{ liftIO := fun α x => liftMetaMCore $ liftIO x }
-
-private def saveTraceAsMessages (traceState : TraceState) : TermElabM Unit :=
-unless traceState.traces.isEmpty do
-  ref ← getRef;
-  ctx ← read;
-  modify fun s =>
-    { s with messages := traceState.traces.foldl
-        (fun (messages : MessageLog) trace => messages.add (mkMessageAux ref ctx trace MessageSeverity.information))
-        s.messages }
-
-private def liftMetaMFinalizer (oldTraceState : TraceState) : TermElabM Unit := do
-newTraceState ← getTraceState;
-saveTraceAsMessages newTraceState;
-setTraceState oldTraceState
+{ liftIO := fun α x => liftMetaM $ liftIO x }
 
 @[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α := do
-oldTraceState ← getTraceState;
-setTraceState {};
-finally (liftMetaMCore x) (liftMetaMFinalizer oldTraceState)
+liftM $ x
 
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
 Term.liftMetaM $ liftM x

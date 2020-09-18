@@ -1,3 +1,4 @@
+foo "hello" : String × String
 [Meta.synthInstance] HasAdd String ==> HasAdd String
 [Meta.synthInstance] 
   [Meta.synthInstance] main goal HasAdd String
@@ -5,7 +6,6 @@
   [Meta.synthInstance.globalInstances] HasAdd String #[]
   [Meta.synthInstance] remaining fuel 999
   [Meta.synthInstance] failed
-foo "hello" : String × String
 [Meta.synthInstance] HasAdd Bool ==> HasAdd Bool
 [Meta.synthInstance] 
   [Meta.synthInstance] main goal HasAdd Bool

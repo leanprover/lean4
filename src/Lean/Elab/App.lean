@@ -630,7 +630,6 @@ private def toMessageList (msgs : Array MessageData) : MessageData :=
 indentD (MessageData.joinSep msgs.toList (Format.line ++ Format.line))
 
 private def mergeFailures {α} (failures : Array TermElabResult) : TermElabM α := do
-failures.forM copyMessagesFrom;
 msgs ← failures.mapM $ fun failure =>
   match failure with
   | EStateM.Result.ok _ _     => unreachable!
@@ -647,16 +646,12 @@ else
   let successes := getSuccess candidates;
   if successes.size == 1 then do
     e ← applyResult $ successes.get! 0;
-    -- We preserve the `information` messages produced in the candidates that failed.
-    candidates.forM fun candidate => unless (isSuccess candidate) $ copyInfoMessagesFrom candidate;
     pure e
   else if successes.size > 1 then do
-    -- We preserve the `information` messages of all candidates. We will not apply any of them since they are multiple successful elaborations.
-    candidates.forM copyInfoMessagesFrom;
     lctx ← getLCtx;
     opts ← getOptions;
     let msgs : Array MessageData := successes.map $ fun success => match success with
-      | EStateM.Result.ok e r => let s := r.1; MessageData.withContext { env := s.core.env, mctx := s.meta.mctx, lctx := lctx, opts := opts } e
+      | EStateM.Result.ok e s => MessageData.withContext { env := s.core.env, mctx := s.meta.mctx, lctx := lctx, opts := opts } e
       | _                     => unreachable!;
     throwErrorAt f ("ambiguous, possible interpretations " ++ toMessageList msgs)
   else

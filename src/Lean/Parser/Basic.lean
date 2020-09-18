@@ -1691,6 +1691,10 @@ withAntiquot (mkAntiquot "fieldIdx" `fieldIdx)
 @[inline] def ppSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a hard line break. -/
 @[inline] def ppLine : Parser := skip
+/--
+  No-op parser combinator that advises the pretty printer to group and indent the given syntax.
+  By default, only syntax categories are grouped. -/
+@[inline] def ppGroup : Parser → Parser := id
 
 end Parser
 

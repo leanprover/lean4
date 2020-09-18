@@ -1687,6 +1687,8 @@ withAntiquot (mkAntiquot "fieldIdx" `fieldIdx)
 { fn   := fun c s => s,
   info := epsilonInfo }
 
+/-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
+@[inline] def ppHardSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a space/soft line break. -/
 @[inline] def ppSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a hard line break. -/

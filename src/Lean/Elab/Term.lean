@@ -162,11 +162,17 @@ pure { core := core, meta := meta, elab := elab }
 def SavedState.restore (s : SavedState) : TermElabM Unit := do
 set s.core; set s.meta; set s.elab
 
-abbrev TermElabResult := EStateM.Result Exception SavedState Expr
+abbrev TermElabResult := EStateM.Result Exception (SavedState × MessageLog) Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
+def setMessageLog (messages : MessageLog) : TermElabM Unit :=
+modify fun s => { s with messages := messages }
+
 def resetMessageLog : TermElabM Unit := do
-modify fun s => { s with messages := {} }
+setMessageLog {}
+
+def getMessageLog : TermElabM MessageLog := do
+s ← get; pure s.messages
 
 /--
   Execute `x`, save resulting expression and new state.
@@ -174,24 +180,51 @@ modify fun s => { s with messages := {} }
   Remark: we do not capture `Exception.postpone`. -/
 @[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult := do
 s ← saveAllState;
+resetMessageLog;
 catch
-  (do e ← x; newS ← saveAllState; s.restore; pure (EStateM.Result.ok e newS))
-  (fun ex => match ex with
-    | Exception.error _ _   => do
-      newS ← saveAllState;
-      s.restore;
-      pure (EStateM.Result.error ex newS)
-    | Exception.internal id => do
-      when (id == postponeExceptionId) s.restore;
-      throw ex)
+  (do e ← x;
+      newMessages ← getMessageLog;
+      setMessageLog (s.elab.messages ++ newMessages);
+      sNew ← saveAllState;
+      s.restore; pure (EStateM.Result.ok e (sNew, newMessages)))
+  (fun ex => do
+     newMessages ← getMessageLog;
+     setMessageLog (s.elab.messages ++ newMessages);
+     match ex with
+     | Exception.error _ _   => do
+       sNew ← saveAllState;
+       s.restore;
+       pure (EStateM.Result.error ex (sNew, newMessages))
+     | Exception.internal id => do
+       when (id == postponeExceptionId) s.restore;
+       throw ex)
+
+/-- Given `result` obtained by `observing x`, return the messages produced during `x`s execution. -/
+def getNewMessagesFrom (result : TermElabResult) : MessageLog :=
+match result with
+| EStateM.Result.ok _ r    => r.2
+| EStateM.Result.error _ r => r.2
+
+/--
+  Given `result` obtained by `observing x`, copy all messages produced during `x`s execution to current message log.
+  This is useful when we do not want to use `result` (i.e., use `applyResult result`) because there is an error or ambiguity, but
+  we do want to copy the messages produced. -/
+def copyMessagesFrom (result : TermElabResult) : TermElabM Unit :=
+modify fun s => { s with messages := s.messages ++ getNewMessagesFrom result }
+
+/--
+  Similar to `copyMessagesFrom`, but only copy `information` messages. This is useful when we are applying another `TermElabM` that
+  succeeded, but we don't want to lose the trace messages produced by `result`. -/
+def copyInfoMessagesFrom (result : TermElabResult) : TermElabM Unit :=
+modify fun s => { s with messages := s.messages ++ (getNewMessagesFrom result).getInfoMessages }
 
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
 def applyResult (result : TermElabResult) : TermElabM Expr :=
 match result with
-| EStateM.Result.ok e s     => do s.restore; pure e
-| EStateM.Result.error ex s => do s.restore; throw ex
+| EStateM.Result.ok e r     => do r.1.restore; pure e
+| EStateM.Result.error ex r => do r.1.restore; throw ex
 
 /-- Auxiliary function for `liftMetaM` -/
 private def mkMessageAux (ref : Syntax) (ctx : Context) (msgData : MessageData) (severity : MessageSeverity) : Message :=
@@ -235,7 +268,6 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   match lctx.find? fvar.fvarId! with
   | some d => pure d
   | none   => unreachable!
-def getMessageLog : TermElabM MessageLog := do s ← get; pure s.messages
 
 instance MonadError : MonadError TermElabM :=
 { getRef     := getRef,

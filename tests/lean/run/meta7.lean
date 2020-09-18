@@ -77,7 +77,8 @@ forallBoundedTelescope t (some 0) fun xs b => do
 def tst4 : MetaM Unit := do
 print "----- tst4 -----";
 let nat := mkConst `Nat;
-withLocalDeclD `x nat fun x => withLocalDeclD `y nat fun y => do
+withLocalDeclD `x nat fun x =>
+withLocalDeclD `y nat fun y => do
 m ← mkFreshExprMVar nat;
 print (← ppGoal m.mvarId!);
 val ← mkAppM `HasAdd.add #[mkNatLit 10, y];
@@ -95,3 +96,21 @@ check (isDefEq m expected);
 pure ()
 
 #eval tst4
+
+def tst5 : MetaM Unit := do
+print "----- tst5 -----";
+let prop := mkSort levelZero;
+withLocalDeclD `p prop fun p =>
+withLocalDeclD `q prop fun q => do
+withLocalDeclD `h₁ p fun h₁ => do
+eq ← mkEq p q;
+withLocalDeclD `h₂ eq fun h₂ => do
+m ← mkFreshExprMVar q;
+r ← replaceLocalDecl m.mvarId! h₁.fvarId! q h₂;
+print (← ppGoal r.mvarId);
+assignExprMVar r.mvarId (mkFVar r.fvarId);
+print m;
+Lean.Meta.check m;
+pure ()
+
+#eval tst5

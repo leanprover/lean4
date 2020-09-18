@@ -24,7 +24,8 @@ namespace PrettyPrinter
 namespace Formatter
 
 structure Context :=
-(table : Parser.TokenTable)
+(options : Options)
+(table   : Parser.TokenTable)
 
 structure State :=
 (stxTrav  : Syntax.Traverser)
@@ -82,7 +83,6 @@ namespace Formatter
 
 open Lean.Core
 open Lean.Parser
-open Lean.Format
 
 def throwBacktrack {α} : FormatterM α :=
 throw $ Exception.internal backtrackExceptionId
@@ -133,6 +133,14 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
+def indentTop (indent : Option Nat := none) : FormatterM Unit := do
+ctx ← read;
+let indent := indent.getD $ Format.getIndent ctx.options;
+modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.stack.back) }
+
+def groupTop : FormatterM Unit :=
+modify fun st => { st with stack := st.stack.pop.push (Format.group st.stack.back) }
+
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
 -- them in turn. Uses the syntax traverser non-linearly!
@@ -167,13 +175,15 @@ if stx.getKind == `choice then
     sp ← getStackSize;
     stx.getArgs.forM fun stx => formatterForKind stx.getKind;
     stack ← getStack;
-    when (stack.size > sp && stack.anyRange sp stack.size fun f => pretty f != pretty (stack.get! sp))
+    when (stack.size > sp && stack.anyRange sp stack.size fun f => f.pretty != (stack.get! sp).pretty)
       panic! "Formatter.visit: inequal choice children";
     -- discard all but one child format
     setStack $ stack.extract 0 (sp+1)
   }
 else
-  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
+  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind);
+indentTop;
+groupTop
 
 @[combinatorFormatter Lean.Parser.categoryParserOfStack]
 def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
@@ -399,10 +409,11 @@ end Formatter
 open Formatter
 
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
+options ← getOptions;
 table ← Parser.builtinTokenTable.get;
 catchInternalId backtrackExceptionId
   (do
-    (_, st) ← (formatter { table := table }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
+    (_, st) ← (formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
     pure $ Format.group $ st.stack.get! 0)
   (fun _ => throwError "format: uncaught backtrack exception")
 

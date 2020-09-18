@@ -15,7 +15,7 @@ env ← mkEmptyEnvironment;
 stx ← Lean.Parser.parseFile env args.head!;
 (f, _) ← (finally (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
 IO.print f;
-stx' ← Lean.Parser.parseModule env args.head! (toString f);
+--stx' ← Lean.Parser.parseModule env args.head! (toString f);
 pure ()
 -- TODO: this doesn't quite work yet because the parenthesizer adds unnecessary parentheses in one case
 /-

@@ -25,8 +25,8 @@ withMVarContext mvarId do
   u        ← getLevel target;
   eq       ← mkEq target targetNew;
   newProof ← mkExpectedTypeHint eqProof eq;
-  let newVal := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew];
-  assignExprMVar mvarId mvarNew;
+  let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew];
+  assignExprMVar mvarId val;
   pure mvarNew.mvarId!
 
 /--

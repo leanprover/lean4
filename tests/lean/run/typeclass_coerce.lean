@@ -67,6 +67,8 @@ axiom Top (α : Type) (n : Nat) : Type
 
 #print "-----"
 
+set_option synthInstance.maxSteps 10000
+
 #synth HasCoerce (Top Unit Nat.zero)
                  (Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ)
 

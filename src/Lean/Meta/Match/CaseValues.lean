@@ -39,9 +39,9 @@ withMVarContext mvarId $ do
   elseMVar ← mkFreshExprSyntheticOpaqueMVar elseTarget tag;
   val ← mkAppOptM `dite #[none, xEqValue, none, thenMVar, elseMVar];
   assignExprMVar mvarId val;
-  (elseH, elseMVarId) ← intro1 elseMVar.mvarId! false;
+  (elseH, elseMVarId) ← intro1P elseMVar.mvarId!;
   let elseSubgoal := { mvarId := elseMVarId, newH := elseH, subst := subst : CaseValueSubgoal };
-  (thenH, thenMVarId) ← intro1 thenMVar.mvarId! false;
+  (thenH, thenMVarId) ← intro1P thenMVar.mvarId!;
   let symm   := false;
   let clearH := false;
   (thenSubst, thenMVarId) ← substCore thenMVarId thenH symm subst clearH;

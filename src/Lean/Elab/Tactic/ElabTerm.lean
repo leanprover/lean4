@@ -109,17 +109,17 @@ withMVarContext mvarId $ do
   | Expr.fvar fvarId _ => pure fvarId
   | _ => do
     type ← inferType e;
-    let intro (userName : Name) (useUnusedNames : Bool) : TacticM FVarId := do {
-      (fvarId, mvarId) ← liftMetaM $ do {
+    let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do {
+      (fvarId, mvarId) ← liftMetaM do {
         mvarId ← Meta.assert mvarId userName type e;
-        Meta.intro1 mvarId useUnusedNames
+        Meta.intro1Core mvarId preserveBinderNames
       };
       setGoals $ mvarId::others;
       pure fvarId
     };
     match userName? with
-    | none          => intro `h true
-    | some userName => intro userName false
+    | none          => intro `h false
+    | some userName => intro userName true
 
 end Tactic
 end Elab

@@ -99,8 +99,8 @@ private partial def finalizeAux
           recType ← getTypeBody mvarId recType mvar;
           -- Try to clear major premise from new goal
           mvarId' ← tryClear mvar.mvarId! major.fvarId!;
-          (fields, mvarId') ← introN mvarId' nparams minorGivenNames true;
-          (extra,  mvarId') ← introN mvarId' nextra [] false;
+          (fields, mvarId') ← introN mvarId' nparams minorGivenNames;
+          (extra,  mvarId') ← introNP mvarId' nextra;
           let subst := reverted.size.fold
             (fun i (subst : FVarSubst) =>
               if i < indices.size + 1 then subst
@@ -170,8 +170,8 @@ withMVarContext mvarId $ do
     -- Revert indices and major premise preserving variable order
     (reverted, mvarId) ← revert mvarId ((indices.map Expr.fvarId!).push majorFVarId) true;
     -- Re-introduce indices and major
-    (indices', mvarId) ← introN mvarId indices.size [] false;
-    (majorFVarId', mvarId) ← intro1 mvarId false;
+    (indices', mvarId) ← introNP mvarId indices.size;
+    (majorFVarId', mvarId) ← intro1P mvarId;
     -- Create FVarSubst with indices
     let baseSubst : FVarSubst := indices.iterate {} (fun i index subst => subst.insert index.fvarId! (mkFVar (indices'.get! i.val)));
     trace! `Meta.Tactic.induction ("after revert&intro" ++ Format.line ++ MessageData.ofGoal mvarId);

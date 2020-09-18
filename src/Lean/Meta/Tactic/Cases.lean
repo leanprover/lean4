@@ -98,8 +98,8 @@ withMVarContext mvarId $ do
     newMVar ← mkFreshExprMVarAt lctx localInsts auxType MetavarKind.syntheticOpaque tag;
     /- assign mvarId := newMVar indices h refls -/
     assignExprMVar mvarId (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls);
-    (indicesFVarIds, newMVarId) ← introN newMVar.mvarId! newIndices.size [] false;
-    (fvarId, newMVarId) ← intro1 newMVarId false;
+    (indicesFVarIds, newMVarId) ← introNP newMVar.mvarId! newIndices.size;
+    (fvarId, newMVarId) ← intro1P newMVarId;
     pure {
       mvarId         := newMVarId,
       indicesFVarIds := indicesFVarIds,

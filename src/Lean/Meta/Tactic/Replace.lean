@@ -83,7 +83,7 @@ withMVarContext mvarId do
   };
   let finalize (targetNew : Expr) : MetaM MVarId := do {
     mvarId ← replaceTargetDefEq mvarId targetNew;
-    (_, mvarId) ← introN mvarId (numReverted-1) [] false;
+    (_, mvarId) ← introNP mvarId (numReverted-1);
     pure mvarId
   };
   match target with

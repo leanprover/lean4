@@ -375,7 +375,7 @@ p
 
 @[combinatorFormatter checkWsBefore] def checkWsBefore.formatter : Formatter := do
 modify fun st => { st with leadWord := "" };
-push " "
+pushLine
 
 @[combinatorFormatter checkPrec] def checkPrec.formatter : Formatter := pure ()
 @[combinatorFormatter checkStackTop] def checkStackTop.formatter : Formatter := pure ()

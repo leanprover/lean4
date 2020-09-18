@@ -47,8 +47,7 @@ Type → Type → Type
 1
 42
 "hi"
-{
-  type := Nat,
+{ type := Nat,
   val := 0 :
   PointedType }
 (1, 2, 3)

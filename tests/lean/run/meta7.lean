@@ -73,3 +73,25 @@ forallBoundedTelescope t (some 0) fun xs b => do
   pure ()
 
 #eval tst3
+
+def tst4 : MetaM Unit := do
+print "----- tst4 -----";
+let nat := mkConst `Nat;
+withLocalDeclD `x nat fun x => withLocalDeclD `y nat fun y => do
+m ← mkFreshExprMVar nat;
+print (← ppGoal m.mvarId!);
+val ← mkAppM `HasAdd.add #[mkNatLit 10, y];
+⟨zId, nId, subst⟩ ← assertAfter m.mvarId! x.fvarId! `z nat val;
+print m;
+print (← ppGoal nId);
+withMVarContext nId do {
+  print (subst.apply x ++ " " ++ subst.apply y ++ " " ++ mkFVar zId);
+  assignExprMVar nId (← mkAppM `HasAdd.add #[subst.apply x, mkFVar zId]);
+  print (mkMVar nId)
+};
+print m;
+expected ← mkAppM `HasAdd.add #[x, val];
+check (isDefEq m expected);
+pure ()
+
+#eval tst4

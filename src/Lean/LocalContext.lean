@@ -282,11 +282,11 @@ lctx.decls.findSomeRevM? $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
 
-@[specialize] def foldlFromM (lctx : LocalContext) (f : β → LocalDecl → m β) (b : β) (decl : LocalDecl) : m β :=
+@[specialize] def foldlFromM (lctx : LocalContext) (f : β → LocalDecl → m β) (b : β) (index : Nat) : m β :=
 lctx.decls.foldlFromM (fun b decl => match decl with
   | none      => pure b
   | some decl => f b decl)
-  b decl.index
+  b index
 
 end
 
@@ -299,8 +299,8 @@ Id.run $ lctx.findDeclM? f
 @[inline] def findDeclRev? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
 Id.run $ lctx.findDeclRevM? f
 
-@[inline] def foldlFrom {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) (decl : LocalDecl) : β :=
-Id.run $ lctx.foldlFromM f b decl
+@[inline] def foldlFrom {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) (index : Nat) : β :=
+Id.run $ lctx.foldlFromM f b index
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) : Nat → Nat → Bool
 | i, j =>

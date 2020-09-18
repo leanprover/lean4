@@ -217,6 +217,12 @@ pure a
 def focus {α} (tactic : TacticM α) : TacticM α :=
 focusAux (do a ← tactic; done; pure a)
 
+def try? {α} (tactic : TacticM α) : TacticM (Option α) :=
+catch (do a ← tactic; pure (some a)) (fun _ => pure none)
+
+def try {α} (tactic : TacticM α) : TacticM Bool :=
+catch (do tactic; pure true) (fun _ => pure false)
+
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.
   If there are multiple new untagged goals, they are named using `<parentTag>.<newSuffix>_<idx>` where `idx > 0`.

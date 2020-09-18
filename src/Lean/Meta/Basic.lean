@@ -353,6 +353,12 @@ match lctx.find? fvarId with
 def getFVarLocalDecl (fvar : Expr) : m LocalDecl := liftMetaM do
 getLocalDecl fvar.fvarId!
 
+def getLocalDeclFromUserName (userName : Name) : m LocalDecl := liftMetaM do
+lctx ← getLCtx;
+match lctx.findFromUserName? userName with
+| some d => pure d
+| none   => throwError ("unknown local declaration '" ++ userName ++ "'")
+
 def instantiateMVars (e : Expr) : m Expr := liftMetaM do
 if e.hasMVar then
   modifyGet $ fun s =>

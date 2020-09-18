@@ -1,0 +1,20 @@
+α : Type _
+as bs : List α
+⊢ as ++ bs ++ bs = as ++ (bs ++ bs)
+rewrite.lean:14:20: error: tactic 'rewrite' failed, did not find instance of the pattern in the target expression
+α : Type _
+as bs : List α
+⊢ as ++ List.nil ++ List.nil ++ bs ++ bs = as ++ (bs ++ bs)
+x y z : Nat
+h₁ : x = y
+h₂ : y = z
+⊢ x = z
+rewrite.lean:33:0: error: tactic 'rewrite' failed, did not find instance of the pattern in the current goal
+x y z : Nat
+h₁ : 0 + x = y
+h₂ : 0 + y = z
+⊢ x = z
+m n k : Nat
+h✝ : n = m
+h : k = m
+⊢ k = n

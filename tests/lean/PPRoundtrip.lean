@@ -9,21 +9,23 @@ open Lean.Format
 open Lean.Meta
 
 def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
-  stx ← stx;
-  e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
-  stx' ← liftMetaM $ delab Name.anonymous [] e optionsPerPos;
-  stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
-  f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
-  IO.println $ toString f';
-  env ← getEnv;
-  match Parser.runParserCategory env `term (toString f') "<input>" with
-  | Except.error e => throwErrorAt stx e
-  | Except.ok stx'' => do
-    e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
-    unlessM (isDefEq e e') $
-      throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
+opts ← getOptions;
+stx ← stx;
+e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
+stx' ← liftMetaM $ delab Name.anonymous [] e optionsPerPos;
+stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
+f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
+IO.println $ f'.pretty opts;
+env ← getEnv;
+match Parser.runParserCategory env `term (toString f') "<input>" with
+| Except.error e => throwErrorAt stx e
+| Except.ok stx'' => do
+  e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
+  unlessM (isDefEq e e') $
+    throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
 -- set_option trace.PrettyPrinter.parenthesize true
+set_option format.width 20
 
 -- #eval check `(?m)  -- fails round-trip
 

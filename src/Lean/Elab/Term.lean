@@ -650,11 +650,9 @@ Given an expected type of the form `n β`, if `eType` is of the form `α`
 
 If `eType` is of the form `m α`. We use the following approaches.
 
-1- Try to unify `n` and `m`. If it succeeds, then we rely on `tryCoe`, and
-   the instances
+1- Try to unify `n` and `m`. If it succeeds, then we use
    ```
-   instance coeMethod {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] : Coe (m α) (m β)
-   instance pureCoeDepProp {m : Type → Type v} [HasPure m] {p : Prop} [Decidable p] : CoeDep (m Prop) (pure p) (m Bool)
+   coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β
    ```
 
 2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
@@ -702,7 +700,7 @@ match eNew? with
 | some eNew => pure eNew
 | none      => do
 some (m, α) ← isTypeApp? eType | tryCoe expectedType eType e f?;
-condM (isDefEq m n) (tryCoe expectedType eType e f?) $
+condM (isDefEq m n) (mkAppOptM `coeM #[m, α, β, none, monadInst, e]) $
   catch
     (do
       -- Construct lift from `m` to `n`

@@ -13,7 +13,7 @@
 match1.lean:82:0: error: type mismatch during dependent match-elimination at pattern variable 'w' with type
   VecPred P Vec.nil
 expected type
-  VecPred P tail
+  VecPred P tail✝
 [false, true, true]
 match1.lean:113:0: error: dependent match elimination failed, inaccessible pattern found 
   .(j + j)

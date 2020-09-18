@@ -9,7 +9,7 @@ namespace Lean
 namespace Meta
 
 @[specialize]
-private partial def introNImpAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ → Name × σ)
+private partial def introNImpAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ → MetaM (Name × σ))
     : Nat → LocalContext → Array Expr → Nat → σ → Expr → MetaM (Array Expr × MVarId)
 | 0, lctx, fvars, j, _, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
@@ -27,7 +27,7 @@ private partial def introNImpAux {σ} (mvarId : MVarId) (mkName : LocalContext �
   let type   := type.headBeta;
   let val    := val.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
-  let (n, s) := mkName lctx n s;
+  (n, s) ← mkName lctx n s;
   let lctx   := lctx.mkLetDecl fvarId n type val;
   let fvar   := mkFVar fvarId;
   let fvars  := fvars.push fvar;
@@ -36,7 +36,7 @@ private partial def introNImpAux {σ} (mvarId : MVarId) (mkName : LocalContext �
   let type   := type.instantiateRevRange j fvars.size fvars;
   let type   := type.headBeta;
   fvarId ← mkFreshId;
-  let (n, s) := mkName lctx n s;
+  (n, s) ← mkName lctx n s;
   let lctx   := lctx.mkLocalDecl fvarId n type c.binderInfo;
   let fvar   := mkFVar fvarId;
   let fvars  := fvars.push fvar;
@@ -51,7 +51,7 @@ private partial def introNImpAux {σ} (mvarId : MVarId) (mkName : LocalContext �
       else
         throwTacticEx `introN mvarId "insufficient number of binders"
 
-@[specialize] private def introNImp {σ} (mvarId : MVarId) (n : Nat) (mkName : LocalContext → Name → σ → Name × σ) (s : σ) : MetaM (Array FVarId × MVarId) :=
+@[specialize] private def introNImp {σ} (mvarId : MVarId) (n : Nat) (mkName : LocalContext → Name → σ → MetaM (Name × σ)) (s : σ) : MetaM (Array FVarId × MVarId) :=
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `introN;
   mvarType ← getMVarType mvarId;
@@ -59,13 +59,38 @@ withMVarContext mvarId $ do
   (fvars, mvarId) ← introNImpAux mvarId mkName n lctx #[] 0 s mvarType;
   pure (fvars.map Expr.fvarId!, mvarId)
 
-private def mkAuxNameImp (preserveBinderNames : Bool) (lctx : LocalContext) (binderName : Name) : List Name → Name × List Name
-| []         => (if preserveBinderNames then binderName else lctx.getUnusedName binderName, [])
-| n :: rest  => (if n != "_" then n else if preserveBinderNames then binderName else lctx.getUnusedName binderName, rest)
+def hygienicIntroDef := true
 
-def introNCore (mvarId : MVarId) (n : Nat) (givenNames : List Name) (preserveBinderNames : Bool) : MetaM (Array FVarId × MVarId) :=
+def getHygienicIntro : MetaM Bool := do
+o ← getOptions;
+pure $ o.get `hygienicIntro hygienicIntroDef
+
+@[init] def registerHygienicIntro : IO Unit :=
+registerOption `hygienicIntro { defValue := hygienicIntroDef, group := "tactic", descr := "make sure 'intro'-like tactics are hygienic" }
+
+private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (lctx : LocalContext) (binderName : Name) : List Name → MetaM (Name × List Name)
+| []         =>
+  if preserveBinderNames then
+    pure (binderName, [])
+  else if hygienic then do
+    binderName ← Core.mkFreshUserName binderName;
+    pure (binderName, [])
+  else
+    pure (lctx.getUnusedName binderName, [])
+| n :: rest  =>
+  if n != "_" then pure (n, rest)
+  else if preserveBinderNames then
+    pure (binderName, rest)
+  else if hygienic then do
+    binderName ← Core.mkFreshUserName binderName;
+    pure (binderName, rest)
+  else
+    pure (lctx.getUnusedName binderName, rest)
+
+def introNCore (mvarId : MVarId) (n : Nat) (givenNames : List Name) (preserveBinderNames : Bool) : MetaM (Array FVarId × MVarId) := do
+hygienic ← getHygienicIntro;
 if n == 0 then pure (#[], mvarId)
-else introNImp mvarId n (mkAuxNameImp preserveBinderNames) givenNames
+else introNImp mvarId n (mkAuxNameImp preserveBinderNames hygienic) givenNames
 
 abbrev introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) : MetaM (Array FVarId × MVarId) :=
 introNCore mvarId n givenNames false

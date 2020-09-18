@@ -93,10 +93,10 @@ modifyTraces $ fun _ => {};
 pure oldTraces
 
 section
-variables [AddMessageDataContext m] [MonadOptions m]
+variables [AddMessageContext m] [MonadOptions m]
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
-msg ← addMessageDataContext msg;
+msg ← addMessageContext msg;
 modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=

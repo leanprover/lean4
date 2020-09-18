@@ -129,7 +129,8 @@ instance monadMacroAdapterTrans (m n) [MonadMacroAdapter m] [MonadLift m n] : Mo
   getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _),
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _) }
 
-@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] (x : MacroM α) : m α := do
+@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m]
+    [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (x : MacroM α) : m α := do
 scp  ← MonadMacroAdapter.getCurrMacroScope;
 env  ← getEnv;
 next ← MonadMacroAdapter.getNextMacroScope;
@@ -140,7 +141,8 @@ match x { currMacroScope := scp, mainModule := env.mainModule, currRecDepth := c
 | EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg
 | EStateM.Result.ok a nextMacroScope                       => do MonadMacroAdapter.setNextMacroScope nextMacroScope; pure a
 
-@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] (x : Macro) (stx : Syntax) : m Syntax :=
+@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m]
+    [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
 liftMacroM (x stx)
 
 def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syntax) := do

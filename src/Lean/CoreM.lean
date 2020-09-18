@@ -32,13 +32,9 @@ abbrev CoreM := ReaderT Context $ StateRefT State $ EIO Exception
 instance CoreM.inhabited {α} : Inhabited (CoreM α) :=
 ⟨fun _ _ => throw $ arbitrary _⟩
 
-instance : MonadError CoreM :=
+instance : Ref CoreM :=
 { getRef     := do ctx ← read; pure ctx.ref,
-  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x,
-  addContext := fun ref msg => do
-    ctx ← read;
-    s   ← get;
-    pure (ref, MessageData.withContext { env := s.env, mctx := {}, lctx := {}, opts := ctx.options } msg) }
+  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x }
 
 instance : MonadEnv CoreM :=
 { getEnv    := do s ← get; pure s.env,
@@ -46,6 +42,9 @@ instance : MonadEnv CoreM :=
 
 instance : MonadOptions CoreM :=
 { getOptions := do ctx ← read; pure ctx.options }
+
+instance : AddMessageContext CoreM :=
+{ addMessageContext := addMessageContextPartial }
 
 instance : MonadNameGenerator CoreM :=
 { getNGen := do s ← get; pure s.ngen,
@@ -66,9 +65,6 @@ instance : MonadIO CoreM :=
 instance : MonadTrace CoreM :=
 { getTraceState    := do s ← get; pure s.traceState,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
-
-instance : AddMessageDataContext CoreM :=
-{ addMessageDataContext := addMessageDataContextPartial }
 
 @[inline] def CoreM.run {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
 (x.run ctx).run s

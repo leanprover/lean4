@@ -61,7 +61,7 @@ def mkAuxName (baseName : Name) (idx : Nat) : m Name := do
 env ← getEnv;
 pure $ mkAuxNameAux env baseName idx
 
-variables [MonadError m]
+variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
 
 def getConstInfo (constName : Name) : m ConstantInfo := do
 env ← getEnv;
@@ -115,11 +115,13 @@ def addAndCompile [MonadOptions m] (decl : Declaration) : m Unit := do
 addDecl decl;
 compileDecl decl
 
-unsafe def evalConst [MonadError m] (α) (constName : Name) : m α := do
+variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+
+unsafe def evalConst (α) (constName : Name) : m α := do
 env ← getEnv;
 ofExcept $ env.evalConst α constName
 
-unsafe def evalConstCheck [MonadError m] (α) (typeName : Name) (constName : Name) : m α := do
+unsafe def evalConstCheck (α) (typeName : Name) (constName : Name) : m α := do
 env ← getEnv;
 ofExcept $ env.evalConstCheck α typeName constName
 

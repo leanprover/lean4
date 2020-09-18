@@ -24,45 +24,49 @@ def Exception.getRef : Exception → Syntax
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 
-class MonadError (m : Type → Type) extends MonadExceptOf Exception m :=
-(getRef         : m Syntax)
-(addContext     : Syntax → MessageData → m (Syntax × MessageData))
-(withRef    {α} : Syntax → m α → m α)
+class Ref (m : Type → Type) :=
+(getRef      : m Syntax)
+(withRef {α} : Syntax → m α → m α)
 
-export MonadError (getRef addContext withRef)
+export Ref (getRef withRef)
 
-instance ReaderT.monadError {ρ m} [Monad m] [MonadError m] : MonadError (ReaderT ρ m) :=
-{ getRef        := fun _           => getRef,
-  addContext    := fun ref msg _   => addContext ref msg,
-  withRef       := fun α ref x ctx => MonadError.withRef ref (x ctx) }
-
-instance StateRefT.monadError {ω σ m} [Monad m] [MonadError m] : MonadError (StateRefT' ω σ m) :=
-inferInstanceAs (MonadError (ReaderT _ _))
-
-section Methods
-
-variables {m : Type → Type} [Monad m] [MonadError m]
-
-def throwError {α} (msg : MessageData) : m α := do
-ref ← getRef;
-(ref, msg) ← addContext ref msg;
-throw $ Exception.error ref msg
+instance refTrans (m n : Type → Type) [Ref m] [MonadFunctor m m n n] [MonadLift m n] : Ref n :=
+{ getRef  := liftM (getRef : m _),
+  withRef := fun α ref x => monadMap (fun α => withRef ref : forall {α}, m α → m α) x }
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
 match ref.getPos with
 | some _ => ref
 | _      => oldRef
 
-@[inline] def withRef {α} (ref : Syntax) (x : m α) : m α := do
+@[inline] def withRef {m : Type → Type} [Monad m] [Ref m] {α} (ref : Syntax) (x : m α) : m α := do
 oldRef ← getRef;
 let ref := replaceRef ref oldRef;
-MonadError.withRef ref x
+Ref.withRef ref x
+
+/- Similar to `AddMessageContext`, but for error messages.
+   The default instance just uses `AddMessageContext`.
+   In error messages, we may want to provide additional information (e.g., macro expansion stack),
+   and refine the `(ref : Syntax)`. -/
+class AddErrorMessageContext (m : Type → Type) :=
+(add : Syntax → MessageData → m (Syntax × MessageData))
+
+instance addErrorMessageContextDefault (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageContext m :=
+{ add := fun ref msg => do
+  msg ← addMessageContext msg;
+  pure (ref, msg) }
+
+section Methods
+
+variables {m : Type → Type} [Monad m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+
+def throwError {α} (msg : MessageData) : m α := do
+ref ← getRef;
+(ref, msg) ← AddErrorMessageContext.add ref msg;
+throw $ Exception.error ref msg
 
 def throwErrorAt {α} (ref : Syntax) (msg : MessageData) : m α := do
-ctxRef ← getRef;
-let ref := replaceRef ref ctxRef;
-(ref, msg) ← addContext ref msg;
-throw $ Exception.error ref msg
+withRef ref $ throwError msg
 
 def ofExcept {ε α} [HasToString ε] (x : Except ε α) : m α :=
 match x with
@@ -88,7 +92,8 @@ instance ReaderT.MonadRecDepth {ρ m} [Monad m] [MonadRecDepth m] : MonadRecDept
 instance StateRefT.monadRecDepth {ω σ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
 inferInstanceAs (MonadRecDepth (ReaderT _ _))
 
-@[inline] def withIncRecDepth {α m} [Monad m] [MonadRecDepth m] [MonadError m] (x : m α) : m α := do
+@[inline] def withIncRecDepth {α m} [Monad m] [MonadRecDepth m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+    (x : m α) : m α := do
 curr ← MonadRecDepth.getRecDepth;
 max  ← MonadRecDepth.getMaxRecDepth;
 when (curr == max) $ throwError maxRecDepthErrorMessage;

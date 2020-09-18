@@ -259,20 +259,20 @@ match e with
 
 end KernelException
 
-class AddMessageDataContext (m : Type → Type) :=
-(addMessageDataContext : MessageData → m MessageData)
+class AddMessageContext (m : Type → Type) :=
+(addMessageContext : MessageData → m MessageData)
 
-export AddMessageDataContext (addMessageDataContext)
+export AddMessageContext (addMessageContext)
 
-instance addMessageDataContextTrans (m n) [AddMessageDataContext m] [MonadLift m n] : AddMessageDataContext n :=
-{ addMessageDataContext := fun msg => liftM (addMessageDataContext msg : m _) }
+instance addMessageContextTrans (m n) [AddMessageContext m] [MonadLift m n] : AddMessageContext n :=
+{ addMessageContext := fun msg => liftM (addMessageContext msg : m _) }
 
-def addMessageDataContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
+def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
 env ← getEnv;
 opts ← getOptions;
 pure $ MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
 
-def addMessageDataContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
+def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
 env ← getEnv;
 mctx ← getMCtx;
 lctx ← getLCtx;

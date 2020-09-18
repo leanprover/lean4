@@ -426,9 +426,7 @@ pure e
   Auxiliary method for creating fresh binder names.
   Do not confuse with the method for creating fresh free/meta variable ids. -/
 def mkFreshUserName : TermElabM Name :=
-withFreshMacroScope do
-  x ← `(x);
-  pure x.getId
+withFreshMacroScope $ MonadQuotation.addMacroScope `x
 
 /--
   Auxiliary method for creating a `Syntax.ident` containing
@@ -441,9 +439,7 @@ pure $ mkIdentFrom ref n
 /--
   Auxiliary method for creating binder names for local instances. -/
 def mkFreshInstanceName : TermElabM Name :=
-withFreshMacroScope do
-  inst ← `(inst);
-  pure inst.getId
+withFreshMacroScope $ MonadQuotation.addMacroScope `inst
 
 private partial def hasCDot : Syntax → Bool
 | Syntax.node k args =>

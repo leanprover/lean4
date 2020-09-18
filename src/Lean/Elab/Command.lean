@@ -252,11 +252,16 @@ let scope := s.scopes.head!;
 -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
 -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
 let messages         := s.messages;
-let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {}, nextMacroScope := s.nextMacroScope };
+let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {} };
 let x : CoreM _      := x.run mkMetaContext {};
-let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen };
+let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope };
 (((ea, termS), _), coreS) ← liftEIO x;
-modify fun s => { s with env := coreS.env, messages := addTraceAsMessages ctx (messages ++ termS.messages) coreS.traceState, ngen := coreS.ngen };
+modify fun s => { s with
+  env            := coreS.env,
+  messages       := addTraceAsMessages ctx (messages ++ termS.messages) coreS.traceState,
+  nextMacroScope := coreS.nextMacroScope,
+  ngen           := coreS.ngen
+};
 match ea with
 | Except.ok a     => pure a
 | Except.error ex => throw ex

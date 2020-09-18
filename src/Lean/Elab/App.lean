@@ -62,7 +62,7 @@ match arg with
   ensureArgType f val expectedType
 
 private def mkArrow (d b : Expr) : TermElabM Expr := do
-n ← mkFreshUserName;
+n ← mkFreshBinderName;
 pure $ Lean.mkForall n BinderInfo.default d b
 
 /-

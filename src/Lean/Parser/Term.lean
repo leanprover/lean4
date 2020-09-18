@@ -76,7 +76,7 @@ def sufficesDecl := optIdent >> termParser >> fromTerm
 @[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
-def structInstField  := parser! structInstLVal >> " := " >> termParser
+def structInstField  := ppGroup $ parser! structInstLVal >> " := " >> termParser
 @[builtinTermParser] def structInst := parser! "{ " >> optional (try (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
@@ -89,9 +89,9 @@ def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
 def binderTactic  := parser! try (" := " >> " by ") >> Tactic.indentedNonEmptySeq
 def binderDefault := parser! " := " >> termParser
-def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
-def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
-def instBinder := parser! "[" >> optIdent >> termParser >> "]"
+def explicitBinder (requireType := false) := ppGroup $ parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
+def implicitBinder (requireType := false) := ppGroup $ parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
+def instBinder := ppGroup $ parser! "[" >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
 
 /-

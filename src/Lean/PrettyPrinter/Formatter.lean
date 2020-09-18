@@ -389,6 +389,7 @@ push " "
 
 @[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
 @[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
+@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := p *> indentTop *> groupTop
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

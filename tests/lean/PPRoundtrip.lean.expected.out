@@ -21,39 +21,33 @@ fun
   a
 fun {a b : Nat} => a
 typeAs ({α : Type} → α → α) fun
-    {α :
-    Type}
+    {α : Type}
     (a : α) =>
     a
 fun
-  {α :
-  Type}
+  {α : Type}
   [inst :
-  HasToString α]
+    HasToString α]
   (a : α) =>
   @toString α inst a
 (α : Type) → α
 (α β : Type) → α
 Type → Type → Type
 (α : Type) → α → α
-(α :
-  Type) →
+(α : Type) →
   (a : α) → a = a
 {α : Type} → α
-{α :
-  Type} →
+{α : Type} →
   [inst :
-    HasToString α] →
+      HasToString α] →
     α
 0
 1
 42
 "hi"
 {
-  type :=
-  Nat,
-  val :=
-  0 :
+  type := Nat,
+  val := 0 :
   PointedType }
 (1, 2, 3)
 (1, 2).fst

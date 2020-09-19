@@ -82,7 +82,7 @@ else
   pure none
 
 /- Expand `doLet`, `doPat`, nonterminal `doExpr`s, and `liftMethod` -/
-private partial def expandDoElemsAux : Bool → Array Syntax → Nat → MacroM (Option Syntax)
+private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syntax
 | modified, doElems, i =>
   let mkRest : Unit → MacroM Syntax := fun _ => do {
     let restElems := doElems.extract (i+2) doElems.size;
@@ -91,7 +91,7 @@ private partial def expandDoElemsAux : Bool → Array Syntax → Nat → MacroM 
     else
       `(do { $restElems* })
   };
-  let addPrefix (rest : Syntax) : MacroM (Option Syntax) := do {
+  let addPrefix (rest : Syntax) : MacroM Syntax := do {
     if i == 0 then
       pure rest
     else
@@ -108,7 +108,7 @@ private partial def expandDoElemsAux : Bool → Array Syntax → Nat → MacroM 
       let pre     := doElems.extract 0 i;
       let doElems := pre ++ doElemsNew ++ post;
       tmp ← `(do { $doElems* });
-      expandDoElemsAux true doElems i
+      expandDoElems true doElems i
     | none =>
       if doElem.getKind == `Lean.Parser.Term.doLet then do
         let letDecl := doElem.getArg 1;
@@ -134,16 +134,18 @@ private partial def expandDoElemsAux : Bool → Array Syntax → Nat → MacroM 
         auxDo ← `(do x ← $term; $(Syntax.missing));
         let doElemNew := (getDoElems auxDo).get! 0;
         let doElems := doElems.set! i doElemNew;
-        expandDoElemsAux true doElems (i+2)
+        expandDoElems true doElems (i+2)
       else
-        expandDoElemsAux modified doElems (i+2)
+        expandDoElems modified doElems (i+2)
   else if modified then
     `(do { $doElems* })
   else
-    pure none
+    Macro.throwUnsupported
 
-private partial def expandDoElems (doElems : Array Syntax) : MacroM (Option Syntax) :=
-expandDoElemsAux false doElems 0
+@[builtinMacro Lean.Parser.Term.do] def expandDo : Macro :=
+fun stx =>
+  let doElems := getDoElems stx;
+  expandDoElems false doElems 0
 
 structure ProcessedDoElem :=
 (action : Expr)
@@ -217,16 +219,12 @@ processDoElemsAux doElems m bindInstVal expectedType 0 #[]
 fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?;
   let doElems := getDoElems stx;
-  stxNew? ← liftMacroM $ expandDoElems doElems;
-  match stxNew? with
-  | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-  | none => do
-    trace `Elab.do $ fun _ => stx;
-    let doElems := doElems.getSepElems;
-    { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
-    result ← processDoElems doElems m bindInstVal expectedType?.get!;
-    -- dbgTrace ("result: " ++ toString result);
-    pure result
+  trace `Elab.do $ fun _ => stx;
+  let doElems := doElems.getSepElems;
+  { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
+  result ← processDoElems doElems m bindInstVal expectedType?.get!;
+  -- dbgTrace ("result: " ++ toString result);
+  pure result
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.do;

@@ -13,10 +13,10 @@ namespace Meta
 
 structure RewriteResult :=
 (eNew     : Expr)
-(eqPrf    : Expr)
-(newGoals : List MVarId)
+(eqProof  : Expr)
+(mvarIds  : List MVarId) -- new goals
 
-def rewriteCore (mvarId : MVarId) (e : Expr) (heq : Expr) (symm : Bool := false) (occs : Occurrences := Occurrences.all) : MetaM RewriteResult :=
+def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr) (symm : Bool := false) (occs : Occurrences := Occurrences.all) : MetaM RewriteResult :=
 withMVarContext mvarId $ do
   checkNotAssigned mvarId `rewrite;
   heqType ← inferType heq;
@@ -28,7 +28,7 @@ withMVarContext mvarId $ do
     | some (α, lhs, rhs) =>
       let continue (heq heqType lhs rhs : Expr) : MetaM RewriteResult := do {
         when lhs.getAppFn.isMVar $
-          throwTacticEx `rewrite mvarId ("pattern is a metavariable");
+          throwTacticEx `rewrite mvarId ("pattern is a metavariable " ++ indentExpr lhs ++ Format.line ++ "from equation" ++ indentExpr heqType);
         e ← instantiateMVars e;
         eAbst ← kabstract e lhs occs;
         unless eAbst.hasLooseBVars $
@@ -45,7 +45,7 @@ withMVarContext mvarId $ do
         eqPrf ← mkEqNDRec motive eqRefl heq;
         postprocessAppMVars `rewrite mvarId newMVars binderInfos;
         newMVars ← newMVars.filterM $ fun mvar => not <$> isExprMVarAssigned mvar.mvarId!;
-        pure { eNew := eNew, eqPrf := eqPrf, newGoals := newMVars.toList.map Expr.mvarId! }
+        pure { eNew := eNew, eqProof := eqPrf, mvarIds := newMVars.toList.map Expr.mvarId! }
       };
       match symm with
       | false => continue heq heqType lhs rhs

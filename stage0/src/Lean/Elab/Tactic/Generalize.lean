@@ -30,7 +30,7 @@ let rfl    := mkApp2 (Lean.mkConst `Eq.refl [u]) eType e;
 let val    := mkApp2 mvar' e rfl;
 assignExprMVar mvarId val;
 let mvarId' := mvar'.mvarId!;
-(_, mvarId') ← Meta.introN mvarId' 2 [] false;
+(_, mvarId') ← Meta.introNP mvarId' 2;
 pure [mvarId']
 
 private def evalGeneralizeWithEq (h : Name) (e : Expr) (x : Name) : TacticM Unit :=
@@ -39,7 +39,7 @@ liftMetaTactic $ fun mvarId => do
   mvarDecl    ← getMVarDecl mvarId;
   match mvarDecl.type with
   | Expr.forallE _ _ b _ => do
-    (_, mvarId) ← Meta.intro1 mvarId false;
+    (_, mvarId) ← Meta.intro1P mvarId;
     eType       ← inferType e;
     u           ← Meta.getLevel eType;
     let eq     := mkApp3 (Lean.mkConst `Eq [u]) eType e (mkBVar 0);
@@ -61,7 +61,7 @@ def evalGeneralizeAux (h? : Option Name) (e : Expr) (x : Name) : TacticM Unit :=
 match h? with
 | none   => liftMetaTactic $ fun mvarId => do
   mvarId ← Meta.generalize mvarId e x false;
-  (_, mvarId) ← Meta.intro1 mvarId false;
+  (_, mvarId) ← Meta.intro1P mvarId;
   pure [mvarId]
 | some h =>
   evalGeneralizeWithEq h e x <|> evalGeneralizeFallback h e x

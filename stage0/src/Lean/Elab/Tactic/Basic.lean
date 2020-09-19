@@ -97,16 +97,6 @@ def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftT
 protected def getCurrMacroScope : TacticM MacroScope := do ctx ← readThe Term.Context; pure ctx.currMacroScope
 protected def getMainModule     : TacticM Name       := do env ← getEnv; pure env.mainModule
 
-@[inline] protected def withFreshMacroScope {α} (x : TacticM α) : TacticM α := do
-fresh ← modifyGetThe Term.State (fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 }));
-adaptTheReader Term.Context (fun ctx => { ctx with currMacroScope := fresh }) x
-
-instance monadQuotation : MonadQuotation TacticM := {
-  getCurrMacroScope   := Tactic.getCurrMacroScope,
-  getMainModule       := Tactic.getMainModule,
-  withFreshMacroScope := @Tactic.withFreshMacroScope
-}
-
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 @[init mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
@@ -226,6 +216,12 @@ pure a
 
 def focus {α} (tactic : TacticM α) : TacticM α :=
 focusAux (do a ← tactic; done; pure a)
+
+def try? {α} (tactic : TacticM α) : TacticM (Option α) :=
+catch (do a ← tactic; pure (some a)) (fun _ => pure none)
+
+def try {α} (tactic : TacticM α) : TacticM Bool :=
+catch (do tactic; pure true) (fun _ => pure false)
 
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.

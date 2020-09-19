@@ -25,8 +25,8 @@ withMVarContext mvarId do
   u        ← getLevel target;
   eq       ← mkEq target targetNew;
   newProof ← mkExpectedTypeHint eqProof eq;
-  let newVal := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew];
-  assignExprMVar mvarId mvarNew;
+  let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew];
+  assignExprMVar mvarId val;
   pure mvarNew.mvarId!
 
 /--
@@ -83,7 +83,7 @@ withMVarContext mvarId do
   };
   let finalize (targetNew : Expr) : MetaM MVarId := do {
     mvarId ← replaceTargetDefEq mvarId targetNew;
-    (_, mvarId) ← introN mvarId (numReverted-1) [] false;
+    (_, mvarId) ← introNP mvarId (numReverted-1);
     pure mvarId
   };
   match target with

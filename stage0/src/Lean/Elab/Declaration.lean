@@ -204,69 +204,58 @@ private partial def splitMutualPreamble (elems : Array Syntax) : Nat → Option 
   else
     none -- a `mutual` block containing only preamble commands is not a valid `mutual` block
 
-private def expandMutualPreamble? (stx : Syntax) : MacroM (Option Syntax) :=
-match splitMutualPreamble (stx.getArg 1).getArgs 0 with
-| some (preamble, rest) => do
-  secCmd    ← `(section);
-  let newMutual := stx.setArg 1 (mkNullNode rest);
-  endCmd    ← `(end);
-  pure (some (mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])))
-| none =>
-  pure none
+@[builtinMacro Lean.Parser.Command.mutual] def expandMutualNamespace : Macro :=
+fun stx => do
+  let elems := (stx.getArg 1).getArgs;
+  (ns?, elems) ← elems.foldlM
+    (fun (acc : Option Name × Array Syntax) (elem : Syntax) =>
+      let (ns?, elems) := acc;
+      match ns?, expandDeclNamespace? elem with
+      | _, none                         => pure (ns?, elems.push elem)
+      | none, some (ns, elem)           => pure (some ns, elems.push elem)
+      | some nsCurr, some (nsNew, elem) =>
+        if nsCurr == nsNew then
+          pure (ns?, elems.push elem)
+        else
+          Macro.throwError elem
+            ("conflicting namespaces in mutual declaration, using namespace '" ++ toString nsNew ++ "', but used '" ++ toString nsCurr ++ "' in previous declaration"))
+    (none, #[]);
+  match ns? with
+  | some ns =>
+    let ns := mkIdentFrom stx ns;
+    let stxNew := stx.setArg 1 (mkNullNode elems);
+    `(namespace $ns:ident $stxNew end $ns:ident)
+  | none => Macro.throwUnsupported
 
-private def expandMutualElement? (stx : Syntax) : CommandElabM (Option Syntax) := do
-env ← getEnv;
-let elems := (stx.getArg 1).getArgs;
-(elemsNew, modified) ← elems.foldlM
-  (fun (acc : Array Syntax × Bool) elem => do
-     let (elemsNew, modified) := acc;
-     elem? ← liftMacroM $ expandMacro? env elem;
-     match elem? with
-     | some elemNew => pure (elemsNew.push elemNew, true)
-     | none         => pure (elemsNew.push elem, modified))
-  (#[], false);
-if modified then
-  pure (some (stx.setArg 1 (mkNullNode elemsNew)))
-else
-  pure none
+@[builtinMacro Lean.Parser.Command.mutual] def expandMutualElement : Macro :=
+fun stx => do
+  let elems := (stx.getArg 1).getArgs;
+  (elemsNew, modified) ← elems.foldlM
+    (fun (acc : Array Syntax × Bool) elem => do
+       let (elemsNew, modified) := acc;
+       elem? ← expandMacro? elem;
+       match elem? with
+       | some elemNew => pure (elemsNew.push elemNew, true)
+       | none         => pure (elemsNew.push elem, modified))
+    (#[], false);
+  if modified then
+    pure $ stx.setArg 1 (mkNullNode elemsNew)
+  else
+    Macro.throwUnsupported
 
-private def expandMutualNamespace? (stx : Syntax) : MacroM (Option Syntax) := do
-let elems := (stx.getArg 1).getArgs;
-(ns?, elems) ← elems.foldlM
-  (fun (acc : Option Name × Array Syntax) (elem : Syntax) =>
-    let (ns?, elems) := acc;
-    match ns?, expandDeclNamespace? elem with
-    | _, none                         => pure (ns?, elems.push elem)
-    | none, some (ns, elem)           => pure (some ns, elems.push elem)
-    | some nsCurr, some (nsNew, elem) =>
-      if nsCurr == nsNew then
-        pure (ns?, elems.push elem)
-      else
-        Macro.throwError elem
-          ("conflicting namespaces in mutual declaration, using namespace '" ++ toString nsNew ++ "', but used '" ++ toString nsCurr ++ "' in previous declaration"))
-  (none, #[]);
-match ns? with
-| none    => pure none
-| some ns =>
-  let ns := mkIdentFrom stx ns;
-  let stxNew := stx.setArg 1 (mkNullNode elems);
-  `(namespace $ns:ident $stxNew end $ns:ident)
+@[builtinMacro Lean.Parser.Command.mutual] def expandMutualPreamble : Macro :=
+fun stx =>
+  match splitMutualPreamble (stx.getArg 1).getArgs 0 with
+  | none => Macro.throwUnsupported
+  | some (preamble, rest) => do
+    secCmd    ← `(section);
+    let newMutual := stx.setArg 1 (mkNullNode rest);
+    endCmd    ← `(end);
+    pure $ mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
 
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab :=
 fun stx => do
-  stxNew? ← liftMacroM $ expandMutualPreamble? stx;
-  match stxNew? with
-  | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
-  | none        => do
-  stxNew? ← expandMutualElement? stx;
-  match stxNew? with
-  | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
-  | none => do
-  stxNew? ← liftMacroM $ expandMutualNamespace? stx;
-  match stxNew? with
-  | some stxNew => withMacroExpansion stx stxNew $ elabCommand stxNew
-  | none =>
   if isMutualInductive stx then
     elabMutualInductive (stx.getArg 1).getArgs
   else if isMutualDef stx then

@@ -80,8 +80,8 @@ withMVarContext mvarId $ do
   let args := (fvarIds.filter fun fvarId => !(lctx.get! fvarId).isLet).map mkFVar;
   let args := #[val] ++ args;
   assignExprMVar mvarId (mkAppN mvarNew args);
-  (fvarIdNew, mvarIdNew) ← intro1 mvarNew.mvarId! false;
-  (fvarIdsNew, mvarIdNew) ← introN mvarIdNew fvarIds.size [] false;
+  (fvarIdNew, mvarIdNew) ← intro1P mvarNew.mvarId!;
+  (fvarIdsNew, mvarIdNew) ← introNP mvarIdNew fvarIds.size;
   let subst := fvarIds.size.fold
     (fun i (subst : FVarSubst) => subst.insert (fvarIds.get! i) (mkFVar (fvarIdsNew.get! i)))
     {};

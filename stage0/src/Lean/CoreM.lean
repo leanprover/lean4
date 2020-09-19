@@ -15,9 +15,10 @@ namespace Lean
 namespace Core
 
 structure State :=
-(env         : Environment)
-(ngen        : NameGenerator := {})
-(traceState  : TraceState    := {})
+(env             : Environment)
+(nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1)
+(ngen            : NameGenerator := {})
+(traceState      : TraceState    := {})
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 
@@ -66,6 +67,14 @@ instance : MonadTrace CoreM :=
 { getTraceState    := do s ← get; pure s.traceState,
   modifyTraceState := fun f => modify $ fun s => { s with traceState := f s.traceState } }
 
+private def mkFreshNameImp (n : Name) : CoreM Name := do
+fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 });
+env ← getEnv;
+pure $ addMacroScope env.mainModule n fresh
+
+def mkFreshUserName {m} [MonadLiftT CoreM m] (n : Name) : m Name :=
+liftM $ mkFreshNameImp n
+
 @[inline] def CoreM.run {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
 (x.run ctx).run s
 
@@ -81,7 +90,7 @@ match e with
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 ⟨fun env opts x _ => do
-   (a, s) ← (finally x printTraces).toIO { maxRecDepth := getMaxRecDepth opts, options := opts} { env := env};
+   (a, s) ← (finally x printTraces).toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env};
    MetaHasEval.eval s.env opts a⟩
 
 end Core

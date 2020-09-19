@@ -69,13 +69,13 @@ def usingRec : Parser := optional (" using " >> ident)
 def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> withAlts
 @[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
-def withIds : Parser := optional (" with " >> many1 ident')
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> altRHS
 def matchAlts : Parser := group $ withPosition $ fun pos => (optional "| ") >> sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts
 
+def withIds : Parser := optional (" with " >> many1 ident')
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
 @[builtinTacticParser] def paren        := parser! "(" >> seq1 >> ")"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"

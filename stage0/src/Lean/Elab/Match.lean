@@ -70,7 +70,7 @@ elabDiscrsWitMatchTypeAux discrStxs expectedType 0 matchType #[]
 private def mkUserNameFor (e : Expr) : TermElabM Name :=
 match e with
 | Expr.fvar fvarId _ => do localDecl ← getLocalDecl fvarId; pure localDecl.userName
-| _ => mkFreshUserName
+| _ => mkFreshBinderName
 
 private def elabMatchTypeAndDiscrsAux (discrStxs : Array Syntax) : Nat → Array Expr → Expr → Array MatchAltView → TermElabM (Array Expr × Expr × Array MatchAltView)
 | 0,   discrs, matchType, matchAltViews => pure (discrs.reverse, matchType, matchAltViews)
@@ -111,10 +111,9 @@ else do
 /-
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ sepBy1 termParser ", " >> darrow >> termParser
 -/
-def expandMacrosInPatterns (matchAlts : Array MatchAltView) : TermElabM (Array MatchAltView) := do
-env ← getEnv;
+def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
 matchAlts.mapM fun matchAlt => do
-  patterns ← liftMacroM $ matchAlt.patterns.mapM $ expandMacros env;
+  patterns ← matchAlt.patterns.mapM $ expandMacros;
   pure $ { matchAlt with patterns := patterns }
 
 private partial def getMatchAltsAux (args : Array Syntax) : Nat → Syntax → Array MatchAltView → Array MatchAltView
@@ -511,7 +510,7 @@ private partial def withPatternVarsAux {α} (pVars : Array PatternVar) (k : Arra
     match pVars.get ⟨i, h⟩ with
     | PatternVar.anonymousVar mvarId => do
       type ← mkFreshTypeMVar;
-      userName ← mkFreshUserName;
+      userName ← mkFreshBinderName;
       withLocalDecl userName BinderInfo.default type fun x =>
         withPatternVarsAux (i+1) (decls.push (PatternVarDecl.anonymousVar mvarId x.fvarId!))
     | PatternVar.localVar userName   => do
@@ -602,7 +601,7 @@ match val? with
   /- HACK: `fvarId` is not in the scope of `mvarId`
      If this generates problems in the future, we should update the metavariable declarations. -/
   assignExprMVar mvarId (mkFVar fvarId);
-  userName ← liftM $ mkFreshUserName;
+  userName ← liftM $ mkFreshBinderName;
   let newDecl := LocalDecl.cdecl (arbitrary _) fvarId userName type BinderInfo.default;
   modify $ fun s =>
     { s with
@@ -716,7 +715,7 @@ unless result.unusedAltIdxs.isEmpty $
 private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
 (discrs, matchType, altViews) ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType;
-matchAlts ← expandMacrosInPatterns altViews;
+matchAlts ← liftMacroM $ expandMacrosInPatterns altViews;
 trace `Elab.match fun _ => "matchType: " ++ matchType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 let rhss := alts.map Prod.snd;

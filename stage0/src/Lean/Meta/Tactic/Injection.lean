@@ -62,7 +62,7 @@ withMVarContext mvarId $ do
    eq ← mkEq a b;
    mvarId ← assert mvarId decl.userName eq pr;
    mvarId ← clear mvarId fvarId;
-   (fvarId, mvarId) ← intro1 mvarId false;
+   (fvarId, mvarId) ← intro1P mvarId;
    pure (fvarId, mvarId)
 
 def injectionIntro : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
@@ -73,7 +73,7 @@ def injectionIntro : Nat → MVarId → Array FVarId → List Name → MetaM Inj
   (fvarId, mvarId) ← heqToEq mvarId fvarId;
   injectionIntro n mvarId (fvarIds.push fvarId) remainingNames
 | n+1, mvarId, fvarIds, [] => do
-  (fvarId, mvarId) ← intro1 mvarId true;
+  (fvarId, mvarId) ← intro1 mvarId;
   (fvarId, mvarId) ← heqToEq mvarId fvarId;
   injectionIntro n mvarId (fvarIds.push fvarId) []
 

@@ -36,7 +36,7 @@ withMVarContext mvarId $ do
         throwTacticEx `subst mvarId ("'" ++ a ++ "' occurs at" ++ indentExpr b);
       aLocalDecl ← getLocalDecl aFVarId;
       (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true;
-      (twoVars, mvarId) ← introN mvarId 2 [] false;
+      (twoVars, mvarId) ← introNP mvarId 2;
       trace! `Meta.Tactic.subst ("reverted variables " ++ toString vars);
       let aFVarId := twoVars.get! 0;
       let a       := mkFVar aFVarId;
@@ -66,7 +66,7 @@ withMVarContext mvarId $ do
                 clear mvarId aFVarId
               else
                 pure mvarId;
-            (newFVars, mvarId) ← introN mvarId (vars.size - 2) [] false;
+            (newFVars, mvarId) ← introNP mvarId (vars.size - 2);
             fvarSubst ← newFVars.size.foldM
               (fun i (fvarSubst : FVarSubst) =>
                 let var     := vars.get! (i+2);

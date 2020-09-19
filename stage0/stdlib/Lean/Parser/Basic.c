@@ -74,6 +74,7 @@ lean_object* l_Lean_Parser_checkInsideQuotFn(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_foldSepRevArgs(lean_object*);
 lean_object* l_Lean_Parser_binNumberFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_numberFnAux(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_ppGroup___boxed(lean_object*);
 lean_object* l_Lean_Parser_identEqFn___closed__1;
 lean_object* l_Lean_Parser_lookahead(lean_object*);
 lean_object* l_Lean_Parser_unicodeSymbolInfo___elambda__2(lean_object*, lean_object*, lean_object*);
@@ -433,6 +434,7 @@ lean_object* l_Lean_Parser_checkNoWsBeforeFn(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Parser_ParserState_setCache(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ppSpace;
 lean_object* l_Lean_Parser_strAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_ppHardSpace;
 lean_object* l_Lean_Parser_mkAntiquot___closed__10;
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_foldSepArgsM___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_satisfyFn___at_Lean_Parser_chFn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -774,6 +776,7 @@ lean_object* l_Lean_Parser_fieldIdx___closed__7;
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Parser_optionaInfo___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_leadingNode(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_ppGroup(lean_object*);
 lean_object* l_Lean_Parser_ParserState_toErrorMsg(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Parser_SyntaxNodeKindSet_insert___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkStxLit(lean_object*, lean_object*, lean_object*);
@@ -27171,6 +27174,14 @@ x_1 = l_Lean_Parser_skip___closed__1;
 return x_1;
 }
 }
+lean_object* _init_l_Lean_Parser_ppHardSpace() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Parser_skip___closed__1;
+return x_1;
+}
+}
 lean_object* _init_l_Lean_Parser_ppSpace() {
 _start:
 {
@@ -27185,6 +27196,22 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Parser_skip___closed__1;
 return x_1;
+}
+}
+lean_object* l_Lean_Parser_ppGroup(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Lean_Parser_ppGroup___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Parser_ppGroup(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_foldArgsM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -28554,6 +28581,8 @@ l_Lean_Parser_skip___closed__1 = _init_l_Lean_Parser_skip___closed__1();
 lean_mark_persistent(l_Lean_Parser_skip___closed__1);
 l_Lean_Parser_skip = _init_l_Lean_Parser_skip();
 lean_mark_persistent(l_Lean_Parser_skip);
+l_Lean_Parser_ppHardSpace = _init_l_Lean_Parser_ppHardSpace();
+lean_mark_persistent(l_Lean_Parser_ppHardSpace);
 l_Lean_Parser_ppSpace = _init_l_Lean_Parser_ppSpace();
 lean_mark_persistent(l_Lean_Parser_ppSpace);
 l_Lean_Parser_ppLine = _init_l_Lean_Parser_ppLine();

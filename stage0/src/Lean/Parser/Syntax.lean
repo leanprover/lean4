@@ -11,10 +11,10 @@ namespace Parser
 
 @[init] def regBuiltinSyntaxParserAttr : IO Unit :=
 let leadingIdentAsSymbol := true;
-registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
+registerBuiltinParserAttribute `builtinSyntaxParser `stx leadingIdentAsSymbol
 
 @[inline] def syntaxParser (rbp : Nat := 0) : Parser :=
-categoryParser `syntax rbp
+categoryParser `stx rbp
 
 -- TODO: `max` is a bad precedence name. Find a new one.
 def maxSymbol := parser! nonReservedSymbol "max" true

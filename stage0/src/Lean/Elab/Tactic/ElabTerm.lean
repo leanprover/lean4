@@ -43,17 +43,10 @@ fun stx => match_syntax stx with
 @[builtinMacro Lean.Parser.Tactic.admit] def expandAdmit : Macro :=
 fun _ => `(tactic| exact sorry)
 
-/- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
-   Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
-   filled by typing constraints.
-   "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
-def refineCore (mvarId : MVarId) (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool := false) : TacticM (List MVarId) :=
-withMVarContext mvarId do
-  decl ← getMVarDecl mvarId;
-  val  ← elabTermEnsuringType stx decl.type;
-  assignExprMVar mvarId val;
-  newMVarIds ← getMVarsNoDelayed val;
-  newMVarIds ←
+def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
+val  ← elabTermEnsuringType stx expectedType?;
+newMVarIds ← getMVarsNoDelayed val;
+newMVarIds ←
     if allowNaturalHoles then
       pure newMVarIds.toList
     else do {
@@ -62,26 +55,31 @@ withMVarContext mvarId do
       liftM $ Term.logUnassignedUsingErrorContext naturalMVarIds;
       pure syntheticMVarIds.toList
     };
-  tagUntaggedGoals decl.userName tagSuffix newMVarIds;
-  pure newMVarIds
+tag ← getMainTag;
+tagUntaggedGoals tag tagSuffix newMVarIds;
+pure (val, newMVarIds)
+
+/- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
+   Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
+   filled by typing constraints.
+   "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
+def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
+(g, gs) ← getMainGoal;
+withMVarContext g do
+  decl ← getMVarDecl g;
+  (val, gs') ← elabTermWithHoles stx decl.type tagSuffix allowNaturalHoles;
+  assignExprMVar g val;
+  setGoals (gs ++ gs')
 
 @[builtinTactic «refine»] def evalRefine : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| refine $e) => do
-    (g, gs) ← getMainGoal;
-    /- Remark: only synthetic holes become new goals (we are using `allowNaturalHoles == false`). -/
-    gs' ← refineCore g e `refine;
-    setGoals (gs' ++ gs)
-  | _ => throwUnsupportedSyntax
+  | `(tactic| refine $e) => refineCore e `refine false
+  | _                    => throwUnsupportedSyntax
 
 @[builtinTactic «refine!»] def evalRefineBang : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| refine! $e) => do
-    (g, gs) ← getMainGoal;
-    /- Remark all unassigned metavariables become new goals. We consider delayed assignments as assignments here. -/
-    gs' ← refineCore g e `refine true;
-    setGoals (gs' ++ gs)
-  | _ => throwUnsupportedSyntax
+  | `(tactic| refine! $e) => refineCore e `refine true
+  | _                     => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic :=
 fun stx => match_syntax stx with
@@ -109,17 +107,17 @@ withMVarContext mvarId $ do
   | Expr.fvar fvarId _ => pure fvarId
   | _ => do
     type ← inferType e;
-    let intro (userName : Name) (useUnusedNames : Bool) : TacticM FVarId := do {
-      (fvarId, mvarId) ← liftMetaM $ do {
+    let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do {
+      (fvarId, mvarId) ← liftMetaM do {
         mvarId ← Meta.assert mvarId userName type e;
-        Meta.intro1 mvarId useUnusedNames
+        Meta.intro1Core mvarId preserveBinderNames
       };
       setGoals $ mvarId::others;
       pure fvarId
     };
     match userName? with
-    | none          => intro `h true
-    | some userName => intro userName false
+    | none          => intro `h false
+    | some userName => intro userName true
 
 end Tactic
 end Elab

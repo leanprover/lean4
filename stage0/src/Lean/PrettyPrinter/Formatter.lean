@@ -24,7 +24,8 @@ namespace PrettyPrinter
 namespace Formatter
 
 structure Context :=
-(table : Parser.TokenTable)
+(options : Options)
+(table   : Parser.TokenTable)
 
 structure State :=
 (stxTrav  : Syntax.Traverser)
@@ -82,7 +83,6 @@ namespace Formatter
 
 open Lean.Core
 open Lean.Parser
-open Lean.Format
 
 def throwBacktrack {α} : FormatterM α :=
 throw $ Exception.internal backtrackExceptionId
@@ -108,6 +108,9 @@ modify fun st => { st with stack := stack }
 def push (f : Format) : FormatterM Unit :=
 modify fun st => { st with stack := st.stack.push f }
 
+def pushLine : FormatterM Unit :=
+push Format.line
+
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
 stx ← getCur;
@@ -129,6 +132,14 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
+
+def indentTop (indent : Option Nat := none) : FormatterM Unit := do
+ctx ← read;
+let indent := indent.getD $ Format.getIndent ctx.options;
+modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.stack.back) }
+
+def groupTop : FormatterM Unit :=
+modify fun st => { st with stack := st.stack.pop.push (Format.group st.stack.back) }
 
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
@@ -164,13 +175,15 @@ if stx.getKind == `choice then
     sp ← getStackSize;
     stx.getArgs.forM fun stx => formatterForKind stx.getKind;
     stack ← getStack;
-    when (stack.size > sp && stack.anyRange sp stack.size fun f => pretty f != pretty (stack.get! sp))
+    when (stack.size > sp && stack.anyRange sp stack.size fun f => f.pretty != (stack.get! sp).pretty)
       panic! "Formatter.visit: inequal choice children";
     -- discard all but one child format
     setStack $ stack.extract 0 (sp+1)
   }
 else
-  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
+  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind);
+indentTop;
+groupTop
 
 @[combinatorFormatter Lean.Parser.categoryParserOfStack]
 def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
@@ -219,6 +232,13 @@ ctx ← read;
 env ← getEnv;
 pure $ Parser.tokenFn { input := s, fileName := "", fileMap := FileMap.ofString "", prec := 0, env := env, tokens := ctx.table } (Parser.mkParserState s)
 
+def pushTokenCore (tk : String) : FormatterM Unit :=
+if tk.trimRight == tk then
+  push tk
+else do
+  pushLine;
+  push tk.trimRight
+
 def pushToken (tk : String) : FormatterM Unit := do
 st ← get;
 -- If there is no space between `tk` and the next word, compare parsing `tk` with and without the next word
@@ -228,15 +248,15 @@ if st.leadWord != "" && tk.trimRight == tk then do
   if t1.pos == t2.pos then do
     -- same result => use `tk` as is, extend `leadWord` if not prefixed by whitespace
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" };
-    push tk
+    pushTokenCore tk
   else do
     -- different result => add space
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
-    push $ tk ++ " "
+    pushTokenCore $ tk ++ " "
 else do {
   -- already separated => use `tk` as is
   modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
-  push tk
+  pushTokenCore tk
 }
 
 @[combinatorFormatter symbol]
@@ -355,7 +375,7 @@ p
 
 @[combinatorFormatter checkWsBefore] def checkWsBefore.formatter : Formatter := do
 modify fun st => { st with leadWord := "" };
-push " "
+pushLine
 
 @[combinatorFormatter checkPrec] def checkPrec.formatter : Formatter := pure ()
 @[combinatorFormatter checkStackTop] def checkStackTop.formatter : Formatter := pure ()
@@ -367,8 +387,10 @@ push " "
 @[combinatorFormatter Lean.Parser.checkOutsideQuot] def checkOutsideQuot.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.skip] def skip.formatter : Formatter := pure ()
 
-@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := push " "
+@[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := push " "
+@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
 @[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
+@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := p *> indentTop *> groupTop
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 
@@ -389,11 +411,12 @@ end Formatter
 open Formatter
 
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
+options ← getOptions;
 table ← Parser.builtinTokenTable.get;
 catchInternalId backtrackExceptionId
   (do
-    (_, st) ← (formatter { table := table }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
-    pure $ st.stack.get! 0)
+    (_, st) ← (formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
+    pure $ Format.group $ st.stack.get! 0)
   (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term

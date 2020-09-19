@@ -19,7 +19,6 @@ extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__7(lean_object*);
-lean_object* l_Lean_Meta_introN(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldlFromM___at_Lean_Meta_assertAfter___spec__1___closed__1;
 lean_object* l_Lean_Meta_assert___closed__2;
 lean_object* l_Lean_LocalContext_foldlFromM___at_Lean_Meta_assertAfter___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -55,6 +54,7 @@ lean_object* l_Lean_Meta_assertAfter___closed__1;
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__9___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlFromMAux___main___at_Lean_Meta_assertAfter___spec__3___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_foldlFromMAux___main___at_Lean_Meta_assertAfter___spec__3(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -78,6 +78,7 @@ lean_object* l_Lean_Meta_define___lambda__1___boxed(lean_object*, lean_object*, 
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldlFromM___at_Lean_Meta_assertAfter___spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -103,7 +104,6 @@ lean_object* l_Lean_Meta_define___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLet(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_4__getLevelImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_intro1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assertAfter___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_define___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1398,12 +1398,12 @@ lean_inc(x_54);
 lean_dec(x_53);
 x_55 = l_Lean_Expr_mvarId_x21(x_43);
 lean_dec(x_43);
-x_56 = 0;
+x_56 = 1;
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-x_57 = l_Lean_Meta_intro1(x_55, x_56, x_7, x_8, x_9, x_10, x_54);
+x_57 = l_Lean_Meta_intro1Core(x_55, x_56, x_7, x_8, x_9, x_10, x_54);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
@@ -1420,7 +1420,7 @@ lean_dec(x_58);
 x_62 = lean_array_get_size(x_29);
 x_63 = lean_box(0);
 lean_inc(x_62);
-x_64 = l_Lean_Meta_introN(x_61, x_62, x_63, x_56, x_7, x_8, x_9, x_10, x_59);
+x_64 = l_Lean_Meta_introNCore(x_61, x_62, x_63, x_56, x_7, x_8, x_9, x_10, x_59);
 if (lean_obj_tag(x_64) == 0)
 {
 uint8_t x_65; 

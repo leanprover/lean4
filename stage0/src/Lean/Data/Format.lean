@@ -94,7 +94,7 @@ bracket "(" f ")"
 @[inline] def sbracket (f : Format) : Format :=
 bracket "[" f "]"
 
-def defIndent  := 4
+def defIndent  := 2
 def defUnicode := true
 def defWidth   := 120
 

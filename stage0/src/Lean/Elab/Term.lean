@@ -133,7 +133,6 @@ structure State :=
 (syntheticMVars    : List SyntheticMVarDecl := [])
 (mvarErrorContexts : List MVarErrorContext := [])
 (messages          : MessageLog := {})
-(nextMacroScope    : Nat := firstFrontendMacroScope + 1)
 (letRecsToLift     : List LetRecToLift := [])
 
 instance State.inhabited : Inhabited State := ⟨{}⟩
@@ -251,7 +250,7 @@ protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure 
 protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.mainModule
 
 @[inline] protected def withFreshMacroScope {α} (x : TermElabM α) : TermElabM α := do
-fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
+fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
 adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
 instance monadQuotation : MonadQuotation TermElabM := {
@@ -425,25 +424,21 @@ pure e
 /--
   Auxiliary method for creating fresh binder names.
   Do not confuse with the method for creating fresh free/meta variable ids. -/
-def mkFreshUserName : TermElabM Name :=
-withFreshMacroScope do
-  x ← `(x);
-  pure x.getId
+def mkFreshBinderName : TermElabM Name :=
+withFreshMacroScope $ MonadQuotation.addMacroScope `x
 
 /--
   Auxiliary method for creating a `Syntax.ident` containing
   a fresh name. This method is intended for creating fresh binder names.
   It is just a thin layer on top of `mkFreshUserName`. -/
 def mkFreshIdent (ref : Syntax) : TermElabM Syntax := do
-n ← mkFreshUserName;
+n ← mkFreshBinderName;
 pure $ mkIdentFrom ref n
 
 /--
   Auxiliary method for creating binder names for local instances. -/
 def mkFreshInstanceName : TermElabM Name :=
-withFreshMacroScope do
-  inst ← `(inst);
-  pure inst.getId
+withFreshMacroScope $ MonadQuotation.addMacroScope `inst
 
 private partial def hasCDot : Syntax → Bool
 | Syntax.node k args =>
@@ -825,8 +820,8 @@ match table.find? k with
 
 instance : MonadMacroAdapter TermElabM :=
 { getCurrMacroScope := getCurrMacroScope,
-  getNextMacroScope := do s ← get; pure s.nextMacroScope,
-  setNextMacroScope := fun next => modify $ fun s => { s with nextMacroScope := next } }
+  getNextMacroScope := do s ← getThe Core.State; pure s.nextMacroScope,
+  setNextMacroScope := fun next => modifyThe Core.State $ fun s => { s with nextMacroScope := next } }
 
 private def isExplicit (stx : Syntax) : Bool :=
 match_syntax stx with

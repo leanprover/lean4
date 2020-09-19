@@ -158,8 +158,11 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
     d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.orelse $d₁ $d₂)
-  else
-    throwErrorAt stx $ "unexpected syntax kind of category `syntax`: " ++ kind
+  else do
+    stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _);
+    match stxNew? with
+    | some stxNew => toParserDescrAux stxNew
+    | none => throwErrorAt stx $ "unexpected syntax kind of category `syntax`: " ++ kind
 
 /--
   Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,

@@ -26,22 +26,23 @@ def «precedence» := parser! ":" >> precedenceLit
 def optPrecedence := optional (try «precedence»)
 
 namespace Syntax
-@[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
-@[builtinSyntaxParser] def cat       := parser! ident >> optPrecedence
-@[builtinSyntaxParser] def atom      := parser! strLit
-@[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
-@[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
-@[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
-@[builtinSyntaxParser] def ident     := parser! nonReservedSymbol "ident"
-@[builtinSyntaxParser] def try       := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
-@[builtinSyntaxParser] def lookahead := parser! nonReservedSymbol "lookahead " >> syntaxParser maxPrec
-@[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser maxPrec >> syntaxParser maxPrec
-@[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser maxPrec >> syntaxParser maxPrec
+@[builtinSyntaxParser] def paren         := parser! "(" >> many1 syntaxParser >> ")"
+@[builtinSyntaxParser] def cat           := parser! ident >> optPrecedence
+@[builtinSyntaxParser] def atom          := parser! strLit
+@[builtinSyntaxParser] def num           := parser! nonReservedSymbol "num"
+@[builtinSyntaxParser] def str           := parser! nonReservedSymbol "str"
+@[builtinSyntaxParser] def char          := parser! nonReservedSymbol "char"
+@[builtinSyntaxParser] def ident         := parser! nonReservedSymbol "ident"
+@[builtinSyntaxParser] def try           := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def lookahead     := parser! nonReservedSymbol "lookahead " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def sepBy         := parser! nonReservedSymbol "sepBy " >> syntaxParser maxPrec >> syntaxParser maxPrec
+@[builtinSyntaxParser] def sepBy1        := parser! nonReservedSymbol "sepBy1 " >> syntaxParser maxPrec >> syntaxParser maxPrec
+@[builtinSyntaxParser] def notFollowedBy := parser! nonReservedSymbol "notFollowedBy " >> syntaxParser maxPrec
 
-@[builtinSyntaxParser] def optional  := tparser! "?"
-@[builtinSyntaxParser] def many      := tparser! "*"
-@[builtinSyntaxParser] def many1     := tparser! "+"
-@[builtinSyntaxParser] def orelse    := tparser!:2 " <|> " >> syntaxParser 1
+@[builtinSyntaxParser] def optional      := tparser! "?"
+@[builtinSyntaxParser] def many          := tparser! "*"
+@[builtinSyntaxParser] def many1         := tparser! "+"
+@[builtinSyntaxParser] def orelse        := tparser!:2 " <|> " >> syntaxParser 1
 
 end Syntax
 

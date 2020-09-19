@@ -18,8 +18,20 @@ open Meta
 
 /- parser! "{" >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}" -/
 
+@[builtinMacro Lean.Parser.Term.structInst] def expandStructInstExpectedType : Macro :=
+fun stx =>
+  let expectedArg := stx.getArg 4;
+  if expectedArg.isNone
+    then Macro.throwUnsupported
+  else
+    let expected := expectedArg.getArg 1;
+    let stxNew   := stx.setArg 4 mkNullNode;
+    `(($stxNew : $expected))
+
 /-
 If `stx` is of the form `{ s with ... }` and `s` is not a local variable, expand into `let src := s; { src with ... }`.
+
+Note that this one is not a `Macro` because we need to access the local context.
 -/
 private def expandNonAtomicExplicitSource (stx : Syntax) : TermElabM (Option Syntax) :=
 withFreshMacroScope $
@@ -782,30 +794,18 @@ match mkStructView stx structName source with
   DefaultFields.propagate struct;
   pure r
 
-private def expandStructInstExpectedType (stx : Syntax) : MacroM (Option Syntax) :=
-let expectedArg := stx.getArg 4;
-if expectedArg.isNone then pure none
-else
-  let expected := expectedArg.getArg 1;
-  let stxNew   := stx.setArg 4 mkNullNode;
-  `(($stxNew : $expected))
-
 @[builtinTermElab structInst] def elabStructInst : TermElab :=
 fun stx expectedType? => do
-  stxNew? ← liftMacroM $ expandStructInstExpectedType stx;
+  stxNew? ← expandNonAtomicExplicitSource stx;
   match stxNew? with
   | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-  | none        => do
-    stxNew? ← expandNonAtomicExplicitSource stx;
-    match stxNew? with
-    | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-    | none => do
-      sourceView ← getStructSource stx;
-      modifyOp?  ← isModifyOp? stx;
-      match modifyOp?, sourceView with
-      | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
-      | some _,        _                        => throwError ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
-      | _,             _                        => elabStructInstAux stx expectedType? sourceView
+  | none => do
+    sourceView ← getStructSource stx;
+    modifyOp?  ← isModifyOp? stx;
+    match modifyOp?, sourceView with
+    | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
+    | some _,        _                        => throwError ("invalid {...} notation, explicit source is required when using '[<index>] := <value>'")
+    | _,             _                        => elabStructInstAux stx expectedType? sourceView
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.struct;

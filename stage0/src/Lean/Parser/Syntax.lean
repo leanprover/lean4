@@ -13,6 +13,9 @@ namespace Parser
 let leadingIdentAsSymbol := true;
 registerBuiltinParserAttribute `builtinSyntaxParser `stx leadingIdentAsSymbol
 
+@[init] def regSyntaxParserAttribute : IO Unit :=
+registerBuiltinDynamicParserAttribute `stxParser `stx
+
 @[inline] def syntaxParser (rbp : Nat := 0) : Parser :=
 categoryParser `stx rbp
 
@@ -41,6 +44,12 @@ namespace Syntax
 @[builtinSyntaxParser] def orelse    := tparser!:2 " <|> " >> syntaxParser 1
 
 end Syntax
+
+namespace Term
+
+@[builtinTermParser] def stx.quot : Parser := parser! "`(stx|"  >> toggleInsideQuot syntaxParser >> ")"
+
+end Term
 
 namespace Command
 

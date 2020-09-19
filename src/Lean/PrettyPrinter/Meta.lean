@@ -28,6 +28,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
 | ParserDescr.optional d                          => optional.parenthesizer <$> interpretParserDescr d
 | ParserDescr.lookahead d                         => lookahead.parenthesizer <$> interpretParserDescr d
 | ParserDescr.try d                               => try.parenthesizer <$> interpretParserDescr d
+| ParserDescr.notFollowedBy d                     => notFollowedBy.parenthesizer <$> interpretParserDescr d
 | ParserDescr.many d                              => many.parenthesizer <$> interpretParserDescr d
 | ParserDescr.many1 d                             => many1.parenthesizer <$> interpretParserDescr d
 | ParserDescr.sepBy d₁ d₂                         => sepBy.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
@@ -60,6 +61,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
 | ParserDescr.optional d                          => optional.formatter <$> interpretParserDescr d
 | ParserDescr.lookahead d                         => lookahead.formatter <$> interpretParserDescr d
 | ParserDescr.try d                               => try.formatter <$> interpretParserDescr d
+| ParserDescr.notFollowedBy d                     => notFollowedBy.formatter <$> interpretParserDescr d
 | ParserDescr.many d                              => many.formatter <$> interpretParserDescr d
 | ParserDescr.many1 d                             => many1.formatter <$> interpretParserDescr d
 | ParserDescr.sepBy d₁ d₂                         => sepBy.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂

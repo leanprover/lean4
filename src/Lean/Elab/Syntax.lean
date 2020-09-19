@@ -134,6 +134,9 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.try then do
     d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.try $d)
+  else if kind == `Lean.Parser.Syntax.notFollowedBy then do
+    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+    `(ParserDescr.notFollowedBy $d)
   else if kind == `Lean.Parser.Syntax.lookahead then do
     d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.lookahead $d)

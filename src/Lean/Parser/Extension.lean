@@ -202,6 +202,7 @@ partial def compileParserDescr (env : Environment) (categories : ParserCategorie
 | ParserDescr.optional d                          => optional <$> compileParserDescr d
 | ParserDescr.lookahead d                         => lookahead <$> compileParserDescr d
 | ParserDescr.try d                               => try <$> compileParserDescr d
+| ParserDescr.notFollowedBy d                     => notFollowedBy <$> compileParserDescr d
 | ParserDescr.many d                              => many <$> compileParserDescr d
 | ParserDescr.many1 d                             => many1 <$> compileParserDescr d
 | ParserDescr.sepBy d₁ d₂                         => sepBy <$> compileParserDescr d₁ <*> compileParserDescr d₂

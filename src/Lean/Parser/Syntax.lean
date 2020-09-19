@@ -45,6 +45,12 @@ namespace Syntax
 
 end Syntax
 
+namespace Term
+
+@[builtinTermParser] def stx.quot : Parser := parser! "`(stx|"  >> toggleInsideQuot syntaxParser >> ")"
+
+end Term
+
 namespace Command
 
 def «prefix»   := parser! "prefix"

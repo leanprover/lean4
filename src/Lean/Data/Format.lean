@@ -49,23 +49,22 @@ def group : Format → Format
 | f                    => choice (flatten f) f
 
 structure SpaceResult :=
-(found    := false)
-(exceeded := false)
-(space    := 0)
+(foundLine := false)
+(space     := 0)
 
 @[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Thunk SpaceResult) : SpaceResult :=
-if r₁.exceeded || r₁.found then r₁
+if r₁.space > w || r₁.foundLine then r₁
 else
   let y := r₂.get;
-  if y.exceeded || y.found then y
+  if y.space > w || y.foundLine then y
   else
     let newSpace := r₁.space + y.space;
-    { space := newSpace, exceeded := newSpace > w }
+    { space := newSpace }
 
 def spaceUptoLine : Format → Nat → SpaceResult
 | nil,             w => {}
-| line,            w => { found := true }
-| text s,          w => { space := s.length, exceeded := s.length > w }
+| line,            w => { foundLine := true }
+| text s,          w => { space := s.length }
 | compose _ f₁ f₂, w => merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
 | nest _ f,        w => spaceUptoLine f w
 | choice f₁ f₂,    w => spaceUptoLine f₂ w
@@ -83,7 +82,7 @@ partial def be : Nat → Nat → String → List (Nat × Format) → String
 | w, k, out, (i, line)::z              => be w i ((out ++ "\n").pushn ' ' i) z
 | w, k, out, (i, choice f₁ f₂)::z      =>
   let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w);
-  if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
+  if r.space > w then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
 group (nest l.length $ l ++ f ++ r)

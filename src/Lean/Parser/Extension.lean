@@ -87,7 +87,6 @@ def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 throw ("unknown parser category '" ++ toString catName ++ "'")
 
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
-let catName := if catName == `syntax then `stx else catName; -- temporary hack
 categories.find? catName
 
 def addLeadingParser (categories : ParserCategories) (catName : Name) (parserName : Name) (p : Parser) : Except String ParserCategories :=

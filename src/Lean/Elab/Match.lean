@@ -111,10 +111,9 @@ else do
 /-
 nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ sepBy1 termParser ", " >> darrow >> termParser
 -/
-def expandMacrosInPatterns (matchAlts : Array MatchAltView) : TermElabM (Array MatchAltView) := do
-env ← getEnv;
+def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
 matchAlts.mapM fun matchAlt => do
-  patterns ← liftMacroM $ matchAlt.patterns.mapM $ expandMacros env;
+  patterns ← matchAlt.patterns.mapM $ expandMacros;
   pure $ { matchAlt with patterns := patterns }
 
 private partial def getMatchAltsAux (args : Array Syntax) : Nat → Syntax → Array MatchAltView → Array MatchAltView
@@ -716,7 +715,7 @@ unless result.unusedAltIdxs.isEmpty $
 private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
 (discrs, matchType, altViews) ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType;
-matchAlts ← expandMacrosInPatterns altViews;
+matchAlts ← liftMacroM $ expandMacrosInPatterns altViews;
 trace `Elab.match fun _ => "matchType: " ++ matchType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 let rhss := alts.map Prod.snd;

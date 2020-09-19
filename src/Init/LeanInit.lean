@@ -412,7 +412,13 @@ def maxRecDepthErrorMessage : String :=
 
 namespace Macro
 
+/- References -/
+constant MacroEnvPointed : PointedType.{0} := arbitrary _
+def MacroEnv : Type := MacroEnvPointed.type
+instance MacroEnv.inhabited : Inhabited MacroEnv := ⟨MacroEnvPointed.val⟩
+
 structure Context :=
+(macroEnv       : MacroEnv)
 (mainModule     : Name)
 (currMacroScope : MacroScope)
 (currRecDepth   : Nat := 0)
@@ -426,26 +432,30 @@ end Macro
 
 abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception MacroScope)
 
-def Macro.addMacroScope (n : Name) : MacroM Name := do
+abbrev Macro := Syntax → MacroM Syntax
+
+namespace Macro
+
+def addMacroScope (n : Name) : MacroM Name := do
 ctx ← read;
 pure $ Lean.addMacroScope ctx.mainModule n ctx.currMacroScope
 
-def Macro.throwUnsupported {α} : MacroM α :=
-throw Macro.Exception.unsupportedSyntax
+def throwUnsupported {α} : MacroM α :=
+throw Exception.unsupportedSyntax
 
-def Macro.throwError {α} (ref : Syntax) (msg : String) : MacroM α :=
-throw $ Macro.Exception.error ref msg
+def throwError {α} (ref : Syntax) (msg : String) : MacroM α :=
+throw $ Exception.error ref msg
 
-@[inline] protected def Macro.withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
+@[inline] protected def withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
 fresh ← modifyGet (fun s => (s, s+1));
-adaptReader (fun (ctx : Macro.Context) => { ctx with currMacroScope := fresh }) x
+adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
-@[inline] def Macro.withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α := do
+@[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α := do
 ctx ← read;
-when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Macro.Exception.error ref maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Macro.Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
+when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.error ref maxRecDepthErrorMessage;
+adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
 
-instance MacroM.monadQuotation : MonadQuotation MacroM :=
+instance monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
   getMainModule       := fun ctx => pure ctx.mainModule,
   withFreshMacroScope := @Macro.withFreshMacroScope }
@@ -455,7 +465,41 @@ instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [MonadLift
   getMainModule       := liftM (getMainModule : m Name),
   withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }
 
-abbrev Macro := Syntax → MacroM Syntax
+unsafe def mkMacroEnvImp (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv :=
+unsafeCast expandMacro?
+
+@[implementedBy mkMacroEnvImp]
+constant mkMacroEnv (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv := arbitrary _
+
+def expandMacroNotAvailable? : Syntax → MacroM (Option Syntax) :=
+fun stx => throwError stx "expandMacro has not been set"
+
+def mkMacroEnvSimple : MacroEnv :=
+mkMacroEnv expandMacroNotAvailable?
+
+unsafe def expandMacro?Imp : Syntax → MacroM (Option Syntax) :=
+fun stx => do
+  ctx ← read;
+  let f : Syntax → MacroM (Option Syntax) := unsafeCast (ctx.macroEnv);
+  f stx
+
+/-- `expandMacro? stx` return `some stxNew` if `stx` is a macro, and `stxNew` is its expansion. -/
+@[implementedBy expandMacro?Imp] constant expandMacro? : Syntax → MacroM (Option Syntax) := arbitrary _
+
+end Macro
+
+export Macro (expandMacro?)
+
+/-- Expand all macros in the given syntax -/
+partial def expandMacros : Syntax → MacroM Syntax
+| stx@(Syntax.node k args) => do
+  stxNew? ← expandMacro? stx;
+  match stxNew? with
+  | some stxNew => expandMacros stxNew
+  | none        => do
+    args ← Macro.withIncRecDepth stx $ args.mapM expandMacros;
+    pure $ Syntax.node k args
+| stx => pure stx
 
 /- Helper functions for processing Syntax programmatically -/
 

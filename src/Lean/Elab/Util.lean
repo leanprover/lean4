@@ -129,7 +129,7 @@ instance monadMacroAdapterTrans (m n) [MonadMacroAdapter m] [MonadLift m n] : Mo
   getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _),
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _) }
 
-def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syntax) := do
+private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syntax) := do
 catch
   (do newStx ← getMacros env stx; pure (some newStx))
   (fun ex => match ex with

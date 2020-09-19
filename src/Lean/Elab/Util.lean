@@ -72,7 +72,7 @@ match attrParamSyntaxToIdentifier arg with
 | some k =>
   checkSyntaxNodeKind env k
   <|>
-  checkSyntaxNodeKindAtNamespaces env k env.getNamespaces
+  checkSyntaxNodeKindAtNamespaces env k env.getNamespaces -- TODO: fix for the new frontend. We do not store the current namespaces and OpenDecls in the environment
   <|>
   checkSyntaxNodeKind env (defaultParserNamespace ++ k)
   <|>

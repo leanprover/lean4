@@ -86,8 +86,12 @@ else match tokens.find? tk with
 def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 throw ("unknown parser category '" ++ toString catName ++ "'")
 
+abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
+let catName := if catName == `syntax then `stx else catName; -- temporary hack
+categories.find? catName
+
 def addLeadingParser (categories : ParserCategories) (catName : Name) (parserName : Name) (p : Parser) : Except String ParserCategories :=
-match categories.find? catName with
+match getCategory categories catName with
 | none     =>
   throwUnknownParserCategory catName
 | some cat =>
@@ -112,7 +116,7 @@ match p.info.firstTokens with
 | _                         => { tables with trailingParsers := p :: tables.trailingParsers }
 
 def addTrailingParser (categories : ParserCategories) (catName : Name) (p : TrailingParser) : Except String ParserCategories :=
-match categories.find? catName with
+match getCategory categories catName with
 | none     => throwUnknownParserCategory catName
 | some cat => pure $ categories.insert catName { cat with tables := addTrailingParserAux cat.tables p }
 
@@ -216,7 +220,7 @@ partial def compileParserDescr (env : Environment) (categories : ParserCategorie
   (_, p) ← mkParserOfConstantAux env categories constName compileParserDescr;
   pure p
 | ParserDescr.cat catName prec                    =>
-  match categories.find? catName with
+  match getCategory categories catName with
   | some _ => pure $ categoryParser catName prec
   | none   => throwUnknownParserCategory catName
 
@@ -292,7 +296,7 @@ else
   Return true if in the given category leading identifiers in parsers may be treated as atoms/symbols.
   See comment at `ParserCategory`. -/
 def leadingIdentAsSymbol (env : Environment) (catName : Name) : Bool :=
-match (parserExtension.getState env).categories.find? catName with
+match getCategory (parserExtension.getState env).categories catName with
 | none     => false
 | some cat => cat.leadingIdentAsSymbol
 
@@ -301,8 +305,9 @@ mkAntiquot kind.toString none
 
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>
+  let catName := if catName == `syntax then `stx else catName; -- temporary Hack
   let categories := (parserExtension.getState ctx.env).categories;
-  match categories.find? catName with
+  match getCategory categories catName with
   | some cat =>
     prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName).fn ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")

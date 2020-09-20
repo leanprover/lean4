@@ -92,7 +92,7 @@ views.foldlM
     currNamespace ← getCurrNamespace;
     currLevelNames ← getLevelNames;
     ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId currNamespace currLevelNames view.declId view.modifiers;
-    applyAttributes declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
+    applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
     withLevelNames levelNames $ elabBinders view.binders.getArgs fun xs => do
       let refForElabFunType := view.value;
       type ← elabFunType refForElabFunType xs view;

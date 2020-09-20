@@ -400,7 +400,7 @@ currNamespace ← getCurrNamespace;
 openDecls ← getOpenDecls;
 match Elab.resolveNamespace env currNamespace openDecls id with
 | some ns => pure ns
-| none    => throwUnsupportedSyntax
+| none    => throwError ("unknown namespace '" ++ id ++ "'")
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun stx => do

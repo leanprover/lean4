@@ -140,14 +140,10 @@ recInfo? ← getRecFromUsingLoop baseRecName majorType;
 match recInfo? with
 | some recInfo => pure recInfo
 | none => do
-  result ← resolveGlobalName baseRecName;
-  match result with
-  | _::_::_         => throwError ("ambiguous recursor name '" ++ baseRecName ++ "', " ++ toString (result.map Prod.fst))
-  | [(recName, [])] => do
-    catch
-      (liftMetaMAtMain fun _ => Meta.mkRecursorInfo recName)
-      (fun _ => throwError ("invalid recursor name '" ++ baseRecName ++ "'"))
-  | _ => throwError ("invalid recursor name '" ++ baseRecName ++ "'")
+  recName ← liftM $ Term.resolveGlobalConstNoOverload baseRecName;
+  catch
+    (liftMetaMAtMain fun _ => Meta.mkRecursorInfo recName)
+    (fun _ => throwError ("invalid recursor name '" ++ baseRecName ++ "'"))
 
 /- Create `RecInfo` assuming builtin recursor -/
 private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAlts : Bool) : TacticM (RecInfo × Array Name) := do

@@ -416,7 +416,7 @@ let ctxMeta : Meta.Context := {
 let ctxTerm : Term.Context := {
   fileName := "foo",
   fileMap := FileMap.ofString "",
-  currNamespace := oldCtx.env.getNamespace,
+  currNamespace := Lean.TODELETE.getNamespace oldCtx.env,
   openDecls := oldCtx.open_nss.map $ fun n => OpenDecl.simple n []
 };
 match unsafeIO $ x.toIO {} { env := oldCtx.env } ctxMeta {} ctxTerm {} with

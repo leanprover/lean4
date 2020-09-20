@@ -17,6 +17,7 @@ lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Elab_resolveNamespaceUsingScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 extern lean_object* l_Lean_rootNamespace;
+uint8_t l_Lean_Environment_isNamespace(lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Elab_ResolveName_5__resolveGlobalNameAux___main___spec__4(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -55,7 +56,6 @@ lean_object* l___private_Lean_Elab_ResolveName_5__resolveGlobalNameAux___main___
 lean_object* l___private_Lean_Elab_ResolveName_2__resolveUsingNamespace___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveNamespaceUsingOpenDecls___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveNamespaceUsingOpenDecls___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_isNamespace(lean_object*, lean_object*);
 lean_object* l_List_eraseDupsAux___main___at___private_Lean_Elab_ResolveName_5__resolveGlobalNameAux___main___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_ResolveName_2__resolveUsingNamespace___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -801,7 +801,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_2);
 x_6 = l_Lean_Name_append___main(x_3, x_2);
-x_7 = l_Lean_isNamespace(x_1, x_6);
+x_7 = l_Lean_Environment_isNamespace(x_1, x_6);
 if (x_7 == 0)
 {
 lean_dec(x_6);
@@ -881,7 +881,7 @@ x_7 = lean_ctor_get(x_3, 1);
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_2);
 x_9 = l_Lean_Name_append___main(x_8, x_2);
-x_10 = l_Lean_isNamespace(x_1, x_9);
+x_10 = l_Lean_Environment_isNamespace(x_1, x_9);
 if (x_10 == 0)
 {
 lean_dec(x_9);
@@ -947,7 +947,7 @@ lean_object* l_Lean_Elab_resolveNamespace(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 uint8_t x_5; 
-x_5 = l_Lean_isNamespace(x_1, x_4);
+x_5 = l_Lean_Environment_isNamespace(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 

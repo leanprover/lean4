@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Environment
 
 namespace Lean
+namespace TODELETE
 
 /- Scope management
 
@@ -40,8 +41,6 @@ registerSimplePersistentEnvExtension {
 @[init regScopeManagerExtension]
 constant scopeManagerExt : SimplePersistentEnvExtension Name ScopeManagerState := arbitrary _
 
-namespace Environment
-
 @[export lean_get_namespaces]
 def getNamespaces (env : Environment) : List Name :=
 (scopeManagerExt.getState env).namespaces
@@ -51,7 +50,7 @@ def getNamespaceSet (env : Environment) : NameSet :=
 
 @[export lean_is_namespace]
 def isNamespace (env : Environment) (n : Name) : Bool :=
-env.getNamespaceSet.contains n
+(getNamespaceSet env).contains n
 
 @[export lean_in_section]
 def inSection (env : Environment) : Bool :=
@@ -61,11 +60,11 @@ match (scopeManagerExt.getState env).isNamespace with
 
 @[export lean_has_open_scopes]
 def hasOpenScopes (env : Environment) : Bool :=
-!env.getNamespaces.isEmpty
+!(getNamespaces env).isEmpty
 
 @[export lean_get_namespace]
 def getNamespace (env : Environment) : Name :=
-match env.getNamespaces with
+match getNamespaces env with
 | (n::_) => n
 | _      => Name.anonymous
 
@@ -88,7 +87,7 @@ else s.namespaces.foldl
   none
 
 def registerNamespaceAux (env : Environment) (n : Name) : Environment :=
-if env.getNamespaceSet.contains n then env else scopeManagerExt.addEntry env n
+if (getNamespaceSet env).contains n then env else scopeManagerExt.addEntry env n
 
 @[export lean_register_namespace]
 def registerNamespace : Environment → Name → Environment
@@ -96,9 +95,9 @@ def registerNamespace : Environment → Name → Environment
 | env, _                  => env
 
 def pushScopeCore (env : Environment) (header : Name) (isNamespace : Bool) : Environment :=
-let ns    := env.getNamespace;
+let ns    := getNamespace env;
 let newNs := if isNamespace then ns ++ header else ns;
-let env   := env.registerNamespaceAux newNs;
+let env   := registerNamespaceAux env newNs;
 let env   := scopeManagerExt.modifyState env $ fun s =>
   { s with
     headers     := header :: s.headers,
@@ -107,12 +106,12 @@ let env   := scopeManagerExt.modifyState env $ fun s =>
 env
 
 def popScopeCore (env : Environment) : Environment :=
-if env.getNamespaces.isEmpty then env
+if (getNamespaces env).isEmpty then env
 else scopeManagerExt.modifyState env $ fun s =>
   { s with
     headers     := s.headers.tail!,
     namespaces  := s.namespaces.tail!,
     isNamespace := s.isNamespace.tail! }
 
-end Environment
+end TODELETE
 end Lean

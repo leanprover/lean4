@@ -88,7 +88,6 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_registerParametricAttribute__
 lean_object* l_Lean_isAttribute___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_attributeExtension;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Attributes_2__AttributeExtension_addImported___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_popScopeCore(lean_object*);
 lean_object* l_Lean_EnumAttributes_Inhabited(lean_object*);
 lean_object* l_Lean_mkAttributeExtension___lambda__1(lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_registerParametricAttribute___spec__2(lean_object*);
@@ -115,6 +114,7 @@ uint8_t l_Std_AssocList_contains___main___at_Lean_registerAttributeImplBuilder__
 lean_object* l_Lean_mkAttributeImplOfConstantUnsafe___closed__3;
 lean_object* l_Lean_attributeExtension___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_TagAttribute_hasTag___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_popScopeCore(lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* l_Std_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_getBuiltinAttributeNames___spec__2(lean_object*, lean_object*);
@@ -206,6 +206,7 @@ lean_object* l_Lean_mkAttributeExtension___lambda__2(lean_object*);
 lean_object* l_Lean_attributeExtension___closed__4;
 lean_object* l_Array_binSearchAux___main___at_Lean_ParametricAttribute_getParam___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Environment_evalConstCheck___rarg___closed__1;
+lean_object* l_Lean_TODELETE_pushScopeCore(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_registerParametricAttribute___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
@@ -374,7 +375,6 @@ lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_getBuiltinAttributeImpl___closed__1;
 lean_object* l_Lean_Environment_addAttribute___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_pushScopeCore(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_registerAttributeImplBuilder(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkAttributeExtension___closed__5;
@@ -4616,7 +4616,7 @@ lean_object* lean_push_scope(lean_object* x_1, lean_object* x_2, uint8_t x_3, le
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_Environment_pushScopeCore(x_1, x_2, x_3);
+x_5 = l_Lean_TODELETE_pushScopeCore(x_1, x_2, x_3);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -4637,7 +4637,7 @@ lean_object* lean_pop_scope(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Environment_popScopeCore(x_1);
+x_3 = l_Lean_TODELETE_popScopeCore(x_1);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);

@@ -589,6 +589,8 @@ registerSimplePersistentEnvExtension {
 @[init regNamespacesExtension]
 constant namespacesExt : SimplePersistentEnvExtension Name NameSet := arbitrary _
 
+namespace Environment
+
 def registerNamespace (env : Environment) (n : Name) : Environment :=
 if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
 
@@ -597,8 +599,6 @@ def isNamespace (env : Environment) (n : Name) : Bool :=
 
 def getNamespaceSet (env : Environment) : NameSet :=
 namespacesExt.getState env
-
-namespace Environment
 
 private def isNamespaceName : Name → Bool
 | Name.str Name.anonymous _ _ => true

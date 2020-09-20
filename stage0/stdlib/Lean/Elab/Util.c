@@ -46,7 +46,6 @@ lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__2(lean_object*, lean_object
 lean_object* l___private_Lean_Elab_Util_1__evalSyntaxConstantUnsafe(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttribute___closed__5;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object*);
-lean_object* lean_get_namespaces(lean_object*);
 lean_object* l_Lean_Syntax_reprint___main(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_Elab_getMacros___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___closed__1;
@@ -64,6 +63,7 @@ size_t l_USize_shiftRight(size_t, size_t);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_macroAttribute___closed__3;
+lean_object* lean_get_namespaces(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Util_5__regTraceClasses(lean_object*);

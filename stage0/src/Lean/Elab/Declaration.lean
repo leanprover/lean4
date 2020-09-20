@@ -66,7 +66,7 @@ let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 scopeLevelNames ← getLevelNames;
 ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers;
 runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
-  applyAttributes declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
+  applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   type ← Term.elabType typeStx;
   Term.synthesizeSyntheticMVarsNoPostponing;
   type ← instantiateMVars type;
@@ -85,8 +85,8 @@ runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term
     };
     Term.ensureNoUnassignedMVars decl;
     addDecl decl;
-    applyAttributes declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-    applyAttributes declName modifiers.attrs AttributeApplicationTime.afterCompilation
+    applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+    applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
@@ -262,6 +262,16 @@ fun stx => do
     elabMutualDef (stx.getArg 1).getArgs
   else
     throwError "invalid mutual block"
+
+/- parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "]" >> many1 ident -/
+@[builtinCommandElab «attribute»] def elabAttr : CommandElab :=
+fun stx => do
+  let persistent := (stx.getArg 0).isNone;
+  attrs ← elabAttrs (stx.getArg 3);
+  let idents := (stx.getArg 5).getArgs;
+  idents.forM fun ident => withRef ident $ liftTermElabM none do
+    declName ← Term.resolveGlobalConstNoOverload ident.getId;
+    applyAttributes declName attrs persistent
 
 end Command
 end Elab

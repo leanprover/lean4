@@ -21,9 +21,9 @@ lean_object* l_Lean_monadEnvFromLift___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_hasUnsafe___boxed(lean_object*, lean_object*);
 lean_object* lean_get_extension(lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_isNamespace___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_importModulesAux___main___closed__1;
 size_t l_USize_add(size_t, size_t);
+lean_object* l_Lean_Environment_isNamespace___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkTagDeclarationExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerPersistentEnvExtensionUnsafe___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_displayStats___closed__2;
@@ -42,6 +42,7 @@ lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*,
 lean_object* lean_display_stats(lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_10__setImportedEntries(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withImportModules(lean_object*);
+uint8_t l_Lean_Environment_isNamespace(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__3(lean_object*, lean_object*);
 lean_object* lean_environment_free_regions(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_setState(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -232,8 +233,6 @@ lean_object* l_Array_iterateMAux___main___at___private_Lean_Environment_10__setI
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__1(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
-lean_object* l_Lean_getNamespaceSet(lean_object*);
-lean_object* l_Lean_registerNamespace(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___main___at_Lean_importModules___spec__2(lean_object*, lean_object*);
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck(lean_object*);
@@ -382,6 +381,8 @@ lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_namespacesExt___closed__5;
 lean_object* l_Lean_regModListExtension(lean_object*);
 uint8_t lean_environment_quot_init(lean_object*);
+lean_object* l_Lean_Environment_registerNamespace(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getNamespaceSet(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 lean_object* l_Lean_EnvExtension_getStateUnsafe___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___closed__3;
@@ -426,6 +427,7 @@ uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Environment_find_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___closed__1;
 lean_object* lean_mk_array(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getNamespaceSet___boxed(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__4(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
@@ -477,7 +479,6 @@ lean_object* l_Lean_registerEnvExtension___rarg(lean_object*);
 lean_object* l_Lean_Environment_addAndCompile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Environment_find_x3f___spec__4(lean_object*, lean_object*);
-lean_object* l_Lean_getNamespaceSet___boxed(lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 lean_object* lean_perform_serialized_modifications(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_importModulesAux___main___closed__2;
@@ -488,7 +489,6 @@ lean_object* l_Lean_mkTagDeclarationExtension___lambda__3(lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerPersistentEnvExtensionUnsafe___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtension___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_isNamespace(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_Lean_mkTagDeclarationExtension___closed__3;
@@ -10030,7 +10030,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_registerNamespace(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Environment_registerNamespace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -10051,7 +10051,7 @@ return x_1;
 }
 }
 }
-uint8_t l_Lean_isNamespace(lean_object* x_1, lean_object* x_2) {
+uint8_t l_Lean_Environment_isNamespace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -10062,18 +10062,18 @@ lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_isNamespace___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Environment_isNamespace___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_isNamespace(x_1, x_2);
+x_3 = l_Lean_Environment_isNamespace(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_getNamespaceSet(lean_object* x_1) {
+lean_object* l_Lean_Environment_getNamespaceSet(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -10082,11 +10082,11 @@ x_3 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_getNamespaceSet___boxed(lean_object* x_1) {
+lean_object* l_Lean_Environment_getNamespaceSet___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_getNamespaceSet(x_1);
+x_2 = l_Lean_Environment_getNamespaceSet(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -10165,7 +10165,7 @@ else
 {
 lean_object* x_5; 
 lean_inc(x_3);
-x_5 = l_Lean_registerNamespace(x_1, x_3);
+x_5 = l_Lean_Environment_registerNamespace(x_1, x_3);
 x_1 = x_5;
 x_2 = x_3;
 goto _start;

@@ -13,112 +13,112 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_ScopeManagerState_Inhabited;
-lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1;
-lean_object* l_Lean_Environment_isNamespace___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___closed__2;
+lean_object* l_Lean_TODELETE_getNamespaceSet___boxed(lean_object*);
 lean_object* l_List_tail_x21___rarg(lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__4(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_registerNamespaceAux(lean_object*, lean_object*);
+lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_TODELETE_regScopeManagerExtension___spec__4(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_namespace(lean_object*, lean_object*);
-lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2;
-lean_object* l_Lean_Environment_registerNamespace___main(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___closed__1;
+lean_object* l_Lean_TODELETE_scopeManagerExt___closed__4;
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___closed__4;
+lean_object* l_Lean_TODELETE_scopeManagerExt___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__1(lean_object*);
-lean_object* l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_regScopeManagerExtension(lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___closed__1;
+lean_object* l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1;
 extern lean_object* l_Array_empty___closed__1;
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___closed__5;
-lean_object* lean_get_namespaces(lean_object*);
-lean_object* l_Lean_Environment_popScopeCore(lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___closed__3;
+lean_object* l_Lean_TODELETE_popScopeCore___closed__1;
+lean_object* l_Lean_TODELETE_isNamespace___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___closed__3;
-lean_object* lean_to_valid_namespace(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__2___boxed(lean_object*);
-lean_object* l_Lean_regScopeManagerExtension___closed__5;
-lean_object* l_Lean_regScopeManagerExtension___closed__3;
+lean_object* l_Lean_TODELETE_popScopeCore___lambda__1(lean_object*);
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___closed__3;
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__1___boxed(lean_object*);
+uint8_t l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__2___boxed(lean_object*);
+lean_object* l_Lean_TODELETE_popScopeCore(lean_object*);
+lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7(lean_object*, lean_object*);
+lean_object* lean_get_namespaces(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__4(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
-lean_object* l_Lean_Environment_popScopeCore___closed__1;
-lean_object* l_Lean_Environment_popScopeCore___lambda__1(lean_object*);
-lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_regScopeManagerExtension___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_Environment_inSection___boxed(lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__2(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__4___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__3___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt;
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Lean_Environment_pushScopeCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ScopeManagerState_saveNamespace(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___closed__4;
+lean_object* lean_to_valid_namespace(lean_object*, lean_object*);
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__5(lean_object*, lean_object*);
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
-lean_object* l_Lean_regScopeManagerExtension___closed__4;
-lean_object* l_Lean_Environment_registerNamespaceAux(lean_object*, lean_object*);
-lean_object* l_Lean_Environment_pushScopeCore___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_Lean_Environment_hasOpenScopes___boxed(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__4___rarg(lean_object*);
-lean_object* l_Lean_Environment_pushScopeCore___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_registerNamespace___main(lean_object*, lean_object*);
+uint8_t lean_is_namespace(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_pushScopeCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__1;
+lean_object* l_Lean_TODELETE_ScopeManagerState_Inhabited;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___closed__6;
 lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_regScopeManagerExtension___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_regScopeManagerExtension___lambda__2___boxed(lean_object*);
+lean_object* l_Lean_TODELETE_pushScopeCore(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_IO_Error_Inhabited___closed__1;
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_regScopeManagerExtension___lambda__2(lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__1___boxed(lean_object*);
-lean_object* l_Lean_scopeManagerExt___closed__6;
-lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_hasOpenScopes___boxed(lean_object*);
+lean_object* l_Lean_TODELETE_ScopeManagerState_saveNamespace(lean_object*, lean_object*);
+lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManagerExtension___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
-lean_object* lean_get_scope_header(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_regScopeManagerExtension(lean_object*);
-lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__5(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
+uint8_t lean_has_open_scopes(lean_object*);
+lean_object* l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__3(lean_object*, lean_object*);
-lean_object* lean_register_namespace(lean_object*, lean_object*);
-lean_object* l_Lean_Environment_getNamespaceSet(lean_object*);
+uint8_t lean_in_section(lean_object*);
+lean_object* lean_get_namespace(lean_object*);
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__2(lean_object*);
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__1(lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
-lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_regScopeManagerExtension___spec__4(lean_object*, lean_object*);
-lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_regScopeManagerExtension___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__4___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__4___rarg(lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-lean_object* lean_get_namespace(lean_object*);
-uint8_t lean_in_section(lean_object*);
-lean_object* l_Lean_Environment_getNamespaceSet___boxed(lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__2___boxed(lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManagerExtension___spec__1(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
+lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_register_namespace(lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
-lean_object* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__2;
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__3___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_getNamespaceSet(lean_object*);
+lean_object* l_Lean_TODELETE_pushScopeCore___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_scopeManagerExt___elambda__2(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
+lean_object* l_Lean_TODELETE_inSection___boxed(lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_regNamespacesExtension___closed__4;
-lean_object* l_Lean_ScopeManagerState_Inhabited___closed__1;
-lean_object* l_Lean_Environment_pushScopeCore(lean_object*, lean_object*, uint8_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_scopeManagerExt;
-lean_object* l_Lean_regScopeManagerExtension___closed__1;
-lean_object* l_Lean_scopeManagerExt___closed__1;
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_regScopeManagerExtension___closed__2;
-lean_object* l_Lean_scopeManagerExt___closed__2;
-lean_object* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_has_open_scopes(lean_object*);
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__1(lean_object*);
+lean_object* l_Lean_TODELETE_pushScopeCore___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_get_scope_header(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l_Lean_ScopeManagerState_Inhabited___closed__1() {
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___closed__5;
+lean_object* _init_l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -132,15 +132,15 @@ lean_ctor_set(x_3, 3, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ScopeManagerState_Inhabited() {
+lean_object* _init_l_Lean_TODELETE_ScopeManagerState_Inhabited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_ScopeManagerState_Inhabited___closed__1;
+x_1 = l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1;
 return x_1;
 }
 }
-lean_object* l_Lean_ScopeManagerState_saveNamespace(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_ScopeManagerState_saveNamespace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -177,7 +177,7 @@ return x_13;
 }
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -193,7 +193,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_array_fget(x_2, x_3);
-x_8 = l_Lean_ScopeManagerState_saveNamespace(x_4, x_7);
+x_8 = l_Lean_TODELETE_ScopeManagerState_saveNamespace(x_4, x_7);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_3, x_9);
 lean_dec(x_3);
@@ -203,7 +203,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -220,7 +220,7 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_array_fget(x_2, x_3);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__2(x_7, x_7, x_8, x_4);
+x_9 = l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2(x_7, x_7, x_8, x_4);
 lean_dec(x_7);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_3, x_10);
@@ -231,16 +231,16 @@ goto _start;
 }
 }
 }
-lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_regScopeManagerExtension___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManagerExtension___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3(x_2, x_2, x_3, x_1);
+x_4 = l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3(x_2, x_2, x_3, x_1);
 return x_4;
 }
 }
-uint8_t l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+uint8_t l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -279,31 +279,31 @@ return x_11;
 }
 }
 }
-lean_object* _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1() {
+lean_object* _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_ScopeManagerState_Inhabited___closed__1;
+x_2 = l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2() {
+lean_object* _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_empty___closed__1;
-x_2 = l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1;
+x_2 = l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -358,7 +358,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_array_get_size(x_15);
 lean_dec(x_15);
-x_18 = l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2;
+x_18 = l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__2;
 x_19 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_1);
@@ -420,7 +420,7 @@ return x_33;
 }
 }
 }
-lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__5(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__5(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -434,7 +434,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6(x_1, x_6, x_6, x_8, x_9);
+x_10 = l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6(x_1, x_6, x_6, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_6);
 if (x_10 == 0)
@@ -458,7 +458,7 @@ x_17 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_18 = lean_alloc_closure((void*)(l_EStateM_bind___rarg), 3, 2);
 lean_closure_set(x_18, 0, x_12);
 lean_closure_set(x_18, 1, x_17);
-x_19 = l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7(x_18, x_7);
+x_19 = l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7(x_18, x_7);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
@@ -563,7 +563,7 @@ lean_inc(x_45);
 lean_dec(x_4);
 x_47 = lean_array_get_size(x_45);
 x_48 = lean_unsigned_to_nat(0u);
-x_49 = l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6(x_1, x_45, x_45, x_47, x_48);
+x_49 = l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6(x_1, x_45, x_45, x_47, x_48);
 lean_dec(x_47);
 lean_dec(x_45);
 if (x_49 == 0)
@@ -586,7 +586,7 @@ x_56 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_57 = lean_alloc_closure((void*)(l_EStateM_bind___rarg), 3, 2);
 lean_closure_set(x_57, 0, x_51);
 lean_closure_set(x_57, 1, x_56);
-x_58 = l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7(x_57, x_46);
+x_58 = l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7(x_57, x_46);
 if (lean_obj_tag(x_58) == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
@@ -684,7 +684,7 @@ return x_83;
 }
 }
 }
-lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_regScopeManagerExtension___spec__4(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_TODELETE_regScopeManagerExtension___spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -717,11 +717,11 @@ lean_ctor_set(x_14, 2, x_10);
 lean_ctor_set(x_14, 3, x_11);
 lean_ctor_set(x_14, 4, x_12);
 lean_ctor_set(x_14, 5, x_13);
-x_15 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__5(x_14, x_2);
+x_15 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__5(x_14, x_2);
 return x_15;
 }
 }
-lean_object* l_Lean_regScopeManagerExtension___lambda__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -758,17 +758,17 @@ return x_13;
 }
 }
 }
-lean_object* l_Lean_regScopeManagerExtension___lambda__2(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_ScopeManagerState_Inhabited___closed__1;
-x_4 = l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3(x_1, x_1, x_2, x_3);
+x_3 = l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1;
+x_4 = l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3(x_1, x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_regScopeManagerExtension___closed__1() {
+lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -776,39 +776,39 @@ x_1 = lean_mk_string("scopes");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_regScopeManagerExtension___closed__2() {
+lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_regScopeManagerExtension___closed__1;
+x_2 = l_Lean_TODELETE_regScopeManagerExtension___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_regScopeManagerExtension___closed__3() {
+lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_regScopeManagerExtension___lambda__1), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_regScopeManagerExtension___lambda__1), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_regScopeManagerExtension___closed__4() {
+lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_regScopeManagerExtension___lambda__2___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_regScopeManagerExtension___lambda__2___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_regScopeManagerExtension___closed__5() {
+lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_regScopeManagerExtension___closed__2;
-x_2 = l_Lean_regScopeManagerExtension___closed__3;
-x_3 = l_Lean_regScopeManagerExtension___closed__4;
+x_1 = l_Lean_TODELETE_regScopeManagerExtension___closed__2;
+x_2 = l_Lean_TODELETE_regScopeManagerExtension___closed__3;
+x_3 = l_Lean_TODELETE_regScopeManagerExtension___closed__4;
 x_4 = l_Lean_regNamespacesExtension___closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -818,49 +818,49 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_regScopeManagerExtension(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_regScopeManagerExtension(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_regScopeManagerExtension___closed__5;
-x_3 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_regScopeManagerExtension___spec__4(x_2, x_1);
+x_2 = l_Lean_TODELETE_regScopeManagerExtension___closed__5;
+x_3 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_TODELETE_regScopeManagerExtension___spec__4(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__2(x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3(x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_regScopeManagerExtension___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManagerExtension___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_mkStateFromImportedEntries___at_Lean_regScopeManagerExtension___spec__1(x_1, x_2);
+x_3 = l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManagerExtension___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; lean_object* x_7; 
-x_6 = l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -869,16 +869,16 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_regScopeManagerExtension___lambda__2___boxed(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__2___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_regScopeManagerExtension___lambda__2(x_1);
+x_2 = l_Lean_TODELETE_regScopeManagerExtension___lambda__2(x_1);
 lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__1(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -886,7 +886,7 @@ x_2 = lean_box(0);
 return x_2;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__2(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -894,14 +894,14 @@ x_2 = l_Array_empty___closed__1;
 return x_2;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__3(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__4___rarg(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -912,21 +912,21 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__4(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_scopeManagerExt___elambda__4___rarg), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__4___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_scopeManagerExt___closed__1() {
+lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_EnvExtension_Inhabited___rarg___closed__1;
-x_3 = l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2;
+x_3 = l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -934,48 +934,48 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_scopeManagerExt___closed__2() {
+lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_scopeManagerExt___elambda__4___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__4___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_scopeManagerExt___closed__3() {
+lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_scopeManagerExt___elambda__3___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__3___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_scopeManagerExt___closed__4() {
+lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_scopeManagerExt___elambda__2___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__2___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_scopeManagerExt___closed__5() {
+lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_scopeManagerExt___elambda__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__1___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_scopeManagerExt___closed__6() {
+lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_scopeManagerExt___closed__1;
+x_1 = l_Lean_TODELETE_scopeManagerExt___closed__1;
 x_2 = lean_box(0);
-x_3 = l_Lean_scopeManagerExt___closed__2;
-x_4 = l_Lean_scopeManagerExt___closed__3;
-x_5 = l_Lean_scopeManagerExt___closed__4;
-x_6 = l_Lean_scopeManagerExt___closed__5;
+x_3 = l_Lean_TODELETE_scopeManagerExt___closed__2;
+x_4 = l_Lean_TODELETE_scopeManagerExt___closed__3;
+x_5 = l_Lean_TODELETE_scopeManagerExt___closed__4;
+x_6 = l_Lean_TODELETE_scopeManagerExt___closed__5;
 x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
@@ -986,39 +986,39 @@ lean_ctor_set(x_7, 5, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__1___boxed(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__1___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_scopeManagerExt___elambda__1(x_1);
+x_2 = l_Lean_TODELETE_scopeManagerExt___elambda__1(x_1);
 lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__2___boxed(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__2___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_scopeManagerExt___elambda__2(x_1);
+x_2 = l_Lean_TODELETE_scopeManagerExt___elambda__2(x_1);
 lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__3___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__3___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_scopeManagerExt___elambda__3(x_1, x_2);
+x_3 = l_Lean_TODELETE_scopeManagerExt___elambda__3(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_scopeManagerExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_scopeManagerExt___elambda__4(x_1, x_2);
+x_3 = l_Lean_TODELETE_scopeManagerExt___elambda__4(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -1028,7 +1028,7 @@ lean_object* lean_get_namespaces(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_scopeManagerExt;
+x_2 = l_Lean_TODELETE_scopeManagerExt;
 x_3 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_2, x_1);
 lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 1);
@@ -1037,11 +1037,11 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_Environment_getNamespaceSet(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_getNamespaceSet(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_scopeManagerExt;
+x_2 = l_Lean_TODELETE_scopeManagerExt;
 x_3 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_2, x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -1049,11 +1049,11 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_Environment_getNamespaceSet___boxed(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_getNamespaceSet___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Environment_getNamespaceSet(x_1);
+x_2 = l_Lean_TODELETE_getNamespaceSet(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -1062,7 +1062,7 @@ uint8_t lean_is_namespace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Environment_getNamespaceSet(x_1);
+x_3 = l_Lean_TODELETE_getNamespaceSet(x_1);
 lean_dec(x_1);
 x_4 = l_Lean_NameSet_contains(x_3, x_2);
 lean_dec(x_2);
@@ -1070,7 +1070,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_Environment_isNamespace___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_isNamespace___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
@@ -1083,7 +1083,7 @@ uint8_t lean_in_section(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_scopeManagerExt;
+x_2 = l_Lean_TODELETE_scopeManagerExt;
 x_3 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_2, x_1);
 lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 3);
@@ -1118,7 +1118,7 @@ return x_9;
 }
 }
 }
-lean_object* l_Lean_Environment_inSection___boxed(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_inSection___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
@@ -1148,7 +1148,7 @@ return x_5;
 }
 }
 }
-lean_object* l_Lean_Environment_hasOpenScopes___boxed(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_hasOpenScopes___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
@@ -1182,7 +1182,7 @@ lean_object* lean_get_scope_header(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_scopeManagerExt;
+x_2 = l_Lean_TODELETE_scopeManagerExt;
 x_3 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_2, x_1);
 lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 2);
@@ -1204,7 +1204,7 @@ return x_6;
 }
 }
 }
-lean_object* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_4) == 0)
@@ -1252,7 +1252,7 @@ lean_object* lean_to_valid_namespace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lean_scopeManagerExt;
+x_3 = l_Lean_TODELETE_scopeManagerExt;
 x_4 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_3, x_1);
 lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 0);
@@ -1265,7 +1265,7 @@ x_7 = lean_box(0);
 x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
 lean_dec(x_4);
-x_9 = l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1(x_2, x_5, x_7, x_8);
+x_9 = l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(x_2, x_5, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_5);
 return x_9;
@@ -1281,27 +1281,27 @@ return x_10;
 }
 }
 }
-lean_object* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_Environment_registerNamespaceAux(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_registerNamespaceAux(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Environment_getNamespaceSet(x_1);
+x_3 = l_Lean_TODELETE_getNamespaceSet(x_1);
 x_4 = l_Lean_NameSet_contains(x_3, x_2);
 lean_dec(x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_scopeManagerExt;
+x_5 = l_Lean_TODELETE_scopeManagerExt;
 x_6 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_5, x_1, x_2);
 return x_6;
 }
@@ -1312,7 +1312,7 @@ return x_1;
 }
 }
 }
-lean_object* l_Lean_Environment_registerNamespace___main(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TODELETE_registerNamespace___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 1)
@@ -1320,7 +1320,7 @@ if (lean_obj_tag(x_2) == 1)
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = l_Lean_Environment_registerNamespaceAux(x_1, x_2);
+x_4 = l_Lean_TODELETE_registerNamespaceAux(x_1, x_2);
 x_1 = x_4;
 x_2 = x_3;
 goto _start;
@@ -1336,11 +1336,11 @@ lean_object* lean_register_namespace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Environment_registerNamespace___main(x_1, x_2);
+x_3 = l_Lean_TODELETE_registerNamespace___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_Environment_pushScopeCore___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
+lean_object* l_Lean_TODELETE_pushScopeCore___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1397,7 +1397,7 @@ return x_21;
 }
 }
 }
-lean_object* l_Lean_Environment_pushScopeCore(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+lean_object* l_Lean_TODELETE_pushScopeCore(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -1407,13 +1407,13 @@ if (x_3 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_inc(x_4);
-x_5 = l_Lean_Environment_registerNamespaceAux(x_1, x_4);
+x_5 = l_Lean_TODELETE_registerNamespaceAux(x_1, x_4);
 x_6 = lean_box(x_3);
-x_7 = lean_alloc_closure((void*)(l_Lean_Environment_pushScopeCore___lambda__1___boxed), 4, 3);
+x_7 = lean_alloc_closure((void*)(l_Lean_TODELETE_pushScopeCore___lambda__1___boxed), 4, 3);
 lean_closure_set(x_7, 0, x_4);
 lean_closure_set(x_7, 1, x_2);
 lean_closure_set(x_7, 2, x_6);
-x_8 = l_Lean_scopeManagerExt;
+x_8 = l_Lean_TODELETE_scopeManagerExt;
 x_9 = l_Lean_SimplePersistentEnvExtension_modifyState___rarg(x_8, x_5, x_7);
 return x_9;
 }
@@ -1424,39 +1424,39 @@ lean_inc(x_2);
 x_10 = l_Lean_Name_append___main(x_4, x_2);
 lean_dec(x_4);
 lean_inc(x_10);
-x_11 = l_Lean_Environment_registerNamespaceAux(x_1, x_10);
+x_11 = l_Lean_TODELETE_registerNamespaceAux(x_1, x_10);
 x_12 = lean_box(x_3);
-x_13 = lean_alloc_closure((void*)(l_Lean_Environment_pushScopeCore___lambda__1___boxed), 4, 3);
+x_13 = lean_alloc_closure((void*)(l_Lean_TODELETE_pushScopeCore___lambda__1___boxed), 4, 3);
 lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_2);
 lean_closure_set(x_13, 2, x_12);
-x_14 = l_Lean_scopeManagerExt;
+x_14 = l_Lean_TODELETE_scopeManagerExt;
 x_15 = l_Lean_SimplePersistentEnvExtension_modifyState___rarg(x_14, x_11, x_13);
 return x_15;
 }
 }
 }
-lean_object* l_Lean_Environment_pushScopeCore___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_TODELETE_pushScopeCore___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
 lean_dec(x_3);
-x_6 = l_Lean_Environment_pushScopeCore___lambda__1(x_1, x_2, x_5, x_4);
+x_6 = l_Lean_TODELETE_pushScopeCore___lambda__1(x_1, x_2, x_5, x_4);
 return x_6;
 }
 }
-lean_object* l_Lean_Environment_pushScopeCore___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_TODELETE_pushScopeCore___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
 lean_dec(x_3);
-x_5 = l_Lean_Environment_pushScopeCore(x_1, x_2, x_4);
+x_5 = l_Lean_TODELETE_pushScopeCore(x_1, x_2, x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_Environment_popScopeCore___lambda__1(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_popScopeCore___lambda__1(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -1505,15 +1505,15 @@ return x_16;
 }
 }
 }
-lean_object* _init_l_Lean_Environment_popScopeCore___closed__1() {
+lean_object* _init_l_Lean_TODELETE_popScopeCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Environment_popScopeCore___lambda__1), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_popScopeCore___lambda__1), 1, 0);
 return x_1;
 }
 }
-lean_object* l_Lean_Environment_popScopeCore(lean_object* x_1) {
+lean_object* l_Lean_TODELETE_popScopeCore(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
@@ -1524,8 +1524,8 @@ lean_dec(x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Lean_scopeManagerExt;
-x_5 = l_Lean_Environment_popScopeCore___closed__1;
+x_4 = l_Lean_TODELETE_scopeManagerExt;
+x_5 = l_Lean_TODELETE_popScopeCore___closed__1;
 x_6 = l_Lean_SimplePersistentEnvExtension_modifyState___rarg(x_4, x_1, x_5);
 return x_6;
 }
@@ -1548,43 +1548,43 @@ lean_dec_ref(res);
 res = initialize_Lean_Environment(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_ScopeManagerState_Inhabited___closed__1 = _init_l_Lean_ScopeManagerState_Inhabited___closed__1();
-lean_mark_persistent(l_Lean_ScopeManagerState_Inhabited___closed__1);
-l_Lean_ScopeManagerState_Inhabited = _init_l_Lean_ScopeManagerState_Inhabited();
-lean_mark_persistent(l_Lean_ScopeManagerState_Inhabited);
-l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1();
-lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1);
-l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2();
-lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2);
-l_Lean_regScopeManagerExtension___closed__1 = _init_l_Lean_regScopeManagerExtension___closed__1();
-lean_mark_persistent(l_Lean_regScopeManagerExtension___closed__1);
-l_Lean_regScopeManagerExtension___closed__2 = _init_l_Lean_regScopeManagerExtension___closed__2();
-lean_mark_persistent(l_Lean_regScopeManagerExtension___closed__2);
-l_Lean_regScopeManagerExtension___closed__3 = _init_l_Lean_regScopeManagerExtension___closed__3();
-lean_mark_persistent(l_Lean_regScopeManagerExtension___closed__3);
-l_Lean_regScopeManagerExtension___closed__4 = _init_l_Lean_regScopeManagerExtension___closed__4();
-lean_mark_persistent(l_Lean_regScopeManagerExtension___closed__4);
-l_Lean_regScopeManagerExtension___closed__5 = _init_l_Lean_regScopeManagerExtension___closed__5();
-lean_mark_persistent(l_Lean_regScopeManagerExtension___closed__5);
-l_Lean_scopeManagerExt___closed__1 = _init_l_Lean_scopeManagerExt___closed__1();
-lean_mark_persistent(l_Lean_scopeManagerExt___closed__1);
-l_Lean_scopeManagerExt___closed__2 = _init_l_Lean_scopeManagerExt___closed__2();
-lean_mark_persistent(l_Lean_scopeManagerExt___closed__2);
-l_Lean_scopeManagerExt___closed__3 = _init_l_Lean_scopeManagerExt___closed__3();
-lean_mark_persistent(l_Lean_scopeManagerExt___closed__3);
-l_Lean_scopeManagerExt___closed__4 = _init_l_Lean_scopeManagerExt___closed__4();
-lean_mark_persistent(l_Lean_scopeManagerExt___closed__4);
-l_Lean_scopeManagerExt___closed__5 = _init_l_Lean_scopeManagerExt___closed__5();
-lean_mark_persistent(l_Lean_scopeManagerExt___closed__5);
-l_Lean_scopeManagerExt___closed__6 = _init_l_Lean_scopeManagerExt___closed__6();
-lean_mark_persistent(l_Lean_scopeManagerExt___closed__6);
-res = l_Lean_regScopeManagerExtension(lean_io_mk_world());
+l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1 = _init_l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1();
+lean_mark_persistent(l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1);
+l_Lean_TODELETE_ScopeManagerState_Inhabited = _init_l_Lean_TODELETE_ScopeManagerState_Inhabited();
+lean_mark_persistent(l_Lean_TODELETE_ScopeManagerState_Inhabited);
+l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__1();
+lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__1);
+l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__2 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__2();
+lean_mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__7___closed__2);
+l_Lean_TODELETE_regScopeManagerExtension___closed__1 = _init_l_Lean_TODELETE_regScopeManagerExtension___closed__1();
+lean_mark_persistent(l_Lean_TODELETE_regScopeManagerExtension___closed__1);
+l_Lean_TODELETE_regScopeManagerExtension___closed__2 = _init_l_Lean_TODELETE_regScopeManagerExtension___closed__2();
+lean_mark_persistent(l_Lean_TODELETE_regScopeManagerExtension___closed__2);
+l_Lean_TODELETE_regScopeManagerExtension___closed__3 = _init_l_Lean_TODELETE_regScopeManagerExtension___closed__3();
+lean_mark_persistent(l_Lean_TODELETE_regScopeManagerExtension___closed__3);
+l_Lean_TODELETE_regScopeManagerExtension___closed__4 = _init_l_Lean_TODELETE_regScopeManagerExtension___closed__4();
+lean_mark_persistent(l_Lean_TODELETE_regScopeManagerExtension___closed__4);
+l_Lean_TODELETE_regScopeManagerExtension___closed__5 = _init_l_Lean_TODELETE_regScopeManagerExtension___closed__5();
+lean_mark_persistent(l_Lean_TODELETE_regScopeManagerExtension___closed__5);
+l_Lean_TODELETE_scopeManagerExt___closed__1 = _init_l_Lean_TODELETE_scopeManagerExt___closed__1();
+lean_mark_persistent(l_Lean_TODELETE_scopeManagerExt___closed__1);
+l_Lean_TODELETE_scopeManagerExt___closed__2 = _init_l_Lean_TODELETE_scopeManagerExt___closed__2();
+lean_mark_persistent(l_Lean_TODELETE_scopeManagerExt___closed__2);
+l_Lean_TODELETE_scopeManagerExt___closed__3 = _init_l_Lean_TODELETE_scopeManagerExt___closed__3();
+lean_mark_persistent(l_Lean_TODELETE_scopeManagerExt___closed__3);
+l_Lean_TODELETE_scopeManagerExt___closed__4 = _init_l_Lean_TODELETE_scopeManagerExt___closed__4();
+lean_mark_persistent(l_Lean_TODELETE_scopeManagerExt___closed__4);
+l_Lean_TODELETE_scopeManagerExt___closed__5 = _init_l_Lean_TODELETE_scopeManagerExt___closed__5();
+lean_mark_persistent(l_Lean_TODELETE_scopeManagerExt___closed__5);
+l_Lean_TODELETE_scopeManagerExt___closed__6 = _init_l_Lean_TODELETE_scopeManagerExt___closed__6();
+lean_mark_persistent(l_Lean_TODELETE_scopeManagerExt___closed__6);
+res = l_Lean_TODELETE_regScopeManagerExtension(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
-l_Lean_scopeManagerExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_scopeManagerExt);
+l_Lean_TODELETE_scopeManagerExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_TODELETE_scopeManagerExt);
 lean_dec_ref(res);
-l_Lean_Environment_popScopeCore___closed__1 = _init_l_Lean_Environment_popScopeCore___closed__1();
-lean_mark_persistent(l_Lean_Environment_popScopeCore___closed__1);
+l_Lean_TODELETE_popScopeCore___closed__1 = _init_l_Lean_TODELETE_popScopeCore___closed__1();
+lean_mark_persistent(l_Lean_TODELETE_popScopeCore___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

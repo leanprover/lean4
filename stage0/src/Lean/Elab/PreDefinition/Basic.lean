@@ -87,7 +87,7 @@ pure $ preDefs.map fun preDef =>
     lparams := lparams }
 
 def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
-preDefs.forM fun preDef => applyAttributes preDef.declName preDef.modifiers.attrs applicationTime
+preDefs.forM fun preDef => applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
 def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
 if preDef.kind.isTheorem || preDef.kind.isExample then pure preDef

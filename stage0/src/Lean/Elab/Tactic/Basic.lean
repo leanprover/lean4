@@ -92,7 +92,6 @@ liftTermElabM $ Term.liftMetaM x
 
 def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType expectedType? e
 def reportUnsolvedGoals (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals goals
-def resolveGlobalName (n : Name) : TacticM (List (Name × List String)) := liftTermElabM $ Term.resolveGlobalName n
 
 protected def getCurrMacroScope : TacticM MacroScope := do ctx ← readThe Term.Context; pure ctx.currMacroScope
 protected def getMainModule     : TacticM Name       := do env ← getEnv; pure env.mainModule

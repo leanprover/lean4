@@ -95,9 +95,8 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
         `(ParserDescr.cat $(quote cat) $(quote prec))
       else do
         -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
-        candidates ← liftM $ resolveGlobalName cat;
-        let candidates := candidates.filter fun ⟨c, ps⟩ =>
-          ps.isEmpty &&
+        candidates ← liftM $ resolveGlobalConst cat;
+        let candidates := candidates.filter fun c =>
             match env.find? c with
             | none      => false
             | some info =>
@@ -107,7 +106,6 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
               | Expr.const `Lean.ParserDescr _ _           => true
               | Expr.const `Lean.TrailingParserDescr _ _   => true
               | _                                          => false;
-         let candidates := candidates.map fun ⟨c, _⟩ => c;
          match candidates with
          | []  => throwErrorAt (stx.getArg 3) ("unknown category '" ++ cat ++ "' or parser declaration")
          | [c] => do

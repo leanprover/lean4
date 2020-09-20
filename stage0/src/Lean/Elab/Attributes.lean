@@ -32,24 +32,36 @@ let args := stx.getArg 1;
 let args := if args.getNumArgs == 0 then Syntax.missing else args;
 pure { name := attrName, args := args }
 
+-- sepBy1 attrInstance ", "
 def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
-(stx.getArg 1).foldSepArgsM
+stx.foldSepArgsM
   (fun stx attrs => do
     attr ← elabAttr stx;
     pure $ attrs.push attr)
   #[]
 
-def applyAttributesImp (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CoreM Unit :=
+-- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
+def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
+elabAttrs (stx.getArg 1)
+
+def applyAttributesImp (declName : Name) (attrs : Array Attribute) (applicationTime? : Option AttributeApplicationTime) (persistent : Bool) : CoreM Unit :=
 attrs.forM $ fun attr => do
  env ← getEnv;
  match getAttributeImpl env attr.name with
  | Except.error errMsg => throwError errMsg
  | Except.ok attrImpl  =>
-   when (attrImpl.applicationTime == applicationTime) do
-     attrImpl.add declName attr.args true
+   match applicationTime? with
+   | none => attrImpl.add declName attr.args persistent
+   | some applicationTime =>
+     when (applicationTime ==  attrImpl.applicationTime) do
+       attrImpl.add declName attr.args persistent
 
-def applyAttributes {m} [MonadLiftT CoreM m] (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : m Unit :=
-liftM $ applyAttributesImp declName attrs applicationTime
+/-- Apply given attributes **at** a given application time -/
+def applyAttributesAt {m} [MonadLiftT CoreM m] (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) (persistent : Bool := true) : m Unit :=
+liftM $ applyAttributesImp declName attrs applicationTime persistent
+
+def applyAttributes {m} [MonadLiftT CoreM m] (declName : Name) (attrs : Array Attribute) (persistent : Bool) : m Unit :=
+liftM $ applyAttributesImp declName attrs none persistent
 
 end Elab
 end Lean

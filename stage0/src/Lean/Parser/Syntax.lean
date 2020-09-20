@@ -74,7 +74,11 @@ def notationItem := withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command
 -- TODO: remove " := " after old frontend is gone
 @[builtinCommandParser] def «notation»    := parser! "notation" >> optPrecedence >> many notationItem >> (" := " <|> darrow) >> termParser
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts
-@[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
+def parserKind     := parser! ident
+def parserPrio     := parser! numLit
+def parserKindPrio := parser! try (ident >> ", ") >> numLit
+def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserKind <|> parserPrio) >> "]")
+@[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec

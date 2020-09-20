@@ -211,19 +211,36 @@ pure $ Lean.addMacroScope mainModule (mkKindName catName) scp
 def Macro.mkFreshKind (catName : Name) : MacroM Name :=
 Macro.addMacroScope (mkKindName catName)
 
-private def elabKind (stx : Syntax) (catName : Name) : CommandElabM Name := do
-if stx.isNone then
-  mkFreshKind catName
+private def elabKindPrio (stx : Syntax) (catName : Name) : CommandElabM (Name × Nat) := do
+if stx.isNone then do
+  k ← mkFreshKind catName;
+  pure (k, 0)
 else
-  let kind := stx.getIdAt 1;
-  if kind.hasMacroScopes then
-    pure kind
-  else do
-    currNamespace ← getCurrNamespace;
-    pure (currNamespace ++ kind)
+  let mkKind (stx : Syntax) : CommandElabM Name := do {
+    let kind := stx.getId;
+    if kind.hasMacroScopes then
+      pure kind
+    else do
+      currNamespace ← getCurrNamespace;
+      pure (currNamespace ++ kind)
+  };
+  let arg := stx.getArg 1;
+  if arg.getKind == `Lean.Parser.Command.parserKind then do
+    k ← mkKind (arg.getArg 0);
+    pure (k, 0)
+  else if arg.getKind == `Lean.Parser.Command.parserPrio then do
+    k ← mkFreshKind catName;
+    let prio := (arg.getArg 0).isNatLit?.getD 0;
+    pure (k, prio)
+  else if arg.getKind == `Lean.Parser.Command.parserKindPrio then do
+    k ← mkKind (arg.getArg 0);
+    let prio := (arg.getArg 2).isNatLit?.getD 0;
+    pure (k, prio)
+  else
+    throwError "unexpected syntax kind/priority"
 
 /-
-def «syntax»      := parser! "syntax " >> optPrecedence >> optKind >> many1 syntaxParser >> " : " >> ident
+def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 -/
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab :=
 fun stx => do
@@ -231,14 +248,14 @@ fun stx => do
   let cat := (stx.getIdAt 5).eraseMacroScopes;
   unless (Parser.isParserCategory env cat) $ throwErrorAt (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
   let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD Parser.maxPrec;
-  kind ← elabKind (stx.getArg 2) cat;
+  (kind, prio) ← elabKindPrio (stx.getArg 2) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
   (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) cat;
   d ←
     if trailingParser then
-      `(@[$catParserId:ident] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
+      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
     else
-      `(@[$catParserId:ident] def $(mkIdentFrom stx kind) : Lean.ParserDescr := ParserDescr.node $(quote kind) $(quote prec) $val);
+      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.ParserDescr := ParserDescr.node $(quote kind) $(quote prec) $val);
   trace `Elab fun _ => d;
   withMacroExpansion stx d $ elabCommand d
 

@@ -141,17 +141,11 @@ builtinParserCategoriesRef.set categories;
 builtinSyntaxNodeKindSetRef.modify p.info.collectKinds;
 updateBuiltinTokens p.info declName
 
-def addBuiltinLeadingParserNew (catName : Name) (declName : Name) (p : Parser) (prio : Nat) : IO Unit :=
+def addBuiltinLeadingParser (catName : Name) (declName : Name) (p : Parser) (prio : Nat) : IO Unit :=
 addBuiltinParser catName declName true p prio
 
-def addBuiltinTrailingParserNew (catName : Name) (declName : Name) (p : TrailingParser) (prio : Nat) : IO Unit :=
+def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingParser) (prio : Nat) : IO Unit :=
 addBuiltinParser catName declName false p prio
-
-def addBuiltinLeadingParser (catName : Name) (declName : Name) (p : Parser) : IO Unit :=
-addBuiltinParser catName declName true p 0
-
-def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingParser) : IO Unit :=
-addBuiltinParser catName declName false p 0
 
 private def ParserExtension.addEntry (s : ParserExtensionState) (e : ParserExtensionEntry) : ParserExtensionState :=
 match e with
@@ -379,10 +373,10 @@ match env.addAndCompile {} decl with
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
 def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
-declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParserNew catName declName prio
+declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser catName declName prio
 
 def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
-declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParserNew catName declName prio
+declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParser catName declName prio
 
 def getParserPriority (args : Syntax) : Except String Nat :=
 match args.getNumArgs with

@@ -236,8 +236,7 @@ attrs.foldlM (fun env attr => attr.activateScoped env scope) env
    It activates scoped attributes in the new resulting namespace. -/
 @[export lean_push_scope]
 def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Environment := do
-let env := env.pushScopeCore header isNamespace;
-let ns  := env.getNamespace;
+let env := Lean.TODELETE.pushScopeCore env header isNamespace;
 -- attrs ← attributeArrayRef.get;
 -- attrs.foldlM (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
 pure env
@@ -245,7 +244,7 @@ pure env
 /- We use this function to implement commands `end foo` for closing namespaces and sections. -/
 @[export lean_pop_scope]
 def popScope (env : Environment) : IO Environment := do
-let env := env.popScopeCore;
+let env := Lean.TODELETE.popScopeCore env;
 -- attrs ← attributeArrayRef.get;
 -- attrs.foldlM (fun env attr => attr.popScope env) env
 pure env

@@ -279,7 +279,7 @@ fun ctx ref => EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 private def addScope (kind : String) (header : String) (newNamespace : Name) : CommandElabM Unit :=
 modify $ fun s => {
   s with
-  env    := s.env.registerNamespace newNamespace,
+  env    := registerNamespace s.env newNamespace,
   scopes := { s.scopes.head! with kind := kind, header := header, currNamespace := newNamespace } :: s.scopes
 }
 

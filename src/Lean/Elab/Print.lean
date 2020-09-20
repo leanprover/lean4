@@ -70,11 +70,7 @@ match env.find? id with
 | none => throwUnknownId id
 
 def resolveId (id : Name) : CommandElabM (List Name) := do
-cs ← liftTermElabM none $ Term.resolveGlobalName id;
-let cs := cs.filter fun ⟨_, ps⟩ => ps.isEmpty;
-let cs := cs.map fun ⟨c, _⟩ => c;
-when cs.isEmpty $ throwUnknownId id;
-pure cs
+liftTermElabM none $ Term.resolveGlobalConst id
 
 private def printId (id : Name) : CommandElabM Unit := do
 cs ← resolveId id;

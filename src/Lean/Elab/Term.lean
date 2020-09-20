@@ -1175,12 +1175,40 @@ candidates.foldlM
   is the name of a declaration in the current environment, and `fieldList` are
   (potential) field names.
   The pair is needed because in Lean `.` may be part of a qualified name or
-  a field (aka dot-notation). -/
+  a field (aka dot-notation).
+  As an example, consider the following definitions
+  ```
+  def Boo.x   := 1
+  def Foo.x   := 2
+  def Foo.x.y := 3
+  ```
+  After `open Foo`, we have
+  - `resolveGlobalName x`     => `[(Foo.x, [])]`
+  - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
+  - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w])]`
+  After `open Foo open Boo`, we have
+  - `resolveGlobalName x`     => `[(Foo.x, []), (Boo.x, [])]`
+  - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
+  - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w]), (Boo.x, [z, w])]`
+-/
 def resolveGlobalName (n : Name) : TermElabM (List (Name × List String)) := do
 env ← getEnv;
 currNamespace ← getCurrNamespace;
 openDecls ← getOpenDecls;
 pure (Lean.Elab.resolveGlobalName env currNamespace openDecls n)
+
+/- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
+def resolveGlobalConst (n : Name) : TermElabM (List Name) := do
+cs ← resolveGlobalName n;
+let cs := cs.filter fun ⟨_, fieldList⟩ => fieldList.isEmpty;
+when cs.isEmpty $ liftMetaM $ throwUnknownConstant n;
+pure $ cs.map Prod.fst
+
+def resolveGlobalConstNoOverload (n : Name) : TermElabM Name := do
+cs ← resolveGlobalConst n;
+match cs with
+| [c] => pure c
+| _   => throwError ("ambiguous identifier '" ++ n ++ "', possible interpretations: " ++ toString cs)
 
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
 result? ← resolveLocalName n;

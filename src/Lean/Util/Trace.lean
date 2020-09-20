@@ -133,6 +133,6 @@ new_frontend
 
 namespace Lean
 
--- macro:max "trace!" id:term:max msg:term : term => `(trace $id fun _ => ($msg : MessageData))
+macro:max "trace!" id:term:max msg:term : term => `(trace $id fun _ => ($msg : MessageData))
 
 end Lean

@@ -88,12 +88,12 @@ resolveGlobalNameAux env ns openDecls extractionResult extractionResult.name []
 
 def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → Option Name
 | Name.anonymous      => none
-| ns@(Name.str p _ _) => if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope p
+| ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope p
 | _                   => unreachable!
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
 | []                          => none
-| OpenDecl.simple ns [] :: ds =>  if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
+| OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
 | _ :: ds                     => resolveNamespaceUsingOpenDecls ds
 
 /-
@@ -106,7 +106,7 @@ Given a name `id` try to find namespace it refers to. The resolution procedure w
    We only consider simple `open` commands.
 -/
 def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : Option Name :=
-if isNamespace env id then some id
+if env.isNamespace id then some id
 else match resolveNamespaceUsingScope env id ns with
   | some n => some n
   | none   =>

@@ -53,13 +53,13 @@ inductive ParserExtensionOleanEntry
 | token     (val : Token) : ParserExtensionOleanEntry
 | kind      (val : SyntaxNodeKind) : ParserExtensionOleanEntry
 | category  (catName : Name) (leadingIdentAsSymbol : Bool)
-| parser    (catName : Name) (declName : Name) : ParserExtensionOleanEntry
+| parser    (catName : Name) (declName : Name) (prio : Nat) : ParserExtensionOleanEntry
 
 inductive ParserExtensionEntry
 | token     (val : Token) : ParserExtensionEntry
 | kind      (val : SyntaxNodeKind) : ParserExtensionEntry
 | category  (catName : Name) (leadingIdentAsSymbol : Bool)
-| parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) : ParserExtensionEntry
+| parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : ParserExtensionEntry
 
 structure ParserExtensionState :=
 (tokens      : TokenTable := {})
@@ -89,40 +89,40 @@ throw ("unknown parser category '" ++ toString catName ++ "'")
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
 categories.find? catName
 
-def addLeadingParser (categories : ParserCategories) (catName : Name) (parserName : Name) (p : Parser) : Except String ParserCategories :=
+def addLeadingParser (categories : ParserCategories) (catName : Name) (parserName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
 match getCategory categories catName with
 | none     =>
   throwUnknownParserCategory catName
 | some cat =>
   let addTokens (tks : List Token) : Except String ParserCategories :=
     let tks    := tks.map $ fun tk => mkNameSimple tk;
-    let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with leadingTable := tables.leadingTable.insert tk p }) cat.tables;
+    let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with leadingTable := tables.leadingTable.insert tk (p, prio) }) cat.tables;
     pure $ categories.insert catName { cat with tables := tables };
   match p.info.firstTokens with
   | FirstTokens.tokens tks    => addTokens tks
   | FirstTokens.optTokens tks => addTokens tks
   | _ =>
-    let tables := { cat.tables with leadingParsers := p :: cat.tables.leadingParsers };
+    let tables := { cat.tables with leadingParsers := (p, prio) :: cat.tables.leadingParsers };
     pure $ categories.insert catName { cat with tables := tables }
 
-private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) : PrattParsingTables :=
+private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) (prio : Nat) : PrattParsingTables :=
 let addTokens (tks : List Token) : PrattParsingTables :=
   let tks := tks.map $ fun tk => mkNameSimple tk;
-  tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with trailingTable := tables.trailingTable.insert tk p }) tables;
+  tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with trailingTable := tables.trailingTable.insert tk (p, prio) }) tables;
 match p.info.firstTokens with
 | FirstTokens.tokens tks    => addTokens tks
 | FirstTokens.optTokens tks => addTokens tks
-| _                         => { tables with trailingParsers := p :: tables.trailingParsers }
+| _                         => { tables with trailingParsers := (p, prio) :: tables.trailingParsers }
 
-def addTrailingParser (categories : ParserCategories) (catName : Name) (p : TrailingParser) : Except String ParserCategories :=
+def addTrailingParser (categories : ParserCategories) (catName : Name) (p : TrailingParser) (prio : Nat) : Except String ParserCategories :=
 match getCategory categories catName with
 | none     => throwUnknownParserCategory catName
-| some cat => pure $ categories.insert catName { cat with tables := addTrailingParserAux cat.tables p }
+| some cat => pure $ categories.insert catName { cat with tables := addTrailingParserAux cat.tables p prio }
 
-def addParser (categories : ParserCategories) (catName : Name) (declName : Name) (leading : Bool) (p : Parser) : Except String ParserCategories :=
+def addParser (categories : ParserCategories) (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories :=
 match leading, p with
-| true, p  => addLeadingParser categories catName declName p
-| false, p => addTrailingParser categories catName p
+| true, p  => addLeadingParser categories catName declName p prio
+| false, p => addTrailingParser categories catName p prio
 
 def addParserTokens (tokenTable : TokenTable) (info : ParserInfo) : Except String TokenTable :=
 let newTokens := info.collectTokens [];
@@ -134,18 +134,24 @@ match addParserTokens tokenTable info with
 | Except.ok tokenTable => builtinTokenTable.set tokenTable
 | Except.error msg     => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
 
-def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) : IO Unit := do
+def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : IO Unit := do
 categories ← builtinParserCategoriesRef.get;
-categories ← IO.ofExcept $ addParser categories catName declName leading p;
+categories ← IO.ofExcept $ addParser categories catName declName leading p prio;
 builtinParserCategoriesRef.set categories;
 builtinSyntaxNodeKindSetRef.modify p.info.collectKinds;
 updateBuiltinTokens p.info declName
 
+def addBuiltinLeadingParserNew (catName : Name) (declName : Name) (p : Parser) (prio : Nat) : IO Unit :=
+addBuiltinParser catName declName true p prio
+
+def addBuiltinTrailingParserNew (catName : Name) (declName : Name) (p : TrailingParser) (prio : Nat) : IO Unit :=
+addBuiltinParser catName declName false p prio
+
 def addBuiltinLeadingParser (catName : Name) (declName : Name) (p : Parser) : IO Unit :=
-addBuiltinParser catName declName true p
+addBuiltinParser catName declName true p 0
 
 def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingParser) : IO Unit :=
-addBuiltinParser catName declName false p
+addBuiltinParser catName declName false p 0
 
 private def ParserExtension.addEntry (s : ParserExtensionState) (e : ParserExtensionEntry) : ParserExtensionState :=
 match e with
@@ -160,9 +166,9 @@ match e with
   else { s with
          categories := s.categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol },
          newEntries := ParserExtensionOleanEntry.category catName leadingIdentAsSymbol :: s.newEntries }
-| ParserExtensionEntry.parser catName declName leading parser =>
-  match addParser s.categories catName declName leading parser with
-  | Except.ok categories => { s with categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName :: s.newEntries }
+| ParserExtensionEntry.parser catName declName leading parser prio =>
+  match addParser s.categories catName declName leading parser prio with
+  | Except.ok categories => { s with categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName prio :: s.newEntries }
   | _ => unreachable!
 
 unsafe def mkParserOfConstantUnsafe
@@ -261,9 +267,9 @@ es.foldlM
        | ParserExtensionOleanEntry.category catName leadingIdentAsSymbol => do
          categories ← IO.ofExcept (addParserCategoryCore s.categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol});
          pure { s with categories := categories }
-       | ParserExtensionOleanEntry.parser catName declName => do
+       | ParserExtensionOleanEntry.parser catName declName prio => do
          p ← IO.ofExcept $ mkParserOfConstant env s.categories declName;
-         categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2;
+         categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2 prio;
          -- discard result env; all environment side effects should already have happened when the parser was declared initially
          _ ← (runParserAttributeHooks catName declName /- builtin -/ false).toIO {} { env := env };
          pure { s with categories := categories })
@@ -362,34 +368,42 @@ else if input.atEnd s.pos then
 else
   Except.error ((s.mkError "end of input").toErrorMsg c)
 
-def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) : IO Environment :=
+def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName];
+let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkNatLit prio];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
 | Except.error _ => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
-def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment := -- TODO: use CoreM?
-declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser catName declName
+def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
+declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParserNew catName declName prio
 
-def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment := -- TODO: use CoreM?
-declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParser catName declName
+def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
+declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParserNew catName declName prio
+
+def getParserPriority (args : Syntax) : Except String Nat :=
+match args.getNumArgs with
+| 0 => pure 0
+| 1 => match (args.getArg 0).isNatLit? with
+  | some prio => pure prio
+  | none => throw "invalid parser attribute, numeral expected"
+| _ => throw "invalid parser attribute, no argument or numeral expected"
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
-when args.hasArgs $ throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
+prio ← ofExcept (getParserPriority args);
 unless persistent $ throwError ("invalid attribute '" ++ attrName ++ "', must be persistent");
 decl ← getConstInfo declName;
 env ← getEnv;
 match decl.type with
 | Expr.const `Lean.Parser.TrailingParser _ _ => do
-  env ← liftIO $ declareTrailingBuiltinParser env catName declName;
+  env ← liftIO $ declareTrailingBuiltinParser env catName declName prio;
   setEnv env
 | Expr.const `Lean.Parser.Parser _ _ => do
-  env ← liftIO $ declareLeadingBuiltinParser env catName declName;
+  env ← liftIO $ declareLeadingBuiltinParser env catName declName prio;
   setEnv env
 | _ => throwError ("unexpected parser type at '" ++ declName ++ "' (`Parser` or `TrailingParser` expected");
 runParserAttributeHooks catName declName /- builtin -/ true
@@ -407,7 +421,7 @@ registerBuiltinAttribute {
 }
 
 private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
-when args.hasArgs $ throwError ("invalid attribute '" ++ attrName ++ "', unexpected argument");
+prio ← ofExcept (getParserPriority args);
 env ← getEnv;
 let categories := (parserExtension.getState env).categories;
 match mkParserOfConstant env categories declName with
@@ -424,8 +438,8 @@ match mkParserOfConstant env categories declName with
   };
   let kinds := parser.info.collectKinds {};
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind;
-  match addParser categories catName declName leading parser with
-  | Except.ok _     => modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser
+  match addParser categories catName declName leading parser prio with
+  | Except.ok _     => modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser prio
   | Except.error ex => throwError ex;
   runParserAttributeHooks catName declName /- builtin -/ false
 

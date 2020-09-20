@@ -120,7 +120,6 @@ lean_object* l_Lean_Elab_Command_elabInitQuot___rarg___boxed(lean_object*, lean_
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabOpenRenaming___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureNoUnassignedMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Elab_Command_Lean_AddMessageContext___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_declareBuiltinParser___closed__3;
 lean_object* l_Lean_ofExcept___at_Lean_Elab_Command_elabEvalUnsafe___spec__3(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_Lean_Elab_Command_expandDeclId___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabOpen___closed__2;
@@ -708,6 +707,7 @@ lean_object* l_Lean_addAndCompile___at_Lean_Elab_Command_elabEvalUnsafe___spec__
 lean_object* l_Lean_Elab_Command_getRef___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_tryCoe___closed__3;
 lean_object* _init_l_Lean_Elab_Command_Scope_inhabited___closed__1() {
 _start:
 {
@@ -15953,7 +15953,7 @@ _start:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_12 = l_Lean_Elab_Command_elabEvalUnsafe___lambda__2___closed__1;
 x_13 = lean_name_mk_string(x_1, x_12);
-x_14 = l_Lean_Parser_declareBuiltinParser___closed__3;
+x_14 = l_Lean_Elab_Term_tryCoe___closed__3;
 lean_inc(x_2);
 x_15 = lean_array_push(x_14, x_2);
 lean_inc(x_4);

@@ -30,7 +30,6 @@ extern lean_object* l___private_Lean_Elab_Tactic_Basic_5__sortFVarIds___closed__
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Elab_Tactic_evalRewrite___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_rewrite___closed__2;
-extern lean_object* l_Lean_Parser_declareBuiltinParser___closed__3;
 lean_object* lean_local_ctx_find_from_user_name(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -104,6 +103,7 @@ lean_object* l_Lean_Elab_Tactic_evalRewrite___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_Elab_Tactic_expandRewriteTactic(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Elab_Tactic_evalRewrite___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_tryCoe___closed__3;
 lean_object* _init_l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___closed__1() {
 _start:
 {
@@ -146,7 +146,7 @@ x_9 = lean_array_fset(x_3, x_2, x_8);
 x_10 = x_7;
 x_11 = l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___closed__2;
 x_12 = l_Lean_mkAtomFrom(x_10, x_11);
-x_13 = l_Lean_Parser_declareBuiltinParser___closed__3;
+x_13 = l_Lean_Elab_Term_tryCoe___closed__3;
 x_14 = lean_array_push(x_13, x_12);
 x_15 = lean_array_push(x_14, x_10);
 lean_inc(x_1);

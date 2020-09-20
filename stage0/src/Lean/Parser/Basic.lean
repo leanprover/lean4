@@ -1306,7 +1306,8 @@ fun c s =>
       else
         invalidLongestMatchParser s
 
-def longestMatchStep (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) (p : ParserFn) : ParserFn :=
+def longestMatchStep (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
+    : ParserContext → ParserState → ParserState × Nat :=
 fun c s =>
 let prevErrorMsg  := s.errorMsg;
 let prevStopPos   := s.pos;
@@ -1315,41 +1316,41 @@ let s             := s.restore prevSize startPos;
 let s             := runLongestMatchParser left? p c s;
 match prevErrorMsg, s.errorMsg with
 | none, none   => -- both succeeded
-  if s.pos > prevStopPos      then s.replaceLongest startSize
-  else if s.pos < prevStopPos then s.restore prevSize prevStopPos -- keep prev
-  else s
+  if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.replaceLongest startSize, prio)
+  else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then (s.restore prevSize prevStopPos, prevPrio) -- keep prev
+  else (s, prio)
 | none, some _ => -- prev succeeded, current failed
-  s.restore prevSize prevStopPos
+  (s.restore prevSize prevStopPos, prevPrio)
 | some oldError, some _ => -- both failed
-  if s.pos > prevStopPos      then s.keepNewError prevSize
-  else if s.pos < prevStopPos then s.keepPrevError prevSize prevStopPos prevErrorMsg
-  else s.mergeErrors prevSize oldError
+  if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.keepNewError prevSize, prio)
+  else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then (s.keepPrevError prevSize prevStopPos prevErrorMsg, prevPrio)
+  else (s.mergeErrors prevSize oldError, prio)
 | some _, none => -- prev failed, current succeeded
   let successNode := s.stxStack.back;
   let s           := s.shrinkStack startSize; -- restore stack to initial size to make sure (failure) nodes are removed from the stack
-  s.pushSyntax successNode -- put successNode back on the stack
+  (s.pushSyntax successNode, prio) -- put successNode back on the stack
 
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
 if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
-def longestMatchFnAux (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) : List Parser → ParserFn
-| []    => fun _ s => longestMatchMkResult startSize s
-| p::ps => fun c s =>
-   let s := longestMatchStep left? startSize startPos p.fn c s;
-   longestMatchFnAux ps c s
+def longestMatchFnAux (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) : Nat → List (Parser × Nat) → ParserFn
+| prevPrio, []    => fun _ s => longestMatchMkResult startSize s
+| prevPrio, p::ps => fun c s =>
+   let (s, prevPrio) := longestMatchStep left? startSize startPos prevPrio p.2 p.1.fn c s;
+   longestMatchFnAux prevPrio ps c s
 
-def longestMatchFn (left? : Option Syntax) : List Parser → ParserFn
+def longestMatchFn (left? : Option Syntax) : List (Parser × Nat) → ParserFn
 | []    => fun _ s => s.mkError "longestMatch: empty list"
-| [p]   => runLongestMatchParser left? p.fn
+| [p]   => runLongestMatchParser left? p.1.fn
 | p::ps => fun c s =>
   let startSize := s.stackSize;
   let startPos  := s.pos;
-  let s         := runLongestMatchParser left? p.fn c s;
+  let s         := runLongestMatchParser left? p.1.fn c s;
   if s.hasError then
     let s := s.shrinkStack startSize;
-    longestMatchFnAux left? startSize startPos ps c s
+    longestMatchFnAux left? startSize startPos p.2 ps c s
   else
-    longestMatchFnAux left? startSize startPos ps c s
+    longestMatchFnAux left? startSize startPos p.2 ps c s
 
 def anyOfFn : List Parser → ParserFn
 | [],    _, s => s.mkError "anyOf: empty list"
@@ -1393,10 +1394,10 @@ instance {α : Type} : HasEmptyc (TokenMap α) := ⟨RBMap.empty⟩
 end TokenMap
 
 structure PrattParsingTables :=
-(leadingTable    : TokenMap Parser := {})
-(leadingParsers  : List Parser := []) -- for supporting parsers we cannot obtain first token
-(trailingTable   : TokenMap TrailingParser := {})
-(trailingParsers : List TrailingParser := []) -- for supporting parsers such as function application
+(leadingTable    : TokenMap (Parser × Nat) := {})
+(leadingParsers  : List (Parser × Nat) := []) -- for supporting parsers we cannot obtain first token
+(trailingTable   : TokenMap (Parser × Nat) := {})
+(trailingParsers : List (Parser × Nat) := []) -- for supporting parsers such as function application
 
 instance PrattParsingTables.inhabited : Inhabited PrattParsingTables := ⟨{}⟩
 
@@ -1608,7 +1609,7 @@ fun c s =>
 @[inline] def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
 withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol)
 
-def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List Parser) : ParserFn :=
+def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn :=
 fun c s => longestMatchFn left (ps ++ tables.trailingParsers) c s
 
 private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=

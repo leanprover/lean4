@@ -359,6 +359,7 @@ lean_object* l___regBuiltin_Lean_Delaborator_delabModN___closed__5;
 lean_object* l_Lean_Delaborator_delabMap___lambda__1___closed__4;
 extern lean_object* l_Lean_Elab_Level_elabLevel___main___closed__6;
 lean_object* l_Lean_Delaborator_delabSort___closed__7;
+extern lean_object* l_Lean_Elab_Term_tryCoe___closed__4;
 lean_object* l_Lean_Delaborator_annotateCurPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabModN___closed__3;
 lean_object* l_Lean_Delaborator_HasOrelse___closed__1;
@@ -1163,7 +1164,6 @@ lean_object* l_Lean_Delaborator_delabNot___lambda__1___closed__2;
 lean_object* l_Lean_Delaborator_delabAndM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabOfNat___closed__1;
 lean_object* l_Lean_getPPBinderTypes___boxed(lean_object*);
-extern lean_object* l_Lean_Elab_Term_tryCoe___closed__3;
 lean_object* l_ReaderT_bind___at_Lean_Level_quote___main___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -19633,7 +19633,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Delaborator_getExprKind___closed__5;
-x_2 = l_Lean_Elab_Term_tryCoe___closed__3;
+x_2 = l_Lean_Elab_Term_tryCoe___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

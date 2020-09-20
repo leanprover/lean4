@@ -116,6 +116,7 @@ lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_Formatter_formatterForKin
 lean_object* l_Lean_PrettyPrinter_Formatter_notFollowedBy_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_throwBacktrack___rarg(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_optional_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__9;
 lean_object* l_Lean_PrettyPrinter_Formatter_getStack___boxed(lean_object*);
@@ -252,7 +253,6 @@ lean_object* l_Lean_PrettyPrinter_formatCommand___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_getCur___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__1___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoWs_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Parser_Extension_12__ParserAttribute_add___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___closed__3;
 lean_object* l_Lean_PrettyPrinter_Formatter_withPosition_formatter___closed__1;
 extern lean_object* l_Lean_formatDataValue___closed__2;
@@ -398,6 +398,7 @@ lean_object* l_Lean_Name_components(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbol_formatter___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__1;
+extern lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_ppLine_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_pushTokenCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkCombinatorFormatterAttribute___closed__2;
@@ -3444,7 +3445,7 @@ lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Parser_Extension_12__ParserAttribute_add___closed__1;
+x_1 = l_Lean_MetavarContext_MkBinding_mkBinding___closed__1;
 x_2 = l_ReaderT_Monad___rarg(x_1);
 return x_2;
 }
@@ -3454,12 +3455,21 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__1;
+x_2 = l_ReaderT_Monad___rarg(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__2;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__1___boxed), 7, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__3() {
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -3467,12 +3477,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_MonadTraverser_getCur___at_Lean_P
 return x_1;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4() {
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__3;
-x_2 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__2;
+x_1 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4;
+x_2 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__3;
 x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__4___rarg), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -3560,7 +3570,7 @@ else
 lean_object* x_29; lean_object* x_30; 
 lean_dec(x_10);
 lean_dec(x_1);
-x_29 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4;
+x_29 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__5;
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
@@ -7480,6 +7490,8 @@ l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__3 = _init_l_Le
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__3);
 l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4 = _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__4);
+l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__5 = _init_l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__5();
+lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___closed__5);
 l_Lean_PrettyPrinter_Formatter_checkKind___lambda__1___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_checkKind___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_checkKind___lambda__1___closed__1);
 l_Lean_PrettyPrinter_Formatter_checkKind___lambda__1___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_checkKind___lambda__1___closed__2();

@@ -112,7 +112,6 @@ uint8_t l_List_foldr___main___at_Lean_Elab_Term_StructInst_Struct_allDefault___m
 lean_object* l_Lean_Elab_Term_StructInst_FieldLHS_inhabited___closed__1;
 lean_object* l___private_Lean_Elab_StructInst_16__mkSubstructSource___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_declareBuiltinParser___closed__3;
 lean_object* l_List_mapM___main___at___private_Lean_Elab_StructInst_10__expandParentFields___spec__2___closed__5;
 lean_object* l_List_foldlM___main___at___private_Lean_Elab_StructInst_12__mkFieldMap___spec__10___closed__2;
 lean_object* l_Lean_Elab_Term_StructInst_Struct_ref(lean_object*);
@@ -585,6 +584,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_4__elabModifyOp___closed__27;
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
+extern lean_object* l_Lean_Elab_Term_tryCoe___closed__3;
 lean_object* l___private_Lean_Elab_StructInst_13__isSimpleField_x3f(lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_expandStructInstExpectedType(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -13890,7 +13890,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = l_System_FilePath_dirName___closed__1;
 x_4 = l_Lean_mkAtomFrom(x_1, x_3);
 x_5 = l_Lean_mkIdentFrom(x_1, x_2);
-x_6 = l_Lean_Parser_declareBuiltinParser___closed__3;
+x_6 = l_Lean_Elab_Term_tryCoe___closed__3;
 x_7 = lean_array_push(x_6, x_1);
 x_8 = lean_array_push(x_7, x_4);
 x_9 = lean_array_push(x_8, x_5);

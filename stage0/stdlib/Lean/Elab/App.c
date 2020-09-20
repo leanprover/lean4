@@ -330,6 +330,7 @@ extern lean_object* l_Lean_mkAppStx___closed__5;
 lean_object* l_Lean_Elab_Term_elabApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_beq(uint8_t, uint8_t);
 lean_object* l___private_Lean_Elab_App_10__elabAppArgsAux___main___closed__1;
+extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_App_23__elabAppFn___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getParentStructures(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_10__elabAppArgsAux___main___closed__2;
@@ -503,7 +504,6 @@ lean_object* l_Array_forMAux___main___at_Lean_Elab_Term_synthesizeAppInstMVars__
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_27__toMessageList(lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_App_10__elabAppArgsAux___main___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Term_1__hasCDot___main___closed__1;
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_App_10__elabAppArgsAux___main___spec__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Lean_Elab_Term_Arg_inhabited___closed__1() {
 _start:
@@ -36436,7 +36436,7 @@ if (x_51 == 0)
 {
 lean_object* x_52; uint8_t x_53; 
 lean_dec(x_1);
-x_52 = l___private_Lean_Elab_Term_1__hasCDot___main___closed__1;
+x_52 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
 lean_inc(x_13);
 x_53 = l_Lean_Syntax_isOfKind(x_13, x_52);
 if (x_53 == 0)
@@ -36471,7 +36471,7 @@ if (x_62 == 0)
 {
 lean_object* x_63; uint8_t x_64; 
 lean_dec(x_1);
-x_63 = l___private_Lean_Elab_Term_1__hasCDot___main___closed__1;
+x_63 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
 lean_inc(x_13);
 x_64 = l_Lean_Syntax_isOfKind(x_13, x_63);
 if (x_64 == 0)

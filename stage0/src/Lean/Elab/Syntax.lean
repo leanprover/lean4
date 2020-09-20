@@ -386,8 +386,8 @@ let rhs := antiquote vars rhs;
 patArgs ← items.mapM expandNotationItemIntoPattern;
 let pat := Syntax.node kind patArgs;
 match prec? with
-| none      => `(syntax [$(mkIdentFrom ref kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
-| some prec => `(syntax:$prec [$(mkIdentFrom ref kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
+| none      => `(syntax [$(mkIdentFrom ref kind):ident] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
+| some prec => `(syntax:$prec [$(mkIdentFrom ref kind):ident] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
 
 @[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro :=
 fun stx =>
@@ -451,11 +451,11 @@ fun stx => do
   if stx.getArgs.size == 8 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
     let rhs := stx.getArg 7;
-    `(syntax $prec* [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => $rhs)
+    `(syntax $prec* [$(mkIdentFrom stx kind):ident] $stxParts* : $cat macro_rules | `($pat) => $rhs)
   else
     -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
     let rhsBody := stx.getArg 8;
-    `(syntax $prec* [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => `($rhsBody))
+    `(syntax $prec* [$(mkIdentFrom stx kind):ident] $stxParts* : $cat macro_rules | `($pat) => `($rhsBody))
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.syntax;
@@ -494,15 +494,15 @@ fun stx => do
   if expectedTypeSpec.hasArgs then
     if catName == `term then
       let expId := expectedTypeSpec.getArg 1;
-      `(syntax $prec* [$kindId] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx expectedType? => match_syntax stx with | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs | _ => throwUnsupportedSyntax)
+      `(syntax $prec* [$kindId:ident] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx expectedType? => match_syntax stx with | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs | _ => throwUnsupportedSyntax)
     else
       Macro.throwError expectedTypeSpec ("syntax category '" ++ toString catName ++ "' does not support expected type specification")
   else if catName == `term then
-    `(syntax $prec* [$kindId] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx _ => match_syntax stx with | `($pat) => $rhs | _ => throwUnsupportedSyntax)
+    `(syntax $prec* [$kindId:ident] $stxParts* : $cat @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab := fun stx _ => match_syntax stx with | `($pat) => $rhs | _ => throwUnsupportedSyntax)
   else if catName == `command then
-    `(syntax $prec* [$kindId] $stxParts* : $cat @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab := fun stx => match_syntax stx with | `($pat) => $rhs | _ => throwUnsupportedSyntax)
+    `(syntax $prec* [$kindId:ident] $stxParts* : $cat @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab := fun stx => match_syntax stx with | `($pat) => $rhs | _ => throwUnsupportedSyntax)
   else if catName == `tactic then
-    `(syntax $prec* [$kindId] $stxParts* : $cat @[tactic $kindId:ident] def elabFn : Lean.Elab.Tactic.Tactic := fun stx => match_syntax stx with | `(tactic|$pat) => $rhs | _ => throwUnsupportedSyntax)
+    `(syntax $prec* [$kindId:ident] $stxParts* : $cat @[tactic $kindId:ident] def elabFn : Lean.Elab.Tactic.Tactic := fun stx => match_syntax stx with | `(tactic|$pat) => $rhs | _ => throwUnsupportedSyntax)
   else
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
     -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.

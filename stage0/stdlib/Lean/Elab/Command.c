@@ -207,7 +207,6 @@ lean_object* l_Lean_Elab_Command_setOption___closed__1;
 lean_object* l_Lean_Elab_Command_getLevelNames___rarg___boxed(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabUniverses(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabCheckFailure___closed__1;
-extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__13;
 lean_object* l_Lean_Elab_Command_elabEnd___closed__4;
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Elab_Command_elabCommand___main___spec__6(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabOpenOnly___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -469,6 +468,7 @@ extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_Elab_Command_Lean_MonadRecDepth___closed__4;
 extern lean_object* l_Lean_Syntax_inhabited;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabCheck___closed__1;
+extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__17;
 lean_object* l___private_Lean_Elab_Command_10__addScopes___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabCheckFailure___closed__3;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
@@ -18289,7 +18289,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__13;
+x_2 = l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__17;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -18343,7 +18343,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__13;
+x_2 = l___private_Lean_Elab_Quotation_8__letBindRhss___main___closed__17;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

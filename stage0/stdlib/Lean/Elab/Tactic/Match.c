@@ -47,6 +47,7 @@ extern lean_object* l___private_Lean_Elab_Binders_11__expandFunBindersAux___main
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_18__mapSepElemsMAux___main___at___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___lambda__1___closed__3;
+extern lean_object* l_Lean_Elab_Term_expandCDot_x3f___closed__6;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1;
@@ -81,7 +82,6 @@ lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___regBuiltin_Lean_Elab_Term_elabSyntheticHole___closed__2;
 lean_object* l___private_Lean_Elab_Util_4__expandMacro_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalMatch___closed__1;
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__17;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_18__mapSepElemsMAux___main___at___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
@@ -280,7 +280,7 @@ lean_ctor_set(x_25, 1, x_24);
 x_26 = l_Lean_Syntax_getArg(x_25, x_14);
 x_27 = l___private_Lean_Elab_Tactic_Match_1__mkAuxiliaryMatchTermAux___lambda__1___closed__4;
 x_28 = lean_array_push(x_27, x_26);
-x_29 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__17;
+x_29 = l_Lean_Elab_Term_expandCDot_x3f___closed__6;
 x_30 = lean_array_push(x_28, x_29);
 x_31 = lean_array_push(x_30, x_9);
 x_32 = l_Lean_Elab_Tactic_evalCase___closed__5;

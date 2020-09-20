@@ -32,12 +32,17 @@ let args := stx.getArg 1;
 let args := if args.getNumArgs == 0 then Syntax.missing else args;
 pure { name := attrName, args := args }
 
+-- sepBy1 attrInstance ", "
 def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
-(stx.getArg 1).foldSepArgsM
+stx.foldSepArgsM
   (fun stx attrs => do
     attr ← elabAttr stx;
     pure $ attrs.push attr)
   #[]
+
+-- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
+def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
+elabAttrs (stx.getArg 1)
 
 def applyAttributesImp (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CoreM Unit :=
 attrs.forM $ fun attr => do

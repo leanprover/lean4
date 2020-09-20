@@ -32,7 +32,7 @@ structure LetRecView :=
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
 decls ← (letRec.getArg 1).getArgs.getSepElems.mapM fun attrDeclStx => do {
   let attrStx := attrDeclStx.getArg 0;
-  attrs ← elabAttrs attrStx;
+  attrs ← elabDeclAttrs attrStx;
   let decl    := (attrDeclStx.getArg 1).getArg 0;
   if decl.isOfKind `Lean.Parser.Term.letPatDecl then
     throwErrorAt decl "patterns are not allowed in 'let rec' expressions"

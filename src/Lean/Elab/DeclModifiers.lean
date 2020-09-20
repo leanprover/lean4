@@ -97,7 +97,7 @@ visibility ← match visibilityStx.getOptional? with
     else throwErrorAt v "unexpected visibility modifier";
 attrs ← match attrsStx.getOptional? with
   | none       => pure #[]
-  | some attrs => elabAttrs attrs;
+  | some attrs => elabDeclAttrs attrs;
 pure {
   docString       := docString,
   visibility      := visibility,

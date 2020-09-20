@@ -263,6 +263,16 @@ fun stx => do
   else
     throwError "invalid mutual block"
 
+
+/- parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "]" >> many1 ident -/
+@[builtinCommandElab «attribute»] def elabAttr : CommandElab :=
+fun stx => do
+  let isLocal := !(stx.getArg 0).isNone;
+  attrs ← elabAttrs (stx.getArg 3);
+  let idents := (stx.getArg 5).getArgs;
+  idents.forM fun ident => withRef ident do
+    throwError "WIP"
+
 end Command
 end Elab
 end Lean

@@ -1169,6 +1169,13 @@ candidates.foldlM
     pure $ (const, projs) :: result)
   []
 
+/-
+  Given a name `n`, return a list of possible interpretations.
+  Each interpretation is a pair `(declName, fieldList)`, where `declName`
+  is the name of a declaration in the current environment, and `fieldList` are
+  (potential) field names.
+  The pair is needed because in Lean `.` may be part of a qualified name or
+  a field (aka dot-notation). -/
 def resolveGlobalName (n : Name) : TermElabM (List (Name × List String)) := do
 env ← getEnv;
 currNamespace ← getCurrNamespace;

@@ -84,12 +84,14 @@ partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleP
       let stx := s.stxStack.back;
       (stx, { pos := s.pos }, messages)
     | some errorMsg =>
+      -- advance at least one token to prevent infinite loops
+      let pos := if s.pos == pos then consumeInput c s.pos else s.pos;
       if recovering then
-        parseCommand { pos := consumeInput c s.pos, recovering := true } messages
+        parseCommand { pos := pos, recovering := true } messages
       else
         let msg      := mkErrorMessage c s.pos (toString errorMsg);
         let messages := messages.add msg;
-        parseCommand { pos := consumeInput c s.pos, recovering := true } messages
+        parseCommand { pos := pos, recovering := true } messages
 
 private partial def testModuleParserAux (env : Environment) (inputCtx : InputContext) (displayStx : Bool) : ModuleParserState → MessageLog → IO Bool
 | s, messages =>

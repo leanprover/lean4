@@ -519,7 +519,7 @@ partial def importModulesAux : List Import → (NameSet × Array ModuleData × A
     let regions := regions.push region;
     importModulesAux is (s, mods, regions)
 
-private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
+private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionEntry
 | i =>
   if i < mod.entries.size then
     let curr := mod.entries.get! i;

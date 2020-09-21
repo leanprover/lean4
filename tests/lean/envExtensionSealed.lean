@@ -12,6 +12,6 @@ def ex2 : CoreM Nat := do
 env ← getEnv;
 pure $ { privateExt with idx := 3 }.getState env  -- Error
 
-#eval ex2
+-- #eval ex2
 
 end Lean

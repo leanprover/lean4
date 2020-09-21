@@ -3,4 +3,3 @@ envExtensionSealed.lean:13:7: error: invalid structure notation source, not a st
   privateExt
 which has type
   EnvExtensionInterfaceImp.ext Nat
-envExtensionSealed.lean:15:0: error: compiler failed to infer low level type, unknown declaration 'Lean.ex2'

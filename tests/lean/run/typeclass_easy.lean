@@ -1,5 +1,4 @@
 new_frontend
-set_option ppOld false
 
 #synth HasToString (Nat × (Nat × Bool))
 

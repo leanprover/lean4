@@ -52,12 +52,6 @@ namespace MessageData
 
 instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
 
-@[init] def stxMaxDepthOption : IO Unit :=
-registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "maximum depth when displaying syntax objects in messages" }
-
-def getSyntaxMaxDepth (opts : Options) : Nat :=
-opts.getNat `syntaxMaxDepth 2
-
 private def sanitizeNames (ctx : MessageDataContext) : MessageDataContext :=
 { ctx with lctx := ctx.lctx.sanitizeNames ctx.opts }
 
@@ -69,7 +63,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
 | _,    _,         ofFormat fmt             => pure fmt
 | _,    _,         ofLevel u                => pure $ fmt u
 | _,    _,         ofName n                 => pure $ fmt n
-| _,    some ctx,  ofSyntax s               => pure $ s.formatStx (getSyntaxMaxDepth ctx.opts)
+| nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) s  -- HACK: might not be a term
 | _,    none,      ofSyntax s               => pure $ s.formatStx
 | _,    none,      ofExpr e                 => pure $ format (toString e)
 | nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e

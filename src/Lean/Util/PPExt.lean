@@ -9,6 +9,16 @@ import Lean.Data.OpenDecl
 
 namespace Lean
 
+@[init] private def registerOptions : IO Unit := do
+registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "maximum depth when displaying syntax objects in messages" };
+registerOption `pp.raw { defValue := false, group := "pp", descr := "(pretty printer) print raw expression/syntax tree" }
+
+def getSyntaxMaxDepth (opts : Options) : Nat :=
+opts.getNat `syntaxMaxDepth 2
+
+def getPPRaw (opts : Options) : Bool :=
+opts.getBool `pp.raw false
+
 structure PPContext :=
 (env           : Environment)
 (mctx          : MetavarContext := {})
@@ -17,30 +27,34 @@ structure PPContext :=
 (currNamespace : Name := Name.anonymous)
 (openDecls     : List OpenDecl := [])
 
-abbrev PPExprFn := PPContext → Expr → IO Format
+structure PPFns :=
+(ppExpr : PPContext → Expr → IO Format)
+(ppTerm : PPContext → Syntax → IO Format)
 
-/- TODO: delete after we implement the new pretty printer in Lean -/
-@[extern "lean_pp_expr"]
-constant ppOld : Environment → MetavarContext → LocalContext → Options → Expr → Format := arbitrary _
+instance PPFns.inhabited : Inhabited PPFns := ⟨⟨arbitrary _, arbitrary _⟩⟩
 
-def mkPPExprFnRef : IO (IO.Ref PPExprFn) := IO.mkRef (fun ctx e => pure $ ppOld ctx.env ctx.mctx ctx.lctx ctx.opts e)
-@[init mkPPExprFnRef] def ppExprFnRef : IO.Ref PPExprFn := arbitrary _
+def mkPPFnsRef : IO (IO.Ref PPFns) := IO.mkRef {
+  ppExpr := fun ctx e   => pure $ format (toString e),
+  ppTerm := fun ctx stx => pure $ stx.formatStx (getSyntaxMaxDepth ctx.opts),
+}
+@[init mkPPFnsRef] def ppFnsRef : IO.Ref PPFns := arbitrary _
 
-def mkPPExprFnExtension : IO (EnvExtension PPExprFn) :=
-registerEnvExtension $ ppExprFnRef.get
+def mkPPExt : IO (EnvExtension PPFns) :=
+registerEnvExtension $ ppFnsRef.get
 
-@[init mkPPExprFnExtension]
-constant ppExprExt : EnvExtension PPExprFn := arbitrary _
-
+@[init mkPPExt]
+constant ppExt : EnvExtension PPFns := arbitrary _
 def ppExpr (ctx : PPContext) (e : Expr) : IO Format :=
 let e := (ctx.mctx.instantiateMVars e).1;
-if ctx.opts.getBool `ppOld true then
-  (ppExprExt.getState ctx.env) ctx e
-else
+if getPPRaw ctx.opts then
   pure $ format (toString e)
+else
+  (ppExt.getState ctx.env).ppExpr ctx e
 
--- TODO: remove after we remove ppOld
-@[init] def ppOldOption : IO Unit :=
-registerOption `ppOld { defValue := true, group := "", descr := "disable/enable old pretty printer" }
+def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
+if getPPRaw ctx.opts then
+  pure $ stx.formatStx (getSyntaxMaxDepth ctx.opts)
+else
+  (ppExt.getState ctx.env).ppTerm ctx stx
 
 end Lean

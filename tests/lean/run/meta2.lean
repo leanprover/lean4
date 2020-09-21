@@ -421,10 +421,7 @@ checkM $ do { let b ← isExprMVarAssigned $ m1.mvarId!; pure (!b) };
 checkM $ isExprMVarAssigned $ m3.mvarId!;
 pure ()
 
-section
-set_option ppOld false
 #eval tst26
-end
 
 section
 set_option trace.Meta.isDefEq.step true

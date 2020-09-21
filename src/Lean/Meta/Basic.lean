@@ -134,7 +134,7 @@ instance : Ref MetaM :=
 (x.run ctx).run s
 
 @[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
-Prod.fst <$> x.run
+Prod.fst <$> x.run ctx s
 
 @[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
 ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore;

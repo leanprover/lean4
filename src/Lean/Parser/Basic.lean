@@ -713,14 +713,14 @@ def hexDigitFn : ParserFn
     if curr.isDigit || ('a' <= curr && curr <= 'f') || ('A' <= curr && curr <= 'F') then s.setPos i
     else s.mkUnexpectedError "invalid hexadecimal numeral"
 
-def quotedCharFn : ParserFn
+@[specialize] def quotedCharCoreFn (isQuotable : Char → Bool) : ParserFn
 | c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s.mkEOIError
   else
     let curr := input.get i;
-    if curr == '\\' || curr == '\"' || curr == '\'' || curr == 'r' || curr == 'n' || curr == 't' then
+    if isQuotable curr then
       s.next input i
     else if curr == 'x' then
       andthenFn hexDigitFn hexDigitFn c (s.next input i)
@@ -728,6 +728,12 @@ def quotedCharFn : ParserFn
       andthenFn hexDigitFn (andthenFn hexDigitFn (andthenFn hexDigitFn hexDigitFn)) c (s.next input i)
     else
       s.mkUnexpectedError "invalid escape sequence"
+
+def isQuotableCharDefault (c : Char) : Bool :=
+c == '\\' || c == '\"' || c == '\'' || c == 'r' || c == 'n' || c == 't'
+
+def quotedCharFn : ParserFn :=
+quotedCharCoreFn isQuotableCharDefault
 
 /-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : ParserFn :=

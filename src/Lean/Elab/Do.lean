@@ -426,6 +426,10 @@ fun stx expectedType? => do
   -- dbgTrace ("result: " ++ toString result);
   pure result
 
+@[builtinTermElab liftMethod] def elabLiftMethod : TermElab :=
+fun stx _ =>
+  throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
+
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.do;
 pure ()

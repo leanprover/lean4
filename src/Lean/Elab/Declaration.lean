@@ -66,7 +66,7 @@ let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 scopeLevelNames ← getLevelNames;
 ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers;
 runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
-  applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
+  Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   type ← Term.elabType typeStx;
   Term.synthesizeSyntheticMVarsNoPostponing;
   type ← instantiateMVars type;
@@ -85,8 +85,8 @@ runTermElabM declName $ fun vars => Term.withLevelNames allUserLevelNames $ Term
     };
     Term.ensureNoUnassignedMVars decl;
     addDecl decl;
-    applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-    applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
+    Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+    Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
@@ -271,7 +271,7 @@ fun stx => do
   let idents := (stx.getArg 5).getArgs;
   idents.forM fun ident => withRef ident $ liftTermElabM none do
     declName ← Term.resolveGlobalConstNoOverload ident.getId;
-    applyAttributes declName attrs persistent
+    Term.applyAttributes declName attrs persistent
 
 end Command
 end Elab

@@ -440,6 +440,32 @@ pure $ mkIdentFrom ref n
 def mkFreshInstanceName : TermElabM Name :=
 withFreshMacroScope $ MonadQuotation.addMacroScope `inst
 
+private def liftAttrM {α} (x : AttrM α) : TermElabM α := do
+ctx ← read;
+liftCoreM $ x.run { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls }
+
+private def applyAttributesCore (declName : Name) (attrs : Array Attribute)
+    (applicationTime? : Option AttributeApplicationTime) (persistent : Bool) : TermElabM Unit :=
+attrs.forM $ fun attr => do
+ env ← getEnv;
+ match getAttributeImpl env attr.name with
+ | Except.error errMsg => throwError errMsg
+ | Except.ok attrImpl  =>
+   match applicationTime? with
+   | none => liftAttrM $ attrImpl.add declName attr.args persistent
+   | some applicationTime =>
+     when (applicationTime ==  attrImpl.applicationTime) $
+       liftAttrM $ attrImpl.add declName attr.args persistent
+
+/-- Apply given attributes **at** a given application time -/
+def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) (persistent : Bool := true) : TermElabM Unit :=
+applyAttributesCore declName attrs applicationTime persistent
+
+def applyAttributes (declName : Name) (attrs : Array Attribute) (persistent : Bool) : TermElabM Unit :=
+applyAttributesCore declName attrs none persistent
+
+/- Elaboration functions -/
+
 private partial def hasCDot : Syntax → Bool
 | Syntax.node k args =>
   if k == `Lean.Parser.Term.paren then false

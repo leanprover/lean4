@@ -44,24 +44,5 @@ stx.foldSepArgsM
 def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
 elabAttrs (stx.getArg 1)
 
-def applyAttributesImp (declName : Name) (attrs : Array Attribute) (applicationTime? : Option AttributeApplicationTime) (persistent : Bool) : CoreM Unit :=
-attrs.forM $ fun attr => do
- env ← getEnv;
- match getAttributeImpl env attr.name with
- | Except.error errMsg => throwError errMsg
- | Except.ok attrImpl  =>
-   match applicationTime? with
-   | none => attrImpl.add declName attr.args persistent
-   | some applicationTime =>
-     when (applicationTime ==  attrImpl.applicationTime) do
-       attrImpl.add declName attr.args persistent
-
-/-- Apply given attributes **at** a given application time -/
-def applyAttributesAt {m} [MonadLiftT CoreM m] (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) (persistent : Bool := true) : m Unit :=
-liftM $ applyAttributesImp declName attrs applicationTime persistent
-
-def applyAttributes {m} [MonadLiftT CoreM m] (declName : Name) (attrs : Array Attribute) (persistent : Bool) : m Unit :=
-liftM $ applyAttributesImp declName attrs none persistent
-
 end Elab
 end Lean

@@ -486,7 +486,7 @@ withFields view.fields 0 fieldInfos fun fieldInfos => do
         pure (info.isSubobject && decl.binderInfo.isInstImplicit)
       };
       let projInstances := instParents.toList.map fun info => info.declName;
-      applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+      Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
       projInstances.forM addGlobalInstance;
       lctx ← getLCtx;
       let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome;

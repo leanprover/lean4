@@ -20,13 +20,19 @@ def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplica
 
 instance AttributeApplicationTime.hasBeq : HasBeq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
 
+structure Attr.Context :=
+(currNamespace : Name)
+(openDecls     : List OpenDecl)
+
+abbrev AttrM := ReaderT Attr.Context CoreM
+
 -- TODO: after we delete the old frontend, we should use `EIO` with a richer exception kind at AttributeImpl.
 -- We must perform a similar modification at `PersistentEnvExtension`
 
 structure AttributeImpl :=
 (name : Name)
 (descr : String)
-(add (decl : Name) (args : Syntax) (persistent : Bool) : CoreM Unit)
+(add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit)
 /-
 (addScoped (env : Environment) (decl : Name) (args : Syntax) : IO Environment
            := throw (IO.userError ("attribute '" ++ toString name ++ "' does not support scopes")))
@@ -187,11 +193,13 @@ namespace Environment
    It throws an error when
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support `persistent == false`.
-   - `args` is not valid for `attr`. -/
+   - `args` is not valid for `attr`.
+
+   TODO: delete after we remove old frontend. -/
 @[export lean_add_attribute]
-def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment := do
+def addAttributeOld (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment := do
 attr ← IO.ofExcept $ getAttributeImpl env attrName;
-(_, s) ← (attr.add decl args persistent).toIO {} { env := env };
+(_, s) ← ((attr.add decl args persistent).run { currNamespace := Name.anonymous, openDecls := [] }).toIO {} { env := env };
 pure s.env
 
 /-
@@ -251,6 +259,12 @@ pure env
 
 end Environment
 
+def addAttribute (decl : Name) (attrName : Name) (args : Syntax) (persistent : Bool := true) : AttrM Unit := do
+env ← getEnv;
+attr ← ofExcept $ getAttributeImpl env attrName;
+attr.add decl args persistent
+
+
 /--
   Tag attributes are simple and efficient. They are useful for marking declarations in the modules where
   they were defined.
@@ -263,7 +277,7 @@ structure TagAttribute :=
 (attr : AttributeImpl)
 (ext  : PersistentEnvExtension Name Name NameSet)
 
-def registerTagAttribute (name : Name) (descr : String) (validate : Name → CoreM Unit := fun _ => pure ()) : IO TagAttribute := do
+def registerTagAttribute (name : Name) (descr : String) (validate : Name → AttrM Unit := fun _ => pure ()) : IO TagAttribute := do
 ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
   name            := name,
   mkInitial       := pure {},
@@ -312,8 +326,8 @@ structure ParametricAttribute (α : Type) :=
 (ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
 def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
-    (getParam : Name → Syntax → CoreM α)
-    (afterSet : Name → α → CoreM Unit := fun env _ _ => pure ())
+    (getParam : Name → Syntax → AttrM α)
+    (afterSet : Name → α → AttrM Unit := fun env _ _ => pure ())
     (appTime := AttributeApplicationTime.afterTypeChecking)
     : IO (ParametricAttribute α) := do
 ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
@@ -374,7 +388,7 @@ structure EnumAttributes (α : Type) :=
 (ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
 def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
-    (validate : Name → α → CoreM Unit := fun _ _ => pure ())
+    (validate : Name → α → AttrM Unit := fun _ _ => pure ())
     (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO (EnumAttributes α) := do
 ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := extName,

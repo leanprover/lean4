@@ -481,7 +481,7 @@ withRef view0.ref $ Term.withLevelNames allUserLevelNames do
         addDecl decl;
         mkAuxConstructions views;
         -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
-        views.forM fun view => applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
+        views.forM fun view => Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
 
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
 let view0 := views.get! 0;

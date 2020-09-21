@@ -21,7 +21,7 @@ structure Context (α : Type) :=
 (varName : Name)
 (runtimeAttr : KeyedDeclsAttribute α)
 (combinatorAttr : CombinatorAttribute)
-(interpretParserDescr : ParserDescr → CoreM α)
+(interpretParserDescr : ParserDescr → AttrM α)
 
 def Context.tyName {α} (ctx : Context α) : Name := ctx.runtimeAttr.defn.valueTypeName
 
@@ -96,22 +96,21 @@ end
 open Core
 
 /-- Compile the given declaration into a `[(builtin)runtimeAttr declName]` -/
-def compileParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) : CoreM Unit := do
+def compileParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) : AttrM Unit := do
 -- This will also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
 -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
 -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
 -- call them at compile time but only reference them).
-(Expr.const c' _ _) ← (compileParserBody ctx (mkConst declName)).run'
+(Expr.const c' _ _) ← liftM $ (compileParserBody ctx (mkConst declName)).run'
   | unreachable!;
 -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
 -- using `parser!` or `syntax`.
 let kind := declName;
-env ← getEnv;
-liftIO (env.addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runtimeAttr.defn.name) (mkNullNode #[mkIdent kind])) >>= setEnv
-  -- When called from `interpretParserDescr`, `declName` might not be a tagged parser, so ignore "not a valid syntax kind" failures
-  <|> pure ()
+addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runtimeAttr.defn.name) (mkNullNode #[mkIdent kind])
+-- When called from `interpretParserDescr`, `declName` might not be a tagged parser, so ignore "not a valid syntax kind" failures
+<|> pure ()
 
-unsafe def interpretParser {α} (ctx : Context α) (constName : Name) : CoreM α := do
+unsafe def interpretParser {α} (ctx : Context α) (constName : Name) : AttrM α := do
 info ← getConstInfo constName;
 env ← getEnv;
 if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then

@@ -160,7 +160,7 @@ lean_object* in; lean_object* res;";
   else
     emitLn "lean_initialize_runtime_module();";
   modName ← getModName;
-  emitLn ("res = initialize_" ++ (modName.mangle "") ++ "(lean_io_mk_world());");
+  emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(lean_io_mk_world());");
   emitLns ["lean_io_mark_end_initialization();",
            "if (lean_io_result_is_ok(res)) {",
            "lean_dec_ref(res);",
@@ -691,16 +691,16 @@ if isIOUnitInitFn env n then do {
 def emitInitFn : M Unit := do
 env ← getEnv;
 modName ← getModName;
-env.imports.forM $ fun imp => emitLn ("lean_object* initialize_" ++ imp.module.mangle "" ++ "(lean_object*);");
+env.imports.forM $ fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(lean_object*);");
 emitLns [
   "static bool _G_initialized = false;",
-  "lean_object* initialize_" ++ modName.mangle "" ++ "(lean_object* w) {",
+  "lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(lean_object* w) {",
   "lean_object * res;",
   "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
   "_G_initialized = true;"
 ];
 env.imports.forM $ fun imp => emitLns [
-  "res = initialize_" ++ imp.module.mangle "" ++ "(lean_io_mk_world());",
+  "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(lean_io_mk_world());",
   "if (lean_io_result_is_error(res)) return res;",
   "lean_dec_ref(res);"];
 let decls := getDecls env;

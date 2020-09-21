@@ -47,4 +47,8 @@ private def Name.mangleAux : Name → String
 def Name.mangle (n : Name) (pre : String := "l_") : String :=
 pre ++ Name.mangleAux n
 
+@[export lean_mk_module_initialization_function_name]
+def mkModuleInitializationFunctionName (moduleName : Name) : String :=
+"initialize_" ++ moduleName.mangle ""
+
 end Lean

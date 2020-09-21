@@ -264,8 +264,6 @@ es.foldlM
        | ParserExtensionOleanEntry.parser catName declName prio => do
          p ← IO.ofExcept $ mkParserOfConstant env s.categories declName;
          categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2 prio;
-         -- discard result env; all environment side effects should already have happened when the parser was declared initially
-         _ ← (runParserAttributeHooks catName declName /- builtin -/ false).toIO {} { env := env };
          pure { s with categories := categories })
       s)
   s

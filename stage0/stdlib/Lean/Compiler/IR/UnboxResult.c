@@ -17,8 +17,9 @@ lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr(lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_TagAttribute_Inhabited___closed__1;
 lean_object* l_Lean_IR_UnboxResult_unboxAttr;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__2;
@@ -33,7 +34,6 @@ lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1;
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__3;
-extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__2;
 lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1() {
 _start:
@@ -142,7 +142,7 @@ x_15 = lean_ctor_get(x_5, 1);
 lean_inc(x_15);
 lean_dec(x_5);
 x_16 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
-x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_16, x_2, x_3, x_15);
+x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_16, x_2, x_3, x_15);
 return x_17;
 }
 }
@@ -154,7 +154,7 @@ x_18 = lean_ctor_get(x_5, 1);
 lean_inc(x_18);
 lean_dec(x_5);
 x_19 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__3;
-x_20 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__6___rarg(x_19, x_2, x_3, x_18);
+x_20 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_19, x_2, x_3, x_18);
 return x_20;
 }
 }

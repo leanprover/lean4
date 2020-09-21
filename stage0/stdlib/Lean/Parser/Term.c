@@ -1975,7 +1975,6 @@ lean_object* l_Lean_Parser_Term_have___closed__6;
 lean_object* l_Lean_Parser_Term_andthen___closed__4;
 lean_object* l_Lean_Parser_Term_assert_formatter___closed__4;
 lean_object* l_Lean_Parser_Term_mod___closed__3;
-extern lean_object* l___private_Init_LeanInit_15__quoteList___main___rarg___closed__6;
 lean_object* l_Lean_Parser_Term_nativeRefl___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_tparser_x21___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Term_where___elambda__1___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -3647,6 +3646,7 @@ lean_object* l_Lean_Parser_Term_doLet___closed__2;
 lean_object* l_Lean_Parser_Term_anonymousCtor_parenthesizer___closed__2;
 extern lean_object* l_Lean_mkHole___closed__2;
 lean_object* l_Lean_Parser_Term_type___closed__5;
+extern lean_object* l___private_Init_LeanInit_14__quoteList___main___rarg___closed__6;
 lean_object* l_Lean_Parser_Term_attributes_formatter___closed__7;
 lean_object* l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_parser_x21_parenthesizer(lean_object*);
@@ -75805,7 +75805,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l___private_Init_LeanInit_15__quoteList___main___rarg___closed__6;
+x_2 = l___private_Init_LeanInit_14__quoteList___main___rarg___closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

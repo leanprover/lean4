@@ -11,10 +11,10 @@ import Lean.Util.Path
 import Lean.Util.FindExpr
 
 namespace Lean
-/- Opaque environment extension state. It is essentially the Lean version of a C `void *` -/
-def EnvExtensionState : Type := NonScalar
-
-instance EnvExtensionState.inhabited : Inhabited EnvExtensionState := inferInstanceAs (Inhabited NonScalar)
+/- Opaque environment extension state. -/
+constant EnvExtensionStateSpec : PointedType.{0} := arbitrary _
+def EnvExtensionState : Type := EnvExtensionStateSpec.type
+instance EnvExtensionState.inhabited : Inhabited EnvExtensionState := ⟨EnvExtensionStateSpec.val⟩
 
 def ModuleIdx := Nat
 
@@ -138,69 +138,122 @@ compileDecl env opt decl
 
 end Environment
 
-/- "Raw" environment extension. -/
-structure EnvExtension (σ : Type) :=
+/- Interface for managing environment extensions. -/
+structure EnvExtensionInterface :=
+(ext              : Type → Type)
+(inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ))
+(registerExt  {σ} (mkInitial : IO σ) : IO (ext σ))
+(setState     {σ} (e : ext σ) (env : Environment) : σ → Environment)
+(modifyState  {σ} (e : ext σ) (env : Environment) : (σ → σ) → Environment)
+(getState     {σ} (e : ext σ) (env : Environment) : σ)
+(mkInitialExtStates : IO (Array EnvExtensionState))
+
+instance EnvExtensionInterface.inhabited : Inhabited EnvExtensionInterface :=
+⟨{ ext                := id,
+   inhabitedExt       := fun _ => id,
+   registerExt        := fun _ mk => mk,
+   setState           := fun _ _ env _ => env,
+   modifyState        := fun _ _ env _ => env,
+   getState           := fun _ ext _ => ext,
+   mkInitialExtStates := pure #[] }⟩
+
+/- Unsafe implementation of `EnvExtensionInterface` -/
+namespace EnvExtensionInterfaceUnsafe
+
+structure Ext (σ : Type) :=
 (idx       : Nat)
 (mkInitial : IO σ)
-(stateInh  : σ)
 
-namespace EnvExtension
-unsafe def setStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
+instance Ext.inhabitedExt {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary _ }⟩
+
+private def mkEnvExtensionsRef : IO (IO.Ref (Array (Ext EnvExtensionState))) := IO.mkRef #[]
+@[init mkEnvExtensionsRef] private constant envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState)) := arbitrary _
+
+unsafe def setState {σ} (ext : Ext σ) (env : Environment) (s : σ) : Environment :=
 { env with extensions := env.extensions.set! ext.idx (unsafeCast s) }
 
-@[implementedBy setStateUnsafe]
-constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := arbitrary _
-
-unsafe def getStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :=
-let s : EnvExtensionState := env.extensions.get! ext.idx;
-unsafeCast s
-
-@[implementedBy getStateUnsafe]
-constant getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ := ext.stateInh
-
-@[inline] unsafe def modifyStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
+@[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (env : Environment) (f : σ → σ) : Environment :=
 { env with
-  extensions := env.extensions.modify ext.idx $ fun s =>
+  extensions := env.extensions.modify ext.idx fun s =>
     let s : σ := unsafeCast s;
     let s : σ := f s;
     unsafeCast s }
 
-@[implementedBy modifyStateUnsafe]
-constant modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := arbitrary _
+unsafe def getState {σ} (ext : Ext σ) (env : Environment) : σ :=
+let s : EnvExtensionState := env.extensions.get! ext.idx;
+unsafeCast s
 
-end EnvExtension
-
-private def mkEnvExtensionsRef : IO (IO.Ref (Array (EnvExtension EnvExtensionState))) :=
-IO.mkRef #[]
-
-@[init mkEnvExtensionsRef]
-private constant envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) := arbitrary _
-
-instance EnvExtension.Inhabited (σ : Type) [Inhabited σ] : Inhabited (EnvExtension σ) :=
-⟨{ idx := 0, stateInh := arbitrary _, mkInitial := arbitrary _ }⟩
-
-unsafe def registerEnvExtensionUnsafe {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) := do
+unsafe def registerExt {σ} (mkInitial : IO σ) : IO (Ext σ) := do
 initializing ← IO.initializing;
 unless initializing $ throw (IO.userError ("failed to register environment, extensions can only be registered during initialization"));
 exts ← envExtensionsRef.get;
 let idx := exts.size;
-let ext : EnvExtension σ := {
+let ext : Ext σ := {
    idx        := idx,
    mkInitial  := mkInitial,
-   stateInh   := arbitrary _
 };
 envExtensionsRef.modify (fun exts => exts.push (unsafeCast ext));
 pure ext
+
+def mkInitialExtStates : IO (Array EnvExtensionState) := do
+exts ← envExtensionsRef.get;
+exts.mapM $ fun ext => ext.mkInitial
+
+unsafe def imp : EnvExtensionInterface :=
+{ ext                := Ext,
+  inhabitedExt       := fun σ _ => ⟨arbitrary _⟩,
+  registerExt        := fun _ => registerExt,
+  setState           := fun _ => setState,
+  modifyState        := fun _ => modifyState,
+  getState           := fun _ => getState,
+  mkInitialExtStates := mkInitialExtStates }
+
+/- Auxiliary code for supporting old frontend. It will be deleted -/
+namespace OldFrontend
+/- It is not safe to use "extract closed term" optimization in the following code because of `unsafeIO`.
+   If `compiler.extract_closed` is set to true, then the compiler will cache the result of
+   `exts ← envExtensionsRef.get` during initialization which is incorrect. -/
+set_option compiler.extract_closed false
+@[export lean_register_extension]
+unsafe def registerCPPExtension (initial : EnvExtensionState) : Option Nat :=
+Except.toOption $ unsafeIO do
+  ext ← registerExt (pure initial);
+  pure ext.idx
+
+@[export lean_set_extension]
+unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : EnvExtensionState) : Option Environment :=
+Except.toOption $ unsafeIO do
+  exts ← envExtensionsRef.get;
+  pure $ setState (exts.get! idx) env s
+
+@[export lean_get_extension]
+unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option EnvExtensionState :=
+Except.toOption $ unsafeIO do
+  exts ← envExtensionsRef.get;
+  pure $ getState (exts.get! idx) env
+
+end OldFrontend
+
+end EnvExtensionInterfaceUnsafe
+
+@[implementedBy EnvExtensionInterfaceUnsafe.imp]
+constant EnvExtensionInterfaceImp : EnvExtensionInterface := arbitrary _
+
+def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
+
+namespace EnvExtension
+instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
+def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := EnvExtensionInterfaceImp.setState ext env s
+def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := EnvExtensionInterfaceImp.modifyState ext env f
+def getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ := EnvExtensionInterfaceImp.getState ext env
+end EnvExtension
 
 /- Environment extensions can only be registered during initialization.
    Reasons:
    1- Our implementation assumes the number of extensions does not change after an environment object is created.
    2- We do not use any synchronization primitive to access `envExtensionsRef`. -/
-@[implementedBy registerEnvExtensionUnsafe]
-constant registerEnvExtension {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) := arbitrary _
-
-private def mkInitialExtensionStates : IO (Array EnvExtensionState) := do
-exts ← envExtensionsRef.get; exts.mapM $ fun ext => ext.mkInitial
+def registerEnvExtension {σ : Type} (mkInitial : IO σ) : IO (EnvExtension σ) := EnvExtensionInterfaceImp.registerExt mkInitial
+private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtensionInterfaceImp.mkInitialExtStates
 
 @[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
@@ -234,24 +287,24 @@ structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
 
    `α` and ‵β` do not coincide for extensions where the data used to update the state contains, for example,
    closures which we currently cannot store in files. -/
-structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) extends EnvExtension (PersistentEnvExtensionState α σ) :=
+structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) :=
+(toEnvExtension  : EnvExtension (PersistentEnvExtensionState α σ))
 (name            : Name)
 (addImportedFn   : Environment → Array (Array α) → IO σ)
 (addEntryFn      : σ → β → σ)
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format)
 
-/- Opaque persistent environment extension entry. It is essentially a C `void *`
-   TODO: mark opaque -/
-def EnvExtensionEntry := NonScalar
-
-instance EnvExtensionEntry.inhabited : Inhabited EnvExtensionEntry := inferInstanceAs (Inhabited NonScalar)
+/- Opaque persistent environment extension entry. -/
+constant EnvExtensionEntrySpec : PointedType.{0} := arbitrary _
+def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
+instance EnvExtensionEntry.inhabited : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
 
 instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
 ⟨{importedEntries := #[], state := arbitrary _ }⟩
 
 instance PersistentEnvExtension.inhabited {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) :=
-⟨{ toEnvExtension := { idx := 0, stateInh := arbitrary _, mkInitial := arbitrary _ },
+⟨{ toEnvExtension := arbitrary _,
    name := arbitrary _,
    addImportedFn := fun _ _ => arbitrary _,
    addEntryFn := fun s _ => s,
@@ -388,30 +441,6 @@ match env.getModuleIdxFor? n with
 
 end TagDeclarationExtension
 
-/- API for creating extensions in C++.
-   This API will eventually be deleted. -/
-def CPPExtensionState := NonScalar
-
-instance CPPExtensionState.inhabited : Inhabited CPPExtensionState := inferInstanceAs (Inhabited NonScalar)
-
-section
-/- It is not safe to use "extract closed term" optimization in the following code because of `unsafeIO`.
-   If `compiler.extract_closed` is set to true, then the compiler will cache the result of
-   `exts ← envExtensionsRef.get` during initialization which is incorrect. -/
-set_option compiler.extract_closed false
-@[export lean_register_extension]
-unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
-(unsafeIO (do ext ← registerEnvExtension (pure initial); pure ext.idx)).toOption
-
-@[export lean_set_extension]
-unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : CPPExtensionState) : Option Environment :=
-(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get! idx).setState env s)).toOption
-
-@[export lean_get_extension]
-unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option CPPExtensionState :=
-(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get! idx).getState env)).toOption
-end
-
 /- Legacy support for Modification objects -/
 
 /- Opaque modification object. It is essentially a C `void *`.
@@ -420,7 +449,7 @@ end
    We will eventually delete this type as soon as we port the remaining Lean 3
    legacy code.
 
-   TODO: mark opaque -/
+   TODO: delete after we remove legacy code -/
 def Modification := NonScalar
 
 instance Modification.inhabited : Inhabited Modification := inferInstanceAs (Inhabited NonScalar)
@@ -519,7 +548,7 @@ partial def importModulesAux : List Import → (NameSet × Array ModuleData × A
     let regions := regions.push region;
     importModulesAux is (s, mods, regions)
 
-private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
+private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionEntry
 | i =>
   if i < mod.entries.size then
     let curr := mod.entries.get! i;

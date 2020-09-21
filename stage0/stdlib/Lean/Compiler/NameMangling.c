@@ -25,12 +25,14 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
+lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
 uint32_t l_Nat_digitChar(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
 uint8_t l_Char_isAlpha(uint32_t);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_String_mangle(lean_object*);
+lean_object* lean_mk_module_initialization_function_name(lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_1__String_mangleAux(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mangle(lean_object*, lean_object*);
@@ -294,6 +296,26 @@ lean_dec(x_3);
 return x_4;
 }
 }
+lean_object* _init_l_Lean_mkModuleInitializationFunctionName___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("initialize_");
+return x_1;
+}
+}
+lean_object* lean_mk_module_initialization_function_name(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = l_String_splitAux___main___closed__1;
+x_3 = lean_name_mangle(x_1, x_2);
+x_4 = l_Lean_mkModuleInitializationFunctionName___closed__1;
+x_5 = lean_string_append(x_4, x_3);
+lean_dec(x_3);
+return x_5;
+}
+}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Name(lean_object*);
 static bool _G_initialized = false;
@@ -313,6 +335,8 @@ l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2 = 
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2);
 l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3 = _init_l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3();
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3);
+l_Lean_mkModuleInitializationFunctionName___closed__1 = _init_l_Lean_mkModuleInitializationFunctionName___closed__1();
+lean_mark_persistent(l_Lean_mkModuleInitializationFunctionName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

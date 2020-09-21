@@ -670,7 +670,7 @@ match stx.isNatLit? with
 | some val => val
 | none     => 0
 
-private def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
+def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
 let c := s.get i;
 let i := s.next i;
 if c == '\\' then pure ('\\', i)
@@ -698,6 +698,8 @@ partial def decodeStrLitAux (s : String) : String.Pos → String → Option Stri
   let i := s.next i;
   if c == '\"' then
     pure acc
+  else if s.atEnd i then
+    none
   else if c == '\\' then do
     (c, i) ← decodeQuotedChar s i;
     decodeStrLitAux i (acc.push c)

@@ -90,16 +90,15 @@ static bool g_initializing = true;
 extern "C" void lean_io_mark_end_initialization() {
     g_initializing = false;
 }
+extern "C" obj_res lean_io_initializing(obj_arg) {
+    return io_result_mk_ok(box(g_initializing));
+}
 
 static obj_res mk_file_not_found_error(b_obj_arg fname) {
     inc(fname);
     int errnum = ENOENT;
     object * details = mk_string("");
     return io_result_mk_error(lean_mk_io_error_no_file_or_directory(fname, errnum, details));
-}
-
-extern "C" obj_res lean_io_initializing(obj_arg) {
-    return io_result_mk_ok(box(g_initializing));
 }
 
 static lean_external_class * g_io_handle_external_class = nullptr;

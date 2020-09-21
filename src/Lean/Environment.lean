@@ -11,10 +11,10 @@ import Lean.Util.Path
 import Lean.Util.FindExpr
 
 namespace Lean
-/- Opaque environment extension state. It is essentially the Lean version of a C `void *` -/
-def EnvExtensionState : Type := NonScalar
-
-instance EnvExtensionState.inhabited : Inhabited EnvExtensionState := inferInstanceAs (Inhabited NonScalar)
+/- Opaque environment extension state. -/
+constant EnvExtensionStateSpec : PointedType.{0} := arbitrary _
+def EnvExtensionState : Type := EnvExtensionStateSpec.type
+instance EnvExtensionState.inhabited : Inhabited EnvExtensionState := ⟨EnvExtensionStateSpec.val⟩
 
 def ModuleIdx := Nat
 
@@ -241,17 +241,16 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) extends Env
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format)
 
-/- Opaque persistent environment extension entry. It is essentially a C `void *`
-   TODO: mark opaque -/
-def EnvExtensionEntry := NonScalar
-
-instance EnvExtensionEntry.inhabited : Inhabited EnvExtensionEntry := inferInstanceAs (Inhabited NonScalar)
+/- Opaque persistent environment extension entry. -/
+constant EnvExtensionEntrySpec : PointedType.{0} := arbitrary _
+def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
+instance EnvExtensionEntry.inhabited : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
 
 instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
 ⟨{importedEntries := #[], state := arbitrary _ }⟩
 
 instance PersistentEnvExtension.inhabited {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) :=
-⟨{ toEnvExtension := { idx := 0, stateInh := arbitrary _, mkInitial := arbitrary _ },
+⟨{ toEnvExtension := arbitrary _,
    name := arbitrary _,
    addImportedFn := fun _ _ => arbitrary _,
    addEntryFn := fun s _ => s,
@@ -389,10 +388,10 @@ match env.getModuleIdxFor? n with
 end TagDeclarationExtension
 
 /- API for creating extensions in C++.
-   This API will eventually be deleted. -/
-def CPPExtensionState := NonScalar
+   TODO: delete after we remove legacy code -/
+def CPPExtensionState := EnvExtensionState
 
-instance CPPExtensionState.inhabited : Inhabited CPPExtensionState := inferInstanceAs (Inhabited NonScalar)
+instance CPPExtensionState.inhabited : Inhabited CPPExtensionState := inferInstanceAs (Inhabited EnvExtensionState)
 
 section
 /- It is not safe to use "extract closed term" optimization in the following code because of `unsafeIO`.
@@ -420,7 +419,7 @@ end
    We will eventually delete this type as soon as we port the remaining Lean 3
    legacy code.
 
-   TODO: mark opaque -/
+   TODO: delete after we remove legacy code -/
 def Modification := NonScalar
 
 instance Modification.inhabited : Inhabited Modification := inferInstanceAs (Inhabited NonScalar)

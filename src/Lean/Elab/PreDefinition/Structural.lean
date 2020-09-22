@@ -148,7 +148,7 @@ private partial def replaceRecApps (argInfo : RecArgInfo) (below : Expr) : Expr 
       args ← args.mapM replaceRecApps;
       pure $ mkAppN f args
     };
-  matcherApp? ← Match.matchMatcherApp? e;
+  matcherApp? ← matchMatcherApp? e;
   match matcherApp? with
   | some matcherApp => do
     trace! `Elab.definition.structural ("found matcher");

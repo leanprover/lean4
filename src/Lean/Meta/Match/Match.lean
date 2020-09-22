@@ -769,9 +769,37 @@ end Extension
 def addMatcherInfo (matcherName : Name) (info : MatcherInfo) : MetaM Unit :=
 modifyEnv fun env => Extension.addMatcherInfo env matcherName info
 
+def mkMatcher (matcherName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
+withLocalDeclD `motive motiveType fun motive => do
+trace! `Meta.Match.debug ("motiveType: " ++ motiveType);
+forallBoundedTelescope motiveType numDiscrs fun majors _ => do
+checkNumPatterns majors lhss;
+let mvarType  := mkAppN motive majors;
+trace! `Meta.Match.debug ("target: " ++ mvarType);
+withAlts motive lhss fun alts minors => do
+  mvar ← mkFreshExprMVar mvarType;
+  let examples := majors.toList.map fun major => Example.var major.fvarId!;
+  (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {};
+  let args := #[motive] ++ majors ++ minors;
+  type ← mkForallFVars args mvarType;
+  val  ← mkLambdaFVars args mvar;
+  trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type);
+  matcher ← mkAuxDefinition matcherName type val;
+  addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := majors.size, numAlts := minors.size };
+  setInlineAttribute matcherName;
+  trace! `Meta.Match.debug ("matcher: " ++ matcher);
+  let unusedAltIdxs : List Nat := lhss.length.fold
+    (fun i r => if s.used.contains i then r else i::r)
+    [];
+  pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
+
+end Match
+
+export Match (MatcherInfo)
+
 def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) := do
 env ← getEnv;
-pure $ Extension.getMatcherInfo? env declName
+pure $ Match.Extension.getMatcherInfo? env declName
 
 def isMatcher (declName : Name) : MetaM Bool := do
 info? ← getMatcherInfo? declName;
@@ -804,36 +832,11 @@ match e.getAppFn with
     }
 | _ => pure none
 
-def mkMatcher (matcherName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
-withLocalDeclD `motive motiveType fun motive => do
-trace! `Meta.Match.debug ("motiveType: " ++ motiveType);
-forallBoundedTelescope motiveType numDiscrs fun majors _ => do
-checkNumPatterns majors lhss;
-let mvarType  := mkAppN motive majors;
-trace! `Meta.Match.debug ("target: " ++ mvarType);
-withAlts motive lhss fun alts minors => do
-  mvar ← mkFreshExprMVar mvarType;
-  let examples := majors.toList.map fun major => Example.var major.fvarId!;
-  (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {};
-  let args := #[motive] ++ majors ++ minors;
-  type ← mkForallFVars args mvarType;
-  val  ← mkLambdaFVars args mvar;
-  trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type);
-  matcher ← mkAuxDefinition matcherName type val;
-  addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := majors.size, numAlts := minors.size };
-  setInlineAttribute matcherName;
-  trace! `Meta.Match.debug ("matcher: " ++ matcher);
-  let unusedAltIdxs : List Nat := lhss.length.fold
-    (fun i r => if s.used.contains i then r else i::r)
-    [];
-  pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
-
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.Match.match;
 registerTraceClass `Meta.Match.debug;
 registerTraceClass `Meta.Match.unify;
 pure ()
 
-end Match
 end Meta
 end Lean

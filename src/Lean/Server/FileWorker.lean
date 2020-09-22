@@ -9,6 +9,7 @@ import Std.Data.RBMap
 
 import Lean.Environment
 import Lean.Server.Snapshots
+import Lean.Server.Utils
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
@@ -187,25 +188,11 @@ fun st => st.docRef.get
 def updatePendingRequests (map : Array (Task (Except IO.Error Unit)) → Array (Task (Except IO.Error Unit))) : ServerM Unit :=
 fun st => st.pendingRequestsRef.modify map
 
-def readLspMessage : ServerM JsonRpc.Message :=
-fun st => monadLift $ readLspMessage st.hIn
-
-def readLspRequestAs (expectedMethod : String) (α : Type*) [HasFromJson α] : ServerM (Request α) :=
-fun st => monadLift $ readLspRequestAs st.hIn expectedMethod α
-
-def readLspNotificationAs (expectedMethod : String) (α : Type*) [HasFromJson α] : ServerM α :=
-fun st => monadLift $ readLspNotificationAs st.hIn expectedMethod α
-
-def writeLspNotification {α : Type*} [HasToJson α] (method : String) (params : α) : ServerM Unit :=
-fun st => monadLift $ writeLspNotification st.hOut method params
-
-def writeLspResponse {α : Type*} [HasToJson α] (id : RequestID) (params : α) : ServerM Unit :=
-fun st => monadLift $ writeLspResponse st.hOut id params
-
 /-- Clears diagnostics for the document version 'version'. -/
 -- TODO(WN): how to clear all diagnostics? Sending version 'none' doesn't seem to work
 def clearDiagnostics (uri : DocumentUri) (version : Nat) : ServerM Unit :=
-writeLspNotification "textDocument/publishDiagnostics"
+fun st =>
+writeLspNotification st.hOut "textDocument/publishDiagnostics"
   { uri := uri,
     version? := version,
     diagnostics := #[] : PublishDiagnosticsParams }
@@ -224,13 +211,6 @@ let doc := p.textDocument;
 let text := doc.text.toFileMap;
 newDoc ← compileDocument h doc.uri doc.version text;
 pure newDoc
-
-private def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
-let start := text.lspPosToUtf8Pos r.start;
-let «end» := text.lspPosToUtf8Pos r.«end»;
-let pre := text.source.extract 0 start;
-let post := text.source.extract «end» text.source.bsize;
-(pre ++ newText ++ post).toFileMap
 
 def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
 let docId := p.textDocument;
@@ -292,8 +272,9 @@ match method with
 
 partial def mainLoop : Unit → ServerM Unit
 | () => do
+  st ← read;
   -- TODO(MH): gracefully terminate when stdin is closed by watchdog?
-  msg ← readLspMessage;
+  msg ← readLspMessage st.hIn;
   -- TODO(MH): updatePendingRequests ...: get rid of all requests that are finished
   match msg with
   | Message.request id method (some params) => do
@@ -304,9 +285,9 @@ partial def mainLoop : Unit → ServerM Unit
     mainLoop ()
   | _ => throw (userError "got invalid JSON-RPC message")
 
-def initAndRunServer (i o : FS.Stream) : IO Unit := do
--- ignore InitializeParams for MWE
-initRequest ← Lsp.readLspRequestAs i "initialize" InitializeParams;
+def initAndRunWorker (i o : FS.Stream) : IO Unit := do
+-- TODO(WN): act in accordance with InitializeParams
+_ ← Lsp.readLspRequestAs i "initialize" InitializeParams;
 docRequest ← Lsp.readLspRequestAs i "textDocument/didOpen" DidOpenTextDocumentParams;
 doc ← openDocument o docRequest.param;
 docRef ← IO.mkRef doc;
@@ -315,3 +296,8 @@ runReader (mainLoop ()) (⟨i, o, docRef, pendingRequestsRef⟩ : ServerContext)
 
 end Server
 end Lean
+
+def main : IO Unit := do
+hIn ← IO.getStdin;
+hOut ← IO.getStdout;
+Lean.Server.initAndRunWorker hIn hOut

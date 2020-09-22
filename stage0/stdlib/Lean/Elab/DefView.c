@@ -100,7 +100,7 @@ lean_object* l_Lean_Elab_Command_mkDefViewOfInstance___closed__3;
 lean_object* l_Lean_Elab_Command_mkDefViewOfInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_isDefLike___closed__7;
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___closed__7;
-extern lean_object* l___private_Lean_Elab_Util_5__regTraceClasses___closed__1;
+extern lean_object* l___private_Lean_Elab_Util_6__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_Command_mkDefViewOfExample___closed__1;
 uint8_t l_Lean_Elab_DefKind_isTheorem(uint8_t x_1) {
 _start:
@@ -1313,7 +1313,7 @@ lean_object* _init_l___private_Lean_Elab_DefView_1__regTraceClasses___closed__2(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Util_5__regTraceClasses___closed__1;
+x_1 = l___private_Lean_Elab_Util_6__regTraceClasses___closed__1;
 x_2 = l___private_Lean_Elab_DefView_1__regTraceClasses___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

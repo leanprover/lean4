@@ -59,25 +59,44 @@ match macroStack with
       msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt))
     msgData
 
-def checkSyntaxNodeKind (env : Environment) (k : Name) : ExceptT String Id Name :=
+def checkSyntaxNodeKind (k : Name) : AttrM Name := do
+env ← getEnv;
 if Parser.isValidSyntaxNodeKind env k then pure k
-else throw "failed"
+else throwError "failed"
 
-def checkSyntaxNodeKindAtNamespaces (env : Environment) (k : Name) : List Name → ExceptT String Id Name
-| []    => throw "failed"
-| n::ns => checkSyntaxNodeKind env (n ++ k) <|> checkSyntaxNodeKindAtNamespaces ns
+namespace OldFrontend -- TODO: delete
 
-def syntaxNodeKindOfAttrParam (env : Environment) (defaultParserNamespace : Name) (arg : Syntax) : ExceptT String Id SyntaxNodeKind :=
+private def checkSyntaxNodeKindAtNamespacesAux (k : Name) : List Name → AttrM Name
+| []    => throwError "failed"
+| n::ns => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespacesAux ns
+
+def checkSyntaxNodeKindAtNamespaces (k : Name) : AttrM Name := do
+env ← getEnv;
+checkSyntaxNodeKindAtNamespacesAux k (Lean.TODELETE.getNamespaces env)
+
+end OldFrontend
+
+def checkSyntaxNodeKindAtNamespacesAux (k : Name) : Name → AttrM Name
+| n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespacesAux p
+| _ => throwError "failed"
+
+def checkSyntaxNodeKindAtNamespaces (k : Name) : AttrM Name := do
+ctx ← read;
+checkSyntaxNodeKindAtNamespacesAux k ctx.currNamespace
+
+def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (arg : Syntax) : AttrM SyntaxNodeKind :=
 match attrParamSyntaxToIdentifier arg with
 | some k =>
-  checkSyntaxNodeKind env k
+  checkSyntaxNodeKind k
   <|>
-  checkSyntaxNodeKindAtNamespaces env k (Lean.TODELETE.getNamespaces env) -- TODO: fix for the new frontend. We do not store the current namespaces and OpenDecls in the environment
+  checkSyntaxNodeKindAtNamespaces k
   <|>
-  checkSyntaxNodeKind env (defaultParserNamespace ++ k)
+  OldFrontend.checkSyntaxNodeKindAtNamespaces k -- TODO: delete the following old frontend support code
   <|>
-  throw ("invalid syntax node kind '" ++ toString k ++ "'")
-| none   => throw ("syntax node kind is missing")
+  checkSyntaxNodeKind (defaultParserNamespace ++ k)
+  <|>
+  throwError ("invalid syntax node kind '" ++ toString k ++ "'")
+| none   => throwError ("syntax node kind is missing")
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (constName : Name) : ExceptT String Id Syntax :=
 env.evalConstCheck Syntax `Lean.Syntax constName
@@ -94,7 +113,7 @@ KeyedDeclsAttribute.init {
   name := attrName,
   descr := kind ++ " elaborator",
   valueTypeName := typeName,
-  evalKey := fun _ env arg => syntaxNodeKindOfAttrParam env parserNamespace arg,
+  evalKey := fun _ arg => syntaxNodeKindOfAttrParam parserNamespace arg,
 } attrDeclName
 
 unsafe def mkMacroAttribute : IO (KeyedDeclsAttribute Macro) :=

@@ -229,7 +229,7 @@ mkParserOfConstantAux env categories constName (compileParserDescr env categorie
 
 structure ParserAttributeHook :=
 /- Called after a parser attribute is applied to a declaration. -/
-(postAdd : forall (catName : Name) (declName : Name) (builtin : Bool), CoreM Unit)
+(postAdd (catName : Name) (declName : Name) (builtin : Bool) : AttrM Unit)
 
 def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef {}
 @[init mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
@@ -237,14 +237,14 @@ def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef 
 def registerParserAttributeHook (hook : ParserAttributeHook) : IO Unit := do
 parserAttributeHooks.modify fun hooks => hook::hooks
 
-def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) : CoreM Unit := do
+def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) : AttrM Unit := do
 hooks ← parserAttributeHooks.get;
 hooks.forM fun hook => hook.postAdd catName declName builtin
 
 @[init]
 def registerRunParserAttributeHooksAttribute : IO Unit :=
 discard $ registerTagAttribute `runParserAttributeHooks "explicitly run hooks normally activated by parser attributes" fun declName =>
-  runParserAttributeHooks `Name.anonymous declName /- builtin -/ true
+  liftM $ runParserAttributeHooks `Name.anonymous declName /- builtin -/ true
 
 private def ParserExtension.addImported (env : Environment) (es : Array (Array ParserExtensionOleanEntry)) : IO ParserExtensionState := do
 s ← ParserExtension.mkInitial;
@@ -385,7 +385,7 @@ match args.getNumArgs with
 | _ => throw "invalid parser attribute, no argument or numeral expected"
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
-    (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
+    (declName : Name) (args : Syntax) (persistent : Bool) : AttrM Unit := do
 prio ← ofExcept (getParserPriority args);
 unless persistent $ throwError ("invalid attribute '" ++ attrName ++ "', must be persistent");
 decl ← getConstInfo declName;
@@ -408,11 +408,11 @@ addBuiltinParserCategory catName leadingIdentAsSymbol;
 registerBuiltinAttribute {
  name            := attrName,
  descr           := "Builtin parser",
- add             := BuiltinParserAttribute.add attrName catName,
+ add             := fun declName args persistent => liftM $ BuiltinParserAttribute.add attrName catName declName args persistent,
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (persistent : Bool) : CoreM Unit := do
+private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (persistent : Bool) : AttrM Unit := do
 prio ← ofExcept (getParserPriority args);
 env ← getEnv;
 let categories := (parserExtension.getState env).categories;
@@ -438,7 +438,7 @@ match mkParserOfConstant env categories declName with
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 { name            := attrName,
   descr           := "parser",
-  add             := ParserAttribute.add attrName catName,
+  add             := fun declName args persistent => liftM $ ParserAttribute.add attrName catName declName args persistent,
   applicationTime := AttributeApplicationTime.afterCompilation }
 
 /- A builtin parser attribute that can be extended by users. -/

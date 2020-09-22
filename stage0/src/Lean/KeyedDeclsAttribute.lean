@@ -32,10 +32,10 @@ structure Def (γ : Type) :=
 (descr         : String)  -- Attribute description
 (valueTypeName : Name)
 -- Convert `Syntax` into a `Key`, the default implementation expects an identifier.
-(evalKey       : Bool → Environment → Syntax → Except String Key :=
-  fun builtin env arg => match attrParamSyntaxToIdentifier arg with
-    | some id => Except.ok id
-    | none    => Except.error "invalid attribute argument, expected identifier")
+(evalKey       : Bool → Syntax → AttrM Key :=
+  fun builtin arg => match attrParamSyntaxToIdentifier arg with
+    | some id => pure id
+    | none    => throwError "invalid attribute argument, expected identifier")
 
 instance Def.inhabited {γ} : Inhabited (Def γ) :=
 ⟨{ builtinName := arbitrary _, name := arbitrary _, descr := arbitrary _, valueTypeName := arbitrary _ }⟩
@@ -133,14 +133,14 @@ registerBuiltinAttribute {
   name  := df.builtinName,
   descr := "(builtin) " ++ df.descr,
   add   := fun declName arg persistent => do {
-    env ← getEnv;
     unless persistent $ throwError ("invalid attribute '" ++ df.builtinName ++ "', must be persistent");
-    key ← ofExcept $ df.evalKey true env arg;
+    key ← df.evalKey true arg;
     decl ← getConstInfo declName;
     match decl.type with
     | Expr.const c _ _ =>
       if c != df.valueTypeName then throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
       else do
+        env ← getEnv;
         env ← liftIO $ declareBuiltin df attrDeclName env key declName;
         setEnv env
     | _ => throwError ("unexpected type at '" ++ toString declName ++ "', `" ++ toString df.valueTypeName ++ "` expected")
@@ -151,8 +151,8 @@ registerBuiltinAttribute {
   name            := df.name,
   descr           := df.descr,
   add             := fun constName arg persistent => do
+    key ← df.evalKey false arg;
     env ← getEnv;
-    key ← ofExcept $ df.evalKey false env arg;
     val ← ofExcept $ env.evalConstCheck γ df.valueTypeName constName;
     setEnv $ ext.addEntry env { key := key, decl := constName, value := val },
   applicationTime := AttributeApplicationTime.afterCompilation

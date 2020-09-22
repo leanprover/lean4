@@ -289,7 +289,7 @@ def mkRecursorAttr : IO (ParametricAttribute Nat) :=
 registerParametricAttribute `recursor "user defined recursor, numerical parameter specifies position of the major premise"
   (fun _ stx => ofExcept $ syntaxToMajorPos stx)
   (fun declName majorPos => do
-    (mkRecursorInfoCore declName (some majorPos)).run';
+    liftM $ (mkRecursorInfoCore declName (some majorPos)).run';
     pure ())
 
 @[init mkRecursorAttr] constant recursorAttribute : ParametricAttribute Nat := arbitrary _

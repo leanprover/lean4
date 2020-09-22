@@ -14,6 +14,8 @@ def f (x : Nat) (g : Nat → Nat) := g x
 
 #check id have True from ⟨⟩; this -- should fail
 
+#check id let x := 10; x
+
 #check 1
 
 #check id (have True from ⟨⟩; this)

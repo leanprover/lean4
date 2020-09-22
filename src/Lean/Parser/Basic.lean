@@ -88,6 +88,7 @@ input.get (input.next pos)
    Note that nothing prevents users from using a higher precedence, but we strongly
    discourage them from doing it. -/
 def maxPrec : Nat := 1024
+def leadPrec := maxPrec - 1
 
 abbrev Token := String
 
@@ -351,6 +352,13 @@ instance hasAndthen : HasAndthen Parser :=
 { info := nodeInfo n p.info,
   fn   := nodeFn n p.fn }
 
+def errorFn (msg : String) : ParserFn :=
+fun _ s => s.mkUnexpectedError msg
+
+@[inline] def error (msg : String) : Parser :=
+{ info := epsilonInfo,
+  fn   := errorFn msg }
+
 /- Succeeds if `c.prec <= prec` -/
 def checkPrecFn (prec : Nat) : ParserFn :=
 fun c s =>
@@ -399,14 +407,14 @@ checkPrec prec >> trailingNodeAux n p
 @[inline] def group (p : Parser) : Parser :=
 node nullKind p
 
-def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : Nat) : ParserState :=
+def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : Nat) (mergeErrors : Bool) : ParserState :=
 match s with
 | ⟨stack, pos, cache, some error2⟩ =>
-  if pos == iniPos then ⟨stack, pos, cache, some (error1.merge error2)⟩
+  if pos == iniPos then ⟨stack, pos, cache, some (if mergeErrors then error1.merge error2 else error2)⟩
   else s
 | other => other
 
-@[inline] def orelseFn (p q : ParserFn) : ParserFn
+@[inline] def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn
 | c, s =>
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
@@ -414,10 +422,13 @@ match s with
   match s.errorMsg with
   | some errorMsg =>
     if s.pos == iniPos then
-      mergeOrElseErrors (q c (s.restore iniSz iniPos)) errorMsg iniPos
+      mergeOrElseErrors (q c (s.restore iniSz iniPos)) errorMsg iniPos mergeErrors
     else
       s
   | none => s
+
+@[inline] def orelseFn (p q : ParserFn) : ParserFn :=
+orelseFnCore p q true
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens ∘ q.collectTokens,

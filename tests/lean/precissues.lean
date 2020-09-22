@@ -35,3 +35,7 @@ macro_rules `(¬ $p) => `(Not $p)
 #check ¬ p = q
 #check id ¬p
 #check Nat → ∀ (a : Nat), a = a
+
+macro "foo!" x:term : term => `($x + 1)
+
+#check id foo! 10 -- error, `foo! x` precedence is leadPrec

@@ -20,3 +20,5 @@ p ∧ ¬q : Prop
 ¬p = q : Prop
 id ¬p : Prop
 (a a_1 : Nat) → a_1 = a_1 : Prop
+id : ?m → ?m
+precissues.lean:41:10: error: expected command, but found term; this error may be due to parsing precedence levels, consider parenthesizing the term

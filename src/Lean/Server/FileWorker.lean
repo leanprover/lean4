@@ -43,8 +43,8 @@ open IO
 open Snapshots
 
 private def sendDiagnosticsCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) (log : MessageLog)
-  : IO Unit :=
-let diagnostics := log.msgs.map (msgToDiagnostic text);
+  : IO Unit := do
+diagnostics ← log.msgs.mapM (msgToDiagnostic text);
 Lsp.writeLspNotification h "textDocument/publishDiagnostics"
   { uri := uri,
     version? := version,

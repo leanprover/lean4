@@ -150,7 +150,7 @@ updateFileWorkers uri fw;
 -- TODO(MH): Sebastian said something about this better being implemented as threads
 -- (due to the long running nature of these tasks) but i did not yet have time to
 -- look into this.
-let _ := Task.mk (forwardFileWorkerPackets fw);
+let _ := Task.pure (forwardFileWorkerPackets fw);
 pure ⟨⟩
 
 -- TODO(MH)

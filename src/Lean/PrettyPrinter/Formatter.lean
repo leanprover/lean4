@@ -289,7 +289,7 @@ let id := id.simpMacroScopes;
 let s := id.toString;
 if id.isAnonymous then
   pushToken "[anonymous]"
-else if LocalContext.isInaccessibleUserName id || id.components.any Name.isNum ||
+else if isInaccessibleUserName id || id.components.any Name.isNum ||
   -- loose bvar
   "#".isPrefixOf s then
   -- not parsable anyway, output as-is

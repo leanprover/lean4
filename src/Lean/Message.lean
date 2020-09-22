@@ -52,9 +52,6 @@ namespace MessageData
 
 instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
 
-private def sanitizeNames (ctx : MessageDataContext) : MessageDataContext :=
-{ ctx with lctx := ctx.lctx.sanitizeNames ctx.opts }
-
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 { env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls }
@@ -69,7 +66,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
 | nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e
 | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
 | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
-| nCtx, _,         withContext ctx d        => formatAux nCtx (some $ sanitizeNames ctx) d
+| nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
 | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
 | nCtx, ctx,       tagged cls d             => do d ← formatAux nCtx ctx d; pure $ Format.sbracket (format cls) ++ " " ++ d
 | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d

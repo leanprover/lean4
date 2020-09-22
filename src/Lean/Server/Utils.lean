@@ -11,5 +11,14 @@ let pre := text.source.extract 0 start;
 let post := text.source.extract «end» text.source.bsize;
 (pre ++ newText ++ post).toFileMap
 
+-- TODO(WN): should these instances be in Core?
+instance Thunk.monad : Monad Thunk :=
+{ pure := @Thunk.pure,
+  bind := @Thunk.bind }
+
+instance Task.monad : Monad Task :=
+{ pure := @Task.pure,
+  bind := @Task.bind }
+
 end Server
 end Lean

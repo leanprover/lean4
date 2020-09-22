@@ -297,7 +297,12 @@ runReader (mainLoop ()) (⟨i, o, docRef, pendingRequestsRef⟩ : ServerContext)
 end Server
 end Lean
 
-def main : IO Unit := do
-hIn ← IO.getStdin;
-hOut ← IO.getStdout;
-Lean.Server.initAndRunWorker hIn hOut
+def main (_ : List String) : IO UInt32 := do
+i ← IO.getStdin;
+o ← IO.getStdout;
+e ← IO.getStderr;
+Lean.initSearchPath;
+catch
+  (Lean.Server.initAndRunWorker i o)
+  (fun err => e.putStrLn (toString err));
+pure 0

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
+import Init.Data.ByteArray
 import Std.Data.RBMap
 
 import Lean.Elab.Import
@@ -24,7 +25,7 @@ to the header and thus restart the corresponding worker, freeing its imports.
 
 TODO(WN):
 We may eventually want to keep track of approximately (since this isn't knowable exactly) where in the file a worker
-crashed. Then on restart, we said worker to only parse up to that point and query the user about how to proceed
+crashed. Then on restart, we tell said worker to only parse up to that point and query the user about how to proceed
 (continue OR allow the user to fix the bug and then continue OR ..). Without this, if the crash is deterministic,
 the worker could get into a restart loop.
 
@@ -71,9 +72,15 @@ structure OpenDocument :=
 
 def workerCfg : Process.StdioConfig := ⟨Process.Stdio.piped, Process.Stdio.piped, Process.Stdio.piped⟩
 
+/-- Things that can happen in a worker. -/
+inductive WorkerEvent
+| Error (e : IO.Error)
+-- TODO(WN): more things will be able to happen
+
 structure FileWorker :=
 (doc : OpenDocument)
 (proc : Process.Child workerCfg)
+(commTask : Task WorkerEvent)
 
 namespace FileWorker
 
@@ -101,11 +108,6 @@ structure ServerContext :=
 
 abbrev ServerM := ReaderT ServerContext IO
 
-def spawnFileWorker (doc : OpenDocument) : ServerM FileWorker :=
-fun st => do
-  proc ← Process.spawn {workerCfg with cmd := st.workerPath};
-  pure ⟨doc, proc⟩
-
 def updateFileWorkers (uri : DocumentUri) (val : FileWorker) : ServerM Unit :=
 fun st => st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert uri val)
 
@@ -116,24 +118,26 @@ match fileWorkers.find? uri with
 | some fw => pure fw
 | none    => throw (userError $ "got unknown document URI (" ++ uri ++ ")")
 
-def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
-match fromJson? params with
-| some parsed => pure parsed
-| none        => throw (userError "got param with wrong structure")
-
--- NOTE(MH): forwardFileWorkerPackets needs to take a FileWorker, not a DocumentUri.
--- otherwise, it might occur that we update the list of file workers on the main task,
--- possibly yielding a race condition.
-partial def forwardFileWorkerPackets (fw : FileWorker) : Unit → ServerM Unit
+-- TODO: this creates a long-running Task, which should be okay with upcoming API changes.
+partial def fwdMsgAux (hWrk : FS.Stream) (hOut : FS.Stream) : Unit → IO WorkerEvent
 | ⟨⟩ => do
   -- TODO(MH): detect closed stream somehow and terminate gracefully
   -- TODO(MH): potentially catch unintended termination (e.g. due to stack overflow) and restart process
-  msg ← readLspMessage fw.stdout;
-  writeLspMessage fw.stdin msg;
-  forwardFileWorkerPackets ⟨⟩
+  msg ← readLspMessage hWrk;
+  -- NOTE: Write to Lean I/O channels are atomic, so these won't trample on each other.
+  writeLspMessage hOut msg;
+  fwdMsgAux ()
+
+/-- A Task which forwards a worker's messages into the output stream until an event
+which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
+def fwdMsgTask (hWrk : FS.Stream) : ServerM (Task WorkerEvent) :=
+fun st =>
+  (Task.map (fun either => match either with
+    | Except.ok ev   => ev
+    | Except.error e => WorkerEvent.Error e)) <$> (IO.asTask $ fwdMsgAux hWrk st.hOut ())
 
 private def parsedImportsEndPos (input : String) : IO String.Pos := do
-emptyEnv ← mkEmptyEnvironment; -- TODO(WN): a lot of things could be purified if `mkEmptyEnvironment` was just a pure ctr
+emptyEnv ← mkEmptyEnvironment;
 let inputCtx := Parser.mkInputContext input "<input>";
 let (_, parserState, _) := Parser.parseHeader emptyEnv inputCtx;
 pure parserState.pos
@@ -141,20 +145,22 @@ pure parserState.pos
 def startFileWorker (uri : DocumentUri) (version : Nat) (text : FileMap) : ServerM Unit := do
 st ← read;
 pos ← monadLift $ parsedImportsEndPos text.source;
-fw ← spawnFileWorker ⟨version, text, pos⟩;
-writeLspRequest fw.stdin (0 : Nat) "initialize" st.initParams;
-writeLspNotification fw.stdin "textDocument/didOpen"
-  (DidOpenTextDocumentParams.mk ⟨uri, "lean", fw.doc.version, fw.doc.text.source⟩);
-updateFileWorkers uri fw;
--- TODO(MH): replace with working IO variant
--- TODO(MH): Sebastian said something about this better being implemented as threads
--- (due to the long running nature of these tasks) but i did not yet have time to
--- look into this.
-let _ := Task.pure (forwardFileWorkerPackets fw);
-pure ⟨⟩
+let doc : OpenDocument := ⟨version, text, pos⟩;
+workerProc ← monadLift $ Process.spawn {workerCfg with cmd := st.workerPath};
+writeLspRequest (FS.Stream.ofHandle workerProc.stdin) (0 : Nat) "initialize" st.initParams;
+writeLspNotification (FS.Stream.ofHandle workerProc.stdin) "textDocument/didOpen"
+  (DidOpenTextDocumentParams.mk ⟨uri, "lean", version, text.source⟩);
+commTask ← fwdMsgTask $ FS.Stream.ofHandle workerProc.stdout;
+let fw : FileWorker := ⟨doc, workerProc, commTask⟩;
+updateFileWorkers uri fw
 
 -- TODO(MH)
-def terminateFileWorker (fw : FileWorker) : ServerM Unit := pure ()
+def terminateFileWorker (uri : DocumentUri) : ServerM Unit := pure ()
+
+def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
+match fromJson? params with
+| some parsed => pure parsed
+| none        => throw (userError "got param with wrong structure")
 
 def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
 let doc := p.textDocument;
@@ -184,7 +190,7 @@ else changes.forM $ fun change =>
       -- TODO(WN): we should amortize this somehow;
       -- when the user is typing in an import, this
       -- may rapidly destroy/create new processes
-      terminateFileWorker fw;
+      terminateFileWorker doc.uri;
       startFileWorker doc.uri newVersion newDocText
     else
       let newDoc : OpenDocument := ⟨newVersion, newDocText, oldHeaderEndPos⟩;
@@ -194,10 +200,10 @@ else changes.forM $ fun change =>
     throw (userError "TODO impl computing the diff of two sources.")
 
 def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit := do
+st ← read;
 let doc := p.textDocument;
 fw ← findFileWorker doc.uri;
-terminateFileWorker fw;
-st ← read;
+terminateFileWorker doc.uri;
 st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase doc.uri)
 
 def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
@@ -212,31 +218,64 @@ match method with
 
 def handleNotification (method : String) (params : Json) : ServerM Unit := do
 let forward := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
-           parsedParams ← parseParams α params;
-           fw ← findFileWorker $ fileSource parsedParams;
-           writeLspNotification fw.stdin method parsedParams);
+                 parsedParams ← parseParams α params;
+                 fw ← findFileWorker $ fileSource parsedParams;
+                 writeLspNotification fw.stdin method parsedParams);
 let handle := (fun α [HasFromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler);
 match method with
 | "textDocument/didOpen"   => handle DidOpenTextDocumentParams handleDidOpen
 | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
 | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
-| "$/cancelRequest"        => pure () -- TODO when we're async
+| "$/cancelRequest"        => pure () -- TODO forward CancelParams
 | _                        => throw (userError "got unsupported notification method")
+
+inductive ServerEvent
+| WorkerEvent (uri : DocumentUri) (fw : FileWorker) (ev : WorkerEvent)
+| ClientMsg (msg : JsonRpc.Message)
+| ClientError (e : IO.Error)
 
 partial def mainLoop : Unit → ServerM Unit
 | () => do
   st ← read;
-  msg ← readLspMessage st.hIn;
-  match msg with
-  | Message.request id "shutdown" _ =>
-    writeLspResponse st.hOut id (Json.null)
-  | Message.request id method (some params) => do
-    handleRequest id method (toJson params);
+  workers ← st.fileWorkersRef.get;
+
+  /- Wait for any of the following events to happen:
+     - client sends us a message
+     - a worker does something -/
+  clientTask ← liftIO $ IO.asTask $ ServerEvent.ClientMsg <$> readLspMessage st.hIn;
+  let clientTask := Task.map
+    (fun either => match either with
+    | Except.ok ev   => ev
+    | Except.error e => ServerEvent.ClientError e)
+    clientTask;
+
+  let workerTasks := workers.fold
+    (fun acc uri fw =>
+    Task.map (ServerEvent.WorkerEvent uri fw) fw.commTask :: acc)
+    ([] : List (Task ServerEvent));
+
+  ev ← liftIO $ IO.waitAny $ clientTask :: workerTasks;
+
+  match ev with
+  | ServerEvent.ClientMsg msg => do
+    match msg with
+    | Message.request id "shutdown" _ =>
+      writeLspResponse st.hOut id (Json.null)
+    | Message.request id method (some params) => do
+      handleRequest id method (toJson params);
+      mainLoop ()
+    | Message.notification method (some params) => do
+      handleNotification method (toJson params);
+      mainLoop ()
+    | _ => throw (userError "got invalid JSON-RPC message")
+
+  | ServerEvent.ClientError e => do
+    pure () -- shutdown
+
+  /- Restart an exited worker. -/
+  | ServerEvent.WorkerEvent uri fw (WorkerEvent.Error e) => do
+    -- TODO restart fw; and do something depending on why it exited?
     mainLoop ()
-  | Message.notification method (some params) => do
-    handleNotification method (toJson params);
-    mainLoop ()
-  | _ => throw (userError "got invalid JSON-RPC message")
 
 def mkLeanServerCapabilities : ServerCapabilities :=
 { textDocumentSync? := some
@@ -247,7 +286,7 @@ def mkLeanServerCapabilities : ServerCapabilities :=
     save? := none },
   hoverProvider := true }
 
-def initAndRunServerAux : ServerM Unit := do
+def initAndRunWatchdogAux : ServerM Unit := do
 st ← read;
 _ ← readLspNotificationAs st.hIn "initialized" InitializedParams;
 mainLoop ();
@@ -255,18 +294,30 @@ Message.notification "exit" none ← readLspMessage st.hIn
   | throw (userError "Expected an Exit Notification.");
 pure ()
 
-def initAndRunServer (i o : FS.Stream) : IO Unit := do
+def initAndRunWatchdog (i o : FS.Stream) : IO Unit := do
 some workerPath ← IO.getEnv "LEAN_WORKER_PATH"
   | throw $ userError "You need to specify LEAN_WORKER_PATH in the environment.";
 fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap);
+
 initRequest ← readLspRequestAs i "initialize" InitializeParams;
 writeLspResponse o initRequest.id
   { capabilities := mkLeanServerCapabilities,
     serverInfo? := some { name := "Lean 4 server",
                           version? := "0.0.1" } : InitializeResult };
+
 runReader
-  initAndRunServerAux
+  initAndRunWatchdogAux
   (⟨i, o, fileWorkersRef, initRequest.param, workerPath⟩ : ServerContext)
 
 end Server
 end Lean
+
+def main (_ : List String) : IO UInt32 := do
+i ← IO.getStdin;
+o ← IO.getStdout;
+e ← IO.getStderr;
+Lean.initSearchPath;
+catch
+  (Lean.Server.initAndRunWatchdog i o)
+  (fun err => e.putStrLn (toString err));
+pure 0

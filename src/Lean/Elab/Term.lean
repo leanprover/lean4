@@ -516,7 +516,7 @@ match f? with
     ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
     ++ extraMsg;
   throwError msg
-| some f => liftMetaM $ Meta.throwAppTypeMismatch f e extraMsg
+| some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
 adaptTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := setMacroStackOption ctx.options false }) x

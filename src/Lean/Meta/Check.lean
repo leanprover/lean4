@@ -70,10 +70,11 @@ match fType with
 | Expr.forallE _ d _ _ => pure d
 | _                    => throwFunctionExpected f
 
-def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil) : MetaM α := do
+def throwAppTypeMismatch {α} {m} [Monad m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] [MonadLiftT MetaM m]
+    (f a : Expr) (extraMsg : MessageData := Format.nil) : m α := do
 let e := mkApp f a;
 aType ← inferType a;
-expectedType ← getFunctionDomain f;
+expectedType ← liftM $ getFunctionDomain f;
 throwError $
   "application type mismatch" ++ indentExpr e
   ++ Format.line ++ "argument" ++ indentExpr a

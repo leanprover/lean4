@@ -167,7 +167,7 @@ namespace NameSet
 def empty : NameSet := mkRBTree Name Name.quickLt
 instance : HasEmptyc NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨{}⟩
-def insert (s : NameSet) (n : Name)  := Std.RBTree.insert s n
+def insert (s : NameSet) (n : Name) : NameSet := Std.RBTree.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.RBMap.contains s n
 
 end NameSet

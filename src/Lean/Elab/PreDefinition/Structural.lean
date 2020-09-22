@@ -26,10 +26,14 @@ runST fun _ => do (_, numFixed) ← visitor.run xs.size; pure numFixed
 structure RecArgInfo :=
 /- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
 (fixedParams : Array Expr)
-(ys          : Array Expr) -- recursion arguments
-(pos         : Nat)        -- position in `ys` of the argument we are recursing on
-(indicesPos  : Array Nat)  -- position in `ys` of the inductive datatype indices we are recursing on
-(reflexive   : Bool)       -- true if we are recursing over a reflexive inductive datatype
+(ys          : Array Expr)  -- recursion arguments
+(pos         : Nat)         -- position in `ys` of the argument we are recursing on
+(indicesPos  : Array Nat)   -- position in `ys` of the inductive datatype indices we are recursing on
+(indName     : Name)        -- inductive datatype name of the argument we are recursing on
+(indLevels   : List Level)  -- inductice datatype universe levels of the argument we are recursing on
+(indParams   : Array Expr)  -- inductive datatype parameters of the argument we are recursing on
+(indIndices  : Array Expr)  -- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i`
+(reflexive   : Bool)        -- true if we are recursing over a reflexive inductive datatype
 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat :=
 indices.foldl
@@ -103,7 +107,13 @@ private partial def findRecArgAux? {α} (numFixed : Nat) (xs : Array Expr) (k? :
               findRecArgAux? (i+1)
             | none => do
               let indicesPos := indIndices.map fun index => match ys.indexOf index with | some i => i.val | none => unreachable!;
-              a? ← k? { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size, indicesPos := indicesPos, reflexive := indInfo.isReflexive };
+              a? ← k? { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
+                        indicesPos  := indicesPos,
+                        indName     := indInfo.name,
+                        indLevels   := us,
+                        indParams   := indParams,
+                        indIndices  := indIndices,
+                        reflexive := indInfo.isReflexive };
               match a? with
               | some a => pure a
               | none   => findRecArgAux? (i+1)
@@ -113,15 +123,55 @@ private partial def findRecArgAux? {α} (numFixed : Nat) (xs : Array Expr) (k? :
 @[inline] private def findRecArg? {α} (numFixed : Nat) (xs : Array Expr) (k? : RecArgInfo → TermElabM (Option α)) : TermElabM (Option α) :=
 findRecArgAux? numFixed xs k? numFixed
 
+private def replaceRecApps? (argInfo : RecArgInfo) (below : Expr) (value : Expr) : TermElabM (Option Expr) :=
+-- TODO
+pure value
+
+private def mkBRecOn? (argInfo : RecArgInfo) (value : Expr) : TermElabM (Option Expr) := do
+type ← inferType value;
+let type := type.headBeta;
+let major := argInfo.ys.get! argInfo.pos;
+let otherArgs := argInfo.ys.filter fun y => y != major && !argInfo.indIndices.contains y;
+motive ← mkForallFVars otherArgs type;
+brecOnUniv ← getDecLevel motive;
+motive ← mkLambdaFVars (argInfo.indIndices.push major) motive;
+trace `Elab.definition.structural fun _ => "brecOn motive: " ++ motive;
+let brecOn := Lean.mkConst (mkBRecOnFor argInfo.indName) (brecOnUniv :: argInfo.indLevels);
+let brecOn := mkAppN brecOn argInfo.indParams;
+let brecOn := mkApp brecOn motive;
+let brecOn := mkAppN brecOn argInfo.indIndices;
+let brecOn := mkApp brecOn major;
+brecOnType ← inferType brecOn;
+trace `Elab.definition.structural fun _ => "brecOn     " ++ brecOn;
+trace `Elab.definition.structural fun _ => "brecOnType " ++ brecOnType;
+forallBoundedTelescope brecOnType (some 1) fun F _ => do
+  let F := F.get! 0;
+  FType ← inferType F;
+  let numIndices := argInfo.indIndices.size;
+  forallBoundedTelescope FType (some $ numIndices + 1 /- major -/ + 1 /- below -/) fun Fargs _ => do
+    let indicesNew := Fargs.extract 0 numIndices;
+    let majorNew   := Fargs.get! numIndices;
+    let below      := Fargs.get! (numIndices+1);
+    let valueNew   := value.replaceFVars argInfo.indIndices indicesNew;
+    let valueNew   := valueNew.replaceFVar major majorNew;
+    valueNew? ← replaceRecApps? argInfo below valueNew;
+    match valueNew? with
+    | none => pure none
+    | some valueNew => do
+      Farg ← mkLambdaFVars Fargs valueNew;
+      let brecOn := mkApp brecOn Farg;
+      pure $ mkAppN brecOn otherArgs
+
 private def elimRecursion? (preDef : PreDefinition) : TermElabM (Option PreDefinition) :=
-lambdaLetTelescope preDef.value fun xs value => do
+lambdaTelescope preDef.value fun xs value => do
   trace `Elab.definition.structural fun _ => preDef.declName ++ " " ++ xs ++ " :=\n" ++ value;
   let numFixed := getFixedPrefix preDef.declName xs value;
   findRecArg? numFixed xs fun argInfo => do
-    -- TODO
-    trace `Elab.definition.structural fun _ =>
-      "try " ++ argInfo.fixedParams ++ " " ++ argInfo.ys ++ " " ++ toString argInfo.pos ++ ", " ++ toString argInfo.indicesPos;
-    pure none
+    some valueNew ← mkBRecOn? argInfo value | pure none;
+    valueNew ← mkLambdaFVars xs valueNew;
+    trace `Elab.definition.structural fun _ => "result: " ++ valueNew;
+    -- pure $ some { preDef with value := valueNew }
+    throwError "WIP"
 
 def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Bool :=
 if preDefs.size != 1 then

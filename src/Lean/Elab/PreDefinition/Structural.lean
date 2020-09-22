@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
 import Lean.Meta.RecursorInfo
+import Lean.Meta.Match.Match
 import Lean.Elab.PreDefinition.Basic
 
 namespace Lean
@@ -131,9 +132,30 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
 @[inline] private def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → MetaM α) : MetaM α :=
 findRecArgAux numFixed xs k numFixed
 
-private def replaceRecApps (argInfo : RecArgInfo) (below : Expr) (value : Expr) : MetaM Expr :=
--- TODO
-pure value
+private partial def replaceRecApps (argInfo : RecArgInfo) (below : Expr) : Expr → MetaM Expr
+| e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps b; mkLambdaFVars xs b
+| Expr.letE n type val body _ => do
+  val ← replaceRecApps val;
+  withLetDecl n type val fun x => do
+    body ← replaceRecApps body;
+    mkLetFVars #[x] body
+| Expr.mdata d e _   => do e ← replaceRecApps e; pure $ mkMData d e
+| Expr.proj n i e _  => do e ← replaceRecApps e; pure $ mkProj n i e
+| e@(Expr.app _ _ _) => do
+  let processApp (e : Expr) : MetaM Expr :=
+    e.withApp fun f args => do {
+      f ← replaceRecApps f;
+      args ← args.mapM replaceRecApps;
+      pure $ mkAppN f args
+    };
+  matcherApp? ← Match.matchMatcherApp? e;
+  match matcherApp? with
+  | some matcherApp => do
+    trace! `Elab.definition.structural ("found matcher");
+    -- TODO
+    pure e
+  | none => processApp e
+| e => pure e
 
 private def mkBRecOn (argInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
 type ← inferType value;

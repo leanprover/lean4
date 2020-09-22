@@ -18,12 +18,18 @@ ppCtx.runCoreM $ x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
 
 namespace PrettyPrinter
 
-def ppTerm (stx : Syntax) : CoreM Format :=
+def ppTerm (stx : Syntax) : CoreM Format := do
+opts ← getOptions;
+let stx := (sanitizeSyntax stx).run' { options := opts };
 parenthesizeTerm stx >>= formatTerm
 
 def ppExpr (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) : MetaM Format := do
-stx ← delab currNamespace openDecls e;
-liftM $ ppTerm stx
+lctx ← getLCtx;
+opts ← getOptions;
+let lctx := lctx.sanitizeNames.run' { options := opts };
+Meta.withLCtx lctx #[] $ do
+  stx ← delab currNamespace openDecls e;
+  liftM $ ppTerm stx
 
 def ppCommand (stx : Syntax) : CoreM Format :=
 parenthesizeCommand stx >>= formatCommand

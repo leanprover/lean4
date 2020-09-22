@@ -137,3 +137,19 @@ check (isDefEq m expected);
 pure ()
 
 #eval tst6
+
+def tst7 : MetaM Unit := do
+print "----- tst7 -----";
+let nat := mkConst `Nat;
+withLocalDeclD `x nat fun x =>
+withLocalDeclD `y nat fun y => do
+val ← mkAppM `HasAdd.add #[x, y];
+print val;
+let val := val.replaceFVars #[x, y] #[mkNatLit 0, mkNatLit 1];
+print val;
+expected ← mkAppM `HasAdd.add #[mkNatLit 0, mkNatLit 1];
+print expected;
+check (pure $ val == expected);
+pure ()
+
+#eval tst7

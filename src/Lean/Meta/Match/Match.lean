@@ -777,6 +777,33 @@ def isMatcher (declName : Name) : MetaM Bool := do
 info? ← getMatcherInfo? declName;
 pure info?.isSome
 
+structure MatcherApp :=
+(matcherName   : Name)
+(matcherLevels : List Level)
+(params        : Array Expr)
+(motive        : Expr)
+(discrs        : Array Expr)
+(alts          : Array Expr)
+(remaining     : Array Expr)
+
+def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
+match e.getAppFn with
+| Expr.const declName declLevels _ => do
+  some info ← getMatcherInfo? declName | pure none;
+  let args := e.getAppArgs;
+  if args.size < info.numParams + 1 + info.numDiscrs + info.numAlts then pure none
+  else
+    pure $ some {
+      matcherName   := declName,
+      matcherLevels := declLevels,
+      params        := args.extract 0 info.numParams,
+      motive        := args.get! info.numParams,
+      discrs        := args.extract (info.numParams + 1) (info.numParams + 1 + info.numDiscrs),
+      alts          := args.extract (info.numParams + 1 + info.numDiscrs) (info.numParams + 1 + info.numDiscrs + info.numAlts),
+      remaining     := args.extract (info.numParams + 1 + info.numDiscrs + info.numAlts) args.size
+    }
+| _ => pure none
+
 def mkMatcher (matcherName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
 withLocalDeclD `motive motiveType fun motive => do
 trace! `Meta.Match.debug ("motiveType: " ++ motiveType);

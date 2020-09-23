@@ -80,3 +80,5 @@ unless b $ throw $ IO.userError "check failed"
 #eval check $ !#[1, 2, 3, 4, 5, 3].allDiff
 #eval check $ !#[1, 2, 3, 4, 5, 4].allDiff
 #eval check $ #[1, 2, 3, 4, 5, 6].allDiff
+
+#eval check $ Array.zip #[1, 2] #[3, 4, 6] == #[(1, 3), (2, 4)]

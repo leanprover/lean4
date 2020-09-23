@@ -87,7 +87,7 @@ def tst5 : MetaM Unit := do
 arrayNat ← mkAppM `Array #[nat];
 withLocalDeclD `a arrayNat fun a => do
 withLocalDeclD `b arrayNat fun b => do
-let motiveType := mkArrow arrayNat (mkSort levelZero);
+let motiveType := _root_.mkArrow arrayNat (mkSort levelZero);
 withLocalDeclD `motive motiveType fun motive => do
 let mvarType := mkApp motive a;
 mvar ← mkFreshExprSyntheticOpaqueMVar mvarType;

@@ -132,7 +132,7 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
 @[inline] private def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → MetaM α) : MetaM α :=
 findRecArgAux numFixed xs k numFixed
 
-private partial def replaceRecApps (argInfo : RecArgInfo) (below : Expr) : Expr → MetaM Expr
+private partial def replaceRecApps (argInfo : RecArgInfo) (major : Expr) (below : Expr) : Expr → MetaM Expr
 | e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps b; mkLambdaFVars xs b
 | Expr.letE n type val body _ => do
   val ← replaceRecApps val;
@@ -150,10 +150,14 @@ private partial def replaceRecApps (argInfo : RecArgInfo) (below : Expr) : Expr 
     };
   matcherApp? ← matchMatcherApp? e;
   match matcherApp? with
-  | some matcherApp => do
-    trace! `Elab.definition.structural ("found matcher");
-    -- TODO
-    pure e
+  | some matcherApp =>
+    if matcherApp.discrs.contains major then do
+      trace! `Elab.definition.structural ("found matcher");
+      matcherApp ← matcherApp.addArg below;
+      -- TODO
+      pure matcherApp.toExpr
+    else
+      processApp e
   | none => processApp e
 | e => pure e
 
@@ -163,7 +167,7 @@ let type := type.headBeta;
 let major := argInfo.ys.get! argInfo.pos;
 let otherArgs := argInfo.ys.filter fun y => y != major && !argInfo.indIndices.contains y;
 motive ← mkForallFVars otherArgs type;
-brecOnUniv ← getDecLevel motive;
+brecOnUniv ← getLevel motive;
 motive ← mkLambdaFVars (argInfo.indIndices.push major) motive;
 trace! `Elab.definition.structural ("brecOn motive: " ++ motive);
 let brecOn := Lean.mkConst (mkBRecOnFor argInfo.indName) (brecOnUniv :: argInfo.indLevels);
@@ -178,13 +182,15 @@ forallBoundedTelescope brecOnType (some 1) fun F _ => do
   let F := F.get! 0;
   FType ← inferType F;
   let numIndices := argInfo.indIndices.size;
-  forallBoundedTelescope FType (some $ numIndices + 1 /- major -/ + 1 /- below -/) fun Fargs _ => do
-    let indicesNew := Fargs.extract 0 numIndices;
-    let majorNew   := Fargs.get! numIndices;
-    let below      := Fargs.get! (numIndices+1);
-    let valueNew   := value.replaceFVars argInfo.indIndices indicesNew;
-    let valueNew   := valueNew.replaceFVar major majorNew;
-    valueNew ← replaceRecApps argInfo below valueNew;
+  forallBoundedTelescope FType (some $ numIndices + 1 /- major -/ + 1 /- below -/ + otherArgs.size) fun Fargs _ => do
+    let indicesNew   := Fargs.extract 0 numIndices;
+    let majorNew     := Fargs.get! numIndices;
+    let below        := Fargs.get! (numIndices+1);
+    let otherArgsNew := Fargs.extract (numIndices+2) Fargs.size;
+    let valueNew     := value.replaceFVars argInfo.indIndices indicesNew;
+    let valueNew     := valueNew.replaceFVar major majorNew;
+    let valueNew     := valueNew.replaceFVars otherArgs otherArgsNew;
+    valueNew ← replaceRecApps argInfo majorNew below valueNew;
     Farg ← mkLambdaFVars Fargs valueNew;
     let brecOn := mkApp brecOn Farg;
     pure $ mkAppN brecOn otherArgs

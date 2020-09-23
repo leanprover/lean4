@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include <lean/interrupt.h>
 #include "util/buffer.h" // move to runtime
 
+// see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
 
 namespace lean {
@@ -960,7 +961,7 @@ static lean_task_object * alloc_task(obj_arg v) {
 }
 
 
-extern "C" obj_res lean_task_spawn_with_prio(obj_arg c, unsigned prio, bool keep_alive) {
+extern "C" obj_res lean_task_spawn_core(obj_arg c, unsigned prio, bool keep_alive) {
     if (!g_task_manager) {
         return lean_task_pure(apply_1(c, box(0)));
     } else {
@@ -982,7 +983,7 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
     return lean_apply_1(f, v);
 }
 
-extern "C" obj_res lean_task_map_with_prio(obj_arg f, obj_arg t, unsigned prio, bool keep_alive) {
+extern "C" obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned prio, bool keep_alive) {
     if (!g_task_manager) {
         return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
@@ -1025,7 +1026,7 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     return nullptr; /* notify queue that task did not finish yet. */
 }
 
-extern "C" obj_res lean_task_bind_with_prio(obj_arg x, obj_arg f, unsigned prio, bool keep_alive) {
+extern "C" obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio, bool keep_alive) {
     if (!g_task_manager) {
         return apply_1(f, lean_task_get_own(x));
     } else {

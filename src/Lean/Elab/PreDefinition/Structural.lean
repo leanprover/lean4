@@ -142,7 +142,70 @@ if containsRecFn recFnName e then do
 else
   pure e
 
-private partial def replaceRecApps (recFnName : Name) (argInfo : RecArgInfo) : Expr → Expr → MetaM Expr
+private def throwToBelowFailed {α} : MetaM α :=
+throwError "toBelow failed"
+
+/- See toBelow -/
+private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
+| belowDict, arg, F => do
+  trace! `Elab.definition.structural ("belowDict: " ++ belowDict ++ ", arg: " ++ arg);
+  belowDict ← whnf belowDict;
+  match belowDict with
+  | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
+    (do F ← mkAppM `PProd.fst #[F]; toBelowAux d1 arg F)
+    <|>
+    (do F ← mkAppM `PProd.snd #[F]; toBelowAux d2 arg F)
+  -- TODO `Expr.forallE` case
+  -- TODO `And d1 d2` case
+  | Expr.app f a _ => do
+    unless (f == C) throwToBelowFailed;
+    unlessM (isDefEq a arg) throwToBelowFailed;
+    pure F
+  | _ =>
+    throwToBelowFailed
+
+/- See toBelow -/
+private def withBelowDict {α} (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
+belowType ← inferType below;
+trace! `Elab.definition.structural ("belowType: " ++ belowType);
+belowType.withApp fun f args => do
+  let motivePos := numIndParams + 1;
+  unless (motivePos < args.size) $ throwError $ "unexpected 'below' type" ++ indentExpr belowType;
+  let pre := mkAppN f (args.extract 0 numIndParams);
+  preType ← inferType pre;
+  forallBoundedTelescope preType (some 1) fun x _ => do
+    motiveType ← inferType (x.get! 0);
+    C ← Core.mkFreshUserName `C;
+    withLocalDeclD C motiveType fun C =>
+      let belowDict := mkApp pre C;
+      let belowDict := mkAppN belowDict (args.extract (numIndParams + 1) args.size);
+      k C belowDict
+
+/-
+  `below` is a free variable with type of the form `I.below indParams motive indices major`,
+  where `I` is the name of an inductive datatype.
+
+  For example, when trying to show that the following function terminates using structural recursion
+  ```lean
+  def addAdjacent : List Nat → List Nat
+  | []       => []
+  | [a]      => [a]
+  | a::b::as => (a+b) :: addAdjacent as
+  ```
+  when we are visiting `addAdjacent as` at `replaceRecApps`, `below` has type
+  `@List.below Nat (fun (x : List Nat) => List Nat) (a::b::as)`
+  The motive `fun (x : List Nat) => List Nat` depends on the actual function we are trying to compute.
+  So, we first replace it with a fresh variable `C` at `withBelowDict`.
+  Recall that `brecOn` implements course-of-values recursion, and `below` can be viewed as a dictionary
+  of the "previous values".
+  We search this dictionary using the auxiliary function `toBelowAux`.
+  The dictionary is built using the `PProd` (`And` for inductive predicates).
+  We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
+private partial def toBelow (below : Expr) (numIndParams : Nat) (recArg : Expr) : MetaM Expr := do
+withBelowDict below numIndParams fun C belowDict =>
+  toBelowAux C belowDict recArg below
+
+private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) : Expr → Expr → MetaM Expr
 | below, e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps below b; mkLambdaFVars xs b
 | below, Expr.letE n type val body _ => do
   val ← replaceRecApps below val;
@@ -154,9 +217,18 @@ private partial def replaceRecApps (recFnName : Name) (argInfo : RecArgInfo) : E
 | below, e@(Expr.app _ _ _) => do
   let processApp (e : Expr) : MetaM Expr :=
     e.withApp fun f args => do {
-      if f.isConstOf recFnName then
-        -- TODO use below to eliminate recursive application
-        pure e
+      if f.isConstOf recFnName then do
+        let numFixed  := recArgInfo.fixedParams.size;
+        let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos;
+        when (recArgPos >= args.size) $ throwError ("insufficient number of parameters at recursive application " ++ indentExpr e);
+        let recArg := args.get! recArgPos;
+        f ← catch (toBelow below recArgInfo.indParams.size recArg) (fun _ => throwError $ "failed to eliminate recursive application" ++ indentExpr e);
+        -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
+        let argsNonFixed := args.extract numFixed args.size;
+        -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.
+        let fArgs := argsNonFixed.iterate #[] fun i a fArgs =>
+          if recArgInfo.pos == i.val || recArgInfo.indicesPos.contains i.val then fArgs else fArgs.push a;
+        pure $ mkAppN f fArgs
       else do
         f ← replaceRecApps below f;
         args ← args.mapM (replaceRecApps below);

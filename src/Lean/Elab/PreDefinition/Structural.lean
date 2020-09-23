@@ -132,36 +132,61 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
 @[inline] private def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → MetaM α) : MetaM α :=
 findRecArgAux numFixed xs k numFixed
 
-private partial def replaceRecApps (argInfo : RecArgInfo) (major : Expr) (below : Expr) : Expr → MetaM Expr
-| e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps b; mkLambdaFVars xs b
-| Expr.letE n type val body _ => do
-  val ← replaceRecApps val;
+private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
+(e.find? fun e => e.isConstOf recFnName).isSome
+
+private partial def replaceRecApps (recFnName : Name) (argInfo : RecArgInfo) : Expr → Expr → MetaM Expr
+| below, e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps below b; mkLambdaFVars xs b
+| below, Expr.letE n type val body _ => do
+  val ← replaceRecApps below val;
   withLetDecl n type val fun x => do
-    body ← replaceRecApps body;
+    body ← replaceRecApps below (body.instantiate1 x);
     mkLetFVars #[x] body
-| Expr.mdata d e _   => do e ← replaceRecApps e; pure $ mkMData d e
-| Expr.proj n i e _  => do e ← replaceRecApps e; pure $ mkProj n i e
-| e@(Expr.app _ _ _) => do
+| below, Expr.mdata d e _   => do e ← replaceRecApps below e; pure $ mkMData d e
+| below, Expr.proj n i e _  => do e ← replaceRecApps below e; pure $ mkProj n i e
+| below, e@(Expr.app _ _ _) => do
   let processApp (e : Expr) : MetaM Expr :=
     e.withApp fun f args => do {
-      f ← replaceRecApps f;
-      args ← args.mapM replaceRecApps;
-      pure $ mkAppN f args
+      if f.isConstOf recFnName then
+        -- TODO use below to eliminate recursive application
+        pure e
+      else do
+        f ← replaceRecApps below f;
+        args ← args.mapM (replaceRecApps below);
+        pure $ mkAppN f args
     };
   matcherApp? ← matchMatcherApp? e;
   match matcherApp? with
   | some matcherApp =>
-    if matcherApp.discrs.contains major then do
-      trace! `Elab.definition.structural ("found matcher");
-      matcherApp ← matcherApp.addArg below;
-      -- TODO
-      pure matcherApp.toExpr
-    else
-      processApp e
+    if !containsRecFn recFnName e then processApp e
+    else do
+      matcherApp ← catch (matcherApp.addArg below)
+        (fun ex => do
+          trace! `Elab.definition.structural
+            ("failed to add `below` argument to 'matcher' application" ++ indentD ex.toMessageData);
+          throwStructuralFailed);
+      altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun ⟨alt, numParams⟩ =>
+        lambdaTelescope alt fun xs altBody => do {
+          trace! `Elab.definition.structural ("altNumParams: " ++ toString numParams ++ ", xs: " ++ xs);
+          unless (xs.size >= numParams) do {
+            trace! `Elab.definition.structural
+              ("unexpected matcher application alternative " ++ indentExpr alt ++ Format.line ++ "at application" ++ indentExpr e);
+            throwStructuralFailed
+          };
+          let belowForAlt := xs.get! (numParams - 1);
+          altBodyNew ← replaceRecApps belowForAlt altBody;
+          mkLambdaFVars xs altBodyNew
+        };
+      pure { matcherApp with alts := altsNew }.toExpr
   | none => processApp e
-| e => pure e
+| _, e =>
+  if containsRecFn recFnName e then do
+    trace! `Elab.definition.structural ("unexpected occurrence of recursive function at" ++ indentExpr e);
+    throwStructuralFailed
+  else
+    pure e
 
-private def mkBRecOn (argInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
+private def mkBRecOn (recFnName : Name) (argInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
 type ← inferType value;
 let type := type.headBeta;
 let major := argInfo.ys.get! argInfo.pos;
@@ -190,7 +215,7 @@ forallBoundedTelescope brecOnType (some 1) fun F _ => do
     let valueNew     := value.replaceFVars argInfo.indIndices indicesNew;
     let valueNew     := valueNew.replaceFVar major majorNew;
     let valueNew     := valueNew.replaceFVars otherArgs otherArgsNew;
-    valueNew ← replaceRecApps argInfo majorNew below valueNew;
+    valueNew ← replaceRecApps recFnName argInfo below valueNew;
     Farg ← mkLambdaFVars Fargs valueNew;
     let brecOn := mkApp brecOn Farg;
     pure $ mkAppN brecOn otherArgs
@@ -201,11 +226,15 @@ lambdaTelescope preDef.value fun xs value => do
   let numFixed := getFixedPrefix preDef.declName xs value;
   findRecArg numFixed xs fun argInfo => do
     -- when (argInfo.indName == `Nat) throwStructuralFailed; -- HACK to skip Nat argument
-    valueNew ← mkBRecOn argInfo value;
+    valueNew ← mkBRecOn preDef.declName argInfo value;
     valueNew ← mkLambdaFVars xs valueNew;
     trace! `Elab.definition.structural ("result: " ++ valueNew);
-    -- pure $ some { preDef with value := valueNew }
-    throwError "WIP"
+    if containsRecFn preDef.declName valueNew then do
+      -- This can happen when the recursive function occurs in expressions that are not visited by replaceRecApps (e.g., types)
+      trace! `Elab.definition.structural ("unexpected occurrence of recursive function at" ++ indentExpr valueNew);
+      throwStructuralFailed
+    else
+      pure { preDef with value := valueNew }
 
 def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Bool :=
 if preDefs.size != 1 then

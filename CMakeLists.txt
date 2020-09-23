@@ -17,8 +17,9 @@ ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src
   BINARY_DIR stage0
+  # always use release build for stage0 since it is assumed to be "good"
   # do not rebuild stage0 when git hash changes; it's not from this commit anyway
-  CMAKE_ARGS -DSTAGE=0 ${CL_ARGS} -DUSE_GITHASH=OFF
+  CMAKE_ARGS -DSTAGE=0 ${CL_ARGS} -DCMAKE_BUILD_TYPE=Release -DUSE_GITHASH=OFF
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
 )

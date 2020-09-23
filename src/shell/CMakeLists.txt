@@ -90,10 +90,10 @@ ENDFOREACH(T)
 
 add_test(NAME leancomptest_foreign
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"
-         COMMAND bash -c "${LEAN_BIN}/leanmake && ./build/bin/test")
+         COMMAND bash -c "${LEAN_BIN}/leanmake --always-make && ./build/bin/test")
 add_test(NAME leancomptest_doc_example
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples/compiler"
-         COMMAND bash -c "${LEAN_BIN}/leanmake bin && ./build/bin/test hello world")
+         COMMAND bash -c "${LEAN_BIN}/leanmake --always-make bin && ./build/bin/test hello world")
 
 # LEAN INTERPRETER TESTS
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")

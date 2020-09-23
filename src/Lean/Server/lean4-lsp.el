@@ -37,7 +37,7 @@
              '(lean4-lsp-mode . "lean4"))
 
 (defconst lean4-server-bin (concat lean4-home "/src/Lean/Server/build/bin/ServerBin"))
-(defconst lean4-lib (concat lean4-home "/build/release/stage0.5/lib/lean/"))
+(defconst lean4-lib (concat lean4-home "/build/release/stage1/lib/lean/"))
 
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection lean4-server-bin)

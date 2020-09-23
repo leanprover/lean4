@@ -2,11 +2,12 @@ SHELL := /usr/bin/env bash -euo pipefail
 
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS+=\
+  LEAN="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\
 	LEANC_OPTS="${LEANC_OPTS}"\
-	MORE_DEPS="${LEAN_BIN}/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+	MORE_DEPS="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
 	CMAKE_LIKE_OUTPUT=1
 
 stdlib:

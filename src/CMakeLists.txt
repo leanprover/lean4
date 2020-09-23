@@ -533,10 +533,11 @@ else()
 endif()
 install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
+# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
+string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
+
 # make stdlib using previous stage
 if(PREV_STAGE)
-  # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
-  string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${PREV_STAGE}/bin")
   # ...and Make doesn't like absolute Windows paths either
   # (also looks nicer in the build log)
   file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
@@ -549,6 +550,7 @@ if(PREV_STAGE)
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
     # for a parallelized nested build, but CMake doesn't let us do that.
+    # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make)
 
   add_library(Init STATIC IMPORTED)

@@ -10,6 +10,8 @@ ifndef PKG
   endif
 endif
 
+LEAN = lean
+LEANC = leanc
 OUT = build
 OLEAN_OUT = $(OUT)
 TEMP_OUT = $(OUT)/temp
@@ -47,14 +49,14 @@ $(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
 	@mkdir -p "$(TEMP_OUT)/$(*D)"
 # use separate assignment to ensure failure propagation
 # convert path separators and newlines on Windows
-	@deps=`lean --deps $< | tr '\\\\' / | tr -d '\\r'`; echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
+	@deps=`$(LEAN) --deps $< | tr '\\\\' / | tr -d '\\r'`; echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
 
 $(OLEAN_OUT)/%.olean: %.lean $(TEMP_OUT)/%.depend $(MORE_DEPS)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
-	lean $(LEAN_OPTS) -o "$@" --c="$(TEMP_OUT)/$*.c.tmp" $<
+	$(LEAN) $(LEAN_OPTS) -o "$@" --c="$(TEMP_OUT)/$*.c.tmp" $<
 # create the .c file atomically
 	mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
@@ -71,7 +73,7 @@ endif
 ifdef PROFILE
 	\time -f "%U %S" leanc -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "C compilation %fs\n", $$1 + $$2 }' > /dev/stderr
 else
-	leanc -c -o $@ $< $(LEANC_OPTS)
+	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 endif
 
 $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(BIN_OUT)
@@ -81,7 +83,7 @@ endif
 ifdef PROFILE
 	\time -f "%U %S" leanc -o "$@" -x none $^ $(LINK_OPTS) 2>&1 > /dev/null | awk '{ printf "C linking %fs\n", $$1 + $$2 }' > /dev/stderr
 else
-	leanc -o "$@" -x none $^ $(LINK_OPTS)
+	$(LEANC) -o "$@" -x none $^ $(LINK_OPTS)
 endif
 
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)

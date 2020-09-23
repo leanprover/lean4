@@ -634,11 +634,11 @@ static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
     }
 }
 
-/* asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) */
-extern "C" obj_res lean_io_as_task(obj_arg act, obj_arg) {
+/* asTask {α : Type} (act : IO α) (prio : Nat) : IO (Task (Except IO.Error α)) */
+extern "C" obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
-    object * t = lean_task_spawn_with_prio(c, 0, /* keep_alive */ true);
+    object * t = lean_task_spawn_core(c, lean_unbox(prio), /* keep_alive */ true);
     return io_result_mk_ok(t);
 }
 
@@ -651,11 +651,11 @@ static obj_res lean_io_map_task_fn(obj_arg f, obj_arg a) {
     }
 }
 
-/*  mapTask {α β : Type} (f : α → IO β) (t : Task α) : IO (Task (Except IO.Error β)) */
-extern "C" obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg) {
+/*  mapTask {α β : Type} (f : α → IO β) (t : Task α) (prio : Nat) : IO (Task (Except IO.Error β)) */
+extern "C" obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_map_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_map_with_prio(c, t, 0, /* keep_alive */ true);
+    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 
@@ -668,11 +668,11 @@ static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     }
 }
 
-/*  bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) : IO (Task (Except IO.Error β)) */
-extern "C" obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg) {
+/*  bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio : Nat) : IO (Task (Except IO.Error β)) */
+extern "C" obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_bind_with_prio(t, c, 0, /* keep_alive */ true);
+    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 

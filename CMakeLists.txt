@@ -12,8 +12,6 @@ endforeach()
 
 include(ExternalProject)
 project(LEAN CXX C)
-# use the same library sources everywhere; this only important for stage 0 since the compiler source for it come from stage0/src
-list(APPEND CL_ARGS "-DLIB_SOURCE_DIR=${LEAN_SOURCE_DIR}/src")
 
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
@@ -24,41 +22,21 @@ ExternalProject_add(stage0
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
 )
-ExternalProject_add(stage0.5
-  SOURCE_DIR "${LEAN_SOURCE_DIR}"
-  SOURCE_SUBDIR src
-  BINARY_DIR stage0.5
-  CMAKE_ARGS -DSTAGE=0.5 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 ${CL_ARGS}
-  BUILD_ALWAYS ON
-  INSTALL_COMMAND ""
-  DEPENDS stage0
-)
 ExternalProject_add(stage1
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage1
-  # reuse libleancpp.a, which doesn't change
-  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DLEANCPP="${CMAKE_BINARY_DIR}/stage0.5/lib/lean/libleancpp.a" ${CL_ARGS}
+  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 ${CL_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
-  DEPENDS stage0 stage0.5
-  EXCLUDE_FROM_ALL ON
-)
-ExternalProject_add(stage1.5
-  SOURCE_DIR "${LEAN_SOURCE_DIR}"
-  SOURCE_SUBDIR src
-  BINARY_DIR stage1.5
-  CMAKE_ARGS -DSTAGE=1.5 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage1 -DLEANCPP="${CMAKE_BINARY_DIR}/stage0.5/lib/lean/libleancpp.a" ${CL_ARGS}
-  BUILD_ALWAYS ON
-  INSTALL_COMMAND ""
-  DEPENDS stage1
-  EXCLUDE_FROM_ALL ON
+  DEPENDS stage0
 )
 ExternalProject_add(stage2
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage2
-  CMAKE_ARGS -DSTAGE=2 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage1 -DLEANCPP="${CMAKE_BINARY_DIR}/stage0.5/lib/lean/libleancpp.a" ${CL_ARGS}
+  # reuse libleancpp.a, which doesn't change
+  CMAKE_ARGS -DSTAGE=2 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage1 -DLEANCPP="${CMAKE_BINARY_DIR}/stage1/lib/lean/libleancpp.a" ${CL_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
   DEPENDS stage1
@@ -68,9 +46,7 @@ ExternalProject_add(stage3
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage3
-  CMAKE_ARGS -DSTAGE=3 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage2 -DLEANCPP="${CMAKE_BINARY_DIR}/stage0.5/lib/lean/libleancpp.a" ${CL_ARGS}
-  # skip building library - if `lean` is the same as in stage2, the library will be as well
-  BUILD_COMMAND $(MAKE) lean
+  CMAKE_ARGS -DSTAGE=3 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage2 -DLEANCPP="${CMAKE_BINARY_DIR}/stage1/lib/lean/libleancpp.a" ${CL_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
   DEPENDS stage2
@@ -80,14 +56,14 @@ ExternalProject_add(stage3
 # targets forwarded to appropriate stages
 
 add_custom_target(update-stage0
-  COMMAND $(MAKE) -C stage0 update-stage0
-  DEPENDS stage0)
+  COMMAND $(MAKE) -C stage1 update-stage0
+  DEPENDS stage1)
 
 add_custom_target(test
-  COMMAND $(MAKE) -C stage0.5 test
-  DEPENDS stage0.5)
+  COMMAND $(MAKE) -C stage1 test
+  DEPENDS stage1)
 
-install(CODE "execute_process(COMMAND make -C stage0.5 install)")
+install(CODE "execute_process(COMMAND make -C stage1 install)")
 
 add_custom_target(check-stage3
   COMMAND diff "stage2/bin/lean" "stage3/bin/lean"

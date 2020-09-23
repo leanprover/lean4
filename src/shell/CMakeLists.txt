@@ -10,27 +10,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 install(TARGETS lean DESTINATION bin)
 
-string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
-
-# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
+# use executable of current stage for tests
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
-# ...and Make doesn't like absolute Windows paths either
-# (also looks nicer in the build log)
-file(RELATIVE_PATH LIB ${LIB_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
-
-configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
-add_custom_target(make_stdlib ALL
-  WORKING_DIRECTORY ${LIB_SOURCE_DIR}
-  # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
-  # for a parallelized nested build, but CMake doesn't let us do that.
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make
-  DEPENDS lean)
-
-add_custom_target(update-stage0
-  COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
-  DEPENDS make_stdlib
-  WORKING_DIRECTORY "${LIB_SOURCE_DIR}/..")
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_BINARY_DIR}/bin/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_BINARY_DIR}/bin/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")

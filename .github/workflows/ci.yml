@@ -86,23 +86,23 @@ jobs:
           make -j4
       # de-Nix-ify binary
       - name: Patch
-        run: patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage0.5/bin/lean
+        run: patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage1/bin/lean
         if: matrix.name == 'Linux release'
       - name: Patch
         run: |
-          for lib in $(otool -L build/stage0.5/bin/lean | tail -n +2 | cut -d' ' -f1); do
-            install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage0.5/bin/lean
+          for lib in $(otool -L build/stage1/bin/lean | tail -n +2 | cut -d' ' -f1); do
+            install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/lean
           done
         if: matrix.name == 'macOS'
       - name: Pack
-        run: cd build/stage0.5; cpack
+        run: cd build/stage1; cpack
       - uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.name }}
-          path: build/stage0.5/lean-*
+          path: build/stage1/lean-*
       - name: Test
         run: |
-          cd build/stage0.5
+          cd build/stage1
           ctest -j4 --output-on-failure < /dev/null
       - name: Build Stage 2
         run: |
@@ -116,7 +116,7 @@ jobs:
         if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
         run: |
-          export BUILD=$PWD/build PATH=$PWD/build/stage0.5/bin:$PATH
+          export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
           cd tests/bench; temci exec --config speedcenter.yaml --included_blocks fast --runs 1
         if: matrix.test-speedcenter
       - name: Check rebootstrap

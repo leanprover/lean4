@@ -10,7 +10,7 @@ namespace Elab
 open Meta
 
 def WFRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
-throwError "WIP"
+throwError "well founded recursion has not been implemented yet"
 
 end Elab
 end Lean

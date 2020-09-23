@@ -64,8 +64,14 @@ preDefs.forM ensureNoUnassignedMVarsAtPreDef;
     addAndCompileUnsafe preDefs
   else if preDefs.any fun preDef => preDef.modifiers.isPartial then
     addAndCompilePartial preDefs
-  else unlessM (structuralRecursion preDefs) do
-    WFRecursion preDefs
-
+  else
+    mapError
+      (orelseMergeErrors
+        (structuralRecursion preDefs)
+        (WFRecursion preDefs))
+      (fun msg =>
+        let preDefMsgs := preDefs.toList.map fun preDef => MessageData.ofExpr $ mkConst preDef.declName;
+        "fail to show that" ++ indentD (MessageData.joinSep preDefMsgs Format.line)
+        ++ Format.line ++ "terminate, errors:" ++ Format.line ++ msg)
 end Elab
 end Lean

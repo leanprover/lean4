@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
+import Lean.Meta.ForEachExpr
 import Lean.Meta.RecursorInfo
 import Lean.Meta.Match.Match
 import Lean.Elab.PreDefinition.Basic
@@ -11,14 +12,6 @@ import Lean.Elab.PreDefinition.Basic
 namespace Lean
 namespace Elab
 open Meta
-
-def registerStructualId : IO InternalExceptionId :=
-registerInternalExceptionId `structuralRec
-@[init registerStructualId]
-constant structuralExceptionId : InternalExceptionId := arbitrary _
-
-def throwStructuralFailed {α m} [MonadExceptOf Exception m] : m α :=
-throw $ Exception.internal structuralExceptionId
 
 private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : Nat :=
 let visitor {ω} : StateRefT Nat (ST ω) Unit :=
@@ -70,6 +63,9 @@ indParams.findSomeM? fun p => do
       (pure (some (p, y)))
       (pure none)
 
+private def throwStructuralFailed {α} : MetaM α :=
+throwError "structural recursion cannot be used"
+
 private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → MetaM α) : Nat → MetaM α
 | i =>
   if h : i < xs.size then do
@@ -85,14 +81,15 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
         let indArgs    := xType.getAppArgs;
         let indParams  := indArgs.extract 0 indInfo.nparams;
         let indIndices := indArgs.extract indInfo.nparams indArgs.size;
-        if !indIndices.all Expr.isFVar then do
-          trace! `Elab.definition.structural
-            ("argument #" ++ toString (i+1) ++ " was not used because its type is an inductive family and indices are not variables" ++ indentExpr xType);
-          findRecArgAux (i+1)
-        else if !indIndices.allDiff then do
-          trace! `Elab.definition.structural
-            ("argument #" ++ toString (i+1) ++ " was not used because its type is an inductive family and indices are not pairwise distinct" ++ indentExpr xType);
-          findRecArgAux (i+1)
+        if !indIndices.all Expr.isFVar then
+          orelseMergeErrors
+            (throwError $ "argument #" ++ toString (i+1) ++ " was not used because its type is an inductive family and indices are not variables" ++ indentExpr xType)
+            (findRecArgAux (i+1))
+        else if !indIndices.allDiff then
+          orelseMergeErrors
+            (throwError $ "argument #" ++ toString (i+1)
+              ++ " was not used because its type is an inductive family and indices are not pairwise distinct" ++ indentExpr xType)
+            (findRecArgAux (i+1))
         else do
           let indexMinPos := getIndexMinPos xs indIndices;
           let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed;
@@ -100,24 +97,26 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
           let ys          := xs.extract numFixed xs.size;
           badDep? ← hasBadIndexDep? ys indIndices;
           match badDep? with
-          | some (index, y) => do
-            trace! `Elab.definition.structural
-              ("argument #" ++ toString (i+1) ++ " was not used because its type is an inductive family" ++ indentExpr xType ++
-               Format.line ++ "and index" ++ indentExpr index ++
-               Format.line ++ "depends on the non index" ++ indentExpr y);
-            findRecArgAux (i+1)
+          | some (index, y) =>
+            orelseMergeErrors
+              (throwError $
+                "argument #" ++ toString (i+1) ++ " was not used because its type is an inductive family" ++ indentExpr xType ++
+                Format.line ++ "and index" ++ indentExpr index ++
+                Format.line ++ "depends on the non index" ++ indentExpr y)
+              (findRecArgAux (i+1))
           | none => do
             badDep? ← hasBadParamDep? ys indParams;
             match badDep? with
-            | some (indParam, y) => do
-              trace! `Elab.definition.structural
-                ("argument #" ++ toString (i+1) ++ " was not used because its type is an inductive datatype" ++ indentExpr xType ++
-                 Format.line ++ "and parameter" ++ indentExpr indParam ++
-                 Format.line ++ "depends on" ++ indentExpr y);
-              findRecArgAux (i+1)
+            | some (indParam, y) =>
+              orelseMergeErrors
+                (throwError $
+                  "argument #" ++ toString (i+1) ++ " was not used because its type is an inductive datatype" ++ indentExpr xType ++
+                  Format.line ++ "and parameter" ++ indentExpr indParam ++
+                  Format.line ++ "depends on" ++ indentExpr y)
+                (findRecArgAux (i+1))
             | none => do
               let indicesPos := indIndices.map fun index => match ys.indexOf index with | some i => i.val | none => unreachable!;
-              catchInternalId structuralExceptionId
+              orelseMergeErrors
                 (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
                      indicesPos  := indicesPos,
                      indName     := indInfo.name,
@@ -125,7 +124,7 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
                      indParams   := indParams,
                      indIndices  := indIndices,
                      reflexive := indInfo.isReflexive })
-                (fun _ => findRecArgAux (i+1))
+                (findRecArgAux (i+1))
   else
     throwStructuralFailed
 
@@ -134,6 +133,14 @@ findRecArgAux numFixed xs k numFixed
 
 private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
 (e.find? fun e => e.isConstOf recFnName).isSome
+
+private def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
+if containsRecFn recFnName e then do
+  Meta.forEachExpr e fun e => when (e.isAppOf recFnName) $
+    throwError $ "unexpected occurrence of recursive application" ++ indentExpr e;
+  pure e
+else
+  pure e
 
 private partial def replaceRecApps (recFnName : Name) (argInfo : RecArgInfo) : Expr → Expr → MetaM Expr
 | below, e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps below b; mkLambdaFVars xs b
@@ -160,31 +167,19 @@ private partial def replaceRecApps (recFnName : Name) (argInfo : RecArgInfo) : E
   | some matcherApp =>
     if !containsRecFn recFnName e then processApp e
     else do
-      matcherApp ← catch (matcherApp.addArg below)
-        (fun ex => do
-          trace! `Elab.definition.structural
-            ("failed to add `below` argument to 'matcher' application" ++ indentD ex.toMessageData);
-          throwStructuralFailed);
+      matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg);
       altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun ⟨alt, numParams⟩ =>
         lambdaTelescope alt fun xs altBody => do {
           trace! `Elab.definition.structural ("altNumParams: " ++ toString numParams ++ ", xs: " ++ xs);
-          unless (xs.size >= numParams) do {
-            trace! `Elab.definition.structural
-              ("unexpected matcher application alternative " ++ indentExpr alt ++ Format.line ++ "at application" ++ indentExpr e);
-            throwStructuralFailed
-          };
+          unless (xs.size >= numParams) $
+            throwError $ "unexpected matcher application alternative " ++ indentExpr alt ++ Format.line ++ "at application" ++ indentExpr e;
           let belowForAlt := xs.get! (numParams - 1);
           altBodyNew ← replaceRecApps belowForAlt altBody;
           mkLambdaFVars xs altBodyNew
         };
       pure { matcherApp with alts := altsNew }.toExpr
   | none => processApp e
-| _, e =>
-  if containsRecFn recFnName e then do
-    trace! `Elab.definition.structural ("unexpected occurrence of recursive function at" ++ indentExpr e);
-    throwStructuralFailed
-  else
-    pure e
+| _, e => ensureNoRecFn recFnName e
 
 private def mkBRecOn (recFnName : Name) (argInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
 type ← inferType value;
@@ -229,23 +224,17 @@ lambdaTelescope preDef.value fun xs value => do
     valueNew ← mkBRecOn preDef.declName argInfo value;
     valueNew ← mkLambdaFVars xs valueNew;
     trace! `Elab.definition.structural ("result: " ++ valueNew);
-    if containsRecFn preDef.declName valueNew then do
-      -- This can happen when the recursive function occurs in expressions that are not visited by replaceRecApps (e.g., types)
-      trace! `Elab.definition.structural ("unexpected occurrence of recursive function at" ++ indentExpr valueNew);
-      throwStructuralFailed
-    else
-      pure { preDef with value := valueNew }
+    -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
+    valueNew ← ensureNoRecFn preDef.declName valueNew;
+    pure { preDef with value := valueNew }
 
-def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Bool :=
+def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
 if preDefs.size != 1 then
-  pure false
-else
-  catchInternalId structuralExceptionId
-    (do preDefNonRec ← liftMetaM $ elimRecursion (preDefs.get! 0);
-        addNonRec preDefNonRec;
-        addAndCompileUnsafeRec preDefs;
-        pure true)
-    (fun _ => pure false)
+  throwError "structural recursion does not handle mutually recursive functions"
+else do
+  preDefNonRec ← liftMetaM $ elimRecursion (preDefs.get! 0);
+  addNonRec preDefNonRec;
+  addAndCompileUnsafeRec preDefs
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.definition.structural;

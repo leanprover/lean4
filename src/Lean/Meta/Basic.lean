@@ -400,6 +400,10 @@ if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkLambda xs e
 def mkLetFVars (xs : Array Expr) (e : Expr) : m Expr :=
 mkLambdaFVars xs e
 
+def mkArrow (d b : Expr) : m Expr := liftMetaM do
+n ← Core.mkFreshUserName `x;
+pure $ Lean.mkForall n BinderInfo.default d b
+
 def mkForallUsedOnly (xs : Array Expr) (e : Expr) : m (Expr × Nat) := liftMetaM do
 if xs.isEmpty then pure (e, 0) else liftMkBindingM $ MetavarContext.mkForallUsedOnly xs e
 
@@ -959,6 +963,22 @@ private partial def instantiateForallAux (ps : Array Expr) : Nat → Expr → Me
 /- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
 def instantiateForall (e : Expr) (ps : Array Expr) : m Expr :=
 liftMetaM $ instantiateForallAux ps 0 e
+
+private partial def instantiateLambdaAux (ps : Array Expr) : Nat → Expr → MetaM Expr
+| i, e =>
+  if h : i < ps.size then do
+    let p := ps.get ⟨i, h⟩;
+    e ← whnf e;
+    match e with
+    | Expr.lam _ _ b _ => instantiateLambdaAux (i+1) (b.instantiate1 p)
+    | _                => throwError "invalid instantiateLambda, too many parameters"
+  else
+    pure e
+
+/- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
+   It uses `whnf` to reduce `e` if it is not a lambda -/
+def instantiateLambda (e : Expr) (ps : Array Expr) : m Expr :=
+liftMetaM $ instantiateLambdaAux ps 0 e
 
 /-- Return true iff `e` depends on the free variable `fvarId` -/
 def dependsOn (e : Expr) (fvarId : FVarId) : m Bool := liftMetaM do

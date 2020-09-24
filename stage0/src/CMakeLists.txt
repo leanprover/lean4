@@ -533,34 +533,39 @@ else()
 endif()
 install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
+# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
+string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
+
 # make stdlib using previous stage
 if(PREV_STAGE)
-  # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
-  string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${PREV_STAGE}/bin")
   # ...and Make doesn't like absolute Windows paths either
   # (also looks nicer in the build log)
   file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
+
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+  set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
   configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
   add_custom_target(make_stdlib ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
     # for a parallelized nested build, but CMake doesn't let us do that.
+    # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make)
 
   add_library(Init STATIC IMPORTED)
   set_target_properties(Init PROPERTIES
-    IMPORTED_LOCATION lib/lean/libInit.a)
+    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libInit.a)
   add_dependencies(Init make_stdlib)
 
   add_library(Std STATIC IMPORTED)
   set_target_properties(Std PROPERTIES
-    IMPORTED_LOCATION lib/lean/libStd.a)
+    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libStd.a)
   add_dependencies(Std make_stdlib)
 
   add_library(Lean STATIC IMPORTED)
   set_target_properties(Lean PROPERTIES
-    IMPORTED_LOCATION lib/lean/libLean.a)
+    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
   add_dependencies(Lean make_stdlib)
 
   # leancpp and the Lean libs are cyclically dependent

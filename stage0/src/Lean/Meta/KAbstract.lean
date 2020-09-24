@@ -35,7 +35,10 @@ private partial def kabstractAux (occs : Occurrences) (p : Expr) (pHeadIdx : Hea
     visitChildren ()
 
 def kabstract {m} [MonadLiftT MetaM m] (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : m Expr := liftMetaM do
-(kabstractAux occs p p.toHeadIndex p.headNumArgs e 0).run' 1
+if p.isFVar && occs == Occurrences.all then
+  pure $ e.abstract #[p] -- Easy case
+else
+  (kabstractAux occs p p.toHeadIndex p.headNumArgs e 0).run' 1
 
 end Meta
 end Lean

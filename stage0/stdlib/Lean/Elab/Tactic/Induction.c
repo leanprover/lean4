@@ -282,7 +282,7 @@ lean_object* l_Lean_Meta_induction(lean_object*, lean_object*, lean_object*, lea
 lean_object* l___private_Lean_Elab_Tactic_Induction_4__generalizeMajor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_12__getRecFromUsingLoop___main___closed__1;
-extern lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+extern lean_object* l_Lean_Meta_mkArrow___rarg___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Induction_4__generalizeMajor___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_1__getAuxHypothesisName(lean_object* x_1) {
 _start:
@@ -400,7 +400,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_3__elabMajor___lambda__2(lea
 _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; 
-x_14 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+x_14 = l_Lean_Meta_mkArrow___rarg___closed__2;
 x_15 = lean_local_ctx_get_unused_name(x_4, x_14);
 x_16 = lean_box(0);
 x_17 = 0;
@@ -723,7 +723,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_13, 1);
 lean_inc(x_16);
 lean_dec(x_13);
-x_17 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+x_17 = l_Lean_Meta_mkArrow___rarg___closed__2;
 x_18 = 0;
 x_19 = lean_box(x_18);
 lean_inc(x_15);

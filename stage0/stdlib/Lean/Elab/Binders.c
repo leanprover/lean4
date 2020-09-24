@@ -292,6 +292,7 @@ lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__4;
 lean_object* l___private_Lean_Elab_Binders_4__expandBinderModifier___closed__4;
 lean_object* lean_environment_main_module(lean_object*);
+extern lean_object* l_Lean_Meta_mkArrow___rarg___closed__1;
 lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__9;
 extern lean_object* l_Lean_Expr_getOptParamDefault_x3f___closed__1;
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__8;
@@ -415,7 +416,6 @@ lean_object* l___private_Lean_Elab_Binders_5__getBinderIds___boxed(lean_object*,
 extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__5;
 lean_object* l___private_Lean_Elab_Binders_13__propagateExpectedType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__1;
 extern lean_object* l___private_Lean_Elab_Util_6__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_Term_expandMatchAltsIntoMatch(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandMatchAltsIntoMatch___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -423,7 +423,7 @@ lean_object* l___regBuiltin_Lean_Elab_Term_elabDepArrow(lean_object*);
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__5;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+extern lean_object* l_Lean_Meta_mkArrow___rarg___closed__2;
 lean_object* l_Lean_Elab_Term_elabBinder(lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__22;
@@ -14633,7 +14633,7 @@ lean_object* _init_l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__1;
+x_1 = l_Lean_Meta_mkArrow___rarg___closed__1;
 x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
@@ -14642,7 +14642,7 @@ lean_object* _init_l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__1;
+x_1 = l_Lean_Meta_mkArrow___rarg___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -14790,7 +14790,7 @@ lean_dec(x_15);
 lean_inc(x_7);
 lean_inc(x_14);
 lean_ctor_set(x_6, 2, x_7);
-x_16 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+x_16 = l_Lean_Meta_mkArrow___rarg___closed__2;
 x_17 = l_Lean_addMacroScope(x_14, x_16, x_7);
 x_18 = lean_box(0);
 x_19 = l_Lean_SourceInfo_inhabited___closed__1;
@@ -14990,7 +14990,7 @@ lean_ctor_set(x_110, 1, x_107);
 lean_ctor_set(x_110, 2, x_7);
 lean_ctor_set(x_110, 3, x_108);
 lean_ctor_set(x_110, 4, x_109);
-x_111 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+x_111 = l_Lean_Meta_mkArrow___rarg___closed__2;
 x_112 = l_Lean_addMacroScope(x_107, x_111, x_7);
 x_113 = lean_box(0);
 x_114 = l_Lean_SourceInfo_inhabited___closed__1;
@@ -16235,7 +16235,7 @@ lean_dec(x_14);
 lean_inc(x_6);
 lean_inc(x_13);
 lean_ctor_set(x_5, 2, x_6);
-x_15 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+x_15 = l_Lean_Meta_mkArrow___rarg___closed__2;
 x_16 = l_Lean_addMacroScope(x_13, x_15, x_6);
 x_17 = lean_box(0);
 x_18 = l_Lean_SourceInfo_inhabited___closed__1;
@@ -16393,7 +16393,7 @@ lean_ctor_set(x_91, 1, x_88);
 lean_ctor_set(x_91, 2, x_6);
 lean_ctor_set(x_91, 3, x_89);
 lean_ctor_set(x_91, 4, x_90);
-x_92 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+x_92 = l_Lean_Meta_mkArrow___rarg___closed__2;
 x_93 = l_Lean_addMacroScope(x_88, x_92, x_6);
 x_94 = lean_box(0);
 x_95 = l_Lean_SourceInfo_inhabited___closed__1;
@@ -16868,7 +16868,7 @@ lean_inc(x_95);
 x_96 = lean_ctor_get(x_94, 1);
 lean_inc(x_96);
 lean_dec(x_94);
-x_97 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
+x_97 = l_Lean_Meta_mkArrow___rarg___closed__2;
 x_98 = l_Lean_addMacroScope(x_95, x_97, x_92);
 x_99 = lean_box(0);
 x_100 = l_Lean_SourceInfo_inhabited___closed__1;

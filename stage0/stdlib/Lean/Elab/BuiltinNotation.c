@@ -481,6 +481,7 @@ extern lean_object* l_Lean_nullKind___closed__2;
 extern lean_object* l_Lean_boolToExpr___lambda__1___closed__6;
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandMapRev(lean_object*);
+lean_object* l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandEquiv___closed__3;
 lean_object* l_Lean_Elab_Term_ExpandFComp___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandNot___closed__1;
@@ -648,7 +649,6 @@ lean_object* l___private_Lean_Elab_BuiltinNotation_5__getPropToDecide___closed__
 lean_object* l_Lean_Elab_Term_elabNativeDecide___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandIf(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandMul___closed__1;
-lean_object* l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_5__mkEqReflImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandseqRight___closed__4;
 extern lean_object* l___private_Lean_Elab_Quotation_10__toPreterm___main___lambda__4___closed__1;
@@ -6099,7 +6099,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_14);
-x_16 = l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_15);
+x_16 = l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 

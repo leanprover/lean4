@@ -445,6 +445,7 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Elab_Command_elabCommand___main
 lean_object* l_StateRefT_x27_get___at_Lean_Elab_Command_Lean_MonadEnv___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getMainModule___rarg___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1___closed__3;
+lean_object* l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_CommandElabM_monadLog;
 lean_object* l_Lean_Meta_mkLambdaFVars___at___private_Lean_Elab_Term_17__elabImplicitLambdaAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_addUnivLevel(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -590,7 +591,6 @@ lean_object* l_Lean_Elab_Command_getScopes___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___at_Lean_Elab_Command_withLogging___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkMessageAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
-lean_object* l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_failIfSucceeds___closed__3;
 lean_object* l_Lean_Elab_Command_logUnknownDecl___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabEval(lean_object*);
@@ -14126,7 +14126,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_15);
-x_21 = l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_20);
+x_21 = l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_20);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; lean_object* x_30; uint8_t x_31; 
@@ -15420,7 +15420,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_28);
-x_34 = l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(x_28, x_5, x_6, x_7, x_8, x_9, x_10, x_32);
+x_34 = l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(x_28, x_5, x_6, x_7, x_8, x_9, x_10, x_32);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
@@ -16076,7 +16076,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_31);
-x_38 = l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(x_31, x_5, x_6, x_7, x_8, x_9, x_10, x_35);
+x_38 = l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(x_31, x_5, x_6, x_7, x_8, x_9, x_10, x_35);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 

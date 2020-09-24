@@ -259,7 +259,8 @@ else
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   expand let-expressions, expand assigned meta-variables. -/
 private partial def whnfCoreImp : Expr → MetaM Expr
-| e => whnfEasyCases e $ fun e =>
+| e => whnfEasyCases e fun e => do
+  trace! `Meta.whnf e;
   match e with
   | e@(Expr.const _ _ _)    => pure e
   | e@(Expr.letE _ _ v b _) => whnfCoreImp $ b.instantiate1 v
@@ -287,7 +288,12 @@ private partial def whnfCoreImp : Expr → MetaM Expr
     c   ← whnf c;
     matchConstAux c.getAppFn (fun _ => pure e) $ fun cinfo lvls =>
       match cinfo with
-      | ConstantInfo.ctorInfo ctorVal => pure $ c.getArgD (ctorVal.nparams + i) e
+      | ConstantInfo.ctorInfo ctorVal =>
+        let argIdx := ctorVal.nparams + i;
+        if argIdx < c.getAppNumArgs then
+          whnfCoreImp $ c.getArg! argIdx
+        else
+          pure e
       | _ => pure e
   | _ => unreachable!
 
@@ -479,6 +485,10 @@ def whnfUntil (e : Expr) (declName : Name) : m (Option Expr) := liftMetaM do
 e ← whnfHeadPredAux (fun e => pure $ !e.isAppOf declName) e;
 if e.isAppOf declName then pure e
 else pure none
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta.whnf;
+pure ()
 
 end Meta
 end Lean

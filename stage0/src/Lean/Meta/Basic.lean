@@ -400,6 +400,10 @@ if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkLambda xs e
 def mkLetFVars (xs : Array Expr) (e : Expr) : m Expr :=
 mkLambdaFVars xs e
 
+def mkArrow (d b : Expr) : m Expr := liftMetaM do
+n ← Core.mkFreshUserName `x;
+pure $ Lean.mkForall n BinderInfo.default d b
+
 def mkForallUsedOnly (xs : Array Expr) (e : Expr) : m (Expr × Nat) := liftMetaM do
 if xs.isEmpty then pure (e, 0) else liftMkBindingM $ MetavarContext.mkForallUsedOnly xs e
 
@@ -960,6 +964,22 @@ private partial def instantiateForallAux (ps : Array Expr) : Nat → Expr → Me
 def instantiateForall (e : Expr) (ps : Array Expr) : m Expr :=
 liftMetaM $ instantiateForallAux ps 0 e
 
+private partial def instantiateLambdaAux (ps : Array Expr) : Nat → Expr → MetaM Expr
+| i, e =>
+  if h : i < ps.size then do
+    let p := ps.get ⟨i, h⟩;
+    e ← whnf e;
+    match e with
+    | Expr.lam _ _ b _ => instantiateLambdaAux (i+1) (b.instantiate1 p)
+    | _                => throwError "invalid instantiateLambda, too many parameters"
+  else
+    pure e
+
+/- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
+   It uses `whnf` to reduce `e` if it is not a lambda -/
+def instantiateLambda (e : Expr) (ps : Array Expr) : m Expr :=
+liftMetaM $ instantiateLambdaAux ps 0 e
+
 /-- Return true iff `e` depends on the free variable `fvarId` -/
 def dependsOn (e : Expr) (fvarId : FVarId) : m Bool := liftMetaM do
 mctx ← getMCtx;
@@ -981,6 +1001,40 @@ mctx ← getMCtx;
 catch x (fun _ => do setEnv env; setMCtx mctx; y)
 
 instance Meta.hasOrelse {α} : HasOrelse (MetaM α) := ⟨Meta.orelse⟩
+
+@[inline] private def orelseMergeErrorsImp {α} (x y : MetaM α)
+  (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)
+  (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ m₂)
+  : MetaM α := do
+env  ← getEnv;
+mctx ← getMCtx;
+catch x fun ex => do
+  setEnv env; setMCtx mctx;
+  match ex with
+  | Exception.error ref₁ m₁ =>
+    catch y fun ex => match ex with
+    | Exception.error ref₂ m₂ => throw $ Exception.error (mergeRef ref₁ ref₂) (mergeMsg m₁ m₂)
+    | _ => throw ex
+  | _ => throw ex
+
+/--
+  Similar to `orelse`, but merge errors. Note that internal errors are not caught.
+  The default `mergeRef` uses the `ref` (position information) for the first message.
+  The default `mergeMsg` combines error messages using `Format.line ++ Format.line` as a separator. -/
+@[inline] def orelseMergeErrors {α m} [MonadControlT MetaM m] [Monad m] (x y : m α)
+  (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)
+  (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ Format.line ++ m₂)
+  : m α := do
+controlAt MetaM fun runInBase => orelseMergeErrorsImp (runInBase x) (runInBase y) mergeRef mergeMsg
+
+/-- Execute `x`, and apply `f` to the produced error message -/
+def mapErrorImp {α} (x : MetaM α) (f : MessageData → MessageData) : MetaM α :=
+catch x fun ex => match ex with
+  | Exception.error ref msg => throw $ Exception.error ref $ f msg
+  | _ => throw ex
+
+@[inline] def mapError {α m} [MonadControlT MetaM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=
+controlAt MetaM fun runInBase => mapErrorImp (runInBase x) f
 
 /-- `commitWhenSome? x` executes `x` and keep modifications when it returns `some a`. -/
 @[specialize] def commitWhenSome? {α} (x? : MetaM (Option α)) : MetaM (Option α) := do

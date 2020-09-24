@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l___private_Lean_Meta_Basic_18__withNewLocalInstancesImpAux___at_Lean_Meta_withNewLocalInstances___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___at_Lean_Meta_introNCore___spec__2(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Core_mkFreshUserName___at___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_registerHygienicIntro___closed__4;
 lean_object* l_Lean_Meta_intro1Core___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,7 +105,6 @@ lean_object* l_Lean_Meta_withMVarContext___rarg(lean_object*, lean_object*, lean
 lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getHygienicIntro___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Core_mkFreshUserName___at___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_2__introNImp___at_Lean_Meta_introNCore___spec__1(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getHygienicIntro(lean_object*, lean_object*);
@@ -1122,14 +1120,6 @@ x_4 = lean_register_option(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* l_Lean_Core_mkFreshUserName___at___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Lean_CoreM_1__mkFreshNameImp(x_1, x_4, x_5, x_6);
-return x_7;
-}
-}
 lean_object* l___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -1284,18 +1274,6 @@ return x_42;
 }
 }
 }
-}
-}
-lean_object* l_Lean_Core_mkFreshUserName___at___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_Core_mkFreshUserName___at___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_7;
 }
 }
 lean_object* l___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {

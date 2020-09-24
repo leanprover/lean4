@@ -300,7 +300,7 @@ lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* l_Lean_Parser_registerRunParserAttributeHooksAttribute___closed__2;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Parser_Extension_3__addParserCategoryCore___spec__6(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
-lean_object* l_Lean_Parser_mergeOrElseErrors(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_mergeOrElseErrors(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Parser_tryFn(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isParserCategory(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
@@ -6847,17 +6847,17 @@ lean_dec(x_8);
 if (x_5 == 0)
 {
 x_10 = x_1;
-goto block_42;
+goto block_43;
 }
 else
 {
-lean_object* x_43; 
+lean_object* x_44; 
 lean_dec(x_1);
-x_43 = l_Lean_Parser_categoryParserFnImpl___closed__4;
-x_10 = x_43;
-goto block_42;
+x_44 = l_Lean_Parser_categoryParserFnImpl___closed__4;
+x_10 = x_44;
+goto block_43;
 }
-block_42:
+block_43:
 {
 lean_object* x_11; 
 x_11 = l_Std_PersistentHashMap_find_x3f___at_Lean_Parser_getCategory___spec__1(x_9, x_10);
@@ -6960,29 +6960,30 @@ return x_31;
 }
 else
 {
-lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; lean_object* x_41; 
 lean_inc(x_30);
 x_37 = l_Lean_Parser_ParserState_restore(x_31, x_29, x_30);
 lean_dec(x_29);
 lean_inc(x_2);
 lean_inc(x_20);
 x_38 = l_Lean_Parser_leadingParserAux(x_10, x_20, x_21, x_2, x_37);
-x_39 = l_Lean_Parser_mergeOrElseErrors(x_38, x_34, x_30);
+x_39 = 1;
+x_40 = l_Lean_Parser_mergeOrElseErrors(x_38, x_34, x_30, x_39);
 lean_dec(x_30);
-x_40 = lean_ctor_get(x_39, 3);
-lean_inc(x_40);
-if (lean_obj_tag(x_40) == 0)
+x_41 = lean_ctor_get(x_40, 3);
+lean_inc(x_41);
+if (lean_obj_tag(x_41) == 0)
 {
-lean_object* x_41; 
-x_41 = l_Lean_Parser_trailingLoop___main(x_20, x_2, x_39);
-return x_41;
+lean_object* x_42; 
+x_42 = l_Lean_Parser_trailingLoop___main(x_20, x_2, x_40);
+return x_42;
 }
 else
 {
-lean_dec(x_40);
+lean_dec(x_41);
 lean_dec(x_20);
 lean_dec(x_2);
-return x_39;
+return x_40;
 }
 }
 }

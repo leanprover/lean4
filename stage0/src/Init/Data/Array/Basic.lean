@@ -853,4 +853,22 @@ private partial def allDiffAux {α} [HasBeq α] (as : Array α) : Nat → Bool
 def allDiff {α} [HasBeq α] (as : Array α) : Bool :=
 allDiffAux as 0
 
+@[specialize] partial def zipWithAux {α β γ} (f : α → β → γ) (as : Array α) (bs : Array β) : Nat → Array γ → Array γ
+| i, cs =>
+  if h : i < as.size then
+    let a := as.get ⟨i, h⟩;
+    if h : i < bs.size then
+      let b := bs.get ⟨i, h⟩;
+      zipWithAux (i+1) (cs.push $ f a b)
+    else
+      cs
+  else
+    cs
+
+@[inline] def zipWith {α β γ} (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
+zipWithAux f as bs 0 #[]
+
+def zip {α β} (as : Array α) (bs : Array β) : Array (α × β) :=
+zipWith as bs Prod.mk
+
 end Array

@@ -61,10 +61,6 @@ match arg with
   val ← elabTerm val expectedType;
   ensureArgType f val expectedType
 
-private def mkArrow (d b : Expr) : TermElabM Expr := do
-n ← mkFreshBinderName;
-pure $ Lean.mkForall n BinderInfo.default d b
-
 /-
   Relevant definitions:
   ```

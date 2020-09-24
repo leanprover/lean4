@@ -234,6 +234,7 @@ lean_object* l_Lean_Delaborator_delabBAnd___lambda__1___closed__3;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Delaborator_delabMod___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabNe___closed__2;
+lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabMap___lambda__1___closed__2;
 lean_object* l_Lean_Delaborator_delabAnd___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabPow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -644,7 +645,6 @@ lean_object* l___regBuiltin_Lean_Delaborator_delabseqRight(lean_object*);
 lean_object* l_Lean_Delaborator_hasIdent___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabCons___lambda__1___closed__1;
 lean_object* l_Lean_Delaborator_delabDiv___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Delaborator_delabBVar___closed__1;
 lean_object* l___regBuiltin_Lean_Delaborator_delabMap___closed__3;
 lean_object* l___regBuiltin_Lean_Delaborator_delabGE___closed__2;
 lean_object* l_Lean_Delaborator_delabModN___lambda__1___closed__1;
@@ -8554,16 +8554,6 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Delaborator_delabBVar___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Array_HasRepr___rarg___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Delaborator_delabBVar(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -8589,10 +8579,11 @@ x_11 = lean_ctor_get(x_8, 0);
 lean_inc(x_11);
 lean_dec(x_8);
 x_12 = l_Nat_repr(x_11);
-x_13 = lean_box(0);
-x_14 = lean_name_mk_string(x_13, x_12);
-x_15 = l_Lean_Delaborator_delabBVar___closed__1;
-x_16 = l_Lean_Name_append___main(x_15, x_14);
+x_13 = l_Array_HasRepr___rarg___closed__1;
+x_14 = lean_string_append(x_13, x_12);
+lean_dec(x_12);
+x_15 = lean_box(0);
+x_16 = lean_name_mk_string(x_15, x_14);
 x_17 = lean_mk_syntax_ident(x_16);
 lean_ctor_set(x_7, 0, x_17);
 return x_7;
@@ -8607,10 +8598,11 @@ x_19 = lean_ctor_get(x_8, 0);
 lean_inc(x_19);
 lean_dec(x_8);
 x_20 = l_Nat_repr(x_19);
-x_21 = lean_box(0);
-x_22 = lean_name_mk_string(x_21, x_20);
-x_23 = l_Lean_Delaborator_delabBVar___closed__1;
-x_24 = l_Lean_Name_append___main(x_23, x_22);
+x_21 = l_Array_HasRepr___rarg___closed__1;
+x_22 = lean_string_append(x_21, x_20);
+lean_dec(x_20);
+x_23 = lean_box(0);
+x_24 = lean_name_mk_string(x_23, x_22);
 x_25 = lean_mk_syntax_ident(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -25303,8 +25295,6 @@ lean_mark_persistent(l___regBuiltin_Lean_Delaborator_delabFVar___closed__1);
 res = l___regBuiltin_Lean_Delaborator_delabFVar(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Delaborator_delabBVar___closed__1 = _init_l_Lean_Delaborator_delabBVar___closed__1();
-lean_mark_persistent(l_Lean_Delaborator_delabBVar___closed__1);
 l___regBuiltin_Lean_Delaborator_delabBVar___closed__1 = _init_l___regBuiltin_Lean_Delaborator_delabBVar___closed__1();
 lean_mark_persistent(l___regBuiltin_Lean_Delaborator_delabBVar___closed__1);
 res = l___regBuiltin_Lean_Delaborator_delabBVar(lean_io_mk_world());

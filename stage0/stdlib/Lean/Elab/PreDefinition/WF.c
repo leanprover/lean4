@@ -25,7 +25,7 @@ lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("WIP");
+x_1 = lean_mk_string("well founded recursion has not been implemented yet");
 return x_1;
 }
 }

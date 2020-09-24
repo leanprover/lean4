@@ -245,7 +245,7 @@ let num := majors.size;
 when (lhss.any (fun lhs => lhs.patterns.length != num)) $
   throwError "incorrect number of patterns"
 
-private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array Expr → (List Alt → Array Expr → MetaM α) → MetaM α
+private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array (Expr × Nat) → (List Alt → Array (Expr × Nat) → MetaM α) → MetaM α
 | [],        alts, minors, k => k alts.reverse minors
 | lhs::lhss, alts, minors, k => do
   let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr;
@@ -254,19 +254,19 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
     let minorType := mkAppN motive args;
     mkForallFVars xs minorType
   };
-  let minorType := if minorType.isForall then minorType else mkThunkType minorType;
+  let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkThunkType minorType, 1);
   let idx       := alts.length;
   let minorName := (`h).appendIndexAfter (idx+1);
   trace! `Meta.Match.debug ("minor premise " ++ minorName ++ " : " ++ minorType);
   withLocalDeclD minorName minorType fun minor => do
     let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs;
-    let minors := minors.push minor;
+    let minors := minors.push (minor, minorNumParams);
     fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars;
     let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts;
     withAltsAux lhss alts minors k
 
 /- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
-private partial def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt → Array Expr → MetaM α) : MetaM α :=
+private partial def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
 withAltsAux motive lhss [] #[] k
 
 def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
@@ -728,10 +728,13 @@ A "matcher" auxiliary declaration has the following structure:
 - `numParams` parameters
 - motive
 - `numDiscrs` discriminators (aka major premises)
-- `numAlts` alternatives (aka minor premises)
+- `altNumParams.size` alternatives (aka minor premises) where alternative `i` has `altNumParams[i]` alternatives
 -/
 structure MatcherInfo :=
-(numParams : Nat) (numDiscrs : Nat) (numAlts : Nat)
+(numParams : Nat) (numDiscrs : Nat) (altNumParams : Array Nat)
+
+def MatcherInfo.numAlts (matcherInfo : MatcherInfo) : Nat :=
+matcherInfo.altNumParams.size
 
 namespace Extension
 
@@ -769,14 +772,6 @@ end Extension
 def addMatcherInfo (matcherName : Name) (info : MatcherInfo) : MetaM Unit :=
 modifyEnv fun env => Extension.addMatcherInfo env matcherName info
 
-def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) := do
-env ← getEnv;
-pure $ Extension.getMatcherInfo? env declName
-
-def isMatcher (declName : Name) : MetaM Bool := do
-info? ← getMatcherInfo? declName;
-pure info?.isSome
-
 def mkMatcher (matcherName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
 withLocalDeclD `motive motiveType fun motive => do
 trace! `Meta.Match.debug ("motiveType: " ++ motiveType);
@@ -788,12 +783,12 @@ withAlts motive lhss fun alts minors => do
   mvar ← mkFreshExprMVar mvarType;
   let examples := majors.toList.map fun major => Example.var major.fvarId!;
   (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {};
-  let args := #[motive] ++ majors ++ minors;
+  let args := #[motive] ++ majors ++ minors.map Prod.fst;
   type ← mkForallFVars args mvarType;
   val  ← mkLambdaFVars args mvar;
   trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type);
   matcher ← mkAuxDefinition matcherName type val;
-  addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := majors.size, numAlts := minors.size };
+  addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := majors.size, altNumParams := minors.map Prod.snd };
   setInlineAttribute matcherName;
   trace! `Meta.Match.debug ("matcher: " ++ matcher);
   let unusedAltIdxs : List Nat := lhss.length.fold
@@ -801,12 +796,122 @@ withAlts motive lhss fun alts minors => do
     [];
   pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
 
+end Match
+
+export Match (MatcherInfo)
+
+def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) := do
+env ← getEnv;
+pure $ Match.Extension.getMatcherInfo? env declName
+
+def isMatcher (declName : Name) : MetaM Bool := do
+info? ← getMatcherInfo? declName;
+pure info?.isSome
+
+structure MatcherApp :=
+(matcherName   : Name)
+(matcherLevels : List Level)
+(params        : Array Expr)
+(motive        : Expr)
+(discrs        : Array Expr)
+(altNumParams  : Array Nat)
+(alts          : Array Expr)
+(remaining     : Array Expr)
+
+def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
+match e.getAppFn with
+| Expr.const declName declLevels _ => do
+  some info ← getMatcherInfo? declName | pure none;
+  let args := e.getAppArgs;
+  if args.size < info.numParams + 1 + info.numDiscrs + info.numAlts then pure none
+  else
+    pure $ some {
+      matcherName   := declName,
+      matcherLevels := declLevels,
+      params        := args.extract 0 info.numParams,
+      motive        := args.get! info.numParams,
+      discrs        := args.extract (info.numParams + 1) (info.numParams + 1 + info.numDiscrs),
+      altNumParams  := info.altNumParams,
+      alts          := args.extract (info.numParams + 1 + info.numDiscrs) (info.numParams + 1 + info.numDiscrs + info.numAlts),
+      remaining     := args.extract (info.numParams + 1 + info.numDiscrs + info.numAlts) args.size
+    }
+| _ => pure none
+
+def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
+let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels) matcherApp.params;
+let result := mkApp result matcherApp.motive;
+let result := mkAppN result matcherApp.discrs;
+let result := mkAppN result matcherApp.alts;
+mkAppN result matcherApp.remaining
+
+/- Auxiliary function for MatcherApp.addArg -/
+private partial def updateAlts : Expr → Array Nat → Array Expr → Nat → MetaM (Array Nat × Array Expr)
+| typeNew, altNumParams, alts, i =>
+  if h : i < alts.size then do
+    let alt       := alts.get ⟨i, h⟩;
+    let numParams := altNumParams.get! i;
+    typeNew ← whnfD typeNew;
+    match typeNew with
+    | Expr.forallE n d b _ => do
+      alt ← forallBoundedTelescope d (some numParams) fun xs d => do {
+        alt ← catch (instantiateLambda alt xs) (fun _ => throwError "unexpected matcher application, insufficient number of parameters in alternative");
+        forallBoundedTelescope d (some 1) fun x d => do
+          alt ← mkLambdaFVars x alt; -- x is the new argument we are adding to the alternative
+          alt ← mkLambdaFVars xs alt;
+          pure alt
+      };
+      updateAlts (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) (i+1)
+    | _ => throwError "unexpected type at MatcherApp.addArg"
+  else
+    pure (altNumParams, alts)
+
+/- Given
+  - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
+  - expression `e : B[discrs]`,
+  Construct the term
+  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`, and
+  We use `kabstract` to abstract the discriminants from `B[discrs]`.
+  This method assumes
+  - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
+  - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+-/
+def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
+lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
+  unless (motiveArgs.size == matcherApp.discrs.size) $
+    -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
+    throwError ("unexpected matcher application, motive must be lambda expression with #" ++ toString matcherApp.discrs.size ++ " arguments");
+  eType ← inferType e;
+  eTypeAbst ← matcherApp.discrs.size.foldRevM
+    (fun i eTypeAbst => do
+      let motiveArg := motiveArgs.get! i;
+      let discr     := matcherApp.discrs.get! i;
+      eTypeAbst ← kabstract eTypeAbst discr;
+      pure $ eTypeAbst.instantiate1 motiveArg)
+    eType;
+  motiveBody ← mkArrow eTypeAbst motiveBody;
+  motive ← mkLambdaFVars motiveArgs motiveBody;
+  -- Construct `aux` `match_i As (fun xs => B[xs] → motive[xs]) discrs`, and infer its type `auxType`.
+  -- We use `auxType` to infer the type `B[C_i[ys_i]]` of the new argument in each alternative.
+  let aux := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels) matcherApp.params;
+  let aux := mkApp aux motive;
+  let aux := mkAppN aux matcherApp.discrs;
+  trace! `Meta.debug aux;
+  check aux;
+  unlessM (isTypeCorrect aux) $
+    throwError "failed to add argument to matcher application, type error when constructing the new motive";
+  auxType ← inferType aux;
+  (altNumParams, alts) ← updateAlts auxType matcherApp.altNumParams matcherApp.alts 0;
+  pure { matcherApp with
+         motive       := motive,
+         alts         := alts,
+         altNumParams := altNumParams,
+         remaining    := #[e] ++ matcherApp.remaining }
+
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.Match.match;
 registerTraceClass `Meta.Match.debug;
 registerTraceClass `Meta.Match.unify;
 pure ()
 
-end Match
 end Meta
 end Lean

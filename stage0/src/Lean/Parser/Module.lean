@@ -70,6 +70,12 @@ match s.errorMsg with
 | some _ => pos + 1
 | none   => s.pos
 
+def topLevelCommandParserFn : ParserFn :=
+orelseFnCore
+  commandParser.fn
+  (andthenFn (lookaheadFn termParser.fn) (errorFn "expected command, but found term; this error may be due to parsing precedence levels, consider parenthesizing the term"))
+  false /- do not merge errors -/
+
 partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleParserState → MessageLog → Syntax × ModuleParserState × MessageLog
 | s@{ pos := pos, recovering := recovering }, messages =>
   if inputCtx.input.atEnd pos then
@@ -78,7 +84,7 @@ partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleP
     let c  := mkParserContext env inputCtx;
     let s  := { cache := initCacheForInput c.input, pos := pos : ParserState };
     let s  := whitespace c s;
-    let s  := (commandParser : Parser).fn c s;
+    let s  := topLevelCommandParserFn c s;
     match s.errorMsg with
     | none =>
       let stx := s.stxStack.back;

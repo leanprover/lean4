@@ -293,6 +293,7 @@ lean_object* l_Nat_forMAux___main___at___private_Lean_Elab_Inductive_16__elabCto
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinders___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_HashSet_Inhabited___closed__1;
+lean_object* l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at___private_Lean_Elab_Inductive_16__elabCtors___spec__1___closed__2;
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Inductive_35__mkInductiveDecl___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_binduction_on(lean_object*, lean_object*);
@@ -395,7 +396,6 @@ lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_16__elabCtors
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_16__elabCtors___spec__2___lambda__1___closed__7;
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at___private_Lean_Elab_Inductive_31__replaceIndFVarsWithConsts___spec__1(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_Inductive_2__checkNumParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___closed__3;
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_31__replaceIndFVarsWithConsts___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_20__collectUniversesFromCtorTypeAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -416,7 +416,6 @@ lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Inductive_32__m
 lean_object* l___private_Lean_Elab_Inductive_26__removeUnused(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
-extern lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_18__levelMVarToParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_13__withInductiveLocalDeclsAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -456,6 +455,7 @@ lean_object* l___private_Lean_Elab_Inductive_19__getResultingUniverse___closed__
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_28__updateParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
 lean_object* l___private_Lean_Elab_Inductive_3__checkUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Lean_Elab_Command_checkValidInductiveModifier___closed__1() {
 _start:
@@ -3595,7 +3595,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_10 = l_Lean_Meta_inferType___at_Lean_Elab_Term_tryLiftAndCoe___spec__2(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_10 = l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -7728,7 +7728,7 @@ lean_dec(x_8);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
-x_174 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
+x_174 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
 x_175 = l_unreachable_x21___rarg(x_174);
 x_176 = lean_apply_1(x_175, x_4);
 return x_176;
@@ -8283,7 +8283,7 @@ lean_dec(x_8);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
-x_174 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
+x_174 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
 x_175 = l_unreachable_x21___rarg(x_174);
 x_176 = lean_apply_1(x_175, x_4);
 return x_176;
@@ -10967,7 +10967,7 @@ case 12:
 {
 lean_object* x_156; lean_object* x_157; lean_object* x_158; 
 lean_dec(x_5);
-x_156 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
+x_156 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
 x_157 = l_unreachable_x21___rarg(x_156);
 x_158 = lean_apply_1(x_157, x_6);
 return x_158;

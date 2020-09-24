@@ -285,7 +285,49 @@ class specialize_fn {
             e = let_body(e);
         }
         expr r = visit(instantiate_rev(e, fvars.size(), fvars.data()));
-        return m_lctx.mk_lambda(fvars, r);
+        /*
+          We eagerly remove dead let-declarations to avoid unnecessary dependencies when specializing code.
+          For example, consider the following piece of code.
+          ```
+          fun (ys : List Nat) (w : IO.RealWorld) =>
+          let x_1 : Monad (EIO IO.Error) := ...;
+          let x_2 : Monad (StateT Nat IO) := ... x_1 ..;
+          let x_3 : Nat → StateT Nat IO Unit := fun (y a : Nat) (w : IO.RealWorld) =>
+            let x_4 : MonadLift IO (StateT Nat IO)  := ... x_1 ...;
+            let x_5 : MonadIO (StateT Nat IO) := ... x_4 ...;
+            IO.println _ x_2 x_5 Nat Nat.HasToString y a w;
+          let x_6 : EStateM.Result IO.Error IO.RealWorld (Unit × Nat) := List.forM _ x_2 Nat x_3 ys 0 w;
+          ...
+
+          ```
+          After we specialize `IO.println ...`, we obtain `IO.println.spec y a w`. That is, the dependencies
+          have been eliminated. So, by eagerly removing the dead let-declarations, we eliminate `x_4` and `x_5`,
+          and `x_3` becomes
+          ```
+          let x_3 : Nat → StateT Nat IO Unit := fun (y a : Nat) (w : IO.RealWorld) =>
+            IO.println.spec y a w;
+          ```
+          Now, suppose we haven't eliminated the dependencies. Then, when we try to specialize
+          `List.forM _ x_2 Nat x_3 ys 0 w`
+          we will incorrectly assume that the binder in `x_3` depends on the let-declaration `x_1`.
+          The heuristic for avoiding work duplication (see comment at `spec_ctx`) will force the specializer
+          to abstract `x_1`, and `forM` will be specialized for an arbitrary `x_1 : Monad (EIO IO.Error)`.
+
+          Another possible solution for this issue is to always copy instances at `dep_collector`.
+          However, we may be duplicating work. Note that, we don't have here a way to distinguish between
+          let-decls that come from inst-implicit arguments from the ones have been manually written by users.
+
+          Here is the code that was used to produce the fragment above.
+          ```
+          def g (ys : List Nat) : IO Nat := do
+          let x := 0;
+          (_, x) ← StateT.run (ys.forM fun y => IO.println y) x;
+          pure x
+          ```
+          If we don't eagerly remove dead let-declarations, then we can the nonoptimal code for the `forM` specialization
+          using `set_option trace.compiler.ir.result true`
+        */
+        return m_lctx.mk_lambda(fvars, r, true /* remove dead let-declarations */);
     }
 
     expr visit_cases_on(expr const & e) {
@@ -328,6 +370,9 @@ class specialize_fn {
            xs.map (λ x, x :: ys)
            ```
            We don't want to copy `list.repeat 0 n` inside of the specialized code.
+
+           However, there is one exception: join-points.
+           For join-points, there is no risk of work duplication, but we tolerate code duplication.
         */
         buffer<expr>          m_params;
         /* `m_vars` contains `m_params` plus all let-declarations.

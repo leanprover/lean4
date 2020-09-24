@@ -41,8 +41,6 @@ checkPrec prec >> unicodeSymbol sym asciiSym >> termParser (prec+1)
 def infixL (sym : String) (prec : Nat) : TrailingParser :=
 checkPrec prec >> symbol sym >> termParser (prec+1)
 
-def leadPrec := maxPrec - 1
-
 /- Built-in parsers -/
 
 @[builtinTermParser] def byTactic := parser!:leadPrec "by " >> Tactic.indentedNonEmptySeq
@@ -52,8 +50,8 @@ def leadPrec := maxPrec - 1
 @[builtinTermParser] def num : Parser := checkPrec maxPrec >> numLit
 @[builtinTermParser] def str : Parser := checkPrec maxPrec >> strLit
 @[builtinTermParser] def char : Parser := checkPrec maxPrec >> charLit
-@[builtinTermParser] def type := parser! "Type" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
-@[builtinTermParser] def sort := parser! "Sort" >> optional (checkWsBefore "" >> checkPrec (maxPrec-1) >> levelParser maxPrec)
+@[builtinTermParser] def type := parser! "Type" >> optional (checkWsBefore "" >> checkPrec leadPrec >> levelParser maxPrec)
+@[builtinTermParser] def sort := parser! "Sort" >> optional (checkWsBefore "" >> checkPrec leadPrec >> levelParser maxPrec)
 @[builtinTermParser] def prop := parser! "Prop"
 @[builtinTermParser] def hole := parser! "_"
 @[builtinTermParser] def syntheticHole := parser! "?" >> (ident <|> hole)
@@ -135,7 +133,7 @@ def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPre
 def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser
-@[builtinTermParser] def borrowed   := parser! "@&" >> termParser (maxPrec - 1)
+@[builtinTermParser] def borrowed   := parser! "@&" >> termParser leadPrec
 @[builtinTermParser] def quotedName := parser! nameLit
 -- NOTE: syntax quotations are defined in Init.Lean.Parser.Command
 @[builtinTermParser] def «match_syntax» := parser!:leadPrec "match_syntax" >> termParser >> " with " >> matchAlts

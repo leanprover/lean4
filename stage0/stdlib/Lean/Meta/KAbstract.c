@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_ReaderT_pure___at_Lean_Meta_instantiateMVars___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
@@ -23,12 +24,14 @@ lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_HeadIndex_HeadIndex_beq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_KAbstract_1__kabstractAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_kabstract___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___at___private_Lean_Meta_KAbstract_1__kabstractAux___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isExprDefEq___rarg___closed__2;
+uint8_t l_Lean_Occurrences_beq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex___main(lean_object*);
@@ -46,10 +49,13 @@ lean_object* l_Lean_Meta_kabstract___rarg___lambda__3___boxed(lean_object*, lean
 lean_object* l___private_Lean_Meta_KAbstract_1__kabstractAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracer_trace___at_Lean_Meta_isLevelDefEq___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_kabstract___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM___at_Lean_Meta_isLevelDefEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_expr_abstract(lean_object*, lean_object*);
+extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l___private_Lean_Util_Trace_5__getResetTraces___at_Lean_Meta_isLevelDefEq___spec__4___rarg(lean_object*, lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkBVar(lean_object*);
@@ -4482,26 +4488,66 @@ return x_1;
 lean_object* l_Lean_Meta_kabstract___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_5 = l_Lean_Expr_toHeadIndex___main(x_3);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_3, x_6);
-x_8 = lean_alloc_closure((void*)(l_Lean_Meta_kabstract___rarg___lambda__2___boxed), 11, 5);
-lean_closure_set(x_8, 0, x_4);
-lean_closure_set(x_8, 1, x_3);
-lean_closure_set(x_8, 2, x_5);
-lean_closure_set(x_8, 3, x_7);
-lean_closure_set(x_8, 4, x_2);
-x_9 = l_Lean_Meta_kabstract___rarg___closed__2;
-x_10 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg), 7, 2);
-lean_closure_set(x_10, 0, x_9);
-lean_closure_set(x_10, 1, x_8);
-x_11 = l_Lean_Meta_kabstract___rarg___closed__3;
+uint8_t x_5; lean_object* x_6; 
+x_5 = l_Lean_Expr_isFVar(x_3);
+if (x_5 == 0)
+{
+lean_object* x_17; 
+x_17 = lean_box(0);
+x_6 = x_17;
+goto block_16;
+}
+else
+{
+lean_object* x_18; uint8_t x_19; 
+x_18 = lean_box(0);
+x_19 = l_Lean_Occurrences_beq(x_4, x_18);
+if (x_19 == 0)
+{
+lean_object* x_20; 
+x_20 = lean_box(0);
+x_6 = x_20;
+goto block_16;
+}
+else
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_dec(x_4);
+x_21 = l_Lean_mkOptionalNode___closed__2;
+x_22 = lean_array_push(x_21, x_3);
+x_23 = lean_expr_abstract(x_2, x_22);
+lean_dec(x_22);
+lean_dec(x_2);
+x_24 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Meta_instantiateMVars___spec__1___rarg___boxed), 6, 1);
+lean_closure_set(x_24, 0, x_23);
+x_25 = lean_apply_2(x_1, lean_box(0), x_24);
+return x_25;
+}
+}
+block_16:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_dec(x_6);
+x_7 = l_Lean_Expr_toHeadIndex___main(x_3);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_3, x_8);
+x_10 = lean_alloc_closure((void*)(l_Lean_Meta_kabstract___rarg___lambda__2___boxed), 11, 5);
+lean_closure_set(x_10, 0, x_4);
+lean_closure_set(x_10, 1, x_3);
+lean_closure_set(x_10, 2, x_7);
+lean_closure_set(x_10, 3, x_9);
+lean_closure_set(x_10, 4, x_2);
+x_11 = l_Lean_Meta_kabstract___rarg___closed__2;
 x_12 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg), 7, 2);
-lean_closure_set(x_12, 0, x_10);
-lean_closure_set(x_12, 1, x_11);
-x_13 = lean_apply_2(x_1, lean_box(0), x_12);
-return x_13;
+lean_closure_set(x_12, 0, x_11);
+lean_closure_set(x_12, 1, x_10);
+x_13 = l_Lean_Meta_kabstract___rarg___closed__3;
+x_14 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg), 7, 2);
+lean_closure_set(x_14, 0, x_12);
+lean_closure_set(x_14, 1, x_13);
+x_15 = lean_apply_2(x_1, lean_box(0), x_14);
+return x_15;
+}
 }
 }
 lean_object* l_Lean_Meta_kabstract(lean_object* x_1) {

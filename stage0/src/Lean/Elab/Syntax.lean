@@ -237,6 +237,27 @@ else
   else
     throwError "unexpected syntax kind/priority"
 
+
+/- We assume a new syntax can be treated as an atom when it starts and ends with a token.
+   Here are examples of atom-like syntax.
+   ```
+   syntax "(" term ")" : term
+   syntax "[" (sepBy term ",") "]" : term
+   syntax "foo" : term
+   ```
+ -/
+private partial def isAtomLikeSyntax : Syntax → Bool
+| stx =>
+  let kind := stx.getKind;
+  if kind == nullKind then
+    isAtomLikeSyntax (stx.getArg 0) && isAtomLikeSyntax (stx.getArg (stx.getNumArgs - 1))
+  else if kind == choiceKind then
+    isAtomLikeSyntax (stx.getArg 0) -- see toParserDescrAux
+  else if kind == `Lean.Parser.Syntax.paren then
+    isAtomLikeSyntax (stx.getArg 1)
+  else
+    kind == `Lean.Parser.Syntax.atom
+
 /-
 def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 -/
@@ -245,10 +266,13 @@ fun stx => do
   env ← getEnv;
   let cat := (stx.getIdAt 5).eraseMacroScopes;
   unless (Parser.isParserCategory env cat) $ throwErrorAt (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
-  let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD Parser.maxPrec;
+  let syntaxParser := stx.getArg 3;
+  -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
+  let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec;
+  let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD precDefault;
   (kind, prio) ← elabKindPrio (stx.getArg 2) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
-  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) cat;
+  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr syntaxParser cat;
   d ←
     if trailingParser then
       `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)

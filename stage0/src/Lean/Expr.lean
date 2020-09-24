@@ -672,6 +672,10 @@ def replaceFVar (e : Expr) (fvar : Expr) (v : Expr) : Expr :=
 def replaceFVarId (e : Expr) (fvarId : FVarId) (v : Expr) : Expr :=
 replaceFVar e (mkFVar fvarId) v
 
+/-- Replace occurrences of the free variables `fvars` in `e` with `vs` -/
+def replaceFVars (e : Expr) (fvars : Array Expr) (vs : Array Expr) : Expr :=
+(e.abstract fvars).instantiateRev vs
+
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩
 

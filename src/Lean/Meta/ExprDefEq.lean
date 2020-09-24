@@ -918,55 +918,64 @@ match status with
     (do sType ← inferType s; toLBoolM $ Meta.isExprDefEqAux tType sType)
     (pure LBool.undef)
 
+/- Remove unnecessary let-decls -/
+private def consumeLet : Expr → Expr
+| e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
+| e                       => e
+
 private partial def isDefEqQuick : Expr → Expr → DefEqM LBool
-| Expr.lit  l₁ _,           Expr.lit l₂ _            => pure (l₁ == l₂).toLBool
-| Expr.sort u _,            Expr.sort v _            => toLBoolM $ isLevelDefEqAux u v
-| t@(Expr.lam _ _ _ _),     s@(Expr.lam _ _ _ _)     => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
-| t@(Expr.forallE _ _ _ _), s@(Expr.forallE _ _ _ _) => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
-| Expr.mdata _ t _,         s                        => isDefEqQuick t s
-| t,                        Expr.mdata _ s _         => isDefEqQuick t s
-| t@(Expr.fvar fvarId₁ _),  s@(Expr.fvar fvarId₂ _)  =>
-  condM (isLetFVar fvarId₁ <||> isLetFVar fvarId₂)
-    (pure LBool.undef)
-    (if fvarId₁ == fvarId₂ then pure LBool.true else isDefEqProofIrrel t s)
-| t, s =>
-  cond (t == s) (pure LBool.true) $
-  cond (etaEq t s || etaEq s t) (pure LBool.true) $  -- t =?= (fun xs => t xs)
-  let tFn := t.getAppFn;
-  let sFn := s.getAppFn;
-  cond (!tFn.isMVar && !sFn.isMVar) (pure LBool.undef) $
-  condM (isAssigned tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
-  condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
-  condM (isDelayedAssignedHead tFn t) (do t ← instantiateMVars t; isDefEqQuick t s) $
-  condM (isDelayedAssignedHead sFn s) (do s ← instantiateMVars s; isDefEqQuick t s) $
-  condM (isSynthetic tFn <&&> trySynthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
-  condM (isSynthetic sFn <&&> trySynthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
-  tAssign? ← isAssignable tFn;
-  sAssign? ← isAssignable sFn;
-  trace! `Meta.isDefEq
-    (t ++ (if tAssign? then " [assignable]" else " [nonassignable]") ++ " =?= " ++ s ++ (if sAssign? then " [assignable]" else " [nonassignable]"));
-  let assign (t s : Expr) : DefEqM LBool := toLBoolM $ processAssignment t s;
-  cond (tAssign? && !sAssign?)  (assign t s) $
-  cond (!tAssign? && sAssign?)  (assign s t) $
-  cond (!tAssign? && !sAssign?)
-    (if tFn.isMVar || sFn.isMVar then do
-       ctx ← read;
-       if ctx.config.isDefEqStuckEx then do
-         trace! `Meta.isDefEq.stuck (t ++ " =?= " ++ s);
-         Meta.throwIsDefEqStuck
-       else pure LBool.false
-     else pure LBool.undef) $ do
-  -- Both `t` and `s` are terms of the form `?m ...`
-  tMVarDecl ← getMVarDecl tFn.mvarId!;
-  sMVarDecl ← getMVarDecl sFn.mvarId!;
-  if s.isMVar && !t.isMVar then
-    /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
-       Reason: this assignment is precise. -/
-    condM (commitWhen (processAssignment s t)) (pure LBool.true) $
-    assign t s
-  else
-    condM (commitWhen (processAssignment t s)) (pure LBool.true) $
-    assign s t
+| t, s => do
+  let t := consumeLet t;
+  let s := consumeLet s;
+  match t, s with
+  | Expr.lit  l₁ _,           Expr.lit l₂ _            => pure (l₁ == l₂).toLBool
+  | Expr.sort u _,            Expr.sort v _            => toLBoolM $ isLevelDefEqAux u v
+  | t@(Expr.lam _ _ _ _),     s@(Expr.lam _ _ _ _)     => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
+  | t@(Expr.forallE _ _ _ _), s@(Expr.forallE _ _ _ _) => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
+  | Expr.mdata _ t _,         s                        => isDefEqQuick t s
+  | t,                        Expr.mdata _ s _         => isDefEqQuick t s
+  | t@(Expr.fvar fvarId₁ _),  s@(Expr.fvar fvarId₂ _)  =>
+    condM (isLetFVar fvarId₁ <||> isLetFVar fvarId₂)
+      (pure LBool.undef)
+      (if fvarId₁ == fvarId₂ then pure LBool.true else isDefEqProofIrrel t s)
+  | t, s =>
+    cond (t == s) (pure LBool.true) $
+    cond (etaEq t s || etaEq s t) (pure LBool.true) $  -- t =?= (fun xs => t xs)
+    let tFn := t.getAppFn;
+    let sFn := s.getAppFn;
+    cond (!tFn.isMVar && !sFn.isMVar) (pure LBool.undef) $
+    condM (isAssigned tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
+    condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
+    condM (isDelayedAssignedHead tFn t) (do t ← instantiateMVars t; isDefEqQuick t s) $
+    condM (isDelayedAssignedHead sFn s) (do s ← instantiateMVars s; isDefEqQuick t s) $
+    condM (isSynthetic tFn <&&> trySynthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
+    condM (isSynthetic sFn <&&> trySynthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
+    tAssign? ← isAssignable tFn;
+    sAssign? ← isAssignable sFn;
+    trace! `Meta.isDefEq
+      (t ++ (if tAssign? then " [assignable]" else " [nonassignable]") ++ " =?= " ++ s ++ (if sAssign? then " [assignable]" else " [nonassignable]"));
+    let assign (t s : Expr) : DefEqM LBool := toLBoolM $ processAssignment t s;
+    cond (tAssign? && !sAssign?)  (assign t s) $
+    cond (!tAssign? && sAssign?)  (assign s t) $
+    cond (!tAssign? && !sAssign?)
+      (if tFn.isMVar || sFn.isMVar then do
+         ctx ← read;
+         if ctx.config.isDefEqStuckEx then do
+           trace! `Meta.isDefEq.stuck (t ++ " =?= " ++ s);
+           Meta.throwIsDefEqStuck
+         else pure LBool.false
+       else pure LBool.undef) $ do
+    -- Both `t` and `s` are terms of the form `?m ...`
+    tMVarDecl ← getMVarDecl tFn.mvarId!;
+    sMVarDecl ← getMVarDecl sFn.mvarId!;
+    if s.isMVar && !t.isMVar then
+      /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
+         Reason: this assignment is precise. -/
+      condM (commitWhen (processAssignment s t)) (pure LBool.true) $
+      assign t s
+    else
+      condM (commitWhen (processAssignment t s)) (pure LBool.true) $
+      assign s t
 
 @[inline] def whenUndefDo (x : DefEqM LBool) (k : DefEqM Bool) : DefEqM Bool := do
 status ← x;
@@ -974,17 +983,6 @@ match status with
 | LBool.true  => pure true
 | LBool.false => pure false
 | LBool.undef => k
-
-@[specialize] private partial def isDefEqWHNF
-    (t s : Expr)
-    (k : Expr → Expr → DefEqM Bool) : DefEqM Bool := do
-t' ← whnfCore t;
-s' ← whnfCore s;
-if t == t' && s == s' then
-  k t' s'
-else
-  whenUndefDo (isDefEqQuick t' s') $
-    k t' s'
 
 @[specialize] private def unstuckMVar
     (e : Expr)
@@ -1002,34 +1000,31 @@ unstuckMVar t (fun t => Meta.isExprDefEqAux t s) $
 unstuckMVar s (fun s => Meta.isExprDefEqAux t s) $
 pure false
 
-/- Remove unnecessary let-decls -/
-private def consumeLet : Expr → Expr
-| e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
-| e                       => e
-
 partial def isExprDefEqAuxImpl : Expr → Expr → DefEqM Bool
 | t, s => do
-  let t := consumeLet t;
-  let s := consumeLet s;
   trace `Meta.isDefEq.step $ fun _ => t ++ " =?= " ++ s;
   whenUndefDo (isDefEqQuick t s) $
-  whenUndefDo (isDefEqProofIrrel t s) $
-  isDefEqWHNF t s $ fun t s => do
-  condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
-  whenUndefDo (isDefEqNative t s) do
-  whenUndefDo (isDefEqNat t s) do
-  whenUndefDo (isDefEqOffset t s) do
-  whenUndefDo (isDefEqDelta t s) $
-  match t, s with
-  | Expr.const c us _, Expr.const d vs _ => if c == d then isListLevelDefEqAux us vs else pure false
-  | Expr.app _ _ _,    Expr.app _ _ _    =>
-    let tFn := t.getAppFn;
-    condM (commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs))
-      (pure true)
-      (isDefEqOnFailure t s)
-  | _, _ =>
-    whenUndefDo (isDefEqStringLit t s) $
-    isDefEqOnFailure t s
+  whenUndefDo (isDefEqProofIrrel t s) do
+  t' ← whnfCore t;
+  s' ← whnfCore s;
+  if t != t' || s != s' then
+    isExprDefEqAuxImpl t' s'
+  else do
+    condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
+    whenUndefDo (isDefEqNative t s) do
+    whenUndefDo (isDefEqNat t s) do
+    whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqDelta t s) $
+    match t, s with
+    | Expr.const c us _, Expr.const d vs _ => if c == d then isListLevelDefEqAux us vs else pure false
+    | Expr.app _ _ _,    Expr.app _ _ _    =>
+      let tFn := t.getAppFn;
+      condM (commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs))
+        (pure true)
+        (isDefEqOnFailure t s)
+    | _, _ =>
+      whenUndefDo (isDefEqStringLit t s) $
+      isDefEqOnFailure t s
 
 @[init] def setIsExprDefEqAuxRef : IO Unit :=
 isExprDefEqAuxRef.set isExprDefEqAuxImpl

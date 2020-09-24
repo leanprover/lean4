@@ -429,6 +429,11 @@ abbrev Priority := Nat
 def Priority.default : Priority := 0
 -- see `LEAN_MAX_PRIO`
 def Priority.max : Priority := 8
+/--
+  Any priority higher than `Task.Priority.max` will result in the task being scheduled immediately on a dedicated thread.
+  This is particularly useful for long-running and/or I/O-bound tasks since Lean will by default allocate no more
+  non-dedicated workers than the number of cores to reduce context switches. -/
+def Priority.dedicated : Priority := 9
 
 @[noinline, extern "lean_task_spawn"]
 protected def spawn {α : Type u} (fn : Unit → α) (prio := Priority.default) : Task α :=

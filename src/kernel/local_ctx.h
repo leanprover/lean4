@@ -48,7 +48,7 @@ public:
 /* Plain local context object used by the kernel type checker. */
 class local_ctx : public object_ref {
 protected:
-    template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
+    template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b, bool remove_dead_let = false) const;
 public:
     local_ctx();
     explicit local_ctx(obj_arg o):object_ref(o) {}
@@ -91,10 +91,10 @@ public:
     /** \brief Remove the given local decl. */
     void clear(local_decl const & d);
 
-    expr mk_lambda(unsigned num, expr const * fvars, expr const & e) const;
-    expr mk_pi(unsigned num, expr const * fvars, expr const & e) const;
-    expr mk_lambda(buffer<expr> const & fvars, expr const & e) const { return mk_lambda(fvars.size(), fvars.data(), e); }
-    expr mk_pi(buffer<expr> const & fvars, expr const & e) const { return mk_pi(fvars.size(), fvars.data(), e); }
+    expr mk_lambda(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;
+    expr mk_pi(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;
+    expr mk_lambda(buffer<expr> const & fvars, expr const & e, bool remove_dead_let = false) const { return mk_lambda(fvars.size(), fvars.data(), e, remove_dead_let); }
+    expr mk_pi(buffer<expr> const & fvars, expr const & e, bool remove_dead_let = false) const { return mk_pi(fvars.size(), fvars.data(), e, remove_dead_let); }
     expr mk_lambda(expr const & fvar, expr const & e) { return mk_lambda(1, &fvar, e); }
     expr mk_pi(expr const & fvar, expr const & e) { return mk_pi(1, &fvar, e); }
     expr mk_lambda(std::initializer_list<expr> const & fvars, expr const & e) { return mk_lambda(fvars.size(), fvars.begin(), e); }

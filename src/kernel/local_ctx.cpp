@@ -91,30 +91,37 @@ void local_ctx::clear(local_decl const & d) {
 }
 
 template<bool is_lambda>
-expr local_ctx::mk_binding(unsigned num, expr const * fvars, expr const & b) const {
+expr local_ctx::mk_binding(unsigned num, expr const * fvars, expr const & b, bool remove_dead_let) const {
     expr r     = abstract(b, num, fvars);
     unsigned i = num;
     while (i > 0) {
         --i;
         local_decl const & decl = get_local_decl(fvar_name(fvars[i]));
-        expr type = abstract(decl.get_type(), i, fvars);
-        if (optional<expr> const & val = decl.get_value()) {
-            r = ::lean::mk_let(decl.get_user_name(), type, abstract(*val, i, fvars), r);
+        if (optional<expr> const & opt_val = decl.get_value()) {
+            if (!remove_dead_let || has_loose_bvar(r, 0)) {
+                expr type  = abstract(decl.get_type(), i, fvars);
+                expr value = abstract(*opt_val, i, fvars);
+                r = ::lean::mk_let(decl.get_user_name(), type, value, r);
+            } else {
+                r = lower_loose_bvars(r, 1, 1);
+            }
         } else if (is_lambda) {
+            expr type = abstract(decl.get_type(), i, fvars);
             r = ::lean::mk_lambda(decl.get_user_name(), type, r, decl.get_info());
         } else {
+            expr type = abstract(decl.get_type(), i, fvars);
             r = ::lean::mk_pi(decl.get_user_name(), type, r, decl.get_info());
         }
     }
     return r;
 }
 
-expr local_ctx::mk_lambda(unsigned num, expr const * fvars, expr const & e) const {
-    return mk_binding<true>(num, fvars, e);
+expr local_ctx::mk_lambda(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let) const {
+    return mk_binding<true>(num, fvars, e, remove_dead_let);
 }
 
-expr local_ctx::mk_pi(unsigned num, expr const * fvars, expr const & e) const {
-    return mk_binding<false>(num, fvars, e);
+expr local_ctx::mk_pi(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let) const {
+    return mk_binding<false>(num, fvars, e, remove_dead_let);
 }
 
 void initialize_local_ctx() {

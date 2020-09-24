@@ -645,20 +645,16 @@ struct scoped_current_task_object : flet<lean_task_object *> {
 };
 
 class task_manager {
-    struct worker_info {
-        std::unique_ptr<lthread> m_thread;
-        lean_task_object *       m_task;
-    };
-    typedef std::vector<worker_info *> workers;
-
     mutex                                         m_mutex;
-    unsigned                                      m_workers_to_be_created;
-    workers                                       m_workers;
+    unsigned                                      m_num_std_workers{0};
+    unsigned                                      m_max_std_workers{0};
+    unsigned                                      m_num_dedicated_workers{0};
     std::deque<lean_task_object *>                m_queues[LEAN_MAX_PRIO+1];
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
+    condition_variable                            m_worker_finished_cv;
     bool                                          m_shutting_down{false};
 
     lean_task_object * dequeue() {
@@ -681,13 +677,15 @@ class task_manager {
     void enqueue_core(lean_task_object * t) {
         lean_assert(t->m_imp);
         unsigned prio = t->m_imp->m_prio;
-        if (prio > LEAN_MAX_PRIO)
-            prio = LEAN_MAX_PRIO;
+        if (prio > LEAN_MAX_PRIO) {
+            spawn_dedicated_worker(t);
+            return;
+        }
         if (prio > m_max_prio)
             m_max_prio = prio;
         m_queues[prio].push_back(t);
         m_queues_size++;
-        if (m_workers_to_be_created > 0 && !m_shutting_down)
+        if (m_num_std_workers < m_max_std_workers)
             spawn_worker();
         else
             m_queue_cv.notify_one();
@@ -712,66 +710,79 @@ class task_manager {
     }
 
     void spawn_worker() {
-        lean_assert(m_workers_to_be_created > 0);
-        worker_info * this_worker = new worker_info();
-        m_workers.push_back(this_worker);
-        m_workers_to_be_created--;
-        this_worker->m_thread.reset(new lthread([this, this_worker]() {
-                    save_stack_info(false);
-                    unique_lock<mutex> lock(m_mutex);
-                    while (true) {
-                        if (m_queues_size == 0) {
-                            if (m_shutting_down) {
-                                break;
-                            }
-                            m_queue_cv.wait(lock);
-                            continue;
-                        }
-
-                        lean_task_object * t = dequeue();
-                        lean_assert(t->m_imp);
-                        if (t->m_imp->m_deleted) {
-                            free_task(t);
-                            continue;
-                        }
-                        reset_heartbeat();
-                        object * v = nullptr;
-                        {
-                            flet<lean_task_object *> update_task(this_worker->m_task, t);
-                            scoped_current_task_object scope_cur_task(t);
-                            object * c = t->m_imp->m_closure;
-                            t->m_imp->m_closure = nullptr;
-                            lock.unlock();
-                            v = lean_apply_1(c, box(0));
-                            lock.lock();
-                        }
-                        lean_assert(t->m_imp);
-                        // If deactivation was delayed by `m_keep_alive`, deactivate after the final execution (`v != nulltpr`)
-                        if (v != nullptr && t->m_imp->m_kept_alive) {
-                            lean_assert(!lean_nonzero_rc((lean_object *)t));
-                            deactivate_task_core(lock, t);
-                        }
-                        // Note: if deactivation was not delayed yet, `m_keep_alive` will be discarded below when
-                        // `m_imp` is freed
-                        if (t->m_imp->m_deleted) {
-                            if (v) lean_dec(v);
-                            free_task(t);
-                        } else if (v != nullptr) {
-                            lean_assert(t->m_imp->m_closure == nullptr);
-                            handle_finished(t);
-                            mark_mt(v);
-                            t->m_value = v;
-                            /* After the task has been finished and we propagated
-                               dependecies, we can release `m_imp` and keep just the value */
-                            free_task_imp(t->m_imp);
-                            t->m_imp   = nullptr;
-                            m_task_finished_cv.notify_all();
-                        }
-                        reset_heartbeat();
+        m_num_std_workers++;
+        lthread([this]() {
+            save_stack_info(false);
+            unique_lock<mutex> lock(m_mutex);
+            while (true) {
+                if (m_queues_size == 0) {
+                    if (m_shutting_down) {
+                        break;
                     }
-                    run_thread_finalizers();
-                    run_post_thread_finalizers();
-                }));
+                    m_queue_cv.wait(lock);
+                    continue;
+                }
+
+                lean_task_object * t = dequeue();
+                run_task(lock, t);
+                reset_heartbeat();
+            }
+            m_num_std_workers--;
+            m_worker_finished_cv.notify_all();
+        });
+        // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
+    }
+
+    void spawn_dedicated_worker(lean_task_object * t) {
+        m_num_dedicated_workers++;
+        lthread([this, t]() {
+            save_stack_info(false);
+            unique_lock<mutex> lock(m_mutex);
+            run_task(lock, t);
+            m_num_dedicated_workers--;
+            m_worker_finished_cv.notify_all();
+        });
+        // see above
+    }
+
+    void run_task(unique_lock<mutex> & lock, lean_task_object * t) {
+        lean_assert(t->m_imp);
+        if (t->m_imp->m_deleted) {
+            free_task(t);
+            return;
+        }
+        reset_heartbeat();
+        object * v = nullptr;
+        {
+            scoped_current_task_object scope_cur_task(t);
+            object * c = t->m_imp->m_closure;
+            t->m_imp->m_closure = nullptr;
+            lock.unlock();
+            v = lean_apply_1(c, box(0));
+            lock.lock();
+        }
+        lean_assert(t->m_imp);
+        // If deactivation was delayed by `m_keep_alive`, deactivate after the final execution (`v != nulltpr`)
+        if (v != nullptr && t->m_imp->m_kept_alive) {
+            lean_assert(!lean_nonzero_rc((lean_object *)t));
+            deactivate_task_core(lock, t);
+        }
+        // Note: if deactivation was not delayed yet, `m_keep_alive` will be discarded below when
+        // `m_imp` is freed
+        if (t->m_imp->m_deleted) {
+            if (v) lean_dec(v);
+            free_task(t);
+        } else if (v != nullptr) {
+            lean_assert(t->m_imp->m_closure == nullptr);
+            handle_finished(t);
+            mark_mt(v);
+            t->m_value = v;
+            /* After the task has been finished and we propagated
+               dependecies, we can release `m_imp` and keep just the value */
+            free_task_imp(t->m_imp);
+            t->m_imp   = nullptr;
+            m_task_finished_cv.notify_all();
+        }
     }
 
     void handle_finished(lean_task_object * t) {
@@ -803,25 +814,16 @@ class task_manager {
     }
 
 public:
-    task_manager(unsigned num_workers):
-        m_workers_to_be_created(num_workers) {
+    task_manager(unsigned max_std_workers):
+        m_max_std_workers(max_std_workers) {
     }
 
     ~task_manager() {
         unique_lock<mutex> lock(m_mutex);
-        for (worker_info * info : m_workers) {
-            if (info->m_task) {
-                lean_assert(info->m_task->m_imp);
-                info->m_task->m_imp->m_canceled = true;
-            }
-        }
         m_shutting_down = true;
         m_queue_cv.notify_all();
-        lock.unlock();
-        for (worker_info * w : m_workers) {
-            w->m_thread->join();
-            delete w;
-        }
+        // wait for all workers to finish
+        m_worker_finished_cv.wait(lock, [&]() { return m_num_std_workers + m_num_dedicated_workers == 0; });
     }
 
     void enqueue(lean_task_object * t) {
@@ -888,6 +890,10 @@ public:
         unique_lock<mutex> lock(m_mutex);
         if (t->m_imp)
             t->m_imp->m_canceled = true;
+    }
+
+    bool shutting_down() const {
+        return m_shutting_down;
     }
 };
 
@@ -1039,7 +1045,7 @@ extern "C" obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio, bool
 extern "C" bool lean_io_check_canceled_core() {
     if (lean_task_object * t = g_current_task_object) {
         lean_assert(t->m_imp); // task is being executed
-        return t->m_imp->m_canceled;
+        return t->m_imp->m_canceled || g_task_manager->shutting_down();
     }
     return false;
 }

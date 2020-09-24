@@ -1000,6 +1000,10 @@ unstuckMVar t (fun t => Meta.isExprDefEqAux t s) $
 unstuckMVar s (fun s => Meta.isExprDefEqAux t s) $
 pure false
 
+private def isDefEqProj : Expr → Expr → DefEqM Bool
+| Expr.proj _ i t _, Expr.proj _ j s _ => pure (i == j) <&&> Meta.isExprDefEqAux t s
+| _, _ => pure false
+
 partial def isExprDefEqAuxImpl : Expr → Expr → DefEqM Bool
 | t, s => do
   trace `Meta.isDefEq.step $ fun _ => t ++ " =?= " ++ s;
@@ -1011,6 +1015,7 @@ partial def isExprDefEqAuxImpl : Expr → Expr → DefEqM Bool
     isExprDefEqAuxImpl t' s'
   else do
     condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
+    condM (isDefEqProj t s) (pure true) $
     whenUndefDo (isDefEqNative t s) do
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do

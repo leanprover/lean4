@@ -31,9 +31,9 @@ structure LetRecView :=
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
 decls ← (letRec.getArg 1).getArgs.getSepElems.mapM fun attrDeclStx => do {
-  let attrStx := attrDeclStx.getArg 0;
-  attrs ← elabDeclAttrs attrStx;
-  let decl    := (attrDeclStx.getArg 1).getArg 0;
+  let attrOptStx := attrDeclStx.getArg 0;
+  attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs (attrOptStx.getArg 0);
+  let decl := (attrDeclStx.getArg 1).getArg 0;
   if decl.isOfKind `Lean.Parser.Term.letPatDecl then
     throwErrorAt decl "patterns are not allowed in 'let rec' expressions"
   else if decl.isOfKind `Lean.Parser.Term.letIdDecl || decl.isOfKind `Lean.Parser.Term.letEqnsDecl then do

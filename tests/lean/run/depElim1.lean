@@ -159,10 +159,10 @@ else do
   pure $ mkSort $ v
 
 def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM MatcherResult := do
-sortv ← mkElimSort majors lhss inProp;
 generalizeTelescope majors.toArray `_d fun majors => do
-  motiveType ← mkForallFVars majors sortv;
-  Match.mkMatcher elimName motiveType majors.size lhss
+  let resultType := if inProp then mkConst `True /- some proposition -/ else mkConst `Nat;
+  matchType ← mkForallFVars majors resultType;
+  Match.mkMatcher elimName matchType majors.size lhss
 
 def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit :=
 withDepElimFrom ex numPats fun majors alts => do

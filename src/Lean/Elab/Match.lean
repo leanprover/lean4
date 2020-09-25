@@ -697,13 +697,8 @@ withPatternVars patternVars fun patternVarDecls => do
     -- TODO: check whether altLHS still has metavariables
     pure (altLHS, rhs)
 
-def mkMotiveType (matchType : Expr) (numDiscrs : Nat) : TermElabM Expr := do
-forallBoundedTelescope matchType numDiscrs fun xs matchType => do
-  u ← getLevel matchType;
-  mkForallFVars xs (mkSort u)
-
-def mkMatcher (elimName : Name) (motiveType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
-liftMetaM $ Meta.Match.mkMatcher elimName motiveType numDiscrs lhss
+def mkMatcher (elimName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
+liftMetaM $ Meta.Match.mkMatcher elimName matchType numDiscrs lhss
 
 def reportMatcherResultErrors (result : MatcherResult) : TermElabM Unit := do
 -- TODO: improve error messages
@@ -721,10 +716,9 @@ alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
 let rhss := alts.map Prod.snd;
 let altLHSS := alts.map Prod.fst;
 let numDiscrs := discrs.size;
-motiveType ← mkMotiveType matchType numDiscrs;
-motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType;
 matcherName ← mkAuxName `match;
-matcherResult ← mkMatcher matcherName motiveType numDiscrs altLHSS.toList;
+matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS.toList;
+motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType;
 reportMatcherResultErrors matcherResult;
 let r := mkApp matcherResult.matcher motive;
 let r := mkAppN r discrs;

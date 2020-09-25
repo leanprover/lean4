@@ -509,10 +509,6 @@ fun n => do
   runTermElabM none $ fun _ => Term.elabBinders binders $ fun _ => pure ();
   modifyScope $ fun scope => { scope with varDecls := scope.varDecls ++ binders }
 
-@[inline] def withoutModifyingEnv {α} (x : CommandElabM α) : CommandElabM α := do
-env ← getEnv;
-finally x (setEnv env)
-
 open Meta
 
 @[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab :=

@@ -15,6 +15,10 @@ variables {m : Type → Type} [MonadEnv m]
 def setEnv (env : Environment) : m Unit :=
 modifyEnv fun _ => env
 
+@[inline] def withoutModifyingEnv [Monad m] [MonadFinally m] {α : Type} (x : m α) : m α := do
+env ← getEnv;
+finally x (setEnv env)
+
 @[inline] def matchConst [Monad m] {α : Type} (e : Expr) (failK : Unit → m α) (k : ConstantInfo → List Level → m α) : m α := do
 match e with
 | Expr.const constName us _ => do

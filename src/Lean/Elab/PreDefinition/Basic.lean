@@ -95,6 +95,10 @@ else do
   value ← Meta.abstractNestedProofs preDef.declName preDef.value;
   pure { preDef with value := value }
 
+/- Auxiliary method for (temporarily) adding pre definition as an axiom -/
+def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
+addDecl $ Declaration.axiomDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit := do
 preDef ← liftM $ abstractNestedProofs preDef;
 env ← getEnv;

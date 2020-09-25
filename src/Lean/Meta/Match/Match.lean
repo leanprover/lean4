@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectLevelParams
+import Lean.Util.Recognizers
 import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
@@ -346,17 +347,18 @@ hasArrayLitPattern p && hasVarPattern p
 
 private def isNatValueTransition (p : Problem) : Bool :=
 hasNatValPattern p
-&& p.alts.any fun alt => match alt.patterns with
-   | Pattern.ctor _ _ _ _ :: _   => true
-   | Pattern.inaccessible _ :: _ => true
-   | _                           => false
+&& (!isNextVar p ||
+    p.alts.any fun alt => match alt.patterns with
+    | Pattern.ctor _ _ _ _ :: _   => true
+    | Pattern.inaccessible _ :: _ => true
+    | _                           => false)
 
-private def processNonVariable (p : Problem) : Problem :=
+private def processSkipInaccessible (p : Problem) : Problem :=
 match p.vars with
 | []      => unreachable!
-| x :: xs =>
+| x :: xs => do
   let alts := p.alts.map fun alt => match alt.patterns with
-    | _ :: ps => { alt with patterns := ps }
+    | Pattern.inaccessible _ :: ps => { alt with patterns := ps }
     | _       => unreachable!;
   { p with alts := alts, vars := xs }
 
@@ -504,6 +506,33 @@ match val? with
 | some val => pure val.isRec
 | _        => pure false
 
+/- Given `alt` s.t. the next pattern is an inaccessible pattern `e`,
+   try to normalize `e` into a constructor application.
+   If it is not a constructor, throw an error.
+   Otherwise, if it is a constructor application of `ctorName`,
+   update the next patterns with the fields of the constructor.
+   Otherwise, return none. -/
+def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt) := do
+env ← getEnv;
+match alt.patterns with
+| p@(Pattern.inaccessible e) :: ps => do
+  trace! `Meta.Match.match ("inaccessible in ctor step " ++ e);
+  withExistingLocalDecls alt.fvarDecls do
+    -- Try to push inaccessible annotations.
+    e ← whnfD e;
+    match e.constructorApp? env with
+    | some (ctorVal, ctorArgs) => do
+      if ctorVal.name == ctorName then
+        let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
+        let fields := fields.toList.map Pattern.inaccessible;
+        pure $ some { alt with patterns := fields ++ ps }
+      else
+        pure none
+    | _ => throwErrorAt alt.ref $
+      "dependent match elimination failed, inaccessible pattern found " ++ indentD p.toMessageData ++
+      Format.line ++ "constructor expected"
+| _ => unreachable!
+
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
 trace! `Meta.Match.match ("constructor step");
 env ← getEnv;
@@ -527,7 +556,7 @@ match p.vars with
   };
   match subgoals? with
   | none          => pure #[{ p with vars := xs }]
-  | some subgoals =>
+  | some subgoals => do
     subgoals.mapM fun subgoal => withMVarContext subgoal.mvarId do
       let subst    := subgoal.subst;
       let fields   := subgoal.fields.toList;
@@ -539,32 +568,39 @@ match p.vars with
       let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
       let examples := examples.map $ Example.applyFVarSubst subst;
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | Pattern.ctor n _ _ _ :: _   => n == subgoal.ctorName
-        | Pattern.var _ :: _          => true
-        | Pattern.inaccessible _ :: _ => true
-        | _                           => false;
-      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
+        | Pattern.ctor n _ _ _ :: _    => n == subgoal.ctorName
+        | Pattern.var _ :: _           => true
+        | Pattern.inaccessible _ :: _  => true
+        | _                            => false;
+      let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst;
       newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
         | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
         | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
-        | p@(Pattern.inaccessible e) :: ps => do
-          trace! `Meta.Match.match ("inaccessible in ctor step " ++ e);
-          withExistingLocalDecls alt.fvarDecls do
-            -- Try to push inaccessible annotations.
-            e ← whnfD e;
-            match e.constructorApp? env with
-            | some (ctorVal, ctorArgs) => do
-              if ctorVal.name == subgoal.ctorName then
-                let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
-                let fields := fields.toList.map Pattern.inaccessible;
-                pure $ some { alt with patterns := fields ++ ps }
-              else
-                pure none
-            | _ => throwErrorAt alt.ref $
-              "dependent match elimination failed, inaccessible pattern found " ++ indentD p.toMessageData ++
-              Format.line ++ "constructor expected"
+        | Pattern.inaccessible _ :: _      => processInaccessibleAsCtor alt subgoal.ctorName
         | _                                => unreachable!;
       pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+
+private def processNonVariable (p : Problem) : MetaM Problem :=
+match p.vars with
+| []      => unreachable!
+| x :: xs => withGoalOf p do
+  x ← whnfD x;
+  env ← getEnv;
+  match x.constructorApp? env with
+  | some (ctorVal, xArgs) => do
+    alts ← p.alts.filterMapM fun alt => match alt.patterns with
+      | Pattern.ctor n _ _ fields :: ps   =>
+        if n != ctorVal.name then
+          pure none
+        else
+          pure $ some { alt with patterns := fields ++ ps }
+      | Pattern.inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
+      | p :: _  => throwError ("failed to compile pattern matching, inaccessible pattern or constructor expected" ++ indentD p.toMessageData)
+      | _       => unreachable!;
+    let xFields := xArgs.extract ctorVal.nparams xArgs.size;
+    pure { p with alts := alts, vars := xFields.toList ++ xs }
+  | none =>
+    throwError ("failed to compile pattern matching, constructor expected" ++ indentExpr x)
 
 private def collectValues (p : Problem) : Array Expr :=
 p.alts.foldl
@@ -701,9 +737,13 @@ private partial def process : Problem → StateRefT State MetaM Unit
     traceStep ("as-pattern");
     p ← liftM $ processAsPattern p;
     process p
+  else if isNatValueTransition p then do
+    traceStep ("nat value to constructor");
+    process (expandNatValuePattern p)
   else if !isNextVar p then do
     traceStep ("non variable");
-    process (processNonVariable p)
+    p ← liftM $ processNonVariable p;
+    process p
   else if isInductive && isConstructorTransition p then do
     ps ← liftM $ processConstructor p;
     ps.forM process
@@ -717,9 +757,6 @@ private partial def process : Problem → StateRefT State MetaM Unit
   else if isArrayLitTransition p then do
     ps ← liftM $ processArrayLit p;
     ps.forM process
-  else if isNatValueTransition p then do
-    traceStep ("nat value to constructor");
-    process (expandNatValuePattern p)
   else
     liftM $ throwNonSupported p
 

@@ -148,14 +148,17 @@ throwError "toBelow failed"
 /- See toBelow -/
 private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
 | belowDict, arg, F => do
-  trace! `Elab.definition.structural ("belowDict: " ++ belowDict ++ ", arg: " ++ arg);
   belowDict ← whnf belowDict;
+  trace! `Elab.definition.structural ("belowDict: " ++ belowDict ++ ", arg: " ++ arg);
   match belowDict with
   | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
     (do F ← mkAppM `PProd.fst #[F]; toBelowAux d1 arg F)
     <|>
     (do F ← mkAppM `PProd.snd #[F]; toBelowAux d2 arg F)
-  -- TODO `And d1 d2` case
+  | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
+    (do F ← mkAppM `And.left #[F]; toBelowAux d1 arg F)
+    <|>
+    (do F ← mkAppM `And.right #[F]; toBelowAux d2 arg F)
   | _ => forallTelescopeReducing belowDict fun xs belowDict => do
     let argArgs := arg.getAppArgs;
     unless (argArgs.size >= xs.size) throwToBelowFailed;
@@ -276,10 +279,15 @@ let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndi
 motive ← mkForallFVars otherArgs type;
 brecOnUniv ← getLevel motive;
 trace! `Elab.definition.structural ("brecOn univ: " ++ brecOnUniv);
-brecOnUniv ← if recArgInfo.reflexive then decLevel brecOnUniv else pure brecOnUniv;
+let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero;
+brecOnUniv ← if recArgInfo.reflexive && brecOnUniv != levelZero then decLevel brecOnUniv else pure brecOnUniv;
 motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive;
 trace! `Elab.definition.structural ("brecOn motive: " ++ motive);
-let brecOn := Lean.mkConst (mkBRecOnFor recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels);
+let brecOn :=
+  if useBInductionOn then
+    Lean.mkConst (mkBInductionOnFor recArgInfo.indName) recArgInfo.indLevels
+  else
+    Lean.mkConst (mkBRecOnFor recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels);
 let brecOn := mkAppN brecOn recArgInfo.indParams;
 let brecOn := mkApp brecOn motive;
 let brecOn := mkAppN brecOn recArgInfo.indIndices;

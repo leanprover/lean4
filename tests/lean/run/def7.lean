@@ -26,3 +26,19 @@ def BTree.sz {α : Type u} : BTree α → Nat
 
 theorem ex2 {α : Type u} (c : Bool → Bool → BTree α) : (BTree.node c).sz = (c true true).sz + (c true false).sz + (c false true).sz + (c false false).sz + 1 :=
 rfl
+
+inductive L (α : Type u)
+| nil  : L α
+| cons : (Unit → α) → (Unit → L α) → L α
+
+def L.append {α} : L α → L α → L α
+| nil, bs       => bs
+| cons a as, bs => cons a (fun _ => append (as ()) bs)
+
+theorem L.appendNil {α} : (as : L α) → append as nil = as
+| nil       => rfl
+| cons a as =>
+  show cons a (fun _ => append (as ()) nil) = cons a as from
+  have ih : append (as ()) nil = as () from appendNil $ as ();
+  have thunkAux : (fun _ => as ()) = as from funext fun x => by cases x; exact rfl;
+  by rw [ih, thunkAux]; exact rfl

@@ -158,7 +158,7 @@ private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Exp
   -- TODO `Expr.forallE` case
   -- TODO `And d1 d2` case
   | Expr.app f a _ => do
-    unless (f == C) throwToBelowFailed;
+    unless (f.getAppFn == C) throwToBelowFailed;
     unlessM (isDefEq a arg) throwToBelowFailed;
     pure F
   | _ =>

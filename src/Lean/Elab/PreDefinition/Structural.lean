@@ -212,6 +212,7 @@ withBelowDict below numIndParams fun C belowDict =>
 
 private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) : Expr → Expr → MetaM Expr
 | below, e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps below b; mkLambdaFVars xs b
+| below, e@(Expr.forallE _ _ _ _) => forallTelescope e fun xs b => do b ← replaceRecApps below b; mkForallFVars xs b
 | below, Expr.letE n type val body _ => do
   val ← replaceRecApps below val;
   withLetDecl n type val fun x => do

@@ -30,7 +30,7 @@ private def collectDepsAux (fvars : Array Expr) : Expr → Array Nat → Array N
 | Expr.proj _ _ e _,        deps => collectDepsAux e deps
 | Expr.mdata _ e _,         deps => collectDepsAux e deps
 | e@(Expr.fvar _ _),        deps =>
-  match fvars.indexOf e with
+  match fvars.indexOf? e with
   | none   => deps
   | some i => if deps.contains i.val then deps else deps.push i.val
 | _,                        deps => deps

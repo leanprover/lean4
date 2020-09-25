@@ -647,7 +647,7 @@ partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option
     else indexOfAux (i+1)
   else none
 
-def indexOf {α} [HasBeq α] (a : Array α) (v : α) : Option (Fin a.size) :=
+def indexOf? {α} [HasBeq α] (a : Array α) (v : α) : Option (Fin a.size) :=
 indexOfAux a v 0
 
 partial def eraseIdxAux {α} : Nat → Array α → Array α
@@ -697,7 +697,7 @@ def elem [HasBeq α] (a : α) (as : Array α) : Bool :=
 as.contains a
 
 def erase [HasBeq α] (as : Array α) (a : α) : Array α :=
-match as.indexOf a with
+match as.indexOf? a with
 | none   => as
 | some i => as.feraseIdx i
 

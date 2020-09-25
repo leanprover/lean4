@@ -39,7 +39,7 @@ structure RecArgInfo :=
 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat :=
 indices.foldl
-  (fun minPos index => match xs.indexOf index with
+  (fun minPos index => match xs.indexOf? index with
     | some pos => if pos.val < minPos then pos.val else minPos
     | _        => minPos)
   xs.size
@@ -115,7 +115,7 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
                   Format.line ++ "depends on" ++ indentExpr y)
                 (findRecArgAux (i+1))
             | none => do
-              let indicesPos := indIndices.map fun index => match ys.indexOf index with | some i => i.val | none => unreachable!;
+              let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!;
               orelseMergeErrors
                 (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
                      indicesPos  := indicesPos,

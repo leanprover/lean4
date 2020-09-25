@@ -28,7 +28,7 @@ partial def formatMap : Node Nat Nat → Format
 def main : IO Unit :=
 do
 let a : Array Nat := [1, 2, 3].toArray;
-IO.println (a.indexOf 2);
+IO.println (a.indexOf? 2);
 let m : Map := PersistentHashMap.empty;
 let m := m.insert 1 1;
 let m := m.insert 33 2;

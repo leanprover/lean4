@@ -29,9 +29,13 @@ constant searchPathRef : IO.Ref SearchPath := arbitrary _
 def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath :=
 pure $ System.FilePath.splitSearchPath path ++ sp
 
+@[extern c inline "LEAN_IS_STAGE0"]
+constant isStage0 (u : Unit) : Bool := arbitrary _
+
 def getBuiltinSearchPath : IO SearchPath := do
 appDir ← IO.appDir;
-pure [appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean"]
+-- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
+pure [appDir ++ pathSep ++ ".." ++ (if isStage0 () then pathSep ++ ".." ++ pathSep ++ "stage1" else "") ++ pathSep ++ "lib" ++ pathSep ++ "lean"]
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
 val ← IO.getEnv "LEAN_PATH";

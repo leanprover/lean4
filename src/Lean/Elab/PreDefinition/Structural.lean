@@ -155,14 +155,19 @@ private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Exp
     (do F ← mkAppM `PProd.fst #[F]; toBelowAux d1 arg F)
     <|>
     (do F ← mkAppM `PProd.snd #[F]; toBelowAux d2 arg F)
-  -- TODO `Expr.forallE` case
   -- TODO `And d1 d2` case
-  | Expr.app f a _ => do
-    unless (f.getAppFn == C) throwToBelowFailed;
-    unlessM (isDefEq a arg) throwToBelowFailed;
-    pure F
-  | _ =>
-    throwToBelowFailed
+  | _ => forallTelescopeReducing belowDict fun xs belowDict => do
+    let argArgs := arg.getAppArgs;
+    unless (argArgs.size >= xs.size) throwToBelowFailed;
+    let n := argArgs.size;
+    let argTailArgs := argArgs.extract (n - xs.size) n;
+    let belowDict := belowDict.replaceFVars xs argTailArgs;
+    match belowDict with
+    | Expr.app belowDictFun belowDictArg _ => do
+      unless (belowDictFun.getAppFn == C) throwToBelowFailed;
+      unlessM (isDefEq belowDictArg arg) throwToBelowFailed;
+      pure (mkAppN F argTailArgs)
+    | _ => throwToBelowFailed
 
 /- See toBelow -/
 private def withBelowDict {α} (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
@@ -260,6 +265,8 @@ let major := recArgInfo.ys.get! recArgInfo.pos;
 let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y;
 motive ← mkForallFVars otherArgs type;
 brecOnUniv ← getLevel motive;
+trace! `Elab.definition.structural ("brecOn univ: " ++ brecOnUniv);
+brecOnUniv ← if recArgInfo.reflexive then decLevel brecOnUniv else pure brecOnUniv;
 motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive;
 trace! `Elab.definition.structural ("brecOn motive: " ++ motive);
 let brecOn := Lean.mkConst (mkBRecOnFor recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels);
@@ -267,6 +274,7 @@ let brecOn := mkAppN brecOn recArgInfo.indParams;
 let brecOn := mkApp brecOn motive;
 let brecOn := mkAppN brecOn recArgInfo.indIndices;
 let brecOn := mkApp brecOn major;
+check brecOn;
 brecOnType ← inferType brecOn;
 trace! `Elab.definition.structural ("brecOn     " ++ brecOn);
 trace! `Elab.definition.structural ("brecOnType " ++ brecOnType);

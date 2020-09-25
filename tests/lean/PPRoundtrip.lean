@@ -50,6 +50,7 @@ section
   set_option pp.universes true
   #eval check `(List Nat)
   #eval check `(id Nat)
+  #eval check `(Sum Nat Nat)
 end
 #eval check `(id (id Nat)) (Std.RBMap.empty.insert 4 $ KVMap.empty.insert `pp.explicit true)
 

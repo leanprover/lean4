@@ -39,7 +39,7 @@ structure RecArgInfo :=
 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat :=
 indices.foldl
-  (fun minPos index => match xs.indexOf index with
+  (fun minPos index => match xs.indexOf? index with
     | some pos => if pos.val < minPos then pos.val else minPos
     | _        => minPos)
   xs.size
@@ -115,7 +115,7 @@ private partial def findRecArgAux {α} (numFixed : Nat) (xs : Array Expr) (k : R
                   Format.line ++ "depends on" ++ indentExpr y)
                 (findRecArgAux (i+1))
             | none => do
-              let indicesPos := indIndices.map fun index => match ys.indexOf index with | some i => i.val | none => unreachable!;
+              let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!;
               orelseMergeErrors
                 (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
                      indicesPos  := indicesPos,
@@ -155,14 +155,19 @@ private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Exp
     (do F ← mkAppM `PProd.fst #[F]; toBelowAux d1 arg F)
     <|>
     (do F ← mkAppM `PProd.snd #[F]; toBelowAux d2 arg F)
-  -- TODO `Expr.forallE` case
   -- TODO `And d1 d2` case
-  | Expr.app f a _ => do
-    unless (f == C) throwToBelowFailed;
-    unlessM (isDefEq a arg) throwToBelowFailed;
-    pure F
-  | _ =>
-    throwToBelowFailed
+  | _ => forallTelescopeReducing belowDict fun xs belowDict => do
+    let argArgs := arg.getAppArgs;
+    unless (argArgs.size >= xs.size) throwToBelowFailed;
+    let n := argArgs.size;
+    let argTailArgs := argArgs.extract (n - xs.size) n;
+    let belowDict := belowDict.replaceFVars xs argTailArgs;
+    match belowDict with
+    | Expr.app belowDictFun belowDictArg _ => do
+      unless (belowDictFun.getAppFn == C) throwToBelowFailed;
+      unlessM (isDefEq belowDictArg arg) throwToBelowFailed;
+      pure (mkAppN F argTailArgs)
+    | _ => throwToBelowFailed
 
 /- See toBelow -/
 private def withBelowDict {α} (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
@@ -253,36 +258,39 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
   | none => processApp e
 | _, e => ensureNoRecFn recFnName e
 
-private def mkBRecOn (recFnName : Name) (argInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
+private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
 type ← inferType value;
 let type := type.headBeta;
-let major := argInfo.ys.get! argInfo.pos;
-let otherArgs := argInfo.ys.filter fun y => y != major && !argInfo.indIndices.contains y;
+let major := recArgInfo.ys.get! recArgInfo.pos;
+let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y;
 motive ← mkForallFVars otherArgs type;
 brecOnUniv ← getLevel motive;
-motive ← mkLambdaFVars (argInfo.indIndices.push major) motive;
+trace! `Elab.definition.structural ("brecOn univ: " ++ brecOnUniv);
+brecOnUniv ← if recArgInfo.reflexive then decLevel brecOnUniv else pure brecOnUniv;
+motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive;
 trace! `Elab.definition.structural ("brecOn motive: " ++ motive);
-let brecOn := Lean.mkConst (mkBRecOnFor argInfo.indName) (brecOnUniv :: argInfo.indLevels);
-let brecOn := mkAppN brecOn argInfo.indParams;
+let brecOn := Lean.mkConst (mkBRecOnFor recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels);
+let brecOn := mkAppN brecOn recArgInfo.indParams;
 let brecOn := mkApp brecOn motive;
-let brecOn := mkAppN brecOn argInfo.indIndices;
+let brecOn := mkAppN brecOn recArgInfo.indIndices;
 let brecOn := mkApp brecOn major;
+check brecOn;
 brecOnType ← inferType brecOn;
 trace! `Elab.definition.structural ("brecOn     " ++ brecOn);
 trace! `Elab.definition.structural ("brecOnType " ++ brecOnType);
 forallBoundedTelescope brecOnType (some 1) fun F _ => do
   let F := F.get! 0;
   FType ← inferType F;
-  let numIndices := argInfo.indIndices.size;
+  let numIndices := recArgInfo.indIndices.size;
   forallBoundedTelescope FType (some $ numIndices + 1 /- major -/ + 1 /- below -/ + otherArgs.size) fun Fargs _ => do
     let indicesNew   := Fargs.extract 0 numIndices;
     let majorNew     := Fargs.get! numIndices;
     let below        := Fargs.get! (numIndices+1);
     let otherArgsNew := Fargs.extract (numIndices+2) Fargs.size;
-    let valueNew     := value.replaceFVars argInfo.indIndices indicesNew;
+    let valueNew     := value.replaceFVars recArgInfo.indIndices indicesNew;
     let valueNew     := valueNew.replaceFVar major majorNew;
     let valueNew     := valueNew.replaceFVars otherArgs otherArgsNew;
-    valueNew ← replaceRecApps recFnName argInfo below valueNew;
+    valueNew ← replaceRecApps recFnName recArgInfo below valueNew;
     Farg ← mkLambdaFVars Fargs valueNew;
     let brecOn := mkApp brecOn Farg;
     pure $ mkAppN brecOn otherArgs
@@ -291,9 +299,9 @@ private def elimRecursion (preDef : PreDefinition) : MetaM PreDefinition :=
 lambdaTelescope preDef.value fun xs value => do
   trace! `Elab.definition.structural (preDef.declName ++ " " ++ xs ++ " :=\n" ++ value);
   let numFixed := getFixedPrefix preDef.declName xs value;
-  findRecArg numFixed xs fun argInfo => do
-    -- when (argInfo.indName == `Nat) throwStructuralFailed; -- HACK to skip Nat argument
-    valueNew ← mkBRecOn preDef.declName argInfo value;
+  findRecArg numFixed xs fun recArgInfo => do
+    -- when (recArgInfo.indName == `Nat) throwStructuralFailed; -- HACK to skip Nat argument
+    valueNew ← mkBRecOn preDef.declName recArgInfo value;
     valueNew ← mkLambdaFVars xs valueNew;
     trace! `Elab.definition.structural ("result: " ++ valueNew);
     -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)

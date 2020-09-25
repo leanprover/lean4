@@ -74,7 +74,6 @@ extern lean_object* l___private_Lean_Meta_Basic_6__liftMkBindingM___rarg___close
 extern lean_object* l_Lean_Elab_Command_isDefLike___closed__4;
 extern lean_object* l_Lean_Elab_Command_isDefLike___closed__8;
 lean_object* lean_array_fget(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_Match_Match_39__process___main___closed__2;
 lean_object* l___private_Lean_Elab_Declaration_5__isMutualDef___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -139,6 +138,7 @@ extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_Elab_Command_expandMutualElement(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Elab_Declaration_3__isMutualInductive(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualElement(lean_object*);
+extern lean_object* l___private_Lean_Meta_Match_Match_40__process___main___closed__1;
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Elab_Declaration_5__isMutualDef___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resetMessageLog(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandMutualPreamble___closed__2;
@@ -3531,7 +3531,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
-x_2 = l___private_Lean_Meta_Match_Match_39__process___main___closed__2;
+x_2 = l___private_Lean_Meta_Match_Match_40__process___main___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

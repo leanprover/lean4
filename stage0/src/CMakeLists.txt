@@ -478,6 +478,11 @@ endif ()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
+if (${STAGE} EQUAL 0)
+  set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 1")
+else()
+  set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 0")
+endif()
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
 install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
 configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)

@@ -52,6 +52,13 @@ m1;
 m2 a;
 pure 1
 
+def tst0 : IO Unit := do {
+a ← f;
+let x := a + 1;
+IO.println "hello";
+IO.println x;
+}
+
 def tst1 : IO Unit := do
 a ← f;
 let x := a + 1;

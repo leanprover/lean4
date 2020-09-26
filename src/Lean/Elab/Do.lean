@@ -43,7 +43,11 @@ match expectedType? with
 private def getDoElems (stx : Syntax) : Array Syntax :=
 let arg := stx.getArg 1;
 if arg.getKind == `Lean.Parser.Term.doSeqBracketed then
-  (arg.getArg 1).getArgs
+  let args := (arg.getArg 1).getArgs;
+  if args.back.isToken ";" then -- temporary hack
+    args.pop
+  else
+    args
 else
   arg.getArgs
 
@@ -219,6 +223,7 @@ fun stx expectedType? => do
   let doElems := getDoElems stx;
   trace `Elab.do $ fun _ => stx;
   let doElems := doElems.getSepElems;
+  trace `Elab.do $ fun _ => "doElems: " ++ toString doElems;
   { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
   result ← processDoElems doElems m bindInstVal expectedType?.get!;
   -- dbgTrace ("result: " ++ toString result);

@@ -2722,7 +2722,7 @@ lean_object* _init_l_Lean_Parser_Tactic_intro___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_matchAlts___closed__1;
+x_1 = l_Lean_Parser_Parser_inhabited___closed__1;
 x_2 = l_Lean_Parser_Tactic_intro___closed__2;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
@@ -17685,7 +17685,7 @@ lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_structInstArrayRef___closed__1;
+x_1 = l_Lean_Parser_Parser_inhabited___closed__1;
 x_2 = l_Lean_Parser_Tactic_rewrite___closed__4;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;

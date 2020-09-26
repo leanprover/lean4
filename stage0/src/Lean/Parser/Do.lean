@@ -18,20 +18,21 @@ registerBuiltinDynamicParserAttribute `doElemParser `doElem
 categoryParser `doElem rbp
 
 namespace Term
-
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
-def doLet  := parser! "let ">> letDecl
+@[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
+
+def doSeqIndent    := withPosition fun pos => sepBy1 doElemParser (try ("; " >> checkColGe pos.column "do-elements must be indented"))
+def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " >> "}"
+def doSeq          := doSeqBracketed <|> doSeqIndent
+
+@[builtinDoElemParser] def doLet  := parser! "let " >> letDecl
 def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
-def doExpr := parser! termParser
-def doHave := parser! "have " >> Term.haveDecl
+@[builtinDoElemParser] def doAssign := notFollowedBy "let " >> (doId <|> doPat)
+@[builtinDoElemParser] def doHave   := parser! "have " >> Term.haveDecl
+@[builtinDoElemParser] def doExpr   := parser! notFollowedBy "let " >> notFollowedBy "have " >> termParser
 
-def doElem := doLet <|> doId <|> doPat <|> doExpr
-def doSeq  := withPosition fun pos => sepBy1 doElem (try ("; " >> checkColGe pos.column "do-elements must be indented"))
-def bracketedDoSeq := parser! "{" >> sepBy1 doElem "; " >> "}"
-
-@[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
-@[builtinTermParser] def «do»  := parser!:maxPrec "do " >> (bracketedDoSeq <|> doSeq)
+@[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq
 
 end Term
 end Parser

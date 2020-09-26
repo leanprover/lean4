@@ -41,10 +41,8 @@ match expectedType? with
   | _ => mkIdBindFor type
 
 private def getDoElems (stx : Syntax) : Array Syntax :=
---parser! "do " >> (bracketedDoSeq <|> doSeq)
 let arg := stx.getArg 1;
-if arg.getKind == `Lean.Parser.Term.bracketedDoSeq then
-  -- parser! "{" >> doSeq >> "}"
+if arg.getKind == `Lean.Parser.Term.doSeqBracketed ||  arg.getKind == `Lean.Parser.Term.bracketedDoSeq /- TODO: remove second case -/ then
   (arg.getArg 1).getArgs
 else
   arg.getArgs

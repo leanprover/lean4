@@ -18,7 +18,7 @@ import Lean.Elab.Declaration
 import Lean.Elab.Tactic
 import Lean.Elab.Syntax
 import Lean.Elab.Match
-import Lean.Elab.DoNotation
+import Lean.Elab.Do
 import Lean.Elab.StructInst
 import Lean.Elab.Inductive
 import Lean.Elab.Structure

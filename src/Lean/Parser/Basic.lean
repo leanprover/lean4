@@ -498,8 +498,7 @@ fun c s =>
     s.mkError "notFollowedBy"
 
 @[inline] def notFollowedBy (p : Parser) : Parser :=
-{ info := p.info,
-  fn   := notFollowedByFn p.fn }
+{ fn := notFollowedByFn p.fn }
 
 @[specialize] partial def manyAux (p : ParserFn) : ParserFn
 | c, s =>

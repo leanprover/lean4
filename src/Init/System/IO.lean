@@ -405,10 +405,10 @@ structure Output :=
 /-- Run process to completion and capture output. -/
 def output (args : SpawnArgs) : IO Output := do
 child ← spawn { args with stdout := Stdio.piped, stderr := Stdio.piped };
--- BUG: this will block indefinitely if the process fills the stderr pipe
-stdout ← child.stdout.readToEnd;
+stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated;
 stderr ← child.stderr.readToEnd;
 exitCode ← child.wait;
+stdout ← IO.ofExcept stdout.get;
 pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
 
 /-- Run process to completion and return stdout on success. -/

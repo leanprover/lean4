@@ -78,9 +78,7 @@ withPosition fun pos₁ =>
     ("; "
      -- check indentation
      >> checkColGe pos₁.column "do-elements must be indented"
-     -- no black lines between do-elements.
-     -- >> checkLineLe (pos₂.line+1) "no blank lines between do-elements"
-      >> notFollowedByCommandToken)
+     >> notFollowedByCommandToken)
   >> optional (try ("; " >> notFollowedByTermToken >> notFollowedBy (ident <|> numLit <|> strLit <|> charLit <|> nameLit)))
 def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent

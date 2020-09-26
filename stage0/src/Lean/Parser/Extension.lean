@@ -463,5 +463,35 @@ registerBuiltinParserAttribute `builtinTermParser `term
 @[init] def regTermParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `termParser `term
 
+-- declare `commandParser` to break cyclic dependency
+@[init] def regBuiltinCommandParserAttr : IO Unit :=
+registerBuiltinParserAttribute `builtinCommandParser `command
+
+@[init] def regCommandParserAttribute : IO Unit :=
+registerBuiltinDynamicParserAttribute `commandParser `command
+
+@[inline] def commandParser (rbp : Nat := 0) : Parser :=
+categoryParser `command rbp
+
+def notFollowedByCategoryTokenFn (catName : Name) : ParserFn :=
+fun ctx s =>
+  let categories := (parserExtension.getState ctx.env).categories;
+  match getCategory categories catName with
+  | none => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
+  | some cat =>
+    let (s, stx) := peekToken ctx s;
+    match stx with
+    | some (Syntax.atom _ sym) =>
+      match cat.tables.leadingTable.find? (mkNameSimple sym) with
+      | some _ => s.mkError "notFollowedByCategoryToken"
+      | _      => s
+    | _ => s
+
+@[inline] def notFollowedByCategoryToken (catName : Name) : Parser :=
+{ fn := notFollowedByCategoryTokenFn catName }
+
+abbrev notFollowedByCommandToken : Parser :=
+notFollowedByCategoryToken `command
+
 end Parser
 end Lean

@@ -781,6 +781,11 @@ def isAtom : Syntax → Bool
 | atom _ _ => true
 | _        => false
 
+def isToken (token : String) : Syntax → Bool
+| atom _ val => val.trim == token.trim
+| _          => false
+
+
 def isIdent : Syntax → Bool
 | ident _ _ _ _ => true
 | _             => false

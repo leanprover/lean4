@@ -22,7 +22,7 @@ def leftArrow : Parser := unicodeSymbol " ← " " <- "
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 
 def doSeqIndent    := withPosition fun pos => sepBy1 doElemParser (try ("; " >> checkColGe pos.column "do-elements must be indented"))
-def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " >> "}"
+def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
 @[builtinDoElemParser] def doLet  := parser! "let " >> letDecl

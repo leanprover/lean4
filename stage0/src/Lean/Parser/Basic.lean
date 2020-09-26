@@ -1382,6 +1382,15 @@ fun c s =>
 @[inline] def checkColGe (col : Nat) (errorMsg : String) : Parser :=
 { fn := checkColGeFn col errorMsg }
 
+@[inline] def checkLineLeFn (line : Nat) (errorMsg : String) : ParserFn :=
+fun c s =>
+  let pos := c.fileMap.toPosition s.pos;
+  if pos.line ≤ line then s
+  else s.mkError errorMsg
+
+@[inline] def checkLineLe (line : Nat) (errorMsg : String) : Parser :=
+{ fn := checkLineLeFn line errorMsg }
+
 @[inline] def withPosition (p : Position → Parser) : Parser :=
 { info := (p { line := 1, column := 0 }).info,
   fn   := fun c s =>

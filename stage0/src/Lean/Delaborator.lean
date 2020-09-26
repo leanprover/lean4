@@ -320,7 +320,7 @@ ppUnivs ← getPPOption getPPUniverses;
 if ls.isEmpty || !ppUnivs then
   pure $ mkIdent c
 else
-  `($(mkIdent c).{$(ls.toArray.map quote)*})
+  `($(mkIdent c).{$(mkSepArray (ls.toArray.map quote) (mkAtom ","))*})
 
 inductive ParamKind
 | explicit
@@ -563,7 +563,7 @@ let fieldNames := getStructureFields env s.induct;
   ];
   pure (idx + 1, fields.push field)
 };
-let fields := (mkSepStx fields (mkAtom ",")).getArgs;
+let fields := mkSepArray fields (mkAtom ",");
 condM (getPPOption getPPStructureInstanceType)
   (do
     ty ← inferType e;

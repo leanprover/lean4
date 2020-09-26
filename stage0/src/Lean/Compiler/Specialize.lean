@@ -27,8 +27,8 @@ end SpecializeAttributeKind
 
 def mkSpecializeAttrs : IO (EnumAttributes SpecializeAttributeKind) :=
 registerEnumAttributes `specializeAttrs
-  [(`specialize, "mark definition to always be inlined", SpecializeAttributeKind.specialize),
-   (`nospecialize, "mark definition to never be inlined", SpecializeAttributeKind.nospecialize) ]
+  [(`specialize, "mark definition to always be specialized", SpecializeAttributeKind.specialize),
+   (`nospecialize, "mark definition to never be specialized", SpecializeAttributeKind.nospecialize) ]
   /- TODO: fix the following hack.
      We need to use the following hack because the equation compiler generates auxiliary
      definitions that are compiled before we even finish the elaboration of the current command.

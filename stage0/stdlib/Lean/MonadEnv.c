@@ -45,6 +45,7 @@ lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1(lean_object*, lean_objec
 lean_object* l_Lean_evalConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstStruct___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_withoutModifyingEnv(lean_object*);
 lean_object* l_Lean_addAndCompile___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addAndCompile(lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,6 +70,8 @@ lean_object* l_Lean_evalConst___rarg___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_matchConstInduct(lean_object*);
 lean_object* l_Lean_getConstInfo(lean_object*);
 lean_object* l_Lean_addDecl(lean_object*);
+extern lean_object* l_finally___rarg___closed__1;
+lean_object* l_Lean_withoutModifyingEnv___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1;
 lean_object* l_Lean_ofExcept___at_Lean_evalConst___spec__1(lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*);
@@ -85,6 +88,7 @@ lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_evalConstCheck___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
 lean_object* l_Lean_matchConstInduct___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,6 +129,53 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_setEnv___rarg), 2, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = l_Lean_setEnv___rarg(x_2, x_5);
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_10, 0, x_8);
+x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_10);
+x_12 = l_finally___rarg___closed__1;
+x_13 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_12, x_11);
+return x_13;
+}
+}
+lean_object* l_Lean_withoutModifyingEnv___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_ctor_get(x_2, 1);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+x_8 = lean_alloc_closure((void*)(l_Lean_withoutModifyingEnv___rarg___lambda__1), 5, 4);
+lean_closure_set(x_8, 0, x_2);
+lean_closure_set(x_8, 1, x_1);
+lean_closure_set(x_8, 2, x_3);
+lean_closure_set(x_8, 3, x_5);
+x_9 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_7, x_8);
+return x_9;
+}
+}
+lean_object* l_Lean_withoutModifyingEnv(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_withoutModifyingEnv___rarg), 5, 0);
 return x_2;
 }
 }

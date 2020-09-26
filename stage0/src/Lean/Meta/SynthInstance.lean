@@ -579,11 +579,14 @@ catchInternalId isDefEqStuckExceptionId
   (toLOptionM $ synthInstanceImp? type)
   (fun _ => pure LOption.undef)
 
-private def synthInstanceImp (type : Expr) : MetaM Expr := do
-result? ← synthInstanceImp? type;
-match result? with
-| some result => pure result
-| none        => throwError $ "failed to synthesize" ++ indentExpr type
+private def synthInstanceImp (type : Expr) : MetaM Expr :=
+catchInternalId isDefEqStuckExceptionId
+  (do
+    result? ← synthInstanceImp? type;
+    match result? with
+    | some result => pure result
+    | none        => throwError $ "failed to synthesize" ++ indentExpr type)
+  (fun _ => throwError $ "failed to synthesize" ++ indentExpr type)
 
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := do
 mvarDecl ← getMVarDecl mvarId;
@@ -593,7 +596,7 @@ match mvarDecl.kind with
   match c? with
   | none   => pure false
   | some _ => do
-    val? ← synthInstanceImp? mvarDecl.type;
+    val? ← catchInternalId isDefEqStuckExceptionId (synthInstanceImp? mvarDecl.type) (fun _ => pure none);
     match val? with
     | none     => pure false
     | some val =>

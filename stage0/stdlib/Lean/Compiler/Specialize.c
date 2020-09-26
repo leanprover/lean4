@@ -1343,7 +1343,7 @@ lean_object* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to always be inlined");
+x_1 = lean_mk_string("mark definition to always be specialized");
 return x_1;
 }
 }
@@ -1394,7 +1394,7 @@ lean_object* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to never be inlined");
+x_1 = lean_mk_string("mark definition to never be specialized");
 return x_1;
 }
 }

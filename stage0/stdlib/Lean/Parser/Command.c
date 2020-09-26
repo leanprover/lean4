@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Command
-// Imports: Init Lean.Parser.Term
+// Imports: Init Lean.Parser.Term Lean.Parser.Do
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -50618,6 +50618,7 @@ return x_5;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Parser_Term(lean_object*);
+lean_object* initialize_Lean_Parser_Do(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Parser_Command(lean_object* w) {
 lean_object * res;
@@ -50627,6 +50628,9 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Term(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Do(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_regBuiltinCommandParserAttr___closed__1 = _init_l_Lean_Parser_regBuiltinCommandParserAttr___closed__1();

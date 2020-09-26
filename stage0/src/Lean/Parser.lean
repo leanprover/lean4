@@ -10,6 +10,7 @@ import Lean.Parser.Tactic
 import Lean.Parser.Command
 import Lean.Parser.Module
 import Lean.Parser.Syntax
+import Lean.Parser.Do
 
 namespace Lean
 namespace PrettyPrinter

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser
-// Imports: Init Lean.Parser.Basic Lean.Parser.Level Lean.Parser.Term Lean.Parser.Tactic Lean.Parser.Command Lean.Parser.Module Lean.Parser.Syntax
+// Imports: Init Lean.Parser.Basic Lean.Parser.Level Lean.Parser.Term Lean.Parser.Tactic Lean.Parser.Command Lean.Parser.Module Lean.Parser.Syntax Lean.Parser.Do
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -329,6 +329,7 @@ lean_object* initialize_Lean_Parser_Tactic(lean_object*);
 lean_object* initialize_Lean_Parser_Command(lean_object*);
 lean_object* initialize_Lean_Parser_Module(lean_object*);
 lean_object* initialize_Lean_Parser_Syntax(lean_object*);
+lean_object* initialize_Lean_Parser_Do(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Parser(lean_object* w) {
 lean_object * res;
@@ -356,6 +357,9 @@ res = initialize_Lean_Parser_Module(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Syntax(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Do(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_ident_parenthesizer___closed__1 = _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_ident_parenthesizer___closed__1();

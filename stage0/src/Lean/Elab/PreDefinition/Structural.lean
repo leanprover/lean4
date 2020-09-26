@@ -148,14 +148,17 @@ throwError "toBelow failed"
 /- See toBelow -/
 private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
 | belowDict, arg, F => do
-  trace! `Elab.definition.structural ("belowDict: " ++ belowDict ++ ", arg: " ++ arg);
   belowDict ← whnf belowDict;
+  trace! `Elab.definition.structural ("belowDict: " ++ belowDict ++ ", arg: " ++ arg);
   match belowDict with
   | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
     (do F ← mkAppM `PProd.fst #[F]; toBelowAux d1 arg F)
     <|>
     (do F ← mkAppM `PProd.snd #[F]; toBelowAux d2 arg F)
-  -- TODO `And d1 d2` case
+  | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
+    (do F ← mkAppM `And.left #[F]; toBelowAux d1 arg F)
+    <|>
+    (do F ← mkAppM `And.right #[F]; toBelowAux d2 arg F)
   | _ => forallTelescopeReducing belowDict fun xs belowDict => do
     let argArgs := arg.getAppArgs;
     unless (argArgs.size >= xs.size) throwToBelowFailed;
@@ -211,9 +214,19 @@ withBelowDict below numIndParams fun C belowDict =>
   toBelowAux C belowDict recArg below
 
 private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) : Expr → Expr → MetaM Expr
-| below, e@(Expr.lam _ _ _ _) => lambdaTelescope e fun xs b => do b ← replaceRecApps below b; mkLambdaFVars xs b
+| below, e@(Expr.lam n d b c) => do
+  d ← replaceRecApps below d;
+  withLocalDecl n c.binderInfo d fun x => do
+    b ← replaceRecApps below (b.instantiate1 x);
+    mkLambdaFVars #[x] b
+| below, e@(Expr.forallE n d b c) => do
+  d ← replaceRecApps below d;
+  withLocalDecl n c.binderInfo d fun x => do
+    b ← replaceRecApps below (b.instantiate1 x);
+    mkForallFVars #[x] b
 | below, Expr.letE n type val body _ => do
-  val ← replaceRecApps below val;
+  type ← replaceRecApps below type;
+  val  ← replaceRecApps below val;
   withLetDecl n type val fun x => do
     body ← replaceRecApps below (body.instantiate1 x);
     mkLetFVars #[x] body
@@ -266,10 +279,15 @@ let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndi
 motive ← mkForallFVars otherArgs type;
 brecOnUniv ← getLevel motive;
 trace! `Elab.definition.structural ("brecOn univ: " ++ brecOnUniv);
-brecOnUniv ← if recArgInfo.reflexive then decLevel brecOnUniv else pure brecOnUniv;
+let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero;
+brecOnUniv ← if recArgInfo.reflexive && brecOnUniv != levelZero then decLevel brecOnUniv else pure brecOnUniv;
 motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive;
 trace! `Elab.definition.structural ("brecOn motive: " ++ motive);
-let brecOn := Lean.mkConst (mkBRecOnFor recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels);
+let brecOn :=
+  if useBInductionOn then
+    Lean.mkConst (mkBInductionOnFor recArgInfo.indName) recArgInfo.indLevels
+  else
+    Lean.mkConst (mkBRecOnFor recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels);
 let brecOn := mkAppN brecOn recArgInfo.indParams;
 let brecOn := mkApp brecOn motive;
 let brecOn := mkAppN brecOn recArgInfo.indIndices;
@@ -296,7 +314,8 @@ forallBoundedTelescope brecOnType (some 1) fun F _ => do
     pure $ mkAppN brecOn otherArgs
 
 private def elimRecursion (preDef : PreDefinition) : MetaM PreDefinition :=
-lambdaTelescope preDef.value fun xs value => do
+withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
+  addAsAxiom preDef;
   trace! `Elab.definition.structural (preDef.declName ++ " " ++ xs ++ " :=\n" ++ value);
   let numFixed := getFixedPrefix preDef.declName xs value;
   findRecArg numFixed xs fun recArgInfo => do

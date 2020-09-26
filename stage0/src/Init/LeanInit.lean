@@ -540,12 +540,15 @@ Syntax.ident {} (toString val).toSubstring val []
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
 Syntax.node nullKind args
 
-def mkSepStx (a : Array Syntax) (sep : Syntax) : Syntax :=
-mkNullNode $ a.iterate #[] $ fun i a r =>
+def mkSepArray (a : Array Syntax) (sep : Syntax) : Array Syntax :=
+a.iterate #[] $ fun i a r =>
   if i.val > 0 then
     (r.push sep).push a
   else
     r.push a
+
+def mkSepStx (a : Array Syntax) (sep : Syntax) : Syntax :=
+mkNullNode $ mkSepArray a sep
 
 def mkOptionalNode (arg : Option Syntax) : Syntax :=
 match arg with

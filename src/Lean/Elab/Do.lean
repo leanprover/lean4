@@ -42,7 +42,7 @@ match expectedType? with
 
 private def getDoElems (stx : Syntax) : Array Syntax :=
 let arg := stx.getArg 1;
-if arg.getKind == `Lean.Parser.Term.doSeqBracketed ||  arg.getKind == `Lean.Parser.Term.bracketedDoSeq /- TODO: remove second case -/ then
+if arg.getKind == `Lean.Parser.Term.doSeqBracketed then
   (arg.getArg 1).getArgs
 else
   arg.getArgs

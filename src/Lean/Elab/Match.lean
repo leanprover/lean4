@@ -694,7 +694,6 @@ withPatternVars patternVars fun patternVarDecls => do
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
     rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;
     trace `Elab.match fun _ => "rhs: " ++ rhs;
-    -- TODO: check whether altLHS still has metavariables
     pure (altLHS, rhs)
 
 def mkMatcher (elimName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
@@ -713,6 +712,8 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
 matchAlts ← liftMacroM $ expandMacrosInPatterns altViews;
 trace `Elab.match fun _ => "matchType: " ++ matchType;
 alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType;
+synthesizeSyntheticMVarsNoPostponing;
+-- TODO report error if matchType or altLHSS.toList have metavars
 let rhss := alts.map Prod.snd;
 let altLHSS := alts.map Prod.fst;
 let numDiscrs := discrs.size;

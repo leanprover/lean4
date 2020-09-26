@@ -294,7 +294,8 @@ do
      ":="
      (Term.paren "(" [`b [(Term.tupleTail "," [`a])]] ")"))))
   ";"
-  (Term.doExpr (Term.app `pure [(Term.paren "(" [(Term.add `a "+" `b) []] ")")]))])
+  (Term.doExpr (Term.app `pure [(Term.paren "(" [(Term.add `a "+" `b) []] ")")]))]
+ [])
 do { x ← f a; pure $ a + a }
 (Term.do
  "do"

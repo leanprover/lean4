@@ -493,5 +493,8 @@ fun ctx s =>
 abbrev notFollowedByCommandToken : Parser :=
 notFollowedByCategoryToken `command
 
+abbrev notFollowedByTermToken : Parser :=
+notFollowedByCategoryToken `term
+
 end Parser
 end Lean

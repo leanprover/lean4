@@ -42,14 +42,14 @@ match expectedType? with
 
 private def getDoElems (stx : Syntax) : Array Syntax :=
 let arg := stx.getArg 1;
-if arg.getKind == `Lean.Parser.Term.doSeqBracketed then
-  let args := (arg.getArg 1).getArgs;
-  if args.back.isToken ";" then -- temporary hack
-    args.pop
-  else
-    args
+let args := if arg.getKind == `Lean.Parser.Term.doSeqBracketed then
+  (arg.getArg 1).getArgs
 else
-  arg.getArgs
+  arg.getArgs;
+if args.back.isToken ";" then -- temporary hack
+  args.pop
+else
+  args
 
 private partial def hasLiftMethod : Syntax → Bool
 | Syntax.node k args =>

@@ -21,7 +21,7 @@ a ← f;      -- liftM inserted here
 b ← g1 1;   -- liftM inserted here
 let x := g2 b;
 IO.println b;
-pure (s+a)
+pure (s+a);
 
 def myPrint {α} [HasToString α] (a : α) : IO Unit :=
 IO.println (">> " ++ toString a)
@@ -63,7 +63,7 @@ def tst1 : IO Unit := do
 a ← f;
 let x := a + 1;
 IO.println "hello";
-IO.println x
+IO.println x;
 
 def tst2 : IO Unit := do
 let x := ← g $ (←f) + (←f);
@@ -76,7 +76,7 @@ if (← g 1) > 0 then
 else do
   x ← f;
   y ← g x;
-  IO.println y
+  IO.println y;
 
 def pred (x : Nat) : IO Bool := do
 pure $ (← g x) > 0
@@ -103,7 +103,7 @@ partial def expandHash : Syntax → StateT Bool MacroM Syntax
   if k == `doHash then do set true; `(←MonadState.get)
   else do
     args ← args.mapM expandHash;
-    pure $ Syntax.node k args
+    pure $ Syntax.node k args;
 | stx => pure stx
 
 @[macro Lean.Parser.Term.do] def expandDo : Macro :=

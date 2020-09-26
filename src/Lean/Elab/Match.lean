@@ -405,7 +405,7 @@ match (stx.getArg 0).isNameLit? with
 | some val => nameToPattern val
 | none     => throwIllFormedSyntax
 
-private partial def collect : Syntax → M Syntax
+partial def collect : Syntax → M Syntax
 | stx@(Syntax.node k args) => withRef stx $ withFreshMacroScope $
   if k == `Lean.Parser.Term.app then do
     processCtorApp collect stx
@@ -495,6 +495,12 @@ end CollectPatternVars
 private def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × MatchAltView) := do
 (alt, s) ← (CollectPatternVars.main alt).run {};
 pure (s.vars, alt)
+
+/- Return the pattern variables in the given pattern.
+  Remark: this method is not used here, but in other macros (e.g., at `Do.lean`). -/
+def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
+(_, s) ← (CollectPatternVars.collect patternStx).run {};
+pure s.vars
 
 /- We convert the collected `PatternVar`s intro `PatternVarDecl` -/
 inductive PatternVarDecl

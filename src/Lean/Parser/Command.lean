@@ -9,15 +9,6 @@ import Lean.Parser.Do
 namespace Lean
 namespace Parser
 
-@[init] def regBuiltinCommandParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinCommandParser `command
-
-@[init] def regCommandParserAttribute : IO Unit :=
-registerBuiltinDynamicParserAttribute `commandParser `command
-
-@[inline] def commandParser (rbp : Nat := 0) : Parser :=
-categoryParser `command rbp
-
 /--
   Syntax quotation for terms and (lists of) commands. We prefer terms, so ambiguous quotations like
   `($x $y) will be parsed as an application, not two commands. Use `($x:command $y:command) instead.

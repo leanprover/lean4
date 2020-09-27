@@ -387,6 +387,7 @@ pushLine
 @[combinatorFormatter checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter checkLineLe] def checkLineLe.formatter : Formatter := pure ()
+@[combinatorFormatter eoi] def eoi.formatter : Formatter := pure ()
 @[combinatorFormatter notFollowedByCategoryToken] def notFollowedByCategoryToken.formatter : Formatter := pure ()
 @[combinatorFormatter checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkInsideQuot] def checkInsideQuot.formatter : Formatter := pure ()

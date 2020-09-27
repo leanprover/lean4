@@ -482,7 +482,8 @@ fun ctx s =>
     let (s, stx) := peekToken ctx s;
     match stx with
     | some (Syntax.atom _ sym) =>
-      match cat.tables.leadingTable.find? (mkNameSimple sym) with
+      if ctx.insideQuot && sym == "$" then s
+      else match cat.tables.leadingTable.find? (mkNameSimple sym) with
       | some _ => s.mkError "notFollowedByCategoryToken"
       | _      => s
     | _ => s
@@ -492,6 +493,9 @@ fun ctx s =>
 
 abbrev notFollowedByCommandToken : Parser :=
 notFollowedByCategoryToken `command
+
+abbrev notFollowedByTermToken : Parser :=
+notFollowedByCategoryToken `term
 
 end Parser
 end Lean

@@ -88,6 +88,43 @@ def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 @[builtinDoElemParser] def doAssign := notFollowedBy "let " >> (doId <|> doPat)
 @[builtinDoElemParser] def doHave   := parser! "have " >> Term.haveDecl
+/-
+In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as
+```
+if c_1 then
+  if c_2 then
+    action_1
+else
+  action_2
+```
+from being parsed as
+```
+if c_1 then {
+  if c_2 then {
+    action_1
+  } else {
+    action_2
+  }
+}
+```
+We also have special support for `else if` because we don't want to write
+```
+if c_1 then
+  action_1
+else if c_2 then
+       action_2
+     else
+       action_3
+```
+-/
+@[builtinDoElemParser] def doIf := parser! withPosition fun pos =>
+  "if " >> termParser >> " then " >> doSeq
+  >> many (checkColGe pos.column "'else if' in 'do' must be indented" >> try (" else " >> " if ") >> termParser >> " then " >> doSeq)
+  >> optional (checkColGe pos.column "'else' in 'do' must be indented" >> " else " >> doSeq)
+@[builtinDoElemParser] def doFor := parser! "for " >> termParser >> " in " >> termParser maxPrec >> doSeq
+@[builtinDoElemParser] def «break» := parser! "break"
+@[builtinDoElemParser] def «continue» := parser! "continue"
+
 @[builtinDoElemParser] def doExpr   := parser! notFollowedBy "let " >> notFollowedBy "have " >> termParser
 
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq

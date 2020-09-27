@@ -103,7 +103,8 @@ chunks.iterateM Syntax.missing fun i elem result => do
   elem ← match elem.isStrInterpolantStrLit? with
     | none     => mkElem elem
     | some str => mkElem (mkStxStrLit str);
-  if i.val == 0 then pure elem else mkAppend result elem
+  -- TODO: remove `(` after we write new elabDo
+  (if i.val == 0 then pure elem else mkAppend result elem)
 
 end Lean.Syntax
 

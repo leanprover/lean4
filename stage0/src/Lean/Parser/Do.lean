@@ -121,7 +121,13 @@ else if c_2 then
   "if " >> termParser >> " then " >> doSeq
   >> many (checkColGe pos.column "'else if' in 'do' must be indented" >> try (" else " >> " if ") >> termParser >> " then " >> doSeq)
   >> optional (checkColGe pos.column "'else' in 'do' must be indented" >> " else " >> doSeq)
-@[builtinDoElemParser] def doFor := parser! "for " >> termParser >> " in " >> termParser maxPrec >> doSeq
+@[builtinDoElemParser] def doFor   := parser! "for " >> termParser >> " in " >> termParser maxPrec >> doSeq
+
+/- `match`-expression where the right-hand-side of alternatives is a `doSeq` instead of a `term` -/
+def doMatchAlt : Parser  := sepBy1 termParser ", " >> darrow >> doSeq
+def doMatchAlts : Parser := parser! withPosition fun pos => (optional "| ") >> sepBy1 doMatchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+@[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
+
 @[builtinDoElemParser] def «break» := parser! "break"
 @[builtinDoElemParser] def «continue» := parser! "continue"
 

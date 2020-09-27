@@ -39,6 +39,6 @@ def evalInstr : instr → sim (Option val)
 | instr.store _ _ _ =>
    do let pv <- f;
       g;
-      match pv with
-      | val.bv 27 _ => throw (IO.userError "asdf")
-      | _ => throw (IO.userError "expected pointer value in store" )
+      (match pv with
+       | val.bv 27 _ => throw (IO.userError "asdf")
+       | _ => throw (IO.userError "expected pointer value in store" ))

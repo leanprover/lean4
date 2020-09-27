@@ -18,9 +18,9 @@ catch
 
 def checkE {α ε : Type} [HasBeq α] (x : IO (Except ε α)) (expected : α) : IO Unit := do
 let r ← x;
-match r with
+(match r with
 | Except.ok a    => unless (a == expected) $ throw $ IO.userError "unexpected result"
-| Except.error _ => throw $ IO.userError "unexpected error"
+| Except.error _ => throw $ IO.userError "unexpected error")
 
 #eval (tst1.run).run' 0
 

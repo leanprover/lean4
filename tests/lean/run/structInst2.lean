@@ -12,9 +12,9 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
 @[inline] protected def bind (ma : OptionT2 m α) (f : α → OptionT2 m β) : OptionT2 m β :=
 (do {
     let a? ← ma;
-    match a? with
+    (match a? with
     | some a => f a
-    | none   => pure none
+    | none   => pure none)
 } : m (Option β))
 
 @[inline] protected def pure (a : α) : OptionT2 m α :=
@@ -22,9 +22,9 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
 
 @[inline] protected def orelse (ma : OptionT2 m α) (mb : OptionT2 m α) : OptionT2 m α :=
 (do { let a? ← ma;
-        match a? with
+        (match a? with
         | some a => pure (some a)
-        | _      => mb } : m (Option α))
+        | _      => mb) } : m (Option α))
 
 @[inline] protected def fail : OptionT2 m α :=
 (pure none : m (Option α))

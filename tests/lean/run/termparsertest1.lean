@@ -17,9 +17,9 @@ is.forM $ fun input => do
 def testParserFailure (input : String) : IO Unit :=
 do
 let env ← mkEmptyEnvironment;
-match runParserCategory env `term input "<input>" with
+(match runParserCategory env `term input "<input>" with
 | Except.ok stx    => throw (IO.userError ("unexpected success\n" ++ toString stx))
-| Except.error msg => IO.println ("failed as expected, error: " ++ msg)
+| Except.error msg => IO.println ("failed as expected, error: " ++ msg))
 
 def testFailures (is : List String) : IO Unit :=
 is.forM $ fun input => do

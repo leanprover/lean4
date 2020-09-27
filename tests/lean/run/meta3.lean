@@ -17,9 +17,9 @@ unlessM x $ throwError "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
 do let v? ← getExprMVarAssignment? m.mvarId!;
-   match v? with
+   (match v? with
    | some v => pure v
-   | none   => throwError "metavariable is not assigned"
+   | none   => throwError "metavariable is not assigned")
 
 unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do

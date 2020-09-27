@@ -14,16 +14,16 @@ let decl := Declaration.defnDecl {
   isUnsafe := false
 };
 IO.println (toExpr a);
-match env.addAndCompile {} decl with
+(match env.addAndCompile {} decl with
 | Except.error _ => throwError "addDecl failed"
-| Except.ok env  => do
+| Except.ok env  =>
   match env.evalConst α auxName with
   | Except.error ex => throwError ex
   | Except.ok b => do
     IO.println b;
     unless (a == b) $
       throwError "toExpr failed";
-    pure ()
+    pure ())
 
 #eval test #[(1, 2), (3, 4)]
 #eval test ['a', 'b', 'c']

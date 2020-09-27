@@ -16,9 +16,9 @@ unlessM x $ throwError "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
 do let v? ← getExprMVarAssignment? m.mvarId!;
-   match v? with
+   (match v? with
    | some v => pure v
-   | none   => throwError "metavariable is not assigned"
+   | none   => throwError "metavariable is not assigned")
 
 def nat   := mkConst `Nat
 def boolE := mkConst `Bool
@@ -734,12 +734,12 @@ check t;
 let t <- mkArrayLit nat [mkNatLit 1, mkNatLit 2];
 print t;
 check t;
-match t.arrayLit? with
+(match t.arrayLit? with
 | some (_, xs) => do
   check $ pure $ xs.length == 2;
-  match (xs.get! 0).natLit?, (xs.get! 1).natLit? with
+  (match (xs.get! 0).natLit?, (xs.get! 1).natLit? with
   | some 1, some 2 => pure ()
-  | _, _           => throwError "nat lits expected"
-| none => throwError "array lit expected"
+  | _, _           => throwError "nat lits expected")
+| none => throwError "array lit expected")
 
 #eval tst42

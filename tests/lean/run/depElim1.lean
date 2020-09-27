@@ -26,20 +26,20 @@ inductive ArrayLit4 {α : Sort u} (a b c d : α) : Type u | mk : ArrayLit4 a b c
 
 private def getConstructorVal (ctorName : Name) (fn : Expr) (args : Array Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
 let env ← getEnv;
-match env.find? ctorName with
+(match env.find? ctorName with
 | some (ConstantInfo.ctorInfo v) => if args.size == v.nparams + v.nfields then pure $ some (v, fn, args) else pure none
-| _                              => pure none
+| _                              => pure none)
 
 private def constructorApp? (e : Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
 let env ← getEnv;
-match e with
+(match e with
 | Expr.lit (Literal.natVal n) _ =>
    if n == 0 then getConstructorVal `Nat.zero (mkConst `Nat.zero) #[] else getConstructorVal `Nat.succ (mkConst `Nat.succ) #[mkNatLit (n-1)]
 | _ =>
   let fn := e.getAppFn;
   match fn with
   | Expr.const n _ _ => getConstructorVal n fn e.getAppArgs
-  | _                => pure none
+  | _                => pure none)
 
 /- Convert expression using auxiliary hints `inaccessible` and `val` into a pattern -/
 partial def mkPattern : Expr → MetaM Pattern
@@ -75,13 +75,13 @@ partial def mkPattern : Expr → MetaM Pattern
     | none => do
       let e ← whnfD e;
       let r? ← constructorApp? e;
-      match r? with
+      (match r? with
       | none      => throwError "unexpected pattern"
       | some (cval, fn, args) => do
         let params := args.extract 0 cval.nparams;
         let fields := args.extract cval.nparams args.size;
         let pats ← fields.toList.mapM mkPattern;
-        pure $ Pattern.ctor cval.name fn.constLevels! params.toList pats
+        pure $ Pattern.ctor cval.name fn.constLevels! params.toList pats)
 
 partial def decodePats : Expr → MetaM (List Pattern)
 | e =>

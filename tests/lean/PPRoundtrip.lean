@@ -17,12 +17,12 @@ let stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
 let f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
 IO.println $ f'.pretty opts;
 let env ← getEnv;
-match Parser.runParserCategory env `term (toString f') "<input>" with
+(match Parser.runParserCategory env `term (toString f') "<input>" with
 | Except.error e => throwErrorAt stx e
 | Except.ok stx'' => do
   let e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
   unlessM (isDefEq e e') $
-    throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
+    throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e'))
 
 -- set_option trace.PrettyPrinter.parenthesize true
 set_option format.width 20

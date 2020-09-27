@@ -1397,6 +1397,15 @@ fun c s =>
    let pos := c.fileMap.toPosition s.pos;
    (p pos).fn c s }
 
+def eoiFn : ParserFn :=
+fun c s =>
+  let i := s.pos;
+  if c.input.atEnd i then s
+  else s.mkError "expected end of file"
+
+@[inline] def eoi : Parser :=
+{ fn := eoiFn }
+
 @[inline] def many1Indent (p : Parser) (errorMsg : String) : Parser :=
 withPosition $ fun pos => many1 (checkColGe pos.column errorMsg >> p)
 

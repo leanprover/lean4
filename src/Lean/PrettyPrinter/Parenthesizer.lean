@@ -447,6 +447,7 @@ p
 @[combinatorParenthesizer Lean.Parser.checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkTailWs] def checkTailWs.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkColGe] def checkColGe.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.eoi] def eoi.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.notFollowedByCategoryToken] def notFollowedByCategoryToken.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkLineLe] def checkLineLe.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkNoImmediateColon] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()

@@ -6,7 +6,7 @@ pure x?
 
 def tst2 (x : Nat) : IO (Option Nat) := do
 x? : Option Nat ← pure x;
-if x?.isNone then
+(if x?.isNone then
   /-
     We need the `some` because we propagate the expected type at `pure` applications.
     The expected type is `IO (Option Nat)`, and we elaborate `x+1` with expected type
@@ -17,4 +17,4 @@ if x?.isNone then
   -/
   pure $ some (x+1)
 else
-  pure x?
+  pure x?)

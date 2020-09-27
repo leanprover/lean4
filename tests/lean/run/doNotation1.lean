@@ -71,21 +71,21 @@ IO.println "hello";
 IO.println x
 
 def tst3 : IO Unit := do
-if (← g 1) > 0 then
+(if (← g 1) > 0 then
   IO.println "gt"
 else do
   x ← f;
   y ← g x;
-  IO.println y;
+  IO.println y)
 
 def pred (x : Nat) : IO Bool := do
 pure $ (← g x) > 0
 
 def tst4 (x : Nat) : IO Unit := do
-if ← pred x then
+(if ← pred x then
   IO.println "is true"
 else do
-  IO.println "is false"
+  IO.println "is false")
 
 def pred2 (x : Nat) : IO Bool :=
 pure $ x > 0
@@ -109,15 +109,15 @@ partial def expandHash : Syntax → StateT Bool MacroM Syntax
 @[macro Lean.Parser.Term.do] def expandDo : Macro :=
 fun stx => do
   (stx, expanded) ← expandHash stx false;
-  if expanded then pure stx
-  else Macro.throwUnsupported
+  (if expanded then pure stx
+   else Macro.throwUnsupported)
 
 
 def tst7 : StateT (Nat × Nat) IO Unit := do
-if #.1 == 0 then
+(if #.1 == 0 then
   IO.println "first field is zero"
 else
-  IO.println "first field is not zero"
+  IO.println "first field is not zero")
 
 #check tst7
 

@@ -45,7 +45,7 @@ def tst1 : IO Unit :=
 def tst : IO (List Nat) :=
 [1, 2, 3, 4].filterMapM fun x => do
   IO.println x;
-  if x % 2 == 0 then pure $ some (x + 10) else pure none
+  (if x % 2 == 0 then pure $ some (x + 10) else pure none)
 
 #eval tst
 

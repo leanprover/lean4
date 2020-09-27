@@ -16,7 +16,7 @@ def check (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throwError "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
-do v? ← getExprMVarAssignment? m.mvarId!;
+do let v? ← getExprMVarAssignment? m.mvarId!;
    match v? with
    | some v => pure v
    | none   => throwError "metavariable is not assigned"
@@ -24,7 +24,7 @@ do v? ← getExprMVarAssignment? m.mvarId!;
 unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
    let x : MetaM Unit := do { x; printTraces };
-   _ ← x.toIO { options := opts } { env := env };
+   x.toIO { options := opts } { env := env };
    pure ()
 
 def nat  := mkConst `Nat
@@ -33,26 +33,26 @@ def add  := mkAppN (mkConst `HasAdd.add [levelZero]) #[nat, mkConst `Nat.HasAdd]
 
 def tst1 : MetaM Unit :=
 do let d : DiscrTree Nat := {};
-   mvar ← mkFreshExprMVar nat;
-   d ← d.insert (mkAppN add #[mvar, mkNatLit 10]) 1;
-   d ← d.insert (mkAppN add #[mkNatLit 0, mkNatLit 10]) 2;
-   d ← d.insert (mkAppN (mkConst `Nat.add) #[mkNatLit 0, mkNatLit 20]) 3;
-   d ← d.insert (mkAppN add #[mvar, mkNatLit 20]) 4;
-   d ← d.insert mvar 5;
+   let mvar ← mkFreshExprMVar nat;
+   let d ← d.insert (mkAppN add #[mvar, mkNatLit 10]) 1;
+   let d ← d.insert (mkAppN add #[mkNatLit 0, mkNatLit 10]) 2;
+   let d ← d.insert (mkAppN (mkConst `Nat.add) #[mkNatLit 0, mkNatLit 20]) 3;
+   let d ← d.insert (mkAppN add #[mvar, mkNatLit 20]) 4;
+   let d ← d.insert mvar 5;
    print (format d);
-   vs ← d.getMatch (mkAppN add #[mkNatLit 1, mkNatLit 10]);
+   let vs ← d.getMatch (mkAppN add #[mkNatLit 1, mkNatLit 10]);
    print (format vs);
    let t := mkAppN add #[mvar, mvar];
    print t;
-   vs ← d.getMatch t;
+   let vs ← d.getMatch t;
    print (format vs);
-   vs ← d.getUnify t;
+   let vs ← d.getUnify t;
    print (format vs);
-   vs ← d.getUnify mvar;
+   let vs ← d.getUnify mvar;
    print (format vs);
-   vs ← d.getUnify $ mkAppN add #[mkNatLit 0, mvar];
+   let vs ← d.getUnify $ mkAppN add #[mkNatLit 0, mvar];
    print (format vs);
-   vs ← d.getUnify $ mkAppN add #[mvar, mkNatLit 20];
+   let vs ← d.getUnify $ mkAppN add #[mvar, mkNatLit 20];
    print (format vs);
    pure ()
 

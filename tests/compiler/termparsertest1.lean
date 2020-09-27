@@ -104,14 +104,14 @@ match x with
 "¬ a ∧ b",
 "
 do
-  x ← f a;
-  x : Nat ← f a;
+  let x ← f a;
+  let x : Nat ← f a;
   g x;
   let y := g x;
-  (a, b) <- h x y;
+  let (a, b) <- h x y;
   let (a, b) := (b, a);
   pure (a + b)",
-"do { x ← f a; pure $ a + a }",
+"do { let x ← f a; pure $ a + a }",
 "let f : Nat → Nat → Nat
    | 0, a   => a + 10
    | n+1, b => n * b;

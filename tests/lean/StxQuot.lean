@@ -17,25 +17,25 @@ end Syntax
 #eval run $ `(fun a => a) >>= pure
 #eval run $ `(def foo := 1)
 #eval run $ `(def foo := 1 def bar := 2)
-#eval run $ do a ← `(Nat.one); `($a)
-#eval run $ do a ← `(Nat.one); `(f $a $a)
-#eval run $ do a ← `(Nat.one); `(f $ f $a 1)
-#eval run $ do a ← `(Nat.one); `(f $(id a))
-#eval run $ do a ← `(Nat.one); `($(a).b)
-#eval run $ do a ← `(1 + 2); match_syntax a with `($a + $b) => `($b + $a) | _ => pure Syntax.missing
-#eval run $ do a ← `(def foo := 1); match_syntax a with `($f:command) => pure f | _ => pure Syntax.missing
-#eval run $ do a ← `(def foo := 1 def bar := 2); match_syntax a with `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
+#eval run $ do let a ← `(Nat.one); `($a)
+#eval run $ do let a ← `(Nat.one); `(f $a $a)
+#eval run $ do let a ← `(Nat.one); `(f $ f $a 1)
+#eval run $ do let a ← `(Nat.one); `(f $(id a))
+#eval run $ do let a ← `(Nat.one); `($(a).b)
+#eval run $ do let a ← `(1 + 2); match_syntax a with `($a + $b) => `($b + $a) | _ => pure Syntax.missing
+#eval run $ do let a ← `(def foo := 1); match_syntax a with `($f:command) => pure f | _ => pure Syntax.missing
+#eval run $ do let a ← `(def foo := 1 def bar := 2); match_syntax a with `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
 
-#eval run $ do a ← `(aa); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
-#eval run $ do a ← `(1 + 2); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
-#eval run $ do params ← #[`(a), `((b : Nat))].mapM id; `(fun $params* => 1)
-#eval run $ do a ← `(fun (a : Nat) b => c); match_syntax a with `(fun $aa* => $e) => pure aa | _ => pure #[]
-#eval run $ do a ← `(∀ a, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
-#eval run $ do a ← `(∀ _, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
+#eval run $ do let a ← `(aa); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do let a ← `(1 + 2); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do let params ← #[`(a), `((b : Nat))].mapM id; `(fun $params* => 1)
+#eval run $ do let a ← `(fun (a : Nat) b => c); match_syntax a with `(fun $aa* => $e) => pure aa | _ => pure #[]
+#eval run $ do let a ← `(∀ a, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
+#eval run $ do let a ← `(∀ _, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
 -- this one should NOT check the kind of the matched node
-#eval run $ do a ← `(∀ _, c); match_syntax a with `(∀ $a, $e) => pure a | _ => pure a
-#eval run $ do a ← `(a); match_syntax a with `($id:ident) => pure id | _ => pure a
-#eval run $ do a ← `(a.{0}); match_syntax a with `($id:ident) => pure id | _ => pure a
-#eval run $ do a ← `(match a with | a => 1 | _ => 2); match_syntax a with `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
+#eval run $ do let a ← `(∀ _, c); match_syntax a with `(∀ $a, $e) => pure a | _ => pure a
+#eval run $ do let a ← `(a); match_syntax a with `($id:ident) => pure id | _ => pure a
+#eval run $ do let a ← `(a.{0}); match_syntax a with `($id:ident) => pure id | _ => pure a
+#eval run $ do let a ← `(match a with | a => 1 | _ => 2); match_syntax a with `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
 
 end Lean

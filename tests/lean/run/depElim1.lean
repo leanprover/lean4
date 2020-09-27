@@ -25,13 +25,13 @@ inductive ArrayLit3 {α : Sort u} (a b c : α) : Type u | mk : ArrayLit3 a b c
 inductive ArrayLit4 {α : Sort u} (a b c d : α) : Type u | mk : ArrayLit4 a b c d
 
 private def getConstructorVal (ctorName : Name) (fn : Expr) (args : Array Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
-env ← getEnv;
+let env ← getEnv;
 match env.find? ctorName with
 | some (ConstantInfo.ctorInfo v) => if args.size == v.nparams + v.nfields then pure $ some (v, fn, args) else pure none
 | _                              => pure none
 
 private def constructorApp? (e : Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
-env ← getEnv;
+let env ← getEnv;
 match e with
 | Expr.lit (Literal.natVal n) _ =>
    if n == 0 then getConstructorVal `Nat.zero (mkConst `Nat.zero) #[] else getConstructorVal `Nat.succ (mkConst `Nat.succ) #[mkNatLit (n-1)]
@@ -53,7 +53,7 @@ partial def mkPattern : Expr → MetaM Pattern
   else if e.isAppOfArity `As 3 && (e.getArg! 1).isFVar then do
     let v := e.getArg! 1;
     let p := e.getArg! 2;
-    p ← mkPattern p;
+    let p ← mkPattern p;
     pure $ Pattern.as v.fvarId! p
   else if e.isAppOfArity `ArrayLit0 1 ||
           e.isAppOfArity `ArrayLit1 2 ||
@@ -63,64 +63,64 @@ partial def mkPattern : Expr → MetaM Pattern
     let args := e.getAppArgs;
     let type := args.get! 0;
     let ps   := args.extract 1 args.size;
-    ps ← ps.toList.mapM mkPattern;
+    let ps ← ps.toList.mapM mkPattern;
     pure $ Pattern.arrayLit type ps
   else match e.arrayLit? with
     | some (_, es) => do
-      pats ← es.mapM mkPattern;
-      type ← inferType e;
-      type ← whnfD type;
+      let pats ← es.mapM mkPattern;
+      let type ← inferType e;
+      let type ← whnfD type;
       let elemType := type.appArg!;
       pure $ Pattern.arrayLit elemType pats
     | none => do
-      e ← whnfD e;
-      r? ← constructorApp? e;
+      let e ← whnfD e;
+      let r? ← constructorApp? e;
       match r? with
       | none      => throwError "unexpected pattern"
       | some (cval, fn, args) => do
         let params := args.extract 0 cval.nparams;
         let fields := args.extract cval.nparams args.size;
-        pats ← fields.toList.mapM mkPattern;
+        let pats ← fields.toList.mapM mkPattern;
         pure $ Pattern.ctor cval.name fn.constLevels! params.toList pats
 
 partial def decodePats : Expr → MetaM (List Pattern)
 | e =>
   match e.app2? `Pat with
-  | some (_, pat) => do pat ← mkPattern pat; pure [pat]
+  | some (_, pat) => do let pat ← mkPattern pat; pure [pat]
   | none =>
     match e.prod? with
     | none => throwError "unexpected pattern"
     | some (pat, pats) => do
-      pat  ← decodePats pat;
-      pats ← decodePats pats;
+      let pat  ← decodePats pat;
+      let pats ← decodePats pats;
       pure (pat ++ pats)
 
 partial def decodeAltLHS (e : Expr) : MetaM AltLHS :=
 forallTelescopeReducing e fun args body => do
-  decls ← args.toList.mapM (fun arg => getLocalDecl arg.fvarId!);
-  pats  ← decodePats body;
+  let decls ← args.toList.mapM (fun arg => getLocalDecl arg.fvarId!);
+  let pats  ← decodePats body;
   pure { ref := Syntax.missing, fvarDecls := decls, patterns := pats }
 
 partial def decodeAltLHSs : Expr → MetaM (List AltLHS)
 | e =>
   match e.app2? `LHS with
-  | some (_, lhs) => do lhs ← decodeAltLHS lhs; pure [lhs]
+  | some (_, lhs) => do let lhs ← decodeAltLHS lhs; pure [lhs]
   | none =>
     match e.prod? with
     | none => throwError "unexpected LHS"
     | some (lhs, lhss) => do
-      lhs  ← decodeAltLHSs lhs;
-      lhss ← decodeAltLHSs lhss;
+      let lhs  ← decodeAltLHSs lhs;
+      let lhss ← decodeAltLHSs lhss;
       pure (lhs ++ lhss)
 
 def withDepElimFrom {α} (declName : Name) (numPats : Nat) (k : List FVarId → List AltLHS → MetaM α) : MetaM α := do
-cinfo ← getConstInfo declName;
+let cinfo ← getConstInfo declName;
 forallTelescopeReducing cinfo.type fun args body =>
   if args.size < numPats then
     throwError "insufficient number of parameters"
   else do
     let xs := (args.extract (args.size - numPats) args.size).toList.map $ Expr.fvarId!;
-    alts ← decodeAltLHSs body;
+    let alts ← decodeAltLHSs body;
     k xs alts
 
 inductive LHS {α : Sort u} (a : α) : Type u
@@ -140,11 +140,11 @@ registerTraceClass `Meta.mkElim
 
 private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
 let s : CollectLevelParams.State := {};
-s ← majors.foldlM
+let s ← majors.foldlM
   (fun s major => do
-    major ← instantiateMVars major;
-    majorType ← inferType major;
-    majorType ← instantiateMVars majorType;
+    let major ← instantiateMVars major;
+    let majorType ← inferType major;
+    let majorType ← instantiateMVars majorType;
     let s := collectLevelParams s major;
     pure $ collectLevelParams s majorType)
   s;
@@ -155,30 +155,30 @@ private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool)
 if inProp then
   pure $ mkSort $ levelZero
 else do
-  v ← getUnusedLevelParam majors lhss;
+  let v ← getUnusedLevelParam majors lhss;
   pure $ mkSort $ v
 
 def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM MatcherResult := do
 generalizeTelescope majors.toArray `_d fun majors => do
   let resultType := if inProp then mkConst `True /- some proposition -/ else mkConst `Nat;
-  matchType ← mkForallFVars majors resultType;
+  let matchType ← mkForallFVars majors resultType;
   Match.mkMatcher elimName matchType majors.size lhss
 
 def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit :=
 withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug ("majors: " ++ majors.toArray);
-  r ← mkTester elimName majors alts inProp;
+  let r ← mkTester elimName majors alts inProp;
   unless r.counterExamples.isEmpty $
     throwError ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
   unless r.unusedAltIdxs.isEmpty $
     throwError ("unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)));
-  cinfo ← getConstInfo elimName;
+  let cinfo ← getConstInfo elimName;
   IO.println (toString cinfo.name ++ " : " ++ toString cinfo.type);
   pure ()
 
 def testFailure (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit := do
-worked ← catch (do test ex numPats elimName inProp; pure true) (fun ex => pure false);
+let worked ← catch (do test ex numPats elimName inProp; pure true) (fun ex => pure false);
 when worked $ throwError "unexpected success"
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)

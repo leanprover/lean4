@@ -18,7 +18,7 @@ syntax[resolveKind] "#resolve " ident : command
 
 @[commandElab resolveKind] def elabResolve : CommandElab :=
 fun stx => liftTermElabM none do
-  cs ← resolveGlobalName $ stx.getIdAt 1;
+  let cs ← resolveGlobalName $ stx.getIdAt 1;
   Lean.Elab.logInfo $ toString cs;
   pure ()
 

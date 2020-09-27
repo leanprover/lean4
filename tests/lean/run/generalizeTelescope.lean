@@ -18,7 +18,7 @@ let n1    := mkApp succ n;
 let vecN1 := mkApp2 (mkConst `Vec) nat n1;
 withLocalDeclD `xs vecN1 $ fun xs => do
 generalizeTelescope #[n1, xs] `aux $ fun ys => do
-t ← mkLambdaFVars ys ys.back;
+let t ← mkLambdaFVars ys ys.back;
 trace! `Meta.debug t;
 pure ()
 
@@ -31,9 +31,9 @@ withLocalDeclD `n nat $ fun n => do
 let n1    := mkApp succ n;
 let vecN1 := mkApp2 (mkConst `Vec) nat n1;
 withLocalDeclD `xs vecN1 $ fun xs => do
-e ← mkEqRefl xs;
+let e ← mkEqRefl xs;
 generalizeTelescope #[n1, xs, e] `aux $ fun ys => do
-t ← mkLambdaFVars ys ys.back;
+let t ← mkLambdaFVars ys ys.back;
 trace! `Meta.debug t;
 pure ()
 
@@ -48,10 +48,10 @@ withLocalDeclD `n nat $ fun n => do
 let n1    := mkApp succ n;
 let vecN1 := mkApp2 (mkConst `Vec) nat n1;
 withLocalDeclD `xs vecN1 $ fun xs => do
-e ← mkEqRefl xs;
+let e ← mkEqRefl xs;
 failIfSuccess $ do {
   generalizeTelescope #[n1, e] `aux $ fun ys => do
-  t ← mkLambdaFVars ys ys.back;
+  let t ← mkLambdaFVars ys ys.back;
   trace! `Meta.debug t;
   pure ()
 };

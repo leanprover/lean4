@@ -2,18 +2,18 @@ new_frontend
 open IO.FS
 def usingIO {α} (x : IO α) := x
 #eval usingIO do
-out ← IO.getStdout;
+let out ← IO.getStdout;
 (out.putStrLn "print stdout" : IO Unit)
 
 #eval usingIO do
-err ← IO.getStderr;
+let err ← IO.getStderr;
 (err.putStr "print stderr" : IO Unit)
 
 open usingIO IO
 
 def test : IO Unit := do
 FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
-{ h₂ ← FS.Handle.mk "stdout2.txt" IO.FS.Mode.write;
+{ let h₂ ← FS.Handle.mk "stdout2.txt" IO.FS.Mode.write;
   withStdout (Stream.ofHandle h₁) $ do
     println "line 1";
     catch

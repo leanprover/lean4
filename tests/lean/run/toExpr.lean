@@ -3,7 +3,7 @@ new_frontend
 open Lean
 
 unsafe def test {α : Type} [HasToString α] [ToExpr α] [HasBeq α] (a : α) : CoreM Unit := do
-env ← getEnv;
+let env ← getEnv;
 let auxName := `_toExpr._test;
 let decl := Declaration.defnDecl {
   name     := auxName,

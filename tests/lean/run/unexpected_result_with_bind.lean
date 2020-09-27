@@ -13,10 +13,10 @@ instance : Monad FooM := {}
 
 def unexpectedBehavior : FooM String := do
 let b : Bool := (#[] : Array Nat).isEmpty;
-trueBranch  ← pure "trueBranch";
-falseBranch ← pure "falseBranch";
+let trueBranch  ← pure "trueBranch";
+let falseBranch ← pure "falseBranch";
 (1 : Nat).foldM (λ _ (s : String) => do
-  s ← pure $ if b then trueBranch else falseBranch; pure s) ""
+  let s ← pure $ if b then trueBranch else falseBranch; pure s) ""
 
 #eval unexpectedBehavior ()
 

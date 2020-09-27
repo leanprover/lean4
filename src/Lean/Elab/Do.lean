@@ -66,7 +66,7 @@ private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) Macro
   else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
     let term := args.get! 1;
     term ← expandLiftMethodAux term;
-    auxDo ← `(do a ← $term; $(Syntax.missing));
+    auxDo ← `(do let a ← $term; $(Syntax.missing));
     let auxDoElems := (getDoElems auxDo).pop;
     modify $ fun s => s ++ auxDoElems;
     `(a)
@@ -117,7 +117,9 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syn
         rest ← mkRest ();
         newBody ← `(let $letDecl:letDecl; $rest);
         addPrefix newBody
-      else if doElem.getKind == `Lean.Parser.Term.doPat then withFreshMacroScope $ do
+      -- cleanup the following code
+      else if doElem.getKind == `Lean.Parser.Term.doLetArrow && (doElem.getArg 1).getKind == `Lean.Parser.Term.doPat then withFreshMacroScope $ do
+        let doElem  := doElem.getArg 1;
         -- (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
         let pat      := doElem.getArg 0;
         let discr    := doElem.getArg 2;
@@ -125,15 +127,15 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syn
         rest ← mkRest ();
         newBody ←
           if optElse.isNone then do
-            `(do x ← $discr; match x with | $pat => $rest)
+            `(do let x ← $discr; match x with | $pat => $rest)
           else
             let elseBody := optElse.getArg 1;
-            `(do x ← $discr; match x with | $pat => $rest | _ => $elseBody);
+            `(do let x ← $discr; match x with | $pat => $rest | _ => $elseBody);
         addPrefix newBody
       else if i < doElems.size - 1 && doElem.getKind == `Lean.Parser.Term.doExpr then do
         -- def doExpr := parser! termParser
         let term := doElem.getArg 0;
-        auxDo ← `(do x ← $term; $(Syntax.missing));
+        auxDo ← `(do let x ← $term; $(Syntax.missing));
         let doElemNew := (getDoElems auxDo).get! 0;
         let doElems := doElems.set! i doElemNew;
         expandDoElems true doElems (i+2)
@@ -193,9 +195,10 @@ private partial def processDoElemsAux (doElems : Array Syntax) (m bindInstVal : 
   let doElem := doElems.get! i;
   let k      := doElem.getKind;
   withRef doElem $
-  if k == `Lean.Parser.Term.doId then do
+  if k == `Lean.Parser.Term.doLetArrow then do
     when (i == doElems.size - 1) $
       throwError "the last statement in a 'do' block must be an expression";
+    let doElem := doElem.getArg 1;
     -- try (ident >> optType >> leftArrow) >> termParser
     let id        := doElem.getIdAt 0;
     let typeStx   := expandOptType doElem (doElem.getArg 1);

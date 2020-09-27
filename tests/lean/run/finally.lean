@@ -17,7 +17,7 @@ catch
   (fun _ => get)
 
 def checkE {α ε : Type} [HasBeq α] (x : IO (Except ε α)) (expected : α) : IO Unit := do
-r ← x;
+let r ← x;
 match r with
 | Except.ok a    => unless (a == expected) $ throw $ IO.userError "unexpected result"
 | Except.error _ => throw $ IO.userError "unexpected error"
@@ -47,10 +47,10 @@ catchThe IO.Error
 #eval checkE ((tst3.run).run' 0) 101
 
 def tst4 : M Nat := do
-a ← finally
+let a ← finally
      (finally (pure 42) (do set 100; IO.println "inner finisher executed"; pure ()))
      (do modify Nat.succ; IO.println "outer finisher executed");
-s ← get;
+let s ← get;
 pure (a + s)
 
 #eval (tst4.run).run' 0
@@ -58,13 +58,13 @@ pure (a + s)
 #eval checkE ((tst4.run).run' 0) 143
 
 def tst5 : M Nat := do
-(a, _) ← finally' (pure 42) (fun a? => do IO.println ("finalizer received: " ++ toString a?));
+let (a, _) ← finally' (pure 42) (fun a? => do IO.println ("finalizer received: " ++ toString a?));
 pure a
 
 #eval (tst5.run).run' 0
 
 def tst6 : M Nat := do
-(a, _) ← finally' f2 (fun a? => do IO.println ("finalizer received: " ++ toString a?));
+let (a, _) ← finally' f2 (fun a? => do IO.println ("finalizer received: " ++ toString a?));
 pure a
 
 def tst7 : IO Unit :=

@@ -6,5 +6,5 @@ new_frontend
    `mkMatcher` assumes `matchType` does not contain metavariables.
    We accomplish that by invoking `synthesizeSyntheticMVarsNoPostponing` at `elabMatch`. -/
 def foo : IO Unit := do
-(x, y) ← pure (0, 0);
+let (x, y) ← pure (0, 0);
 IO.println x

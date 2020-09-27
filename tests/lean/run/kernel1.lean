@@ -3,7 +3,7 @@ new_frontend
 open Lean
 
 def checkDefEq (a b : Name) : CoreM Unit := do
-env ← getEnv;
+let env ← getEnv;
 let a := mkConst a;
 let b := mkConst b;
 let r := Kernel.isDefEq env {} a b;

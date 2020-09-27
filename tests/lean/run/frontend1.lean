@@ -3,14 +3,14 @@ new_frontend
 open Lean
 open Lean.Elab
 
-def run (input : String) (failIff : Bool := true) : CoreM Unit :=
-do env  ← getEnv;
-   opts ← getOptions;
-   (env, messages) ← liftIO $ process input env opts;
-   messages.forM $ fun msg => (liftIO msg.toString) >>= IO.println;
-   when (failIff && messages.hasErrors) $ throwError "errors have been found";
-   when (!failIff && !messages.hasErrors) $ throwError "there are no errors";
-   pure ()
+def run (input : String) (failIff : Bool := true) : CoreM Unit := do
+let env  ← getEnv;
+let opts ← getOptions;
+let (env, messages) ← liftIO $ process input env opts;
+messages.forM $ fun msg => (liftIO msg.toString) >>= IO.println;
+when (failIff && messages.hasErrors) $ throwError "errors have been found";
+when (!failIff && !messages.hasErrors) $ throwError "there are no errors";
+pure ()
 
 def fail (input : String) : CoreM Unit :=
 run input false

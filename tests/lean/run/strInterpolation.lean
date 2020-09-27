@@ -87,7 +87,7 @@ let rec loop (i : String.Pos) (acc : String) :=
   else if s.atEnd i then
     none
   else if c == '\\' then do
-    (c, i) ← decodeStrInterpolantQuotedChar s i;
+    let (c, i) ← decodeStrInterpolantQuotedChar s i;
     loop i (acc.push c)
   else
     loop i (acc.push c);
@@ -100,7 +100,7 @@ match isLit? Parser.strInterpolantStrLitKind stx with
 
 def expandStrInterpolantChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax :=
 chunks.iterateM Syntax.missing fun i elem result => do
-  elem ← match elem.isStrInterpolantStrLit? with
+  let elem ← match elem.isStrInterpolantStrLit? with
     | none     => mkElem elem
     | some str => mkElem (mkStxStrLit str);
   -- TODO: remove `(` after we write new elabDo

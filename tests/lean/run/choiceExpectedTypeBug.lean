@@ -22,7 +22,7 @@ open Lean.Elab.Term
 @[termElab emptyS] def elabEmptyS : TermElab :=
 fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?;
-  stxNew ← `(Nat.zero);
+  let stxNew ← `(Nat.zero);
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 
 def foo (x : Unit) := x

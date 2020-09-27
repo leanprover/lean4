@@ -11,7 +11,7 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
 
 @[inline] protected def bind (ma : OptionT2 m α) (f : α → OptionT2 m β) : OptionT2 m β :=
 (do {
-    a? ← ma;
+    let a? ← ma;
     match a? with
     | some a => f a
     | none   => pure none
@@ -21,7 +21,7 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
 (HasPure.pure (some a) : m (Option α))
 
 @[inline] protected def orelse (ma : OptionT2 m α) (mb : OptionT2 m α) : OptionT2 m α :=
-(do { a? ← ma;
+(do { let a? ← ma;
         match a? with
         | some a => pure (some a)
         | _      => mb } : m (Option α))

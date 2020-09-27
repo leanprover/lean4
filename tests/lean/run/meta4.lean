@@ -14,23 +14,23 @@ axiom Ax : forall (α β : Type), α → β → DecidableEq β
 set_option trace.Meta.debug true
 
 def tst1 : MetaM Unit := do
-cinfo ← getConstInfo `Ax;
-(_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 0);
+let cinfo ← getConstInfo `Ax;
+let (_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 0);
 check (pure (!e.hasMVar));
 print e;
-(_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 1);
+let (_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 1);
 check (pure e.hasMVar);
 check (pure e.isForall);
 print e;
-(_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 5);
+let (_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 5);
 check (pure e.hasMVar);
 check (pure e.isForall);
 print e;
-(_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 6);
+let (_, _, e) ← forallMetaTelescopeReducing cinfo.type (some 6);
 check (pure e.hasMVar);
 check (pure (!e.isForall));
 print e;
-(_, _, e') ← forallMetaTelescopeReducing cinfo.type;
+let (_, _, e') ← forallMetaTelescopeReducing cinfo.type;
 print e';
 check (isDefEq e e');
 forallBoundedTelescope cinfo.type (some 0) $ fun xs body => check (pure (xs.size == 0));

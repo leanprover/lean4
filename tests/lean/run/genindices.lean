@@ -11,14 +11,14 @@ open Lean
 open Lean.Meta
 
 def tst1 : MetaM Unit := do
-cinfo ← getConstInfo `goal;
+let cinfo ← getConstInfo `goal;
 let type := cinfo.type;
-mvar   ← mkFreshExprMVar type;
+let mvar   ← mkFreshExprMVar type;
 trace! `Elab (MessageData.ofGoal mvar.mvarId!);
-(_, mvarId) ← introN mvar.mvarId! 2;
-(fvarId, mvarId) ← intro1 mvarId;
+let (_, mvarId) ← introN mvar.mvarId! 2;
+let (fvarId, mvarId) ← intro1 mvarId;
 trace! `Elab (MessageData.ofGoal mvarId);
-s ← generalizeIndices mvarId fvarId;
+let s ← generalizeIndices mvarId fvarId;
 trace! `Elab (MessageData.ofGoal s.mvarId);
 pure ()
 

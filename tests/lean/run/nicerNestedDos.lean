@@ -12,7 +12,7 @@ pure (x + 1)
 
 def g (x : Nat) : StateT Nat Id Unit := do
 when (x > 10) do
-  s ← get;
+  let s ← get;
   set (s + x);
 pure ()
 
@@ -24,7 +24,7 @@ rfl
 
 def h (x : Nat) : StateT Nat Id Unit := do
 when (x > 10) do {
-  s ← get;
+  let s ← get;
 set (s + x) -- we don't need to respect indentation when `{` `}` are used
 };
 pure ()

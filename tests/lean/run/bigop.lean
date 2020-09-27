@@ -26,7 +26,7 @@ instance : Enumerable Bool :=
 { elems := [false, true] }
 
 instance {α β} [Enumerable α] [Enumerable β]: Enumerable (α × β) :=
-{ elems := do a ← Enumerable.elems α; b ← Enumerable.elems β; pure (a, b) }
+{ elems := do let a ← Enumerable.elems α; let b ← Enumerable.elems β; pure (a, b) }
 
 partial def finElemsAux (n : Nat) : (i : Nat) → i < n → List (Fin n)
 | 0,   h => [⟨0, h⟩]

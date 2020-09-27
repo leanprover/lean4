@@ -2,9 +2,8 @@ new_frontend
 
 def f : List Int → Bool := fun _ => true
 
-def ex3 : IO Bool :=
-do
-xs ← pure [1, 2, 3];
+def ex3 : IO Bool := do
+let xs ← pure [1, 2, 3];
 pure $ f xs -- Works
 
 inductive Expr

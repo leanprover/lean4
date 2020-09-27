@@ -24,7 +24,7 @@ inductive D
 | mk (x y z : Nat) : D
 
 def tst : CoreM Unit :=
-do env ← getEnv;
+do let env ← getEnv;
    IO.println (getStructureFields env `Lean.Environment);
    check $ getStructureFields env `S4 == #[`toS2, `toS3, `s];
    check $ getStructureFields env `S1 == #[`x, `y];

@@ -17,17 +17,17 @@ inductive T
 
 @[noinline] def foo (p : Payload) : Option T :=
 (do
-  i ← get? p 1;
+  let i ← get? p 1;
   pure (T.a i))
 <|> (do
-  i ← get? p 2;
+  let i ← get? p 2;
   pure (T.b i))
 <|> (do
-  i ← get? p 3;
+  let i ← get? p 3;
   pure (T.c i))
 <|> (do
-  i ← get? p 4;
-  i ← get? p 5;
+  let i ← get? p 4;
+  let i ← get? p 5;
   pure (T.d i))
 
 def wrongOutput : String :=

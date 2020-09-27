@@ -16,9 +16,9 @@ p.1
 set_option trace.Elab.definition true
 
 def h (x : Nat) : StateT Nat IO Nat := do
-s ← get;
-a ← f;      -- liftM inserted here
-b ← g1 1;   -- liftM inserted here
+let s ← get;
+let a ← f;      -- liftM inserted here
+let b ← g1 1;   -- liftM inserted here
 let x := g2 b;
 IO.println b;
 pure (s+a);
@@ -27,9 +27,9 @@ def myPrint {α} [HasToString α] (a : α) : IO Unit :=
 IO.println (">> " ++ toString a)
 
 def h₂ (x : Nat) : StateT Nat IO Nat := do
-a ← h 1;        -- liftM inserted here
+let a ← h 1;        -- liftM inserted here
 IO.println x;
-b ← g1 a;       -- liftM inserted here
+let b ← g1 a;       -- liftM inserted here
 when (a > 100) $ throw $ IO.userError "Error";
 myPrint b.1;    -- liftM inserted here
 pure (a + 1)
@@ -43,9 +43,9 @@ let m2 (y : Nat) := do {  -- Type inferred from application below
   h (x+y);      -- liftM inserted here
   myPrint y     -- liftM inserted here
 };
-a ← h 1;        -- liftM inserted here
+let a ← h 1;        -- liftM inserted here
 IO.println x;
-b ← g1 a;       -- liftM inserted here
+let b ← g1 a;       -- liftM inserted here
 when (a > 100) $ throw $ IO.userError "Error";
 myPrint b.1;    -- liftM inserted here
 m1;
@@ -53,14 +53,14 @@ m2 a;
 pure 1
 
 def tst0 : IO Unit := do {
-a ← f;
+let a ← f;
 let x := a + 1;
 IO.println "hello";
 IO.println x;
 }
 
 def tst1 : IO Unit := do
-a ← f;
+let a ← f;
 let x := a + 1;
 IO.println "hello";
 IO.println x;
@@ -74,8 +74,8 @@ def tst3 : IO Unit := do
 (if (← g 1) > 0 then
   IO.println "gt"
 else do
-  x ← f;
-  y ← g x;
+  let x ← f;
+  let y ← g x;
   IO.println y)
 
 def pred (x : Nat) : IO Bool := do
@@ -102,13 +102,13 @@ partial def expandHash : Syntax → StateT Bool MacroM Syntax
 | Syntax.node k args =>
   if k == `doHash then do set true; `(←MonadState.get)
   else do
-    args ← args.mapM expandHash;
+    let args ← args.mapM expandHash;
     pure $ Syntax.node k args;
 | stx => pure stx
 
 @[macro Lean.Parser.Term.do] def expandDo : Macro :=
 fun stx => do
-  (stx, expanded) ← expandHash stx false;
+  let (stx, expanded) ← expandHash stx false;
   (if expanded then pure stx
    else Macro.throwUnsupported)
 

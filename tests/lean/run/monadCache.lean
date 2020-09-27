@@ -11,7 +11,7 @@ partial def depth : Expr → MonadCacheT Expr Nat CoreM Nat
   checkCache e fun e =>
     match e with
     | Expr.const c [] _ => pure 1
-    | Expr.app f a _    => do d₁ ← depth f; d₂ ← depth a; pure $ Nat.max d₁ d₂ + 1
+    | Expr.app f a _    => do pure $ Nat.max (← depth f) (← depth a) + 1
     | _                 => pure 0
 
 #eval (depth (mkTower 100)).run
@@ -27,7 +27,7 @@ partial def visit : Expr → MonadCacheT Expr Expr CoreM Expr
 #eval (visit (mkTower 4)).run
 
 def tst : CoreM Nat := do
-e ← (visit (mkTower 100)).run; (depth e).run
+let e ← (visit (mkTower 100)).run; (depth e).run
 
 #eval tst
 
@@ -47,6 +47,6 @@ e.forEach fun e => match e with
   | _ => pure ()
 
 def tst2 : CoreM Unit := do
-e ← (visit (mkTower 100)).run; displayConsts e
+let e ← (visit (mkTower 100)).run; displayConsts e
 
 #eval tst2

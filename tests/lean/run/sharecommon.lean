@@ -8,11 +8,11 @@ unsafe def tst1 : ShareCommonT IO Unit := do
 let x := [1];
 let y := [0].map (fun x => x + 1);
 check $ ptrAddrUnsafe x != ptrAddrUnsafe y;
-x ← shareCommonM x;
-y ← shareCommonM y;
+let x ← shareCommonM x;
+let y ← shareCommonM y;
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
-z ← shareCommonM [2];
-x ← shareCommonM x;
+let z ← shareCommonM [2];
+let x ← shareCommonM x;
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
 check $ ptrAddrUnsafe x != ptrAddrUnsafe z;
 IO.println x;
@@ -25,11 +25,11 @@ unsafe def tst2 : ShareCommonT IO Unit := do
 let x := [1, 2];
 let y := [0, 1].map (fun x => x + 1);
 check $ ptrAddrUnsafe x != ptrAddrUnsafe y;
-x ← shareCommonM x;
-y ← shareCommonM y;
+let x ← shareCommonM x;
+let y ← shareCommonM y;
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
-z ← shareCommonM [2];
-x ← shareCommonM x;
+let z ← shareCommonM [2];
+let x ← shareCommonM x;
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
 check $ ptrAddrUnsafe x != ptrAddrUnsafe z;
 IO.println x;
@@ -52,9 +52,9 @@ let o2 := mkFoo2 10 true;
 let o3 := mkFoo2 10 false;
 check $ ptrAddrUnsafe o1 != ptrAddrUnsafe o2;
 check $ ptrAddrUnsafe o1 != ptrAddrUnsafe o3;
-o1 ← shareCommonM o1;
-o2 ← shareCommonM o2;
-o3 ← shareCommonM o3;
+let o1 ← shareCommonM o1;
+let o2 ← shareCommonM o2;
+let o3 ← shareCommonM o3;
 check $
   o1.x == 10 && o1.y == true &&
   o1.z == true && o3.z == false &&
@@ -69,11 +69,11 @@ unsafe def tst4 : ShareCommonT IO Unit := do
 let x := ["hello"];
 let y := ["ello"].map (fun x => "h" ++ x);
 check $ ptrAddrUnsafe x != ptrAddrUnsafe y;
-x ← shareCommonM x;
-y ← shareCommonM y;
+let x ← shareCommonM x;
+let y ← shareCommonM y;
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y;
-z ← shareCommonM ["world"];
-x ← shareCommonM x;
+let z ← shareCommonM ["world"];
+let x ← shareCommonM x;
 check $
   ptrAddrUnsafe x == ptrAddrUnsafe y &&
   ptrAddrUnsafe x != ptrAddrUnsafe z;
@@ -104,9 +104,9 @@ check $
   ptrAddrUnsafe (a.get! 0) != ptrAddrUnsafe (a.get! 2) &&
   ptrAddrUnsafe (b.get! 0) != ptrAddrUnsafe (b.get! 1) &&
   ptrAddrUnsafe (c.get! 0) != ptrAddrUnsafe (c.get! 1);
-a ← shareCommonM a;
-b ← shareCommonM b;
-c ← shareCommonM c;
+let a ← shareCommonM a;
+let b ← shareCommonM b;
+let c ← shareCommonM c;
 check $
   ptrAddrUnsafe a == ptrAddrUnsafe b &&
   ptrAddrUnsafe a != ptrAddrUnsafe c &&
@@ -137,9 +137,9 @@ IO.println b;
 IO.println c;
 check $ ptrAddrUnsafe a != ptrAddrUnsafe b;
 check $ ptrAddrUnsafe a != ptrAddrUnsafe c;
-a ← shareCommonM a;
-b ← shareCommonM b;
-c ← shareCommonM c;
+let a ← shareCommonM a;
+let b ← shareCommonM b;
+let c ← shareCommonM c;
 check $ ptrAddrUnsafe a == ptrAddrUnsafe b;
 check $ ptrAddrUnsafe a != ptrAddrUnsafe c;
 pure ()

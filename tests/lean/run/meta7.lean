@@ -26,15 +26,15 @@ let z  := f 10;
 
 def tst1 : MetaM Unit := do
 print "----- tst1 -----";
-c ← getConstInfo `ex;
+let c ← getConstInfo `ex;
 lambdaTelescope c.value?.get! fun xs body =>
   withTrackingZeta do
     Meta.check body;
-    ys ← getZetaFVarIds;
+    let ys ← getZetaFVarIds;
     let ys := ys.toList.map mkFVar;
     print ys;
     check $ pure $ ys.length == 2;
-    c ← mkAuxDefinitionFor `foo body;
+    let c ← mkAuxDefinitionFor `foo body;
     print c;
     Meta.check c;
     pure ()
@@ -79,10 +79,10 @@ print "----- tst4 -----";
 let nat := mkConst `Nat;
 withLocalDeclD `x nat fun x =>
 withLocalDeclD `y nat fun y => do
-m ← mkFreshExprMVar nat;
+let m ← mkFreshExprMVar nat;
 print (← ppGoal m.mvarId!);
-val ← mkAppM `HasAdd.add #[mkNatLit 10, y];
-⟨zId, nId, subst⟩ ← assertAfter m.mvarId! x.fvarId! `z nat val;
+let val ← mkAppM `HasAdd.add #[mkNatLit 10, y];
+let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! x.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
 withMVarContext nId do {
@@ -91,7 +91,7 @@ withMVarContext nId do {
   print (mkMVar nId)
 };
 print m;
-expected ← mkAppM `HasAdd.add #[x, val];
+let expected ← mkAppM `HasAdd.add #[x, val];
 check (isDefEq m expected);
 pure ()
 
@@ -103,10 +103,10 @@ let prop := mkSort levelZero;
 withLocalDeclD `p prop fun p =>
 withLocalDeclD `q prop fun q => do
 withLocalDeclD `h₁ p fun h₁ => do
-eq ← mkEq p q;
+let eq ← mkEq p q;
 withLocalDeclD `h₂ eq fun h₂ => do
-m ← mkFreshExprMVar q;
-r ← replaceLocalDecl m.mvarId! h₁.fvarId! q h₂;
+let m ← mkFreshExprMVar q;
+let r ← replaceLocalDecl m.mvarId! h₁.fvarId! q h₂;
 print (← ppGoal r.mvarId);
 assignExprMVar r.mvarId (mkFVar r.fvarId);
 print m;
@@ -120,10 +120,10 @@ print "----- tst6 -----";
 let nat := mkConst `Nat;
 withLocalDeclD `x nat fun x =>
 withLocalDeclD `y nat fun y => do
-m ← mkFreshExprMVar nat;
+let m ← mkFreshExprMVar nat;
 print (← ppGoal m.mvarId!);
-val ← mkAppM `HasAdd.add #[mkNatLit 10, y];
-⟨zId, nId, subst⟩ ← assertAfter m.mvarId! y.fvarId! `z nat val;
+let val ← mkAppM `HasAdd.add #[mkNatLit 10, y];
+let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! y.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
 withMVarContext nId do {
@@ -132,7 +132,7 @@ withMVarContext nId do {
   print (mkMVar nId)
 };
 print m;
-expected ← mkAppM `HasAdd.add #[x, val];
+let expected ← mkAppM `HasAdd.add #[x, val];
 check (isDefEq m expected);
 pure ()
 
@@ -143,11 +143,11 @@ print "----- tst7 -----";
 let nat := mkConst `Nat;
 withLocalDeclD `x nat fun x =>
 withLocalDeclD `y nat fun y => do
-val ← mkAppM `HasAdd.add #[x, y];
+let val ← mkAppM `HasAdd.add #[x, y];
 print val;
 let val := val.replaceFVars #[x, y] #[mkNatLit 0, mkNatLit 1];
 print val;
-expected ← mkAppM `HasAdd.add #[mkNatLit 0, mkNatLit 1];
+let expected ← mkAppM `HasAdd.add #[mkNatLit 0, mkNatLit 1];
 print expected;
 check (pure $ val == expected);
 pure ()

@@ -7,7 +7,7 @@ syntax "sum! " (many term:max) : term
 
 macro_rules
 | `(sum! $x*) => do
-  r ← `(0);
+  let r ← `(0);
   x.foldlM (fun r elem => `($r + $elem)) r
 
 #check sum! 1 2 3

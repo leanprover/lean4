@@ -5,7 +5,7 @@ let path := "tmp_file";
 IO.FS.withFile path IO.FS.Mode.write $ λ (h : IO.FS.Handle) =>
   h.putStrLn str;
 IO.FS.withFile path IO.FS.Mode.read $ λ (h : IO.FS.Handle) => do
-  str' ← h.getLine;
+  let str' ← h.getLine;
   IO.println str.length;
   IO.println str'.length;
   IO.print str';
@@ -20,8 +20,8 @@ IO.FS.withFile path IO.FS.Mode.write $ λ (h : IO.FS.Handle) => do {
   h.putStrLn str1; h.putStr str2
 };
 IO.FS.withFile path IO.FS.Mode.read $ λ (h : IO.FS.Handle) => do
-  str1' ← h.getLine;
-  str2' ← h.getLine;
+  let str1' ← h.getLine;
+  let str2' ← h.getLine;
   unless (str1'.length == str1.length + 1) $
     throw (IO.userError ("unexpected length: " ++ toString str1'.trim.length));
   unless (str1'.trim == str1) $

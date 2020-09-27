@@ -21,22 +21,22 @@ withFile fn Mode.write fun h => do
   h.write xs;
   h.write xs;
   pure ();
-ys ← withFile "foo.txt" Mode.read $ fun h => h.read 10;
+let ys ← withFile "foo.txt" Mode.read $ fun h => h.read 10;
 check_eq "1" (xs.toList ++ xs.toList) ys.toList;
 withFile fn Mode.append fun h => do
   h.write ⟨#[5,6,7,8]⟩;
   pure ();
 withFile "foo.txt" Mode.read fun h => do
-    ys ← h.read 10;
+    let ys ← h.read 10;
     check_eq "2" [1,2,3,4,1,2,3,4,5,6] ys.toList;
-    ys ← h.read 2;
+    let ys ← h.read 2;
     check_eq "3" [7,8] ys.toList;
-    b ← h.isEof;
+    let b ← h.isEof;
     unless (!b)
       (throw $ IO.userError $ "wrong (4): ");
-    ys ← h.read 2;
+    let ys ← h.read 2;
     check_eq "5" [] ys.toList;
-    b ← h.isEof;
+    let b ← h.isEof;
     unless b
       (throw $ IO.userError $ "wrong (6): ");
 pure ()
@@ -60,26 +60,26 @@ withFile fn2 Mode.write $ fun h => do
   h.putStrLn xs₂;
   h.putStrLn xs₁;
   pure () };
-ys ← withFile fn2 Mode.read $ fun h => h.getLine;
+let ys ← withFile fn2 Mode.read $ fun h => h.getLine;
 IO.println ys;
 check_eq "1" (xs₀ ++ xs₀ ++ "\n") ys;
 IO.println ys;
 withFile fn2 Mode.append $ fun h => do
 { h.putStrLn xs₁;
   pure () };
-ys ← withFile fn2 Mode.read $ fun h => do
-  { ys ← (List.iota 4).mapM $ fun i => do
-    { ln ← h.getLine;
+let ys ← withFile fn2 Mode.read $ fun h => do
+  { let ys ← (List.iota 4).mapM $ fun i => do
+    { let ln ← h.getLine;
       IO.println i;
       IO.println ∘ repr $ ln;
-      b  ← h.isEof;
+      let b  ← h.isEof;
       unless (i == 1 || !b) (throw $ IO.userError "isEof");
       pure ln };
     pure ys };
 IO.println ys;
 let rs := [xs₀ ++ xs₀ ++ "\n", xs₂ ++ "\n", xs₁ ++ "\n", xs₁ ++ "\n"];
 check_eq "2" rs ys;
-ys ← readFile fn2;
+let ys ← readFile fn2;
 check_eq "3" (String.join rs) ys;
 pure ()
 
@@ -94,7 +94,7 @@ let xs₃ := "world";
 withFile fn3 Mode.write $ fun h => do {
   pure ()
 };
-ys ← lines fn3;
+let ys ← lines fn3;
 IO.println $ repr ys;
 check_eq "1" ys #[];
 withFile fn3 Mode.write $ fun h => do
@@ -102,7 +102,7 @@ withFile fn3 Mode.write $ fun h => do
   h.putStrLn xs₁;
   h.putStrLn xs₂;
   h.putStrLn xs₃ };
-ys ← lines fn3;
+let ys ← lines fn3;
 IO.println $ repr ys;
 check_eq "2" ys #[xs₀, xs₁, xs₂, xs₃];
 pure ()

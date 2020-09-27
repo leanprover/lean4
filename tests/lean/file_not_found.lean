@@ -12,7 +12,7 @@ def usingIO {α} (x : IO α) := x
   pure ()
 #eval (discard $ IO.FS.Handle.mk "readonly.txt" Mode.write : IO Unit)
 #eval usingIO do
-  h ← IO.FS.Handle.mk "readonly.txt" Mode.read;
+  let h ← IO.FS.Handle.mk "readonly.txt" Mode.read;
   h.putStr "foo";
   IO.println "foo";
   pure ()

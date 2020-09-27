@@ -6,7 +6,7 @@ open Lean.Elab
 open Lean.Elab.Term
 
 def getCtors (c : Name) : TermElabM (List Name) := do
-env ← getEnv;
+let env ← getEnv;
 match env.find? c with
 | some (ConstantInfo.inductInfo val) =>
   pure val.ctors
@@ -15,10 +15,10 @@ match env.find? c with
 def elabAnonCtor (args : Syntax) (τ : Expr) : TermElabM Expr := do
   match τ.getAppFn with
   | Expr.const C _ _ => do
-    ctors ← getCtors C;
+    let ctors ← getCtors C;
     match ctors with
     | [c] => do
-      stx ← `($(Lean.mkIdent c) $(Array.getSepElems args.getArgs)*);
+      let stx ← `($(Lean.mkIdent c) $(Array.getSepElems args.getArgs)*);
       elabTerm stx τ
 -- error handling
     | _ => unreachable!

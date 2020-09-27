@@ -1,11 +1,11 @@
 new_frontend
 
 def tst : IO (Option Nat) := do
-x? : Option Nat ← pure none;
+let x? : Option Nat ← pure none;
 pure x?
 
 def tst2 (x : Nat) : IO (Option Nat) := do
-x? : Option Nat ← pure x;
+let x? : Option Nat ← pure x;
 (if x?.isNone then
   /-
     We need the `some` because we propagate the expected type at `pure` applications.

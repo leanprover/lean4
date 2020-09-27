@@ -9,14 +9,14 @@ axiom simple : forall {p q : Prop}, p → q → p
 def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.Tactic msg
 
-def tst1 : MetaM Unit :=
-do cinfo ← getConstInfo `simple;
-   mvar  ← mkFreshExprSyntheticOpaqueMVar cinfo.type;
-   let mvarId := mvar.mvarId!;
-   (_, mvarId) ← introN mvarId 4;
-   assumption mvarId;
-   result ← instantiateMVars mvar;
-   print result
+def tst1 : MetaM Unit := do
+let cinfo ← getConstInfo `simple;
+let mvar  ← mkFreshExprSyntheticOpaqueMVar cinfo.type;
+let mvarId := mvar.mvarId!;
+let (_, mvarId) ← introN mvarId 4;
+assumption mvarId;
+let result ← instantiateMVars mvar;
+print result
 
 set_option trace.Meta.Tactic true
 

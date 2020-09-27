@@ -8,7 +8,7 @@ universes u v w
 abbrev M := ExceptT String $ MetaM
 
 def testM {α} [HasBeq α] [HasToString α] (x : M α) (expected : α)  : MetaM Unit := do
-r ← x;
+let r ← x;
 match r with
 | Except.ok a    => unless (a == expected) $ throwError ("unexpected result " ++ toString a)
 | Except.error e => throwError ("FAILED: " ++ e)

@@ -22,24 +22,24 @@ let (debug, f) : Bool × String := match args with
   | [f, "-d"] => (true, f)
   | [f]       => (false, f)
   | _         => panic! "usage: file [-d]";
-env ← mkEmptyEnvironment;
-stx ← Lean.Parser.parseFile env args.head!;
+let env ← mkEmptyEnvironment;
+let stx ← Lean.Parser.parseFile env args.head!;
 let header := stx.getArg 0;
-some s ← pure header.reprint | throw $ IO.userError "header reprint failed";
+let some s ← pure header.reprint | throw $ IO.userError "header reprint failed";
 IO.print s;
 let cmds := (stx.getArg 1).getArgs;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
-  (cmd, _) ← (finally (PrettyPrinter.parenthesizeCommand cmd) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
-  some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
+  let (cmd, _) ← (finally (PrettyPrinter.parenthesizeCommand cmd) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
+  let some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 
 #eval main ["../../../src/Init/Core.lean"]
 
 def check (stx : Syntax) : CoreM Unit := do
 let stx' := unparen stx;
-stx' ← PrettyPrinter.parenthesizeTerm stx';
-f ← PrettyPrinter.formatTerm stx';
+let stx' ← PrettyPrinter.parenthesizeTerm stx';
+let f ← PrettyPrinter.formatTerm stx';
 IO.println f;
 when (stx != stx') $
   throwError "reparenthesization failed"

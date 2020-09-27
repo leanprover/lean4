@@ -9,18 +9,18 @@ open Lean.Format
 open Lean.Meta
 
 def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
-opts ← getOptions;
-stx ← stx;
-e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
-stx' ← liftMetaM $ delab Name.anonymous [] e optionsPerPos;
-stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
-f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
+let opts ← getOptions;
+let stx ← stx;
+let e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
+let stx' ← liftMetaM $ delab Name.anonymous [] e optionsPerPos;
+let stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
+let f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
 IO.println $ f'.pretty opts;
-env ← getEnv;
+let env ← getEnv;
 match Parser.runParserCategory env `term (toString f') "<input>" with
 | Except.error e => throwErrorAt stx e
 | Except.ok stx'' => do
-  e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
+  let e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
   unlessM (isDefEq e e') $
     throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 

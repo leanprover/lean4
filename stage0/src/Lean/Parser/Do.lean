@@ -86,8 +86,8 @@ def doSeq          := doSeqBracketed <|> doSeqIndent
 @[builtinDoElemParser] def doLet  := parser! "let " >> letDecl
 def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
-@[builtinDoElemParser] def doAssign := notFollowedBy "let " >> (doId <|> doPat)
-@[builtinDoElemParser] def doHave   := parser! "have " >> Term.haveDecl
+@[builtinDoElemParser] def doLetArrow := parser! "let " >> (doId <|> doPat)
+@[builtinDoElemParser] def doHave     := parser! "have " >> Term.haveDecl
 /-
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as
 ```

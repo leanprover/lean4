@@ -131,7 +131,13 @@ def doMatchAlts : Parser := parser! withPosition fun pos => (optional "| ") >> s
 @[builtinDoElemParser] def «break» := parser! "break"
 @[builtinDoElemParser] def «continue» := parser! "continue"
 
-@[builtinDoElemParser] def doExpr   := parser! notFollowedBy "let " >> notFollowedBy "have " >> termParser
+/-
+We use `notFollowedBy` to avoid counterintuitive behavior. For example, the `if`-term parser
+doesn't enforce indentation restrictions, but we don't want it to be used when `doIf` fails.
+Note that parser priorities would not solve this problem since the `doIf` parser is failing while the `if`
+parser is succeeding.
+-/
+@[builtinDoElemParser] def doExpr   := parser! notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do") >> termParser
 
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq
 

@@ -29,14 +29,14 @@ if x then f x else g x
 if h : x then f x h else g x h
 (Term.if "if" [`h ":"] `x "then" (Term.app `f [`x `h]) "else" (Term.app `g [`x `h]))
 have p x y from f x; g this
-(Term.have "have" [] (Term.app `p [`x `y]) (Term.fromTerm "from" (Term.app `f [`x])) ";" (Term.app `g [`this]))
+(Term.have "have" [] (Term.app `p [`x `y]) (Term.fromTerm "from" (Term.app `f [`x])) [";"] (Term.app `g [`this]))
 suffices h : p x y from f x; g this
 (Term.suffices
  "suffices"
  [`h ":"]
  (Term.app `p [`x `y])
  (Term.fromTerm "from" (Term.app `f [`x]))
- ";"
+ [";"]
  (Term.app `g [`this]))
 show p x y from f x
 (Term.show "show" (Term.app `p [`x `y]) (Term.fromTerm "from" (Term.app `f [`x])))
@@ -185,19 +185,19 @@ Type 1
 f Type 1
 (Term.app `f [(Term.type "Type" []) (numLit "1")])
 let x := 0; x + 1
-(Term.let "let" (Term.letDecl (Term.letIdDecl `x [] [] ":=" (numLit "0"))) ";" (Term.add `x "+" (numLit "1")))
+(Term.let "let" (Term.letDecl (Term.letIdDecl `x [] [] ":=" (numLit "0"))) [";"] (Term.add `x "+" (numLit "1")))
 let x : Nat := 0; x + 1
 (Term.let
  "let"
  (Term.letDecl (Term.letIdDecl `x [] [(Term.typeSpec ":" `Nat)] ":=" (numLit "0")))
- ";"
+ [";"]
  (Term.add `x "+" (numLit "1")))
 let f (x : Nat) := x + 1; f 0
 (Term.let
  "let"
  (Term.letDecl
   (Term.letIdDecl `f [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [] ":=" (Term.add `x "+" (numLit "1"))))
- ";"
+ [";"]
  (Term.app `f [(numLit "0")]))
 let f {α : Type} (a : α) : α := a; f 10
 (Term.let
@@ -209,20 +209,20 @@ let f {α : Type} (a : α) : α := a; f 10
    [(Term.typeSpec ":" `α)]
    ":="
    `a))
- ";"
+ [";"]
  (Term.app `f [(numLit "10")]))
 let f (x) := x + 1; f 10 + f 20
 (Term.let
  "let"
  (Term.letDecl (Term.letIdDecl `f [(Term.explicitBinder "(" [`x] [] [] ")")] [] ":=" (Term.add `x "+" (numLit "1"))))
- ";"
+ [";"]
  (Term.add (Term.app `f [(numLit "10")]) "+" (Term.app `f [(numLit "20")])))
 let (x, y) := f 10; x + y
 (Term.let
  "let"
  (Term.letDecl
   (Term.letPatDecl (Term.paren "(" [`x [(Term.tupleTail "," [`y])]] ")") [] [] ":=" (Term.app `f [(numLit "10")])))
- ";"
+ [";"]
  (Term.add `x "+" `y))
 let { fst := x, .. } := f 10; x + x
 (Term.let
@@ -234,28 +234,28 @@ let { fst := x, .. } := f 10; x + x
    []
    ":="
    (Term.app `f [(numLit "10")])))
- ";"
+ [";"]
  (Term.add `x "+" `x))
 let x.y := f 10; x
-(Term.let "let" (Term.letDecl (Term.letIdDecl `x.y [] [] ":=" (Term.app `f [(numLit "10")]))) ";" `x)
+(Term.let "let" (Term.letDecl (Term.letIdDecl `x.y [] [] ":=" (Term.app `f [(numLit "10")]))) [";"] `x)
 let x.1 := f 10; x
 (Term.let
  "let"
  (Term.letDecl (Term.letPatDecl (Term.proj `x "." (fieldIdx "1")) [] [] ":=" (Term.app `f [(numLit "10")])))
- ";"
+ [";"]
  `x)
 let x[i].y := f 10; x
 (Term.let
  "let"
  (Term.letDecl
   (Term.letPatDecl (Term.proj (Term.arrayRef `x "[" `i "]") "." `y) [] [] ":=" (Term.app `f [(numLit "10")])))
- ";"
+ [";"]
  `x)
 let x[i] := f 20; x
 (Term.let
  "let"
  (Term.letDecl (Term.letPatDecl (Term.arrayRef `x "[" `i "]") [] [] ":=" (Term.app `f [(numLit "20")])))
- ";"
+ [";"]
  `x)
 -x + y
 (Term.add (Term.uminus "-" `x) "+" `y)
@@ -321,7 +321,7 @@ f 20
     [(Term.matchAlt [(numLit "0") "," `a] "=>" (Term.add `a "+" (numLit "10")))
      "|"
      (Term.matchAlt [(Term.add `n "+" (numLit "1")) "," `b] "=>" (Term.mul `n "*" `b))])))
- ";"
+ [";"]
  (Term.app `f [(numLit "20")]))
 max a b
 (Term.app `max [`a `b])
@@ -332,4 +332,4 @@ failed as expected, error: <input>:1:3 expected ')' or ':'
 let x 10; x
 failed as expected, error: <input>:1:6 expected '|'
 let x := y
-failed as expected, error: <input>:1:10 expected ';'
+failed as expected, error: <input>:1:10 expected term

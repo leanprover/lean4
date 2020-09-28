@@ -9,9 +9,6 @@ namespace Lean
 namespace Parser
 namespace Tactic
 
-def seq  := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
-def seq1 := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
-
 def underscoreFn : ParserFn :=
 fun c s =>
   let s   := symbolFn "_" c s;
@@ -38,13 +35,13 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «exact»      := parser! nonReservedSymbol "exact " >> termParser
 @[builtinTacticParser] def «refine»     := parser! nonReservedSymbol "refine " >> termParser
 @[builtinTacticParser] def «refine!»    := parser! nonReservedSymbol "refine! " >> termParser
-@[builtinTacticParser] def «case»       := parser! nonReservedSymbol "case " >> ident >> darrow >> indentedNonEmptySeq
-@[builtinTacticParser] def «allGoals»   := parser! nonReservedSymbol "allGoals " >> indentedNonEmptySeq
+@[builtinTacticParser] def «case»       := parser! nonReservedSymbol "case " >> ident >> darrow >> tacticSeq1
+@[builtinTacticParser] def «allGoals»   := parser! nonReservedSymbol "allGoals " >> tacticSeq1
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «done»       := parser! nonReservedSymbol "done"
 @[builtinTacticParser] def «admit»      := parser! nonReservedSymbol "admit"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
-@[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> indentedNonEmptySeq
+@[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticSeq1
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
 
 def locationWildcard := parser! "*"
@@ -61,7 +58,7 @@ def rwRuleSeq := parser! "[" >> sepBy1 rwRule ", " true >> "]"
 @[builtinTacticParser] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
 
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
-def altRHS := Term.hole <|> Term.syntheticHole <|> indentedNonEmptySeq
+def altRHS := Term.hole <|> Term.syntheticHole <|> tacticSeq1
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> altRHS
 def inductionAlts : Parser := withPosition $ "|" >> sepBy1 inductionAlt (checkColGe "alternatives must be indented" >> "|")
 def withAlts : Parser := optional (" with " >> inductionAlts)
@@ -77,8 +74,10 @@ def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 match
 
 def withIds : Parser := optional (" with " >> many1 ident')
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
+def seq  := node `Lean.Parser.Tactic.seq $ sepBy tacticParser "; " true
+def seq1 := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
 @[builtinTacticParser] def paren        := parser! "(" >> seq1 >> ")"
-@[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
+@[builtinTacticParser] def nestedTactic := parser! "{" >> seq >> "}"
 @[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1
 
 /- Term binders as tactics. They are all implemented as macros using the triad: named holes, hygiene, and `refine` tactic. -/

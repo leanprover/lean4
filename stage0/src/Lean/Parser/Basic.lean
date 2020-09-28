@@ -125,7 +125,7 @@ structure ParserContext extends InputContext :=
 (env        : Environment)
 (tokens     : TokenTable)
 (insideQuot : Bool := false)
-(savedPos   : Position := { line := 1, column := 0 })
+(savedPos?  : Option Position := none)
 
 structure Error :=
 (unexpected : String := "")
@@ -1377,18 +1377,24 @@ def anyOfFn : List Parser → ParserFn
 
 @[inline] def checkColGeFn (errorMsg : String) : ParserFn :=
 fun c s =>
-  let pos := c.fileMap.toPosition s.pos;
-  if pos.column ≥ c.savedPos.column then s
-  else s.mkError errorMsg
+  match c.savedPos? with
+  | none => s
+  | some savedPos =>
+    let pos := c.fileMap.toPosition s.pos;
+    if pos.column ≥ savedPos.column then s
+    else s.mkError errorMsg
 
 @[inline] def checkColGe (errorMsg : String) : Parser :=
 { fn := checkColGeFn errorMsg }
 
 @[inline] def checkColGtFn (errorMsg : String) : ParserFn :=
 fun c s =>
-  let pos := c.fileMap.toPosition s.pos;
-  if pos.column > c.savedPos.column then s
-  else s.mkError errorMsg
+  match c.savedPos? with
+  | none => s
+  | some savedPos =>
+    let pos := c.fileMap.toPosition s.pos;
+    if pos.column > savedPos.column then s
+    else s.mkError errorMsg
 
 @[inline] def checkColGt (errorMsg : String) : Parser :=
 { fn := checkColGtFn errorMsg }
@@ -1397,7 +1403,13 @@ fun c s =>
 { info := p.info,
   fn   := fun c s =>
    let pos := c.fileMap.toPosition s.pos;
-   p.fn { c with savedPos := pos } s }
+   p.fn { c with savedPos? := pos } s }
+
+@[inline] def withoutPosition (p : Parser) : Parser :=
+{ info := p.info,
+  fn   := fun c s =>
+   let pos := c.fileMap.toPosition s.pos;
+   p.fn { c with savedPos? := none } s }
 
 def eoiFn : ParserFn :=
 fun c s =>

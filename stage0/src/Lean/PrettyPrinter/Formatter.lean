@@ -367,6 +367,8 @@ else
 
 @[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Formatter) : Formatter := do
 p
+@[combinatorFormatter Lean.Parser.withoutPosition] def withoutPosition.formatter (p : Formatter) : Formatter := do
+p
 
 @[combinatorFormatter Lean.Parser.setExpected]
 def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :=

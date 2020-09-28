@@ -89,7 +89,6 @@ lean_object* l_Std_PersistentHashMap_contains___at___private_Lean_Parser_Extensi
 lean_object* l_Lean_Parser_notFollowedByCommandToken___closed__1;
 lean_object* l_Lean_Parser_orelseFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_registerBuiltinDynamicParserAttribute(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Position_Inhabited___closed__1;
 lean_object* l___private_Lean_Parser_Extension_4__addBuiltinParserCategory(lean_object*, uint8_t, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Parser_Extension_12__ParserAttribute_add___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_8__updateBuiltinTokens(lean_object*, lean_object*, lean_object*);
@@ -7476,18 +7475,18 @@ return x_4;
 lean_object* l_Lean_Parser_mkParserContext(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_3 = l_Lean_Parser_getTokenTable(x_1);
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = 0;
-x_6 = l_Lean_Position_Inhabited___closed__1;
+x_4 = lean_box(0);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = 0;
 x_7 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_4);
+lean_ctor_set(x_7, 1, x_5);
 lean_ctor_set(x_7, 2, x_1);
 lean_ctor_set(x_7, 3, x_3);
-lean_ctor_set(x_7, 4, x_6);
-lean_ctor_set_uint8(x_7, sizeof(void*)*5, x_5);
+lean_ctor_set(x_7, 4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*5, x_6);
 return x_7;
 }
 }

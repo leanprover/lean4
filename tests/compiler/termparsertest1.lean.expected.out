@@ -275,15 +275,15 @@ do
 (Term.do
  "do"
  [(Term.doLetArrow "let" (Term.doId `x [] "←" (Term.app `f [`a])))
-  ";"
+  [";"]
   (Term.doLetArrow "let" (Term.doId `x [(Term.typeSpec ":" `Nat)] "←" (Term.app `f [`a])))
-  ";"
+  [";"]
   (Term.doExpr (Term.app `g [`x]))
-  ";"
+  [";"]
   (Term.doLet "let" (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.app `g [`x]))))
-  ";"
+  [";"]
   (Term.doLetArrow "let" (Term.doPat (Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")") "<-" (Term.app `h [`x `y]) []))
-  ";"
+  [";"]
   (Term.doLet
    "let"
    (Term.letDecl
@@ -293,9 +293,9 @@ do
      []
      ":="
      (Term.paren "(" [`b [(Term.tupleTail "," [`a])]] ")"))))
-  ";"
-  (Term.doExpr (Term.app `pure [(Term.paren "(" [(Term.add `a "+" `b) []] ")")]))]
- [])
+  [";"]
+  (Term.doExpr (Term.app `pure [(Term.paren "(" [(Term.add `a "+" `b) []] ")")]))
+  []])
 do { let x ← f a; pure $ a + a }
 (Term.do
  "do"

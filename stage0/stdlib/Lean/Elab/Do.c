@@ -1180,38 +1180,92 @@ lean_dec(x_3);
 x_8 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_7);
 x_9 = l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__15;
 x_10 = l_Lean_Syntax_isToken(x_9, x_8);
-lean_dec(x_8);
 if (x_10 == 0)
+{
+uint8_t x_11; 
+x_11 = l_Lean_Syntax_isNone(x_8);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = l_Lean_Syntax_getArg(x_8, x_12);
+lean_dec(x_8);
+x_14 = l_Lean_Syntax_isToken(x_9, x_13);
+lean_dec(x_13);
+if (x_14 == 0)
 {
 return x_7;
 }
 else
 {
-lean_object* x_11; 
-x_11 = lean_array_pop(x_7);
-return x_11;
+lean_object* x_15; 
+x_15 = lean_array_pop(x_7);
+return x_15;
 }
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_12 = l_Lean_Syntax_getArg(x_3, x_2);
-lean_dec(x_3);
-x_13 = l_Lean_Syntax_getArgs(x_12);
-lean_dec(x_12);
-x_14 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_13);
-x_15 = l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__15;
-x_16 = l_Lean_Syntax_isToken(x_15, x_14);
-lean_dec(x_14);
-if (x_16 == 0)
-{
-return x_13;
+lean_object* x_16; 
+lean_dec(x_8);
+x_16 = lean_array_pop(x_7);
+return x_16;
+}
 }
 else
 {
 lean_object* x_17; 
-x_17 = lean_array_pop(x_13);
+lean_dec(x_8);
+x_17 = lean_array_pop(x_7);
 return x_17;
+}
+}
+else
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+x_18 = l_Lean_Syntax_getArg(x_3, x_2);
+lean_dec(x_3);
+x_19 = l_Lean_Syntax_getArgs(x_18);
+lean_dec(x_18);
+x_20 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_19);
+x_21 = l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__15;
+x_22 = l_Lean_Syntax_isToken(x_21, x_20);
+if (x_22 == 0)
+{
+uint8_t x_23; 
+x_23 = l_Lean_Syntax_isNone(x_20);
+if (x_23 == 0)
+{
+lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+x_24 = lean_unsigned_to_nat(0u);
+x_25 = l_Lean_Syntax_getArg(x_20, x_24);
+lean_dec(x_20);
+x_26 = l_Lean_Syntax_isToken(x_21, x_25);
+lean_dec(x_25);
+if (x_26 == 0)
+{
+return x_19;
+}
+else
+{
+lean_object* x_27; 
+x_27 = lean_array_pop(x_19);
+return x_27;
+}
+}
+else
+{
+lean_object* x_28; 
+lean_dec(x_20);
+x_28 = lean_array_pop(x_19);
+return x_28;
+}
+}
+else
+{
+lean_object* x_29; 
+lean_dec(x_20);
+x_29 = lean_array_pop(x_19);
+return x_29;
 }
 }
 }

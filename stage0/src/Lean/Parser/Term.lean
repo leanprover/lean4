@@ -61,7 +61,7 @@ checkPrec prec >> symbol sym >> termParser (prec+1)
 def typeAscription := parser! " : " >> termParser
 def tupleTail      := parser! ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
-@[builtinTermParser] def paren := parser! "(" >> optional (termParser >> parenSpecial) >> ")"
+@[builtinTermParser] def paren := parser! "(" >> withoutPosition (optional (termParser >> parenSpecial)) >> ")"
 @[builtinTermParser] def anonymousCtor := parser! "⟨" >> sepBy termParser ", " >> "⟩"
 def optIdent : Parser := optional (try (ident >> " : "))
 @[builtinTermParser] def «if»  := parser!:leadPrec "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
@@ -165,7 +165,10 @@ def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 
 def namedArgument  := parser! try ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := parser! ".."
-@[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 (checkWsBefore "expected space" >> (namedArgument <|> termParser maxPrec <|> ellipsis))
+@[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 $
+  checkWsBefore "expected space" >>
+  checkColGt "expected to be indented" >>
+  (namedArgument <|> termParser maxPrec <|> ellipsis)
 
 @[builtinTermParser] def proj     := tparser! symbolNoWs "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25

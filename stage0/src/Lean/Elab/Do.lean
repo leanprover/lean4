@@ -13,6 +13,200 @@ namespace Term
 
 open Meta
 
+namespace Do
+
+structure Alt (σ : Type) :=
+(ref : Syntax) (patterns : Array Syntax) (rhs : σ)
+
+/-
+  Auxiliary datastructure for representing a `do` code block.
+  We convert `Code` into a `Syntax` term representing the:
+  - `do`-block, or
+  - the visitor argument for the `forIn` combinator.
+
+  We have 2 kinds of declaration
+  - `vdecl`: variable declaration
+  - `jdecl`: join-point declaration
+
+  and actions (e.g., `IO.println "hello"`)
+  - `action`
+
+  We have 6 terminals
+  - `break`:    for interrupting a `for x in s`
+  - `continue`: for interrupting the current iteration of a `for x in s`
+  - `return`:   returning the result of the computation.
+  - `ite`:      if-then-else
+  - `match`:    pattern matching
+  - `jmp`       a goto to a join-point
+
+  We store the set of updated variables `uvars` in the terminals `break`, `continue`, and `return`.
+  The terminal `return` also contains the name of the variable containing the result of the computation.
+  We ignore this value when inside a `for x in s`.
+
+  A code block `C` is well-formed if
+  1- The collection of updated variables is the same in all `break`
+     `continue` and `return` in `C`.
+
+  2- For every `jmp r j as` in `C`, there is a `jdecl r j ps b k` s.t. `jmp r j` is in `k`, and
+     `ps.size == as.size`
+
+  3- The update variables occurring in `break`, `continue`, and `return` are pairwise distinct.
+
+  We use the notation `C[u_1, ..., u_k]` to denote a code block that updates variables `u_1, ..., u_k`
+
+-/
+inductive Code
+| vdecl      (ref : Syntax) (id : Name) (type : Syntax) (pure : Bool) (val : Syntax) (cont : Code)
+| jdecl      (ref : Syntax) (id : Name) (params : Array Name) (body : Code) (cont : Code)
+| action     (term : Syntax) (cond : Code)
+| «break»    (ref : Syntax) (uvars : Array Name)
+| «continue» (ref : Syntax) (uvars : Array Name)
+| «return»   (ref : Syntax) (var? : Option Name) (uvars : Array Name)
+| ite        (ref : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
+| «match»    (ref : Syntax) (discrs : Array Syntax) (type? : Option Syntax) (alts : Array (Alt Code))
+| jmp        (ref : Syntax) (jpName : Name) (args : Array Name)
+
+instance body.inhabited : Inhabited Code :=
+⟨Code.«break» (arbitrary _) #[]⟩
+
+instance alt.inhabited : Inhabited (Alt Code) :=
+⟨{ ref := arbitrary _, patterns := #[], rhs := arbitrary _ }⟩
+
+partial def getUpdatedVars? : Code → Option (Array Name)
+| Code.vdecl _ _ _ _ _ k   => getUpdatedVars? k
+| Code.jdecl _ _ _ b k     => getUpdatedVars? b <|> getUpdatedVars? k
+| Code.action _ k          => getUpdatedVars? k
+| Code.«break»  _ uvars    => some uvars
+| Code.«continue»  _ uvars => some uvars
+| Code.«return» _ _ uvars  => some uvars
+| Code.ite _ _ t e         => getUpdatedVars? t <|> getUpdatedVars? e
+| Code.«match» _ _ _ alts  => alts.findSome? fun alt => getUpdatedVars? alt.rhs
+| Code.jmp _ _ _           => none
+
+private def mkTuple (elems : Array Syntax) : MacroM Syntax :=
+if elems.size == 1 then pure (elems.get! 0)
+else
+  (elems.extract 0 (elems.size - 1)).foldrM
+    (fun elem tuple => `(($elem, $tuple)))
+    (elems.back)
+
+/-
+Extending code blocks with variable declarations: `let x : t := v` and `let x : t ← v`.
+
+Suppose we have a code block `C[us]`, and we want to extend it with the
+`let x : t := v` declaration. We first remove `x` from the collection of updated variables `us`, obtaining `us'`
+and return:
+```
+Code.vdecl _ x t true v C[us']
+```
+The operation is the same for `let x : t ← v`, but we set `pure` with `false`.
+-/
+
+/-
+Extending code blocks with reassignments: `x : t := v` and `x : t ← v`.
+
+Suppose we have a code block `C[us]`, and we want to extend it with the
+`x : t := v` reassignment. If `x` is in `us`, then we just return
+```
+Code.vdecl _ x t true v C[us]
+```
+If `x` is not in `us`, we create a C'[x, us] in the following way
+1- for each `return _ y us` occurring in `C[us]`, we create a join point
+  `let j (y us) := return y [x, us]`
+  and we replace the `return _ y us` with `jmp y us`
+2- for each `break us` occurring in `C[us]`, we create a join point
+  `let j (us) := break [x, us]`
+  and we replace the `break us` with `jmp us`.
+3- Same as 2 for `continue us`
+Finally, we return
+```
+Code.vdecl _ x t true v C'[x, us]
+```
+
+Note that it would be incorrect to just add `x` to the set of updated variables of each `break`, `continue`, and `return`.
+The problem is that `C` may have shadowed `x`. As an example, consider the following piece of code
+```
+let x ← action₁; -- declares 'x'
+x := x + 1;      -- reassigns 'x'
+IO.println x;
+let x ← action₂; -- shadows previous x
+IO.println x
+```
+The code block `C` for
+```
+IO.println x;
+let x ← action₂; -- shadows previous x
+IO.println x
+```
+is
+```
+Code.action (IO.println x) $
+Code.vdecl _ x _ false action₂ $
+Code.action (IO.println x) $
+Code.return _ none []
+```
+Here is the incorrect way of extending it with the assignment `x := x + 1`.
+```
+Code.vdecl _ x _ true (x+1) $
+Code.action (IO.println x) $
+Code.vdecl _ x _ false action₂ $
+Code.action (IO.println x) $
+Code.return _ none [x]
+```
+The code above incorrectly returns the shadowed `x` as the updated value for `x`.
+The process above using join-point produces the correct result:
+```
+Code.vdecl _ x _ true (x+1) $
+Code.jdecl _ j [] (Code.return _ none [x]) $
+Code.action (IO.println x) $
+Code.vdecl _ x _ false action₂ $
+Code.action (IO.println x) $
+Code.jmp _ j []
+```
+The join point `j` returns the correct `x`.
+-/
+
+/-
+Combining two code-blocks `C[us]` `D[vs]` into an if-then-else with condition `c`.
+If `us == vs`, then it is easy. We just return:
+```
+Code.ite _ c C[us] D[us]
+```
+Otherwise, let `ws` be the union of `us` and `vs`. The for each `return`, `continue`, and `break` occurring in `C[us]` and `D[vs]`, we create
+an auxiliary join point using a process similar to the one we used for extending code-blocks with reassignment operations.
+For example, for a `break us` in `C[us]` we create a join point
+```
+Code.jdecl _ j [us] (Code.break [ws]) $ ...
+```
+and replace `break us` with `jmp _ j us`.
+We call this operation `homogenise : Code → Code → Code × Code`. It takes two code blocks and returns two new code blocks that have the same
+collection of updated variables.
+Given `(C'[ws], D'[ws]) := homogenize C[us] D[vs]`, we return
+```
+ite c C'[ws] D'[ws]
+```
+
+The process of creating `match` terminal is similar.
+
+-/
+
+/-
+We say a code-block `C[us]` is "terminal-like" if it is a sequence of join-point declarations followed by a `Code.ite` or `Code.match`.
+That is, `C[us]` is obtained by the `mkIte` and `mkMatch` primitives.
+
+For concatenating two joint points `C[us]` `D[vs]`, where `C[us]` is a terminal-like code block, we first consider the simpler case where `us == vs`,
+then we use `homogenize` for implementing the general case.
+If `us == vs`, we first create a joint point `j` for `D[us]`, and then replace each `return _ _ [us]` in `C[us]` with a `jmp j`, obtaining `C'[us]`.
+The result is like
+```
+Code.jdecl _ j [] (D[us]) $
+C'[us]
+```
+-/
+
+end Do
+
+
 structure ExtractMonadResult :=
 (m           : Expr)
 (α           : Expr)
@@ -66,7 +260,7 @@ private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) Macro
   else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
     let term := args.get! 1;
     term ← expandLiftMethodAux term;
-    auxDo ← `(do let a ← $term; $(Syntax.missing));
+    auxDo ← `(do { let a ← $term; $(Syntax.missing) });
     let auxDoElems := (getDoElems auxDo).pop;
     modify $ fun s => s ++ auxDoElems;
     `(a)
@@ -127,15 +321,15 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syn
         rest ← mkRest ();
         newBody ←
           if optElse.isNone then do
-            `(do let x ← $discr; (match x with | $pat => $rest))
+            `(do { let x ← $discr; (match x with | $pat => $rest) })
           else
             let elseBody := optElse.getArg 1;
-            `(do let x ← $discr; (match x with | $pat => $rest | _ => $elseBody));
+            `(do { let x ← $discr; (match x with | $pat => $rest | _ => $elseBody) });
         addPrefix newBody
       else if i < doElems.size - 1 && doElem.getKind == `Lean.Parser.Term.doExpr then do
         -- def doExpr := parser! termParser
         let term := doElem.getArg 0;
-        auxDo ← `(do let x ← $term; $(Syntax.missing));
+        auxDo ← `(do { let x ← $term; $(Syntax.missing) });
         let doElemNew := (getDoElems auxDo).get! 0;
         let doElems := doElems.set! i doElemNew;
         expandDoElems true doElems (i+2)

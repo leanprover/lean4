@@ -365,9 +365,8 @@ if stx.getKind == k then do
 else
   p
 
-@[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Position → Formatter) : Formatter := do
--- call closure with dummy position
-p ⟨0, 0⟩
+@[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Formatter) : Formatter := do
+p
 
 @[combinatorFormatter Lean.Parser.setExpected]
 def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :=
@@ -386,7 +385,8 @@ pushLine
 @[combinatorFormatter checkNoWsBefore] def checkNoWsBefore.formatter : Formatter := pure ()
 @[combinatorFormatter checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter checkColGe] def checkColGe.formatter : Formatter := pure ()
-@[combinatorFormatter checkLineLe] def checkLineLe.formatter : Formatter := pure ()
+@[combinatorFormatter checkColGt] def checkColGt.formatter : Formatter := pure ()
+
 @[combinatorFormatter eoi] def eoi.formatter : Formatter := pure ()
 @[combinatorFormatter notFollowedByCategoryToken] def notFollowedByCategoryToken.formatter : Formatter := pure ()
 @[combinatorFormatter checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter := pure ()

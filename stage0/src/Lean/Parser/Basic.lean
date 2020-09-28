@@ -125,6 +125,7 @@ structure ParserContext extends InputContext :=
 (env        : Environment)
 (tokens     : TokenTable)
 (insideQuot : Bool := false)
+(savedPos   : Position := { line := 1, column := 0 })
 
 structure Error :=
 (unexpected : String := "")
@@ -1373,29 +1374,30 @@ def anyOfFn : List Parser → ParserFn
 | [p],   c, s => p.fn c s
 | p::ps, c, s => orelseFn p.fn (anyOfFn ps) c s
 
-@[inline] def checkColGeFn (col : Nat) (errorMsg : String) : ParserFn :=
+
+@[inline] def checkColGeFn (errorMsg : String) : ParserFn :=
 fun c s =>
   let pos := c.fileMap.toPosition s.pos;
-  if pos.column ≥ col then s
+  if pos.column ≥ c.savedPos.column then s
   else s.mkError errorMsg
 
-@[inline] def checkColGe (col : Nat) (errorMsg : String) : Parser :=
-{ fn := checkColGeFn col errorMsg }
+@[inline] def checkColGe (errorMsg : String) : Parser :=
+{ fn := checkColGeFn errorMsg }
 
-@[inline] def checkLineLeFn (line : Nat) (errorMsg : String) : ParserFn :=
+@[inline] def checkColGtFn (errorMsg : String) : ParserFn :=
 fun c s =>
   let pos := c.fileMap.toPosition s.pos;
-  if pos.line ≤ line then s
+  if pos.column > c.savedPos.column then s
   else s.mkError errorMsg
 
-@[inline] def checkLineLe (line : Nat) (errorMsg : String) : Parser :=
-{ fn := checkLineLeFn line errorMsg }
+@[inline] def checkColGt (errorMsg : String) : Parser :=
+{ fn := checkColGtFn errorMsg }
 
-@[inline] def withPosition (p : Position → Parser) : Parser :=
-{ info := (p { line := 1, column := 0 }).info,
+@[inline] def withPosition (p : Parser) : Parser :=
+{ info := p.info,
   fn   := fun c s =>
    let pos := c.fileMap.toPosition s.pos;
-   (p pos).fn c s }
+   p.fn { c with savedPos := pos } s }
 
 def eoiFn : ParserFn :=
 fun c s =>
@@ -1407,7 +1409,7 @@ fun c s =>
 { fn := eoiFn }
 
 @[inline] def many1Indent (p : Parser) (errorMsg : String) : Parser :=
-withPosition $ fun pos => many1 (checkColGe pos.column errorMsg >> p)
+withPosition $ many1 (checkColGe errorMsg >> p)
 
 open Std (RBMap RBMap.empty)
 

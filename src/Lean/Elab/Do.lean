@@ -260,7 +260,7 @@ private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) Macro
   else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
     let term := args.get! 1;
     term ← expandLiftMethodAux term;
-    auxDo ← `(do let a ← $term; $(Syntax.missing));
+    auxDo ← `(do { let a ← $term; $(Syntax.missing) });
     let auxDoElems := (getDoElems auxDo).pop;
     modify $ fun s => s ++ auxDoElems;
     `(a)
@@ -321,15 +321,15 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syn
         rest ← mkRest ();
         newBody ←
           if optElse.isNone then do
-            `(do let x ← $discr; (match x with | $pat => $rest))
+            `(do { let x ← $discr; (match x with | $pat => $rest) })
           else
             let elseBody := optElse.getArg 1;
-            `(do let x ← $discr; (match x with | $pat => $rest | _ => $elseBody));
+            `(do { let x ← $discr; (match x with | $pat => $rest | _ => $elseBody) });
         addPrefix newBody
       else if i < doElems.size - 1 && doElem.getKind == `Lean.Parser.Term.doExpr then do
         -- def doExpr := parser! termParser
         let term := doElem.getArg 0;
-        auxDo ← `(do let x ← $term; $(Syntax.missing));
+        auxDo ← `(do { let x ← $term; $(Syntax.missing) });
         let doElemNew := (getDoElems auxDo).get! 0;
         let doElems := doElems.set! i doElemNew;
         expandDoElems true doElems (i+2)

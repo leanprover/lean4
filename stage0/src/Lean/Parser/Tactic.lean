@@ -37,6 +37,7 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «refine!»    := parser! nonReservedSymbol "refine! " >> termParser
 @[builtinTacticParser] def «case»       := parser! nonReservedSymbol "case " >> ident >> darrow >> tacticSeq
 @[builtinTacticParser] def «allGoals»   := parser! nonReservedSymbol "allGoals " >> tacticSeq
+@[builtinTacticParser] def «focus»      := parser! nonReservedSymbol "focus " >> tacticSeq
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «done»       := parser! nonReservedSymbol "done"
 @[builtinTacticParser] def «admit»      := parser! nonReservedSymbol "admit"

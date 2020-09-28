@@ -18,6 +18,7 @@ lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___mai
 lean_object* l_Lean_Syntax_updateKind(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinder___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinders(lean_object*);
+extern lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__18;
 lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__12;
 lean_object* l___private_Lean_Elab_Binders_2__expandBinderIdent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16908,7 +16909,7 @@ lean_ctor_set(x_121, 0, x_120);
 lean_ctor_set(x_121, 1, x_119);
 x_122 = l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__4;
 x_123 = lean_array_push(x_122, x_121);
-x_124 = l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__16;
+x_124 = l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__18;
 x_125 = lean_array_push(x_123, x_124);
 x_126 = l___private_Lean_Elab_Binders_11__expandFunBindersAux___main___closed__7;
 x_127 = lean_array_push(x_126, x_102);

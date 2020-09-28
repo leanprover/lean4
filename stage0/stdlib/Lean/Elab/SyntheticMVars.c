@@ -40,6 +40,7 @@ lean_object* l___private_Lean_Elab_SyntheticMVars_11__reportStuckSyntheticMVars_
 lean_object* l_Lean_Elab_Term_liftTacticElabM___rarg___closed__1;
 lean_object* l_Lean_mkMVar(lean_object*);
 lean_object* l_Lean_Elab_Term_liftTacticElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot___closed__1;
 lean_object* l_Lean_Elab_Term_elabTermAndSynthesize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -67,11 +68,11 @@ lean_object* l___private_Lean_Elab_SyntheticMVars_5__synthesizePendingInstMVar(l
 lean_object* l___private_Lean_Elab_SyntheticMVars_4__resumePostponed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar___at_Lean_Elab_Term_synthesizeInstMVarCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logTrace___at_Lean_Elab_Term_traceAtCmdPos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___regBuiltin_Lean_Elab_Tactic_evalNestedTacticBlock___closed__2;
 lean_object* l___private_Lean_Elab_SyntheticMVars_9__synthesizeSyntheticMVarsStep___closed__10;
 lean_object* l_Lean_Elab_Term_ensureAssignmentHasNoMVars___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__1;
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Elab_Term_isDefEqNoConstantApprox___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Lean_Elab_SyntheticMVars_11__reportStuckSyntheticMVars___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_3__resumeElabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,6 +92,7 @@ lean_object* l_Lean_Elab_Tactic_getUnsolvedGoals(lean_object*, lean_object*, lea
 lean_object* l___private_Lean_Elab_SyntheticMVars_13__synthesizeSyntheticMVarsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_2__getTacticErrorRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get___at_Lean_Elab_Term_liftTacticElabM___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__2;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_9__synthesizeSyntheticMVarsStep___spec__2(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -806,6 +808,24 @@ lean_dec(x_3);
 return x_9;
 }
 }
+lean_object* _init_l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("nestedTacticBlockCurly");
+return x_1;
+}
+}
+lean_object* _init_l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot___closed__1;
+x_2 = l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
 lean_object* l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main(lean_object* x_1) {
 _start:
 {
@@ -822,7 +842,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = l___regBuiltin_Lean_Elab_Tactic_evalNestedTacticBlock___closed__2;
+x_6 = l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__2;
 lean_inc(x_1);
 x_7 = l_Lean_Syntax_isOfKind(x_1, x_6);
 if (x_7 == 0)
@@ -855,7 +875,7 @@ lean_dec(x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
-x_16 = l___regBuiltin_Lean_Elab_Tactic_evalNestedTacticBlock___closed__2;
+x_16 = l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__2;
 lean_inc(x_1);
 x_17 = l_Lean_Syntax_isOfKind(x_1, x_16);
 if (x_17 == 0)
@@ -6916,6 +6936,10 @@ l_Lean_Elab_Term_ensureAssignmentHasNoMVars___closed__2 = _init_l_Lean_Elab_Term
 lean_mark_persistent(l_Lean_Elab_Term_ensureAssignmentHasNoMVars___closed__2);
 l_Lean_Elab_Term_ensureAssignmentHasNoMVars___closed__3 = _init_l_Lean_Elab_Term_ensureAssignmentHasNoMVars___closed__3();
 lean_mark_persistent(l_Lean_Elab_Term_ensureAssignmentHasNoMVars___closed__3);
+l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__1 = _init_l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__1);
+l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__2 = _init_l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__2();
+lean_mark_persistent(l___private_Lean_Elab_SyntheticMVars_1__getTacticRCurly_x3f___main___closed__2);
 l_Lean_Elab_Term_runTactic___closed__1 = _init_l_Lean_Elab_Term_runTactic___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_runTactic___closed__1);
 l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_9__synthesizeSyntheticMVarsStep___spec__2___closed__1 = _init_l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_9__synthesizeSyntheticMVarsStep___spec__2___closed__1();

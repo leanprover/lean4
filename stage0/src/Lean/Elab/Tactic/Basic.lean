@@ -379,8 +379,8 @@ fun stx => match_syntax stx with
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalTactic (stx.getArg 1)
 
-@[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlock : Tactic :=
-fun stx => focus (evalTactic (stx.getArg 1))
+@[builtinTactic tacticSeq1Bracketed] def evalTacticSeq1Bracketed : Tactic :=
+fun stx => focus $ (stx.getArg 1).forSepArgsM evalTactic
 
 /--
   First method searches for a metavariable `g` s.t. `tag` is a suffix of its name.

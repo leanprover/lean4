@@ -24,7 +24,7 @@ namespace Tactic
 def tacticSeq1Indented : Parser :=
 parser! many1Indent $ tacticParser >> optional "; "
 def tacticSeqBracketed : Parser :=
-parser! "{" >> sepBy tacticParser "; " true >> "}"
+parser! "{" >> many (tacticParser >> optional "; ") >> "}"
 def tacticSeq :=
 nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq $ tacticSeqBracketed <|> tacticSeq1Indented
 

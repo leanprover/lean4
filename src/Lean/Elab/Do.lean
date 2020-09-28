@@ -240,7 +240,7 @@ let args := if arg.getKind == `Lean.Parser.Term.doSeqBracketed then
   (arg.getArg 1).getArgs
 else
   arg.getArgs;
-if args.back.isToken ";" then -- temporary hack
+if args.back.isToken ";" || args.back.isNone || (args.back.getArg 0).isToken ";" then -- temporary hack
   args.pop
 else
   args

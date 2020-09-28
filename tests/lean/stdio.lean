@@ -17,10 +17,10 @@ FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
   withStdout (Stream.ofHandle h₁) $ do
     println "line 1";
     catch
-    ( do
-      withStdout (Stream.ofHandle h₂) $ println "line 2";
-      throw $ IO.userError "my error" )
-    ( fun e => println e );
+      ( do
+        withStdout (Stream.ofHandle h₂) $ println "line 2";
+        throw $ IO.userError "my error" )
+      ( fun e => println e );
     println "line 3" };
 println "line 4";
 println "\n> stdout1.txt";

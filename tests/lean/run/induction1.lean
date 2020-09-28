@@ -30,22 +30,20 @@ by {
   | left h  => exact Or.inr h
 }
 
-theorem tst4 {p q : Prop } (h : p ∨ q) : q ∨ p :=
-by {
-  induction h using elim2 with
-  | right h => ?myright
-  | left h  => ?myleft;
-  case myleft  => exact Or.inr h;
-  case myright => exact Or.inl h;
-}
+theorem tst4 {p q : Prop } (h : p ∨ q) : q ∨ p := by
+induction h using elim2 with
+| right h => ?myright
+| left h  => ?myleft
+case myleft  => exact Or.inr h
+case myright => exact Or.inl h
 
-theorem tst5 {p q : Prop } (h : p ∨ q) : q ∨ p :=
-by {
-  induction h using elim2 with
-  | right h => _
-  | left h  => refine Or.inr ?_; exact h;
-  case right => exact Or.inl h
-}
+theorem tst5 {p q : Prop } (h : p ∨ q) : q ∨ p := by
+induction h using elim2 with
+| right h => _
+| left h  =>
+  refine Or.inr ?_
+  exact h
+case right => exact Or.inl h
 
 theorem tst6 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 by {
@@ -83,9 +81,8 @@ theorem tst11 {p q r : Prop } (h₁ : Iff2 r p q) (h₂ : p) : q :=
 by induction h₁ using Iff.elim with
    | _ h _ => exact h h₂
 
-theorem tst12 {p q : Prop } (h₁ : p ∨ q) (h₂ : p ↔ q) (h₃ : p) : q :=
-by {
-  failIfSuccess induction h₁ using Iff.elim;
-  induction h₂ using Iff.elim with
-  | _ h _ => exact h h₃
-}
+theorem tst12 {p q : Prop } (h₁ : p ∨ q) (h₂ : p ↔ q) (h₃ : p) : q := by
+failIfSuccess induction h₁ using Iff.elim
+induction h₂ using Iff.elim with
+| _ h _ =>
+  exact h h₃

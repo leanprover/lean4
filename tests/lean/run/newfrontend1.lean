@@ -99,19 +99,17 @@ by {
   { exact h1 }
 }
 
-theorem simple8 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-by {
-  intro h1; intro _; intro h3;
-  refine! Eq.trans ?pre ?post;
-  case post => exact h1;
-  case pre => exact h3;
-}
+theorem simple8 (x y z : Nat) : y = z → x = x → x = y → x = z := by
+intro h1; intro _; intro h3
+refine! Eq.trans ?pre ?post
+case post => exact h1
+case pre => exact h3
 
-theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-by intros h1 _ h3;
-   traceState;
-   { refine! Eq.trans ?pre ?post;
-   (exact h1) <|> (exact y; exact h3; assumption) }
+theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z := by
+intros h1 _ h3
+traceState
+{ refine! Eq.trans ?pre ?post;
+  (exact h1) <|> (exact y; exact h3; assumption) }
 
 namespace Foo
   def Prod.mk := 1
@@ -154,23 +152,19 @@ by {
   try exact h1;
 }
 
-theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-by {
-  intros h1 h2 h3;
-  traceState;
-  apply @Eq.trans;
-  case b => exact y;
-  traceState;
-  repeat assumption
-}
+theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z := by
+intros h1 h2 h3
+traceState
+apply @Eq.trans
+case b => exact y
+traceState
+repeat assumption
 
-theorem simple14 (x y z : Nat) : y = z → x = x → x = y → x = z :=
-by {
-  intros;
-  apply @Eq.trans;
-  case b => exact y;
-  repeat assumption
-}
+theorem simple14 (x y z : Nat) : y = z → x = x → x = y → x = z := by
+intros
+apply @Eq.trans
+case b => exact y
+repeat assumption
 
 theorem simple15 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
@@ -347,7 +341,7 @@ by intros h1 h2 h3;
 
 theorem simple21 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have x = y from by apply Eq.symm; assumption;
+  have x = y from by { apply Eq.symm; assumption };
   Eq.trans this (by assumption)
 
 theorem simple22 (x y z : Nat) : y = z → y = x → id (x = z + 0) :=
@@ -359,10 +353,10 @@ fun h1 h2 => show x = z + 0 by
 
 theorem simple23 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have x = y by apply Eq.symm; assumption;
+  have x = y by { apply Eq.symm; assumption };
   Eq.trans this (by assumption)
 
 theorem simple24 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have h : x = y by apply Eq.symm; assumption;
+  have h : x = y by { apply Eq.symm; assumption };
   Eq.trans h (by assumption)

@@ -45,13 +45,11 @@ by {
   exact h₃
 }
 
-theorem ex7 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z :=
-by {
-  have y = z by apply Eq.symm; assumption;
-  apply Eq.trans;
-  exact h₁;
-  assumption
-}
+theorem ex7 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
+have y = z by apply Eq.symm; assumption
+apply Eq.trans
+exact h₁
+assumption
 
 theorem ex8 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z :=
 by apply Eq.trans h₁;

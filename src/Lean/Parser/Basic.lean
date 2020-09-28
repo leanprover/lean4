@@ -1384,7 +1384,7 @@ fun c s =>
     if pos.column ≥ savedPos.column then s
     else s.mkError errorMsg
 
-@[inline] def checkColGe (errorMsg : String) : Parser :=
+@[inline] def checkColGe (errorMsg : String := "checkColGe") : Parser :=
 { fn := checkColGeFn errorMsg }
 
 @[inline] def checkColGtFn (errorMsg : String) : ParserFn :=
@@ -1396,7 +1396,7 @@ fun c s =>
     if pos.column > savedPos.column then s
     else s.mkError errorMsg
 
-@[inline] def checkColGt (errorMsg : String) : Parser :=
+@[inline] def checkColGt (errorMsg : String := "checkColGt") : Parser :=
 { fn := checkColGtFn errorMsg }
 
 @[inline] def withPosition (p : Parser) : Parser :=

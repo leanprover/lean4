@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq___closed__2;
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__25;
 lean_object* l_Lean_Elab_Term_expandOrM___closed__2;
 lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,7 +69,6 @@ extern lean_object* l___private_Lean_Elab_Quotation_6__compileStxMatch___main___
 lean_object* l_Lean_Elab_Term_expandEmptyC___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandBAnd(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabNativeRefl___closed__1;
-extern lean_object* l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__7;
 lean_object* l_Lean_Elab_Term_expandHEq___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabAnonymousCtor___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandBNe___closed__1;
@@ -2954,7 +2954,7 @@ else
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = l_Lean_Syntax_getArg(x_10, x_7);
 lean_dec(x_10);
-x_16 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__7;
+x_16 = l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq___closed__2;
 lean_inc(x_15);
 x_17 = l_Lean_Syntax_isOfKind(x_15, x_16);
 if (x_17 == 0)
@@ -3383,7 +3383,7 @@ else
 lean_object* x_61; lean_object* x_62; uint8_t x_63; 
 x_61 = l_Lean_Syntax_getArg(x_17, x_7);
 lean_dec(x_17);
-x_62 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__7;
+x_62 = l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq___closed__2;
 lean_inc(x_61);
 x_63 = l_Lean_Syntax_isOfKind(x_61, x_62);
 if (x_63 == 0)
@@ -3674,7 +3674,7 @@ else
 lean_object* x_194; lean_object* x_195; uint8_t x_196; 
 x_194 = l_Lean_Syntax_getArg(x_149, x_7);
 lean_dec(x_149);
-x_195 = l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux___main___closed__7;
+x_195 = l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq___closed__2;
 lean_inc(x_194);
 x_196 = l_Lean_Syntax_isOfKind(x_194, x_195);
 if (x_196 == 0)

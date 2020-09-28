@@ -246,6 +246,15 @@ modifyMCtx fun mctx =>
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
 
+@[builtinTactic paren] def evalParen : Tactic :=
+fun stx => evalTactic (stx.getArg 1)
+
+@[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
+fun stx => withRef (stx.getArg 2) $ focus $ (stx.getArg 1).forSepArgsM evalTactic
+
+@[builtinTactic tacticSeq] def evalTacticSeq : Tactic :=
+fun stx => evalTactic (stx.getArg 0)
+
 partial def evalChoiceAux (tactics : Array Syntax) : Nat → TacticM Unit
 | i =>
   if h : i < tactics.size then
@@ -375,12 +384,6 @@ hs.forM $ fun h => do
 fun stx => match_syntax stx with
   | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax
-
-@[builtinTactic paren] def evalParen : Tactic :=
-fun stx => evalTactic (stx.getArg 1)
-
-@[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
-fun stx => withRef (stx.getArg 2) $ focus $ (stx.getArg 1).forSepArgsM evalTactic
 
 /--
   First method searches for a metavariable `g` s.t. `tag` is a suffix of its name.

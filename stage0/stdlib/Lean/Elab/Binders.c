@@ -14688,7 +14688,7 @@ lean_object* _init_l___private_Lean_Elab_Binders_16__expandMatchAltsIntoMatchAux
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("seq");
+x_1 = lean_mk_string("seq1");
 return x_1;
 }
 }

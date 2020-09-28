@@ -243,16 +243,18 @@ modifyMCtx fun mctx =>
     (mctx, 1);
   mctx
 
-@[builtinTactic seq] def evalSeq : Tactic :=
+def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
 
 @[builtinTactic seq1] def evalSeq1 : Tactic := evalSeq
 
-@[builtinTactic paren] def evalParen : Tactic :=
-fun stx => evalSeq1 (stx.getArg 1)
+@[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := evalSeq
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
 fun stx => withRef (stx.getArg 2) $ focus $ (stx.getArg 1).forSepArgsM evalTactic
+
+@[builtinTactic paren] def evalParen : Tactic :=
+fun stx => evalSeq1 (stx.getArg 1)
 
 @[builtinTactic tacticSeq] def evalTacticSeq : Tactic :=
 fun stx => evalTactic (stx.getArg 0)

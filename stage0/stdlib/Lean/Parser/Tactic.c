@@ -733,6 +733,7 @@ lean_object* l_Lean_Parser_Tactic_revert___closed__5;
 extern lean_object* l_Lean_Parser_Term_have_parenthesizer___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_node_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_suffices___elambda__1___closed__9;
+extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___closed__5;
 lean_object* l_Lean_Parser_Tactic_match_parenthesizer___closed__7;
 lean_object* l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__4;
 lean_object* l_Lean_Parser_Tactic_induction_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1696,7 +1697,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer(lean_object*,
 lean_object* l_Lean_Parser_Tactic_admit_formatter___closed__1;
 lean_object* l_Lean_Parser_Tactic_introMatch_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_rwRule___elambda__1___closed__3;
-extern lean_object* l_Lean_Parser_Tactic_seq1___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Tactic_rewrite_formatter___closed__8;
 lean_object* l_Lean_Parser_andthenFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Tactic_paren_formatter(lean_object*);
@@ -26568,7 +26568,7 @@ lean_object* l_Lean_Parser_Tactic_seq1_formatter(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_Parser_Tactic_seq1___elambda__1___closed__2;
+x_6 = l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___closed__5;
 x_7 = l_Lean_Parser_Tactic_seq1_formatter___closed__1;
 x_8 = l_Lean_PrettyPrinter_Formatter_node_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
@@ -26680,7 +26680,7 @@ lean_object* l_Lean_Parser_Tactic_seq1_parenthesizer(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_Parser_Tactic_seq1___elambda__1___closed__2;
+x_6 = l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___closed__5;
 x_7 = l_Lean_Parser_Tactic_seq1_parenthesizer___closed__1;
 x_8 = l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;

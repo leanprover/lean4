@@ -256,7 +256,7 @@ stx.isAntiquot || stx.isIdent
 
 end Term
 
-def Tactic.seq1Unbox := nodeSepBy1Unbox `Lean.Parser.Tactic.seq tacticParser "; " true
+def Tactic.seq1Unbox := nodeSepBy1Unbox `Lean.Parser.Tactic.seq1 tacticParser "; " true
 
 @[builtinTermParser] def Tactic.quot : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.seq1Unbox >> ")"
 @[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"

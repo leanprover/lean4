@@ -79,9 +79,9 @@ def optIdent : Parser := optional (try (ident >> " : "))
 def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
 def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
-@[builtinTermParser] def «have» := parser!:leadPrec "have " >> haveDecl >> "; " >> termParser
+@[builtinTermParser] def «have» := parser!:leadPrec withPosition ("have " >> haveDecl) >> optional "; " >> termParser
 def sufficesDecl := optIdent >> termParser >> fromTerm
-@[builtinTermParser] def «suffices» := parser!:leadPrec "suffices " >> sufficesDecl >> "; " >> termParser
+@[builtinTermParser] def «suffices» := parser!:leadPrec withPosition ("suffices " >> sufficesDecl) >> optional "; " >> termParser
 @[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
@@ -156,14 +156,15 @@ def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushN
 def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
-@[builtinTermParser] def «let» := parser!:leadPrec "let " >> letDecl >> "; " >> termParser
-@[builtinTermParser] def «let!» := parser!:leadPrec "let! " >> letDecl >> "; " >> termParser
+@[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optional "; " >> termParser
+@[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optional "; " >> termParser
 def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
 def attrInstance     := parser! rawIdent >> many attrArg
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 @[builtinTermParser] def «letrec» :=
-    parser!:leadPrec group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser
+    parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", ")
+                     >> optional "; " >> termParser
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec
@@ -197,6 +198,7 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
+-- TODO: fix
 @[builtinTermParser] def «where»    := tparser!:0 " where " >> sepBy1 letDecl (group ("; " >> symbol " where "))
 
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
@@ -249,8 +251,8 @@ stx.isAntiquot || stx.isIdent
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"
-@[builtinTermParser] def dbgTrace    := parser!:leadPrec "dbgTrace! " >> termParser >> "; " >> termParser
-@[builtinTermParser] def assert      := parser!:leadPrec "assert! " >> termParser >> "; " >> termParser
+@[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> termParser) >> optional "; " >> termParser
+@[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optional "; " >> termParser
 @[builtinTermParser] def «return»    := parser!:leadPrec "return " >> termParser
 
 end Term

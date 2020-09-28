@@ -74,7 +74,6 @@ def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 match
 
 def withIds : Parser := optional (" with " >> many1 ident')
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
-def seq1 := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
 @[builtinTacticParser] def paren        := parser! "(" >> seq1 >> ")"
 @[builtinTacticParser] def nestedTactic := tacticSeqBracketed
 @[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1

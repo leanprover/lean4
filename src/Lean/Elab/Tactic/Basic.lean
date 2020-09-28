@@ -253,6 +253,9 @@ fun stx => (stx.getArg 0).forSepArgsM evalTactic
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
 fun stx => withRef (stx.getArg 2) $ focus $ (stx.getArg 1).forSepArgsM evalTactic
 
+@[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic :=
+fun stx => focus $ evalTactic (stx.getArg 1)
+
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalSeq1 (stx.getArg 1)
 

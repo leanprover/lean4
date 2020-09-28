@@ -71,13 +71,13 @@ def leftArrow : Parser := unicodeSymbol " ← " " <- "
   `notFollowedByTermToken >> notFollowedBy (ident <|> numLit <|> strLit <|> charLit <|> nameLit)`
 -/
 def doSeqIndent :=
-withPosition fun pos₁ =>
+withPosition $
   sepBy1
     doElemParser
     -- The separator for the indented `do`-block
     ("; "
      -- check indentation
-     >> checkColGe pos₁.column "do-elements must be indented"
+     >> checkColGe "do-elements must be indented"
      >> notFollowedByCommandToken >> notFollowedBy eoi)
   >> optional (try ("; " >> notFollowedByTermToken >> notFollowedBy (ident <|> numLit <|> strLit <|> charLit <|> nameLit)))
 def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
@@ -117,15 +117,15 @@ else if c_2 then
        action_3
 ```
 -/
-@[builtinDoElemParser] def doIf := parser! withPosition fun pos =>
+@[builtinDoElemParser] def doIf := parser! withPosition $
   "if " >> termParser >> " then " >> doSeq
-  >> many (checkColGe pos.column "'else if' in 'do' must be indented" >> try (" else " >> " if ") >> termParser >> " then " >> doSeq)
-  >> optional (checkColGe pos.column "'else' in 'do' must be indented" >> " else " >> doSeq)
+  >> many (checkColGe "'else if' in 'do' must be indented" >> try (" else " >> " if ") >> termParser >> " then " >> doSeq)
+  >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doFor   := parser! "for " >> termParser >> " in " >> termParser maxPrec >> doSeq
 
 /- `match`-expression where the right-hand-side of alternatives is a `doSeq` instead of a `term` -/
 def doMatchAlt : Parser  := sepBy1 termParser ", " >> darrow >> doSeq
-def doMatchAlts : Parser := parser! withPosition fun pos => (optional "| ") >> sepBy1 doMatchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+def doMatchAlts : Parser := parser! withPosition $ (optional "| ") >> sepBy1 doMatchAlt (checkColGe "alternatives must be indented" >> "|")
 @[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
 
 @[builtinDoElemParser] def «break» := parser! "break"

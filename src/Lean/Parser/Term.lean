@@ -20,8 +20,8 @@ registerBuiltinDynamicParserAttribute `tacticParser `tactic
 categoryParser `tactic rbp
 
 def Tactic.indentedNonEmptySeq : Parser :=
-nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.seq $ withPosition fun pos =>
-  sepBy1 tacticParser (try ("; " >>  checkColGe pos.column "tatic must be indented"))
+nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.seq $ withPosition $
+  sepBy1 tacticParser (try ("; " >>  checkColGe "tatic must be indented"))
 
 def darrow : Parser := " => "
 
@@ -117,9 +117,9 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
   sepBy1 termParser ", " >> darrow >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
-parser! withPosition fun pos =>
+parser! withPosition $
   (if optionalFirstBar then optional "| " else "| ") >>
-  sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
+  sepBy1 matchAlt (checkColGe "alternatives must be indented" >> "|")
 
 def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 

@@ -430,9 +430,8 @@ if stx.getKind == k then
 else
   p
 
-@[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Position → Parenthesizer) : Parenthesizer := do
--- call closure with dummy position
-p ⟨0, 0⟩
+@[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+p
 
 @[combinatorParenthesizer Lean.Parser.setExpected]
 def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Parenthesizer :=
@@ -447,9 +446,9 @@ p
 @[combinatorParenthesizer Lean.Parser.checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkTailWs] def checkTailWs.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkColGe] def checkColGe.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkColGt] def checkColGt.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.eoi] def eoi.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.notFollowedByCategoryToken] def notFollowedByCategoryToken.parenthesizer : Parenthesizer := pure ()
-@[combinatorParenthesizer Lean.Parser.checkLineLe] def checkLineLe.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkNoImmediateColon] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkInsideQuot] def checkInsideQuot.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkOutsideQuot] def checkOutsideQuot.parenthesizer : Parenthesizer := pure ()

@@ -30,7 +30,8 @@ def tacticSeq :=
   nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq $ tacticSeqBracketed <|> tacticSeq1Indented
 
 /- Raw sequence for quotation and grouping -/
-def seq1 := parser! sepBy1 tacticParser "; " true
+def seq1 :=
+node `Lean.Parser.Tactic.seq1 $ sepBy1 tacticParser "; " true
 
 end Tactic
 

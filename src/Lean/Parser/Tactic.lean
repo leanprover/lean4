@@ -25,11 +25,11 @@ fun c s =>
 
 def ident' : Parser := ident <|> underscore
 
-@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notFollowedBy "|" >> many (termParser maxPrec)
-@[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many ident'
-@[builtinTacticParser] def «revert»     := parser! nonReservedSymbol "revert " >> many1 ident
-@[builtinTacticParser] def «clear»      := parser! nonReservedSymbol "clear " >> many1 ident
-@[builtinTacticParser] def «subst»      := parser! nonReservedSymbol "subst " >> many1 ident
+@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notFollowedBy "|" >> manyIndent (termParser maxPrec)
+@[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> manyIndent ident'
+@[builtinTacticParser] def «revert»     := parser! nonReservedSymbol "revert " >> many1Indent ident
+@[builtinTacticParser] def «clear»      := parser! nonReservedSymbol "clear " >> many1Indent ident
+@[builtinTacticParser] def «subst»      := parser! nonReservedSymbol "subst " >> many1Indent ident
 @[builtinTacticParser] def «assumption» := parser! nonReservedSymbol "assumption"
 @[builtinTacticParser] def «apply»      := parser! nonReservedSymbol "apply " >> termParser
 @[builtinTacticParser] def «exact»      := parser! nonReservedSymbol "exact " >> termParser

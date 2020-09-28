@@ -22,8 +22,7 @@ categoryParser `tactic rbp
 namespace Tactic
 
 def tacticSeq1Indented : Parser :=
-parser! withPosition $
-  sepBy1 tacticParser (try ("; " >>  checkColGe "tatic must be indented"))
+parser! many1Indent $ tacticParser >> optional "; "
 def tacticSeqBracketed : Parser :=
 parser! "{" >> sepBy tacticParser "; " true >> "}"
 def tacticSeq :=

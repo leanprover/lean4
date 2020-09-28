@@ -21,25 +21,7 @@ namespace Term
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 
-def doSeqIndent :=
-withPosition $ many1 $
-  checkColGe "do-elements must be indented"
-  /-
-    We considered using `withPosition doElemParser` here instead of just `doElemParser` to make sure
-    the applications must be indented with respect to the current do-element.
-    Example:
-    ```
-    def foo : IO Nat := do
-    IO.println "hello";
-       List.forM xs
-     (fun x => IO.println x)
-    ```
-    The argument `(fun x => IO.println x)` is considered part of the application since it is
-    indented with respect to the first action.
-  -/
-  >> doElemParser
-  >> optional "; "
-
+def doSeqIndent    := many1Indent $ doElemParser >> optional "; "
 def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 

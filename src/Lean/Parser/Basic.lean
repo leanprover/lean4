@@ -1420,8 +1420,11 @@ fun c s =>
 @[inline] def eoi : Parser :=
 { fn := eoiFn }
 
-@[inline] def many1Indent (p : Parser) (errorMsg : String) : Parser :=
-withPosition $ many1 (checkColGe errorMsg >> p)
+@[inline] def many1Indent (p : Parser) : Parser :=
+withPosition $ many1 (checkColGe "irrelevant" >> p)
+
+@[inline] def manyIndent (p : Parser) : Parser :=
+withPosition $ many (checkColGe "irrelevant" >> p)
 
 open Std (RBMap RBMap.empty)
 

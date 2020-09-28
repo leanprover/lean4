@@ -19,9 +19,19 @@ registerBuiltinDynamicParserAttribute `tacticParser `tactic
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
 categoryParser `tactic rbp
 
-def Tactic.indentedNonEmptySeq : Parser :=
+namespace Tactic
+
+def tacticSeq1Indented : Parser :=
 nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.seq $ withPosition $
   sepBy1 tacticParser (try ("; " >>  checkColGe "tatic must be indented"))
+def tacticSeq1Bracketed : Parser :=
+  parser! "{" >> sepBy1 tacticParser "; " true >> "}"
+def tacticSeq1 := tacticSeq1Bracketed <|> tacticSeq1Indented
+
+def tacticSeqBracketed : Parser :=
+  parser! "{" >> sepBy tacticParser "; " true >> "}"
+
+end Tactic
 
 def darrow : Parser := " => "
 
@@ -43,7 +53,7 @@ checkPrec prec >> symbol sym >> termParser (prec+1)
 
 /- Built-in parsers -/
 
-@[builtinTermParser] def byTactic := parser!:leadPrec "by " >> Tactic.indentedNonEmptySeq
+@[builtinTermParser] def byTactic := parser!:leadPrec "by " >> Tactic.tacticSeq1
 
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
@@ -85,7 +95,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def inaccessible := parser! ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
-def binderTactic  := parser! try (" := " >> " by ") >> Tactic.indentedNonEmptySeq
+def binderTactic  := parser! try (" := " >> " by ") >> Tactic.tacticSeq1
 def binderDefault := parser! " := " >> termParser
 def explicitBinder (requireType := false) := ppGroup $ parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := ppGroup $ parser! "{" >> many1 binderIdent >> binderType requireType >> "}"

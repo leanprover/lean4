@@ -113,7 +113,7 @@ constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (pri
 @[extern "lean_io_cancel"] constant cancel : @& Task α → IO Unit
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → IO Unit
+@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → IO Bool
 
 /-- Wait for the task to finish, then return its result. -/
 @[extern "lean_io_wait"] constant wait : Task α → IO α

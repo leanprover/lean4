@@ -55,9 +55,6 @@ inductive TaskError
 | eof
 | ioError (e : IO.Error)
 
--- TODO(MH): use proper standard library version
-constant asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) := arbitrary _
-
 inductive ElabTask
 -- TODO(MH): Sebastian said something about wrapping next in Thunk but i did not have time to look into it yet
 | mk (snap : Snapshot) (next : Task (Except TaskError ElabTask)) : ElabTask
@@ -76,37 +73,22 @@ private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
   match result with
   | Sum.inl snap => do
     sendDiagnosticsCore h uri version contents snap.msgLog;
-    -- TODO(MH): check for interrupt (maybe with increased precision even in compileNextCmd, but not after runTask!)
-    t ← runTask (runCore snap);
-    pure (Except.ok ⟨snap, t⟩)
+    -- TODO(MH): check for interrupt with increased precision
+    canceled ← checkCanceled;
+    if canceled then
+      pure (Except.error TaskError.aborted)
+    else do
+      t ← runTask (runCore snap);
+      pure (Except.ok ⟨snap, t⟩)
   | Sum.inr msgLog => pure (Except.error TaskError.eof)
 
 def run (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) (parent : Snapshot) : IO ElabTask := do
 t ← runTask (runCore h uri version contents parent);
 pure ⟨parent, t⟩
 
--- TODO(MH)
-def nextHasFinished (t : ElabTask) : IO Bool :=
-pure true
-
--- TODO(MH)
-def interruptNext (t : ElabTask) : IO Unit :=
-pure ()
-
-partial def interruptAfter : ElabTask → IO Unit
-| task@⟨snap, nextTask⟩ => do
-  task.interruptNext; -- assumption: interrupting a finished task does not cause problems
-  -- it may happen that we interrupt the task
-  -- but it still finishes and launches a next task.
-  -- hence we need to chase down the chain of tasks until
-  -- one of them errors.
-  match nextTask.get with
-  | Except.ok next => interruptAfter next
-  | Except.error _ => pure ()
-
 partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : ElabTask → String.Pos → IO ElabTask
-| task@⟨snap, nextTask⟩, changePos => do
-  finished ← task.nextHasFinished;
+| ⟨snap, nextTask⟩, changePos => do
+  finished ← hasFinished nextTask;
   if finished then
     match nextTask.get with
     | Except.ok (next@⟨nextSnap, _⟩) =>
@@ -116,7 +98,7 @@ partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (con
        -- header changes to the file worker)
        if changePos < nextSnap.endPos then do
          newNext ← run h uri version contents snap;
-         -- interruptAfter task; -- TODO(MH): we may not need to interrupt since tasks without refs are marked as cancelled by the GC
+         -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled by the GC
          pure newNext
        else do
          newNext ← branchOffAt next changePos;
@@ -128,12 +110,10 @@ partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (con
       | TaskError.eof => do
         newNext ← run h uri version contents snap;
         pure newNext
-      -- TODO(MH): can this ever occur in reasonable cases?
       | TaskError.ioError ioError => throw ioError
   else do
     newNext ← run h uri version contents snap;
-    -- next might finish before it sees the interrupt, so we must chase down the chain of tasks
-    -- interruptAfter task; -- TODO(MH): we may not need to interrupt since tasks without refs are marked as cancelled by the GC
+    -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled by the GC
     pure newNext
 
 end ElabTask
@@ -275,7 +255,9 @@ partial def mainLoop : Unit → ServerM Unit
   st ← read;
   -- TODO(MH): gracefully terminate when stdin is closed by watchdog?
   msg ← readLspMessage st.hIn;
-  -- TODO(MH): updatePendingRequests ...: get rid of all requests that are finished
+  pendingRequests ← st.pendingRequestsRef.get;
+  pendingRequests ← monadLift $ pendingRequests.filterM (fun task => do f ← hasFinished task; pure ¬f);
+  st.pendingRequestsRef.set pendingRequests;
   match msg with
   | Message.request id method (some params) => do
     handleRequest id method (toJson params);

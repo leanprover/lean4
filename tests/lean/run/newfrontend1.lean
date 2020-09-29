@@ -108,8 +108,9 @@ case pre => exact h3
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3
 traceState
-{ refine! Eq.trans ?pre ?post;
-  (exact h1) <|> (exact y; exact h3; assumption) }
+focus
+  refine! Eq.trans ?pre ?post
+  (exact h1) <|> (exact y; exact h3; assumption)
 
 namespace Foo
   def Prod.mk := 1

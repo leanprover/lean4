@@ -21,10 +21,10 @@ export FoldMap (foldMap)
     let rec @[specialize] loop
       | [], b    => pure b
       | a::as, b => do
-        let s ← f a b;
+        let s ← f a b
         (match s with
          | Step.done b     => pure b
-         | Step.yield b => loop as b);
+         | Step.yield b => loop as b)
     loop as init }
 
 @[inline] instance {m} [Monad m] : FoldMap m List :=
@@ -32,16 +32,16 @@ export FoldMap (foldMap)
     let rec @[specialize] loop
       | [], rs, b => pure (rs.reverse, b)
       | a::as, rs, b => do
-        let s ← f a b;
+        let s ← f a b
         (match s with
          | Step.done (a, b)     => pure ((a :: rs).reverse ++ as, b)
-         | Step.yield (a, b) => loop as (a::rs) b);
+         | Step.yield (a, b) => loop as (a::rs) b)
     loop as [] init }
 
 def tst1 : IO Nat :=
 fold [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14] 0 fun a b =>
   if a % 2 == 0 then do
-    IO.println (">> " ++ toString a ++ " " ++ toString b);
+    IO.println (">> " ++ toString a ++ " " ++ toString b)
     (if b > 20 then return Step.done b
      else return Step.yield (a+b))
   else
@@ -52,13 +52,13 @@ fold [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14] 0 fun a b =>
 def tst1' : IO Unit := do
 let (as, b) ← foldMap [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14] 0 fun a b =>
   if a % 2 == 0 then do
-    IO.println (">> " ++ toString a ++ " " ++ toString b);
+    IO.println (">> " ++ toString a ++ " " ++ toString b)
     (if b > 20 then return Step.done (a, b)
      else return Step.yield (a/2, a+b))
   else
-    return Step.yield (a, b);
-IO.println as;
-IO.println b;
+    return Step.yield (a, b)
+IO.println as
+IO.println b
 pure ()
 
 #eval tst1'
@@ -70,14 +70,14 @@ instance Prod.fold {m α β γ δ} [Monad m] [i₁ : Fold m α γ] [i₂ : Fold 
         match x with
         | Step.done _ => return Step.done x
         | Step.yield x => do
-          let s ← f (a, b) x;
+          let s ← f (a, b) x
           (match s with
            | Step.done _     => return Step.done s
            | Step.yield _ => return Step.yield s) }
 
 def tst2 (threshold : Nat) : IO Nat :=
 fold ([1, 2, 3, 4, 5, 10], [10, 20, 30, 40, 50]) 0 fun (a, b) s => do
-  IO.println (">> " ++ toString a ++ ", " ++ toString b ++ ", " ++ toString s);
+  IO.println (">> " ++ toString a ++ ", " ++ toString b ++ ", " ++ toString s)
   (if s > threshold then return Step.done s
    else return Step.yield (s+a+b))
 
@@ -89,17 +89,17 @@ structure Range :=
 
 @[inline] instance Range.fold {m} [Monad m] : Fold m Nat Range :=
 { fold := fun s init f =>
-  let base := s.lower + s.upper - 2;
+  let base := s.lower + s.upper - 2
   let rec @[specialize] loop : Nat → _ → _
     | 0,   b => pure b
     | i+1, b =>
-      let j := base - i;
+      let j := base - i
       if j >= s.upper then return b
       else do
-        let s ← f j b;
+        let s ← f j b
         (match s with
          | Step.done b     => return b
-         | Step.yield b => loop i b);
+         | Step.yield b => loop i b)
   loop (s.upper - 1) init }
 
 @[inline] def range (a : Nat) (b : Option Nat := none) : Range :=
@@ -112,7 +112,7 @@ instance : HasOfNat (Option Nat) :=
 
 def tst3 : IO Nat :=
 fold (range 5 10) 0 fun i s => do
-  IO.println (">> " ++ toString i);
+  IO.println (">> " ++ toString i)
   return Step.yield (s+i)
 
 #eval tst3
@@ -120,7 +120,7 @@ fold (range 5 10) 0 fun i s => do
 theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
 | 0,   _, h => h
 | a+1, b, h =>
-  have a < b from Nat.ltTrans (Nat.ltSuccSelf _) h;
+  have a < b from Nat.ltTrans (Nat.ltSuccSelf _) h
   zeroLtOfLt this
 
 @[inline] instance {m} {α} [Monad m] : Fold m α (Array α) :=
@@ -128,20 +128,20 @@ theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
     let rec @[specialize] loop : (i : Nat) → i ≤ as.size → _
       | 0, h, b   => pure b
       | i+1, h, b =>
-        have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h;
-        have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (decide! (0 < 1));
+        have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
+        have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (decide! (0 < 1))
         have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this; do
-        let s ← f (as.get ⟨as.size - 1 - i, this⟩) b;
+        let s ← f (as.get ⟨as.size - 1 - i, this⟩) b
         (match s with
          | Step.done b     => pure b
-         | Step.yield b => loop i (Nat.leOfLt h') b);
+         | Step.yield b => loop i (Nat.leOfLt h') b)
     loop as.size (Nat.leRefl _) init }
 
 -- set_option trace.compiler.ir.result true
 
 def tst4 : IO Nat :=
 fold (#[1, 2, 3, 4, 5] : Array Nat) 0 fun a b => do
-  IO.println (">> " ++ toString a ++ " " ++ toString b);
+  IO.println (">> " ++ toString a ++ " " ++ toString b)
   return Step.yield (a+b)
 
 #eval tst4

@@ -11,24 +11,30 @@ by {
   { apply Or.inl; assumption }
 }
 
-theorem tst1 {p q : Prop } (h : p ∨ q) : q ∨ p :=
-by {
-  induction h with
-  | inr h2 => exact Or.inl h2
-  | inl h1 => exact Or.inr h1
-}
+theorem tst0' {p q : Prop } (h : p ∨ q) : q ∨ p := by
+induction h
+focus
+  apply Or.inr
+  assumption
+focus
+  apply Or.inl
+  assumption
 
-theorem tst2 {p q : Prop } (h : p ∨ q) : q ∨ p :=
-by induction h using elim2 with
-   | left _  => apply Or.inr; assumption
-   | right _ => apply Or.inl; assumption
+theorem tst1 {p q : Prop } (h : p ∨ q) : q ∨ p := by
+induction h with
+| inr h2 => exact Or.inl h2
+| inl h1 => exact Or.inr h1
 
-theorem tst3 {p q : Prop } (h : p ∨ q) : q ∨ p :=
-by {
-  induction h using elim2 with
-  | right h => exact Or.inl h
-  | left h  => exact Or.inr h
-}
+
+theorem tst2 {p q : Prop } (h : p ∨ q) : q ∨ p := by
+induction h using elim2 with
+| left _  => apply Or.inr; assumption
+| right _ => apply Or.inl; assumption
+
+theorem tst3 {p q : Prop } (h : p ∨ q) : q ∨ p := by
+induction h using elim2 with
+| right h => exact Or.inl h
+| left h  => exact Or.inr h
 
 theorem tst4 {p q : Prop } (h : p ∨ q) : q ∨ p := by
 induction h using elim2 with

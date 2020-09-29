@@ -801,8 +801,7 @@ pure mvar
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
 | []                => do
-  let refFmt := stx.prettyPrint;
-  throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+  throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ stx))
 | (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with
     | Exception.error _ _ => do

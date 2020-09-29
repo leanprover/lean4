@@ -151,8 +151,7 @@ mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinComm
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => do
-  let refFmt := stx.prettyPrint;
-  throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+  throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ stx))
 | (elabFn::elabFns) => catchInternalId unsupportedSyntaxExceptionId (elabFn stx)
   (fun _ => do set s; elabCommandUsing elabFns)
 

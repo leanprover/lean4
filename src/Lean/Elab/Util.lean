@@ -51,12 +51,10 @@ if !getMacroStackOption options then pure msgData else
 match macroStack with
 | []             => pure msgData
 | stack@(top::_) =>
-  let topFmt  := top.after.prettyPrint;
-  let msgData := msgData ++ Format.line ++ "with resulting expansion" ++ MessageData.nest 2 (Format.line ++ topFmt);
+  let msgData := msgData ++ Format.line ++ "with resulting expansion" ++ MessageData.nest 2 (Format.line ++ top.after);
   pure $ stack.foldl
     (fun (msgData : MessageData) (elem : MacroStackElem) =>
-      let macroFmt := elem.before.prettyPrint;
-      msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt))
+      msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ elem.before))
     msgData
 
 def checkSyntaxNodeKind (k : Name) : AttrM Name := do

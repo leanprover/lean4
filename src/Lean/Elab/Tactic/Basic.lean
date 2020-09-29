@@ -102,8 +102,7 @@ mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tac
 
 private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do
-  let refFmt := stx.prettyPrint;
-  throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+  throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ stx))
 | (evalFn::evalFns) => catch (evalFn stx)
   (fun ex => match ex with
     | Exception.error _ _  =>

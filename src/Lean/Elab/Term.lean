@@ -71,7 +71,7 @@ namespace Term
 
 -/
 def setElabConfig (cfg : Meta.Config) : Meta.Config :=
-{ cfg with foApprox := true, ctxApprox := true, constApprox := true, quasiPatternApprox := false }
+{ cfg with foApprox := true, ctxApprox := true, constApprox := false, quasiPatternApprox := false }
 
 structure Context :=
 (fileName        : String)
@@ -301,9 +301,6 @@ when s.messages.hasErrors $
 withRef Syntax.missing $ trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
-
-def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := do
-withConfig (fun config => { config with constApprox := false }) $ isDefEq t s
 
 @[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
 mctx ← getMCtx;
@@ -717,43 +714,7 @@ def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr) (f?
 match expectedType? with
 | none              => pure e
 | some expectedType =>
-  /-
-    Recall that constant approximation is used to solve constraint of the form
-    ```
-    ?m t =?= s
-    ```
-    where `t` is an arbitrary term, by assigning `?m := fun _ => s`
-    This approximation when not used carefully produces bad solutions, and may prevent coercions from being tried.
-    For example, consider the term `pure (x > 0)` with inferred type `?m Prop` and expected type `IO Bool`. In this situation, the
-    elaborator generates the unification constraint
-    ```
-    ?m Prop =?= IO Bool
-    ```
-    It is not a higher-order pattern, not first-order approximation is applicable. However, constant approximation
-    produces the bogus solution `?m := fun _ => IO Bool`, and prevents the system from using the coercion from
-    the decidable proposition `x > 0` to `Bool`.
-
-    On the other hand, the constant approximation is desirable for elaborating the term
-    ```
-    let f (x : _) := pure 0; f ()
-    ```
-    with expected type `StateT Nat Id Nat`.
-    In this example, the following unification contraint is generated.
-    ```
-    ?m () (?n ()) =?= StateT Nat Id Nat
-    ```
-    It is not a higher-order pattern, and first-order approximation fails.
-    However, constant approximation solves it by assigning
-    ```
-    ?m := fun _ => StateT Nat Id
-    ?n := fun _ => Nat
-    ```
-    Note that `f`s type is `(x : ?α) -> ?m x (?n x)`. The metavariables `?m` and `?n` may depend on `x`.
-
-    The `isDefEqNoConstantApprox` fails to unify the expected and inferred types. Then, `tryLiftAndCoe` first tries
-    the monadic extensions, and then falls back to `isDefEq` which enables all approximations.
-  -/
-  condM (isDefEqNoConstantApprox eType expectedType)
+  condM (isDefEq eType expectedType)
     (pure e)
     (tryLiftAndCoe expectedType eType e f?)
 

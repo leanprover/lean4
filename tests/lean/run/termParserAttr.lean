@@ -3,7 +3,7 @@ new_frontend
 open Lean
 open Lean.Elab
 
-def run (input : String) (failIff : Bool := true) : CoreM Unit := do
+def runCore (input : String) (failIff : Bool := true) : CoreM Unit := do
 let env  ← getEnv;
 let opts ← getOptions;
 let (env, messages) ← liftIO $ process input env opts;
@@ -14,7 +14,7 @@ pure ()
 
 open Lean.Parser
 
-@[termParser] def tst := parser! "(|" >> termParser >> optional (symbol ", " >> termParser) >> "|)"
+@[termParser] def tst := parser! "(|" >> termParser >> Parser.optional (symbol ", " >> termParser) >> "|)"
 
 def tst2 : Parser := symbol "(||" >> termParser >> symbol "||)"
 
@@ -45,9 +45,9 @@ adaptExpander $ fun stx => match_syntax stx with
  | `((|| $e ||)) => `($e + 1)
  | _             => throwUnsupportedSyntax
 
-#eval run "#check [| @id.{1} Nat |]"
-#eval run "#check (| id 1 |)"
-#eval run "#check (|| id 1 ||)"
+#eval runCore "#check [| @id.{1} Nat |]"
+#eval runCore "#check (| id 1 |)"
+#eval runCore "#check (|| id 1 ||)"
 
 
 -- #eval run "#check (| id 1, id 1 |)" -- it will fail
@@ -59,8 +59,8 @@ adaptExpander $ fun stx => match_syntax stx with
 
 -- Now both work
 
-#eval run "#check (| id 1 |)"
-#eval run "#check (| id 1, id 2 |)"
+#eval runCore "#check (| id 1 |)"
+#eval runCore "#check (| id 1, id 2 |)"
 
 declare_syntax_cat foo
 

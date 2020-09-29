@@ -219,15 +219,16 @@ withIncRecDepth do
   fn mvarId
 
 private def mkFreshExprMVarAtCore
-    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr := do
-modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId userName lctx localInsts type kind;
+    (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) (userName : Name) (numScopeArgs : Nat) : MetaM Expr := do
+modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId userName lctx localInsts type kind numScopeArgs;
 pure $ mkMVar mvarId
 
 def mkFreshExprMVarAt
-    (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous)
+    (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
+    (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
     : m Expr := liftMetaM do
 mvarId ← mkFreshId;
-mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName
+mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName numScopeArgs
 
 def mkFreshLevelMVar : m Level := liftMetaM do
 mvarId ← mkFreshId;
@@ -255,11 +256,12 @@ u ← mkFreshLevelMVar; mkFreshExprMVar (mkSort u) kind userName
 
 /- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
-private def mkFreshExprMVarWithIdCore (mvarId : MVarId) (type : Expr) (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous)
+private def mkFreshExprMVarWithIdCore (mvarId : MVarId) (type : Expr)
+    (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
     : m Expr := liftMetaM do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
-mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName
+mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName numScopeArgs
 
 def mkFreshExprMVarWithIdImpl (mvarId : MVarId) (type? : Option Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr :=
 match type? with

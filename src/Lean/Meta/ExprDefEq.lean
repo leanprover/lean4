@@ -271,7 +271,7 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
      (precise) solution: unfold `x` in `t`.
 
  A2) Suppose some `aᵢ` is in `C` (failed condition 2)
-     (approximated) solution (when `config.foApprox` is set to true) :
+     (approximated) solution (when `config.ctxApprox` is set to true) :
      ignore condition and also use
 
         ?m := fun a₁ ... aₙ => t
@@ -344,6 +344,54 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
         ?m a_1 ... a_n =?= ?m b_1 ... b_k
 
      then we use first-order unification (if `config.foApprox` is set to true)
+
+ A7) When `foApprox`, we may use another approximation (`constApprox`) for solving constraints of the form
+     ```
+     ?m s₁ ... sₙ =?= t
+     ```
+     where `s₁ ... sₙ` are arbitrary terms. We solve them by assigning the constant function to `?m`.
+     ```
+     ?m := fun _ ... _ => t
+     ```
+
+     In general, this approximation may produce bad solutions, and may prevent coercions from being tried.
+     For example, consider the term `pure (x > 0)` with inferred type `?m Prop` and expected type `IO Bool`.
+     In this situation, the
+     elaborator generates the unification constraint
+     ```
+     ?m Prop =?= IO Bool
+     ```
+     It is not a higher-order pattern, nor first-order approximation is applicable. However, constant approximation
+     produces the bogus solution `?m := fun _ => IO Bool`, and prevents the system from using the coercion from
+     the decidable proposition `x > 0` to `Bool`.
+
+     On the other hand, the constant approximation is desirable for elaborating the term
+     ```
+     let f (x : _) := pure "hello"; f ()
+     ```
+     with expected type `IO String`.
+     In this example, the following unification contraint is generated.
+     ```
+     ?m () String =?= IO String
+     ```
+     It is not a higher-order pattern, first-order approximation reduces it to
+     ```
+     ?m () =?= IO
+     ```
+     which fails to be solved. However, constant approximation solves it by assigning
+     ```
+     ?m := fun _ => IO
+     ```
+     Note that `f`s type is `(x : ?α) -> ?m x String`. The metavariable `?m` may depend on `x`.
+     If `constApprox` is set to true, we use constant approximation. Otherwise, we use a heuristic to decide
+     whether we should apply it or not. The heuristic is based on observing where the constraints above come from.
+     In the first example, the constraint `?m Prop =?= IO Bool` come from polymorphic method where `?m` is expected to
+     be a **function** of type `Type -> Type`. In the second example, the first argument of `?m` is used to model
+     a **potential** dependency on `x`. By using constant approximation here, we are just saying the type of `f`
+     does **not** depend on `x`. We claim this is a reasonable approximation in practice. Moreover, it is expected
+     by any functional programmer used to non-dependently type languages (e.g., Haskell).
+     We distinguish the two cases above by using the field `numScopeArgs` at `MetavarDecl`. This fiels tracks
+     how many metavariable arguments are representing dependencies.
 -/
 
 namespace CheckAssignment
@@ -407,8 +455,8 @@ else do
       traceM `Meta.isDefEq.assign.outOfScopeFVar $ addAssignmentInfo fvar;
       throwOutOfScopeFVar
 
-def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) : CheckAssignmentM Expr := do
-mkFreshExprMVarAt lctx localInsts type
+def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (numScopeArgs : Nat := 0) : CheckAssignmentM Expr := do
+mkFreshExprMVarAt lctx localInsts type MetavarKind.natural Name.anonymous numScopeArgs
 
 @[specialize] def checkMVar (check : Expr → CheckAssignmentM Expr) (mvar : Expr) : CheckAssignmentM Expr := do
 let mvarId := mvar.mvarId!;
@@ -438,7 +486,7 @@ else match mctx.getExprAssignment? mvarId with
           /- Create an auxiliary metavariable with a smaller context and "checked" type.
              Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
              a metavariable that we also need to reduce the context. -/
-          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType mvarDecl.numScopeArgs;
           modifyThe Meta.State (fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar });
           pure newMVar
         else
@@ -627,17 +675,18 @@ simpAssignmentArgAux arg
 
 private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : DefEqM Bool := do
 cfg ← getConfig;
-if cfg.constApprox then do
-  let mvarId := mvar.mvarId!;
+let mvarId := mvar.mvarId!;
+mvarDecl ← getMVarDecl mvarId;
+if mvarDecl.numScopeArgs == numArgs || cfg.constApprox then do
   v? ← checkAssignment mvarId #[] v;
   match v? with
   | none   => pure false
   | some v => do
-    mvarDecl ← getMVarDecl mvarId;
     forallBoundedTelescope mvarDecl.type numArgs $ fun xs _ =>
       if xs.size != numArgs then pure false
       else do
         v ← mkLambdaFVars xs v;
+        trace! `Meta.isDefEq.constApprox (mvar ++ " := " ++ v);
         checkTypesAndAssign mvar v
 else
   pure false
@@ -1037,6 +1086,7 @@ isExprDefEqAuxRef.set isExprDefEqAuxImpl
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.isDefEq;
 registerTraceClass `Meta.isDefEq.foApprox;
+registerTraceClass `Meta.isDefEq.constApprox;
 registerTraceClass `Meta.isDefEq.delta;
 registerTraceClass `Meta.isDefEq.step;
 registerTraceClass `Meta.isDefEq.assign

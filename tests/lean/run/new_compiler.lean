@@ -29,7 +29,8 @@ y + z
 def tst1 (n : Nat) : Nat :=
 let p := (Nat.succ n, n);
 let q := (p, p);
-Prod.casesOn q (fun x y => Prod.casesOn x (fun z w => z))
+match q with
+| ((z, w), y) => z
 
 def tst2 (n : Nat) : Nat :=
 let p := (fun x => Nat.succ x, Nat.zero) ;

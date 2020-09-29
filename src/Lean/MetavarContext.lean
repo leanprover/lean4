@@ -255,6 +255,7 @@ structure MetavarDecl :=
 (depth          : Nat)
 (localInstances : LocalInstances)
 (kind           : MetavarKind)
+(numScopeArgs   : Nat := 0) -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
 
 @[export lean_mk_metavar_decl]
 def mkMetavarDeclEx (userName : Name) (lctx : LocalContext) (type : Expr) (depth : Nat) (localInstances : LocalInstances) (kind : MetavarKind) : MetavarDecl :=
@@ -297,13 +298,14 @@ fun _ => {}
 /- Low level API for adding/declaring metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
-@[export lean_metavar_ctx_mk_decl]
 def addExprMVarDecl (mctx : MetavarContext)
     (mvarId : MVarId)
     (userName : Name)
     (lctx : LocalContext)
     (localInstances : LocalInstances)
-    (type : Expr) (kind : MetavarKind := MetavarKind.natural) : MetavarContext :=
+    (type : Expr)
+    (kind : MetavarKind := MetavarKind.natural)
+    (numScopeArgs : Nat := 0) : MetavarContext :=
 { mctx with
   decls := mctx.decls.insert mvarId {
     userName       := userName,
@@ -311,7 +313,13 @@ def addExprMVarDecl (mctx : MetavarContext)
     localInstances := localInstances,
     type           := type,
     depth          := mctx.depth,
-    kind           := kind } }
+    kind           := kind,
+    numScopeArgs   := numScopeArgs } }
+
+@[export lean_metavar_ctx_mk_decl]
+def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) (lctx : LocalContext) (localInstances : LocalInstances)
+    (type : Expr) (kind : MetavarKind) : MetavarContext :=
+addExprMVarDecl mctx mvarId userName lctx localInstances type kind
 
 /- Low level API for adding/declaring universe level metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
@@ -846,12 +854,6 @@ xs.foldl
     | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x)
   mvar
 
-private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) : M MVarId := do
-s ← get;
-let mvarId := s.ngen.curr;
-modify $ fun s => { s with mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type kind, ngen := s.ngen.next };
-pure mvarId
-
 /-- Return true iff some `e` in `es` depends on `fvarId` -/
 private def anyDependsOn (mctx : MetavarContext) (es : Array Expr) (fvarId : FVarId) : Bool :=
 es.any $ fun e => exprDependsOn mctx e fvarId
@@ -900,9 +902,14 @@ private partial def elimMVarDepsApp (elimMVarDepsAux : Expr → M Expr) (xs : Ar
             let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
             let newLocalInsts := mvarDecl.localInstances.filter $ fun inst => toRevert.all $ fun x => inst.fvar != x;
             newMVarType ← mkAuxMVarType elimMVarDepsAux mvarLCtx toRevert newMVarKind mvarDecl.type;
-            newMVarId   ← mkAuxMVar newMVarLCtx newLocalInsts newMVarType newMVarKind;
-            let newMVar := mkMVar newMVarId;
-            let result  := mkMVarApp mvarLCtx newMVar toRevert newMVarKind;
+            newMVarId ← get >>= fun s => pure s.ngen.curr;
+            let newMVar      := mkMVar newMVarId;
+            let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind;
+            let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs;
+            modify fun s => { s with
+                mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
+                ngen := s.ngen.next
+              };
             match newMVarKind with
             | MetavarKind.syntheticOpaque =>
               modify $ fun s => { s with mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN f nestedFVars) }

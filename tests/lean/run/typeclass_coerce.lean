@@ -36,13 +36,16 @@ instance liftCoerceFnDom {a₁ a₂ b : Type} [HasCoerce a₂ a₁] : HasCoerce 
 ⟨fun f x => f (coerce x)⟩
 
 instance liftCoercePair {a₁ a₂ b₁ b₂ : Type} [HasCoerce a₁ a₂] [HasCoerce b₁ b₂] : HasCoerce (a₁ × b₁) (a₂ × b₂) :=
-⟨fun p => Prod.casesOn p (fun x y => (coerce x,  coerce y))⟩
+⟨fun p => match p with
+  | (x, y) => (coerce x,  coerce y)⟩
 
 instance liftCoercePair₁ {a₁ a₂ b : Type} [HasCoerce a₁ a₂] : HasCoerce (a₁ × b) (a₂ × b) :=
-⟨fun p => Prod.casesOn p (fun x y => (coerce x, y))⟩
+⟨fun p => match p with
+  | (x, y) => (coerce x, y)⟩
 
 instance liftCoercePair₂ {a b₁ b₂ : Type} [HasCoerce b₁ b₂] : HasCoerce (a × b₁) (a × b₂) :=
-⟨fun p => Prod.casesOn p (fun x y => (x,  coerce y))⟩
+⟨fun p => match p with
+  | (x, y) => (x,  coerce y)⟩
 
 instance liftCoerceList {a b : Type} [HasCoerce a b] : HasCoerce (List a) (List b) :=
 ⟨fun l => List.map (@coerce a b _) l⟩

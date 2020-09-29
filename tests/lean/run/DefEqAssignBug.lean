@@ -7,7 +7,7 @@ open Lean.Meta
 
 def mkArrow (d b : Expr) : Expr := mkForall `_ BinderInfo.default d b
 
-def check (x : MetaM Bool) : MetaM Unit :=
+def checkM (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throwError "check failed"
 
 def tst1 : MetaM Unit := do
@@ -16,7 +16,7 @@ let m1 ← mkFreshExprMVar nat;
 let m2 ← mkFreshExprMVar (mkArrow nat nat);
 withLocalDeclD `x nat $ fun x => do
   let t := mkApp m2 x;
-  check $ isDefEq t m1
+  checkM $ isDefEq t m1
 
 def tst2 : MetaM Unit := do
 let nat := mkConst `Nat;
@@ -24,7 +24,7 @@ let m1 ← mkFreshExprMVar nat;
 let m2 ← mkFreshExprMVar (mkArrow nat nat);
 withLocalDeclD `x nat $ fun x => do
   let t := mkApp m2 x;
-  check $ isDefEq m1 t
+  checkM $ isDefEq m1 t
 
 set_option trace.Meta true
 

@@ -13,7 +13,7 @@ set_option trace.Meta.check false
 def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
-def check (x : MetaM Bool) : MetaM Unit :=
+def checkM (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throwError "check failed"
 
 def ex (x_1 x_2 x_3 : Nat) : Nat × Nat :=
@@ -29,14 +29,14 @@ print "----- tst1 -----";
 let c ← getConstInfo `ex;
 lambdaTelescope c.value?.get! fun xs body =>
   withTrackingZeta do
-    Meta.check body;
+    check body;
     let ys ← getZetaFVarIds;
     let ys := ys.toList.map mkFVar;
     print ys;
-    check $ pure $ ys.length == 2;
+    checkM $ pure $ ys.length == 2;
     let c ← mkAuxDefinitionFor `foo body;
     print c;
-    Meta.check c;
+    check c;
     pure ()
 
 #eval tst1
@@ -49,11 +49,11 @@ let nat := mkConst `Nat;
 let t0  := mkApp (mkConst `IO) nat;
 let t   := mkForall `_ BinderInfo.default nat t0;
 print t;
-Meta.check t;
+check t;
 forallBoundedTelescope t (some 1) fun xs b => do
   print b;
-  check $ pure $ xs.size == 1;
-  check $ pure $ b == t0;
+  checkM $ pure $ xs.size == 1;
+  checkM $ pure $ b == t0;
   pure ()
 
 #eval tst2
@@ -65,11 +65,11 @@ let nat := mkConst `Nat;
 let t0  := mkApp (mkConst `IO) nat;
 let t   := t0;
 print t;
-Meta.check t;
+check t;
 forallBoundedTelescope t (some 0) fun xs b => do
   print b;
-  check $ pure $ xs.size == 0;
-  check $ pure $ b == t0;
+  checkM $ pure $ xs.size == 0;
+  checkM $ pure $ b == t0;
   pure ()
 
 #eval tst3
@@ -92,7 +92,7 @@ withMVarContext nId do {
 };
 print m;
 let expected ← mkAppM `HasAdd.add #[x, val];
-check (isDefEq m expected);
+checkM (isDefEq m expected);
 pure ()
 
 #eval tst4
@@ -110,7 +110,7 @@ let r ← replaceLocalDecl m.mvarId! h₁.fvarId! q h₂;
 print (← ppGoal r.mvarId);
 assignExprMVar r.mvarId (mkFVar r.fvarId);
 print m;
-Lean.Meta.check m;
+check m;
 pure ()
 
 #eval tst5
@@ -133,7 +133,7 @@ withMVarContext nId do {
 };
 print m;
 let expected ← mkAppM `HasAdd.add #[x, val];
-check (isDefEq m expected);
+checkM (isDefEq m expected);
 pure ()
 
 #eval tst6
@@ -149,7 +149,7 @@ let val := val.replaceFVars #[x, y] #[mkNatLit 0, mkNatLit 1];
 print val;
 let expected ← mkAppM `HasAdd.add #[mkNatLit 0, mkNatLit 1];
 print expected;
-check (pure $ val == expected);
+checkM (pure $ val == expected);
 pure ()
 
 #eval tst7

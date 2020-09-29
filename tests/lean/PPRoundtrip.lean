@@ -8,7 +8,7 @@ open Lean.Format
 
 open Lean.Meta
 
-def check (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
+def checkM (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
 let opts ← getOptions;
 let stx ← stx;
 let e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
@@ -27,66 +27,66 @@ let env ← getEnv;
 -- set_option trace.PrettyPrinter.parenthesize true
 set_option format.width 20
 
--- #eval check `(?m)  -- fails round-trip
+-- #eval checkM `(?m)  -- fails round-trip
 
-#eval check `(Sort)
-#eval check `(Type)
-#eval check `(Type 0)
-#eval check `(Type 1)
+#eval checkM `(Sort)
+#eval checkM `(Type)
+#eval checkM `(Type 0)
+#eval checkM `(Type 1)
 -- can't add a new universe variable inside a term...
-#eval check `(Type _)
-#eval check `(Type (_ + 2))
+#eval checkM `(Type _)
+#eval checkM `(Type (_ + 2))
 
-#eval check `(Nat)
-#eval check `(List Nat)
-#eval check `(id Nat)
-#eval check `(id (id (id Nat)))
+#eval checkM `(Nat)
+#eval checkM `(List Nat)
+#eval checkM `(id Nat)
+#eval checkM `(id (id (id Nat)))
 section
   set_option pp.explicit true
-  #eval check `(List Nat)
-  #eval check `(id Nat)
+  #eval checkM `(List Nat)
+  #eval checkM `(id Nat)
 end
 section
   set_option pp.universes true
-  #eval check `(List Nat)
-  #eval check `(id Nat)
-  #eval check `(Sum Nat Nat)
+  #eval checkM `(List Nat)
+  #eval checkM `(id Nat)
+  #eval checkM `(Sum Nat Nat)
 end
-#eval check `(id (id Nat)) (Std.RBMap.empty.insert 4 $ KVMap.empty.insert `pp.explicit true)
+#eval checkM `(id (id Nat)) (Std.RBMap.empty.insert 4 $ KVMap.empty.insert `pp.explicit true)
 
 -- specify the expected type of `a` in a way that is not erased by the delaborator
 def typeAs.{u} (α : Type u) (a : α) := ()
 
-#eval check `(fun (a : Nat) => a)
-#eval check `(fun (a b : Nat) => a)
-#eval check `(fun (a : Nat) (b : Bool) => a)
-#eval check `(fun {a b : Nat} => a)
+#eval checkM `(fun (a : Nat) => a)
+#eval checkM `(fun (a b : Nat) => a)
+#eval checkM `(fun (a : Nat) (b : Bool) => a)
+#eval checkM `(fun {a b : Nat} => a)
 -- implicit lambdas work as long as the expected type is preserved
-#eval check `(typeAs ({α : Type} → (a : α) → α) fun a => a)
+#eval checkM `(typeAs ({α : Type} → (a : α) → α) fun a => a)
 section
   set_option pp.explicit true
-  #eval check `(fun {α : Type} [HasToString α] (a : α) => toString a)
+  #eval checkM `(fun {α : Type} [HasToString α] (a : α) => toString a)
 end
 
-#eval check `((α : Type) → α)
-#eval check `((α β : Type) → α)  -- group
-#eval check `((α β : Type) → Type)  -- don't group
-#eval check `((α : Type) → (a : α) → α)
-#eval check `((α : Type) → (a : α) → a = a)
-#eval check `({α : Type} → α)
-#eval check `({α : Type} → [HasToString α] → α)
+#eval checkM `((α : Type) → α)
+#eval checkM `((α β : Type) → α)  -- group
+#eval checkM `((α β : Type) → Type)  -- don't group
+#eval checkM `((α : Type) → (a : α) → α)
+#eval checkM `((α : Type) → (a : α) → a = a)
+#eval checkM `({α : Type} → α)
+#eval checkM `({α : Type} → [HasToString α] → α)
 
 -- TODO: hide `ofNat`
-#eval check `(0)
-#eval check `(1)
-#eval check `(42)
-#eval check `("hi")
+#eval checkM `(0)
+#eval checkM `(1)
+#eval checkM `(42)
+#eval checkM `("hi")
 
 set_option pp.structure_instance_type true in
-#eval check `({ type := Nat, val := 0 : PointedType })
-#eval check `((1,2,3))
-#eval check `((1,2).fst)
+#eval checkM `({ type := Nat, val := 0 : PointedType })
+#eval checkM `((1,2,3))
+#eval checkM `((1,2).fst)
 
-#eval check `(1 < 2 || true)
+#eval checkM `(1 < 2 || true)
 
-#eval check `(id (fun a => a) 0)
+#eval checkM `(id (fun a => a) 0)

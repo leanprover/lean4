@@ -11,8 +11,6 @@ inductive Vec (α : Type u) : Nat → Type u
 
 set_option trace.Meta.debug true
 
-def mkArrow (d b : Expr) : Expr := mkForall `_ BinderInfo.default d b
-
 def printDef (declName : Name) : MetaM Unit := do
 let cinfo ← getConstInfo declName;
 trace! `Meta.debug cinfo.value!
@@ -23,9 +21,9 @@ let v := mkLevelMVar  `v;
 let m1 ← mkFreshExprMVar (mkSort levelOne);
 withLocalDeclD `α (mkSort u) $ fun α => do
 withLocalDeclD `β (mkSort v) $ fun β => do
-let m2 ← mkFreshExprMVar (mkArrow α m1);
+let m2 ← mkFreshExprMVar (← mkArrow α m1);
 withLocalDeclD `a α $ fun a => do
-withLocalDeclD `f (mkArrow α α) $ fun f => do
+withLocalDeclD `f (← mkArrow α α) $ fun f => do
 withLetDecl   `b α (mkApp f a) $ fun b => do
 let t := mkApp m2 (mkApp f b);
 let e ← mkAuxDefinitionFor `foo1 t;
@@ -41,7 +39,7 @@ withLocalDeclD `α (mkSort (mkLevelSucc u)) $ fun α => do
 withLocalDeclD `v1 (mkApp2 (mkConst `Vec [u]) α (mkNatLit 10)) $ fun v1 =>
 withLetDecl `n (mkConst `Nat) (mkNatLit 10) $ fun n =>
 withLocalDeclD `v2 (mkApp2 (mkConst `Vec [u]) α n) $ fun v2 => do
-let m ← mkFreshExprMVar (mkArrow (mkApp2 (mkConst `Vec [u]) α (mkNatLit 10)) (mkSort levelZero));
+let m ← mkFreshExprMVar (← mkArrow (mkApp2 (mkConst `Vec [u]) α (mkNatLit 10)) (mkSort levelZero));
 withLocalDeclD `p (mkSort levelZero) $ fun p => do
 let t ← mkEq v1 v2;
 let t := mkApp2 (mkConst `And) t (mkApp2 (mkConst `Or) (mkApp m v2) p);

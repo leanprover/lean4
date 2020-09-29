@@ -11,7 +11,7 @@ set_option trace.Meta.debug true
 def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
-def check (x : MetaM Bool) : MetaM Unit :=
+def checkM (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throwError "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
@@ -33,8 +33,8 @@ def boolTrue := mkConst `Bool.true
 def tst1 : MetaM Unit :=
 do print "----- tst1 -----";
    let mvar <- mkFreshExprMVar nat;
-   check $ isExprDefEq mvar (mkNatLit 10);
-   check $ isExprDefEq mvar (mkNatLit 10);
+   checkM $ isExprDefEq mvar (mkNatLit 10);
+   checkM $ isExprDefEq mvar (mkNatLit 10);
    pure ()
 
 #eval tst1
@@ -42,8 +42,8 @@ do print "----- tst1 -----";
 def tst2 : MetaM Unit :=
 do print "----- tst2 -----";
    let mvar <- mkFreshExprMVar nat;
-   check $ isExprDefEq (mkApp succ mvar) (mkApp succ (mkNatLit 10));
-   check $ isExprDefEq mvar (mkNatLit 10);
+   checkM $ isExprDefEq (mkApp succ mvar) (mkApp succ (mkNatLit 10));
+   checkM $ isExprDefEq mvar (mkNatLit 10);
    pure ()
 
 #eval tst2
@@ -51,12 +51,12 @@ do print "----- tst2 -----";
 def tst3 : MetaM Unit :=
 do print "----- tst3 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
-   let mvar <- mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
+   let mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
    lambdaTelescope t fun xs _ => do
      let x := xs.get! 0;
-     check $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
+     checkM $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
      pure ();
-   let v <- getAssignment mvar;
+   let v ← getAssignment mvar;
    print v;
    pure ()
 
@@ -67,11 +67,11 @@ do print "----- tst4 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    lambdaTelescope t fun xs _ => do
      let x := xs.get! 0;
-     let mvar <- mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
+     let mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
      -- the following `isExprDefEq` fails because `x` is also in the context of `mvar`
-     check $ not <$> isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
-     check $ approxDefEq $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
-     let v <- getAssignment mvar;
+     checkM $ not <$> isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
+     checkM $ approxDefEq $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
+     let v ← getAssignment mvar;
      print v;
      pure ();
    pure ()
@@ -79,7 +79,7 @@ do print "----- tst4 -----";
 #eval tst4
 
 def mkAppC (c : Name) (xs : Array Expr) : MetaM Expr :=
-do let r <- mkAppM c xs;
+do let r ← mkAppM c xs;
    check r;
    pure r
 
@@ -90,23 +90,23 @@ def mkSnd (s : Expr) : MetaM Expr := mkAppC `Prod.snd #[s]
 
 def tst5 : MetaM Unit :=
 do print "----- tst5 -----";
-   let p₁ <- mkPair (mkNatLit 1) (mkNatLit 2);
-   let x  <- mkFst p₁;
+   let p₁ ← mkPair (mkNatLit 1) (mkNatLit 2);
+   let x  ← mkFst p₁;
    print x;
-   let v  <- whnf x;
+   let v  ← whnf x;
    print v;
-   let v  <- withTransparency TransparencyMode.reducible $ whnf x;
+   let v  ← withTransparency TransparencyMode.reducible $ whnf x;
    print v;
-   let x  <- mkId x;
+   let x  ← mkId x;
    print x;
-   let prod <- mkProd nat nat;
-   let m <- mkFreshExprMVar prod;
-   let y <- mkFst m;
-   check $ isExprDefEq y x;
+   let prod ← mkProd nat nat;
+   let m ← mkFreshExprMVar prod;
+   let y ← mkFst m;
+   checkM $ isExprDefEq y x;
    print y;
-   let x <- mkProjection p₁ `fst;
+   let x ← mkProjection p₁ `fst;
    print x;
-   let y <- mkProjection p₁ `snd;
+   let y ← mkProjection p₁ `snd;
    print y
 
 #eval tst5
@@ -114,43 +114,41 @@ do print "----- tst5 -----";
 def tst6 : MetaM Unit :=
 do print "----- tst6 -----";
    withLocalDeclD `x nat $ fun x => do
-     let m <- mkFreshExprMVar nat;
+     let m ← mkFreshExprMVar nat;
      let t := mkAppN add #[m, mkNatLit 4];
      let s := mkAppN add #[x, mkNatLit 3];
-     check $ not <$> isExprDefEq t s;
+     checkM $ not <$> isExprDefEq t s;
      let s := mkAppN add #[x, mkNatLit 6];
-     check $ isExprDefEq t s;
-     let v <- getAssignment m;
-     check $ pure $ v == mkAppN add #[x, mkNatLit 2];
+     checkM $ isExprDefEq t s;
+     let v ← getAssignment m;
+     checkM $ pure $ v == mkAppN add #[x, mkNatLit 2];
      print v;
-     let m <- mkFreshExprMVar nat;
+     let m ← mkFreshExprMVar nat;
      let t := mkAppN add #[m, mkNatLit 4];
      let s := mkNatLit 3;
-     check $ not <$> isExprDefEq t s;
+     checkM $ not <$> isExprDefEq t s;
      let s := mkNatLit 10;
-     check $ isExprDefEq t s;
-     let v <- getAssignment m;
-     check $ pure $ v == mkNatLit 6;
+     checkM $ isExprDefEq t s;
+     let v ← getAssignment m;
+     checkM $ pure $ v == mkNatLit 6;
      print v;
      pure ()
 
 #eval tst6
 
-def mkArrow (d b : Expr) : Expr := mkForall `_ BinderInfo.default d b
-
 def tst7 : MetaM Unit :=
 do print "----- tst7 -----";
    withLocalDeclD `x type $ fun x => do
-     let m1 <- mkFreshExprMVar (mkArrow type type);
-     let m2 <- mkFreshExprMVar type;
+     let m1 ← mkFreshExprMVar (← mkArrow type type);
+     let m2 ← mkFreshExprMVar type;
      let t := mkApp io x;
      -- we need to use foApprox to solve `?m1 ?m2 =?= IO x`
-     check $ not <$> isDefEq (mkApp m1 m2) t;
-     check $ approxDefEq $ isDefEq (mkApp m1 m2) t;
-     let v <- getAssignment m1;
-     check $ pure $ v == io;
-     let v <- getAssignment m2;
-     check $ pure $ v == x;
+     checkM $ not <$> isDefEq (mkApp m1 m2) t;
+     checkM $ approxDefEq $ isDefEq (mkApp m1 m2) t;
+     let v ← getAssignment m1;
+     checkM $ pure $ v == io;
+     let v ← getAssignment m2;
+     checkM $ pure $ v == x;
      pure ()
 
 #eval tst7
@@ -159,11 +157,11 @@ def tst8 : MetaM Unit :=
 do print "----- tst8 -----";
    let add := mkAppN (mkConst `HasAdd.add [levelOne]) #[nat, mkConst `Nat.HasAdd];
    let t   := mkAppN add #[mkNatLit 2, mkNatLit 3];
-   let t <- withTransparency TransparencyMode.reducible $ whnf t;
+   let t ← withTransparency TransparencyMode.reducible $ whnf t;
    print t;
-   let t <- whnf t;
+   let t ← whnf t;
    print t;
-   let t <- reduce t;
+   let t ← reduce t;
    print t;
    pure ()
 
@@ -171,7 +169,7 @@ do print "----- tst8 -----";
 
 def tst9 : MetaM Unit :=
 do print "----- tst9 -----";
-   let env <- getEnv;
+   let env ← getEnv;
    print (toString $ Lean.isReducible env `Prod.fst);
    print (toString $ Lean.isReducible env `HasAdd.add);
    pure ()
@@ -180,12 +178,12 @@ do print "----- tst9 -----";
 
 def tst10 : MetaM Unit :=
 do print "----- tst10 -----";
-   let t <- withLocalDeclD `x nat $ fun x => do {
+   let t ← withLocalDeclD `x nat $ fun x => do {
      let b := mkAppN add #[x, mkAppN add #[mkNatLit 2, mkNatLit 3]];
      mkLambdaFVars #[x] b
    };
    print t;
-   let t <- reduce t;
+   let t ← reduce t;
    print t;
    pure ()
 
@@ -193,18 +191,18 @@ do print "----- tst10 -----";
 
 def tst11 : MetaM Unit :=
 do print "----- tst11 -----";
-   check $ isType nat;
-   check $ isType (mkArrow nat nat);
-   check $ not <$> isType add;
-   check $ not <$> isType (mkNatLit 1);
+   checkM $ isType nat;
+   checkM $ isType (← mkArrow nat nat);
+   checkM $ not <$> isType add;
+   checkM $ not <$> isType (mkNatLit 1);
    withLocalDeclD `x nat fun x => do
-     check $ not <$> isType x;
-     check $ not <$> (mkLambdaFVars #[x] x >>= isType);
-     check $ not <$> (mkLambdaFVars #[x] nat >>= isType);
-     let t <- mkEq x (mkNatLit 0);
-     let (t, _) <- mkForallUsedOnly #[x] t;
+     checkM $ not <$> isType x;
+     checkM $ not <$> (mkLambdaFVars #[x] x >>= isType);
+     checkM $ not <$> (mkLambdaFVars #[x] nat >>= isType);
+     let t ← mkEq x (mkNatLit 0);
+     let (t, _) ← mkForallUsedOnly #[x] t;
      print t;
-     check $ isType t;
+     checkM $ isType t;
      pure ();
    pure ()
 
@@ -213,9 +211,9 @@ do print "----- tst11 -----";
 def tst12 : MetaM Unit :=
 do print "----- tst12 -----";
    withLocalDeclD `x nat $ fun x => do
-     let t <- mkEqRefl x >>= mkLambdaFVars #[x];
+     let t ← mkEqRefl x >>= mkLambdaFVars #[x];
      print t;
-     let type <- inferType t;
+     let type ← inferType t;
      print type;
      isProofQuick t >>= fun b => print (toString b);
      isProofQuick nat >>= fun b => print (toString b);
@@ -227,13 +225,13 @@ do print "----- tst12 -----";
 
 def tst13 : MetaM Unit :=
 do print "----- tst13 -----";
-   let m₁ <- mkFreshExprMVar (mkArrow type type);
-   let m₂ <- mkFreshExprMVar (mkApp m₁ nat);
-   let t  <- mkId m₂;
+   let m₁ ← mkFreshExprMVar (← mkArrow type type);
+   let m₂ ← mkFreshExprMVar (mkApp m₁ nat);
+   let t  ← mkId m₂;
    print t;
-   let r <- abstractMVars t;
+   let r ← abstractMVars t;
    print r.expr;
-   let (_, _, e) <- openAbstractMVarsResult r;
+   let (_, _, e) ← openAbstractMVarsResult r;
    print e;
    pure ()
 
@@ -246,11 +244,11 @@ def mkHasToString (a : Expr) : MetaM Expr := mkAppC `HasToString #[a]
 
 def tst14 : MetaM Unit :=
 do print "----- tst14 -----";
-   let stateM <- mkStateM nat;
+   let stateM ← mkStateM nat;
    print stateM;
-   let monad <- mkMonad stateM;
-   let globalInsts <- getGlobalInstances;
-   let insts <- globalInsts.getUnify monad;
+   let monad ← mkMonad stateM;
+   let globalInsts ← getGlobalInstances;
+   let insts ← globalInsts.getUnify monad;
    print insts;
    pure ()
 
@@ -258,8 +256,8 @@ do print "----- tst14 -----";
 
 def tst15 : MetaM Unit :=
 do print "----- tst15 -----";
-   let inst <- mkHasAdd nat;
-   let r <- synthInstance inst;
+   let inst ← mkHasAdd nat;
+   let r ← synthInstance inst;
    print r;
    pure ()
 
@@ -267,10 +265,10 @@ do print "----- tst15 -----";
 
 def tst16 : MetaM Unit :=
 do print "----- tst16 -----";
-   let prod <- mkProd nat nat;
-   let inst <- mkHasToString prod;
+   let prod ← mkProd nat nat;
+   let inst ← mkHasToString prod;
    print inst;
-   let r <- synthInstance inst;
+   let r ← synthInstance inst;
    print r;
    pure ()
 
@@ -278,11 +276,11 @@ do print "----- tst16 -----";
 
 def tst17 : MetaM Unit :=
 do print "----- tst17 -----";
-   let prod <- mkProd nat nat;
-   let prod <- mkProd boolE prod;
-   let inst <- mkHasToString prod;
+   let prod ← mkProd nat nat;
+   let prod ← mkProd boolE prod;
+   let inst ← mkHasToString prod;
    print inst;
-   let r <- synthInstance inst;
+   let r ← synthInstance inst;
    print r;
    pure ()
 
@@ -290,8 +288,8 @@ do print "----- tst17 -----";
 
 def tst18 : MetaM Unit :=
 do print "----- tst18 -----";
-   let decEqNat <- mkDecEq nat;
-   let r <- synthInstance decEqNat;
+   let decEqNat ← mkDecEq nat;
+   let r ← synthInstance decEqNat;
    print r;
    pure ()
 
@@ -299,11 +297,11 @@ do print "----- tst18 -----";
 
 def tst19 : MetaM Unit :=
 do print "----- tst19 -----";
-   let stateM <- mkStateM nat;
+   let stateM ← mkStateM nat;
    print stateM;
-   let monad <- mkMonad stateM;
+   let monad ← mkMonad stateM;
    print monad;
-   let r <- synthInstance monad;
+   let r ← synthInstance monad;
    print r;
    pure ()
 
@@ -311,11 +309,11 @@ do print "----- tst19 -----";
 
 def tst20 : MetaM Unit :=
 do print "----- tst20 -----";
-   let stateM <- mkStateM nat;
+   let stateM ← mkStateM nat;
    print stateM;
-   let monadState <- mkMonadState nat stateM;
+   let monadState ← mkMonadState nat stateM;
    print monadState;
-   let r <- synthInstance monadState;
+   let r ← synthInstance monadState;
    print r;
    pure ()
 
@@ -326,21 +324,21 @@ do print "----- tst21 -----";
    withLocalDeclD `x nat $ fun x => do
    withLocalDeclD `y nat $ fun y => do
    withLocalDeclD `z nat $ fun z => do
-   let eq₁ <- mkEq x y;
-   let eq₂ <- mkEq y z;
+   let eq₁ ← mkEq x y;
+   let eq₂ ← mkEq y z;
    withLocalDeclD `h₁ eq₁ $ fun h₁ => do
    withLocalDeclD `h₂ eq₂ $ fun h₂ => do
-   let h <- mkEqTrans h₁ h₂;
-   let h <- mkEqSymm h;
-   let h <- mkCongrArg succ h;
-   let h₂ <- mkEqRefl succ;
-   let h <- mkCongr h₂ h;
-   let t <- inferType h;
+   let h ← mkEqTrans h₁ h₂;
+   let h ← mkEqSymm h;
+   let h ← mkCongrArg succ h;
+   let h₂ ← mkEqRefl succ;
+   let h ← mkCongr h₂ h;
+   let t ← inferType h;
    check h;
    print h;
    print t;
-   let h <- mkCongrFun h₂ x;
-   let t <- inferType h;
+   let h ← mkCongrFun h₂ x;
+   let t ← inferType h;
    check h;
    print t;
    pure ()
@@ -351,11 +349,11 @@ def tst22 : MetaM Unit :=
 do print "----- tst22 -----";
    withLocalDeclD `x nat $ fun x => do
    withLocalDeclD `y nat $ fun y => do
-   let t <- mkAppC `HasAdd.add #[x, y];
+   let t ← mkAppC `HasAdd.add #[x, y];
    print t;
-   let t <- mkAppC `HasAdd.add #[y, x];
+   let t ← mkAppC `HasAdd.add #[y, x];
    print t;
-   let t <- mkAppC `HasToString.toString #[x];
+   let t ← mkAppC `HasToString.toString #[x];
    print t;
    pure ()
 
@@ -365,7 +363,7 @@ def test1 : Nat := (fun x y => x + y) 0 1
 
 def tst23 : MetaM Unit :=
 do print "----- tst23 -----";
-   let cinfo <- getConstInfo `test1;
+   let cinfo ← getConstInfo `test1;
    let v := cinfo.value?.get!;
    print v;
    print v.headBeta
@@ -374,15 +372,15 @@ do print "----- tst23 -----";
 
 def tst24 : MetaM Unit :=
 do print "----- tst24 -----";
-   let m1 <- mkFreshExprMVar (mkArrow nat (mkArrow type type));
-   let m2 <- mkFreshExprMVar type;
-   let zero <- mkAppM `HasZero.zero #[nat];
-   let idNat <- mkAppM `Id #[nat];
+   let m1 ← mkFreshExprMVar (← mkArrow nat (← mkArrow type type));
+   let m2 ← mkFreshExprMVar type;
+   let zero ← mkAppM `HasZero.zero #[nat];
+   let idNat ← mkAppM `Id #[nat];
    let lhs := mkAppB m1 zero m2;
    print zero;
    print idNat;
    print lhs;
-   check $ fullApproxDefEq $ isDefEq lhs idNat;
+   checkM $ fullApproxDefEq $ isDefEq lhs idNat;
    pure ()
 
 #eval tst24
@@ -392,20 +390,20 @@ do print "----- tst25 -----";
    withLocalDeclD `α type $ fun α =>
    withLocalDeclD `β type $ fun β =>
    withLocalDeclD `σ type $ fun σ => do {
-     let (t1, n) <- mkForallUsedOnly #[α, β, σ] $ mkArrow α β;
+     let (t1, n) ← mkForallUsedOnly #[α, β, σ] $ ← mkArrow α β;
      print t1;
-     check $ pure $ n == 2;
-     let (t2, n) <- mkForallUsedOnly #[α, β, σ] $ mkArrow α (mkArrow β σ);
-     check $ pure $ n == 3;
+     checkM $ pure $ n == 2;
+     let (t2, n) ← mkForallUsedOnly #[α, β, σ] $ ← mkArrow α (← mkArrow β σ);
+     checkM $ pure $ n == 3;
      print t2;
-     let (t3, n) <- mkForallUsedOnly #[α, β, σ] $ α;
-     check $ pure $ n == 1;
+     let (t3, n) ← mkForallUsedOnly #[α, β, σ] $ α;
+     checkM $ pure $ n == 1;
      print t3;
-     let (t4, n) <- mkForallUsedOnly #[α, β, σ] $ σ;
-     check $ pure $ n == 1;
+     let (t4, n) ← mkForallUsedOnly #[α, β, σ] $ σ;
+     checkM $ pure $ n == 1;
      print t4;
-     let (t5, n) <- mkForallUsedOnly #[α, β, σ] $ nat;
-     check $ pure $ n == 0;
+     let (t5, n) ← mkForallUsedOnly #[α, β, σ] $ nat;
+     checkM $ pure $ n == 0;
      print t5;
      pure ()
    };
@@ -415,12 +413,12 @@ do print "----- tst25 -----";
 
 def tst26 : MetaM Unit := do
 print "----- tst26 -----";
-let m1 <- mkFreshExprMVar (mkArrow nat nat);
-let m2 <- mkFreshExprMVar nat;
-let m3 <- mkFreshExprMVar nat;
-check $ approxDefEq $ isDefEq (mkApp m1 m2) m3;
-check $ do { let b <- isExprMVarAssigned $ m1.mvarId!; pure (!b) };
-check $ isExprMVarAssigned $ m3.mvarId!;
+let m1 ← mkFreshExprMVar (← mkArrow nat nat);
+let m2 ← mkFreshExprMVar nat;
+let m3 ← mkFreshExprMVar nat;
+checkM $ approxDefEq $ isDefEq (mkApp m1 m2) m3;
+checkM $ do { let b ← isExprMVarAssigned $ m1.mvarId!; pure (!b) };
+checkM $ isExprMVarAssigned $ m3.mvarId!;
 pure ()
 
 section
@@ -435,8 +433,8 @@ set_option trace.Meta.isDefEq.assign true
 
 def tst27 : MetaM Unit := do
 print "----- tst27 -----";
-let m <- mkFreshExprMVar nat;
-check $ isDefEq (mkNatLit 1) (mkApp (mkConst `Nat.succ) m);
+let m ← mkFreshExprMVar nat;
+checkM $ isDefEq (mkNatLit 1) (mkApp (mkConst `Nat.succ) m);
 pure ()
 
 #eval tst27
@@ -447,19 +445,19 @@ print "----- tst28 -----";
 withLocalDeclD `x nat $ fun x =>
 withLocalDeclD `y nat $ fun y =>
 withLocalDeclD `z nat $ fun z => do
-  let t1 <- mkAppM `HasAdd.add #[x, y];
-  let t1 <- mkAppM `HasAdd.add #[x, t1];
-  let t1 <- mkAppM `HasAdd.add #[t1, t1];
-  let t2 <- mkAppM `HasAdd.add #[z, y];
-  let t3 <- mkAppM `Eq #[t2, t1];
-  let t3 <- mkForallFVars #[z] t3;
-  let m  <- mkFreshExprMVar nat;
-  let p  <- mkAppM `HasAdd.add #[x, m];
+  let t1 ← mkAppM `HasAdd.add #[x, y];
+  let t1 ← mkAppM `HasAdd.add #[x, t1];
+  let t1 ← mkAppM `HasAdd.add #[t1, t1];
+  let t2 ← mkAppM `HasAdd.add #[z, y];
+  let t3 ← mkAppM `Eq #[t2, t1];
+  let t3 ← mkForallFVars #[z] t3;
+  let m  ← mkFreshExprMVar nat;
+  let p  ← mkAppM `HasAdd.add #[x, m];
   print t3;
-  let r  <- kabstract t3 p;
+  let r  ← kabstract t3 p;
   print r;
-  let p <- mkAppM `HasAdd.add #[x, y];
-  let r  <- kabstract t3 p;
+  let p ← mkAppM `HasAdd.add #[x, y];
+  let r  ← kabstract t3 p;
   print r;
   pure ()
 
@@ -474,18 +472,18 @@ let v  := mkLevelParam `v;
 let u1 := mkLevelSucc u;
 let m  := mkLevelMax levelOne u1;
 print (norm m);
-check $ pure $ norm m == u1;
+checkM $ pure $ norm m == u1;
 let m  := mkLevelMax u1 levelOne;
 print (norm m);
-check $ pure $ norm m == u1;
+checkM $ pure $ norm m == u1;
 let m  := mkLevelMax (mkLevelMax levelOne (mkLevelSucc u1)) (mkLevelSucc levelOne);
-check $ pure $ norm m == mkLevelSucc u1;
+checkM $ pure $ norm m == mkLevelSucc u1;
 print m;
 print (norm m);
 let m  := mkLevelMax (mkLevelMax (mkLevelSucc (mkLevelSucc u1)) (mkLevelSucc u1)) (mkLevelSucc levelOne);
 print m;
 print (norm m);
-check $ pure $ norm m == mkLevelSucc (mkLevelSucc u1);
+checkM $ pure $ norm m == mkLevelSucc (mkLevelSucc u1);
 let m  := mkLevelMax (mkLevelMax (mkLevelSucc v) (mkLevelSucc u1)) (mkLevelSucc levelOne);
 print m;
 print (norm m);
@@ -495,15 +493,15 @@ pure ()
 
 def tst30 : MetaM Unit := do
 print "----- tst30 -----";
-let m1 <- mkFreshExprMVar nat;
-let m2 <- mkFreshExprMVar (mkArrow nat nat);
+let m1 ← mkFreshExprMVar nat;
+let m2 ← mkFreshExprMVar (← mkArrow nat nat);
 withLocalDeclD `x nat $ fun x => do
   let t := mkApp succ $ mkApp m2 x;
   print t;
-  check $ approxDefEq $ isDefEq m1 t;
-  let r <- instantiateMVars m1;
+  checkM $ approxDefEq $ isDefEq m1 t;
+  let r ← instantiateMVars m1;
   print r;
-  let r <- instantiateMVars m2;
+  let r ← instantiateMVars m2;
   print r;
   pure ()
 
@@ -511,25 +509,25 @@ withLocalDeclD `x nat $ fun x => do
 
 def tst31 : MetaM Unit := do
 print "----- tst31 -----";
-let m <- mkFreshExprMVar nat;
+let m ← mkFreshExprMVar nat;
 let t := mkLet `x nat zero m;
 print t;
-check $ isDefEq t m;
+checkM $ isDefEq t m;
 pure ()
 
 def tst32 : MetaM Unit := do
 print "----- tst32 -----";
 withLocalDeclD `a nat $ fun a => do
 withLocalDeclD `b nat $ fun b => do
-let aeqb <- mkEq a b;
+let aeqb ← mkEq a b;
 withLocalDeclD `h2 aeqb $ fun h2 => do
-let t <- mkEq (mkApp2 add a a) a;
+let t ← mkEq (mkApp2 add a a) a;
 print t;
 let motive := mkLambda `x BinderInfo.default nat (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 0)) a);
 withLocalDeclD `h1 t $ fun h1 => do
-let r <- mkEqNDRec motive h1 h2;
+let r ← mkEqNDRec motive h1 h2;
 print r;
-let rType <- inferType r >>= whnf;
+let rType ← inferType r >>= whnf;
 print rType;
 check r;
 pure ()
@@ -540,17 +538,17 @@ def tst33 : MetaM Unit := do
 print "----- tst33 -----";
 withLocalDeclD `a nat $ fun a => do
 withLocalDeclD `b nat $ fun b => do
-let aeqb <- mkEq a b;
+let aeqb ← mkEq a b;
 withLocalDeclD `h2 aeqb $ fun h2 => do
-let t <- mkEq (mkApp2 add a a) a;
+let t ← mkEq (mkApp2 add a a) a;
 let motive :=
   mkLambda `x BinderInfo.default nat $
   mkLambda `h BinderInfo.default (mkApp3 (mkConst `Eq [levelOne]) nat a (mkBVar 0)) $
     (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 1)) a);
 withLocalDeclD `h1 t $ fun h1 => do
-let r <- mkEqRec motive h1 h2;
+let r ← mkEqRec motive h1 h2;
 print r;
-let rType <- inferType r >>= whnf;
+let rType ← inferType r >>= whnf;
 print rType;
 check r;
 pure ()
@@ -561,8 +559,8 @@ def tst34 : MetaM Unit := do
 print "----- tst34 -----";
 let type := mkSort levelOne;
 withLocalDeclD `α type $ fun α => do
-  let m <- mkFreshExprMVar type;
-  let t <- mkLambdaFVars #[α] (mkArrow m m);
+  let m ← mkFreshExprMVar type;
+  let t ← mkLambdaFVars #[α] (← mkArrow m m);
   print t;
   pure ()
 
@@ -573,17 +571,17 @@ def tst35 : MetaM Unit := do
 print "----- tst35 -----";
 let type := mkSort levelOne;
 withLocalDeclD `α type $ fun α => do
-  let m1 <- mkFreshExprMVar type;
-  let m2 <- mkFreshExprMVar (mkArrow nat type);
+  let m1 ← mkFreshExprMVar type;
+  let m2 ← mkFreshExprMVar (← mkArrow nat type);
   let v := mkLambda `x BinderInfo.default nat m1;
   assignExprMVar m2.mvarId! v;
   let w := mkApp m2 zero;
-  let t1 <- mkLambdaFVars #[α] (mkArrow w w);
+  let t1 ← mkLambdaFVars #[α] (← mkArrow w w);
   print t1;
-  let m3 <- mkFreshExprMVar type;
-  let t2 <- mkLambdaFVars #[α] (mkArrow (mkBVar 0) (mkBVar 1));
+  let m3 ← mkFreshExprMVar type;
+  let t2 ← mkLambdaFVars #[α] (← mkArrow (mkBVar 0) (mkBVar 1));
   print t2;
-  check $ isDefEq t1 t2;
+  checkM $ isDefEq t1 t2;
   pure ()
 
 #eval tst35
@@ -592,44 +590,44 @@ withLocalDeclD `α type $ fun α => do
 def tst36 : MetaM Unit := do
 print "----- tst36 -----";
 let type := mkSort levelOne;
-let m1 <- mkFreshExprMVar (mkArrow type type);
+let m1 ← mkFreshExprMVar (← mkArrow type type);
 withLocalDeclD `α type $ fun α => do
-  let m2 <- mkFreshExprMVar type;
-  let t  <- mkAppM `Id #[m2];
-  check $ approxDefEq $ isDefEq (mkApp m1 α) t;
-  check $ approxDefEq $ isDefEq m1 (mkConst `Id [levelZero]);
+  let m2 ← mkFreshExprMVar type;
+  let t  ← mkAppM `Id #[m2];
+  checkM $ approxDefEq $ isDefEq (mkApp m1 α) t;
+  checkM $ approxDefEq $ isDefEq m1 (mkConst `Id [levelZero]);
   pure ()
 
 #eval tst36
 
 def tst37 : MetaM Unit := do
 print "----- tst37 -----";
-let m1 <- mkFreshExprMVar (mkArrow nat (mkArrow type type));
-let m2 <- mkFreshExprMVar (mkArrow nat type);
+let m1 ← mkFreshExprMVar (←mkArrow nat (←mkArrow type type));
+let m2 ← mkFreshExprMVar (←mkArrow nat type);
 withLocalDeclD `v nat $ fun v => do
   let lhs := mkApp2 m1 v (mkApp m2 v);
-  let rhs <- mkAppM `StateM #[nat, nat];
+  let rhs ← mkAppM `StateM #[nat, nat];
   print lhs;
   print rhs;
-  check $ approxDefEq $ isDefEq lhs rhs;
+  checkM $ approxDefEq $ isDefEq lhs rhs;
   pure ()
 
 #eval tst37
 
 def tst38 : MetaM Unit := do
 print "----- tst38 -----";
-let m1 <- mkFreshExprMVar nat;
+let m1 ← mkFreshExprMVar nat;
 withLocalDeclD `x nat $ fun x => do
-let m2 <- mkFreshExprMVar type;
+let m2 ← mkFreshExprMVar type;
 withLocalDeclD `y m2 $ fun y => do
-let m3 <- mkFreshExprMVar (mkArrow m2 nat);
+let m3 ← mkFreshExprMVar (←mkArrow m2 nat);
 let rhs := mkApp m3 y;
-check $ approxDefEq $ isDefEq m2 nat;
+checkM $ approxDefEq $ isDefEq m2 nat;
 print m2;
-check $ getAssignment m2 >>= fun v => pure $ v == nat;
-check $ approxDefEq $ isDefEq m1 rhs;
+checkM $ getAssignment m2 >>= fun v => pure $ v == nat;
+checkM $ approxDefEq $ isDefEq m1 rhs;
 print m2;
-check $ getAssignment m2 >>= fun v => pure $ v == nat;
+checkM $ getAssignment m2 >>= fun v => pure $ v == nat;
 pure ()
 
 set_option pp.all true
@@ -643,10 +641,10 @@ def tst39 : MetaM Unit := do
 print "----- tst39 -----";
 withLocalDeclD `α type $ fun α =>
 withLocalDeclD `β type $ fun β => do
-  let p <- mkProd α β;
-  let t <- mkForallFVars #[α, β] p;
+  let p ← mkProd α β;
+  let t ← mkForallFVars #[α, β] p;
   print t;
-  let e <- instantiateForall t #[nat, boolE];
+  let e ← instantiateForall t #[nat, boolE];
   print e;
   pure ()
 
@@ -660,26 +658,26 @@ withLocalDeclD `β type $ fun β =>
 withLocalDeclD `a α    $ fun a =>
 withLocalDeclD `b β    $ fun b =>
 do
-  let p <- mkProd α β;
-  let t1 <- mkForallFVars #[α, β] p;
-  let t2 <- mkForallFVars #[α, β, a, b] p;
+  let p ← mkProd α β;
+  let t1 ← mkForallFVars #[α, β] p;
+  let t2 ← mkForallFVars #[α, β, a, b] p;
   print t1;
   print $ toString $ t1.bindingBody!.hasLooseBVarInExplicitDomain 0 false;
   print $ toString $ t1.bindingBody!.hasLooseBVarInExplicitDomain 0 true;
   print $ toString $ t2.bindingBody!.hasLooseBVarInExplicitDomain 0 false;
   print $ t1.inferImplicit 2 false;
-  check $ pure $ ((t1.inferImplicit 2 false).bindingInfo! == BinderInfo.default);
-  check $ pure $ ((t1.inferImplicit 2 false).bindingBody!.bindingInfo! == BinderInfo.default);
+  checkM $ pure $ ((t1.inferImplicit 2 false).bindingInfo! == BinderInfo.default);
+  checkM $ pure $ ((t1.inferImplicit 2 false).bindingBody!.bindingInfo! == BinderInfo.default);
   print $ t1.inferImplicit 2 true;
-  check $ pure $ ((t1.inferImplicit 2 true).bindingInfo! == BinderInfo.implicit);
-  check $ pure $ ((t1.inferImplicit 2 true).bindingBody!.bindingInfo! == BinderInfo.implicit);
+  checkM $ pure $ ((t1.inferImplicit 2 true).bindingInfo! == BinderInfo.implicit);
+  checkM $ pure $ ((t1.inferImplicit 2 true).bindingBody!.bindingInfo! == BinderInfo.implicit);
   print t2;
   print $ t2.inferImplicit 2 false;
-  check $ pure $ ((t2.inferImplicit 2 false).bindingInfo! == BinderInfo.implicit);
-  check $ pure $ ((t2.inferImplicit 2 false).bindingBody!.bindingInfo! == BinderInfo.implicit);
+  checkM $ pure $ ((t2.inferImplicit 2 false).bindingInfo! == BinderInfo.implicit);
+  checkM $ pure $ ((t2.inferImplicit 2 false).bindingBody!.bindingInfo! == BinderInfo.implicit);
   print $ t2.inferImplicit 1 false;
-  check $ pure $ ((t2.inferImplicit 1 false).bindingInfo! == BinderInfo.implicit);
-  check $ pure $ ((t2.inferImplicit 1 false).bindingBody!.bindingInfo! == BinderInfo.default);
+  checkM $ pure $ ((t2.inferImplicit 1 false).bindingInfo! == BinderInfo.implicit);
+  checkM $ pure $ ((t2.inferImplicit 1 false).bindingBody!.bindingInfo! == BinderInfo.default);
   pure ()
 
 #eval tst40
@@ -697,24 +695,24 @@ structure C (α : Type u) extends A α, B α :=
 def mkA (x y : Expr) : MetaM Expr := mkAppC `A.mk #[x, y]
 def mkB (z : Expr) : MetaM Expr := mkAppC `B.mk #[z]
 def mkC (x y z w : Expr) : MetaM Expr := do
-let a <- mkA x y;
-let b <- mkB z;
+let a ← mkA x y;
+let b ← mkB z;
 mkAppC `C.mk #[a, b, w]
 
 def tst41 : MetaM Unit := do
 print "----- tst41 -----";
-let c <- mkC (mkNatLit 1) (mkNatLit 2) (mkNatLit 3) boolTrue;
+let c ← mkC (mkNatLit 1) (mkNatLit 2) (mkNatLit 3) boolTrue;
 print c;
-let x <- mkProjection c `x;
+let x ← mkProjection c `x;
 check x;
 print x;
-let y <- mkProjection c `y;
+let y ← mkProjection c `y;
 check y;
 print y;
-let z <- mkProjection c `z;
+let z ← mkProjection c `z;
 check z;
 print z;
-let w <- mkProjection c `w;
+let w ← mkProjection c `w;
 check w;
 print w;
 pure ()
@@ -728,15 +726,15 @@ set_option pp.all false
 
 def tst42 : MetaM Unit := do
 print "----- tst42 -----";
-let t <- mkListLit nat [mkNatLit 1, mkNatLit 2];
+let t ← mkListLit nat [mkNatLit 1, mkNatLit 2];
 print t;
 check t;
-let t <- mkArrayLit nat [mkNatLit 1, mkNatLit 2];
+let t ← mkArrayLit nat [mkNatLit 1, mkNatLit 2];
 print t;
 check t;
 (match t.arrayLit? with
 | some (_, xs) => do
-  check $ pure $ xs.length == 2;
+  checkM $ pure $ xs.length == 2;
   (match (xs.get! 0).natLit?, (xs.get! 1).natLit? with
   | some 1, some 2 => pure ()
   | _, _           => throwError "nat lits expected")

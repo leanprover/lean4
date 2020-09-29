@@ -6,7 +6,7 @@ open Lean.Meta
 def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
-def check (x : MetaM Bool) : MetaM Unit :=
+def checkM (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throwError "check failed"
 
 def nat   := mkConst `Nat
@@ -23,7 +23,7 @@ print "----- tst1 -----";
 let m1 ← mkFreshExprMVar (mkArrow nat nat);
 let lhs := mkApp m1 zero;
 let rhs := zero;
-check $ fullApproxDefEq $ isDefEq lhs rhs;
+checkM $ fullApproxDefEq $ isDefEq lhs rhs;
 pure ()
 
 set_option pp.all true
@@ -36,7 +36,7 @@ def tst2 : MetaM Unit := do
 print "----- tst2 -----";
 let ps ← getParamNames `Or.elim; print (toString ps);
 let ps ← getParamNames `Iff.elim; print (toString ps);
-let ps ← getParamNames `check; print (toString ps);
+let ps ← getParamNames `checkM; print (toString ps);
 pure ()
 
 #eval tst2
@@ -49,12 +49,12 @@ let env ← getEnv;
 let t2  ← getConstInfo `t2;
 let c   ← mkNoConfusion t2.type (mkConst `t1);
 print c;
-Meta.check c;
+check c;
 let cType ← inferType c;
 print cType;
 let lt    ← mkLt (mkNatLit 10000000) (mkNatLit 20000000000);
 let ltPrf ← mkDecideProof lt;
-Meta.check ltPrf;
+check ltPrf;
 let t ← inferType ltPrf;
 print t;
 pure ()
@@ -78,7 +78,7 @@ subgoals.forM fun s => do {
 };
 let t ← instantiateMVars m;
 print t;
-Meta.check t;
+check t;
 pure ()
 
 #eval tst4

@@ -74,7 +74,9 @@ def workerCfg : Process.StdioConfig := ⟨Process.Stdio.piped, Process.Stdio.pip
 
 /-- Things that can happen in a worker. -/
 inductive WorkerEvent
-| Error (e : IO.Error)
+| Terminated
+| Crashed
+| IOError (e : IO.Error)
 -- TODO(WN): more things will be able to happen
 
 structure FileWorker :=
@@ -92,8 +94,6 @@ FS.Stream.ofHandle fw.proc.stdout
 
 def stderr (fw : FileWorker) : FS.Stream :=
 FS.Stream.ofHandle fw.proc.stderr
-
-def wait (fw : FileWorker) : IO Nat := pure 0 -- TODO
 
 end FileWorker
 
@@ -119,22 +119,29 @@ match fileWorkers.find? uri with
 | none    => throw (userError $ "got unknown document URI (" ++ uri ++ ")")
 
 -- TODO: this creates a long-running Task, which should be okay with upcoming API changes.
-partial def fwdMsgAux (hWrk : FS.Stream) (hOut : FS.Stream) : Unit → IO WorkerEvent
+partial def fwdMsgAux (workerProc : Process.Child workerCfg) (hWrk : FS.Stream) (hOut : FS.Stream) : Unit → IO WorkerEvent
 | ⟨⟩ => do
-  -- TODO(MH): detect closed stream somehow and terminate gracefully
-  -- TODO(MH): potentially catch unintended termination (e.g. due to stack overflow) and restart process
-  msg ← readLspMessage hWrk;
-  -- NOTE: Write to Lean I/O channels are atomic, so these won't trample on each other.
-  writeLspMessage hOut msg;
-  fwdMsgAux ()
-
+  catch 
+    (do 
+      msg ← readLspMessage hWrk;
+      -- NOTE: Writes to Lean I/O channels are atomic, so these won't trample on each other.
+      writeLspMessage hOut msg;
+      fwdMsgAux ())
+    (fun err => do
+      exitCode ← workerProc.wait;
+      -- Terminated events are always initiated by the main task, and should only
+      -- occur when the main task already discarded the corresponding file worker.
+      -- Specifically, after discarding, the main task will not listen to the 
+      -- events of this forwarding task anymore.
+      pure $ if exitCode = 0 then WorkerEvent.Terminated else WorkerEvent.Crashed)
+    
 /-- A Task which forwards a worker's messages into the output stream until an event
 which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
-def fwdMsgTask (hWrk : FS.Stream) : ServerM (Task WorkerEvent) :=
+def fwdMsgTask (workerProc : Process.Child workerCfg) (hWrk : FS.Stream) : ServerM (Task WorkerEvent) :=
 fun st =>
   (Task.map (fun either => match either with
     | Except.ok ev   => ev
-    | Except.error e => WorkerEvent.Error e)) <$> (IO.asTask $ fwdMsgAux hWrk st.hOut ())
+    | Except.error e => WorkerEvent.IOError e)) <$> (IO.asTask $ fwdMsgAux workerProc hWrk st.hOut ())
 
 private def parsedImportsEndPos (input : String) : IO String.Pos := do
 emptyEnv ← mkEmptyEnvironment;
@@ -150,13 +157,19 @@ workerProc ← monadLift $ Process.spawn {workerCfg with cmd := st.workerPath};
 writeLspRequest (FS.Stream.ofHandle workerProc.stdin) (0 : Nat) "initialize" st.initParams;
 writeLspNotification (FS.Stream.ofHandle workerProc.stdin) "textDocument/didOpen"
   (DidOpenTextDocumentParams.mk ⟨uri, "lean", version, text.source⟩);
-commTask ← fwdMsgTask $ FS.Stream.ofHandle workerProc.stdout;
+commTask ← fwdMsgTask workerProc $ FS.Stream.ofHandle workerProc.stdout;
 let fw : FileWorker := ⟨doc, workerProc, commTask⟩;
 updateFileWorkers uri fw
 
--- TODO(MH)
-def terminateFileWorker (uri : DocumentUri) : ServerM Unit := pure ()
-
+def terminateFileWorker (uri : DocumentUri) : ServerM Unit :=
+-- We're abusing the GC here. Erasing the file worker will free the stdin
+-- handle of the subprocess, which will terminate as a result.
+-- Upon terminating, the stdout handle is closed, which the 
+-- forwarding task will detect and then terminate itself.
+-- TODO(MH): emit ContentChanged errors for pending requests
+-- to that file worker.
+fun st => st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
+  
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
 match fromJson? params with
 | some parsed => pure parsed
@@ -273,9 +286,16 @@ partial def mainLoop : Unit → ServerM Unit
     pure () -- shutdown
 
   /- Restart an exited worker. -/
-  | ServerEvent.WorkerEvent uri fw (WorkerEvent.Error e) => do
-    -- TODO restart fw; and do something depending on why it exited?
-    mainLoop ()
+  | ServerEvent.WorkerEvent uri fw err =>
+    match err with
+    | WorkerEvent.IOError e => throw e -- shouldn't occur
+    -- Cannot occur: Terminated events are only generated if the subprocess exits with exit code 0,
+    -- which happens only if the file worker was terminated. But terminated file workers are not queried
+    -- in the next waitAny cycle, and hence the HeaderChanged event will never reach the main task.
+    | WorkerEvent.Terminated => throw (userError "internal server error: got Terminated worker event")
+    | WorkerEvent.Crashed =>
+      -- TODO restart fw in such a way that no restart loops occur
+      mainLoop ()
 
 def mkLeanServerCapabilities : ServerCapabilities :=
 { textDocumentSync? := some

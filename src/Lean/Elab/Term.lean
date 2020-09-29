@@ -680,8 +680,11 @@ match eNew? with
 | some eNew => pure eNew
 | none      => do
 some (m, α) ← isTypeApp? eType | tryCoe expectedType eType e f?;
-condM (isDefEq m n) (mkAppOptM `coeM #[m, α, β, none, monadInst, e]) $
-  catch
+condM (isDefEq m n)
+  (catch
+    (mkAppOptM `coeM #[m, α, β, none, monadInst, e])
+    (fun _ => throwTypeMismatchError expectedType eType e f?))  $
+  (catch
     (do
       -- Construct lift from `m` to `n`
       monadLiftType ← mkAppM `MonadLiftT #[m, n];
@@ -703,7 +706,7 @@ condM (isDefEq m n) (mkAppOptM `coeM #[m, α, β, none, monadInst, e]) $
           condM (isDefEq expectedType eNewType)
             (pure eNew) -- approach 3 worked
             (throwTypeMismatchError expectedType eType e f?)))
-    (fun _ => throwTypeMismatchError expectedType eType e f?)
+    (fun _ => throwTypeMismatchError expectedType eType e f?))
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.

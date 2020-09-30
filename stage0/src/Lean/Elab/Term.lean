@@ -71,7 +71,7 @@ namespace Term
 
 -/
 def setElabConfig (cfg : Meta.Config) : Meta.Config :=
-{ cfg with foApprox := true, ctxApprox := true, constApprox := true, quasiPatternApprox := false }
+{ cfg with foApprox := true, ctxApprox := true, constApprox := false, quasiPatternApprox := false }
 
 structure Context :=
 (fileName        : String)
@@ -112,10 +112,15 @@ inductive SyntheticMVarKind
 structure SyntheticMVarDecl :=
 (mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
 
-structure MVarErrorContext :=
-(mvarId : MVarId)
-(ref    : Syntax)
-(ctx?   : Option Expr := none)
+inductive MVarErrorKind
+| implicitArg (ctx : Expr)
+| hole
+| custom (msgData : MessageData)
+
+structure MVarErrorInfo :=
+(mvarId    : MVarId)
+(ref       : Syntax)
+(kind      : MVarErrorKind)
 
 structure LetRecToLift :=
 (ref            : Syntax)
@@ -131,7 +136,7 @@ structure LetRecToLift :=
 
 structure State :=
 (syntheticMVars    : List SyntheticMVarDecl := [])
-(mvarErrorContexts : List MVarErrorContext := [])
+(mvarErrorInfos    : List MVarErrorInfo := [])
 (messages          : MessageLog := {})
 (letRecsToLift     : List LetRecToLift := [])
 
@@ -302,9 +307,6 @@ withRef Syntax.missing $ trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
 
-def isDefEqNoConstantApprox (t s : Expr) : TermElabM Bool := do
-withConfig (fun config => { config with constApprox := false }) $ isDefEq t s
-
 @[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
 mctx ← getMCtx;
 finally x (setMCtx mctx)
@@ -336,59 +338,74 @@ def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind
 ref ← getRef;
 registerSyntheticMVar ref mvarId kind
 
-def registerMVarErrorContext (mvarId : MVarId) (ref : Syntax) (ctx? : Option Expr := none) : TermElabM Unit := do
-modify fun s => { s with mvarErrorContexts := { mvarId := mvarId, ref := ref, ctx? := ctx? } :: s.mvarErrorContexts }
+def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit := do
+modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole } :: s.mvarErrorInfos }
 
-def MVarErrorContext.logError (mvarErrorContext : MVarErrorContext) : TermElabM Unit := do
-let optionExprToMessageData (e? : Option Expr) : TermElabM MessageData :=
-  match e? with
-  | none   => pure Format.nil
-  | some e => do {
-    e ← instantiateMVars e;
-    if e.isApp then
-      let f    := e.getAppFn;
-      let args := e.getAppArgs;
-      let msg  := args.foldl
-        (fun (msg : MessageData) (arg : Expr) =>
-          if arg.getAppFn.isMVar then
-            msg ++ " " ++ arg.getAppFn
-          else
-            msg ++ " …")
-        ("@" ++ MessageData.ofExpr f);
-      pure $ MessageData.nestD (Format.line ++ msg)
-    else
-      pure e
-};
-let msg : MessageData := "don't know how to synthesize placeholder";
-ctx ← optionExprToMessageData mvarErrorContext.ctx?;
-let msg := msg ++ ctx;
-let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorContext.mvarId;
-logErrorAt mvarErrorContext.ref msg
+def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
+modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app } :: s.mvarErrorInfos }
+
+def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
+modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData } :: s.mvarErrorInfos }
+
+def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) : TermElabM Unit :=
+match e.getAppFn with
+| Expr.mvar mvarId _ => registerMVarErrorCustomInfo mvarId ref msgData
+| _ => pure ()
+
+def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := do
+match mvarErrorInfo.kind with
+| MVarErrorKind.implicitArg app => do
+  app ← instantiateMVars app;
+  let f    := app.getAppFn;
+  let args := app.getAppArgs;
+  let msg  := args.foldl
+    (fun (msg : MessageData) (arg : Expr) =>
+      if arg.getAppFn.isMVar then
+        msg ++ " " ++ arg.getAppFn
+      else
+        msg ++ " …")
+    ("@" ++ MessageData.ofExpr f);
+  let msg : MessageData := "don't know how to synthesize implicit argument" ++ indentD msg;
+  let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId;
+  logErrorAt mvarErrorInfo.ref msg
+| MVarErrorKind.hole => do
+  let msg : MessageData := "don't know how to synthesize placeholder";
+  let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId;
+  logErrorAt mvarErrorInfo.ref msg
+| MVarErrorKind.custom msgData =>
+  logErrorAt mvarErrorInfo.ref msgData
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
   Return `true` if at least one error was logged.
   Remark: This method only succeeds if we have information for at least one given metavariable
-  at `mvarErrorContexts`. -/
-def logUnassignedUsingErrorContext (pendingMVarIds : Array MVarId) : TermElabM Bool := do
+  at `mvarErrorInfos`. -/
+def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Bool := do
 s ← get;
-let errorCtxs := s.mvarErrorContexts;
-errorCtxs.foldlM
-  (fun foundError mvarErrorContext => do
-    /- The metavariable `mvarErrorContext.mvarId` may have been assigned or
-       delayed assigned to another metavariable that is unassigned. -/
-    mvarDeps ← getMVars (mkMVar mvarErrorContext.mvarId);
-    if mvarDeps.any pendingMVarIds.contains then do
-      mvarErrorContext.logError;
-      pure true
-    else
-      pure foundError)
-  false
+let errorInfos := s.mvarErrorInfos;
+(foundErrors, _) ← errorInfos.foldlM
+  (fun (acc : Bool × NameSet) mvarErrorInfo => do
+    let (foundErrors, alreadyVisited) := acc;
+    let mvarId := mvarErrorInfo.mvarId;
+    if alreadyVisited.contains mvarId then
+      pure acc
+    else do
+      let alreadyVisited := alreadyVisited.insert mvarId;
+      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+         delayed assigned to another metavariable that is unassigned. -/
+      mvarDeps ← getMVars (mkMVar mvarId);
+      if mvarDeps.any pendingMVarIds.contains then do
+        mvarErrorInfo.logError;
+        pure (true, alreadyVisited)
+      else
+        pure (foundErrors, alreadyVisited))
+  (false, {});
+pure foundErrors
 
-/-- Ensure metavariables registered using `registerMVarErrorContext` (and used in the given declaration) have been assigned. -/
+/-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
 pendingMVarIds ← getMVarsAtDecl decl;
-foundError ← logUnassignedUsingErrorContext pendingMVarIds;
+foundError ← logUnassignedUsingErrorInfos pendingMVarIds;
 when foundError throwAbort
 
 /-
@@ -680,8 +697,11 @@ match eNew? with
 | some eNew => pure eNew
 | none      => do
 some (m, α) ← isTypeApp? eType | tryCoe expectedType eType e f?;
-condM (isDefEq m n) (mkAppOptM `coeM #[m, α, β, none, monadInst, e]) $
-  catch
+condM (isDefEq m n)
+  (catch
+    (mkAppOptM `coeM #[m, α, β, none, monadInst, e])
+    (fun _ => throwTypeMismatchError expectedType eType e f?))  $
+  (catch
     (do
       -- Construct lift from `m` to `n`
       monadLiftType ← mkAppM `MonadLiftT #[m, n];
@@ -703,7 +723,7 @@ condM (isDefEq m n) (mkAppOptM `coeM #[m, α, β, none, monadInst, e]) $
           condM (isDefEq expectedType eNewType)
             (pure eNew) -- approach 3 worked
             (throwTypeMismatchError expectedType eType e f?)))
-    (fun _ => throwTypeMismatchError expectedType eType e f?)
+    (fun _ => throwTypeMismatchError expectedType eType e f?))
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
@@ -714,43 +734,7 @@ def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr) (f?
 match expectedType? with
 | none              => pure e
 | some expectedType =>
-  /-
-    Recall that constant approximation is used to solve constraint of the form
-    ```
-    ?m t =?= s
-    ```
-    where `t` is an arbitrary term, by assigning `?m := fun _ => s`
-    This approximation when not used carefully produces bad solutions, and may prevent coercions from being tried.
-    For example, consider the term `pure (x > 0)` with inferred type `?m Prop` and expected type `IO Bool`. In this situation, the
-    elaborator generates the unification constraint
-    ```
-    ?m Prop =?= IO Bool
-    ```
-    It is not a higher-order pattern, not first-order approximation is applicable. However, constant approximation
-    produces the bogus solution `?m := fun _ => IO Bool`, and prevents the system from using the coercion from
-    the decidable proposition `x > 0` to `Bool`.
-
-    On the other hand, the constant approximation is desirable for elaborating the term
-    ```
-    let f (x : _) := pure 0; f ()
-    ```
-    with expected type `StateT Nat Id Nat`.
-    In this example, the following unification contraint is generated.
-    ```
-    ?m () (?n ()) =?= StateT Nat Id Nat
-    ```
-    It is not a higher-order pattern, and first-order approximation fails.
-    However, constant approximation solves it by assigning
-    ```
-    ?m := fun _ => StateT Nat Id
-    ?n := fun _ => Nat
-    ```
-    Note that `f`s type is `(x : ?α) -> ?m x (?n x)`. The metavariables `?m` and `?n` may depend on `x`.
-
-    The `isDefEqNoConstantApprox` fails to unify the expected and inferred types. Then, `tryLiftAndCoe` first tries
-    the monadic extensions, and then falls back to `isDefEq` which enables all approximations.
-  -/
-  condM (isDefEqNoConstantApprox eType expectedType)
+  condM (isDefEq eType expectedType)
     (pure e)
     (tryLiftAndCoe expectedType eType e f?)
 
@@ -801,8 +785,7 @@ pure mvar
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
 | []                => do
-  let refFmt := stx.prettyPrint;
-  throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+  throwError ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ stx))
 | (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with
     | Exception.error _ _ => do
@@ -1032,7 +1015,7 @@ fun stx _ => do
 @[builtinTermElab «hole»] def elabHole : TermElab :=
 fun stx expectedType? => do
   mvar ← mkFreshExprMVar expectedType?;
-  registerMVarErrorContext mvar.mvarId! stx;
+  registerMVarErrorHoleInfo mvar.mvarId! stx;
   pure mvar
 
 @[builtinTermElab «syntheticHole»] def elabSyntheticHole : TermElab :=
@@ -1041,7 +1024,7 @@ fun stx expectedType? => do
   let userName := if arg.isIdent then arg.getId else Name.anonymous;
   let mkNewHole : Unit → TermElabM Expr := fun _ => do {
     mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque userName;
-    registerMVarErrorContext mvar.mvarId! stx;
+    registerMVarErrorHoleInfo mvar.mvarId! stx;
     pure mvar
   };
   if userName.isAnonymous then

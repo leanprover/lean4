@@ -26,8 +26,8 @@ def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
 @[builtinDoElemParser] def doLet  := parser! "let " >> letDecl
-def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
-def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
+def doId   := parser! «try» (ident >> optType >> leftArrow) >> termParser
+def doPat  := parser! «try» (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 @[builtinDoElemParser] def doLetArrow := parser! "let " >> (doId <|> doPat)
 @[builtinDoElemParser] def doHave     := parser! "have " >> Term.haveDecl
 /-
@@ -61,17 +61,26 @@ else if c_2 then
 -/
 @[builtinDoElemParser] def doIf := parser! withPosition $
   "if " >> termParser >> " then " >> doSeq
-  >> many (checkColGe "'else if' in 'do' must be indented" >> try (" else " >> " if ") >> termParser >> " then " >> doSeq)
+  >> many (checkColGe "'else if' in 'do' must be indented" >> «try» (" else " >> " if ") >> termParser >> " then " >> doSeq)
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
-@[builtinDoElemParser] def doFor   := parser! "for " >> termParser >> " in " >> termParser maxPrec >> doSeq
+@[builtinDoElemParser] def doUnless := parser! "unless " >> termParser >> "do " >> doSeq
+@[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> termParser >> "do " >> doSeq
 
 /- `match`-expression where the right-hand-side of alternatives is a `doSeq` instead of a `term` -/
 def doMatchAlt : Parser  := sepBy1 termParser ", " >> darrow >> doSeq
 def doMatchAlts : Parser := parser! withPosition $ (optional "| ") >> sepBy1 doMatchAlt (checkColGe "alternatives must be indented" >> "|")
 @[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
 
-@[builtinDoElemParser] def «break» := parser! "break"
-@[builtinDoElemParser] def «continue» := parser! "continue"
+def doCatch      := parser! «try» ("catch " >> binderIdent) >> optional binderType >> darrow >> doSeq
+def doCatchMatch := parser! "catch " >> doMatchAlts
+def doFinally    := parser! "finally " >> doSeq
+@[builtinDoElemParser] def doTry    := parser! "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
+
+@[builtinDoElemParser] def «break»     := parser! "break"
+@[builtinDoElemParser] def «continue»  := parser! "continue"
+@[builtinDoElemParser] def «return»    := parser!:leadPrec "return " >> termParser
+@[builtinDoElemParser] def doDbgTrace  := parser!:leadPrec "dbgTrace! " >> termParser
+@[builtinDoElemParser] def doAssert    := parser!:leadPrec "assert! " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior. For example, the `if`-term parser

@@ -9,14 +9,27 @@ import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module
 
 namespace Lean
+
+def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
+Prod.fst <$> x.toIO { options := ppCtx.opts } { env := ppCtx.env }
+
+def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
+ppCtx.runCoreM $ x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+
 namespace PrettyPrinter
 
-def ppTerm (stx : Syntax) : CoreM Format :=
+def ppTerm (stx : Syntax) : CoreM Format := do
+opts ← getOptions;
+let stx := (sanitizeSyntax stx).run' { options := opts };
 parenthesizeTerm stx >>= formatTerm
 
 def ppExpr (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) : MetaM Format := do
-stx ← delab currNamespace openDecls e;
-liftM $ ppTerm stx
+lctx ← getLCtx;
+opts ← getOptions;
+let lctx := lctx.sanitizeNames.run' { options := opts };
+Meta.withLCtx lctx #[] $ do
+  stx ← delab currNamespace openDecls e;
+  liftM $ ppTerm stx
 
 def ppCommand (stx : Syntax) : CoreM Format :=
 parenthesizeCommand stx >>= formatCommand
@@ -28,17 +41,18 @@ private partial def noContext : MessageData → MessageData
 | MessageData.withContext ctx msg => noContext msg
 | msg => msg
 
-def ppExprFn (ppCtx : PPContext) (e : Expr) : IO Format := do
-let pp : MetaM Format := adaptExcept (fun ex => match ex with
-  -- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error
+-- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error
+private def withoutContext {m} [MonadExceptAdapter Exception Exception m m] (x : m Format) : m Format :=
+adaptExcept (fun ex => match ex with
   | Exception.error ref msg => Exception.error ref (noContext msg)
   | e                       => e)
-  (ppExpr ppCtx.currNamespace ppCtx.openDecls e);
-(fmt, _, _) ← pp.toIO { options := ppCtx.opts } { env := ppCtx.env } { lctx := ppCtx.lctx } { mctx := ppCtx.mctx };
-pure fmt
+  x
 
-@[init] def registerPPTerm : IO Unit := do
-ppExprFnRef.set ppExprFn
+@[init] def registerPPExt : IO Unit := do
+ppFnsRef.set {
+  ppExpr := fun ctx e   => ctx.runMetaM $ withoutContext $ ppExpr ctx.currNamespace ctx.openDecls e,
+  ppTerm := fun ctx stx => ctx.runCoreM $ withoutContext $ ppTerm stx,
+}
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter;

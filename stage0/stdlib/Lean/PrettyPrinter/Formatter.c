@@ -158,6 +158,7 @@ lean_object* l_StateRefT_x27_get___at_Lean_PrettyPrinter_Formatter_FormatterM_mo
 extern lean_object* l_Lean_numLitKind;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_PrettyPrinter_Formatter_indentTop___spec__1(lean_object*);
+uint8_t l_Lean_isInaccessibleUserName___main(lean_object*);
 extern lean_object* l_Lean_choiceKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParserOfStack_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_strLitKind;
@@ -332,7 +333,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_groupTop___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_pushTokenCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___main___at_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__3;
-uint8_t l_Lean_LocalContext_isInaccessibleUserName___main(lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__7;
 extern lean_object* l_PUnit_Inhabited;
 lean_object* l_Lean_PrettyPrinter_Formatter_quotedSymbol_formatter___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5356,7 +5356,7 @@ x_20 = l_Lean_Name_isAnonymous(x_17);
 if (x_20 == 0)
 {
 uint8_t x_21; 
-x_21 = l_Lean_LocalContext_isInaccessibleUserName___main(x_17);
+x_21 = l_Lean_isInaccessibleUserName___main(x_17);
 if (x_21 == 0)
 {
 lean_object* x_22; uint8_t x_23; uint8_t x_24; 

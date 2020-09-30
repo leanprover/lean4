@@ -22,7 +22,7 @@ match mctx.findDecl? mvarId with
   let indent       := 2; -- Use option
   let ppAuxDecls   := getAuxDeclsOption opts;
   let lctx         := mvarDecl.lctx;
-  let lctx         := lctx.sanitizeNames opts;
+  let lctx         := lctx.sanitizeNames.run' { options := opts };
   let ppCtx        := { ppCtx with lctx := lctx };
   let pp (e : Expr) : IO Format := ppExpr ppCtx e;
   let instMVars (e : Expr) : Expr := (mctx.instantiateMVars e).1;

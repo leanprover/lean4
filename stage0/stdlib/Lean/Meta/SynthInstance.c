@@ -108,7 +108,7 @@ lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__4___boxed(lean_o
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at___private_Lean_Meta_SynthInstance_8__synthInstanceImp_x3f___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_Meta_SynthInstance_findEntry_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_mkTableKey___closed__2;
 lean_object* l_Lean_Meta_SynthInstance_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SynthInstance_8__synthInstanceImp_x3f___lambda__2___closed__3;
@@ -4669,17 +4669,17 @@ lean_inc(x_42);
 lean_dec(x_40);
 x_43 = 0;
 x_44 = lean_box(0);
+x_45 = lean_unsigned_to_nat(0u);
 lean_inc(x_2);
 lean_inc(x_1);
-x_45 = l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(x_1, x_2, x_41, x_43, x_44, x_9, x_10, x_11, x_12, x_42);
-x_46 = lean_ctor_get(x_45, 0);
-lean_inc(x_46);
-x_47 = lean_ctor_get(x_45, 1);
+x_46 = l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(x_1, x_2, x_41, x_43, x_44, x_45, x_9, x_10, x_11, x_12, x_42);
+x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
-lean_dec(x_45);
-x_48 = lean_unsigned_to_nat(0u);
-lean_inc(x_46);
-x_49 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_3, x_3, x_48, x_46);
+x_48 = lean_ctor_get(x_46, 1);
+lean_inc(x_48);
+lean_dec(x_46);
+lean_inc(x_47);
+x_49 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_3, x_3, x_45, x_47);
 lean_inc(x_49);
 x_50 = l_Lean_mkApp(x_7, x_49);
 x_51 = (uint8_t)((x_37 << 24) >> 61);
@@ -4687,24 +4687,24 @@ x_52 = l_Lean_BinderInfo_isInstImplicit(x_51);
 x_53 = lean_array_push(x_4, x_49);
 if (x_52 == 0)
 {
-lean_dec(x_46);
+lean_dec(x_47);
 x_4 = x_53;
 x_7 = x_50;
 x_8 = x_36;
-x_13 = x_47;
+x_13 = x_48;
 goto _start;
 }
 else
 {
 lean_object* x_55; 
 x_55 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_55, 0, x_46);
+lean_ctor_set(x_55, 0, x_47);
 lean_ctor_set(x_55, 1, x_6);
 x_4 = x_53;
 x_6 = x_55;
 x_7 = x_50;
 x_8 = x_36;
-x_13 = x_47;
+x_13 = x_48;
 goto _start;
 }
 }
@@ -16295,7 +16295,7 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*5);
+x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*6);
 x_10 = lean_box(x_9);
 if (lean_obj_tag(x_10) == 1)
 {

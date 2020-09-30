@@ -95,6 +95,10 @@ struct lthread::imp {
         }
     }
 
+    ~imp() {
+        CloseHandle(m_thread);
+    }
+
     void join() {
         if (WaitForSingleObject(m_thread, INFINITE) == WAIT_FAILED) {
             throw exception("failed to join thread");

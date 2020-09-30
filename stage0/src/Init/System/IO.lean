@@ -111,15 +111,15 @@ pure (fn ())
   to the task is dropped. `act` should manually check for cancellation via `IO.checkInterrupt` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask {α : Type} (act : IO α) : IO (Task (Except IO.Error α)) := arbitrary _
+constant asTask {α : Type} (act : IO α) (prio := Task.Priority.default) : IO (Task (Except IO.Error α)) := arbitrary _
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_map_task"]
-constant mapTask {α β : Type} (f : α → IO β) (t : Task α) : IO (Task (Except IO.Error β)) := arbitrary _
+constant mapTask {α β : Type} (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except IO.Error β)) := arbitrary _
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_bind_task"]
-constant bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) : IO (Task (Except IO.Error β)) := arbitrary _
+constant bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β)) := arbitrary _
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
 @[extern "lean_io_check_canceled"]
@@ -405,10 +405,10 @@ structure Output :=
 /-- Run process to completion and capture output. -/
 def output (args : SpawnArgs) : IO Output := do
 child ← spawn { args with stdout := Stdio.piped, stderr := Stdio.piped };
--- BUG: this will block indefinitely if the process fills the stderr pipe
-stdout ← child.stdout.readToEnd;
+stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated;
 stderr ← child.stderr.readToEnd;
 exitCode ← child.wait;
+stdout ← IO.ofExcept stdout.get;
 pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
 
 /-- Run process to completion and return stdout on success. -/

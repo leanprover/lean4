@@ -2083,7 +2083,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_36; lean_object* x_37; 
 x_9 = lean_ctor_get(x_7, 0);
 x_10 = lean_ctor_get(x_7, 1);
-x_36 = lean_ctor_get_uint8(x_9, sizeof(void*)*5);
+x_36 = lean_ctor_get_uint8(x_9, sizeof(void*)*6);
 x_37 = lean_box(x_36);
 if (lean_obj_tag(x_37) == 2)
 {
@@ -2193,7 +2193,7 @@ x_42 = lean_ctor_get(x_7, 1);
 lean_inc(x_42);
 lean_inc(x_41);
 lean_dec(x_7);
-x_59 = lean_ctor_get_uint8(x_41, sizeof(void*)*5);
+x_59 = lean_ctor_get_uint8(x_41, sizeof(void*)*6);
 x_60 = lean_box(x_59);
 if (lean_obj_tag(x_60) == 2)
 {

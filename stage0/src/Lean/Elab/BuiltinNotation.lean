@@ -60,7 +60,9 @@ fun stx => match_syntax stx with
 | _                               => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro :=
-fun stx => match_syntax stx with
+fun stx =>
+let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]); -- HACK
+match_syntax stx with
 | `(have $type from $val; $body)              => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
 | `(have $type by $tac:tacticSeq; $body)      => `(have $type from by $tac:tacticSeq; $body)
 | `(have $type := $val; $body)                => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)

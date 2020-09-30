@@ -253,7 +253,6 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"
 @[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> termParser) >> optional "; " >> termParser
 @[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optional "; " >> termParser
-@[builtinTermParser] def «return»    := parser!:leadPrec "return " >> termParser
 
 end Term
 

@@ -30,6 +30,7 @@ extern lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_hasEval___rarg___closed__2;
 lean_object* l_Std_RBNode_fold___main___at_Lean_mkExternAttr___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_ExternAttrData_inhabited___closed__1;
 extern lean_object* l_Array_empty___closed__1;
@@ -90,7 +91,6 @@ lean_object* l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___mai
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPatternAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__5;
-extern lean_object* l_Lean_Meta_MetaM_run_x27___rarg___closed__2;
 lean_object* l_Lean_mkExternAttr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getExternConstArity___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_3__parseOptNum___main(lean_object*, lean_object*, lean_object*);
@@ -3003,7 +3003,7 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = l_Lean_getExternConstArity___closed__1;
-x_25 = l_Lean_Meta_MetaM_run_x27___rarg___closed__2;
+x_25 = l_Lean_Meta_hasEval___rarg___closed__2;
 lean_inc(x_22);
 x_26 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNamesImp___spec__3___rarg(x_19, x_24, x_25, x_22, x_2, x_3, x_23);
 if (lean_obj_tag(x_26) == 0)
@@ -3148,7 +3148,7 @@ x_54 = lean_ctor_get(x_52, 1);
 lean_inc(x_54);
 lean_dec(x_52);
 x_55 = l_Lean_getExternConstArity___closed__1;
-x_56 = l_Lean_Meta_MetaM_run_x27___rarg___closed__2;
+x_56 = l_Lean_Meta_hasEval___rarg___closed__2;
 lean_inc(x_53);
 x_57 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNamesImp___spec__3___rarg(x_50, x_55, x_56, x_53, x_2, x_3, x_54);
 if (lean_obj_tag(x_57) == 0)
@@ -3326,7 +3326,7 @@ x_93 = lean_ctor_get(x_91, 1);
 lean_inc(x_93);
 lean_dec(x_91);
 x_94 = l_Lean_getExternConstArity___closed__1;
-x_95 = l_Lean_Meta_MetaM_run_x27___rarg___closed__2;
+x_95 = l_Lean_Meta_hasEval___rarg___closed__2;
 lean_inc(x_92);
 x_96 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNamesImp___spec__3___rarg(x_89, x_94, x_95, x_92, x_2, x_3, x_93);
 if (lean_obj_tag(x_96) == 0)

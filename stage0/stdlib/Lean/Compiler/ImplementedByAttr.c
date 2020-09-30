@@ -17,7 +17,6 @@ lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplemented
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__8;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__1;
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___rarg(lean_object*, lean_object*);
@@ -29,7 +28,6 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*,
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__4;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
-lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__2___lambda__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -41,7 +39,6 @@ lean_object* l_Lean_Compiler_implementedByAttr;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__3;
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
-lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,6 +76,7 @@ uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_setImplementedBy___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__5;
+lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_Compiler_getImplementedBy___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___closed__1;
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__3;
@@ -86,15 +84,16 @@ lean_object* l_Lean_Compiler_mkImplementedByAttr___closed__2;
 lean_object* lean_get_implemented_by(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___closed__4;
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_find___main___at___private_Lean_Hygiene_4__sanitizeSyntaxAux___main___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Compiler_mkImplementedByAttr___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
+lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_mkImplementedByAttr___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_setImplementedBy___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1303,50 +1302,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* l_Std_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_ctor_get(x_1, 2);
-x_7 = lean_ctor_get(x_1, 3);
-x_8 = l_Lean_Name_quickLt(x_2, x_5);
-if (x_8 == 0)
-{
-uint8_t x_9; 
-x_9 = l_Lean_Name_quickLt(x_5, x_2);
-if (x_9 == 0)
-{
-lean_object* x_10; 
-lean_inc(x_6);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_6);
-return x_10;
-}
-else
-{
-x_1 = x_7;
-goto _start;
-}
-}
-else
-{
-x_1 = x_4;
-goto _start;
-}
-}
-}
-}
-lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1437,7 +1393,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_Lean_PersistentEnvExtension_getState___rarg(x_5, x_2);
-x_7 = l_Std_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2(x_6, x_3);
+x_7 = l_Std_RBNode_find___main___at___private_Lean_Hygiene_4__sanitizeSyntaxAux___main___spec__2(x_6, x_3);
 lean_dec(x_3);
 lean_dec(x_6);
 return x_7;
@@ -1460,7 +1416,7 @@ x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_sub(x_13, x_14);
 lean_dec(x_13);
 x_16 = lean_unsigned_to_nat(0u);
-x_17 = l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3(x_10, x_12, x_16, x_15);
+x_17 = l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__2(x_10, x_12, x_16, x_15);
 lean_dec(x_12);
 lean_dec(x_10);
 if (lean_obj_tag(x_17) == 0)
@@ -1510,21 +1466,11 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_Std_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3(x_1, x_2, x_3, x_4);
+x_5 = l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__2(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;

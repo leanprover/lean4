@@ -45,7 +45,7 @@ lean_object* l_Lean_Meta_assertAfter___lambda__1(lean_object*, lean_object*, lea
 lean_object* l_Lean_Meta_assert___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_4__getLevelImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
-lean_object* l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assert___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at_Lean_Meta_assertAfter___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1374,7 +1374,7 @@ x_39 = l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__11(x_7, x_1
 lean_dec(x_19);
 x_40 = l_Array_filterAux___main___at_Lean_Meta_assertAfter___spec__12(x_29, x_23, x_31, x_31);
 x_41 = 2;
-x_42 = l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(x_39, x_40, x_38, x_41, x_13, x_7, x_8, x_9, x_10, x_36);
+x_42 = l_Lean_Meta_mkFreshExprMVarAt___at___private_Lean_Meta_Basic_3__mkFreshExprMVarCore___spec__2(x_39, x_40, x_38, x_41, x_13, x_31, x_7, x_8, x_9, x_10, x_36);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
 x_44 = lean_ctor_get(x_42, 1);

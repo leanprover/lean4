@@ -71,7 +71,7 @@ lean_object* l_Subtype_Inhabited(lean_object*, lean_object*);
 lean_object* l_Prod_HasSizeof___rarg(lean_object*, lean_object*);
 lean_object* l_Bool_sizeof(uint8_t);
 lean_object* l_Subtype_DecidableEq___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_task_spawn(lean_object*);
+lean_object* lean_task_spawn(lean_object*, lean_object*);
 lean_object* l_List_sizeof(lean_object*);
 lean_object* l_Function_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_sizeof(lean_object*, lean_object*);
@@ -90,7 +90,7 @@ lean_object* l_Quotient_recOnSubsingleton___rarg(lean_object*, lean_object*);
 lean_object* l_Task_get___boxed(lean_object*, lean_object*);
 lean_object* l_False_elim(lean_object*, uint8_t);
 lean_object* l_default_sizeof___boxed(lean_object*, lean_object*);
-lean_object* l_Task_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Task_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_prio;
 lean_object* l_Subtype_HasSizeof(lean_object*);
 lean_object* l_Nat_HasOfNat___closed__1;
@@ -105,7 +105,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_and(uint8_t, uint8_t);
 lean_object* l_Quot_rec___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift_u2082___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Task_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Task_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_DecidableEq(lean_object*, lean_object*);
 lean_object* lean_thunk_pure(lean_object*);
 lean_object* l_And_Decidable(lean_object*, lean_object*);
@@ -149,6 +149,7 @@ lean_object* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___rarg(lean_object*
 lean_object* l_ite(lean_object*, lean_object*);
 lean_object* l_Quot_hrecOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_not___boxed(lean_object*);
+lean_object* l_Task_Priority_dedicated;
 lean_object* l_std_prec_arrow;
 lean_object* l_Decidable_recOnFalse___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Sum_inhabitedRight___rarg(lean_object*);
@@ -168,7 +169,7 @@ lean_object* l_Nat_HasAdd___closed__1;
 uint8_t l_xor(uint8_t, uint8_t);
 lean_object* l_typedExpr___rarg___boxed(lean_object*);
 lean_object* l_Forall_Inhabited___rarg(lean_object*, lean_object*);
-lean_object* lean_task_map(lean_object*, lean_object*);
+lean_object* lean_task_map(lean_object*, lean_object*, lean_object*);
 lean_object* l_flip___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_PUnit_HasSizeof;
 lean_object* l_Sum_DecidableEq(lean_object*, lean_object*);
@@ -206,6 +207,7 @@ lean_object* l_Function_combine___rarg(lean_object*, lean_object*, lean_object*,
 lean_object* lean_mk_thunk(lean_object*);
 lean_object* l_Thunk_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_implies_Decidable___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Task_Priority_default;
 lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 lean_object* l_NonScalar_Inhabited;
 lean_object* l_ite___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -244,7 +246,7 @@ lean_object* l_Not_Decidable(lean_object*);
 lean_object* l_Quotient_mk___rarg(lean_object*);
 lean_object* l_Prod_map___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_dite_Decidable___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_task_bind(lean_object*, lean_object*);
+lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*);
 lean_object* l_PointedType_Inhabited;
 uint8_t l_bne___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_False_Decidable;
@@ -274,6 +276,7 @@ lean_object* l_std_prec_max;
 lean_object* l_Fun_Inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_cond___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_HasSizeof(lean_object*);
+lean_object* l_Task_Priority_max;
 lean_object* l_PSum_HasSizeof(lean_object*, lean_object*);
 lean_object* l_Function_const(lean_object*, lean_object*);
 lean_object* l_PUnit_Inhabited;
@@ -326,7 +329,7 @@ lean_object* l_decidableOfDecidableOfIff(lean_object*, lean_object*);
 lean_object* l_bit0___rarg(lean_object*, lean_object*);
 lean_object* l_beqOfEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_DecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Task_spawn___boxed(lean_object*, lean_object*);
+lean_object* l_Task_spawn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Decidable_recOnTrue___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_std_priority_max;
 lean_object* l_Sum_sizeof(lean_object*, lean_object*);
@@ -575,46 +578,6 @@ x_5 = lean_thunk_bind(x_3, x_4);
 return x_5;
 }
 }
-lean_object* l_Task_pure___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_task_pure(x_2);
-return x_3;
-}
-}
-lean_object* l_Task_get___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_task_get_own(x_2);
-return x_3;
-}
-}
-lean_object* l_Task_spawn___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_task_spawn(x_2);
-return x_3;
-}
-}
-lean_object* l_Task_map___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_task_map(x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Task_bind___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_task_bind(x_3, x_4);
-return x_5;
-}
-}
 lean_object* l_Eq_ndrec___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -851,6 +814,70 @@ _start:
 lean_object* x_1; 
 x_1 = l_std_prec_maxPlus___closed__1;
 return x_1;
+}
+}
+lean_object* l_Task_pure___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_task_pure(x_2);
+return x_3;
+}
+}
+lean_object* l_Task_get___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_task_get_own(x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Task_Priority_default() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(0u);
+return x_1;
+}
+}
+lean_object* _init_l_Task_Priority_max() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(8u);
+return x_1;
+}
+}
+lean_object* _init_l_Task_Priority_dedicated() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(9u);
+return x_1;
+}
+}
+lean_object* l_Task_spawn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_task_spawn(x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Task_map___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_task_map(x_3, x_4, x_5);
+return x_6;
+}
+}
+lean_object* l_Task_bind___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_task_bind(x_3, x_4, x_5);
+return x_6;
 }
 }
 lean_object* _init_l_Nat_HasOfNat___closed__1() {
@@ -3734,6 +3761,12 @@ l_std_prec_maxPlus___closed__1 = _init_l_std_prec_maxPlus___closed__1();
 lean_mark_persistent(l_std_prec_maxPlus___closed__1);
 l_std_prec_maxPlus = _init_l_std_prec_maxPlus();
 lean_mark_persistent(l_std_prec_maxPlus);
+l_Task_Priority_default = _init_l_Task_Priority_default();
+lean_mark_persistent(l_Task_Priority_default);
+l_Task_Priority_max = _init_l_Task_Priority_max();
+lean_mark_persistent(l_Task_Priority_max);
+l_Task_Priority_dedicated = _init_l_Task_Priority_dedicated();
+lean_mark_persistent(l_Task_Priority_dedicated);
 l_Nat_HasOfNat___closed__1 = _init_l_Nat_HasOfNat___closed__1();
 lean_mark_persistent(l_Nat_HasOfNat___closed__1);
 l_Nat_HasOfNat = _init_l_Nat_HasOfNat();

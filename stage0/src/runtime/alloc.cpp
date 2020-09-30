@@ -341,12 +341,16 @@ static void init_heap(bool main) {
     lean_assert(g_heap == nullptr);
     g_heap = new heap();
     g_curr_pages = g_heap->m_curr_page;
+    for (unsigned i = 0; i < LEAN_NUM_SLOTS; i++) {
+        g_heap->m_curr_page[i] = nullptr;
+        g_heap->m_page_free_list[i] = nullptr;
+    }
     g_heap->alloc_segment();
     unsigned obj_size = LEAN_OBJECT_SIZE_DELTA;
     for (unsigned i = 0; i < LEAN_NUM_SLOTS; i++) {
-        g_heap->m_curr_page[i] = nullptr;
-        alloc_page(g_heap, obj_size);
-        g_heap->m_page_free_list[i] = nullptr;
+        if (g_heap->m_curr_page[i] == nullptr) {
+            alloc_page(g_heap, obj_size);
+        }
         obj_size += LEAN_OBJECT_SIZE_DELTA;
     }
     if (!main)

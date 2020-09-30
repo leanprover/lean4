@@ -152,23 +152,6 @@ protected def Thunk.map {α : Type u} {β : Type v} (f : α → β) (x : Thunk �
 protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → Thunk β) : Thunk β :=
 ⟨fun _ => (f x.get).get⟩
 
-/- Remark: tasks have an efficient implementation in the runtime. -/
-structure Task (α : Type u) : Type u := pure ::
-(get : α)
-
-attribute [extern "lean_task_pure"] Task.pure
-attribute [extern "lean_task_get_own"] Task.get
-
-@[noinline, extern "lean_task_spawn"]
-protected def Task.spawn {α : Type u} (fn : Unit → α) : Task α :=
-⟨fn ()⟩
-@[noinline, extern "lean_task_map"]
-protected def Task.map {α : Type u} {β : Type v} (f : α → β) (x : Task α) : Task β :=
-⟨f x.get⟩
-@[noinline, extern "lean_task_bind"]
-protected def Task.bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) : Task β :=
-⟨(f x.get).get⟩
-
 inductive True : Prop
 | intro : True
 
@@ -432,6 +415,37 @@ be stronger than application.
 -/
 
 def std.prec.maxPlus : Nat := std.prec.max + 10
+
+/- Remark: tasks have an efficient implementation in the runtime. -/
+structure Task (α : Type u) : Type u := pure ::
+(get : α)
+
+attribute [extern "lean_task_pure"] Task.pure
+attribute [extern "lean_task_get_own"] Task.get
+
+namespace Task
+/-- Task priority. Tasks with higher priority will always be scheduled before ones with lower priority. -/
+abbrev Priority := Nat
+def Priority.default : Priority := 0
+-- see `LEAN_MAX_PRIO`
+def Priority.max : Priority := 8
+/--
+  Any priority higher than `Task.Priority.max` will result in the task being scheduled immediately on a dedicated thread.
+  This is particularly useful for long-running and/or I/O-bound tasks since Lean will by default allocate no more
+  non-dedicated workers than the number of cores to reduce context switches. -/
+def Priority.dedicated : Priority := 9
+
+@[noinline, extern "lean_task_spawn"]
+protected def spawn {α : Type u} (fn : Unit → α) (prio := Priority.default) : Task α :=
+⟨fn ()⟩
+@[noinline, extern "lean_task_map"]
+protected def map {α : Type u} {β : Type v} (f : α → β) (x : Task α) (prio := Priority.default) : Task β :=
+⟨f x.get⟩
+@[noinline, extern "lean_task_bind"]
+protected def bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) (prio := Priority.default) : Task β :=
+⟨(f x.get).get⟩
+
+end Task
 
 infixr `×` := Prod
 -- notation for n-ary tuples

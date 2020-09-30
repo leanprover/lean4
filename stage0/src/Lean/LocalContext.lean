@@ -371,66 +371,23 @@ Id.run $ lctx.anyM p
 @[inline] def all (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
 Id.run $ lctx.allM p
 
-private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat) : Name :=
-if unicode then
-  if idx == 0 then
-    name.appendAfter "✝"
-  else
-    name.appendAfter ("✝" ++ idx.toSuperscriptString)
-else
-  name ++ mkNameNum "_inaccessible" idx
-
-private def mkInaccessibleUserName (unicode : Bool) : Name → Name
-| Name.num p@(Name.str _ _ _) idx _ =>
-  mkInaccessibleUserNameAux unicode p idx
-| Name.num Name.anonymous idx _     =>
-  mkInaccessibleUserNameAux unicode Name.anonymous idx
-| Name.num p idx _ =>
-  if unicode then
-    (mkInaccessibleUserName p).appendAfter ("⁻" ++ idx.toSuperscriptString)
-  else
-    mkNameNum (mkInaccessibleUserName p) idx
-| n => n
-
-@[export lean_is_inaccessible_user_name]
-def isInaccessibleUserName : Name → Bool
-| Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
-| Name.num p idx _ => isInaccessibleUserName p
-| _                => false
-
-private partial def mkFreshInaccessibleUserName (unicode : Bool) (usedName2Idx : NameMap Nat) (userName : Name) : Nat → Name × NameMap Nat
-| idx =>
-  let userNameNew := mkInaccessibleUserName unicode (mkNameNum userName idx);
-  if usedName2Idx.contains userNameNew then
-    mkFreshInaccessibleUserName (idx+1)
-  else
-   (userNameNew, usedName2Idx.insert userName (idx+1))
-
-def sanitizeNamesDefault := true
-@[init] def sanitizeNamesOption : IO Unit :=
-registerOption `pp.sanitizeNames { defValue := sanitizeNamesDefault, group := "pp", descr := "add suffix '_{<idx>}' to shadowed variables when pretty printing" }
-def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
-
-def sanitizeNames (lctx : LocalContext) (options : Options) : LocalContext :=
-if !getSanitizeNames options then lctx else
-let unicode   := Format.getUnicode options;
-let (lctx, _, _) := lctx.decls.size.foldRev
-  (fun i (acc : LocalContext × NameSet × NameMap Nat) =>
-    let (lctx, usedNames, usedName2Idx) := acc;
-    match lctx.decls.get! i with
-    | none      => acc
-    | some decl =>
-      let userName := decl.userName;
-      if userName.hasMacroScopes || usedNames.contains userName then
-        let userName := userName.eraseMacroScopes;
-        let idx      := (usedName2Idx.find? userName).getD 0;
-        let (userNameNew, usedName2Idx) := mkFreshInaccessibleUserName unicode usedName2Idx userName idx;
-        let lctx := lctx.setUserName decl.fvarId userNameNew;
-        (lctx, usedNames, usedName2Idx)
-      else
-        (lctx, usedNames.insert userName, usedName2Idx))
-  (lctx, {}, {});
-lctx
+def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext := do
+st ← get;
+if !getSanitizeNames st.options then pure lctx else
+  flip StateT.run' ({} : NameSet) $
+    lctx.decls.size.foldRevM
+      (fun i lctx =>
+        match lctx.decls.get! i with
+        | none      => pure lctx
+        | some decl => do
+          usedNames ← get;
+          set $ usedNames.insert decl.userName;
+          if decl.userName.hasMacroScopes || usedNames.contains decl.userName then do
+            userNameNew ← liftM $ sanitizeName decl.userName;
+            pure $ lctx.setUserName decl.fvarId userNameNew
+          else
+            pure lctx)
+      lctx
 
 end LocalContext
 

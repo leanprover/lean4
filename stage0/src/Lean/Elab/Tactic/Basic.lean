@@ -102,8 +102,7 @@ mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tac
 
 private def evalTacticUsing (s : SavedState) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do
-  let refFmt := stx.prettyPrint;
-  throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+  throwErrorAt stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ stx))
 | (evalFn::evalFns) => catch (evalFn stx)
   (fun ex => match ex with
     | Exception.error _ _  =>
@@ -177,7 +176,7 @@ pure mvarDecl.userName
 def ensureHasNoMVars (e : Expr) : TacticM Unit := do
 e ← instantiateMVars e;
 pendingMVars ← getMVars e;
-liftM $ Term.logUnassignedUsingErrorContext pendingMVars;
+liftM $ Term.logUnassignedUsingErrorInfos pendingMVars;
 when e.hasExprMVar $ throwError ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
 
 def withMainMVarContext {α} (x : TacticM α) : TacticM α := do
@@ -252,6 +251,9 @@ fun stx => (stx.getArg 0).forSepArgsM evalTactic
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
 fun stx => withRef (stx.getArg 2) $ focus $ (stx.getArg 1).forSepArgsM evalTactic
+
+@[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic :=
+fun stx => focus $ evalTactic (stx.getArg 1)
 
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalSeq1 (stx.getArg 1)

@@ -1235,17 +1235,17 @@ lean_obj_res lean_thunk_bind(lean_obj_arg x, lean_obj_arg f);
 void lean_init_task_manager();
 void lean_init_task_manager_using(unsigned num_workers);
 
-lean_obj_res lean_task_spawn_with_prio(lean_obj_arg c, unsigned prio, bool keep_alive);
+lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);
 /* Run a closure `Unit -> A` as a `Task A` */
-static inline lean_obj_res lean_task_spawn(lean_obj_arg c) { return lean_task_spawn_with_prio(c, 0, false); }
+static inline lean_obj_res lean_task_spawn(lean_obj_arg c, lean_obj_arg prio) { return lean_task_spawn_core(c, lean_unbox(prio), false); }
 /* Convert a value `a : A` into `Task A` */
 lean_obj_res lean_task_pure(lean_obj_arg a);
-lean_obj_res lean_task_bind_with_prio(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool keep_alive);
-/* Task.bind (x : Task A) (f : A -> Task B) : Task B */
-static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f) { return lean_task_bind_with_prio(x, f, 0, false); }
-lean_obj_res lean_task_map_with_prio(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool keep_alive);
-/* Task.map (f : A -> B) (t : Task A) : Task B */
-static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t) { return lean_task_map_with_prio(f, t, 0, false); }
+lean_obj_res lean_task_bind_core(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool keep_alive);
+/* Task.bind (x : Task A) (f : A -> Task B) (prio : Nat) : Task B */
+static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio) { return lean_task_bind_core(x, f, lean_unbox(prio), false); }
+lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool keep_alive);
+/* Task.map (f : A -> B) (t : Task A) (prio : Nat) : Task B */
+static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio) { return lean_task_map_core(f, t, lean_unbox(prio), false); }
 b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 /* Primitive for implementing Task.get : Task A -> A */
 static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {

@@ -151,6 +151,7 @@ lean_object* l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1__
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__29(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_FoldConstsImpl_initCache;
 lean_object* l_Lean_Elab_WFRecursion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -175,7 +176,6 @@ lean_object* l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1__
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__17(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__26(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Main_5__getMVarsAtPreDef(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__26___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAbort___at_Lean_Elab_Term_ensureNoUnassignedMVars___spec__2___rarg(lean_object*);
@@ -3660,7 +3660,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = l_Lean_Elab_Term_logUnassignedUsingErrorContext(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_11);
+x_12 = l_Lean_Elab_Term_logUnassignedUsingErrorInfos(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_11);
 lean_dec(x_10);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);

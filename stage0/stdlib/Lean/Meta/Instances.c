@@ -29,13 +29,13 @@ extern lean_object* l_Lean_InternalExceptionId_toString___closed__1;
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_Meta_addInstanceEntry(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_registerInstanceAttr___closed__5;
+extern lean_object* l_Lean_Meta_hasEval___rarg___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_BinSearch_1__binInsertAux___main___at_Lean_Meta_addInstanceEntry___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l___private_Lean_Meta_DiscrTree_10__insertVal___at_Lean_Meta_addInstanceEntry___spec__10(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_hasEval___rarg___closed__2;
 lean_object* l_Lean_Meta_getGlobalInstances___rarg___boxed(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
@@ -61,6 +61,7 @@ lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_1__inferAp
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_mkInstanceExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Environment_addAttributeOld___closed__2;
 lean_object* l_Lean_Meta_instanceExtension___elambda__3___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 extern lean_object* l_Lean_Meta_State_inhabited___closed__7;
 uint8_t l_Lean_Meta_DiscrTree_Key_beq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -131,6 +132,7 @@ size_t l_USize_land(size_t, size_t);
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Ext_inhabitedExt___closed__2;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_addGlobalInstanceImp___closed__4;
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1___closed__1;
 lean_object* lean_add_instance(lean_object*, lean_object*, lean_object*);
@@ -141,6 +143,7 @@ lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1___boxed(lean_object*, 
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Meta_addInstanceEntry___spec__14___boxed(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
+extern lean_object* l_Std_PersistentArray_empty___closed__3;
 extern lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1;
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Lean_Environment_getGlobalInstances(lean_object*);
@@ -190,6 +193,7 @@ lean_object* l_Array_binInsertM___at_Lean_Meta_addInstanceEntry___spec__13(lean_
 lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addGlobalInstance___at_Lean_Meta_registerInstanceAttr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Meta_DiscrTree_Key_hash(lean_object*);
+lean_object* l_Lean_Meta_addGlobalInstanceImp___closed__3;
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Meta_addInstanceEntry___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_addInstanceEntry___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
@@ -2350,6 +2354,32 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+lean_object* _init_l_Lean_Meta_addGlobalInstanceImp___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_LocalContext_Inhabited___closed__1;
+x_2 = l_Std_PersistentArray_empty___closed__3;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Meta_addGlobalInstanceImp___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Meta_hasEval___rarg___closed__1;
+x_2 = l_Lean_Meta_addGlobalInstanceImp___closed__3;
+x_3 = l_Array_empty___closed__1;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
 lean_object* lean_add_instance(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2399,7 +2429,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
-x_22 = l_Lean_Meta_hasEval___rarg___closed__2;
+x_22 = l_Lean_Meta_addGlobalInstanceImp___closed__4;
 x_23 = l_Lean_Environment_addAttributeOld___closed__2;
 lean_inc(x_16);
 lean_inc(x_20);
@@ -3079,6 +3109,10 @@ l_Lean_Meta_addGlobalInstanceImp___closed__1 = _init_l_Lean_Meta_addGlobalInstan
 lean_mark_persistent(l_Lean_Meta_addGlobalInstanceImp___closed__1);
 l_Lean_Meta_addGlobalInstanceImp___closed__2 = _init_l_Lean_Meta_addGlobalInstanceImp___closed__2();
 lean_mark_persistent(l_Lean_Meta_addGlobalInstanceImp___closed__2);
+l_Lean_Meta_addGlobalInstanceImp___closed__3 = _init_l_Lean_Meta_addGlobalInstanceImp___closed__3();
+lean_mark_persistent(l_Lean_Meta_addGlobalInstanceImp___closed__3);
+l_Lean_Meta_addGlobalInstanceImp___closed__4 = _init_l_Lean_Meta_addGlobalInstanceImp___closed__4();
+lean_mark_persistent(l_Lean_Meta_addGlobalInstanceImp___closed__4);
 l_Lean_Meta_registerInstanceAttr___lambda__1___closed__1 = _init_l_Lean_Meta_registerInstanceAttr___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_registerInstanceAttr___lambda__1___closed__1);
 l_Lean_Meta_registerInstanceAttr___lambda__1___closed__2 = _init_l_Lean_Meta_registerInstanceAttr___lambda__1___closed__2();

@@ -47,7 +47,7 @@ pure s.result
 
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM Unit := do
 pendingMVarIds ← liftMetaM $ getMVarsAtPreDef preDef;
-foundError ← logUnassignedUsingErrorContext pendingMVarIds;
+foundError ← logUnassignedUsingErrorInfos pendingMVarIds;
 when foundError throwAbort
 
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do

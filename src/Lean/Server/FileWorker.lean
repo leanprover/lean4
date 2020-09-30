@@ -77,6 +77,15 @@ private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
     if canceled then
       pure (Except.error TaskError.aborted)
     else do
+      -- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
+      -- while prefering newer versions over old ones. The former is necessary because we do
+      -- not explicitly clear older diagnostics, while the latter is necessary because we do
+      -- not guarantee that diagnostics are emitted in order. Specifically, it may happen that
+      -- we interrupted this elaboration task right at this point and a newer elaboration task
+      -- emits diagnostics, after which we emit old diagnostics because we did not yet detect
+      -- the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
+      -- because we cannot guarantee that no further diagnostics are emitted after clearing
+      -- them.
       sendDiagnosticsCore h uri version contents snap.msgLog;
       t ← runTask (runCore snap);
       pure (Except.ok ⟨snap, t⟩)
@@ -200,7 +209,7 @@ some newVersion ← pure docId.version? | throw (userError "expected version num
 if newVersion <= oldDoc.version then do
   throw (userError "got outdated version number")
 else match changes.get? 0 with
-| none => clearDiagnostics docId.uri oldDoc.version
+| none => pure ()
 | some firstChange => do
   let firstStartOff := match firstChange with
     | TextDocumentContentChangeEvent.rangeChange (range : Range) _ => 

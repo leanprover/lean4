@@ -168,6 +168,7 @@ def terminateFileWorker (uri : DocumentUri) : ServerM Unit :=
 -- forwarding task will detect and then terminate itself.
 -- TODO(MH): emit ContentChanged errors for pending requests
 -- to that file worker.
+-- TODO(MH): clear diagnostics?
 fun st => st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
   
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=

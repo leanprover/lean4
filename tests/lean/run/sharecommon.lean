@@ -2,7 +2,7 @@ import Std.ShareCommon
 new_frontend
 open Std
 def check (b : Bool) : ShareCommonT IO Unit :=
-unless b $ throw $ IO.userError "check failed"
+«unless» b $ throw $ IO.userError "check failed"
 
 unsafe def tst1 : ShareCommonT IO Unit := do
 let x := [1]

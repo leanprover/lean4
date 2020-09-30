@@ -1,7 +1,7 @@
 new_frontend
 
 def check (b : Bool) : IO Unit :=
-unless b $ throw $ IO.userError "check failed"
+«unless» b $ throw $ IO.userError "check failed"
 
 def tst1 : IO Unit := do
 check (Nat.toFloat (10^40) > Nat.toFloat (10^30));

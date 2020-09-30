@@ -22,7 +22,7 @@ instance monad : Monad sim :=
 
 instance monadExcept : MonadExcept IO.Error sim :=
 { throw := λ err => sim.mk (λ kerr _k => kerr err),
-  catch := λ m handle => sim.mk (λ kerr k =>
+  «catch» := λ m handle => sim.mk (λ kerr k =>
       let kerr' := λerr => (handle err).runSim kerr k;
       m.runSim kerr' k)
   }

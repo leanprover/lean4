@@ -37,7 +37,7 @@ class HasGetAt {β : Type} (v : β) (α : outParam Type) (m : Type → Type) :=
 (getAt : m α)
 
 instance monadState.hasGetAt (β : Type) (v : β) (α : Type) (m : Type → Type) [Monad m] [MonadStateOf (Label v α) m] : HasGetAt v α m :=
-{ getAt := do let a ← getThe (Label v α); return a.val }
+{ getAt := do let a ← getThe (Label v α); pure a.val }
 
 export HasGetAt (getAt)
 
@@ -50,7 +50,7 @@ let a2 ← getAt 2
 IO.println $ "state0 " ++ toString a0
 IO.println $ "state1 " ++ toString a1
 IO.println $ "state1 " ++ toString a2
-return a0 + a1 + a2
+pure (a0 + a1 + a2)
 
 #eval f4.run' ⟨10⟩ $.run' ⟨20⟩ $.run' ⟨30⟩
 

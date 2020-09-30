@@ -3,7 +3,7 @@ new_frontend
 open Lean
 
 def check (b : Bool) : IO Unit :=
-unless b (throw $ IO.userError "error")
+«unless» b (throw $ IO.userError "error")
 
 def f := mkConst `f []
 def g := mkConst `g []

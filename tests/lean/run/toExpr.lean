@@ -21,7 +21,7 @@ IO.println (toExpr a);
   | Except.error ex => throwError ex
   | Except.ok b => do
     IO.println b;
-    unless (a == b) $
+    «unless» (a == b) $
       throwError "toExpr failed";
     pure ())
 

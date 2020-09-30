@@ -9,7 +9,7 @@ open IO.FS
 instance : HasRepr UInt8 := ⟨ toString ⟩
 
 def check_eq {α} [HasBeq α] [HasRepr α] (tag : String) (expected actual : α) : IO Unit :=
-unless (expected == actual) $ throw $ IO.userError $
+«unless» (expected == actual) $ throw $ IO.userError $
   "assertion failure \"" ++ tag ++
     "\":\n  expected: " ++ repr expected ++
        "\n  actual:   " ++ repr actual
@@ -32,12 +32,12 @@ withFile "foo.txt" Mode.read fun h => do
     let ys ← h.read 2;
     check_eq "3" [7,8] ys.toList;
     let b ← h.isEof;
-    unless (!b)
+    «unless» (!b)
       (throw $ IO.userError $ "wrong (4): ");
     let ys ← h.read 2;
     check_eq "5" [] ys.toList;
     let b ← h.isEof;
-    unless b
+    «unless» b
       (throw $ IO.userError $ "wrong (6): ");
 pure ()
 
@@ -73,7 +73,7 @@ let ys ← withFile fn2 Mode.read $ fun h => do
       IO.println i;
       IO.println ∘ repr $ ln;
       let b  ← h.isEof;
-      unless (i == 1 || !b) (throw $ IO.userError "isEof");
+      «unless» (i == 1 || !b) (throw $ IO.userError "isEof");
       pure ln };
     pure ys };
 IO.println ys;

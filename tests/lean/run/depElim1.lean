@@ -9,7 +9,7 @@ open Lean.Meta.Match
 universes u v
 
 def check (x : Bool) : IO Unit :=
-unless x $ throw $ IO.userError "check failed"
+«unless» x $ throw $ IO.userError "check failed"
 
 def inaccessible {α : Sort u} (a : α) : α := a
 def val {α : Sort u} (a : α) : α := a
@@ -169,16 +169,16 @@ withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar;
   trace! `Meta.debug ("majors: " ++ majors.toArray);
   let r ← mkTester elimName majors alts inProp;
-  unless r.counterExamples.isEmpty $
+  «unless» r.counterExamples.isEmpty $
     throwError ("missing cases:" ++ Format.line ++ counterExamplesToMessageData r.counterExamples);
-  unless r.unusedAltIdxs.isEmpty $
+  «unless» r.unusedAltIdxs.isEmpty $
     throwError ("unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)));
   let cinfo ← getConstInfo elimName;
   IO.println (toString cinfo.name ++ " : " ++ toString cinfo.type);
   pure ()
 
 def testFailure (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit := do
-let worked ← catch (do test ex numPats elimName inProp; pure true) (fun ex => pure false);
+let worked ← «catch» (do test ex numPats elimName inProp; pure true) (fun ex => pure false);
 when worked $ throwError "unexpected success"
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)

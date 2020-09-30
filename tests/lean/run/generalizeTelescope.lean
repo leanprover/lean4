@@ -40,7 +40,7 @@ pure ()
 #eval tst2
 
 def failIfSuccess (x : MetaM Unit) : MetaM Unit :=
-whenM (catch (x *> pure true) (fun _ => pure false)) $
+whenM («catch» (x *> pure true) (fun _ => pure false)) $
   throwError "unexpected success"
 
 def tst3 : MetaM Unit :=

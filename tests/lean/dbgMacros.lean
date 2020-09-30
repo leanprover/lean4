@@ -29,6 +29,6 @@ x + 1
 
 def g2 (x : Nat) : IO Nat := do
 IO.println "g2 started";
-return x + 1
+pure (x + 1)
 
 #eval g2 10

@@ -16,7 +16,7 @@ FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
 { let h₂ ← FS.Handle.mk "stdout2.txt" IO.FS.Mode.write;
   withStdout (Stream.ofHandle h₁) $ do
     println "line 1";
-    catch
+    «catch»
       ( do
         withStdout (Stream.ofHandle h₂) $ println "line 2";
         throw $ IO.userError "my error" )

@@ -10,7 +10,7 @@ abbrev M := ExceptT String $ MetaM
 def testM {α} [HasBeq α] [HasToString α] (x : M α) (expected : α)  : MetaM Unit := do
 let r ← x;
 (match r with
-| Except.ok a    => unless (a == expected) $ throwError ("unexpected result " ++ toString a)
+| Except.ok a    => «unless» (a == expected) $ throwError ("unexpected result " ++ toString a)
 | Except.error e => throwError ("FAILED: " ++ e))
 
 @[noinline] def act1 : M Nat :=
@@ -18,7 +18,7 @@ throwThe Exception $ Exception.error Syntax.missing "Error at act1"
 
 def g1 : M Nat :=
 catchThe Exception
-  (catch act1 (fun ex => pure 100))
+  («catch» act1 (fun ex => pure 100))
   (fun ex => pure 200)
 
 #eval testM g1 200
@@ -28,7 +28,7 @@ throw "hello world"
 
 def g2 : M Nat :=
 catchThe Exception
-  (catch act2 (fun ex => pure 100))
+  («catch» act2 (fun ex => pure 100))
   (fun ex => pure 200)
 
 #eval testM g2 100

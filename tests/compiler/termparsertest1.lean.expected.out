@@ -171,7 +171,10 @@ match x with
      "with"
      (Term.matchAlts
       ["|"]
-      [(Term.matchAlt [(Term.app `some [(Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")")])] "=>" (Term.add `a "+" `b))
+      [(Term.matchAlt
+        [(Term.app `some [(Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")")])]
+        "=>"
+        (Term.add `a "+" `b))
        "|"
        (Term.matchAlt [`none] "=>" (numLit "1"))])))
    "|"
@@ -282,7 +285,9 @@ do
   [";"]
   (Term.doLet "let" (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.app `g [`x]))))
   [";"]
-  (Term.doLetArrow "let" (Term.doPat (Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")") "<-" (Term.app `h [`x `y]) []))
+  (Term.doLetArrow
+   "let"
+   (Term.doPat (Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")") "<-" (Term.app `h [`x `y]) []))
   [";"]
   (Term.doLet
    "let"

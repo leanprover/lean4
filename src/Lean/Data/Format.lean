@@ -73,8 +73,8 @@ partial def be : Nat → Nat → String → List (Bool × Nat × Format) → Str
 -- flatten (group f) = flatten f
 | w, k, out, (true,  i, group f)::z   => be w k out ((true, i, f)::z)
 | w, k, out, (false, i, group f)::z   =>
-  let r := spaceUptoLine' ((true, i, f) :: z) w;
-  if r.space > w then be w k out ((false, i, f)::z) else be w k out ((true, i, f)::z)
+  let r := spaceUptoLine' ((true, i, f) :: z) (w-k);
+  if r.space > w-k then be w k out ((false, i, f)::z) else be w k out ((true, i, f)::z)
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
 group (nest l.length $ l ++ f ++ r)

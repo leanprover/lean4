@@ -53,7 +53,7 @@ do print "----- tst3 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    let mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
    lambdaTelescope t fun xs _ => do
-     let x := xs.get! 0;
+     let x := xs[0];
      checkM $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
      pure ();
    let v ← getAssignment mvar;
@@ -66,7 +66,7 @@ def tst4 : MetaM Unit :=
 do print "----- tst4 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    lambdaTelescope t fun xs _ => do
-     let x := xs.get! 0;
+     let x := xs[0];
      let mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
      -- the following `isExprDefEq` fails because `x` is also in the context of `mvar`
      checkM $ not <$> isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);

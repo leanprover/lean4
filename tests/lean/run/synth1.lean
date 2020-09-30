@@ -29,8 +29,8 @@ trace! `Meta.synthInstance (toString a)
 
 
 def tst1 : MetaM Unit := do
-let inst ← mkAppM `HasCoerce #[mkConst `Nat, mkSort levelZero];
-let r ← synthInstance inst;
+let inst ← mkAppM `HasCoerce #[mkConst `Nat, mkSort levelZero]
+let r ← synthInstance inst
 print r
 
 set_option trace.Meta.synthInstance true in
@@ -38,13 +38,13 @@ set_option trace.Meta.synthInstance.tryResolve false in
 #eval tst1
 
 def tst2 : MetaM Unit := do
-let inst ← mkAppM `HasBind #[mkConst `IO];
--- globalInstances ← getGlobalInstances;
--- print (format globalInstances);
--- result ← globalInstances.getUnify inst;
--- print result;
-let r ← synthInstance inst;
-print r;
+let inst ← mkAppM `HasBind #[mkConst `IO]
+-- globalInstances ← getGlobalInstances
+-- print (format globalInstances)
+-- result ← globalInstances.getUnify inst
+-- print result
+let r ← synthInstance inst
+print r
 pure ()
 
 set_option trace.Meta.synthInstance true in
@@ -52,9 +52,9 @@ set_option trace.Meta.synthInstance.tryResolve false in
 #eval tst2
 
 def tst3 : MetaM Unit := do
-let inst ← mkAppM `HasBeq #[mkConst `Nat];
-let r ← synthInstance inst;
-print r;
+let inst ← mkAppM `HasBeq #[mkConst `Nat]
+let r ← synthInstance inst
+print r
 pure ()
 
 set_option trace.Meta.synthInstance true in

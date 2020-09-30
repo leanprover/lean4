@@ -7,7 +7,7 @@ def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
 def showRecInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM Unit := do
-let info ← mkRecursorInfo declName majorPos?;
+let info ← mkRecursorInfo declName majorPos?
 print (toString info)
 
 set_option trace.Meta true

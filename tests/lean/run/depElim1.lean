@@ -61,7 +61,7 @@ partial def mkPattern : Expr → MetaM Pattern
           e.isAppOfArity `ArrayLit3 4 ||
           e.isAppOfArity `ArrayLit4 5 then do
     let args := e.getAppArgs;
-    let type := args.get! 0;
+    let type := args[0];
     let ps   := args.extract 1 args.size;
     let ps ← ps.toList.mapM mkPattern;
     pure $ Pattern.arrayLit type ps

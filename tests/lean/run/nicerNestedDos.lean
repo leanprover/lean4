@@ -1,10 +1,10 @@
 new_frontend
 
 def f (x : Nat) : IO Nat := do
-IO.println "hello";
+IO.println "hello"
 when (x > 5) do
-  IO.println ("x: " ++ toString x);
-  IO.println "done";
+  IO.println ("x: " ++ toString x)
+  IO.println "done"
 pure (x + 1)
 
 #eval f 2
@@ -12,8 +12,8 @@ pure (x + 1)
 
 def g (x : Nat) : StateT Nat Id Unit := do
 when (x > 10) do
-  let s ← get;
-  set (s + x);
+  let s ← get
+  set (s + x)
 pure ()
 
 theorem ex1 : (g 10).run 1 = ((), 1) :=
@@ -26,7 +26,7 @@ def h (x : Nat) : StateT Nat Id Unit := do
 when (x > 10) do {
   let s ← get;
 set (s + x) -- we don't need to respect indentation when `{` `}` are used
-};
+}
 pure ()
 
 theorem ex3 : (h 10).run 1 = ((), 1) :=

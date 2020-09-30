@@ -7,7 +7,7 @@ def f : Name → Name
 
 def tst : IO Unit := do
 when (hash `foo.bla != hash (f `foo.bla)) $
-  throw $ IO.userError "bug";
+  throw $ IO.userError "bug"
 IO.println "ok"
 
 #eval tst

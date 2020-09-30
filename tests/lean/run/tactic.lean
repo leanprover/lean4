@@ -10,12 +10,12 @@ def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.Tactic msg
 
 def tst1 : MetaM Unit := do
-let cinfo ← getConstInfo `simple;
-let mvar  ← mkFreshExprSyntheticOpaqueMVar cinfo.type;
-let mvarId := mvar.mvarId!;
-let (_, mvarId) ← introN mvarId 4;
-assumption mvarId;
-let result ← instantiateMVars mvar;
+let cinfo ← getConstInfo `simple
+let mvar  ← mkFreshExprSyntheticOpaqueMVar cinfo.type
+let mvarId := mvar.mvarId!
+let (_, mvarId) ← introN mvarId 4
+assumption mvarId
+let result ← instantiateMVars mvar
 print result
 
 set_option trace.Meta.Tactic true

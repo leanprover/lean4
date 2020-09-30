@@ -72,12 +72,12 @@ private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
   result ← compileNextCmd contents.source parent;
   match result with
   | Sum.inl snap => do
-    sendDiagnosticsCore h uri version contents snap.msgLog;
     -- TODO(MH): check for interrupt with increased precision
     canceled ← checkCanceled;
     if canceled then
       pure (Except.error TaskError.aborted)
     else do
+      sendDiagnosticsCore h uri version contents snap.msgLog;
       t ← runTask (runCore snap);
       pure (Except.ok ⟨snap, t⟩)
   | Sum.inr msgLog => pure (Except.error TaskError.eof)
@@ -199,20 +199,28 @@ oldDoc ← getDocument;
 some newVersion ← pure docId.version? | throw (userError "expected version number");
 if newVersion <= oldDoc.version then do
   throw (userError "got outdated version number")
-else changes.forM $ fun change =>
-  match change with
-  | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) => do
-    -- Clients don't have to clear diagnostics, so we clear them
-    -- for the *previous* version here.
-    clearDiagnostics docId.uri oldDoc.version;
-    let startOff := oldDoc.text.lspPosToUtf8Pos range.start;
-    let newDocText := replaceLspRange oldDoc.text range newText;
-    st ← read;
-    newDoc ← monadLift $
-      updateDocument st.hOut docId.uri oldDoc startOff newVersion newDocText;
-    setDocument newDoc
-  | TextDocumentContentChangeEvent.fullChange (text : String) =>
-    throw (userError "TODO impl computing the diff of two sources.")
+else match changes.get? 0 with
+| none => clearDiagnostics docId.uri oldDoc.version
+| some firstChange => do
+  let firstStartOff := match firstChange with
+    | TextDocumentContentChangeEvent.rangeChange (range : Range) _ => 
+      oldDoc.text.lspPosToUtf8Pos range.start
+    | TextDocumentContentChangeEvent.fullChange _ => 0;
+  let accumulateChanges : TextDocumentContentChangeEvent → FileMap × String.Pos → FileMap × String.Pos :=
+    fun change ⟨newDocText, minStartOff⟩ =>
+      match change with
+      | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
+        let startOff    := oldDoc.text.lspPosToUtf8Pos range.start;
+        let newDocText  := replaceLspRange newDocText range newText;
+        let minStartOff := if startOff < minStartOff then startOff else minStartOff;
+        ⟨newDocText, minStartOff⟩
+      | TextDocumentContentChangeEvent.fullChange (newText : String) =>
+        ⟨newText.toFileMap, 0⟩;
+  let (newDocText, minStartOff) := changes.foldr accumulateChanges (oldDoc.text, firstStartOff);
+  st ← read;
+  newDoc ← monadLift $
+    updateDocument st.hOut docId.uri oldDoc minStartOff newVersion newDocText;
+  setDocument newDoc
 
 -- TODO(MH): requests that need data from a certain command should traverse e.snapshots
 -- by successively getting the next task, meaning that we might need to wait for elaboration.

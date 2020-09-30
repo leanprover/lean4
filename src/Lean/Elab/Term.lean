@@ -112,10 +112,15 @@ inductive SyntheticMVarKind
 structure SyntheticMVarDecl :=
 (mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
 
-structure MVarErrorContext :=
-(mvarId : MVarId)
-(ref    : Syntax)
-(ctx?   : Option Expr := none)
+inductive MVarErrorKind
+| implicitArg (ctx : Expr)
+| hole
+| custom (msgData : MessageData)
+
+structure MVarErrorInfo :=
+(mvarId    : MVarId)
+(ref       : Syntax)
+(kind      : MVarErrorKind)
 
 structure LetRecToLift :=
 (ref            : Syntax)
@@ -131,7 +136,7 @@ structure LetRecToLift :=
 
 structure State :=
 (syntheticMVars    : List SyntheticMVarDecl := [])
-(mvarErrorContexts : List MVarErrorContext := [])
+(mvarErrorInfos    : List MVarErrorInfo := [])
 (messages          : MessageLog := {})
 (letRecsToLift     : List LetRecToLift := [])
 
@@ -333,59 +338,74 @@ def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind
 ref ← getRef;
 registerSyntheticMVar ref mvarId kind
 
-def registerMVarErrorContext (mvarId : MVarId) (ref : Syntax) (ctx? : Option Expr := none) : TermElabM Unit := do
-modify fun s => { s with mvarErrorContexts := { mvarId := mvarId, ref := ref, ctx? := ctx? } :: s.mvarErrorContexts }
+def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit := do
+modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole } :: s.mvarErrorInfos }
 
-def MVarErrorContext.logError (mvarErrorContext : MVarErrorContext) : TermElabM Unit := do
-let optionExprToMessageData (e? : Option Expr) : TermElabM MessageData :=
-  match e? with
-  | none   => pure Format.nil
-  | some e => do {
-    e ← instantiateMVars e;
-    if e.isApp then
-      let f    := e.getAppFn;
-      let args := e.getAppArgs;
-      let msg  := args.foldl
-        (fun (msg : MessageData) (arg : Expr) =>
-          if arg.getAppFn.isMVar then
-            msg ++ " " ++ arg.getAppFn
-          else
-            msg ++ " …")
-        ("@" ++ MessageData.ofExpr f);
-      pure $ MessageData.nestD (Format.line ++ msg)
-    else
-      pure e
-};
-let msg : MessageData := "don't know how to synthesize placeholder";
-ctx ← optionExprToMessageData mvarErrorContext.ctx?;
-let msg := msg ++ ctx;
-let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorContext.mvarId;
-logErrorAt mvarErrorContext.ref msg
+def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
+modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app } :: s.mvarErrorInfos }
+
+def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
+modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData } :: s.mvarErrorInfos }
+
+def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) : TermElabM Unit :=
+match e.getAppFn with
+| Expr.mvar mvarId _ => registerMVarErrorCustomInfo mvarId ref msgData
+| _ => pure ()
+
+def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := do
+match mvarErrorInfo.kind with
+| MVarErrorKind.implicitArg app => do
+  app ← instantiateMVars app;
+  let f    := app.getAppFn;
+  let args := app.getAppArgs;
+  let msg  := args.foldl
+    (fun (msg : MessageData) (arg : Expr) =>
+      if arg.getAppFn.isMVar then
+        msg ++ " " ++ arg.getAppFn
+      else
+        msg ++ " …")
+    ("@" ++ MessageData.ofExpr f);
+  let msg : MessageData := "don't know how to synthesize implicit argument" ++ indentD msg;
+  let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId;
+  logErrorAt mvarErrorInfo.ref msg
+| MVarErrorKind.hole => do
+  let msg : MessageData := "don't know how to synthesize placeholder";
+  let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId;
+  logErrorAt mvarErrorInfo.ref msg
+| MVarErrorKind.custom msgData =>
+  logErrorAt mvarErrorInfo.ref msgData
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
   Return `true` if at least one error was logged.
   Remark: This method only succeeds if we have information for at least one given metavariable
-  at `mvarErrorContexts`. -/
-def logUnassignedUsingErrorContext (pendingMVarIds : Array MVarId) : TermElabM Bool := do
+  at `mvarErrorInfos`. -/
+def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Bool := do
 s ← get;
-let errorCtxs := s.mvarErrorContexts;
-errorCtxs.foldlM
-  (fun foundError mvarErrorContext => do
-    /- The metavariable `mvarErrorContext.mvarId` may have been assigned or
-       delayed assigned to another metavariable that is unassigned. -/
-    mvarDeps ← getMVars (mkMVar mvarErrorContext.mvarId);
-    if mvarDeps.any pendingMVarIds.contains then do
-      mvarErrorContext.logError;
-      pure true
-    else
-      pure foundError)
-  false
+let errorInfos := s.mvarErrorInfos;
+(foundErrors, _) ← errorInfos.foldlM
+  (fun (acc : Bool × NameSet) mvarErrorInfo => do
+    let (foundErrors, alreadyVisited) := acc;
+    let mvarId := mvarErrorInfo.mvarId;
+    if alreadyVisited.contains mvarId then
+      pure acc
+    else do
+      let alreadyVisited := alreadyVisited.insert mvarId;
+      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+         delayed assigned to another metavariable that is unassigned. -/
+      mvarDeps ← getMVars (mkMVar mvarId);
+      if mvarDeps.any pendingMVarIds.contains then do
+        mvarErrorInfo.logError;
+        pure (true, alreadyVisited)
+      else
+        pure (foundErrors, alreadyVisited))
+  (false, {});
+pure foundErrors
 
-/-- Ensure metavariables registered using `registerMVarErrorContext` (and used in the given declaration) have been assigned. -/
+/-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
 pendingMVarIds ← getMVarsAtDecl decl;
-foundError ← logUnassignedUsingErrorContext pendingMVarIds;
+foundError ← logUnassignedUsingErrorInfos pendingMVarIds;
 when foundError throwAbort
 
 /-
@@ -995,7 +1015,7 @@ fun stx _ => do
 @[builtinTermElab «hole»] def elabHole : TermElab :=
 fun stx expectedType? => do
   mvar ← mkFreshExprMVar expectedType?;
-  registerMVarErrorContext mvar.mvarId! stx;
+  registerMVarErrorHoleInfo mvar.mvarId! stx;
   pure mvar
 
 @[builtinTermElab «syntheticHole»] def elabSyntheticHole : TermElab :=
@@ -1004,7 +1024,7 @@ fun stx expectedType? => do
   let userName := if arg.isIdent then arg.getId else Name.anonymous;
   let mkNewHole : Unit → TermElabM Expr := fun _ => do {
     mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque userName;
-    registerMVarErrorContext mvar.mvarId! stx;
+    registerMVarErrorHoleInfo mvar.mvarId! stx;
     pure mvar
   };
   if userName.isAnonymous then

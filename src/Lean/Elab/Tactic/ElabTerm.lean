@@ -52,7 +52,7 @@ newMVarIds ←
     else do {
       naturalMVarIds ← newMVarIds.filterM fun mvarId => do { mvarDecl ← getMVarDecl mvarId; pure mvarDecl.kind.isNatural };
       syntheticMVarIds ← newMVarIds.filterM fun mvarId => do { mvarDecl ← getMVarDecl mvarId; pure $ !mvarDecl.kind.isNatural };
-      liftM $ Term.logUnassignedUsingErrorContext naturalMVarIds;
+      liftM $ Term.logUnassignedUsingErrorInfos naturalMVarIds;
       pure syntheticMVarIds.toList
     };
 tag ← getMainTag;

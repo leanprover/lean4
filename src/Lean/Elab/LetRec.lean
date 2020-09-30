@@ -46,6 +46,7 @@ decls ← (letRec.getArg 1).getArgs.getSepElems.mapM fun attrDeclStx => do {
     let typeStx := expandOptType decl (decl.getArg 2);
     (type, numParams) ← elabBinders binders fun xs => do {
         type ← elabType typeStx;
+        registerCustomErrorIfMVar type typeStx "failed to infer 'let rec' declaration type";
         type ← mkForallFVars xs type;
         pure (type, xs.size)
     };

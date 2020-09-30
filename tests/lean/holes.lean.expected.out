@@ -10,40 +10,24 @@ context:
 x : Nat
 y : Nat := g x + g x
 ⊢ Nat
-holes.lean:10:15: error: don't know how to synthesize placeholder
+holes.lean:10:15: error: don't know how to synthesize implicit argument
   @g … ?m …
 context:
 x : Nat
 ⊢ Type
-holes.lean:10:9: error: don't know how to synthesize placeholder
+holes.lean:10:9: error: don't know how to synthesize implicit argument
   @g … ?m …
 context:
 x : Nat
 ⊢ Type
-holes.lean:13:7: error: don't know how to synthesize placeholder
-context:
-α : Sort u_1
-⊢ Sort _
-holes.lean:15:16: error: don't know how to synthesize placeholder
-context:
-α : Sort u_1
-⊢ Sort _
-holes.lean:19:0: error: don't know how to synthesize placeholder
+holes.lean:13:7: error: failed to infer binder type
+holes.lean:15:16: error: failed to infer binder type
+holes.lean:19:0: error: don't know how to synthesize implicit argument
   @_uniq.125 … ?m …
 context:
 a : Nat
 f : {α : Type} → {β : ?m a} → α → α := fun {α : Type} (a_1 : α) => a_1
 ⊢ ?m a
-holes.lean:18:6: error: don't know how to synthesize placeholder
-context:
-a : Nat
-α : Type
-⊢ Sort _
-holes.lean:21:25: error: don't know how to synthesize placeholder
-context:
-x : Nat
-⊢ Sort _
-holes.lean:25:8: error: don't know how to synthesize placeholder
-context:
-x y : Nat
-⊢ Sort _
+holes.lean:18:6: error: failed to infer binder type
+holes.lean:21:25: error: failed to infer definition type
+holes.lean:25:8: error: failed to infer 'let rec' declaration type

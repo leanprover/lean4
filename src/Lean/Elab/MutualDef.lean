@@ -74,16 +74,21 @@ if h : 0 < prevHeaders.size then
 else
   pure ()
 
-private def elabFunType (ref : Syntax) (xs : Array Expr) (view : DefView) : TermElabM Expr :=
+private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
+registerCustomErrorIfMVar type ref "failed to infer definition type"
+
+private def elabFunType (ref : Syntax) (xs : Array Expr) (view : DefView) : TermElabM Expr := do
 match view.type? with
 | some typeStx => do
   type ← elabType typeStx;
   synthesizeSyntheticMVarsNoPostponing;
   type ← instantiateMVars type;
+  registerFailedToInferDefTypeInfo type typeStx;
   mkForallFVars xs type
 | none => do
   let hole := mkHole ref;
   type ← elabType hole;
+  registerFailedToInferDefTypeInfo type ref;
   mkForallFVars xs type
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) :=

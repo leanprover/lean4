@@ -206,7 +206,7 @@ private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermEl
       pure ()
     };
     synthesizeAppInstMVars ctx.instMVars;
-    ctx.toSetErrorCtx.forM fun mvarId => registerMVarErrorContext mvarId ctx.ref e;
+    ctx.toSetErrorCtx.forM fun mvarId => registerMVarErrorImplicitArgInfo mvarId ctx.ref e;
     pure e
   };
   eType ← whnfForall eType;

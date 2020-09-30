@@ -126,6 +126,9 @@ match stx with
     throwUnsupportedSyntax
 | _ => throwUnsupportedSyntax
 
+private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
+registerCustomErrorIfMVar type ref "failed to infer binder type"
+
 private partial def elabBinderViews (binderViews : Array BinderView)
     : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>
@@ -133,6 +136,7 @@ private partial def elabBinderViews (binderViews : Array BinderView)
     let binderView := binderViews.get ⟨i, h⟩;
     withRef binderView.type $ withLCtx lctx localInsts $ do
       type       ← elabType binderView.type;
+      registerFailedToInferBinderTypeInfo type binderView.type;
       fvarId     ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
       let fvars := fvars.push fvar;
@@ -316,6 +320,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
     let binderView := binderViews.get ⟨i, h⟩;
     withRef binderView.type $ withLCtx s.lctx s.localInsts $ do
       type       ← elabType binderView.type;
+      registerFailedToInferBinderTypeInfo type binderView.type;
       checkNoOptAutoParam type;
       fvarId ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
@@ -447,6 +452,7 @@ def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valSt
     (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
 (type, val) ← elabBinders binders $ fun xs => do {
   type ← elabType typeStx;
+  registerCustomErrorIfMVar type typeStx "failed to infer 'let' declaration type";
   val  ← elabTermEnsuringType valStx type;
   type ← mkForallFVars xs type;
   val  ← mkLambdaFVars xs val;

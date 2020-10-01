@@ -162,9 +162,9 @@ def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
 def attrInstance     := parser! rawIdent >> many attrArg
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
+def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
 @[builtinTermParser] def «letrec» :=
-    parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", ")
-                     >> optional "; " >> termParser
+    parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optional "; " >> termParser
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec

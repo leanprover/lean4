@@ -90,7 +90,7 @@ partial def toMessageDataAux (updateVars : MessageData) : Code → MessageData
 | Code.«break» _            => "break " ++ updateVars
 | Code.«continue» _         => "continue " ++ updateVars
 | Code.«return» _ none      => "return " ++ updateVars
-| Code.«return» _ (some x)  => "return " ++ x ++ " " ++ updateVars
+| Code.«return» _ (some x)  => "return " ++ x.simpMacroScopes ++ " " ++ updateVars
 | Code.«match» _ ds t alts  =>
   "match " ++ MessageData.joinSep (ds.toList.map MessageData.ofSyntax) ", " ++ " with " ++
     alts.foldl
@@ -176,13 +176,13 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
 | rs, Code.«continue» ref        => do let xs := nameSetToArray rs; jp ← addFreshJP xs (Code.«continue» ref); pure $ Code.jmp ref jp xs
 | rs, Code.«return» ref y?       => do
   let xs := nameSetToArray rs;
-  (ps, xs) ← match y? with
-    | none   => pure (xs, xs)
+  (ps, xs, y?) ← match y? with
+    | none   => pure (xs, xs, none)
     | some y =>
-      if rs.contains y then pure (xs, xs)
+      if rs.contains y then pure (xs, xs, some y)
       else do {
         yFresh ← mkFreshUserName y;
-        pure (xs.push y, xs.push yFresh)
+        pure (xs.push yFresh, xs.push y, some yFresh)
       };
   jp ← addFreshJP ps (Code.«return» ref y?);
   pure $ Code.jmp ref jp xs

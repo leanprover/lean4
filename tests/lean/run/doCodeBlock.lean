@@ -21,11 +21,11 @@ pure ()
 def tst : TermElabM Unit := do
 let x := mkIdentFrom ref `x
 let c ← mkIte ref mkNullNode (← `($x < 1))
-  (mkVarDecl `w (mkVarDecl `z (← mkReassign `x (mkReturn ref))))
+  (mkVarDecl `w (mkVarDecl `z (← mkReassign `x (mkReturn ref `z))))
   (mkVarDecl `x (← mkReassign `y (mkBreak ref)))
 print c
 IO.println "-----"
-let c ← concat c (mkVarDecl `w (← mkReassign `z (mkReturn ref)))
+let c ← concat c (mkVarDecl `w (← mkReassign `z (mkReturn ref `w)))
 print c
 let c ← mkReassign `w c
 IO.println "-----"

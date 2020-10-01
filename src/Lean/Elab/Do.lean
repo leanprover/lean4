@@ -500,11 +500,6 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syn
   else
     Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.do] def expandDo : Macro :=
-fun stx =>
-  let doElems := getDoElems stx;
-  expandDoElems false doElems 0
-
 structure ProcessedDoElem :=
 (action : Expr)
 (var    : Expr)
@@ -574,17 +569,25 @@ private partial def processDoElemsAux (doElems : Array Syntax) (m bindInstVal : 
 private def processDoElems (doElems : Array Syntax) (m bindInstVal : Expr) (expectedType : Expr) : TermElabM Expr :=
 processDoElemsAux doElems m bindInstVal expectedType 0 #[]
 
+def expandDo? (stx : Syntax) : MacroM (Option Syntax) :=
+let doElems := getDoElems stx;
+catch
+  (do stx ← expandDoElems false doElems 0; pure $ some stx)
+  (fun _ => pure none)
+
 @[builtinTermElab «do»] def elabDo : TermElab :=
 fun stx expectedType? => do
-  tryPostponeIfNoneOrMVar expectedType?;
-  let doElems := getDoElems stx;
-  trace `Elab.do $ fun _ => stx;
-  let doElems := doElems.getSepElems;
-  trace `Elab.do $ fun _ => "doElems: " ++ toString doElems;
-  { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
-  result ← processDoElems doElems m bindInstVal expectedType?.get!;
-  -- dbgTrace ("result: " ++ toString result);
-  pure result
+  stxNew? ← liftMacroM $ expandDo? stx;
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+  | none => do
+    tryPostponeIfNoneOrMVar expectedType?;
+    let doElems := getDoElems stx;
+    trace `Elab.do $ fun _ => stx;
+    let doElems := doElems.getSepElems;
+    trace `Elab.do $ fun _ => "doElems: " ++ toString doElems;
+    { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
+    processDoElems doElems m bindInstVal expectedType?.get!
 
 @[builtinTermElab liftMethod] def elabLiftMethod : TermElab :=
 fun stx _ =>

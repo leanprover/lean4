@@ -129,8 +129,8 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
 
 def matchAlts (optionalFirstBar := true) : Parser :=
 parser! withPosition $
-  (if optionalFirstBar then optional "| " else "| ") >>
-  sepBy1 matchAlt (checkColGe "alternatives must be indented" >> "|")
+  ppLine >> (if optionalFirstBar then optional "| " else "| ") >>
+  sepBy1 matchAlt (ppLine >> checkColGe "alternatives must be indented" >> "|")
 
 def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 

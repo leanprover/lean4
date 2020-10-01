@@ -403,7 +403,7 @@ def mkLetFVars (xs : Array Expr) (e : Expr) : m Expr :=
 mkLambdaFVars xs e
 
 def mkArrow (d b : Expr) : m Expr := liftMetaM do
-n ← Core.mkFreshUserName `x;
+n ← mkFreshUserName `x;
 pure $ Lean.mkForall n BinderInfo.default d b
 
 def mkForallUsedOnly (xs : Array Expr) (e : Expr) : m (Expr × Nat) := liftMetaM do

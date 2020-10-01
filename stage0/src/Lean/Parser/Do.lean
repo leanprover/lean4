@@ -25,7 +25,8 @@ def doSeqIndent    := many1Indent $ doElemParser >> optional "; "
 def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
-@[builtinDoElemParser] def doLet  := parser! "let " >> letDecl
+@[builtinDoElemParser] def doLet    := parser! "let " >> letDecl
+@[builtinDoElemParser] def doLetRec := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
 def doId   := parser! «try» (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! «try» (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 @[builtinDoElemParser] def doLetArrow := parser! "let " >> (doId <|> doPat)
@@ -60,8 +61,8 @@ else if c_2 then
 ```
 -/
 @[builtinDoElemParser] def doIf := parser! withPosition $
-  "if " >> termParser >> " then " >> doSeq
-  >> many (checkColGe "'else if' in 'do' must be indented" >> «try» (" else " >> " if ") >> termParser >> " then " >> doSeq)
+  "if " >> optIdent >> termParser >> " then " >> doSeq
+  >> many (checkColGe "'else if' in 'do' must be indented" >> «try» (" else " >> " if ") >> optIdent >> termParser >> " then " >> doSeq)
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := parser! "unless " >> termParser >> "do " >> doSeq
 @[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> termParser >> "do " >> doSeq

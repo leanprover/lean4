@@ -183,7 +183,7 @@ belowType.withApp fun f args => do
   preType ← inferType pre;
   forallBoundedTelescope preType (some 1) fun x _ => do
     motiveType ← inferType (x.get! 0);
-    C ← Core.mkFreshUserName `C;
+    C ← mkFreshUserName `C;
     withLocalDeclD C motiveType fun C =>
       let belowDict := mkApp pre C;
       let belowDict := mkAppN belowDict (args.extract (numIndParams + 1) args.size);

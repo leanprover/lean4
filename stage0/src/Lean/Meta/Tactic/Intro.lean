@@ -73,7 +73,7 @@ private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (lctx : 
   if preserveBinderNames then
     pure (binderName, [])
   else if hygienic then do
-    binderName ← Core.mkFreshUserName binderName;
+    binderName ← mkFreshUserName binderName;
     pure (binderName, [])
   else
     pure (lctx.getUnusedName binderName, [])
@@ -82,7 +82,7 @@ private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (lctx : 
   else if preserveBinderNames then
     pure (binderName, rest)
   else if hygienic then do
-    binderName ← Core.mkFreshUserName binderName;
+    binderName ← mkFreshUserName binderName;
     pure (binderName, rest)
   else
     pure (lctx.getUnusedName binderName, rest)

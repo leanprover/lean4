@@ -95,7 +95,7 @@ instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 
 end Core
 
-export Core (CoreM)
+export Core (CoreM mkFreshUserName)
 
 @[inline] def catchInternalId {α} {m : Type → Type} [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α :=
 catch x fun ex => match ex with

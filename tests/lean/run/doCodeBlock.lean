@@ -6,8 +6,11 @@ namespace Lean.Elab.Term.Do
 
 def ref := Syntax.missing
 
-def vdecl (name : Name) (pure := true) : VarDecl :=
-{ ref := ref, name := name, pure := pure, letDecl := Syntax.missing }
+def mkVarDecl (x : Name) (k : CodeBlock) : CodeBlock :=
+mkVarDeclCore #[x] Syntax.missing k
+
+def mkReassign (x : Name) (k : CodeBlock) : TermElabM CodeBlock :=
+mkReassignCore #[x] Syntax.missing k
 
 def print (c : CodeBlock) : TermElabM Unit := do
 let msg := c.toMessageData
@@ -17,14 +20,14 @@ pure ()
 
 def tst : TermElabM Unit := do
 let x := mkIdentFrom ref `x
-let c ← mkIte ref (← `($x < 1))
-  (mkVarDecl (vdecl `w) (mkVarDecl (vdecl `z) (← mkReassign (vdecl `x) (mkReturn ref))))
-  (mkVarDecl (vdecl `x) (← mkReassign (vdecl `y) (mkBreak ref)))
+let c ← mkIte ref mkNullNode (← `($x < 1))
+  (mkVarDecl `w (mkVarDecl `z (← mkReassign `x (mkReturn ref))))
+  (mkVarDecl `x (← mkReassign `y (mkBreak ref)))
 print c
 IO.println "-----"
-let c ← concat c (mkVarDecl (vdecl `w) (← mkReassign (vdecl `z) (mkReturn ref)))
+let c ← concat c (mkVarDecl `w (← mkReassign `z (mkReturn ref)))
 print c
-let c ← mkReassign (vdecl `w) c
+let c ← mkReassign `w c
 IO.println "-----"
 print c
 pure ()

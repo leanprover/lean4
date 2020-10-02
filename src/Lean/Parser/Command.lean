@@ -78,7 +78,7 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
-@[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "]" >> many1 ident
+@[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
 def openHiding       := parser! try (ident >> "hiding") >> many1 ident
 def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident

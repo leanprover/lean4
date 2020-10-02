@@ -130,7 +130,7 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
 def matchAlts (optionalFirstBar := true) : Parser :=
 parser! withPosition $
   ppLine >> (if optionalFirstBar then optional "| " else "| ") >>
-  sepBy1 matchAlt (ppLine >> checkColGe "alternatives must be indented" >> "|")
+  sepBy1 matchAlt (ppLine >> checkColGe "alternatives must be indented" >> "| ")
 
 def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
@@ -150,22 +150,22 @@ def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «match_syntax» := parser!:leadPrec "match_syntax" >> termParser >> " with " >> matchAlts
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
-def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> bracketedBinder) >> optType
+def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
 def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ try (letIdLhs >> " := ") >> termParser
 def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
 def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
-@[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optional "; " >> termParser
-@[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optional "; " >> termParser
-@[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optional "; " >> termParser
+@[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optional ";\n" >> termParser
+@[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optional ";\n" >> termParser
+@[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optional ";\n" >> termParser
 def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
-def attrInstance     := parser! rawIdent >> many attrArg
+def attrInstance     := parser! rawIdent >> many (ppSpace >> attrArg)
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
 @[builtinTermParser] def «letrec» :=
-    parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optional "; " >> termParser
+    parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optional ";\n" >> termParser
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec
@@ -200,7 +200,7 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def explicitUniv : TrailingParser := checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> tparser! ".{" >> sepBy1 levelParser ", " >> "}"
 @[builtinTermParser] def namedPattern : TrailingParser := checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> tparser! "@" >> termParser maxPrec
 
-@[builtinTermParser] def dollar     := tparser!:0 try (dollarSymbol >> checkWsBefore "expected space") >> termParser 0
+@[builtinTermParser] def dollar     := tparser!:0 try (" $" >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
 -- TODO: fix

@@ -235,7 +235,7 @@ env ← getEnv;
 pure $ Parser.tokenFn { input := s, fileName := "", fileMap := FileMap.ofString "", prec := 0, env := env, tokens := ctx.table } (Parser.mkParserState s)
 
 def pushTokenCore (tk : String) : FormatterM Unit :=
-if tk.trimRight == tk then
+if tk.toSubstring.dropRightWhile (fun s => s == ' ') == tk.toSubstring then
   push tk
 else do
   pushLine;

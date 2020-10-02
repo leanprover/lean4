@@ -1542,8 +1542,6 @@ categoryParser `term prec
 /- Antiquotations -/
 /- ============== -/
 
-def dollarSymbol : Parser := symbol "$"
-
 /-- Fail if previous token is immediately followed by ':'. -/
 def checkNoImmediateColon : Parser :=
 { fn := fun c s =>
@@ -1589,8 +1587,8 @@ let nameP := node `antiquotName $ checkNoWsBefore ("no space before ':" ++ name 
 let nameP := if anonymous then nameP <|> checkNoImmediateColon >> pushNone else nameP;
 -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
 node kind $ try $
-  setExpected [] dollarSymbol >>
-  many (checkNoWsBefore "" >> dollarSymbol) >>
+  setExpected [] "$" >>
+  many (checkNoWsBefore "" >> "$") >>
   checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
   nameP >>
   optional (checkNoWsBefore "" >> symbol "*")

@@ -63,14 +63,14 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- TODO: after we remove old frontend
 --  * remove " := "
 --  * remove quotedSymbol and unquotedSymbol alternative
-@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> (strLit <|> quotedSymbol <|> unquotedSymbol) >> (darrow <|> " := ") >> termParser
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> (ppSpace >> (strLit <|> quotedSymbol <|> unquotedSymbol)) >> (darrow <|> " := ") >> termParser
 
 -- TODO: remove
-@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbol >> optPrecedence
+@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> ppSpace >> quotedSymbol >> optPrecedence
 
 def identPrec  := parser! ident >> optPrecedence
 def optKind : Parser := optional ("[" >> ident >> "]")
-def notationItem := withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> quotedSymbol <|> identPrec)
+def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> quotedSymbol <|> identPrec)
 -- TODO: remove " := " after old frontend is gone
 @[builtinCommandParser] def «notation»    := parser! "notation" >> optPrecedence >> many notationItem >> (" := " <|> darrow) >> termParser
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts

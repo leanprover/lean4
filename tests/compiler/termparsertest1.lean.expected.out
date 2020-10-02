@@ -302,8 +302,9 @@ do { let x ← f a; pure $ a + a }
  (Term.doSeqBracketed
   "{"
   [(Term.doLetArrow "let" (Term.doId `x [] "←" (Term.app `f [`a])))
-   ";"
-   (Term.doExpr (Term.dollar `pure "$" (Term.add `a "+" `a)))]
+   [";"]
+   (Term.doExpr (Term.dollar `pure "$" (Term.add `a "+" `a)))
+   []]
   "}"))
 let f : Nat → Nat → Nat
    | 0, a   => a + 10

@@ -124,8 +124,8 @@ def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
 
 def matchAlt : Parser :=
-nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
-  sepBy1 termParser ", " >> darrow >> termParser
+nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ ppGroup $
+  ppGroup (sepBy1 termParser ", " >> darrow) >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
 parser! withPosition $
@@ -161,7 +161,7 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optional ";\n" >> termParser
 def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
-def attrInstance     := parser! rawIdent >> many (ppSpace >> attrArg)
+def attrInstance     := ppGroup $ parser! rawIdent >> many (ppSpace >> attrArg)
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
 @[builtinTermParser] def «letrec» :=

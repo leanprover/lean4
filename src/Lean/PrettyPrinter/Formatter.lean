@@ -136,12 +136,14 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
-def indentTop (indent : Option Nat := none) : FormatterM Unit := do
+def indent (x : Formatter) (indent : Option Nat := none) : Formatter := do
+concat x;
 ctx ← read;
 let indent := indent.getD $ Format.getIndent ctx.options;
 modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.stack.back) }
 
-def groupTop : FormatterM Unit :=
+def group (x : Formatter) : Formatter := do
+concat x;
 modify fun st => { st with stack := st.stack.pop.push (Format.group st.stack.back) }
 
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
@@ -170,7 +172,7 @@ def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
 orelse.formatter antiP p
 
 @[combinatorFormatter Lean.Parser.categoryParser]
-def categoryParser.formatter (cat : Name) : Formatter := do
+def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
 stx ← getCur;
 if stx.getKind == `choice then
   visitArgs do {
@@ -184,9 +186,7 @@ if stx.getKind == `choice then
     setStack $ stack.extract 0 (sp+1)
   }
 else
-  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind);
-indentTop;
-groupTop
+  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
 
 @[combinatorFormatter Lean.Parser.categoryParserOfStack]
 def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
@@ -396,7 +396,7 @@ pushLine
 @[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := push " "
 @[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
 @[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
-@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := p *> indentTop *> groupTop
+@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := group $ indent p
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

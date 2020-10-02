@@ -66,9 +66,6 @@ namespace Term
 
   Haskell would work on this example since it always uses
   first-order unification.
-
-  We do not change the
-
 -/
 def setElabConfig (cfg : Meta.Config) : Meta.Config :=
 { cfg with foApprox := true, ctxApprox := true, constApprox := false, quasiPatternApprox := false }

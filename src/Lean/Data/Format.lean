@@ -12,7 +12,7 @@ inductive Format
 | nil                 : Format
 | line                : Format
 | text                : String → Format
-| nest (indent : Nat) : Format → Format
+| nest (indent : Int) : Format → Format
 | append              : Format → Format → Format
 | group               : Format → Format
 
@@ -60,14 +60,14 @@ def spaceUptoLine : Format → Bool → Nat → SpaceResult
 | nest _ f,     flatten, w => spaceUptoLine f flatten w
 | group f,      flatten, w => spaceUptoLine f true w
 
-def spaceUptoLine' : List (Bool × Nat × Format) → Nat → SpaceResult
+def spaceUptoLine' : List (Bool × Int × Format) → Nat → SpaceResult
 | [],    w => {}
 | (fl, _, f)::ps, w => merge w (spaceUptoLine f fl w) (spaceUptoLine' ps w)
 
-private def setFlattened (fl : Bool) (z : List (Bool × Nat × Format)) : List (Bool × Nat × Format) :=
+private def setFlattened (fl : Bool) (z : List (Bool × Int × Format)) : List (Bool × Int × Format) :=
 z.map fun ⟨_, i, f⟩ => (fl, i, f)
 
-partial def be : Nat → Nat → String → List (Bool × Nat × Format) → String
+partial def be : Nat → Nat → String → List (Bool × Int × Format) → String
 | w, k, out, []                       => out
 | w, k, out, (fl, i, nil)::z          => be w k out z
 | w, k, out, (fl, i, append f₁ f₂)::z => be w k out ((fl, i, f₁)::(fl, i, f₂)::z)
@@ -76,15 +76,15 @@ partial def be : Nat → Nat → String → List (Bool × Nat × Format) → Str
   let p := s.posOf '\n';
   if p == s.bsize then be w (k + s.length) (out ++ s) z
   else
-    let out := out ++ s.extract 0 p ++ "\n".pushn ' ' i;
-    let k := i;
+    let out := out ++ s.extract 0 p ++ "\n".pushn ' ' i.toNat;
+    let k := i.toNat;
     let z := (false, i, text $ s.extract (s.next p) s.bsize)::z;
     let z' := setFlattened true z;
     let r := spaceUptoLine' z' (w-k);
     if r.space > w-k then be w k out (setFlattened false z) else be w k out z'
 -- flatten line = text " "
 | w, k, out, (true,  i, line)::z      => be w (k + 1) (out ++ " ") z
-| w, k, out, (false, i, line)::z      => be w i ((out ++ "\n").pushn ' ' i) z
+| w, k, out, (false, i, line)::z      => be w i.toNat ((out ++ "\n").pushn ' ' i.toNat) z
 -- flatten (group f) = flatten f
 | w, k, out, (true,  i, group f)::z   => be w k out ((true, i, f)::z)
 | w, k, out, (false, i, group f)::z   =>

@@ -90,7 +90,7 @@ partial def toMessageDataAux (updateVars : MessageData) : Code → MessageData
 | Code.«break» _            => "break " ++ updateVars
 | Code.«continue» _         => "continue " ++ updateVars
 | Code.«return» _ none      => "return " ++ updateVars
-| Code.«return» _ (some x)  => "return " ++ x ++ " " ++ updateVars
+| Code.«return» _ (some x)  => "return " ++ x.simpMacroScopes ++ " " ++ updateVars
 | Code.«match» _ ds t alts  =>
   "match " ++ MessageData.joinSep (ds.toList.map MessageData.ofSyntax) ", " ++ " with " ++
     alts.foldl
@@ -176,13 +176,13 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
 | rs, Code.«continue» ref        => do let xs := nameSetToArray rs; jp ← addFreshJP xs (Code.«continue» ref); pure $ Code.jmp ref jp xs
 | rs, Code.«return» ref y?       => do
   let xs := nameSetToArray rs;
-  (ps, xs) ← match y? with
-    | none   => pure (xs, xs)
+  (ps, xs, y?) ← match y? with
+    | none   => pure (xs, xs, none)
     | some y =>
-      if rs.contains y then pure (xs, xs)
+      if rs.contains y then pure (xs, xs, some y)
       else do {
         yFresh ← mkFreshUserName y;
-        pure (xs.push y, xs.push yFresh)
+        pure (xs.push yFresh, xs.push y, some yFresh)
       };
   jp ← addFreshJP ps (Code.«return» ref y?);
   pure $ Code.jmp ref jp xs
@@ -500,11 +500,6 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syn
   else
     Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.do] def expandDo : Macro :=
-fun stx =>
-  let doElems := getDoElems stx;
-  expandDoElems false doElems 0
-
 structure ProcessedDoElem :=
 (action : Expr)
 (var    : Expr)
@@ -574,17 +569,25 @@ private partial def processDoElemsAux (doElems : Array Syntax) (m bindInstVal : 
 private def processDoElems (doElems : Array Syntax) (m bindInstVal : Expr) (expectedType : Expr) : TermElabM Expr :=
 processDoElemsAux doElems m bindInstVal expectedType 0 #[]
 
+def expandDo? (stx : Syntax) : MacroM (Option Syntax) :=
+let doElems := getDoElems stx;
+catch
+  (do stx ← expandDoElems false doElems 0; pure $ some stx)
+  (fun _ => pure none)
+
 @[builtinTermElab «do»] def elabDo : TermElab :=
 fun stx expectedType? => do
-  tryPostponeIfNoneOrMVar expectedType?;
-  let doElems := getDoElems stx;
-  trace `Elab.do $ fun _ => stx;
-  let doElems := doElems.getSepElems;
-  trace `Elab.do $ fun _ => "doElems: " ++ toString doElems;
-  { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
-  result ← processDoElems doElems m bindInstVal expectedType?.get!;
-  -- dbgTrace ("result: " ++ toString result);
-  pure result
+  stxNew? ← liftMacroM $ expandDo? stx;
+  match stxNew? with
+  | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+  | none => do
+    tryPostponeIfNoneOrMVar expectedType?;
+    let doElems := getDoElems stx;
+    trace `Elab.do $ fun _ => stx;
+    let doElems := doElems.getSepElems;
+    trace `Elab.do $ fun _ => "doElems: " ++ toString doElems;
+    { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
+    processDoElems doElems m bindInstVal expectedType?.get!
 
 @[builtinTermElab liftMethod] def elabLiftMethod : TermElab :=
 fun stx _ =>

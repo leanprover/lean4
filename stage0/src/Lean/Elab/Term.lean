@@ -66,9 +66,6 @@ namespace Term
 
   Haskell would work on this example since it always uses
   first-order unification.
-
-  We do not change the
-
 -/
 def setElabConfig (cfg : Meta.Config) : Meta.Config :=
 { cfg with foApprox := true, ctxApprox := true, constApprox := false, quasiPatternApprox := false }
@@ -520,19 +517,18 @@ if hasCDot stx then do
 else
   pure none
 
+def mkTypeMismatchError (e : Expr) (eType : Expr) (expectedType : Expr) (header : String := "type mismatch") : MessageData :=
+header ++ indentExpr e
+++ Format.line ++ "has type" ++ indentExpr eType
+++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
+
 def throwTypeMismatchError {α} (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
 let extraMsg : MessageData := match extraMsg? with
   | none          => Format.nil
   | some extraMsg => Format.line ++ extraMsg;
 match f? with
-| none =>
-  let msg : MessageData :=
-    "type mismatch" ++ indentExpr e
-    ++ Format.line ++ "has type" ++ indentExpr eType
-    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
-    ++ extraMsg;
-  throwError msg
+| none   => throwError $ mkTypeMismatchError e eType expectedType ++ extraMsg
 | some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
@@ -1276,6 +1272,23 @@ fun stx _ =>
   match (stx.getArg 0).isNameLit? with
   | some val => pure $ toExpr val
   | none     => throwIllFormedSyntax
+
+@[builtinTermElab typeOf] def elabTypeOf : TermElab :=
+fun stx _ => do
+  e ← elabTerm (stx.getArg 1) none;
+  inferType e
+
+@[builtinTermElab ensureTypeOf] def elabEnsureTypeOf : TermElab :=
+fun stx expectedType? =>
+  match (stx.getArg 2).isStrLit? with
+  | none     => throwIllFormedSyntax
+  | some msg => do
+    refTerm ← elabTerm (stx.getArg 1) none;
+    refTermType ← inferType refTerm;
+    e ← elabTerm (stx.getArg 3) expectedType?;
+    eType ← inferType e;
+    unlessM (isDefEq eType refTermType) $ throwError $ mkTypeMismatchError e eType refTermType msg;
+    pure e
 
 private def mkSomeContext : Context :=
 { fileName      := "<TermElabM>",

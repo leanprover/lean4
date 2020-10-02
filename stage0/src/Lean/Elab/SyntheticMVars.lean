@@ -151,7 +151,8 @@ newSyntheticMVars ← s.syntheticMVars.filterM $ fun mvarDecl =>
       val ← instantiateMVars (mkMVar mvarDecl.mvarId);
       when val.getAppFn.isMVar $
         unlessM (isDefEq val defaultVal) $
-          throwError "failed to assign default value to metavariable"; -- TODO: better error message
+          -- TODO: better error message
+          throwError ("failed to assign default value to metavariable" ++ indentExpr val ++ Format.line ++ "default value" ++ indentExpr defaultVal) ;
       pure false
   | _ => pure true;
 modify $ fun s => { s with syntheticMVars := newSyntheticMVars };

@@ -22,7 +22,7 @@ def leftArrow : Parser := unicodeSymbol " ← " " <- "
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 
 def doSeqIndent    := many1Indent $ doElemParser >> optional "; "
-def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
+def doSeqBracketed := parser! "{" >> withoutPosition (many1 (doElemParser >> optional "; ")) >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
@@ -79,9 +79,9 @@ def doCatchMatch := parser! "catch " >> doMatchAlts
 def doFinally    := parser! "finally " >> doSeq
 @[builtinDoElemParser] def doTry    := parser! "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
-@[builtinDoElemParser] def «break»     := parser! "break"
-@[builtinDoElemParser] def «continue»  := parser! "continue"
-@[builtinDoElemParser] def «return»    := parser!:leadPrec "return " >> termParser
+@[builtinDoElemParser] def doBreak     := parser! "break"
+@[builtinDoElemParser] def doContinue  := parser! "continue"
+@[builtinDoElemParser] def doReturn    := parser!:leadPrec "return " >> termParser
 @[builtinDoElemParser] def doDbgTrace  := parser!:leadPrec "dbgTrace! " >> termParser
 @[builtinDoElemParser] def doAssert    := parser!:leadPrec "assert! " >> termParser
 

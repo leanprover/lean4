@@ -83,7 +83,7 @@ inductive WorkerState
 -- file worker has its state set to `crashed` and requests that are in-flight are errored. 
 -- Upon receiving the next packet for that file worker, the file worker is restarted and the packet is forwarded to it.
 -- If the crash was detected while writing a packet, we queue that packet until the next packet for the file worker arrives.
-| crashed (queuedMsgs : Array Message)
+| crashed (queuedMsgs : Array JsonRpc.Message)
 | running
 
 structure FileWorker :=
@@ -190,12 +190,25 @@ match fromJson? params with
 | some parsed => pure parsed
 | none        => throw (userError "got param with wrong structure")
 
-def handleCrash (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := pure () -- TODO(MH)
+def handleCrash (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
+fw ← findFileWorker uri;
+updateFileWorkers uri { fw with state := WorkerState.crashed queuedMsgs }
 
-def restartFileWorker (uri : DocumentUri) (fw : FileWorker) : ServerM Unit := do
+def restartCrashedFileWorker (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
 eraseFileWorker uri;
-startFileWorker uri fw.doc.version fw.doc.text
--- TODO(MH): discharge queued requests
+startFileWorker uri fw.doc.version fw.doc.text;
+newFw ← findFileWorker uri;
+let tryDischargeQueuedMsgs : Array JsonRpc.Message → JsonRpc.Message → ServerM (Array JsonRpc.Message) := 
+  fun crashedMsgs m => catch 
+    (do
+      writeLspMessage newFw.stdin m;
+      pure crashedMsgs) 
+    (fun err => pure (crashedMsgs.push m));
+crashedMsgs ← queuedMsgs.foldlM tryDischargeQueuedMsgs #[];
+if ¬ crashedMsgs.isEmpty then do
+  handleCrash uri newFw crashedMsgs
+else
+  pure ()
 
 def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
 let doc := p.textDocument;
@@ -243,12 +256,13 @@ else match changes.get? 0 with
     let newDoc : OpenDocument := ⟨newVersion, newDocText, oldHeaderEndPos⟩;
     let newFw : FileWorker := { fw with doc := newDoc };
     updateFileWorkers doc.uri newFw;
+    let msg := Message.notification "textDocument/didChange" (fromJson? (toJson p));
     match fw.state with
-    | WorkerState.crashed queuedRequests => restartFileWorker doc.uri newFw
+    | WorkerState.crashed queuedMsgs => restartCrashedFileWorker doc.uri newFw (queuedMsgs.push msg)
     | WorkerState.running =>
       -- looks like it crashed now!
       catch (writeLspNotification fw.stdin "textDocument/didChange" p)
-            (fun err => handleCrash doc.uri newFw #[Message.notification "textDocument/didChange" (fromJson? (toJson p))])
+            (fun err => handleCrash doc.uri newFw #[msg])
 
 def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
 terminateFileWorker p.textDocument.uri
@@ -258,25 +272,19 @@ let h := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
            parsedParams ← parseParams α params;
            let uri := fileSource parsedParams;
            fw ← findFileWorker uri;
+           let msg := Message.request id method (fromJson? params);
            match fw.state with
-           | WorkerState.crashed queuedRequests => restartFileWorker uri fw
+           | WorkerState.crashed queuedMsgs => restartCrashedFileWorker uri fw (queuedMsgs.push msg)
            | WorkerState.running => do
              -- if this errors, the file worker crashed
              catch (writeLspRequest fw.stdin id method parsedParams) 
-                   (fun err => handleCrash uri fw #[Message.request id method (fromJson? params)]));
+                   (fun err => handleCrash uri fw #[msg]));
 match method with
 | "textDocument/hover" => h HoverParams
 | _ => throw (userError $ "got unsupported request: " ++ method ++
                           "; params: " ++ toString params)
 
 def handleNotification (method : String) (params : Json) : ServerM Unit := do
-let forward := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
-                 parsedParams ← parseParams α params;
-                 let uri := fileSource parsedParams;
-                 fw ← findFileWorker uri;
-                 -- if this errors, the file worker crashed
-                 catch (writeLspNotification fw.stdin method parsedParams)
-                       (fun err => handleCrash uri fw #[Message.notification method (fromJson? params)]));
 let handle := (fun α [HasFromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler);
 match method with
 | "textDocument/didOpen"   => handle DidOpenTextDocumentParams handleDidOpen

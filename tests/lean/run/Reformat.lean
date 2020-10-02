@@ -13,16 +13,15 @@ let (debug, f) : Bool × String := match args with
   | _         => panic! "usage: file [-d]";
 let env ← mkEmptyEnvironment;
 let stx ← Lean.Parser.parseFile env args.head!;
-let (f, _) ← («finally» (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
+let (f, _) ← («finally» (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.format debug } { env := env };
 IO.print f;
---stx' ← Lean.Parser.parseModule env args.head! (toString f);
+let stx' ← Lean.Parser.parseModule env args.head! (toString f);
 pure ()
--- TODO: this doesn't quite work yet because the parenthesizer adds unnecessary parentheses in one case
-/-
 when (stx' != stx) $
+  let stx := stx.getArg 1;
+  let stx' := stx'.getArg 1;
   stx.getArgs.size.forM fun i =>
     when (stx.getArg i != stx'.getArg i) $
       throw $ IO.userError $ "reparsing failed:\n" ++ toString (stx.getArg i) ++ "\n" ++ toString (stx'.getArg i)
-      -/
 
 #eval main ["../../../src/Init/Core.lean"]

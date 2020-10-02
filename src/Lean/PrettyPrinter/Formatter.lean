@@ -264,8 +264,13 @@ else do {
 
 @[combinatorFormatter symbol]
 def symbol.formatter (sym : String) : Formatter := do
-pushToken sym;
-goLeft
+stx ← getCur;
+if stx.isToken sym then do
+  pushToken sym;
+  goLeft
+else do
+  trace! `PrettyPrinter.format.backtrack ("unexpected syntax '" ++ stx ++ "', expected symbol '" ++ sym ++ "'");
+  throwBacktrack
 
 @[combinatorFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
 @[combinatorFormatter nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter

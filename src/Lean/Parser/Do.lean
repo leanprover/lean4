@@ -25,11 +25,13 @@ def doSeqIndent    := many1Indent $ doElemParser >> optional "; "
 def doSeqBracketed := parser! "{" >> sepBy1 doElemParser "; " true >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
-@[builtinDoElemParser] def doLet    := parser! "let " >> letDecl
-@[builtinDoElemParser] def doLetRec := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
+@[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
+@[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
 def doId   := parser! «try» (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! «try» (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
-@[builtinDoElemParser] def doLetArrow := parser! "let " >> (doId <|> doPat)
+@[builtinDoElemParser] def doLetArrow      := parser! "let " >> (doId <|> doPat)
+@[builtinDoElemParser] def doReassign      := parser! letIdDecl <|> letPatDecl
+@[builtinDoElemParser] def doReassignArrow := doId <|> doPat
 @[builtinDoElemParser] def doHave     := parser! "have " >> Term.haveDecl
 /-
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as

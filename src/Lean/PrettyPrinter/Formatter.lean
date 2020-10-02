@@ -110,8 +110,9 @@ modify fun st => { st with stack := stack }
 def push (f : Format) : FormatterM Unit :=
 modify fun st => { st with stack := st.stack.push f }
 
-def pushLine : FormatterM Unit :=
-push Format.line
+def pushLine : FormatterM Unit := do
+push Format.line;
+modify fun st => { st with leadWord := "" }
 
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
@@ -249,16 +250,16 @@ if st.leadWord != "" && tk.trimRight == tk then do
   t2 ← parseToken $ tk.trimLeft ++ st.leadWord;
   if t1.pos == t2.pos then do
     -- same result => use `tk` as is, extend `leadWord` if not prefixed by whitespace
-    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" };
-    pushTokenCore tk
+    pushTokenCore tk;
+    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
   else do
     -- different result => add space
-    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
-    pushTokenCore $ tk ++ " "
+    pushTokenCore $ tk ++ " ";
+    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 else do {
   -- already separated => use `tk` as is
-  modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
-  pushTokenCore tk
+  pushTokenCore tk;
+  modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 }
 
 @[combinatorFormatter symbol]
@@ -376,7 +377,6 @@ def toggleInsideQuot.formatter (p : Formatter) : Formatter :=
 p
 
 @[combinatorFormatter checkWsBefore] def checkWsBefore.formatter : Formatter := do
-modify fun st => { st with leadWord := "" };
 pushLine
 
 @[combinatorFormatter checkPrec] def checkPrec.formatter : Formatter := pure ()

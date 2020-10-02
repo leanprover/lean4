@@ -284,11 +284,6 @@ fun stx =>
   let body := stx.getArg 3;
   `(dbgTrace $arg fun _ => $body)
 
-@[builtinMacro Lean.Parser.Term.return]  def expandReturn : Macro :=
-fun stx =>
-  let arg := stx.getArg 1;
-  `(pure $arg)
-
 @[builtinMacro Lean.Parser.Term.«sorry»]  def expandSorry : Macro :=
 fun _ => `(sorryAx _ false)
 

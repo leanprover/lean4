@@ -40,6 +40,56 @@ private partial def countDigitsAux (n digits : Nat) : Nat :=
 private def countDigits (n : Nat) : Nat :=
   countDigitsAux n 1
 
+-- convert mantissa * 10^-exponent to 0.mantissa * 10^exponent
+protected def normalize : JsonNumber → Int × Nat × Int
+| ⟨m, e⟩ =>
+  if m = 0 then (0, 0, 0)
+  else
+    let sign : Int := if m > 0 then 1 else -1;
+    let mAbs := m.natAbs;
+    let nDigits := countDigits mAbs;
+    -- eliminate trailing zeros
+    let m' := (List.range nDigits).foldr
+      (fun _ acc => if acc % 10 = 0 then acc / 10 else acc)
+      mAbs;
+    (sign, m', -e + nDigits)
+
+def lt (a b : JsonNumber) : Bool :=
+let (as, am, ae) := a.normalize;
+let (bs, bm, be) := b.normalize;
+match (as, bs) with
+| (-1, 1) => true
+| (1, -1) => false
+| _ =>
+  let ((am, ae), (bm, be)) :=
+    if as = -1 && bs = -1 then
+      ((bm, be), (am, ae))
+    else
+      ((am, ae), (bm, be));
+  let amDigits := countDigits am;
+  let bmDigits := countDigits bm;
+  -- align the mantissas
+  let (am, bm) :=
+    if amDigits < bmDigits then
+      (am * 10^(bmDigits - amDigits), bm)
+    else
+      (am, bm * 10^(amDigits - bmDigits));
+  if ae < be then true
+  else if ae > be then false
+  else am < bm
+
+def ltProp : HasLess JsonNumber :=
+⟨fun a b => lt a b = true⟩
+
+instance hasLess : HasLess JsonNumber :=
+ltProp
+
+instance hasDecidableLess : DecidableRel (@HasLess.Less JsonNumber ltProp) :=
+inferInstanceAs (DecidableRel (fun a b => lt a b = true))
+
+protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
+protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
+
 protected def toString : JsonNumber → String
   | ⟨m, 0⟩ => m.repr
   | ⟨m, e⟩ =>

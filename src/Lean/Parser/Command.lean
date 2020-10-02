@@ -24,18 +24,18 @@ def commentBody : Parser :=
 @[combinatorParenthesizer commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 @[combinatorFormatter commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
-def docComment       := parser! "/--" >> commentBody >> ppLine
+def docComment       := parser! ppDedent $ "/--" >> commentBody >> ppLine
 def «private»        := parser! "private "
 def «protected»      := parser! "protected "
 def visibility       := «private» <|> «protected»
 def «noncomputable»  := parser! "noncomputable "
 def «unsafe»         := parser! "unsafe "
 def «partial»        := parser! "partial "
-def declModifiers (inline : Bool) := parser! optional docComment >> optional (Term.«attributes» >> if inline then skip else ppLine) >> optional visibility >> optional «noncomputable» >> optional «unsafe» >> optional «partial»
+def declModifiers (inline : Bool) := parser! optional docComment >> optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >> optional visibility >> optional «noncomputable» >> optional «unsafe» >> optional «partial»
 def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-def declSig          := parser! many Term.bracketedBinder >> Term.typeSpec
-def optDeclSig       := parser! many Term.bracketedBinder >> Term.optType
-def declValSimple    := parser! " :=\n" >> termParser
+def declSig          := parser! ppGroup (many Term.bracketedBinder) >> Term.typeSpec
+def optDeclSig       := parser! ppGroup (many Term.bracketedBinder) >> Term.optType
+def declValSimple    := parser! ppDedent $ " :=\n" >> termParser
 def declValEqns      := parser! Term.matchAlts false
 def declVal          := declValSimple <|> declValEqns
 def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
@@ -47,7 +47,7 @@ def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
 def inferMod         := parser! try ("{" >> "}")
 def ctor             := parser! "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
-def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> many ctor
+def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> ppDedent (many ctor)
 def classInductive   := parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
 def structExplicitBinder := parser! try (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! try (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
@@ -57,7 +57,7 @@ def structCtor           := parser! try (declModifiers true >> ident >> optional
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
-def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
+def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> ppDedent structFields
 @[builtinCommandParser] def declaration := parser!
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 

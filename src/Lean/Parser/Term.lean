@@ -22,15 +22,15 @@ categoryParser `tactic rbp
 namespace Tactic
 
 def tacticSeq1Indented : Parser :=
-parser! many1Indent (group (tacticParser >> optional "; "))
+parser! many1Indent (group (tacticParser >> optional ";" >> ppLine))
 def tacticSeqBracketed : Parser :=
-parser! "{" >> many (group (tacticParser >> optional "; ")) >> "}"
+parser! "{" >> many (group (tacticParser >> optional ";" >> ppLine)) >> "}"
 def tacticSeq :=
 nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq $ tacticSeqBracketed <|> tacticSeq1Indented
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=
-node `Lean.Parser.Tactic.seq1 $ sepBy1 tacticParser "; " true
+node `Lean.Parser.Tactic.seq1 $ sepBy1 tacticParser ";\n" true
 
 end Tactic
 
@@ -56,6 +56,8 @@ checkPrec prec >> symbol sym >> termParser (prec+1)
 
 @[builtinTermParser] def byTactic := parser!:leadPrec "by " >> Tactic.tacticSeq
 
+def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
+
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
 @[builtinTermParser] def num : Parser := checkPrec maxPrec >> numLit
@@ -79,9 +81,9 @@ def optIdent : Parser := optional (try (ident >> " : "))
 def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
 def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
-@[builtinTermParser] def «have» := parser!:leadPrec withPosition ("have " >> haveDecl) >> optional "; " >> termParser
+@[builtinTermParser] def «have» := parser!:leadPrec withPosition ("have " >> haveDecl) >> optSemicolon termParser
 def sufficesDecl := optIdent >> termParser >> fromTerm
-@[builtinTermParser] def «suffices» := parser!:leadPrec withPosition ("suffices " >> sufficesDecl) >> optional "; " >> termParser
+@[builtinTermParser] def «suffices» := parser!:leadPrec withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
@@ -128,7 +130,7 @@ nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ ppGroup $
   ppGroup (sepBy1 termParser ", " >> darrow) >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
-parser! withPosition $
+parser! ppDedent $ withPosition $
   ppLine >> (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (ppLine >> checkColGe "alternatives must be indented" >> "| ")
 
@@ -156,16 +158,16 @@ def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushN
 def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
-@[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optional ";\n" >> termParser
-@[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optional ";\n" >> termParser
-@[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optional ";\n" >> termParser
+@[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
+@[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optSemicolon termParser
+@[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optSemicolon termParser
 def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
 def attrInstance     := ppGroup $ parser! rawIdent >> many (ppSpace >> attrArg)
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
 @[builtinTermParser] def «letrec» :=
-    parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optional ";\n" >> termParser
+    parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec
@@ -204,7 +206,7 @@ stx.isAntiquot || stx.isIdent
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
 -- TODO: fix
-@[builtinTermParser] def «where»    := tparser!:0 " where " >> sepBy1 letDecl (group ("; " >> symbol " where "))
+@[builtinTermParser] def «where»    := tparser!:0 " where " >> sepBy1 letDecl (group (";\n" >> symbol " where "))
 
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 
@@ -256,8 +258,8 @@ stx.isAntiquot || stx.isIdent
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"
-@[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> termParser) >> optional "; " >> termParser
-@[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optional "; " >> termParser
+@[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> termParser) >> optSemicolon termParser
+@[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
 end Term
 

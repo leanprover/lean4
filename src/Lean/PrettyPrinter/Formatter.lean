@@ -136,7 +136,7 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
-def indent (x : Formatter) (indent : Option Nat := none) : Formatter := do
+def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
 concat x;
 ctx ← read;
 let indent := indent.getD $ Format.getIndent ctx.options;
@@ -397,6 +397,9 @@ pushLine
 @[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
 @[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
 @[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := group $ indent p
+@[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
+opts ← getOptions;
+indent p (some (-(Format.getIndent opts)))
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

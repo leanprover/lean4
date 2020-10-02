@@ -43,7 +43,8 @@ Type → Type → Type
 {α : Type} → α
 {α : Type} →
   [inst :
-      HasToString α] →
+      HasToString
+        α] →
     α
 0
 1

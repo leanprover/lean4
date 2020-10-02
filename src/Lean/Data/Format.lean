@@ -40,14 +40,11 @@ structure SpaceResult :=
 (foundLine := false)
 (space     := 0)
 
-@[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Thunk SpaceResult) : SpaceResult :=
+@[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Nat → SpaceResult) : SpaceResult :=
 if r₁.space > w || r₁.foundLine then r₁
 else
-  let y := r₂.get;
-  if y.space > w || y.foundLine then y
-  else
-    let newSpace := r₁.space + y.space;
-    { space := newSpace }
+  let r₂ := r₂ (w - r₁.space);
+  { r₂ with space := r₁.space + r₂.space }
 
 def spaceUptoLine : Format → Bool → Nat → SpaceResult
 | nil,          flatten, w => {}
@@ -56,13 +53,13 @@ def spaceUptoLine : Format → Bool → Nat → SpaceResult
   let p := s.posOf '\n';
   let off := s.offsetOfPos p;
   { foundLine := p != s.bsize, space := off }
-| append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten w)
+| append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
 | nest _ f,     flatten, w => spaceUptoLine f flatten w
 | group f,      flatten, w => spaceUptoLine f true w
 
 def spaceUptoLine' : List (Bool × Int × Format) → Nat → SpaceResult
 | [],    w => {}
-| (fl, _, f)::ps, w => merge w (spaceUptoLine f fl w) (spaceUptoLine' ps w)
+| (fl, _, f)::ps, w => merge w (spaceUptoLine f fl w) (spaceUptoLine' ps)
 
 private def setFlattened (fl : Bool) (z : List (Bool × Int × Format)) : List (Bool × Int × Format) :=
 z.map fun ⟨_, i, f⟩ => (fl, i, f)

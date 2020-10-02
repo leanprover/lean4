@@ -95,6 +95,23 @@ structure Error where
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 
+private def RequestID.lt : RequestID → RequestID → Bool
+| RequestID.str a, RequestID.str b            => a < b
+| RequestID.num a, RequestID.num b            => a < b
+| RequestID.null,  RequestID.num _            => true
+| RequestID.null,  RequestID.str _            => true
+| RequestID.num _, RequestID.str _            => true
+| _, _ /- str < *, num < null, null < null -/ => false
+
+private def RequestID.ltProp : Less RequestID :=
+⟨fun a b => RequestID.lt a b = true⟩
+
+instance : Less RequestID :=
+RequestID.ltProp
+
+instance : DecidableRel (@Less.Less RequestID RequestID.ltProp) :=
+inferInstanceAs (DecidableRel (fun a b => RequestID.lt a b = true))
+
 instance : FromJson RequestID := ⟨fun j =>
   match j with
   | str s => RequestID.str s

@@ -273,10 +273,16 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-/- Auxiliary type used to compiler `for x in xs` notation. -/
+/- Auxiliary type used to compile `for x in xs` notation. -/
 inductive ForInStep (α : Type u)
 | done  : α → ForInStep
 | yield : α → ForInStep
+
+/- Auxiliary type used to compile `do` notation. -/
+inductive DoResult (α : Type u)
+| «break»    : α → DoResult
+| «continue» : α → DoResult
+| «return»   : α → DoResult
 
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable

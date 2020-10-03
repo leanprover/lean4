@@ -608,7 +608,7 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     else if k == `Lean.Parser.Term.doReassign then do
       vars ← liftM $ getDoReassignVars doElem;
       checkReassignable vars;
-      k ← withNewVars vars (doSeqToCode doElems);
+      k ← doSeqToCode doElems;
       liftM $ mkReassignCore vars doElem k
     else if k == `Lean.Parser.Term.doReassignArrow then
       throwError "WIP"

@@ -6,12 +6,51 @@ Authors: Leonardo de Moura
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.Quotation
+import Lean.Elab.Match
 
 namespace Lean
 namespace Elab
 namespace Term
-
 open Meta
+
+@[builtinTermElab liftMethod] def elabLiftMethod : TermElab :=
+fun stx _ =>
+  throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
+
+private partial def hasLiftMethod : Syntax → Bool
+| Syntax.node k args =>
+  if k == `Lean.Parser.Term.do then false
+  else if k == `Lean.Parser.Term.quot then false
+  else if k == `Lean.Parser.Term.liftMethod then true
+  else args.any hasLiftMethod
+| _ => false
+
+structure ExtractMonadResult :=
+(m           : Expr)
+(α           : Expr)
+(hasBindInst : Expr)
+
+private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
+u ← getLevel type;
+let id        := Lean.mkConst `Id [u];
+let idBindVal := Lean.mkConst `Id.hasBind [u];
+pure { m := id, hasBindInst := idBindVal, α := type }
+
+private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
+match expectedType? with
+| none => throwError "invalid do notation, expected type is not available"
+| some expectedType => do
+  type ← withReducible $ whnf expectedType;
+  when type.getAppFn.isMVar $ throwError "invalid do notation, expected type is not available";
+  match type with
+  | Expr.app m α _ =>
+    catch
+      (do
+        bindInstType ← mkAppM `HasBind #[m];
+        bindInstVal  ← synthesizeInst bindInstType;
+        pure { m := m, hasBindInst := bindInstVal, α := α })
+      (fun ex => mkIdBindFor type)
+  | _ => mkIdBindFor type
 
 namespace Do
 
@@ -358,6 +397,167 @@ def mkWhen (ref : Syntax) (cond : Syntax) (c : CodeBlock) : CodeBlock :=
 def mkUnless (ref : Syntax) (cond : Syntax) (c : CodeBlock) : CodeBlock :=
 { c with code := Code.ite ref none mkNullNode cond (Code.«return» ref none) c.code }
 
+private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
+if doSeq.getKind == `Lean.Parser.Term.doSeqBracketed then
+  (doSeq.getArg 1).getArgs.getSepElems.toList
+else
+  doSeq.getArgs.getSepElems.toList
+
+private def getDoSeq (doStx : Syntax) : Syntax :=
+doStx.getArg 1
+
+def getLetIdDeclVar (letIdDecl : Syntax) : Name :=
+(letIdDecl.getArg 0).getId
+
+def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Name) := do
+let pattern := letPatDecl.getArg 0;
+patternVars ← getPatternVars pattern;
+pure $ patternVars.filterMap fun patternVar => match patternVar with
+  | PatternVar.localVar x => some x
+  | _ => none
+
+def getLetEqnsDeclVar (letEqnsDecl : Syntax) : Name :=
+(letEqnsDecl.getArg 0).getId
+
+def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Name) := do
+let arg := letDecl.getArg 0;
+if arg.getKind == `Lean.Parser.Term.letIdDecl then
+  pure #[getLetIdDeclVar arg]
+else if arg.getKind == `Lean.Parser.Term.letPatDecl then
+  getLetPatDeclVars arg
+else if arg.getKind == `Lean.Parser.Term.letEqnsDecl then
+  pure #[getLetEqnsDeclVar arg]
+else
+  throwError "unexpected kind of let declaration"
+
+def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
+getLetDeclVars (doLet.getArg 1)
+
+def getDoReassignVars (doReassign : Syntax) : TermElabM (Array Name) := do
+let arg := doReassign.getArg 0;
+if arg.getKind == `Lean.Parser.Term.letIdDecl then
+  pure #[getLetIdDeclVar arg]
+else if arg.getKind == `Lean.Parser.Term.letPatDecl then
+  getLetPatDeclVars arg
+else
+  throwError "unexpected kind of reassignment"
+
+namespace ToCodeBlock
+
+structure Context :=
+(ref       : Syntax)
+(varSet    : NameSet := {})
+(insideFor : Bool := false)
+
+abbrev M := ReaderT Context TermElabM
+
+@[inline] def withNewVars {α} (newVars : Array Name) (x : M α) : M α :=
+adaptReader (fun (ctx : Context) => { ctx with varSet := insertVars ctx.varSet newVars }) x
+
+def ensureInsideFor : M Unit := do
+ctx ← read;
+unless ctx.insideFor $
+  throwError "invalid statement, can only be used inside 'for ... in ... do ...'"
+
+def ensureEOS (doElems : List Syntax) : M Unit :=
+unless doElems.isEmpty $
+  throwError "must be last element in a 'do' sequence"
+
+def isDoVar? (stx : Syntax) : M (Option Name) := do
+if stx.isIdent then do
+  ctx ← read;
+  let x := stx.getId;
+  if ctx.varSet.contains x then pure (some x) else pure none
+else
+  pure none
+
+def checkReassignable (xs : Array Name) : M Unit := do
+ctx ← read;
+xs.forM fun x =>
+  unless (ctx.varSet.contains x) do
+    throwError ("'" ++ x.simpMacroScopes ++ "' cannot be reassigned, it must be declared in the do-block")
+
+partial def doSeqToCode : List Syntax → M CodeBlock
+| [] => do ctx ← read; pure $ mkReturn ctx.ref
+| doElem::doElems => withRef doElem do
+  let ref := doElem;
+  let concatWithRest (c : CodeBlock) : M CodeBlock :=
+    match doElems with
+    | [] => pure c
+    | _  => do {
+      k ← doSeqToCode doElems;
+      liftM $ concat c k
+    };
+  let k := doElem.getKind;
+  if k == `Lean.Parser.Term.doLet then do
+    vars ← liftM $ getDoLetVars doElem;
+    mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+  else if k == `Lean.Parser.Term.doLetRec then do
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doLetArrow then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doReassign then do
+    vars ← liftM $ getDoReassignVars doElem;
+    checkReassignable vars;
+    k ← withNewVars vars (doSeqToCode doElems);
+    liftM $ mkReassignCore vars doElem k
+  else if k == `Lean.Parser.Term.doReassignArrow then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doHave then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doIf then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doUnless then do
+    let cond  := doElem.getArg 1;
+    let doSeq := doElem.getArg 3;
+    body ← doSeqToCode (getDoSeqElems doSeq);
+    concatWithRest (mkUnless ref cond body)
+  else if k == `Lean.Parser.Term.doFor then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doMatch then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doTry then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doBreak then do
+    ensureInsideFor;
+    ensureEOS doElems;
+    pure $ mkBreak ref
+  else if k == `Lean.Parser.Term.doContinue then do
+    ensureInsideFor;
+    ensureEOS doElems;
+    pure $ mkContinue ref
+  else if k == `Lean.Parser.Term.doReturn then do
+    ensureEOS doElems;
+    let argOpt := doElem.getArg 1;
+    if argOpt.isNone then
+      pure $ mkReturn ref
+    else do
+      let arg := argOpt.getArg 0;
+      x? ← isDoVar? arg;
+      match x? with
+      | some x => pure $ mkReturn ref x
+      | none => withFreshMacroScope do
+        auxDo ← `(do let x := $arg; return x);
+        doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
+  else if k == `Lean.Parser.Term.doDbgTracethen then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doAssert then
+    throwError "WIP"
+  else if k == `Lean.Parser.Term.doExpr then
+    let term := doElem.getArg 0;
+    if doElems.isEmpty then withFreshMacroScope do
+      auxDo ← `(do let x := $term; return x);
+      doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
+    else
+      mkAction term <$> doSeqToCode doElems
+  else
+    throwError "unexpected do-element"
+
+def run (doStx : Syntax) : TermElabM CodeBlock :=
+(doSeqToCode $ getDoSeqElems $ getDoSeq doStx).run { ref := doStx }
+
+end ToCodeBlock
+
 private def mkTuple (elems : Array Syntax) : MacroM Syntax :=
 if elems.size == 1 then pure (elems.get! 0)
 else
@@ -365,34 +565,17 @@ else
     (fun elem tuple => `(($elem, $tuple)))
     (elems.back)
 
+-- @[builtinTermElab «do»]
+def elabDo : TermElab :=
+fun stx expectedType? => do
+  tryPostponeIfNoneOrMVar expectedType?;
+  bindInfo ← extractBind expectedType?;
+  codeBlock ← ToCodeBlock.run stx;
+  throwError ("WIP" ++ Format.line ++ codeBlock.toMessageData)
+
 end Do
 
-structure ExtractMonadResult :=
-(m           : Expr)
-(α           : Expr)
-(hasBindInst : Expr)
-
-private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
-u ← getLevel type;
-let id        := Lean.mkConst `Id [u];
-let idBindVal := Lean.mkConst `Id.hasBind [u];
-pure { m := id, hasBindInst := idBindVal, α := type }
-
-private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
-match expectedType? with
-| none => throwError "invalid do notation, expected type is not available"
-| some expectedType => do
-  type ← withReducible $ whnf expectedType;
-  when type.getAppFn.isMVar $ throwError "invalid do notation, expected type is not available";
-  match type with
-  | Expr.app m α _ =>
-    catch
-      (do
-        bindInstType ← mkAppM `HasBind #[m];
-        bindInstVal  ← synthesizeInst bindInstType;
-        pure { m := m, hasBindInst := bindInstVal, α := α })
-      (fun ex => mkIdBindFor type)
-  | _ => mkIdBindFor type
+----- OLD IMPLEMENTATION -----
 
 private def getDoElems (stx : Syntax) : Array Syntax :=
 let arg := stx.getArg 1;
@@ -404,14 +587,6 @@ if args.back.isToken ";" || args.back.isNone || (args.back.getArg 0).isToken ";"
   args.pop
 else
   args
-
-private partial def hasLiftMethod : Syntax → Bool
-| Syntax.node k args =>
-  if k == `Lean.Parser.Term.do then false
-  else if k == `Lean.Parser.Term.quot then false
-  else if k == `Lean.Parser.Term.liftMethod then true
-  else args.any hasLiftMethod
-| _ => false
 
 private partial def expandLiftMethodAux : Syntax → StateT (Array Syntax) MacroM Syntax
 | stx@(Syntax.node k args) =>
@@ -575,7 +750,8 @@ catch
   (do stx ← expandDoElems false doElems 0; pure $ some stx)
   (fun _ => pure none)
 
-@[builtinTermElab «do»] def elabDo : TermElab :=
+@[builtinTermElab «do»]
+def elabDo : TermElab :=
 fun stx expectedType? => do
   stxNew? ← liftMacroM $ expandDo? stx;
   match stxNew? with
@@ -588,10 +764,6 @@ fun stx expectedType? => do
     trace `Elab.do $ fun _ => "doElems: " ++ toString doElems;
     { m := m, hasBindInst := bindInstVal, .. } ← extractBind expectedType?;
     processDoElems doElems m bindInstVal expectedType?.get!
-
-@[builtinTermElab liftMethod] def elabLiftMethod : TermElab :=
-fun stx _ =>
-  throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.do;

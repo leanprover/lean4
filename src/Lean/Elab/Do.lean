@@ -582,7 +582,7 @@ let arg := stx.getArg 1;
 let args := if arg.getKind == `Lean.Parser.Term.doSeqBracketed then
   (arg.getArg 1).getArgs
 else
-  arg.getArgs;
+  (arg.getArg 0).getArgs;
 if args.back.isToken ";" || args.back.isNone || (args.back.getArg 0).isToken ";" then -- temporary hack
   args.pop
 else
@@ -612,7 +612,7 @@ if hasLiftMethod stx then do
 else
   pure none
 
-/- Expand `doLet`, `doPat`, nonterminal `doExpr`s, and `liftMethod` -/
+/- Expand `doLet`, `doPatDecl`, nonterminal `doExpr`s, and `liftMethod` -/
 private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syntax
 | modified, doElems, i =>
   let mkRest : Unit → MacroM Syntax := fun _ => do {
@@ -647,7 +647,7 @@ private partial def expandDoElems : Bool → Array Syntax → Nat → MacroM Syn
         newBody ← `(let $letDecl:letDecl; $rest);
         addPrefix newBody
       -- cleanup the following code
-      else if doElem.getKind == `Lean.Parser.Term.doLetArrow && (doElem.getArg 1).getKind == `Lean.Parser.Term.doPat then withFreshMacroScope $ do
+      else if doElem.getKind == `Lean.Parser.Term.doLetArrow && (doElem.getArg 1).getKind == `Lean.Parser.Term.doPatDecl then withFreshMacroScope $ do
         let doElem  := doElem.getArg 1;
         -- (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
         let pat      := doElem.getArg 0;

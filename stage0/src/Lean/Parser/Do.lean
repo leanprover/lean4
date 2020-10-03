@@ -81,7 +81,7 @@ def doFinally    := parser! "finally " >> doSeq
 
 @[builtinDoElemParser] def doBreak     := parser! "break"
 @[builtinDoElemParser] def doContinue  := parser! "continue"
-@[builtinDoElemParser] def doReturn    := parser!:leadPrec "return " >> termParser
+@[builtinDoElemParser] def doReturn    := parser!:leadPrec "return " >> optional termParser
 @[builtinDoElemParser] def doDbgTrace  := parser!:leadPrec "dbgTrace! " >> termParser
 @[builtinDoElemParser] def doAssert    := parser!:leadPrec "assert! " >> termParser
 

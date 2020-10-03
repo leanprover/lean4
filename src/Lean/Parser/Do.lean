@@ -29,11 +29,11 @@ def notFollowedByRedefinedTermToken := notFollowedBy ("if" <|> "match" <|> "let"
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
-def doId   := parser! «try» (ident >> optType >> leftArrow) >> termParser
-def doPat  := parser! «try» (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
-@[builtinDoElemParser] def doLetArrow      := parser! "let " >> (doId <|> doPat)
+def doIdDecl   := parser! «try» (ident >> optType >> leftArrow) >> termParser
+def doPatDecl  := parser! «try» (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
+@[builtinDoElemParser] def doLetArrow      := parser! "let " >> (doIdDecl <|> doPatDecl)
 @[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDecl <|> letPatDecl)
-@[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doId <|> doPat)
+@[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtinDoElemParser] def doHave     := parser! "have " >> Term.haveDecl
 /-
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as
@@ -66,7 +66,7 @@ else if c_2 then
 -/
 @[builtinDoElemParser] def doIf := parser! withPosition $
   "if " >> optIdent >> termParser >> " then " >> doSeq
-  >> many (checkColGe "'else if' in 'do' must be indented" >> «try» (" else " >> " if ") >> optIdent >> termParser >> " then " >> doSeq)
+  >> many (checkColGe "'else if' in 'do' must be indented" >> group («try» (group (" else " >> " if ")) >> optIdent >> termParser >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := parser! "unless " >> withPosition (termParser >> optional ",") >> doSeq
 @[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withPosition (termParser >> optional ", ") >> doSeq

@@ -25,13 +25,15 @@ def doSeqIndent    := many1Indent $ doElemParser >> optional "; "
 def doSeqBracketed := parser! "{" >> withoutPosition (many1 (doElemParser >> optional "; ")) >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
+def notFollowedByRedefinedTermToken := notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!")
+
 @[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
 def doId   := parser! «try» (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! «try» (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 @[builtinDoElemParser] def doLetArrow      := parser! "let " >> (doId <|> doPat)
-@[builtinDoElemParser] def doReassign      := parser! letIdDecl <|> letPatDecl
-@[builtinDoElemParser] def doReassignArrow := doId <|> doPat
+@[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDecl <|> letPatDecl)
+@[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doId <|> doPat)
 @[builtinDoElemParser] def doHave     := parser! "have " >> Term.haveDecl
 /-
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as
@@ -66,8 +68,8 @@ else if c_2 then
   "if " >> optIdent >> termParser >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> «try» (" else " >> " if ") >> optIdent >> termParser >> " then " >> doSeq)
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
-@[builtinDoElemParser] def doUnless := parser! "unless " >> termParser >> "do " >> doSeq
-@[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> termParser >> "do " >> doSeq
+@[builtinDoElemParser] def doUnless := parser! "unless " >> withPosition (termParser >> optional ",") >> doSeq
+@[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withPosition (termParser >> optional ", ") >> doSeq
 
 /- `match`-expression where the right-hand-side of alternatives is a `doSeq` instead of a `term` -/
 def doMatchAlt : Parser  := sepBy1 termParser ", " >> darrow >> doSeq
@@ -91,7 +93,7 @@ doesn't enforce indentation restrictions, but we don't want it to be used when `
 Note that parser priorities would not solve this problem since the `doIf` parser is failing while the `if`
 parser is succeeding.
 -/
-@[builtinDoElemParser] def doExpr   := parser! notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do") >> termParser
+@[builtinDoElemParser] def doExpr   := parser! notFollowedByRedefinedTermToken >> termParser
 
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq
 

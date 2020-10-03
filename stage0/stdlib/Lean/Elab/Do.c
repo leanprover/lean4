@@ -13379,7 +13379,7 @@ lean_object* _init_l___private_Lean_Elab_Do_11__expandLiftMethodAux___main___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doId");
+x_1 = lean_mk_string("doIdDecl");
 return x_1;
 }
 }

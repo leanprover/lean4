@@ -154,4 +154,28 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
   | some b => pure b
   | none   => findSomeM? as
 
+@[specialize]
+def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m (ForInStep β)) : List α → β → m β
+| [], b    => pure b
+| a::as, b => do
+  s ← f a b;
+  match s with
+  | ForInStep.done b  => pure b
+  | ForInStep.yield b => forInAux as b
+
+@[inline] def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
+forInAux f as init
+
+@[specialize]
+def forInMapAux {α β : Type u} {m : Type u → Type v} [Monad m] (f : α → β → m (ForInStep (α × β))) : List α → List α → β →  m (List α × β)
+| [],    rs, b => pure (rs.reverse, b)
+| a::as, rs, b => do
+  s ← f a b;
+  match s with
+  | ForInStep.done (a, b)  => pure ((a :: rs).reverse ++ as, b)
+  | ForInStep.yield (a, b) => forInMapAux as (a::rs) b
+
+@[inline] def forInMap {α β : Type u} {m : Type u → Type v} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep (α × β))) : m (List α × β) :=
+forInMapAux f as [] init
+
 end List

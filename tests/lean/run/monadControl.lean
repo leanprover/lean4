@@ -26,7 +26,7 @@ let a ← x s.length;
 IO.println ("ended");
 pure a
 
-@[inline] def g' {α m} [MonadControlT IO m] [HasBind m] (msg : String) (x : Nat → m α) : m α := do
+@[inline] def g' {α m} [MonadControlT IO m] [Monad m] (msg : String) (x : Nat → m α) : m α := do
 controlAt IO fun runInBase => g msg (fun n => runInBase (x n))
 
 def tst2 : M Nat := do

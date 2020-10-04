@@ -267,7 +267,7 @@ partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
 def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
 match source.getHeadInfo with
 | none      => s
-| some info => s.setInfo info
+| some info => s.setHeadInfo info
 
 private def reprintLeaf (info : SourceInfo) (val : String) : String :=
 -- no source info => add gracious amounts of whitespace to definitely separate tokens

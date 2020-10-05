@@ -15,3 +15,18 @@ aux x x;
  x
 
 #eval f 10
+
+def g (xs : List Nat) : StateT Nat Id Nat := do
+if xs.isEmpty then
+  xs := [← get]
+dbgTrace! ">>> xs: " ++ toString xs
+return xs.length
+
+#eval g [1, 2, 3] $.run' 10
+#eval g [] $.run' 10
+
+theorem ex1 : (g [1, 2, 4, 5] $.run' 0) = 4 :=
+rfl
+
+theorem ex2 : (g [] $.run' 0) = 1 :=
+rfl

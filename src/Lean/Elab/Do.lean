@@ -775,13 +775,9 @@ namespace ToCodeBlock
 structure Context :=
 (ref       : Syntax)
 (m         : Syntax) -- Syntax representing the monad associated with the do notation.
-(varSet    : NameSet := {})
 (insideFor : Bool := false)
 
 abbrev M := ReaderT Context TermElabM
-
-@[inline] def withNewVars {α} (newVars : Array Name) (x : M α) : M α :=
-adaptReader (fun (ctx : Context) => { ctx with varSet := insertVars ctx.varSet newVars }) x
 
 def ensureInsideFor : M Unit := do
 ctx ← read;
@@ -791,20 +787,6 @@ unless ctx.insideFor $
 def ensureEOS (doElems : List Syntax) : M Unit :=
 unless doElems.isEmpty $
   throwError "must be last element in a 'do' sequence"
-
-def isDoVar? (stx : Syntax) : M (Option Name) := do
-if stx.isIdent then do
-  ctx ← read;
-  let x := stx.getId;
-  if ctx.varSet.contains x then pure (some x) else pure none
-else
-  pure none
-
-def checkReassignable (xs : Array Name) : M Unit := do
-ctx ← read;
-xs.forM fun x =>
-  unless (ctx.varSet.contains x) do
-    throwError ("'" ++ x.simpMacroScopes ++ "' cannot be reassigned, only variables declared in the do-block can be reassigned")
 
 private partial def expandLiftMethodAux : Syntax → StateT (List Syntax) MacroM Syntax
 | stx@(Syntax.node k args) =>
@@ -861,15 +843,14 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     let k := doElem.getKind;
     if k == `Lean.Parser.Term.doLet then do
       vars ← liftM $ getDoLetVars doElem;
-      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+      mkVarDeclCore vars doElem <$> doSeqToCode doElems
     else if k == `Lean.Parser.Term.doLetRec then do
       throwError "WIP"
     else if k == `Lean.Parser.Term.doLetArrow then do
       vars ← liftM $ getDoLetArrowVars doElem;
-      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+      mkVarDeclCore vars doElem <$> doSeqToCode doElems
     else if k == `Lean.Parser.Term.doReassign then do
       vars ← liftM $ getDoReassignVars doElem;
-      checkReassignable vars;
       k ← doSeqToCode doElems;
       liftM $ mkReassignCore vars doElem k
     else if k == `Lean.Parser.Term.doReassignArrow then
@@ -946,7 +927,7 @@ fun stx expectedType? => do
   m ← mkMonadAlias bindInfo.m;
   codeBlock ← ToCodeBlock.run stx m;
   -- trace! `Elab.do ("codeBlock: " ++ Format.line ++ codeBlock.toMessageData);
-  (_, stxNew) ← liftMacroM $ ToTerm.run codeBlock m;
+  (_, stxNew) ← liftMacroM $ ToTerm.run { codeBlock with uvars := {} }  m;
   trace! `Elab.do stxNew;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 

@@ -44,3 +44,49 @@ rfl
 
 theorem ex4 (y : Nat) : h 1 y = (1 + 1) + y :=
 rfl
+
+def sumOdd (xs : List Nat) (threshold : Nat) : Nat := do
+let sum := 0
+for x in xs do
+  if x % 2 == 1 then
+    sum := sum + x
+  if sum > threshold then
+    break
+  unless x % 2 == 1 do
+    continue
+  dbgTrace! ">> x: " ++ toString x
+return sum
+
+#eval sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10
+
+theorem ex5 : sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10 = 16 :=
+rfl
+
+def mapOdd (f : Nat → Nat) (xs : List Nat) : List Nat := do
+for x in xs do
+  if x % 2 == 1 then
+    x := f x
+  dbgTrace! ">> mapOdd x: " ++ toString x
+
+#eval mapOdd (·+10) [1, 2, 3, 4, 5, 6, 7, 9]
+
+theorem ex6 : mapOdd (·+10) [1, 2, 3, 4, 5, 6, 7, 9] = [11, 2, 13, 4, 15, 6, 17, 19] :=
+rfl
+
+-- We need `Id.run` because we still have `Monad Option`
+def find? (xs : List Nat) (p : Nat → Bool) : Option Nat := Id.run do
+let result := none
+for x in xs do
+  if p x then
+    result := x
+    break
+return result
+
+def sumDiff (ps : List (Nat × Nat)) : Nat := do
+let sum := 0
+for (x, y) in ps do
+  sum := sum + x - y
+return sum
+
+theorem ex7 : sumDiff [(2, 1), (10, 5)] = 6 :=
+rfl

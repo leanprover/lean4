@@ -7480,13 +7480,14 @@ x_3 = l_Lean_Parser_getTokenTable(x_1);
 x_4 = lean_box(0);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = 0;
-x_7 = lean_alloc_ctor(0, 5, 1);
+x_7 = lean_alloc_ctor(0, 6, 1);
 lean_ctor_set(x_7, 0, x_2);
 lean_ctor_set(x_7, 1, x_5);
 lean_ctor_set(x_7, 2, x_1);
 lean_ctor_set(x_7, 3, x_3);
 lean_ctor_set(x_7, 4, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*5, x_6);
+lean_ctor_set(x_7, 5, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6, x_6);
 return x_7;
 }
 }
@@ -9781,7 +9782,7 @@ lean_dec(x_19);
 if (lean_obj_tag(x_21) == 2)
 {
 uint8_t x_22; 
-x_22 = lean_ctor_get_uint8(x_2, sizeof(void*)*5);
+x_22 = lean_ctor_get_uint8(x_2, sizeof(void*)*6);
 lean_dec(x_2);
 if (x_22 == 0)
 {
@@ -9938,7 +9939,7 @@ lean_dec(x_54);
 if (lean_obj_tag(x_56) == 2)
 {
 uint8_t x_57; 
-x_57 = lean_ctor_get_uint8(x_2, sizeof(void*)*5);
+x_57 = lean_ctor_get_uint8(x_2, sizeof(void*)*6);
 lean_dec(x_2);
 if (x_57 == 0)
 {

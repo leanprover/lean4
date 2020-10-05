@@ -18,7 +18,7 @@ open Meta
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr :=
-withRef stx $ liftTermElabM $ adaptReader (fun (ctx : Term.Context) => { ctx with errToSorry := false }) $ do
+withRef stx $ liftTermElabM $ Term.withoutErrToSorry do
   e ← Term.elabTerm stx expectedType?;
   Term.synthesizeSyntheticMVars mayPostpone;
   instantiateMVars e

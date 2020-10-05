@@ -293,6 +293,9 @@ adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
 def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { ctx with levelNames := levelNames }) x
 
+def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { ctx with errToSorry := false }) x
+
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
 s ← get;
@@ -1135,7 +1138,7 @@ private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List St
     | Name.str pre s _ => resolveLocalNameAux pre (s::projs)
     | _                => none
 
-private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
+def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
 lctx ← getLCtx;
 pure $ resolveLocalNameAux lctx n []
 

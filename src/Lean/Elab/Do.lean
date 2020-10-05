@@ -718,8 +718,20 @@ pure $ r.copyInfo decl
 def reassignToTermCore (reassign : Syntax) (k : Syntax) : MacroM Syntax := withFreshMacroScope do
 let kind := reassign.getKind;
 if kind == `Lean.Parser.Term.doReassign then
-  let letDecl := mkNode `Lean.Parser.Term.letDecl #[reassign.getArg 0];
-  `(let $letDecl:letDecl; $k)
+  -- doReassign := parser! (letIdDecl <|> letPatDecl)
+  let arg := reassign.getArg 0;
+  if arg.getKind == `Lean.Parser.Term.letIdDecl then do
+    -- letIdDecl := parser! ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
+    let x   := arg.getArg 0;
+    let val := arg.getArg 4;
+    newVal ← `(ensureTypeOf! $x $(quote "invalid reassignment") $val);
+    let arg := arg.setArg 4 newVal;
+    let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg];
+    `(let $letDecl:letDecl; $k)
+  else
+    -- TODO: ensure the types did not change
+    let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg];
+    `(let $letDecl:letDecl; $k)
 else if kind == `Lean.Parser.Term.doReassignArrow then
   Macro.throwError reassign ("WIP " ++ toString reassign)
 else
@@ -774,9 +786,22 @@ namespace ToCodeBlock
 structure Context :=
 (ref       : Syntax)
 (m         : Syntax) -- Syntax representing the monad associated with the do notation.
+(varSet    : NameSet := {})
 (insideFor : Bool := false)
 
 abbrev M := ReaderT Context TermElabM
+
+@[inline] def withNewVars {α} (newVars : Array Name) (x : M α) : M α :=
+adaptReader (fun (ctx : Context) => { ctx with varSet := insertVars ctx.varSet newVars }) x
+
+def checkReassignable (xs : Array Name) : M Unit := do
+ctx ← read;
+xs.forM fun x =>
+  unless (ctx.varSet.contains x) do
+    r? ← liftM $ resolveLocalName x;
+    match r? with
+    | some (_, []) => pure ()
+    | _ => throwError ("'" ++ x.simpMacroScopes ++ "' cannot be reassigned")
 
 @[inline] def withFor {α} (x : M α) : M α :=
 adaptReader (fun (ctx : Context) => { ctx with insideFor := true }) x
@@ -863,14 +888,15 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     let k := doElem.getKind;
     if k == `Lean.Parser.Term.doLet then do
       vars ← liftM $ getDoLetVars doElem;
-      mkVarDeclCore vars doElem <$> doSeqToCode doElems
+      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
     else if k == `Lean.Parser.Term.doLetRec then do
       throwError "WIP"
     else if k == `Lean.Parser.Term.doLetArrow then do
       vars ← liftM $ getDoLetArrowVars doElem;
-      mkVarDeclCore vars doElem <$> doSeqToCode doElems
+      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
     else if k == `Lean.Parser.Term.doReassign then do
       vars ← liftM $ getDoReassignVars doElem;
+      checkReassignable vars;
       k ← doSeqToCode doElems;
       liftM $ mkReassignCore vars doElem k
     else if k == `Lean.Parser.Term.doReassignArrow then
@@ -894,7 +920,8 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       let x         := doElem.getArg 1;
       let xs        := doElem.getArg 3;
       let forElems  := getDoSeqElems (doElem.getArg 5);
-      forCodeBlock  ← withFor (doSeqToCode forElems);
+      let newVars   := if x.isIdent then #[x.getId] else #[];
+      forCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems);
       ⟨isForInMap, uvars, forInBody⟩ ← toForInTerm x forCodeBlock;
       uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
       auxDo ← if isForInMap then do

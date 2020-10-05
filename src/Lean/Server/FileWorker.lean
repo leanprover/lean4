@@ -161,10 +161,12 @@ open IO
 open Std (RBMap RBMap.empty)
 open JsonRpc
 
+abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
+
 structure ServerContext :=
 (hIn hOut : FS.Stream)
 (docRef : IO.Ref EditableDocument)
-(pendingRequestsRef : IO.Ref (Array (Task (Except IO.Error Unit))))
+(pendingRequestsRef : IO.Ref PendingRequestMap)
 
 abbrev ServerM := ReaderT ServerContext IO
 
@@ -174,7 +176,7 @@ fun st => st.docRef.set val
 def getDocument : ServerM EditableDocument :=
 fun st => st.docRef.get
 
-def updatePendingRequests (map : Array (Task (Except IO.Error Unit)) → Array (Task (Except IO.Error Unit))) : ServerM Unit :=
+def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : ServerM Unit :=
 fun st => st.pendingRequestsRef.modify map
 
 /-- Clears diagnostics for the document version 'version'. -/
@@ -231,12 +233,17 @@ else match changes.get? 0 with
     updateDocument st.hOut docId.uri oldDoc minStartOff newVersion newDocText;
   setDocument newDoc
 
+def handleCancelRequest (p : CancelParams) : ServerM Unit := do
+updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
+
 -- TODO(MH): requests that need data from a certain command should traverse e.snapshots
 -- by successively getting the next task, meaning that we might need to wait for elaboration.
 -- Sebastian said something about a future function TaskIO.bind that ensures that the
 -- request task will also stop waiting when the reference to the task is released by handleDidChange.
 -- when that happens, the request should send a "content changed" error to the user.
 -- (this way, the server doesn't get bogged down in requests for an old state of the document)
+-- requests need to manually check for whether their task has been cancelled, so that they
+-- can reply with a RequestCancelled error.
 def handleHover (p : HoverParams) (e : EditableDocument) : IO Unit := pure ⟨⟩
 
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
@@ -255,7 +262,7 @@ match method with
 def queueRequest {α : Type*} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α) : ServerM Unit := do
 doc ← getDocument;
 requestTask ← monadLift $ asTask (handler params doc);
-updatePendingRequests (fun pendingRequests => Array.push pendingRequests requestTask)
+updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
 def handleRequest (id : RequestID) (method : String) (params : Json)
   : ServerM Unit := do
@@ -279,6 +286,9 @@ partial def mainLoop : Unit → ServerM Unit
     handleRequest id method (toJson params);
     mainLoop ()
   | Message.notification "exit" none => do
+    -- should be sufficient to shut down the file worker.
+    -- references are lost => tasks are marked as cancelled
+    -- => all tasks eventually quit
     pure ()
   | Message.notification method (some params) => do
     handleNotification method (toJson params);

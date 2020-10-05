@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Json
+import Lean.Data.JsonRpc
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -16,6 +17,18 @@ namespace Lean
 namespace Lsp
 
 open Json
+
+structure CancelParams := (id : JsonRpc.RequestID)
+
+instance CancelParams.hasFromJson : HasFromJson CancelParams :=
+⟨fun j => do
+  id ← j.getObjValAs? JsonRpc.RequestID "id";
+  pure ⟨id⟩⟩
+
+instance CancelParams.hasToJson : HasToJson CancelParams :=
+⟨fun o => mkObj $
+  ⟨"id", toJson o.id⟩ :: []⟩
+
 
 abbrev DocumentUri := String
 

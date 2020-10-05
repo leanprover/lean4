@@ -233,7 +233,10 @@ def writeNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) 
 def writeResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
   h.writeMessage (Message.response id (toJson r))
 
-def writeResponseError {α : Type} [HasToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
+def writeResponseError (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) : IO Unit :=
+  h.writeMessage (Message.responseError id code message none)
+
+def writeResponseErrorWithData {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
   h.writeMessage (Message.responseError id code message (toJson data))
 
 end IO.FS.Stream

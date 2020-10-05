@@ -212,6 +212,12 @@ def attachJPs (jpDecls : Array JPDecl) (k : Code) : Code :=
 jpDecls.foldr attachJP k
 
 def mkFreshJP (ps : Array (Name × Bool)) (body : Code) : TermElabM JPDecl := do
+ps ←
+  if ps.isEmpty then do
+    y ← mkFreshUserName `y;
+    pure #[(y, false)]
+  else
+    pure ps;
 name ← mkFreshUserName `jp;
 pure { name := name, params := ps, body := body }
 
@@ -237,8 +243,12 @@ match x? with
 | none   => rs
 | some x => rs.insert x
 
-def mkJmp (ref : Syntax) (jp : Name) (xs : Array Name) : Code :=
-Code.jmp ref jp (xs.map $ mkIdentFrom ref)
+def mkJmp (ref : Syntax) (jp : Name) (xs : Array Name) : TermElabM Code := do
+if xs.isEmpty then do
+  unit ← `(Unit.unit);
+  pure $ Code.jmp ref jp #[unit]
+else
+  pure $ Code.jmp ref jp (xs.map $ mkIdentFrom ref)
 
 /- `pullExitPointsAux rs c` auxiliary method for `pullExitPoints`, `rs` is the set of update variable in the current path.  -/
 partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) TermElabM Code
@@ -250,8 +260,8 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
 | rs, Code.«match» ref ds t alts => Code.«match» ref ds t <$> alts.mapM fun alt => do
   rhs ← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs; pure { alt with rhs := rhs }
 | rs, c@(Code.jmp _ _ _)         => pure c
-| rs, Code.«break» ref           => do let xs := nameSetToArray rs; jp ← addFreshJP' xs (Code.«break» ref); pure $ mkJmp ref jp xs
-| rs, Code.«continue» ref        => do let xs := nameSetToArray rs; jp ← addFreshJP' xs (Code.«continue» ref); pure $ mkJmp ref jp xs
+| rs, Code.«break» ref           => do let xs := nameSetToArray rs; jp ← addFreshJP' xs (Code.«break» ref); liftM $ mkJmp ref jp xs
+| rs, Code.«continue» ref        => do let xs := nameSetToArray rs; jp ← addFreshJP' xs (Code.«continue» ref); liftM $ mkJmp ref jp xs
 | rs, Code.«return» ref val      => do
   let xs := nameSetToArray rs;
   let args := xs.map $ mkIdentFrom ref;

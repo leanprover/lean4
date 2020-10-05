@@ -68,8 +68,8 @@ else if c_2 then
   "if " >> optIdent >> termParser >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> group («try» (group (" else " >> " if ")) >> optIdent >> termParser >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
-@[builtinDoElemParser] def doUnless := parser! "unless " >> withPosition (termParser >> optional ",") >> doSeq
-@[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withPosition (termParser >> optional ", ") >> doSeq
+@[builtinDoElemParser] def doUnless := parser! "unless " >> withForbidden "do" termParser >> "do " >> doSeq
+@[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withForbidden "do" termParser >> "do " >> doSeq
 
 /- `match`-expression where the right-hand-side of alternatives is a `doSeq` instead of a `term` -/
 def doMatchAlt : Parser  := sepBy1 termParser ", " >> darrow >> doSeq

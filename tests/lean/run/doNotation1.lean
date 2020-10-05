@@ -140,9 +140,9 @@ else
 set_option trace.Elab.do true
 
 def f1Test : IO Unit := do
-unless (← f1 30 $.run' 0) == 140
+unless (← f1 30 $.run' 0) == 140 do
   throw $ IO.userError $ "error"
-unless (← f1 5 $.run' 0) == 15
+unless (← f1 5 $.run' 0) == 15 do
   throw $ IO.userError $ "error"
 
 #eval f1Test

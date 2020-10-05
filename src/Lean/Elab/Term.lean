@@ -1290,6 +1290,8 @@ fun stx expectedType? =>
     refTermType ← inferType refTerm;
     e ← elabTerm (stx.getArg 3) expectedType?;
     eType ← inferType e;
+    -- TODO: try coercions. We cannot simply use `ensureHasType` at this point because it has no support for the custom error message.
+    -- a `catch` would also not work since `ensureHasType` may postpone the coercion resolution.
     unlessM (isDefEq eType refTermType) $ throwError $ mkTypeMismatchError e eType refTermType msg;
     pure e
 

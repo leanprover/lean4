@@ -33,7 +33,7 @@ structure ExtractMonadResult :=
 (hasBindInst : Expr)
 
 private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
-u ← getLevel type;
+u ← getDecLevel type;
 let id        := Lean.mkConst `Id [u];
 let idBindVal := Lean.mkConst `Id.hasBind [u];
 pure { m := id, hasBindInst := idBindVal, α := type }
@@ -929,7 +929,8 @@ fun stx expectedType? => do
   -- trace! `Elab.do ("codeBlock: " ++ Format.line ++ codeBlock.toMessageData);
   (_, stxNew) ← liftMacroM $ ToTerm.run { codeBlock with uvars := {} }  m;
   trace! `Elab.do stxNew;
-  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+  let expectedType := mkApp bindInfo.m bindInfo.α;
+  withMacroExpansion stx stxNew $ elabTermEnsuringType stxNew expectedType
 
 end Do
 

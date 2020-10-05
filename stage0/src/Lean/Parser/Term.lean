@@ -72,7 +72,7 @@ checkPrec prec >> symbol sym >> termParser (prec+1)
 def typeAscription := parser! " : " >> termParser
 def tupleTail      := parser! ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
-@[builtinTermParser] def paren := parser! "(" >> withoutPosition (optional (termParser >> parenSpecial)) >> ")"
+@[builtinTermParser] def paren := parser! "(" >> withoutPosition (withoutForbidden (optional (termParser >> parenSpecial))) >> ")"
 @[builtinTermParser] def anonymousCtor := parser! "⟨" >> sepBy termParser ", " >> "⟩"
 def optIdent : Parser := optional (try (ident >> " : "))
 @[builtinTermParser] def «if»  := parser!:leadPrec "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser

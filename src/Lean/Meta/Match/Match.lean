@@ -255,7 +255,7 @@ private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt 
     let minorType := mkAppN motive args;
     mkForallFVars xs minorType
   };
-  let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkThunkType minorType, 1);
+  let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkSimpleThunkType minorType, 1);
   let idx       := alts.length;
   let minorName := (`h).appendIndexAfter (idx+1);
   trace! `Meta.Match.debug ("minor premise " ++ minorName ++ " : " ++ minorType);

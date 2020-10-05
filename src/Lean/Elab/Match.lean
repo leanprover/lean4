@@ -698,7 +698,7 @@ withPatternVars patternVars fun patternVarDecls => do
   withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
     rhs ← elabTermEnsuringType alt.rhs matchType;
     let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr;
-    rhs ← if xs.isEmpty then pure $ mkThunk rhs else mkLambdaFVars xs rhs;
+    rhs ← if xs.isEmpty then pure $ mkSimpleThunk rhs else mkLambdaFVars xs rhs;
     trace `Elab.match fun _ => "rhs: " ++ rhs;
     pure (altLHS, rhs)
 

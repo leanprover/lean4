@@ -367,7 +367,7 @@ static environment eval_cmd(parser & p) {
 
         if (eval_instance) {
             /* Modify the 'program' to (HasEval.eval (hideUnit := false) e) */
-            e = mk_app(tc, {"Lean", "runEval"}, 3, {type, *eval_instance, e});
+            e = mk_app(tc, {"Lean", "runEvalOld"}, 3, {type, *eval_instance, e});
             // run `IO Unit`
             args = { io_mk_world() };
         } else {

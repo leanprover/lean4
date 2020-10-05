@@ -580,7 +580,8 @@ fun stx => do
   let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do {
     -- fall back to non-meta eval if MetaHasEval hasn't been defined yet
     -- modify e to `runEval e`
-    e    ← Term.elabTerm term none;
+    e ← Term.elabTerm term none;
+    let e := mkSimpleThunk e;
     Term.synthesizeSyntheticMVarsNoPostponing;
     e ← mkAppM `Lean.runEval #[e];
     env ← getEnv;

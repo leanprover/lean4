@@ -16,7 +16,7 @@ class MetaHasEval (α : Type u) :=
 (eval : Environment → Options → α → forall (hideUnit : optParam Bool true), IO Environment)
 
 instance metaHasEvalOfHasEval {α : Type u} [HasEval α] : MetaHasEval α :=
-⟨fun env opts a hideUnit => do HasEval.eval a hideUnit; pure env⟩
+⟨fun env opts a hideUnit => do HasEval.eval (fun _ => a) hideUnit; pure env⟩
 
 def runMetaEval {α : Type u} [MetaHasEval α] (env : Environment) (opts : Options) (a : α) : IO (String × Except IO.Error Environment) :=
 IO.FS.withIsolatedStreams (MetaHasEval.eval env opts a false)

@@ -5,8 +5,8 @@ let x? : Option Nat ← pure none;
 pure x?
 
 def tst2 (x : Nat) : IO (Option Nat) := do
-let x? : Option Nat ← pure x;
-(if x?.isNone then
+let x? : Option Nat := x;
+if x?.isNone then
   /-
     We need the `some` because we propagate the expected type at `pure` applications.
     The expected type is `IO (Option Nat)`, and we elaborate `x+1` with expected type
@@ -15,6 +15,6 @@ let x? : Option Nat ← pure x;
     The `x+1` will be elaborated without an expected type. We will infer the type
     `?m Nat` for `pure (x+1)`, and coercions are used to convert it into `IO (Option Nat)`.
   -/
-  pure $ some (x+1)
+  return some (x+1)
 else
-  pure x?)
+  return x?

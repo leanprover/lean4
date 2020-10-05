@@ -81,5 +81,8 @@ def writeLspResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r
 def writeLspResponseError {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : m Unit :=
   writeLspMessage h (Message.responseError id code message (toJson data))
 
+def writeLspResponseErrorWithData {α : Type} [HasToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : m Unit :=
+  writeLspMessage h (Message.responseError id code message (toJson data))
+
 end Lsp
 end Lean

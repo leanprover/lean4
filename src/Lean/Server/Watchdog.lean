@@ -125,8 +125,12 @@ writeLspNotification fw.stdin method param
 
 def writeRequest {α : Type*} [HasToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α) : m Unit := do
 writeLspRequest fw.stdin id method param;
-liftIO $ fw.pendingRequestsRef.modify (fun pendingRequests => 
-  pendingRequests.insert id (Message.request id method (fromJson? (toJson param))))
+liftIO $ fw.pendingRequestsRef.modify $ fun pendingRequests => 
+  pendingRequests.insert id (Message.request id method (fromJson? (toJson param)))
+
+def errorPendingRequests (fw : FileWorker) (clientStdin : FS.Stream) (code : ErrorCode) (msg : String) : m Unit := do
+pendingRequests ← liftIO $ fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty));
+pendingRequests.forM (fun id _ => writeLspResponseError clientStdin id code msg)
 
 end FileWorker
 
@@ -166,7 +170,14 @@ partial def fwdMsgAux (fw : FileWorker) (hOut : FS.Stream) : Unit → IO WorkerE
       -- NOTE: if writeLspMessage errors we will block here, but the main task will
       -- quit eventually anyways if that happens
       exitCode ← fw.proc.wait;
-      pure $ if exitCode = 0 then WorkerEvent.terminated else WorkerEvent.crashed err)
+      if exitCode = 0 then do
+        -- worker was terminated
+        fw.errorPendingRequests hOut ErrorCode.contentModified "File header changed or file was closed";
+        pure WorkerEvent.terminated 
+      else do
+        -- worker crashed
+        fw.errorPendingRequests hOut ErrorCode.internalError "Server process of file crashed, likely due to a stack overflow in user code";
+        pure (WorkerEvent.crashed err))
     
 /-- A Task which forwards a worker's messages into the output stream until an event
 which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -187,9 +198,9 @@ st ← read;
 pos ← monadLift $ parsedImportsEndPos text.source;
 let doc : OpenDocument := ⟨version, text, pos⟩;
 workerProc ← monadLift $ Process.spawn {workerCfg with cmd := st.workerPath};
-pendingRequests ← IO.mkRef (RBMap.empty : PendingRequestMap);
+pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
 -- the task will never access itself, so this is fine
-let commTaskFw : FileWorker := ⟨doc, workerProc, Task.pure WorkerEvent.terminated, WorkerState.running, pendingRequests⟩;
+let commTaskFw : FileWorker := ⟨doc, workerProc, Task.pure WorkerEvent.terminated, WorkerState.running, pendingRequestsRef⟩;
 commTask ← fwdMsgTask commTaskFw;
 let fw : FileWorker := {commTaskFw with commTask := commTask};
 fw.writeRequest (0 : Nat) "initialize" st.initParams;
@@ -204,7 +215,6 @@ fw ← findFileWorker uri;
 -- and when the header changed we'll start a new one right after
 -- anyways)
 catch (fw.writeMessage (Message.notification "exit" none)) (fun err => pure ());
--- TODO(MH): error pending requests
 eraseFileWorker uri
   
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
@@ -214,7 +224,7 @@ match fromJson? params with
 
 def handleCrash (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
 fw ← findFileWorker uri;
-updateFileWorkers uri { fw with state := WorkerState.crashed queuedMsgs }
+updateFileWorkers uri {fw with state := WorkerState.crashed queuedMsgs}
 
 def restartCrashedFileWorker (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
 eraseFileWorker uri;
@@ -276,7 +286,7 @@ else match changes.get? 0 with
     startFileWorker doc.uri newVersion newDocText
   else do
     let newDoc : OpenDocument := ⟨newVersion, newDocText, oldHeaderEndPos⟩;
-    let newFw : FileWorker := { fw with doc := newDoc };
+    let newFw : FileWorker := {fw with doc := newDoc};
     updateFileWorkers doc.uri newFw;
     let msg := Message.notification "textDocument/didChange" (fromJson? (toJson p));
     match fw.state with

@@ -282,7 +282,7 @@ fun stx =>
 fun stx =>
   let arg  := stx.getArg 1;
   let body := stx.getArg 3;
-  `(dbgTrace $arg fun _ => $body)
+  `(dbgTrace (toString $arg) fun _ => $body)
 
 @[builtinMacro Lean.Parser.Term.«sorry»]  def expandSorry : Macro :=
 fun _ => `(sorryAx _ false)

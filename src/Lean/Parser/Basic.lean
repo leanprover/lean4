@@ -121,11 +121,12 @@ instance InputContext.inhabited : Inhabited InputContext :=
 ⟨{ input := "", fileName := "", fileMap := arbitrary _ }⟩
 
 structure ParserContext extends InputContext :=
-(prec       : Nat)
-(env        : Environment)
-(tokens     : TokenTable)
-(insideQuot : Bool := false)
-(savedPos?  : Option Position := none)
+(prec         : Nat)
+(env          : Environment)
+(tokens       : TokenTable)
+(insideQuot   : Bool := false)
+(savedPos?    : Option Position := none)
+(forbiddenTk? : Option Token := none)
 
 structure Error :=
 (unexpected : String := "")
@@ -866,20 +867,24 @@ match tk with
    -- we want it to be recognized as a symbol
   tk.bsize ≥ idStopPos - idStartPos
 
+
 def mkTokenAndFixPos (startPos : Nat) (tk : Option Token) : ParserFn :=
 fun c s =>
 match tk with
 | none    => s.mkErrorAt "token" startPos
 | some tk =>
-  let input     := c.input;
-  let leading   := mkEmptySubstringAt input startPos;
-  let stopPos   := startPos + tk.bsize;
-  let s         := s.setPos stopPos;
-  let s         := whitespace c s;
-  let wsStopPos := s.pos;
-  let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring };
-  let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } tk;
-  s.pushSyntax atom
+  if c.forbiddenTk? == some tk then
+    s.mkErrorAt "forbidden token" startPos
+  else
+    let input     := c.input;
+    let leading   := mkEmptySubstringAt input startPos;
+    let stopPos   := startPos + tk.bsize;
+    let s         := s.setPos stopPos;
+    let s         := whitespace c s;
+    let wsStopPos := s.pos;
+    let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring };
+    let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } tk;
+    s.pushSyntax atom
 
 def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn :=
 fun c s =>
@@ -1410,6 +1415,14 @@ fun c s =>
   fn   := fun c s =>
    let pos := c.fileMap.toPosition s.pos;
    p.fn { c with savedPos? := none } s }
+
+@[inline] def withForbidden (tk : Token) (p : Parser) : Parser :=
+{ info := p.info,
+  fn   := fun c s => p.fn { c with forbiddenTk? := tk } s }
+
+@[inline] def withoutForbidden (p : Parser) : Parser :=
+{ info := p.info,
+  fn   := fun c s => p.fn { c with forbiddenTk? := none } s }
 
 def eoiFn : ParserFn :=
 fun c s =>

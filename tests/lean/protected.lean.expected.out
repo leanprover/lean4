@@ -11,11 +11,11 @@ protected.lean:28:14: error: unknown identifier 'f'
 protected.lean:38:14: error: unknown identifier 'g'
 protected.lean:47:6: error: unknown identifier 'g'
 protected.lean:47:0: error: application type mismatch
-  Lean.runEval (sorryAx ?m)
+  Lean.runEval fun («_» : Unit) => sorryAx ?m
 argument
-  sorryAx ?m
+  fun («_» : Unit) => sorryAx ?m
 has type
-  ?m
+  Unit → ?m
 but is expected to have type
-  ?m
+  Unit → ?m
 8

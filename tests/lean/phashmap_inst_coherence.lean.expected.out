@@ -9,10 +9,10 @@ but is expected to have type
 failed to synthesize instance
   CoeT (PersistentHashMap Nat Nat) m (PersistentHashMap Nat Nat)
 phashmap_inst_coherence.lean:12:0: error: application type mismatch
-  Lean.runEval (sorryAx ?m)
+  Lean.runEval fun («_» : Unit) => sorryAx ?m
 argument
-  sorryAx ?m
+  fun («_» : Unit) => sorryAx ?m
 has type
-  ?m
+  Unit → ?m
 but is expected to have type
-  ?m
+  Unit → ?m

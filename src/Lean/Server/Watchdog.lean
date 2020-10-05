@@ -48,6 +48,7 @@ Moreover, we don't implement the full protocol at this level:
   Consequently, the watchdog will not send an `initialized` notification to the worker.
 - After `initialize`, the watchdog sends the corresponding `didOpen` notification with the full current state of the file.
   No additional `didOpen` notifications will be forwarded to the worker process.
+- `$/cancelRequest` notifications are forwarded to all file workers.
 - File workers are always terminated with an `exit` notification, without previously receiving a `shutdown` request. 
   Similarly, they never receive a `didClose` notification.
 
@@ -128,9 +129,9 @@ writeLspRequest fw.stdin id method param;
 liftIO $ fw.pendingRequestsRef.modify $ fun pendingRequests => 
   pendingRequests.insert id (Message.request id method (fromJson? (toJson param)))
 
-def errorPendingRequests (fw : FileWorker) (clientStdin : FS.Stream) (code : ErrorCode) (msg : String) : m Unit := do
+def errorPendingRequests (fw : FileWorker) (hOut : FS.Stream) (code : ErrorCode) (msg : String) : m Unit := do
 pendingRequests ← liftIO $ fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty));
-pendingRequests.forM (fun id _ => writeLspResponseError clientStdin id code msg)
+pendingRequests.forM (fun id _ => writeLspResponseError hOut id code msg)
 
 end FileWorker
 
@@ -300,6 +301,11 @@ else match changes.get? 0 with
 def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
 terminateFileWorker p.textDocument.uri
 
+def handleCancelRequest (p : CancelParams) : ServerM Unit := do
+st ← read;
+fileWorkers ← st.fileWorkersRef.get;
+fileWorkers.forM (fun _ fw => fw.writeNotification "$/cancelParams" p)
+
 def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
 let h := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
            parsedParams ← parseParams α params;
@@ -323,7 +329,7 @@ match method with
 | "textDocument/didOpen"   => handle DidOpenTextDocumentParams handleDidOpen
 | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
 | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
-| "$/cancelRequest"        => pure () -- TODO forward CancelParams
+| "$/cancelRequest"        => handle CancelParams handleCancelRequest
 | _                        => throw (userError "Got unsupported notification method")
 
 def shutdown : ServerM Unit := do

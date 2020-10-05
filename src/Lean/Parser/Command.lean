@@ -33,8 +33,8 @@ def «unsafe»         := parser! "unsafe "
 def «partial»        := parser! "partial "
 def declModifiers (inline : Bool) := parser! optional docComment >> optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >> optional visibility >> optional «noncomputable» >> optional «unsafe» >> optional «partial»
 def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-def declSig          := parser! ppGroup (many Term.bracketedBinder) >> Term.typeSpec
-def optDeclSig       := parser! ppGroup (many Term.bracketedBinder) >> Term.optType
+def declSig          := parser! ppGroup (many (ppSpace >> Term.bracketedBinder)) >> Term.typeSpec
+def optDeclSig       := parser! ppGroup (many (ppSpace >> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := parser! ppDedent $ " :=\n" >> termParser
 def declValEqns      := parser! Term.matchAlts false
 def declVal          := declValSimple <|> declValEqns

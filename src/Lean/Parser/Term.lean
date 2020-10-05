@@ -152,7 +152,7 @@ def optExprPrecedence := optional (try ":" >> termParser maxPrec)
 @[builtinTermParser] def «match_syntax» := parser!:leadPrec "match_syntax" >> termParser >> " with " >> matchAlts
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
-def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many bracketedBinder >> optType
+def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> bracketedBinder) >> optType
 def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ try (letIdLhs >> " := ") >> termParser
 def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
 def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false

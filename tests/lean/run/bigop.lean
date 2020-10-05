@@ -25,8 +25,8 @@ class Enumerable (α : Type) :=
 instance : Enumerable Bool :=
 { elems := [false, true] }
 
-instance {α β} [Enumerable α] [Enumerable β]: Enumerable (α × β) :=
-{ elems := do let a ← Enumerable.elems α; let b ← Enumerable.elems β; pure (a, b) }
+-- instance {α β} [Enumerable α] [Enumerable β]: Enumerable (α × β) :=
+-- { elems := do let a ← Enumerable.elems α; let b ← Enumerable.elems β; pure (a, b) }
 
 partial def finElemsAux (n : Nat) : (i : Nat) → i < n → List (Fin n)
 | 0,   h => [⟨0, h⟩]

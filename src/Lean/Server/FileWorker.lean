@@ -270,7 +270,6 @@ match method with
 partial def mainLoop : Unit → ServerM Unit
 | () => do
   st ← read;
-  -- TODO(MH): gracefully terminate when stdin is closed by watchdog?
   msg ← readLspMessage st.hIn;
   pendingRequests ← st.pendingRequestsRef.get;
   pendingRequests ← monadLift $ pendingRequests.filterM (fun task => do f ← hasFinished task; pure ¬f);
@@ -279,6 +278,8 @@ partial def mainLoop : Unit → ServerM Unit
   | Message.request id method (some params) => do
     handleRequest id method (toJson params);
     mainLoop ()
+  | Message.notification "exit" none => do
+    pure ()
   | Message.notification method (some params) => do
     handleNotification method (toJson params);
     mainLoop ()

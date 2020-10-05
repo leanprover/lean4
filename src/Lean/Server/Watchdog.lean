@@ -153,7 +153,7 @@ fun st => do
 fileWorkers ← st.fileWorkersRef.get;
 match fileWorkers.find? uri with
 | some fw => pure fw
-| none    => throw (userError $ "got unknown document URI (" ++ uri ++ ")")
+| none    => throw (userError $ "Got unknown document URI (" ++ uri ++ ")")
 
 def eraseFileWorker (uri : DocumentUri) : ServerM Unit :=
 fun st => st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
@@ -211,16 +211,17 @@ def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
 fw ← findFileWorker uri;
 -- the file worker must have crashed just when we were about to terminate it!
 -- that's fine - just forget about it then.
--- (on didClose we won't need the crashed file worker anymore
--- and when the header changed we'll start a new one right after
--- anyways)
+-- (on didClose we won't need the crashed file worker anymore,
+-- when the header changed we'll start a new one right after
+-- anyways and when we're shutting down the server
+-- it's over either way.)
 catch (fw.writeMessage (Message.notification "exit" none)) (fun err => pure ());
 eraseFileWorker uri
   
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
 match fromJson? params with
 | some parsed => pure parsed
-| none        => throw (userError "got param with wrong structure")
+| none        => throw (userError "Got param with wrong structure")
 
 def handleCrash (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
 fw ← findFileWorker uri;
@@ -256,9 +257,9 @@ let doc := p.textDocument;
 let changes := p.contentChanges;
 fw ← findFileWorker doc.uri;
 let oldDoc := fw.doc;
-some newVersion ← pure doc.version? | throw (userError "expected version number");
+some newVersion ← pure doc.version? | throw (userError "Expected version number");
 if newVersion <= oldDoc.version then do
-  throw (userError "got outdated version number")
+  throw (userError "Got outdated version number")
 else match changes.get? 0 with
 | none => pure ()
 | some firstChange => do
@@ -313,7 +314,7 @@ let h := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
                    (fun err => handleCrash uri fw #[msg]));
 match method with
 | "textDocument/hover" => h HoverParams
-| _ => throw (userError $ "got unsupported request: " ++ method ++
+| _ => throw (userError $ "Got unsupported request: " ++ method ++
                           "; params: " ++ toString params)
 
 def handleNotification (method : String) (params : Json) : ServerM Unit := do
@@ -323,7 +324,12 @@ match method with
 | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
 | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
 | "$/cancelRequest"        => pure () -- TODO forward CancelParams
-| _                        => throw (userError "got unsupported notification method")
+| _                        => throw (userError "Got unsupported notification method")
+
+def shutdown : ServerM Unit := do
+st ← read;
+fileWorkers ← st.fileWorkersRef.get;
+fileWorkers.forM (fun id _ => terminateFileWorker id)
 
 inductive ServerEvent
 | WorkerEvent (uri : DocumentUri) (fw : FileWorker) (ev : WorkerEvent)
@@ -347,7 +353,7 @@ partial def mainLoop : Unit → ServerM Unit
 
   let workerTasks := workers.fold
     (fun acc uri fw =>
-    Task.map (ServerEvent.WorkerEvent uri fw) fw.commTask :: acc)
+      Task.map (ServerEvent.WorkerEvent uri fw) fw.commTask :: acc)
     ([] : List (Task ServerEvent));
 
   ev ← liftIO $ IO.waitAny $ clientTask :: workerTasks;
@@ -355,7 +361,8 @@ partial def mainLoop : Unit → ServerM Unit
   match ev with
   | ServerEvent.ClientMsg msg => do
     match msg with
-    | Message.request id "shutdown" _ =>
+    | Message.request id "shutdown" _ => do
+      shutdown;
       writeLspResponse st.hOut id (Json.null)
     | Message.request id method (some params) => do
       handleRequest id method (toJson params);
@@ -363,16 +370,16 @@ partial def mainLoop : Unit → ServerM Unit
     | Message.notification method (some params) => do
       handleNotification method (toJson params);
       mainLoop ()
-    | _ => throw (userError "got invalid JSON-RPC message")
+    | _ => throw (userError "Got invalid JSON-RPC message")
 
-  | ServerEvent.ClientError e => do
-    pure () -- shutdown
+  | ServerEvent.ClientError e =>
+    shutdown
 
   /- Restart an exited worker. -/
   | ServerEvent.WorkerEvent uri fw err =>
     match err with
     | WorkerEvent.crashed e => handleCrash uri fw #[]
-    | WorkerEvent.terminated => throw (userError "internal server error: got termination event for worker that should have been removed")
+    | WorkerEvent.terminated => throw (userError "Internal server error: got termination event for worker that should have been removed")
 
 def mkLeanServerCapabilities : ServerCapabilities :=
 { textDocumentSync? := some
@@ -385,11 +392,17 @@ def mkLeanServerCapabilities : ServerCapabilities :=
 
 def initAndRunWatchdogAux : ServerM Unit := do
 st ← read;
-_ ← readLspNotificationAs st.hIn "initialized" InitializedParams;
-mainLoop ();
-Message.notification "exit" none ← readLspMessage st.hIn
-  | throw (userError "Expected an Exit Notification.");
-pure ()
+catch 
+  (do
+    _ ← readLspNotificationAs st.hIn "initialized" InitializedParams;
+    mainLoop ();
+    Message.notification "exit" none ← readLspMessage st.hIn
+    | throw (userError "Expected an exit notification");
+    pure ()) 
+  -- something crashed, try to terminate all the file workers and all the forwarding tasks
+  -- so that we can die in peace
+  (fun err => do shutdown; throw err)
+
 
 def initAndRunWatchdog (i o : FS.Stream) : IO Unit := do
 some workerPath ← IO.getEnv "LEAN_WORKER_PATH"

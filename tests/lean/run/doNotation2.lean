@@ -30,3 +30,17 @@ rfl
 
 theorem ex2 : (g [] $.run' 0) = 1 :=
 rfl
+
+def h (x : Nat) (y : Nat) : Nat := do
+if x > 0 then
+  let y := x + 1 -- this is a new `y` that shadows the one above
+  x := y
+else
+  y := y + 1
+return x + y
+
+theorem ex3 (y : Nat) : h 0 y = 0 + (y + 1) :=
+rfl
+
+theorem ex4 (y : Nat) : h 1 y = (1 + 1) + y :=
+rfl

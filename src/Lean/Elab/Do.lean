@@ -179,7 +179,23 @@ partial def convertReturnIntoJmpAux (jp : Name) (xs : Array Name) : Code → Cod
 | Code.action e k            => Code.action e $ convertReturnIntoJmpAux k
 | Code.ite ref x? h c t e    => Code.ite ref x? h c (convertReturnIntoJmpAux t) (convertReturnIntoJmpAux e)
 | Code.«match» ref ds t alts => Code.«match» ref ds t $ alts.map fun alt => { alt with rhs := convertReturnIntoJmpAux alt.rhs }
-| Code.«return» ref _        => Code.jmp ref jp (xs.map $ mkIdentFrom ref)
+  /- Remark: the joint point doesn't use the value `val`, but we pass `val` as an extra `jmp` argument to make sure
+     all `return` values have the same type. The following example would fail to be elaborated without this trick.
+     ```
+     do unless x == 0
+          throw (IO.userError "error")
+        IO.println "hello"
+     ```
+     The `unless` is expanded into
+     ```
+     if x == 0 then
+       let aux ← throw (IO.userError "error")
+       return aux
+     else
+       return PUnit.unit
+     ```
+     If we did not pass the value as an extra parameter, we would not be able to infer the type of `aux`. -/
+| Code.«return» ref val      => Code.jmp ref jp ((xs.map $ mkIdentFrom ref).push val)
 | c                          => c
 
 /- Convert `return _ x` instructions in `c` into `jmp _ jp xs`. -/
@@ -409,7 +425,10 @@ pure { c with code := Code.ite ref none mkNullNode cond (Code.«return» ref uni
 def concat (terminal : CodeBlock) (k : CodeBlock) : TermElabM CodeBlock := do
 (terminal, k) ← homogenize terminal k;
 let xs := nameSetToArray k.uvars;
-jpDecl ← mkFreshJP' xs k.code;
+yFresh ← mkFreshUserName `y;
+let ps := xs.map fun x => (x, true);
+let ps := ps.push (yFresh, false);
+jpDecl ← mkFreshJP ps k.code;
 let jp := jpDecl.name;
 pure {
   code  := attachJP jpDecl (convertReturnIntoJmp terminal.code jp xs),
@@ -539,13 +558,13 @@ let doIf     := expandDoIf doIf;
   thenBranch := doIf.getArg 4,
   elseBranch := (doIf.getArg 6).getArg 1 }
 
-private def mkUnit (ref : Syntax) : MacroM Syntax := do
+private def mkPUnit (ref : Syntax) : MacroM Syntax := do
 unit ← `(PUnit.unit);
 pure $ unit.copyInfo ref
 
 private def mkTuple (ref : Syntax) (elems : Array Syntax) : MacroM Syntax :=
 if elems.size == 0 then do
-  mkUnit ref
+  mkPUnit ref
 else if elems.size == 1 then
   pure (elems.get! 0)
 else

@@ -121,3 +121,28 @@ else
 #check tst7
 
 #eval tst7.run (0, 2)
+
+def f1 (x : Nat) : StateT Nat IO Nat := do
+IO.println "hello"
+let z := x
+let y := x
+modify (· + 10)
+if x > 0 then
+  y := 3*y
+  z := z + (← get) + (← get)
+if x < (← get) then
+  IO.println (">> " ++ toString y)
+  return y
+else
+  IO.println ("++ " ++ toString z)
+  return y+z
+
+set_option trace.Elab.do true
+
+def f1Test : IO Unit := do
+unless (← f1 30 $.run' 0) == 140
+  throw $ IO.userError $ "error"
+unless (← f1 5 $.run' 0) == 15
+  throw $ IO.userError $ "error"
+
+#eval f1Test

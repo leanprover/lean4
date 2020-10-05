@@ -7,6 +7,7 @@ prelude
 import Init.Data.String.Basic
 import Init.Data.UInt
 import Init.Data.Nat.Div
+import Init.Control.Id
 open Sum Subtype Nat
 
 universes u v
@@ -22,6 +23,9 @@ inferInstanceAs (HasRepr α)
 
 instance : HasRepr Bool :=
 ⟨fun b => cond b "true" "false"⟩
+
+instance {α} [HasRepr α] : HasRepr (Id α) :=
+inferInstanceAs (HasRepr α)
 
 instance {p : Prop} : HasRepr (Decidable p) :=
 ⟨fun h => match h with

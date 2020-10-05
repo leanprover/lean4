@@ -13,23 +13,27 @@ universe u
 
 def Id (type : Type u) : Type u := type
 
-@[inline] def Id.pure {α : Type u} (x : α) : Id α :=
+namespace Id
+
+@[inline] protected def pure {α : Type u} (x : α) : Id α :=
 x
 
-@[inline] def Id.bind {α β : Type u} (x : Id α) (f : α → Id β) : Id β :=
+@[inline] protected def bind {α β : Type u} (x : Id α) (f : α → Id β) : Id β :=
 f x
 
-@[inline] def Id.map {α β : Type u} (f : α → β) (x : Id α) : Id β :=
+@[inline] protected def map {α β : Type u} (f : α → β) (x : Id α) : Id β :=
 f x
 
-instance Id.hasBind : HasBind Id :=
+instance : HasBind Id :=
 { bind := @Id.bind }
 
-instance Id.monad : Monad Id :=
+instance : Monad Id :=
 { pure := @Id.pure, bind := @Id.bind, map := @Id.map }
 
-@[inline] def Id.run {α : Type u} (x : Id α) : α :=
+@[inline] protected def run {α : Type u} (x : Id α) : α :=
 x
 
 instance : MonadRun id Id :=
 ⟨@Id.run⟩
+
+end Id

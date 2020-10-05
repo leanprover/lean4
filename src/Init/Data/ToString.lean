@@ -8,6 +8,7 @@ import Init.Data.String.Basic
 import Init.Data.UInt
 import Init.Data.Nat.Div
 import Init.Data.Repr
+import Init.Control.Id
 open Sum Subtype Nat
 
 universes u v
@@ -18,7 +19,10 @@ class HasToString (α : Type u) :=
 export HasToString (toString)
 
 -- This instance is needed because `id` is not reducible
-instance {α : Type u} [HasToString α] : HasToString (id α) :=
+instance {α} [HasToString α] : HasToString (id α) :=
+inferInstanceAs (HasToString α)
+
+instance {α} [HasToString α] : HasToString (Id α) :=
 inferInstanceAs (HasToString α)
 
 instance : HasToString String :=

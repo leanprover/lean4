@@ -79,7 +79,6 @@ lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_Delaborator_delabOr___lambda__1___closed__2;
 extern lean_object* l_Lean_nullKind;
 lean_object* l_ReaderT_bind___at_Lean_Level_quote___main___spec__1(lean_object*, lean_object*);
-extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l_Lean_Delaborator_elabMData(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabAdd___lambda__1___closed__1;
 lean_object* l___private_Lean_Delaborator_4__shouldGroupWithNext___closed__1;
@@ -605,6 +604,7 @@ size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_Delaborator_delabProjectionApp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabAppExplicit___lambda__1___closed__1;
 extern lean_object* l___private_Init_LeanInit_14__quoteList___main___rarg___closed__1;
+extern lean_object* l_Lean_mkSimpleThunk___closed__1;
 lean_object* l_Lean_Level_quote___main___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 lean_object* l_Lean_Delaborator_delabDiv___lambda__1___closed__3;
@@ -12328,7 +12328,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_14 = lean_ctor_get(x_11, 0);
 x_15 = lean_ctor_get(x_11, 1);
-x_16 = l_Lean_mkThunk___closed__1;
+x_16 = l_Lean_mkSimpleThunk___closed__1;
 x_17 = l___private_Lean_Delaborator_4__shouldGroupWithNext___closed__2;
 x_18 = l_Lean_Delaborator_withBindingBody___rarg(x_16, x_17, x_1, x_2, x_3, x_4, x_5, x_15);
 if (lean_obj_tag(x_18) == 0)
@@ -12535,7 +12535,7 @@ x_58 = lean_ctor_get(x_11, 1);
 lean_inc(x_58);
 lean_inc(x_57);
 lean_dec(x_11);
-x_59 = l_Lean_mkThunk___closed__1;
+x_59 = l_Lean_mkSimpleThunk___closed__1;
 x_60 = l___private_Lean_Delaborator_4__shouldGroupWithNext___closed__2;
 x_61 = l_Lean_Delaborator_withBindingBody___rarg(x_59, x_60, x_1, x_2, x_3, x_4, x_5, x_58);
 if (lean_obj_tag(x_61) == 0)
@@ -12788,7 +12788,7 @@ if (x_112 == 0)
 lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; 
 x_113 = lean_ctor_get(x_11, 0);
 x_114 = lean_ctor_get(x_11, 1);
-x_115 = l_Lean_mkThunk___closed__1;
+x_115 = l_Lean_mkSimpleThunk___closed__1;
 x_116 = l___private_Lean_Delaborator_4__shouldGroupWithNext___closed__2;
 x_117 = l_Lean_Delaborator_withBindingBody___rarg(x_115, x_116, x_1, x_2, x_3, x_4, x_5, x_114);
 if (lean_obj_tag(x_117) == 0)
@@ -12995,7 +12995,7 @@ x_157 = lean_ctor_get(x_11, 1);
 lean_inc(x_157);
 lean_inc(x_156);
 lean_dec(x_11);
-x_158 = l_Lean_mkThunk___closed__1;
+x_158 = l_Lean_mkSimpleThunk___closed__1;
 x_159 = l___private_Lean_Delaborator_4__shouldGroupWithNext___closed__2;
 x_160 = l_Lean_Delaborator_withBindingBody___rarg(x_158, x_159, x_1, x_2, x_3, x_4, x_5, x_157);
 if (lean_obj_tag(x_160) == 0)

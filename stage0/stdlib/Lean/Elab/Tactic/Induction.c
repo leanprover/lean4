@@ -32,7 +32,6 @@ extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Induction_13__getRecInfoDefault___closed__2;
 lean_object* l_Lean_Elab_Tactic_getRecFromUsing___closed__3;
 lean_object* l___private_Lean_Elab_Tactic_Induction_13__getRecInfoDefault___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_17__checkCasesResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_5__getGeneralizingFVarIds___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,6 +136,7 @@ extern lean_object* l_Lean_mkRecFor___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_16__checkCasesResultAux___main___closed__9;
 lean_object* l___private_Lean_Elab_Tactic_Induction_16__checkCasesResultAux___main___closed__8;
 lean_object* l___private_Lean_Meta_WHNF_12__whnfEasyCases___main___at___private_Lean_Meta_WHNF_17__whnfCoreImp___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkSimpleThunk___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_8__getAltName(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_3__elabMajor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -1530,7 +1530,7 @@ goto block_45;
 block_45:
 {
 lean_object* x_20; uint8_t x_21; 
-x_20 = l_Lean_mkThunk___closed__1;
+x_20 = l_Lean_mkSimpleThunk___closed__1;
 x_21 = lean_name_eq(x_18, x_20);
 if (x_21 == 0)
 {
@@ -3074,7 +3074,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_array_fget(x_1, x_2);
 x_7 = l___private_Lean_Elab_Tactic_Induction_8__getAltName(x_6);
 lean_dec(x_6);
-x_8 = l_Lean_mkThunk___closed__1;
+x_8 = l_Lean_mkSimpleThunk___closed__1;
 x_9 = lean_name_eq(x_7, x_8);
 lean_dec(x_7);
 if (x_9 == 0)

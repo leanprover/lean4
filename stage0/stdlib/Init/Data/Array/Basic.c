@@ -159,7 +159,6 @@ lean_object* l_Array_isEqvAux___main___rarg___boxed(lean_object*, lean_object*, 
 lean_object* l_Array_findIdx_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Array_find_x3f___rarg(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Array_allRange___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_monad;
 lean_object* l_Array_back(lean_object*);
 lean_object* l_Array_findM_x3f___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateM_u2082Aux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -399,6 +398,7 @@ lean_object* l_Array_iterateFrom___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_Array_findSome_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux(lean_object*);
 lean_object* l_Array_umapMAux___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_Monad;
 lean_object* l_Array_findSome_x21___rarg___closed__1;
 lean_object* l_Array_insertAt___rarg___closed__2;
 lean_object* l_Array_zipWith___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -8699,7 +8699,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_array_fget(x_1, x_4);
 x_8 = lean_alloc_closure((void*)(l_Array_getMax_x3f___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_8, 0, x_2);
-x_9 = l_Id_monad;
+x_9 = l_Id_Monad;
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = l_Array_iterateMAux___main___rarg(x_9, lean_box(0), x_1, x_8, x_10, x_7);
 x_12 = lean_alloc_ctor(1, 1, 0);

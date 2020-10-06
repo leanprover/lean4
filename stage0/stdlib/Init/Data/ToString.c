@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ToString
-// Imports: Init.Data.String.Basic Init.Data.UInt Init.Data.Nat.Div Init.Data.Repr
+// Imports: Init.Data.String.Basic Init.Data.UInt Init.Data.Nat.Div Init.Data.Repr Init.Control.Id
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_List_toStringAux___main(lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__2;
+lean_object* l_Id_HasToString(lean_object*);
 lean_object* l_String_Iterator_remainingToString(lean_object*);
 lean_object* l_addParenHeuristic___closed__2;
 lean_object* l_UInt64_HasToString(uint64_t);
@@ -50,6 +51,7 @@ lean_object* l_id_HasToString(lean_object*);
 lean_object* l_List_toStringAux___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Char_HasToString___boxed(lean_object*);
+lean_object* l_Id_HasToString___rarg___boxed(lean_object*);
 lean_object* l_Unit_HasToString___boxed(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
@@ -95,6 +97,7 @@ lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_Nat_HasToString(lean_object*);
 lean_object* l_String_Iterator_HasToString___boxed(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
+lean_object* l_Id_HasToString___rarg(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_addParenHeuristic___boxed(lean_object*);
 lean_object* l_Option_HasToString(lean_object*);
@@ -123,6 +126,30 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_id_HasToString___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Id_HasToString___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Id_HasToString(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Id_HasToString___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_Id_HasToString___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Id_HasToString___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -862,6 +889,7 @@ lean_object* initialize_Init_Data_String_Basic(lean_object*);
 lean_object* initialize_Init_Data_UInt(lean_object*);
 lean_object* initialize_Init_Data_Nat_Div(lean_object*);
 lean_object* initialize_Init_Data_Repr(lean_object*);
+lean_object* initialize_Init_Control_Id(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_ToString(lean_object* w) {
 lean_object * res;
@@ -877,6 +905,9 @@ res = initialize_Init_Data_Nat_Div(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Repr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Id(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_addParenHeuristic___closed__1 = _init_l_addParenHeuristic___closed__1();

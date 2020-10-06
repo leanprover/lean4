@@ -27,6 +27,7 @@ lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_mkInitAttr___lambda__1___closed__11;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__2___closed__1;
+extern lean_object* l_Lean_mkSimpleThunkType___closed__1;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -54,7 +55,6 @@ lean_object* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__2(l
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__5;
-extern lean_object* l_Lean_mkThunkType___closed__1;
 lean_object* l___private_Lean_Compiler_InitAttr_2__isUnitType___boxed(lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkInitAttr___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkInitAttr(lean_object*);
@@ -221,7 +221,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_mkThunkType___closed__1;
+x_5 = l_Lean_mkSimpleThunkType___closed__1;
 x_6 = lean_string_dec_eq(x_4, x_5);
 return x_6;
 }

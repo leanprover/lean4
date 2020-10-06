@@ -21,7 +21,6 @@ lean_object* l_Lean_Meta_intro1Core___boxed(lean_object*, lean_object*, lean_obj
 lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_registerHygienicIntro___closed__1;
 lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_16__isClassExpensive_x3f___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_introN(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___at_Lean_Meta_introNCore___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,7 +44,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_Meta_whnf___rarg(lean_object*, lean_object*);
-extern lean_object* l_Id_monad;
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,6 +81,7 @@ lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___at_Lean
 lean_object* l___private_Lean_Meta_Tactic_Intro_2__introNImp(lean_object*);
 lean_object* l___private_Lean_CoreM_1__mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_3__mkAuxNameImp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkSimpleThunk___closed__1;
 lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isForall(lean_object*);
@@ -91,6 +90,7 @@ lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 extern lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__3;
 lean_object* l___private_Lean_Meta_Tactic_Intro_2__introNImp___rarg___lambda__2___closed__1;
+extern lean_object* l_Id_Monad;
 lean_object* l___private_Lean_Meta_Tactic_Intro_2__introNImp___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___rarg___closed__5;
 lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__4;
@@ -825,7 +825,7 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_21 = lean_ctor_get(x_19, 0);
 x_22 = x_21;
-x_23 = l_Id_monad;
+x_23 = l_Id_Monad;
 x_24 = l___private_Lean_Meta_Tactic_Intro_2__introNImp___rarg___lambda__2___closed__1;
 x_25 = l_Array_umapMAux___main___rarg(x_23, lean_box(0), x_24, x_16, x_22);
 x_26 = x_25;
@@ -841,7 +841,7 @@ lean_inc(x_28);
 lean_inc(x_27);
 lean_dec(x_19);
 x_29 = x_27;
-x_30 = l_Id_monad;
+x_30 = l_Id_Monad;
 x_31 = l___private_Lean_Meta_Tactic_Intro_2__introNImp___rarg___lambda__2___closed__1;
 x_32 = l_Array_umapMAux___main___rarg(x_30, lean_box(0), x_31, x_16, x_29);
 x_33 = x_32;
@@ -873,7 +873,7 @@ if (lean_is_exclusive(x_35)) {
  x_39 = lean_box(0);
 }
 x_40 = x_37;
-x_41 = l_Id_monad;
+x_41 = l_Id_Monad;
 x_42 = l___private_Lean_Meta_Tactic_Intro_2__introNImp___rarg___lambda__2___closed__1;
 x_43 = l_Array_umapMAux___main___rarg(x_41, lean_box(0), x_42, x_16, x_40);
 x_44 = x_43;
@@ -1194,7 +1194,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_5, 1);
 lean_inc(x_25);
 lean_dec(x_5);
-x_26 = l_Lean_mkThunk___closed__1;
+x_26 = l_Lean_mkSimpleThunk___closed__1;
 x_27 = lean_name_eq(x_24, x_26);
 if (x_27 == 0)
 {

@@ -57,7 +57,6 @@ lean_object* l_Std_PersistentHashMap_insert(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize(lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Std_PersistentHashMap_toList___spec__2(lean_object*, lean_object*);
-extern lean_object* l_Id_monad;
 size_t l_Std_PersistentHashMap_shift;
 size_t l_Std_PersistentHashMap_mul2Shift(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_collectStats___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -137,6 +136,7 @@ lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___rarg(lean_object
 lean_object* l_Std_PersistentHashMap_foldlM___at_Std_PersistentHashMap_toList___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_Monad;
 lean_object* l_Std_PersistentHashMap_findAtAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f(lean_object*, lean_object*);
 size_t l_Std_PersistentHashMap_div2Shift(size_t, size_t);
@@ -3112,7 +3112,7 @@ lean_object* l_Std_PersistentHashMap_foldl___rarg(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Id_monad;
+x_6 = l_Id_Monad;
 x_7 = l_Std_PersistentHashMap_foldlM___rarg(x_6, lean_box(0), x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }

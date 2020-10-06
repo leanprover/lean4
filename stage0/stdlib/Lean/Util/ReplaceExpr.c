@@ -22,7 +22,6 @@ lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_cache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_initCache___closed__2;
-extern lean_object* l_Id_monad;
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafe(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main(lean_object*, size_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
@@ -32,6 +31,7 @@ lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___boxed(lean_object*,
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
+extern lean_object* l_Id_Monad;
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
 size_t l_USize_mod(size_t, size_t);
@@ -91,7 +91,7 @@ lean_object* _init_l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_monad;
+x_1 = l_Id_Monad;
 x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }

@@ -31,7 +31,6 @@ lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*,
 lean_object* l_Lean_Declaration_forExprM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_ConstantVal_inhabited___closed__2;
 lean_object* lean_mk_inductive_decl(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkConstructorValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
@@ -256,25 +255,13 @@ return x_4;
 lean_object* _init_l_Lean_ConstantVal_inhabited___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_ConstantVal_inhabited___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_Lean_ConstantVal_inhabited___closed__1;
+x_2 = lean_box(0);
 x_3 = l_Lean_Expr_Inhabited___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
@@ -283,7 +270,7 @@ lean_object* _init_l_Lean_ConstantVal_inhabited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_ConstantVal_inhabited___closed__2;
+x_1 = l_Lean_ConstantVal_inhabited___closed__1;
 return x_1;
 }
 }
@@ -1123,7 +1110,7 @@ lean_object* _init_l_Lean_ConstructorVal_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_1 = l_Lean_ConstantVal_inhabited___closed__2;
+x_1 = l_Lean_ConstantVal_inhabited___closed__1;
 x_2 = lean_box(0);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = 1;
@@ -1698,8 +1685,6 @@ l_Lean_ReducibilityHints_Inhabited = _init_l_Lean_ReducibilityHints_Inhabited();
 lean_mark_persistent(l_Lean_ReducibilityHints_Inhabited);
 l_Lean_ConstantVal_inhabited___closed__1 = _init_l_Lean_ConstantVal_inhabited___closed__1();
 lean_mark_persistent(l_Lean_ConstantVal_inhabited___closed__1);
-l_Lean_ConstantVal_inhabited___closed__2 = _init_l_Lean_ConstantVal_inhabited___closed__2();
-lean_mark_persistent(l_Lean_ConstantVal_inhabited___closed__2);
 l_Lean_ConstantVal_inhabited = _init_l_Lean_ConstantVal_inhabited();
 lean_mark_persistent(l_Lean_ConstantVal_inhabited);
 l_Lean_Declaration_inhabited = _init_l_Lean_Declaration_inhabited();

@@ -293,6 +293,9 @@ adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
 def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { ctx with levelNames := levelNames }) x
 
+def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { ctx with errToSorry := false }) x
+
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
 s ← get;
@@ -1127,17 +1130,18 @@ fun stx =>
   | `(#[$args*]) => `(List.toArray [$args*])
   | _            => throw $ Macro.Exception.error stx "unexpected array literal syntax"
 
-private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
+private partial def resolveLocalNameAux (lctx : LocalContext) (view : MacroScopesView) : Name → List String → Option (Expr × List String)
 | n, projs =>
-  match lctx.findFromUserName? n with
+  match lctx.findFromUserName? { view with name := n }.review with
   | some decl => some (decl.toExpr, projs)
   | none      => match n with
     | Name.str pre s _ => resolveLocalNameAux pre (s::projs)
     | _                => none
 
-private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
+def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
 lctx ← getLCtx;
-pure $ resolveLocalNameAux lctx n []
+let view := extractMacroScopes n;
+pure $ resolveLocalNameAux lctx view view.name []
 
 /- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
 def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
@@ -1287,6 +1291,8 @@ fun stx expectedType? =>
     refTermType ← inferType refTerm;
     e ← elabTerm (stx.getArg 3) expectedType?;
     eType ← inferType e;
+    -- TODO: try coercions. We cannot simply use `ensureHasType` at this point because it has no support for the custom error message.
+    -- a `catch` would also not work since `ensureHasType` may postpone the coercion resolution.
     unlessM (isDefEq eType refTermType) $ throwError $ mkTypeMismatchError e eType refTermType msg;
     pure e
 

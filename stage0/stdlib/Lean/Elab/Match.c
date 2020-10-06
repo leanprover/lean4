@@ -645,6 +645,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Elab_Term_elabMatch___spec__8
 lean_object* l_Lean_Elab_Term_elabMatchAltView___closed__2;
 lean_object* l___private_Lean_Elab_Match_30__withPatternVarsAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_reportMatcherResultErrors___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkSimpleThunk(lean_object*);
 lean_object* l_Lean_Meta_Match_counterExamplesToMessageData(lean_object*);
 lean_object* l___private_Lean_Elab_Match_5__mkUserNameFor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
@@ -680,7 +681,6 @@ lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_matchPatternAttr;
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabNoMatch(lean_object*);
-lean_object* l_Lean_mkThunk(lean_object*);
 lean_object* l_Lean_Elab_Term_mkMatchAltView(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -19412,7 +19412,7 @@ else
 {
 lean_object* x_63; lean_object* x_64; uint8_t x_65; 
 lean_dec(x_26);
-x_63 = l_Lean_mkThunk(x_17);
+x_63 = l_Lean_mkSimpleThunk(x_17);
 x_64 = lean_ctor_get(x_9, 0);
 lean_inc(x_64);
 lean_inc(x_2);
@@ -19625,7 +19625,7 @@ else
 {
 lean_object* x_108; lean_object* x_109; uint8_t x_110; 
 lean_dec(x_86);
-x_108 = l_Lean_mkThunk(x_77);
+x_108 = l_Lean_mkSimpleThunk(x_77);
 x_109 = lean_ctor_get(x_9, 0);
 lean_inc(x_109);
 lean_inc(x_2);

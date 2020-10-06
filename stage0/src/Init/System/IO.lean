@@ -517,18 +517,23 @@ namespace Lean
 class HasEval (α : Type u) :=
 -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
 -- so that `()` output is hidden in chained instances such as for some `m Unit`.
-(eval : α → forall (hideUnit : optParam Bool true), IO Unit)
+-- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
+(eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
 
 instance HasRepr.hasEval {α : Type u} [HasRepr α] : HasEval α :=
-⟨fun a _ => IO.println (repr a)⟩
+⟨fun a _ => IO.println (repr (a ()))⟩
 
 instance Unit.hasEval : HasEval Unit :=
-⟨fun u hideUnit => if hideUnit then pure () else IO.println (repr u)⟩
+⟨fun u hideUnit => if hideUnit then pure () else IO.println (repr (u ()))⟩
 
 instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
-⟨fun x _ => do a ← x; HasEval.eval a⟩
+⟨fun x _ => do a ← x (); HasEval.eval (fun _ => a)⟩
 
-def runEval {α : Type u} [HasEval α] (a : α) : IO (String × Except IO.Error Unit) :=
+@[noinline, nospecialize] def runEval {α : Type u} [HasEval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
 IO.FS.withIsolatedStreams (HasEval.eval a false)
+
+-- TODO: delete aux function old frontend
+def runEvalOld {α : Type u} [HasEval α] (a : α) : IO (String × Except IO.Error Unit) :=
+runEval (fun _ => a)
 
 end Lean

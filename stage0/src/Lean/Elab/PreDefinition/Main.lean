@@ -13,12 +13,15 @@ open Meta
 open Term
 
 private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Unit := do
-preDefs.forM fun preDef =>
+preDefs.forM fun preDef => do {
+  trace! `Elab.definition ("processing " ++ preDef.declName);
   forallTelescope preDef.type fun xs type => do
     inh ← liftM $ mkInhabitantFor preDef.declName xs type;
+    trace! `Elab.definition ("inhabitant for " ++ preDef.declName);
     addNonRec { preDef with
       kind  := DefKind.«opaque»,
-      value := inh };
+      value := inh }
+};
 addAndCompileUnsafeRec preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=
@@ -54,6 +57,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
 preDefs.forM fun preDef => trace `Elab.definition.body fun _ => preDef.declName ++ " : " ++ preDef.type ++ " :=" ++ Format.line ++ preDef.value;
 preDefs.forM ensureNoUnassignedMVarsAtPreDef;
 (partitionPreDefs preDefs).forM fun preDefs => do
+  trace! `Elab.definition.scc (toString (preDefs.map (fun preDef => preDef.declName)));
   if preDefs.size == 1 && isNonRecursive (preDefs.get! 0) then
     let preDef := preDefs.get! 0;
     if preDef.modifiers.isNoncomputable then

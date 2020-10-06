@@ -17,9 +17,9 @@ lean_object* l_Lean_nameToExpr___closed__3;
 lean_object* l_Lean_arrayToExpr___rarg(lean_object*);
 lean_object* l_Lean_boolToExpr;
 lean_object* l_Lean_unitToExpr___lambda__1___closed__2;
-extern lean_object* l_Lean_mkThunkType___closed__2;
 lean_object* l_Lean_optionToExpr___rarg___lambda__1___closed__4;
 lean_object* l_Lean_unitToExpr___closed__2;
+extern lean_object* l_Lean_mkSimpleThunkType___closed__3;
 lean_object* l_Lean_List_toExprAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_LeanInit_14__quoteList___main___rarg___closed__7;
 lean_object* l_Lean_listToExpr___rarg___closed__1;
@@ -40,7 +40,6 @@ lean_object* l_Lean_Name_toExprAux___main___closed__2;
 lean_object* l_Lean_optionToExpr___rarg___lambda__1___closed__1;
 lean_object* l_Lean_prodToExpr(lean_object*, lean_object*);
 extern lean_object* l_Nat_HasOfNat___closed__1;
-extern lean_object* l_Lean_mkThunkType___closed__3;
 extern lean_object* l_Lean_levelZero;
 lean_object* l_Lean_unitToExpr___lambda__1(lean_object*);
 lean_object* l_Lean_nameToExpr;
@@ -89,6 +88,7 @@ lean_object* l_Lean_charToExpr___closed__3;
 extern lean_object* l___private_Init_LeanInit_13__quoteName___main___closed__1;
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_unitToExpr;
+extern lean_object* l_Lean_mkSimpleThunkType___closed__2;
 lean_object* l_Lean_prodToExpr___rarg___closed__1;
 lean_object* l_Lean_exprToExpr___closed__4;
 lean_object* l_Lean_charToExpr___closed__2;
@@ -435,7 +435,7 @@ lean_object* _init_l_Lean_unitToExpr___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkThunkType___closed__2;
+x_1 = l_Lean_mkSimpleThunkType___closed__2;
 x_2 = l_Lean_unitToExpr___lambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -472,7 +472,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_unitToExpr___closed__1;
-x_2 = l_Lean_mkThunkType___closed__3;
+x_2 = l_Lean_mkSimpleThunkType___closed__3;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

@@ -37,7 +37,6 @@ lean_object* l___private_Lean_Compiler_IR_FreeVars_7__collectArray___at___privat
 lean_object* l_Lean_IR_MaxIndex_HasAndthen;
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Compiler_IR_FreeVars_12__collectAlts___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_19__withJP(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_monad;
 lean_object* l___private_Lean_Compiler_IR_FreeVars_2__collect(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_IR_HasIndex_visitArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_HasIndex_visitExpr___boxed(lean_object*, lean_object*);
@@ -89,6 +88,7 @@ lean_object* l___private_Lean_Compiler_IR_FreeVars_18__withVar(lean_object*, lea
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Compiler_IR_FreeVars_10__collectParams___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Arg_hasFreeVar___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_IR_HasIndex_visitFnBody___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_Monad;
 lean_object* l_Lean_IR_HasIndex_visitArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FreeIndices_insertParams(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FreeIndices_HasAndthen;
@@ -306,7 +306,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_forM___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_Id_monad;
+x_5 = l_Id_Monad;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Array_iterateMAux___main___rarg(x_5, lean_box(0), x_1, x_4, x_6, x_3);
 return x_7;
@@ -1530,7 +1530,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_FreeVars_23__collectArray___rarg___lambda__1___boxed), 5, 2);
 lean_closure_set(x_5, 0, x_2);
 lean_closure_set(x_5, 1, x_3);
-x_6 = l_Id_monad;
+x_6 = l_Id_Monad;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_Array_iterateMAux___main___rarg(x_6, lean_box(0), x_1, x_5, x_7, x_4);
 return x_8;

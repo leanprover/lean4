@@ -22,7 +22,6 @@ lean_object* l_Lean_SCC_scc___rarg(lean_object*, lean_object*, lean_object*, lea
 lean_object* l___private_Lean_Util_SCC_5__updateLowLinkOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_1__getDataOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_5__updateLowLinkOf(lean_object*);
-extern lean_object* l_Id_monad;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_4__resetOnStack___rarg___lambda__1(lean_object*);
 lean_object* l___private_Lean_Util_SCC_8__sccAux(lean_object*);
@@ -34,6 +33,7 @@ lean_object* l___private_Lean_Util_SCC_5__updateLowLinkOf___rarg___lambda__1(lea
 lean_object* l___private_Lean_Util_SCC_1__getDataOf___rarg___closed__1;
 lean_object* l___private_Lean_Util_SCC_8__sccAux___main(lean_object*);
 lean_object* l___private_Lean_Util_SCC_3__modifyDataOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_Monad;
 lean_object* l___private_Lean_Util_SCC_4__resetOnStack___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_7__addSCC___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_6__addSCCAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1186,7 +1186,7 @@ lean_object* _init_l___private_Lean_Util_SCC_8__sccAux___main___rarg___closed__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_monad;
+x_1 = l_Id_Monad;
 x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }

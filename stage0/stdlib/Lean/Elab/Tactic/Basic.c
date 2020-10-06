@@ -45,7 +45,6 @@ extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l_Lean_Elab_Tactic_evalIntros___closed__1;
 lean_object* l_Lean_Elab_Tactic_withMainMVarContext(lean_object*);
 extern lean_object* l_Lean_nullKind;
-extern lean_object* l_Lean_mkThunk___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Basic_4__getIntrosSize___main(lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadExcept___closed__2;
 lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
@@ -314,6 +313,7 @@ size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalFailIfSuccess___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalIntro___closed__2;
 lean_object* l_Lean_Elab_Tactic_saveBacktrackableState___boxed(lean_object*);
+extern lean_object* l_Lean_mkSimpleThunk___closed__1;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9511,7 +9511,7 @@ else
 lean_object* x_152; lean_object* x_153; 
 lean_dec(x_66);
 lean_dec(x_1);
-x_152 = l_Lean_mkThunk___closed__1;
+x_152 = l_Lean_mkSimpleThunk___closed__1;
 x_153 = l___private_Lean_Elab_Tactic_Basic_3__introStep(x_152, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_153;
 }

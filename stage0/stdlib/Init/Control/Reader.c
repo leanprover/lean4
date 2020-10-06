@@ -22,7 +22,6 @@ lean_object* l_ReaderT_map___rarg(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_ReaderT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadReaderOf_isMonadReader___rarg___boxed(lean_object*);
-extern lean_object* l_Id_monad___closed__6;
 lean_object* l_ReaderT_MonadStateRunner(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadReaderAdapterOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,6 +70,7 @@ lean_object* l_ReaderT_MonadLift___closed__1;
 lean_object* l_ReaderT_Alternative(lean_object*, lean_object*);
 lean_object* l_MonadReaderOf_isMonadReader___rarg(lean_object*);
 lean_object* l_ReaderT_adapt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_Monad___closed__6;
 lean_object* l_ReaderT_Monad___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadRun(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_failure___rarg(lean_object*, lean_object*, lean_object*);
@@ -932,7 +932,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_ReaderT_monadControl___closed__1;
-x_2 = l_Id_monad___closed__6;
+x_2 = l_Id_Monad___closed__6;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

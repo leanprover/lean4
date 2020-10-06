@@ -161,7 +161,6 @@ lean_object* l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_M
 lean_object* l_Lean_MetavarContext_MkBinding_Lean_MonadHashMapCacheAdapter___closed__4;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_MetavarContext_localDeclDependsOn___spec__36___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_monad;
 uint8_t l_Std_PersistentArray_anyMAux___main___at_Lean_MetavarContext_localDeclDependsOn___spec__21(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_MetavarContext_localDeclDependsOn___spec__32___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -422,6 +421,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_MetavarContext_instantiateLCtx
 lean_object* l_Lean_MetavarContext_getDelayedRoot(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_MetavarContext_addLevelMVarDecl___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_MetavarContext_localDeclDependsOn___spec__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_Monad;
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_MetavarContext_10__collectDeps___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_metavar_ctx_mk_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -14768,7 +14768,7 @@ lean_inc(x_14);
 lean_dec(x_13);
 x_15 = lean_alloc_closure((void*)(l___private_Lean_MetavarContext_8__dep___main___lambda__1___boxed), 2, 1);
 lean_closure_set(x_15, 0, x_2);
-x_16 = l_Id_monad;
+x_16 = l_Id_Monad;
 x_17 = l_Std_PersistentArray_anyM___rarg(x_16, x_14, x_15);
 x_18 = lean_unbox(x_17);
 lean_dec(x_17);

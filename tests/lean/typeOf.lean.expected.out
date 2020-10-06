@@ -18,17 +18,13 @@ but is expected to have type
   Nat
 failed to synthesize instance
   CoeT Bool r Nat
-typeOf.lean:20:48: error: invalid reassignment
-  y == 1
-has type
+typeOf.lean:20:54: error: invalid reassignment, term has type
   Bool
 but it is expected to have type
   Nat
 failed to synthesize instance
   CoeT Bool (y == 1) Nat
-typeOf.lean:29:47: error: Must be a natural number
-  true
-has type
+typeOf.lean:29:53: error: natural number expected, value has type
   Bool
 but it is expected to have type
   Nat

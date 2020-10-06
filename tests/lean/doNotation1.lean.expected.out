@@ -1,16 +1,12 @@
 doNotation1.lean:4:0: error: 'y' cannot be reassigned
 doNotation1.lean:8:2: error: 'y' cannot be reassigned
-doNotation1.lean:20:7: error: invalid reassignment
-  Vector.cons 1 v
-has type
+doNotation1.lean:20:7: error: invalid reassignment, value has type
   Vector Nat (n + 1)
 but it is expected to have type
   Vector Nat n
 failed to synthesize instance
   CoeT (Vector Nat (n + 1)) (Vector.cons 1 v) (Vector Nat n)
-doNotation1.lean:25:7: error: invalid reassignment
-  true
-has type
+doNotation1.lean:25:7: error: invalid reassignment, value has type
   Bool
 but it is expected to have type
   Nat

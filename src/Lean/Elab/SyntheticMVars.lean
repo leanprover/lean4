@@ -85,11 +85,11 @@ withMVarContext instMVar $ catch
 /--
   Similar to `synthesizePendingInstMVar`, but generates type mismatch error message. -/
 private def synthesizePendingCoeInstMVar
-    (instMVar : MVarId) (errorMsgHeader : String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
+    (instMVar : MVarId) (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
 withMVarContext instMVar $ catch
   (synthesizeInstMVarCore instMVar)
   (fun ex => match ex with
-    | Exception.error _ msg => throwTypeMismatchError errorMsgHeader expectedType eType e f? msg
+    | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
     | _                     => unreachable!)
 
 /--
@@ -103,12 +103,12 @@ pure $ !val.getAppFn.isMVar
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
 withRef mvarSyntheticDecl.stx $
 match mvarSyntheticDecl.kind with
-| SyntheticMVarKind.typeClass                          => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.coe header expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header expectedType eType e f?
+| SyntheticMVarKind.typeClass                           => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.coe header? expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? expectedType eType e f?
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-| SyntheticMVarKind.withDefault _                      => checkWithDefault mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.postponed macroStack declName?     => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
-| SyntheticMVarKind.tactic declName? tacticCode        =>
+| SyntheticMVarKind.withDefault _                       => checkWithDefault mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.postponed macroStack declName?      => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
+| SyntheticMVarKind.tactic declName? tacticCode         =>
   adaptReader (fun (ctx : Context) => { ctx with declName? := declName? }) $
     if runTactics then do
       runTactic mvarSyntheticDecl.mvarId tacticCode;

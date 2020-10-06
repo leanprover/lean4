@@ -737,7 +737,7 @@ if kind == `Lean.Parser.Term.doReassign then
     -- letIdDecl := parser! ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
     let x   := arg.getArg 0;
     let val := arg.getArg 4;
-    newVal ← `(ensureTypeOf! $x $(quote "invalid reassignment") $val);
+    newVal ← `(ensureTypeOf! $x $(quote "invalid reassignment, value") $val);
     let arg := arg.setArg 4 newVal;
     let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg];
     `(let $letDecl:letDecl; $k)

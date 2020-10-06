@@ -17,13 +17,13 @@ r x
 
 def f4 (x : Nat) : Nat :=
 let y : Nat := x
-let y := ensureTypeOf! y "invalid reassignment" y == 1 -- error
+let y := ensureTypeOf! y "invalid reassignment, term" y == 1 -- error
 y + 1
 
 def f5 (x : Nat) : Nat :=
 let y : Nat := x
-let y := ensureTypeOf! y "invalid reassignment" (y+1)
+let y := ensureTypeOf! y "invalid reassignment, term" (y+1)
 y + 1
 
 def f6 (x : Nat) : Nat :=
-ensureExpectedType! "Must be a natural number" true
+ensureExpectedType! "natural number expected, value" true

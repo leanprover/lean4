@@ -96,10 +96,11 @@ structure Context :=
 inductive SyntheticMVarKind
 -- typeclass instance search
 | typeClass
--- Similar to typeClass, but error messages are different,
--- we use "type mismatch" or "application type mismatch" (when `f?` is some) instead of "failed to synthesize"
--- `header` is the error message header. It is "type mismatch" in most cases
-| coe (header : String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
+/- Similar to typeClass, but error messages are different.
+   if `f?` is `some f`, we produce an application type mismatch error message.
+   Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
+   Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
+| coe (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
 -- tactic block execution
 | tactic (declName? : Option Name) (tacticCode : Syntax)
 -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
@@ -521,18 +522,19 @@ if hasCDot stx then do
 else
   pure none
 
-def mkTypeMismatchError (header : String) (e : Expr) (eType : Expr) (expectedType : Expr) : MessageData :=
-header ++ indentExpr e
-++ Format.line ++ "has type" ++ indentExpr eType
-++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
+def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : MessageData :=
+let header : MessageData := match header? with
+  | some header => header ++ " has type"
+  | none        => "type mismatch" ++ indentExpr e ++ Format.line ++ "has type";
+header ++ indentExpr eType ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
 
-def throwTypeMismatchError {α} (header : String) (expectedType : Expr) (eType : Expr) (e : Expr)
+def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
 let extraMsg : MessageData := match extraMsg? with
   | none          => Format.nil
   | some extraMsg => Format.line ++ extraMsg;
 match f? with
-| none   => throwError $ mkTypeMismatchError header e eType expectedType ++ extraMsg
+| none   => throwError $ mkTypeMismatchError header? e eType expectedType ++ extraMsg
 | some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
@@ -570,7 +572,7 @@ match result with
   class CoeT (α : Sort u) (a : α) (β : Sort v)
   abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
   ``` -/
-private def tryCoe (errorMsgHeader : String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr :=
+private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr :=
 condM (isDefEq expectedType eType) (pure e) $ do
 u ← getLevel eType;
 v ← getLevel expectedType;
@@ -581,12 +583,12 @@ let mvarId := mvar.mvarId!;
 catch
   (withoutMacroStackAtErr $ do
     unlessM (synthesizeInstMVarCore mvarId) $
-      registerSyntheticMVarWithCurrRef mvarId (SyntheticMVarKind.coe errorMsgHeader expectedType eType e f?);
+      registerSyntheticMVarWithCurrRef mvarId (SyntheticMVarKind.coe errorMsgHeader? expectedType eType e f?);
     pure eNew)
   (fun ex =>
     match ex with
-    | Exception.error _ msg => throwTypeMismatchError errorMsgHeader expectedType eType e f? msg
-    | _                     => throwTypeMismatchError errorMsgHeader expectedType eType e f?)
+    | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
+    | _                     => throwTypeMismatchError errorMsgHeader? expectedType eType e f?)
 
 private def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
 type ← withReducible $ whnf type;
@@ -624,11 +626,11 @@ match result with
 /--
   Try to coerce `a : α` into `m β` by first coercing `a : α` into ‵β`, and then using `pure`.
   The method is only applied if the head of `α` nor ‵β` is not a metavariable. -/
-private def tryPureCoe? (errorMsgHeader : String) (m β α a : Expr) : TermElabM (Option Expr) :=
+private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : TermElabM (Option Expr) :=
 if β.getAppFn.isMVar || α.getAppFn.isMVar then pure none
 else catch
  (do
-   aNew ← tryCoe errorMsgHeader β α a none;
+   aNew ← tryCoe errorMsgHeader? β α a none;
    aNew ← mkPure m aNew;
    pure $ some aNew)
  (fun _ => pure none)
@@ -688,19 +690,19 @@ On the other hand, TC can easily solve `[HasLiftT IO (StateT Nat IO)]`
 since this goal does not contain any metavariables. And then, we
 convert `g x` into `liftM $ g x`.
 -/
-private def tryLiftAndCoe (errorMsgHeader : String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
+private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
 eType ← instantiateMVars eType;
-some ⟨n, β, monadInst⟩ ← isMonad? expectedType | tryCoe errorMsgHeader expectedType eType e f?;
+some ⟨n, β, monadInst⟩ ← isMonad? expectedType | tryCoe errorMsgHeader? expectedType eType e f?;
 β ← instantiateMVars β;
-eNew? ← tryPureCoe? errorMsgHeader n β eType e;
+eNew? ← tryPureCoe? errorMsgHeader? n β eType e;
 match eNew? with
 | some eNew => pure eNew
 | none      => do
-some (m, α) ← isTypeApp? eType | tryCoe errorMsgHeader expectedType eType e f?;
+some (m, α) ← isTypeApp? eType | tryCoe errorMsgHeader? expectedType eType e f?;
 condM (isDefEq m n)
   (catch
     (mkAppOptM `coeM #[m, α, β, none, monadInst, e])
-    (fun _ => throwTypeMismatchError errorMsgHeader expectedType eType e f?))  $
+    (fun _ => throwTypeMismatchError errorMsgHeader? expectedType eType e f?))  $
   (catch
     (do
       -- Construct lift from `m` to `n`
@@ -722,8 +724,8 @@ condM (isDefEq m n)
           eNewType ← inferType eNew;
           condM (isDefEq expectedType eNewType)
             (pure eNew) -- approach 3 worked
-            (throwTypeMismatchError errorMsgHeader expectedType eType e f?)))
-    (fun _ => throwTypeMismatchError errorMsgHeader expectedType eType e f?))
+            (throwTypeMismatchError errorMsgHeader? expectedType eType e f?)))
+    (fun _ => throwTypeMismatchError errorMsgHeader? expectedType eType e f?))
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
@@ -732,13 +734,12 @@ condM (isDefEq m n)
   Argument `f?` is used only for generating error messages. -/
 def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr :=
-let errorMsgHeader := errorMsgHeader?.getD "type mismatch";
 match expectedType? with
 | none              => pure e
 | some expectedType =>
   condM (isDefEq eType expectedType)
     (pure e)
-    (tryLiftAndCoe errorMsgHeader expectedType eType e f?)
+    (tryLiftAndCoe errorMsgHeader? expectedType eType e f?)
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.

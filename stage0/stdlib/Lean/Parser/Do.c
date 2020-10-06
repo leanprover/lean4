@@ -164,6 +164,7 @@ lean_object* l_Lean_Parser_Term_doTry___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Term_doReturn___closed__1;
 lean_object* l_Lean_Parser_ParserState_pushSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__9;
 lean_object* l_Lean_Parser_Term_doIf_formatter___closed__16;
 lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__22;
 lean_object* l___regBuiltin_Lean_Parser_Term_doLetRec_formatter(lean_object*);
@@ -634,7 +635,6 @@ lean_object* l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Term_letRecDecls___elambda_
 lean_object* l___regBuiltin_Lean_Parser_Term_doIf_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_doIdDecl_formatter___closed__3;
 extern lean_object* l_Lean_Parser_Term_match_formatter___closed__4;
-extern lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__8;
 lean_object* l_Lean_Parser_Term_doContinue___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_doLetArrow_formatter___closed__6;
 lean_object* l_Lean_Parser_Term_doUnless___closed__3;
@@ -14179,7 +14179,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_doSeqBracketed_formatter___closed__6;
-x_2 = l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__8;
+x_2 = l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__9;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);

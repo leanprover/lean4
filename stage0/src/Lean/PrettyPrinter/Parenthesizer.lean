@@ -422,14 +422,6 @@ visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 
 
 @[combinatorParenthesizer Lean.Parser.sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
 
-@[combinatorParenthesizer Lean.Parser.nodeSepBy1Unbox]
-def nodeSepBy1Unbox.parenthesizer (k : SyntaxNodeKind) (p pSep : Parenthesizer) : Parenthesizer := do
-stx ← getCur;
-if stx.getKind == k then
-  node.parenthesizer k $ sepBy.parenthesizer p pSep
-else
-  p
-
 @[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 p
 @[combinatorParenthesizer Lean.Parser.withoutPosition] def withoutPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := do

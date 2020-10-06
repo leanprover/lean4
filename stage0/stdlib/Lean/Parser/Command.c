@@ -308,6 +308,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Command_initialize(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_in___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Command_inductive_formatter___closed__6;
+extern lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__9;
 lean_object* l_Lean_Parser_Command_printAxioms_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Command_open_parenthesizer___closed__2;
 extern lean_object* l_Lean_Parser_ident;
@@ -1244,7 +1245,6 @@ lean_object* l_Lean_Parser_Command_structImplicitBinder___closed__10;
 lean_object* l_Lean_Parser_Command_structInstBinder___closed__9;
 lean_object* l_Lean_Parser_Command_ctor___closed__4;
 lean_object* l_Lean_Parser_Command_universes___closed__4;
-extern lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__8;
 lean_object* l_Lean_Parser_Command_axiom_formatter___closed__2;
 lean_object* l_Lean_Parser_Command_classTk___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_constant___elambda__1___closed__6;
@@ -24669,7 +24669,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_declId_formatter___closed__2;
-x_2 = l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__8;
+x_2 = l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__9;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -26300,7 +26300,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_theorem_formatter___closed__3;
-x_2 = l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__8;
+x_2 = l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__9;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);

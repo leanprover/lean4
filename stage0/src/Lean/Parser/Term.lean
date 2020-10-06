@@ -22,9 +22,9 @@ categoryParser `tactic rbp
 namespace Tactic
 
 def tacticSeq1Indented : Parser :=
-parser! many1Indent $ tacticParser >> optional "; "
+parser! many1Indent (group (tacticParser >> optional "; "))
 def tacticSeqBracketed : Parser :=
-parser! "{" >> many (tacticParser >> optional "; ") >> "}"
+parser! "{" >> many (group (tacticParser >> optional "; ")) >> "}"
 def tacticSeq :=
 nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq $ tacticSeqBracketed <|> tacticSeq1Indented
 

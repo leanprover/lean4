@@ -572,6 +572,7 @@ lean_object* l_Lean_Parser_Command_macroTailTactic_parenthesizer(lean_object*, l
 lean_object* l_Lean_Parser_Syntax_try___elambda__1___closed__4;
 extern lean_object* l_Lean_Parser_antiquotNestedExpr___closed__1;
 lean_object* l_Lean_Parser_Command_postfix;
+extern lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented___closed__10;
 lean_object* l_Lean_Parser_Command_infix___closed__2;
 lean_object* l_Lean_Parser_Command_parserKindPrio___elambda__1___closed__4;
 lean_object* l___regBuiltin_Lean_Parser_Syntax_notFollowedBy_parenthesizer___closed__1;
@@ -1126,7 +1127,6 @@ lean_object* l_Lean_Parser_Syntax_try_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Command_macroHead_formatter___closed__2;
 lean_object* l_Lean_Parser_Command_macro__rules_formatter___closed__4;
 lean_object* l_Lean_Parser_Command_syntaxCat___elambda__1___closed__8;
-extern lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented___closed__9;
 lean_object* l_Lean_Parser_precedence_formatter___closed__3;
 extern lean_object* l_Lean_Parser_Term_fun___closed__3;
 lean_object* l_Lean_Parser_Command_reserve_parenthesizer___closed__2;
@@ -23438,7 +23438,7 @@ lean_inc(x_23);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = l_Lean_Parser_Tactic_tacticSeq1Indented___closed__9;
+x_24 = l_Lean_Parser_Tactic_tacticSeq1Indented___closed__10;
 lean_inc(x_1);
 x_25 = l_Lean_Parser_toggleInsideQuotFn(x_24, x_1, x_22);
 x_26 = lean_ctor_get(x_25, 3);

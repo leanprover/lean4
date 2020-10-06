@@ -357,14 +357,6 @@ concatArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0
 
 @[combinatorFormatter sepBy1] def sepBy1.formatter := sepBy.formatter
 
-@[combinatorFormatter Parser.nodeSepBy1Unbox]
-def nodeSepBy1Unbox.formatter (k : SyntaxNodeKind) (p sep : Formatter) : Formatter := do
-stx ← getCur;
-if stx.getKind == k then do
-  node.formatter k $ sepBy.formatter p sep
-else
-  p
-
 @[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Formatter) : Formatter := do
 p
 @[combinatorFormatter Lean.Parser.withoutPosition] def withoutPosition.formatter (p : Formatter) : Formatter := do

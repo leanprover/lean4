@@ -243,7 +243,7 @@ modifyMCtx fun mctx =>
   mctx
 
 def evalSeq : Tactic :=
-fun stx => (stx.getArg 0).forSepArgsM evalTactic
+fun stx => (stx.getArg 0).forArgsM fun seqElem => evalTactic (seqElem.getArg 0)
 
 @[builtinTactic seq1] def evalSeq1 : Tactic := evalSeq
 

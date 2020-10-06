@@ -16,8 +16,6 @@ has type
   String
 but is expected to have type
   Nat
-failed to synthesize instance
-  CoeT String x✝ Nat
 with resulting expansion
   HasAdd.add✝ (x + x✝) x✝¹
 while expanding

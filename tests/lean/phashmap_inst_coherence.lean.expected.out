@@ -6,8 +6,6 @@ has type
   PersistentHashMap Nat Nat
 but is expected to have type
   PersistentHashMap Nat Nat
-failed to synthesize instance
-  CoeT (PersistentHashMap Nat Nat) m (PersistentHashMap Nat Nat)
 phashmap_inst_coherence.lean:12:0: error: application type mismatch
   Lean.runEval fun («_» : Unit) => sorryAx ?m
 argument

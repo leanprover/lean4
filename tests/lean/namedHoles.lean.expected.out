@@ -6,8 +6,6 @@ has type
   Nat
 but is expected to have type
   Bool
-failed to synthesize instance
-  CoeT Nat ?m Bool
 sorryAx ?m : ?m
 g ?m ?m : Nat
 20

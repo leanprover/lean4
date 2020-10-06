@@ -530,9 +530,21 @@ header ++ indentExpr eType ++ Format.line ++ "but is expected to have type" ++ i
 
 def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
+/-
+  We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
+  always of the form:
+  ```
+  failed to synthesize instance
+    CoeT <eType> <e> <expectedType>
+  ```
+  We should revisit this decision in the future and decide whether it may contain useful information
+  or not. -/
+let extraMsg := Format.nil;
+/-
 let extraMsg : MessageData := match extraMsg? with
   | none          => Format.nil
   | some extraMsg => Format.line ++ extraMsg;
+-/
 match f? with
 | none   => throwError $ mkTypeMismatchError header? e eType expectedType ++ extraMsg
 | some f => Meta.throwAppTypeMismatch f e extraMsg

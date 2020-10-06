@@ -12,8 +12,6 @@ has type
   Bool
 but is expected to have type
   Nat
-failed to synthesize instance
-  CoeT Bool true Nat
 struct1.lean:38:5: error: omit field 'x' type to set default value
 struct1.lean:41:12: error: type mismatch
   true
@@ -21,8 +19,6 @@ has type
   Bool
 but is expected to have type
   Nat
-failed to synthesize instance
-  CoeT Bool true Nat
 struct1.lean:44:0: error: invalid 'private' constructor in a 'private' structure
 struct1.lean:47:0: error: invalid 'protected' constructor in a 'private' structure
 struct1.lean:50:0: error: invalid 'protected' field in a 'private' structure

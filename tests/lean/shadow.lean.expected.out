@@ -4,16 +4,12 @@ has type
   x✝ = x✝
 but is expected to have type
   x = x
-failed to synthesize instance
-  CoeT (x✝ = x✝) h (x = x)
 shadow.lean:10:0: error: type mismatch
   h
 has type
   x = x
 but is expected to have type
   x = x
-failed to synthesize instance
-  CoeT (x = x) h (x = x)
 shadow.lean:13:0: error: don't know how to synthesize placeholder
 context:
 α : Type u_1

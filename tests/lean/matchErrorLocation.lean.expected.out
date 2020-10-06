@@ -4,5 +4,3 @@ has type
   False
 but is expected to have type
   α
-failed to synthesize instance
-  CoeT False (h he) α

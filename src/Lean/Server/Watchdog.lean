@@ -186,7 +186,7 @@ def fwdMsgTask (fw : FileWorker) : ServerM (Task WorkerEvent) :=
 fun st =>
   (Task.map (fun either => match either with
     | Except.ok ev   => ev
-    | Except.error e => WorkerEvent.crashed e)) <$> (IO.asTask $ fwdMsgAux fw st.hOut ())
+    | Except.error e => WorkerEvent.crashed e)) <$> (IO.asTask (fwdMsgAux fw st.hOut ()) Task.Priority.dedicated)
 
 private def parsedImportsEndPos (input : String) : IO String.Pos := do
 emptyEnv ← mkEmptyEnvironment;
@@ -351,15 +351,14 @@ partial def mainLoop : Unit → ServerM Unit
      - client sends us a message
      - a worker does something -/
   clientTask ← liftIO $ IO.asTask $ ServerEvent.ClientMsg <$> readLspMessage st.hIn;
-  let clientTask := Task.map
+  let clientTask := clientTask.map
     (fun either => match either with
     | Except.ok ev   => ev
-    | Except.error e => ServerEvent.ClientError e)
-    clientTask;
+    | Except.error e => ServerEvent.ClientError e);
 
   let workerTasks := workers.fold
     (fun acc uri fw =>
-      Task.map (ServerEvent.WorkerEvent uri fw) fw.commTask :: acc)
+      fw.commTask.map (ServerEvent.WorkerEvent uri fw) :: acc)
     ([] : List (Task ServerEvent));
 
   ev ← liftIO $ IO.waitAny $ clientTask :: workerTasks;

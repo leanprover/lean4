@@ -1294,6 +1294,12 @@ fun stx expectedType? =>
     refTermType ← inferType refTerm;
     elabTermEnsuringType (stx.getArg 3) refTermType true msg
 
+@[builtinTermElab ensureExpectedType] def elabEnsureExpectedType : TermElab :=
+fun stx expectedType? =>
+  match (stx.getArg 1).isStrLit? with
+  | none     => throwIllFormedSyntax
+  | some msg => elabTermEnsuringType (stx.getArg 2) expectedType? true msg
+
 private def mkSomeContext : Context :=
 { fileName      := "<TermElabM>",
   fileMap       := arbitrary _,

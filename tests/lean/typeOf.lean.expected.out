@@ -26,3 +26,11 @@ but it is expected to have type
   Nat
 failed to synthesize instance
   CoeT Bool (y == 1) Nat
+typeOf.lean:29:47: error: Must be a natural number
+  true
+has type
+  Bool
+but it is expected to have type
+  Nat
+failed to synthesize instance
+  CoeT Bool true Nat

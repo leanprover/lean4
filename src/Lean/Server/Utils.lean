@@ -16,9 +16,5 @@ instance Thunk.monad : Monad Thunk :=
 { pure := @Thunk.pure,
   bind := @Thunk.bind }
 
-instance Task.monad : Monad Task :=
-{ pure := @Task.pure,
-  bind := @Task.bind }
-
 end Server
 end Lean

@@ -279,7 +279,14 @@ partial def mainLoop : Unit → ServerM Unit
   st ← read;
   msg ← readLspMessage st.hIn;
   pendingRequests ← st.pendingRequestsRef.get;
-  pendingRequests ← monadLift $ pendingRequests.filterM (fun task => do f ← hasFinished task; pure ¬f);
+  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) → IO PendingRequestMap := 
+    (fun acc id task => do
+      f ← hasFinished task;
+      pure $ if f then
+        acc.erase id
+      else
+        acc);
+  pendingRequests ← monadLift $ pendingRequests.foldM filterFinishedTasks pendingRequests;
   st.pendingRequestsRef.set pendingRequests;
   match msg with
   | Message.request id method (some params) => do
@@ -301,7 +308,7 @@ _ ← Lsp.readLspRequestAs i "initialize" InitializeParams;
 docRequest ← Lsp.readLspRequestAs i "textDocument/didOpen" DidOpenTextDocumentParams;
 doc ← openDocument o docRequest.param;
 docRef ← IO.mkRef doc;
-pendingRequestsRef ← IO.mkRef #[];
+pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
 runReader (mainLoop ()) (⟨i, o, docRef, pendingRequestsRef⟩ : ServerContext)
 
 end Server

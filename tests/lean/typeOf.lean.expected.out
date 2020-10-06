@@ -18,19 +18,11 @@ but is expected to have type
   Nat
 failed to synthesize instance
   CoeT Bool r Nat
-typeOf.lean:20:9: error: invalid reassignment
+typeOf.lean:20:48: error: invalid reassignment
   y == 1
 has type
   Bool
 but it is expected to have type
   Nat
-typeOf.lean:21:0: error: application type mismatch
-  HasAdd.add y
-argument
-  y
-has type
-  Bool
-but is expected to have type
-  Nat
 failed to synthesize instance
-  CoeT Bool y Nat
+  CoeT Bool (y == 1) Nat

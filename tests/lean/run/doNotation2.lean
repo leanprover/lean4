@@ -78,7 +78,7 @@ def find? (xs : List Nat) (p : Nat → Bool) : Option Nat := Id.run do
 let result := none
 for x in xs do
   if p x then
-    result := some x
+    result := x
     break
 return result
 

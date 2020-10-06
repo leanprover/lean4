@@ -275,39 +275,32 @@ do
 (Term.do
  "do"
  (Term.doSeqIndent
-  [(Term.doLetArrow "let" (Term.doIdDecl `x [] "←" (Term.app `f [`a])))
-   [";"]
-   (Term.doLetArrow "let" (Term.doIdDecl `x [(Term.typeSpec ":" `Nat)] "←" (Term.app `f [`a])))
-   [";"]
-   (Term.doExpr (Term.app `g [`x]))
-   [";"]
-   (Term.doLet "let" (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.app `g [`x]))))
-   [";"]
-   (Term.doLetArrow
-    "let"
-    (Term.doPatDecl (Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")") "<-" (Term.app `h [`x `y]) []))
-   [";"]
-   (Term.doLet
-    "let"
-    (Term.letDecl
-     (Term.letPatDecl
-      (Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")")
-      []
-      []
-      ":="
-      (Term.paren "(" [`b [(Term.tupleTail "," [`a])]] ")"))))
-   [";"]
-   (Term.doExpr (Term.app `pure [(Term.paren "(" [(Term.add `a "+" `b) []] ")")]))
-   []]))
+  [[(Term.doLetArrow "let" (Term.doIdDecl `x [] "←" (Term.app `f [`a]))) [";"]]
+   [(Term.doLetArrow "let" (Term.doIdDecl `x [(Term.typeSpec ":" `Nat)] "←" (Term.app `f [`a]))) [";"]]
+   [(Term.doExpr (Term.app `g [`x])) [";"]]
+   [(Term.doLet "let" (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.app `g [`x])))) [";"]]
+   [(Term.doLetArrow
+     "let"
+     (Term.doPatDecl (Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")") "<-" (Term.app `h [`x `y]) []))
+    [";"]]
+   [(Term.doLet
+     "let"
+     (Term.letDecl
+      (Term.letPatDecl
+       (Term.paren "(" [`a [(Term.tupleTail "," [`b])]] ")")
+       []
+       []
+       ":="
+       (Term.paren "(" [`b [(Term.tupleTail "," [`a])]] ")"))))
+    [";"]]
+   [(Term.doExpr (Term.app `pure [(Term.paren "(" [(Term.add `a "+" `b) []] ")")])) []]]))
 do { let x ← f a; pure $ a + a }
 (Term.do
  "do"
  (Term.doSeqBracketed
   "{"
-  [(Term.doLetArrow "let" (Term.doIdDecl `x [] "←" (Term.app `f [`a])))
-   [";"]
-   (Term.doExpr (Term.dollar `pure "$" (Term.add `a "+" `a)))
-   []]
+  [[(Term.doLetArrow "let" (Term.doIdDecl `x [] "←" (Term.app `f [`a]))) [";"]]
+   [(Term.doExpr (Term.dollar `pure "$" (Term.add `a "+" `a))) []]]
   "}"))
 let f : Nat → Nat → Nat
    | 0, a   => a + 10

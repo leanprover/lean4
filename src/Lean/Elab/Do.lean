@@ -447,9 +447,9 @@ pure {
 
 private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
 if doSeq.getKind == `Lean.Parser.Term.doSeqBracketed then
-  (doSeq.getArg 1).getArgs.getSepElems.toList
+  (doSeq.getArg 1).getArgs.toList.map fun arg => arg.getArg 0
 else if doSeq.getKind == `Lean.Parser.Term.doSeqIndent then
-  (doSeq.getArg 0).getArgs.getSepElems.toList
+  (doSeq.getArg 0).getArgs.toList.map fun arg => arg.getArg 0
 else
   []
 
@@ -526,7 +526,7 @@ else
   throwError "unexpected kind of reassignment"
 
 def toDoSeq (doElem : Syntax) : Syntax :=
-mkNode `Lean.Parser.Term.doSeqIndent #[mkNullNode #[doElem, mkNullNode]]
+mkNode `Lean.Parser.Term.doSeqIndent #[mkNullNode #[mkNullNode #[doElem, mkNullNode]]]
 
 /-
   Recall that the `doIf` syntax is of the form

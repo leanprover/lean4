@@ -13,6 +13,17 @@ namespace Elab
 namespace Term
 open Meta
 
+private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
+if doSeq.getKind == `Lean.Parser.Term.doSeqBracketed then
+  (doSeq.getArg 1).getArgs.toList.map fun arg => arg.getArg 0
+else if doSeq.getKind == `Lean.Parser.Term.doSeqIndent then
+  (doSeq.getArg 0).getArgs.toList.map fun arg => arg.getArg 0
+else
+  []
+
+private def getDoSeq (doStx : Syntax) : Syntax :=
+doStx.getArg 1
+
 @[builtinTermElab liftMethod] def elabLiftMethod : TermElab :=
 fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
@@ -89,22 +100,26 @@ structure Alt (σ : Type) :=
 
   - `action` is an action-like `doElem` (e.g., `IO.println "hello"`, `dbgTrace! "foo"`).
 
+  - `returnAction act` is an abbreviation for `let x ← act; return x`.
+    It is used to minimize the number of `bind`s and `pure`s in the expanded term.
+
   A code block `C` is well-formed if
   - For every `jmp ref j as` in `C`, there is a `joinpoint j ps b k` and `jmp ref j as` is in `k`, and
     `ps.size == as.size` -/
 inductive Code
-| decl       (xs : Array Name) (stx : Syntax) (cont : Code)
-| reassign   (xs : Array Name) (stx : Syntax) (cont : Code)
+| decl         (xs : Array Name) (stx : Syntax) (cont : Code)
+| reassign     (xs : Array Name) (stx : Syntax) (cont : Code)
 /- The Boolean value in `params` indicates whether we should use `(x : typeof! x)` when generating term Syntax or not -/
-| joinpoint  (name : Name) (params : Array (Name × Bool)) (body : Code) (cont : Code)
-| action     (stx : Syntax) (cond : Code)
-| «break»    (ref : Syntax)
-| «continue» (ref : Syntax)
-| «return»   (ref : Syntax) (val : Syntax)
+| joinpoint    (name : Name) (params : Array (Name × Bool)) (body : Code) (cont : Code)
+| action       (stx : Syntax) (cont : Code)
+| returnAction (stx : Syntax)
+| «break»      (ref : Syntax)
+| «continue»   (ref : Syntax)
+| «return»     (ref : Syntax) (val : Syntax)
 /- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
-| ite        (ref : Syntax) (h? : Option Name) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
-| «match»    (ref : Syntax) (discrs : Array Syntax) (type? : Option Syntax) (alts : Array (Alt Code))
-| jmp        (ref : Syntax) (jpName : Name) (args : Array Syntax)
+| ite          (ref : Syntax) (h? : Option Name) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
+| «match»      (ref : Syntax) (discrs : Array Syntax) (type? : Option Syntax) (alts : Array (Alt Code))
+| jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
 
 instance Code.inhabited : Inhabited Code :=
 ⟨Code.«break» (arbitrary _)⟩
@@ -127,6 +142,7 @@ partial def toMessageDataAux (updateVars : MessageData) : Code → MessageData
   "let " ++ n.simpMacroScopes ++ " " ++ varsToMessageData (ps.map Prod.fst) ++ " := " ++ indentD (toMessageDataAux body)
   ++ Format.line ++ toMessageDataAux k
 | Code.action e k           => e ++ Format.line ++ toMessageDataAux k
+| Code.returnAction e       => e
 | Code.ite _ _ _ c t e      => "if " ++ c ++ " then " ++ indentD (toMessageDataAux t) ++ Format.line ++ "else " ++ indentD (toMessageDataAux e)
 | Code.jmp _ j xs           => "jmp " ++ j.simpMacroScopes ++ " " ++ toString xs.toList
 | Code.«break» _            => "break " ++ updateVars
@@ -155,6 +171,7 @@ partial def hasExitPoint : Code → Bool
 | Code.action _ k         => hasExitPoint k
 | Code.ite _ _ _ _ t e    => hasExitPoint t || hasExitPoint e
 | Code.jmp _ _ _          => false
+| Code.returnAction _     => true
 | Code.«break» _          => true
 | Code.«continue» _       => true
 | Code.«return» _ _       => true
@@ -167,39 +184,32 @@ partial def hasContinueBreak : Code → Bool
 | Code.action _ k         => hasContinueBreak k
 | Code.ite _ _ _ _ t e    => hasContinueBreak t || hasContinueBreak e
 | Code.jmp _ _ _          => false
+| Code.returnAction _     => false
 | Code.«break» _          => true
 | Code.«continue» _       => true
 | Code.«return» _ _       => false
 | Code.«match» _ _ _ alts => alts.any fun alt => hasContinueBreak alt.rhs
 
-partial def convertReturnIntoJmpAux (jp : Name) (xs : Array Name) : Code → Code
-| Code.decl xs stx k         => Code.decl xs stx $ convertReturnIntoJmpAux k
-| Code.reassign xs stx k     => Code.reassign xs stx $ convertReturnIntoJmpAux k
-| Code.joinpoint n ps b k    => Code.joinpoint n ps (convertReturnIntoJmpAux b) (convertReturnIntoJmpAux k)
-| Code.action e k            => Code.action e $ convertReturnIntoJmpAux k
-| Code.ite ref x? h c t e    => Code.ite ref x? h c (convertReturnIntoJmpAux t) (convertReturnIntoJmpAux e)
-| Code.«match» ref ds t alts => Code.«match» ref ds t $ alts.map fun alt => { alt with rhs := convertReturnIntoJmpAux alt.rhs }
-  /- Remark: the joint point doesn't use the value `val`, but we pass `val` as an extra `jmp` argument to make sure
-     all `return` values have the same type. The following example would fail to be elaborated without this trick.
-     ```
-     do unless x == 0
-          throw (IO.userError "error")
-        IO.println "hello"
-     ```
-     The `unless` is expanded into
-     ```
-     if x == 0 then
-       let aux ← throw (IO.userError "error")
-       return aux
-     else
-       return PUnit.unit
-     ```
-     If we did not pass the value as an extra parameter, we would not be able to infer the type of `aux`. -/
-| Code.«return» ref val      => Code.jmp ref jp ((xs.map $ mkIdentFrom ref).push val)
-| c                          => c
+def expandReturnAction (e : Syntax) : MacroM Code := do
+x ← `(x);
+let xName := x.getId;
+auxDo ← `(do let x ← $e);
+let doElems := getDoSeqElems (getDoSeq auxDo);
+pure $ Code.decl #[xName] doElems.head! (Code.«return» e x)
+
+partial def convertReturnIntoJmpAux (jp : Name) (xs : Array Name) : Code → MacroM Code
+| Code.decl xs stx k         => Code.decl xs stx <$> convertReturnIntoJmpAux k
+| Code.reassign xs stx k     => Code.reassign xs stx <$> convertReturnIntoJmpAux k
+| Code.joinpoint n ps b k    => Code.joinpoint n ps <$> convertReturnIntoJmpAux b <*> convertReturnIntoJmpAux k
+| Code.action e k            => Code.action e <$> convertReturnIntoJmpAux k
+| Code.ite ref x? h c t e    => Code.ite ref x? h c <$> convertReturnIntoJmpAux t <*> convertReturnIntoJmpAux e
+| Code.«match» ref ds t alts => Code.«match» ref ds t <$> alts.mapM fun alt => do rhs ← convertReturnIntoJmpAux alt.rhs; pure { alt with rhs := rhs }
+| Code.returnAction e        => do c ← expandReturnAction e; convertReturnIntoJmpAux c
+| Code.«return» ref val      => pure $ Code.jmp ref jp ((xs.map $ mkIdentFrom ref).push val)
+| c                          => pure c
 
 /- Convert `return _ x` instructions in `c` into `jmp _ jp xs`. -/
-def convertReturnIntoJmp (c : Code) (jp : Name) (xs : Array Name) : Code :=
+def convertReturnIntoJmp (c : Code) (jp : Name) (xs : Array Name) : MacroM Code :=
 convertReturnIntoJmpAux jp xs c
 
 structure JPDecl :=
@@ -262,6 +272,7 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
 | rs, c@(Code.jmp _ _ _)         => pure c
 | rs, Code.«break» ref           => do let xs := nameSetToArray rs; jp ← addFreshJP' xs (Code.«break» ref); liftM $ mkJmp ref jp xs
 | rs, Code.«continue» ref        => do let xs := nameSetToArray rs; jp ← addFreshJP' xs (Code.«continue» ref); liftM $ mkJmp ref jp xs
+| rs, Code.returnAction e        => do c ← liftMacroM $ expandReturnAction e; pullExitPointsAux rs c
 | rs, Code.«return» ref val      => do
   let xs := nameSetToArray rs;
   let args := xs.map $ mkIdentFrom ref;
@@ -273,8 +284,8 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
   pure $ Code.jmp ref jp args
 
 /-
-Auxiliary operation for adding new variables to `c.uvars` (updated variables).
-When a new variable is not already in `c.uvars`, but is shadowed by some declaration in `c.code`,
+Auxiliary operation for adding new variables to the collection of updated variables in a CodeBlock.
+When a new variable is not already in the collection, but is shadowed by some declaration in `c`,
 we create auxiliary join points to make sure we preserve the semantics of the code block.
 Example: suppose we have the code block `print x; let x := 10; return x`. And we want to extend it
 with the reassignment `x := x + 1`. We first use `pullExitPoints` to create
@@ -293,7 +304,7 @@ let x := 10;
 jmp jp x
 ```
 Note that we created a fresh variable `x!1` to avoid accidental name capture.
-
+As another example, consider
 ```
 print x;
 let x := 10
@@ -408,6 +419,9 @@ pure { code := Code.reassign xs stx code, uvars := ws }
 def mkAction (action : Syntax) (c : CodeBlock) : CodeBlock :=
 { c with code := Code.action action c.code }
 
+def mkReturnAction (action : Syntax) : CodeBlock :=
+{ code := Code.returnAction action }
+
 def mkReturn (ref : Syntax) (val : Syntax) : CodeBlock :=
 { code := Code.«return» ref val }
 
@@ -440,21 +454,8 @@ let ps := xs.map fun x => (x, true);
 let ps := ps.push (yFresh, false);
 jpDecl ← mkFreshJP ps k.code;
 let jp := jpDecl.name;
-pure {
-  code  := attachJP jpDecl (convertReturnIntoJmp terminal.code jp xs),
-  uvars := terminal.uvars,
-}
-
-private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
-if doSeq.getKind == `Lean.Parser.Term.doSeqBracketed then
-  (doSeq.getArg 1).getArgs.toList.map fun arg => arg.getArg 0
-else if doSeq.getKind == `Lean.Parser.Term.doSeqIndent then
-  (doSeq.getArg 0).getArgs.toList.map fun arg => arg.getArg 0
-else
-  []
-
-private def getDoSeq (doStx : Syntax) : Syntax :=
-doStx.getArg 1
+terminal ← liftMacroM $ convertReturnIntoJmp terminal.code jp xs;
+pure { code  := attachJP jpDecl terminal, uvars := k.uvars }
 
 def getLetIdDeclVar (letIdDecl : Syntax) : Name :=
 (letIdDecl.getArg 0).getId
@@ -604,6 +605,10 @@ inductive Kind
 | forIn
 | forInMap (x : Name)
 
+def Kind.isRegular : Kind → Bool
+| Kind.regular => true
+| _            => false
+
 structure Context :=
 (m     : Syntax) -- Syntax to reference the monad associated with the do notation.
 (uvars : Array Name)
@@ -737,7 +742,7 @@ if kind == `Lean.Parser.Term.doReassign then
     -- letIdDecl := parser! ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
     let x   := arg.getArg 0;
     let val := arg.getArg 4;
-    newVal ← `(ensureTypeOf! $x $(quote "invalid reassignment") $val);
+    newVal ← `(ensureTypeOf! $x $(quote "invalid reassignment, value") $val);
     let arg := arg.setArg 4 newVal;
     let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg];
     `(let $letDecl:letDecl; $k)
@@ -786,6 +791,14 @@ partial def toTerm : Code → M Syntax
 | Code.reassign _ stx k   => do k ← toTerm k; liftM $ reassignToTerm stx k
 | Code.action stx k       => do k ← toTerm k; liftM $ actionToTerm stx k
 | Code.ite ref _ o c t e  => do t ← toTerm t; e ← toTerm e; pure $ mkIte ref o c t e
+| Code.returnAction e     => do
+  ctx ← read;
+  if ctx.uvars.isEmpty && ctx.kind.isRegular then
+    -- avoid unnecessary `bind`
+    pure e
+  else do
+    c ← liftM (expandReturnAction e);
+    toTerm c
 | Code.«match» _ _ _ _    => liftM $ Macro.throwError Syntax.missing "WIP"
 
 def run (code : Code) (m : Syntax) (uvars : Array Name := #[]) (kind := Kind.regular) : MacroM Syntax := do
@@ -840,7 +853,7 @@ else do
 def ensureInsideFor : M Unit := do
 ctx ← read;
 unless ctx.insideFor $
-  throwError "invalid statement, can only be used inside 'for ... in ... do ...'"
+  throwError "invalid 'do' element, it must be inside 'for'"
 
 def ensureEOS (doElems : List Syntax) : M Unit :=
 unless doElems.isEmpty $
@@ -935,15 +948,18 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       forCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems);
       ⟨isForInMap, uvars, forInBody⟩ ← toForInTerm x forCodeBlock;
       uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
-      auxDo ← if isForInMap then do
+      if isForInMap then do
         forInTerm ← `($(xs).forInMap $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        `(do let r ← $forInTerm; $uvarsTuple:term := r.2; return r.1)
-      else do {
+        auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r.2; return ensureExpectedType! "type mismatch, 'for'" r.1);
+        doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+      else do
         forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        `(do let r ← $forInTerm; $uvarsTuple:term := r)
-      };
-      let doElemsNew := getDoSeqElems (getDoSeq auxDo);
-      doSeqToCode (doElemsNew ++ doElems)
+        if doElems.isEmpty then do
+          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r; return ensureExpectedType! "type mismatch, 'for'" PUnit.unit);
+          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+        else do
+          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r);
+          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
     else if k == `Lean.Parser.Term.doMatch then
       throwError "WIP"
     else if k == `Lean.Parser.Term.doTry then
@@ -970,9 +986,8 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       mkAction doElem <$> doSeqToCode doElems
     else if k == `Lean.Parser.Term.doExpr then
       let term := doElem.getArg 0;
-      if doElems.isEmpty then withFreshMacroScope do
-        auxDo ← `(do let x ← $term; return x);
-        auxDoToCode auxDo
+      if doElems.isEmpty then
+        pure $ mkReturnAction term
       else
         mkAction term <$> doSeqToCode doElems
     else

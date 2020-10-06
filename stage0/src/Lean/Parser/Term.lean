@@ -158,6 +158,7 @@ def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts fa
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
 @[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optional "; " >> termParser
 @[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optional "; " >> termParser
+@[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optional "; " >> termParser
 def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
 def attrInstance     := parser! rawIdent >> many attrArg

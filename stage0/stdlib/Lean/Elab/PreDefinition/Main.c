@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__2(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Term_elabLetDeclAux___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__28(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__7;
@@ -34,7 +35,6 @@ lean_object* l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9__
 uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__6(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_1__getDataOf___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__7(lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__2(lean_object*, lean_object*, lean_object*);
@@ -483,19 +483,11 @@ return x_33;
 }
 }
 }
-lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__4___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = lean_apply_9(x_1, x_4, x_5, x_2, x_3, x_6, x_7, x_8, x_9, x_10);
-return x_11;
-}
-}
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescope___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__4___rarg___lambda__1), 10, 3);
+x_10 = lean_alloc_closure((void*)(l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Term_elabLetDeclAux___spec__1___rarg___lambda__1), 10, 3);
 lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_3);
 lean_closure_set(x_10, 2, x_4);

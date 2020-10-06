@@ -447,30 +447,48 @@ else do
       mkLambdaFVars xs e
 
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
-   Otherwise, we create a term of the form `(fun (x : type) => body) val` -/
+   Otherwise, we create a term of the form `(fun (x : type) => body) val`
+
+   The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
+   If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
 def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
-    (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
-(type, val) ← elabBinders binders $ fun xs => do {
+    (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) : TermElabM Expr := do
+(type, val, arity) ← elabBinders binders $ fun xs => do {
   type ← elabType typeStx;
   registerCustomErrorIfMVar type typeStx "failed to infer 'let' declaration type";
-  val  ← elabTermEnsuringType valStx type;
-  type ← mkForallFVars xs type;
-  val  ← mkLambdaFVars xs val;
-  pure (type, val)
+  if elabBodyFirst then do
+    type ← mkForallFVars xs type;
+    val  ← mkFreshExprMVar type;
+    pure (type, val, xs.size)
+  else do
+    val  ← elabTermEnsuringType valStx type;
+    type ← mkForallFVars xs type;
+    val  ← mkLambdaFVars xs val;
+    pure (type, val, xs.size)
 };
 trace `Elab.let.decl $ fun _ => n ++ " : " ++ type ++ " := " ++ val;
-if useLetExpr then
-  withLetDecl n type val $ fun x => do
-    body ← elabTerm body expectedType?;
-    body ← instantiateMVars body;
-    mkLetFVars #[x] body
-else do
-  f ← withLocalDecl n BinderInfo.default type $ fun x => do {
-    body ← elabTerm body expectedType?;
-    body ← instantiateMVars body;
-    mkLambdaFVars #[x] body
+result ←
+  if useLetExpr then
+    withLetDecl n type val $ fun x => do
+      body ← elabTerm body expectedType?;
+      body ← instantiateMVars body;
+      mkLetFVars #[x] body
+  else do {
+    f ← withLocalDecl n BinderInfo.default type $ fun x => do {
+      body ← elabTerm body expectedType?;
+      body ← instantiateMVars body;
+      mkLambdaFVars #[x] body
+    };
+    pure $ mkApp f val
   };
-  pure $ mkApp f val
+when elabBodyFirst do {
+  forallBoundedTelescope type arity fun xs type => do
+    valResult ← elabTermEnsuringType valStx type;
+    valResult ← mkLambdaFVars xs valResult;
+    unlessM (isDefEq val valResult) do
+      throwError "unexpected error when elaborating 'let'"
+};
+pure result
 
 structure LetIdDeclView :=
 (id      : Name)
@@ -504,13 +522,13 @@ let matchAlts := letDecl.getArg 3;
 val ← expandMatchAltsIntoMatch ref matchAlts;
 pure $ Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl.getArg 0, letDecl.getArg 1, letDecl.getArg 2, mkAtomFrom ref " := ", val]
 
-def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) : TermElabM Expr := do
+def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) : TermElabM Expr := do
 let ref     := stx;
 let letDecl := (stx.getArg 1).getArg 0;
 let body    := stx.getArg 3;
 if letDecl.getKind == `Lean.Parser.Term.letIdDecl then
   let { id := id, binders := binders, type := type, value := val } := mkLetIdDeclView letDecl;
-  elabLetDeclAux id binders type val body expectedType? useLetExpr
+  elabLetDeclAux id binders type val body expectedType? useLetExpr elabBodyFirst
 else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
   let pat     := letDecl.getArg 0;
@@ -529,10 +547,10 @@ else
   throwUnsupportedSyntax
 
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
-fun stx expectedType? => elabLetDeclCore stx expectedType? true
+fun stx expectedType? => elabLetDeclCore stx expectedType? true false
 
 @[builtinTermElab «let!»] def elabLetBangDecl : TermElab :=
-fun stx expectedType? => elabLetDeclCore stx expectedType? false
+fun stx expectedType? => elabLetDeclCore stx expectedType? false false
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.let;

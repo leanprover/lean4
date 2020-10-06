@@ -21,3 +21,9 @@ doNotation1.lean:37:2: error: invalid 'do' element, it must be inside 'for'
 doNotation1.lean:40:0: error: must be last element in a 'do' sequence
 def f10 : Nat → IO Unit :=
 fun (x : Nat) => IO.println x
+doNotation1.lean:51:0: error: type mismatch
+  IO.mkRef true
+has type
+  EIO IO.Error (IO.Ref Bool)
+but is expected to have type
+  EIO IO.Error Unit

@@ -772,7 +772,31 @@ binders ← ps.mapM fun ⟨id, useTypeOf⟩ => do {
 ctx ← read;
 let m := ctx.m;
 type ← `($m _);
-`(let $(mkIdentFrom ref j):ident $binders:explicitBinder* : $type := $body; $k)
+/-
+We use `let*` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
+By elaborating `$k` first, we "learn" more about `$body`'s type.
+For example, consider the following example `do` expression
+```
+def f (x : Nat) : IO Unit := do
+if x > 0 then
+  IO.println "x is not zero" -- Error is here
+IO.mkRef true
+```
+it is expanded into
+```
+def f (x : Nat) : IO Unit := do
+let jp (u : Unit) : IO _ :=
+  IO.mkRef true;
+if x > 0 then
+  IO.println "not zero"
+  jp ()
+else
+  jp ()
+```
+If we use the regular `let` instead of `let*`, the joinpoint `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
+Then, we get a typing error at `jp ()`. By using `let*`, we first elaborate `if x > 0 ...` and learn that `jp` has type `Unit → IO Unit`.
+Then, we get the expected type mismatch error at `IO.mkRef true`. -/
+`(let* $(mkIdentFrom ref j):ident $binders:explicitBinder* : $type := $body; $k)
 
 def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := do
 r ← mkJoinPointCore j ps body k;

@@ -44,3 +44,8 @@ def f10 (x : Nat) : IO Unit := do
 IO.println x
 
 #print f10 -- we do not generate an unnecessary bind
+
+def f11 (x : Nat) : IO Unit := do
+if x > 0 then
+  IO.println "x is not zero"
+IO.mkRef true -- error here as expected

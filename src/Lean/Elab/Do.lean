@@ -935,15 +935,18 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       forCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems);
       ⟨isForInMap, uvars, forInBody⟩ ← toForInTerm x forCodeBlock;
       uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
-      auxDo ← if isForInMap then do
+      if isForInMap then do
         forInTerm ← `($(xs).forInMap $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        `(do let r ← $forInTerm; $uvarsTuple:term := r.2; return ensureExpectedType! "type mismatch, 'for'" r.1)
-      else do {
+        auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r.2; return ensureExpectedType! "type mismatch, 'for'" r.1);
+        doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+      else do
         forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        `(do let r ← $forInTerm; $uvarsTuple:term := r)
-      };
-      let doElemsNew := getDoSeqElems (getDoSeq auxDo);
-      doSeqToCode (doElemsNew ++ doElems)
+        if doElems.isEmpty then do
+          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r; return ensureExpectedType! "type mismatch, 'for'" PUnit.unit);
+          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+        else do
+          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r);
+          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
     else if k == `Lean.Parser.Term.doMatch then
       throwError "WIP"
     else if k == `Lean.Parser.Term.doTry then

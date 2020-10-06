@@ -23,3 +23,7 @@ Vector.cons 1 v
 def f5 (xs : List Nat) : List Bool := do
 for x in xs do
   x := true -- invalid reassigned
+
+def f6 (xs : List Nat) : IO (List Nat) := do
+for x in xs do
+  IO.println x

@@ -12,3 +12,7 @@ doNotation1.lean:24:0: error: type mismatch, 'for' has type
   List Nat
 but is expected to have type
   List Bool
+doNotation1.lean:28:0: error: type mismatch, 'for' has type
+  PUnit
+but is expected to have type
+  List Nat

@@ -16,3 +16,6 @@ doNotation1.lean:28:0: error: type mismatch, 'for' has type
   PUnit
 but is expected to have type
   List Nat
+doNotation1.lean:33:2: error: invalid 'do' element, it must be inside 'for'
+doNotation1.lean:37:2: error: invalid 'do' element, it must be inside 'for'
+doNotation1.lean:40:0: error: must be last element in a 'do' sequence

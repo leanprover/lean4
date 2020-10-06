@@ -840,7 +840,7 @@ else do
 def ensureInsideFor : M Unit := do
 ctx ← read;
 unless ctx.insideFor $
-  throwError "invalid statement, can only be used inside 'for ... in ... do ...'"
+  throwError "invalid 'do' element, it must be inside 'for'"
 
 def ensureEOS (doElems : List Syntax) : M Unit :=
 unless doElems.isEmpty $

@@ -25,5 +25,17 @@ for x in xs do
   x := true -- invalid reassigned
 
 def f6 (xs : List Nat) : IO (List Nat) := do
-for x in xs do
+for x in xs do -- type error
   IO.println x
+
+def f7 (xs : List Nat) : IO Unit := do
+unless xs.isEmpty do
+  break -- error must be inside 'for'
+
+def f8 (xs : List Nat) : IO Unit := do
+unless xs.isEmpty do
+  continue -- error must be inside 'for'
+
+def f9 (xs : List Nat) : IO Unit := do
+return xs -- error, must be last element in the sequence
+return xs

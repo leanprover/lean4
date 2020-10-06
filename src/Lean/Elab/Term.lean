@@ -1130,9 +1130,9 @@ fun stx =>
   | `(#[$args*]) => `(List.toArray [$args*])
   | _            => throw $ Macro.Exception.error stx "unexpected array literal syntax"
 
-private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
+private partial def resolveLocalNameAux (lctx : LocalContext) (view : MacroScopesView) : Name → List String → Option (Expr × List String)
 | n, projs =>
-  match lctx.findFromUserName? n with
+  match lctx.findFromUserName? { view with name := n }.review with
   | some decl => some (decl.toExpr, projs)
   | none      => match n with
     | Name.str pre s _ => resolveLocalNameAux pre (s::projs)
@@ -1140,7 +1140,8 @@ private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List St
 
 def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
 lctx ← getLCtx;
-pure $ resolveLocalNameAux lctx n []
+let view := extractMacroScopes n;
+pure $ resolveLocalNameAux lctx view view.name []
 
 /- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
 def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=

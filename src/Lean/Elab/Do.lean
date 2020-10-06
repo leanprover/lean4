@@ -481,7 +481,18 @@ else
   throwError "unexpected kind of let declaration"
 
 def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
+-- parser! "let " >> letDecl
 getLetDeclVars (doLet.getArg 1)
+
+def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
+-- letRecDecls is an array of `(group (optional attributes >> letDecl))`
+let letRecDecls := (doLetRec.getArg 1).getArgs.getSepElems;
+let letDecls := letRecDecls.map fun p => p.getArg 1;
+letDecls.foldlM
+  (fun allVars letDecl => do
+    vars ← getLetDeclVars letDecl;
+    pure (allVars ++ vars))
+  #[]
 
 -- ident >> optType >> leftArrow >> termParser
 def getDoIdDeclVar (doIdDecl : Syntax) : Name :=
@@ -682,7 +693,9 @@ if kind == `Lean.Parser.Term.doLet then
   let letDecl := decl.getArg 1;
   `(let $letDecl:letDecl; $k)
 else if kind == `Lean.Parser.Term.doLetRec then
-  liftM $ Macro.throwError decl "WIP"
+  let letRecToken := decl.getArg 0;
+  let letRecDecls := decl.getArg 1;
+  pure $ mkNode `Lean.Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
 else if kind == `Lean.Parser.Term.doLetArrow then
   let arg := decl.getArg 1;
   let ref := arg;
@@ -887,7 +900,8 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       vars ← liftM $ getDoLetVars doElem;
       mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
     else if k == `Lean.Parser.Term.doLetRec then do
-      throwError "WIP"
+      vars ← liftM $ getDoLetRecVars doElem;
+      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
     else if k == `Lean.Parser.Term.doLetArrow then do
       vars ← liftM $ getDoLetArrowVars doElem;
       mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)

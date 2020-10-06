@@ -170,8 +170,9 @@ def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec
 @[builtinTermParser] def decide       := parser! "decide! " >> termParser maxPrec
 
-@[builtinTermParser] def typeOf       := parser! "typeOf! " >> termParser maxPrec
-@[builtinTermParser] def ensureTypeOf := parser! "ensureTypeOf! " >> termParser maxPrec >> strLit >> termParser
+@[builtinTermParser] def typeOf             := parser! "typeOf! " >> termParser maxPrec
+@[builtinTermParser] def ensureTypeOf       := parser! "ensureTypeOf! " >> termParser maxPrec >> strLit >> termParser
+@[builtinTermParser] def ensureExpectedType := parser! "ensureExpectedType! " >> strLit >> termParser maxPrec
 
 @[builtinTermParser] def not    := parser! "¬" >> termParser 40
 @[builtinTermParser] def bnot   := parser! "!" >> termParser 40

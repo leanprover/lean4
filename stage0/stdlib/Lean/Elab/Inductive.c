@@ -218,6 +218,7 @@ lean_object* l_Lean_Elab_Command_ElabHeaderResult_inhabited___closed__1;
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___closed__11;
 lean_object* lean_mk_brec_on(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_22__collectUniverses(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_1__elabHeaderAux___main___lambda__1___closed__3;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_23__updateResultingUniverse___closed__2;
@@ -311,7 +312,6 @@ lean_object* l___private_Lean_Elab_Inductive_29__collectLevelParamsInInductive__
 lean_object* l___private_Lean_Elab_Inductive_4__checkLevelNames(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNamesImp___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Elab_Inductive_31__replaceIndFVarsWithConsts___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Term_19__elabTermAux___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_16__elabCtors___spec__2___lambda__1___closed__3;
 lean_object* l_Std_HashMapImp_find_x3f___at___private_Lean_MetavarContext_2__visit___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelSucc(lean_object*);
@@ -395,7 +395,6 @@ lean_object* l_Lean_Elab_Command_checkValidCtorModifier___closed__3;
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_31__replaceIndFVarsWithConsts___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_20__collectUniversesFromCtorTypeAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isTypeFormerType___at___private_Lean_Elab_Inductive_1__elabHeaderAux___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_18__elabImplicitLambda___main___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_25__collectUsed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___closed__5;
 lean_object* l_Lean_Meta_mkFreshLevelMVar___at_Lean_Elab_Term_ensureType___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -426,6 +425,7 @@ lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Elab_Inducti
 lean_object* l___private_Lean_Elab_Inductive_35__mkInductiveDecl___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_20__elabImplicitLambda___main___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_35__mkInductiveDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidInductiveModifier(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1194,7 +1194,7 @@ x_39 = lean_ctor_get(x_36, 1);
 lean_inc(x_39);
 lean_dec(x_36);
 x_40 = l___private_Lean_Elab_Inductive_1__elabHeaderAux___main___lambda__1___closed__3;
-x_41 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_19__elabTermAux___main___spec__1___rarg(x_30, x_40, x_6, x_7, x_8, x_9, x_10, x_11, x_39);
+x_41 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__1___rarg(x_30, x_40, x_6, x_7, x_8, x_9, x_10, x_11, x_39);
 lean_dec(x_11);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -1451,7 +1451,7 @@ x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 lean_dec(x_19);
 x_21 = l_Array_forMAux___main___at___private_Lean_Elab_Inductive_2__checkNumParams___spec__1___closed__3;
-x_22 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_19__elabTermAux___main___spec__1___rarg(x_20, x_21, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_22 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__1___rarg(x_20, x_21, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_20);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
@@ -1676,7 +1676,7 @@ x_20 = lean_ctor_get(x_16, 0);
 lean_inc(x_20);
 lean_dec(x_16);
 x_21 = l_Array_forMAux___main___at___private_Lean_Elab_Inductive_3__checkUnsafe___spec__1___closed__3;
-x_22 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_19__elabTermAux___main___spec__1___rarg(x_20, x_21, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_22 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__1___rarg(x_20, x_21, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_20);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
@@ -1821,7 +1821,7 @@ x_18 = lean_ctor_get(x_15, 0);
 lean_inc(x_18);
 lean_dec(x_15);
 x_19 = l_Array_forMAux___main___at___private_Lean_Elab_Inductive_4__checkLevelNames___spec__1___closed__3;
-x_20 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_19__elabTermAux___main___spec__1___rarg(x_18, x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_20 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__1___rarg(x_18, x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_18);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
@@ -3277,7 +3277,7 @@ lean_closure_set(x_19, 2, x_1);
 lean_closure_set(x_19, 3, x_2);
 lean_closure_set(x_19, 4, x_3);
 x_20 = 0;
-x_21 = l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_18__elabImplicitLambda___main___spec__1___rarg(x_17, x_20, x_18, x_19, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_21 = l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_20__elabImplicitLambda___main___spec__1___rarg(x_17, x_20, x_18, x_19, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_21;
 }
 }
@@ -6759,7 +6759,7 @@ lean_closure_set(x_22, 1, x_1);
 lean_closure_set(x_22, 2, x_2);
 lean_closure_set(x_22, 3, x_20);
 lean_closure_set(x_22, 4, x_5);
-x_23 = l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_18__elabImplicitLambda___main___spec__1___rarg(x_15, x_21, x_16, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_23 = l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_20__elabImplicitLambda___main___spec__1___rarg(x_15, x_21, x_16, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_23;
 }
 else
@@ -6850,7 +6850,7 @@ lean_closure_set(x_42, 0, x_27);
 lean_closure_set(x_42, 1, x_1);
 lean_closure_set(x_42, 2, x_2);
 lean_closure_set(x_42, 3, x_40);
-x_43 = l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_18__elabImplicitLambda___main___spec__1___rarg(x_25, x_41, x_26, x_42, x_6, x_7, x_8, x_9, x_10, x_11, x_34);
+x_43 = l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_20__elabImplicitLambda___main___spec__1___rarg(x_25, x_41, x_26, x_42, x_6, x_7, x_8, x_9, x_10, x_11, x_34);
 return x_43;
 }
 }

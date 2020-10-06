@@ -27,3 +27,7 @@ has type
   EIO IO.Error (IO.Ref Bool)
 but is expected to have type
   EIO IO.Error Unit
+doNotation1.lean:58:2: error: type mismatch, returned value has type
+  Unit
+but is expected to have type
+  Bool

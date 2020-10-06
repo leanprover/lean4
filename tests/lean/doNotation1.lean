@@ -49,3 +49,11 @@ def f11 (x : Nat) : IO Unit := do
 if x > 0 then
   IO.println "x is not zero"
 IO.mkRef true -- error here as expected
+
+def f12 (x : Nat) : IO Unit := do
+if x > 0 then
+  return true
+else
+  x := x + 1
+  IO.println "hello" -- error here the other branch returns `Bool`
+IO.println x

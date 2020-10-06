@@ -205,7 +205,7 @@ partial def convertReturnIntoJmpAux (jp : Name) (xs : Array Name) : Code → Mac
 | Code.ite ref x? h c t e    => Code.ite ref x? h c <$> convertReturnIntoJmpAux t <*> convertReturnIntoJmpAux e
 | Code.«match» ref ds t alts => Code.«match» ref ds t <$> alts.mapM fun alt => do rhs ← convertReturnIntoJmpAux alt.rhs; pure { alt with rhs := rhs }
 | Code.returnAction e        => do c ← expandReturnAction e; convertReturnIntoJmpAux c
-| Code.«return» ref val      => pure $ Code.jmp ref jp ((xs.map $ mkIdentFrom ref).push val)
+| Code.«return» ref val      => do val ← `(ensureExpectedType! "type mismatch, returned value" $val); pure $ Code.jmp ref jp ((xs.map $ mkIdentFrom ref).push val)
 | c                          => pure c
 
 /- Convert `return _ x` instructions in `c` into `jmp _ jp xs`. -/

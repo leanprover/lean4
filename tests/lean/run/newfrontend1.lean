@@ -135,7 +135,7 @@ by {
   assumption
 }
 
-macro «try» t:tactic : tactic => `($t <|> skip)
+macro «try» t:tactic : tactic => `($t:tactic <|> skip)
 
 syntax "repeat" tactic : tactic
 macro_rules

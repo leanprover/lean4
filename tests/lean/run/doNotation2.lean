@@ -111,3 +111,16 @@ IO.println ("isOdd(" ++ toString x ++ "): " ++ toString (isOdd x))
 
 #eval f2 11
 #eval f2 10
+
+def split (xs : List Nat) : List Nat × List Nat := do
+let evens := []
+let odds  := []
+for x in xs.reverse do
+  if x % 2 == 0 then
+    evens := x :: evens
+  else
+    odds := x :: odds
+return (evens, odds)
+
+theorem ex8 : split [1, 2, 3, 4] = ([2, 4], [1, 3]) :=
+rfl

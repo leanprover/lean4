@@ -260,7 +260,7 @@ stx.isAntiquot || stx.isIdent
 end Term
 
 @[builtinTermParser 1] def Tactic.quot    : Parser := parser! "`(tactic|" >> toggleInsideQuot tacticParser >> ")"
-@[builtinTermParser]   def Tactic.quotSeq : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.tacticSeq1Indented >> ")"
+@[builtinTermParser]   def Tactic.quotSeq : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.seq1 >> ")"
 
 @[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"
 

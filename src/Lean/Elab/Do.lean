@@ -857,9 +857,6 @@ else do
   (doElem, doElemsNew) ← (expandLiftMethodAux doElem).run [];
   pure (doElemsNew, doElem)
 
-instance auususus : HasToString SourceInfo :=
-{ toString := fun info => toString info.pos }
-
 def mkReturnUnit (ref : Syntax) : M CodeBlock := do
 unit ← `(PUnit.unit);
 let unit := unit.copyInfo ref;

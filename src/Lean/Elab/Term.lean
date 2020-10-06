@@ -526,7 +526,7 @@ def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (exp
 let header : MessageData := match header? with
   | some header => header ++ " has type"
   | none        => "type mismatch" ++ indentExpr e ++ Format.line ++ "has type";
-header ++ indentExpr eType ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType
+header ++ indentExpr eType ++ Format.line ++ "but is expected to have type" ++ indentExpr expectedType
 
 def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=

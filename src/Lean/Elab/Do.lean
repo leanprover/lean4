@@ -937,7 +937,7 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
       auxDo ← if isForInMap then do
         forInTerm ← `($(xs).forInMap $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        `(do let r ← $forInTerm; $uvarsTuple:term := r.2; return r.1)
+        `(do let r ← $forInTerm; $uvarsTuple:term := r.2; return ensureExpectedType! "type mismatch, 'for'" r.1)
       else do {
         forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody);
         `(do let r ← $forInTerm; $uvarsTuple:term := r)

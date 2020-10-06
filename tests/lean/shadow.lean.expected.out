@@ -2,7 +2,7 @@ shadow.lean:6:0: error: type mismatch
   h
 has type
   x✝ = x✝
-but it is expected to have type
+but is expected to have type
   x = x
 failed to synthesize instance
   CoeT (x✝ = x✝) h (x = x)
@@ -10,7 +10,7 @@ shadow.lean:10:0: error: type mismatch
   h
 has type
   x = x
-but it is expected to have type
+but is expected to have type
   x = x
 failed to synthesize instance
   CoeT (x = x) h (x = x)

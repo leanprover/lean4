@@ -2,7 +2,7 @@ matchErrorLocation.lean:5:10: error: type mismatch
   h he
 has type
   False
-but it is expected to have type
+but is expected to have type
   α
 failed to synthesize instance
   CoeT False (h he) α

@@ -10,7 +10,7 @@ struct1.lean:35:6: error: type mismatch
   true
 has type
   Bool
-but it is expected to have type
+but is expected to have type
   Nat
 failed to synthesize instance
   CoeT Bool true Nat
@@ -19,7 +19,7 @@ struct1.lean:41:12: error: type mismatch
   true
 has type
   Bool
-but it is expected to have type
+but is expected to have type
   Nat
 failed to synthesize instance
   CoeT Bool true Nat

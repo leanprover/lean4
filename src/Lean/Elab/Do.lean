@@ -786,7 +786,7 @@ partial def toTerm : Code → M Syntax
 | Code.reassign _ stx k   => do k ← toTerm k; liftM $ reassignToTerm stx k
 | Code.action stx k       => do k ← toTerm k; liftM $ actionToTerm stx k
 | Code.ite ref _ o c t e  => do t ← toTerm t; e ← toTerm e; pure $ mkIte ref o c t e
-| _ => liftM $ Macro.throwError Syntax.missing "WIP"
+| Code.«match» _ _ _ _    => liftM $ Macro.throwError Syntax.missing "WIP"
 
 def run (code : Code) (m : Syntax) (uvars : Array Name := #[]) (kind := Kind.regular) : MacroM Syntax := do
 term ← toTerm code { m := m, kind := kind, uvars := uvars };

@@ -382,7 +382,9 @@ def toggleInsideQuot.formatter (p : Formatter) : Formatter :=
 p
 
 @[combinatorFormatter checkWsBefore] def checkWsBefore.formatter : Formatter := do
-pushLine
+st ← get;
+when (st.leadWord != "") $
+  pushLine
 
 @[combinatorFormatter checkPrec] def checkPrec.formatter : Formatter := pure ()
 @[combinatorFormatter checkStackTop] def checkStackTop.formatter : Formatter := pure ()

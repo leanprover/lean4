@@ -242,21 +242,20 @@ modifyMCtx fun mctx =>
     (mctx, 1);
   mctx
 
-def evalSeq : Tactic :=
-fun stx => (stx.getArg 0).forArgsM fun seqElem => evalTactic (seqElem.getArg 0)
-
-@[builtinTactic seq1] def evalSeq1 : Tactic := evalSeq
-
-@[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := evalSeq
-
-@[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
-fun stx => withRef (stx.getArg 2) $ focus $ (stx.getArg 1).forSepArgsM evalTactic
-
-@[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic :=
-fun stx => focus $ evalTactic (stx.getArg 1)
+@[builtinTactic seq1] def evalSeq1 : Tactic :=
+fun stx => (stx.getArg 0).forSepArgsM evalTactic
 
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalSeq1 (stx.getArg 1)
+
+@[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
+fun stx => (stx.getArg 0).forArgsM fun seqElem => evalTactic (seqElem.getArg 0)
+
+@[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
+fun stx => withRef (stx.getArg 2) $ focus $ (stx.getArg 1).forArgsM fun seqElem => evalTactic (seqElem.getArg 0)
+
+@[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic :=
+fun stx => focus $ evalTactic (stx.getArg 1)
 
 @[builtinTactic tacticSeq] def evalTacticSeq : Tactic :=
 fun stx => evalTactic (stx.getArg 0)

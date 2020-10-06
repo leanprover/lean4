@@ -19,3 +19,5 @@ but is expected to have type
 doNotation1.lean:33:2: error: invalid 'do' element, it must be inside 'for'
 doNotation1.lean:37:2: error: invalid 'do' element, it must be inside 'for'
 doNotation1.lean:40:0: error: must be last element in a 'do' sequence
+def f10 : Nat → IO Unit :=
+fun (x : Nat) => IO.println x

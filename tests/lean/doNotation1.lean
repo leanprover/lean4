@@ -39,3 +39,8 @@ unless xs.isEmpty do
 def f9 (xs : List Nat) : IO Unit := do
 return xs -- error, must be last element in the sequence
 return xs
+
+def f10 (x : Nat) : IO Unit := do
+IO.println x
+
+#print f10 -- we do not generate an unnecessary bind

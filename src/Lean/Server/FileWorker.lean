@@ -217,29 +217,14 @@ oldDoc ← getDocument;
 some newVersion ← pure docId.version? | throw (userError "expected version number");
 if newVersion <= oldDoc.version then do
   throw (userError "got outdated version number")
-else match changes.get? 0 with
-| none => pure ()
-| some firstChange => do
-  let firstStartOff := match firstChange with
-    | TextDocumentContentChangeEvent.rangeChange (range : Range) _ => 
-      oldDoc.text.lspPosToUtf8Pos range.start
-    | TextDocumentContentChangeEvent.fullChange _ => 0;
-  let accumulateChanges : TextDocumentContentChangeEvent → FileMap × String.Pos → FileMap × String.Pos :=
-    fun change ⟨newDocText, minStartOff⟩ =>
-      match change with
-      | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
-        let startOff    := oldDoc.text.lspPosToUtf8Pos range.start;
-        let newDocText  := replaceLspRange newDocText range newText;
-        let minStartOff := if startOff < minStartOff then startOff else minStartOff;
-        ⟨newDocText, minStartOff⟩
-      | TextDocumentContentChangeEvent.fullChange (newText : String) =>
-        ⟨newText.toFileMap, 0⟩;
-  let (newDocText, minStartOff) := changes.foldr accumulateChanges (oldDoc.text, firstStartOff);
+else if not changes.isEmpty then do
+  let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.text;
   IO.eprintln newDocText.source;
   st ← read;
   newDoc ← monadLift $
     updateDocument st.hOut docId.uri oldDoc minStartOff newVersion newDocText;
   setDocument newDoc
+else pure ()
 
 def handleCancelRequest (p : CancelParams) : ServerM Unit := do
 updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -287,7 +272,7 @@ partial def mainLoop : Unit → ServerM Unit
   st ← read;
   msg ← readLspMessage st.hIn;
   pendingRequests ← st.pendingRequestsRef.get;
-  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) → IO PendingRequestMap := 
+  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) → IO PendingRequestMap :=
     (fun acc id task => do
       f ← hasFinished task;
       pure $ if f then

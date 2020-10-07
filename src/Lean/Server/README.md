@@ -1,6 +1,6 @@
 ## Building
 
-(Assuming `lean4` is the `elan` toolchain for stage 0.5)
+(Assuming `lean4` is the `elan` toolchain for stage 1)
 ```
 cd $LEAN4_HOME/src/Lean/Server/
 leanmake +lean4 bin PKG=Watchdog LINK_OPTS=-rdynamic
@@ -25,7 +25,7 @@ An easy way to get an LSP client is to build the [sample extension](https://gith
     args: [],
     options: {
       env: {
-        LEAN_PATH: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage0.5/lib/lean/",
+        LEAN_PATH: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/lib/lean/",
         LEAN_WORKER_PATH: "$LEAN4_HOME/src/Lean/Server/build/bin/FileWorker"
       }
     }

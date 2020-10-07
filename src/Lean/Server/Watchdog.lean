@@ -111,7 +111,7 @@ FS.Stream.ofHandle fw.proc.stderr
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
 def readMessage (fw : FileWorker) : m JsonRpc.Message := do
-msg ← readLspMessage fw.stdin;
+msg ← readLspMessage fw.stdout;
 match msg with
 | Message.request id method params? => 
   liftIO $ fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
@@ -204,7 +204,7 @@ pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
 let commTaskFw : FileWorker := ⟨doc, workerProc, Task.pure WorkerEvent.terminated, WorkerState.running, pendingRequestsRef⟩;
 commTask ← fwdMsgTask commTaskFw;
 let fw : FileWorker := {commTaskFw with commTask := commTask};
-fw.writeRequest (0 : Nat) "initialize" st.initParams;
+writeLspRequest fw.stdin (0 : Nat) "initialize" st.initParams;
 fw.writeNotification "textDocument/didOpen" (DidOpenTextDocumentParams.mk ⟨uri, "lean", version, text.source⟩);
 updateFileWorkers uri fw
 
@@ -304,7 +304,7 @@ terminateFileWorker p.textDocument.uri
 def handleCancelRequest (p : CancelParams) : ServerM Unit := do
 st ← read;
 fileWorkers ← st.fileWorkersRef.get;
-fileWorkers.forM (fun _ fw => fw.writeNotification "$/cancelParams" p)
+fileWorkers.forM (fun _ fw => fw.writeNotification "$/cancelRequest" p)
 
 def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
 let h := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
@@ -335,7 +335,8 @@ match method with
 def shutdown : ServerM Unit := do
 st ← read;
 fileWorkers ← st.fileWorkersRef.get;
-fileWorkers.forM (fun id _ => terminateFileWorker id)
+fileWorkers.forM (fun id _ => terminateFileWorker id);
+monadLift $ fileWorkers.forM (fun _ fw => do _ ← IO.wait fw.commTask; pure ()) 
 
 inductive ServerEvent
 | WorkerEvent (uri : DocumentUri) (fw : FileWorker) (ev : WorkerEvent)
@@ -407,7 +408,6 @@ catch
   -- something crashed, try to terminate all the file workers and all the forwarding tasks
   -- so that we can die in peace
   (fun err => do shutdown; throw err)
-
 
 def initAndRunWatchdog (i o : FS.Stream) : IO Unit := do
 some workerPath ← IO.getEnv "LEAN_WORKER_PATH"

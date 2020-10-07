@@ -89,7 +89,13 @@ private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
       sendDiagnosticsCore h uri version contents snap.msgLog;
       t ← runTask (runCore snap);
       pure (Except.ok ⟨snap, t⟩)
-  | Sum.inr msgLog => pure (Except.error TaskError.eof)
+  | Sum.inr msgLog => do
+    canceled ← checkCanceled;
+    if canceled then
+      pure (Except.error TaskError.aborted)
+    else do
+      sendDiagnosticsCore h uri version contents msgLog;
+      pure (Except.error TaskError.eof)
 
 def run (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) (parent : Snapshot) : IO ElabTask := do
 t ← runTask (runCore h uri version contents parent);
@@ -257,7 +263,7 @@ let h := (fun paramType [HasFromJson paramType] (handler : paramType → ServerM
 match method with
 | "textDocument/didChange" => h DidChangeTextDocumentParams handleDidChange
 | "$/cancelRequest"        => pure () -- TODO when we're async
-| _                        => throw (userError "got unsupported notification method")
+| _                        => throw (userError ("got unsupported notification method: " ++ method))
 
 def queueRequest {α : Type*} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α) : ServerM Unit := do
 doc ← getDocument;
@@ -305,8 +311,8 @@ partial def mainLoop : Unit → ServerM Unit
 def initAndRunWorker (i o : FS.Stream) : IO Unit := do
 -- TODO(WN): act in accordance with InitializeParams
 _ ← Lsp.readLspRequestAs i "initialize" InitializeParams;
-docRequest ← Lsp.readLspRequestAs i "textDocument/didOpen" DidOpenTextDocumentParams;
-doc ← openDocument o docRequest.param;
+param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams;
+doc ← openDocument o param;
 docRef ← IO.mkRef doc;
 pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
 runReader (mainLoop ()) (⟨i, o, docRef, pendingRequestsRef⟩ : ServerContext)

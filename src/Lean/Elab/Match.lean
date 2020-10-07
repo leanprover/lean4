@@ -502,6 +502,10 @@ def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
 (_, s) ← (CollectPatternVars.collect patternStx).run {};
 pure s.vars
 
+def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := do
+(_, s) ← (patterns.mapM fun pattern => CollectPatternVars.collect pattern).run {};
+pure s.vars
+
 /- We convert the collected `PatternVar`s intro `PatternVarDecl` -/
 inductive PatternVarDecl
 /- For `anonymousVar`, we create both a metavariable and a free variable. The free variable is used as an assignment for the metavariable

@@ -72,7 +72,7 @@ else if c_2 then
 @[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withForbidden "do" termParser >> "do " >> doSeq
 
 /- `match`-expression where the right-hand-side of alternatives is a `doSeq` instead of a `term` -/
-def doMatchAlt : Parser  := sepBy1 termParser ", " >> darrow >> doSeq
+def doMatchAlt : Parser  := parser! sepBy1 termParser ", " >> darrow >> doSeq
 def doMatchAlts : Parser := parser! withPosition $ (optional "| ") >> sepBy1 doMatchAlt (checkColGe "alternatives must be indented" >> "|")
 @[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
 

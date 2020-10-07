@@ -128,3 +128,18 @@ rfl
 def f3 (x : Nat) : IO Bool := do
 let y ← cond (x == 0) (do IO.println "hello"; true) false;
 !y
+
+def f4 (x y : Nat) : Nat × Nat := do
+match x with
+| 0 => y := y + 1
+| _ => x := x + y
+return (x, y)
+
+#eval f4 0 10
+#eval f4 5 10
+
+theorem ex9 (y : Nat) : f4 0 y = (0, y+1) :=
+rfl
+
+theorem ex10 (x y : Nat) : f4 (x+1) y = ((x+1)+y, y) :=
+rfl

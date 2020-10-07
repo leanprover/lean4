@@ -40,6 +40,9 @@ structure SpaceResult :=
 (foundLine := false)
 (space     := 0)
 
+instance SpaceResult.inhabited : Inhabited SpaceResult :=
+⟨{}⟩
+
 @[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Nat → SpaceResult) : SpaceResult :=
 if r₁.space > w || r₁.foundLine then r₁
 else
@@ -60,42 +63,46 @@ def spaceUptoLine : Format → Bool → Nat → SpaceResult
 structure WorkItem :=
 (f : Format)
 (indent : Int)
+
+structure WorkGroup :=
 (flatten : Bool)
+(items   : List WorkItem)
 
-def spaceUptoLine' : List WorkItem → Nat → SpaceResult
-| [],    w => {}
-| i::is, w => merge w (spaceUptoLine i.f i.flatten w) (spaceUptoLine' is)
+partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
+| [],              w => {}
+| ⟨_,  []   ⟩::gs, w => spaceUptoLine' gs w
+| ⟨fl, i::is⟩::gs, w => merge w (spaceUptoLine i.f fl w) (spaceUptoLine' (⟨fl, is⟩::gs))
 
-private def setFlattened (fl : Bool) (z : List WorkItem) : List WorkItem :=
-z.map fun i => { i with flatten := fl }
-
-partial def be (w : Nat) : Nat → String → List WorkItem → String
-| k, out, [] => out
-| k, out, i::z => match i.f with
-  | nil => be k out z
-  | append f₁ f₂ => be k out ({ i with f := f₁ }::{ i with f := f₂ }::z)
-  | nest n f => be k out ({ i with f := f, indent := i.indent + n }::z)
+partial def be (w : Nat) : Nat → String → List WorkGroup → String
+| k, out, []                           => out
+| k, out,   { items := [],    .. }::gs => be k out gs
+| k, out, g@{ items := i::is, .. }::gs =>
+  let gs' (is' : List WorkItem) := { g with items := is' }::gs;
+  match i.f with
+  | nil => be k out (gs' is)
+  | append f₁ f₂ => be k out (gs' ({ i with f := f₁ }::{ i with f := f₂ }::is))
+  | nest n f => be k out (gs' ({ i with f := f, indent := i.indent + n }::is))
   | text s =>
     let p := s.posOf '\n';
-    if p == s.bsize then be (k + s.length) (out ++ s) z
+    if p == s.bsize then be (k + s.length) (out ++ s) (gs' is)
     else
       let out := out ++ s.extract 0 p ++ "\n".pushn ' ' i.indent.toNat;
       let k := i.indent.toNat;
-      let z := { i with f := s.extract (s.next p) s.bsize }::z;
-      let z' := setFlattened true z;
-      let r := spaceUptoLine' z' (w-k);
-      if r.space > w-k then be k out (setFlattened false z) else be k out z'
-  | line => if i.flatten then
+      let is := { i with f := s.extract (s.next p) s.bsize }::is;
+      -- after a hard line break, re-evaluate whether to flatten the remaining group
+      let r := spaceUptoLine' ({ flatten := true, items := is }::gs) (w-k);
+      be k out ({ flatten := r.space <= w-k, items := is }::gs)
+  | line => if g.flatten then
       -- flatten line = text " "
-      be (k + 1) (out ++ " ") z
+      be (k + 1) (out ++ " ") (gs' is)
     else
-      be i.indent.toNat ((out ++ "\n").pushn ' ' i.indent.toNat) z
-  | group f => if i.flatten then
+      be i.indent.toNat ((out ++ "\n").pushn ' ' i.indent.toNat) (gs' is)
+  | group f => if g.flatten then
       -- flatten (group f) = flatten f
-      be k out ({ i with f := f }::z)
+      be k out (gs' ({ i with f := f }::is))
     else
-      let r := spaceUptoLine' ({ i with f := f, flatten := true }::z) (w-k);
-      be k out ({ i with f := f, flatten := r.space <= w-k }::z)
+      let r := spaceUptoLine' ({ flatten := true, items := [{ i with f := f }] }::gs' is) (w-k);
+      be k out ({ flatten := r.space <= w-k, items := [{ i with f := f }] }::gs' is)
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
 group (nest l.length $ l ++ f ++ r)
@@ -123,7 +130,7 @@ registerOption `format.width { defValue := defWidth, group := "format", descr :=
 
 @[export lean_format_pretty]
 def prettyAux (f : Format) (w : Nat := defWidth) : String :=
-be w 0 "" [{ f := f, indent := 0, flatten := false }]
+be w 0 "" [{ flatten := false, items := [{ f := f, indent := 0 }] }]
 
 def pretty (f : Format) (o : Options := {}) : String :=
 prettyAux f (getWidth o)

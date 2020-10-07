@@ -637,15 +637,39 @@ match result with
 
 /--
   Try to coerce `a : α` into `m β` by first coercing `a : α` into ‵β`, and then using `pure`.
-  The method is only applied if the head of `α` nor ‵β` is not a metavariable. -/
+  The method is only applied if one of the following cases hold:
+  - Head of `α` and head of ‵β` are not metavariables.
+  - Head of `α` is not a metavariable, and it is not a Monad.
+
+  The main limitation of the approach above is polymorphic code. As usual, coercions and polymorphism
+  do not interact well. In the example above, the lift is successfully applied to `true`, `false` and `!y`
+  since none of them is polymorphic
+  ```
+  def f (x : Bool) : IO Bool := do
+  let y ← if x == 0 then IO.println "hello"; true else false;
+  !y
+  ```
+  On the other hand, the following fails since `+` is polymorphic
+  ```
+  def f (x : Bool) : IO Nat := do
+  IO.prinln x
+  x + x  -- Error: failed to synthesize `HasAdd (IO Nat)`
+  ```
+-/
 private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : TermElabM (Option Expr) :=
-if β.getAppFn.isMVar || α.getAppFn.isMVar then pure none
-else catch
- (do
-   aNew ← tryCoe errorMsgHeader? β α a none;
-   aNew ← mkPure m aNew;
-   pure $ some aNew)
- (fun _ => pure none)
+let doIt (_ : Unit) : TermElabM (Option Expr) :=
+  catch
+    (do
+      aNew ← tryCoe errorMsgHeader? β α a none;
+      aNew ← mkPure m aNew;
+      pure $ some aNew)
+    (fun _ => pure none);
+let αHead := α.getAppFn;
+if !β.getAppFn.isMVar && !αHead.isMVar then doIt () -- case 1
+else do
+  αIsMonad? ← isMonad? α;
+  if !αHead.isMVar && αIsMonad?.isNone then doIt () -- case 2
+  else pure none
 
 /-
 Try coercions and monad lifts to make sure `e` has type `expectedType`.

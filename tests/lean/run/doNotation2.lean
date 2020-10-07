@@ -124,3 +124,7 @@ return (evens, odds)
 
 theorem ex8 : split [1, 2, 3, 4] = ([2, 4], [1, 3]) :=
 rfl
+
+def f3 (x : Nat) : IO Bool := do
+let y ← cond (x == 0) (do IO.println "hello"; true) false;
+!y

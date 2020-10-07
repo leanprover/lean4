@@ -57,3 +57,10 @@ else
   x := x + 1
   IO.println "hello" -- error here the other branch returns `Bool`
 IO.println x
+
+def f13 (xs : List Nat) : IO Bool := do
+if xs == [] then
+  return true
+else
+  return false
+IO.println "hello" -- error unreachable

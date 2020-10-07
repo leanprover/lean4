@@ -143,3 +143,27 @@ return (x, y)
 
 theorem ex11 (x y : Nat) : f5 (x+1) y = ((x+1)+y, y) :=
 rfl
+
+def f6 (x : Nat) : Nat := do
+if x > 10 then
+  return 0
+x := x + 1
+return x
+
+theorem ex12 : f6 11 = 0 :=
+rfl
+
+theorem ex13 : f6 5 = 6 :=
+rfl
+
+def findOdd (xs : List Nat) : Nat := do
+for x in xs do
+  if x % 2 == 1 then
+    return x
+return 0
+
+theorem ex14 : findOdd [2, 4, 5, 8, 7] = 5 :=
+rfl
+
+theorem ex15 : findOdd [2, 4, 8, 10] = 0 :=
+rfl

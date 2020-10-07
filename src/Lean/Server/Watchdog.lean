@@ -139,6 +139,7 @@ abbrev FileWorkerMap := RBMap DocumentUri FileWorker (fun a b => Decidable.decid
 
 structure ServerContext :=
 (hIn hOut : FS.Stream)
+(log : FS.Stream)
 (fileWorkersRef : IO.Ref FileWorkerMap)
 /- We store these to pass them to workers. -/
 (initParams : InitializeParams)
@@ -158,6 +159,9 @@ match fileWorkers.find? uri with
 
 def eraseFileWorker (uri : DocumentUri) : ServerM Unit :=
 fun st => st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
+
+def log (msg : String) : ServerM Unit := 
+fun st => st.log.putStrLn msg
 
 -- TODO: this creates a long-running Task, which should be okay with upcoming API changes.
 partial def fwdMsgAux (fw : FileWorker) (hOut : FS.Stream) : Unit → IO WorkerEvent
@@ -279,8 +283,10 @@ else match changes.get? 0 with
       | TextDocumentContentChangeEvent.fullChange (newText : String) =>
         ⟨newText.toFileMap, 0⟩;
   let (newDocText, minStartOff) := changes.foldr accumulateChanges (oldDoc.text, firstStartOff);
+  log newDocText.source;
   let oldHeaderEndPos := oldDoc.headerEndPos;
-  if minStartOff < oldHeaderEndPos then do
+  log $ toString minStartOff ++ "; " ++ toString oldHeaderEndPos;
+  if minStartOff ≤ oldHeaderEndPos then do
     -- TODO(WN): we should amortize this somehow;
     -- when the user is typing in an import, this
     -- may rapidly destroy/create new processes
@@ -420,9 +426,10 @@ writeLspResponse o initRequest.id
     serverInfo? := some { name := "Lean 4 server",
                           version? := "0.0.1" } : InitializeResult };
 
+e ← IO.getStderr;
 runReader
   initAndRunWatchdogAux
-  (⟨i, o, fileWorkersRef, initRequest.param, workerPath⟩ : ServerContext)
+  (⟨i, o, e, fileWorkersRef, initRequest.param, workerPath⟩ : ServerContext)
 
 end Server
 end Lean

@@ -106,15 +106,16 @@ partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (con
   finished ← hasFinished nextTask;
   if finished then
     match nextTask.get with
-    | Except.ok (next@⟨nextSnap, _⟩) =>
+    | Except.ok (next@⟨nextSnap, _⟩) => do
+       IO.eprintln ("ver: " ++ (toString version) ++ "; changePos: " ++ (toString changePos) ++ "; endpos: " ++ (toString nextSnap.endPos));
        -- if next contains the change ...
        -- (it will never be the header snap because the
        -- watchdog will never send didChange notifs with
        -- header changes to the file worker)
-       if changePos < nextSnap.endPos then do
-         newNext ← run h uri version contents snap;
+       if changePos ≤ nextSnap.endPos then do
+         new ← run h uri version contents snap;
          -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled by the GC
-         pure newNext
+         pure new
        else do
          newNext ← branchOffAt next changePos;
          pure ⟨snap, Task.pure (Except.ok newNext)⟩
@@ -123,13 +124,13 @@ partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (con
       -- do not show up in `snapshots` of EditableDocument below.
       | TaskError.aborted => throw (userError "reached case that should not be possible during server file worker task branching")
       | TaskError.eof => do
-        newNext ← run h uri version contents snap;
-        pure newNext
+        new ← run h uri version contents snap;
+        pure new
       | TaskError.ioError ioError => throw ioError
   else do
-    newNext ← run h uri version contents snap;
+    new ← run h uri version contents snap;
     -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled by the GC
-    pure newNext
+    pure new
 
 end ElabTask
 
@@ -234,6 +235,7 @@ else match changes.get? 0 with
       | TextDocumentContentChangeEvent.fullChange (newText : String) =>
         ⟨newText.toFileMap, 0⟩;
   let (newDocText, minStartOff) := changes.foldr accumulateChanges (oldDoc.text, firstStartOff);
+  IO.eprintln newDocText.source;
   st ← read;
   newDoc ← monadLift $
     updateDocument st.hOut docId.uri oldDoc minStartOff newVersion newDocText;
@@ -312,6 +314,8 @@ def initAndRunWorker (i o : FS.Stream) : IO Unit := do
 -- TODO(WN): act in accordance with InitializeParams
 _ ← Lsp.readLspRequestAs i "initialize" InitializeParams;
 param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams;
+h ← FS.Handle.mk "fwlog.txt" FS.Mode.write false;
+_ ← IO.setStderr (FS.Stream.ofHandle h);
 doc ← openDocument o param;
 docRef ← IO.mkRef doc;
 pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);

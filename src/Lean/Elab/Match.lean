@@ -499,11 +499,12 @@ pure (s.vars, alt)
 /- Return the pattern variables in the given pattern.
   Remark: this method is not used here, but in other macros (e.g., at `Do.lean`). -/
 def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
+patternStx ← liftMacroM $ expandMacros patternStx;
 (_, s) ← (CollectPatternVars.collect patternStx).run {};
 pure s.vars
 
 def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := do
-(_, s) ← (patterns.mapM fun pattern => CollectPatternVars.collect pattern).run {};
+(_, s) ← (patterns.mapM fun pattern => do { pattern ← liftMacroM $ expandMacros pattern; CollectPatternVars.collect pattern }).run {};
 pure s.vars
 
 /- We convert the collected `PatternVar`s intro `PatternVarDecl` -/

@@ -143,3 +143,14 @@ rfl
 
 theorem ex10 (x y : Nat) : f4 (x+1) y = ((x+1)+y, y) :=
 rfl
+
+def f5 (x y : Nat) : Nat × Nat := do
+match x with
+| 0   => y := y + 1
+| z+1 => dbgTrace! "z: " ++ toString z; x := x + y
+return (x, y)
+
+#eval f5 5 6
+
+theorem ex11 (x y : Nat) : f5 (x+1) y = ((x+1)+y, y) :=
+rfl

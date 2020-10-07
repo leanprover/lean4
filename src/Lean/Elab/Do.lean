@@ -80,28 +80,41 @@ structure Alt (σ : Type) :=
   We say the following constructors are terminals:
   - `break`:    for interrupting a `for x in s`
   - `continue`: for interrupting the current iteration of a `for x in s`
-  - `return`:   returning the result of the computation.
+  - `return e`: for returning `e` as the result for the whole `do` computation block
+  - `action a`: for executing action `a` and returning its result
   - `ite`:      if-then-else
   - `match`:    pattern matching
   - `jmp`       a goto to a join-point
 
-  We say the terminals `break`, `continue` and `return` are "exit points"
+  We say the terminals `break`, `continue`, `action`, and `return` are "exit points"
 
-  The terminal `return` also contains the name of the variable containing the result of the computation.
-  We ignore this value when inside a `for x in s`.
+  Note that, `return e` is not equivalent to `action (pure e)`. Here is an example:
+  ```
+  def f (x : Nat) : IO Unit := do
+  if x == 0 then
+     return ()
+  IO.println "hello"
+  ```
+  Executing `#eval f 0` will not print "hello". Now, consider
+  ```
+  def g (x : Nat) : IO Unit := do
+  if x == 0 then
+     pure ()
+  IO.println "hello"
+  ```
+  The `if` statement is essentially a noop, and "hello" is printed when we execute `g 0`.
 
-  - `decl` represents all declaration-like `doElem`s (e.g., `let`, `have`, `let rec`). The field `stx` is the actual `doElem`,
-     `vars` is the array of variables declared by it, and `cont` is the next instruction in the `do` code block.
-     `vars` is an array since we have declarations such as `let (a, b) := s`.
+  - `decl` represents all declaration-like `doElem`s (e.g., `let`, `have`, `let rec`).
+    The field `stx` is the actual `doElem`,
+    `vars` is the array of variables declared by it, and `cont` is the next instruction in the `do` code block.
+    `vars` is an array since we have declarations such as `let (a, b) := s`.
 
   - `reassign` is an reassignment-like `doElem` (e.g., `x := x + 1`).
 
   - `joinpoint` is a join point declaration: an auxiliary `let`-declaration used to represent the control-flow.
 
-  - `action` is an action-like `doElem` (e.g., `IO.println "hello"`, `dbgTrace! "foo"`).
-
-  - `returnAction act` is an abbreviation for `let x ← act; return x`.
-    It is used to minimize the number of `bind`s and `pure`s in the expanded term.
+  - `seq a k` executes action `a`, ignores its result, and then executes `k`.
+    We also store the do-elements `dbgTrace!` and `assert!` as actions in a `seq`.
 
   A code block `C` is well-formed if
   - For every `jmp ref j as` in `C`, there is a `joinpoint j ps b k` and `jmp ref j as` is in `k`, and
@@ -111,7 +124,7 @@ inductive Code
 | reassign     (xs : Array Name) (stx : Syntax) (cont : Code)
 /- The Boolean value in `params` indicates whether we should use `(x : typeof! x)` when generating term Syntax or not -/
 | joinpoint    (name : Name) (params : Array (Name × Bool)) (body : Code) (cont : Code)
-| action       (stx : Syntax) (cont : Code) -- TODO: rename to `seq`?
+| seq          (stx : Syntax) (cont : Code)
 | returnAction (stx : Syntax)  -- TODO: rename to `result`?
 | «break»      (ref : Syntax)
 | «continue»   (ref : Syntax)
@@ -141,7 +154,7 @@ partial def toMessageDataAux (updateVars : MessageData) : Code → MessageData
 | Code.joinpoint n ps body k  =>
   "let " ++ n.simpMacroScopes ++ " " ++ varsToMessageData (ps.map Prod.fst) ++ " := " ++ indentD (toMessageDataAux body)
   ++ Format.line ++ toMessageDataAux k
-| Code.action e k           => e ++ Format.line ++ toMessageDataAux k
+| Code.seq e k              => e ++ Format.line ++ toMessageDataAux k
 | Code.returnAction e       => e
 | Code.ite _ _ _ c t e      => "if " ++ c ++ " then " ++ indentD (toMessageDataAux t) ++ Format.line ++ "else " ++ indentD (toMessageDataAux e)
 | Code.jmp _ j xs           => "jmp " ++ j.simpMacroScopes ++ " " ++ toString xs.toList
@@ -166,7 +179,7 @@ partial def hasExitPoint : Code → Bool
 | Code.decl _ _ k         => hasExitPoint k
 | Code.reassign _ _ k     => hasExitPoint k
 | Code.joinpoint _ _ b k  => hasExitPoint b || hasExitPoint k
-| Code.action _ k         => hasExitPoint k
+| Code.seq _ k            => hasExitPoint k
 | Code.ite _ _ _ _ t e    => hasExitPoint t || hasExitPoint e
 | Code.jmp _ _ _          => false
 | Code.returnAction _     => true
@@ -179,7 +192,7 @@ partial def hasContinueBreak : Code → Bool
 | Code.decl _ _ k         => hasContinueBreak k
 | Code.reassign _ _ k     => hasContinueBreak k
 | Code.joinpoint _ _ b k  => hasContinueBreak b || hasContinueBreak k
-| Code.action _ k         => hasContinueBreak k
+| Code.seq _ k            => hasContinueBreak k
 | Code.ite _ _ _ _ t e    => hasContinueBreak t || hasContinueBreak e
 | Code.jmp _ _ _          => false
 | Code.returnAction _     => false
@@ -199,7 +212,7 @@ partial def convertReturnIntoJmpAux (jp : Name) (xs : Array Name) : Code → Mac
 | Code.decl xs stx k         => Code.decl xs stx <$> convertReturnIntoJmpAux k
 | Code.reassign xs stx k     => Code.reassign xs stx <$> convertReturnIntoJmpAux k
 | Code.joinpoint n ps b k    => Code.joinpoint n ps <$> convertReturnIntoJmpAux b <*> convertReturnIntoJmpAux k
-| Code.action e k            => Code.action e <$> convertReturnIntoJmpAux k
+| Code.seq e k               => Code.seq e <$> convertReturnIntoJmpAux k
 | Code.ite ref x? h c t e    => Code.ite ref x? h c <$> convertReturnIntoJmpAux t <*> convertReturnIntoJmpAux e
 | Code.«match» ref ds t alts => Code.«match» ref ds t <$> alts.mapM fun alt => do rhs ← convertReturnIntoJmpAux alt.rhs; pure { alt with rhs := rhs }
 | Code.returnAction e        => do c ← expandReturnAction e; convertReturnIntoJmpAux c
@@ -263,7 +276,7 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
 | rs, Code.decl xs stx k         => Code.decl xs stx <$> pullExitPointsAux (eraseVars rs xs) k
 | rs, Code.reassign xs stx k     => Code.reassign xs stx <$> pullExitPointsAux (insertVars rs xs) k
 | rs, Code.joinpoint j ps b k    => Code.joinpoint j ps <$> pullExitPointsAux rs b <*> pullExitPointsAux rs k
-| rs, Code.action e k            => Code.action e <$> pullExitPointsAux rs k
+| rs, Code.seq e k               => Code.seq e <$> pullExitPointsAux rs k
 | rs, Code.ite ref x? o c t e    => Code.ite ref x? o c <$> pullExitPointsAux (eraseOptVar rs x?) t <*> pullExitPointsAux (eraseOptVar rs x?) e
 | rs, Code.«match» ref ds t alts => Code.«match» ref ds t <$> alts.mapM fun alt => do
   rhs ← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs; pure { alt with rhs := rhs }
@@ -339,7 +352,7 @@ else
 
 partial def extendUpdatedVarsAux (ws : NameSet) : Code → TermElabM Code
 | Code.joinpoint j ps b k        => Code.joinpoint j ps <$> extendUpdatedVarsAux b <*> extendUpdatedVarsAux k
-| Code.action e k                => Code.action e <$> extendUpdatedVarsAux k
+| Code.seq e k                   => Code.seq e <$> extendUpdatedVarsAux k
 | c@(Code.«match» ref ds t alts) =>
   if alts.any fun alt => alt.vars.any fun x => ws.contains x then
     -- If a pattern variable is shadowing a variable in ws, we `pullExitPoints`
@@ -414,8 +427,8 @@ let ws := insertVars us xs;
 code ← if xs.any fun x => !us.contains x then extendUpdatedVarsAux ws c.code else pure c.code;
 pure { code := Code.reassign xs stx code, uvars := ws }
 
-def mkAction (action : Syntax) (c : CodeBlock) : CodeBlock :=
-{ c with code := Code.action action c.code }
+def mkSeq (action : Syntax) (c : CodeBlock) : CodeBlock :=
+{ c with code := Code.seq action c.code }
 
 def mkReturnAction (action : Syntax) : CodeBlock :=
 { code := Code.returnAction action }
@@ -684,7 +697,7 @@ def breakToTerm (ref : Syntax) : M Syntax := do
 r ← breakToTermCore ref;
 pure $ r.copyInfo ref
 
-def actionToTermCore (action : Syntax) (k : Syntax) : MacroM Syntax := withFreshMacroScope do
+def seqToTermCore (action : Syntax) (k : Syntax) : MacroM Syntax := withFreshMacroScope do
 if action.getKind == `Lean.Parser.Term.doDbgTrace then
   let msg := action.getArg 1;
   `(dbgTrace! $msg; $k)
@@ -694,8 +707,8 @@ else if action.getKind == `Lean.Parser.Term.doAssert then
 else do
   `(HasBind.bind $action (fun _ => $k))
 
-def actionToTerm (action : Syntax) (k : Syntax) : MacroM Syntax := do
-r ← actionToTermCore action k;
+def seqToTerm (action : Syntax) (k : Syntax) : MacroM Syntax := do
+r ← seqToTermCore action k;
 pure $ r.copyInfo action
 
 def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
@@ -819,7 +832,7 @@ partial def toTerm : Code → M Syntax
 | Code.jmp ref j args     => pure $ mkJmp ref j args
 | Code.decl _ stx k       => do k ← toTerm k; declToTerm stx k
 | Code.reassign _ stx k   => do k ← toTerm k; liftM $ reassignToTerm stx k
-| Code.action stx k       => do k ← toTerm k; liftM $ actionToTerm stx k
+| Code.seq stx k          => do k ← toTerm k; liftM $ seqToTerm stx k
 | Code.ite ref _ o c t e  => do t ← toTerm t; e ← toTerm e; pure $ mkIte ref o c t e
 | Code.returnAction e     => do
   ctx ← read;
@@ -1030,15 +1043,15 @@ partial def doSeqToCode : List Syntax → M CodeBlock
         let arg := argOpt.getArg 0;
         pure $ mkReturn ref arg
     else if k == `Lean.Parser.Term.doDbgTrace then
-      mkAction doElem <$> doSeqToCode doElems
+      mkSeq doElem <$> doSeqToCode doElems
     else if k == `Lean.Parser.Term.doAssert then
-      mkAction doElem <$> doSeqToCode doElems
+      mkSeq doElem <$> doSeqToCode doElems
     else if k == `Lean.Parser.Term.doExpr then
       let term := doElem.getArg 0;
       if doElems.isEmpty then
         pure $ mkReturnAction term
       else
-        mkAction term <$> doSeqToCode doElems
+        mkSeq term <$> doSeqToCode doElems
     else
       throwError ("unexpected do-element" ++ Format.line ++ toString doElem)
 

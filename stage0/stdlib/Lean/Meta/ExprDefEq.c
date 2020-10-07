@@ -85,7 +85,6 @@ lean_object* l_Lean_mkMVar(lean_object*);
 uint8_t lean_metavar_ctx_is_delayed_assigned(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___private_Lean_Meta_ExprDefEq_21__isDeltaCandidate_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Format_flatten___main___closed__1;
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_toCtorIfLit___closed__7;
 lean_object* l___private_Lean_Meta_ExprDefEq_27__unfold(lean_object*);
@@ -214,7 +213,6 @@ lean_object* l_Lean_Meta_CheckAssignment_assignToConstFun___lambda__1(lean_objec
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_MonadCacheT_MonadLift___closed__1;
-extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__4;
 lean_object* l___private_Lean_Meta_Basic_2__mkFreshExprMVarAtCore(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_31__unfoldDefEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -270,6 +268,7 @@ lean_object* l_Lean_MetavarContext_assignExpr(lean_object*, lean_object*, lean_o
 lean_object* l___private_Lean_Meta_LevelDefEq_14__restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_26__tryHeuristic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_23__isDefEqLeft___closed__1;
+extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_ExprDefEq_1__isDefEqEta___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_47__regTraceClasses(lean_object*);
 lean_object* l_Lean_addMessageContextTrans___rarg(lean_object*, lean_object*, lean_object*);
@@ -317,6 +316,7 @@ uint8_t l_Lean_Expr_isLambda(lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_CheckAssignment_check___main___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_9__findCached_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1;
 lean_object* l___private_Lean_Meta_ExprDefEq_15__processAssignmentFOApprox___main___closed__1;
 lean_object* l___private_Lean_Meta_ExprDefEq_19__processAssignmentAux___main___closed__3;
 lean_object* l___private_Lean_Meta_ExprDefEq_37__isSynthetic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6062,7 +6062,7 @@ lean_object* _init_l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__4;
+x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -9697,7 +9697,7 @@ lean_object* _init_l___private_Lean_Meta_ExprDefEq_12__addAssignmentInfo___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Format_flatten___main___closed__1;
+x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

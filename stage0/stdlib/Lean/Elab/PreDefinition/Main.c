@@ -97,6 +97,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__2;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
+extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__8;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__28___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___main___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__16(lean_object*, lean_object*);
 size_t l_Lean_Name_hash(lean_object*);
@@ -116,7 +117,6 @@ uint8_t l_Std_AssocList_contains___main___at___private_Lean_Elab_PreDefinition_M
 lean_object* l___private_Lean_Util_SCC_2__push___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracer_trace___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_structuralRecursion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 lean_object* l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__5;
 lean_object* l___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___boxed(lean_object*);
@@ -4191,7 +4191,7 @@ lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spe
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
+x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__8;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

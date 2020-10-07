@@ -800,7 +800,6 @@ lean_object* l_Lean_Delaborator_delabIff___lambda__1___closed__3;
 lean_object* l_Lean_Delaborator_delabMVar___closed__2;
 lean_object* l_Lean_Level_quote___main___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Delaborator_delabFor___main___spec__1(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_mkAntiquot___closed__14;
 extern lean_object* l_Lean_setOptionFromString___closed__1;
 lean_object* l_Lean_getPPUniverses___closed__2;
 extern lean_object* l_Lean_Meta_evalNat___main___closed__9;
@@ -855,6 +854,7 @@ lean_object* l___regBuiltin_Lean_Delaborator_delabDiv___closed__3;
 lean_object* l_Lean_Delaborator_delabOrElse___lambda__1___closed__2;
 lean_object* l_Lean_Delaborator_getExprKind___closed__2;
 lean_object* l___regBuiltin_Lean_Delaborator_delabOr___closed__3;
+extern lean_object* l_Lean_Parser_mkAntiquot___closed__19;
 lean_object* l_Lean_Delaborator_delabConst___closed__1;
 lean_object* l_Lean_getPPStructureInstanceType___closed__2;
 lean_object* l_Lean_Delaborator_delabGE___lambda__1___closed__3;
@@ -20421,7 +20421,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l_Lean_Parser_mkAntiquot___closed__14;
+x_2 = l_Lean_Parser_mkAntiquot___closed__19;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

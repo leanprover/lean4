@@ -636,11 +636,11 @@ lean_object* l_Lean_Meta_setInlineAttribute___at_Lean_Meta_Match_mkMatcher___spe
 extern lean_object* l___private_Lean_Meta_Basic_9__isClassQuick_x3f___main___closed__1;
 lean_object* l_Lean_Meta_Match_Extension_extension___elambda__1(lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_toExpr(lean_object*);
-extern lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Meta_Match_mkMatcher___lambda__3___closed__2;
 lean_object* l_Lean_Meta_Match_Extension_mkExtension(lean_object*);
 extern lean_object* l_Lean_Meta_evalNat___main___closed__17;
 lean_object* l___private_Lean_Meta_Match_Match_26__hasRecursiveType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Format_paren___closed__4;
 lean_object* l_Std_HashMapImp_expand___at_Lean_Meta_Match_Extension_State_addEntry___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_extension___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_getMatcherInfo_x3f___boxed(lean_object*, lean_object*);
@@ -957,7 +957,7 @@ lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___main___closed__4() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Format_paren___closed__3;
+x_1 = l_Lean_Format_paren___closed__4;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -967,7 +967,7 @@ lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___main___closed__5() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Format_paren___closed__2;
+x_1 = l_Lean_Format_paren___closed__3;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

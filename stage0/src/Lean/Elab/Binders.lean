@@ -536,7 +536,11 @@ else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then do
   let type    := expandOptType stx optType;
   let val     := letDecl.getArg 4;
   stxNew ← `(let x : $type := $val; match x with | $pat => $body);
-  let stxNew  := if useLetExpr then stxNew else stxNew.updateKind `Lean.Parser.Term.«let!»;
+  let stxNew  := match useLetExpr, elabBodyFirst with
+    | true,  false => stxNew
+    | true,  true  => stxNew.updateKind `Lean.Parser.Term.«let*»
+    | false, true  => stxNew.updateKind `Lean.Parser.Term.«let!»
+    | false, false => unreachable!;
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then do
   letDeclIdNew ← liftMacroM $ expandLetEqnsDecl letDecl;
@@ -551,6 +555,9 @@ fun stx expectedType? => elabLetDeclCore stx expectedType? true false
 
 @[builtinTermElab «let!»] def elabLetBangDecl : TermElab :=
 fun stx expectedType? => elabLetDeclCore stx expectedType? false false
+
+@[builtinTermElab «let*»] def elabLetStarDecl : TermElab :=
+fun stx expectedType? => elabLetDeclCore stx expectedType? true true
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.let;

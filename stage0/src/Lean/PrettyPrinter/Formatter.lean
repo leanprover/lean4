@@ -110,8 +110,9 @@ modify fun st => { st with stack := stack }
 def push (f : Format) : FormatterM Unit :=
 modify fun st => { st with stack := st.stack.push f }
 
-def pushLine : FormatterM Unit :=
-push Format.line
+def pushLine : FormatterM Unit := do
+push Format.line;
+modify fun st => { st with leadWord := "" }
 
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
@@ -135,12 +136,14 @@ fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)
 
-def indentTop (indent : Option Nat := none) : FormatterM Unit := do
+def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
+concat x;
 ctx ← read;
 let indent := indent.getD $ Format.getIndent ctx.options;
 modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.stack.back) }
 
-def groupTop : FormatterM Unit :=
+def group (x : Formatter) : Formatter := do
+concat x;
 modify fun st => { st with stack := st.stack.pop.push (Format.group st.stack.back) }
 
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
@@ -169,7 +172,7 @@ def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
 orelse.formatter antiP p
 
 @[combinatorFormatter Lean.Parser.categoryParser]
-def categoryParser.formatter (cat : Name) : Formatter := do
+def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
 stx ← getCur;
 if stx.getKind == `choice then
   visitArgs do {
@@ -183,9 +186,7 @@ if stx.getKind == `choice then
     setStack $ stack.extract 0 (sp+1)
   }
 else
-  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind);
-indentTop;
-groupTop
+  withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
 
 @[combinatorFormatter Lean.Parser.categoryParserOfStack]
 def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
@@ -235,7 +236,7 @@ env ← getEnv;
 pure $ Parser.tokenFn { input := s, fileName := "", fileMap := FileMap.ofString "", prec := 0, env := env, tokens := ctx.table } (Parser.mkParserState s)
 
 def pushTokenCore (tk : String) : FormatterM Unit :=
-if tk.trimRight == tk then
+if tk.toSubstring.dropRightWhile (fun s => s == ' ') == tk.toSubstring then
   push tk
 else do
   pushLine;
@@ -249,22 +250,27 @@ if st.leadWord != "" && tk.trimRight == tk then do
   t2 ← parseToken $ tk.trimLeft ++ st.leadWord;
   if t1.pos == t2.pos then do
     -- same result => use `tk` as is, extend `leadWord` if not prefixed by whitespace
-    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" };
-    pushTokenCore tk
+    pushTokenCore tk;
+    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
   else do
     -- different result => add space
-    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
-    pushTokenCore $ tk ++ " "
+    pushTokenCore $ tk ++ " ";
+    modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 else do {
   -- already separated => use `tk` as is
-  modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" };
-  pushTokenCore tk
+  pushTokenCore tk;
+  modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 }
 
 @[combinatorFormatter symbol]
 def symbol.formatter (sym : String) : Formatter := do
-pushToken sym;
-goLeft
+stx ← getCur;
+if stx.isToken sym then do
+  pushToken sym;
+  goLeft
+else do
+  trace! `PrettyPrinter.format.backtrack ("unexpected syntax '" ++ stx ++ "', expected symbol '" ++ sym ++ "'");
+  throwBacktrack
 
 @[combinatorFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
 @[combinatorFormatter nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
@@ -376,8 +382,9 @@ def toggleInsideQuot.formatter (p : Formatter) : Formatter :=
 p
 
 @[combinatorFormatter checkWsBefore] def checkWsBefore.formatter : Formatter := do
-modify fun st => { st with leadWord := "" };
-pushLine
+st ← get;
+when (st.leadWord != "") $
+  pushLine
 
 @[combinatorFormatter checkPrec] def checkPrec.formatter : Formatter := pure ()
 @[combinatorFormatter checkStackTop] def checkStackTop.formatter : Formatter := pure ()
@@ -396,7 +403,10 @@ pushLine
 @[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := push " "
 @[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
 @[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
-@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := p *> indentTop *> groupTop
+@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := group $ indent p
+@[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
+opts ← getOptions;
+indent p (some (-(Format.getIndent opts)))
 
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 

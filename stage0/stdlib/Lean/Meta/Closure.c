@@ -95,7 +95,6 @@ lean_object* l_Lean_Meta_Closure_process(lean_object*);
 lean_object* l_Lean_Meta_getZetaFVarIds___at_Lean_Meta_Closure_process___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Meta_Closure_visitExpr___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__4;
 extern lean_object* l_Lean_formatEntry___closed__2;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
@@ -122,6 +121,7 @@ lean_object* l_Lean_Meta_mkAuxDefinitionFor___rarg___lambda__1(lean_object*, lea
 lean_object* l_Lean_Meta_mkAuxDefinition___at_Lean_Meta_mkAuxDefinitionFor___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalDecl_Inhabited;
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_Closure_process___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 lean_object* l_Lean_Meta_Closure_collectExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_Meta_Closure_visitExpr___spec__5(lean_object*, lean_object*);
 lean_object* l_Nat_foldRevAux___main___at_Lean_Meta_Closure_mkLambda___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10766,7 +10766,7 @@ lean_object* _init_l___private_Lean_Meta_Closure_1__mkAuxDefinitionImp___lambda_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__4;
+x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

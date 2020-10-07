@@ -46,7 +46,6 @@ lean_object* l___private_Lean_Elab_Print_1__throwUnknownId___boxed(lean_object*,
 lean_object* l___regBuiltin_Lean_Elab_Command_elabPrint(lean_object*);
 lean_object* l___private_Lean_Elab_Print_10__printAxiomsOf___closed__7;
 lean_object* l___private_Lean_Elab_Print_8__printIdCore___closed__4;
-extern lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Lean_Meta_assumption___closed__1;
@@ -74,6 +73,7 @@ lean_object* l_Lean_Elab_Command_elabPrint(lean_object*, lean_object*, lean_obje
 lean_object* l___private_Lean_Elab_Print_3__mkHeader___closed__8;
 lean_object* l_Lean_Elab_Command_elabPrint___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__5;
+extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__8;
 lean_object* l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__2;
 lean_object* l___private_Lean_Elab_Print_9__printId___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
@@ -82,7 +82,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__1;
 extern lean_object* l_Lean_protectedExt;
 lean_object* l___private_Lean_Elab_Print_2__lparamsToMessageData___boxed(lean_object*);
-extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
 lean_object* l___private_Lean_Elab_Print_3__mkHeader___closed__9;
 lean_object* l_List_foldlM___main___at___private_Lean_Elab_Print_7__printInduct___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_10__printAxiomsOf___closed__5;
@@ -144,6 +143,7 @@ lean_object* l___private_Lean_Elab_Print_6__printQuot___rarg(lean_object*, lean_
 lean_object* l_List_foldl___main___at___private_Lean_Elab_Print_2__lparamsToMessageData___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_log___at_Lean_Elab_Command_withLogging___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_7__printInduct___closed__3;
+extern lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__4;
 lean_object* l___private_Lean_Elab_Print_10__printAxiomsOf___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
@@ -238,7 +238,7 @@ lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
+x_1 = l_Lean_Elab_Modifiers_hasFormat___closed__4;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -791,7 +791,7 @@ lean_object* _init_l___private_Lean_Elab_Print_4__printDefLike___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
+x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__8;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

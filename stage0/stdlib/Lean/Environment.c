@@ -239,6 +239,7 @@ lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_Environment_find_x3f___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Environment_find_x3f___spec__2(lean_object*, lean_object*);
+extern lean_object* l_stdNext___closed__1;
 lean_object* l_IO_fileExists___at_Lean_importModulesAux___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HasToString(lean_object*);
@@ -5379,20 +5380,18 @@ return x_2;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_List_lengthAux___main___rarg(x_2, x_3);
 x_5 = l_Nat_repr(x_4);
 x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
-x_7 = 0;
-x_8 = l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
-x_9 = lean_alloc_ctor(4, 2, 1);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_6);
-lean_ctor_set_uint8(x_9, sizeof(void*)*2, x_7);
-return x_9;
+x_7 = l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
+x_8 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_6);
+return x_8;
 }
 }
 lean_object* _init_l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1() {
@@ -9999,7 +9998,7 @@ x_24 = l_Lean_Format_isNil(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_25 = lean_unsigned_to_nat(2u);
+x_25 = l_stdNext___closed__1;
 x_26 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_23);

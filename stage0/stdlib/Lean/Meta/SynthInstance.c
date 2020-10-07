@@ -64,7 +64,6 @@ lean_object* l_Lean_Meta_SynthInstance_getResult(lean_object*, lean_object*, lea
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_maxStepsOption___closed__5;
-extern lean_object* l_Lean_Format_flatten___main___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
@@ -265,6 +264,7 @@ lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getNextToResume___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_resume___closed__7;
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__1;
@@ -2611,7 +2611,7 @@ lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Format_flatten___main___closed__1;
+x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

@@ -8,18 +8,41 @@ universes u v
 
 namespace Lean
 
+namespace Format
+inductive FlattenBehavior
+| allOrNone
+| fill
+
+namespace FlattenBehavior
+instance hasBeq : HasBeq FlattenBehavior :=
+⟨fun b₁ b₂ => match b₁, b₂ with
+  | allOrNone, allOrNone => true
+  | fill,      fill      => true
+  | _,         _         => false⟩
+end FlattenBehavior
+end Format
+
+open Format
+
 inductive Format
-| nil                        : Format
-| line                       : Format
-| text                       : String → Format
-| nest (indent : Nat)        : Format → Format
-| compose (flattened : Bool) : Format → Format → Format
-| choice                     : Format → Format → Format
+| nil                 : Format
+| line                : Format
+| text                : String → Format
+| nest (indent : Int) : Format → Format
+| append              : Format → Format → Format
+| group               : Format → optParam FlattenBehavior FlattenBehavior.allOrNone → Format
 
 namespace Format
+def fill (f : Format) : Format :=
+group f FlattenBehavior.fill
+
 @[export lean_format_append]
-protected def append (a b : Format) : Format :=
-compose false a b
+protected def appendEx (a b : Format) : Format :=
+append a b
+
+@[export lean_format_group]
+protected def groupEx : Format → Format :=
+group
 
 instance : HasAppend Format     := ⟨Format.append⟩
 instance : HasCoe String Format := ⟨text⟩
@@ -32,58 +55,92 @@ def isNil : Format → Bool
 | nil => true
 | _   => false
 
-def flatten : Format → Format
-| nil                     => nil
-| line                    => text " "
-| f@(text _)              => f
-| nest _ f                => flatten f
-| choice f _              => flatten f
-| f@(compose true _ _)    => f
-| f@(compose false f₁ f₂) => compose true (flatten f₁) (flatten f₂)
-
-@[export lean_format_group]
-def group : Format → Format
-| nil                  => nil
-| f@(text _)           => f
-| f@(compose true _ _) => f
-| f                    => choice (flatten f) f
-
 structure SpaceResult :=
-(found    := false)
-(exceeded := false)
-(space    := 0)
+(foundLine := false)
+(space     := 0)
 
-@[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Thunk SpaceResult) : SpaceResult :=
-if r₁.exceeded || r₁.found then r₁
+instance SpaceResult.inhabited : Inhabited SpaceResult :=
+⟨{}⟩
+
+@[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Nat → SpaceResult) : SpaceResult :=
+if r₁.space > w || r₁.foundLine then r₁
 else
-  let y := r₂.get;
-  if y.exceeded || y.found then y
-  else
-    let newSpace := r₁.space + y.space;
-    { space := newSpace, exceeded := newSpace > w }
+  let r₂ := r₂ (w - r₁.space);
+  { r₂ with space := r₁.space + r₂.space }
 
-def spaceUptoLine : Format → Nat → SpaceResult
-| nil,             w => {}
-| line,            w => { found := true }
-| text s,          w => { space := s.length, exceeded := s.length > w }
-| compose _ f₁ f₂, w => merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
-| nest _ f,        w => spaceUptoLine f w
-| choice f₁ f₂,    w => spaceUptoLine f₂ w
+def spaceUptoLine : Format → Bool → Nat → SpaceResult
+| nil,          flatten, w => {}
+| line,         flatten, w => if flatten then { space := 1 } else { foundLine := true }
+| text s,       flatten, w =>
+  let p := s.posOf '\n';
+  let off := s.offsetOfPos p;
+  { foundLine := p != s.bsize, space := off }
+| append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
+| nest _ f,     flatten, w => spaceUptoLine f flatten w
+| group f _,    _,       w => spaceUptoLine f true w
 
-def spaceUptoLine' : List (Nat × Format) → Nat → SpaceResult
-| [],    w => {}
-| p::ps, w => merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
+structure WorkItem :=
+(f : Format)
+(indent : Int)
 
-partial def be : Nat → Nat → String → List (Nat × Format) → String
-| w, k, out, []                        => out
-| w, k, out, (i, nil)::z               => be w k out z
-| w, k, out, (i, (compose _ f₁ f₂))::z => be w k out ((i, f₁)::(i, f₂)::z)
-| w, k, out, (i, (nest n f))::z        => be w k out ((i+n, f)::z)
-| w, k, out, (i, text s)::z            => be w (k + s.length) (out ++ s) z
-| w, k, out, (i, line)::z              => be w i ((out ++ "\n").pushn ' ' i) z
-| w, k, out, (i, choice f₁ f₂)::z      =>
-  let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w);
-  if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
+structure WorkGroup :=
+(flatten : Bool)
+(flb     : FlattenBehavior)
+(items   : List WorkItem)
+
+partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
+| [],                           w => {}
+|   { items := [],    .. }::gs, w => spaceUptoLine' gs w
+| g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
+
+private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) : List WorkGroup :=
+-- Flatten group if it fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
+let g : WorkGroup := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items };
+let r := spaceUptoLine' (g::gs) w;
+{ g with flatten := r.space <= w }::gs
+
+partial def be (w : Nat) : Nat → String → List WorkGroup → String
+| k, out, []                           => out
+| k, out,   { items := [],    .. }::gs => be k out gs
+| k, out, g@{ items := i::is, .. }::gs =>
+  let gs' (is' : List WorkItem) := { g with items := is' }::gs;
+  match i.f with
+  | nil => be k out (gs' is)
+  | append f₁ f₂ => be k out (gs' ({ i with f := f₁ }::{ i with f := f₂ }::is))
+  | nest n f => be k out (gs' ({ i with f := f, indent := i.indent + n }::is))
+  | text s =>
+    let p := s.posOf '\n';
+    if p == s.bsize then be (k + s.length) (out ++ s) (gs' is)
+    else
+      let out := out ++ s.extract 0 p ++ "\n".pushn ' ' i.indent.toNat;
+      let k := i.indent.toNat;
+      let is := { i with f := s.extract (s.next p) s.bsize }::is;
+      -- after a hard line break, re-evaluate whether to flatten the remaining group
+      let gs := pushGroup g.flb is gs (w-k);
+      be k out gs
+  | line =>
+    let g' := { g with items := is };
+    let (flatten, g') := match g.flb : _ → Bool × WorkGroup with
+      | FlattenBehavior.allOrNone => (g.flatten, g')
+      | FlattenBehavior.fill =>
+        let r := spaceUptoLine' ({ g' with flatten := false }::gs) (w-k);
+        -- if preceding fill item fit in a single line, try to fit next one too
+        if g.flatten && r.space <= w-k then (true, { g' with flatten := true })
+        else
+          -- else, try to fit it in a separate line
+          let r := spaceUptoLine' ({ g' with flatten := false }::gs) w;
+          (false, { g' with flatten := r.space <= w });
+    if flatten then
+      -- flatten line = text " "
+      be (k + 1) (out ++ " ") (g'::gs)
+    else
+      be i.indent.toNat ((out ++ "\n").pushn ' ' i.indent.toNat) (g'::gs)
+  | group f flb => if g.flatten then
+      -- flatten (group f) = flatten f
+      be k out (gs' ({ i with f := f }::is))
+    else
+      let gs := pushGroup flb [{ i with f := f }] (gs' is) (w-k);
+      be k out gs
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
 group (nest l.length $ l ++ f ++ r)
@@ -111,7 +168,7 @@ registerOption `format.width { defValue := defWidth, group := "format", descr :=
 
 @[export lean_format_pretty]
 def prettyAux (f : Format) (w : Nat := defWidth) : String :=
-be w 0 "" [(0, f)]
+be w 0 "" [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0 }] }]
 
 def pretty (f : Format) (o : Options := {}) : String :=
 prettyAux f (getWidth o)
@@ -185,8 +242,9 @@ protected def Format.repr : Format → Format
 | line => "Format.line"
 | text s   => paren $ "Format.text" ++ line ++ repr s
 | nest n f   => paren $ "Format.nest" ++ line ++ repr n ++ line ++ Format.repr f
-| compose b f₁ f₂   => paren $ "Format.compose " ++ repr b ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
-| choice f₁ f₂   => paren $ "Format.choice" ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
+| append f₁ f₂ => paren $ "Format.append " ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
+| group f FlattenBehavior.allOrNone => paren $ "Format.group" ++ line ++ Format.repr f
+| group f FlattenBehavior.fill => paren $ "Format.fill" ++ line ++ Format.repr f
 
 
 instance formatHasToString : HasToString Format := ⟨Format.pretty⟩

@@ -29,8 +29,8 @@ def notFollowedByRedefinedTermToken := notFollowedBy ("if" <|> "match" <|> "let"
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
-def doIdDecl   := parser! «try» (ident >> optType >> leftArrow) >> termParser
-def doPatDecl  := parser! «try» (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
+def doIdDecl   := parser! «try» (ident >> optType >> leftArrow) >> doElemParser
+def doPatDecl  := parser! «try» (termParser >> leftArrow) >> doElemParser >> optional (" | " >> doElemParser)
 @[builtinDoElemParser] def doLetArrow      := parser! "let " >> (doIdDecl <|> doPatDecl)
 @[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDecl <|> letPatDecl)
 @[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)

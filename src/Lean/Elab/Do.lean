@@ -613,7 +613,6 @@ inductive Kind
 | regular
 | forInNestedTerm
 | forIn
-| forInMap (x : Name)
 
 def Kind.isRegular : Kind → Bool
 | Kind.regular => true
@@ -658,7 +657,6 @@ match ctx.kind with
 | Kind.forInNestedTerm => do u ← mkUVarTuple ref; `(HasPure.pure (DoResult.«return» $u))
 | Kind.regular         => do r ← mkResultUVarTuple ref val; `(HasPure.pure $r)
 | Kind.forIn           => mkForInYield ref
-| Kind.forInMap x      => mkForInMapYield ref x
 
 def returnToTerm (ref : Syntax) (val : Syntax) : M Syntax := do
 r ← returnToTermCore ref val;
@@ -670,7 +668,6 @@ match ctx.kind with
 | Kind.regular         => unreachable!
 | Kind.forInNestedTerm => do u ← mkUVarTuple ref; `(HasPure.pure (DoResult.«continue» $u))
 | Kind.forIn           => mkForInYield ref
-| Kind.forInMap x      => mkForInMapYield ref x
 
 def continueToTerm (ref : Syntax) : M Syntax := do
 r ← continueToTermCore ref;
@@ -682,7 +679,6 @@ match ctx.kind with
 | Kind.regular         => unreachable!
 | Kind.forInNestedTerm => do u ← mkUVarTuple ref; `(HasPure.pure (DoResult.«break» $u))
 | Kind.forIn           => do u ← mkUVarTuple ref; `(HasPure.pure (ForInStep.done $u))
-| Kind.forInMap x      => do u ← mkUVarTuple ref; r ← liftM $ mkTuple ref #[mkIdentFrom ref x, u]; `(HasPure.pure (ForInStep.done $r))
 
 def breakToTerm (ref : Syntax) : M Syntax := do
 r ← breakToTermCore ref;
@@ -879,22 +875,15 @@ xs.forM fun x =>
 adaptReader (fun (ctx : Context) => { ctx with insideFor := true }) x
 
 structure ToForInTermResult :=
-(isForInMap : Bool)
 (uvars      : Array Name)
 (term       : Syntax)
 
 def toForInTerm  (x : Syntax) (forCodeBlock : CodeBlock) : M ToForInTermResult := do
 ctx ← read;
 let uvars := forCodeBlock.uvars;
-if x.isIdent && uvars.contains x.getId then do
-  -- It is a forInMap
-  let uvars := nameSetToArray (uvars.erase x.getId);
-  term ← liftMacroM $ ToTerm.run forCodeBlock.code ctx.m uvars (ToTerm.Kind.forInMap x.getId);
-  pure ⟨true, uvars, term⟩
-else do
-  let uvars := nameSetToArray uvars;
-  term ← liftMacroM $ ToTerm.run forCodeBlock.code ctx.m uvars ToTerm.Kind.forIn;
-  pure ⟨false, uvars, term⟩
+let uvars := nameSetToArray uvars;
+term ← liftMacroM $ ToTerm.run forCodeBlock.code ctx.m uvars ToTerm.Kind.forIn;
+pure ⟨uvars, term⟩
 
 def ensureInsideFor : M Unit := do
 ctx ← read;
@@ -992,20 +981,15 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       let forElems  := getDoSeqElems (doElem.getArg 5);
       let newVars   := if x.isIdent then #[x.getId] else #[];
       forCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems);
-      ⟨isForInMap, uvars, forInBody⟩ ← toForInTerm x forCodeBlock;
+      ⟨uvars, forInBody⟩ ← toForInTerm x forCodeBlock;
       uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
-      if isForInMap then do
-        forInTerm ← `($(xs).forInMap $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r.2; return ensureExpectedType! "type mismatch, 'for'" r.1);
+      forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody);
+      if doElems.isEmpty then do
+        auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r; return ensureExpectedType! "type mismatch, 'for'" PUnit.unit);
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else do
-        forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        if doElems.isEmpty then do
-          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r; return ensureExpectedType! "type mismatch, 'for'" PUnit.unit);
-          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
-        else do
-          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r);
-          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+        auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r);
+        doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
     else if k == `Lean.Parser.Term.doMatch then do
       /- Recall that
          ```

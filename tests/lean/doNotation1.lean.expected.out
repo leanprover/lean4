@@ -1,5 +1,6 @@
 doNotation1.lean:4:0: error: 'y' cannot be reassigned
 doNotation1.lean:8:2: error: 'y' cannot be reassigned
+doNotation1.lean:11:0: error: 'p' cannot be reassigned
 doNotation1.lean:20:7: error: invalid reassignment, value has type
   Vector Nat (n + 1)
 but is expected to have type
@@ -9,7 +10,7 @@ doNotation1.lean:25:7: error: invalid reassignment, value has type
 but is expected to have type
   Nat
 doNotation1.lean:24:0: error: type mismatch, 'for' has type
-  List Nat
+  PUnit
 but is expected to have type
   List Bool
 doNotation1.lean:28:0: error: type mismatch, 'for' has type

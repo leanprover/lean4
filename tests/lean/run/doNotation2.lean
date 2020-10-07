@@ -62,17 +62,6 @@ return sum
 theorem ex5 : sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10 = 16 :=
 rfl
 
-def mapOdd (f : Nat → Nat) (xs : List Nat) : List Nat := do
-for x in xs do
-  if x % 2 == 1 then
-    x := f x
-  dbgTrace! ">> mapOdd x: " ++ toString x
-
-#eval mapOdd (·+10) [1, 2, 3, 4, 5, 6, 7, 9]
-
-theorem ex6 : mapOdd (·+10) [1, 2, 3, 4, 5, 6, 7, 9] = [11, 2, 13, 4, 15, 6, 17, 19] :=
-rfl
-
 -- We need `Id.run` because we still have `Monad Option`
 def find? (xs : List Nat) (p : Nat → Bool) : Option Nat := Id.run do
 let result := none

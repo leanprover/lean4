@@ -20,9 +20,9 @@ if b then
   v := Vector.cons 1 v
 Vector.cons 1 v
 
-def f5 (xs : List Nat) : List Bool := do
+def f5 (y : Nat) (xs : List Nat) : List Bool := do
 for x in xs do
-  x := true -- invalid reassigned
+  y := true -- invalid reassigned
 
 def f6 (xs : List Nat) : IO (List Nat) := do
 for x in xs do -- type error

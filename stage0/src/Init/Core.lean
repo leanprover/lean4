@@ -279,10 +279,11 @@ inductive ForInStep (α : Type u)
 | yield : α → ForInStep
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive DoResult (α : Type u)
-| «break»    : α → DoResult
-| «continue» : α → DoResult
-| «return»   : α → DoResult
+inductive DoResult (α : Type u) (β : Type v)
+| «break»    : β → DoResult
+| «continue» : β → DoResult
+| «return»   : α → β → DoResult
+| «pure»     : α → β → DoResult
 
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable

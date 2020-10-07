@@ -934,6 +934,8 @@ unit ← `(PUnit.unit);
 let unit := unit.copyInfo ref;
 pure $ mkReturn ref unit
 
+-- TODO: we must expand macros occurring in patterns before invoking getPatternVars
+
 partial def doSeqToCode : List Syntax → M CodeBlock
 | [] => do ctx ← read; mkReturnUnit ctx.ref
 | doElem::doElems => withRef doElem do

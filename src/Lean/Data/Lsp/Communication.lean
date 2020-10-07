@@ -36,7 +36,7 @@ private partial def readHeaderFields (h : FS.Stream) : IO (List (String × Strin
     | some hf =>
       let tail ← readHeaderFields h
       pure (hf :: tail)
-    | none => throw (userError $ "invalid header field: " ++ l)
+    | none => throw (userError $ "Invalid header field: " ++ l)
 
 /-- Returns the Content-Length. -/
 private def readLspHeader (h : FS.Stream) : IO Nat := do
@@ -45,7 +45,7 @@ private def readLspHeader (h : FS.Stream) : IO Nat := do
   | some length => match length.toNat? with
     | some n => pure n
     | none   => throw (userError ("Content-Length header value '" ++ length ++ "' is not a Nat"))
-  | none => throw (userError ("no Content-Length header in header fields: " ++ toString fields))
+  | none => throw (userError ("No Content-Length header in header fields: " ++ toString fields))
 
 variables {m : Type → Type} [Monad m] [MonadIO m]
 

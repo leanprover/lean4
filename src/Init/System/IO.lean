@@ -333,14 +333,14 @@ liftIO $ out.putStr $ toString s
 
 def println {α} [HasToString α] (s : α) : m Unit := print ((toString s).push '\n')
 
-@[export lean_io_println]
-private def printlnAux (s : String) : IO Unit := println s
-
 def eprint {α} [HasToString α] (s : α) : m Unit := do
 out ← getStderr;
 liftIO $ out.putStr $ toString s
 
 def eprintln {α} [HasToString α] (s : α) : m Unit := eprint ((toString s).push '\n')
+
+@[export lean_io_eprintln]
+private def eprintlnAux (s : String) : IO Unit := eprintln s
 
 def getEnv : String → m (Option String) := liftIO ∘ Prim.getEnv
 def realPath : String → m String := liftIO ∘ Prim.realPath

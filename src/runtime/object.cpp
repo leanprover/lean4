@@ -2019,15 +2019,15 @@ extern "C" object * lean_max_small_nat(object *) {
 // =======================================
 // Debugging helper functions
 
-extern "C" obj_res lean_io_println(obj_arg s, obj_arg w);
-void io_println(obj_arg s) {
-    object * r = lean_io_println(s, lean_io_mk_world());
+extern "C" obj_res lean_io_eprintln(obj_arg s, obj_arg w);
+void io_eprintln(obj_arg s) {
+    object * r = lean_io_eprintln(s, lean_io_mk_world());
     lean_assert(lean_io_result_is_ok(r));
     lean_dec(r);
 }
 
 extern "C" object * lean_dbg_trace(obj_arg s, obj_arg fn) {
-    io_println(s);
+    io_eprintln(s);
     return lean_apply_1(fn, lean_box(0));
 }
 
@@ -2039,7 +2039,7 @@ extern "C" object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 
 extern "C" object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
     if (lean_is_shared(a)) {
-        io_println(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
+        io_eprintln(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }
     return a;
 }

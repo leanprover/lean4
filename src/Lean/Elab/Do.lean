@@ -540,6 +540,21 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
 -- parser! "let " >> letDecl
 getLetDeclVars (doLet.getArg 1)
 
+def getDoHaveVar (doHave : Syntax) : Name :=
+/-
+  `parser! "have " >> Term.haveDecl`
+  where
+  ```
+  haveDecl := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
+  optIdent := optional (try (ident >> " : "))
+
+  ``` -/
+let optIdent := doHave.getArg 1;
+if optIdent.isNone then
+  `this
+else
+  optIdent.getIdAt 0
+
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
 -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
 let letRecDecls := (doLetRec.getArg 1).getArgs.getSepElems;
@@ -778,7 +793,10 @@ else if kind == `Lean.Parser.Term.doLetArrow then
   else
     liftM $ Macro.throwError decl "unexpected kind of 'do' declaration"
 else if kind == `Lean.Parser.Term.doHave then
-  liftM $ Macro.throwError decl ("WIP " ++ toString decl)
+  -- The `have` term is of the form  `"have " >> haveDecl >> optSemicolon termParser`
+  let args := decl.getArgs;
+  let args := args ++ #[mkNullNode /- optional ';' -/, k];
+  pure $ mkNode `Lean.Parser.Term.«have» args
 else
   liftM $ Macro.throwError decl "unexpected kind of 'do' declaration"
 
@@ -1123,6 +1141,9 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     if k == `Lean.Parser.Term.doLet then do
       vars ← liftM $ getDoLetVars doElem;
       mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+    else if k == `Lean.Parser.Term.doHave then
+      let var := getDoHaveVar doElem;
+      mkVarDeclCore #[var] doElem <$> withNewVars #[var] (doSeqToCode doElems)
     else if k == `Lean.Parser.Term.doLetRec then do
       vars ← liftM $ getDoLetRecVars doElem;
       mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
@@ -1134,8 +1155,6 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     else if k == `Lean.Parser.Term.doLetArrow then do
       doLetArrowToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doReassignArrow then
-      throwError "WIP"
-    else if k == `Lean.Parser.Term.doHave then
       throwError "WIP"
     else if k == `Lean.Parser.Term.doIf then
       doIfToCode doSeqToCode doElem doElems

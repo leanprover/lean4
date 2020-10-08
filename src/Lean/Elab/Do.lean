@@ -1000,11 +1000,11 @@ if decl.getKind == `Lean.Parser.Term.doIdDecl then
     checkLetArrowRHS doElem;
     match doElems with
     | [] => doSeqToCode [doElem]
-    | _  => do
+    | kRef::_  => do
       let y := decl.getIdAt 0;
       c ← doSeqToCode [doElem];
       k ← withNewVars #[y] $ doSeqToCode doElems;
-      liftM $ concat c ref y k
+      liftM $ concat c kRef y k
 else if decl.getKind == `Lean.Parser.Term.doPatDecl then
   let pattern := decl.getArg 0;
   let doElem  := decl.getArg 2;

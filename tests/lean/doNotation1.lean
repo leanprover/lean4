@@ -64,3 +64,8 @@ if xs == [] then
 else
   return false
 IO.println "hello" -- error unreachable
+
+def f14 (x : Nat) : IO Nat := do
+let y ← if x == 0 then return 100 else return 200
+IO.println ("y: " ++ toString y) -- error unreachable
+return 0

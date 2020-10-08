@@ -97,6 +97,8 @@ parser is succeeding.
 
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq
 
+@[builtinTermParser] def doElem.quot : Parser := parser! "`(doElem|" >> toggleInsideQuot doElemParser >> ")"
+
 end Term
 end Parser
 end Lean

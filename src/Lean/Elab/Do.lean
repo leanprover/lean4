@@ -274,7 +274,7 @@ match x? with
 | some x => rs.insert x
 
 /- Create a new jointpoint for `c`, and jump to it with the variables `rs` -/
-@[inline] def mkSimpleJmp (ref : Syntax) (rs : NameSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
+def mkSimpleJmp (ref : Syntax) (rs : NameSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
 let xs := nameSetToArray rs;
 jp ← addFreshJP (xs.map fun x => (x, true)) c;
 if xs.isEmpty then do

@@ -144,7 +144,7 @@ modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.sta
 
 def group (x : Formatter) : Formatter := do
 concat x;
-modify fun st => { st with stack := st.stack.pop.push (Format.group st.stack.back) }
+modify fun st => { st with stack := st.stack.pop.push (Format.fill st.stack.back) }
 
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
@@ -435,7 +435,7 @@ table ← Parser.builtinTokenTable.get;
 catchInternalId backtrackExceptionId
   (do
     (_, st) ← (formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
-    pure $ Format.group $ st.stack.get! 0)
+    pure $ Format.fill $ st.stack.get! 0)
   (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term

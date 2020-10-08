@@ -23,4 +23,4 @@ if stx' != stx then
     if stx.getArg i != stx'.getArg i then
       throw $ IO.userError s!"reparsing failed:\n{stx.getArg i}\n{stx'.getArg i}"
 
-#eval main ["../../../src/Init/Core.lean"]
+#eval main ["../../src/Init/Core.lean"]

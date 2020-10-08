@@ -3,7 +3,7 @@ open Lean
 open Lean.Format
 
 def eval (w : Nat) (f : Format) : IO Unit := do
-IO.println $ be w 0 "" [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0 }] }]
+IO.println $ f.prettyAux w
 
 -- hard line breaks should re-evaluate flattening behavior within group
 #eval eval 5 $ group (text "a" ++ line ++ text "b\nlooooooooong" ++ line ++ text "c") ++ line ++ text "d"

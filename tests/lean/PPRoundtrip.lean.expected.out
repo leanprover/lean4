@@ -53,4 +53,5 @@ Type → Type → Type
 1 < 2 || true
 id
   (fun (a : Nat) =>
-      a) 0
+      a)
+  0

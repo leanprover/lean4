@@ -129,8 +129,9 @@ partial def be (w : Nat) : Nat → String → List WorkGroup → String
         if g.flatten && r.space <= w-k then (true, { g' with flatten := true })
         else
           -- else, try to fit it in a separate line
-          let r := spaceUptoLine' ({ g' with flatten := false }::gs) w;
-          (false, { g' with flatten := r.space <= w });
+          let w' :=  w - i.indent.toNat;
+          let r := spaceUptoLine' ({ g' with flatten := false }::gs) w';
+          (false, { g' with flatten := r.space <= w' });
     if flatten then
       -- flatten line = text " "
       be (k + 1) (out ++ " ") (g'::gs)

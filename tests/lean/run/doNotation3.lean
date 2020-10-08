@@ -68,3 +68,15 @@ ret! x
 theorem ex1 : f1 0 = 100 := rfl
 theorem ex2 : f1 1 = 2 := rfl
 theorem ex3 : f1 3 = 4 := rfl
+
+syntax "inc!" ident : doElem
+
+macro_rules
+| `(doElem| inc! $x) => `(doElem| $x:ident := $x + 1)
+
+def f2 (x : Nat) : Nat := do
+inc! x
+ret! x
+
+theorem ex4 : f2 0 = 1 := rfl
+theorem ex5 : f2 3 = 4 := rfl

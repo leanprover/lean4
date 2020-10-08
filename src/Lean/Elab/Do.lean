@@ -1208,8 +1208,11 @@ partial def doSeqToCode : List Syntax → M CodeBlock
         pure $ mkTerminalAction term
       else
         mkSeq term <$> doSeqToCode doElems
-    else
-      throwError ("unexpected do-element" ++ Format.line ++ toString doElem)
+    else do
+      doElem? ← liftMacroM $ expandMacro? doElem;
+      match doElem? with
+      | some doElem => doSeqToCode (doElem::doElems)
+      | none => throwError ("unexpected do-element" ++ Format.line ++ toString doElem)
 
 def run (doStx : Syntax) (m : Syntax) : TermElabM CodeBlock :=
 (doSeqToCode $ getDoSeqElems $ getDoSeq doStx).run { ref := doStx, m := m }

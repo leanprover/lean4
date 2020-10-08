@@ -56,3 +56,15 @@ unless (← g 0 1 (← IO.mkRef (10, 20))) == (10, 20) do throw $ IO.userError "
 return ()
 
 #eval gTest
+
+macro "ret!" x:term : doElem => `(return $x)
+
+def f1 (x : Nat) : Nat := do
+if x == 0 then
+  ret! 100
+x := x + 1
+ret! x
+
+theorem ex1 : f1 0 = 100 := rfl
+theorem ex2 : f1 1 = 2 := rfl
+theorem ex3 : f1 3 = 4 := rfl

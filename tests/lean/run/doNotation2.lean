@@ -174,13 +174,23 @@ IO.println (toString x ++ ", " ++ toString y)
 return x+y
 
 def f7Test : IO Unit := do
-let ref ← IO.mkRef (some (10, 20))
-let val ← f7 ref
-unless val == 30 do
-  throw $ IO.userError "unexpected"
-let ref ← IO.mkRef (none : Option (Nat × Nat))
-let val ← f7 ref
-unless val == 100 do
-  throw $ IO.userError "unexpected"
+unless (← f7 (← IO.mkRef (some (10, 20)))) == 30 do throw $ IO.userError "unexpected"
+unless (← f7 (← IO.mkRef none)) == 100 do throw $ IO.userError "unexpected"
 
 #eval f7Test
+
+def f8 (x : Nat) : IO Nat := do
+let y ←
+  if x == 0 then
+    IO.println "x is zero"
+    return 100 --  returns from the `do`-block
+  else
+    pure (x + 1)
+IO.println ("y: " ++ toString y)
+return y
+
+def f8Test : IO Unit := do
+unless (← f8 0) == 100 do throw $ IO.userError "unexpected"
+unless (← f8 1) == 2 do throw $ IO.userError "unexpected"
+
+#eval f8Test

@@ -497,16 +497,16 @@ alts : Array (Alt Code) ← alts.mapM fun alt => do {
 };
 pure { code := Code.«match» ref discrs optType alts, uvars := ws }
 
-/- Return a code block that executes `terminal` and then `k`.
+/- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
-def concat (terminal : CodeBlock) (kRef : Syntax) (k : CodeBlock) : TermElabM CodeBlock := do
+def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Name) (k : CodeBlock) : TermElabM CodeBlock := do
 unless (hasTerminalAction terminal.code) $
   throwErrorAt kRef "'do' element is unreachable";
 (terminal, k) ← homogenize terminal k;
 let xs := nameSetToArray k.uvars;
-yFresh ← mkFreshUserName `y;
+y ← match y? with | some y => pure y | none => mkFreshUserName `y;
 let ps := xs.map fun x => (x, true);
-let ps := ps.push (yFresh, false);
+let ps := ps.push (y, false);
 jpDecl ← mkFreshJP ps k.code;
 let jp := jpDecl.name;
 terminal ← liftMacroM $ convertTerminalActionIntoJmp terminal.code jp xs;
@@ -965,7 +965,17 @@ match doElems with
 | nextDoElem :: _  => do
   k ← doSeqToCode doElems;
   let ref := nextDoElem;
-  liftM $ concat c ref k
+  liftM $ concat c ref none k
+
+def checkLetArrowRHS (doElem : Syntax) : M Unit :=
+let kind := doElem.getKind;
+when (kind == `Lean.Parser.Term.doLetArrow ||
+      kind == `Lean.Parser.Term.doLet ||
+      kind == `Lean.Parser.Term.doLetRec ||
+      kind == `Lean.Parser.Term.doHave ||
+      kind == `Lean.Parser.Term.doReassign ||
+      kind == `Lean.Parser.Term.doReassignArrow) do
+  throwErrorAt doElem "invalid kind of value in an assignment"
 
 /- Generate `CodeBlock` for `doLetArrow; doElems`
    `doLetArrow` is of the form
@@ -978,6 +988,7 @@ match doElems with
    def doPatDecl  := parser! termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
    ``` -/
 def doLetArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
+let ref  := doLetArrow;
 let decl := doLetArrow.getArg 1;
 if decl.getKind == `Lean.Parser.Term.doIdDecl then
   let doElem := decl.getArg 3;
@@ -985,8 +996,15 @@ if decl.getKind == `Lean.Parser.Term.doIdDecl then
   | some action =>
     let var := getDoIdDeclVar decl;
     mkVarDeclCore #[var] doLetArrow <$> withNewVars #[var] (doSeqToCode doElems)
-  | none =>
-    throwError ("WIP " ++ doLetArrow)
+  | none => do
+    checkLetArrowRHS doElem;
+    match doElems with
+    | [] => doSeqToCode [doElem]
+    | _  => do
+      let y := decl.getIdAt 0;
+      c ← doSeqToCode [doElem];
+      k ← withNewVars #[y] $ doSeqToCode doElems;
+      liftM $ concat c ref y k
 else if decl.getKind == `Lean.Parser.Term.doPatDecl then
   let pattern := decl.getArg 0;
   let doElem  := decl.getArg 2;

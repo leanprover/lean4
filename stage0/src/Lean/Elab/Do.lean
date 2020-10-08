@@ -540,6 +540,21 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
 -- parser! "let " >> letDecl
 getLetDeclVars (doLet.getArg 1)
 
+def getDoHaveVar (doHave : Syntax) : Name :=
+/-
+  `parser! "have " >> Term.haveDecl`
+  where
+  ```
+  haveDecl := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
+  optIdent := optional (try (ident >> " : "))
+
+  ``` -/
+let optIdent := doHave.getArg 1;
+if optIdent.isNone then
+  `this
+else
+  optIdent.getIdAt 0
+
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
 -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
 let letRecDecls := (doLetRec.getArg 1).getArgs.getSepElems;
@@ -778,7 +793,10 @@ else if kind == `Lean.Parser.Term.doLetArrow then
   else
     liftM $ Macro.throwError decl "unexpected kind of 'do' declaration"
 else if kind == `Lean.Parser.Term.doHave then
-  liftM $ Macro.throwError decl ("WIP " ++ toString decl)
+  -- The `have` term is of the form  `"have " >> haveDecl >> optSemicolon termParser`
+  let args := decl.getArgs;
+  let args := args ++ #[mkNullNode /- optional ';' -/, k];
+  pure $ mkNode `Lean.Parser.Term.«have» args
 else
   liftM $ Macro.throwError decl "unexpected kind of 'do' declaration"
 
@@ -803,9 +821,8 @@ if kind == `Lean.Parser.Term.doReassign then
     -- TODO: ensure the types did not change
     let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg];
     `(let $letDecl:letDecl; $k)
-else if kind == `Lean.Parser.Term.doReassignArrow then
-  Macro.throwError reassign ("WIP " ++ toString reassign)
 else
+  -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
   Macro.throwError reassign "unexpected kind of 'do' reassignment"
 
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := do
@@ -990,21 +1007,18 @@ when (kind == `Lean.Parser.Term.doLetArrow ||
 def doLetArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
 let ref  := doLetArrow;
 let decl := doLetArrow.getArg 1;
-if decl.getKind == `Lean.Parser.Term.doIdDecl then
+if decl.getKind == `Lean.Parser.Term.doIdDecl then do
+  let y := decl.getIdAt 0;
   let doElem := decl.getArg 3;
+  k ← withNewVars #[y] (doSeqToCode doElems);
   match isDoExpr? doElem with
-  | some action =>
-    let var := getDoIdDeclVar decl;
-    mkVarDeclCore #[var] doLetArrow <$> withNewVars #[var] (doSeqToCode doElems)
+  | some action => pure $ mkVarDeclCore #[y] doLetArrow k
   | none => do
     checkLetArrowRHS doElem;
+    c ← doSeqToCode [doElem];
     match doElems with
-    | [] => doSeqToCode [doElem]
-    | kRef::_  => do
-      let y := decl.getIdAt 0;
-      c ← doSeqToCode [doElem];
-      k ← withNewVars #[y] $ doSeqToCode doElems;
-      liftM $ concat c kRef y k
+    | []       => pure c
+    | kRef::_  => liftM $ concat c kRef y k
 else if decl.getKind == `Lean.Parser.Term.doPatDecl then
   let pattern := decl.getArg 0;
   let doElem  := decl.getArg 2;
@@ -1019,6 +1033,32 @@ else if decl.getKind == `Lean.Parser.Term.doPatDecl then
     doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
 else
   throwError "unexpected kind of 'do' declaration"
+
+
+/- Generate `CodeBlock` for `doReassignArrow; doElems`
+   `doReassignArrow` is of the form
+   ```
+   (doIdDecl <|> doPatDecl)
+   ``` -/
+def doReassignArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doReassignArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
+let ref  := doReassignArrow;
+let decl := doReassignArrow.getArg 0;
+if decl.getKind == `Lean.Parser.Term.doIdDecl then do
+  let doElem := decl.getArg 3;
+  let y      := decl.getArg 0;
+  auxDo ← `(do let r ← $doElem; $y:ident := r);
+  doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+else if decl.getKind == `Lean.Parser.Term.doPatDecl then
+  let pattern := decl.getArg 0;
+  let doElem  := decl.getArg 2;
+  let optElse := decl.getArg 3;
+  if optElse.isNone then withFreshMacroScope do
+    auxDo ← `(do let discr ← $doElem; $pattern:term := discr);
+    doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+  else
+    throwError "reassignment with `|` (i.e., \"else clause\") is not currently supported"
+else
+  throwError "unexpected kind of 'do' reassignment"
 
 /- Generate `CodeBlock` for `doIf; doElems`
    `doIf` is of the form
@@ -1123,6 +1163,9 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     if k == `Lean.Parser.Term.doLet then do
       vars ← liftM $ getDoLetVars doElem;
       mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+    else if k == `Lean.Parser.Term.doHave then
+      let var := getDoHaveVar doElem;
+      mkVarDeclCore #[var] doElem <$> withNewVars #[var] (doSeqToCode doElems)
     else if k == `Lean.Parser.Term.doLetRec then do
       vars ← liftM $ getDoLetRecVars doElem;
       mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
@@ -1134,9 +1177,7 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     else if k == `Lean.Parser.Term.doLetArrow then do
       doLetArrowToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doReassignArrow then
-      throwError "WIP"
-    else if k == `Lean.Parser.Term.doHave then
-      throwError "WIP"
+      doReassignArrowToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doIf then
       doIfToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doUnless then do
@@ -1167,8 +1208,11 @@ partial def doSeqToCode : List Syntax → M CodeBlock
         pure $ mkTerminalAction term
       else
         mkSeq term <$> doSeqToCode doElems
-    else
-      throwError ("unexpected do-element" ++ Format.line ++ toString doElem)
+    else do
+      doElem? ← liftMacroM $ expandMacro? doElem;
+      match doElem? with
+      | some doElem => doSeqToCode (doElem::doElems)
+      | none => throwError ("unexpected do-element" ++ Format.line ++ toString doElem)
 
 def run (doStx : Syntax) (m : Syntax) : TermElabM CodeBlock :=
 (doSeqToCode $ getDoSeqElems $ getDoSeq doStx).run { ref := doStx, m := m }
@@ -1191,7 +1235,6 @@ fun stx expectedType? => do
   bindInfo ← extractBind expectedType?;
   m ← mkMonadAlias bindInfo.m;
   codeBlock ← ToCodeBlock.run stx m;
-  -- trace! `Elab.do ("codeBlock: " ++ Format.line ++ codeBlock.toMessageData);
   stxNew ← liftMacroM $ ToTerm.run codeBlock.code m;
   trace! `Elab.do stxNew;
   let expectedType := mkApp bindInfo.m bindInfo.α;

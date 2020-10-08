@@ -209,8 +209,7 @@ hasExitPointPred (fun c => !isTerminalAction c) c
 def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax → m Code) : m Code := withFreshMacroScope do
 y ← `(y);
 let yName := y.getId;
-auxDo ← `(do let y ← $e:term);
-let doElem := (getDoSeqElems (getDoSeq auxDo)).head!;
+doElem ← `(doElem| let y ← $e:term);
 -- Add elaboration hint for producing sane error message
 y ← `(ensureExpectedType! "type mismatch, result value" $y);
 k ← mkCont y;
@@ -960,9 +959,8 @@ private partial def expandLiftMethodAux : Syntax → StateT (List Syntax) MacroM
   else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
     let term := args.get! 1;
     term ← expandLiftMethodAux term;
-    auxDo ← `(do let a ← $term:term);
-    let auxDoElems := getDoSeqElems (getDoSeq auxDo);
-    modify fun s => s ++ auxDoElems;
+    auxDoElem ← `(doElem| let a ← $term:term);
+    modify fun s => s ++ [auxDoElem];
     `(a)
   else do
     args ← args.mapM expandLiftMethodAux;

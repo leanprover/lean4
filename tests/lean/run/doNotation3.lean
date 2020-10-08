@@ -33,3 +33,26 @@ let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
     loop i (Nat.leOfLt h') b
 loop as.size (Nat.leRefl _) b
+
+def f (x : Nat) (ref : IO.Ref Nat) : IO Nat := do
+if x == 0 then
+  x ← ref.get
+IO.println x
+return x + 1
+
+def fTest : IO Unit := do
+unless (← f 0 (← IO.mkRef 10)) == 11 do throw $ IO.userError "unexpected"
+unless (← f 1 (← IO.mkRef 10)) == 2 do throw $ IO.userError "unexpected"
+
+def g (x y : Nat) (ref : IO.Ref (Nat × Nat)) : IO (Nat × Nat) := do
+if x == 0 then
+  (x, y) ← ref.get
+IO.println ("x: " ++ toString x ++ ", y: " ++ toString y)
+return (x, y)
+
+def gTest : IO Unit := do
+unless (← g 2 1 (← IO.mkRef (10, 20))) == (2, 1)   do throw $ IO.userError "unexpected"
+unless (← g 0 1 (← IO.mkRef (10, 20))) == (10, 20) do throw $ IO.userError "unexpected"
+return ()
+
+#eval gTest

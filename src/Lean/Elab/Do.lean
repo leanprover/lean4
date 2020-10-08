@@ -821,9 +821,8 @@ if kind == `Lean.Parser.Term.doReassign then
     -- TODO: ensure the types did not change
     let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg];
     `(let $letDecl:letDecl; $k)
-else if kind == `Lean.Parser.Term.doReassignArrow then
-  Macro.throwError reassign ("WIP " ++ toString reassign)
 else
+  -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
   Macro.throwError reassign "unexpected kind of 'do' reassignment"
 
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := do
@@ -1035,6 +1034,32 @@ else if decl.getKind == `Lean.Parser.Term.doPatDecl then
 else
   throwError "unexpected kind of 'do' declaration"
 
+
+/- Generate `CodeBlock` for `doReassignArrow; doElems`
+   `doReassignArrow` is of the form
+   ```
+   (doIdDecl <|> doPatDecl)
+   ``` -/
+def doReassignArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doReassignArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
+let ref  := doReassignArrow;
+let decl := doReassignArrow.getArg 0;
+if decl.getKind == `Lean.Parser.Term.doIdDecl then do
+  let doElem := decl.getArg 3;
+  let y      := decl.getArg 0;
+  auxDo ← `(do let r ← $doElem; $y:ident := r);
+  doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+else if decl.getKind == `Lean.Parser.Term.doPatDecl then
+  let pattern := decl.getArg 0;
+  let doElem  := decl.getArg 2;
+  let optElse := decl.getArg 3;
+  if optElse.isNone then withFreshMacroScope do
+    auxDo ← `(do let discr ← $doElem; $pattern:term := discr);
+    doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+  else
+    throwError "reassignment with `|` (i.e., \"else clause\") is not currently supported"
+else
+  throwError "unexpected kind of 'do' reassignment"
+
 /- Generate `CodeBlock` for `doIf; doElems`
    `doIf` is of the form
    ```
@@ -1152,7 +1177,7 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     else if k == `Lean.Parser.Term.doLetArrow then do
       doLetArrowToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doReassignArrow then
-      throwError "WIP"
+      doReassignArrowToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doIf then
       doIfToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doUnless then do
@@ -1207,7 +1232,6 @@ fun stx expectedType? => do
   bindInfo ← extractBind expectedType?;
   m ← mkMonadAlias bindInfo.m;
   codeBlock ← ToCodeBlock.run stx m;
-  -- trace! `Elab.do ("codeBlock: " ++ Format.line ++ codeBlock.toMessageData);
   stxNew ← liftMacroM $ ToTerm.run codeBlock.code m;
   trace! `Elab.do stxNew;
   let expectedType := mkApp bindInfo.m bindInfo.α;

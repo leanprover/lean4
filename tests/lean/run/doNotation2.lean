@@ -167,3 +167,20 @@ rfl
 
 theorem ex15 : findOdd [2, 4, 8, 10] = 0 :=
 rfl
+
+def f7 (ref : IO.Ref (Option (Nat × Nat))) : IO Nat := do
+let some (x, y) ← ref.get | pure 100
+IO.println (toString x ++ ", " ++ toString y)
+return x+y
+
+def f7Test : IO Unit := do
+let ref ← IO.mkRef (some (10, 20))
+let val ← f7 ref
+unless val == 30 do
+  throw $ IO.userError "unexpected"
+let ref ← IO.mkRef (none : Option (Nat × Nat))
+let val ← f7 ref
+unless val == 100 do
+  throw $ IO.userError "unexpected"
+
+#eval f7Test

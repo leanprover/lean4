@@ -209,7 +209,7 @@ hasExitPointPred (fun c => !isTerminalAction c) c
 def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax → m Code) : m Code := withFreshMacroScope do
 y ← `(y);
 let yName := y.getId;
-auxDo ← `(do let y ← $e);
+auxDo ← `(do let y ← $e:term);
 let doElem := (getDoSeqElems (getDoSeq auxDo)).head!;
 -- Add elaboration hint for producing sane error message
 y ← `(ensureExpectedType! "type mismatch, result value" $y);
@@ -584,8 +584,11 @@ else if arg.getKind == `Lean.Parser.Term.letPatDecl then
 else
   throwError "unexpected kind of reassignment"
 
-def toDoSeq (doElem : Syntax) : Syntax :=
-mkNode `Lean.Parser.Term.doSeqIndent #[mkNullNode #[mkNullNode #[doElem, mkNullNode]]]
+def mkDoSeq (doElems : Array Syntax) : Syntax :=
+mkNode `Lean.Parser.Term.doSeqIndent #[mkNullNode $ doElems.map fun doElem => mkNullNode #[doElem, mkNullNode]]
+
+def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
+mkDoSeq #[doElem]
 
 /-
   Recall that the `doIf` syntax is of the form
@@ -608,7 +611,7 @@ else do
       pureUnit ← mkPureUnit ref;
       pure $ mkNullNode #[
         mkAtomFrom ref "else",
-        toDoSeq (mkNode `Lean.Parser.Term.doExpr #[pureUnit])
+        mkSingletonDoSeq (mkNode `Lean.Parser.Term.doExpr #[pureUnit])
       ]
     else
       pure $ doElse;
@@ -619,7 +622,7 @@ else do
       let doIfArgs := doIfArgs.push mkNullNode;
       let doIfArgs := doIfArgs.push doElse;
       mkNullNode #[mkAtomFrom doElseIf "else",
-                   toDoSeq $ mkNode `Lean.Parser.Term.doIf doIfArgs])
+                   mkSingletonDoSeq $ mkNode `Lean.Parser.Term.doIf doIfArgs])
     doElse;
   let doIf := doIf.setArg 6 doElse;
   pure $ doIf.setArg 5 mkNullNode -- remove else-ifs
@@ -651,6 +654,13 @@ else
       tuple ← `(($elem, $tuple));
       pure $ tuple.copyInfo ref)
     (elems.back)
+
+/- Return `some action` if `doElem` is a `doExpr <action>`-/
+def isDoExpr? (doElem : Syntax) : Option Syntax :=
+if doElem.getKind == `Lean.Parser.Term.doExpr then
+  some $ doElem.getArg 0
+else
+  none
 
 -- Code block to syntax term
 namespace ToTerm
@@ -758,23 +768,13 @@ else if kind == `Lean.Parser.Term.doLetArrow then
   let arg := decl.getArg 1;
   let ref := arg;
   if arg.getKind == `Lean.Parser.Term.doIdDecl then
-    let id    := arg.getArg 0;
-    let type  := expandOptType ref (arg.getArg 1);
-    let val   := arg.getArg 3;
-    `(HasBind.bind $val (fun ($id:ident : $type) => $k))
-  else if arg.getKind == `Lean.Parser.Term.doPatDecl then do
-    -- termParser >> leftArrow >> termParser >> optional (" | " >> termParser)
-    let pat      := arg.getArg 0;
-    let discr    := arg.getArg 2;
-    let optElse  := arg.getArg 3;
-    if optElse.isNone then
-      `(HasBind.bind $discr (fun x => match x with | $pat => $k))
-    else do
-      let elseBody := optElse.getArg 1;
-      y ← `(y);
-      ret ← returnToTerm ref y;
-      elseBody ← `(HasBind.bind $elseBody (fun y => $ret));
-      `(HasBind.bind $discr (fun x => match x with | $pat => $k | _ => $elseBody))
+    let id     := arg.getArg 0;
+    let type   := expandOptType ref (arg.getArg 1);
+    let doElem := arg.getArg 3;
+    -- `doElem` must be a `doExpr action`. See `doLetArrowToCode`
+    match isDoExpr? doElem with
+    | some action => `(HasBind.bind $action (fun ($id:ident : $type) => $k))
+    | none        => liftM $ Macro.throwError decl "unexpected kind of 'do' declaration"
   else
     liftM $ Macro.throwError decl "unexpected kind of 'do' declaration"
 else if kind == `Lean.Parser.Term.doHave then
@@ -943,7 +943,7 @@ private partial def expandLiftMethodAux : Syntax → StateT (List Syntax) MacroM
   else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope $ do
     let term := args.get! 1;
     term ← expandLiftMethodAux term;
-    auxDo ← `(do let a ← $term);
+    auxDo ← `(do let a ← $term:term);
     let auxDoElems := getDoSeqElems (getDoSeq auxDo);
     modify fun s => s ++ auxDoElems;
     `(a)
@@ -958,6 +958,140 @@ else do
   (doElem, doElemsNew) ← (expandLiftMethodAux doElem).run [];
   pure (doElemsNew, doElem)
 
+/- "Concatenate" `c` with `doSeqToCode doElems` -/
+def concatWith (doSeqToCode : List Syntax → M CodeBlock) (c : CodeBlock) (doElems : List Syntax) : M CodeBlock :=
+match doElems with
+| [] => pure c
+| nextDoElem :: _  => do
+  k ← doSeqToCode doElems;
+  let ref := nextDoElem;
+  liftM $ concat c ref k
+
+/- Generate `CodeBlock` for `doLetArrow; doElems`
+   `doLetArrow` is of the form
+   ```
+   "let " >> (doIdDecl <|> doPatDecl)
+   ```
+   where
+   ```
+   def doIdDecl   := parser! ident >> optType >> leftArrow >> doElemParser
+   def doPatDecl  := parser! termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
+   ``` -/
+def doLetArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
+let decl := doLetArrow.getArg 1;
+if decl.getKind == `Lean.Parser.Term.doIdDecl then
+  let doElem := decl.getArg 3;
+  match isDoExpr? doElem with
+  | some action =>
+    let var := getDoIdDeclVar decl;
+    mkVarDeclCore #[var] doLetArrow <$> withNewVars #[var] (doSeqToCode doElems)
+  | none =>
+    throwError ("WIP " ++ doLetArrow)
+else if decl.getKind == `Lean.Parser.Term.doPatDecl then
+  let pattern := decl.getArg 0;
+  let doElem  := decl.getArg 2;
+  let optElse := decl.getArg 3;
+  if optElse.isNone then withFreshMacroScope do
+    auxDo ← `(do let discr ← $doElem; let $pattern:term := discr);
+    doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+  else do
+    let contSeq := mkDoSeq doElems.toArray;
+    let elseSeq := mkSingletonDoSeq (optElse.getArg 1);
+    auxDo ← `(do let discr ← $doElem; match discr with | $pattern:term => $contSeq | _ => $elseSeq);
+    doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
+else
+  throwError "unexpected kind of 'do' declaration"
+
+/- Generate `CodeBlock` for `doIf; doElems`
+   `doIf` is of the form
+   ```
+   "if " >> optIdent >> termParser >> " then " >> doSeq
+    >> many (group (try (group (" else " >> " if ")) >> optIdent >> termParser >> " then " >> doSeq))
+    >> optional (" else " >> doSeq)
+   ```  -/
+def doIfToCode (doSeqToCode : List Syntax → M CodeBlock) (doIf : Syntax) (doElems : List Syntax) : M CodeBlock := do
+view ← liftMacroM $ mkDoIfView doIf;
+thenBranch ← doSeqToCode (getDoSeqElems view.thenBranch);
+elseBranch ← doSeqToCode (getDoSeqElems view.elseBranch);
+ite ← liftM $ mkIte view.ref view.optIdent view.cond thenBranch elseBranch;
+concatWith doSeqToCode ite doElems
+
+/- Generate `CodeBlock` for `doUnless; doElems`
+   `doUnless` is of the form
+   ```
+   "unless " >> termParser >> "do " >> doSeq
+   ```  -/
+def doUnlessToCode (doSeqToCode : List Syntax → M CodeBlock) (doUnless : Syntax) (doElems : List Syntax) : M CodeBlock := do
+let ref   := doUnless;
+let cond  := doUnless.getArg 1;
+let doSeq := doUnless.getArg 3;
+body ← doSeqToCode (getDoSeqElems doSeq);
+unlessCode ← liftMacroM $ mkUnless ref cond body;
+concatWith doSeqToCode unlessCode doElems
+
+/- Generate `CodeBlock` for `doFor; doElems`
+   `doFor` is of the form
+   ```
+   for " >> termParser >> " in " >> termParser >> "do " >> doSeq
+   ``` -/
+def doForToCode (doSeqToCode : List Syntax → M CodeBlock) (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
+let ref       := doFor;
+let x         := doFor.getArg 1;
+let xs        := doFor.getArg 3;
+let forElems  := getDoSeqElems (doFor.getArg 5);
+let newVars   := if x.isIdent then #[x.getId] else #[];
+forInBodyCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems);
+-- trace! `Elab.do forInBodyCodeBlock.toMessageData;
+⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock;
+uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
+if hasReturn forInBodyCodeBlock.code then do
+  forInTerm ← `($(xs).forIn (none, $uvarsTuple) fun $x (_, $uvarsTuple) => $forInBody);
+  auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r.2; match r.1 with | none => HasPure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit) | some a => return ensureExpectedType! "type mismatch, 'for'" a);
+  doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+else do
+  forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody);
+  if doElems.isEmpty then do
+    auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r; HasPure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit));
+    doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
+  else do
+    auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r);
+    doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+
+/--
+  Generate `CodeBlock` for `doMatch; doElems`
+  ```
+  def doMatchAlt   := sepBy1 termParser ", " >> darrow >> doSeq
+  def doMatchAlts  := parser! optional "| " >> sepBy1 doMatchAlt "|"
+  def doMatch      := parser! "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
+  ``` -/
+def doMatchToCode (doSeqToCode : List Syntax → M CodeBlock) (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do
+let ref       := doMatch;
+let discrs    := doMatch.getArg 1;
+let optType   := doMatch.getArg 2;
+let matchAlts := ((doMatch.getArg 4).getArg 1).getArgs.getSepElems; -- Array of `doMatchAlt`
+alts : Array (Alt CodeBlock) ←  matchAlts.mapM fun matchAlt => do {
+  let patterns := matchAlt.getArg 0;
+  pvars ← liftM $ getPatternsVars patterns.getArgs.getSepElems;
+  let vars := getPatternVarNames pvars;
+  let rhs  := matchAlt.getArg 2;
+  rhs ← withNewVars vars $ doSeqToCode (getDoSeqElems rhs);
+  pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }
+};
+matchCode ← liftM $ mkMatch ref discrs optType alts;
+concatWith doSeqToCode matchCode doElems
+
+/- Generate `CodeBlock` for `doReturn` which is of the form
+   ```
+   "return " >> optional termParser
+   ```
+   `doElems` is only used for sanity checking. -/
+def doReturnToCode (doReturn : Syntax) (doElems: List Syntax) : M CodeBlock := do
+let ref := doReturn;
+ensureEOS doElems;
+let argOpt := doReturn.getArg 1;
+arg ← if argOpt.isNone then liftMacroM $ mkUnit ref else pure $ argOpt.getArg 0;
+pure $ mkReturn ref arg
+
 partial def doSeqToCode : List Syntax → M CodeBlock
 | [] => do ctx ← read; liftMacroM $ mkPureUnitAction ctx.ref
 | doElem::doElems => withRef doElem do
@@ -966,19 +1100,7 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
   else do
     let ref := doElem;
-    let concatWithRest (c : CodeBlock) : M CodeBlock :=
-      match doElems with
-      | [] => pure c
-      | nextDoElem :: _  => do {
-        k ← doSeqToCode doElems;
-        let ref := nextDoElem;
-        liftM $ concat c ref k
-      };
-    let auxDoToCode (auxDo : Syntax) : M CodeBlock := do {
-      let auxDoElems := getDoSeqElems (getDoSeq auxDo);
-      let auxDoElems := auxDoElems.map fun auxDoElem => auxDoElem.copyInfo doElem;
-      doSeqToCode auxDoElems
-    };
+    let concatWithRest (c : CodeBlock) : M CodeBlock := concatWith doSeqToCode c doElems;
     let k := doElem.getKind;
     if k == `Lean.Parser.Term.doLet then do
       vars ← liftM $ getDoLetVars doElem;
@@ -986,73 +1108,25 @@ partial def doSeqToCode : List Syntax → M CodeBlock
     else if k == `Lean.Parser.Term.doLetRec then do
       vars ← liftM $ getDoLetRecVars doElem;
       mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
-    else if k == `Lean.Parser.Term.doLetArrow then do
-      vars ← liftM $ getDoLetArrowVars doElem;
-      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
     else if k == `Lean.Parser.Term.doReassign then do
       vars ← liftM $ getDoReassignVars doElem;
       checkReassignable vars;
       k ← doSeqToCode doElems;
       liftM $ mkReassignCore vars doElem k
+    else if k == `Lean.Parser.Term.doLetArrow then do
+      doLetArrowToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doReassignArrow then
       throwError "WIP"
     else if k == `Lean.Parser.Term.doHave then
       throwError "WIP"
-    else if k == `Lean.Parser.Term.doIf then do
-      view ← liftMacroM $ mkDoIfView doElem;
-      thenBranch ← doSeqToCode (getDoSeqElems view.thenBranch);
-      elseBranch ← doSeqToCode (getDoSeqElems view.elseBranch);
-      ite ← liftM $ mkIte view.ref view.optIdent view.cond thenBranch elseBranch;
-      concatWithRest ite
+    else if k == `Lean.Parser.Term.doIf then
+      doIfToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doUnless then do
-      let cond  := doElem.getArg 1;
-      let doSeq := doElem.getArg 3;
-      body ← doSeqToCode (getDoSeqElems doSeq);
-      unless ← liftMacroM $ mkUnless ref cond body;
-      concatWithRest unless
+      doUnlessToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doFor then withFreshMacroScope do
-      let ref       := doElem;
-      let x         := doElem.getArg 1;
-      let xs        := doElem.getArg 3;
-      let forElems  := getDoSeqElems (doElem.getArg 5);
-      let newVars   := if x.isIdent then #[x.getId] else #[];
-      forInBodyCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems);
-      -- trace! `Elab.do forInBodyCodeBlock.toMessageData;
-      ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock;
-      uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
-      if hasReturn forInBodyCodeBlock.code then do
-        forInTerm ← `($(xs).forIn (none, $uvarsTuple) fun $x (_, $uvarsTuple) => $forInBody);
-        auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r.2; match r.1 with | none => HasPure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit) | some a => return ensureExpectedType! "type mismatch, 'for'" a);
-        doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
-      else do
-        forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody);
-        if doElems.isEmpty then do
-          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r; HasPure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit));
-          doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
-        else do
-          auxDo ← `(do let r ← $forInTerm; $uvarsTuple:term := r);
-          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+      doForToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doMatch then do
-      /- Recall that
-         ```
-         def doMatchAlt   := sepBy1 termParser ", " >> darrow >> doSeq
-         def doMatchAlts  := parser! optional "| " >> sepBy1 doMatchAlt "|"
-         def doMatch      := parser! "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
-      -/
-      let ref       := doElem;
-      let discrs    := doElem.getArg 1;
-      let optType   := doElem.getArg 2;
-      let matchAlts := ((doElem.getArg 4).getArg 1).getArgs.getSepElems; -- Array of `doMatchAlt`
-      alts : Array (Alt CodeBlock) ←  matchAlts.mapM fun matchAlt => do {
-           let patterns := matchAlt.getArg 0;
-           pvars ← liftM $ getPatternsVars patterns.getArgs.getSepElems;
-           let vars := getPatternVarNames pvars;
-           let rhs  := matchAlt.getArg 2;
-           rhs ← withNewVars vars $ doSeqToCode (getDoSeqElems rhs);
-           pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }
-        };
-      matchCode ← liftM $ mkMatch ref discrs optType alts;
-      concatWithRest matchCode
+      doMatchToCode doSeqToCode doElem doElems
     else if k == `Lean.Parser.Term.doTry then
       throwError "WIP"
     else if k == `Lean.Parser.Term.doBreak then do
@@ -1063,11 +1137,8 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       ensureInsideFor;
       ensureEOS doElems;
       pure $ mkContinue ref
-    else if k == `Lean.Parser.Term.doReturn then do
-      ensureEOS doElems;
-      let argOpt := doElem.getArg 1;
-      arg ← if argOpt.isNone then do ctx ← read; u ← `(PUnit.unit); pure $ u.copyInfo ctx.ref else pure $ argOpt.getArg 0;
-      pure $ mkReturn ref arg
+    else if k == `Lean.Parser.Term.doReturn then
+      doReturnToCode doElem doElems
     else if k == `Lean.Parser.Term.doDbgTrace then
       mkSeq doElem <$> doSeqToCode doElems
     else if k == `Lean.Parser.Term.doAssert then

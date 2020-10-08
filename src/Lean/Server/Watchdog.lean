@@ -269,6 +269,7 @@ else if not changes.isEmpty then do
   let (newDocText, _) := foldDocumentChanges changes oldDoc.text;
   newHeaderAst ← liftIO $ parseHeaderAst newDocText.source;
   if newHeaderAst != oldDoc.headerAst then do
+    log "restarting file worker";
     -- TODO(WN): we should amortize this somehow;
     -- when the user is typing in an import, this
     -- may rapidly destroy/create new processes

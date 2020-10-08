@@ -50,6 +50,9 @@ Lsp.writeLspNotification h "textDocument/publishDiagnostics"
     version? := version,
     diagnostics := diagnostics.toArray : PublishDiagnosticsParams }
 
+private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
+IO.eprintln $ "`" ++ text.source.extract s.beginPos (s.endPos-1) ++ "`"
+
 inductive TaskError
 | aborted
 | eof
@@ -103,10 +106,12 @@ pure ⟨parent, t⟩
 
 partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : ElabTask → String.Pos → IO ElabTask
 | ⟨snap, nextTask⟩, changePos => do
+  logSnapContent snap contents;
   finished ← hasFinished nextTask;
   if finished then
     match nextTask.get with
     | Except.ok (next@⟨nextSnap, _⟩) => do
+       logSnapContent nextSnap contents;
        IO.eprintln ("ver: " ++ (toString version) ++ "; changePos: " ++ (toString changePos) ++ "; endpos: " ++ (toString nextSnap.endPos));
        -- if next contains the change ...
        -- (it will never be the header snap because the
@@ -150,15 +155,22 @@ open Elab
 /-- Compiles the contents of a Lean file. -/
 def compileDocument (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) : IO EditableDocument := do
 headerSnap ← Snapshots.compileHeader text.source;
+logSnapContent headerSnap text;
 task ← ElabTask.run h uri version text headerSnap;
 let docOut : EditableDocument := ⟨version, text, task⟩;
 pure docOut
 
 /-- Given `changePos`, the UTF-8 offset of a change into the pre-change source,
 and the new document, updates editable doc state. -/
-def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) (changePos : String.Pos) (newVersion : Nat) (newText : FileMap) : IO EditableDocument := do
-newSnapshots ← doc.snapshots.branchOffAt h uri newVersion newText changePos;
-pure ⟨newVersion, newText, newSnapshots⟩
+def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) (changePos : String.Pos) (newVersion : Nat) (newText : FileMap) : IO EditableDocument :=
+-- The watchdog only restarts the file worker when the syntax tree of the header changes.
+-- If e.g. a newline is deleted, it will not restart this file worker, but we still
+-- need to reparse the header so the offsets are correct.
+match doc.snapshots with
+| ⟨headerSnap, next⟩ => do
+  newHeaderSnap ← reparseHeader newText.source headerSnap;
+  newSnapshots ← (ElabTask.mk newHeaderSnap next).branchOffAt h uri newVersion newText changePos;
+  pure ⟨newVersion, newText, newSnapshots⟩
 
 end EditableDocument
 

@@ -1008,21 +1008,18 @@ when (kind == `Lean.Parser.Term.doLetArrow ||
 def doLetArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
 let ref  := doLetArrow;
 let decl := doLetArrow.getArg 1;
-if decl.getKind == `Lean.Parser.Term.doIdDecl then
+if decl.getKind == `Lean.Parser.Term.doIdDecl then do
+  let y := decl.getIdAt 0;
   let doElem := decl.getArg 3;
+  k ← withNewVars #[y] (doSeqToCode doElems);
   match isDoExpr? doElem with
-  | some action =>
-    let var := getDoIdDeclVar decl;
-    mkVarDeclCore #[var] doLetArrow <$> withNewVars #[var] (doSeqToCode doElems)
+  | some action => pure $ mkVarDeclCore #[y] doLetArrow k
   | none => do
     checkLetArrowRHS doElem;
+    c ← doSeqToCode [doElem];
     match doElems with
-    | [] => doSeqToCode [doElem]
-    | kRef::_  => do
-      let y := decl.getIdAt 0;
-      c ← doSeqToCode [doElem];
-      k ← withNewVars #[y] $ doSeqToCode doElems;
-      liftM $ concat c kRef y k
+    | []       => pure c
+    | kRef::_  => liftM $ concat c kRef y k
 else if decl.getKind == `Lean.Parser.Term.doPatDecl then
   let pattern := decl.getArg 0;
   let doElem  := decl.getArg 2;

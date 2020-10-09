@@ -41,6 +41,7 @@ unsafe def interpretParserDescr : ParserDescr → AttrM Parenthesizer
 | ParserDescr.charLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer
 | ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
 | ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
+| ParserDescr.interpolatedStr d                   => interpolatedStr.parenthesizer <$> interpretParserDescr d
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer
 | ParserDescr.parser constName                    => interpretParser (ctx interpretParserDescr) constName
 | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
@@ -73,6 +74,7 @@ unsafe def interpretParserDescr : ParserDescr → AttrM Formatter
 | ParserDescr.strLit                              => pure $ withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter
 | ParserDescr.charLit                             => pure $ withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter
 | ParserDescr.nameLit                             => pure $ withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter
+| ParserDescr.interpolatedStr d                   => interpolatedStr.formatter <$> interpretParserDescr d
 | ParserDescr.ident                               => pure $ withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.formatter tk
 | ParserDescr.parser constName                    => interpretParser (ctx interpretParserDescr) constName

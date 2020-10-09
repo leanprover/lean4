@@ -17,20 +17,23 @@ lean_object* l_Lean_PrettyPrinter_Formatter_strLitNoAntiquot_formatter___boxed(l
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__3;
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__4___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__4___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_ctx(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__3;
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_identKind___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_sepBy_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_many_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_identNoAntiquot_parenthesizer___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__7;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__1;
 extern lean_object* l_Lean_identKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,9 +58,8 @@ lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambd
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__9;
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_concatArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__13___closed__1;
@@ -65,12 +67,13 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___el
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__8;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__2;
+lean_object* l_Lean_PrettyPrinter_Formatter_interpolatedStr_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__4;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__4;
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__2;
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_visitArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__14___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__13___closed__3;
@@ -92,25 +95,24 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_nonReservedSymbol_parenthesizer_
 extern lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute;
 lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_numLitKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_formatterAttribute;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_regHook___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_symbol_parenthesizer___boxed(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__14___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_regHook___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__14___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___closed__1;
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__1;
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,28 +120,35 @@ lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambd
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__15___closed__2;
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_combinatorParenthesizerAttribute;
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__3;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___closed__2;
 extern lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__4;
 lean_object* l_Lean_ParserCompiler_interpretParser___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__12___closed__2;
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__2;
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__1;
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_numLitNoAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_mkAntiquot_parenthesizer_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpolatedStr_parenthesizer___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21___rarg(lean_object*);
 lean_object* l_Lean_ParserCompiler_registerParserCompiler___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_regHook(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nameLitKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_regHook(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -152,14 +161,15 @@ lean_object* l_Lean_PrettyPrinter_Formatter_nameLitNoAntiquot_formatter___boxed(
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_ctx(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__14___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__5;
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_regHook___closed__2;
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_regHook___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_many_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__6;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -451,7 +461,23 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1() {
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PrettyPrinter_Parenthesizer_interpolatedStr_parenthesizer___rarg(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___rarg___boxed), 3, 0);
+return x_4;
+}
+}
+lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -461,12 +487,12 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__2() {
+lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_identKind___closed__1;
-x_2 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1;
+x_2 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
 x_5 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_mkAntiquot_parenthesizer_x27___boxed), 8, 3);
@@ -476,7 +502,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__3() {
+lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -484,17 +510,17 @@ x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_identNoAntiq
 return x_1;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__2;
-x_7 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__3;
+x_6 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__2;
+x_7 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__3;
 x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
@@ -502,7 +528,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer(x_1, x_2, 
 return x_8;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18___rarg(lean_object* x_1) {
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -513,11 +539,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18___rarg), 1, 0);
+x_6 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19___rarg), 1, 0);
 return x_6;
 }
 }
@@ -573,7 +599,7 @@ lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___mai
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17), 5, 0);
 return x_1;
 }
 }
@@ -1520,100 +1546,159 @@ return x_196;
 case 17:
 {
 lean_object* x_197; lean_object* x_198; 
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_197 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__7;
-x_198 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_198, 0, x_197);
-lean_ctor_set(x_198, 1, x_5);
+x_197 = lean_ctor_get(x_1, 0);
+lean_inc(x_197);
+lean_dec(x_1);
+x_198 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main(x_197, x_2, x_3, x_4, x_5);
+if (lean_obj_tag(x_198) == 0)
+{
+uint8_t x_199; 
+x_199 = !lean_is_exclusive(x_198);
+if (x_199 == 0)
+{
+lean_object* x_200; lean_object* x_201; 
+x_200 = lean_ctor_get(x_198, 0);
+x_201 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___boxed), 3, 1);
+lean_closure_set(x_201, 0, x_200);
+lean_ctor_set(x_198, 0, x_201);
 return x_198;
+}
+else
+{
+lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; 
+x_202 = lean_ctor_get(x_198, 0);
+x_203 = lean_ctor_get(x_198, 1);
+lean_inc(x_203);
+lean_inc(x_202);
+lean_dec(x_198);
+x_204 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___boxed), 3, 1);
+lean_closure_set(x_204, 0, x_202);
+x_205 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_205, 0, x_204);
+lean_ctor_set(x_205, 1, x_203);
+return x_205;
+}
+}
+else
+{
+uint8_t x_206; 
+x_206 = !lean_is_exclusive(x_198);
+if (x_206 == 0)
+{
+return x_198;
+}
+else
+{
+lean_object* x_207; lean_object* x_208; lean_object* x_209; 
+x_207 = lean_ctor_get(x_198, 0);
+x_208 = lean_ctor_get(x_198, 1);
+lean_inc(x_208);
+lean_inc(x_207);
+lean_dec(x_198);
+x_209 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_209, 0, x_207);
+lean_ctor_set(x_209, 1, x_208);
+return x_209;
+}
+}
 }
 case 18:
 {
-lean_object* x_199; lean_object* x_200; lean_object* x_201; lean_object* x_202; 
+lean_object* x_210; lean_object* x_211; 
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_199 = lean_ctor_get(x_1, 0);
-lean_inc(x_199);
-x_200 = lean_ctor_get(x_1, 1);
-lean_inc(x_200);
-lean_dec(x_1);
-x_201 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17), 7, 2);
-lean_closure_set(x_201, 0, x_199);
-lean_closure_set(x_201, 1, x_200);
-x_202 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_202, 0, x_201);
-lean_ctor_set(x_202, 1, x_5);
-return x_202;
+x_210 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__7;
+x_211 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_211, 0, x_210);
+lean_ctor_set(x_211, 1, x_5);
+return x_211;
 }
 case 19:
 {
-lean_object* x_203; lean_object* x_204; lean_object* x_205; 
-x_203 = lean_ctor_get(x_1, 0);
-lean_inc(x_203);
+lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_212 = lean_ctor_get(x_1, 0);
+lean_inc(x_212);
+x_213 = lean_ctor_get(x_1, 1);
+lean_inc(x_213);
 lean_dec(x_1);
-x_204 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__9;
-x_205 = l_Lean_ParserCompiler_interpretParser___rarg(x_204, x_203, x_2, x_3, x_4, x_5);
-return x_205;
+x_214 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18), 7, 2);
+lean_closure_set(x_214, 0, x_212);
+lean_closure_set(x_214, 1, x_213);
+x_215 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_215, 0, x_214);
+lean_ctor_set(x_215, 1, x_5);
+return x_215;
+}
+case 20:
+{
+lean_object* x_216; lean_object* x_217; lean_object* x_218; 
+x_216 = lean_ctor_get(x_1, 0);
+lean_inc(x_216);
+lean_dec(x_1);
+x_217 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__9;
+x_218 = l_Lean_ParserCompiler_interpretParser___rarg(x_217, x_216, x_2, x_3, x_4, x_5);
+return x_218;
 }
 default: 
 {
-lean_object* x_206; lean_object* x_207; 
-x_206 = lean_ctor_get(x_1, 0);
-lean_inc(x_206);
+lean_object* x_219; lean_object* x_220; 
+x_219 = lean_ctor_get(x_1, 0);
+lean_inc(x_219);
 lean_dec(x_1);
-x_207 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main(x_206, x_2, x_3, x_4, x_5);
-if (lean_obj_tag(x_207) == 0)
+x_220 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main(x_219, x_2, x_3, x_4, x_5);
+if (lean_obj_tag(x_220) == 0)
 {
-uint8_t x_208; 
-x_208 = !lean_is_exclusive(x_207);
-if (x_208 == 0)
+uint8_t x_221; 
+x_221 = !lean_is_exclusive(x_220);
+if (x_221 == 0)
 {
-lean_object* x_209; lean_object* x_210; 
-x_209 = lean_ctor_get(x_207, 0);
-x_210 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18___boxed), 5, 1);
-lean_closure_set(x_210, 0, x_209);
-lean_ctor_set(x_207, 0, x_210);
-return x_207;
+lean_object* x_222; lean_object* x_223; 
+x_222 = lean_ctor_get(x_220, 0);
+x_223 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19___boxed), 5, 1);
+lean_closure_set(x_223, 0, x_222);
+lean_ctor_set(x_220, 0, x_223);
+return x_220;
 }
 else
 {
-lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; 
-x_211 = lean_ctor_get(x_207, 0);
-x_212 = lean_ctor_get(x_207, 1);
-lean_inc(x_212);
-lean_inc(x_211);
-lean_dec(x_207);
-x_213 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18___boxed), 5, 1);
-lean_closure_set(x_213, 0, x_211);
-x_214 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_214, 0, x_213);
-lean_ctor_set(x_214, 1, x_212);
-return x_214;
+lean_object* x_224; lean_object* x_225; lean_object* x_226; lean_object* x_227; 
+x_224 = lean_ctor_get(x_220, 0);
+x_225 = lean_ctor_get(x_220, 1);
+lean_inc(x_225);
+lean_inc(x_224);
+lean_dec(x_220);
+x_226 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19___boxed), 5, 1);
+lean_closure_set(x_226, 0, x_224);
+x_227 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_227, 0, x_226);
+lean_ctor_set(x_227, 1, x_225);
+return x_227;
 }
 }
 else
 {
-uint8_t x_215; 
-x_215 = !lean_is_exclusive(x_207);
-if (x_215 == 0)
+uint8_t x_228; 
+x_228 = !lean_is_exclusive(x_220);
+if (x_228 == 0)
 {
-return x_207;
+return x_220;
 }
 else
 {
-lean_object* x_216; lean_object* x_217; lean_object* x_218; 
-x_216 = lean_ctor_get(x_207, 0);
-x_217 = lean_ctor_get(x_207, 1);
-lean_inc(x_217);
-lean_inc(x_216);
-lean_dec(x_207);
-x_218 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_218, 0, x_216);
-lean_ctor_set(x_218, 1, x_217);
-return x_218;
+lean_object* x_229; lean_object* x_230; lean_object* x_231; 
+x_229 = lean_ctor_get(x_220, 0);
+x_230 = lean_ctor_get(x_220, 1);
+lean_inc(x_230);
+lean_inc(x_229);
+lean_dec(x_220);
+x_231 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_231, 0, x_229);
+lean_ctor_set(x_231, 1, x_230);
+return x_231;
 }
 }
 }
@@ -1642,11 +1727,32 @@ lean_dec(x_2);
 return x_9;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__18(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1951,12 +2057,28 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__1() {
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_PrettyPrinter_Formatter_interpolatedStr_formatter___rarg(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg___boxed), 5, 0);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_identKind___closed__1;
-x_2 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1;
+x_2 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
 x_5 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter_x27___boxed), 8, 3);
@@ -1966,7 +2088,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__2() {
+lean_object* _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1974,17 +2096,17 @@ x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_identNoAntiquot_
 return x_1;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__1;
-x_7 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__2;
+x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__1;
+x_7 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__2;
 x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
@@ -1992,7 +2114,7 @@ x_7 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter(x_1, x_2, x_3, x_4
 return x_7;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20___rarg(lean_object* x_1) {
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -2003,11 +2125,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20___rarg), 1, 0);
+x_6 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21___rarg), 1, 0);
 return x_6;
 }
 }
@@ -2047,7 +2169,7 @@ lean_object* _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19), 5, 0);
 return x_1;
 }
 }
@@ -2995,97 +3117,153 @@ return x_197;
 case 17:
 {
 lean_object* x_198; lean_object* x_199; 
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_198 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__5;
-x_199 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_199, 0, x_198);
-lean_ctor_set(x_199, 1, x_5);
+x_198 = lean_ctor_get(x_1, 0);
+lean_inc(x_198);
+lean_dec(x_1);
+x_199 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main(x_198, x_2, x_3, x_4, x_5);
+if (lean_obj_tag(x_199) == 0)
+{
+uint8_t x_200; 
+x_200 = !lean_is_exclusive(x_199);
+if (x_200 == 0)
+{
+lean_object* x_201; lean_object* x_202; 
+x_201 = lean_ctor_get(x_199, 0);
+lean_dec(x_201);
+x_202 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg___boxed), 5, 0);
+lean_ctor_set(x_199, 0, x_202);
 return x_199;
+}
+else
+{
+lean_object* x_203; lean_object* x_204; lean_object* x_205; 
+x_203 = lean_ctor_get(x_199, 1);
+lean_inc(x_203);
+lean_dec(x_199);
+x_204 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg___boxed), 5, 0);
+x_205 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_205, 0, x_204);
+lean_ctor_set(x_205, 1, x_203);
+return x_205;
+}
+}
+else
+{
+uint8_t x_206; 
+x_206 = !lean_is_exclusive(x_199);
+if (x_206 == 0)
+{
+return x_199;
+}
+else
+{
+lean_object* x_207; lean_object* x_208; lean_object* x_209; 
+x_207 = lean_ctor_get(x_199, 0);
+x_208 = lean_ctor_get(x_199, 1);
+lean_inc(x_208);
+lean_inc(x_207);
+lean_dec(x_199);
+x_209 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_209, 0, x_207);
+lean_ctor_set(x_209, 1, x_208);
+return x_209;
+}
+}
 }
 case 18:
 {
-lean_object* x_200; lean_object* x_201; lean_object* x_202; 
+lean_object* x_210; lean_object* x_211; 
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_200 = lean_ctor_get(x_1, 0);
-lean_inc(x_200);
-lean_dec(x_1);
-x_201 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19), 6, 1);
-lean_closure_set(x_201, 0, x_200);
-x_202 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_202, 0, x_201);
-lean_ctor_set(x_202, 1, x_5);
-return x_202;
+x_210 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__5;
+x_211 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_211, 0, x_210);
+lean_ctor_set(x_211, 1, x_5);
+return x_211;
 }
 case 19:
 {
-lean_object* x_203; lean_object* x_204; lean_object* x_205; 
-x_203 = lean_ctor_get(x_1, 0);
-lean_inc(x_203);
+lean_object* x_212; lean_object* x_213; lean_object* x_214; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_212 = lean_ctor_get(x_1, 0);
+lean_inc(x_212);
 lean_dec(x_1);
-x_204 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__7;
-x_205 = l_Lean_ParserCompiler_interpretParser___rarg(x_204, x_203, x_2, x_3, x_4, x_5);
-return x_205;
+x_213 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20), 6, 1);
+lean_closure_set(x_213, 0, x_212);
+x_214 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_214, 0, x_213);
+lean_ctor_set(x_214, 1, x_5);
+return x_214;
+}
+case 20:
+{
+lean_object* x_215; lean_object* x_216; lean_object* x_217; 
+x_215 = lean_ctor_get(x_1, 0);
+lean_inc(x_215);
+lean_dec(x_1);
+x_216 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__7;
+x_217 = l_Lean_ParserCompiler_interpretParser___rarg(x_216, x_215, x_2, x_3, x_4, x_5);
+return x_217;
 }
 default: 
 {
-lean_object* x_206; lean_object* x_207; 
-x_206 = lean_ctor_get(x_1, 0);
-lean_inc(x_206);
+lean_object* x_218; lean_object* x_219; 
+x_218 = lean_ctor_get(x_1, 0);
+lean_inc(x_218);
 lean_dec(x_1);
-x_207 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main(x_206, x_2, x_3, x_4, x_5);
-if (lean_obj_tag(x_207) == 0)
+x_219 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main(x_218, x_2, x_3, x_4, x_5);
+if (lean_obj_tag(x_219) == 0)
 {
-uint8_t x_208; 
-x_208 = !lean_is_exclusive(x_207);
-if (x_208 == 0)
+uint8_t x_220; 
+x_220 = !lean_is_exclusive(x_219);
+if (x_220 == 0)
 {
-lean_object* x_209; lean_object* x_210; 
-x_209 = lean_ctor_get(x_207, 0);
-x_210 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20___boxed), 5, 1);
-lean_closure_set(x_210, 0, x_209);
-lean_ctor_set(x_207, 0, x_210);
-return x_207;
+lean_object* x_221; lean_object* x_222; 
+x_221 = lean_ctor_get(x_219, 0);
+x_222 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21___boxed), 5, 1);
+lean_closure_set(x_222, 0, x_221);
+lean_ctor_set(x_219, 0, x_222);
+return x_219;
 }
 else
 {
-lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; 
-x_211 = lean_ctor_get(x_207, 0);
-x_212 = lean_ctor_get(x_207, 1);
-lean_inc(x_212);
-lean_inc(x_211);
-lean_dec(x_207);
-x_213 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20___boxed), 5, 1);
-lean_closure_set(x_213, 0, x_211);
-x_214 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_214, 0, x_213);
-lean_ctor_set(x_214, 1, x_212);
-return x_214;
+lean_object* x_223; lean_object* x_224; lean_object* x_225; lean_object* x_226; 
+x_223 = lean_ctor_get(x_219, 0);
+x_224 = lean_ctor_get(x_219, 1);
+lean_inc(x_224);
+lean_inc(x_223);
+lean_dec(x_219);
+x_225 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21___boxed), 5, 1);
+lean_closure_set(x_225, 0, x_223);
+x_226 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_226, 0, x_225);
+lean_ctor_set(x_226, 1, x_224);
+return x_226;
 }
 }
 else
 {
-uint8_t x_215; 
-x_215 = !lean_is_exclusive(x_207);
-if (x_215 == 0)
+uint8_t x_227; 
+x_227 = !lean_is_exclusive(x_219);
+if (x_227 == 0)
 {
-return x_207;
+return x_219;
 }
 else
 {
-lean_object* x_216; lean_object* x_217; lean_object* x_218; 
-x_216 = lean_ctor_get(x_207, 0);
-x_217 = lean_ctor_get(x_207, 1);
-lean_inc(x_217);
-lean_inc(x_216);
-lean_dec(x_207);
-x_218 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_218, 0, x_216);
-lean_ctor_set(x_218, 1, x_217);
-return x_218;
+lean_object* x_228; lean_object* x_229; lean_object* x_230; 
+x_228 = lean_ctor_get(x_219, 0);
+x_229 = lean_ctor_get(x_219, 1);
+lean_inc(x_229);
+lean_inc(x_228);
+lean_dec(x_219);
+x_230 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_230, 0, x_228);
+lean_ctor_set(x_230, 1, x_229);
+return x_230;
 }
 }
 }
@@ -3138,11 +3316,32 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__20(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___rarg(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_6;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__21(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -3230,12 +3429,12 @@ l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___c
 lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___closed__2);
 l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___closed__3 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___closed__3();
 lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___closed__3);
-l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1();
-lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__1);
-l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__2 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__2();
-lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__2);
-l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__3 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__3();
-lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16___closed__3);
+l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__1 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__1();
+lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__1);
+l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__2 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__2();
+lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__2);
+l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__3 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__3();
+lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__17___closed__3);
 l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__1 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__1);
 l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__2 = _init_l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__2();
@@ -3277,10 +3476,10 @@ l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___close
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___closed__1);
 l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___closed__2();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__17___closed__2);
-l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__1();
-lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__1);
-l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__2();
-lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__18___closed__2);
+l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__1();
+lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__1);
+l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__2();
+lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambda__19___closed__2);
 l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__1);
 l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__2();

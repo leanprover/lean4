@@ -172,6 +172,7 @@ inductive ParserDescr
 | strLit            : ParserDescr
 | charLit           : ParserDescr
 | nameLit           : ParserDescr
+| interpolatedStr   : ParserDescr → ParserDescr -- interpolated string
 | ident             : ParserDescr
 | cat               : Name → Nat → ParserDescr
 | parser            : Name → ParserDescr

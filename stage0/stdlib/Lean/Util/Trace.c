@@ -2441,7 +2441,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
 x_2 = lean_unsigned_to_nat(1024u);
-x_3 = lean_alloc_ctor(18, 2, 0);
+x_3 = lean_alloc_ctor(19, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -2465,7 +2465,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(18, 2, 0);
+x_3 = lean_alloc_ctor(19, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;

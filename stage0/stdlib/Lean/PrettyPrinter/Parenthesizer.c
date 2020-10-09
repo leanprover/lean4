@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Parenthesizer
-// Imports: Init Lean.CoreM Lean.KeyedDeclsAttribute Lean.Parser.Extension Lean.Parser.StrInterpolation Lean.ParserCompiler.Attribute Lean.PrettyPrinter.Backtrack
+// Imports: Init Lean.CoreM Lean.KeyedDeclsAttribute Lean.Parser.Extension Lean.ParserCompiler.Attribute Lean.PrettyPrinter.Backtrack
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3824,7 +3824,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__8;
-x_2 = lean_unsigned_to_nat(211u);
+x_2 = lean_unsigned_to_nat(210u);
 x_3 = lean_unsigned_to_nat(4u);
 x_4 = l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__9;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -9526,7 +9526,6 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_CoreM(lean_object*);
 lean_object* initialize_Lean_KeyedDeclsAttribute(lean_object*);
 lean_object* initialize_Lean_Parser_Extension(lean_object*);
-lean_object* initialize_Lean_Parser_StrInterpolation(lean_object*);
 lean_object* initialize_Lean_ParserCompiler_Attribute(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Backtrack(lean_object*);
 static bool _G_initialized = false;
@@ -9544,9 +9543,6 @@ res = initialize_Lean_KeyedDeclsAttribute(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Extension(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_StrInterpolation(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ParserCompiler_Attribute(lean_io_mk_world());

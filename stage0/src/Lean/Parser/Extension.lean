@@ -7,6 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 /-! Extensible parsing via attributes -/
 
 import Lean.Parser.Basic
+import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
 
 namespace Lean
@@ -214,6 +215,7 @@ partial def compileParserDescr (env : Environment) (categories : ParserCategorie
 | ParserDescr.strLit                              => pure $ strLit
 | ParserDescr.charLit                             => pure $ charLit
 | ParserDescr.nameLit                             => pure $ nameLit
+| ParserDescr.interpolatedStr d                   => interpolatedStr <$> compileParserDescr d
 | ParserDescr.ident                               => pure $ ident
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
 | ParserDescr.parser constName                    => do

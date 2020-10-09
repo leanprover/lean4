@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Basic
-// Imports: Init.Data.Nat.Basic Init.Data.List Init.Data.Repr Init.Data.ToString
+// Imports: Init.Data.Nat.Basic Init.Data.List Init.Data.Repr Init.Data.ToString.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -818,7 +818,7 @@ return x_6;
 lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 lean_object* initialize_Init_Data_List(lean_object*);
 lean_object* initialize_Init_Data_Repr(lean_object*);
-lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Data_ToString_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Int_Basic(lean_object* w) {
 lean_object * res;
@@ -833,7 +833,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Repr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString(lean_io_mk_world());
+res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_zero___closed__1 = _init_l_Int_zero___closed__1();

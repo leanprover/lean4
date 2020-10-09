@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Except
-// Imports: Init.Data.ToString Init.Control.Alternative Init.Control.MonadControl Init.Control.Id Init.Control.MonadFunctor Init.Control.MonadRun
+// Imports: Init.Data.ToString.Basic Init.Control.Alternative Init.Control.MonadControl Init.Control.Id Init.Control.MonadFunctor Init.Control.MonadRun
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2776,7 +2776,7 @@ x_3 = lean_alloc_closure((void*)(l_ExceptT_finally___rarg), 6, 0);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Data_ToString_Basic(lean_object*);
 lean_object* initialize_Init_Control_Alternative(lean_object*);
 lean_object* initialize_Init_Control_MonadControl(lean_object*);
 lean_object* initialize_Init_Control_Id(lean_object*);
@@ -2787,7 +2787,7 @@ lean_object* initialize_Init_Control_Except(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ToString(lean_io_mk_world());
+res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Alternative(lean_io_mk_world());

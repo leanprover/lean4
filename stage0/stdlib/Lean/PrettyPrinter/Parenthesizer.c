@@ -38,6 +38,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_quotedSymbol_parenthesizer(lean_
 lean_object* l_Lean_PrettyPrinter_parenthesize___closed__1;
 extern lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__1;
 lean_object* l_Nat_forMAux___main___at_Lean_PrettyPrinter_Parenthesizer_parenthesizeCategoryCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 lean_object* l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___lambda__1___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind;
@@ -118,13 +119,13 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_numLitNoAntiquot_parenthesizer__
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_parenthesizerForKind___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_ParenthesizerM_monadTraverser___closed__5;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_notFollowedByCategoryToken_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__6;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_symbol_parenthesizer(lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__4;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_lookahead_parenthesizer___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___closed__1;
 lean_object* l_Lean_Syntax_setHeadInfo(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__22;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer___lambda__1___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__10;
@@ -154,7 +155,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_parenthesizerForKind___closed__2
 lean_object* l_Lean_PrettyPrinter_parenthesize___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkWsBefore_parenthesizer___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_strLitNoAntiquot_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__2(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__4;
 lean_object* l_Nat_forMAux___main___at_Lean_PrettyPrinter_Parenthesizer_parenthesizeCategoryCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -173,7 +173,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_rawIdent_parenthesizer___boxed(l
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_ParenthesizerM_monadTraverser___closed__7;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___lambda__1___closed__2;
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___closed__1;
 lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___lambda__1___closed__2;
@@ -212,7 +211,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_notFollowedByCategoryToken_paren
 lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__12;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer___lambda__1___closed__4;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_sepBy1_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__34;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_categoryParserOfStack_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___closed__5;
@@ -228,6 +226,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_charLitNoAntiquot_parenthesizer_
 lean_object* l_Lean_Syntax_MonadTraverser_goDown___at_Lean_PrettyPrinter_Parenthesizer_visitArgs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_withoutForbidden_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__15;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer___lambda__1___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___lambda__2___closed__2;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -320,7 +319,6 @@ lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_Parenthesizer_monadQuotation
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_unquotedSymbol_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_ParenthesizerM_monadTraverser___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
 lean_object* l_Lean_Syntax_Traverser_down(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___lambda__3___closed__2;
@@ -375,6 +373,7 @@ lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_obje
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_parenthesizeCategoryCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_nonReservedSymbol_parenthesizer(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkInsideQuot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___closed__1;
@@ -397,6 +396,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_lookahead_parenthesizer(lean_obj
 lean_object* l_Lean_PrettyPrinter_mkCombinatorParenthesizerAttribute(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_symbolNoWs_parenthesizer(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_skip_parenthesizer___rarg(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 extern lean_object* l_Lean_MessageData_arrayExpr_toMessageData___main___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_symbolNoWs_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
@@ -6762,11 +6762,11 @@ x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__22;
+x_11 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__6;
 x_12 = lean_array_push(x_11, x_10);
-x_13 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__34;
+x_13 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__15;
 x_14 = lean_array_push(x_12, x_13);
-x_15 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
+x_15 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
@@ -6815,7 +6815,7 @@ lean_dec(x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_13 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_13 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 lean_inc(x_1);
 x_14 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_parenthesizeCategoryCore___boxed), 7, 2);
 lean_closure_set(x_14, 0, x_13);
@@ -6860,7 +6860,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_categoryParenthesizerAttribute;
-x_3 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_3 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_4 = l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -6889,7 +6889,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___closed__2;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
+x_2 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -6927,9 +6927,9 @@ x_10 = l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___clo
 x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
-x_12 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__22;
+x_12 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__6;
 x_13 = lean_array_push(x_12, x_11);
-x_14 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__34;
+x_14 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__15;
 x_15 = lean_array_push(x_13, x_14);
 x_16 = l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___lambda__1___closed__3;
 x_17 = lean_alloc_ctor(1, 2, 0);
@@ -7047,7 +7047,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___closed__2;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
+x_2 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -7056,9 +7056,9 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1(
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_5 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__22;
+x_5 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__6;
 x_6 = lean_array_push(x_5, x_1);
-x_7 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__34;
+x_7 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__15;
 x_8 = lean_array_push(x_6, x_7);
 x_9 = l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___closed__3;
 x_10 = lean_alloc_ctor(1, 2, 0);
@@ -9428,7 +9428,7 @@ lean_object* _init_l_Lean_PrettyPrinter_parenthesizeTerm___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_1 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer), 7, 2);
 lean_closure_set(x_3, 0, x_1);

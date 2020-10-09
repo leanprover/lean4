@@ -42,6 +42,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 extern lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalTacticSeq1Indented(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at___private_Lean_Elab_Tactic_Basic_5__sortFVarIds___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l_Lean_Elab_Tactic_evalIntros___closed__1;
 lean_object* l_Lean_Elab_Tactic_withMainMVarContext(lean_object*);
@@ -211,7 +212,6 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_evalClear___closed__1;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Tactic_evalTactic___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadExcept___closed__3;
 lean_object* lean_array_fget(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at___private_Lean_Elab_Tactic_Basic_5__sortFVarIds___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Basic_7__regTraceClasses(lean_object*);
@@ -7784,7 +7784,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot___closed__1;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
+x_2 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -9390,8 +9390,6 @@ x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_array_get(x_17, x_16, x_18);
 x_20 = lean_array_get_size(x_16);
 x_21 = l_Array_extract___rarg(x_16, x_13, x_20);
-lean_dec(x_20);
-lean_dec(x_16);
 x_22 = l_Lean_Elab_Term_getCurrMacroScope(x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_23 = lean_ctor_get(x_22, 1);
 lean_inc(x_23);

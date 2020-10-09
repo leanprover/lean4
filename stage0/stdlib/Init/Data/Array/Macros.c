@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: Init.Data.ToString
-// Imports: Init.Data.ToString.Basic Init.Data.ToString.Macro
+// Module: Init.Data.Array.Macros
+// Imports: Init.LeanInit Init.Data.Array.Basic Init.Data.Array.Subarray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_ToString_Basic(lean_object*);
-lean_object* initialize_Init_Data_ToString_Macro(lean_object*);
+lean_object* initialize_Init_LeanInit(lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(lean_object*);
+lean_object* initialize_Init_Data_Array_Subarray(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Data_ToString(lean_object* w) {
+lean_object* initialize_Init_Data_Array_Macros(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
+res = initialize_Init_LeanInit(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Macro(lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Subarray(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

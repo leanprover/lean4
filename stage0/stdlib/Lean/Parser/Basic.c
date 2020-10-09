@@ -269,7 +269,6 @@ lean_object* l_Lean_Parser_invalidLongestMatchParser(lean_object*);
 lean_object* l_Lean_Parser_invalidLongestMatchParser___closed__1;
 lean_object* l_Lean_Parser_mkAntiquot___closed__5;
 lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_binNumberFn___spec__3(lean_object*, lean_object*);
-extern lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
 lean_object* l_Lean_Syntax_forArgsM(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___closed__28;
 lean_object* l_Lean_Parser_mkAntiquot___closed__15;
@@ -712,6 +711,7 @@ lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_many1Indent___spec__1
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_TokenMap_insert___spec__5(lean_object*);
 lean_object* l_Lean_Parser_checkNoWsBefore___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_noFirstTokenInfo___elambda__2(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 lean_object* l_Lean_Parser_withoutPosition(lean_object*);
 lean_object* l_Std_RBNode_find___main___at_Lean_Parser_indexed___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkCategoryParserFnRef___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -2660,8 +2660,8 @@ x_7 = lean_ctor_get(x_1, 3);
 lean_dec(x_7);
 x_8 = lean_array_get_size(x_6);
 lean_inc(x_3);
+lean_inc(x_6);
 x_9 = l_Array_extract___rarg(x_6, x_3, x_8);
-lean_dec(x_8);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_2);
 lean_ctor_set(x_10, 1, x_9);
@@ -2683,8 +2683,8 @@ lean_inc(x_13);
 lean_dec(x_1);
 x_16 = lean_array_get_size(x_13);
 lean_inc(x_3);
+lean_inc(x_13);
 x_17 = l_Array_extract___rarg(x_13, x_3, x_16);
-lean_dec(x_16);
 x_18 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_18, 0, x_2);
 lean_ctor_set(x_18, 1, x_17);
@@ -2726,8 +2726,8 @@ lean_dec(x_30);
 x_31 = lean_ctor_get(x_1, 0);
 lean_dec(x_31);
 lean_inc(x_3);
+lean_inc(x_22);
 x_32 = l_Array_extract___rarg(x_22, x_3, x_25);
-lean_dec(x_25);
 x_33 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_33, 0, x_2);
 lean_ctor_set(x_33, 1, x_32);
@@ -2742,8 +2742,8 @@ else
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_1);
 lean_inc(x_3);
+lean_inc(x_22);
 x_36 = l_Array_extract___rarg(x_22, x_3, x_25);
-lean_dec(x_25);
 x_37 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_37, 0, x_2);
 lean_ctor_set(x_37, 1, x_36);
@@ -2784,8 +2784,8 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 x_8 = lean_array_get_size(x_5);
+lean_inc(x_5);
 x_9 = l_Array_extract___rarg(x_5, x_7, x_8);
-lean_dec(x_8);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_2);
 lean_ctor_set(x_10, 1, x_9);
@@ -2809,8 +2809,8 @@ lean_dec(x_1);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_sub(x_3, x_17);
 x_19 = lean_array_get_size(x_13);
+lean_inc(x_13);
 x_20 = l_Array_extract___rarg(x_13, x_18, x_19);
-lean_dec(x_19);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_2);
 lean_ctor_set(x_21, 1, x_20);
@@ -25156,7 +25156,7 @@ lean_object* l_Lean_Parser_termParser(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_3 = l_Lean_Parser_categoryParser(x_2, x_1);
 return x_3;
 }
@@ -25565,7 +25565,7 @@ lean_object* _init_l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_1 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_categoryParser___elambda__1), 4, 2);
 lean_closure_set(x_3, 0, x_1);

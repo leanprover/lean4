@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.IOError
-// Imports: Init.Core Init.Data.UInt Init.Data.ToString Init.Data.String.Basic
+// Imports: Init.Core Init.Data.UInt Init.Data.ToString.Basic Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1299,7 +1299,7 @@ return x_1;
 }
 lean_object* initialize_Init_Core(lean_object*);
 lean_object* initialize_Init_Data_UInt(lean_object*);
-lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Data_ToString_Basic(lean_object*);
 lean_object* initialize_Init_Data_String_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_System_IOError(lean_object* w) {
@@ -1312,7 +1312,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_UInt(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString(lean_io_mk_world());
+res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Basic(lean_io_mk_world());

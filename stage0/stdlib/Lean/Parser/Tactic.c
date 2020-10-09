@@ -111,6 +111,7 @@ lean_object* l_Lean_Parser_Tactic_location_formatter___closed__9;
 lean_object* l_Lean_Parser_Tactic_have___closed__4;
 lean_object* l_Lean_Parser_Tactic_generalize___closed__2;
 lean_object* l_Lean_Parser_Tactic_matchAlt___closed__6;
+extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 lean_object* l_Lean_Parser_Tactic_allGoals___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_locationWildcard_parenthesizer___closed__2;
 extern lean_object* l_Lean_Parser_notFollowedByFn___closed__1;
@@ -502,7 +503,6 @@ lean_object* l_Lean_Parser_Tactic_skip_formatter___closed__2;
 lean_object* l_Lean_Parser_Tactic_refine_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Tactic_intros_parenthesizer___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
 lean_object* l_Lean_Parser_Tactic_suffices_formatter___closed__1;
 lean_object* l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__4;
 lean_object* l_Lean_PrettyPrinter_Formatter_concatArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -578,7 +578,6 @@ lean_object* l_Lean_Parser_Tactic_have___closed__5;
 lean_object* l_Lean_Parser_Tactic_traceState___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_let_x21_formatter___closed__1;
 lean_object* l_Lean_Parser_Tactic_inductionAlts_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
 lean_object* l_Lean_Parser_Tactic_generalize___closed__9;
 lean_object* l_Lean_Parser_Tactic_case_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_location___closed__2;
@@ -1339,6 +1338,7 @@ lean_object* l_Lean_Parser_Tactic_show___closed__4;
 extern lean_object* l_Lean_Parser_Term_let_x21___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Tactic_cases___closed__7;
 lean_object* l_Lean_Parser_Tactic_rewriteSeq___closed__5;
+extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 lean_object* l_Lean_Parser_Tactic_done;
 lean_object* l_Lean_Parser_Tactic_show_formatter___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_revert_parenthesizer___closed__1;
@@ -2087,7 +2087,7 @@ lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_8 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_9 = l_Lean_Parser_maxPrec;
 lean_inc(x_1);
 x_10 = l_Lean_Parser_categoryParser___elambda__1(x_8, x_9, x_1, x_6);
@@ -6397,7 +6397,7 @@ lean_inc(x_14);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_15 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_Lean_Parser_categoryParser___elambda__1(x_15, x_16, x_1, x_13);
 x_18 = l_Lean_Parser_Tactic_apply___elambda__1___closed__2;
@@ -6485,7 +6485,7 @@ lean_inc(x_39);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; 
-x_40 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_40 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = l_Lean_Parser_categoryParser___elambda__1(x_40, x_41, x_1, x_38);
 x_43 = l_Lean_Parser_Tactic_apply___elambda__1___closed__2;
@@ -6876,7 +6876,7 @@ lean_inc(x_14);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_15 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_Lean_Parser_categoryParser___elambda__1(x_15, x_16, x_1, x_13);
 x_18 = l_Lean_Parser_Tactic_exact___elambda__1___closed__2;
@@ -6964,7 +6964,7 @@ lean_inc(x_39);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; 
-x_40 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_40 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = l_Lean_Parser_categoryParser___elambda__1(x_40, x_41, x_1, x_38);
 x_43 = l_Lean_Parser_Tactic_exact___elambda__1___closed__2;
@@ -7343,7 +7343,7 @@ lean_inc(x_14);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_15 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_Lean_Parser_categoryParser___elambda__1(x_15, x_16, x_1, x_13);
 x_18 = l_Lean_Parser_Tactic_refine___elambda__1___closed__2;
@@ -7431,7 +7431,7 @@ lean_inc(x_39);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; 
-x_40 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_40 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = l_Lean_Parser_categoryParser___elambda__1(x_40, x_41, x_1, x_38);
 x_43 = l_Lean_Parser_Tactic_refine___elambda__1___closed__2;
@@ -7810,7 +7810,7 @@ lean_inc(x_14);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_15 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_Lean_Parser_categoryParser___elambda__1(x_15, x_16, x_1, x_13);
 x_18 = l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__2;
@@ -7898,7 +7898,7 @@ lean_inc(x_39);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; 
-x_40 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_40 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = l_Lean_Parser_categoryParser___elambda__1(x_40, x_41, x_1, x_38);
 x_43 = l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__2;
@@ -12167,7 +12167,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_13 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_13 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_14 = lean_unsigned_to_nat(51u);
 lean_inc(x_1);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
@@ -12556,7 +12556,7 @@ lean_inc(x_123);
 if (lean_obj_tag(x_123) == 0)
 {
 lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
-x_124 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_124 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_125 = lean_unsigned_to_nat(51u);
 lean_inc(x_1);
 x_126 = l_Lean_Parser_categoryParser___elambda__1(x_124, x_125, x_1, x_122);
@@ -12720,7 +12720,7 @@ lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_1 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_2 = lean_unsigned_to_nat(51u);
 x_3 = l_Lean_Parser_categoryParser(x_1, x_2);
 return x_3;
@@ -14946,7 +14946,7 @@ lean_inc(x_14);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_15 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_16 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_17 = l_Lean_Parser_categoryParser___elambda__1(x_15, x_16, x_1, x_13);
@@ -15095,7 +15095,7 @@ lean_inc(x_60);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-x_61 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_61 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_62 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_63 = l_Lean_Parser_categoryParser___elambda__1(x_61, x_62, x_1, x_59);
@@ -16066,7 +16066,7 @@ lean_inc(x_45);
 if (lean_obj_tag(x_45) == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_46 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_46 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_47 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_48 = l_Lean_Parser_categoryParser___elambda__1(x_46, x_47, x_1, x_44);
@@ -16159,7 +16159,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_13 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_13 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_14 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
@@ -16309,7 +16309,7 @@ lean_inc(x_126);
 if (lean_obj_tag(x_126) == 0)
 {
 lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; 
-x_127 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_127 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_128 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_129 = l_Lean_Parser_categoryParser___elambda__1(x_127, x_128, x_1, x_125);
@@ -16408,7 +16408,7 @@ lean_inc(x_83);
 if (lean_obj_tag(x_83) == 0)
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
-x_84 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_84 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_85 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_86 = l_Lean_Parser_categoryParser___elambda__1(x_84, x_85, x_1, x_82);
@@ -16979,7 +16979,7 @@ lean_inc(x_19);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_20 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_20 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = l_Lean_Parser_categoryParser___elambda__1(x_20, x_21, x_1, x_18);
 x_23 = l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2;
@@ -17016,7 +17016,7 @@ lean_inc(x_31);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_32 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_32 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_33 = lean_unsigned_to_nat(0u);
 x_34 = l_Lean_Parser_categoryParser___elambda__1(x_32, x_33, x_1, x_30);
 x_35 = l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2;
@@ -17045,7 +17045,7 @@ lean_inc(x_42);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_43 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_43 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_44 = lean_unsigned_to_nat(0u);
 x_45 = l_Lean_Parser_categoryParser___elambda__1(x_43, x_44, x_1, x_41);
 x_46 = l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2;
@@ -17147,7 +17147,7 @@ lean_inc(x_72);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; uint8_t x_78; lean_object* x_79; 
-x_73 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_73 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_74 = lean_unsigned_to_nat(0u);
 x_75 = l_Lean_Parser_categoryParser___elambda__1(x_73, x_74, x_1, x_71);
 x_76 = l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2;
@@ -17190,7 +17190,7 @@ lean_inc(x_88);
 if (lean_obj_tag(x_88) == 0)
 {
 lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; uint8_t x_94; lean_object* x_95; 
-x_89 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_89 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_90 = lean_unsigned_to_nat(0u);
 x_91 = l_Lean_Parser_categoryParser___elambda__1(x_89, x_90, x_1, x_87);
 x_92 = l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2;
@@ -17225,7 +17225,7 @@ lean_inc(x_103);
 if (lean_obj_tag(x_103) == 0)
 {
 lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; uint8_t x_109; lean_object* x_110; 
-x_104 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_104 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_105 = lean_unsigned_to_nat(0u);
 x_106 = l_Lean_Parser_categoryParser___elambda__1(x_104, x_105, x_1, x_102);
 x_107 = l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2;
@@ -20362,7 +20362,7 @@ lean_inc(x_16);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_17 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = l_Lean_Parser_categoryParser___elambda__1(x_17, x_18, x_1, x_15);
 x_20 = l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2;
@@ -20399,7 +20399,7 @@ lean_inc(x_28);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_29 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_29 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = l_Lean_Parser_categoryParser___elambda__1(x_29, x_30, x_1, x_27);
 x_32 = l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2;
@@ -20428,7 +20428,7 @@ lean_inc(x_39);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_40 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_40 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = l_Lean_Parser_categoryParser___elambda__1(x_40, x_41, x_1, x_38);
 x_43 = l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2;
@@ -20670,7 +20670,7 @@ lean_inc(x_105);
 if (lean_obj_tag(x_105) == 0)
 {
 lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; uint8_t x_111; lean_object* x_112; 
-x_106 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_106 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_107 = lean_unsigned_to_nat(0u);
 x_108 = l_Lean_Parser_categoryParser___elambda__1(x_106, x_107, x_1, x_104);
 x_109 = l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2;
@@ -20713,7 +20713,7 @@ lean_inc(x_121);
 if (lean_obj_tag(x_121) == 0)
 {
 lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; uint8_t x_127; lean_object* x_128; 
-x_122 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_122 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_123 = lean_unsigned_to_nat(0u);
 x_124 = l_Lean_Parser_categoryParser___elambda__1(x_122, x_123, x_1, x_120);
 x_125 = l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2;
@@ -20748,7 +20748,7 @@ lean_inc(x_136);
 if (lean_obj_tag(x_136) == 0)
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; uint8_t x_142; lean_object* x_143; 
-x_137 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_137 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_138 = lean_unsigned_to_nat(0u);
 x_139 = l_Lean_Parser_categoryParser___elambda__1(x_137, x_138, x_1, x_135);
 x_140 = l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2;
@@ -26974,7 +26974,7 @@ lean_inc(x_14);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_15 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_16 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_17 = l_Lean_Parser_categoryParser___elambda__1(x_15, x_16, x_1, x_13);
@@ -27079,7 +27079,7 @@ lean_inc(x_43);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_44 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_44 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_45 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_46 = l_Lean_Parser_categoryParser___elambda__1(x_44, x_45, x_1, x_42);
@@ -27508,7 +27508,7 @@ lean_object* _init_l_Lean_Parser_Tactic_paren___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
+x_1 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 x_2 = l_Lean_Parser_Tactic_paren___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -28040,7 +28040,7 @@ lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__19;
+x_1 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 x_2 = l_Lean_Parser_Tactic_paren___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -29737,7 +29737,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_13 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
 x_16 = l_Lean_Parser_Tactic_show___elambda__1___closed__1;
@@ -29881,7 +29881,7 @@ lean_inc(x_50);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; 
-x_51 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__15;
+x_51 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_Parser_categoryParser___elambda__1(x_51, x_52, x_1, x_49);
 x_54 = l_Lean_Parser_Tactic_show___elambda__1___closed__1;

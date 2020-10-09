@@ -132,13 +132,13 @@ lean_object* l_Lean_Elab_elabModifiers___at___private_Lean_Elab_Structure_2__exp
 lean_object* l___private_Lean_Elab_Structure_5__checkParentIsStructure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidFieldModifier___closed__12;
 lean_object* l___private_Lean_Elab_Structure_20__collectUniversesFromFields___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Level_elabLevel___main___closed__6;
 lean_object* l___private_Lean_Elab_Structure_22__collectLevelParamsInFVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Elab_Structure_3__expandFields___spec__1___closed__2;
 lean_object* l_Lean_Elab_elabModifiers___at___private_Lean_Elab_Structure_2__expandCtor___spec__1___closed__15;
 lean_object* l_Lean_Elab_elabModifiers___at___private_Lean_Elab_Structure_2__expandCtor___spec__1___closed__18;
 lean_object* l_Lean_LocalDecl_value(lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidFieldModifier___closed__10;
+extern lean_object* l_Lean_Elab_Level_elabLevel___closed__6;
 lean_object* l___private_Lean_Elab_Structure_10__elabFieldTypeValue___closed__1;
 lean_object* l___private_Lean_Elab_Structure_9__withParents(lean_object*);
 uint8_t l___private_Lean_Elab_Structure_7__containsFieldName(lean_object*, lean_object*);
@@ -18667,7 +18667,7 @@ lean_object* _init_l_Lean_Elab_Command_elabStructure___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Level_elabLevel___main___closed__6;
+x_1 = l_Lean_Elab_Level_elabLevel___closed__6;
 x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__11;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

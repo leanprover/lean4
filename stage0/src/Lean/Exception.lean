@@ -28,11 +28,11 @@ class Ref (m : Type → Type) :=
 (getRef      : m Syntax)
 (withRef {α} : Syntax → m α → m α)
 
-export Ref (getRef withRef)
+export Ref (getRef)
 
 instance refTrans (m n : Type → Type) [Ref m] [MonadFunctor m m n n] [MonadLift m n] : Ref n :=
 { getRef  := liftM (getRef : m _),
-  withRef := fun α ref x => monadMap (fun α => withRef ref : forall {α}, m α → m α) x }
+  withRef := fun α ref x => monadMap (fun α => Ref.withRef ref : forall {α}, m α → m α) x }
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
 match ref.getPos with

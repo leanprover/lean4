@@ -6,10 +6,9 @@ Authors: Leonardo de Moura
 import Lean.Meta.LevelDefEq
 import Lean.Elab.Exception
 import Lean.Elab.Log
+new_frontend
 
-namespace Lean
-namespace Elab
-namespace Level
+namespace Lean.Elab.Level
 
 structure Context :=
 (ref        : Syntax)
@@ -22,64 +21,56 @@ structure State :=
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
 instance : Ref LevelElabM :=
-{ getRef      := do ctx ← read; pure ctx.ref,
-  withRef     := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x }
+{ getRef      := do return (← read).ref,
+  withRef     := fun ref x => adaptReader (fun ctx => { ctx with ref := ref }) x }
 
 instance : AddMessageContext LevelElabM :=
-{ addMessageContext  := fun msg => pure msg }
+{ addMessageContext := fun msg => pure msg }
 
 instance : MonadNameGenerator LevelElabM :=
-{ getNGen := do s ← get; pure s.ngen,
+{ getNGen := do return (← get).ngen,
   setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
 
 def mkFreshLevelMVar : LevelElabM Level := do
-mvarId ← mkFreshId;
-modify $ fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId };
-pure $ mkLevelMVar mvarId
+let mvarId ← mkFreshId
+modify fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId }
+return mkLevelMVar mvarId
 
-partial def elabLevel : Syntax → LevelElabM Level
-| stx => withRef stx do
-  let kind := stx.getKind;
-  if kind == `Lean.Parser.Level.paren then
-    elabLevel (stx.getArg 1)
-  else if kind == `Lean.Parser.Level.max then do
-    let args := (stx.getArg 1).getArgs;
-    lvl ← elabLevel args.back;
-    args.foldrRangeM 0 (args.size - 1)
-      (fun stx lvl => do
-        arg ← elabLevel stx;
-        pure (mkLevelMax lvl arg))
-      lvl
-  else if kind == `Lean.Parser.Level.imax then do
-    let args := (stx.getArg 1).getArgs;
-    lvl ← elabLevel args.back;
-    args.foldrRangeM 0 (args.size - 1)
-      (fun stx lvl => do
-        arg ← elabLevel stx;
-        pure (mkLevelIMax lvl arg))
-      lvl
-  else if kind == `Lean.Parser.Level.hole then do
-    mkFreshLevelMVar
-  else if kind == numLitKind then do
-    match stx.isNatLit? with
-    | some val => pure (Level.ofNat val)
-    | none     => throwIllFormedSyntax
-  else if kind == identKind then do
-    let paramName := stx.getId;
-    ctx ← read;
-    unless (ctx.levelNames.contains paramName) $ throwError ("unknown universe level " ++ paramName);
-    pure $ mkLevelParam paramName
-  else if kind == `Lean.Parser.Level.addLit then do
-    lvl ← elabLevel (stx.getArg 0);
-    match (stx.getArg 2).isNatLit? with
-    | some val => pure (lvl.addOffset val)
-    | none     => throwIllFormedSyntax
-  else
-    throwError "unexpected universe level syntax kind"
+partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
+let kind := stx.getKind
+if kind == `Lean.Parser.Level.paren then
+  elabLevel (stx.getArg 1)
+else if kind == `Lean.Parser.Level.max then
+  let args := stx.getArg 1 $.getArgs
+  let lvl ← elabLevel args.back
+  for arg in args.extract 0 (args.size-1) do
+    let arg ← elabLevel arg
+    lvl := mkLevelMax lvl arg
+  return lvl
+else if kind == `Lean.Parser.Level.imax then
+  let args := stx.getArg 1 $.getArgs
+  let lvl ← elabLevel args.back
+  for arg in args.extract 0 (args.size-1) do
+    let arg ← elabLevel arg
+    lvl := mkLevelIMax lvl arg
+  return lvl
+else if kind == `Lean.Parser.Level.hole then
+  mkFreshLevelMVar
+else if kind == numLitKind then
+  match stx.isNatLit? with
+  | some val => return Level.ofNat val
+  | none     => throwIllFormedSyntax
+else if kind == identKind then
+  let paramName := stx.getId
+  unless (← read).levelNames.contains paramName do
+    throwError ("unknown universe level " ++ paramName)
+  return mkLevelParam paramName
+else if kind == `Lean.Parser.Level.addLit then
+  let lvl ← elabLevel (stx.getArg 0)
+  match stx.getArg 2 $.isNatLit? with
+  | some val => return lvl.addOffset val
+  | none     => throwIllFormedSyntax
+else
+  throwError "unexpected universe level syntax kind"
 
-end Level
-
-export Level (LevelElabM)
-
-end Elab
-end Lean
+end Lean.Elab.Level

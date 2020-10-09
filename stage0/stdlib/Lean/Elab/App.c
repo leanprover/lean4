@@ -317,7 +317,6 @@ lean_object* l_Lean_Elab_Term_elabApp___boxed(lean_object*, lean_object*, lean_o
 uint8_t l_Lean_BinderInfo_beq(uint8_t, uint8_t);
 lean_object* l_List_foldlM___main___at___private_Lean_Elab_App_21__elabAppFnId___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_13__resolveLValAux___closed__16;
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
 lean_object* l___private_Lean_Elab_App_3__tryCoeFun___closed__2;
 lean_object* l___private_Lean_Elab_App_27__mergeFailures___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getParentStructures(lean_object*, lean_object*);
@@ -397,6 +396,7 @@ uint8_t l_Lean_Expr_isOptParam(lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Elab_App_9__elabAppArgsAux___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_18__addLValArg___main___closed__10;
 lean_object* l_Lean_Elab_Term_Arg_inhabited___closed__1;
+extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 extern lean_object* l_Lean_MessageData_arrayExpr_toMessageData___main___closed__2;
 uint8_t l___private_Lean_Elab_App_23__isSuccess(lean_object*);
 lean_object* l___private_Lean_Elab_App_12__findMethod_x3f___main(lean_object*, lean_object*, lean_object*);
@@ -25376,7 +25376,7 @@ if (x_51 == 0)
 {
 lean_object* x_52; uint8_t x_53; 
 lean_dec(x_1);
-x_52 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
+x_52 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 lean_inc(x_13);
 x_53 = l_Lean_Syntax_isOfKind(x_13, x_52);
 if (x_53 == 0)
@@ -25411,7 +25411,7 @@ if (x_62 == 0)
 {
 lean_object* x_63; uint8_t x_64; 
 lean_dec(x_1);
-x_63 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__20;
+x_63 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 lean_inc(x_13);
 x_64 = l_Lean_Syntax_isOfKind(x_13, x_63);
 if (x_64 == 0)

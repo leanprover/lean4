@@ -138,6 +138,9 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.lookahead then do
     d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.lookahead $d)
+  else if kind == `Lean.Parser.Syntax.interpolatedStr then do
+    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+    `(ParserDescr.interpolatedStr $d)
   else if kind == `Lean.Parser.Syntax.sepBy then do
     d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);

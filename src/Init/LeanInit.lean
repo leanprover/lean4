@@ -218,6 +218,8 @@ def charLitKind : SyntaxNodeKind := `charLit
 def numLitKind : SyntaxNodeKind := `numLit
 def nameLitKind : SyntaxNodeKind := `nameLit
 def fieldIdxKind : SyntaxNodeKind := `fieldIdx
+def interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
+def interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 namespace Syntax
 
@@ -911,3 +913,46 @@ end Array
   Like `optParam`, this gadget only affects elaboration.
   For example, the tactic will *not* be invoked during type class resolution. -/
 abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
+
+new_frontend
+
+/- Helper functions for manipulating interpolated strings -/
+namespace Lean.Syntax
+
+private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
+match decodeQuotedChar s i with
+| some r => some r
+| none   =>
+  let c := s.get i
+  let i := s.next i
+  if c == '{' then pure ('{', i)
+  else none
+
+private partial def decodeInterpStrLit (s : String) : Option String :=
+let rec loop (i : String.Pos) (acc : String) :=
+  let c := s.get i
+  let i := s.next i
+  if c == '\"' || c == '{' then
+    pure acc
+  else if s.atEnd i then
+    none
+  else if c == '\\' then do
+    let (c, i) ← decodeInterpStrQuotedChar s i
+    loop i (acc.push c)
+  else
+    loop i (acc.push c)
+loop 1 ""
+
+partial def isInterpolatedStrLit? (stx : Syntax) : Option String :=
+match isLit? interpolatedStrLitKind stx with
+| none     => none
+| some val => decodeInterpStrLit val
+
+def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax :=
+chunks.iterateM Syntax.missing fun i elem result => do
+  let elem ← match elem.isInterpolatedStrLit? with
+    | none     => mkElem elem
+    | some str => mkElem (mkStxStrLit str)
+  if i.val == 0 then pure elem else mkAppend result elem
+
+end Lean.Syntax

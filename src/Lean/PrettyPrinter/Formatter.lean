@@ -15,6 +15,7 @@ already know the text following it and can decide whether or not whitespace betw
 
 import Lean.CoreM
 import Lean.Parser.Extension
+import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
 import Lean.PrettyPrinter.Backtrack
@@ -417,6 +418,10 @@ concatArgs do
   push "`"; goLeft;
   visitAtom Name.anonymous;
   push "`"; goLeft
+
+@[combinatorFormatter Lean.Parser.interpolatedStr]
+def interpolatedStr.formatter (p : Formatter) : Formatter :=
+throwError "NIY"
 
 @[combinatorFormatter unquotedSymbol] def unquotedSymbol.formatter := visitAtom Name.anonymous
 

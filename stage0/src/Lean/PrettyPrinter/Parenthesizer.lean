@@ -74,6 +74,7 @@ node).
 import Lean.CoreM
 import Lean.KeyedDeclsAttribute
 import Lean.Parser.Extension
+import Lean.Parser.StrInterpolation
 import Lean.ParserCompiler.Attribute
 import Lean.PrettyPrinter.Backtrack
 
@@ -457,6 +458,10 @@ p
 
 @[combinatorParenthesizer Lean.Parser.quotedSymbol] def quotedSymbol.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.unquotedSymbol] def unquotedSymbol.parenthesizer := visitToken
+
+@[combinatorParenthesizer Lean.Parser.interpolatedStr]
+def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+throwError "NIY"
 
 @[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
 if c then t else e

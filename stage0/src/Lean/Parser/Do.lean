@@ -76,7 +76,7 @@ def doMatchAlt : Parser  := parser! sepBy1 termParser ", " >> darrow >> doSeq
 def doMatchAlts : Parser := parser! withPosition $ (optional "| ") >> sepBy1 doMatchAlt (checkColGe "alternatives must be indented" >> "| ")
 @[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
 
-def doCatch      := parser! «try» ("catch " >> binderIdent) >> optional binderType >> darrow >> doSeq
+def doCatch      := parser! «try» ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
 def doCatchMatch := parser! "catch " >> doMatchAlts
 def doFinally    := parser! "finally " >> doSeq
 @[builtinDoElemParser] def doTry    := parser! "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally

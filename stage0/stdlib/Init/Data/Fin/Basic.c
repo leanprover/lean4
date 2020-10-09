@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Basic
-// Imports: Init.Data.Nat.Div Init.Data.Nat.Bitwise
+// Imports: Init.Data.Nat.Div Init.Data.Nat.Bitwise Init.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* l_Fin_decLt___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 lean_object* l_Fin_elim0___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_land(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_coeToNat(lean_object*);
 lean_object* l_Fin_DecidableEq(lean_object*);
 uint8_t l_Fin_decLe___rarg(lean_object*, lean_object*);
 lean_object* l_Fin_HasOne(lean_object*);
@@ -35,6 +36,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Fin_ofNat_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_HasAdd(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Fin_coeToNat___boxed(lean_object*);
 lean_object* l_Fin_add(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_ofNat_x27___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_sub(lean_object*, lean_object*, lean_object*);
@@ -59,6 +61,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Fin_elim0(lean_object*, lean_object*);
 lean_object* l_Fin_mod(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_coeToNat___rarg(lean_object*);
 lean_object* l_Fin_decLe___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_HasOne___boxed(lean_object*);
 lean_object* l_Fin_modn(lean_object*, lean_object*, lean_object*);
@@ -70,7 +73,41 @@ lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Fin_DecidableEq___boxed(lean_object*);
 lean_object* l_Fin_HasDiv(lean_object*);
 lean_object* l_Fin_div___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_coeToNat___rarg___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Fin_coeToNat___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Fin_coeToNat(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Fin_coeToNat___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_Fin_coeToNat___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Fin_coeToNat___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Fin_coeToNat___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Fin_coeToNat(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Fin_HasLess(lean_object* x_1) {
 _start:
 {
@@ -524,6 +561,7 @@ return x_2;
 }
 lean_object* initialize_Init_Data_Nat_Div(lean_object*);
 lean_object* initialize_Init_Data_Nat_Bitwise(lean_object*);
+lean_object* initialize_Init_Coe(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Fin_Basic(lean_object* w) {
 lean_object * res;
@@ -533,6 +571,9 @@ res = initialize_Init_Data_Nat_Div(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Bitwise(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Coe(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -307,17 +307,28 @@ partial def mainLoop : Unit → ServerM Unit
     mainLoop ()
   | _ => throw (userError "got invalid JSON-RPC message")
 
-def initAndRunWorker (i o : FS.Stream) : IO Unit := do
+def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
 -- TODO(WN): act in accordance with InitializeParams
 _ ← Lsp.readLspRequestAs i "initialize" InitializeParams;
 param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams;
-h ← FS.Handle.mk "fwlog.txt" FS.Mode.write false;
-_ ← IO.setStderr (FS.Stream.ofHandle h);
+_ ← IO.setStderr e; -- TODO(WN): use a stream var in WorkerM instead of global state
 doc ← openDocument o param;
 docRef ← IO.mkRef doc;
 pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
 runReader (mainLoop ()) (⟨i, o, docRef, pendingRequestsRef⟩ : ServerContext)
 
+namespace Test
+
+def runWorkerWithInputFile (fn : String) (searchPath : Option String) : IO Unit := do
+o ← IO.getStdout;
+e ← IO.getStderr;
+FS.withFile fn FS.Mode.read (fun hFile => do
+  Lean.initSearchPath searchPath;
+  catch
+    (Lean.Server.initAndRunWorker (FS.Stream.ofHandle hFile) o e)
+    (fun err => e.putStrLn $ toString err))
+
+end Test
 end Server
 end Lean
 
@@ -327,6 +338,6 @@ o ← IO.getStdout;
 e ← IO.getStderr;
 Lean.initSearchPath;
 catch
-  (Lean.Server.initAndRunWorker i o)
-  (fun err => e.putStrLn (toString err));
+  (Lean.Server.initAndRunWorker i o e)
+  (fun err => e.putStrLn $ toString err);
 pure 0

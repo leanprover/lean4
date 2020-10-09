@@ -140,7 +140,7 @@ abbrev FileWorkerMap := RBMap DocumentUri FileWorker (fun a b => Decidable.decid
 
 structure ServerContext :=
 (hIn hOut : FS.Stream)
-(log : FS.Stream)
+(hLog : FS.Stream)
 (fileWorkersRef : IO.Ref FileWorkerMap)
 /- We store these to pass them to workers. -/
 (initParams : InitializeParams)
@@ -162,7 +162,7 @@ def eraseFileWorker (uri : DocumentUri) : ServerM Unit :=
 fun st => st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
 
 def log (msg : String) : ServerM Unit :=
-fun st => st.log.putStrLn msg
+fun st => st.hLog.putStrLn msg
 
 -- TODO: this creates a long-running Task, which should be okay with upcoming API changes.
 partial def fwdMsgAux (fw : FileWorker) (hOut : FS.Stream) : Unit → IO WorkerEvent
@@ -401,7 +401,7 @@ catch
   -- so that we can die in peace
   (fun err => do shutdown; throw err)
 
-def initAndRunWatchdog (i o : FS.Stream) : IO Unit := do
+def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
 workerPath ← IO.getEnv "LEAN_WORKER_PATH";
 appDir ← IO.appDir;
 let workerPath := match workerPath with
@@ -415,11 +415,22 @@ writeLspResponse o initRequest.id
     serverInfo? := some { name := "Lean 4 server",
                           version? := "0.0.1" } : InitializeResult };
 
-e ← IO.getStderr;
 runReader
   initAndRunWatchdogAux
   (⟨i, o, e, fileWorkersRef, initRequest.param, workerPath⟩ : ServerContext)
 
+namespace Test
+
+def runWatchdogWithInputFile (fn : String) (searchPath : Option String) : IO Unit := do
+o ← IO.getStdout;
+e ← IO.getStderr;
+FS.withFile fn FS.Mode.read (fun hFile => do
+  Lean.initSearchPath searchPath;
+  catch
+    (Lean.Server.initAndRunWatchdog (FS.Stream.ofHandle hFile) o e)
+    (fun err => e.putStrLn $ toString err))
+
+end Test
 end Server
 end Lean
 
@@ -431,6 +442,6 @@ o ← IO.getStdout;
 e ← IO.getStderr;
 Lean.initSearchPath;
 catch
-  (Lean.Server.initAndRunWatchdog i o)
-  (fun err => e.putStrLn (toString err));
+  (Lean.Server.initAndRunWatchdog i o e)
+  (fun err => e.putStrLn $ toString err);
 pure 0

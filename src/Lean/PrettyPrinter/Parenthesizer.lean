@@ -74,7 +74,6 @@ node).
 import Lean.CoreM
 import Lean.KeyedDeclsAttribute
 import Lean.Parser.Extension
-import Lean.Parser.StrInterpolation
 import Lean.ParserCompiler.Attribute
 import Lean.PrettyPrinter.Backtrack
 

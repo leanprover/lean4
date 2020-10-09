@@ -15,7 +15,6 @@ already know the text following it and can decide whether or not whitespace betw
 
 import Lean.CoreM
 import Lean.Parser.Extension
-import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
 import Lean.PrettyPrinter.Backtrack

@@ -308,6 +308,10 @@ partial def mainLoop : Unit → ServerM Unit
   | _ => throw (userError "got invalid JSON-RPC message")
 
 def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
+i ← maybeTee "fwIn.txt" false i;
+o ← maybeTee "fwOut.txt" true o;
+e ← maybeTee "fwErr.txt" true e;
+
 -- TODO(WN): act in accordance with InitializeParams
 _ ← Lsp.readLspRequestAs i "initialize" InitializeParams;
 param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams;
@@ -332,7 +336,7 @@ end Test
 end Server
 end Lean
 
-def main (_ : List String) : IO UInt32 := do
+def main (args : List String) : IO UInt32 := do
 i ← IO.getStdin;
 o ← IO.getStdout;
 e ← IO.getStderr;

@@ -36,14 +36,19 @@
 (add-to-list 'lsp-language-id-configuration
              '(lean4-lsp-mode . "lean4"))
 
-(defconst lean4-server-bin (concat lean4-home "/src/Lean/Server/build/bin/ServerBin"))
+(defconst lean4-server-bin (concat lean4-home "/src/Lean/Server/build/bin/Watchdog"))
+(defconst lean4-worker-bin (concat lean4-home "/src/Lean/Server/build/bin/FileWorker"))
 (defconst lean4-lib (concat lean4-home "/build/release/stage1/lib/lean/"))
 
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection lean4-server-bin)
                   :major-modes '(lean4-lsp-mode)
                   :environment-fn (lambda ()
-                                    '(("LEAN_PATH" . lean4-lib)))
+                                    '(("LEAN_PATH" . lean4-lib)
+                                      ("LEAN_WORKER_PATH" . lean4-worker-bin)
+                                      ;; Set to dump LSP communications
+                                      ;("LEAN_SERVER_LOG_DIR" . "my/log/dir")
+                                      ))
                   :server-id 'lean4-lsp))
 
 (add-hook 'lean4-lsp-mode-hook #'lsp)

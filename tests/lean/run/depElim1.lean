@@ -140,23 +140,21 @@ registerTraceClass `Meta.mkElim
 /- Helper methods for testins mkElim -/
 
 private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
-let s : CollectLevelParams.State := {};
-let s ← majors.foldlM
-  (fun s major => do
-    let major ← instantiateMVars major;
-    let majorType ← inferType major;
-    let majorType ← instantiateMVars majorType;
-    let s := collectLevelParams s major;
-    pure $ collectLevelParams s majorType)
-  s;
-pure s.getUnusedLevelParam
+let s : CollectLevelParams.State := {}
+for major in majors do
+  let major ← instantiateMVars major
+  let majorType ← inferType major
+  let majorType ← instantiateMVars majorType
+  s := collectLevelParams s major
+  s := collectLevelParams s majorType
+return s.getUnusedLevelParam
 
 /- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
 private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool) : MetaM Expr := do
 if inProp then
   return mkSort levelZero
 else
-  let v ← getUnusedLevelParam majors lhss;
+  let v ← getUnusedLevelParam majors lhss
   return mkSort $ v
 
 def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp : Bool := false) : MetaM MatcherResult := do
@@ -179,8 +177,9 @@ withDepElimFrom ex numPats fun majors alts => do
   pure ()
 
 def testFailure (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit := do
-let worked ← «catch» (do test ex numPats elimName inProp; pure true) (fun ex => pure false);
-when worked $ throwError "unexpected success"
+let worked ← «catch» (do test ex numPats elimName inProp; pure true) (fun ex => pure false)
+if worked then
+  throwError "unexpected success"
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
 := arbitrary _

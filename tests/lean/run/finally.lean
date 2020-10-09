@@ -11,16 +11,17 @@ throw "error 1"
 def f2 : M Nat :=
 throwThe IO.Error $ IO.userError "error 2"
 
-def tst1 : M Nat :=
-«catch»
-  («finally» f1 (do set 100; IO.println "finisher executed"))
-  (fun _ => get)
+def tst1 : M Nat := do
+try
+  try f1 finally set 100; IO.println "finisher executed"
+catch _ =>
+  get
 
 def checkE {α ε : Type} [HasBeq α] (x : IO (Except ε α)) (expected : α) : IO Unit := do
 let r ← x;
-(match r with
-| Except.ok a    => «unless» (a == expected) $ throw $ IO.userError "unexpected result"
-| Except.error _ => throw $ IO.userError "unexpected error")
+match r with
+| Except.ok a    => unless a == expected do throw $ IO.userError "unexpected result"
+| Except.error _ => throw $ IO.userError "unexpected error"
 
 #eval (tst1.run).run' 0
 

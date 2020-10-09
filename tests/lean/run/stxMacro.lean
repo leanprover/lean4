@@ -6,9 +6,11 @@ macro "many " x:stx : stx => `(stx| ($x)*)
 syntax "sum! " (many term:max) : term
 
 macro_rules
-| `(sum! $x*) => do
+| `(sum! $xs*) => do
   let r ← `(0)
-  x.foldlM (fun r elem => `($r + $elem)) r
+  for x in xs do
+    r ← `($r + $x)
+  return r
 
 #check sum! 1 2 3
 #eval sum! 1 2 3

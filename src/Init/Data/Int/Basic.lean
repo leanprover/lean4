@@ -9,7 +9,7 @@ prelude
 import Init.Data.Nat.Basic
 import Init.Data.List
 import Init.Data.Repr
-import Init.Data.ToString
+import Init.Data.ToString.Basic
 open Nat
 
 /- the Type, coercions, and notation -/

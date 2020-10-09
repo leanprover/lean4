@@ -1,17 +1,5 @@
 new_frontend
 
-open Lean
-
-def mkToString! (chunks : Array Syntax) : MacroM Syntax :=
-Syntax.expandInterpolatedStrChunks chunks (fun a b => `($a ++ $b)) (fun a => `(toString $a))
-
-syntax:max "s!" (interpolatedStr term) : term
-
-macro_rules
-| `(s! $interpStr) =>
-  let chunks := interpStr.getArgs
-  Syntax.expandInterpolatedStrChunks chunks (fun a b => `($a ++ $b)) (fun a => `(toString $a))
-
 #eval s!"hello {1+1}"
 
 def tst (x : Nat) : IO Unit := do

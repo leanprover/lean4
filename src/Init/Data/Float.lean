@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Core
-import Init.Data.ToString
+import Init.Data.ToString.Basic
 
 structure FloatSpec :=
 (float : Type)

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.String.Basic
-import Init.Data.ToString
+import Init.Data.ToString.Basic
 
 universes u v
 /- debugging helper functions -/

@@ -7,7 +7,7 @@ Authors: Simon Hudon
 prelude
 import Init.Core
 import Init.Data.UInt
-import Init.Data.ToString
+import Init.Data.ToString.Basic
 import Init.Data.String.Basic
 
 /-

@@ -27,34 +27,18 @@ An easy way to get an LSP client is to build the [sample extension](https://gith
       env: {
         LEAN_PATH: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/lib/lean/",
         LEAN_WORKER_PATH: "$LEAN4_HOME/src/Lean/Server/build/bin/FileWorker"
+        // Add this for LSP message logs
+        //, LEAN_SERVER_LOG_DIR: "my/log/dir"
       }
     }
   };
 ```
 
-or if logging LSP requests using Netcat (below):
-
-```typescript
-  let serverOptions: ServerOptions = {
-    command: "/usr/bin/nc",
-    args: ["localhost", "12345"],
-    options: null
-  };
-```
-
 ## Logging LSP requests
 
-### In `bash` with Netcat:
+### In general
 
-```
-cd $LEAN4_HOME/src/Lean/Server/
-mkfifo pipe
-# So that the server can find and import packages
-export LEAN_PATH=$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage0.5/lib/lean/
-export LEAN_WORKER_PATH=$LEAN4_HOME/src/Lean/Server/build/bin/FileWorker
-nc -l -p 12345 < pipe | tee client.log | ./build/bin/Watchdog 2> stderr | tee pipe server.log
-```
-will create three files to follow with `tail -f` -- `client.log` for client messages, `server.log` for server messages and `stderr` for server `IO.stderr` debugging.
+To log all LSP messages and server output into a directory, just set the `LEAN_SERVER_LOG_DIR` environment variable. This will create a file for each I/O stream of the main server process, as well as those of each worker process.
 
 ### In VSCode
 

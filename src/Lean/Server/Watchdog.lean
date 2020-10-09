@@ -203,7 +203,7 @@ def startFileWorker (uri : DocumentUri) (version : Nat) (text : FileMap) : Serve
 st ← read;
 headerAst ← monadLift $ parseHeaderAst text.source;
 let doc : OpenDocument := ⟨version, text, headerAst⟩;
-workerProc ← monadLift $ Process.spawn {workerCfg with cmd := st.workerPath};
+workerProc ← monadLift $ Process.spawn { workerCfg with cmd := st.workerPath };
 pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
 -- the task will never access itself, so this is fine
 let commTaskFw : FileWorker := ⟨doc, workerProc, Task.pure WorkerEvent.terminated, WorkerState.running, pendingRequestsRef⟩;
@@ -409,11 +409,15 @@ let workerPath := match workerPath with
   | some p => p;
 fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap);
 
+i ← maybeTee "wdIn.txt" false i;
+o ← maybeTee "wdOut.txt" true o;
+e ← maybeTee "wdErr.txt" true e;
+
 initRequest ← readLspRequestAs i "initialize" InitializeParams;
 writeLspResponse o initRequest.id
-  { capabilities := mkLeanServerCapabilities,
-    serverInfo? := some { name := "Lean 4 server",
-                          version? := "0.0.1" } : InitializeResult };
+{ capabilities := mkLeanServerCapabilities,
+  serverInfo? := some { name := "Lean 4 server",
+                        version? := "0.0.1" } : InitializeResult };
 
 runReader
   initAndRunWatchdogAux
@@ -436,7 +440,7 @@ end Lean
 
 -- TODO: compile separately OR add as a flag to the `lean` binary in order to stop
 -- polluting the global symbol list with a `main` (and ditto in FileWorker.lean)
-def main (_ : List String) : IO UInt32 := do
+def main (args : List String) : IO UInt32 := do
 i ← IO.getStdin;
 o ← IO.getStdout;
 e ← IO.getStderr;

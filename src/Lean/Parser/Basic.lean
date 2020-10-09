@@ -1112,39 +1112,9 @@ fun c s =>
   let prev := pickNonNone s.stxStack;
   if checkTailNoWs prev then s else s.mkError errorMsg
 
-def checkNoWsBefore (errorMsg : String) : Parser :=
+def checkNoWsBefore (errorMsg : String := "no space") : Parser :=
 { info := epsilonInfo,
   fn   := checkNoWsBeforeFn errorMsg }
-
-def symbolNoWsInfo (sym : String) : ParserInfo :=
-{ collectTokens := fun tks => sym :: tks,
-  firstTokens   := FirstTokens.tokens [ sym ] }
-
-@[inline] def symbolNoWsFnAux (sym : String) (errorMsg : String) : ParserFn :=
-fun c s =>
-  let left := s.stxStack.back;
-  if checkTailNoWs left then
-    let startPos := s.pos;
-    let input    := c.input;
-    let s        := strAux sym errorMsg 0 c s;
-    if s.hasError then s
-    else
-      let leading   := mkEmptySubstringAt input startPos;
-      let stopPos   := startPos + sym.bsize;
-      let trailing  := mkEmptySubstringAt input stopPos;
-      let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } sym;
-      s.pushSyntax atom
-  else
-    s.mkError errorMsg
-
-@[inline] def symbolNoWsFn (sym : String) : ParserFn :=
-symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespace around it")
-
-/- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
-@[inline] def symbolNoWs (sym : String) : Parser :=
-let sym := sym.trim;
-{ info := symbolNoWsInfo sym,
-  fn   := symbolNoWsFn sym }
 
 def unicodeSymbolFnAux (sym asciiSym : String) (expected : List String) : ParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) expected

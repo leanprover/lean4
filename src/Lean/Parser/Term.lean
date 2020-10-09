@@ -189,9 +189,9 @@ def ellipsis       := parser! ".."
   checkColGt "expected to be indented" >>
   (namedArgument <|> termParser maxPrec <|> ellipsis)
 
-@[builtinTermParser] def proj     := tparser! symbolNoWs "." >> (fieldIdx <|> ident)
+@[builtinTermParser] def proj     := tparser! checkNoWsBefore >> "." >> (fieldIdx <|> ident)
+@[builtinTermParser] def arrayRef := tparser! checkNoWsBefore >> "[" >> termParser >>"]"
 @[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
-@[builtinTermParser] def arrayRef := tparser! symbolNoWs "[" >> termParser >>"]"
 
 def isIdent (stx : Syntax) : Bool :=
 -- antiquotations should also be allowed where an identifier is expected

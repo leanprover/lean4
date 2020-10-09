@@ -380,7 +380,6 @@ visitArgs $ do {
 }
 
 @[combinatorParenthesizer Lean.Parser.symbol] def symbol.parenthesizer := visitToken
-@[combinatorParenthesizer Lean.Parser.symbolNoWs] def symbolNoWs.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.unicodeSymbol] def unicodeSymbol.parenthesizer := visitToken
 
 @[combinatorParenthesizer Lean.Parser.identNoAntiquot] def identNoAntiquot.parenthesizer := visitToken

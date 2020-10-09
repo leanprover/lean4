@@ -56,7 +56,7 @@ def isNil : Format → Bool
 | nil => true
 | _   => false
 
-structure SpaceResult :=
+private structure SpaceResult :=
 (foundLine := false)
 (space     := 0)
 
@@ -69,7 +69,7 @@ else
   let r₂ := r₂ (w - r₁.space);
   { r₂ with space := r₁.space + r₂.space }
 
-def spaceUptoLine : Format → Bool → Nat → SpaceResult
+private def spaceUptoLine : Format → Bool → Nat → SpaceResult
 | nil,          flatten, w => {}
 | line,         flatten, w => if flatten then { space := 1 } else { foundLine := true }
 | text s,       flatten, w =>
@@ -80,16 +80,16 @@ def spaceUptoLine : Format → Bool → Nat → SpaceResult
 | nest _ f,     flatten, w => spaceUptoLine f flatten w
 | group f _,    _,       w => spaceUptoLine f true w
 
-structure WorkItem :=
+private structure WorkItem :=
 (f : Format)
 (indent : Int)
 
-structure WorkGroup :=
+private structure WorkGroup :=
 (flatten : Bool)
 (flb     : FlattenBehavior)
 (items   : List WorkItem)
 
-partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
+private partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
 | [],                           w => {}
 |   { items := [],    .. }::gs, w => spaceUptoLine' gs w
 | g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
@@ -100,7 +100,7 @@ let g : WorkGroup := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, 
 let r := spaceUptoLine' (g::gs) w;
 { g with flatten := r.space <= w }::gs
 
-partial def be (w : Nat) : Nat → String → List WorkGroup → String
+private partial def be (w : Nat) : Nat → String → List WorkGroup → String
 | k, out, []                           => out
 | k, out,   { items := [],    .. }::gs => be k out gs
 | k, out, g@{ items := i::is, .. }::gs =>

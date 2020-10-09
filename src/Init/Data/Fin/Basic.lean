@@ -6,11 +6,15 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Div
 import Init.Data.Nat.Bitwise
+import Init.Coe
 
 open Nat
 structure Fin (n : Nat) := (val : Nat) (isLt : val < n)
 
 namespace Fin
+
+instance coeToNat {n} : Coe (Fin n) Nat :=
+⟨fun v => v.val⟩
 
 protected def lt {n} (a b : Fin n) : Prop :=
 a.val < b.val

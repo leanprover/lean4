@@ -65,6 +65,7 @@ open IO
 open Std (RBMap RBMap.empty)
 open Lsp
 open JsonRpc
+open System.FilePath
 
 structure OpenDocument :=
 (version : Nat)
@@ -401,8 +402,11 @@ catch
   (fun err => do shutdown; throw err)
 
 def initAndRunWatchdog (i o : FS.Stream) : IO Unit := do
-some workerPath ← IO.getEnv "LEAN_WORKER_PATH"
-  | throw $ userError "You need to specify LEAN_WORKER_PATH in the environment.";
+workerPath ← IO.getEnv "LEAN_WORKER_PATH";
+appDir ← IO.appDir;
+let workerPath := match workerPath with
+  | none   => appDir ++ pathSeparator.toString ++ "FileWorker" ++ exeSuffix
+  | some p => p;
 fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap);
 
 initRequest ← readLspRequestAs i "initialize" InitializeParams;

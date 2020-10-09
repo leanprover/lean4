@@ -279,22 +279,27 @@ inductive ForInStep (α : Type u)
 | yield : α → ForInStep
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive NestedDoResult (α β σ : Type u)
-| «pure»     : α → σ → NestedDoResult
-| «return»   : β → σ → NestedDoResult
+inductive DoResultPRBC (α β σ : Type u)
+| «pure»     : α → σ → DoResultPRBC
+| «return»   : β → σ → DoResultPRBC
+| «break»    : σ → DoResultPRBC
+| «continue» : σ → DoResultPRBC
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive NestedDoForResult (α β σ : Type u)
-| «pure»     : α → σ → NestedDoForResult
-| «return»   : β → σ → NestedDoForResult
-| «break»    : σ → NestedDoForResult
-| «continue» : σ → NestedDoForResult
+inductive DoResultPR (α β σ : Type u)
+| «pure»     : α → σ → DoResultPR
+| «return»   : β → σ → DoResultPR
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive NestedDoForResult' (α σ : Type u)
-| «pure»     : α → σ → NestedDoForResult'
-| «break»    : σ → NestedDoForResult'
-| «continue» : σ → NestedDoForResult'
+inductive DoResultBC (σ : Type u)
+| «break»    : σ → DoResultBC
+| «continue» : σ → DoResultBC
+
+/- Auxiliary type used to compile `do` notation. -/
+inductive DoResultSBC (α σ : Type u)
+| «pureReturn» : α → σ → DoResultSBC
+| «break»      : σ → DoResultSBC
+| «continue»   : σ → DoResultSBC
 
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable

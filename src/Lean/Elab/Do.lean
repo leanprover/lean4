@@ -203,6 +203,9 @@ def isTerminalAction : Code → Bool
 def hasTerminalAction (c : Code) : Bool :=
 hasExitPointPred isTerminalAction c
 
+def hasBreakContinue (c : Code) : Bool :=
+hasExitPointPred (fun c => match c with | Code.«break» _ => true | Code.«continue» _ => true | _ => false) c
+
 def hasBreakContinueReturn (c : Code) : Bool :=
 hasExitPointPred (fun c => !isTerminalAction c) c
 
@@ -676,16 +679,99 @@ if doElem.getKind == `Lean.Parser.Term.doExpr then
 else
   none
 
--- Code block to syntax term
+/-
+The procedure `ToTerm.run` converts a `CodeBlock` into a `Syntax` term.
+We use this method to convert
+1- The `CodeBlock` for a root `do ...` term into a `Syntax` term. This kind of
+   `CodeBlock` never contains `break` nor `continue`. Moreover, the collection
+   of updated variables is not packed into the result.
+   Thus, we have two kinds of exit points
+     - `Code.action e` which is converted into `e`
+     - `Code.return _ e` which is converted into `pure e`
+
+   We use `Kind.regular` for this case.
+
+2- The `CodeBlock` for `b` at `for x in xs do b`. In this case, we need to generate
+   a `Syntax` term representing a function for the `xs.forIn` combinator.
+
+   a) If `b` contain a `Code.return _ a` exit point. The generated `Syntax` term
+      has type `m (ForInStep (Option α × σ))`, where `a : α`, and the `σ` is the type
+      of the tuple of variables reassigned by `b`.
+      We use `Kind.forInWithReturn` for this case
+
+   b) If `b` does not contain a `Code.return _ a` exit point. Then, the generated
+      `Syntax` term has type `m (ForInStep σ)`.
+      We use `Kind.forIn` for this case.
+
+3- The `CodeBlock` `c` for a `do` sequence nested in a monadic combinator (e.g., `MonadExcept.catch`).
+
+   The generated `Syntax` term for `c` must inform whether `c` "exited" using `Code.action`, `Code.return`,
+   `Code.break` or `Code.continue`. We use the auxiliary types `DoResult`s for storing this information.
+   For example, the auxiliary type `DoResultPBC α σ` is used for a code block that exits with `Code.action`,
+   **and** `Code.break`/`Code.continue`, `α` is the type of values produced by the exit `action`, and
+   `σ` is the type of the tuple of reassigned variables.
+   The type `DoResult α β σ` is usedf for code blocks that exit with
+   `Code.action`, `Code.return`, **and** `Code.break`/`Code.continue`, `β` is the type of the returned values.
+   We don't use `DoResult α β σ` for all cases because:
+
+      a) The elaborator would not be able to infer all type parameters without extra annotations. For example,
+         if the code block does not contain `Code.return _ _`, the elaborator will not be able to infer `β`.
+
+      b) We need to pattern match on the result produced by the combinator (e.g., `MonadExcept.catch`),
+         but we don't want to consider "unreachable" cases.
+
+   We do not distinguish between cases that contain `break`, but not `continue`, and vice versa.
+
+   When listing all cases, we use `a` to indicate the code block contains `Code.action _`, `r` for `Code.return _ _`,
+   and `b/c` for a code block that contains `Code.break _` or `Code.continue _`.
+
+   - `a`: `Kind.regular`, type `m (α × σ)`
+
+   - `r`: `Kind.regular`, type `m (α × σ)`
+           Note that the code that pattern matches on the result will behave differently in this case.
+           It produces `return a` for this case, and `pure a` for the previous one.
+
+   - `b/c`: `Kind.nestedBC`, type `m (DoResultBC σ)`
+
+   - `a` and `r`:   `Kind.nestedPR`, type `m (DoResultPR α β σ)`
+
+   - `a` and `bc`:  `Kind.nestedSBC`, type `m (DoResultSBC α σ)`
+
+   - `r` and `bc`:  `Kind.nestedSBC`, type `m (DoResultSBC α σ)`
+         Again the code that pattern matches on the result will behave differently in this case and
+         the previous one. It produces `return a` for the constructor `DoResultSPR.pureReturn a u` for
+         this case, and `pure a` for the previous case.
+
+   - `a`, `r`, `b/c`: `Kind.nestedPRBC`, type type `m (DoResultPRBC α β σ)`
+
+Here is the recipe for adding new combinators with nested `do`s.
+Example: suppose we want to support `repeat doSeq`. Assuming we have `repeat : m α → m α`
+1- Convert `doSeq` into `codeBlock : CodeBlock`
+2- Create term `term` using `mkNestedTerm code m uvars a r bc` where
+   `code` is `codeBlock.code`, `uvars` is an array containing `codeBlock.uvars`,
+   `m` is a `Syntax` representing the Monad, and
+   `a` is true if `code` contains `Code.action _`,
+   `r` is true if `code` contains `Code.return _ _`,
+   `bc` is true if `code` contains `Code.break _` or `Code.continue _`.
+
+   Remark: for combinators such as `repeat` that take a single `doSeq`, all
+   arguments, but `m`, are extracted from `codeBlock`.
+3- Create the term `repeat $term`
+4- and then, convert it into a `doSeq` using `matchNestedTermResult ref (repeat $term) uvsar a r bc`
+
+-/
 namespace ToTerm
 
 inductive Kind
 | regular
-| nested     -- for nested computation blocks that use only `return` and `pure`
-| nestedFor  -- for nested computation blocks that occur inside for-in
-| nestedFor' -- for nested computation blocks that occur inside for-in but do not use `return`
 | forIn
 | forInWithReturn
+| nestedBC
+| nestedPR
+| nestedSBC
+| nestedPRBC
+
+instance Kind.inhabited : Inhabited Kind := ⟨Kind.regular⟩
 
 def Kind.isRegular : Kind → Bool
 | Kind.regular => true
@@ -708,11 +794,12 @@ ctx ← read;
 u ← mkUVarTuple ref;
 match ctx.kind with
 | Kind.regular         => if ctx.uvars.isEmpty then `(HasPure.pure $val) else `(HasPure.pure ($val, $u))
-| Kind.nested          => `(HasPure.pure (NestedDoResult.«return» $val $u))
-| Kind.nestedFor'      => unreachable!
-| Kind.nestedFor       => `(HasPure.pure (NestedDoForResult.«return» $val $u))
 | Kind.forIn           => `(HasPure.pure (ForInStep.done $u))
 | Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (some $val, $u)))
+| Kind.nestedBC        => unreachable!
+| Kind.nestedPR        => `(HasPure.pure (DoResultPR.«return» $val $u))
+| Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«pureReturn» $val $u))
+| Kind.nestedPRBC      => `(HasPure.pure (DoResultPRBC.«return» $val $u))
 
 def returnToTerm (ref : Syntax) (val : Syntax) : M Syntax := do
 r ← returnToTermCore ref val;
@@ -723,11 +810,12 @@ ctx ← read;
 u ← mkUVarTuple ref;
 match ctx.kind with
 | Kind.regular         => unreachable!
-| Kind.nested          => unreachable!
-| Kind.nestedFor       => `(HasPure.pure (NestedDoForResult.«continue» $u))
-| Kind.nestedFor'      => `(HasPure.pure (NestedDoForResult'.«continue» $u))
 | Kind.forIn           => `(HasPure.pure (ForInStep.yield $u))
 | Kind.forInWithReturn => `(HasPure.pure (ForInStep.yield (none, $u)))
+| Kind.nestedBC        => `(HasPure.pure (DoResultBC.«continue» $u))
+| Kind.nestedPR        => unreachable!
+| Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«continue» $u))
+| Kind.nestedPRBC      => `(HasPure.pure (DoResultPRBC.«continue» $u))
 
 def continueToTerm (ref : Syntax) : M Syntax := do
 r ← continueToTermCore ref;
@@ -738,11 +826,12 @@ ctx ← read;
 u ← mkUVarTuple ref;
 match ctx.kind with
 | Kind.regular         => unreachable!
-| Kind.nested          => unreachable!
-| Kind.nestedFor       => `(HasPure.pure (NestedDoForResult.«break» $u))
-| Kind.nestedFor'      => `(HasPure.pure (NestedDoForResult'.«break» $u))
-| Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (none, $u)))
 | Kind.forIn           => `(HasPure.pure (ForInStep.done $u))
+| Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (none, $u)))
+| Kind.nestedBC        => `(HasPure.pure (DoResultBC.«break» $u))
+| Kind.nestedPR        => unreachable!
+| Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«break» $u))
+| Kind.nestedPRBC      => `(HasPure.pure (DoResultPRBC.«break» $u))
 
 def breakToTerm (ref : Syntax) : M Syntax := do
 r ← breakToTermCore ref;
@@ -753,12 +842,13 @@ let ref := action;
 ctx ← read;
 u ← mkUVarTuple ref;
 match ctx.kind with
-| Kind.nested          => `(HasBind.bind $action fun y => (HasPure.pure (NestedDoResult.«pure» y $u)))
-| Kind.nestedFor       => `(HasBind.bind $action fun y => (HasPure.pure (NestedDoForResult.«pure» y $u)))
-| Kind.nestedFor'      => `(HasBind.bind $action fun y => (HasPure.pure (NestedDoForResult'.«pure» y $u)))
+| Kind.regular         => if ctx.uvars.isEmpty then pure action else `(HasBind.bind $action fun y => HasPure.pure (y, $u))
 | Kind.forIn           => `(HasBind.bind $action fun _ => HasPure.pure (ForInStep.yield $u))
 | Kind.forInWithReturn => `(HasBind.bind $action fun _ => HasPure.pure (ForInStep.yield (none, $u)))
-| Kind.regular         => if ctx.uvars.isEmpty then pure action else `(HasBind.bind $action fun y => HasPure.pure (y, $u))
+| Kind.nestedBC        => unreachable!
+| Kind.nestedPR        => `(HasBind.bind $action fun y => (HasPure.pure (DoResultPR.«pure» y $u)))
+| Kind.nestedSBC       => `(HasBind.bind $action fun y => (HasPure.pure (DoResultSBC.«pureReturn» y $u)))
+| Kind.nestedPRBC      => `(HasBind.bind $action fun y => (HasPure.pure (DoResultPRBC.«pure» y $u)))
 
 def actionTerminalToTerm (action : Syntax) : M Syntax := do
 let ref := action;
@@ -912,6 +1002,60 @@ partial def toTerm : Code → M Syntax
 def run (code : Code) (m : Syntax) (uvars : Array Name := #[]) (kind := Kind.regular) : MacroM Syntax := do
 term ← toTerm code { m := m, kind := kind, uvars := uvars };
 pure term
+
+/- Given
+   - `a` is true if the code block has a `Code.action _` exit point
+   - `r` is true if the code block has a `Code.return _ _` exit point
+   - `bc` is true if the code block has a `Code.break _` or `Code.continue _` exit point
+
+   generate Kind. See comment at the beginning of the `ToTerm` namespace. -/
+def mkNestedKind (a r bc : Bool) : Kind :=
+match a, r, bc with
+| true,  false, false => Kind.regular
+| false, true,  false => Kind.regular
+| false, false, true  => Kind.nestedBC
+| true,  true,  false => Kind.nestedPR
+| true,  false, true  => Kind.nestedSBC
+| false, true,  true  => Kind.nestedSBC
+| true,  true,  true  => Kind.nestedPRBC
+| false, false, false => unreachable!
+
+def mkNestedTerm (code : Code) (m : Syntax) (uvars : Array Name) (a r bc : Bool) : MacroM Syntax := do
+ToTerm.run code m uvars (mkNestedKind a r bc)
+
+/- Given a term `term` produced by `ToTerm.run`, pattern match on its result.
+   See comment at the beginning of the `ToTerm` namespace.
+
+   - `a` is true if the code block has a `Code.action _` exit point
+   - `r` is true if the code block has a `Code.return _ _` exit point
+   - `bc` is true if the code block has a `Code.break _` or `Code.continue _` exit point
+
+   The result is a sequence of `doElem` -/
+def matchNestedTermResult (ref : Syntax) (term : Syntax) (uvars : Array Name) (a r bc : Bool) : MacroM (List Syntax) := do
+let toDoElems (auxDo : Syntax) : List Syntax := getDoSeqElems (getDoSeq auxDo);
+u ← mkTuple ref (uvars.map (mkIdentFrom ref));
+match a, r, bc with
+| true, false, false =>
+  if uvars.isEmpty then
+    toDoElems <$> `(do $term:term)
+  else
+    toDoElems <$> `(do let r ← $term:term; $u:term := r.2; pure r.1)
+| false, true, false =>
+  if uvars.isEmpty then
+    toDoElems <$> `(do let r ← $term:term; return r)
+  else
+    toDoElems <$> `(do let r ← $term:term; $u:term := r.2; return r.1)
+| false, false, true => toDoElems <$>
+  `(do let r ← $term:term; match r with | DoResultBC.«break» u => $u:term := u; break | DoResultBC.«continue» u => $u:term := u; continue)
+| true, true, false => toDoElems <$>
+  `(do let r ← $term:term; match r with | DoResultPR.«pure» a u => $u:term := u; pure a | DoResultPR.«return» b u => $u:term := u; return b)
+| true, false, true => toDoElems <$>
+  `(do let r ← $term:term; match r with | DoResultSBC.«pureReturn» a u => $u:term := u; pure a | DoResultSBC.«break» u => $u:term := u; break | DoResultSBC.«continue» u => $u:term := u; continue)
+| false, true, true => toDoElems <$>
+  `(do let r ← $term:term; match r with | DoResultSBC.«pureReturn» a u => $u:term := u; return a | DoResultSBC.«break» u => $u:term := u; break | DoResultSBC.«continue» u => $u:term := u; continue)
+| true, true, true => toDoElems <$>
+  `(do let r ← $term:term; match r with | DoResultPRBC.«pure» a u => $u:term := u; pure a | DoResultPRBC.«return» a u => $u:term := u; return a | DoResultPRBC.«break» u => $u:term := u; break | DoResultPRBC.«continue» u => $u:term := u; continue)
+| false, false, false => unreachable!
 
 end ToTerm
 
@@ -1159,20 +1303,12 @@ let ws := match finallyCode? with
   | some c => union c.uvars ws;
 ws
 
-/- We say a try-catch-finally is simple when it doesn't contain `return/break/continue` -/
-def isSimpleTryCatch (tryCode : CodeBlock) (catches : Array Catch) (finallyCode? : Option CodeBlock) : Bool :=
-!hasBreakContinueReturn tryCode.code &&
-catches.all (fun catch => !hasBreakContinueReturn catch.codeBlock.code) &&
+def tryCatchPred (tryCode : CodeBlock) (catches : Array Catch) (finallyCode? : Option CodeBlock) (p : Code → Bool) : Bool :=
+p tryCode.code ||
+catches.any (fun catch => p catch.codeBlock.code) ||
 match finallyCode? with
-| none           => true
-| some codeBlock => !hasBreakContinueReturn codeBlock.code
-
-def tryCatchHasReturn (tryCode : CodeBlock) (catches : Array Catch) (finallyCode? : Option CodeBlock) : Bool :=
-hasReturn tryCode.code ||
-catches.any (fun catch => hasReturn catch.codeBlock.code) ||
-match finallyCode? with
-| none           => false
-| some codeBlock => hasReturn codeBlock.code
+| none => false
+| some finallyCode => p finallyCode.code
 
 /--
   Generate `CodeBlock` for `doTry; doElems`
@@ -1204,19 +1340,15 @@ catches ← (doTry.getArg 2).getArgs.mapM fun catchStx => do {
 finallyCode? ← if optFinally.isNone then pure none else some <$> doSeqToCode (getDoSeqElems ((optFinally.getArg 0).getArg 1));
 when (catches.isEmpty && finallyCode?.isNone) $
   throwError "invalid 'try', it must have a 'catch' or 'finally'";
-let ws         := getTryCatchUpdatedVars tryCode catches finallyCode?;
-let isSimple   := isSimpleTryCatch tryCode catches finallyCode?;
-let hasReturn  := tryCatchHasReturn tryCode catches finallyCode?;
 ctx ← read;
-let toTermKind := match isSimple, ctx.insideFor, hasReturn with
-  | true,  _,     _     => ToTerm.Kind.regular
-  | _,    false,  _     => ToTerm.Kind.nested
-  | _,    true,   true  => ToTerm.Kind.nestedFor
-  | _,    true,   false => ToTerm.Kind.nestedFor';
-let uvars      := nameSetToArray ws;
-let toTerm (c : CodeBlock) : M Syntax := do {
-  c ← liftM $ extendUpdatedVars c ws;
-  liftMacroM $ ToTerm.run c.code ctx.m uvars toTermKind
+let ws    := getTryCatchUpdatedVars tryCode catches finallyCode?;
+let uvars := nameSetToArray ws;
+let a     := tryCatchPred tryCode catches finallyCode? hasTerminalAction;
+let r     := tryCatchPred tryCode catches finallyCode? hasReturn;
+let bc    := tryCatchPred tryCode catches finallyCode? hasBreakContinue;
+let toTerm (codeBlock : CodeBlock) : M Syntax := do {
+  codeBlock ← liftM $ extendUpdatedVars codeBlock ws;
+  liftMacroM $ ToTerm.mkNestedTerm codeBlock.code ctx.m uvars a r bc
 };
 term ← toTerm tryCode;
 term ← catches.foldlM
@@ -1238,25 +1370,8 @@ term ← match finallyCode? with
     finallyTerm ← liftMacroM $ ToTerm.run finallyCode.code ctx.m {} ToTerm.Kind.regular;
     `(«finally» $term $finallyTerm)
   };
-uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref));
-let processAuxDo (auxDo : Syntax) : M CodeBlock := doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems);
-if isSimple then do
-  if uvars.isEmpty then do
-    auxDoElem ← `(doElem| $term:term);
-    doSeqToCode (auxDoElem::doElems)
-  else
-    `(do let tryRes ← $term:term; $uvarsTuple:term := tryRes.2; pure tryRes.1)
-    >>= processAuxDo
-else if ctx.insideFor then
-  if hasReturn then
-    `(do let tryRes ← $term:term; match tryRes with | NestedDoForResult.«break» u => $uvarsTuple:term := u; break | NestedDoForResult.«continue» u => $uvarsTuple:term := u; continue | NestedDoForResult.«return» v u => $uvarsTuple:term := u; return v | NestedDoForResult.«pure» v u => $uvarsTuple:term := u; pure v)
-    >>= processAuxDo
-  else
-    `(do let tryRes ← $term:term; match tryRes with | NestedDoForResult'.«break» u => $uvarsTuple:term := u; break | NestedDoForResult'.«continue» u => $uvarsTuple:term := u; continue | NestedDoForResult'.«pure» v u => $uvarsTuple:term := u; pure v)
-    >>= processAuxDo
-else
-  `(do let tryRes ← $term:term; match tryRes with | NestedDoResult.«return» v u => $uvarsTuple:term := u; return v | NestedDoResult.«pure» v u => $uvarsTuple:term := u; pure v)
-  >>= processAuxDo
+doElemsNew ← liftMacroM $ ToTerm.matchNestedTermResult ref term uvars a r bc;
+doSeqToCode (doElemsNew ++ doElems)
 
 /- Generate `CodeBlock` for `doReturn` which is of the form
    ```

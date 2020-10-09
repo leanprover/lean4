@@ -272,7 +272,6 @@ else do
   trace! `PrettyPrinter.format.backtrack ("unexpected syntax '" ++ stx ++ "', expected symbol '" ++ sym ++ "'");
   throwBacktrack
 
-@[combinatorFormatter symbolNoWs] def symbolNoWs.formatter := symbol.formatter
 @[combinatorFormatter nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
 
 @[combinatorFormatter unicodeSymbol]

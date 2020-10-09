@@ -168,6 +168,7 @@ inductive ParserDescr
 | trailingNode      : Name → Nat → ParserDescr → ParserDescr
 | symbol            : String → ParserDescr
 | nonReservedSymbol : String → Bool → ParserDescr
+| noWs              : ParserDescr
 | numLit            : ParserDescr
 | strLit            : ParserDescr
 | charLit           : ParserDescr

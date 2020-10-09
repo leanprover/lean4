@@ -129,6 +129,8 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     `(ParserDescr.charLit)
   else if kind == `Lean.Parser.Syntax.ident then
     `(ParserDescr.ident)
+  else if kind == `Lean.Parser.Syntax.noWs then
+    `(ParserDescr.noWs)
   else if kind == `Lean.Parser.Syntax.try then do
     d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.try $d)

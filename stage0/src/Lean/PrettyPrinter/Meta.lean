@@ -43,6 +43,7 @@ unsafe def interpretParserDescr : ParserDescr → AttrM Parenthesizer
 | ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
 | ParserDescr.interpolatedStr d                   => interpolatedStr.parenthesizer <$> interpretParserDescr d
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer
+| ParserDescr.noWs                                => pure $ checkNoWsBefore.parenthesizer
 | ParserDescr.parser constName                    => interpretParser (ctx interpretParserDescr) constName
 | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
 
@@ -77,6 +78,7 @@ unsafe def interpretParserDescr : ParserDescr → AttrM Formatter
 | ParserDescr.interpolatedStr d                   => interpolatedStr.formatter <$> interpretParserDescr d
 | ParserDescr.ident                               => pure $ withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter
 | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.formatter tk
+| ParserDescr.noWs                                => pure $ checkNoWsBefore.formatter
 | ParserDescr.parser constName                    => interpretParser (ctx interpretParserDescr) constName
 | ParserDescr.cat catName prec                    => pure $ categoryParser.formatter catName
 

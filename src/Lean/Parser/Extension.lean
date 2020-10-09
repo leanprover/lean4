@@ -211,6 +211,7 @@ partial def compileParserDescr (env : Environment) (categories : ParserCategorie
 | ParserDescr.node k prec d                       => leadingNode k prec <$> compileParserDescr d
 | ParserDescr.trailingNode k prec d               => trailingNode k prec <$> compileParserDescr d
 | ParserDescr.symbol tk                           => pure $ symbol tk
+| ParserDescr.noWs                                => pure $ checkNoWsBefore
 | ParserDescr.numLit                              => pure $ numLit
 | ParserDescr.strLit                              => pure $ strLit
 | ParserDescr.charLit                             => pure $ charLit

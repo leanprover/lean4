@@ -33,6 +33,7 @@ namespace Syntax
 @[builtinSyntaxParser] def str             := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char            := parser! nonReservedSymbol "char"
 @[builtinSyntaxParser] def ident           := parser! nonReservedSymbol "ident"
+@[builtinSyntaxParser] def noWs            := parser! nonReservedSymbol "noWs"
 @[builtinSyntaxParser] def interpolatedStr := parser! nonReservedSymbol "interpolatedStr " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def try             := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def lookahead       := parser! nonReservedSymbol "lookahead " >> syntaxParser maxPrec

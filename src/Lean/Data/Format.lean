@@ -132,26 +132,30 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
       -- after a hard line break, re-evaluate whether to flatten the remaining group
       pushGroup g.flb is gs w >>= be
   | line => do
-    let g' := { g with items := is };
-    k ← State.column <$> get;
-    let (flatten, g') := match g.flb : _ → Bool × WorkGroup with
-      | FlattenBehavior.allOrNone => (g.flatten, g')
-      | FlattenBehavior.fill =>
-        let r := spaceUptoLine' ({ g' with flatten := false }::gs) (w-k);
-        -- if preceding fill item fit in a single line, try to fit next one too
-        if g.flatten && r.space <= w-k then (true, { g' with flatten := true })
-        else
-          -- else, try to fit it in a separate line
-          let w' :=  w - i.indent.toNat;
-          let r := spaceUptoLine' ({ g' with flatten := false }::gs) w';
-          (false, { g' with flatten := r.space <= w' });
-    if flatten then do
-      -- flatten line = text " "
-      pushOutput " ";
-      be (g'::gs)
-    else do
-      pushNewline i.indent.toNat;
-      be (g'::gs)
+    match g.flb with
+    | FlattenBehavior.allOrNone =>
+      if g.flatten then do
+        -- flatten line = text " "
+        pushOutput " ";
+        be (gs' is)
+      else do
+        pushNewline i.indent.toNat;
+        be (gs' is)
+    | FlattenBehavior.fill => do
+      -- if preceding fill item fit in a single line, try to fit next one too
+      flattened ← pure g.flatten <&&> do {
+        gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs w
+          | unreachable!;
+        when g'.flatten do {
+          pushOutput " ";
+          be gs'  -- TODO: use `return`
+        };
+        pure g'.flatten
+      };
+      unless flattened do
+        -- else break and make new `fill` group
+        pushNewline i.indent.toNat;
+        pushGroup FlattenBehavior.fill is gs w >>= be
   | group f flb => if g.flatten then
       -- flatten (group f) = flatten f
       be (gs' ({ i with f := f }::is))

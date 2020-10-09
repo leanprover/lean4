@@ -20,7 +20,15 @@ import Lean.Elab.Attributes
 
 namespace Lean
 namespace Elab
+
+namespace Level -- Hack: namespaces created with new frontend cannot be seen by old one
+end Level
+
+open Level (LevelElabM) -- Hack: exports created by new frontend cannot be seen by old old
+
 namespace Term
+
+
 
 /-
   Set isDefEq configuration for the elaborator.

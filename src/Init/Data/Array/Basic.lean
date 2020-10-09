@@ -536,19 +536,6 @@ a.forRevMAux f a.size (Nat.leRefl _)
 
 end
 
--- TODO(Leo): justify termination using wf-rec
-partial def extractAux (a : Array α) : Nat → ∀ (e : Nat), e ≤ a.size → Array α → Array α
-| i, e, hle, r =>
-  if hlt : i < e then
-    let idx : Fin a.size := ⟨i, Nat.ltOfLtOfLe hlt hle⟩;
-    extractAux (i+1) e hle (r.push (a.get idx))
- else r
-
-def extract (a : Array α) (b e : Nat) : Array α :=
-let r : Array α := mkEmpty (e - b);
-if h : e ≤ a.size then extractAux a b e h r
-else r
-
 protected def append (a : Array α) (b : Array α) : Array α :=
 b.foldl (fun a v => a.push v) a
 

@@ -63,3 +63,12 @@ for x in xs do
 return sum
 
 #eval f4 #[1, 2, 3]
+
+def f5 (xs : Array Nat) : IO Nat := do
+let sum := 0
+for x in xs.toSubarray 1 (xs.size - 1) do
+  sum := sum + x
+  IO.println x
+return sum
+
+#eval f5 #[1, 2, 3, 4, 5, 6]

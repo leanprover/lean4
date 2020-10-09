@@ -66,7 +66,7 @@ return sum
 
 def f5 (xs : Array Nat) : IO Nat := do
 let sum := 0
-for x in xs.toSubarray 1 (xs.size - 1) do
+for x in xs[1 : xs.size - 1] do
   sum := sum + x
   IO.println x
 return sum

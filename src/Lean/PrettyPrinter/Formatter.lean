@@ -131,7 +131,7 @@ setStack $ (stack.shrink sp).push f
 
 /-- Execute `x` and concatenate generated Format objects. -/
 def concat (x : FormatterM Unit) : FormatterM Unit := do
-fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
+fold (Array.foldl (fun acc f => if acc.isNil then f else f ++ acc) Format.nil) x
 
 def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
 concat (visitArgs x)

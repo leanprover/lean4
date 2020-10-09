@@ -54,3 +54,12 @@ return sum
 #eval testM 100 6 $ f3 [1, 2, 3]
 #eval testM 200 101 $ f3 [1, 100, 200, 300]
 #eval testM 1 1 $ f3 [1, 100, 200, 300]
+
+def f4 (xs : Array Nat) : IO Nat := do
+let sum := 0
+for x in xs do
+  sum := sum + x
+  IO.println x
+return sum
+
+#eval f4 #[1, 2, 3]

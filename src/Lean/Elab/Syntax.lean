@@ -214,19 +214,19 @@ pure $ Lean.addMacroScope mainModule (mkKindName catName) scp
 def Macro.mkFreshKind (catName : Name) : MacroM Name :=
 Macro.addMacroScope (mkKindName catName)
 
+def mkKind (stx : Syntax) : CommandElabM Name := do
+let kind := stx.getId;
+if kind.hasMacroScopes then
+  pure kind
+else do
+  currNamespace ← getCurrNamespace;
+  pure (currNamespace ++ kind)
+
 private def elabKindPrio (stx : Syntax) (catName : Name) : CommandElabM (Name × Nat) := do
 if stx.isNone then do
   k ← mkFreshKind catName;
   pure (k, 0)
 else
-  let mkKind (stx : Syntax) : CommandElabM Name := do {
-    let kind := stx.getId;
-    if kind.hasMacroScopes then
-      pure kind
-    else do
-      currNamespace ← getCurrNamespace;
-      pure (currNamespace ++ kind)
-  };
   let arg := stx.getArg 1;
   if arg.getKind == `Lean.Parser.Command.parserKind then do
     k ← mkKind (arg.getArg 0);
@@ -241,7 +241,6 @@ else
     pure (k, prio)
   else
     throwError "unexpected syntax kind/priority"
-
 
 /- We assume a new syntax can be treated as an atom when it starts and ends with a token.
    Here are examples of atom-like syntax.
@@ -344,8 +343,8 @@ else do
 adaptExpander $ fun stx => match_syntax stx with
 | `(macro_rules $alts:matchAlt*)           => elabNoKindMacroRulesAux alts
 | `(macro_rules | $alts:matchAlt*)         => elabNoKindMacroRulesAux alts
-| `(macro_rules [$kind] $alts:matchAlt*)   => elabMacroRulesAux kind.getId alts
-| `(macro_rules [$kind] | $alts:matchAlt*) => elabMacroRulesAux kind.getId alts
+| `(macro_rules [$kind] $alts:matchAlt*)   => do k ← mkKind kind; elabMacroRulesAux k alts
+| `(macro_rules [$kind] | $alts:matchAlt*) => do k ← mkKind kind; elabMacroRulesAux k alts
 | _                                        => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro :=

@@ -565,6 +565,9 @@ private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Arra
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!;
     elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit overloaded acc
+  | `($e $.$field) => do
+     f ← `($(e).$field);
+     elabAppFn f lvals namedArgs args expectedType? explicit overloaded acc
   | `($(e).$field:ident) =>
     let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName (toString n));
     elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit overloaded acc
@@ -692,6 +695,7 @@ fun stx expectedType? => elabAppAux stx #[] #[] expectedType?
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom
 @[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
 @[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
+@[builtinTermElab dollarProj] def expandDollarProj : TermElab := elabAtom
 
 @[builtinTermElab explicit] def elabExplicit : TermElab :=
 fun stx expectedType? => match_syntax stx with

@@ -5,7 +5,7 @@ open Lean.SCC
 def checkSCC (expected : List (List Nat)) (vertices : List Nat) (successorsOf : Nat → List Nat) : IO Unit := do
 let r := scc vertices successorsOf
 IO.println r
-«unless» (expected == r) $
+unless expected == r do
   throw $ IO.userError ("expected result " ++ toString expected)
 
 #eval checkSCC [[2], [1, 3], [4]] [1, 2, 3, 4] fun x => match x with

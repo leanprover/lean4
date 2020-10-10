@@ -1,7 +1,7 @@
 new_frontend
 
-def tst1 (x : Nat) : IO Unit :=
-when (x > 0) do
+def tst1 (x : Nat) : IO Unit := do
+if x > 0 then
   IO.println "hello"
   IO.println "world"
 

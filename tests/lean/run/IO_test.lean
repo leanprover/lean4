@@ -1,7 +1,7 @@
 prelude
 import Init.System.IO
 import Init.Data.List.Control
-
+import Init.Data.ToString
 new_frontend
 
 open IO.FS
@@ -10,9 +10,7 @@ instance : HasRepr UInt8 := ⟨ toString ⟩
 
 def check_eq {α} [HasBeq α] [HasRepr α] (tag : String) (expected actual : α) : IO Unit :=
 «unless» (expected == actual) $ throw $ IO.userError $
-  "assertion failure \"" ++ tag ++
-    "\":\n  expected: " ++ repr expected ++
-       "\n  actual:   " ++ repr actual
+  s!"assertion failure \"{tag}\":\n  expected: {repr expected}\n  actual:   {repr actual}"
 
 def test : IO Unit := do
 let xs : ByteArray := ⟨#[1,2,3,4]⟩;

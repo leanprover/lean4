@@ -108,8 +108,8 @@ partial def expandHash : Syntax → StateT Bool MacroM Syntax
 @[macro Lean.Parser.Term.do] def expandDo : Macro :=
 fun stx => do
   let (stx, expanded) ← expandHash stx false;
-  (if expanded then pure stx
-   else Macro.throwUnsupported)
+  if expanded then pure stx
+  else Macro.throwUnsupported
 
 
 def tst7 : StateT (Nat × Nat) IO Unit := do

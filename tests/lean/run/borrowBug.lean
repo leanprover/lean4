@@ -7,7 +7,7 @@ set_option trace.compiler.ir.rc true
 
 def f (x : Nat) (y : Nat) : Bool :=
 let jp (x : Nat) : Bool := -- x must be owned
-  p x || p (x+1);
+  p x || p (x+1)
 match x with
 | 0 => let z := g y; jp z.1
 | _ => let z := g x; jp z.1

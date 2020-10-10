@@ -136,11 +136,10 @@ instance LHS.inhabited {α} (a : α) : Inhabited (LHS a) := ⟨LHS.mk⟩
 @[init] def register : IO Unit :=
 registerTraceClass `Meta.mkElim
 
-
 /- Helper methods for testins mkElim -/
 
 private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
-let s : CollectLevelParams.State := {}
+let s := {}
 for major in majors do
   let major ← instantiateMVars major
   let majorType ← inferType major

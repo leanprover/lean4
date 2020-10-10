@@ -21,22 +21,23 @@ open Lean.Elab.Term
 
 @[termElab emptyS] def elabEmptyS : TermElab :=
 fun stx expectedType? => do
-  tryPostponeIfNoneOrMVar expectedType?;
-  let stxNew ← `(Nat.zero);
-  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+  tryPostponeIfNoneOrMVar expectedType?
+  let stxNew ← `(Nat.zero)
+  withMacroExpansion stx stxNew $
+    elabTerm stxNew expectedType?
 
 def foo (x : Unit) := x
 
 def f1 : Unit :=
-let x := ⟨ ⟩;
+let x := ⟨ ⟩
 foo x
 
 def f2 : Unit :=
-let x := ⟨ ⟩;
+let x := ⟨ ⟩
 x
 
 def f3 : Nat :=
-let x := ⟨ ⟩;
+let x := ⟨ ⟩
 x
 
 theorem ex2 : f3 = 0 :=

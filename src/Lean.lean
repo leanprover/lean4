@@ -8,6 +8,7 @@ import Lean.Environment
 import Lean.Modifiers
 import Lean.ProjFns
 import Lean.Runtime
+import Lean.ResolveName
 import Lean.Attributes
 import Lean.Parser
 import Lean.ReducibilityAttrs

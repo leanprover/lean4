@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.ResolveName
 import Lean.Util.Sorry
 import Lean.Structure
 import Lean.Meta.ExprDefEq
@@ -13,7 +14,6 @@ import Lean.Meta.Tactic.Util
 import Lean.Hygiene
 import Lean.Util.RecDepth
 import Lean.Elab.Log
-import Lean.Elab.ResolveName
 import Lean.Elab.Level
 import Lean.Elab.Attributes
 

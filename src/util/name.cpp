@@ -469,6 +469,7 @@ name name::mk_internal_unique_name() {
 
 void initialize_name() {
     g_anonymous = new name();
+    mark_persistent(g_anonymous->raw());
     g_next_id   = new atomic<unsigned>(0);
 }
 

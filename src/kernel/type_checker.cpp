@@ -1048,20 +1048,35 @@ extern "C" lean_object * lean_kernel_whnf(lean_object * env, lean_object * lctx,
 
 void initialize_type_checker() {
     g_id_delta     = new name("id_delta");
+    mark_persistent(g_id_delta->raw());
     g_dont_care    = new expr(mk_const("dontcare"));
+    mark_persistent(g_dont_care->raw());
     g_kernel_fresh = new name("_kernel_fresh");
+    mark_persistent(g_kernel_fresh->raw());
     g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
+    mark_persistent(g_nat_zero->raw());
     g_nat_succ     = new expr(mk_constant(name{"Nat", "succ"}));
+    mark_persistent(g_nat_succ->raw());
     g_nat_add      = new expr(mk_constant(name{"Nat", "add"}));
+    mark_persistent(g_nat_add->raw());
     g_nat_sub      = new expr(mk_constant(name{"Nat", "sub"}));
+    mark_persistent(g_nat_sub->raw());
     g_nat_mul      = new expr(mk_constant(name{"Nat", "mul"}));
+    mark_persistent(g_nat_mul->raw());
     g_nat_div      = new expr(mk_constant(name{"Nat", "div"}));
+    mark_persistent(g_nat_div->raw());
     g_nat_mod      = new expr(mk_constant(name{"Nat", "mod"}));
+    mark_persistent(g_nat_mod->raw());
     g_nat_beq      = new expr(mk_constant(name{"Nat", "beq"}));
+    mark_persistent(g_nat_beq->raw());
     g_nat_ble      = new expr(mk_constant(name{"Nat", "ble"}));
+    mark_persistent(g_nat_ble->raw());
     g_string_mk    = new expr(mk_constant(name{"String", "mk"}));
+    mark_persistent(g_string_mk->raw());
     g_lean_reduce_bool = new expr(mk_constant(name{"Lean", "reduceBool"}));
+    mark_persistent(g_lean_reduce_bool->raw());
     g_lean_reduce_nat  = new expr(mk_constant(name{"Lean", "reduceNat"}));
+    mark_persistent(g_lean_reduce_nat->raw());
     register_name_generator_prefix(*g_kernel_fresh);
 }
 

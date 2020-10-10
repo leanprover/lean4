@@ -114,11 +114,16 @@ bool is_checkpoint_annotation(expr const & e) { return is_annotation(e, *g_check
 
 void initialize_annotation() {
     g_annotation = new name("annotation");
+    mark_persistent(g_annotation->raw());
     g_annotation_maps = new annotation_maps();
     g_have            = new name("have");
+    mark_persistent(g_have->raw());
     g_show            = new name("show");
+    mark_persistent(g_show->raw());
     g_suffices        = new name("suffices");
+    mark_persistent(g_suffices->raw());
     g_checkpoint      = new name("checkpoint");
+    mark_persistent(g_checkpoint->raw());
 
     register_annotation(*g_have);
     register_annotation(*g_show);

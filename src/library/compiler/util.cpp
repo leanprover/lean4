@@ -750,14 +750,23 @@ expr lcnf_eta_expand(type_checker::state & st, local_ctx lctx, expr e) {
 
 void initialize_compiler_util() {
     g_neutral_expr        = new expr(mk_constant("_neutral"));
+    mark_persistent(g_neutral_expr->raw());
     g_unreachable_expr    = new expr(mk_constant("_unreachable"));
+    mark_persistent(g_unreachable_expr->raw());
     g_object_type         = new expr(mk_constant("_obj"));
+    mark_persistent(g_object_type->raw());
     g_void_type           = new expr(mk_constant("_void"));
+    mark_persistent(g_void_type->raw());
     g_usize               = new expr(mk_constant(get_usize_name()));
+    mark_persistent(g_usize->raw());
     g_uint8               = new expr(mk_constant(get_uint8_name()));
+    mark_persistent(g_uint8->raw());
     g_uint16              = new expr(mk_constant(get_uint16_name()));
+    mark_persistent(g_uint16->raw());
     g_uint32              = new expr(mk_constant(get_uint32_name()));
+    mark_persistent(g_uint32->raw());
     g_uint64              = new expr(mk_constant(get_uint64_name()));
+    mark_persistent(g_uint64->raw());
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
     g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);

@@ -210,6 +210,7 @@ void initialize_trace() {
     g_trace_classes = new name_set();
     g_trace_aliases = new name_map<name_set>();
     g_trace_as_messages = new name {"trace", "as_messages"};
+    mark_persistent(g_trace_as_messages->raw());
 
     register_trace_class(name{"debug"});
 }

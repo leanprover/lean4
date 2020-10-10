@@ -274,6 +274,7 @@ expr ll_infer_type(environment const & env, local_ctx const & lctx, expr const &
 
 void initialize_ll_infer_type() {
     g_bot = new expr(mk_constant("_bot"));
+    mark_persistent(g_bot->raw());
 }
 
 void finalize_ll_infer_type() {

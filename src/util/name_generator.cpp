@@ -91,6 +91,7 @@ name sanitize_name_generator_name(name const & n) {
 void initialize_name_generator() {
     g_ngen_prefixes = new name_set();
     g_tmp_prefix    = new name("_uniq");
+    mark_persistent(g_tmp_prefix->raw());
     register_name_generator_prefix(*g_tmp_prefix);
 }
 

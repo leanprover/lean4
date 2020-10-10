@@ -14,6 +14,7 @@ static name * g_placeholder_name          = nullptr;
 
 void initialize_placeholder() {
     g_placeholder_name = new name(name::mk_internal_unique_name(), "_");
+    mark_persistent(g_placeholder_name->raw());
 }
 
 void finalize_placeholder() {

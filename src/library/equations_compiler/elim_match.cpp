@@ -1285,7 +1285,9 @@ void initialize_elim_match() {
     register_trace_class({"debug", "eqn_compiler", "elim_match"});
 
     g_eqn_compiler_ite       = new name{"eqn_compiler", "ite"};
+    mark_persistent(g_eqn_compiler_ite->raw());
     g_eqn_compiler_max_steps = new name{"eqn_compiler", "max_steps"};
+    mark_persistent(g_eqn_compiler_max_steps->raw());
     register_bool_option(*g_eqn_compiler_ite, LEAN_DEFAULT_EQN_COMPILER_ITE,
                          "(equation compiler) use if-then-else terms when pattern matching on simple values "
                          "(e.g., strings and characters)");

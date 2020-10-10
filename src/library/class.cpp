@@ -52,6 +52,7 @@ bool is_anonymous_inst_name(name const & n) {
 
 void initialize_class() {
     g_anonymous_inst_name_prefix = new name("_inst");
+    mark_persistent(g_anonymous_inst_name_prefix->raw());
 }
 
 void finalize_class() {

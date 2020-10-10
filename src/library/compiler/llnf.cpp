@@ -816,21 +816,37 @@ environment compile_ir(environment const & env, options const & opts, comp_decls
 
 void initialize_llnf() {
     g_apply     = new expr(mk_constant("_apply"));
+    mark_persistent(g_apply->raw());
     g_closure   = new expr(mk_constant("_closure"));
+    mark_persistent(g_closure->raw());
     g_reuse     = new name("_reuse");
+    mark_persistent(g_reuse->raw());
     g_reset     = new name("_reset");
+    mark_persistent(g_reset->raw());
     g_sset      = new name("_sset");
+    mark_persistent(g_sset->raw());
     g_fset      = new name("_fset");
+    mark_persistent(g_fset->raw());
     g_uset      = new name("_uset");
+    mark_persistent(g_uset->raw());
     g_proj      = new name("_proj");
+    mark_persistent(g_proj->raw());
     g_sproj     = new name("_sproj");
+    mark_persistent(g_sproj->raw());
     g_fproj     = new name("_sproj");
+    mark_persistent(g_fproj->raw());
     g_uproj     = new name("_uproj");
+    mark_persistent(g_uproj->raw());
     g_jmp       = new expr(mk_constant("_jmp"));
+    mark_persistent(g_jmp->raw());
     g_box       = new name("_box");
+    mark_persistent(g_box->raw());
     g_unbox     = new name("_unbox");
+    mark_persistent(g_unbox->raw());
     g_inc       = new expr(mk_constant("_inc"));
+    mark_persistent(g_inc->raw());
     g_dec       = new expr(mk_constant("_dec"));
+    mark_persistent(g_dec->raw());
     register_trace_class({"compiler", "lambda_pure"});
 }
 

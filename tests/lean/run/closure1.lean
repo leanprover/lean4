@@ -27,7 +27,7 @@ withLocalDeclD `f (← mkArrow α α) $ fun f => do
 withLetDecl   `b α (mkApp f a) $ fun b => do
 let t := mkApp m2 (mkApp f b)
 let e ← mkAuxDefinitionFor `foo1 t
-trace! `Meta.debug e
+trace[Meta.debug]! e
 printDef `foo1
 
 #eval tst1

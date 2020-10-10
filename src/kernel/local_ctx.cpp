@@ -130,6 +130,7 @@ void initialize_local_ctx() {
     g_dummy_decl   = new local_decl(std::numeric_limits<unsigned>::max(),
                                     name("__local_decl_for_default_constructor"), name("__local_decl_for_default_constructor"),
                                     mk_Prop(), mk_binder_info());
+    mark_persistent(g_dummy_decl->raw());
 }
 
 void finalize_local_ctx() {

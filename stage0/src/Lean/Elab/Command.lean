@@ -11,6 +11,10 @@ import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclModifiers
 
 namespace Lean
+
+namespace MonadResolveName end MonadResolveName -- Hack for old frontend
+open MonadResolveName (getCurrNamespace getOpenDecls) -- HACK for old frontend
+
 namespace Elab
 namespace Command
 

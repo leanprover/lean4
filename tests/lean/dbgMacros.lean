@@ -22,7 +22,7 @@ x - 1
 #eval h 0
 
 def f2 (x : Nat) :=
-dbgTrace! "f2, x: {x}";
+dbgTrace! s!"f2, x: {x}";
 x + 1
 
 #eval f2 10

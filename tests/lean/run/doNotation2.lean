@@ -19,7 +19,7 @@ aux x x;
 def g (xs : List Nat) : StateT Nat Id Nat := do
 if xs.isEmpty then
   xs := [← get]
-dbgTrace! ">>> xs: {xs}"
+dbgTrace! s!">>> xs: {xs}"
 return xs.length
 
 #eval g [1, 2, 3] $.run' 10
@@ -54,7 +54,7 @@ for x in xs do
     break
   unless x % 2 == 1 do
     continue
-  dbgTrace! ">> x: {x}"
+  dbgTrace! s!">> x: {x}"
 return sum
 
 #eval sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10
@@ -136,7 +136,7 @@ rfl
 def f5 (x y : Nat) : Nat × Nat := do
 match x with
 | 0   => y := y + 1
-| z+1 => dbgTrace! "z: {z}"; x := x + y
+| z+1 => dbgTrace! s!"z: {z}"; x := x + y
 return (x, y)
 
 #eval f5 5 6

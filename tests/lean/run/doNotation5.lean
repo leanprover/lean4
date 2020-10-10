@@ -18,10 +18,10 @@ try
   dec y
   get
 catch ex : String =>
-  dbgTrace! "string exception {ex}"
+  dbgTrace! s!"string exception {ex}"
   pure 1000
 catch ex : Nat =>
-  dbgTrace! "nat exception {ex}"
+  dbgTrace! s!"nat exception {ex}"
   pure ex
 
 #eval (f 10 20).run 1000

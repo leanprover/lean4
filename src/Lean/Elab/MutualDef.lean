@@ -11,6 +11,7 @@ import Lean.Elab.PreDefinition
 
 namespace Lean
 namespace Elab
+open MonadResolveName (getCurrNamespace getOpenDecls) -- HACK for old frontend
 
 /- DefView after elaborating the header. -/
 structure DefViewElabHeader :=

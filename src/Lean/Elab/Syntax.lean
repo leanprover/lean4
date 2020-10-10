@@ -8,6 +8,7 @@ import Lean.Elab.Quotation
 
 namespace Lean
 namespace Elab
+open MonadResolveName (getCurrNamespace getOpenDecls) -- HACK for old frontend
 
 namespace Term
 

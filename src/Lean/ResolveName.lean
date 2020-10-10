@@ -7,6 +7,7 @@ import Lean.Data.OpenDecl
 import Lean.Hygiene
 import Lean.Modifiers
 import Lean.Exception
+new_frontend
 
 namespace Lean
 /-!
@@ -21,23 +22,19 @@ match s.find? e.1 with
 | none    => s.insert e.1 [e.2]
 | some es => if es.elem e.2 then s else s.insert e.1 (e.2 :: es)
 
-def mkAliasExtension : IO (SimplePersistentEnvExtension AliasEntry AliasState) :=
-registerSimplePersistentEnvExtension {
-  name          := `aliasesExt,
-  addEntryFn    := addAliasEntry,
-  addImportedFn := fun es => (mkStateFromImportedEntries addAliasEntry {} es).switch
-}
-
-@[init mkAliasExtension]
-constant aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState := arbitrary _
+initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
+  registerSimplePersistentEnvExtension {
+    name          := `aliasesExt,
+    addEntryFn    := addAliasEntry,
+    addImportedFn := fun es => mkStateFromImportedEntries addAliasEntry {} es $.switch
+  }
 
 /- Add alias `a` for `e` -/
-@[export lean_add_alias]
-def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
+@[export lean_add_alias] def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
 aliasExtension.addEntry env (a, e)
 
 def getAliases (env : Environment) (a : Name) : List Name :=
-match (aliasExtension.getState env).find? a with
+match aliasExtension.getState env $.find? a with
 | none    => []
 | some es => es
 
@@ -50,21 +47,21 @@ namespace ResolveName
 
 /- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
-let resolvedId    := ns ++ id;
-let resolvedIds   := getAliases env resolvedId;
-if env.contains resolvedId && (!id.isAtomic || !isProtected env resolvedId) then resolvedId :: resolvedIds
+let resolvedId    := ns ++ id
+let resolvedIds   := getAliases env resolvedId
+if env.contains resolvedId && (!id.isAtomic || !isProtected env resolvedId) then
+  resolvedId :: resolvedIds
 else
   -- Check whether environment contains the private version. That is, `_private.<module_name>.ns.id`.
-  let resolvedIdPrv := mkPrivateName env resolvedId;
+  let resolvedIdPrv := mkPrivateName env resolvedId
   if env.contains resolvedIdPrv then resolvedIdPrv :: resolvedIds
   else resolvedIds
-
 
 /- Check surrounding namespaces -/
 private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name
 | ns@(Name.str p _ _) =>
   match resolveQualifiedName env ns id with
-  | [] => resolveUsingNamespace p
+  | []          => resolveUsingNamespace env id p
   | resolvedIds => resolvedIds
 | _ => []
 
@@ -72,12 +69,12 @@ private def resolveUsingNamespace (env : Environment) (id : Name) : Name → Lis
 private def resolveExact (env : Environment) (id : Name) : Option Name :=
 if id.isAtomic then none
 else
-  let resolvedId := id.replacePrefix rootNamespace Name.anonymous;
+  let resolvedId := id.replacePrefix rootNamespace Name.anonymous
   if env.contains resolvedId then some resolvedId
   else
     -- We also allow `_root` when accessing private declarations.
     -- If we change our minds, we should just replace `resolvedId` with `id`
-    let resolvedIdPrv := mkPrivateName env resolvedId;
+    let resolvedIdPrv := mkPrivateName env resolvedId
     if env.contains resolvedIdPrv then some resolvedIdPrv
     else none
 
@@ -85,51 +82,50 @@ else
 private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl → List Name → List Name
 | [], resolvedIds => resolvedIds
 | OpenDecl.simple ns exs :: openDecls, resolvedIds =>
-  if exs.elem id then resolveOpenDecls openDecls resolvedIds
+  if exs.elem id then
+    resolveOpenDecls env id openDecls resolvedIds
   else
-    let newResolvedIds := resolveQualifiedName env ns id;
-    resolveOpenDecls openDecls (newResolvedIds ++ resolvedIds)
+    let newResolvedIds := resolveQualifiedName env ns id
+    resolveOpenDecls env id openDecls (newResolvedIds ++ resolvedIds)
 | OpenDecl.explicit openedId resolvedId :: openDecls, resolvedIds =>
-  let resolvedIds := if id == openedId then resolvedId :: resolvedIds else resolvedIds;
-  resolveOpenDecls openDecls resolvedIds
-
-private def resolveGlobalNameAux (env : Environment) (ns : Name) (openDecls : List OpenDecl)
-    (scpView : MacroScopesView) : Name → List String → List (Name × List String)
-| id@(Name.str p s _), projs =>
-  -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
-  let id := { scpView with name := id }.review;
-  match resolveUsingNamespace env id ns with
-  | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map $ fun id => (id, projs)
-  | [] =>
-  match resolveExact env id with
-  | some newId => [(newId, projs)]
-  | none =>
-  let resolvedIds := if env.contains id then [id] else [];
-  let idPrv := mkPrivateName env id;
-  let resolvedIds := if env.contains idPrv then [idPrv] ++ resolvedIds else resolvedIds;
-  let resolvedIds := resolveOpenDecls env id openDecls resolvedIds;
-  let resolvedIds := getAliases env id ++ resolvedIds;
-  match resolvedIds with
-  | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map $ fun id => (id, projs)
-  | [] => resolveGlobalNameAux p (s::projs)
-| _, _ => []
+  let resolvedIds := if id == openedId then resolvedId :: resolvedIds else resolvedIds
+  resolveOpenDecls env id openDecls resolvedIds
 
 def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List (Name × List String) :=
 -- decode macro scopes from name before recursion
-let extractionResult := extractMacroScopes id;
-resolveGlobalNameAux env ns openDecls extractionResult extractionResult.name []
+let extractionResult := extractMacroScopes id
+let rec loop : Name → List String → List (Name × List String)
+  | id@(Name.str p s _), projs =>
+    -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
+    let id := { extractionResult with name := id }.review
+    match resolveUsingNamespace env id ns with
+    | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map fun id => (id, projs)
+    | [] =>
+      match resolveExact env id with
+      | some newId => [(newId, projs)]
+      | none =>
+        let resolvedIds := if env.contains id then [id] else []
+        let idPrv := mkPrivateName env id
+        let resolvedIds := if env.contains idPrv then [idPrv] ++ resolvedIds else resolvedIds
+        let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
+        let resolvedIds := getAliases env id ++ resolvedIds
+        match resolvedIds with
+        | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map fun id => (id, projs)
+        | []                   => loop p (s::projs)
+  | _, _ => []
+loop extractionResult.name []
 
 /- Namespace resolution -/
 
 def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → Option Name
 | Name.anonymous      => none
-| ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope p
+| ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope env n p
 | _                   => unreachable!
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
 | []                          => none
-| OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
-| _ :: ds                     => resolveNamespaceUsingOpenDecls ds
+| OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls env n ds
+| _ :: ds                     => resolveNamespaceUsingOpenDecls env n ds
 
 /-
 Given a name `id` try to find namespace it refers to. The resolution procedure works as follows
@@ -186,33 +182,27 @@ variables {m : Type → Type} [Monad m] [MonadResolveName m] [MonadEnv m]
   - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w]), (Boo.x, [z, w])]`
 -/
 def resolveGlobalName  (id : Name) : m (List (Name × List String)) := do
-env       ← getEnv;
-ns        ← getCurrNamespace;
-openDecls ← getOpenDecls;
-pure (ResolveName.resolveGlobalName env ns openDecls id)
+return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
 variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
 
 def resolveNamespace (id : Name) : m Name := do
-env       ← getEnv;
-ns        ← getCurrNamespace;
-openDecls ← getOpenDecls;
-match ResolveName.resolveNamespace? env ns openDecls id with
-| some ns => pure ns
+match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
+| some ns => return ns
 | none    => throwError ("unknown namespace '" ++ id ++ "'")
 
 /- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
 def resolveGlobalConst (n : Name) : m (List Name) := do
-cs ← resolveGlobalName n;
-let cs := cs.filter fun ⟨_, fieldList⟩ => fieldList.isEmpty;
-when cs.isEmpty $ throwUnknownConstant n;
-pure $ cs.map Prod.fst
+let cs ← resolveGlobalName n
+let cs := cs.filter fun p => p.2.isEmpty -- TODO fun (_, fieldList) => fieldList.isEmpty doesn't work here
+if cs.isEmpty then throwUnknownConstant n
+return cs.map (·.1)
 
 def resolveGlobalConstNoOverload (n : Name) : m Name := do
-cs ← resolveGlobalConst n;
+let cs ← resolveGlobalConst n
 match cs with
 | [c] => pure c
-| _   => throwError ("ambiguous identifier '" ++ mkConst n ++ "', possible interpretations: " ++ cs.map mkConst)
+| _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map (mkConst ·)}" -- TODO: (cs.map mkConst) doesn't work
 
 end Methods
 end Lean

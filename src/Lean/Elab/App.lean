@@ -9,9 +9,11 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 
 namespace Lean
+namespace MonadResolveName end MonadResolveName -- Hack for old frontend
+open MonadResolveName (getCurrNamespace getOpenDecls) -- HACK for old frontend
+
 namespace Elab
 namespace Term
-
 open Meta
 
 /--

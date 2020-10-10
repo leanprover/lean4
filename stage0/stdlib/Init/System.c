@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System
-// Imports: Init.System.IO Init.System.Platform Init.System.Macros
+// Imports: Init.System.IO Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* initialize_Init_System_IO(lean_object*);
 lean_object* initialize_Init_System_Platform(lean_object*);
-lean_object* initialize_Init_System_Macros(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_System(lean_object* w) {
 lean_object * res;
@@ -25,9 +24,6 @@ res = initialize_Init_System_IO(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_Platform(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Macros(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -46,6 +46,7 @@ group
 
 instance : HasAppend Format     := ⟨Format.append⟩
 instance : HasCoe String Format := ⟨text⟩
+instance : Coe String Format    := ⟨text⟩
 instance : Inhabited Format     := ⟨nil⟩
 
 def join (xs : List Format) : Format :=

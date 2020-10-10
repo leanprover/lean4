@@ -189,6 +189,7 @@ lean_object* l_Lean_uint32HasFormat(uint32_t);
 extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Lean_Format_be___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_sbracket___closed__1;
+lean_object* l_Lean_Format_Coe(lean_object*);
 lean_object* l_Lean_optionHasFormat___rarg(lean_object*);
 lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Format_spaceUptoLine_x27___boxed(lean_object*, lean_object*);
@@ -337,6 +338,15 @@ return x_3;
 }
 }
 lean_object* l_Lean_Format_HasCoe(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Format_Coe(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

@@ -6,4 +6,3 @@ Authors: Leonardo de Moura
 prelude
 import Init.System.IO
 import Init.System.Platform
-import Init.System.Macros

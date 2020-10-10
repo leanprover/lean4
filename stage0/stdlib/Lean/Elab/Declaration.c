@@ -182,7 +182,6 @@ lean_object* l_Lean_MetavarContext_MkBinding_mkBinding(uint8_t, lean_object*, le
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Command_3__elabCommandUsing___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandMutualNamespace(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_Macros___hyg_39____closed__12;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_Declaration_1__inductiveSyntaxToView___spec__1___closed__5;
 lean_object* l_Lean_Elab_Command_expandMutualPreamble___closed__6;
 lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace___closed__1;
@@ -204,6 +203,7 @@ lean_object* l_Lean_Elab_Command_elabInductive(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 extern lean_object* l___regBuiltin_Lean_Elab_Command_elabUniverse___closed__2;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_Declaration_1__inductiveSyntaxToView___spec__1___closed__6;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__12;
 lean_object* l_Lean_Elab_Command_elabAttr(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__1;
 lean_object* l___private_Lean_Elab_Declaration_1__inductiveSyntaxToView___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4588,7 +4588,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_myMacro____x40_Init_System_Macros___hyg_39____closed__12;
+x_2 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__12;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -4610,7 +4610,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_myMacro____x40_Init_System_Macros___hyg_39____closed__12;
+x_2 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__12;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

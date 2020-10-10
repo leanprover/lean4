@@ -88,7 +88,7 @@ def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 
 @[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (notFollowedBy «end» >> commandParser) >> "end"
-@[builtinCommandParser] def «initialize» := parser! "initialize " >> optional (ident >> Term.typeSpec >> Term.leftArrow) >> Term.doSeq
+@[builtinCommandParser] def «initialize» := parser! "initialize " >> optional («try» (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
 @[builtinCommandParser] def «in»  := tparser! " in " >> commandParser
 

@@ -770,8 +770,10 @@ class task_manager {
         // Note: if deactivation was not delayed yet, `m_keep_alive` will be discarded below when
         // `m_imp` is freed
         if (t->m_imp->m_deleted) {
+            lock.unlock();
             if (v) lean_dec(v);
             free_task(t);
+            lock.lock();
         } else if (v != nullptr) {
             lean_assert(t->m_imp->m_closure == nullptr);
             handle_finished(t);

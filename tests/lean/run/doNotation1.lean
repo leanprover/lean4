@@ -24,7 +24,7 @@ IO.println b;
 pure (s+a);
 
 def myPrint {α} [HasToString α] (a : α) : IO Unit :=
-IO.println (">> " ++ toString a)
+IO.println s!">> {a}"
 
 def h₂ (x : Nat) : StateT Nat IO Nat := do
 let a ← h 1;        -- liftM inserted here
@@ -131,10 +131,10 @@ if x > 0 then
   y := 3*y
   z := z + (← get) + (← get)
 if x < (← get) then
-  IO.println (">> " ++ toString y)
+  IO.println s!">> {y}"
   return y
 else
-  IO.println ("++ " ++ toString z)
+  IO.println s!"++ {z}"
   return y+z
 
 set_option trace.Elab.do true

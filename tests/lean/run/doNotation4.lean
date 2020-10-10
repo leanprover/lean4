@@ -54,7 +54,7 @@ catch
 def f4 (xs : List Nat) : M Nat := do
 let y := 0
 for x in xs do
-  IO.println ("x: " ++ toString x)
+  IO.println s!"x: {x}"
   try
     dec x
     y := y + x
@@ -69,7 +69,7 @@ get
 def f5 (xs : List Nat) : M Nat := do
 let y := 0
 for x in xs do
-  IO.println ("x: " ++ toString x)
+  IO.println s!"x: {x}"
   try
     dec x
     y := y + x

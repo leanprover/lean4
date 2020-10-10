@@ -14,8 +14,8 @@ instance FooElems  : HasElems Foo  := ⟨(elems Bool).map mk1 ++ (elems Bool).ma
 
 def fooRepr (foo : Foo) :=
 match foo with
-| mk1 b => "OH " ++ toString b
-| mk2 b => "DR " ++ toString b
+| mk1 b => s!"OH {b}"
+| mk2 b => s!"DR {b}"
 
 instance : HasRepr Foo := ⟨fooRepr⟩
 

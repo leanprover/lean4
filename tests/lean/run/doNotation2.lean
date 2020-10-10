@@ -4,7 +4,7 @@ def f (x : Nat) : IO Nat := do
 IO.println "hello world"
 let aux (y : Nat) (z : Nat) : IO Nat := do
   IO.println "aux started"
-  IO.println ("y: " ++ toString y ++ ", z: " ++ toString z)
+  IO.println s!"y: {y}, z: {z}"
   pure (x+y)
 aux x
   (x + 1) -- It is part of the application since it is indented
@@ -19,7 +19,7 @@ aux x x;
 def g (xs : List Nat) : StateT Nat Id Nat := do
 if xs.isEmpty then
   xs := [← get]
-dbgTrace! ">>> xs: " ++ toString xs
+dbgTrace! s!">>> xs: {xs}"
 return xs.length
 
 #eval g [1, 2, 3] $.run' 10
@@ -54,7 +54,7 @@ for x in xs do
     break
   unless x % 2 == 1 do
     continue
-  dbgTrace! ">> x: " ++ toString x
+  dbgTrace! s!">> x: {x}"
 return sum
 
 #eval sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10

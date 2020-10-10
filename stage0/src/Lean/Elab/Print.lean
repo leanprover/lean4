@@ -69,11 +69,8 @@ match env.find? id with
   printInduct id us nparams nindices t ctors u
 | none => throwUnknownId id
 
-def resolveId (id : Name) : CommandElabM (List Name) := do
-liftTermElabM none $ Term.resolveGlobalConst id
-
 private def printId (id : Name) : CommandElabM Unit := do
-cs ← resolveId id;
+cs ← resolveGlobalConst id;
 cs.forM printIdCore
 
 @[builtinCommandElab «print»] def elabPrint : CommandElab :=
@@ -128,7 +125,7 @@ else
 @[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab :=
 fun stx => do
   let id := (stx.getArg 2).getId;
-  cs ← resolveId id;
+  cs ← resolveGlobalConst id;
   cs.forM printAxiomsOf
 
 end Command

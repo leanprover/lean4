@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_evalConst(lean_object*);
-lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__4;
 lean_object* l_Lean_hasConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___rarg(lean_object*, lean_object*);
@@ -40,7 +39,6 @@ lean_object* l_Lean_setEnv(lean_object*);
 lean_object* l_Lean_hasConst___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addAndCompile___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__3;
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -53,12 +51,10 @@ lean_object* l_Lean_matchConstStruct___rarg(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__3;
 lean_object* l_Lean_addAndCompile___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoInduct(lean_object*);
-lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_1__mkAuxNameAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Lean_getConstInfo___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoInduct___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstCtor___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,8 +63,10 @@ lean_object* l_Lean_matchConst(lean_object*);
 lean_object* lean_eval_const(lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__5;
 lean_object* l_Lean_matchConstInduct(lean_object*);
 lean_object* l_Lean_getConstInfo(lean_object*);
+extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
 lean_object* l_Lean_addDecl(lean_object*);
 extern lean_object* l_finally___rarg___closed__1;
 lean_object* l_Lean_withoutModifyingEnv___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,13 +75,11 @@ lean_object* l_Lean_ofExcept___at_Lean_evalConst___spec__1(lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConstCheck(lean_object*);
 lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__1;
 lean_object* l_Lean_mkAuxName(lean_object*);
 lean_object* l_Lean_addDecl___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAuxName___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAuxName___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstRec(lean_object*);
-lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__2;
 lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_evalConstCheck___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -643,54 +639,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_mkAuxName___rarg), 4, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfo___rarg___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfo___rarg___lambda__1___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Char_HasRepr___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfo___rarg___lambda__1___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_getConstInfo___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -702,11 +650,11 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_8, 0, x_1);
-x_9 = l_Lean_getConstInfo___rarg___lambda__1___closed__3;
+x_9 = l_Lean_throwUnknownConstant___rarg___closed__3;
 x_10 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
+x_11 = l_Lean_throwUnknownConstant___rarg___closed__5;
 x_12 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -826,7 +774,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 lean_dec(x_8);
 x_9 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_9, 0, x_1);
-x_10 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
+x_10 = l_Lean_throwUnknownConstant___rarg___closed__5;
 x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
@@ -945,7 +893,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 lean_dec(x_8);
 x_9 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_9, 0, x_1);
-x_10 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
+x_10 = l_Lean_throwUnknownConstant___rarg___closed__5;
 x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
@@ -1064,7 +1012,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 lean_dec(x_8);
 x_9 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_9, 0, x_1);
-x_10 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
+x_10 = l_Lean_throwUnknownConstant___rarg___closed__5;
 x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
@@ -1746,16 +1694,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Exception(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_getConstInfo___rarg___lambda__1___closed__1 = _init_l_Lean_getConstInfo___rarg___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_getConstInfo___rarg___lambda__1___closed__1);
-l_Lean_getConstInfo___rarg___lambda__1___closed__2 = _init_l_Lean_getConstInfo___rarg___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_getConstInfo___rarg___lambda__1___closed__2);
-l_Lean_getConstInfo___rarg___lambda__1___closed__3 = _init_l_Lean_getConstInfo___rarg___lambda__1___closed__3();
-lean_mark_persistent(l_Lean_getConstInfo___rarg___lambda__1___closed__3);
-l_Lean_getConstInfo___rarg___lambda__1___closed__4 = _init_l_Lean_getConstInfo___rarg___lambda__1___closed__4();
-lean_mark_persistent(l_Lean_getConstInfo___rarg___lambda__1___closed__4);
-l_Lean_getConstInfo___rarg___lambda__1___closed__5 = _init_l_Lean_getConstInfo___rarg___lambda__1___closed__5();
-lean_mark_persistent(l_Lean_getConstInfo___rarg___lambda__1___closed__5);
 l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1 = _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1);
 l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2 = _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2();

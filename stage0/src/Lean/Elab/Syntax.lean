@@ -95,7 +95,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
         `(ParserDescr.cat $(quote cat) $(quote prec))
       else do
         -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
-        candidates ← liftM $ resolveGlobalConst cat;
+        candidates ← resolveGlobalConst cat;
         let candidates := candidates.filter fun c =>
             match env.find? c with
             | none      => false

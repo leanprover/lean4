@@ -14,6 +14,7 @@ registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) f
   decl ← getConstInfo declName;
   match attrParamSyntaxToIdentifier stx with
   | some fnName => do
+    fnName ← resolveGlobalConstNoOverload fnName;
     fnDecl ← getConstInfo fnName;
     if decl.type == fnDecl.type then pure fnName
     else throwError ("invalid function '" ++ fnName ++ "' type mismatch")

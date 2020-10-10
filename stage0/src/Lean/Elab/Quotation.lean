@@ -7,7 +7,7 @@ Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See 
 hygiene workings and data types.
 -/
 import Lean.Syntax
-import Lean.Elab.ResolveName
+import Lean.ResolveName
 import Lean.Elab.Term
 
 /- TODO

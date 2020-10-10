@@ -109,7 +109,6 @@ lean_object* l___private_Lean_Meta_InferType_21__isTypeImp___at_Lean_Meta_isType
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__5;
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at___private_Lean_Meta_InferType_10__checkInferTypeCache___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel___at___private_Lean_Meta_InferType_5__inferForallType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,6 +127,7 @@ lean_object* l_Lean_getConstInfo___at_Lean_Meta_getParamNamesImp___spec__1(lean_
 lean_object* l_Lean_MetavarContext_assignExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_9__inferFVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTypeExcepted___rarg___closed__2;
+extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__5;
 lean_object* l___private_Lean_Meta_InferType_10__checkInferTypeCache(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_5__inferForallType___closed__1;
 lean_object* l_Lean_Meta_isTypeFormer___rarg___closed__1;
@@ -3738,7 +3738,7 @@ x_9 = l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__3;
 x_10 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Lean_getConstInfo___rarg___lambda__1___closed__5;
+x_11 = l_Lean_throwUnknownConstant___rarg___closed__5;
 x_12 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);

@@ -20,27 +20,34 @@ lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__1;
+lean_object* l_Lean_throwUnknownConstant___rarg___closed__4;
 lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_maxRecDepthErrorMessage;
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withRef___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ReaderT_MonadRecDepth___rarg___lambda__2(lean_object*, lean_object*);
+lean_object* l_Lean_throwUnknownConstant___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwKernelException(lean_object*);
 lean_object* l_Lean_Exception_inhabited;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_ReaderT_MonadRecDepth___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
 lean_object* l_Lean_refTrans(lean_object*, lean_object*);
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Exception_inhabited___closed__1;
 lean_object* l_Lean_ReaderT_MonadRecDepth___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwUnknownConstant___rarg___closed__1;
 lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_refTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Lean_ReaderT_MonadRecDepth___rarg___lambda__3(lean_object*, lean_object*);
+lean_object* l_Lean_throwUnknownConstant___rarg___closed__5;
 lean_object* l_Lean_withRef___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
 lean_object* l_Lean_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_getRef___boxed(lean_object*);
 lean_object* l_Lean_throwError___rarg___lambda__1(lean_object*, lean_object*);
@@ -61,10 +68,12 @@ lean_object* l_Lean_withIncRecDepth___rarg___lambda__1(lean_object*, lean_object
 lean_object* l_Lean_addErrorMessageContextDefault___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_StateRefT_monadRecDepth___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addErrorMessageContextDefault(lean_object*);
+lean_object* l_Lean_throwUnknownConstant(lean_object*);
 lean_object* l_Lean_withRef(lean_object*);
 lean_object* l_Lean_refTrans___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept(lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_Lean_MessageData_Inhabited___closed__1;
 lean_object* l_Lean_ReaderT_MonadRecDepth___rarg___lambda__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
@@ -350,6 +359,82 @@ lean_object* x_3;
 x_3 = l_Lean_throwError___rarg___lambda__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("unknown constant '");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_throwUnknownConstant___rarg___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_throwUnknownConstant___rarg___closed__2;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Char_HasRepr___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_throwUnknownConstant___rarg___closed__4;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_throwUnknownConstant___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_7 = lean_box(0);
+x_8 = l_Lean_mkConst(x_6, x_7);
+x_9 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
+x_10 = l_Lean_throwUnknownConstant___rarg___closed__3;
+x_11 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_9);
+x_12 = l_Lean_throwUnknownConstant___rarg___closed__5;
+x_13 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+x_14 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_13);
+return x_14;
+}
+}
+lean_object* l_Lean_throwUnknownConstant(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_throwUnknownConstant___rarg), 6, 0);
+return x_2;
 }
 }
 lean_object* l_Lean_throwErrorAt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -732,6 +817,16 @@ l_Lean_Exception_inhabited___closed__1 = _init_l_Lean_Exception_inhabited___clos
 lean_mark_persistent(l_Lean_Exception_inhabited___closed__1);
 l_Lean_Exception_inhabited = _init_l_Lean_Exception_inhabited();
 lean_mark_persistent(l_Lean_Exception_inhabited);
+l_Lean_throwUnknownConstant___rarg___closed__1 = _init_l_Lean_throwUnknownConstant___rarg___closed__1();
+lean_mark_persistent(l_Lean_throwUnknownConstant___rarg___closed__1);
+l_Lean_throwUnknownConstant___rarg___closed__2 = _init_l_Lean_throwUnknownConstant___rarg___closed__2();
+lean_mark_persistent(l_Lean_throwUnknownConstant___rarg___closed__2);
+l_Lean_throwUnknownConstant___rarg___closed__3 = _init_l_Lean_throwUnknownConstant___rarg___closed__3();
+lean_mark_persistent(l_Lean_throwUnknownConstant___rarg___closed__3);
+l_Lean_throwUnknownConstant___rarg___closed__4 = _init_l_Lean_throwUnknownConstant___rarg___closed__4();
+lean_mark_persistent(l_Lean_throwUnknownConstant___rarg___closed__4);
+l_Lean_throwUnknownConstant___rarg___closed__5 = _init_l_Lean_throwUnknownConstant___rarg___closed__5();
+lean_mark_persistent(l_Lean_throwUnknownConstant___rarg___closed__5);
 l_Lean_withIncRecDepth___rarg___lambda__2___closed__1 = _init_l_Lean_withIncRecDepth___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_withIncRecDepth___rarg___lambda__2___closed__1);
 l_Lean_withIncRecDepth___rarg___lambda__2___closed__2 = _init_l_Lean_withIncRecDepth___rarg___lambda__2___closed__2();

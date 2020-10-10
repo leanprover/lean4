@@ -204,6 +204,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Term_quoteAutoTactic___ma
 lean_object* l___regBuiltin_Lean_Elab_Term_elabLetBangDecl(lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_Binders_6__matchBinder___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__8;
+extern lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Term_21__elabTermAux___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__1;
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__15;
@@ -366,7 +367,6 @@ lean_object* l___private_Lean_Elab_Binders_17__expandMatchAltsIntoMatchAux___mai
 lean_object* l___private_Lean_Meta_Basic_17__isClassImp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l___private_Lean_Elab_Binders_17__expandMatchAltsIntoMatchAux___main___closed__11;
-extern lean_object* l_Std_PersistentHashMap_Stats_toString___closed__5;
 extern lean_object* l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__9;
 lean_object* l_Lean_MetavarContext_MkBinding_mkBinding(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
@@ -914,7 +914,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l_Std_PersistentHashMap_Stats_toString___closed__5;
+x_2 = l_Std_PersistentArray_Stats_toString___closed__4;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

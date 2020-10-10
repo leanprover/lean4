@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Scopes
 import Lean.Syntax
 import Lean.CoreM
+import Lean.ResolveName
 
 namespace Lean
 
@@ -25,6 +26,10 @@ structure Attr.Context :=
 (openDecls     : List OpenDecl)
 
 abbrev AttrM := ReaderT Attr.Context CoreM
+
+instance attrResolveName : MonadResolveName AttrM :=
+{ getCurrNamespace := do ctx ← read; pure ctx.currNamespace,
+  getOpenDecls     := do ctx ← read; pure ctx.openDecls }
 
 -- TODO: after we delete the old frontend, we should use `EIO` with a richer exception kind at AttributeImpl.
 -- We must perform a similar modification at `PersistentEnvExtension`

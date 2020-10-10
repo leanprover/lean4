@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Quotation
-// Imports: Init Lean.Syntax Lean.Elab.ResolveName Lean.Elab.Term
+// Imports: Init Lean.Syntax Lean.ResolveName Lean.Elab.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -480,6 +480,7 @@ lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__52;
 lean_object* l_List_mapM___main___at___private_Lean_Elab_Quotation_6__compileStxMatch___main___spec__8___closed__6;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
+lean_object* l_Lean_resolveGlobalName___at_Lean_Elab_Term_resolveName___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCAppStx(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__9;
 lean_object* l_List_filterAux___main___at___private_Lean_Elab_Quotation_6__compileStxMatch___main___spec__4(lean_object*, lean_object*, lean_object*);
@@ -507,7 +508,6 @@ lean_object* l_Lean_Elab_Term_Quotation_elabMatchSyntax(lean_object*, lean_objec
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__16;
 lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___closed__4;
-lean_object* l_Lean_Elab_Term_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux___main___at___private_Lean_Elab_Quotation_6__compileStxMatch___main___spec__9___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_elabDoElemQuot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__63;
@@ -2836,8 +2836,9 @@ x_267 = lean_ctor_get(x_1, 2);
 x_268 = lean_ctor_get(x_1, 3);
 x_269 = lean_ctor_get(x_1, 0);
 lean_dec(x_269);
+lean_inc(x_2);
 lean_inc(x_267);
-x_270 = l_Lean_Elab_Term_resolveGlobalName(x_267, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_270 = l_Lean_resolveGlobalName___at_Lean_Elab_Term_resolveName___spec__1(x_267, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_271 = lean_ctor_get(x_270, 0);
 lean_inc(x_271);
 x_272 = lean_ctor_get(x_270, 1);
@@ -3176,8 +3177,9 @@ lean_inc(x_446);
 lean_inc(x_445);
 lean_inc(x_444);
 lean_dec(x_1);
+lean_inc(x_2);
 lean_inc(x_445);
-x_447 = l_Lean_Elab_Term_resolveGlobalName(x_445, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_447 = l_Lean_resolveGlobalName___at_Lean_Elab_Term_resolveName___spec__1(x_445, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_448 = lean_ctor_get(x_447, 0);
 lean_inc(x_448);
 x_449 = lean_ctor_get(x_447, 1);
@@ -23506,7 +23508,7 @@ return x_14;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Syntax(lean_object*);
-lean_object* initialize_Lean_Elab_ResolveName(lean_object*);
+lean_object* initialize_Lean_ResolveName(lean_object*);
 lean_object* initialize_Lean_Elab_Term(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_Quotation(lean_object* w) {
@@ -23519,7 +23521,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Syntax(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_ResolveName(lean_io_mk_world());
+res = initialize_Lean_ResolveName(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Term(lean_io_mk_world());

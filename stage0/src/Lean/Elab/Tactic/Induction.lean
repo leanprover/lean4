@@ -140,7 +140,7 @@ recInfo? ← getRecFromUsingLoop baseRecName majorType;
 match recInfo? with
 | some recInfo => pure recInfo
 | none => do
-  recName ← liftM $ Term.resolveGlobalConstNoOverload baseRecName;
+  recName ← resolveGlobalConstNoOverload baseRecName;
   catch
     (liftMetaMAtMain fun _ => Meta.mkRecursorInfo recName)
     (fun _ => throwError ("invalid recursor name '" ++ baseRecName ++ "'"))

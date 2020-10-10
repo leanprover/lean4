@@ -131,10 +131,10 @@ if x > 0 then
   y := 3*y
   z := z + (← get) + (← get)
 if x < (← get) then
-  println! ">> {y}"
+  IO.println s!">> {y}"
   return y
 else
-  println! "++ {z}"
+  IO.println s!"++ {z}"
   return y+z
 
 def f1Test : IO Unit := do

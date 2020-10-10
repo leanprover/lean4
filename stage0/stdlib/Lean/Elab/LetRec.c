@@ -22,13 +22,13 @@ lean_object* l_Lean_Elab_Term_elabLetRec___boxed(lean_object*, lean_object*, lea
 lean_object* l___private_Lean_Elab_LetRec_1__mkLetRecDeclView(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getDeclName_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg___closed__1;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__8;
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_LetRec_1__mkLetRecDeclView___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__3;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__8;
 lean_object* lean_private_to_user_name(lean_object*);
 extern lean_object* l_Lean_MessageData_arrayExpr_toMessageData___main___closed__1;
 lean_object* l___private_Lean_Elab_LetRec_5__abortIfContainsSyntheticSorry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1200,7 +1200,7 @@ x_32 = l_Lean_Syntax_isOfKind(x_30, x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; uint8_t x_34; lean_object* x_35; 
-x_33 = l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__3___closed__8;
+x_33 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__8;
 lean_inc(x_30);
 x_34 = l_Lean_Syntax_isOfKind(x_30, x_33);
 if (x_34 == 0)

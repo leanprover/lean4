@@ -618,7 +618,7 @@ match ex.getRef.getPos with
   if pos == exPos then
     pure ex.toMessageData
   else do
-    fileMap ← getFileMap;
+    fileMap ← MonadLog.getFileMap; -- Remove `MonadLog.` it is a workaround for old frontend
     let exPosition := fileMap.toPosition exPos;
     pure $ toString exPosition.line ++ ":" ++ toString exPosition.column ++ " " ++ ex.toMessageData
 

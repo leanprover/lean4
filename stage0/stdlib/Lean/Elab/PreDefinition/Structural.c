@@ -222,6 +222,7 @@ lean_object* l___private_Lean_Elab_PreDefinition_Structural_14__replaceRecApps__
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_16__elimRecursion___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_6__findRecArgAux___main___rarg___closed__6;
 lean_object* l_Lean_throwError___at_Lean_Meta_mkWHNFRef___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_regTraceClasses___closed__2;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_6__findRecArgAux___main___rarg___closed__25;
 size_t l_USize_mod(size_t, size_t);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_9__ensureNoRecFn___lambda__1___closed__3;
@@ -245,7 +246,6 @@ lean_object* l_Lean_setEnv___at_Lean_Meta_setInlineAttribute___spec__1(lean_obje
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_11__toBelowAux___main___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_10__throwToBelowFailed___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_DefView_1__regTraceClasses___closed__2;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_12__withBelowDict___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_15__mkBRecOn___lambda__2___closed__3;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_11__toBelowAux___main___lambda__1___closed__1;
@@ -5498,7 +5498,7 @@ lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_11__toBelowAux
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_DefView_1__regTraceClasses___closed__2;
+x_1 = l___private_Lean_Elab_DefView_0__Lean_Elab_Command_regTraceClasses___closed__2;
 x_2 = l___private_Lean_Elab_PreDefinition_Structural_11__toBelowAux___main___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

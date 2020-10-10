@@ -128,6 +128,7 @@ lean_object* l___private_Lean_Parser_Extension_11__BuiltinParserAttribute_add___
 lean_object* l_Lean_Parser_parserExtension___closed__1;
 extern lean_object* l_Lean_nameLitKind;
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
+extern lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__5;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Parser_mkParserExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkCategoryAntiquotParser(lean_object*);
 lean_object* l_Lean_Parser_registerRunParserAttributeHooksAttribute___lambda__1___closed__1;
@@ -185,7 +186,6 @@ lean_object* l_Lean_Parser_declareBuiltinParser(lean_object*, lean_object*, lean
 lean_object* l_Lean_Parser_checkNoWsBefore(lean_object*);
 lean_object* l_Lean_Parser_noFirstTokenInfo(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___main___at___private_Lean_Parser_Extension_3__addParserCategoryCore___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__6;
 lean_object* l_Lean_Parser_categoryParserFnImpl___closed__2;
 lean_object* l_Lean_Parser_mkParserOfConstantUnsafe___closed__1;
 extern lean_object* l_Std_PersistentHashMap_insertAux___main___rarg___closed__3;
@@ -7711,7 +7711,7 @@ x_19 = lean_array_push(x_18, x_14);
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_19, x_19, x_20, x_10);
 lean_dec(x_19);
-x_22 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__6;
+x_22 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__5;
 lean_inc(x_8);
 x_23 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_23, 0, x_8);

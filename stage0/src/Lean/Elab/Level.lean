@@ -43,14 +43,14 @@ if kind == `Lean.Parser.Level.paren then
 else if kind == `Lean.Parser.Level.max then
   let args := stx.getArg 1 $.getArgs
   let lvl ← elabLevel args.back
-  for arg in args.extract 0 (args.size-1) do
+  for arg in args[:args.size-1] do
     let arg ← elabLevel arg
     lvl := mkLevelMax lvl arg
   return lvl
 else if kind == `Lean.Parser.Level.imax then
   let args := stx.getArg 1 $.getArgs
   let lvl ← elabLevel args.back
-  for arg in args.extract 0 (args.size-1) do
+  for arg in args[:args.size-1] do
     let arg ← elabLevel arg
     lvl := mkLevelIMax lvl arg
   return lvl

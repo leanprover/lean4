@@ -17,6 +17,7 @@ lean_object* l_Lean_mkInitAttr___lambda__1___closed__7;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkInitAttr___spec__5___closed__1;
+extern lean_object* l_myMacro____x40_Init_System_Macros___hyg_39____closed__4;
 lean_object* l_Array_qsortAux___main___at_Lean_mkInitAttr___spec__4(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -79,7 +80,6 @@ lean_object* l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___boxed(lean_obj
 uint8_t l_Lean_hasInitAttr(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkInitAttr___lambda__1___closed__9;
-lean_object* l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1;
 lean_object* l_Lean_mkInitAttr___lambda__1___closed__14;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_mkInitAttr___lambda__1___closed__5;
@@ -123,14 +123,6 @@ lean_object* l_Lean_initAttr;
 lean_object* l___private_Lean_Compiler_InitAttr_1__getIOTypeArg(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("IO");
-return x_1;
-}
-}
 lean_object* l___private_Lean_Compiler_InitAttr_1__getIOTypeArg(lean_object* x_1) {
 _start:
 {
@@ -151,7 +143,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_3, 1);
-x_7 = l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1;
+x_7 = l_myMacro____x40_Init_System_Macros___hyg_39____closed__4;
 x_8 = lean_string_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
@@ -2085,8 +2077,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Attributes(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1 = _init_l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1();
-lean_mark_persistent(l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1);
 l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkInitAttr___spec__5___closed__1 = _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkInitAttr___spec__5___closed__1();
 lean_mark_persistent(l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkInitAttr___spec__5___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__2___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__2___closed__1();

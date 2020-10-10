@@ -16,40 +16,38 @@ p.1
 -- set_option trace.Elab.definition true
 
 def h (x : Nat) : StateT Nat IO Nat := do
-let s ← get;
-let a ← f;      -- liftM inserted here
-let b ← g1 1;   -- liftM inserted here
-let x := g2 b;
-IO.println b;
-pure (s+a);
+let s ← get
+let a ← f       -- liftM inserted here
+let b ← g1 1    -- liftM inserted here
+let x := g2 b
+IO.println b
+pure (s+a)
 
 def myPrint {α} [HasToString α] (a : α) : IO Unit :=
 IO.println s!">> {a}"
 
 def h₂ (x : Nat) : StateT Nat IO Nat := do
 let a ← h 1;        -- liftM inserted here
-IO.println x;
-let b ← g1 a;       -- liftM inserted here
-when (a > 100) $ throw $ IO.userError "Error";
-myPrint b.1;    -- liftM inserted here
+IO.println x
+let b ← g1 a        -- liftM inserted here
+if a > 100 then throw $ IO.userError "Error"
+myPrint b.1     -- liftM inserted here
 pure (a + 1)
 
 def h₃ (x : Nat) : StateT Nat IO Nat := do
-let m1 := do {  -- Type inferred from application below
-  g x;          -- liftM inserted here
+let m1 := do    -- Type inferred from application below
+  g x           -- liftM inserted here
   IO.println 1
-};
-let m2 (y : Nat) := do {  -- Type inferred from application below
-  h (x+y);      -- liftM inserted here
+let m2 (y : Nat) := do   -- Type inferred from application below
+  h (x+y)       -- liftM inserted here
   myPrint y     -- liftM inserted here
-};
-let a ← h 1;        -- liftM inserted here
-IO.println x;
+let a ← h 1        -- liftM inserted here
+IO.println x
 let b ← g1 a;       -- liftM inserted here
-when (a > 100) $ throw $ IO.userError "Error";
-myPrint b.1;    -- liftM inserted here
-m1;
-m2 a;
+if a > 100 then throw $ IO.userError "Error"
+myPrint b.1    -- liftM inserted here
+m1
+m2 a
 pure 1
 
 def tst0 : IO Unit := do

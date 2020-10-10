@@ -1,3 +1,4 @@
+new_frontend
 def f2 (n : Nat) (xs : List Nat) : List (List Nat) :=
 let ys := List.replicate n 0;
 xs.map (fun x => x :: ys)

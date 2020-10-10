@@ -1,5 +1,6 @@
 import Std.Data.PersistentHashMap
 import Lean.Data.Format
+new_frontend
 open Lean Std Std.PersistentHashMap
 
 abbrev Map := PersistentHashMap Nat Nat
@@ -29,22 +30,22 @@ def mkMap (n : Nat) : Map :=
 n.fold (fun i m => m.insert i (i*10)) PersistentHashMap.empty
 
 def check (n : Nat) (m : Map) : IO Unit :=
-n.forM $ fun i =>
+n.forM $ fun i => do
   match m.find? i with
-  | none   => IO.println ("failed to find " ++ toString i)
-  | some v => unless (v == i*10) (IO.println ("unexpected value " ++ toString i ++ " => " ++ toString v))
+  | none   => IO.println s!"failed to find {i}"
+  | some v => unless v == i*10 do IO.println s!"unexpected value {i} => {v}"
 
 def delOdd (n : Nat) (m : Map) : Map :=
 n.fold (fun i m => if i % 2 == 0 then m else m.erase i) m
 
 def check2 (n : Nat) (bot : Nat) (m : Map) : IO Unit :=
-n.forM $ fun i =>
+n.forM $ fun i => do
   if i % 2 == 0 && i >= bot then
     match m.find? i with
-    | none   => IO.println ("failed to find " ++ toString i)
-    | some v => unless (v == i*10) (IO.println ("unexpected value " ++ toString i ++ " => " ++ toString v))
+    | none   => IO.println s!"failed to find {i}"
+    | some v => unless v == i*10 do IO.println s!"unexpected value {i} => {v}"
   else
-    unless (m.find? i == none) (IO.println ("mapping still contains " ++ toString i))
+    unless m.find? i == none do IO.println s!"mapping still contains {i}"
 
 def delLess (n : Nat) (m : Map) : Map :=
 n.fold (fun i m => m.erase i) m

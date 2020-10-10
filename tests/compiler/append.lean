@@ -1,3 +1,5 @@
+new_frontend
+
 def main (xs : List String) : IO Unit :=
 let ys1 := List.replicate 1000000 1;
 let ys2 := List.replicate 1000000 2;

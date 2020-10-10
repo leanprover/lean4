@@ -1,3 +1,4 @@
+new_frontend
 inductive Term : Type
 | const : Nat -> Term
 | app   : List Term -> Term

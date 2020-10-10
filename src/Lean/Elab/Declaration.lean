@@ -273,6 +273,17 @@ fun stx => do
     declName ← Term.resolveGlobalConstNoOverload ident.getId;
     Term.applyAttributes declName attrs persistent
 
+@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
+fun stx =>
+  let optHeader := stx.getArg 1;
+  let doSeq     := stx.getArg 2;
+  if optHeader.isNone then
+    `(@[init]def initFn : IO Unit := do $doSeq)
+  else
+    let id   := optHeader.getArg 0;
+    let type := (optHeader.getArg 1).getArg 1;
+    `(def initFn : IO $type := do $doSeq @[init initFn]constant $id : $type)
+
 end Command
 end Elab
 end Lean

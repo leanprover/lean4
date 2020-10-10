@@ -13,7 +13,6 @@ import Lean.Meta.Tactic.Util
 import Lean.Hygiene
 import Lean.Util.RecDepth
 import Lean.Elab.Log
-import Lean.Elab.Alias
 import Lean.Elab.ResolveName
 import Lean.Elab.Level
 import Lean.Elab.Attributes

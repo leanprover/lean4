@@ -21,7 +21,8 @@
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "for" "unless" "break" "continue"
     "try" "catch" "finally" "where" "rec" "forall" "Pi" "fun"
     "exists" "if" "then" "else" "assume" "from" "init_quot" "return"
-    "mutual" "def" "run_cmd" "declare_syntax_cat" "syntax" "macro_rules" "macro")
+    "mutual" "def" "run_cmd" "declare_syntax_cat" "syntax" "macro_rules" "macro"
+    "initialize")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean4-keywords1-regexp
   (eval `(rx word-start (or ,@lean4-keywords1) word-end)))

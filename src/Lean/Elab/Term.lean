@@ -585,6 +585,17 @@ match result with
 | LOption.undef    => pure false -- we will try later
 | LOption.none     => throwError ("failed to synthesize instance" ++ indentExpr type)
 
+/-
+The coercion from `α` to `Thunk α` cannot be implemented using an instance because it would
+eagerly evaluate `e` -/
+def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Option Expr) :=
+match expectedType with
+| Expr.app (Expr.const `Thunk u _) arg _ =>
+  condM (isDefEq eType arg)
+    (pure (some (mkApp2 (mkConst `Thunk.mk u) arg (mkSimpleThunk e))))
+    (pure none)
+| _ => pure none
+
 /--
   Try to apply coercion to make sure `e` has type `expectedType`.
   Relevant definitions:
@@ -594,21 +605,25 @@ match result with
   ``` -/
 private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr :=
 condM (isDefEq expectedType eType) (pure e) $ do
-u ← getLevel eType;
-v ← getLevel expectedType;
-let coeTInstType := mkAppN (mkConst `CoeT [u, v]) #[eType, e, expectedType];
-mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic;
-let eNew := mkAppN (mkConst `coe [u, v]) #[eType, expectedType, e, mvar];
-let mvarId := mvar.mvarId!;
-catch
-  (withoutMacroStackAtErr $ do
-    unlessM (synthesizeInstMVarCore mvarId) $
-      registerSyntheticMVarWithCurrRef mvarId (SyntheticMVarKind.coe errorMsgHeader? expectedType eType e f?);
-    pure eNew)
-  (fun ex =>
-    match ex with
-    | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
-    | _                     => throwTypeMismatchError errorMsgHeader? expectedType eType e f?)
+r? ← tryCoeThunk? expectedType eType e;
+match r? with
+| some r => pure r
+| none   => do
+  u ← getLevel eType;
+  v ← getLevel expectedType;
+  let coeTInstType := mkAppN (mkConst `CoeT [u, v]) #[eType, e, expectedType];
+  mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic;
+  let eNew := mkAppN (mkConst `coe [u, v]) #[eType, expectedType, e, mvar];
+  let mvarId := mvar.mvarId!;
+  catch
+    (withoutMacroStackAtErr $ do
+      unlessM (synthesizeInstMVarCore mvarId) $
+        registerSyntheticMVarWithCurrRef mvarId (SyntheticMVarKind.coe errorMsgHeader? expectedType eType e f?);
+      pure eNew)
+    (fun ex =>
+      match ex with
+      | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
+      | _                     => throwTypeMismatchError errorMsgHeader? expectedType eType e f?)
 
 private def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
 type ← withReducible $ whnf type;
@@ -735,6 +750,7 @@ since this goal does not contain any metavariables. And then, we
 convert `g x` into `liftM $ g x`.
 -/
 private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
+expectedType ← instantiateMVars expectedType;
 eType ← instantiateMVars eType;
 some ⟨n, β, monadInst⟩ ← isMonad? expectedType | tryCoe errorMsgHeader? expectedType eType e f?;
 β ← instantiateMVars β;

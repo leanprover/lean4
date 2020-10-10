@@ -1,5 +1,7 @@
 new_frontend
 
+namespace Foo
+
 initialize ref : IO.Ref Nat ← IO.mkRef 10
 
 initialize vals : IO.Ref (Array String) ← IO.mkRef #[]
@@ -19,6 +21,9 @@ initialize
 
 initialize
   registerVal "foo"
+
+end Foo
+open Foo
 
 def main : IO Unit := do
 IO.println "hello world"

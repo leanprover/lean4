@@ -26,6 +26,7 @@ registerParametricAttribute `init "initialization procedure for global reference
   decl ← getConstInfo declName;
   match attrParamSyntaxToIdentifier stx with
   | some initFnName => do
+    initFnName ← resolveGlobalConstNoOverload initFnName;
     initDecl ← getConstInfo initFnName;
     match getIOTypeArg initDecl.type with
     | none => throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")

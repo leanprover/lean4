@@ -20,11 +20,6 @@ fun stx => match_syntax stx with
 | `($f $ $a)        => `($f $a)
 | _                 => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.dollarProj] def expandDollarProj : Macro :=
-fun stx => match_syntax stx with
-| `($term $.$field) => `($(term).$field)
-| _                 => Macro.throwUnsupported
-
 @[builtinMacro Lean.Parser.Term.if] def expandIf : Macro :=
 fun stx => match_syntax stx with
 | `(if $h : $cond then $t else $e) => `(dite $cond (fun $h:ident => $t) (fun $h:ident => $e))

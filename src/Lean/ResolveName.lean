@@ -6,9 +6,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Data.OpenDecl
 import Lean.Hygiene
 import Lean.Modifiers
+import Lean.Exception
 
 namespace Lean
-
 /-!
   We use aliases to implement the `export <id> (<id>+)` command.
   An `export A (x)` in the namespace `B` produces an alias `B.x ~> A.x`. -/
@@ -46,6 +46,7 @@ def getRevAliases (env : Environment) (e : Name) : List Name :=
 (aliasExtension.getState env).fold (fun as a es => if List.contains es e then a :: as else as) []
 
 /- Global name resolution -/
+namespace ResolveName
 
 /- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
@@ -137,9 +138,8 @@ Given a name `id` try to find namespace it refers to. The resolution procedure w
    then return `s_1 . ... . s_i ++ n` if it is the name of an existing namespace. We search "backwards".
 3- Finally, for each command `open N`, return `N ++ n` if it is the name of an existing namespace.
    We search "backwards" again. That is, we try the most recent `open` command first.
-   We only consider simple `open` commands.
--/
-def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : Option Name :=
+   We only consider simple `open` commands. -/
+def resolveNamespace? (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : Option Name :=
 if env.isNamespace id then some id
 else match resolveNamespaceUsingScope env id ns with
   | some n => some n
@@ -147,5 +147,72 @@ else match resolveNamespaceUsingScope env id ns with
     match resolveNamespaceUsingOpenDecls env id openDecls with
     | some n => some n
     | none   => none
+end ResolveName
 
+class MonadResolveName (m : Type → Type) :=
+(getCurrNamespace   : m Name)
+(getOpenDecls       : m (List OpenDecl))
+
+export MonadResolveName (getCurrNamespace getOpenDecls)
+
+instance monadResolveNameFromLift (m n) [MonadResolveName m] [MonadLift m n] : MonadResolveName n :=
+{ getCurrNamespace := liftM (getCurrNamespace : m _),
+  getOpenDecls     := liftM (getOpenDecls : m _) }
+
+section Methods
+
+variables {m : Type → Type} [Monad m] [MonadResolveName m] [MonadEnv m]
+
+/-
+  Given a name `n`, return a list of possible interpretations.
+  Each interpretation is a pair `(declName, fieldList)`, where `declName`
+  is the name of a declaration in the current environment, and `fieldList` are
+  (potential) field names.
+  The pair is needed because in Lean `.` may be part of a qualified name or
+  a field (aka dot-notation).
+  As an example, consider the following definitions
+  ```
+  def Boo.x   := 1
+  def Foo.x   := 2
+  def Foo.x.y := 3
+  ```
+  After `open Foo`, we have
+  - `resolveGlobalName x`     => `[(Foo.x, [])]`
+  - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
+  - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w])]`
+  After `open Foo open Boo`, we have
+  - `resolveGlobalName x`     => `[(Foo.x, []), (Boo.x, [])]`
+  - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
+  - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w]), (Boo.x, [z, w])]`
+-/
+def resolveGlobalName  (id : Name) : m (List (Name × List String)) := do
+env       ← getEnv;
+ns        ← getCurrNamespace;
+openDecls ← getOpenDecls;
+pure (ResolveName.resolveGlobalName env ns openDecls id)
+
+variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+
+def resolveNamespace (id : Name) : m Name := do
+env       ← getEnv;
+ns        ← getCurrNamespace;
+openDecls ← getOpenDecls;
+match ResolveName.resolveNamespace? env ns openDecls id with
+| some ns => pure ns
+| none    => throwError ("unknown namespace '" ++ id ++ "'")
+
+/- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
+def resolveGlobalConst (n : Name) : m (List Name) := do
+cs ← resolveGlobalName n;
+let cs := cs.filter fun ⟨_, fieldList⟩ => fieldList.isEmpty;
+when cs.isEmpty $ throwUnknownConstant n;
+pure $ cs.map Prod.fst
+
+def resolveGlobalConstNoOverload (n : Name) : m Name := do
+cs ← resolveGlobalConst n;
+match cs with
+| [c] => pure c
+| _   => throwError ("ambiguous identifier '" ++ mkConst n ++ "', possible interpretations: " ++ cs.map mkConst)
+
+end Methods
 end Lean

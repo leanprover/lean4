@@ -10,7 +10,7 @@ def Bla.x := 4
 namespace Test
 export Bla (x)
 end Test
-
+open Lean
 open Lean.Elab.Term
 open Lean.Elab.Command
 

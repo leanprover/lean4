@@ -65,6 +65,9 @@ ref ← getRef;
 (ref, msg) ← AddErrorMessageContext.add ref msg;
 throw $ Exception.error ref msg
 
+def throwUnknownConstant {α} (constName : Name) : m α :=
+throwError ("unknown constant '" ++ mkConst constName ++ "'")
+
 def throwErrorAt {α} (ref : Syntax) (msg : MessageData) : m α := do
 withRef ref $ throwError msg
 

@@ -270,7 +270,7 @@ fun stx => do
   attrs ← elabAttrs (stx.getArg 3);
   let idents := (stx.getArg 5).getArgs;
   idents.forM fun ident => withRef ident $ liftTermElabM none do
-    declName ← Term.resolveGlobalConstNoOverload ident.getId;
+    declName ← resolveGlobalConstNoOverload ident.getId;
     Term.applyAttributes declName attrs persistent
 
 @[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=

@@ -432,9 +432,6 @@ withConfig
     { config with transparency := mode })
   x
 
-def throwUnknownConstant {α} (constName : Name) : MetaM α :=
-throwError ("unknown constant '" ++ constName ++ "'")
-
 def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
 match env.find? constName with

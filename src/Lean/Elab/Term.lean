@@ -288,9 +288,11 @@ inductive LVal
 instance LVal.hasToString : HasToString LVal :=
 ⟨fun p => match p with | LVal.fieldIdx i => toString i | LVal.fieldName n => n | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
 
+instance : MonadResolveName TermElabM :=
+{ getCurrNamespace := do ctx ← read; pure ctx.currNamespace,
+  getOpenDecls     := do ctx ← read; pure ctx.openDecls }
+
 def getDeclName? : TermElabM (Option Name) := do ctx ← read; pure ctx.declName?
-def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
-def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
 def getLetRecsToLift : TermElabM (List LetRecToLift) := do s ← get; pure s.letRecsToLift
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
@@ -1240,47 +1242,6 @@ candidates.foldlM
     const ← mkConst constName explicitLevels;
     pure $ (const, projs) :: result)
   []
-
-/-
-  Given a name `n`, return a list of possible interpretations.
-  Each interpretation is a pair `(declName, fieldList)`, where `declName`
-  is the name of a declaration in the current environment, and `fieldList` are
-  (potential) field names.
-  The pair is needed because in Lean `.` may be part of a qualified name or
-  a field (aka dot-notation).
-  As an example, consider the following definitions
-  ```
-  def Boo.x   := 1
-  def Foo.x   := 2
-  def Foo.x.y := 3
-  ```
-  After `open Foo`, we have
-  - `resolveGlobalName x`     => `[(Foo.x, [])]`
-  - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
-  - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w])]`
-  After `open Foo open Boo`, we have
-  - `resolveGlobalName x`     => `[(Foo.x, []), (Boo.x, [])]`
-  - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
-  - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w]), (Boo.x, [z, w])]`
--/
-def resolveGlobalName (n : Name) : TermElabM (List (Name × List String)) := do
-env ← getEnv;
-currNamespace ← getCurrNamespace;
-openDecls ← getOpenDecls;
-pure (Lean.resolveGlobalName env currNamespace openDecls n)
-
-/- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
-def resolveGlobalConst (n : Name) : TermElabM (List Name) := do
-cs ← resolveGlobalName n;
-let cs := cs.filter fun ⟨_, fieldList⟩ => fieldList.isEmpty;
-when cs.isEmpty $ liftMetaM $ throwUnknownConstant n;
-pure $ cs.map Prod.fst
-
-def resolveGlobalConstNoOverload (n : Name) : TermElabM Name := do
-cs ← resolveGlobalConst n;
-match cs with
-| [c] => pure c
-| _   => throwError ("ambiguous identifier '" ++ n ++ "', possible interpretations: " ++ toString cs)
 
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
 result? ← resolveLocalName n;

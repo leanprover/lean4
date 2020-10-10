@@ -115,11 +115,9 @@ instance : MonadIO CommandElabM :=
 
 def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
 
-def getCurrNamespace : CommandElabM Name := do
-scope ← getScope; pure scope.currNamespace
-
-def getOpenDecls : CommandElabM (List OpenDecl) := do
-scope ← getScope; pure scope.openDecls
+instance : MonadResolveName CommandElabM :=
+{ getCurrNamespace := do scope ← getScope; pure scope.currNamespace,
+  getOpenDecls     := do scope ← getScope; pure scope.openDecls }
 
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
 { getRef      := getRef,
@@ -391,14 +389,6 @@ fun stx => do
 
 def logUnknownDecl (declName : Name) : CommandElabM Unit :=
 logError ("unknown declaration '" ++ toString declName ++ "'")
-
-def resolveNamespace (id : Name) : CommandElabM Name := do
-env           ← getEnv;
-currNamespace ← getCurrNamespace;
-openDecls ← getOpenDecls;
-match Lean.resolveNamespace env currNamespace openDecls id with
-| some ns => pure ns
-| none    => throwError ("unknown namespace '" ++ id ++ "'")
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun stx => do

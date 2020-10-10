@@ -194,7 +194,7 @@ match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← get
 /- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
 def resolveGlobalConst (n : Name) : m (List Name) := do
 let cs ← resolveGlobalName n
-let cs := cs.filter fun p => p.2.isEmpty -- TODO fun (_, fieldList) => fieldList.isEmpty doesn't work here
+let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
 if cs.isEmpty then throwUnknownConstant n
 return cs.map (·.1)
 

@@ -13,7 +13,7 @@ pure (x, x)
 def g2 (p : Nat × Nat) : Nat :=
 p.1
 
-set_option trace.Elab.definition true
+-- set_option trace.Elab.definition true
 
 def h (x : Nat) : StateT Nat IO Nat := do
 let s ← get;
@@ -131,13 +131,11 @@ if x > 0 then
   y := 3*y
   z := z + (← get) + (← get)
 if x < (← get) then
-  IO.println s!">> {y}"
+  println! ">> {y}"
   return y
 else
-  IO.println s!"++ {z}"
+  println! "++ {z}"
   return y+z
-
-set_option trace.Elab.do true
 
 def f1Test : IO Unit := do
 unless (← f1 30 $.run' 0) == 140 do

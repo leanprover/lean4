@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Init.Data.ToString
 import Lean.Elab.Term
 import Lean.Elab.Quotation
 import Lean.Elab.SyntheticMVars
@@ -282,7 +283,7 @@ fun stx =>
 fun stx =>
   let arg  := stx.getArg 1;
   let body := stx.getArg 3;
-  `(dbgTrace (toString $arg) fun _ => $body)
+  `(dbgTrace (s! $arg) fun _ => $body)
 
 @[builtinMacro Lean.Parser.Term.«sorry»]  def expandSorry : Macro :=
 fun _ => `(sorryAx _ false)

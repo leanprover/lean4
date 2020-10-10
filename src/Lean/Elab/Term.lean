@@ -1268,7 +1268,7 @@ def resolveGlobalName (n : Name) : TermElabM (List (Name × List String)) := do
 env ← getEnv;
 currNamespace ← getCurrNamespace;
 openDecls ← getOpenDecls;
-pure (Lean.Elab.resolveGlobalName env currNamespace openDecls n)
+pure (Lean.resolveGlobalName env currNamespace openDecls n)
 
 /- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
 def resolveGlobalConst (n : Name) : TermElabM (List Name) := do

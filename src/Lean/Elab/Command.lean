@@ -397,7 +397,7 @@ def resolveNamespace (id : Name) : CommandElabM Name := do
 env           ← getEnv;
 currNamespace ← getCurrNamespace;
 openDecls ← getOpenDecls;
-match Elab.resolveNamespace env currNamespace openDecls id with
+match Lean.resolveNamespace env currNamespace openDecls id with
 | some ns => pure ns
 | none    => throwError ("unknown namespace '" ++ id ++ "'")
 

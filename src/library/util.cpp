@@ -489,11 +489,17 @@ static expr * g_nat_add_fn  = nullptr;
 
 static void initialize_nat() {
     g_nat            = new expr(mk_constant(get_nat_name()));
+    mark_persistent(g_nat->raw());
     g_nat_zero       = new expr(mk_app(mk_constant(get_has_zero_zero_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_zero_name())}));
+    mark_persistent(g_nat_zero->raw());
     g_nat_one        = new expr(mk_app(mk_constant(get_has_one_one_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_one_name())}));
+    mark_persistent(g_nat_one->raw());
     g_nat_bit0_fn    = new expr(mk_app(mk_constant(get_bit0_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
+    mark_persistent(g_nat_bit0_fn->raw());
     g_nat_bit1_fn    = new expr(mk_app(mk_constant(get_bit1_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_one_name()), mk_constant(get_nat_has_add_name())}));
+    mark_persistent(g_nat_bit1_fn->raw());
     g_nat_add_fn     = new expr(mk_app(mk_constant(get_has_add_add_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
+    mark_persistent(g_nat_add_fn->raw());
 }
 
 static void finalize_nat() {
@@ -517,6 +523,7 @@ static expr * g_int = nullptr;
 
 static void initialize_int() {
     g_int = new expr(mk_constant(get_int_name()));
+    mark_persistent(g_int->raw());
 }
 
 static void finalize_int() {
@@ -532,6 +539,7 @@ expr mk_char_type() { return *g_char; }
 
 static void initialize_char() {
     g_char = new expr(mk_constant(get_char_name()));
+    mark_persistent(g_char->raw());
 }
 
 static void finalize_char() {
@@ -976,8 +984,11 @@ static expr * g_bool_false = nullptr;
 
 void initialize_bool() {
     g_bool = new expr(mk_constant(get_bool_name()));
+    mark_persistent(g_bool->raw());
     g_bool_false = new expr(mk_constant(get_bool_false_name()));
+    mark_persistent(g_bool_false->raw());
     g_bool_true = new expr(mk_constant(get_bool_true_name()));
+    mark_persistent(g_bool_true->raw());
 }
 
 void finalize_bool() {
@@ -1046,13 +1057,21 @@ optional<expr> to_optional_expr(obj_arg o) {
 
 void initialize_library_util() {
     g_unit           = new expr(mk_constant(get_unit_name()));
+    mark_persistent(g_unit->raw());
     g_unit_mk        = new expr(mk_constant(get_unit_unit_name()));
+    mark_persistent(g_unit_mk->raw());
     g_true           = new expr(mk_constant(get_true_name()));
+    mark_persistent(g_true->raw());
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));
+    mark_persistent(g_true_intro->raw());
     g_and            = new expr(mk_constant(get_and_name()));
+    mark_persistent(g_and->raw());
     g_and_intro      = new expr(mk_constant(get_and_intro_name()));
+    mark_persistent(g_and_intro->raw());
     g_and_left  = new expr(mk_constant(get_and_left_name()));
+    mark_persistent(g_and_left->raw());
     g_and_right = new expr(mk_constant(get_and_right_name()));
+    mark_persistent(g_and_right->raw());
     initialize_nat();
     initialize_int();
     initialize_char();
@@ -1075,6 +1094,7 @@ void initialize_library_util() {
     g_version_string = new std::string(out.str());
 
     g_util_fresh = new name("_util_fresh");
+    mark_persistent(g_util_fresh->raw());
     register_name_generator_prefix(*g_util_fresh);
 }
 

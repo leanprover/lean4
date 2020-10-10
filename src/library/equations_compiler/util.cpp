@@ -521,6 +521,7 @@ void initialize_eqn_compiler_util() {
     register_trace_class(name{"debug", "eqn_compiler"});
 
     g_eqn_compiler_zeta   = new name{"eqn_compiler", "zeta"};
+    mark_persistent(g_eqn_compiler_zeta->raw());
     register_bool_option(*g_eqn_compiler_zeta, LEAN_DEFAULT_EQN_COMPILER_ZETA,
                          "(equation compiler) apply zeta-expansion (expand references to let-declarations) before creating auxiliary definitions.");
 }

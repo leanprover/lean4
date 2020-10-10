@@ -38,9 +38,13 @@ expr const & get_as_atomic_arg(expr const & e) { lean_assert(is_as_atomic(e)); r
 
 void initialize_explicit() {
     g_explicit_name         = new name("@");
+    mark_persistent(g_explicit_name->raw());
     g_partial_explicit_name = new name("@@");
+    mark_persistent(g_partial_explicit_name->raw());
     g_as_atomic_name        = new name("as_atomic");
+    mark_persistent(g_as_atomic_name->raw());
     g_as_is_name            = new name("as_is");
+    mark_persistent(g_as_is_name->raw());
 
     register_annotation(*g_explicit_name);
     register_annotation(*g_partial_explicit_name);

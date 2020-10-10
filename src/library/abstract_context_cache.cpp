@@ -96,18 +96,22 @@ bool context_cacheless::get_aux_recursor(type_context_old & ctx, name const & n)
 
 void initialize_abstract_context_cache() {
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
+    mark_persistent(g_class_instance_max_depth->raw());
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
     g_nat_offset_threshold         = new name{"unifier", "nat_offset_cnstr_threshold"};
+    mark_persistent(g_nat_offset_threshold->raw());
     register_unsigned_option(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD,
                              "(unifier) the unifier has special support for offset nat constraints of the form: "
                              "(t + k_1 =?= s + k_2), (t + k_1 =?= k_2) and (k_1 =?= k_2), "
                              "where k_1 and k_2 are numerals, t and s are arbitrary terms, and they all have type nat, "
                              "the offset constraint solver is used if k_1 and k_2 are smaller than the given threshold");
     g_unfold_lemmas = new name{"type_context", "unfold_lemmas"};
+    mark_persistent(g_unfold_lemmas->raw());
     register_bool_option(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS,
                          "(type-context) whether to unfold lemmas (e.g., during elaboration)");
     g_smart_unfolding = new name{"type_context", "smart_unfolding"};
+    mark_persistent(g_smart_unfolding->raw());
     register_bool_option(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING,
                          "(type-context) enable/disable smart unfolding (e.g., during elaboration)");
 }

@@ -105,6 +105,7 @@ static expr * g_dummy = nullptr;
 static expr const & get_dummy() {
     if (!g_dummy) {
         g_dummy = new expr(mk_constant("__expr_for_default_constructor__"));
+    mark_persistent(g_dummy->raw());
     }
     return *g_dummy;
 }
@@ -548,8 +549,11 @@ expr infer_implicit(expr const & t, bool strict) {
 void initialize_expr() {
     get_dummy();
     g_default_name = new name("a");
+    mark_persistent(g_default_name->raw());
     g_Type0        = new expr(mk_sort(mk_level_one()));
+    mark_persistent(g_Type0->raw());
     g_Prop         = new expr(mk_sort(mk_level_zero()));
+    mark_persistent(g_Prop->raw());
     /* TODO(Leo): add support for builtin constants in the kernel.
        Something similar to what we have in the library directory. */
 }

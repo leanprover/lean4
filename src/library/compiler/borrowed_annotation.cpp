@@ -22,6 +22,7 @@ expr const & get_borrowed_arg(expr const & e) { lean_assert(is_borrowed(e)); ret
 
 void initialize_borrowed_annotation() {
     g_borrowed = new name("borrowed");
+    mark_persistent(g_borrowed->raw());
     register_annotation(*g_borrowed);
 }
 

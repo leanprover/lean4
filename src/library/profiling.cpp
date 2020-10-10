@@ -30,7 +30,9 @@ second_duration get_profiling_threshold(options const & opts) {
 
 void initialize_profiling() {
     g_profiler           = new name{"profiler"};
+    mark_persistent(g_profiler->raw());
     g_profiler_threshold = new name{"profiler", "threshold"};
+    mark_persistent(g_profiler_threshold->raw());
     register_bool_option(*g_profiler, LEAN_DEFAULT_PROFILER, "(profiler) profile tactics and vm_eval command");
     register_unsigned_option(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD,
                              "(profiler) threshold in milliseconds, profiling times under threshold will not be reported");

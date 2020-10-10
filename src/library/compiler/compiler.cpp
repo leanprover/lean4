@@ -257,7 +257,9 @@ extern "C" object * lean_compile_decl(object * env, object * opts, object * decl
 
 void initialize_compiler() {
     g_codegen        = new name("codegen");
+    mark_persistent(g_codegen->raw());
     g_extract_closed = new name{"compiler", "extract_closed"};
+    mark_persistent(g_extract_closed->raw());
     register_bool_option(*g_codegen, true, "(compiler) enable/disable code generation");
     register_bool_option(*g_extract_closed, true, "(compiler) enable/disable closed term caching");
     register_trace_class("compiler");

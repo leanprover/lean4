@@ -28,6 +28,7 @@ static bool is_fun_info_trace_enabled() {
 
 void initialize_fun_info() {
     g_fun_info = new name("fun_info");
+    mark_persistent(g_fun_info->raw());
     register_trace_class(*g_fun_info);
 }
 

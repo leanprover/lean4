@@ -38,6 +38,7 @@ void print(lean::expr const & a) { std::cout << a << std::endl; }
 
 void initialize_formatter() {
     g_formatter_hide_full = new name{"formatter", "hide_full_terms"};
+    mark_persistent(g_formatter_hide_full->raw());
     register_bool_option(*g_formatter_hide_full, LEAN_DEFAULT_FORMATTER_HIDE_FULL_TERMS,
                          "(formatter) replace terms which do not contain metavariables with `...`");
 }

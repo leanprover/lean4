@@ -85,6 +85,7 @@ optional<name> get_tagged_name_suffix(name const & n, name const & tag) {
 
 void initialize_fresh_name() {
     g_fresh = new name("_fresh");
+    mark_persistent(g_fresh->raw());
     register_name_generator_prefix(*g_fresh);
 }
 

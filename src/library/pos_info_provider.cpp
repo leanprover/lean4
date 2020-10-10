@@ -67,7 +67,9 @@ format pos_info_provider::pp(expr const & e) const {
 
 void initialize_pos_info_provider() {
     g_column_name = new name("column");
+    mark_persistent(g_column_name->raw());
     g_row_name = new name("row");
+    mark_persistent(g_row_name->raw());
 }
 
 void finalize_pos_info_provider() {

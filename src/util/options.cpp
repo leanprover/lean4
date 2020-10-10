@@ -21,8 +21,11 @@ static name * g_timeout    = nullptr;
 
 void initialize_options() {
     g_verbose    = new name("verbose");
+    mark_persistent(g_verbose->raw());
     g_max_memory = new name("max_memory");
+    mark_persistent(g_max_memory->raw());
     g_timeout    = new name("timeout");
+    mark_persistent(g_timeout->raw());
 }
 
 void finalize_options() {

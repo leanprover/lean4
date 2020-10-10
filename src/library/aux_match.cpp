@@ -62,6 +62,7 @@ expr unfold_aux_match(environment const & env, expr const & e) {
 
 void initialize_aux_match() {
     g_aux_match_suffix = new name("_match");
+    mark_persistent(g_aux_match_suffix->raw());
 }
 
 void finalize_aux_match() {

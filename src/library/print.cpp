@@ -54,7 +54,9 @@ static name * g_x   = nullptr;
 
 void initialize_print() {
     g_M = new name("M");
+    mark_persistent(g_M->raw());
     g_x = new name("x");
+    mark_persistent(g_x->raw());
 }
 
 void finalize_print() {

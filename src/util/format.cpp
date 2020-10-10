@@ -108,10 +108,15 @@ format pp(name const & n) {
 
 void initialize_format() {
     g_pp_indent  = new name{"pp", "indent"};
+    mark_persistent(g_pp_indent->raw());
     g_pp_unicode = new name{"pp", "unicode"};
+    mark_persistent(g_pp_unicode->raw());
     g_pp_width   = new name{"pp", "width"};
+    mark_persistent(g_pp_width->raw());
     g_line  = new format(box(static_cast<unsigned>(format::format_kind::LINE)));
+    mark_persistent(g_line->raw());
     g_space = new format(" ");
+    mark_persistent(g_space->raw());
 }
 
 void finalize_format() {

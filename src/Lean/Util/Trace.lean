@@ -137,7 +137,7 @@ macro:max "trace!" id:term:max msg:term : term => `(trace $id fun _ => ($msg : M
 
 syntax[traceInterp] "trace[" ident "]!" term : term
 
-macro_rules[Lean.traceInterp] -- Fix kind resolution
+macro_rules[traceInterp]
 | `(trace[$id]! $s) => `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
 
 end Lean

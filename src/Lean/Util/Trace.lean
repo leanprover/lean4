@@ -135,9 +135,9 @@ namespace Lean
 
 macro:max "trace!" id:term:max msg:term : term => `(trace $id fun _ => ($msg : MessageData))
 
-syntax[traceInterp] "trace[" ident "]!" term : term
+syntax "trace[" ident "]!" term : term
 
-macro_rules[traceInterp]
+macro_rules
 | `(trace[$id]! $s) => `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
 
 end Lean

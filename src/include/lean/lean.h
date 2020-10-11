@@ -617,18 +617,12 @@ static inline bool lean_is_shared(lean_object * o) {
 #if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
     if (LEAN_LIKELY(lean_is_st(o))) {
         return ((o->m_header) & ((1ull << LEAN_RC_NBITS) - 1)) > 1;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return (atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) & ((1ull << LEAN_RC_NBITS) - 1)) > 1;
     } else {
         return false;
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc > 1;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) > 1;
     } else {
         return false;
     }

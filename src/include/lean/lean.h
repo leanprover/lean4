@@ -595,18 +595,18 @@ static inline bool lean_is_exclusive(lean_object * o) {
 #if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
     if (LEAN_LIKELY(lean_is_st(o))) {
         return ((o->m_header) & ((1ull << LEAN_RC_NBITS) - 1)) == 1;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return (atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) & ((1ull << LEAN_RC_NBITS) - 1)) == 1;
     } else {
+        // In theory, an MT object with RC 1 can also be used for destructive updates as long as
+        // the single reference is reachable only from a single thread (which is the case when
+        // it is on the stack/passed to a primitive, in contrast to stored in another object).
+        // However, we would need to add an additional check to this function (which is inlined)
+        // and also reset the mem kind of `o` to ST, and the object will be iterated over anyway
+        // when we put it back in an MT context. So we focus on the more common ST case instead.
         return false;
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc == 1;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) == 1;
     } else {
         return false;
     }

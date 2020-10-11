@@ -23,6 +23,7 @@ lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Class_1__checkOutPa
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l___private_Lean_Class_1__checkOutParam(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ClassState_switch(lean_object*);
+lean_object* l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__5(lean_object*);
 lean_object* l_Lean_classExtension___closed__3;
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__2(lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -53,7 +54,6 @@ lean_object* l___private_Lean_Class_2__consumeNLambdas___main(lean_object*, lean
 lean_object* l_Array_iterateMAux___main___at_Lean_ClassState_addEntry___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ClassEntry_lt(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__1(lean_object*);
-lean_object* l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_49____spec__5(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_ClassState_addEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkClassExtension___lambda__1___boxed(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -2466,7 +2466,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_1, 2);
-x_6 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_49____spec__5(x_3);
+x_6 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__5(x_3);
 x_7 = l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__1(x_4);
 x_8 = l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__2(x_5);
 lean_ctor_set(x_1, 2, x_8);
@@ -2484,7 +2484,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_1);
-x_12 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_49____spec__5(x_9);
+x_12 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__5(x_9);
 x_13 = l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__1(x_10);
 x_14 = l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__2(x_11);
 x_15 = lean_alloc_ctor(0, 3, 0);

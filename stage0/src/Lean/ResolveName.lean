@@ -105,13 +105,13 @@ let rec loop : Name → List String → List (Name × List String)
       | some newId => [(newId, projs)]
       | none =>
         let resolvedIds := if env.contains id then [id] else []
-        let idPrv := mkPrivateName env id
+        let idPrv       := mkPrivateName env id
         let resolvedIds := if env.contains idPrv then [idPrv] ++ resolvedIds else resolvedIds
         let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
         let resolvedIds := getAliases env id ++ resolvedIds
         match resolvedIds with
-        | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map fun id => (id, projs)
-        | []                   => loop p (s::projs)
+        | _ :: _ => resolvedIds.eraseDups.map fun id => (id, projs)
+        | []     => loop p (s::projs)
   | _, _ => []
 loop extractionResult.name []
 
@@ -189,12 +189,12 @@ variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
 def resolveNamespace (id : Name) : m Name := do
 match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
 | some ns => return ns
-| none    => throwError ("unknown namespace '" ++ id ++ "'")
+| none    => throwError s!"unknown namespace '{id}'"
 
 /- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
 def resolveGlobalConst (n : Name) : m (List Name) := do
 let cs ← resolveGlobalName n
-let cs := cs.filter fun p => p.2.isEmpty -- TODO fun (_, fieldList) => fieldList.isEmpty doesn't work here
+let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
 if cs.isEmpty then throwUnknownConstant n
 return cs.map (·.1)
 

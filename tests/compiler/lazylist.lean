@@ -109,7 +109,7 @@ partial def filter (p : α → Bool) : LazyList α → LazyList α
 end LazyList
 
 def fib : LazyList Nat :=
-LazyList.iterate₂ Nat.add 0 1
+LazyList.iterate₂ (· + ·) 0 1
 
 def iota (i : Nat := 0) : LazyList Nat :=
 LazyList.iterate Nat.succ i
@@ -124,5 +124,5 @@ def main : IO Unit := do
 let n := 40;
 IO.println tst.isEmpty;
 IO.println tst.head;
-IO.println $ (fib.interleave ((iota 0).map (fun a => a + 100))).approx n;
-IO.println $ ((((iota 0).map (fun a => a + 10)).filter (fun v => v % 2 == 0)).approx n)
+IO.println $ fib.interleave ((iota 0).map (· + 100)) $.approx n;
+IO.println $ (iota 0).map (· + 10) $.filter (· % 2 == 0) $.approx n

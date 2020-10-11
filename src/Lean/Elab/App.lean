@@ -534,8 +534,10 @@ private partial def consumeImplicits : Expr → Expr → TermElabM (Expr × Expr
     if !c.binderInfo.isExplicit then do
       mvar ← mkFreshExprMVar d;
       consumeImplicits (mkApp e mvar) (b.instantiate1 mvar)
-    else
-      pure (e, eType)
+    else match d.getOptParamDefault? with
+      | some defVal => consumeImplicits (mkApp e defVal) (b.instantiate1 defVal)
+      -- TODO: we do not handle autoParams here.
+      | _ => pure (e, eType)
   | _ => pure (e, eType)
 
 private partial def resolveLValLoop (lval : LVal) : Expr → Expr → Array Exception → TermElabM (Expr × LValResolution)

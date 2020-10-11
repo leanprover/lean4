@@ -363,8 +363,10 @@ bool well_formed(local_context const & lctx, metavar_context const & mctx, expr 
 
 void initialize_metavar_context() {
     g_meta_prefix = new name("_mlocal");
+    mark_persistent(g_meta_prefix->raw());
     register_name_generator_prefix(*g_meta_prefix);
     g_dummy_type  = new expr(mk_constant(name::mk_internal_unique_name()));
+    mark_persistent(g_dummy_type->raw());
 }
 
 void finalize_metavar_context() {

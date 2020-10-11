@@ -99,9 +99,13 @@ environment environment::add_quot() const {
 
 void initialize_quot() {
     quot_consts::g_quot      = new name{"Quot"};
+    mark_persistent(quot_consts::g_quot->raw());
     quot_consts::g_quot_lift = new name{"Quot", "lift"};
+    mark_persistent(quot_consts::g_quot_lift->raw());
     quot_consts::g_quot_ind  = new name{"Quot", "ind"};
+    mark_persistent(quot_consts::g_quot_ind->raw());
     quot_consts::g_quot_mk   = new name{"Quot", "mk"};
+    mark_persistent(quot_consts::g_quot_mk->raw());
 }
 
 void finalize_quot() {

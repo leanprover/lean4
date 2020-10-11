@@ -311,11 +311,17 @@ expr get_equations_result(expr const & e, unsigned i) {
 
 void initialize_equations() {
     g_equations_name            = new name("equations");
+    mark_persistent(g_equations_name->raw());
     g_equation_name             = new name("equation");
+    mark_persistent(g_equation_name->raw());
     g_no_equation_name          = new name("no_equation");
+    mark_persistent(g_no_equation_name->raw());
     g_inaccessible_name         = new name("innaccessible");
+    mark_persistent(g_inaccessible_name->raw());
     g_equations_result_name     = new name("equations_result");
+    mark_persistent(g_equations_result_name->raw());
     g_as_pattern_name           = new name("as_pattern");
+    mark_persistent(g_as_pattern_name->raw());
     g_equation                  = new kvmap(set_bool(kvmap(), *g_equation_name, false));
     g_equation_ignore_if_unused = new kvmap(set_bool(kvmap(), *g_equation_name, true));
     g_no_equation               = new kvmap(set_bool(kvmap(), *g_no_equation_name, false));

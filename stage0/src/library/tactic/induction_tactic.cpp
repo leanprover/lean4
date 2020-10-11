@@ -364,6 +364,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
 
 void initialize_induction_tactic() {
     g_induction_concat = new name{"tactic", "induction", "concat_names"};
+    mark_persistent(g_induction_concat->raw());
     register_bool_option(*g_induction_concat, true,
                          "(induction tactic) if true, `induction` (and `cases`) tactic generate names "
                          "for constructor fields by concatenating the hypothesis name and the constructor field name");

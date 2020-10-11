@@ -283,6 +283,7 @@ recursor_info get_recursor_info(environment const & env, name const & r) {
 
 void initialize_user_recursors() {
     g_user_rec_fresh = new name("_user_rec_fresh");
+    mark_persistent(g_user_rec_fresh->raw());
     register_name_generator_prefix(*g_user_rec_fresh);
 }
 

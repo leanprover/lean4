@@ -410,6 +410,7 @@ expr cce_core(environment const & env, local_ctx const & lctx, expr const & e) {
 
 void initialize_cse() {
     g_cse_fresh = new name("_cse_fresh");
+    mark_persistent(g_cse_fresh->raw());
     register_name_generator_prefix(*g_cse_fresh);
 }
 void finalize_cse() {

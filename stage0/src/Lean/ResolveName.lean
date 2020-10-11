@@ -202,7 +202,7 @@ def resolveGlobalConstNoOverload (n : Name) : m Name := do
 let cs ← resolveGlobalConst n
 match cs with
 | [c] => pure c
-| _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map (mkConst ·)}" -- TODO: (cs.map mkConst) doesn't work
+| _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
 
 end Methods
 end Lean

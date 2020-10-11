@@ -19,6 +19,7 @@ static name * g_tmp_prefix = nullptr;
 
 void initialize_idx_metavar() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
+    mark_persistent(g_tmp_prefix->raw());
 }
 
 void finalize_idx_metavar() {

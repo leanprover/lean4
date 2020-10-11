@@ -1142,15 +1142,24 @@ expr string_lit_to_constructor(expr const & e) {
 
 void initialize_inductive() {
     g_nested         = new name("_nested");
+    mark_persistent(g_nested->raw());
     g_ind_fresh      = new name("_ind_fresh");
+    mark_persistent(g_ind_fresh->raw());
     g_nested_fresh   = new name("_nested_fresh");
+    mark_persistent(g_nested_fresh->raw());
     g_nat_zero       = new expr(mk_constant(name{"Nat", "zero"}));
+    mark_persistent(g_nat_zero->raw());
     g_nat_succ       = new expr(mk_constant(name{"Nat", "succ"}));
+    mark_persistent(g_nat_succ->raw());
     g_string_mk      = new expr(mk_constant(name{"String", "mk"}));
+    mark_persistent(g_string_mk->raw());
     expr char_type   = mk_constant(name{"Char"});
     g_list_cons_char = new expr(mk_app(mk_constant(name{"List", "cons"}, {level()}), char_type));
+    mark_persistent(g_list_cons_char->raw());
     g_list_nil_char  = new expr(mk_app(mk_constant(name{"List", "nil"}, {level()}), char_type));
+    mark_persistent(g_list_nil_char->raw());
     g_char_of_nat    = new expr(mk_constant(name{"Char", "ofNat"}));
+    mark_persistent(g_char_of_nat->raw());
     register_name_generator_prefix(*g_ind_fresh);
     register_name_generator_prefix(*g_nested_fresh);
 }

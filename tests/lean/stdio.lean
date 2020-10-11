@@ -1,9 +1,10 @@
 new_frontend
 open IO.FS
-def usingIO {α} (x : IO α) := x
+def usingIO {α} (x : IO α) : IO α := x
+
 #eval usingIO do
 let out ← IO.getStdout;
-(out.putStrLn "print stdout" : IO Unit)
+out.putStrLn "print stdout"
 
 #eval usingIO do
 let err ← IO.getStderr;

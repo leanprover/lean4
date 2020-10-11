@@ -3,7 +3,7 @@ partial def f : List Nat → Bool
 | []      => false
 | (a::as) => a > 0 && f as
 
-#check f._cstage2
+#print f._cstage2
 
 #exit
 

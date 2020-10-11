@@ -47,21 +47,9 @@ when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
   throwError ("argument '" ++ toString namedArg.name ++ "' was already set");
 pure $ namedArgs.push namedArg
 
-def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit :=
-instMVars.forM $ fun mvarId =>
-  unlessM (synthesizeInstMVarCore mvarId) $
-    registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
-
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
 argType ← inferType arg;
 ensureHasTypeAux expectedType argType arg f
-
-private def elabArg (f : Expr) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
-match arg with
-| Arg.expr val => ensureArgType f val expectedType
-| Arg.stx val  => do
-  val ← elabTerm val expectedType;
-  ensureArgType f val expectedType
 
 /-
   Relevant definitions:
@@ -88,26 +76,124 @@ if synthesized then
 else
   throwError "function expected"
 
-/-- Auxiliary structure used to elaborate function application arguments. -/
-structure ElabAppArgsCtx :=
-(ref           : Syntax)
-(args          : Array Arg)
-(expectedType? : Option Expr)
-(explicit      : Bool)                -- if true, all arguments are treated as explicit
-(argIdx        : Nat := 0)            -- position of next explicit argument to be processed
-(namedArgs     : Array NamedArg)      -- remaining named arguments to be processed
-(instMVars     : Array MVarId := #[]) -- metavariables for the instance implicit arguments that have already been processed
-(typeMVars     : Array MVarId := #[]) -- metavariables for implicit arguments of the form `{α : Sort u}` that have already been processed
-(toSetErrorCtx : Array MVarId := #[]) -- metavariables that we need the set the error context using the application being built
-(foundExplicit : Bool := false)       -- true if an explicit argument has already been processed
+def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit :=
+instMVars.forM $ fun mvarId =>
+  unlessM (synthesizeInstMVarCore mvarId) $
+    registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
+
+namespace ElabAppArgs
+
+/- Auxiliary structure for elaborating the application `f args namedArgs`. -/
+structure State :=
+(explicit          : Bool) -- true if `@` modifier was used
+(f                 : Expr)
+(fType             : Expr)
+(args              : List Arg)            -- remaining regular arguments
+(namedArgs         : List NamedArg)       -- remaining named arguments to be processed
+(expectedType?     : Option Expr)
+(etaArgs           : Array Expr   := #[])
+(toSetErrorCtx     : Array MVarId := #[]) -- metavariables that we need the set the error context using the application being built
+(instMVars         : Array MVarId := #[]) -- metavariables for the instance implicit arguments that have already been processed
+-- The following two fields are used to implement the `propagateExpectedType` heuristic.
+(typeMVars         : Array MVarId := #[]) -- metavariables for implicit arguments of the form `{α : Sort u}` that have already been processed
+(alreadyPropagated : Bool := false)       -- true when expectedType has already been propagated
+
+abbrev M := StateT State TermElabM
+
+/- Add the given metavariable to the collection of metavariables associated with instance-implicit arguments. -/
+private def addInstMVar (mvarId : MVarId) : M Unit :=
+modify fun s => { s with instMVars := s.instMVars.push mvarId }
+
+/-
+  Try to synthesize metavariables are `instMVars` using type class resolution.
+  The ones that cannot be synthesized yet are registered.
+  Remark: we use this method before trying to apply coercions to function. -/
+def synthesizeAppInstMVars : M Unit := do
+s ← get;
+let instMVars := s.instMVars;
+modify fun s => { s with instMVars := #[] };
+liftM $ Lean.Elab.Term.synthesizeAppInstMVars instMVars
+
+/- fType may become a forallE after we synthesize pending metavariables. -/
+private def synthesizePendingAndNormalizeFunType : M Unit := do
+synthesizeAppInstMVars;
+liftM $ synthesizeSyntheticMVars;
+s ← get;
+fType ← whnfForall s.fType;
+match fType with
+| Expr.forallE _ _ _ _ => modify fun s => { s with fType := fType }
+| _ => do
+  f ← liftM $ tryCoeFun fType s.f;
+  fType ← inferType f;
+  modify fun s => { s with f := f, fType := fType }
+
+/- Normalize and return the function type. -/
+private def normalizeFunType : M Expr := do
+s ← get;
+fType ← whnfForall s.fType;
+modify fun s => { s with fType := fType };
+pure fType
+
+/- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
+private def getBindingName : M Name := do s ← get; pure s.fType.bindingName!
+
+/- Return the next argument expected type. This method assumes `fType` is a function type. -/
+private def getArgExpectedType : M Expr := do s ← get; pure s.fType.bindingDomain!
+
+def eraseNamedArgCore (namedArgs : List NamedArg) (binderName : Name) : List NamedArg :=
+namedArgs.filter fun namedArg => namedArg.name != binderName
+
+/- Remove named argument with name `binderName` from `namedArgs`. -/
+def eraseNamedArg (binderName : Name) : M Unit :=
+modify fun s => { s with namedArgs := eraseNamedArgCore s.namedArgs binderName }
+
+/- Return true if the next argument at `args` is of the form `_` -/
+private def isNextArgHole : M Bool := do
+s ← get;
+match s.args with
+| Arg.stx (Syntax.node `Lean.Parser.Term.hole _) :: _ => pure true
+| _ => pure false
+
+/-
+  Add a new argument to the result. That is, `f := f arg`, update `fType`.
+  This method assumes `fType` is a function type. -/
+private def addNewArg (arg : Expr) : M Unit :=
+modify fun s => { s with f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
+
+/-
+  Elaborate the given `Arg` and add it to the result. See `addNewArg`.
+  Recall that, `Arg` may be wrapping an already elaborated `Expr`. -/
+private def elabAndAddNewArg (arg : Arg) : M Unit := do
+s ← get;
+expectedType ← getArgExpectedType;
+match arg with
+| Arg.expr val => do
+  arg ← liftM $ ensureArgType s.f val expectedType;
+  addNewArg arg
+| Arg.stx val  => do
+  val ← liftM $ elabTerm val expectedType;
+  arg ← liftM $ ensureArgType s.f val expectedType;
+  addNewArg arg
+
+/- Return true if the given type contains `OptParam` or `AutoParams` -/
+private def hasOptAutoParams (type : Expr) : M Bool := do
+forallTelescopeReducing type fun xs type =>
+  xs.anyM fun x => do
+    xType ← inferType x;
+    pure $ xType.getOptParamDefault?.isSome || xType.getAutoParamTactic?.isSome
+
+/- Return true if `fType` contains `OptParam` or `AutoParams` -/
+private def fTypeHasOptAutoParams : M Bool := do
+s ← get;
+hasOptAutoParams s.fType
 
 /- Auxiliary function for retrieving the resulting type of a function application.
    See `propagateExpectedType`. -/
-private partial def getForallBody : Nat → Array NamedArg → Expr → Option Expr
+private partial def getForallBody : Nat → List NamedArg → Expr → Option Expr
 | i, namedArgs, type@(Expr.forallE n d b c) =>
-  match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
-  | some idx => getForallBody i (namedArgs.eraseIdx idx) b
-  | none     =>
+  match namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == n with
+  | some _ => getForallBody i (eraseNamedArgCore namedArgs n) b
+  | none =>
     if !c.binderInfo.isExplicit then
       getForallBody i namedArgs b
     else if i > 0 then
@@ -116,13 +202,8 @@ private partial def getForallBody : Nat → Array NamedArg → Expr → Option E
       getForallBody i namedArgs b
     else
       some type
-| i, namedArgs, type => if i == 0 && namedArgs.isEmpty then some type else none
-
-private def hasTypeMVar (ctx : ElabAppArgsCtx) (type : Expr) : Bool :=
-(type.findMVar? (fun mvarId => ctx.typeMVars.contains mvarId)).isSome
-
-private def hasOnlyTypeMVar (ctx : ElabAppArgsCtx) (type : Expr) : Bool :=
-(type.findMVar? (fun mvarId => !ctx.typeMVars.contains mvarId)).isNone
+| 0, [], type => some type
+| _, _,  _    => none
 
 /-
   Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
@@ -171,122 +252,180 @@ private def hasOnlyTypeMVar (ctx : ElabAppArgsCtx) (type : Expr) : Bool :=
   by assigning `?n := 32` and `?m := 31`. Then, the elaborator fails elaborating `y1` since
   `bv 64` is **not** definitionally equal to `bv 32`.
 -/
-private def propagateExpectedType (ctx : ElabAppArgsCtx) (eType : Expr) : TermElabM Unit :=
-withRef ctx.ref $
-unless (ctx.explicit || ctx.foundExplicit || ctx.typeMVars.isEmpty)  $ do
-  match ctx.expectedType? with
+private def propagateExpectedType : M Unit := do
+s ← get;
+-- TODO: handle s.etaArgs.size > 0
+unless (s.explicit || !s.etaArgs.isEmpty || s.alreadyPropagated || s.typeMVars.isEmpty) $ do
+  modify fun s => { s with alreadyPropagated := true };
+  match s.expectedType? with
   | none              => pure ()
-  | some expectedType =>
-    let numRemainingArgs := ctx.args.size - ctx.argIdx;
-    match getForallBody numRemainingArgs ctx.namedArgs eType with
+  | some expectedType => do
+    let numRemainingArgs := s.args.length;
+    trace `Elab.app.propagateExpectedType fun _ =>
+      "etaArgs.size: " ++ toString s.etaArgs.size ++ ", numRemainingArgs: " ++ toString numRemainingArgs ++ ", fType: " ++ s.fType;
+    match getForallBody numRemainingArgs s.namedArgs s.fType with
     | none           => pure ()
-    | some eTypeBody =>
-      unless eTypeBody.hasLooseBVars $
-      when (hasTypeMVar ctx eTypeBody && hasOnlyTypeMVar ctx eTypeBody) $ do
-        isDefEq expectedType eTypeBody;
-        pure ()
+    | some fTypeBody =>
+      unless fTypeBody.hasLooseBVars do
+        let hasTypeMVar     := (fTypeBody.findMVar? fun mvarId => s.typeMVars.contains mvarId).isSome;
+        let hasOnlyTypeMVar := (fTypeBody.findMVar? fun mvarId => !s.typeMVars.contains mvarId).isNone;
+        when (hasTypeMVar && hasOnlyTypeMVar) $
+          unlessM (hasOptAutoParams fTypeBody) do
+            trace `Elab.app.propagateExpectedType fun _ => expectedType ++ " =?= " ++ fTypeBody;
+            isDefEq expectedType fTypeBody;
+            pure ()
 
-private def nextArgIsHole (ctx : ElabAppArgsCtx) : Bool :=
-if h : ctx.argIdx < ctx.args.size then
-  match ctx.args.get ⟨ctx.argIdx, h⟩ with
-  | Arg.stx (Syntax.node `Lean.Parser.Term.hole _) => true
-  | _                                              => false
-else
-  false
+/-
+  Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
+  and then execute the continuation `k`.-/
+private def addEtaArg (k : Unit → M Expr) : M Expr := do
+n    ← getBindingName;
+type ← getArgExpectedType;
+withLocalDeclD n type fun x => do
+  modify fun s => { s with etaArgs := s.etaArgs.push x };
+  addNewArg x;
+  k ()
+
+/- This method execute after all application arguments have been processed. -/
+private def finalize : M Expr := do
+s ← get;
+let e     := s.f;
+let eType := s.fType;
+-- all user explicit arguments have been consumed
+trace `Elab.app.finalize $ fun _ => e;
+ref ← getRef;
+-- Register the error context of implicits
+s.toSetErrorCtx.forM fun mvarId => liftM $ registerMVarErrorImplicitArgInfo mvarId ref e;
+(e, eType) ←
+  if s.etaArgs.isEmpty then
+    pure (e, eType)
+  else do {
+    e ← mkLambdaFVars s.etaArgs e;
+    eType ← inferType e;
+    pure (e, eType)
+  };
+trace `Elab.app.finalize $ fun _ => "after etaArgs: " ++ e ++ " : " ++ eType;
+match s.expectedType? with
+| none              => pure ()
+| some expectedType => do {
+   trace `Elab.app.finalize $ fun _ => "expected type: " ++ expectedType;
+   -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
+   isDefEq expectedType eType;
+   pure ()
+  };
+synthesizeAppInstMVars;
+pure e
+
+/-
+  Process a `fType` of the form `(x : A) → B x`.
+  This method assume `fType` is a function type -/
+private def processExplictArg (k : Unit → M Expr) : M Expr := do
+s ← get;
+match s.args with
+| arg::args => do
+  propagateExpectedType;
+  modify fun s => { s with args := args };
+  elabAndAddNewArg arg;
+  k ()
+| _ => do
+  argType ← getArgExpectedType;
+  match s.explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
+  | false, some defVal, _  => do addNewArg defVal; k()
+  | false, _, some (Expr.const tacticDecl _ _) => do
+    env ← getEnv;
+    match evalSyntaxConstant env tacticDecl with
+    | Except.error err       => throwError err
+    | Except.ok tacticSyntax => do
+      tacticBlock ← `(by { $(tacticSyntax.getArgs)* });
+      -- tacticBlock does not have any position information.
+      -- So, we use the current ref
+      ref ← getRef;
+      let tacticBlock := tacticBlock.copyInfo ref;
+      let argType := argType.getArg! 0; -- `autoParam type := by tactic` ==> `type`
+      propagateExpectedType;
+      elabAndAddNewArg (Arg.stx tacticBlock);
+      k ()
+  | false, _, some _ =>
+    throwError "invalid autoParam, argument must be a constant"
+  | _, _, _ =>
+    if !s.namedArgs.isEmpty then do
+      addEtaArg k
+    else if !s.explicit then do
+      hasOptAuto ← fTypeHasOptAutoParams;
+      if hasOptAuto then
+        addEtaArg k
+      else
+        finalize
+    else
+      finalize
+
+/-
+  Process a `fType` of the form `{x : A} → B x`.
+  This method assume `fType` is a function type -/
+private def processImplicitArg (k : Unit → M Expr) : M Expr := do
+s ← get;
+if s.explicit then
+  processExplictArg k
+else do
+  argType ← getArgExpectedType;
+  arg ← mkFreshExprMVar argType;
+  whenM (isTypeFormer arg) $
+    modify fun s => { s with typeMVars := s.typeMVars.push arg.mvarId!, toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! };
+  addNewArg arg;
+  k ()
+
+/-
+  Process a `fType` of the form `[x : A] → B x`.
+  This method assume `fType` is a function type -/
+private def processInstImplicitArg (k : Unit → M Expr) : M Expr := do
+s ← get;
+argType ← getArgExpectedType;
+if s.explicit then do
+  isHole ← isNextArgHole;
+  if isHole then do
+    /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
+    arg ← mkFreshExprMVar argType MetavarKind.synthetic;
+    modify fun s => { s with args := s.args.tail! };
+    addInstMVar arg.mvarId!;
+    addNewArg arg;
+    k ()
+  else
+    processExplictArg k
+else do
+  arg ← mkFreshExprMVar argType MetavarKind.synthetic;
+  addInstMVar arg.mvarId!;
+  addNewArg arg;
+  k ()
+
+/- Return true if there are regular or named arguments to be processed. -/
+private def hasArgsToProcess : M Bool := do
+s ← get;
+pure $ !s.args.isEmpty || !s.namedArgs.isEmpty
 
 /- Elaborate function application arguments. -/
-private partial def elabAppArgsAux : ElabAppArgsCtx → Expr → Expr → TermElabM Expr
-| ctx, e, eType => withRef ctx.ref do
-  let finalize : Unit → TermElabM Expr := fun _ => do {
-    -- all user explicit arguments have been consumed
-    trace `Elab.app.finalize $ fun _ => e;
-    match ctx.expectedType? with
-    | none              => pure ()
-    | some expectedType => do {
-      -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
-      isDefEq expectedType eType;
-      pure ()
-    };
-    synthesizeAppInstMVars ctx.instMVars;
-    ctx.toSetErrorCtx.forM fun mvarId => registerMVarErrorImplicitArgInfo mvarId ctx.ref e;
-    pure e
-  };
-  eType ← whnfForall eType;
-  match eType with
-  | Expr.forallE n d b c =>
-    match ctx.namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
-    | some idx => do
-      let arg := ctx.namedArgs.get! idx;
-      let namedArgs := ctx.namedArgs.eraseIdx idx;
-      argElab ← elabArg e arg.val d;
-      propagateExpectedType ctx eType;
-      elabAppArgsAux { ctx with foundExplicit := true, namedArgs := namedArgs } (mkApp e argElab) (b.instantiate1 argElab)
-    | none =>
-      let processExplictArg : Unit → TermElabM Expr := fun _ => do {
-        propagateExpectedType ctx eType;
-        let ctx := { ctx with foundExplicit := true };
-        if h : ctx.argIdx < ctx.args.size then do
-          argElab ← elabArg e (ctx.args.get ⟨ctx.argIdx, h⟩) d;
-          elabAppArgsAux { ctx with argIdx := ctx.argIdx + 1 } (mkApp e argElab) (b.instantiate1 argElab)
-        else match ctx.explicit, d.getOptParamDefault?, d.getAutoParamTactic? with
-          | false, some defVal, _                      => elabAppArgsAux ctx (mkApp e defVal) (b.instantiate1 defVal)
-          | false, _, some (Expr.const tacticDecl _ _) => do
-            env ← getEnv;
-            match evalSyntaxConstant env tacticDecl with
-            | Except.error err       => throwError err
-            | Except.ok tacticSyntax => do
-              tacticBlock ← `(by { $(tacticSyntax.getArgs)* });
-              -- tacticBlock does not have any position information.
-              -- So, we use ctx.ref
-              let tacticBlock := tacticBlock.copyInfo ctx.ref;
-              let d := d.getArg! 0; -- `autoParam type := by tactic` ==> `type`
-              argElab ← elabArg e (Arg.stx tacticBlock) d;
-              elabAppArgsAux ctx (mkApp e argElab) (b.instantiate1 argElab)
-          | false, _, some _ =>
-            throwError "invalid autoParam, argument must be a constant"
-          | _, _, _ =>
-            if ctx.namedArgs.isEmpty then
-              finalize ()
-            else
-              throwError ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (ctx.namedArgs.map $ fun narg => narg.name))
-      };
+partial def main : Unit → M Expr
+| _ => do
+  s ← get;
+  fType ← normalizeFunType;
+  match fType with
+  | Expr.forallE binderName _ _ c => do
+    s ← get;
+    match s.namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == binderName with
+    | some namedArg => do propagateExpectedType; eraseNamedArg binderName; elabAndAddNewArg namedArg.val; main()
+    | none          => do
       match c.binderInfo with
-        | BinderInfo.implicit =>
-          if ctx.explicit then
-            processExplictArg ()
-          else do
-            a ← mkFreshExprMVar d;
-            typeMVars ← condM (isTypeFormer a) (pure $ ctx.typeMVars.push a.mvarId!) (pure ctx.typeMVars);
-            elabAppArgsAux { ctx with typeMVars := typeMVars, toSetErrorCtx := ctx.toSetErrorCtx.push a.mvarId! } (mkApp e a) (b.instantiate1 a)
-        | BinderInfo.instImplicit =>
-          if ctx.explicit && nextArgIsHole ctx then do
-            /- Recall that if '@' has been used, and the argument is '_', then we still use
-               type class resolution -/
-            a ← mkFreshExprMVar d MetavarKind.synthetic;
-            elabAppArgsAux { ctx with argIdx := ctx.argIdx + 1, instMVars := ctx.instMVars.push a.mvarId! } (mkApp e a) (b.instantiate1 a)
-          else if ctx.explicit then
-            processExplictArg ()
-          else do
-            a ← mkFreshExprMVar d MetavarKind.synthetic;
-            elabAppArgsAux { ctx with instMVars := ctx.instMVars.push a.mvarId! } (mkApp e a) (b.instantiate1 a)
-        | _ =>
-          processExplictArg ()
-  | _ =>
-    if ctx.namedArgs.isEmpty && ctx.argIdx == ctx.args.size then
-      finalize ()
-    else do
-      -- eType may become a forallE after we synthesize pending metavariables
-      synthesizeAppInstMVars ctx.instMVars;
-      synthesizeSyntheticMVars;
-      let ctx := { ctx with instMVars := #[] };
-      -- try to normalize again.
-      eType ← whnfForall eType;
-      match eType with
-      | Expr.forallE _ _ _ _ => elabAppArgsAux ctx e eType
-      | _ => do
-        e ← tryCoeFun eType e;
-        eType ← inferType e;
-        elabAppArgsAux ctx e eType
+      | BinderInfo.implicit     => processImplicitArg main
+      | BinderInfo.instImplicit => processInstImplicitArg main
+      | _                       => processExplictArg main
+  | _ => do
+    cont ← hasArgsToProcess;
+    if cont then do
+      synthesizePendingAndNormalizeFunType;
+      main ()
+    else
+      finalize
+
+end ElabAppArgs
 
 private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
@@ -295,8 +434,7 @@ fType ← instantiateMVars fType;
 trace `Elab.app.args $ fun _ => "explicit: " ++ toString explicit ++ ", " ++ f ++ " : " ++ fType;
 unless (namedArgs.isEmpty && args.isEmpty) $
   tryPostponeIfMVar fType;
-ref ← getRef;
-elabAppArgsAux {ref := ref, args := args, expectedType? := expectedType?, explicit := explicit, namedArgs := namedArgs } f fType
+(ElabAppArgs.main ()).run' { args := args.toList, expectedType? := expectedType?, explicit := explicit, namedArgs := namedArgs.toList, f := f, fType := fType }
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution

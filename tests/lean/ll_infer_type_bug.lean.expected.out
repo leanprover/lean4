@@ -1,1 +1,3 @@
-f._cstage2 : _obj → UInt8
+unsafe def f._cstage2 : _obj → UInt8 :=
+fun (x : _obj) => List.casesOn fun (hd tl : _obj) => let _x_1 : UInt8 := Nat.decLt 0 hd;
+      Bool.casesOn false (f tl)

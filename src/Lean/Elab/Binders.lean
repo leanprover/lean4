@@ -379,7 +379,7 @@ else
 /- Helper function for `expandEqnsIntoMatch` -/
 private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
 let alt0 := (matchAlts.getArg 1).getArg 0;
-let pats := (alt0.getArg 0).getArgs.getSepElems;
+let pats := (alt0.getArg 0).getSepArgs;
 pats.size
 
 /- Helper function for `expandMatchAltsIntoMatch` -/

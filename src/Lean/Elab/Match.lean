@@ -38,7 +38,7 @@ structure MatchAltView :=
 (rhs      : Syntax)
 
 def mkMatchAltView (ref : Syntax) (matchAlt : Syntax) : MatchAltView :=
-{ ref := ref, patterns := (matchAlt.getArg 0).getArgs.getSepElems, rhs := matchAlt.getArg 2 }
+{ ref := ref, patterns := (matchAlt.getArg 0).getSepArgs, rhs := matchAlt.getArg 2 }
 
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 newStx ← `(let $lhsVar := $discr; $rhs);
@@ -756,7 +756,7 @@ trace `Elab.match fun _ => "result: " ++ r;
 pure r
 
 private def getDiscrs (matchStx : Syntax) : Array Syntax :=
-(matchStx.getArg 1).getArgs.getSepElems
+(matchStx.getArg 1).getSepArgs
 
 private def getMatchOptType (matchStx : Syntax) : Syntax :=
 matchStx.getArg 2

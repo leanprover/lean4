@@ -298,7 +298,7 @@ private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → Li
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
 let discr := stx.getArg 1;
 let alts := (stx.getArg 3).getArg 1;
-alts ← alts.getArgs.getSepElems.mapM $ fun alt => do {
+alts ← alts.getSepArgs.mapM $ fun alt => do {
   let pats := alt.getArg 0;
   pat ← if pats.getArgs.size == 1 then pure $ pats.getArg 0
     else throwError "match_syntax: expected exactly one pattern per alternative";

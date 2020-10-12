@@ -17,7 +17,7 @@ open Meta
 
 @[builtinMacro Lean.Parser.Tactic.rewriteSeq] def expandRewriteTactic : Macro :=
 fun stx =>
-  let seq := ((stx.getArg 1).getArg 1).getArgs.getSepElems;
+  let seq := ((stx.getArg 1).getArg 1).getSepArgs;
   let loc := stx.getArg 2;
   pure $ mkNullNode $ seq.map fun rwRule => Syntax.node `Lean.Parser.Tactic.rewrite #[mkAtomFrom rwRule "rewrite ", rwRule, loc]
 

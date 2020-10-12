@@ -30,7 +30,7 @@ structure LetRecView :=
 
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
-decls ← (letRec.getArg 1).getArgs.getSepElems.mapM fun attrDeclStx => do {
+decls ← (letRec.getArg 1).getSepArgs.mapM fun attrDeclStx => do {
   let attrOptStx := attrDeclStx.getArg 0;
   attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs (attrOptStx.getArg 0);
   let decl := (attrDeclStx.getArg 1).getArg 0;

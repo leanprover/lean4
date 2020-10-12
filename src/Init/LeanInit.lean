@@ -958,4 +958,7 @@ chunks.iterateM Syntax.missing fun i elem result => do
     | some str => mkElem (mkStxStrLit str)
   if i.val == 0 then pure elem else mkAppend result elem
 
+def getSepArgs (stx : Syntax) : Array Syntax :=
+stx.getArgs.getSepElems
+
 end Lean.Syntax

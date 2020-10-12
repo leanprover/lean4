@@ -559,7 +559,7 @@ else
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
 -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
-let letRecDecls := (doLetRec.getArg 1).getArgs.getSepElems;
+let letRecDecls := (doLetRec.getArg 1).getSepArgs;
 let letDecls := letRecDecls.map fun p => p.getArg 1;
 letDecls.foldlM
   (fun allVars letDecl => do
@@ -1278,10 +1278,10 @@ def doMatchToCode (doSeqToCode : List Syntax → M CodeBlock) (doMatch : Syntax)
 let ref       := doMatch;
 let discrs    := doMatch.getArg 1;
 let optType   := doMatch.getArg 2;
-let matchAlts := ((doMatch.getArg 4).getArg 1).getArgs.getSepElems; -- Array of `doMatchAlt`
+let matchAlts := ((doMatch.getArg 4).getArg 1).getSepArgs; -- Array of `doMatchAlt`
 alts : Array (Alt CodeBlock) ←  matchAlts.mapM fun matchAlt => do {
   let patterns := matchAlt.getArg 0;
-  pvars ← liftM $ getPatternsVars patterns.getArgs.getSepElems;
+  pvars ← liftM $ getPatternsVars patterns.getSepArgs;
   let vars := getPatternVarNames pvars;
   let rhs  := matchAlt.getArg 2;
   rhs ← withNewVars vars $ doSeqToCode (getDoSeqElems rhs);

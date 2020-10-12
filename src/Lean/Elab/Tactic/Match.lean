@@ -28,7 +28,7 @@ let newAlts ← alts.mapSepElemsM fun alt => do
     let newHole ← `(?$holeName:ident)
     modify fun s => { s with nextIdx := s.nextIdx + 1}
     pure $ alt.setArg 2 newHole
-  else MonadQuotation.withFreshMacroScope do -- TODO: why do we need MonadQuotation here
+  else withFreshMacroScope do
     let newHole ← `(?rhs)
     let newHoleId := newHole.getArg 1
     let newCase ← `(tactic| case $newHoleId => $holeOrTacticSeq:tacticSeq )
@@ -39,7 +39,7 @@ let result  := result.setArg 4 (matchAlts.setArg 1 (mkNullNode newAlts))
 pure result
 
 private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Syntax × Array Syntax) := do
-let (matchTerm, s) ← (mkAuxiliaryMatchTermAux parentTag matchTac).run {}
+let (matchTerm, s) ← mkAuxiliaryMatchTermAux parentTag matchTac $.run {}
 pure (matchTerm, s.cases)
 
 @[builtinTactic Lean.Parser.Tactic.match] def evalMatch : Tactic :=

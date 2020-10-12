@@ -296,7 +296,8 @@ class MonadQuotation (m : Type → Type) :=
    transformer and not just a monadic action ensures that the current macro
    scope before the recursive call is restored after it, as expected. -/
 (withFreshMacroScope {α : Type} : m α → m α)
-export MonadQuotation
+
+export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
 /-
 We represent a name with macro scopes as

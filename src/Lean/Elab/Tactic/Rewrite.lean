@@ -8,55 +8,48 @@ import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Location
-
-namespace Lean
-namespace Elab
-namespace Tactic
-
+new_frontend
+namespace Lean.Elab.Tactic
 open Meta
 
 @[builtinMacro Lean.Parser.Tactic.rewriteSeq] def expandRewriteTactic : Macro :=
 fun stx =>
-  let seq := ((stx.getArg 1).getArg 1).getSepArgs;
-  let loc := stx.getArg 2;
+  let seq := ((stx.getArg 1).getArg 1).getSepArgs
+  let loc := stx.getArg 2
   pure $ mkNullNode $ seq.map fun rwRule => Syntax.node `Lean.Parser.Tactic.rewrite #[mkAtomFrom rwRule "rewrite ", rwRule, loc]
 
 def rewriteTarget (stx : Syntax) (symm : Bool) : TacticM Unit := do
-(g, gs) ← getMainGoal;
+let (g, gs) ← getMainGoal
 withMVarContext g do
-  e ← elabTerm stx none true;
-  gDecl ← getMVarDecl g;
-  target ← instantiateMVars gDecl.type;
-  r ← liftMetaM $ rewrite g target e symm;
-  g' ← liftMetaM $ replaceTargetEq g r.eNew r.eqProof;
+  let e ← elabTerm stx none true
+  let target ← instantiateMVars (← getMVarDecl g).type
+  let r ← rewrite g target e symm
+  let g' ← replaceTargetEq g r.eNew r.eqProof
   setGoals (g' :: r.mvarIds ++ gs)
 
 def rewriteLocalDeclFVarId (stx : Syntax) (symm : Bool) (fvarId : FVarId) : TacticM Unit := do
-(g, gs) ← getMainGoal;
+let (g, gs) ← getMainGoal
 withMVarContext g do
-  e ← elabTerm stx none true;
-  localDecl ← getLocalDecl fvarId;
-  rwResult ← liftMetaM $ rewrite g localDecl.type e symm;
-  replaceResult ← liftMetaM $ replaceLocalDecl g fvarId rwResult.eNew rwResult.eqProof;
+  let e ← elabTerm stx none true
+  let localDecl ← getLocalDecl fvarId
+  let rwResult ← rewrite g localDecl.type e symm
+  let replaceResult ← replaceLocalDecl g fvarId rwResult.eNew rwResult.eqProof
   setGoals (replaceResult.mvarId :: rwResult.mvarIds ++ gs)
 
 def rewriteLocalDecl (stx : Syntax) (symm : Bool) (userName : Name) : TacticM Unit := do
 withMainMVarContext do
-  localDecl ← getLocalDeclFromUserName userName;
+  let localDecl ← getLocalDeclFromUserName userName
   rewriteLocalDeclFVarId stx symm localDecl.fvarId
 
 def rewriteAll (stx : Syntax) (symm : Bool) : TacticM Unit := do
-worked ← try $ rewriteTarget stx symm;
+let worked ← «try» $ rewriteTarget stx symm
 withMainMVarContext do
-  lctx ← getLCtx;
-  worked ← lctx.getFVarIds.foldrM -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
-    (fun fvarId worked => do
-      worked' ← try $ rewriteLocalDeclFVarId stx symm fvarId;
-      pure $ worked || worked')
-    worked;
+  -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
+  for fvarId in (← getLCtx).getFVarIds.reverse do
+    worked := worked || (← «try» $ rewriteLocalDeclFVarId stx symm fvarId)
   unless worked do
-    (mvarId, _) ← getMainGoal;
-    liftMetaM $ throwTacticEx `rewrite mvarId ("did not find instance of the pattern in the current goal")
+    let (mvarId, _) ← getMainGoal
+    throwTacticEx `rewrite mvarId "did not find instance of the pattern in the current goal"
 
 /-
 ```
@@ -66,15 +59,13 @@ def «rewrite» := parser! "rewrite" >> rwRule >> optional location
 -/
 @[builtinTactic Lean.Parser.Tactic.rewrite] def evalRewrite : Tactic :=
 fun stx => do
-  let rule := stx.getArg 1;
-  let symm := !(rule.getArg 0).isNone;
-  let term := rule.getArg 1;
-  let loc  := expandOptLocation $ stx.getArg 2;
+  let rule := stx.getArg 1
+  let symm := !(rule.getArg 0).isNone
+  let term := rule.getArg 1
+  let loc  := expandOptLocation $ stx.getArg 2
   match loc with
   | Location.target => rewriteTarget term symm
   | Location.localDecls userNames => userNames.forM (rewriteLocalDecl term symm)
   | Location.wildcard => rewriteAll term symm
 
-end Tactic
-end Elab
-end Lean
+end Lean.Elab.Tactic

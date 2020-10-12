@@ -19,3 +19,4 @@ import Init.Data.Float
 import Init.Data.Option
 import Init.Data.Random
 import Init.Data.ToString
+import Init.Data.Range

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-if ((${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.1) OR (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} EQUAL 3.1))
-  cmake_policy(SET CMP0054 NEW)
-endif()
+cmake_policy(SET CMP0054 NEW)
 if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
   message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
 endif()
@@ -34,9 +32,6 @@ option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(CCACHE             "use ccache"         ON)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
-option(VM_UNCHECKED       "VM_UNCHECKED"       OFF)
-option(TCMALLOC           "TCMALLOC"           OFF)
-option(JEMALLOC           "JEMALLOC"           OFF)
 # When OFF we disable JSON support to support older compilers
 option(JSON               "JSON"               ON)
 # When OFF we disable LLVM support
@@ -45,9 +40,6 @@ option(COMPRESSED_OBJECT_HEADER "Use compressed object headers in 64-bit machine
 option(SMALL_RC "Use only 32-bits for RC, this option is only relevant when COMPRESSED_OBJECT_HEARDER is ON" ON)
 option(CHECK_RC_OVERFLOW "Check for RC overflows when SMALL_RC is ON" OFF)
 
-# When cross-compiling, we do not compile the standard library since
-# the executable will not work on the host machine
-option(CROSS_COMPILE      "CROSS_COMPILE"      OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 # When ON we include githash in the version string
@@ -78,50 +70,6 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
-
-if (NOT("${FREE_VAR_RANGE_OPT}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_FREE_VAR_RANGE_OPT")
-endif()
-
-if (NOT("${HAS_LOCAL_OPT}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_HAS_LOCAL_OPT")
-endif()
-
-if (NOT("${ABSTRACTION_CACHE}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_ABSTRACT_CACHE")
-endif()
-
-if (NOT("${TYPE_CLASS_CACHE}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_TYPE_CLASS_CACHE")
-endif()
-
-if (NOT("${TYPE_INFER_CACHE}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_TYPE_INFER_CACHE")
-endif()
-
-if ("${ALPHA}" MATCHES "ON")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_USE_ALPHA")
-endif()
-
-if ("${TRACK_CUSTOM_ALLOCATORS}" MATCHES "ON")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_TRACK_CUSTOM_ALLOCATORS")
-endif()
-
-if ("${TRACK_LIVE_EXPRS}" MATCHES "ON")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_TRACK_LIVE_EXPRS")
-endif()
-
-if (NOT("${CUSTOM_ALLOCATORS}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_CUSTOM_ALLOCATORS")
-endif()
-
-if (NOT("${SAVE_SNAPSHOT}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_SNAPSHOT")
-endif()
-
-if (NOT("${SAVE_INFO}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_INFO")
-endif()
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
@@ -189,8 +137,6 @@ endif()
 
 # Added for CTest
 include(CTest)
-configure_file("${LEAN_SOURCE_DIR}/CTestCustom.cmake.in"
-  "${LEAN_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
 # Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -204,10 +150,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
-else()
-  # Windows does not support pthread or fPIC
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -pthread -fPIC")
 endif()
+
+# OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
+if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
+  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
+endif ()
 
 if(JSON)
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_JSON")
@@ -220,10 +168,6 @@ if(NOT MULTI_THREAD)
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
-endif()
-
-if(VM_UNCHECKED)
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_VM_UNCHECKED")
 endif()
 
 if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
@@ -269,20 +213,6 @@ set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG -DLEAN_TRACE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DNDEBUG")
-set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
-set(CMAKE_CXX_FLAGS_LPROF          "-O2 -g -fprofile-instr-generate -fcoverage-mapping")
-
-# OSX .dmg generation (this is working in progress)
-set(CPACK_DMG_BACKGROUND_IMAGE "${LEAN_SOURCE_DIR}/../images/lean.png")
-set(CPACK_DMG_VOLUME_NAME "Lean-${LEAN_VERSION_STRING}")
-set(CPACK_BUNDLE_NAME "Lean-${LEAN_VERSION_STRING}")
-set(CPACK_PACKAGE_ICON "${LEAN_SOURCE_DIR}/../images/lean.png")
-##################
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  # The following options is needed to generate a shared library
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif()
 
 # SPLIT_STACK
 if (SPLIT_STACK)
@@ -292,11 +222,6 @@ if (SPLIT_STACK)
   else()
      message(FATAL_ERROR "Split-stacks are only supported on Linux with g++")
   endif()
-endif()
-
-# Test coverage
-if(TESTCOV)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 endif()
 
 # Compiler-specific C++14 activation.
@@ -368,11 +293,6 @@ else()
     set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
 endif()
 
-# TRACK_MEMORY_USAGE
-if(TRACK_MEMORY_USAGE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_TRACK_MEMORY")
-endif()
-
 # ccache
 if(CCACHE)
   find_program(CCACHE_PATH ccache)
@@ -384,42 +304,16 @@ if(CCACHE)
   endif()
 endif()
 
-# jemalloc
-if(JEMALLOC)
-  find_package(Jemalloc)
-  if(${JEMALLOC_FOUND})
-    set(COPY_LIBS ${COPY_LIBS} ${JEMALLOC_LIBRARIES})
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -ljemalloc")
-    message(STATUS "Using jemalloc.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_JEMALLOC")
-  else()
-    message(STATUS "Failed to find jemalloc, will try tcmalloc and then standard malloc.")
-  endif()
-endif()
-
-# tcmalloc
-if(NOT "${JEMALLOC_FOUND}")
- if(TCMALLOC)
-   find_package(Tcmalloc)
-   if(${TCMALLOC_FOUND})
-     set(COPY_LIBS ${COPY_LIBS} ${TCMALLOC_LIBRARIES})
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -ltcmalloc")
-     message(STATUS "Using tcmalloc.")
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_TCMALLOC")
-   else()
-     message(STATUS "Failed to find tcmalloc, using standard malloc.")
-   endif()
- else()
-   message(STATUS "Using standard malloc.")
- endif()
-endif()
-
 set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 
 # Python
 find_package(PythonInterp)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC")
+endif()
 
 # export all symbols for the interpreter
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -444,8 +338,8 @@ endif()
 
 if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")))
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -pthread")
 endif()
-set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
 # Git HASH
 set(LEAN_PACKAGE_VERSION "NOT-FOUND")
@@ -469,12 +363,6 @@ else()
   endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
-
-# OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
-# See issue #1721
-if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
-  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
-endif ()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
@@ -614,17 +502,6 @@ install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
 
 add_subdirectory(shell)
 
-function(add_exec_test name tgt)
-    if(${EMSCRIPTEN})
-        target_link_libraries(${tgt} "--memory-init-file 0")
-        add_test(NAME ${name} COMMAND ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/${tgt}.js)
-    else()
-        add_test(NAME ${name} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${tgt})
-    endif()
-endfunction()
-
-# add_subdirectory(tests/util)
-
 # Include style check
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND PYTHONINTERP_FOUND)
 include(StyleCheck)
@@ -637,7 +514,7 @@ add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cma
 endif()
 
 add_custom_target(clean-stdlib
-  COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" "${CMAKE_BINARY_DIR}/stage2" "${CMAKE_BINARY_DIR}/stage3" || true)
+  COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" || true)
 
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
@@ -653,7 +530,7 @@ file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/inclu
   FILES_MATCHING PATTERN "*.h")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
-  # TODO(Leo): do not use hardlinks to required DLLs.
+  # TODO(Leo): do not hardcode required DLLs.
   # For example, we can try to use ldd to retrieve the list of required DLLs.
   set(RUNTIME_LIBRARIES
          ${MINGW_LOCAL_DIR}/libgmp-10.dll

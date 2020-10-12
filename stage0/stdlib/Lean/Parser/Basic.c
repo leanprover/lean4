@@ -187,6 +187,7 @@ lean_object* l_Lean_Parser_withPosition(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___closed__11;
 lean_object* l_Lean_Parser_charLitFnAux(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 lean_object* l_Lean_Parser_checkPrecFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_quotedSymbol___closed__1;
 lean_object* l_Lean_Parser_leadingParserAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -699,7 +700,6 @@ lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_many1Indent___spec__1
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_TokenMap_insert___spec__5(lean_object*);
 lean_object* l_Lean_Parser_checkNoWsBefore___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_noFirstTokenInfo___elambda__2(lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 lean_object* l_Lean_Parser_withoutPosition(lean_object*);
 lean_object* l_Std_RBNode_find___main___at_Lean_Parser_indexed___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkCategoryParserFnRef___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -24889,7 +24889,7 @@ lean_object* l_Lean_Parser_termParser(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_3 = l_Lean_Parser_categoryParser(x_2, x_1);
 return x_3;
 }
@@ -25298,7 +25298,7 @@ lean_object* _init_l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_categoryParser___elambda__1), 4, 2);
 lean_closure_set(x_3, 0, x_1);

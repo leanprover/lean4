@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_List_format___rarg___closed__4;
 lean_object* l_Lean_Elab_applyVisibility___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__2;
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_getSepArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,6 +55,7 @@ lean_object* l_Lean_Elab_expandDeclId___rarg(lean_object*, lean_object*, lean_ob
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__5;
 lean_object* l_Lean_Elab_Modifiers_hasFormat(lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l_Lean_Elab_mkDeclName___rarg___closed__2;
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__3;
 lean_object* l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(lean_object*, lean_object*);
@@ -69,7 +69,6 @@ lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__10;
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__1;
 lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__13;
 extern lean_object* l_Lean_Format_join___closed__1;
-extern lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__16;
 lean_object* l_Lean_Syntax_getId(lean_object*);
@@ -144,6 +143,7 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___closed__1;
 uint8_t l_Lean_Elab_Modifiers_isPrivate(lean_object*);
+extern lean_object* l_Lean_List_format___rarg___closed__3;
 lean_object* l_Lean_Elab_mkDeclName___rarg___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkDeclName___rarg___closed__3;
@@ -818,7 +818,7 @@ lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_PersistentArray_Stats_toString___closed__4;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1093,7 +1093,7 @@ if (x_6 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; 
 x_17 = l_List_append___rarg(x_16, x_15);
 x_18 = l_List_append___rarg(x_17, x_9);
-x_19 = l_Lean_List_format___rarg___closed__4;
+x_19 = l_Lean_List_format___rarg___closed__3;
 x_20 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_18, x_19);
 lean_dec(x_18);
 x_21 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
@@ -1120,7 +1120,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean
 x_29 = l_Lean_Elab_Modifiers_hasFormat___closed__7;
 x_30 = l_List_append___rarg(x_16, x_29);
 x_31 = l_List_append___rarg(x_30, x_9);
-x_32 = l_Lean_List_format___rarg___closed__4;
+x_32 = l_Lean_List_format___rarg___closed__3;
 x_33 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_31, x_32);
 lean_dec(x_31);
 x_34 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
@@ -1153,7 +1153,7 @@ if (x_6 == 0)
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; 
 x_45 = l_List_append___rarg(x_44, x_42);
 x_46 = l_List_append___rarg(x_45, x_9);
-x_47 = l_Lean_List_format___rarg___closed__4;
+x_47 = l_Lean_List_format___rarg___closed__3;
 x_48 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_46, x_47);
 lean_dec(x_46);
 x_49 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
@@ -1180,7 +1180,7 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 x_57 = l_Lean_Elab_Modifiers_hasFormat___closed__7;
 x_58 = l_List_append___rarg(x_44, x_57);
 x_59 = l_List_append___rarg(x_58, x_9);
-x_60 = l_Lean_List_format___rarg___closed__4;
+x_60 = l_Lean_List_format___rarg___closed__3;
 x_61 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_59, x_60);
 lean_dec(x_59);
 x_62 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
@@ -1315,7 +1315,7 @@ if (x_6 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; 
 x_17 = l_List_append___rarg(x_16, x_15);
 x_18 = l_List_append___rarg(x_17, x_9);
-x_19 = l_Lean_List_format___rarg___closed__4;
+x_19 = l_Lean_List_format___rarg___closed__3;
 x_20 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_18, x_19);
 lean_dec(x_18);
 x_21 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
@@ -1342,7 +1342,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean
 x_29 = l_Lean_Elab_Modifiers_hasFormat___closed__7;
 x_30 = l_List_append___rarg(x_16, x_29);
 x_31 = l_List_append___rarg(x_30, x_9);
-x_32 = l_Lean_List_format___rarg___closed__4;
+x_32 = l_Lean_List_format___rarg___closed__3;
 x_33 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_31, x_32);
 lean_dec(x_31);
 x_34 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
@@ -1375,7 +1375,7 @@ if (x_6 == 0)
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; 
 x_45 = l_List_append___rarg(x_44, x_42);
 x_46 = l_List_append___rarg(x_45, x_9);
-x_47 = l_Lean_List_format___rarg___closed__4;
+x_47 = l_Lean_List_format___rarg___closed__3;
 x_48 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_46, x_47);
 lean_dec(x_46);
 x_49 = l_Lean_Elab_Modifiers_hasFormat___closed__3;
@@ -1402,7 +1402,7 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 x_57 = l_Lean_Elab_Modifiers_hasFormat___closed__7;
 x_58 = l_List_append___rarg(x_44, x_57);
 x_59 = l_List_append___rarg(x_58, x_9);
-x_60 = l_Lean_List_format___rarg___closed__4;
+x_60 = l_Lean_List_format___rarg___closed__3;
 x_61 = l_Lean_Format_joinSep___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__1(x_59, x_60);
 lean_dec(x_59);
 x_62 = l_Lean_Elab_Modifiers_hasFormat___closed__3;

@@ -78,9 +78,10 @@ private def getDeclNamesForCodeGen : Declaration → List Name
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find? n with
-| (some (ConstantInfo.defnInfo _)) => Except.ok ()
-| none => Except.error "unknow declaration"
-| _    => Except.error "declaration is not a definition"
+| (some (ConstantInfo.defnInfo _))   => Except.ok ()
+| (some (ConstantInfo.opaqueInfo _)) => Except.ok ()
+| none => Except.error ("unknow declaration '" ++ toString n ++ "'")
+| _    => Except.error ("declaration is not a definition '" ++ toString n ++ "'")
 
 /--
   We generate auxiliary unsafe definitions for regular recursive definitions.

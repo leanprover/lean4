@@ -80,6 +80,7 @@ lean_object* l___private_Lean_Compiler_IR_Format_5__formatIRType___main___closed
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_formatArray___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l___private_Lean_Compiler_IR_Format_5__formatIRType___main___closed__12;
 lean_object* l_Lean_IR_formatArray___at___private_Lean_Compiler_IR_Format_4__formatExpr___spec__1___boxed(lean_object*);
 lean_object* l_Lean_IR_formatFnBodyHead___closed__6;
@@ -100,7 +101,6 @@ extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___clos
 lean_object* l___private_Lean_Compiler_IR_Format_4__formatExpr___closed__20;
 extern lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Lean_IR_formatDecl___closed__3;
-extern lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_IR_formatArray(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_IR_formatFnBody___main___closed__2;
@@ -1592,7 +1592,7 @@ lean_object* _init_l___private_Lean_Compiler_IR_Format_5__formatIRType___main___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_PersistentArray_Stats_toString___closed__4;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

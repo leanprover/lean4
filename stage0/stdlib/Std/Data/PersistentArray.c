@@ -191,6 +191,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Std_PersistentArray_all___spec__5(
 lean_object* l_Array_iterateMAux___main___at_Std_PersistentArray_filter___spec__4(lean_object*);
 lean_object* l_Std_PersistentArray_Inhabited(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Array_allM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l_List_toPersistentArrayAux___main(lean_object*);
 lean_object* l_Array_findSomeRevMAux___main___at_Std_PersistentArray_findSomeRev_x3f___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Std_PersistentArray_findSome_x3f___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -233,7 +234,6 @@ lean_object* l_Std_PersistentArray_foldlFromMAux___main___at_Std_PersistentArray
 lean_object* l_Std_PersistentArray_set___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Std_PersistentArray_foldlFrom___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Std_PersistentArray_foldl___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Std_PersistentArray_anyMAux___main___at_Std_PersistentArray_allM___spec__2(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Std_PersistentArray_toArray___spec__1(lean_object*);
@@ -7453,14 +7453,6 @@ x_1 = lean_mk_string(", tail size := ");
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentArray_Stats_toString___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("}");
-return x_1;
-}
-}
 lean_object* l_Std_PersistentArray_Stats_toString(lean_object* x_1) {
 _start:
 {
@@ -7486,7 +7478,7 @@ lean_dec(x_1);
 x_14 = l_Nat_repr(x_13);
 x_15 = lean_string_append(x_12, x_14);
 lean_dec(x_14);
-x_16 = l_Std_PersistentArray_Stats_toString___closed__4;
+x_16 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }
@@ -7791,8 +7783,6 @@ l_Std_PersistentArray_Stats_toString___closed__2 = _init_l_Std_PersistentArray_S
 lean_mark_persistent(l_Std_PersistentArray_Stats_toString___closed__2);
 l_Std_PersistentArray_Stats_toString___closed__3 = _init_l_Std_PersistentArray_Stats_toString___closed__3();
 lean_mark_persistent(l_Std_PersistentArray_Stats_toString___closed__3);
-l_Std_PersistentArray_Stats_toString___closed__4 = _init_l_Std_PersistentArray_Stats_toString___closed__4();
-lean_mark_persistent(l_Std_PersistentArray_Stats_toString___closed__4);
 l_Std_PersistentArray_HasToString___closed__1 = _init_l_Std_PersistentArray_HasToString___closed__1();
 lean_mark_persistent(l_Std_PersistentArray_HasToString___closed__1);
 l_Std_PersistentArray_HasToString = _init_l_Std_PersistentArray_HasToString();

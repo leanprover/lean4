@@ -42,6 +42,7 @@ lean_object* l_Lean_Compiler_atMostOnce_skip___boxed(lean_object*);
 lean_object* l_Lean_Compiler_neutralExpr___closed__3;
 lean_object* l_Lean_Compiler_voidType___closed__2;
 lean_object* l_Nat_repr(lean_object*);
+extern lean_object* l_Char_HasRepr___closed__1;
 uint8_t l_Lean_Compiler_isEagerLambdaLiftingName___main(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -60,13 +61,13 @@ lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_seq(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_objectType___closed__1;
 lean_object* lean_is_unsafe_rec_name(lean_object*);
-lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_checkIsDefinition___closed__5;
 lean_object* l_Lean_Compiler_unreachableExpr___closed__2;
 lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__1;
+extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_skip(lean_object*);
+lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
 lean_object* lean_mk_eager_lambda_lifting_name(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -918,39 +919,19 @@ lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknow declaration");
+x_1 = lean_mk_string("declaration is not a definition '");
 return x_1;
 }
 }
 lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_checkIsDefinition___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
-_start:
-{
 lean_object* x_1; 
-x_1 = lean_mk_string("declaration is not a definition");
+x_1 = lean_mk_string("unknow declaration '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_checkIsDefinition___closed__3;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__5() {
+lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -963,34 +944,70 @@ return x_2;
 lean_object* l_Lean_Compiler_checkIsDefinition(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_environment_find(x_1, x_2);
-if (lean_obj_tag(x_3) == 0)
+lean_object* x_3; lean_object* x_12; 
+lean_inc(x_2);
+x_12 = lean_environment_find(x_1, x_2);
+if (lean_obj_tag(x_12) == 0)
 {
-lean_object* x_4; 
-x_4 = l_Lean_Compiler_checkIsDefinition___closed__2;
-return x_4;
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_13 = l_System_FilePath_dirName___closed__1;
+x_14 = l_Lean_Name_toStringWithSep___main(x_13, x_2);
+x_15 = l_Lean_Compiler_checkIsDefinition___closed__2;
+x_16 = lean_string_append(x_15, x_14);
+lean_dec(x_14);
+x_17 = l_Char_HasRepr___closed__1;
+x_18 = lean_string_append(x_16, x_17);
+x_19 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_19, 0, x_18);
+return x_19;
 }
 else
 {
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
+lean_object* x_20; 
+x_20 = lean_ctor_get(x_12, 0);
+lean_inc(x_20);
+lean_dec(x_12);
+switch (lean_obj_tag(x_20)) {
+case 1:
+{
+lean_object* x_21; 
+lean_dec(x_20);
+lean_dec(x_2);
+x_21 = l_Lean_Compiler_checkIsDefinition___closed__3;
+return x_21;
+}
+case 3:
+{
+lean_object* x_22; 
+lean_dec(x_20);
+lean_dec(x_2);
+x_22 = l_Lean_Compiler_checkIsDefinition___closed__3;
+return x_22;
+}
+default: 
+{
+lean_object* x_23; 
+lean_dec(x_20);
+x_23 = lean_box(0);
+x_3 = x_23;
+goto block_11;
+}
+}
+}
+block_11:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_3);
-if (lean_obj_tag(x_5) == 1)
-{
-lean_object* x_6; 
+x_4 = l_System_FilePath_dirName___closed__1;
+x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_2);
+x_6 = l_Lean_Compiler_checkIsDefinition___closed__1;
+x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_6 = l_Lean_Compiler_checkIsDefinition___closed__5;
-return x_6;
-}
-else
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = l_Lean_Compiler_checkIsDefinition___closed__4;
-return x_7;
-}
+x_8 = l_Char_HasRepr___closed__1;
+x_9 = lean_string_append(x_7, x_8);
+x_10 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
 }
 }
 }
@@ -1116,10 +1133,6 @@ l_Lean_Compiler_checkIsDefinition___closed__2 = _init_l_Lean_Compiler_checkIsDef
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__2);
 l_Lean_Compiler_checkIsDefinition___closed__3 = _init_l_Lean_Compiler_checkIsDefinition___closed__3();
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__3);
-l_Lean_Compiler_checkIsDefinition___closed__4 = _init_l_Lean_Compiler_checkIsDefinition___closed__4();
-lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__4);
-l_Lean_Compiler_checkIsDefinition___closed__5 = _init_l_Lean_Compiler_checkIsDefinition___closed__5();
-lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__5);
 l_Lean_Compiler_mkUnsafeRecName___closed__1 = _init_l_Lean_Compiler_mkUnsafeRecName___closed__1();
 lean_mark_persistent(l_Lean_Compiler_mkUnsafeRecName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

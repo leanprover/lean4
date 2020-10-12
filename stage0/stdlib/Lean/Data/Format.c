@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_toStringToFormat___rarg___closed__1;
 lean_object* l_Lean_dataValueHasFormat___closed__1;
-lean_object* l_Lean_List_format___rarg___closed__4;
 lean_object* l_Lean_Format_spaceUptoLine___main(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Format_repr___main(lean_object*);
 lean_object* l_String_toFormat(lean_object*);
@@ -191,6 +190,7 @@ lean_object* l_Lean_Format_be___boxed(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Lean_Format_sbracket___closed__1;
 lean_object* l_Lean_Format_Coe(lean_object*);
 lean_object* l_Lean_optionHasFormat___rarg(lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
 lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Format_spaceUptoLine_x27___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Format_getIndent(lean_object*);
@@ -3907,26 +3907,18 @@ return x_2;
 lean_object* _init_l_Lean_List_format___rarg___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string(",");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_List_format___rarg___closed__3() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_List_format___rarg___closed__2;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_List_format___rarg___closed__4() {
+lean_object* _init_l_Lean_List_format___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_List_format___rarg___closed__3;
+x_1 = l_Lean_List_format___rarg___closed__2;
 x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3947,7 +3939,7 @@ return x_3;
 else
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
-x_4 = l_Lean_List_format___rarg___closed__4;
+x_4 = l_Lean_List_format___rarg___closed__3;
 x_5 = l_Lean_Format_joinSep___main___rarg(x_1, x_2, x_4);
 x_6 = l_Lean_Format_sbracket___closed__3;
 x_7 = lean_alloc_ctor(4, 2, 0);
@@ -4138,7 +4130,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = lean_apply_1(x_1, x_4);
-x_7 = l_Lean_List_format___rarg___closed__3;
+x_7 = l_Lean_List_format___rarg___closed__2;
 x_8 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -5451,8 +5443,6 @@ l_Lean_List_format___rarg___closed__2 = _init_l_Lean_List_format___rarg___closed
 lean_mark_persistent(l_Lean_List_format___rarg___closed__2);
 l_Lean_List_format___rarg___closed__3 = _init_l_Lean_List_format___rarg___closed__3();
 lean_mark_persistent(l_Lean_List_format___rarg___closed__3);
-l_Lean_List_format___rarg___closed__4 = _init_l_Lean_List_format___rarg___closed__4();
-lean_mark_persistent(l_Lean_List_format___rarg___closed__4);
 l_Lean_arrayHasFormat___rarg___closed__1 = _init_l_Lean_arrayHasFormat___rarg___closed__1();
 lean_mark_persistent(l_Lean_arrayHasFormat___rarg___closed__1);
 l_Lean_Option_format___rarg___closed__1 = _init_l_Lean_Option_format___rarg___closed__1();

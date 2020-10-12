@@ -52,6 +52,7 @@ lean_object* l___private_Lean_Util_Trace_5__getResetTraces___rarg___lambda__1(le
 lean_object* l_Lean_getTraces(lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 size_t l_USize_shiftRight(size_t, size_t);
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__6;
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -60,13 +61,11 @@ lean_object* l_Lean_traceM___rarg___lambda__1___boxed(lean_object*, lean_object*
 lean_object* l___private_Lean_Util_Trace_5__getResetTraces(lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__8;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__10;
 lean_object* l_Lean_traceCtx___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__5;
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3_;
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_316_;
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__5___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__19;
 lean_object* l_Lean_trace(lean_object*);
 lean_object* l_Lean_monadTraceTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__16;
@@ -74,6 +73,7 @@ lean_object* l_Lean_setTraceState(lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_2__checkTraceOptionAux(lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__3;
 lean_object* l_Lean_traceM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__22;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_enableTracing___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_modifyTraces(lean_object*, lean_object*);
@@ -185,7 +185,6 @@ lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_316____closed__2;
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__8;
 lean_object* l_Lean_checkTraceOption___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_setTraceState___boxed(lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 lean_object* l_Lean_checkTraceOption___closed__1;
 lean_object* l_Lean_traceM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -241,6 +240,7 @@ lean_object* l_Lean_traceCtx___rarg___lambda__3(lean_object*, uint8_t, lean_obje
 extern lean_object* l_Lean_MessageData_Inhabited___closed__1;
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__6(lean_object*);
 lean_object* l_Lean_checkTraceOption___closed__2;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__18;
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__8;
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__17;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
@@ -2373,7 +2373,7 @@ lean_object* _init_l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = lean_alloc_ctor(20, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2398,7 +2398,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_3____closed__10;
-x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__19;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__18;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2720,7 +2720,7 @@ lean_ctor_set(x_34, 0, x_22);
 lean_ctor_set(x_34, 1, x_32);
 lean_ctor_set(x_34, 2, x_31);
 lean_ctor_set(x_34, 3, x_33);
-x_35 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__10;
+x_35 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__22;
 x_36 = lean_array_push(x_35, x_34);
 x_37 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__8;
 x_38 = lean_alloc_ctor(1, 2, 0);
@@ -2841,7 +2841,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_316____closed__7;
-x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__19;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__18;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2980,7 +2980,7 @@ lean_ctor_set(x_36, 0, x_22);
 lean_ctor_set(x_36, 1, x_34);
 lean_ctor_set(x_36, 2, x_33);
 lean_ctor_set(x_36, 3, x_35);
-x_37 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__10;
+x_37 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__22;
 x_38 = lean_array_push(x_37, x_36);
 x_39 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__8;
 x_40 = lean_alloc_ctor(1, 2, 0);

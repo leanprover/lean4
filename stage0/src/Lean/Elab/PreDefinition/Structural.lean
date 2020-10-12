@@ -255,19 +255,54 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
   matcherApp? ← matchMatcherApp? e;
   match matcherApp? with
   | some matcherApp =>
-    if !containsRecFn recFnName e then processApp e
-    else do
-      matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg);
-      altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun ⟨alt, numParams⟩ =>
-        lambdaTelescope alt fun xs altBody => do {
-          trace! `Elab.definition.structural ("altNumParams: " ++ toString numParams ++ ", xs: " ++ xs);
-          unless (xs.size >= numParams) $
-            throwError $ "unexpected matcher application alternative " ++ indentExpr alt ++ Format.line ++ "at application" ++ indentExpr e;
-          let belowForAlt := xs.get! (numParams - 1);
-          altBodyNew ← replaceRecApps belowForAlt altBody;
-          mkLambdaFVars xs altBodyNew
-        };
-      pure { matcherApp with alts := altsNew }.toExpr
+    if !containsRecFn recFnName e then
+      processApp e
+    else
+      /- If we first try to process the `match` as a regular application. If it fails, then we try to `push` the below over the dependent `match`.
+         This is useful for examples such as:
+         ```
+         def f (xs : List Nat) : Nat :=
+         match xs with
+         | [] => 0
+         | y::ys =>
+           match ys with
+           | [] => 1
+           | zs => f ys + 1
+         ```
+         We are matching on `ys`, but still using `ys` in the second alternative.
+         If we push the `below` argument over the dependent match it will be able to eliminate recursive call using `zs`.
+         This trick is not sufficient for the slightly more complicated example:
+         ```
+         def g (xs : List Nat) : Nat :=
+         match xs with
+         | [] => 0
+         | y::ys =>
+           match ys with
+           | []       => 1
+           | _::_::zs => g zs + 1
+           | _        => g ys + 2
+         ```
+         To make it work, users would have to write the last alternative as
+         ```
+         | zs => g zs + 2
+         ```
+
+         If this is too annoying in practice, we may replace `ys` with the matching term.
+         This may generate weird error messages, when it doesn't work.
+      -/
+      processApp e
+      <|>
+      do matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg);
+         altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun ⟨alt, numParams⟩ =>
+          lambdaTelescope alt fun xs altBody => do {
+            trace! `Elab.definition.structural ("altNumParams: " ++ toString numParams ++ ", xs: " ++ xs);
+            unless (xs.size >= numParams) $
+              throwError $ "unexpected matcher application alternative " ++ indentExpr alt ++ Format.line ++ "at application" ++ indentExpr e;
+            let belowForAlt := xs.get! (numParams - 1);
+            altBodyNew ← replaceRecApps belowForAlt altBody;
+            mkLambdaFVars xs altBodyNew
+          };
+          pure { matcherApp with alts := altsNew }.toExpr
   | none => processApp e
 | _, e => ensureNoRecFn recFnName e
 

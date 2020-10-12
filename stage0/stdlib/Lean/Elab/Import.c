@@ -36,7 +36,6 @@ lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_
 lean_object* lean_print_deps(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__6;
 lean_object* l_List_forM___main___at_Lean_Elab_printDeps___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_environment(uint32_t, lean_object*);
 lean_object* lean_import_modules(lean_object*, uint32_t, lean_object*);
@@ -51,6 +50,7 @@ lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___at_Lean_Elab_printDeps___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_asNode(lean_object*);
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__6;
 lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1) {
 _start:
 {
@@ -149,7 +149,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__6;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

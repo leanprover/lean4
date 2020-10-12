@@ -106,6 +106,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_try_formatter(lean_object*, lean_obj
 lean_object* l_ReaderT_map___at_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 lean_object* l_Lean_PrettyPrinter_Formatter_ppSpace_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkCombinatorFormatterAttribute(lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goDown___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -337,7 +338,6 @@ lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_obje
 lean_object* l_Lean_PrettyPrinter_Formatter_interpolatedStr_formatter___rarg___closed__2;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_PrettyPrinter_Formatter_indent___spec__1(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
 lean_object* l_Lean_PrettyPrinter_Formatter_FormatterM_monadTraverser___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkNoImmediateColon_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7735,7 +7735,7 @@ lean_object* _init_l_Lean_PrettyPrinter_formatTerm___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__18;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_categoryParser_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

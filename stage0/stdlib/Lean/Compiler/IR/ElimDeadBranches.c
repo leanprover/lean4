@@ -23,7 +23,6 @@ lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___closed__5;
 lean_object* l_Nat_foldAux___main___at_Lean_IR_UnreachableBranches_Value_merge___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___main___at_Lean_IR_UnreachableBranches_containsCtor___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___main___at_Lean_IR_UnreachableBranches_Value_beq___main___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_List_format___rarg___closed__4;
 lean_object* l_Array_forMAux___main___at___private_Lean_Compiler_IR_ElimDeadBranches_1__resetNestedJPParams___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_getD___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_UnreachableBranches_Value_beq___main(lean_object*, lean_object*);
@@ -278,6 +277,7 @@ lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_HasToString___closed__1;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
+extern lean_object* l_Lean_List_format___rarg___closed__3;
 lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___elambda__1(lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_elimDeadAux___boxed(lean_object*, lean_object*);
@@ -1235,7 +1235,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
-x_3 = l_Lean_List_format___rarg___closed__4;
+x_3 = l_Lean_List_format___rarg___closed__3;
 x_4 = l_Lean_Format_joinSep___main___at_Lean_IR_UnreachableBranches_Value_format___main___spec__4(x_1, x_3);
 x_5 = l_Lean_Format_sbracket___closed__3;
 x_6 = lean_alloc_ctor(4, 2, 0);

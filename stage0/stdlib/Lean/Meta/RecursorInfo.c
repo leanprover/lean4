@@ -134,6 +134,7 @@ lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString__
 lean_object* l___private_Lean_Meta_RecursorInfo_13__syntaxToMajorPos___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l_Nat_foldMAux___main___at___private_Lean_Meta_RecursorInfo_6__getParamsPos___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_7__getIndicesPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -172,7 +173,6 @@ lean_object* l___private_Lean_Meta_RecursorInfo_5__getMajorPosDepElim___closed__
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_Meta_RecursorInfo_HasToString___spec__8___closed__2;
-extern lean_object* l_Std_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Lean_Meta_RecursorInfo_12__mkRecursorInfoAux___spec__3___closed__3;
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_mkRecursorAttr___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkBInductionOnFor(lean_object*);
@@ -1360,7 +1360,7 @@ x_82 = lean_string_append(x_80, x_81);
 x_83 = lean_string_append(x_82, x_40);
 lean_dec(x_40);
 x_84 = lean_string_append(x_83, x_7);
-x_85 = l_Std_PersistentArray_Stats_toString___closed__4;
+x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 x_86 = lean_string_append(x_84, x_85);
 return x_86;
 }

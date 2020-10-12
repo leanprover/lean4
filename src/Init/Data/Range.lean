@@ -19,7 +19,7 @@ namespace Range
 universes u v
 
 @[inline] def forIn {β : Type u} {m : Type u → Type v} [Monad m] (range : Range) (init : β) (f : Nat → β → m (ForInStep β)) : m β :=
-let rec loop (i : Nat) (j : Nat) (b : β) : m β := do
+let rec @[specialize] loop (i : Nat) (j : Nat) (b : β) : m β := do
   if j ≥ range.stop then
     pure b
   else match i with

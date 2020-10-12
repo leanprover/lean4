@@ -843,8 +843,8 @@ ctx ← read;
 u ← mkUVarTuple ref;
 match ctx.kind with
 | Kind.regular         => if ctx.uvars.isEmpty then pure action else `(HasBind.bind $action fun y => HasPure.pure (y, $u))
-| Kind.forIn           => `(HasBind.bind $action fun _ => HasPure.pure (ForInStep.yield $u))
-| Kind.forInWithReturn => `(HasBind.bind $action fun _ => HasPure.pure (ForInStep.yield (none, $u)))
+| Kind.forIn           => `(HasBind.bind $action fun (_ : PUnit) => HasPure.pure (ForInStep.yield $u))
+| Kind.forInWithReturn => `(HasBind.bind $action fun (_ : PUnit) => HasPure.pure (ForInStep.yield (none, $u)))
 | Kind.nestedBC        => unreachable!
 | Kind.nestedPR        => `(HasBind.bind $action fun y => (HasPure.pure (DoResultPR.«pure» y $u)))
 | Kind.nestedSBC       => `(HasBind.bind $action fun y => (HasPure.pure (DoResultSBC.«pureReturn» y $u)))

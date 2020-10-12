@@ -54,6 +54,12 @@ protected def List.toString {α : Type u} [HasToString α] : List α → String
 instance {α : Type u} [HasToString α] : HasToString (List α) :=
 ⟨List.toString⟩
 
+instance : HasToString PUnit.{u+1} :=
+⟨fun _ => "()"⟩
+
+instance {α : Type u} [HasToString α] : HasToString (ULift.{v} α) :=
+⟨fun v => toString v.1⟩
+
 instance : HasToString Unit :=
 ⟨fun u => "()"⟩
 

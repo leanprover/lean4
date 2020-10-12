@@ -15,3 +15,21 @@ rfl
 
 theorem ex2 : f [1, 0, 3] $.run' 0 = Except.error "contains zero" :=
 rfl
+
+universes u
+
+abbrev N := ExceptT (ULift.{u} String) Id
+
+def idM {α : Type u} (a : α) : N α :=
+pure a
+
+def checkEq {α : Type u} [HasBeq α] [HasToString α] (a b : α) : N PUnit := do
+unless a == b do
+  throw (ULift.up s!"{a} is not equal to {b}")
+
+def g {α : Type u} [HasBeq α] [HasToString α] (xs : List α) (a : α) : N PUnit := do
+for x in xs do
+  let a ← idM a
+  checkEq x a
+
+#eval g [1, (2:Nat), 3] 1 $.run

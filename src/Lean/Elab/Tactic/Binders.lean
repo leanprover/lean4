@@ -4,18 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Tactic.Basic
-
-namespace Lean
-namespace Elab
-namespace Tactic
+new_frontend
+namespace Lean.Elab.Tactic
 
 private def liftTermBinderSyntax : Macro :=
 fun stx => do
-  hole ← `(?_);
+  let hole ← `(?_)
   match stx.getKind with
   | Name.str (Name.str p "Tactic" _) s _ =>
-    let kind := mkNameStr (mkNameStr p "Term") s;
-    let termStx := Syntax.node kind (stx.getArgs ++ #[mkAtomFrom stx "; ", hole]);
+    let kind := mkNameStr (mkNameStr p "Term") s
+    let termStx := Syntax.node kind (stx.getArgs ++ #[mkAtomFrom stx "; ", hole])
     `(tactic| refine $termStx)
   | _ => Macro.throwError stx "unexpected binder syntax"
 
@@ -26,9 +24,7 @@ fun stx => do
 
 @[builtinMacro Lean.Parser.Tactic.show] def expandShowTactic : Macro :=
 fun stx =>
-  let type := stx.getArg 1;
+  let type := stx.getArg 1
   `(tactic| refine (show $type from ?_))
 
-end Tactic
-end Elab
-end Lean
+end Lean.Elab.Tactic

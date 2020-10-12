@@ -38,6 +38,7 @@ lean_object* l_Lean_Elab_Term_getLetRecsToLift___rarg(lean_object*, lean_object*
 uint8_t l_Array_contains___at_Lean_Meta_addInstanceEntry___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
+lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_getSepArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabMutualDef(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_31__pickMaxFVar_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_MutualClosure_main___spec__7(lean_object*, lean_object*, lean_object*);
@@ -188,7 +189,6 @@ lean_object* l_Lean_Elab_Term_registerCustomErrorIfMVar(lean_object*, lean_objec
 lean_object* l_Lean_Elab_Term_MutualClosure_getModifiersForLetRecs(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___main___at_Lean_Elab_Term_MutualClosure_Replacement_apply___spec__1(lean_object*, lean_object*);
-lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_expandDeclId___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__6;
 lean_object* l___private_Lean_Elab_MutualDef_24__markModified___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_38__mkLetRecClosures(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3224,7 +3224,7 @@ lean_dec(x_17);
 x_19 = lean_unsigned_to_nat(2u);
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = l_Array_empty___closed__1;
-x_22 = l_Array_foldlStepMAux___main___at_Lean_Elab_expandDeclId___spec__1(x_19, x_18, x_20, x_21);
+x_22 = l_Array_foldlStepMAux___main___at_Lean_Syntax_getSepArgs___spec__1(x_19, x_18, x_20, x_21);
 lean_dec(x_18);
 lean_inc(x_9);
 lean_inc(x_5);

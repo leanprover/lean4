@@ -75,7 +75,7 @@ liftMetaTacticAux fun mvarId => do
   pure (fvarIds.size, [mvarId'])
 
 private def getAlts (withAlts : Syntax) : Array Syntax :=
-(withAlts.getArg 2).getArgs.getSepElems
+(withAlts.getArg 2).getSepArgs
 
 /-
   Given an `inductionAlt` of the form

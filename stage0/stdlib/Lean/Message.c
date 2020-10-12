@@ -109,6 +109,7 @@ lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 extern lean_object* l_EStateM_Result_toString___rarg___closed__2;
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 lean_object* l_Lean_MessageLog_toList(lean_object*);
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_125____closed__5;
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_125____closed__3;
@@ -222,7 +223,6 @@ lean_object* l_Lean_KernelException_toMessageData___closed__1;
 lean_object* l_Lean_fmt___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_158____lambda__1___closed__3;
 lean_object* l_Lean_MessageData_formatAux___main___closed__2;
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Lean_KernelException_toMessageData___closed__50;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_158____closed__8;
@@ -2206,7 +2206,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Prod_HasRepr___rarg___closed__1;
-x_3 = l_Option_HasRepr___rarg___closed__3;
+x_3 = l_ULift_HasRepr___rarg___closed__2;
 x_4 = l_Lean_MessageData_bracket(x_2, x_1, x_3);
 return x_4;
 }

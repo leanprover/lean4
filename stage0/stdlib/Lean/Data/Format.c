@@ -85,6 +85,7 @@ lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__13;
 lean_object* l_Lean_Format_pretty___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Option_format(lean_object*);
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_Format_repr___main___closed__6;
 lean_object* l_Lean_Format_indentOption(lean_object*);
 extern lean_object* l_Array_HasRepr___rarg___closed__1;
@@ -165,7 +166,6 @@ lean_object* l_Lean_Format_joinSuffix___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_fmt___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_formatDataValue___closed__2;
 lean_object* l_Lean_HasRepr___closed__1;
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Lean_Format_unicodeOption___closed__1;
 lean_object* l_Lean_Format_joinSep(lean_object*);
 lean_object* l_Lean_arrayHasFormat___rarg(lean_object*, lean_object*);
@@ -3224,7 +3224,7 @@ lean_object* _init_l_Lean_Format_paren___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Option_HasRepr___rarg___closed__3;
+x_1 = l_ULift_HasRepr___rarg___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

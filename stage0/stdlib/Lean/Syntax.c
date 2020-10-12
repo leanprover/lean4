@@ -96,6 +96,7 @@ lean_object* l___private_Lean_Syntax_3__updateLast___rarg(lean_object*, lean_obj
 lean_object* l_Lean_Syntax_Traverser_setCur(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_getCur___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___main___closed__4;
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_SyntaxNode_getIdAt(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_getIdx___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -188,7 +189,6 @@ lean_object* l_Array_umapMAux___main___rarg(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Syntax_rewriteBottomUpM___main___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_HasRepr___closed__1;
 lean_object* l_Lean_Syntax_setArg___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getNumArgs(lean_object*);
 extern lean_object* l_Lean_Syntax_inhabited;
@@ -3787,7 +3787,7 @@ lean_dec(x_26);
 x_28 = l_Option_HasRepr___rarg___closed__2;
 x_29 = lean_string_append(x_28, x_27);
 lean_dec(x_27);
-x_30 = l_Option_HasRepr___rarg___closed__3;
+x_30 = l_ULift_HasRepr___rarg___closed__2;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_32, 0, x_31);

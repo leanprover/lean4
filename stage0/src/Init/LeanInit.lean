@@ -296,7 +296,8 @@ class MonadQuotation (m : Type → Type) :=
    transformer and not just a monadic action ensures that the current macro
    scope before the recursive call is restored after it, as expected. -/
 (withFreshMacroScope {α : Type} : m α → m α)
-export MonadQuotation
+
+export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
 /-
 We represent a name with macro scopes as
@@ -956,5 +957,8 @@ chunks.iterateM Syntax.missing fun i elem result => do
     | none     => mkElem elem
     | some str => mkElem (mkStxStrLit str)
   if i.val == 0 then pure elem else mkAppend result elem
+
+def getSepArgs (stx : Syntax) : Array Syntax :=
+stx.getArgs.getSepElems
 
 end Lean.Syntax

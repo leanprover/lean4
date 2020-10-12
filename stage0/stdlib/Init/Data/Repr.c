@@ -41,6 +41,7 @@ lean_object* l_Option_HasRepr(lean_object*);
 lean_object* l_List_HasRepr___rarg(lean_object*);
 lean_object* l_Unit_HasRepr(lean_object*);
 lean_object* l_String_quote___closed__2;
+lean_object* l_ULift_HasRepr(lean_object*);
 lean_object* l_Unit_HasRepr___closed__1;
 lean_object* l_Sum_HasRepr(lean_object*, lean_object*);
 lean_object* l_Unit_HasRepr___boxed(lean_object*);
@@ -52,6 +53,8 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_String_quote___closed__1;
 lean_object* l_List_repr___rarg___closed__3;
+lean_object* l_PUnit_HasRepr___closed__1;
+lean_object* l_PUnit_HasRepr___boxed(lean_object*);
 lean_object* l_Fin_HasRepr(lean_object*);
 lean_object* l_Sigma_HasRepr___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Sum_HasRepr___rarg(lean_object*, lean_object*, lean_object*);
@@ -62,12 +65,15 @@ lean_object* l_Char_quoteCore___closed__1;
 lean_object* l_Char_quoteCore___boxed(lean_object*);
 lean_object* l_Nat_digitChar___boxed(lean_object*);
 lean_object* l_Char_quoteCore___closed__2;
+lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_UInt64_HasRepr___boxed(lean_object*);
 lean_object* l_Sigma_HasRepr(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_String_Iterator_HasRepr(lean_object*);
+lean_object* l_ULift_HasRepr___rarg___closed__1;
 lean_object* l_Nat_toDigitsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ULift_HasRepr___rarg(lean_object*, lean_object*);
 lean_object* l_Substring_HasRepr___boxed(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Char_HasRepr___closed__1;
@@ -91,10 +97,10 @@ lean_object* l_Nat_superDigitChar___boxed(lean_object*);
 lean_object* l_Fin_HasRepr___rarg(lean_object*);
 lean_object* l_Nat_toSuperDigits(lean_object*);
 lean_object* l_Substring_HasRepr___closed__1;
+lean_object* l_PUnit_HasRepr(lean_object*);
 lean_object* l_Decidable_HasRepr___rarg(uint8_t);
 lean_object* l_Char_quoteCore___closed__3;
 lean_object* l_Prod_HasRepr(lean_object*, lean_object*);
-lean_object* l_Option_HasRepr___rarg___closed__3;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Bool_HasRepr___closed__1;
 uint8_t l_String_isEmpty(lean_object*);
@@ -446,6 +452,68 @@ x_2 = lean_alloc_closure((void*)(l_List_HasRepr___rarg), 1, 0);
 return x_2;
 }
 }
+lean_object* _init_l_PUnit_HasRepr___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("PUnit.unit");
+return x_1;
+}
+}
+lean_object* l_PUnit_HasRepr(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_PUnit_HasRepr___closed__1;
+return x_2;
+}
+}
+lean_object* l_PUnit_HasRepr___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_PUnit_HasRepr(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_ULift_HasRepr___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("ULift.up (");
+return x_1;
+}
+}
+lean_object* _init_l_ULift_HasRepr___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string(")");
+return x_1;
+}
+}
+lean_object* l_ULift_HasRepr___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_apply_1(x_1, x_2);
+x_4 = l_ULift_HasRepr___rarg___closed__1;
+x_5 = lean_string_append(x_4, x_3);
+lean_dec(x_3);
+x_6 = l_ULift_HasRepr___rarg___closed__2;
+x_7 = lean_string_append(x_5, x_6);
+return x_7;
+}
+}
+lean_object* l_ULift_HasRepr(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_ULift_HasRepr___rarg), 2, 0);
+return x_2;
+}
+}
 lean_object* _init_l_Unit_HasRepr___closed__1() {
 _start:
 {
@@ -487,14 +555,6 @@ x_1 = lean_mk_string("(some ");
 return x_1;
 }
 }
-lean_object* _init_l_Option_HasRepr___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(")");
-return x_1;
-}
-}
 lean_object* l_Option_HasRepr___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -515,7 +575,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Option_HasRepr___rarg___closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_Option_HasRepr___rarg___closed__3;
+x_8 = l_ULift_HasRepr___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -559,7 +619,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Sum_HasRepr___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_Option_HasRepr___rarg___closed__3;
+x_8 = l_ULift_HasRepr___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -574,7 +634,7 @@ x_11 = lean_apply_1(x_2, x_10);
 x_12 = l_Sum_HasRepr___rarg___closed__2;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_Option_HasRepr___rarg___closed__3;
+x_14 = l_ULift_HasRepr___rarg___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
@@ -614,7 +674,7 @@ x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_apply_1(x_2, x_5);
 x_12 = lean_string_append(x_10, x_11);
 lean_dec(x_11);
-x_13 = l_Option_HasRepr___rarg___closed__3;
+x_13 = l_ULift_HasRepr___rarg___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 return x_14;
 }
@@ -1595,7 +1655,7 @@ x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_repr(x_3);
 x_10 = lean_string_append(x_8, x_9);
 lean_dec(x_9);
-x_11 = l_Option_HasRepr___rarg___closed__3;
+x_11 = l_ULift_HasRepr___rarg___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 return x_12;
 }
@@ -1756,14 +1816,18 @@ l_List_repr___rarg___closed__2 = _init_l_List_repr___rarg___closed__2();
 lean_mark_persistent(l_List_repr___rarg___closed__2);
 l_List_repr___rarg___closed__3 = _init_l_List_repr___rarg___closed__3();
 lean_mark_persistent(l_List_repr___rarg___closed__3);
+l_PUnit_HasRepr___closed__1 = _init_l_PUnit_HasRepr___closed__1();
+lean_mark_persistent(l_PUnit_HasRepr___closed__1);
+l_ULift_HasRepr___rarg___closed__1 = _init_l_ULift_HasRepr___rarg___closed__1();
+lean_mark_persistent(l_ULift_HasRepr___rarg___closed__1);
+l_ULift_HasRepr___rarg___closed__2 = _init_l_ULift_HasRepr___rarg___closed__2();
+lean_mark_persistent(l_ULift_HasRepr___rarg___closed__2);
 l_Unit_HasRepr___closed__1 = _init_l_Unit_HasRepr___closed__1();
 lean_mark_persistent(l_Unit_HasRepr___closed__1);
 l_Option_HasRepr___rarg___closed__1 = _init_l_Option_HasRepr___rarg___closed__1();
 lean_mark_persistent(l_Option_HasRepr___rarg___closed__1);
 l_Option_HasRepr___rarg___closed__2 = _init_l_Option_HasRepr___rarg___closed__2();
 lean_mark_persistent(l_Option_HasRepr___rarg___closed__2);
-l_Option_HasRepr___rarg___closed__3 = _init_l_Option_HasRepr___rarg___closed__3();
-lean_mark_persistent(l_Option_HasRepr___rarg___closed__3);
 l_Sum_HasRepr___rarg___closed__1 = _init_l_Sum_HasRepr___rarg___closed__1();
 lean_mark_persistent(l_Sum_HasRepr___rarg___closed__1);
 l_Sum_HasRepr___rarg___closed__2 = _init_l_Sum_HasRepr___rarg___closed__2();

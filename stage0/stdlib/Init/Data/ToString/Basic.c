@@ -26,6 +26,7 @@ extern lean_object* l_List_repr___rarg___closed__1;
 extern lean_object* l_Option_HasRepr___rarg___closed__1;
 lean_object* l_Decidable_HasToString(lean_object*);
 lean_object* l_UInt16_HasToString___boxed(lean_object*);
+lean_object* l_ULift_HasToString(lean_object*);
 extern lean_object* l_Sum_HasRepr___rarg___closed__1;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 extern lean_object* l_Sigma_HasRepr___rarg___closed__1;
@@ -40,10 +41,12 @@ lean_object* l_Decidable_HasToString___rarg(uint8_t);
 extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_UInt8_HasToString(uint8_t);
+lean_object* l_ULift_HasToString___rarg(lean_object*, lean_object*);
 extern lean_object* l_Sigma_HasRepr___rarg___closed__2;
 lean_object* l_List_toStringAux___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_String_HasToString___boxed(lean_object*);
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_UInt64_HasToString___boxed(lean_object*);
 lean_object* l_UInt8_HasToString___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -63,8 +66,8 @@ lean_object* l_Subtype_HasToString(lean_object*, lean_object*);
 lean_object* l_Char_HasToString(uint32_t);
 lean_object* l_id_HasToString___rarg(lean_object*);
 lean_object* l_List_HasToString___rarg(lean_object*);
+lean_object* l_PUnit_HasToString___boxed(lean_object*);
 lean_object* l_Prod_HasToString___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Sigma_HasToString(lean_object*, lean_object*);
 lean_object* l_UInt32_HasToString___boxed(lean_object*);
@@ -82,6 +85,7 @@ lean_object* l_Substring_HasToString___boxed(lean_object*);
 lean_object* l_Prod_HasToString(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* l_Bool_HasToString___boxed(lean_object*);
+lean_object* l_PUnit_HasToString(lean_object*);
 lean_object* l_Unit_HasToString(lean_object*);
 lean_object* l_Sum_HasToString___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Decidable_HasToString___rarg___boxed(lean_object*);
@@ -421,6 +425,39 @@ x_2 = lean_alloc_closure((void*)(l_List_HasToString___rarg), 1, 0);
 return x_2;
 }
 }
+lean_object* l_PUnit_HasToString(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Unit_HasRepr___closed__1;
+return x_2;
+}
+}
+lean_object* l_PUnit_HasToString___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_PUnit_HasToString(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_ULift_HasToString___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_ULift_HasToString(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_ULift_HasToString___rarg), 2, 0);
+return x_2;
+}
+}
 lean_object* l_Unit_HasToString(lean_object* x_1) {
 _start:
 {
@@ -673,7 +710,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_string_append(x_2, x_1);
-x_14 = l_Option_HasRepr___rarg___closed__3;
+x_14 = l_ULift_HasRepr___rarg___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
@@ -745,7 +782,7 @@ lean_dec(x_5);
 x_7 = l_Option_HasRepr___rarg___closed__2;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_Option_HasRepr___rarg___closed__3;
+x_9 = l_ULift_HasRepr___rarg___closed__2;
 x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
@@ -775,7 +812,7 @@ lean_dec(x_5);
 x_7 = l_Sum_HasRepr___rarg___closed__1;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_Option_HasRepr___rarg___closed__3;
+x_9 = l_ULift_HasRepr___rarg___closed__2;
 x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
@@ -792,7 +829,7 @@ lean_dec(x_12);
 x_14 = l_Sum_HasRepr___rarg___closed__2;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
-x_16 = l_Option_HasRepr___rarg___closed__3;
+x_16 = l_ULift_HasRepr___rarg___closed__2;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }
@@ -824,7 +861,7 @@ x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_apply_1(x_2, x_5);
 x_12 = lean_string_append(x_10, x_11);
 lean_dec(x_11);
-x_13 = l_Option_HasRepr___rarg___closed__3;
+x_13 = l_ULift_HasRepr___rarg___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 return x_14;
 }

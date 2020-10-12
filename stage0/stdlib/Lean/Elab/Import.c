@@ -29,8 +29,8 @@ lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*,
 lean_object* l_Lean_Elab_parseImports___closed__1;
 lean_object* l_Lean_MessageLog_toList(lean_object*);
 lean_object* l_Lean_Elab_headerToImports___closed__3;
+lean_object* l_IO_println___at_Lean_HasRepr_hasEval___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_println___at___private_Init_System_IO_1__printlnAux___spec__1(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_print_deps(lean_object*, lean_object*);
@@ -1020,7 +1020,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_IO_println___at___private_Init_System_IO_1__printlnAux___spec__1(x_9, x_10);
+x_11 = l_IO_println___at_Lean_HasRepr_hasEval___spec__1(x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 

@@ -139,6 +139,7 @@ extern lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_setExpected_parenthesizer___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_termParser_formatter___boxed(lean_object*);
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__4;
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_Parser_Level_paren___elambda__1(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Level_num_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_antiquotNestedExpr_parenthesizer___closed__2;
@@ -244,7 +245,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatter___boxed(le
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___boxed(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__10;
 extern lean_object* l_Lean_Parser_ident___elambda__1___closed__1;
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Lean_Parser_Level_hole___elambda__1___closed__3;
 lean_object* l_Lean_Parser_ident___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_max___closed__4;
@@ -1037,7 +1037,7 @@ lean_object* _init_l_Lean_Parser_antiquotNestedExpr_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Option_HasRepr___rarg___closed__3;
+x_1 = l_ULift_HasRepr___rarg___closed__2;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

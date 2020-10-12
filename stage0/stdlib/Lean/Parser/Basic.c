@@ -268,6 +268,7 @@ lean_object* l_Lean_Parser_mkAntiquot___closed__28;
 lean_object* l_Lean_Parser_mkAntiquot___closed__15;
 lean_object* l_Lean_Parser_decimalNumberFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_PrattParsingTables_inhabited___closed__1;
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_Parser_satisfyFn___at_Lean_Parser_quotedSymbolFn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeWhileFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_numLit___closed__2;
@@ -580,7 +581,6 @@ lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_manyIndent___spec__1(
 lean_object* l_Lean_Parser_ident___elambda__1___closed__1;
 lean_object* l_Lean_Parser_checkColGeFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_charLitFnAux___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Lean_Parser_prattParser___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldSepByM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_nodeWithAntiquot(lean_object*, lean_object*, lean_object*);
@@ -25310,7 +25310,7 @@ lean_object* _init_l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Option_HasRepr___rarg___closed__3;
+x_1 = l_ULift_HasRepr___rarg___closed__2;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

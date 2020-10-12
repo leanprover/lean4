@@ -83,6 +83,7 @@ lean_object* l_Lean_Server_handleHover___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Server_mkLeanServerCapabilities;
 lean_object* l_Lean_Server_handleNotification___closed__5;
 lean_object* l_Lean_Server_Test_runWithInputFile(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_Server_handleDidClose___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_erase___at_Lean_Server_handleDidClose___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Server_handleNotification(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,9 +110,7 @@ lean_object* l_Lean_Server_writeLspResponse___rarg(lean_object*, lean_object*, l
 lean_object* l_Lean_Server_writeLspNotification(lean_object*);
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__7;
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__3;
-lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_getStderr___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object*);
 lean_object* l_Lean_Server_writeLspNotification___at_Lean_Server_clearDiagnostics___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_TextDocumentPositionParams_hasFromJson___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,7 +156,6 @@ extern lean_object* l_Lean_Lsp_InitializeParams_hasFromJson___closed__3;
 lean_object* l_Lean_Server_handleDidClose(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_mkLeanServerCapabilities___closed__2;
 lean_object* l_Lean_Server_parseParams___at_Lean_Server_handleNotification___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Lean_Server_writeLspResponse___at_Lean_Server_initAndRunServer___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_InitializeParams_hasFromJson___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Server_initAndRunServer___closed__3;
@@ -204,6 +202,7 @@ lean_object* l_Lean_Server_handleHover(lean_object*, lean_object*);
 lean_object* l_Lean_Server_updateOpenDocuments(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_InitializeParams_hasFromJson___closed__4;
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__4;
+lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_head_x3f___rarg(lean_object*);
 lean_object* l_Lean_Server_handleRequest___closed__3;
 lean_object* l_Lean_Server_mainLoop(lean_object*);
@@ -744,7 +743,7 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = l_Lean_Server_findOpenDocument___closed__1;
 x_10 = lean_string_append(x_9, x_1);
-x_11 = l_Option_HasRepr___rarg___closed__3;
+x_11 = l_ULift_HasRepr___rarg___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -777,7 +776,7 @@ if (lean_obj_tag(x_17) == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_18 = l_Lean_Server_findOpenDocument___closed__1;
 x_19 = lean_string_append(x_18, x_1);
-x_20 = l_Option_HasRepr___rarg___closed__3;
+x_20 = l_ULift_HasRepr___rarg___closed__2;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
@@ -7631,15 +7630,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_IO_getStderr___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_get_stderr(x_1);
-return x_2;
-}
-}
-lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; 
@@ -7708,7 +7699,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_io_error_to_string(x_19);
-x_22 = l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(x_8, x_21, x_20);
+x_22 = l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(x_8, x_21, x_20);
 return x_22;
 }
 }

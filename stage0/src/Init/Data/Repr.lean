@@ -44,6 +44,12 @@ protected def List.repr {α : Type u} [HasRepr α] : List α → String
 instance {α : Type u} [HasRepr α] : HasRepr (List α) :=
 ⟨List.repr⟩
 
+instance : HasRepr PUnit.{u+1} :=
+⟨fun u => "PUnit.unit"⟩
+
+instance {α : Type u} [HasRepr α] : HasRepr (ULift.{v} α) :=
+⟨fun v => "ULift.up (" ++ repr v.1 ++ ")"⟩
+
 instance : HasRepr Unit :=
 ⟨fun u => "()"⟩
 

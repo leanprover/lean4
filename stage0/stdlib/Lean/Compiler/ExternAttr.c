@@ -61,6 +61,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
 uint8_t l_Lean_Environment_isConstructor(lean_object*, lean_object*);
 uint8_t l_Not_Decidable___rarg(uint8_t);
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPattern___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ExternEntry_backend(lean_object*);
@@ -127,7 +128,6 @@ lean_object* l_Array_qsortAux___main___at_Lean_mkExternAttr___spec__4___boxed(le
 lean_object* l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__6;
 lean_object* l_Lean_isExternC___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isIdOrAtom_x3f(lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* lean_get_extern_attr_data(lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_Lean_Syntax_inhabited;
@@ -2397,7 +2397,7 @@ x_8 = l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1(x_7, x_6);
 lean_dec(x_6);
 x_9 = lean_string_append(x_4, x_8);
 lean_dec(x_8);
-x_10 = l_Option_HasRepr___rarg___closed__3;
+x_10 = l_ULift_HasRepr___rarg___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 return x_11;
 }

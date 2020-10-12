@@ -40,6 +40,7 @@ lean_object* l_EStateM_Result_toString___rarg___closed__2;
 lean_object* l_EStateM_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_orelse(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Monad___closed__6;
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_EStateM_Result_hasRepr___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_MonadFinally(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_dummyRestore___rarg___boxed(lean_object*, lean_object*);
@@ -71,7 +72,6 @@ lean_object* l_EStateM_Result_toString___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_EStateM_fromStateM(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_seqRight(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_throw___rarg(lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_EStateM_catch(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_nonBacktrackable(lean_object*);
 lean_object* l_EStateM_nonBacktrackable___closed__3;
@@ -173,7 +173,7 @@ x_5 = lean_apply_1(x_2, x_4);
 x_6 = l_Except_toString___rarg___closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_Option_HasRepr___rarg___closed__3;
+x_8 = l_ULift_HasRepr___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -188,7 +188,7 @@ x_11 = lean_apply_1(x_1, x_10);
 x_12 = l_Except_toString___rarg___closed__1;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_Option_HasRepr___rarg___closed__3;
+x_14 = l_ULift_HasRepr___rarg___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }

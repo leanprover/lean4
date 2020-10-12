@@ -45,6 +45,7 @@ lean_object* l_IO_Error_otherErrorToString___boxed(lean_object*, lean_object*, l
 lean_object* lean_mk_io_error_resource_exhausted(uint32_t, lean_object*);
 lean_object* l_IO_Error_toString___closed__4;
 lean_object* l___private_Init_System_IOError_1__downCaseFirst___closed__1;
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_IO_Error_mkInappropriateType___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Error_mkTimeExpired___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Error_mkInterrupted___boxed(lean_object*, lean_object*, lean_object*);
@@ -74,7 +75,6 @@ lean_object* l_IO_Error_toString___closed__14;
 lean_object* lean_mk_io_error_protocol_error(uint32_t, lean_object*);
 lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
 lean_object* lean_mk_io_error_resource_vanished(uint32_t, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_IO_Error_toString___closed__15;
 lean_object* lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_object*);
 lean_object* l_IO_Error_toString___closed__5;
@@ -688,7 +688,7 @@ x_9 = lean_uint32_to_nat(x_2);
 x_10 = l_Nat_repr(x_9);
 x_11 = lean_string_append(x_8, x_10);
 lean_dec(x_10);
-x_12 = l_Option_HasRepr___rarg___closed__3;
+x_12 = l_ULift_HasRepr___rarg___closed__2;
 x_13 = lean_string_append(x_11, x_12);
 return x_13;
 }
@@ -712,7 +712,7 @@ x_24 = lean_string_append(x_22, x_23);
 x_25 = l_String_modify(x_14, x_15, x_16);
 x_26 = lean_string_append(x_24, x_25);
 lean_dec(x_25);
-x_27 = l_Option_HasRepr___rarg___closed__3;
+x_27 = l_ULift_HasRepr___rarg___closed__2;
 x_28 = lean_string_append(x_26, x_27);
 return x_28;
 }

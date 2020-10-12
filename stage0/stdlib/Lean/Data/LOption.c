@@ -23,12 +23,12 @@ lean_object* l_Lean_LOption_beq___rarg(lean_object*, lean_object*, lean_object*)
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_LOption_HasToString___rarg___closed__1;
 lean_object* l_Lean_LOption_beq(lean_object*);
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_LOption_HasToString___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LOption_HasToString(lean_object*);
 lean_object* l_Lean_LOption_Inhabited(lean_object*);
 lean_object* l_Lean_LOption_HasBeq___rarg(lean_object*);
 lean_object* l_Option_toLOption___rarg___boxed(lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Option_toLOption(lean_object*);
 lean_object* l_toLOptionM___rarg(lean_object*, lean_object*);
 lean_object* l_toLOptionM___rarg___lambda__1(lean_object*, lean_object*);
@@ -69,7 +69,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Option_HasRepr___rarg___closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_Option_HasRepr___rarg___closed__3;
+x_8 = l_ULift_HasRepr___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }

@@ -130,7 +130,6 @@ lean_object* l___private_Lean_Elab_Binders_9__elabBindersAux___main(lean_object*
 lean_object* l___regBuiltin_Lean_Elab_Term_elabArrow(lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_Binders_6__matchBinder___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_7__registerFailedToInferBinderTypeInfo___closed__3;
-lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Term_elabParen___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabLetDeclAux___lambda__2___closed__1;
 lean_object* l___private_Lean_Elab_Binders_8__elabBinderViews___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_6__liftMkBindingM___rarg___closed__3;
@@ -298,6 +297,7 @@ lean_object* l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___clos
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__21;
 lean_object* l_Lean_Elab_Term_elabArrow___lambda__1___closed__5;
 extern lean_object* l_Lean_mkAppStx___closed__5;
+lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___main___closed__17;
 lean_object* l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__18;
 lean_object* l_Lean_throwKernelException___at_Lean_Elab_Term_declareTacticSyntax___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14690,7 +14690,7 @@ return x_3;
 lean_object* l___private_Lean_Elab_Binders_16__getMatchAltNumPatterns(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_unsigned_to_nat(1u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 x_4 = lean_unsigned_to_nat(0u);
@@ -14698,15 +14698,11 @@ x_5 = l_Lean_Syntax_getArg(x_3, x_4);
 lean_dec(x_3);
 x_6 = l_Lean_Syntax_getArg(x_5, x_4);
 lean_dec(x_5);
-x_7 = l_Lean_Syntax_getArgs(x_6);
+x_7 = l_Lean_Syntax_getSepArgs(x_6);
 lean_dec(x_6);
-x_8 = lean_unsigned_to_nat(2u);
-x_9 = l_Array_empty___closed__1;
-x_10 = l_Array_foldlStepMAux___main___at_Lean_Elab_Term_elabParen___spec__1(x_8, x_7, x_4, x_9);
+x_8 = lean_array_get_size(x_7);
 lean_dec(x_7);
-x_11 = lean_array_get_size(x_10);
-lean_dec(x_10);
-return x_11;
+return x_8;
 }
 }
 lean_object* l___private_Lean_Elab_Binders_16__getMatchAltNumPatterns___boxed(lean_object* x_1) {

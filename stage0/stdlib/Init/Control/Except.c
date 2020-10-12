@@ -60,6 +60,7 @@ lean_object* l_ExceptT_finally___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_ExceptT_adapt(lean_object*, lean_object*);
 lean_object* l_ExceptT_bindCont___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadExcept_HasOrelse___rarg(lean_object*, lean_object*);
+extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Except_Monad___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_map___rarg(lean_object*, lean_object*);
 lean_object* l_ExceptT_MonadLift___rarg(lean_object*);
@@ -106,7 +107,6 @@ lean_object* l_ExceptT_map___rarg(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_ExceptT_bind(lean_object*, lean_object*);
 lean_object* l_Except_HasRepr___rarg(lean_object*, lean_object*);
 lean_object* l_Except_mapError(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Except_Monad(lean_object*);
 lean_object* l_Except_Monad___closed__6;
 extern lean_object* l_monadControlRefl___rarg___lambda__2___closed__1;
@@ -214,7 +214,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_Option_HasRepr___rarg___closed__3;
+x_8 = l_ULift_HasRepr___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -229,7 +229,7 @@ x_11 = lean_apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_Option_HasRepr___rarg___closed__3;
+x_14 = l_ULift_HasRepr___rarg___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
@@ -257,7 +257,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_Option_HasRepr___rarg___closed__3;
+x_8 = l_ULift_HasRepr___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -272,7 +272,7 @@ x_11 = lean_apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_Option_HasRepr___rarg___closed__3;
+x_14 = l_ULift_HasRepr___rarg___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }

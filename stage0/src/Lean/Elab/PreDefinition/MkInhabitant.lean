@@ -4,52 +4,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
-
-namespace Lean
-namespace Elab
+new_frontend
+namespace Lean.Elab
 open Meta
 
-private def mkInhabitant? (type : Expr) : MetaM (Option Expr) :=
-catch
-  (do inh ← mkAppM `arbitrary #[type]; pure inh)
-  (fun _ => pure none)
+private def mkInhabitant? (type : Expr) : MetaM (Option Expr) := do
+try
+  pure $ some (← mkAppM `arbitrary #[type])
+catch _ =>
+  pure none
 
 private def findAssumption? (xs : Array Expr) (type : Expr) : MetaM (Option Expr) := do
-xs.findM? fun x => do {
-  xType ← inferType x;
-  isDefEq xType type
-}
-
-private def mkFnInhabitantAux? (xs : Array Expr) : Nat → Expr → MetaM (Option Expr)
-| 0,   type => mkInhabitant? type
-| i+1, type => do
-  let x := xs.get! i;
-  type ← mkForallFVars #[x] type;
-  val? ← mkInhabitant? type;
-  match val? with
-  | none     => mkFnInhabitantAux? i type
-  | some val => do
-    val ← mkLambdaFVars (xs.extract 0 i) val;
-    pure $ some val
+xs.findM? fun x => do isDefEq (← inferType x) type
 
 private def mkFnInhabitant? (xs : Array Expr) (type : Expr) : MetaM (Option Expr) :=
-mkFnInhabitantAux? xs xs.size type
+let rec loop
+  | 0,   type => mkInhabitant? type
+  | i+1, type => do
+    let x := xs[i]
+    let type ← mkForallFVars #[x] type;
+    match ← mkInhabitant? type with
+    | none     => loop i type
+    | some val => pure $ some (← mkLambdaFVars xs[0:i] val)
+loop xs.size type
 
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
 
 def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr := do
-val? ← mkInhabitant? type;
-match val? with
+match ← mkInhabitant? type with
 | some val => mkLambdaFVars xs val
-| none     => do
-x? ← findAssumption? xs type;
-match x? with
+| none     =>
+match ← findAssumption? xs type with
 | some x => mkLambdaFVars xs x
-| none   => do
-val? ← mkFnInhabitant? xs type;
-match x? with
+| none   =>
+match ← mkFnInhabitant? xs type with
 | some val => pure val
-| none => throwError ("failed to compile partial definition '" ++ declName ++ "', failed to show that type is inhabited")
+| none => throwError msg!"failed to compile partial definition '{declName}', failed to show that type is inhabited"
 
-end Elab
-end Lean
+end Lean.Elab

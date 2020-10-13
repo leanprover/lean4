@@ -143,6 +143,12 @@ x.run' ShareCommon.State.empty
 @[inline] def PShareCommonT.run {m : Type u → Type v} [Monad m] {α : Type u} (x : PShareCommonT m α) : m α :=
 x.run' ShareCommon.PersistentState.empty
 
+@[inline] def ShareCommonM.run {α : Type u} (x : ShareCommonM α) : α :=
+Id.run x.run
+
+@[inline] def PShareCommonM.run {α : Type u} (x : PShareCommonM α) : α :=
+Id.run x.run
+
 def shareCommon {α} (a : α) : α :=
 (withShareCommon a : ShareCommonM α).run
 

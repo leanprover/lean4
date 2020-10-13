@@ -950,7 +950,8 @@ theorem Eq.toIff {a b : Prop} (h : a = b) : a ↔ b :=
 Eq.recOn h Iff.rfl 
 
 theorem neqOfNotIff {a b : Prop} : ¬(a ↔ b) → a ≠ b :=
-fun h₁ h₂ => have a ↔ b from Eq.subst h₂ (Iff.refl a);
+fun h₁ h₂ =>
+  have a ↔ b from Eq.subst h₂ (Iff.refl a);
   absurd this h₁ 
 
 theorem notIffNotOfIff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
@@ -1018,12 +1019,14 @@ theorem decideEqFalse : ∀  {p : Prop} [s : Decidable p], ¬p → decide p = fa
 | _, isFalse h, _ => rfl 
 
 theorem ofDecideEqTrue {p : Prop} [s : Decidable p] : decide p = true → p :=
-fun h => match s with 
+fun h =>
+  match s with 
   | isTrue h₁ => h₁
   | isFalse h₁ => absurd h (neTrueOfEqFalse (decideEqFalse h₁))
 
 theorem ofDecideEqFalse {p : Prop} [s : Decidable p] : decide p = false → ¬p :=
-fun h => match s with 
+fun h =>
+  match s with 
   | isTrue h₁ => absurd h (neFalseOfEqTrue (decideEqTrue h₁))
   | isFalse h₁ => h₁
 
@@ -1086,10 +1089,13 @@ theorem notNotIff (p) [Decidable p] : (¬¬p) ↔ p :=
 Iff.intro ofNotNot notNotIntro 
 
 theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬(p ∧ q) ↔ ¬p ∨ ¬q :=
-Iff.intro (fun h => match d₁, d₂ with 
+Iff.intro
+  (fun h =>
+      match d₁, d₂ with 
       | isTrue h₁, isTrue h₂ => absurd (And.intro h₁ h₂) h
       | _, isFalse h₂ => Or.inr h₂
-      | isFalse h₁, _ => Or.inl h₁) (fun (h) ⟨hp, hq⟩ => Or.elim h (fun h => h hp) (fun h => h hq))
+      | isFalse h₁, _ => Or.inl h₁)
+  (fun (h) ⟨hp, hq⟩ => Or.elim h (fun h => h hp) (fun h => h hq))
 
 end Decidable 
 
@@ -1152,7 +1158,8 @@ Bool.noConfusion h
 
 @[inline]
 instance  : DecidableEq Bool :=
-fun a b => match a, b with 
+fun a b =>
+  match a, b with 
   | false, false => isTrue rfl
   | false, true => isFalse Bool.falseNeTrue
   | true, false => isFalse (Ne.symm Bool.falseNeTrue)
@@ -1285,11 +1292,17 @@ instance subsingletonProp (p : Prop) : Subsingleton p :=
 ⟨fun a b => proofIrrel a b⟩
 
 instance  (p : Prop) : Subsingleton (Decidable p) :=
-Subsingleton.intro $ fun d₁ => match d₁ with 
-    | (isTrue t₁) => fun d₂ => match d₂ with 
+Subsingleton.intro $
+  fun d₁ =>
+    match d₁ with 
+    | (isTrue t₁) =>
+      fun d₂ =>
+        match d₂ with 
         | (isTrue t₂) => Eq.recOn (proofIrrel t₁ t₂) rfl
         | (isFalse f₂) => absurd t₁ f₂
-    | (isFalse f₁) => fun d₂ => match d₂ with 
+    | (isFalse f₁) =>
+      fun d₂ =>
+        match d₂ with 
         | (isTrue t₂) => absurd t₂ f₁
         | (isFalse f₂) => Eq.recOn (proofIrrel f₁ f₂) rfl 
 
@@ -1423,7 +1436,8 @@ instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) :=
 ⟨Sum.inr (arbitrary β)⟩
 
 instance  {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) :=
-fun a b => match a, b with 
+fun a b =>
+  match a, b with 
   | (Sum.inl a), (Sum.inl b) =>
     if h : a = b then isTrue (h ▸ rfl) else isFalse (fun h' => Sum.noConfusion h' (fun h' => absurd h' h))
   | (Sum.inr a), (Sum.inr b) =>
@@ -1441,8 +1455,10 @@ instance  [Inhabited α] [Inhabited β] : Inhabited (Prod α β) :=
 ⟨(arbitrary α, arbitrary β)⟩
 
 instance  [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
-fun ⟨a, b⟩ ⟨a', b'⟩ => match (decEq a a') with 
-  | (isTrue e₁) => match (decEq b b') with 
+fun ⟨a, b⟩ ⟨a', b'⟩ =>
+  match (decEq a a') with 
+  | (isTrue e₁) =>
+    match (decEq b b') with 
     | (isTrue e₂) => isTrue (Eq.recOn e₁ (Eq.recOn e₂ rfl))
     | (isFalse n₂) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₂' n₂))
   | (isFalse n₁) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₁' n₁))
@@ -1606,7 +1622,9 @@ Quot.rec f (fun a b h => Subsingleton.elim _ (f b)) q
 @[reducible, elabAsEliminator, inline]
 protected def hrecOn (q : Quot r) (f : ∀  a, β (Quot.mk r a)) (c : ∀  (a b : α) (p : r a b), f a ≅ f b) : β q :=
 Quot.recOn q f $
-  fun a b p => eqOfHEq $ have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a := eqRecHEq (sound p) (f a);
+  fun a b p =>
+    eqOfHEq $
+      have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a := eqRecHEq (sound p) (f a);
       HEq.trans p₁ (c a b p)
 
 end 
@@ -1789,7 +1807,10 @@ EqvGen.recOn H (fun x y h => Quot.sound h) (fun x => rfl) (fun x y _ IH => Eq.sy
 end 
 
 instance  {α : Sort u} {s : Setoid α} [d : ∀  (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
-fun (q₁ q₂ : Quotient s) => Quotient.recOnSubsingleton₂ q₁ q₂ (fun a₁ a₂ => match (d a₁ a₂) with 
+fun (q₁ q₂ : Quotient s) =>
+  Quotient.recOnSubsingleton₂ q₁ q₂
+    (fun a₁ a₂ =>
+        match (d a₁ a₂) with 
         | (isTrue h₁) => isTrue (Quotient.sound h₁)
         | (isFalse h₂) => isFalse (fun h => absurd (Quotient.exact h) h₂))
 
@@ -1923,7 +1944,8 @@ namespace Classical
 axiom choice {α : Sort u} : Nonempty α → α 
 
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : Exists (fun x => p x)) : { x // p x } :=
-choice $ let ⟨x, px⟩ := h;
+choice $
+  let ⟨x, px⟩ := h;
   ⟨⟨x, px⟩⟩
 
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : α :=
@@ -1942,11 +1964,20 @@ let v : Prop := choose exV;
 have uDef : U u from chooseSpec exU;
 have vDef : V v from chooseSpec exV;
 have notUvOrP : u ≠ v ∨ p from
-  Or.elim uDef (fun hut => Or.elim vDef (fun hvf => have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
-              Or.inl hne) Or.inr) Or.inr;
+  Or.elim uDef
+    (fun hut =>
+        Or.elim vDef
+          (fun hvf =>
+              have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
+              Or.inl hne)
+          Or.inr)
+    Or.inr;
 have pImpliesUv : p → u = v from
   fun hp =>
-    have hpred : U = V from funext $ fun x => have hl : (x = True ∨ p) → (x = False ∨ p) from fun a => Or.inr hp;
+    have hpred : U = V from
+      funext $
+        fun x =>
+          have hl : (x = True ∨ p) → (x = False ∨ p) from fun a => Or.inr hp;
           have hr : (x = False ∨ p) → (x = True ∨ p) from fun a => Or.inr hp;
           show (x = True ∨ p) = (x = False ∨ p) from propext (Iff.intro hl hr);
     have h₀ : ∀  exU exV, @choose _ U exU = @choose _ V exV from hpred ▸ fun exU exV => rfl;
@@ -1980,7 +2011,8 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
   { x : α // Exists (fun (y : α) => p y) → p x } :=
 @dite _ (Exists (fun (x : α) => p x)) (propDecidable _)
   (fun (hp : Exists (fun (x : α) => p x)) =>
-      show { x : α // Exists (fun (y : α) => p y) → p x } from let xp := indefiniteDescription _ hp;
+      show { x : α // Exists (fun (y : α) => p y) → p x } from
+        let xp := indefiniteDescription _ hp;
         ⟨xp.val, fun h' => xp.property⟩)
   (fun hp => ⟨choice h, fun h => absurd h hp⟩)
 

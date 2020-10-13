@@ -57,8 +57,9 @@ def isNil : Format → Bool
 | _   => false
 
 private structure SpaceResult :=
-(foundLine := false)
-(space     := 0)
+(foundLine              := false)
+(foundFlattenedHardLine := false)
+(space                  := 0)
 
 instance SpaceResult.inhabited : Inhabited SpaceResult :=
 ⟨{}⟩
@@ -75,7 +76,7 @@ private def spaceUptoLine : Format → Bool → Nat → SpaceResult
 | text s,       flatten, w =>
   let p := s.posOf '\n';
   let off := s.offsetOfPos p;
-  { foundLine := p != s.bsize, space := off }
+  { foundLine := p != s.bsize, foundFlattenedHardLine := flatten && p != s.bsize, space := off }
 | append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
 | nest _ f,     flatten, w => spaceUptoLine f flatten w
 | group f _,    _,       w => spaceUptoLine f true w
@@ -100,10 +101,12 @@ private structure State :=
 
 private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) : StateM State (List WorkGroup) := do
 k ← State.column <$> get;
--- Flatten group if it fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
+-- Flatten group if it + the remainder (gs) fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
 let g : WorkGroup := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items };
-let r := spaceUptoLine' (g::gs) (w-k);
-pure $ { g with flatten := r.space <= w-k }::gs
+let r := spaceUptoLine' [g] (w-k);
+let r' := merge (w-k) r (spaceUptoLine' gs);
+-- Prevent flattening if any item contains a hard line break, except within `fill` if it is ungrouped (=> unflattened)
+pure $ { g with flatten := !r.foundFlattenedHardLine && r'.space <= w-k }::gs
 
 private def pushOutput (s : String) : StateM State Unit :=
 modify fun st => { st with out := st.out ++ s, column := st.column + s.length }

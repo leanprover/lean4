@@ -6,7 +6,7 @@ def eval (w : Nat) (f : Format) : IO Unit := do
 IO.println $ f.prettyAux w
 
 -- hard line breaks should re-evaluate flattening behavior within group
-#eval eval 5 $ group (text "a" ++ line ++ text "b\nlooooooooong" ++ line ++ text "c") ++ line ++ text "d"
+#eval eval 5 $ fill (text "a" ++ line ++ text "b\nlooooooooong" ++ line ++ text "c") ++ line ++ text "d"
 
 -- basic `fill` test
 #eval eval 20 $ fill (Format.joinSep ((List.range 13).map fun i => i.repeat (fun s => s ++ "a") "a") line)

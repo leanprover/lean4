@@ -8,9 +8,8 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Elab.Term
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.MkInhabitant
-
-namespace Lean
-namespace Elab
+new_frontend
+namespace Lean.Elab
 open Meta
 open Term
 
@@ -31,55 +30,47 @@ instance PreDefinition.inhabited : Inhabited PreDefinition :=
 
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
 preDefs.mapM fun preDef => do
-  type  ← instantiateMVars preDef.type;
-  value ← instantiateMVars preDef.value;
-  pure { preDef with type := type, value := value }
+  pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }
 
 private def levelMVarToParamExpr (e : Expr) : StateRefT Nat TermElabM Expr := do
-nextIdx ← get;
-(e, nextIdx) ← liftM $ levelMVarToParam e nextIdx;
+let nextIdx ← get;
+let (e, nextIdx) ← levelMVarToParam e nextIdx;
 set nextIdx;
 pure e
 
 private def levelMVarToParamPreDeclsAux (preDefs : Array PreDefinition) : StateRefT Nat TermElabM (Array PreDefinition) :=
 preDefs.mapM fun preDef => do
-  type  ← levelMVarToParamExpr preDef.type;
-  value ← levelMVarToParamExpr preDef.value;
-  pure { preDef with type := type, value := value }
+  pure { preDef with type := (← levelMVarToParamExpr preDef.type), value := (← levelMVarToParamExpr preDef.value) }
 
 def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
 (levelMVarToParamPreDeclsAux preDefs).run' 1
 
 private def collectLevelParamsExpr (e : Expr) : StateM CollectLevelParams.State Unit := do
-modify fun s => collectLevelParams s e
+modify (collectLevelParams · e)
 
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) :=
-let (_, s) := StateT.run
-  (preDefs.forM fun preDef => do {
-    collectLevelParamsExpr preDef.type;
-    collectLevelParamsExpr preDef.value })
-  {};
+let (_, s) := StateT.run (s := {}) do
+  preDefs.forM fun preDef => do -- TODO for-in doesn't work here
+    collectLevelParamsExpr preDef.type
+    collectLevelParamsExpr preDef.value
 match sortDeclLevelParams scopeLevelNames allUserLevelNames s.params with
 | Except.error msg      => throwError msg
 | Except.ok levelParams => pure levelParams
 
 private def shareCommon (preDefs : Array PreDefinition) : Array PreDefinition :=
 let result : Std.ShareCommonM (Array PreDefinition) :=
-  preDefs.mapM fun preDef => do {
-    type  ← Std.withShareCommon preDef.type;
-    value ← Std.withShareCommon preDef.value;
-    pure { preDef with type := type, value := value }
-  };
-result.run
+  preDefs.mapM fun preDef => do
+    pure { preDef with type := (← Std.withShareCommon preDef.type), value := (← Std.withShareCommon preDef.value) }
+result.run (m := Id) -- TODO: remove (m := Id)
 
 def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDefinition) := do
-let preDefs := shareCommon preDefs;
-lparams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames;
-let us := lparams.map mkLevelParam;
+let preDefs := shareCommon preDefs
+let lparams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames
+let us := lparams.map mkLevelParam
 let fixExpr (e : Expr) : Expr :=
   e.replace fun c => match c with
     | Expr.const declName _ _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
-    | _ => none;
+    | _ => none
 pure $ preDefs.map fun preDef =>
   { preDef with
     type    := fixExpr preDef.type,
@@ -87,12 +78,14 @@ pure $ preDefs.map fun preDef =>
     lparams := lparams }
 
 def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
-preDefs.forM fun preDef => applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
+for preDef in preDefs do
+  applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
 def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
-if preDef.kind.isTheorem || preDef.kind.isExample then pure preDef
+if preDef.kind.isTheorem || preDef.kind.isExample then
+  pure preDef
 else do
-  value ← Meta.abstractNestedProofs preDef.declName preDef.value;
+  let value ← Meta.abstractNestedProofs preDef.declName preDef.value
   pure { preDef with value := value }
 
 /- Auxiliary method for (temporarily) adding pre definition as an axiom -/
@@ -100,8 +93,8 @@ def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
 addDecl $ Declaration.axiomDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
 
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit := do
-preDef ← liftM $ abstractNestedProofs preDef;
-env ← getEnv;
+let preDef ← abstractNestedProofs preDef
+let env ← getEnv
 let decl :=
   match preDef.kind with
   | DefKind.«example» => unreachable!
@@ -116,12 +109,12 @@ let decl :=
   | DefKind.«def»  =>
     Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
                            hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
-                           isUnsafe := preDef.modifiers.isUnsafe };
-addDecl decl;
-applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking;
+                           isUnsafe := preDef.modifiers.isUnsafe }
+addDecl decl
+applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
 when (compile && !preDef.kind.isTheorem) $
-  compileDecl decl;
-applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation;
+  compileDecl decl
+applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 pure ()
 
 def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
@@ -138,11 +131,11 @@ let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
     value    := preDef.value,
     isUnsafe := true,
     hints    := ReducibilityHints.opaque
-  };
-addDecl decl;
-applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking;
-compileDecl decl;
-applyAttributesOf preDefs AttributeApplicationTime.afterCompilation;
+  }
+addDecl decl
+applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
+compileDecl decl
+applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
 pure ()
 
 def addAndCompileUnsafeRec (preDefs : Array PreDefinition) : TermElabM Unit := do
@@ -158,5 +151,4 @@ addAndCompileUnsafe $ preDefs.map fun preDef =>
       | _ => none,
     modifiers := {} }
 
-end Elab
-end Lean
+end Lean.Elab

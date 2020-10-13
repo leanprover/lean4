@@ -5,13 +5,8 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
 import Lean.Elab.Quotation
-
-namespace Lean
-namespace Elab
-open MonadResolveName (getCurrNamespace getOpenDecls) -- HACK for old frontend
-
-namespace Term
-
+new_frontend
+namespace Lean.Elab.Term
 /-
 Expand `optional «precedence»` where
  «precedence» := parser! " : " >> precedenceLit
@@ -27,9 +22,9 @@ private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax :=
 if ds.size == 0 then
   throwUnsupportedSyntax
 else if ds.size == 1 then
-  pure $ ds.get! 0
+  pure ds[0]
 else
-  ds.foldlFromM (fun r d => `(ParserDescr.andthen $r $d)) (ds.get! 0) 1
+  ds.foldlFromM (fun r d => `(ParserDescr.andthen $r $d)) ds[0] 1
 
 structure ToParserDescrContext :=
 (catName              : Name)
@@ -50,13 +45,13 @@ withReader (fun ctx => { ctx with first := false }) x
 withReader (fun ctx => { ctx with leftRec := false }) x
 
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
-ctx ← read;
-if ctx.first && stx.getKind == `Lean.Parser.Syntax.cat then do
+let ctx ← read;
+if ctx.first && stx.getKind == `Lean.Parser.Syntax.cat then
   let cat := (stx.getIdAt 0).eraseMacroScopes;
-  if cat == ctx.catName then do
+  if cat == ctx.catName then
     let prec? : Option Nat  := expandOptPrecedence (stx.getArg 1);
-    unless prec?.isNone $ throwErrorAt (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
-    unless ctx.leftRec $
+    unless prec?.isNone do throwErrorAt (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
+    unless ctx.leftRec do
       throwErrorAt (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion");
     markAsTrailingParser; -- mark as trailing par
     pure true
@@ -66,9 +61,9 @@ else
   pure false
 
 partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
-| stx =>
+| stx => do
   let kind := stx.getKind;
-  if kind == nullKind then do
+  if kind == nullKind then
     let args := stx.getArgs;
     condM (checkLeftRec (stx.getArg 0))
       (do
@@ -79,24 +74,24 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
       (do
         args ← args.mapIdxM $ fun i arg => withNotFirst $ toParserDescrAux arg;
         liftM $ mkParserSeq args)
-  else if kind == choiceKind then do
+  else if kind == choiceKind then
     toParserDescrAux (stx.getArg 0)
   else if kind == `Lean.Parser.Syntax.paren then
     toParserDescrAux (stx.getArg 1)
-  else if kind == `Lean.Parser.Syntax.cat then do
+  else if kind == `Lean.Parser.Syntax.cat then
     let cat := (stx.getIdAt 0).eraseMacroScopes;
-    ctx ← read;
+    let ctx ← read;
     if ctx.first && cat == ctx.catName then
       throwErrorAt stx "invalid atomic left recursive syntax"
-    else do
+    else
       let prec? : Option Nat  := expandOptPrecedence (stx.getArg 1);
-      env ← getEnv;
+      let env ← getEnv;
       if Parser.isParserCategory env cat then
         let prec := prec?.getD 0;
         `(ParserDescr.cat $(quote cat) $(quote prec))
-      else do
+      else
         -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
-        candidates ← resolveGlobalConst cat;
+        let candidates ← resolveGlobalConst cat;
         let candidates := candidates.filter fun c =>
             match env.find? c with
             | none      => false
@@ -109,14 +104,14 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
               | _                                          => false;
          match candidates with
          | []  => throwErrorAt (stx.getArg 3) ("unknown category '" ++ cat ++ "' or parser declaration")
-         | [c] => do
-           unless prec?.isNone $ throwErrorAt (stx.getArg 3) "unexpected precedence";
+         | [c] =>
+           unless prec?.isNone do throwErrorAt (stx.getArg 3) "unexpected precedence";
            `(ParserDescr.parser $(quote c))
          | cs  => throwErrorAt (stx.getArg 3) ("ambiguous parser declaration " ++ toString cs)
-  else if kind == `Lean.Parser.Syntax.atom then do
+  else if kind == `Lean.Parser.Syntax.atom then
     match (stx.getArg 0).isStrLit? with
-    | some atom => do
-      ctx ← read;
+    | some atom =>
+      let ctx ← read;
       if ctx.leadingIdentAsSymbol then
         `(ParserDescr.nonReservedSymbol $(quote atom) false)
       else
@@ -132,41 +127,41 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     `(ParserDescr.ident)
   else if kind == `Lean.Parser.Syntax.noWs then
     `(ParserDescr.noWs)
-  else if kind == `Lean.Parser.Syntax.try then do
-    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+  else if kind == `Lean.Parser.Syntax.try then
+    let d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.try $d)
-  else if kind == `Lean.Parser.Syntax.notFollowedBy then do
-    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+  else if kind == `Lean.Parser.Syntax.notFollowedBy then
+    let d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.notFollowedBy $d)
-  else if kind == `Lean.Parser.Syntax.lookahead then do
-    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+  else if kind == `Lean.Parser.Syntax.lookahead then
+    let d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.lookahead $d)
-  else if kind == `Lean.Parser.Syntax.interpolatedStr then do
-    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+  else if kind == `Lean.Parser.Syntax.interpolatedStr then
+    let d ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.interpolatedStr $d)
-  else if kind == `Lean.Parser.Syntax.sepBy then do
-    d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
-    d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
+  else if kind == `Lean.Parser.Syntax.sepBy then
+    let d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+    let d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.sepBy $d₁ $d₂)
-  else if kind == `Lean.Parser.Syntax.sepBy1 then do
-    d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
-    d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
+  else if kind == `Lean.Parser.Syntax.sepBy1 then
+    let d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 1);
+    let d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.sepBy1 $d₁ $d₂)
-  else if kind == `Lean.Parser.Syntax.many then do
-    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
+  else if kind == `Lean.Parser.Syntax.many then
+    let d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.many $d)
-  else if kind == `Lean.Parser.Syntax.many1 then do
-    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
+  else if kind == `Lean.Parser.Syntax.many1 then
+    let d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.many1 $d)
-  else if kind == `Lean.Parser.Syntax.optional then do
-    d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
+  else if kind == `Lean.Parser.Syntax.optional then
+    let d ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.optional $d)
-  else if kind == `Lean.Parser.Syntax.orelse then do
-    d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
-    d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
+  else if kind == `Lean.Parser.Syntax.orelse then
+    let d₁ ← withoutLeftRec $ toParserDescrAux (stx.getArg 0);
+    let d₂ ← withoutLeftRec $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.orelse $d₁ $d₂)
-  else do
-    stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _);
+  else
+    let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _);
     match stxNew? with
     | some stxNew => toParserDescrAux stxNew
     | none => throwErrorAt stx $ "unexpected syntax kind of category `syntax`: " ++ kind
@@ -176,7 +171,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
   `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
 def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) := do
-env ← getEnv;
+let env ← getEnv;
 let leadingIdentAsSymbol := Parser.leadingIdentAsSymbol env catName;
 (toParserDescrAux stx { catName := catName, first := true, leftRec := true, leadingIdentAsSymbol := leadingIdentAsSymbol }).run false
 
@@ -192,15 +187,15 @@ match catName with
 private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := do
 let quotSymbol := "`(" ++ getCatSuffix catName ++ "|";
 let kind := catName ++ `quot;
-cmd ← `(@[termParser] def $(mkIdent kind) : Lean.ParserDescr := Lean.ParserDescr.node $(quote kind) $(quote Lean.Parser.maxPrec) (Lean.ParserDescr.andthen (Lean.ParserDescr.symbol $(quote quotSymbol)) (Lean.ParserDescr.andthen (Lean.ParserDescr.cat $(quote catName) 0) (Lean.ParserDescr.symbol ")"))));
+let cmd ← `(@[termParser] def $(mkIdent kind) : Lean.ParserDescr := Lean.ParserDescr.node $(quote kind) $(quote Lean.Parser.maxPrec) (Lean.ParserDescr.andthen (Lean.ParserDescr.symbol $(quote quotSymbol)) (Lean.ParserDescr.andthen (Lean.ParserDescr.cat $(quote catName) 0) (Lean.ParserDescr.symbol ")"))));
 elabCommand cmd
 
 @[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab :=
 fun stx => do
   let catName  := stx.getIdAt 1;
   let attrName := catName.appendAfter "Parser";
-  env ← getEnv;
-  env ← liftIO $ Parser.registerParserCategory env attrName catName;
+  let env ← getEnv;
+  let env ← liftIO $ Parser.registerParserCategory env attrName catName;
   setEnv env;
   declareSyntaxCatQuotParser catName
 
@@ -208,8 +203,8 @@ def mkKindName (catName : Name) : Name :=
 `_kind ++ catName
 
 def mkFreshKind (catName : Name) : CommandElabM Name := do
-scp ← getCurrMacroScope;
-mainModule ← getMainModule;
+let scp ← getCurrMacroScope;
+let mainModule ← getMainModule;
 pure $ Lean.addMacroScope mainModule (mkKindName catName) scp
 
 def Macro.mkFreshKind (catName : Name) : MacroM Name :=
@@ -219,25 +214,25 @@ def mkKind (stx : Syntax) : CommandElabM Name := do
 let kind := stx.getId;
 if kind.hasMacroScopes then
   pure kind
-else do
-  currNamespace ← getCurrNamespace;
+else
+  let currNamespace ← getCurrNamespace;
   pure (currNamespace ++ kind)
 
 private def elabKindPrio (stx : Syntax) (catName : Name) : CommandElabM (Name × Nat) := do
-if stx.isNone then do
-  k ← mkFreshKind catName;
+if stx.isNone then
+  let k ← mkFreshKind catName;
   pure (k, 0)
 else
   let arg := stx.getArg 1;
-  if arg.getKind == `Lean.Parser.Command.parserKind then do
-    k ← mkKind (arg.getArg 0);
+  if arg.getKind == `Lean.Parser.Command.parserKind then
+    let k ← mkKind (arg.getArg 0);
     pure (k, 0)
-  else if arg.getKind == `Lean.Parser.Command.parserPrio then do
-    k ← mkFreshKind catName;
+  else if arg.getKind == `Lean.Parser.Command.parserPrio then
+    let k ← mkFreshKind catName;
     let prio := (arg.getArg 0).isNatLit?.getD 0;
     pure (k, prio)
-  else if arg.getKind == `Lean.Parser.Command.parserKindPrio then do
-    k ← mkKind (arg.getArg 0);
+  else if arg.getKind == `Lean.Parser.Command.parserKindPrio then
+    let k ← mkKind (arg.getArg 0);
     let prio := (arg.getArg 2).isNatLit?.getD 0;
     pure (k, prio)
   else
@@ -268,17 +263,17 @@ def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many
 -/
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab :=
 fun stx => do
-  env ← getEnv;
+  let env ← getEnv;
   let cat := (stx.getIdAt 5).eraseMacroScopes;
-  unless (Parser.isParserCategory env cat) $ throwErrorAt (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
+  unless (Parser.isParserCategory env cat) do throwErrorAt (stx.getArg 5) ("unknown category '" ++ cat ++ "'");
   let syntaxParser := stx.getArg 3;
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec;
   let prec := (Term.expandOptPrecedence (stx.getArg 1)).getD precDefault;
-  (kind, prio) ← elabKindPrio (stx.getArg 2) cat;
+  let (kind, prio) ← elabKindPrio (stx.getArg 2) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
-  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr syntaxParser cat;
-  d ←
+  let (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr syntaxParser cat;
+  let d ←
     if trailingParser then
       `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr := ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
     else
@@ -292,8 +287,8 @@ def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab :=
 fun stx => do
   let declName := stx.getArg 1;
-  (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) Name.anonymous;
-  stx' ← `(def $declName : Lean.ParserDescr := $val);
+  let (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 3) Name.anonymous;
+  let stx' ← `(def $declName : Lean.ParserDescr := $val);
   withMacroExpansion stx stx' $ elabCommand stx'
 
 def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
@@ -306,10 +301,10 @@ alts ← alts.mapSepElemsM $ fun alt => do {
   let k' := quot.getKind;
   if k' == k then
     pure alt
-  else if k' == choiceKind then do
+  else if k' == choiceKind then
      match quot.getArgs.find? $ fun quotAlt => quotAlt.getKind == k with
      | none      => throwErrorAt alt ("invalid macro_rules alternative, expected syntax node kind '" ++ k ++ "'")
-     | some quot => do
+     | some quot =>
        let pat := pat.setArg 1 quot;
        let lhs := lhs.setArg 0 pat;
        pure $ alt.setArg 0 lhs
@@ -327,14 +322,14 @@ let quot := pat.getArg 1;
 pure quot.getKind
 
 def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
-k ← inferMacroRulesAltKind (alts.get! 0);
+let k ← inferMacroRulesAltKind (alts.get! 0);
 if k == choiceKind then
   throwErrorAt (alts.get! 0)
     "invalid macro_rules alternative, multiple interpretations for pattern (solution: specify node kind using `macro_rules [<kind>] ...`)"
-else do
-  altsK    ← alts.filterSepElemsM (fun alt => do k' ← inferMacroRulesAltKind alt; pure $ k == k');
-  altsNotK ← alts.filterSepElemsM (fun alt => do k' ← inferMacroRulesAltKind alt; pure $ k != k');
-  defCmd   ← elabMacroRulesAux k altsK;
+else
+  let altsK    ← alts.filterSepElemsM (fun alt => do let k' ← inferMacroRulesAltKind alt; pure $ k == k');
+  let altsNotK ← alts.filterSepElemsM (fun alt => do let k' ← inferMacroRulesAltKind alt; pure $ k != k');
+  let defCmd   ← elabMacroRulesAux k altsK;
   if altsNotK.isEmpty then
     pure defCmd
   else
@@ -344,8 +339,8 @@ else do
 adaptExpander $ fun stx => match_syntax stx with
 | `(macro_rules $alts:matchAlt*)           => elabNoKindMacroRulesAux alts
 | `(macro_rules | $alts:matchAlt*)         => elabNoKindMacroRulesAux alts
-| `(macro_rules [$kind] $alts:matchAlt*)   => do k ← mkKind kind; elabMacroRulesAux k alts
-| `(macro_rules [$kind] | $alts:matchAlt*) => do k ← mkKind kind; elabMacroRulesAux k alts
+| `(macro_rules [$kind] $alts:matchAlt*)   => do elabMacroRulesAux (← mkKind kind) alts
+| `(macro_rules [$kind] | $alts:matchAlt*) => do elabMacroRulesAux (← mkKind kind) alts
 | _                                        => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro :=
@@ -366,7 +361,7 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
   else
     stx
 | _ => match stx with
-  | Syntax.node k args => Syntax.node k (args.map antiquote)
+  | Syntax.node k args => Syntax.node k (args.map (antiquote vars))
   | stx => stx
 
 /- Convert `notation` command lhs item into a `syntax` command item -/
@@ -402,15 +397,15 @@ else
   Macro.throwUnsupported
 
 private def expandNotationAux (ref : Syntax) (prec? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
-kind ← Macro.mkFreshKind `term;
+let kind ← Macro.mkFreshKind `term;
 -- build parser
-syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem;
+let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem;
 let cat := mkIdentFrom ref `term;
 -- build macro rules
 let vars := items.filter $ fun item => item.getKind == `Lean.Parser.Command.identPrec;
 let vars := vars.map $ fun var => var.getArg 0;
 let rhs := antiquote vars rhs;
-patArgs ← items.mapM expandNotationItemIntoPattern;
+let patArgs ← items.mapM expandNotationItemIntoPattern;
 let pat := Syntax.node kind patArgs;
 match prec? with
 | none      => `(syntax [$(mkIdentFrom ref kind):ident] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
@@ -466,14 +461,14 @@ fun stx => do
   let head := stx.getArg 2;
   let args := (stx.getArg 3).getArgs;
   let cat  := stx.getArg 5;
-  kind ← Macro.mkFreshKind (cat.getId).eraseMacroScopes;
+  let kind ← Macro.mkFreshKind (cat.getId).eraseMacroScopes;
   -- build parser
-  stxPart  ← expandMacroHeadIntoSyntaxItem head;
-  stxParts ← args.mapM expandMacroArgIntoSyntaxItem;
+  let stxPart  ← expandMacroHeadIntoSyntaxItem head;
+  let stxParts ← args.mapM expandMacroArgIntoSyntaxItem;
   let stxParts := #[stxPart] ++ stxParts;
   -- build macro rules
-  patHead ← expandMacroHeadIntoPattern head;
-  patArgs ← args.mapM expandMacroArgIntoPattern;
+  let patHead ← expandMacroHeadIntoPattern head;
+  let patArgs ← args.mapM expandMacroArgIntoPattern;
   let pat := Syntax.node kind (#[patHead] ++ patArgs);
   if stx.getArgs.size == 8 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
@@ -490,7 +485,7 @@ pure ()
 
 @[inline] def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
 Term.tryPostponeIfNoneOrMVar expectedType?;
-some expectedType ← pure expectedType?
+let some expectedType ← pure expectedType?
   | throwError "expected type must be known";
 x expectedType
 
@@ -508,14 +503,14 @@ fun stx => do
   let expectedTypeSpec := stx.getArg 6;
   let rhs     := stx.getArg 8;
   let catName := cat.getId;
-  kind ← Macro.mkFreshKind catName.eraseMacroScopes;
+  let kind ← Macro.mkFreshKind catName.eraseMacroScopes;
   -- build parser
-  stxPart  ← expandMacroHeadIntoSyntaxItem head;
-  stxParts ← args.mapM expandMacroArgIntoSyntaxItem;
+  let stxPart  ← expandMacroHeadIntoSyntaxItem head;
+  let stxParts ← args.mapM expandMacroArgIntoSyntaxItem;
   let stxParts := #[stxPart] ++ stxParts;
   -- build pattern for `martch_syntax
-  patHead ← expandMacroHeadIntoPattern head;
-  patArgs ← args.mapM expandMacroArgIntoPattern;
+  let patHead ← expandMacroHeadIntoPattern head;
+  let patArgs ← args.mapM expandMacroArgIntoPattern;
   let pat := Syntax.node kind (#[patHead] ++ patArgs);
   let kindId    := mkIdentFrom ref kind;
   if expectedTypeSpec.hasArgs then
@@ -535,6 +530,4 @@ fun stx => do
     -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
     Macro.throwError ref ("unsupported syntax category '" ++ toString catName ++ "'")
 
-end Command
-end Elab
-end Lean
+end Lean.Elab.Command

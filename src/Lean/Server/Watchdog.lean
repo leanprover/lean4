@@ -162,7 +162,7 @@ def eraseFileWorker (uri : DocumentUri) : ServerM Unit :=
 fun st => st.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
 
 def log (msg : String) : ServerM Unit :=
-fun st => st.hLog.putStrLn msg
+fun st => do st.hLog.putStrLn msg; st.hLog.flush
 
 -- TODO: this creates a long-running Task, which should be okay with upcoming API changes.
 partial def fwdMsgAux (fw : FileWorker) (hOut : FS.Stream) : Unit → IO WorkerEvent
@@ -229,7 +229,7 @@ match fromJson? params with
 | some parsed => pure parsed
 | none        => throw (userError "Got param with wrong structure")
 
-def handleCrash (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
+def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
 fw ← findFileWorker uri;
 updateFileWorkers uri {fw with state := WorkerState.crashed queuedMsgs}
 
@@ -245,7 +245,7 @@ let tryDischargeQueuedMsgs : Array JsonRpc.Message → JsonRpc.Message → Serve
     (fun err => pure (crashedMsgs.push m));
 crashedMsgs ← queuedMsgs.foldlM tryDischargeQueuedMsgs #[];
 if ¬ crashedMsgs.isEmpty then do
-  handleCrash uri newFw crashedMsgs
+  handleCrash uri crashedMsgs
 else
   pure ()
 
@@ -270,7 +270,6 @@ else if not changes.isEmpty then do
   let (newDocText, _) := foldDocumentChanges changes oldDoc.text;
   newHeaderAst ← liftIO $ parseHeaderAst newDocText.source;
   if newHeaderAst != oldDoc.headerAst then do
-    log "restarting file worker";
     -- TODO(WN): we should amortize this somehow;
     -- when the user is typing in an import, this
     -- may rapidly destroy/create new processes
@@ -286,7 +285,7 @@ else if not changes.isEmpty then do
     | WorkerState.running =>
       -- looks like it crashed now!
       catch (fw.writeNotification "textDocument/didChange" p)
-            (fun err => handleCrash doc.uri newFw #[msg])
+            (fun err => handleCrash doc.uri #[msg])
 else pure ()
 
 def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
@@ -295,7 +294,11 @@ terminateFileWorker p.textDocument.uri
 def handleCancelRequest (p : CancelParams) : ServerM Unit := do
 st ← read;
 fileWorkers ← st.fileWorkersRef.get;
-fileWorkers.forM (fun _ fw => fw.writeNotification "$/cancelRequest" p)
+fileWorkers.forM $ fun uri fw => match fw.state with
+  | WorkerState.crashed queuedMsgs => restartCrashedFileWorker uri fw queuedMsgs
+  | WorkerState.running =>
+    catch (fw.writeNotification "$/cancelRequest" p)
+          (fun err => handleCrash uri #[])
 
 def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
 let h := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
@@ -308,13 +311,13 @@ let h := (fun α [HasFromJson α] [HasToJson α] [HasFileSource α] => do
            | WorkerState.running => do
              -- if this errors, the file worker crashed
              catch (fw.writeRequest id method parsedParams)
-                   (fun err => handleCrash uri fw #[msg]));
+                   (fun err => handleCrash uri #[msg]));
 match method with
 | "textDocument/hover" => h HoverParams
 | _ => throw (userError $ "Got unsupported request: " ++ method ++
                           "; params: " ++ toString params)
 
-def handleNotification (method : String) (params : Json) : ServerM Unit := do
+def handleNotification (method : String) (params : Json) : ServerM Unit :=
 let handle := (fun α [HasFromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler);
 match method with
 | "textDocument/didOpen"   => handle DidOpenTextDocumentParams handleDidOpen
@@ -350,13 +353,14 @@ partial def mainLoop : Unit → ServerM Unit
 
   let workerTasks := workers.fold
     (fun acc uri fw =>
-      fw.commTask.map (ServerEvent.WorkerEvent uri fw) :: acc)
+      match fw.state with
+      | WorkerState.running => fw.commTask.map (ServerEvent.WorkerEvent uri fw) :: acc
+      | _                   => acc)
     ([] : List (Task ServerEvent));
 
   ev ← liftIO $ IO.waitAny $ clientTask :: workerTasks;
-
   match ev with
-  | ServerEvent.ClientMsg msg => do
+  | ServerEvent.ClientMsg msg =>
     match msg with
     | Message.request id "shutdown" _ => do
       shutdown;
@@ -375,7 +379,9 @@ partial def mainLoop : Unit → ServerM Unit
   /- Restart an exited worker. -/
   | ServerEvent.WorkerEvent uri fw err =>
     match err with
-    | WorkerEvent.crashed e => handleCrash uri fw #[]
+    | WorkerEvent.crashed e => do
+      handleCrash uri #[];
+      mainLoop ()
     -- TODO: this internal error does occur
     | WorkerEvent.terminated => throw (userError "Internal server error: got termination event for worker that should have been removed")
 

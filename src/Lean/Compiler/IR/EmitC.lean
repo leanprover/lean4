@@ -627,6 +627,9 @@ unless (hasInitAttr env d.name) $
   match d with
   | Decl.fdecl f xs t b => do
     baseName ← toCName f;
+    when (xs.size == 0) do {
+      emit "static "
+    };
     emit (toCType t); emit " ";
     if xs.size > 0 then do {
       emit baseName;

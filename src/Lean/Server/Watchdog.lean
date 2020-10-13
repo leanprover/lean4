@@ -337,19 +337,19 @@ inductive ServerEvent
 | ClientMsg (msg : JsonRpc.Message)
 | ClientError (e : IO.Error)
 
-partial def mainLoop : Unit → ServerM Unit
-| () => do
+def runClientTask : ServerM (Task ServerEvent) := do
+st ← read;
+clientTask ← liftIO $ IO.asTask $ ServerEvent.ClientMsg <$> readLspMessage st.hIn;
+let clientTask := clientTask.map
+  (fun either => match either with
+  | Except.ok ev   => ev
+  | Except.error e => ServerEvent.ClientError e);
+pure clientTask
+
+partial def mainLoop : Task ServerEvent → ServerM Unit
+| clientTask => do
   st ← read;
   workers ← st.fileWorkersRef.get;
-
-  /- Wait for any of the following events to happen:
-     - client sends us a message
-     - a worker does something -/
-  clientTask ← liftIO $ IO.asTask $ ServerEvent.ClientMsg <$> readLspMessage st.hIn;
-  let clientTask := clientTask.map
-    (fun either => match either with
-    | Except.ok ev   => ev
-    | Except.error e => ServerEvent.ClientError e);
 
   let workerTasks := workers.fold
     (fun acc uri fw =>
@@ -367,10 +367,12 @@ partial def mainLoop : Unit → ServerM Unit
       writeLspResponse st.hOut id (Json.null)
     | Message.request id method (some params) => do
       handleRequest id method (toJson params);
-      mainLoop ()
+      newClientTask ← runClientTask;
+      mainLoop newClientTask
     | Message.notification method (some params) => do
       handleNotification method (toJson params);
-      mainLoop ()
+      newClientTask ← runClientTask;
+      mainLoop newClientTask
     | _ => throw (userError "Got invalid JSON-RPC message")
 
   | ServerEvent.ClientError e =>
@@ -381,7 +383,7 @@ partial def mainLoop : Unit → ServerM Unit
     match err with
     | WorkerEvent.crashed e => do
       handleCrash uri #[];
-      mainLoop ()
+      mainLoop clientTask
     -- TODO: this internal error does occur
     | WorkerEvent.terminated => throw (userError "Internal server error: got termination event for worker that should have been removed")
 
@@ -399,7 +401,8 @@ st ← read;
 catch
   (do
     _ ← readLspNotificationAs st.hIn "initialized" InitializedParams;
-    mainLoop ();
+    clientTask ← runClientTask;
+    mainLoop clientTask;
     Message.notification "exit" none ← readLspMessage st.hIn
     | throw (userError "Expected an exit notification");
     pure ())

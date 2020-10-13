@@ -70,14 +70,9 @@ pure $ t.map $ fun error => match error with
 | Except.ok e => e
 | Except.error ioError => Except.error (TaskError.ioError ioError)
 
-partial def crash : Nat → Nat
-| n => crash n+1
-
 private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : Snapshot → IO (Except TaskError ElabTask)
 | parent => do
   result ← compileNextCmd contents.source parent;
-  --let v := crash 1;
-  --IO.eprintln v;
   match result with
   | Sum.inl snap => do
     -- TODO(MH): check for interrupt with increased precision

@@ -70,9 +70,14 @@ pure $ t.map $ fun error => match error with
 | Except.ok e => e
 | Except.error ioError => Except.error (TaskError.ioError ioError)
 
+partial def crash : Nat → Nat
+| n => crash n+1
+
 private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : Snapshot → IO (Except TaskError ElabTask)
 | parent => do
   result ← compileNextCmd contents.source parent;
+  --let v := crash 1;
+  --IO.eprintln v;
   match result with
   | Sum.inl snap => do
     -- TODO(MH): check for interrupt with increased precision
@@ -106,13 +111,10 @@ pure ⟨parent, t⟩
 
 partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : ElabTask → String.Pos → IO ElabTask
 | ⟨snap, nextTask⟩, changePos => do
-  logSnapContent snap contents;
   finished ← hasFinished nextTask;
   if finished then
     match nextTask.get with
     | Except.ok (next@⟨nextSnap, _⟩) => do
-       logSnapContent nextSnap contents;
-       IO.eprintln ("ver: " ++ (toString version) ++ "; changePos: " ++ (toString changePos) ++ "; endpos: " ++ (toString nextSnap.endPos));
        -- if next contains the change ...
        -- (it will never be the header snap because the
        -- watchdog will never send didChange notifs with
@@ -155,7 +157,6 @@ open Elab
 /-- Compiles the contents of a Lean file. -/
 def compileDocument (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) : IO EditableDocument := do
 headerSnap ← Snapshots.compileHeader text.source;
-logSnapContent headerSnap text;
 task ← ElabTask.run h uri version text headerSnap;
 let docOut : EditableDocument := ⟨version, text, task⟩;
 pure docOut
@@ -231,7 +232,6 @@ if newVersion <= oldDoc.version then do
   throw (userError "got outdated version number")
 else if not changes.isEmpty then do
   let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.text;
-  IO.eprintln newDocText.source;
   st ← read;
   newDoc ← monadLift $
     updateDocument st.hOut docId.uri oldDoc minStartOff newVersion newDocText;

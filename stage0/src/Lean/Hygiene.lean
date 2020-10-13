@@ -28,7 +28,7 @@ instance MonadQuotation : MonadQuotation Unhygienic := {
   getMainModule       := pure `UnhygienicMain,
   withFreshMacroScope := fun α x => do
     fresh ← modifyGet (fun n => (n, n + 1));
-    adaptReader (fun _ => fresh) x
+    withReader (fun _ => fresh) x
 }
 protected def run {α : Type} (x : Unhygienic α) : α := run x firstFrontendMacroScope (firstFrontendMacroScope+1)
 end Unhygienic

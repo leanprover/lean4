@@ -13,7 +13,7 @@ private partial def introNImpAux {σ} (mvarId : MVarId) (mkName : LocalContext �
     : Nat → LocalContext → Array Expr → Nat → σ → Expr → MetaM (Array Expr × MVarId)
 | 0, lctx, fvars, j, _, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+  withReader (fun ctx => { ctx with lctx := lctx }) $
     withNewLocalInstances fvars j $ do
       tag     ← getMVarTag mvarId;
       let type := type.headBeta;
@@ -43,7 +43,7 @@ private partial def introNImpAux {σ} (mvarId : MVarId) (mkName : LocalContext �
   introNImpAux i lctx fvars j s body
 | (i+1), lctx, fvars, j, s, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+  withReader (fun ctx => { ctx with lctx := lctx }) $
     withNewLocalInstances fvars j $ do
       newType ← whnf type;
       if newType.isForall then

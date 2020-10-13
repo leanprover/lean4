@@ -22,7 +22,7 @@ abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
 instance : Ref LevelElabM :=
 { getRef      := do return (← read).ref,
-  withRef     := fun ref x => adaptReader (fun ctx => { ctx with ref := ref }) x }
+  withRef     := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x }
 
 instance : AddMessageContext LevelElabM :=
 { addMessageContext := fun msg => pure msg }

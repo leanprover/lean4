@@ -622,7 +622,7 @@ emitLn "}"
 def emitDeclAux (d : Decl) : M Unit := do
 env ← getEnv;
 let (vMap, jpMap) := mkVarJPMaps d;
-adaptReader (fun (ctx : Context) => { ctx with jpMap := jpMap }) $ do
+withReader (fun ctx => { ctx with jpMap := jpMap }) $ do
 unless (hasInitAttr env d.name) $
   match d with
   | Decl.fdecl f xs t b => do
@@ -653,7 +653,7 @@ unless (hasInitAttr env d.name) $
         emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
       };
     emitLn "_start:";
-    adaptReader (fun (ctx : Context) => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
+    withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
     emitLn "}"
   | _ => pure ()
 

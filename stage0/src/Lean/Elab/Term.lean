@@ -262,7 +262,7 @@ protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.
 
 @[inline] protected def withFreshMacroScope {α} (x : TermElabM α) : TermElabM α := do
 fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
-adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
+withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
 instance monadQuotation : MonadQuotation TermElabM := {
   getCurrMacroScope   := Term.getCurrMacroScope,
@@ -299,13 +299,13 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State $ fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with declName? := name }) x
+withReader (fun ctx => { ctx with declName? := name }) x
 
 def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with levelNames := levelNames }) x
+withReader (fun ctx => { ctx with levelNames := levelNames }) x
 
 def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with errToSorry := false }) x
+withReader (fun ctx => { ctx with errToSorry := false }) x
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -337,7 +337,7 @@ liftLevelM $ Level.elabLevel stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -423,7 +423,7 @@ when foundError throwAbort
   Execute `x` without allowing it to postpone elaboration tasks.
   That is, `tryPostpone` is a noop. -/
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with mayPostpone := false }) x
+withReader (fun ctx => { ctx with mayPostpone := false }) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
@@ -559,7 +559,7 @@ match f? with
 | some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
-adaptTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := setMacroStackOption ctx.options false }) x
+withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := setMacroStackOption ctx.options false }) x
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide

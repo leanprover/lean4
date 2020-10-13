@@ -215,7 +215,7 @@ partial def interpFnBody : FnBody → M Unit
   updateVarAssignment x v;
   interpFnBody b
 | FnBody.jdecl j ys v b =>
-  adaptReader (fun (ctx : InterpContext) => { ctx with lctx := ctx.lctx.addJP j ys v }) $
+  withReader (fun ctx => { ctx with lctx := ctx.lctx.addJP j ys v }) $
     interpFnBody b
 | FnBody.case _ x _ alts => do
   v ← findVarValue x;
@@ -247,7 +247,7 @@ ctx.decls.size.foldM (fun idx modified => do
     s ← get;
     -- dbgTrace (">> " ++ toString fid) $ fun _ =>
     let currVals := s.funVals.get! idx;
-    adaptReader (fun (ctx : InterpContext) => { ctx with currFnIdx := idx }) $ do
+    withReader (fun ctx => { ctx with currFnIdx := idx }) $ do
       ys.forM $ fun y => updateVarAssignment y.x top;
       interpFnBody b;
     s ← get;

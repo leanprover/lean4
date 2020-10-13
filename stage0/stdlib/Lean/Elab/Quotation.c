@@ -378,6 +378,7 @@ lean_object* l___private_Lean_Elab_Quotation_7__getPatternVarsAux(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at___private_Lean_Elab_Quotation_10__toPreterm___main___spec__8(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__46;
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__12;
 uint8_t l_Lean_Syntax_isAtom(lean_object*);
@@ -496,11 +497,9 @@ lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__49;
 lean_object* l___private_Lean_Elab_Quotation_6__compileStxMatch___main___closed__32;
 lean_object* l___private_Lean_Elab_Quotation_6__compileStxMatch___main___closed__10;
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__33;
-extern lean_object* l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
 lean_object* l___private_Lean_Elab_Quotation_7__getPatternVarsAux___main___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__22;
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__9;
-extern lean_object* l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__1;
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuot(lean_object*);
 lean_object* lean_array_pop(lean_object*);
@@ -580,6 +579,7 @@ lean_object* l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__43;
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotTerm___boxed(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabTermQuot(lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__17;
+extern lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 lean_object* l___private_Lean_Elab_Quotation_6__compileStxMatch___main___closed__43;
 lean_object* l_List_foldl___main___at___private_Lean_Elab_Quotation_10__toPreterm___main___spec__1___closed__1;
 lean_object* l___private_Lean_Elab_Quotation_4__getHeadInfo___elambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1627,7 +1627,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__1;
+x_2 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1646,7 +1646,7 @@ static lean_object* _init_l___private_Lean_Elab_Quotation_2__quoteSyntax___main_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
+x_1 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 x_2 = l_Lean_Meta_DiscrTree_Trie_format___main___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1757,7 +1757,7 @@ static lean_object* _init_l___private_Lean_Elab_Quotation_2__quoteSyntax___main_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
+x_1 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 x_2 = l___private_Lean_Elab_Quotation_2__quoteSyntax___main___closed__22;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1992,7 +1992,7 @@ static lean_object* _init_l___private_Lean_Elab_Quotation_2__quoteSyntax___main_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
+x_1 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 x_2 = l_Lean_identKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -4978,7 +4978,7 @@ x_33 = l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__2___closed__5;
 lean_inc(x_13);
 lean_inc(x_17);
 x_34 = l_Lean_addMacroScope(x_17, x_33, x_13);
-x_35 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__1;
+x_35 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__1;
 x_36 = lean_name_mk_string(x_3, x_35);
 x_37 = l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__2___closed__4;
 x_38 = lean_name_mk_string(x_36, x_37);
@@ -5063,7 +5063,7 @@ x_82 = l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__2___closed__5;
 lean_inc(x_13);
 lean_inc(x_65);
 x_83 = l_Lean_addMacroScope(x_65, x_82, x_13);
-x_84 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__1;
+x_84 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__1;
 x_85 = lean_name_mk_string(x_3, x_84);
 x_86 = l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__2___closed__4;
 x_87 = lean_name_mk_string(x_85, x_86);
@@ -6727,7 +6727,7 @@ static lean_object* _init_l_List_mapM___main___at___private_Lean_Elab_Quotation_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
+x_1 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 x_2 = l_List_mapM___main___at___private_Lean_Elab_Quotation_6__compileStxMatch___main___spec__8___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -7410,7 +7410,7 @@ static lean_object* _init_l___private_Lean_Elab_Quotation_6__compileStxMatch___m
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
+x_1 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 x_2 = l___private_Lean_Elab_Quotation_6__compileStxMatch___main___closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -7734,7 +7734,7 @@ static lean_object* _init_l___private_Lean_Elab_Quotation_6__compileStxMatch___m
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Util_2__evalSyntaxConstantUnsafe___closed__2;
+x_1 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 x_2 = l___private_Lean_Elab_Quotation_4__getHeadInfo___lambda__2___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

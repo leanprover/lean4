@@ -413,7 +413,7 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e preserveOrder
 
 @[inline] def withConfig {α} (f : Config → Config) : n α → n α :=
-mapMetaM fun _ => adaptReader (fun (ctx : Context) => { ctx with config := f ctx.config })
+mapMetaM fun _ => withReader (fun ctx => { ctx with config := f ctx.config })
 
 @[inline] def withTrackingZeta {α} (x : n α) : n α :=
 withConfig (fun cfg => { cfg with trackZeta := true }) x
@@ -525,8 +525,8 @@ match localDecl.binderInfo with
 | BinderInfo.auxDecl => k
 | _ =>
   resettingSynthInstanceCache $
-    adaptReader
-      (fun (ctx : Context) => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
+    withReader
+      (fun ctx => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
       k
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
@@ -610,12 +610,12 @@ match maxFVars? with
     process ()
   else
     let type := type.instantiateRevRange j fvars.size fvars;
-    adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+    withReader (fun ctx => { ctx with lctx := lctx }) $
       withNewLocalInstancesImp isClassExpensive? fvars j $
         k fvars type
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+  withReader (fun ctx => { ctx with lctx := lctx }) $
     withNewLocalInstancesImp isClassExpensive? fvars j $
       if reducing? && fvarsSizeLtMaxFVars fvars maxFVars? then do
         newType ← whnf type;
@@ -714,7 +714,7 @@ private partial def lambdaTelescopeAux {α}
   lambdaTelescopeAux true lctx (fvars.push fvar) j b
 | _, lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;
-  adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+  withReader (fun ctx => { ctx with lctx := lctx }) $
     withNewLocalInstancesImp isClassExpensive? fvars j $ do
       k fvars e
 
@@ -822,7 +822,7 @@ fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
 let fvar := mkFVar fvarId;
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+withReader (fun ctx => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
 def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
@@ -836,7 +836,7 @@ fvarId ← mkFreshId;
 ctx ← read;
 let lctx := ctx.lctx.mkLetDecl fvarId n type val;
 let fvar := mkFVar fvarId;
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+withReader (fun ctx => { ctx with lctx := lctx }) $
   withNewFVar fvar type k
 
 def withLetDecl {α} (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) : n α :=
@@ -846,7 +846,7 @@ private def withExistingLocalDeclsImp {α} (decls : List LocalDecl) (k : MetaM �
 ctx ← read;
 let numLocalInstances := ctx.localInstances.size;
 let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ctx.lctx;
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) do
+withReader (fun ctx => { ctx with lctx := lctx }) do
   newLocalInsts ← decls.foldlM
     (fun (newlocalInsts : Array LocalInstance) (decl : LocalDecl) => (do {
       c? ← isClass? decl.type;
@@ -857,7 +857,7 @@ adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) do
   if newLocalInsts.size == numLocalInstances then
     k
   else
-    resettingSynthInstanceCache $ adaptReader (fun (ctx : Context) => { ctx with localInstances := newLocalInsts }) k
+    resettingSynthInstanceCache $ withReader (fun ctx => { ctx with localInstances := newLocalInsts }) k
 
 def withExistingLocalDecls {α} (decls : List LocalDecl) : n α → n α :=
 mapMetaM fun _ => withExistingLocalDeclsImp decls
@@ -876,7 +876,7 @@ mapMetaM fun _ => withNewMCtxDepthImp
 
 private def withLocalContextImp {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
 localInstsCurr ← getLocalInstances;
-adaptReader (fun (ctx : Context) => { ctx with lctx := lctx, localInstances := localInsts }) $
+withReader (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) $
   if localInsts == localInstsCurr then
     x
   else

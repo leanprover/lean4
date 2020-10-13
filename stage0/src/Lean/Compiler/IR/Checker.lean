@@ -119,19 +119,19 @@ ctx ← read;
 localCtx ← ps.foldlM (fun (ctx : LocalContext) p => do
    markVar p.x;
    pure $ ctx.addParam p) ctx.localCtx;
-adaptReader (fun _ => { ctx with localCtx := localCtx }) k
+withReader (fun _ => { ctx with localCtx := localCtx }) k
 
 partial def checkFnBody : FnBody → M Unit
 | FnBody.vdecl x t v b    => do
   checkExpr t v;
   markVar x;
   ctx ← read;
-  adaptReader (fun (ctx : CheckerContext) => { ctx with localCtx := ctx.localCtx.addLocal x t v }) (checkFnBody b)
+  withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addLocal x t v }) (checkFnBody b)
 | FnBody.jdecl j ys v b => do
   markJP j;
   withParams ys (checkFnBody v);
   ctx ← read;
-  adaptReader (fun (ctx : CheckerContext) => { ctx with localCtx := ctx.localCtx.addJP j ys v }) (checkFnBody b)
+  withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j ys v }) (checkFnBody b)
 | FnBody.set x _ y b      => checkVar x *> checkArg y *> checkFnBody b
 | FnBody.uset x _ y b     => checkVar x *> checkVar y *> checkFnBody b
 | FnBody.sset x _ _ y _ b => checkVar x *> checkVar y *> checkFnBody b

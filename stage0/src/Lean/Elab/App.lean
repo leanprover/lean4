@@ -683,7 +683,7 @@ match fIdent with
   funLVals ← withRef fIdent $ resolveName n preresolved fExplicitUnivs;
   let overloaded := overloaded || funLVals.length > 1;
   -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
-  adaptReader (fun (ctx : Context) => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) $
+  withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) $
     funLVals.foldlM
       (fun acc ⟨f, fields⟩ => do
         let lvals' := fields.map LVal.fieldName;
@@ -699,7 +699,7 @@ private partial def elabAppFn : Syntax → List LVal → Array NamedArg → Arra
 | f, lvals, namedArgs, args, expectedType?, explicit, overloaded, acc =>
   if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
-    adaptReader (fun (ctx : Context) => { ctx with errToSorry := false }) do
+    withReader (fun ctx => { ctx with errToSorry := false }) do
       f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit true acc) acc
   else match_syntax f with
   | `($(e).$idx:fieldIdx) =>

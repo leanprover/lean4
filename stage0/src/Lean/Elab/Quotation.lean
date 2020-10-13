@@ -352,7 +352,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
       let lctx := lctx.mkLocalDecl n n ty;
       let params := params.eraseIdx 0;
       stx ← `(fun $params* => $body);
-      adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ do
+      withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ do
         e ← toPreterm stx;
         pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let => do
@@ -363,7 +363,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
     val ← toPreterm val;
     lctx ← getLCtx;
     let lctx := lctx.mkLetDecl n n exprPlaceholder val;
-    adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ do
+    withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ do
       e ← toPreterm $ body;
       pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.app => do

@@ -42,13 +42,14 @@ open Lsp
 open IO
 open Snapshots
 
-private def sendDiagnosticsCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) (log : MessageLog)
+private def sendDiagnostics (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) (log : MessageLog)
   : IO Unit := do
 diagnostics ← log.msgs.mapM (msgToDiagnostic text);
 Lsp.writeLspNotification h "textDocument/publishDiagnostics"
-  { uri := uri,
-    version? := version,
-    diagnostics := diagnostics.toArray : PublishDiagnosticsParams }
+  { uri         := uri,
+    version?    := version,
+    diagnostics := diagnostics.toArray 
+    : PublishDiagnosticsParams }
 
 private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
 IO.eprintln $ "`" ++ text.source.extract s.beginPos (s.endPos-1) ++ "`"
@@ -59,18 +60,19 @@ inductive TaskError
 | ioError (e : IO.Error)
 
 inductive ElabTask
--- TODO(MH): Sebastian said something about wrapping next in Thunk but i did not have time to look into it yet
 | mk (snap : Snapshot) (next : Task (Except TaskError ElabTask)) : ElabTask
 
 namespace ElabTask
 
 private def runTask (act : IO (Except TaskError ElabTask)) : IO (Task (Except TaskError ElabTask)) := do
 t ← asTask act;
-pure $ t.map $ fun error => match error with
-| Except.ok e => e
-| Except.error ioError => Except.error (TaskError.ioError ioError)
+pure $ t.map $ fun error => 
+  match error with
+  | Except.ok e => e
+  | Except.error ioError => Except.error (TaskError.ioError ioError)
 
-private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : Snapshot → IO (Except TaskError ElabTask)
+private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) 
+  : Snapshot → IO (Except TaskError ElabTask)
 | parent => do
   result ← compileNextCmd contents.source parent;
   match result with
@@ -89,7 +91,7 @@ private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
       -- the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
       -- because we cannot guarantee that no further diagnostics are emitted after clearing
       -- them.
-      sendDiagnosticsCore h uri version contents snap.msgLog;
+      sendDiagnostics h uri version contents snap.msgLog;
       t ← runTask (runCore snap);
       pure (Except.ok ⟨snap, t⟩)
   | Sum.inr msgLog => do
@@ -97,14 +99,16 @@ private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
     if canceled then
       pure (Except.error TaskError.aborted)
     else do
-      sendDiagnosticsCore h uri version contents msgLog;
+      sendDiagnostics h uri version contents msgLog;
       pure (Except.error TaskError.eof)
 
-def run (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) (parent : Snapshot) : IO ElabTask := do
+def run (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) (parent : Snapshot) 
+  : IO ElabTask := do
 t ← runTask (runCore h uri version contents parent);
 pure ⟨parent, t⟩
 
-partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) : ElabTask → String.Pos → IO ElabTask
+partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) 
+  : ElabTask → String.Pos → IO ElabTask
 | ⟨snap, nextTask⟩, changePos => do
   finished ← hasFinished nextTask;
   if finished then
@@ -114,25 +118,24 @@ partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (con
        -- (it will never be the header snap because the
        -- watchdog will never send didChange notifs with
        -- header changes to the file worker)
-       if changePos ≤ nextSnap.endPos then do
-         new ← run h uri version contents snap;
-         -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled by the GC
-         pure new
+       if changePos ≤ nextSnap.endPos then
+         -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled 
+         -- by the GC
+         run h uri version contents snap
        else do
          newNext ← branchOffAt next changePos;
          pure ⟨snap, Task.pure (Except.ok newNext)⟩
-    | Except.error e => match e with
+    | Except.error e => 
+      match e with
       -- this case should not be possible. only the main task aborts tasks and ensures that aborted tasks
       -- do not show up in `snapshots` of EditableDocument below.
-      | TaskError.aborted => throw (userError "reached case that should not be possible during server file worker task branching")
-      | TaskError.eof => do
-        new ← run h uri version contents snap;
-        pure new
+      | TaskError.aborted => throwServerError 
+        "Internal server error: reached case that should not be possible during server file worker task branching"
+      | TaskError.eof => run h uri version contents snap
       | TaskError.ioError ioError => throw ioError
-  else do
-    new ← run h uri version contents snap;
+  else
     -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled by the GC
-    pure new
+    run h uri version contents snap
 
 end ElabTask
 
@@ -153,12 +156,12 @@ open Elab
 def compileDocument (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) : IO EditableDocument := do
 headerSnap ← Snapshots.compileHeader text.source;
 task ← ElabTask.run h uri version text headerSnap;
-let docOut : EditableDocument := ⟨version, text, task⟩;
-pure docOut
+pure ⟨version, text, task⟩
 
 /-- Given `changePos`, the UTF-8 offset of a change into the pre-change source,
 and the new document, updates editable doc state. -/
-def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) (changePos : String.Pos) (newVersion : Nat) (newText : FileMap) : IO EditableDocument :=
+def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) (changePos : String.Pos) 
+  (newVersion : Nat) (newText : FileMap) : IO EditableDocument :=
 -- The watchdog only restarts the file worker when the syntax tree of the header changes.
 -- If e.g. a newline is deleted, it will not restart this file worker, but we still
 -- need to reparse the header so the offsets are correct.
@@ -194,44 +197,27 @@ fun st => st.docRef.get
 def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : ServerM Unit :=
 fun st => st.pendingRequestsRef.modify map
 
-/-- Clears diagnostics for the document version 'version'. -/
--- TODO(WN): how to clear all diagnostics? Sending version 'none' doesn't seem to work
-def clearDiagnostics (uri : DocumentUri) (version : Nat) : ServerM Unit :=
-fun st =>
-writeLspNotification st.hOut "textDocument/publishDiagnostics"
-  { uri := uri,
-    version? := version,
-    diagnostics := #[] : PublishDiagnosticsParams }
-
-def sendDiagnostics (uri : DocumentUri) (doc : EditableDocument) (log : MessageLog)
-  : ServerM Unit := do
-fun st => monadLift $ sendDiagnosticsCore st.hOut uri doc.version doc.text log
-
-def openDocument (h : FS.Stream) (p : DidOpenTextDocumentParams) : IO EditableDocument := do
+def openDocument (h : FS.Stream) (p : DidOpenTextDocumentParams) : IO EditableDocument :=
 let doc := p.textDocument;
 -- NOTE(WN): `toFileMap` marks line beginnings as immediately following
 -- "\n", which should be enough to handle both LF and CRLF correctly.
 -- This is because LSP always refers to characters by (line, column),
 -- so if we get the line number correct it shouldn't matter that there
 -- is a CR there.
-let text := doc.text.toFileMap;
-newDoc ← compileDocument h doc.uri doc.version text;
-pure newDoc
+compileDocument h doc.uri doc.version doc.text.toFileMap
 
 def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
 let docId := p.textDocument;
 let changes := p.contentChanges;
 oldDoc ← getDocument;
-some newVersion ← pure docId.version? | throw (userError "expected version number");
-if newVersion <= oldDoc.version then do
-  throw (userError "got outdated version number")
-else if not changes.isEmpty then do
+some newVersion ← pure docId.version? | throwServerError "Expected version number";
+if newVersion <= oldDoc.version then throwServerError "Got outdated version number"
+else when (not changes.isEmpty) $ do
   let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.text;
   st ← read;
   newDoc ← monadLift $
     updateDocument st.hOut docId.uri oldDoc minStartOff newVersion newDocText;
   setDocument newDoc
-else pure ()
 
 def handleCancelRequest (p : CancelParams) : ServerM Unit := do
 updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -249,17 +235,18 @@ def handleHover (p : HoverParams) (e : EditableDocument) : IO Unit := pure ⟨�
 def parseParams (paramType : Type*) [HasFromJson paramType] (params : Json) : ServerM paramType :=
 match fromJson? params with
 | some parsed => pure parsed
-| none        => throw (userError "got param with wrong structure")
+| none        => throwServerError $ "Got param with wrong structure: " ++ params.compress
 
 def handleNotification (method : String) (params : Json) : ServerM Unit := do
 let h := (fun paramType [HasFromJson paramType] (handler : paramType → ServerM Unit) =>
   parseParams paramType params >>= handler);
 match method with
 | "textDocument/didChange" => h DidChangeTextDocumentParams handleDidChange
-| "$/cancelRequest"        => pure () -- TODO when we're async
-| _                        => throw (userError ("got unsupported notification method: " ++ method))
+| "$/cancelRequest"        => pure () -- TODO(MH)
+| _                        => throwServerError $ "Got unsupported notification method: " ++ method
 
-def queueRequest {α : Type*} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α) : ServerM Unit := do
+def queueRequest {α : Type*} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α) 
+  : ServerM Unit := do
 doc ← getDocument;
 requestTask ← monadLift $ asTask (handler params doc);
 updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
@@ -271,8 +258,8 @@ let h := (fun paramType [HasFromJson paramType]
            parseParams paramType params >>= queueRequest id handler);
 match method with
 | "textDocument/hover" => h HoverParams handleHover
-| _ => throw (userError $ "got unsupported request: " ++ method ++
-                          "; params: " ++ toString params)
+| _ => throwServerError $ "Got unsupported request: " ++ method ++
+                          "; params: " ++ toString params
 
 partial def mainLoop : Unit → ServerM Unit
 | () => do
@@ -300,13 +287,12 @@ partial def mainLoop : Unit → ServerM Unit
   | Message.notification method (some params) => do
     handleNotification method (toJson params);
     mainLoop ()
-  | _ => throw (userError "got invalid JSON-RPC message")
+  | _ => throwServerError "Got invalid JSON-RPC message"
 
 def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
 i ← maybeTee "fwIn.txt" false i;
 o ← maybeTee "fwOut.txt" true o;
 e ← maybeTee "fwErr.txt" true e;
-
 -- TODO(WN): act in accordance with InitializeParams
 _ ← Lsp.readLspRequestAs i "initialize" InitializeParams;
 param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams;
@@ -314,7 +300,12 @@ _ ← IO.setStderr e; -- TODO(WN): use a stream var in WorkerM instead of global
 doc ← openDocument o param;
 docRef ← IO.mkRef doc;
 pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
-runReader (mainLoop ()) (⟨i, o, docRef, pendingRequestsRef⟩ : ServerContext)
+runReader (mainLoop ()) 
+  { hIn := i, 
+    hOut := o,
+    docRef := docRef,
+    pendingRequestsRef := pendingRequestsRef
+    : ServerContext }
 
 namespace Test
 
@@ -325,7 +316,7 @@ FS.withFile fn FS.Mode.read (fun hFile => do
   Lean.initSearchPath searchPath;
   catch
     (Lean.Server.initAndRunWorker (FS.Stream.ofHandle hFile) o e)
-    (fun err => e.putStrLn $ toString err))
+    (fun err => e.putStrLn (toString err)))
 
 end Test
 end Server
@@ -338,5 +329,5 @@ e ← IO.getStderr;
 Lean.initSearchPath;
 catch
   (Lean.Server.initAndRunWorker i o e)
-  (fun err => e.putStrLn $ toString err);
+  (fun err => e.putStrLn (toString err));
 pure 0

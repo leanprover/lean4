@@ -2,6 +2,10 @@ import Lean.Data.Position
 import Lean.Data.Lsp
 
 namespace IO
+
+def throwServerError {α : Type} {m : Type → Type} [MonadIO m] (err : String) : m α :=
+liftIO $ throw (userError err)
+
 namespace FS
 namespace Stream
 
@@ -67,7 +71,7 @@ match logDir with
 | some logDir => do
   hTee ← FS.Handle.mk (System.mkFilePath [logDir, fName]) FS.Mode.write true;
   let hTee := FS.Stream.ofHandle hTee;
-    pure $ if isOut then
+  pure $ if isOut then
     hTee.chainLeft h true
   else
     h.chainRight hTee true

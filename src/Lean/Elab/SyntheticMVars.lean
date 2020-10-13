@@ -30,7 +30,7 @@ if val.hasExprMVar then throwError! "tactic failed, result still contain metavar
 def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 /- Recall, `tacticCode` is the whole `by ...` expression.
    We store the `by` because in the future we want to save the initial state information at the `by` position. -/
-let code := tacticCode.getArg 1
+let code := tacticCode[1]
 modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
 let remainingGoals ← liftTacticElabM mvarId do evalTactic code; getUnsolvedGoals
 unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals

@@ -73,7 +73,7 @@ cs.forM printIdCore
 fun stx =>
   let numArgs := stx.getNumArgs
   if numArgs == 2 then
-    let arg := stx.getArg 1
+    let arg := stx[1]
     if arg.isIdent then
       printId arg.getId
     else match arg.isStrLit? with
@@ -120,7 +120,7 @@ else
 
 @[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab :=
 fun stx => do
-  let id := (stx.getArg 2).getId
+  let id := stx[2].getId
   let cs ← resolveGlobalConst id
   cs.forM printAxiomsOf
 

@@ -38,7 +38,7 @@ lean_object* l_Lean_OpenDecl_HasToString(lean_object*);
 lean_object* l_Lean_OpenDecl_Inhabited;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-lean_object* _init_l_Lean_OpenDecl_Inhabited___closed__1() {
+static lean_object* _init_l_Lean_OpenDecl_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -50,7 +50,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_OpenDecl_Inhabited() {
+static lean_object* _init_l_Lean_OpenDecl_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -188,7 +188,7 @@ return x_8;
 }
 }
 }
-lean_object* _init_l_Lean_OpenDecl_HasToString___closed__1() {
+static lean_object* _init_l_Lean_OpenDecl_HasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -196,7 +196,7 @@ x_1 = lean_mk_string(" hiding ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_OpenDecl_HasToString___closed__2() {
+static lean_object* _init_l_Lean_OpenDecl_HasToString___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -279,7 +279,7 @@ x_4 = l_List_toStringAux___main___at_Lean_OpenDecl_HasToString___spec__3(x_3, x_
 return x_4;
 }
 }
-lean_object* _init_l_Lean_rootNamespace___closed__1() {
+static lean_object* _init_l_Lean_rootNamespace___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -287,7 +287,7 @@ x_1 = lean_mk_string("_root_");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_rootNamespace___closed__2() {
+static lean_object* _init_l_Lean_rootNamespace___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -297,7 +297,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_rootNamespace() {
+static lean_object* _init_l_Lean_rootNamespace() {
 _start:
 {
 lean_object* x_1; 

@@ -90,7 +90,7 @@ lean_object* l_Lean_Lsp_writeLspMessage___closed__1;
 lean_object* l_Lean_Lsp_writeLspMessage___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspMessage___closed__2;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Data_Lsp_Communication_1__parseHeaderField___closed__1() {
+static lean_object* _init_l___private_Lean_Data_Lsp_Communication_1__parseHeaderField___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -170,7 +170,7 @@ return x_19;
 }
 }
 }
-lean_object* _init_l___private_Lean_Data_Lsp_Communication_2__readHeaderFields___main___closed__1() {
+static lean_object* _init_l___private_Lean_Data_Lsp_Communication_2__readHeaderFields___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -546,7 +546,7 @@ return x_8;
 }
 }
 }
-lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__1() {
+static lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -554,7 +554,7 @@ x_1 = lean_mk_string("Content-Length");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__2() {
+static lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -562,7 +562,7 @@ x_1 = lean_mk_string("no Content-Length header in header fields: ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__3() {
+static lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -570,7 +570,7 @@ x_1 = lean_mk_string("Content-Length header value '");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__4() {
+static lean_object* _init_l___private_Lean_Data_Lsp_Communication_3__readLspHeader___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -907,7 +907,7 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Lsp_writeLspMessage___closed__1() {
+static lean_object* _init_l_Lean_Lsp_writeLspMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -915,7 +915,7 @@ x_1 = lean_mk_string("Content-Length: ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_writeLspMessage___closed__2() {
+static lean_object* _init_l_Lean_Lsp_writeLspMessage___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1365,7 +1365,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Lsp_writeLspResponse___rarg), 5, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Lsp_writeLspNotification___rarg___closed__1() {
+static lean_object* _init_l_Lean_Lsp_writeLspNotification___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1373,7 +1373,7 @@ x_1 = lean_mk_string("internal server error in Lean.Lsp.writeLspNotification: tr
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_writeLspNotification___rarg___closed__2() {
+static lean_object* _init_l_Lean_Lsp_writeLspNotification___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

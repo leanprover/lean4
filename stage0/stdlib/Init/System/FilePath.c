@@ -66,7 +66,7 @@ lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_List_foldr___main___at_System_FilePath_normalizePath___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_mapAux___main___at_System_FilePath_normalizePath___spec__2(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
-uint32_t _init_l_System_FilePath_pathSeparator___closed__1() {
+static uint32_t _init_l_System_FilePath_pathSeparator___closed__1() {
 _start:
 {
 uint8_t x_1; 
@@ -85,7 +85,7 @@ return x_3;
 }
 }
 }
-uint32_t _init_l_System_FilePath_pathSeparator() {
+static uint32_t _init_l_System_FilePath_pathSeparator() {
 _start:
 {
 uint32_t x_1; 
@@ -93,7 +93,7 @@ x_1 = l_System_FilePath_pathSeparator___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_System_FilePath_pathSeparators___closed__1___boxed__const__1() {
+static lean_object* _init_l_System_FilePath_pathSeparators___closed__1___boxed__const__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -102,7 +102,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_System_FilePath_pathSeparators___closed__1() {
+static lean_object* _init_l_System_FilePath_pathSeparators___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -114,7 +114,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_System_FilePath_pathSeparators___closed__2___boxed__const__1() {
+static lean_object* _init_l_System_FilePath_pathSeparators___closed__2___boxed__const__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -123,7 +123,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_System_FilePath_pathSeparators___closed__2() {
+static lean_object* _init_l_System_FilePath_pathSeparators___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -135,7 +135,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_System_FilePath_pathSeparators___closed__3() {
+static lean_object* _init_l_System_FilePath_pathSeparators___closed__3() {
 _start:
 {
 uint8_t x_1; 
@@ -154,7 +154,7 @@ return x_3;
 }
 }
 }
-lean_object* _init_l_System_FilePath_pathSeparators() {
+static lean_object* _init_l_System_FilePath_pathSeparators() {
 _start:
 {
 lean_object* x_1; 
@@ -162,7 +162,7 @@ x_1 = l_System_FilePath_pathSeparators___closed__3;
 return x_1;
 }
 }
-uint32_t _init_l_System_FilePath_searchPathSeparator___closed__1() {
+static uint32_t _init_l_System_FilePath_searchPathSeparator___closed__1() {
 _start:
 {
 uint8_t x_1; 
@@ -181,7 +181,7 @@ return x_3;
 }
 }
 }
-uint32_t _init_l_System_FilePath_searchPathSeparator() {
+static uint32_t _init_l_System_FilePath_searchPathSeparator() {
 _start:
 {
 uint32_t x_1; 
@@ -189,7 +189,7 @@ x_1 = l_System_FilePath_searchPathSeparator___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_System_FilePath_searchPathSeparators___closed__1___boxed__const__1() {
+static lean_object* _init_l_System_FilePath_searchPathSeparators___closed__1___boxed__const__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -198,7 +198,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_System_FilePath_searchPathSeparators___closed__1() {
+static lean_object* _init_l_System_FilePath_searchPathSeparators___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -210,7 +210,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_System_FilePath_searchPathSeparators___closed__2___boxed__const__1() {
+static lean_object* _init_l_System_FilePath_searchPathSeparators___closed__2___boxed__const__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -219,7 +219,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_System_FilePath_searchPathSeparators___closed__2() {
+static lean_object* _init_l_System_FilePath_searchPathSeparators___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -231,7 +231,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_System_FilePath_searchPathSeparators___closed__3() {
+static lean_object* _init_l_System_FilePath_searchPathSeparators___closed__3() {
 _start:
 {
 uint8_t x_1; 
@@ -250,7 +250,7 @@ return x_3;
 }
 }
 }
-lean_object* _init_l_System_FilePath_searchPathSeparators() {
+static lean_object* _init_l_System_FilePath_searchPathSeparators() {
 _start:
 {
 lean_object* x_1; 
@@ -428,7 +428,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-uint32_t _init_l_System_FilePath_extSeparator() {
+static uint32_t _init_l_System_FilePath_extSeparator() {
 _start:
 {
 uint32_t x_1; 
@@ -436,7 +436,7 @@ x_1 = 46;
 return x_1;
 }
 }
-uint8_t _init_l_System_FilePath_isCaseInsensitive___closed__1() {
+static uint8_t _init_l_System_FilePath_isCaseInsensitive___closed__1() {
 _start:
 {
 uint8_t x_1; 
@@ -455,7 +455,7 @@ return x_3;
 }
 }
 }
-uint8_t _init_l_System_FilePath_isCaseInsensitive() {
+static uint8_t _init_l_System_FilePath_isCaseInsensitive() {
 _start:
 {
 uint8_t x_1; 
@@ -536,7 +536,7 @@ return x_2;
 }
 }
 }
-lean_object* _init_l_System_FilePath_normalizePath___closed__1() {
+static lean_object* _init_l_System_FilePath_normalizePath___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -546,7 +546,7 @@ x_3 = l_List_lengthAux___main___rarg(x_1, x_2);
 return x_3;
 }
 }
-uint8_t _init_l_System_FilePath_normalizePath___closed__2() {
+static uint8_t _init_l_System_FilePath_normalizePath___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
@@ -599,7 +599,7 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
-lean_object* _init_l_System_FilePath_dirName___closed__1() {
+static lean_object* _init_l_System_FilePath_dirName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -635,7 +635,7 @@ return x_8;
 }
 }
 }
-lean_object* _init_l_System_mkFilePath___closed__1() {
+static lean_object* _init_l_System_mkFilePath___closed__1() {
 _start:
 {
 lean_object* x_1; uint32_t x_2; lean_object* x_3; 

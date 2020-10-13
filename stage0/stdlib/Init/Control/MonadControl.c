@@ -128,7 +128,7 @@ lean_inc(x_2);
 return x_2;
 }
 }
-lean_object* _init_l_monadControlRefl___rarg___lambda__2___closed__1() {
+static lean_object* _init_l_monadControlRefl___rarg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -153,7 +153,7 @@ x_4 = lean_apply_2(x_1, lean_box(0), x_3);
 return x_4;
 }
 }
-lean_object* _init_l_monadControlRefl___rarg___closed__1() {
+static lean_object* _init_l_monadControlRefl___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

@@ -202,7 +202,7 @@ x_6 = l_Std_HashMapBucket_update___rarg(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Std_mkHashMapImp___rarg___closed__1() {
+static lean_object* _init_l_Std_mkHashMapImp___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -212,7 +212,7 @@ x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Std_mkHashMapImp___rarg___closed__2() {
+static lean_object* _init_l_Std_mkHashMapImp___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1168,7 +1168,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Std_HashMap_inhabited___closed__1() {
+static lean_object* _init_l_Std_HashMap_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1333,7 +1333,7 @@ lean_dec(x_3);
 return x_6;
 }
 }
-lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__1() {
+static lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1341,7 +1341,7 @@ x_1 = lean_mk_string("Std.Data.HashMap");
 return x_1;
 }
 }
-lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__2() {
+static lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1349,7 +1349,7 @@ x_1 = lean_mk_string("key is not in the map");
 return x_1;
 }
 }
-lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__3() {
+static lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 

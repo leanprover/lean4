@@ -250,7 +250,7 @@ lean_object* l_stdNext___closed__101;
 lean_object* l_mkStdGen(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_stdNext___closed__165;
-lean_object* _init_l_StdGen_inhabited___closed__1() {
+static lean_object* _init_l_StdGen_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -261,7 +261,7 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_StdGen_inhabited() {
+static lean_object* _init_l_StdGen_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -269,7 +269,7 @@ x_1 = l_StdGen_inhabited___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_stdRange___closed__1() {
+static lean_object* _init_l_stdRange___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -281,7 +281,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdRange() {
+static lean_object* _init_l_stdRange() {
 _start:
 {
 lean_object* x_1; 
@@ -312,7 +312,7 @@ x_12 = lean_string_append(x_10, x_11);
 return x_12;
 }
 }
-lean_object* _init_l_stdNext___closed__1() {
+static lean_object* _init_l_stdNext___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -321,7 +321,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__2() {
+static lean_object* _init_l_stdNext___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -331,7 +331,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__3() {
+static lean_object* _init_l_stdNext___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -340,7 +340,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__4() {
+static lean_object* _init_l_stdNext___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -349,7 +349,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__5() {
+static lean_object* _init_l_stdNext___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -359,7 +359,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__6() {
+static lean_object* _init_l_stdNext___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -368,7 +368,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__7() {
+static lean_object* _init_l_stdNext___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -377,7 +377,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__8() {
+static lean_object* _init_l_stdNext___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -386,7 +386,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__9() {
+static lean_object* _init_l_stdNext___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -395,7 +395,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__10() {
+static lean_object* _init_l_stdNext___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -405,7 +405,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__11() {
+static lean_object* _init_l_stdNext___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -414,7 +414,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__12() {
+static lean_object* _init_l_stdNext___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -424,7 +424,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__13() {
+static lean_object* _init_l_stdNext___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -433,7 +433,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__14() {
+static lean_object* _init_l_stdNext___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -442,7 +442,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__15() {
+static lean_object* _init_l_stdNext___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -452,7 +452,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__16() {
+static lean_object* _init_l_stdNext___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -461,7 +461,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__17() {
+static lean_object* _init_l_stdNext___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -470,7 +470,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__18() {
+static lean_object* _init_l_stdNext___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -479,7 +479,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__19() {
+static lean_object* _init_l_stdNext___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -489,7 +489,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__20() {
+static lean_object* _init_l_stdNext___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -498,7 +498,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__21() {
+static lean_object* _init_l_stdNext___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -507,7 +507,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__22() {
+static lean_object* _init_l_stdNext___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -516,7 +516,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__23() {
+static lean_object* _init_l_stdNext___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -525,7 +525,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__24() {
+static lean_object* _init_l_stdNext___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -535,7 +535,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__25() {
+static lean_object* _init_l_stdNext___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -544,7 +544,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__26() {
+static lean_object* _init_l_stdNext___closed__26() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -554,7 +554,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__27() {
+static lean_object* _init_l_stdNext___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -563,7 +563,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__28() {
+static lean_object* _init_l_stdNext___closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -573,7 +573,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__29() {
+static lean_object* _init_l_stdNext___closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -582,7 +582,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__30() {
+static lean_object* _init_l_stdNext___closed__30() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -591,7 +591,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__31() {
+static lean_object* _init_l_stdNext___closed__31() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -600,7 +600,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__32() {
+static lean_object* _init_l_stdNext___closed__32() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -609,7 +609,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__33() {
+static lean_object* _init_l_stdNext___closed__33() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -619,7 +619,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__34() {
+static lean_object* _init_l_stdNext___closed__34() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -628,7 +628,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__35() {
+static lean_object* _init_l_stdNext___closed__35() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -637,7 +637,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__36() {
+static lean_object* _init_l_stdNext___closed__36() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -646,7 +646,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__37() {
+static lean_object* _init_l_stdNext___closed__37() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -656,7 +656,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__38() {
+static lean_object* _init_l_stdNext___closed__38() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -665,7 +665,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__39() {
+static lean_object* _init_l_stdNext___closed__39() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -675,7 +675,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__40() {
+static lean_object* _init_l_stdNext___closed__40() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -684,7 +684,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__41() {
+static lean_object* _init_l_stdNext___closed__41() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -694,7 +694,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__42() {
+static lean_object* _init_l_stdNext___closed__42() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -703,7 +703,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__43() {
+static lean_object* _init_l_stdNext___closed__43() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -713,7 +713,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__44() {
+static lean_object* _init_l_stdNext___closed__44() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -722,7 +722,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__45() {
+static lean_object* _init_l_stdNext___closed__45() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -732,7 +732,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__46() {
+static lean_object* _init_l_stdNext___closed__46() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -741,7 +741,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__47() {
+static lean_object* _init_l_stdNext___closed__47() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -751,7 +751,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__48() {
+static lean_object* _init_l_stdNext___closed__48() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -760,7 +760,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__49() {
+static lean_object* _init_l_stdNext___closed__49() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -770,7 +770,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__50() {
+static lean_object* _init_l_stdNext___closed__50() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -779,7 +779,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__51() {
+static lean_object* _init_l_stdNext___closed__51() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -789,7 +789,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__52() {
+static lean_object* _init_l_stdNext___closed__52() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -798,7 +798,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__53() {
+static lean_object* _init_l_stdNext___closed__53() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -807,7 +807,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__54() {
+static lean_object* _init_l_stdNext___closed__54() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -817,7 +817,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__55() {
+static lean_object* _init_l_stdNext___closed__55() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -826,7 +826,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__56() {
+static lean_object* _init_l_stdNext___closed__56() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -836,7 +836,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__57() {
+static lean_object* _init_l_stdNext___closed__57() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -845,7 +845,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__58() {
+static lean_object* _init_l_stdNext___closed__58() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -854,7 +854,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__59() {
+static lean_object* _init_l_stdNext___closed__59() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -863,7 +863,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__60() {
+static lean_object* _init_l_stdNext___closed__60() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -873,7 +873,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__61() {
+static lean_object* _init_l_stdNext___closed__61() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -882,7 +882,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__62() {
+static lean_object* _init_l_stdNext___closed__62() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -892,7 +892,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__63() {
+static lean_object* _init_l_stdNext___closed__63() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -901,7 +901,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__64() {
+static lean_object* _init_l_stdNext___closed__64() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -911,7 +911,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__65() {
+static lean_object* _init_l_stdNext___closed__65() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -920,7 +920,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__66() {
+static lean_object* _init_l_stdNext___closed__66() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -930,7 +930,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__67() {
+static lean_object* _init_l_stdNext___closed__67() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -939,7 +939,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__68() {
+static lean_object* _init_l_stdNext___closed__68() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -949,7 +949,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__69() {
+static lean_object* _init_l_stdNext___closed__69() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -958,7 +958,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__70() {
+static lean_object* _init_l_stdNext___closed__70() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -967,7 +967,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__71() {
+static lean_object* _init_l_stdNext___closed__71() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -976,7 +976,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__72() {
+static lean_object* _init_l_stdNext___closed__72() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -985,7 +985,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__73() {
+static lean_object* _init_l_stdNext___closed__73() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -995,7 +995,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__74() {
+static lean_object* _init_l_stdNext___closed__74() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1004,7 +1004,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__75() {
+static lean_object* _init_l_stdNext___closed__75() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1013,7 +1013,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__76() {
+static lean_object* _init_l_stdNext___closed__76() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1022,7 +1022,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__77() {
+static lean_object* _init_l_stdNext___closed__77() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1032,7 +1032,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__78() {
+static lean_object* _init_l_stdNext___closed__78() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1041,7 +1041,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__79() {
+static lean_object* _init_l_stdNext___closed__79() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1051,7 +1051,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__80() {
+static lean_object* _init_l_stdNext___closed__80() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1060,7 +1060,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__81() {
+static lean_object* _init_l_stdNext___closed__81() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1070,7 +1070,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__82() {
+static lean_object* _init_l_stdNext___closed__82() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1079,7 +1079,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__83() {
+static lean_object* _init_l_stdNext___closed__83() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1088,7 +1088,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__84() {
+static lean_object* _init_l_stdNext___closed__84() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1098,7 +1098,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__85() {
+static lean_object* _init_l_stdNext___closed__85() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1107,7 +1107,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__86() {
+static lean_object* _init_l_stdNext___closed__86() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1117,7 +1117,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__87() {
+static lean_object* _init_l_stdNext___closed__87() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1126,7 +1126,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__88() {
+static lean_object* _init_l_stdNext___closed__88() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1136,7 +1136,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__89() {
+static lean_object* _init_l_stdNext___closed__89() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1145,7 +1145,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__90() {
+static lean_object* _init_l_stdNext___closed__90() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1155,7 +1155,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__91() {
+static lean_object* _init_l_stdNext___closed__91() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1164,7 +1164,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__92() {
+static lean_object* _init_l_stdNext___closed__92() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1173,7 +1173,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__93() {
+static lean_object* _init_l_stdNext___closed__93() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1183,7 +1183,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__94() {
+static lean_object* _init_l_stdNext___closed__94() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1192,7 +1192,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__95() {
+static lean_object* _init_l_stdNext___closed__95() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1201,7 +1201,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__96() {
+static lean_object* _init_l_stdNext___closed__96() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1211,7 +1211,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__97() {
+static lean_object* _init_l_stdNext___closed__97() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1220,7 +1220,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__98() {
+static lean_object* _init_l_stdNext___closed__98() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1229,7 +1229,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__99() {
+static lean_object* _init_l_stdNext___closed__99() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1239,7 +1239,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__100() {
+static lean_object* _init_l_stdNext___closed__100() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1248,7 +1248,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__101() {
+static lean_object* _init_l_stdNext___closed__101() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1258,7 +1258,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__102() {
+static lean_object* _init_l_stdNext___closed__102() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1267,7 +1267,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__103() {
+static lean_object* _init_l_stdNext___closed__103() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1276,7 +1276,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__104() {
+static lean_object* _init_l_stdNext___closed__104() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1285,7 +1285,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__105() {
+static lean_object* _init_l_stdNext___closed__105() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1295,7 +1295,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__106() {
+static lean_object* _init_l_stdNext___closed__106() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1304,7 +1304,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__107() {
+static lean_object* _init_l_stdNext___closed__107() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1314,7 +1314,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__108() {
+static lean_object* _init_l_stdNext___closed__108() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1323,7 +1323,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__109() {
+static lean_object* _init_l_stdNext___closed__109() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1333,7 +1333,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__110() {
+static lean_object* _init_l_stdNext___closed__110() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1342,7 +1342,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__111() {
+static lean_object* _init_l_stdNext___closed__111() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1352,7 +1352,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__112() {
+static lean_object* _init_l_stdNext___closed__112() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1362,7 +1362,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__113() {
+static lean_object* _init_l_stdNext___closed__113() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1371,7 +1371,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__114() {
+static lean_object* _init_l_stdNext___closed__114() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1381,7 +1381,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__115() {
+static lean_object* _init_l_stdNext___closed__115() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1390,7 +1390,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__116() {
+static lean_object* _init_l_stdNext___closed__116() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1400,7 +1400,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__117() {
+static lean_object* _init_l_stdNext___closed__117() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1409,7 +1409,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__118() {
+static lean_object* _init_l_stdNext___closed__118() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1419,7 +1419,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__119() {
+static lean_object* _init_l_stdNext___closed__119() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1428,7 +1428,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__120() {
+static lean_object* _init_l_stdNext___closed__120() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1438,7 +1438,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__121() {
+static lean_object* _init_l_stdNext___closed__121() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1447,7 +1447,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__122() {
+static lean_object* _init_l_stdNext___closed__122() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1457,7 +1457,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__123() {
+static lean_object* _init_l_stdNext___closed__123() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1466,7 +1466,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__124() {
+static lean_object* _init_l_stdNext___closed__124() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1476,7 +1476,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__125() {
+static lean_object* _init_l_stdNext___closed__125() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1485,7 +1485,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__126() {
+static lean_object* _init_l_stdNext___closed__126() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1495,7 +1495,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__127() {
+static lean_object* _init_l_stdNext___closed__127() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1504,7 +1504,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__128() {
+static lean_object* _init_l_stdNext___closed__128() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1514,7 +1514,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__129() {
+static lean_object* _init_l_stdNext___closed__129() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1523,7 +1523,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__130() {
+static lean_object* _init_l_stdNext___closed__130() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1533,7 +1533,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__131() {
+static lean_object* _init_l_stdNext___closed__131() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1542,7 +1542,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__132() {
+static lean_object* _init_l_stdNext___closed__132() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1552,7 +1552,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__133() {
+static lean_object* _init_l_stdNext___closed__133() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1561,7 +1561,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__134() {
+static lean_object* _init_l_stdNext___closed__134() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1571,7 +1571,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__135() {
+static lean_object* _init_l_stdNext___closed__135() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1580,7 +1580,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__136() {
+static lean_object* _init_l_stdNext___closed__136() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1590,7 +1590,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__137() {
+static lean_object* _init_l_stdNext___closed__137() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1599,7 +1599,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__138() {
+static lean_object* _init_l_stdNext___closed__138() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1609,7 +1609,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__139() {
+static lean_object* _init_l_stdNext___closed__139() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1618,7 +1618,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__140() {
+static lean_object* _init_l_stdNext___closed__140() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1628,7 +1628,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__141() {
+static lean_object* _init_l_stdNext___closed__141() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1637,7 +1637,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__142() {
+static lean_object* _init_l_stdNext___closed__142() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1647,7 +1647,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__143() {
+static lean_object* _init_l_stdNext___closed__143() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1656,7 +1656,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__144() {
+static lean_object* _init_l_stdNext___closed__144() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1666,7 +1666,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__145() {
+static lean_object* _init_l_stdNext___closed__145() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1675,7 +1675,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__146() {
+static lean_object* _init_l_stdNext___closed__146() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1685,7 +1685,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__147() {
+static lean_object* _init_l_stdNext___closed__147() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1694,7 +1694,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__148() {
+static lean_object* _init_l_stdNext___closed__148() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1704,7 +1704,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__149() {
+static lean_object* _init_l_stdNext___closed__149() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1713,7 +1713,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__150() {
+static lean_object* _init_l_stdNext___closed__150() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1723,7 +1723,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__151() {
+static lean_object* _init_l_stdNext___closed__151() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1732,7 +1732,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__152() {
+static lean_object* _init_l_stdNext___closed__152() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1742,7 +1742,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__153() {
+static lean_object* _init_l_stdNext___closed__153() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1751,7 +1751,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__154() {
+static lean_object* _init_l_stdNext___closed__154() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1760,7 +1760,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__155() {
+static lean_object* _init_l_stdNext___closed__155() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1770,7 +1770,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__156() {
+static lean_object* _init_l_stdNext___closed__156() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1779,7 +1779,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__157() {
+static lean_object* _init_l_stdNext___closed__157() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1788,7 +1788,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__158() {
+static lean_object* _init_l_stdNext___closed__158() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1798,7 +1798,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__159() {
+static lean_object* _init_l_stdNext___closed__159() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1807,7 +1807,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__160() {
+static lean_object* _init_l_stdNext___closed__160() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1816,7 +1816,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__161() {
+static lean_object* _init_l_stdNext___closed__161() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1826,7 +1826,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__162() {
+static lean_object* _init_l_stdNext___closed__162() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1835,7 +1835,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__163() {
+static lean_object* _init_l_stdNext___closed__163() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1844,7 +1844,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__164() {
+static lean_object* _init_l_stdNext___closed__164() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1853,7 +1853,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__165() {
+static lean_object* _init_l_stdNext___closed__165() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1862,7 +1862,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__166() {
+static lean_object* _init_l_stdNext___closed__166() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1871,7 +1871,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__167() {
+static lean_object* _init_l_stdNext___closed__167() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1880,7 +1880,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__168() {
+static lean_object* _init_l_stdNext___closed__168() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1890,7 +1890,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__169() {
+static lean_object* _init_l_stdNext___closed__169() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1899,7 +1899,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__170() {
+static lean_object* _init_l_stdNext___closed__170() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1909,7 +1909,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__171() {
+static lean_object* _init_l_stdNext___closed__171() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1918,7 +1918,7 @@ x_2 = lean_int_add(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_stdNext___closed__172() {
+static lean_object* _init_l_stdNext___closed__172() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1928,7 +1928,7 @@ x_3 = lean_int_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_stdNext___closed__173() {
+static lean_object* _init_l_stdNext___closed__173() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2359,7 +2359,7 @@ x_2 = l_stdRange;
 return x_2;
 }
 }
-lean_object* _init_l_StdGen_RandomGen___closed__1() {
+static lean_object* _init_l_StdGen_RandomGen___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2367,7 +2367,7 @@ x_1 = lean_alloc_closure((void*)(l_StdGen_RandomGen___lambda__1___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_StdGen_RandomGen___closed__2() {
+static lean_object* _init_l_StdGen_RandomGen___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2375,7 +2375,7 @@ x_1 = lean_alloc_closure((void*)(l_stdNext), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_StdGen_RandomGen___closed__3() {
+static lean_object* _init_l_StdGen_RandomGen___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2383,7 +2383,7 @@ x_1 = lean_alloc_closure((void*)(l_stdSplit), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_StdGen_RandomGen___closed__4() {
+static lean_object* _init_l_StdGen_RandomGen___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2397,7 +2397,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_StdGen_RandomGen() {
+static lean_object* _init_l_StdGen_RandomGen() {
 _start:
 {
 lean_object* x_1; 
@@ -2884,7 +2884,7 @@ return x_7;
 }
 }
 }
-lean_object* _init_l_IO_mkStdGenRef___closed__1() {
+static lean_object* _init_l_IO_mkStdGenRef___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

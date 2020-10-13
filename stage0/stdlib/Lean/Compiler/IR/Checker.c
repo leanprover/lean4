@@ -183,7 +183,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_IR_Checker_markIndex___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_markIndex___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -191,7 +191,7 @@ x_1 = lean_mk_string("variable / joinpoint index ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_markIndex___closed__2() {
+static lean_object* _init_l_Lean_IR_Checker_markIndex___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -336,7 +336,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkVar___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_checkVar___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -405,7 +405,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkJP___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_checkJP___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -615,7 +615,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkEqTypes___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_checkEqTypes___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -623,7 +623,7 @@ x_1 = lean_mk_string("unexpected type");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkEqTypes___closed__2() {
+static lean_object* _init_l_Lean_IR_Checker_checkEqTypes___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -669,7 +669,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkType___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_checkType___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1470,7 +1470,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1478,7 +1478,7 @@ x_1 = lean_mk_string("incorrect number of arguments to '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__2() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1486,7 +1486,7 @@ x_1 = lean_mk_string("', ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__3() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1494,7 +1494,7 @@ x_1 = lean_mk_string(" provided, ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__4() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1502,7 +1502,7 @@ x_1 = lean_mk_string(" expected");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__5() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1510,7 +1510,7 @@ x_1 = lean_mk_string("hugeFuel");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__6() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1520,7 +1520,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__7() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -1528,7 +1528,7 @@ x_1 = lean_mk_string("the auxiliary constant `hugeFuel` cannot be used in code, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__8() {
+static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1839,7 +1839,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1847,7 +1847,7 @@ x_1 = lean_mk_string("too many arguments too partial application '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__2() {
+static lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1855,7 +1855,7 @@ x_1 = lean_mk_string("', num. args: ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__3() {
+static lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2105,7 +2105,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__1() {
+static lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2113,7 +2113,7 @@ x_1 = lean_mk_string("unexpected IR type '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__2() {
+static lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2121,7 +2121,7 @@ x_1 = lean_mk_string("invalid proj index");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__3() {
+static lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6156,7 +6156,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_IR_checkDecl___closed__1() {
+static lean_object* _init_l_Lean_IR_checkDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6164,7 +6164,7 @@ x_1 = lean_mk_string("IR check failed at '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_checkDecl___closed__2() {
+static lean_object* _init_l_Lean_IR_checkDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 

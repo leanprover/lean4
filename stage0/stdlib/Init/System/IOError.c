@@ -581,7 +581,7 @@ x_4 = lean_mk_io_error_time_expired(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l___private_Init_System_IOError_1__downCaseFirst___closed__1() {
+static lean_object* _init_l___private_Init_System_IOError_1__downCaseFirst___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -599,7 +599,7 @@ x_4 = l_String_modify(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_IO_Error_fopenErrorToString___closed__1() {
+static lean_object* _init_l_IO_Error_fopenErrorToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -607,7 +607,7 @@ x_1 = lean_mk_string(" (error code: ");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_fopenErrorToString___closed__2() {
+static lean_object* _init_l_IO_Error_fopenErrorToString___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -728,7 +728,7 @@ x_5 = l_IO_Error_otherErrorToString(x_1, x_4, x_3);
 return x_5;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__1() {
+static lean_object* _init_l_IO_Error_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -736,7 +736,7 @@ x_1 = lean_mk_string("already exists");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__2() {
+static lean_object* _init_l_IO_Error_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -744,7 +744,7 @@ x_1 = lean_mk_string("resource busy");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__3() {
+static lean_object* _init_l_IO_Error_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -752,7 +752,7 @@ x_1 = lean_mk_string("resource vanished");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__4() {
+static lean_object* _init_l_IO_Error_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -760,7 +760,7 @@ x_1 = lean_mk_string("unsupported operation");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__5() {
+static lean_object* _init_l_IO_Error_toString___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -768,7 +768,7 @@ x_1 = lean_mk_string("hardware fault");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__6() {
+static lean_object* _init_l_IO_Error_toString___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -776,7 +776,7 @@ x_1 = lean_mk_string("directory not empty");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__7() {
+static lean_object* _init_l_IO_Error_toString___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -784,7 +784,7 @@ x_1 = lean_mk_string("illegal operation");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__8() {
+static lean_object* _init_l_IO_Error_toString___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -792,7 +792,7 @@ x_1 = lean_mk_string("protocol error");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__9() {
+static lean_object* _init_l_IO_Error_toString___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -800,7 +800,7 @@ x_1 = lean_mk_string("time expired");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__10() {
+static lean_object* _init_l_IO_Error_toString___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -808,7 +808,7 @@ x_1 = lean_mk_string("interrupted system call");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__11() {
+static lean_object* _init_l_IO_Error_toString___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -816,7 +816,7 @@ x_1 = lean_mk_string("no such file or directory");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__12() {
+static lean_object* _init_l_IO_Error_toString___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -824,7 +824,7 @@ x_1 = lean_mk_string("invalid argument");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__13() {
+static lean_object* _init_l_IO_Error_toString___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -832,7 +832,7 @@ x_1 = lean_mk_string("resource exhausted");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__14() {
+static lean_object* _init_l_IO_Error_toString___closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -840,7 +840,7 @@ x_1 = lean_mk_string("inappropriate type");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__15() {
+static lean_object* _init_l_IO_Error_toString___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -848,7 +848,7 @@ x_1 = lean_mk_string("no such thing");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_toString___closed__16() {
+static lean_object* _init_l_IO_Error_toString___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -1263,7 +1263,7 @@ return x_134;
 }
 }
 }
-lean_object* _init_l_IO_Error_HasToString___closed__1() {
+static lean_object* _init_l_IO_Error_HasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1271,7 +1271,7 @@ x_1 = lean_alloc_closure((void*)(lean_io_error_to_string), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_HasToString() {
+static lean_object* _init_l_IO_Error_HasToString() {
 _start:
 {
 lean_object* x_1; 
@@ -1279,7 +1279,7 @@ x_1 = l_IO_Error_HasToString___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_IO_Error_Inhabited___closed__1() {
+static lean_object* _init_l_IO_Error_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1289,7 +1289,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_IO_Error_Inhabited() {
+static lean_object* _init_l_IO_Error_Inhabited() {
 _start:
 {
 lean_object* x_1; 

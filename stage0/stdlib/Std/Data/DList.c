@@ -93,7 +93,7 @@ x_2 = lean_alloc_closure((void*)(l_Std_DList_empty___elambda__1___rarg___boxed),
 return x_2;
 }
 }
-lean_object* _init_l_Std_DList_empty___closed__1() {
+static lean_object* _init_l_Std_DList_empty___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -118,7 +118,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Std_DList_HasEmptyc___closed__1() {
+static lean_object* _init_l_Std_DList_HasEmptyc___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -295,7 +295,7 @@ x_2 = lean_alloc_closure((void*)(l_Std_DList_push___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Std_DList_HasAppend___closed__1() {
+static lean_object* _init_l_Std_DList_HasAppend___closed__1() {
 _start:
 {
 lean_object* x_1; 

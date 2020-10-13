@@ -177,7 +177,7 @@ lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__5;
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__1;
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 extern lean_object* l_Lean_mkProtectedExtension___closed__1;
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -185,7 +185,7 @@ x_1 = lean_mk_string("a non-private declaration '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -195,7 +195,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -272,7 +272,7 @@ return x_13;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__1() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -280,7 +280,7 @@ x_1 = lean_mk_string("a private declaration '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__2() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -290,7 +290,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__3() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -360,7 +360,7 @@ return x_23;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__1() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -368,7 +368,7 @@ x_1 = lean_mk_string("private declaration '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__2() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -378,7 +378,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__3() {
+static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -520,7 +520,7 @@ lean_dec(x_8);
 return x_9;
 }
 }
-lean_object* _init_l_Lean_Elab_Visibility_hasToString___closed__1() {
+static lean_object* _init_l_Lean_Elab_Visibility_hasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -528,7 +528,7 @@ x_1 = lean_mk_string("regular");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Visibility_hasToString___closed__2() {
+static lean_object* _init_l_Lean_Elab_Visibility_hasToString___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -786,7 +786,7 @@ return x_12;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__1() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -795,7 +795,7 @@ x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__2() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -804,7 +804,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__3() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -814,7 +814,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__4() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -824,7 +824,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__5() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -832,7 +832,7 @@ x_1 = lean_mk_string("unsafe");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__6() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -842,7 +842,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__7() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -854,7 +854,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__8() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -862,7 +862,7 @@ x_1 = lean_mk_string("partial");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__9() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -872,7 +872,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__10() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -884,7 +884,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__11() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -892,7 +892,7 @@ x_1 = lean_mk_string("noncomputable");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__12() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -902,7 +902,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__13() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -914,7 +914,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__14() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -924,7 +924,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__15() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -936,7 +936,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__16() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -946,7 +946,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__17() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -958,7 +958,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__18() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -966,7 +966,7 @@ x_1 = lean_mk_string("/--");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__19() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -976,7 +976,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__20() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__20() {
 _start:
 {
 lean_object* x_1; 
@@ -984,7 +984,7 @@ x_1 = lean_mk_string("-/");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__21() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasFormat___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1429,7 +1429,7 @@ return x_69;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasToString___closed__1() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1437,7 +1437,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Modifiers_hasToString___lambda__1__
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasToString___closed__2() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasToString___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1449,7 +1449,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Modifiers_hasToString() {
+static lean_object* _init_l_Lean_Elab_Modifiers_hasToString() {
 _start:
 {
 lean_object* x_1; 
@@ -1662,7 +1662,7 @@ return x_23;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__1() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1670,7 +1670,7 @@ x_1 = lean_mk_string("Command");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1680,7 +1680,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__3() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1690,7 +1690,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__4() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1700,7 +1700,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__5() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1708,7 +1708,7 @@ x_1 = lean_mk_string("unexpected visibility modifier");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__6() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1718,7 +1718,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__7() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1835,7 +1835,7 @@ return x_41;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___closed__1() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1843,7 +1843,7 @@ x_1 = lean_mk_string("unexpected doc string ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___closed__2() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1853,7 +1853,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_elabModifiers___rarg___closed__3() {
+static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2235,7 +2235,7 @@ x_9 = l_Lean_Elab_applyVisibility___rarg(x_1, x_2, x_3, x_4, x_5, x_8, x_7);
 return x_9;
 }
 }
-lean_object* _init_l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2243,7 +2243,7 @@ x_1 = lean_mk_string("protected declarations must be in a namespace");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2253,7 +2253,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2361,7 +2361,7 @@ x_16 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_13, x_15);
 return x_16;
 }
 }
-lean_object* _init_l_Lean_Elab_mkDeclName___rarg___closed__1() {
+static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2369,7 +2369,7 @@ x_1 = lean_mk_string("atomic identifier expected '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_mkDeclName___rarg___closed__2() {
+static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2379,7 +2379,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_mkDeclName___rarg___closed__3() {
+static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

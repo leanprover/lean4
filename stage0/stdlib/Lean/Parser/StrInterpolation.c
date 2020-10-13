@@ -260,7 +260,7 @@ return x_33;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_interpolatedStrFn_parse___closed__1() {
+static lean_object* _init_l_Lean_Parser_interpolatedStrFn_parse___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -508,7 +508,7 @@ return x_13;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_interpolatedStrNoAntiquot___closed__1() {
+static lean_object* _init_l_Lean_Parser_interpolatedStrNoAntiquot___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -516,7 +516,7 @@ x_1 = lean_mk_string("interpolatedStr");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_interpolatedStrNoAntiquot___closed__2() {
+static lean_object* _init_l_Lean_Parser_interpolatedStrNoAntiquot___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -541,7 +541,7 @@ lean_ctor_set(x_5, 1, x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_interpolatedStr___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_interpolatedStr___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -551,7 +551,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_interpolatedStr___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_interpolatedStr___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -635,7 +635,7 @@ return x_19;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_interpolatedStr___closed__1() {
+static lean_object* _init_l_Lean_Parser_interpolatedStr___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 

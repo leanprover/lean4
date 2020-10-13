@@ -529,7 +529,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Unit_unit() {
+static lean_object* _init_l_Unit_unit() {
 _start:
 {
 lean_object* x_1; 
@@ -708,7 +708,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Nat_HasZero() {
+static lean_object* _init_l_Nat_HasZero() {
 _start:
 {
 lean_object* x_1; 
@@ -716,7 +716,7 @@ x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasOne() {
+static lean_object* _init_l_Nat_HasOne() {
 _start:
 {
 lean_object* x_1; 
@@ -724,7 +724,7 @@ x_1 = lean_unsigned_to_nat(1u);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasAdd___closed__1() {
+static lean_object* _init_l_Nat_HasAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -732,7 +732,7 @@ x_1 = lean_alloc_closure((void*)(l_Nat_add___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasAdd() {
+static lean_object* _init_l_Nat_HasAdd() {
 _start:
 {
 lean_object* x_1; 
@@ -740,7 +740,7 @@ x_1 = l_Nat_HasAdd___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_hugeFuel() {
+static lean_object* _init_l_hugeFuel() {
 _start:
 {
 lean_object* x_1; 
@@ -748,7 +748,7 @@ x_1 = lean_unsigned_to_nat(10000u);
 return x_1;
 }
 }
-lean_object* _init_l_std_priority_default() {
+static lean_object* _init_l_std_priority_default() {
 _start:
 {
 lean_object* x_1; 
@@ -756,7 +756,7 @@ x_1 = lean_unsigned_to_nat(1000u);
 return x_1;
 }
 }
-lean_object* _init_l_std_priority_max() {
+static lean_object* _init_l_std_priority_max() {
 _start:
 {
 lean_object* x_1; 
@@ -764,7 +764,7 @@ x_1 = lean_unsigned_to_nat(4294967295u);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_prio___closed__1() {
+static lean_object* _init_l_Nat_prio___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -774,7 +774,7 @@ x_3 = lean_nat_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Nat_prio() {
+static lean_object* _init_l_Nat_prio() {
 _start:
 {
 lean_object* x_1; 
@@ -782,7 +782,7 @@ x_1 = l_Nat_prio___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_std_prec_max() {
+static lean_object* _init_l_std_prec_max() {
 _start:
 {
 lean_object* x_1; 
@@ -790,7 +790,7 @@ x_1 = lean_unsigned_to_nat(1024u);
 return x_1;
 }
 }
-lean_object* _init_l_std_prec_arrow() {
+static lean_object* _init_l_std_prec_arrow() {
 _start:
 {
 lean_object* x_1; 
@@ -798,7 +798,7 @@ x_1 = lean_unsigned_to_nat(25u);
 return x_1;
 }
 }
-lean_object* _init_l_std_prec_maxPlus___closed__1() {
+static lean_object* _init_l_std_prec_maxPlus___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -808,7 +808,7 @@ x_3 = lean_nat_add(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_std_prec_maxPlus() {
+static lean_object* _init_l_std_prec_maxPlus() {
 _start:
 {
 lean_object* x_1; 
@@ -832,7 +832,7 @@ x_3 = lean_task_get_own(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Task_Priority_default() {
+static lean_object* _init_l_Task_Priority_default() {
 _start:
 {
 lean_object* x_1; 
@@ -840,7 +840,7 @@ x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
-lean_object* _init_l_Task_Priority_max() {
+static lean_object* _init_l_Task_Priority_max() {
 _start:
 {
 lean_object* x_1; 
@@ -848,7 +848,7 @@ x_1 = lean_unsigned_to_nat(8u);
 return x_1;
 }
 }
-lean_object* _init_l_Task_Priority_dedicated() {
+static lean_object* _init_l_Task_Priority_dedicated() {
 _start:
 {
 lean_object* x_1; 
@@ -880,7 +880,7 @@ x_6 = lean_task_bind(x_3, x_4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Nat_HasOfNat___closed__1() {
+static lean_object* _init_l_Nat_HasOfNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -888,7 +888,7 @@ x_1 = lean_alloc_closure((void*)(l_id___rarg___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasOfNat() {
+static lean_object* _init_l_Nat_HasOfNat() {
 _start:
 {
 lean_object* x_1; 
@@ -913,7 +913,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_defaultHasSizeof___closed__1() {
+static lean_object* _init_l_defaultHasSizeof___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -946,7 +946,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Nat_HasSizeof___closed__1() {
+static lean_object* _init_l_Nat_HasSizeof___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -954,7 +954,7 @@ x_1 = lean_alloc_closure((void*)(l_Nat_sizeof___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasSizeof() {
+static lean_object* _init_l_Nat_HasSizeof() {
 _start:
 {
 lean_object* x_1; 
@@ -1291,7 +1291,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_PUnit_HasSizeof___closed__1() {
+static lean_object* _init_l_PUnit_HasSizeof___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1299,7 +1299,7 @@ x_1 = lean_alloc_closure((void*)(l_PUnit_sizeof___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_PUnit_HasSizeof() {
+static lean_object* _init_l_PUnit_HasSizeof() {
 _start:
 {
 lean_object* x_1; 
@@ -1325,7 +1325,7 @@ x_3 = l_Bool_sizeof(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Bool_HasSizeof___closed__1() {
+static lean_object* _init_l_Bool_HasSizeof___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1333,7 +1333,7 @@ x_1 = lean_alloc_closure((void*)(l_Bool_sizeof___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Bool_HasSizeof() {
+static lean_object* _init_l_Bool_HasSizeof() {
 _start:
 {
 lean_object* x_1; 
@@ -1959,7 +1959,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-uint8_t _init_l_True_Decidable() {
+static uint8_t _init_l_True_Decidable() {
 _start:
 {
 uint8_t x_1; 
@@ -1967,7 +1967,7 @@ x_1 = 1;
 return x_1;
 }
 }
-uint8_t _init_l_False_Decidable() {
+static uint8_t _init_l_False_Decidable() {
 _start:
 {
 uint8_t x_1; 
@@ -2592,7 +2592,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Prop_Inhabited() {
+static lean_object* _init_l_Prop_Inhabited() {
 _start:
 {
 return lean_box(0);
@@ -2639,7 +2639,7 @@ x_3 = lean_alloc_closure((void*)(l_Forall_Inhabited___rarg), 2, 0);
 return x_3;
 }
 }
-uint8_t _init_l_Bool_Inhabited() {
+static uint8_t _init_l_Bool_Inhabited() {
 _start:
 {
 uint8_t x_1; 
@@ -2647,13 +2647,13 @@ x_1 = 0;
 return x_1;
 }
 }
-lean_object* _init_l_True_Inhabited() {
+static lean_object* _init_l_True_Inhabited() {
 _start:
 {
 return lean_box(0);
 }
 }
-lean_object* _init_l_Nat_Inhabited() {
+static lean_object* _init_l_Nat_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -2661,7 +2661,7 @@ x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
-lean_object* _init_l_NonScalar_Inhabited() {
+static lean_object* _init_l_NonScalar_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -2669,7 +2669,7 @@ x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
-lean_object* _init_l_PNonScalar_Inhabited() {
+static lean_object* _init_l_PNonScalar_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -2677,7 +2677,7 @@ x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
-lean_object* _init_l_PointedType_Inhabited() {
+static lean_object* _init_l_PointedType_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -3071,7 +3071,7 @@ x_5 = lean_alloc_closure((void*)(l_Prod_map___rarg), 3, 0);
 return x_5;
 }
 }
-lean_object* _init_l_PUnit_Inhabited() {
+static lean_object* _init_l_PUnit_Inhabited() {
 _start:
 {
 lean_object* x_1; 

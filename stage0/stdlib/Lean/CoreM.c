@@ -153,7 +153,7 @@ lean_object* l_Lean_Core_CoreM_inhabited___boxed(lean_object*, lean_object*, lea
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_MonadRecDepth___closed__1;
-lean_object* _init_l_Lean_Core_State_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Core_State_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -169,7 +169,7 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Core_State_inhabited___closed__2() {
+static lean_object* _init_l_Lean_Core_State_inhabited___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -185,7 +185,7 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Core_State_inhabited() {
+static lean_object* _init_l_Lean_Core_State_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -331,7 +331,7 @@ return x_14;
 }
 }
 }
-lean_object* _init_l_Lean_Core_Lean_Ref___closed__1() {
+static lean_object* _init_l_Lean_Core_Lean_Ref___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -339,7 +339,7 @@ x_1 = lean_alloc_closure((void*)(l_ReaderT_read___at_Lean_Core_Lean_Ref___spec__
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_Ref___closed__2() {
+static lean_object* _init_l_Lean_Core_Lean_Ref___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -347,7 +347,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_Ref___lambda__1___boxed), 4, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_Ref___closed__3() {
+static lean_object* _init_l_Lean_Core_Lean_Ref___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -359,7 +359,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_Ref___closed__4() {
+static lean_object* _init_l_Lean_Core_Lean_Ref___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -367,7 +367,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_Ref___lambda__2), 6, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_Ref___closed__5() {
+static lean_object* _init_l_Lean_Core_Lean_Ref___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -379,7 +379,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_Ref() {
+static lean_object* _init_l_Lean_Core_Lean_Ref() {
 _start:
 {
 lean_object* x_1; 
@@ -526,7 +526,7 @@ return x_28;
 }
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__1() {
+static lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -534,7 +534,7 @@ x_1 = lean_alloc_closure((void*)(l_StateRefT_x27_get___at_Lean_Core_Lean_MonadEn
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__2() {
+static lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -544,7 +544,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__3() {
+static lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -552,7 +552,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadEnv___lambda__1___boxed),
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__4() {
+static lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -564,7 +564,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__5() {
+static lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -572,7 +572,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadEnv___lambda__2___boxed),
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__6() {
+static lean_object* _init_l_Lean_Core_Lean_MonadEnv___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -584,7 +584,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadEnv() {
+static lean_object* _init_l_Lean_Core_Lean_MonadEnv() {
 _start:
 {
 lean_object* x_1; 
@@ -634,7 +634,7 @@ lean_ctor_set(x_6, 1, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadOptions___closed__1() {
+static lean_object* _init_l_Lean_Core_Lean_MonadOptions___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -642,7 +642,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadOptions___lambda__1___box
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadOptions___closed__2() {
+static lean_object* _init_l_Lean_Core_Lean_MonadOptions___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -654,7 +654,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadOptions() {
+static lean_object* _init_l_Lean_Core_Lean_MonadOptions() {
 _start:
 {
 lean_object* x_1; 
@@ -731,7 +731,7 @@ return x_22;
 }
 }
 }
-lean_object* _init_l_Lean_Core_Lean_AddMessageContext___closed__1() {
+static lean_object* _init_l_Lean_Core_Lean_AddMessageContext___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -739,7 +739,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_addMessageContextPartial___at_Lean_Core_
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_AddMessageContext() {
+static lean_object* _init_l_Lean_Core_Lean_AddMessageContext() {
 _start:
 {
 lean_object* x_1; 
@@ -848,7 +848,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__1() {
+static lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -856,7 +856,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadNameGenerator___lambda__1
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__2() {
+static lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -868,7 +868,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__3() {
+static lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -876,7 +876,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadNameGenerator___lambda__2
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__4() {
+static lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -888,7 +888,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator() {
+static lean_object* _init_l_Lean_Core_Lean_MonadNameGenerator() {
 _start:
 {
 lean_object* x_1; 
@@ -975,7 +975,7 @@ lean_ctor_set(x_6, 1, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__1() {
+static lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -983,7 +983,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadRecDepth___lambda__2___bo
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__2() {
+static lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -995,7 +995,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__3() {
+static lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1003,7 +1003,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadRecDepth___lambda__3___bo
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__4() {
+static lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1015,7 +1015,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__5() {
+static lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1023,7 +1023,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadRecDepth___lambda__1), 6,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__6() {
+static lean_object* _init_l_Lean_Core_Lean_MonadRecDepth___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1037,7 +1037,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadRecDepth() {
+static lean_object* _init_l_Lean_Core_Lean_MonadRecDepth() {
 _start:
 {
 lean_object* x_1; 
@@ -1158,7 +1158,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Core_MonadIO___closed__1() {
+static lean_object* _init_l_Lean_Core_MonadIO___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1166,7 +1166,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_liftIOCore), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_MonadIO() {
+static lean_object* _init_l_Lean_Core_MonadIO() {
 _start:
 {
 lean_object* x_1; 
@@ -1268,7 +1268,7 @@ lean_ctor_set(x_6, 1, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__1() {
+static lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1276,7 +1276,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadTrace___lambda__2___boxed
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__2() {
+static lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1288,7 +1288,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__3() {
+static lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1296,7 +1296,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Core_Lean_MonadTrace___lambda__1___boxed
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__4() {
+static lean_object* _init_l_Lean_Core_Lean_MonadTrace___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1308,7 +1308,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Core_Lean_MonadTrace() {
+static lean_object* _init_l_Lean_Core_Lean_MonadTrace() {
 _start:
 {
 lean_object* x_1; 

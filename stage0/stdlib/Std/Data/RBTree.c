@@ -588,7 +588,7 @@ lean_ctor_set(x_4, 1, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Std_RBTree_toList___rarg___closed__1() {
+static lean_object* _init_l_Std_RBTree_toList___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -866,7 +866,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Std_RBTree_HasRepr___rarg___closed__1() {
+static lean_object* _init_l_Std_RBTree_HasRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

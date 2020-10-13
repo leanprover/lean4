@@ -484,7 +484,7 @@ x_15 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_regi
 return x_15;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -492,7 +492,7 @@ x_1 = lean_mk_string("invalid [");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -502,7 +502,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -512,7 +512,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -520,7 +520,7 @@ x_1 = lean_mk_string("] argument, expected identifier");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -530,7 +530,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -624,7 +624,7 @@ return x_30;
 }
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___closed__1() {
+static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -806,7 +806,7 @@ lean_dec(x_4);
 return x_11;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_Inhabited___closed__1() {
+static lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -818,7 +818,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_Inhabited() {
+static lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_Inhabited() {
 _start:
 {
 lean_object* x_1; 

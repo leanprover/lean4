@@ -330,7 +330,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_ParserCompiler_preprocessParserBody___spec__1___rarg___closed__1() {
+static lean_object* _init_l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_ParserCompiler_preprocessParserBody___spec__1___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1239,7 +1239,7 @@ lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
 }
-lean_object* _init_l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__3___rarg___closed__1() {
+static lean_object* _init_l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__3___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7757,7 +7757,7 @@ x_12 = l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBo
 return x_12;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__1() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7765,7 +7765,7 @@ x_1 = lean_mk_string("call of unknown parser at '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__2() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7775,7 +7775,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__3() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7785,7 +7785,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__4() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -7793,7 +7793,7 @@ x_1 = lean_mk_string("don't know how to generate ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__5() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7803,7 +7803,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__6() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7813,7 +7813,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__7() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -7821,7 +7821,7 @@ x_1 = lean_mk_string(" for non-definition '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__8() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7831,7 +7831,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__9() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7841,7 +7841,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__10() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7851,7 +7851,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__11() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -7859,7 +7859,7 @@ x_1 = lean_mk_string(" for non-parser combinator '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__12() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7869,7 +7869,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__13() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -16627,7 +16627,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_ParserCompiler_compileParserBody___rarg)
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParser___rarg___closed__1() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParser___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -16636,7 +16636,7 @@ lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ParserCompiler_compileParser___rarg___closed__2() {
+static lean_object* _init_l_Lean_ParserCompiler_compileParser___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

@@ -94,7 +94,7 @@ lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__3;
 extern lean_object* l_String_Inhabited;
 lean_object* l_IO_realPath___at_Lean_realPathNormalized___spec__1(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Util_Path_1__pathSep() {
+static lean_object* _init_l___private_Lean_Util_Path_1__pathSep() {
 _start:
 {
 lean_object* x_1; 
@@ -279,7 +279,7 @@ return x_10;
 }
 }
 }
-lean_object* _init_l_Lean_getBuiltinSearchPath___closed__1() {
+static lean_object* _init_l_Lean_getBuiltinSearchPath___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -287,7 +287,7 @@ x_1 = lean_mk_string("..");
 return x_1;
 }
 }
-uint8_t _init_l_Lean_getBuiltinSearchPath___closed__2() {
+static uint8_t _init_l_Lean_getBuiltinSearchPath___closed__2() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -296,7 +296,7 @@ x_2 = LEAN_IS_STAGE0;
 return x_2;
 }
 }
-lean_object* _init_l_Lean_getBuiltinSearchPath___closed__3() {
+static lean_object* _init_l_Lean_getBuiltinSearchPath___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -304,7 +304,7 @@ x_1 = lean_mk_string("lib");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getBuiltinSearchPath___closed__4() {
+static lean_object* _init_l_Lean_getBuiltinSearchPath___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -312,7 +312,7 @@ x_1 = lean_mk_string("lean");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getBuiltinSearchPath___closed__5() {
+static lean_object* _init_l_Lean_getBuiltinSearchPath___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -322,7 +322,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_getBuiltinSearchPath___closed__6() {
+static lean_object* _init_l_Lean_getBuiltinSearchPath___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -332,7 +332,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_getBuiltinSearchPath___closed__7() {
+static lean_object* _init_l_Lean_getBuiltinSearchPath___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -340,7 +340,7 @@ x_1 = lean_mk_string("stage1");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getBuiltinSearchPath___closed__8() {
+static lean_object* _init_l_Lean_getBuiltinSearchPath___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -490,7 +490,7 @@ x_3 = lean_io_getenv(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_addSearchPathFromEnv___closed__1() {
+static lean_object* _init_l_Lean_addSearchPathFromEnv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -709,7 +709,7 @@ return x_33;
 }
 }
 }
-lean_object* _init_l_Lean_modPathToFilePath___main___closed__1() {
+static lean_object* _init_l_Lean_modPathToFilePath___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -717,7 +717,7 @@ x_1 = lean_mk_string("Lean.Util.Path");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_modPathToFilePath___main___closed__2() {
+static lean_object* _init_l_Lean_modPathToFilePath___main___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -725,7 +725,7 @@ x_1 = lean_mk_string("ill-formed import");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_modPathToFilePath___main___closed__3() {
+static lean_object* _init_l_Lean_modPathToFilePath___main___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -904,7 +904,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Lean_findOLean___closed__1() {
+static lean_object* _init_l_Lean_findOLean___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -912,7 +912,7 @@ x_1 = lean_mk_string("unknown package '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_findOLean___closed__2() {
+static lean_object* _init_l_Lean_findOLean___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1103,7 +1103,7 @@ x_2 = lean_io_current_dir(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_moduleNameOfFileName___closed__1() {
+static lean_object* _init_l_Lean_moduleNameOfFileName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1111,7 +1111,7 @@ x_1 = lean_mk_string("input file '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_moduleNameOfFileName___closed__2() {
+static lean_object* _init_l_Lean_moduleNameOfFileName___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1119,7 +1119,7 @@ x_1 = lean_mk_string("' must be contained in root directory (");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_moduleNameOfFileName___closed__3() {
+static lean_object* _init_l_Lean_moduleNameOfFileName___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1127,7 +1127,7 @@ x_1 = lean_mk_string("failed to convert file name '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_moduleNameOfFileName___closed__4() {
+static lean_object* _init_l_Lean_moduleNameOfFileName___closed__4() {
 _start:
 {
 lean_object* x_1; 

@@ -56,7 +56,7 @@ lean_object* l_Std_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_obj
 lean_object* l___private_Lean_Util_SCC_3__modifyDataOf(lean_object*);
 lean_object* l___private_Lean_Util_SCC_6__addSCCAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Util_SCC_1__getDataOf___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Util_SCC_1__getDataOf___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -431,7 +431,7 @@ return x_7;
 }
 }
 }
-lean_object* _init_l___private_Lean_Util_SCC_4__resetOnStack___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Util_SCC_4__resetOnStack___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1182,7 +1182,7 @@ return x_26;
 }
 }
 }
-lean_object* _init_l___private_Lean_Util_SCC_8__sccAux___main___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Util_SCC_8__sccAux___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

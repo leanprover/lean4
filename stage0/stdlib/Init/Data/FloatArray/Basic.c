@@ -88,7 +88,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_FloatArray_empty___closed__1() {
+static lean_object* _init_l_FloatArray_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -97,7 +97,7 @@ x_2 = lean_mk_empty_float_array(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_FloatArray_empty() {
+static lean_object* _init_l_FloatArray_empty() {
 _start:
 {
 lean_object* x_1; 
@@ -105,7 +105,7 @@ x_1 = l_FloatArray_empty___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_FloatArray_Inhabited() {
+static lean_object* _init_l_FloatArray_Inhabited() {
 _start:
 {
 lean_object* x_1; 

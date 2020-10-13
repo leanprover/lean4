@@ -344,7 +344,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Syntax_isQuot___closed__1() {
+static lean_object* _init_l_Lean_Syntax_isQuot___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -392,7 +392,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Syntax_isAntiquot___closed__1() {
+static lean_object* _init_l_Lean_Syntax_isAntiquot___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -602,7 +602,7 @@ return x_9;
 }
 }
 }
-lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__1() {
+static lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -610,7 +610,7 @@ x_1 = lean_mk_string("Lean.Syntax");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__2() {
+static lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -618,7 +618,7 @@ x_1 = lean_mk_string("getAtomVal!: not an atom");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__3() {
+static lean_object* _init_l_Lean_Syntax_getAtomVal_x21___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -3552,7 +3552,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_Syntax_reprint___main___closed__1() {
+static lean_object* _init_l_Lean_Syntax_reprint___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3700,7 +3700,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Syntax_6__formatInfo___closed__1() {
+static lean_object* _init_l___private_Lean_Syntax_6__formatInfo___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4152,7 +4152,7 @@ return x_19;
 }
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__1() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4160,7 +4160,7 @@ x_1 = lean_mk_string("<missing>");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__2() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4170,7 +4170,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__3() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -4178,7 +4178,7 @@ x_1 = lean_mk_string("..");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__4() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4188,7 +4188,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__5() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4200,7 +4200,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__6() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4212,7 +4212,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__7() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4224,7 +4224,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__8() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4236,7 +4236,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__9() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___main___closed__9() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -4699,7 +4699,7 @@ x_5 = l_Lean_Syntax_formatStxAux___main(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Syntax_HasToString___closed__1() {
+static lean_object* _init_l_Lean_Syntax_HasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4707,7 +4707,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_HasToString___lambda__1), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Syntax_HasToString___closed__2() {
+static lean_object* _init_l_Lean_Syntax_HasToString___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4719,7 +4719,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Syntax_HasToString() {
+static lean_object* _init_l_Lean_Syntax_HasToString() {
 _start:
 {
 lean_object* x_1; 
@@ -5077,7 +5077,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Syntax_structHasBeq___closed__1() {
+static lean_object* _init_l_Lean_Syntax_structHasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5085,7 +5085,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_structEq___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Syntax_structHasBeq() {
+static lean_object* _init_l_Lean_Syntax_structHasBeq() {
 _start:
 {
 lean_object* x_1; 
@@ -5357,7 +5357,7 @@ lean_inc(x_2);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1() {
+static lean_object* _init_l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5499,7 +5499,7 @@ lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1() {
+static lean_object* _init_l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5548,7 +5548,7 @@ lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Syntax_MonadTraverser_goLeft___rarg___closed__1() {
+static lean_object* _init_l_Lean_Syntax_MonadTraverser_goLeft___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5597,7 +5597,7 @@ lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Syntax_MonadTraverser_goRight___rarg___closed__1() {
+static lean_object* _init_l_Lean_Syntax_MonadTraverser_goRight___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

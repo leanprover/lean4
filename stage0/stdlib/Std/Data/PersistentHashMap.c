@@ -231,7 +231,7 @@ x_4 = lean_box(2);
 return x_4;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_Node_inhabited___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_Node_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -249,7 +249,7 @@ x_3 = l_Std_PersistentHashMap_Node_inhabited___closed__1;
 return x_3;
 }
 }
-size_t _init_l_Std_PersistentHashMap_shift() {
+static size_t _init_l_Std_PersistentHashMap_shift() {
 _start:
 {
 size_t x_1; 
@@ -257,7 +257,7 @@ x_1 = 5;
 return x_1;
 }
 }
-size_t _init_l_Std_PersistentHashMap_branching() {
+static size_t _init_l_Std_PersistentHashMap_branching() {
 _start:
 {
 size_t x_1; 
@@ -265,7 +265,7 @@ x_1 = 32;
 return x_1;
 }
 }
-size_t _init_l_Std_PersistentHashMap_maxDepth() {
+static size_t _init_l_Std_PersistentHashMap_maxDepth() {
 _start:
 {
 size_t x_1; 
@@ -273,7 +273,7 @@ x_1 = 7;
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_maxCollisions() {
+static lean_object* _init_l_Std_PersistentHashMap_maxCollisions() {
 _start:
 {
 lean_object* x_1; 
@@ -281,7 +281,7 @@ x_1 = lean_unsigned_to_nat(4u);
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_mkEmptyEntriesArray___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_mkEmptyEntriesArray___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -299,7 +299,7 @@ x_3 = l_Std_PersistentHashMap_mkEmptyEntriesArray___closed__1;
 return x_3;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_empty___rarg___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_empty___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -307,7 +307,7 @@ x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_empty___rarg___closed__2() {
+static lean_object* _init_l_Std_PersistentHashMap_empty___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -653,7 +653,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -734,7 +734,7 @@ x_3 = lean_alloc_closure((void*)(l_Array_iterateMAux___main___at_Std_PersistentH
 return x_3;
 }
 }
-size_t _init_l_Std_PersistentHashMap_insertAux___main___rarg___closed__1() {
+static size_t _init_l_Std_PersistentHashMap_insertAux___main___rarg___closed__1() {
 _start:
 {
 size_t x_1; size_t x_2; size_t x_3; 
@@ -744,7 +744,7 @@ x_3 = x_1 << x_2;
 return x_3;
 }
 }
-size_t _init_l_Std_PersistentHashMap_insertAux___main___rarg___closed__2() {
+static size_t _init_l_Std_PersistentHashMap_insertAux___main___rarg___closed__2() {
 _start:
 {
 size_t x_1; size_t x_2; size_t x_3; 
@@ -754,7 +754,7 @@ x_3 = x_2 - x_1;
 return x_3;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_insertAux___main___rarg___closed__3() {
+static lean_object* _init_l_Std_PersistentHashMap_insertAux___main___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1514,7 +1514,7 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1522,7 +1522,7 @@ x_1 = lean_mk_string("Std.Data.PersistentHashMap");
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__2() {
+static lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1530,7 +1530,7 @@ x_1 = lean_mk_string("key is not in the map");
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__3() {
+static lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -3624,7 +3624,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_stats___rarg___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_stats___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3675,7 +3675,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3683,7 +3683,7 @@ x_1 = lean_mk_string("{ nodes := ");
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__2() {
+static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -3691,7 +3691,7 @@ x_1 = lean_mk_string(", null := ");
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__3() {
+static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3699,7 +3699,7 @@ x_1 = lean_mk_string(", collisions := ");
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__4() {
+static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -3744,7 +3744,7 @@ x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_HasToString___closed__1() {
+static lean_object* _init_l_Std_PersistentHashMap_HasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3752,7 +3752,7 @@ x_1 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_Stats_toString), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Std_PersistentHashMap_HasToString() {
+static lean_object* _init_l_Std_PersistentHashMap_HasToString() {
 _start:
 {
 lean_object* x_1; 

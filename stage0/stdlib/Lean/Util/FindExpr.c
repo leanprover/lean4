@@ -36,7 +36,7 @@ lean_object* l_Lean_Expr_FindImpl_findM_x3f___main(lean_object*, size_t, lean_ob
 lean_object* l_Lean_Expr_FindImpl_findM_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_find_x3f___main(lean_object*, lean_object*);
-size_t _init_l_Lean_Expr_FindImpl_cacheSize() {
+static size_t _init_l_Lean_Expr_FindImpl_cacheSize() {
 _start:
 {
 size_t x_1; 
@@ -597,7 +597,7 @@ x_6 = l_Lean_Expr_FindImpl_findM_x3f(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Expr_FindImpl_initCache___closed__1() {
+static lean_object* _init_l_Lean_Expr_FindImpl_initCache___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -607,7 +607,7 @@ x_3 = lean_mk_array(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Expr_FindImpl_initCache() {
+static lean_object* _init_l_Lean_Expr_FindImpl_initCache() {
 _start:
 {
 lean_object* x_1; 

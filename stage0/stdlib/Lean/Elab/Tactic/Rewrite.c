@@ -113,7 +113,7 @@ lean_object* l_Lean_Elab_Tactic_evalRewrite___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_Elab_Tactic_expandRewriteTactic(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Elab_Tactic_evalRewrite___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___closed__1() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -123,7 +123,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___closed__2() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -211,7 +211,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -219,7 +219,7 @@ x_1 = lean_mk_string("rewriteSeq");
 return x_1;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -229,7 +229,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__3() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1039,7 +1039,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1047,7 +1047,7 @@ x_1 = lean_mk_string("did not find instance of the pattern in the current goal")
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1057,7 +1057,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1594,7 +1594,7 @@ lean_dec(x_1);
 return x_11;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewrite___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewrite___closed__1() {
 _start:
 {
 lean_object* x_1; 

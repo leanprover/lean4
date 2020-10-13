@@ -26,7 +26,7 @@ lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_maxRecDepth___closed__2;
 lean_object* l_Lean_maxRecDepth___closed__1;
 extern lean_object* l_Lean_defaultMaxRecDepth;
-lean_object* _init_l_Lean_getMaxRecDepth___closed__1() {
+static lean_object* _init_l_Lean_getMaxRecDepth___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -34,7 +34,7 @@ x_1 = lean_mk_string("maxRecDepth");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getMaxRecDepth___closed__2() {
+static lean_object* _init_l_Lean_getMaxRecDepth___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -63,7 +63,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_maxRecDepth___closed__1() {
+static lean_object* _init_l_Lean_maxRecDepth___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -73,7 +73,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_maxRecDepth___closed__2() {
+static lean_object* _init_l_Lean_maxRecDepth___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -81,7 +81,7 @@ x_1 = lean_mk_string("maximum recursion depth for many Lean procedures");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_maxRecDepth___closed__3() {
+static lean_object* _init_l_Lean_maxRecDepth___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 

@@ -27,7 +27,7 @@ lean_object* l_Std_Queue_isEmpty___rarg___boxed(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Std_Queue_enqueueAll(lean_object*);
 lean_object* l_Std_Queue_isEmpty(lean_object*);
-lean_object* _init_l_Std_Queue_empty___closed__1() {
+static lean_object* _init_l_Std_Queue_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

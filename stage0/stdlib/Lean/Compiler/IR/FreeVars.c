@@ -248,7 +248,7 @@ x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_MaxIndex_HasAndthen___closed__1() {
+static lean_object* _init_l_Lean_IR_MaxIndex_HasAndthen___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -256,7 +256,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_FreeVars_5__seq), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_MaxIndex_HasAndthen() {
+static lean_object* _init_l_Lean_IR_MaxIndex_HasAndthen() {
 _start:
 {
 lean_object* x_1; 
@@ -763,7 +763,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_MaxIndex_collectFnBody___main___closed__1() {
+static lean_object* _init_l_Lean_IR_MaxIndex_collectFnBody___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1460,7 +1460,7 @@ x_6 = lean_apply_2(x_2, x_3, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_IR_FreeIndices_HasAndthen___closed__1() {
+static lean_object* _init_l_Lean_IR_FreeIndices_HasAndthen___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1468,7 +1468,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_FreeVars_21__seq),
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_FreeIndices_HasAndthen() {
+static lean_object* _init_l_Lean_IR_FreeIndices_HasAndthen() {
 _start:
 {
 lean_object* x_1; 
@@ -1925,7 +1925,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_FreeIndices_collectFnBody___main___closed__1() {
+static lean_object* _init_l_Lean_IR_FreeIndices_collectFnBody___main___closed__1() {
 _start:
 {
 lean_object* x_1; 

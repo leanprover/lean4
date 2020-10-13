@@ -64,7 +64,7 @@ lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__1() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -72,7 +72,7 @@ x_1 = lean_mk_string("zero");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__2() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -80,7 +80,7 @@ x_1 = lean_mk_string("HasAdd");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__3() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -90,7 +90,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__4() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -98,7 +98,7 @@ x_1 = lean_mk_string("mul");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__5() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -108,7 +108,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__6() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -116,7 +116,7 @@ x_1 = lean_mk_string("HasOfNat");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__7() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -126,7 +126,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__8() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -136,7 +136,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__9() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -144,7 +144,7 @@ x_1 = lean_mk_string("sub");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__10() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -154,7 +154,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__11() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -162,7 +162,7 @@ x_1 = lean_mk_string("add");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__12() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -172,7 +172,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__13() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -182,7 +182,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__14() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -192,7 +192,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__15() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -202,7 +202,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__16() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -210,7 +210,7 @@ x_1 = lean_mk_string("succ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_evalNat___main___closed__17() {
+static lean_object* _init_l_Lean_Meta_evalNat___main___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1771,7 +1771,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Offset_5__mkOffset___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Offset_5__mkOffset___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

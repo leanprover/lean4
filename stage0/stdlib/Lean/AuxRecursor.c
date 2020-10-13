@@ -62,7 +62,7 @@ uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean
 lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_noConfusionExt___elambda__2(lean_object*);
-lean_object* _init_l_Lean_mkAuxRecursorExtension___closed__1() {
+static lean_object* _init_l_Lean_mkAuxRecursorExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -70,7 +70,7 @@ x_1 = lean_mk_string("auxRec");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkAuxRecursorExtension___closed__2() {
+static lean_object* _init_l_Lean_mkAuxRecursorExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -131,7 +131,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_auxRecExt___closed__1() {
+static lean_object* _init_l_Lean_auxRecExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -139,7 +139,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_auxRecExt___closed__2() {
+static lean_object* _init_l_Lean_auxRecExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -147,7 +147,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__3___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_auxRecExt___closed__3() {
+static lean_object* _init_l_Lean_auxRecExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -155,7 +155,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__2___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_auxRecExt___closed__4() {
+static lean_object* _init_l_Lean_auxRecExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -163,7 +163,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__1___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_auxRecExt___closed__5() {
+static lean_object* _init_l_Lean_auxRecExt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -250,7 +250,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_mkNoConfusionExtension___closed__1() {
+static lean_object* _init_l_Lean_mkNoConfusionExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -258,7 +258,7 @@ x_1 = lean_mk_string("noConf");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkNoConfusionExtension___closed__2() {
+static lean_object* _init_l_Lean_mkNoConfusionExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -319,7 +319,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___rarg), 1, 
 return x_3;
 }
 }
-lean_object* _init_l_Lean_noConfusionExt___closed__1() {
+static lean_object* _init_l_Lean_noConfusionExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -327,7 +327,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___boxed), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_noConfusionExt___closed__2() {
+static lean_object* _init_l_Lean_noConfusionExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -335,7 +335,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__3___boxed), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_noConfusionExt___closed__3() {
+static lean_object* _init_l_Lean_noConfusionExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -343,7 +343,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__2___boxed), 1,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_noConfusionExt___closed__4() {
+static lean_object* _init_l_Lean_noConfusionExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -351,7 +351,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__1___boxed), 1,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_noConfusionExt___closed__5() {
+static lean_object* _init_l_Lean_noConfusionExt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 

@@ -56,7 +56,7 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_CollectMVars_State_inhabited___closed__1() {
+static lean_object* _init_l_Lean_CollectMVars_State_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -65,7 +65,7 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_CollectMVars_State_inhabited___closed__2() {
+static lean_object* _init_l_Lean_CollectMVars_State_inhabited___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -77,7 +77,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_CollectMVars_State_inhabited() {
+static lean_object* _init_l_Lean_CollectMVars_State_inhabited() {
 _start:
 {
 lean_object* x_1; 

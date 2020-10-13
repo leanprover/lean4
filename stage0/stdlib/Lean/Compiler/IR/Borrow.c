@@ -238,7 +238,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_OwnedSet_HasBeq___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_OwnedSet_HasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -246,7 +246,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_Borrow_OwnedSet_beq___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_OwnedSet_HasBeq() {
+static lean_object* _init_l_Lean_IR_Borrow_OwnedSet_HasBeq() {
 _start:
 {
 lean_object* x_1; 
@@ -276,7 +276,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_OwnedSet_Hashable___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_OwnedSet_Hashable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -284,7 +284,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_Borrow_OwnedSet_getHash___boxed), 1, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_OwnedSet_Hashable() {
+static lean_object* _init_l_Lean_IR_Borrow_OwnedSet_Hashable() {
 _start:
 {
 lean_object* x_1; 
@@ -730,7 +730,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_ParamMap_HasBeq___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_ParamMap_HasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -738,7 +738,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_Borrow_ParamMap_beq___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_ParamMap_HasBeq() {
+static lean_object* _init_l_Lean_IR_Borrow_ParamMap_HasBeq() {
 _start:
 {
 lean_object* x_1; 
@@ -778,7 +778,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_ParamMap_Hashable___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_ParamMap_Hashable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -786,7 +786,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_Borrow_ParamMap_getHash___boxed), 1, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_ParamMap_Hashable() {
+static lean_object* _init_l_Lean_IR_Borrow_ParamMap_Hashable() {
 _start:
 {
 lean_object* x_1; 
@@ -794,7 +794,7 @@ x_1 = l_Lean_IR_Borrow_ParamMap_Hashable___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Std_AssocList_foldlM___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1() {
+static lean_object* _init_l_Std_AssocList_foldlM___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -802,7 +802,7 @@ x_1 = lean_mk_string(" -> ");
 return x_1;
 }
 }
-lean_object* _init_l_Std_AssocList_foldlM___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2() {
+static lean_object* _init_l_Std_AssocList_foldlM___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -971,7 +971,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_Lean_HasFormat___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_Lean_HasFormat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -979,7 +979,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_Borrow_ParamMap_fmt___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_Lean_HasFormat() {
+static lean_object* _init_l_Lean_IR_Borrow_Lean_HasFormat() {
 _start:
 {
 lean_object* x_1; 
@@ -1657,7 +1657,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_mkInitParamMap___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_mkInitParamMap___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2936,7 +2936,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2945,7 +2945,7 @@ x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__2() {
+static lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2955,7 +2955,7 @@ x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__3() {
+static lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4410,7 +4410,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_infer___closed__1() {
+static lean_object* _init_l_Lean_IR_Borrow_infer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

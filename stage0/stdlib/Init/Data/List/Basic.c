@@ -612,7 +612,7 @@ x_2 = lean_alloc_closure((void*)(l_List_append___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* _init_l_List_HasAppend___closed__1() {
+static lean_object* _init_l_List_HasAppend___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1687,7 +1687,7 @@ x_2 = lean_alloc_closure((void*)(l_List_partitionAux___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* _init_l_List_partition___rarg___closed__1() {
+static lean_object* _init_l_List_partition___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3766,7 +3766,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_List_zip___rarg___closed__1() {
+static lean_object* _init_l_List_zip___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

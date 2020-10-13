@@ -450,7 +450,7 @@ return x_20;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_AbstractNestedProofs_1__mkAuxLemma___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_AbstractNestedProofs_1__mkAuxLemma___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -458,7 +458,7 @@ x_1 = lean_mk_string("proof");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_AbstractNestedProofs_1__mkAuxLemma___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_AbstractNestedProofs_1__mkAuxLemma___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2194,7 +2194,7 @@ return x_26;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractNestedProofs_visit___main___closed__1() {
+static lean_object* _init_l_Lean_Meta_AbstractNestedProofs_visit___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2202,7 +2202,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_AbstractNestedProofs_visit___main__
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractNestedProofs_visit___main___closed__2() {
+static lean_object* _init_l_Lean_Meta_AbstractNestedProofs_visit___main___closed__2() {
 _start:
 {
 lean_object* x_1; 

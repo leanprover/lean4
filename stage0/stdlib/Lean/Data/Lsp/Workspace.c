@@ -22,7 +22,7 @@ lean_object* l_Lean_Lsp_WorkspaceFolder_hasFromJson___boxed(lean_object*);
 lean_object* l_Lean_Lsp_WorkspaceFolder_hasFromJson___closed__1;
 lean_object* l_Lean_Json_mkObj(lean_object*);
 extern lean_object* l_Lean_Lsp_Location_hasFromJson___closed__1;
-lean_object* _init_l_Lean_Lsp_WorkspaceFolder_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_WorkspaceFolder_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 

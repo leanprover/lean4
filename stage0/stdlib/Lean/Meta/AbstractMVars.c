@@ -130,7 +130,7 @@ extern lean_object* l_Lean_Meta_mkArrow___rarg___closed__2;
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
 lean_object* l_Std_HashMapImp_find_x3f___at___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Meta_AbstractMVarsResult_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Meta_AbstractMVarsResult_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -144,7 +144,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractMVarsResult_inhabited() {
+static lean_object* _init_l_Lean_Meta_AbstractMVarsResult_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -270,7 +270,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractMVarsResult_hasBeq___closed__1() {
+static lean_object* _init_l_Lean_Meta_AbstractMVarsResult_hasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -278,7 +278,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_AbstractMVarsResult_beq___boxed), 2
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractMVarsResult_hasBeq() {
+static lean_object* _init_l_Lean_Meta_AbstractMVarsResult_hasBeq() {
 _start:
 {
 lean_object* x_1; 
@@ -815,7 +815,7 @@ return x_36;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -823,7 +823,7 @@ x_1 = lean_mk_string("_abstMVar");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1884,7 +1884,7 @@ return x_42;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__1() {
+static lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1893,7 +1893,7 @@ x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2() {
+static lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1903,7 +1903,7 @@ x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__3() {
+static lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3202,7 +3202,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_abstractMVars___closed__1() {
+static lean_object* _init_l_Lean_Meta_abstractMVars___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3211,7 +3211,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_abstractMVars___closed__2() {
+static lean_object* _init_l_Lean_Meta_abstractMVars___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

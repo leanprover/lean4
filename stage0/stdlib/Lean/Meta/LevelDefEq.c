@@ -1245,7 +1245,7 @@ x_7 = l___private_Lean_Meta_LevelDefEq_2__decLevelImp(x_1, x_2, x_3, x_4, x_5, x
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1253,7 +1253,7 @@ x_1 = lean_mk_string("invalid universe level, ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1263,7 +1263,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1273,7 +1273,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1281,7 +1281,7 @@ x_1 = lean_mk_string(" is not greater than 0");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1291,7 +1291,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Meta_decLevel___rarg___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1469,7 +1469,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_getDecLevel___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_getDecLevel___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1781,7 +1781,7 @@ lean_dec(x_3);
 return x_9;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_8__solve___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_8__solve___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3691,7 +3691,7 @@ return x_165;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3699,7 +3699,7 @@ x_1 = lean_mk_string(" =?= ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3709,7 +3709,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3737,7 +3737,7 @@ lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__1() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3745,7 +3745,7 @@ x_1 = lean_mk_string("isLevelDefEq");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__2() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3755,7 +3755,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__3() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3765,7 +3765,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__4() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -3773,7 +3773,7 @@ x_1 = lean_mk_string("stuck");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__5() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___main___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5790,7 +5790,7 @@ return x_72;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_11__processPostponedStep___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_11__processPostponedStep___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5798,7 +5798,7 @@ x_1 = lean_mk_string("postponed");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_11__processPostponedStep___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_11__processPostponedStep___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5808,7 +5808,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_11__processPostponedStep___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_11__processPostponedStep___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6918,7 +6918,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6926,7 +6926,7 @@ x_1 = lean_mk_string("processing #");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6936,7 +6936,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6946,7 +6946,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__4() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -6954,7 +6954,7 @@ x_1 = lean_mk_string(" postponed is-def-eq level constraints");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__5() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6964,7 +6964,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__6() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6994,7 +6994,7 @@ lean_ctor_set(x_9, 1, x_8);
 return x_9;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__2___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7002,7 +7002,7 @@ x_1 = lean_mk_string("no progress solving pending is-def-eq level constraints");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__2___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7012,7 +7012,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__2___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7030,7 +7030,7 @@ x_2 = l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___l
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9936,7 +9936,7 @@ return x_12;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__1() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9944,7 +9944,7 @@ x_1 = lean_mk_string(" ... ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__2() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9954,7 +9954,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__3() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9964,7 +9964,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__4() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -9972,7 +9972,7 @@ x_1 = lean_mk_string("failure");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__5() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9982,7 +9982,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__6() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9992,7 +9992,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__7() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -10000,7 +10000,7 @@ x_1 = lean_mk_string("success");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__8() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10010,7 +10010,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__9() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10957,7 +10957,7 @@ return x_229;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10965,7 +10965,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_isLevelDefEq___rarg___lambda__1___b
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__2() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10975,7 +10975,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__3() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10985,7 +10985,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__4() {
+static lean_object* _init_l_Lean_Meta_isLevelDefEq___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12078,7 +12078,7 @@ return x_229;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -12086,7 +12086,7 @@ x_1 = lean_mk_string("isDefEq");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__2() {
+static lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12096,7 +12096,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__3() {
+static lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12106,7 +12106,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__4() {
+static lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13443,7 +13443,7 @@ lean_ctor_set(x_8, 1, x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Meta_isDefEqNoConstantApprox___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_isDefEqNoConstantApprox___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

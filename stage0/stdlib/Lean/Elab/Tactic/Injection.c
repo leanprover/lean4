@@ -176,7 +176,7 @@ return x_12;
 }
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -184,7 +184,7 @@ x_1 = lean_mk_string("too many identifiers provided, unused: ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -800,7 +800,7 @@ lean_dec(x_1);
 return x_11;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -810,7 +810,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__2() {
 _start:
 {
 lean_object* x_1; 

@@ -259,7 +259,7 @@ lean_object* l_Std_AssocList_replace___main___at_Lean_Meta_Closure_visitLevel___
 lean_object* l_Lean_Meta_Closure_pushToProcess___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Meta_Closure_ToProcessElement_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Meta_Closure_ToProcessElement_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -270,7 +270,7 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_ToProcessElement_inhabited() {
+static lean_object* _init_l_Lean_Meta_Closure_ToProcessElement_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -1516,7 +1516,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__1() {
+static lean_object* _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1524,7 +1524,7 @@ x_1 = lean_mk_string("u");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__2() {
+static lean_object* _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2960,7 +2960,7 @@ lean_dec(x_2);
 return x_9;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2968,7 +2968,7 @@ x_1 = lean_mk_string("_x");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_mkNextUserName___rarg___closed__2() {
+static lean_object* _init_l_Lean_Meta_Closure_mkNextUserName___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10426,7 +10426,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__1() {
+static lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10435,7 +10435,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__2() {
+static lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10444,7 +10444,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__3() {
+static lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -10762,7 +10762,7 @@ return x_13;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_Closure_1__mkAuxDefinitionImp___lambda__1___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Closure_1__mkAuxDefinitionImp___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10772,7 +10772,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Closure_1__mkAuxDefinitionImp___lambda__1___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Closure_1__mkAuxDefinitionImp___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

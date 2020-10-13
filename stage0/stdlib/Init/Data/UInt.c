@@ -323,7 +323,7 @@ lean_object* l_UInt8_HasAdd___closed__1;
 lean_object* l_UInt16_land___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_div___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_DecidableEq___boxed(lean_object*, lean_object*);
-lean_object* _init_l_uint8Sz() {
+static lean_object* _init_l_uint8Sz() {
 _start:
 {
 lean_object* x_1; 
@@ -472,7 +472,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-uint8_t _init_l_UInt8_HasZero() {
+static uint8_t _init_l_UInt8_HasZero() {
 _start:
 {
 uint8_t x_1; 
@@ -480,7 +480,7 @@ x_1 = 0;
 return x_1;
 }
 }
-uint8_t _init_l_UInt8_HasOne() {
+static uint8_t _init_l_UInt8_HasOne() {
 _start:
 {
 uint8_t x_1; 
@@ -488,7 +488,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasOfNat___closed__1() {
+static lean_object* _init_l_UInt8_HasOfNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -496,7 +496,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_ofNat___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasOfNat() {
+static lean_object* _init_l_UInt8_HasOfNat() {
 _start:
 {
 lean_object* x_1; 
@@ -504,7 +504,7 @@ x_1 = l_UInt8_HasOfNat___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasAdd___closed__1() {
+static lean_object* _init_l_UInt8_HasAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -512,7 +512,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_add___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasAdd() {
+static lean_object* _init_l_UInt8_HasAdd() {
 _start:
 {
 lean_object* x_1; 
@@ -520,7 +520,7 @@ x_1 = l_UInt8_HasAdd___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasSub___closed__1() {
+static lean_object* _init_l_UInt8_HasSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -528,7 +528,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_sub___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasSub() {
+static lean_object* _init_l_UInt8_HasSub() {
 _start:
 {
 lean_object* x_1; 
@@ -536,7 +536,7 @@ x_1 = l_UInt8_HasSub___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasMul___closed__1() {
+static lean_object* _init_l_UInt8_HasMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -544,7 +544,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_mul___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasMul() {
+static lean_object* _init_l_UInt8_HasMul() {
 _start:
 {
 lean_object* x_1; 
@@ -552,7 +552,7 @@ x_1 = l_UInt8_HasMul___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasMod___closed__1() {
+static lean_object* _init_l_UInt8_HasMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -560,7 +560,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_mod___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasMod() {
+static lean_object* _init_l_UInt8_HasMod() {
 _start:
 {
 lean_object* x_1; 
@@ -568,7 +568,7 @@ x_1 = l_UInt8_HasMod___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasModN___closed__1() {
+static lean_object* _init_l_UInt8_HasModN___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -576,7 +576,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_modn___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasModN() {
+static lean_object* _init_l_UInt8_HasModN() {
 _start:
 {
 lean_object* x_1; 
@@ -584,7 +584,7 @@ x_1 = l_UInt8_HasModN___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasDiv___closed__1() {
+static lean_object* _init_l_UInt8_HasDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -592,7 +592,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_div___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasDiv() {
+static lean_object* _init_l_UInt8_HasDiv() {
 _start:
 {
 lean_object* x_1; 
@@ -600,7 +600,7 @@ x_1 = l_UInt8_HasDiv___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasLess() {
+static lean_object* _init_l_UInt8_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -608,7 +608,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt8_HasLessEq() {
+static lean_object* _init_l_UInt8_HasLessEq() {
 _start:
 {
 lean_object* x_1; 
@@ -616,7 +616,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-uint8_t _init_l_UInt8_Inhabited() {
+static uint8_t _init_l_UInt8_Inhabited() {
 _start:
 {
 uint8_t x_1; 
@@ -726,7 +726,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_uint16Sz() {
+static lean_object* _init_l_uint16Sz() {
 _start:
 {
 lean_object* x_1; 
@@ -875,7 +875,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-uint16_t _init_l_UInt16_HasZero() {
+static uint16_t _init_l_UInt16_HasZero() {
 _start:
 {
 uint16_t x_1; 
@@ -883,7 +883,7 @@ x_1 = 0;
 return x_1;
 }
 }
-uint16_t _init_l_UInt16_HasOne() {
+static uint16_t _init_l_UInt16_HasOne() {
 _start:
 {
 uint16_t x_1; 
@@ -891,7 +891,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasOfNat___closed__1() {
+static lean_object* _init_l_UInt16_HasOfNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -899,7 +899,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_ofNat___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasOfNat() {
+static lean_object* _init_l_UInt16_HasOfNat() {
 _start:
 {
 lean_object* x_1; 
@@ -907,7 +907,7 @@ x_1 = l_UInt16_HasOfNat___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasAdd___closed__1() {
+static lean_object* _init_l_UInt16_HasAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -915,7 +915,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_add___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasAdd() {
+static lean_object* _init_l_UInt16_HasAdd() {
 _start:
 {
 lean_object* x_1; 
@@ -923,7 +923,7 @@ x_1 = l_UInt16_HasAdd___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasSub___closed__1() {
+static lean_object* _init_l_UInt16_HasSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -931,7 +931,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_sub___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasSub() {
+static lean_object* _init_l_UInt16_HasSub() {
 _start:
 {
 lean_object* x_1; 
@@ -939,7 +939,7 @@ x_1 = l_UInt16_HasSub___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasMul___closed__1() {
+static lean_object* _init_l_UInt16_HasMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -947,7 +947,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_mul___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasMul() {
+static lean_object* _init_l_UInt16_HasMul() {
 _start:
 {
 lean_object* x_1; 
@@ -955,7 +955,7 @@ x_1 = l_UInt16_HasMul___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasMod___closed__1() {
+static lean_object* _init_l_UInt16_HasMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -963,7 +963,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_mod___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasMod() {
+static lean_object* _init_l_UInt16_HasMod() {
 _start:
 {
 lean_object* x_1; 
@@ -971,7 +971,7 @@ x_1 = l_UInt16_HasMod___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasModN___closed__1() {
+static lean_object* _init_l_UInt16_HasModN___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -979,7 +979,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_modn___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasModN() {
+static lean_object* _init_l_UInt16_HasModN() {
 _start:
 {
 lean_object* x_1; 
@@ -987,7 +987,7 @@ x_1 = l_UInt16_HasModN___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasDiv___closed__1() {
+static lean_object* _init_l_UInt16_HasDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -995,7 +995,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_div___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasDiv() {
+static lean_object* _init_l_UInt16_HasDiv() {
 _start:
 {
 lean_object* x_1; 
@@ -1003,7 +1003,7 @@ x_1 = l_UInt16_HasDiv___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasLess() {
+static lean_object* _init_l_UInt16_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -1011,7 +1011,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt16_HasLessEq() {
+static lean_object* _init_l_UInt16_HasLessEq() {
 _start:
 {
 lean_object* x_1; 
@@ -1019,7 +1019,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-uint16_t _init_l_UInt16_Inhabited() {
+static uint16_t _init_l_UInt16_Inhabited() {
 _start:
 {
 uint16_t x_1; 
@@ -1129,7 +1129,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_uint32Sz() {
+static lean_object* _init_l_uint32Sz() {
 _start:
 {
 lean_object* x_1; 
@@ -1320,7 +1320,7 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
-uint32_t _init_l_UInt32_HasZero() {
+static uint32_t _init_l_UInt32_HasZero() {
 _start:
 {
 uint32_t x_1; 
@@ -1328,7 +1328,7 @@ x_1 = 0;
 return x_1;
 }
 }
-uint32_t _init_l_UInt32_HasOne() {
+static uint32_t _init_l_UInt32_HasOne() {
 _start:
 {
 uint32_t x_1; 
@@ -1336,7 +1336,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasOfNat___closed__1() {
+static lean_object* _init_l_UInt32_HasOfNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1344,7 +1344,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_ofNat___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasOfNat() {
+static lean_object* _init_l_UInt32_HasOfNat() {
 _start:
 {
 lean_object* x_1; 
@@ -1352,7 +1352,7 @@ x_1 = l_UInt32_HasOfNat___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasAdd___closed__1() {
+static lean_object* _init_l_UInt32_HasAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1360,7 +1360,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_add___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasAdd() {
+static lean_object* _init_l_UInt32_HasAdd() {
 _start:
 {
 lean_object* x_1; 
@@ -1368,7 +1368,7 @@ x_1 = l_UInt32_HasAdd___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasSub___closed__1() {
+static lean_object* _init_l_UInt32_HasSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1376,7 +1376,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_sub___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasSub() {
+static lean_object* _init_l_UInt32_HasSub() {
 _start:
 {
 lean_object* x_1; 
@@ -1384,7 +1384,7 @@ x_1 = l_UInt32_HasSub___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasMul___closed__1() {
+static lean_object* _init_l_UInt32_HasMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1392,7 +1392,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_mul___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasMul() {
+static lean_object* _init_l_UInt32_HasMul() {
 _start:
 {
 lean_object* x_1; 
@@ -1400,7 +1400,7 @@ x_1 = l_UInt32_HasMul___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasMod___closed__1() {
+static lean_object* _init_l_UInt32_HasMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1408,7 +1408,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_mod___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasMod() {
+static lean_object* _init_l_UInt32_HasMod() {
 _start:
 {
 lean_object* x_1; 
@@ -1416,7 +1416,7 @@ x_1 = l_UInt32_HasMod___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasModN___closed__1() {
+static lean_object* _init_l_UInt32_HasModN___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1424,7 +1424,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_modn___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasModN() {
+static lean_object* _init_l_UInt32_HasModN() {
 _start:
 {
 lean_object* x_1; 
@@ -1432,7 +1432,7 @@ x_1 = l_UInt32_HasModN___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasDiv___closed__1() {
+static lean_object* _init_l_UInt32_HasDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1440,7 +1440,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_div___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasDiv() {
+static lean_object* _init_l_UInt32_HasDiv() {
 _start:
 {
 lean_object* x_1; 
@@ -1448,7 +1448,7 @@ x_1 = l_UInt32_HasDiv___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasLess() {
+static lean_object* _init_l_UInt32_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -1456,7 +1456,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt32_HasLessEq() {
+static lean_object* _init_l_UInt32_HasLessEq() {
 _start:
 {
 lean_object* x_1; 
@@ -1464,7 +1464,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-uint32_t _init_l_UInt32_Inhabited() {
+static uint32_t _init_l_UInt32_Inhabited() {
 _start:
 {
 uint32_t x_1; 
@@ -1600,7 +1600,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_uint64Sz___closed__1() {
+static lean_object* _init_l_uint64Sz___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1608,7 +1608,7 @@ x_1 = lean_cstr_to_nat("18446744073709551616");
 return x_1;
 }
 }
-lean_object* _init_l_uint64Sz() {
+static lean_object* _init_l_uint64Sz() {
 _start:
 {
 lean_object* x_1; 
@@ -1827,7 +1827,7 @@ x_6 = lean_box_uint64(x_5);
 return x_6;
 }
 }
-uint64_t _init_l_UInt64_HasZero() {
+static uint64_t _init_l_UInt64_HasZero() {
 _start:
 {
 uint64_t x_1; 
@@ -1835,7 +1835,7 @@ x_1 = 0;
 return x_1;
 }
 }
-uint64_t _init_l_UInt64_HasOne() {
+static uint64_t _init_l_UInt64_HasOne() {
 _start:
 {
 uint64_t x_1; 
@@ -1843,7 +1843,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasOfNat___closed__1() {
+static lean_object* _init_l_UInt64_HasOfNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1851,7 +1851,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_ofNat___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasOfNat() {
+static lean_object* _init_l_UInt64_HasOfNat() {
 _start:
 {
 lean_object* x_1; 
@@ -1859,7 +1859,7 @@ x_1 = l_UInt64_HasOfNat___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasAdd___closed__1() {
+static lean_object* _init_l_UInt64_HasAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1867,7 +1867,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_add___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasAdd() {
+static lean_object* _init_l_UInt64_HasAdd() {
 _start:
 {
 lean_object* x_1; 
@@ -1875,7 +1875,7 @@ x_1 = l_UInt64_HasAdd___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasSub___closed__1() {
+static lean_object* _init_l_UInt64_HasSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1883,7 +1883,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_sub___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasSub() {
+static lean_object* _init_l_UInt64_HasSub() {
 _start:
 {
 lean_object* x_1; 
@@ -1891,7 +1891,7 @@ x_1 = l_UInt64_HasSub___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasMul___closed__1() {
+static lean_object* _init_l_UInt64_HasMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1899,7 +1899,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_mul___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasMul() {
+static lean_object* _init_l_UInt64_HasMul() {
 _start:
 {
 lean_object* x_1; 
@@ -1907,7 +1907,7 @@ x_1 = l_UInt64_HasMul___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasMod___closed__1() {
+static lean_object* _init_l_UInt64_HasMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1915,7 +1915,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_mod___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasMod() {
+static lean_object* _init_l_UInt64_HasMod() {
 _start:
 {
 lean_object* x_1; 
@@ -1923,7 +1923,7 @@ x_1 = l_UInt64_HasMod___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasModN___closed__1() {
+static lean_object* _init_l_UInt64_HasModN___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1931,7 +1931,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_modn___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasModN() {
+static lean_object* _init_l_UInt64_HasModN() {
 _start:
 {
 lean_object* x_1; 
@@ -1939,7 +1939,7 @@ x_1 = l_UInt64_HasModN___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasDiv___closed__1() {
+static lean_object* _init_l_UInt64_HasDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1947,7 +1947,7 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_div___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasDiv() {
+static lean_object* _init_l_UInt64_HasDiv() {
 _start:
 {
 lean_object* x_1; 
@@ -1955,7 +1955,7 @@ x_1 = l_UInt64_HasDiv___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasLess() {
+static lean_object* _init_l_UInt64_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -1963,7 +1963,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_UInt64_HasLessEq() {
+static lean_object* _init_l_UInt64_HasLessEq() {
 _start:
 {
 lean_object* x_1; 
@@ -1971,7 +1971,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-uint64_t _init_l_UInt64_Inhabited() {
+static uint64_t _init_l_UInt64_Inhabited() {
 _start:
 {
 uint64_t x_1; 
@@ -2092,7 +2092,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_usizeSz___closed__1() {
+static lean_object* _init_l_usizeSz___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2102,7 +2102,7 @@ x_3 = lean_nat_pow(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_usizeSz() {
+static lean_object* _init_l_usizeSz() {
 _start:
 {
 lean_object* x_1; 
@@ -2310,7 +2310,7 @@ x_6 = lean_box_usize(x_5);
 return x_6;
 }
 }
-size_t _init_l_USize_HasZero() {
+static size_t _init_l_USize_HasZero() {
 _start:
 {
 size_t x_1; 
@@ -2318,7 +2318,7 @@ x_1 = 0;
 return x_1;
 }
 }
-size_t _init_l_USize_HasOne() {
+static size_t _init_l_USize_HasOne() {
 _start:
 {
 size_t x_1; 
@@ -2326,7 +2326,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasOfNat___closed__1() {
+static lean_object* _init_l_USize_HasOfNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2334,7 +2334,7 @@ x_1 = lean_alloc_closure((void*)(l_USize_ofNat___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasOfNat() {
+static lean_object* _init_l_USize_HasOfNat() {
 _start:
 {
 lean_object* x_1; 
@@ -2342,7 +2342,7 @@ x_1 = l_USize_HasOfNat___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasAdd___closed__1() {
+static lean_object* _init_l_USize_HasAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2350,7 +2350,7 @@ x_1 = lean_alloc_closure((void*)(l_USize_add___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasAdd() {
+static lean_object* _init_l_USize_HasAdd() {
 _start:
 {
 lean_object* x_1; 
@@ -2358,7 +2358,7 @@ x_1 = l_USize_HasAdd___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasSub___closed__1() {
+static lean_object* _init_l_USize_HasSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2366,7 +2366,7 @@ x_1 = lean_alloc_closure((void*)(l_USize_sub___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasSub() {
+static lean_object* _init_l_USize_HasSub() {
 _start:
 {
 lean_object* x_1; 
@@ -2374,7 +2374,7 @@ x_1 = l_USize_HasSub___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasMul___closed__1() {
+static lean_object* _init_l_USize_HasMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2382,7 +2382,7 @@ x_1 = lean_alloc_closure((void*)(l_USize_mul___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasMul() {
+static lean_object* _init_l_USize_HasMul() {
 _start:
 {
 lean_object* x_1; 
@@ -2390,7 +2390,7 @@ x_1 = l_USize_HasMul___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasMod___closed__1() {
+static lean_object* _init_l_USize_HasMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2398,7 +2398,7 @@ x_1 = lean_alloc_closure((void*)(l_USize_mod___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasMod() {
+static lean_object* _init_l_USize_HasMod() {
 _start:
 {
 lean_object* x_1; 
@@ -2406,7 +2406,7 @@ x_1 = l_USize_HasMod___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasModN___closed__1() {
+static lean_object* _init_l_USize_HasModN___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2414,7 +2414,7 @@ x_1 = lean_alloc_closure((void*)(l_USize_modn___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasModN() {
+static lean_object* _init_l_USize_HasModN() {
 _start:
 {
 lean_object* x_1; 
@@ -2422,7 +2422,7 @@ x_1 = l_USize_HasModN___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasDiv___closed__1() {
+static lean_object* _init_l_USize_HasDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2430,7 +2430,7 @@ x_1 = lean_alloc_closure((void*)(l_USize_div___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasDiv() {
+static lean_object* _init_l_USize_HasDiv() {
 _start:
 {
 lean_object* x_1; 
@@ -2438,7 +2438,7 @@ x_1 = l_USize_HasDiv___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasLess() {
+static lean_object* _init_l_USize_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -2446,7 +2446,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_USize_HasLessEq() {
+static lean_object* _init_l_USize_HasLessEq() {
 _start:
 {
 lean_object* x_1; 
@@ -2454,7 +2454,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-size_t _init_l_USize_Inhabited() {
+static size_t _init_l_USize_Inhabited() {
 _start:
 {
 size_t x_1; 

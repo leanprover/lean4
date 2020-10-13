@@ -365,7 +365,7 @@ return x_64;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_replaceTargetEq___closed__1() {
+static lean_object* _init_l_Lean_Meta_replaceTargetEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -373,7 +373,7 @@ x_1 = lean_mk_string("replaceTarget");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_replaceTargetEq___closed__2() {
+static lean_object* _init_l_Lean_Meta_replaceTargetEq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -741,7 +741,7 @@ return x_65;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_replaceTargetDefEq___closed__1() {
+static lean_object* _init_l_Lean_Meta_replaceTargetDefEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -749,7 +749,7 @@ x_1 = lean_mk_string("change");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_replaceTargetDefEq___closed__2() {
+static lean_object* _init_l_Lean_Meta_replaceTargetDefEq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1063,7 +1063,7 @@ lean_dec(x_5);
 return x_11;
 }
 }
-lean_object* _init_l_Lean_Meta_change___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_change___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1071,7 +1071,7 @@ x_1 = lean_mk_string("given type");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_change___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_change___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1081,7 +1081,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_change___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_change___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1218,7 +1218,7 @@ x_11 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_1, x_
 return x_11;
 }
 }
-lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1226,7 +1226,7 @@ x_1 = lean_mk_string("changeHypothesis");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1236,7 +1236,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1244,7 +1244,7 @@ x_1 = lean_mk_string("unexpected auxiliary target");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1254,7 +1254,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_changeLocalDecl___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1735,7 +1735,7 @@ return x_125;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_changeLocalDecl___closed__1() {
+static lean_object* _init_l_Lean_Meta_changeLocalDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1743,7 +1743,7 @@ x_1 = lean_mk_string("changeLocalDecl");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_changeLocalDecl___closed__2() {
+static lean_object* _init_l_Lean_Meta_changeLocalDecl___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

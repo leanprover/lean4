@@ -128,7 +128,7 @@ return x_30;
 }
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -136,7 +136,7 @@ x_1 = lean_mk_string("constant must be an inductive type");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -146,7 +146,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -156,7 +156,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -164,7 +164,7 @@ x_1 = lean_mk_string("recursive inductive datatypes are not supported");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -174,7 +174,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -275,7 +275,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -283,7 +283,7 @@ x_1 = lean_mk_string("unbox");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__2() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -293,7 +293,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__3() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -301,7 +301,7 @@ x_1 = lean_mk_string("compiler tries to unbox result values if their types are t
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__4() {
+static lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 

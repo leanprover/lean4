@@ -487,7 +487,7 @@ return x_3;
 }
 }
 }
-lean_object* _init_l_Option_Monad___closed__1() {
+static lean_object* _init_l_Option_Monad___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -495,7 +495,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_map), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Monad___closed__2() {
+static lean_object* _init_l_Option_Monad___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -503,7 +503,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__1), 4, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Monad___closed__3() {
+static lean_object* _init_l_Option_Monad___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -515,7 +515,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Option_Monad___closed__4() {
+static lean_object* _init_l_Option_Monad___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -523,7 +523,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__2), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Monad___closed__5() {
+static lean_object* _init_l_Option_Monad___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -531,7 +531,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__3), 4, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Monad___closed__6() {
+static lean_object* _init_l_Option_Monad___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -539,7 +539,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__4___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Monad___closed__7() {
+static lean_object* _init_l_Option_Monad___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -547,7 +547,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__5___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Monad___closed__8() {
+static lean_object* _init_l_Option_Monad___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -565,7 +565,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Option_Monad___closed__9() {
+static lean_object* _init_l_Option_Monad___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -573,7 +573,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_bind), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Monad___closed__10() {
+static lean_object* _init_l_Option_Monad___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -585,7 +585,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Option_Monad() {
+static lean_object* _init_l_Option_Monad() {
 _start:
 {
 lean_object* x_1; 
@@ -766,7 +766,7 @@ return x_2;
 }
 }
 }
-lean_object* _init_l_Option_Alternative___closed__1() {
+static lean_object* _init_l_Option_Alternative___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -774,7 +774,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_Alternative___lambda__1), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Option_Alternative___closed__2() {
+static lean_object* _init_l_Option_Alternative___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -782,7 +782,7 @@ x_1 = lean_alloc_closure((void*)(l_Option_Alternative___lambda__2___boxed), 3, 0
 return x_1;
 }
 }
-lean_object* _init_l_Option_Alternative___closed__3() {
+static lean_object* _init_l_Option_Alternative___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -798,7 +798,7 @@ lean_ctor_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Option_Alternative() {
+static lean_object* _init_l_Option_Alternative() {
 _start:
 {
 lean_object* x_1; 

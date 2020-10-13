@@ -32,7 +32,7 @@ lean_object* l_Lean_Json_mkObj(lean_object*);
 extern lean_object* l_Lean_Lsp_TextDocumentSyncOptions_hasToJson___closed__4;
 extern lean_object* l_Lean_Lsp_TextDocumentSyncOptions_hasToJson___closed__8;
 lean_object* l_Lean_Lsp_ClientCapabilities_hasFromJson___closed__1;
-lean_object* _init_l_Lean_Lsp_ClientCapabilities_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_ClientCapabilities_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -170,7 +170,7 @@ return x_44;
 }
 }
 }
-lean_object* _init_l_Lean_Lsp_ServerCapabilities_hasToJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_ServerCapabilities_hasToJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -178,7 +178,7 @@ x_1 = lean_mk_string("textDocumentSync");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_ServerCapabilities_hasToJson___closed__2() {
+static lean_object* _init_l_Lean_Lsp_ServerCapabilities_hasToJson___closed__2() {
 _start:
 {
 lean_object* x_1; 

@@ -122,7 +122,7 @@ lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main(lean_obje
 lean_object* l_Lean_Meta_registerHygienicIntro(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__5;
-lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -130,7 +130,7 @@ x_1 = lean_mk_string("introN");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -140,7 +140,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -148,7 +148,7 @@ x_1 = lean_mk_string("insufficient number of binders");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__4() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -158,7 +158,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__5() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_1__introNImpAux___main___rarg___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -784,7 +784,7 @@ x_3 = l_Lean_Expr_fvarId_x21(x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Intro_2__introNImp___rarg___lambda__2___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_2__introNImp___rarg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1001,7 +1001,7 @@ lean_dec(x_5);
 return x_11;
 }
 }
-uint8_t _init_l_Lean_Meta_hygienicIntroDef() {
+static uint8_t _init_l_Lean_Meta_hygienicIntroDef() {
 _start:
 {
 uint8_t x_1; 
@@ -1009,7 +1009,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_getHygienicIntro___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_getHygienicIntro___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1017,7 +1017,7 @@ x_1 = lean_mk_string("hygienicIntro");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_getHygienicIntro___rarg___closed__2() {
+static lean_object* _init_l_Lean_Meta_getHygienicIntro___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1070,7 +1070,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__1() {
+static lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__1() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -1080,7 +1080,7 @@ lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__2() {
+static lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1088,7 +1088,7 @@ x_1 = lean_mk_string("tactic");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__3() {
+static lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1096,7 +1096,7 @@ x_1 = lean_mk_string("make sure 'intro'-like tactics are hygienic");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__4() {
+static lean_object* _init_l_Lean_Meta_registerHygienicIntro___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 

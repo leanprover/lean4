@@ -281,7 +281,7 @@ return x_1;
 }
 }
 }
-lean_object* _init_l_Lean_getStructureCtor___closed__1() {
+static lean_object* _init_l_Lean_getStructureCtor___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -289,7 +289,7 @@ x_1 = lean_mk_string("Lean.Structure");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getStructureCtor___closed__2() {
+static lean_object* _init_l_Lean_getStructureCtor___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -297,7 +297,7 @@ x_1 = lean_mk_string("structure expected");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getStructureCtor___closed__3() {
+static lean_object* _init_l_Lean_getStructureCtor___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -309,7 +309,7 @@ x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_getStructureCtor___closed__4() {
+static lean_object* _init_l_Lean_getStructureCtor___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -317,7 +317,7 @@ x_1 = lean_mk_string("ill-formed environment");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getStructureCtor___closed__5() {
+static lean_object* _init_l_Lean_getStructureCtor___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -547,7 +547,7 @@ lean_dec(x_4);
 return x_9;
 }
 }
-lean_object* _init_l___private_Lean_Structure_2__isSubobjectFieldAux___main___closed__1() {
+static lean_object* _init_l___private_Lean_Structure_2__isSubobjectFieldAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -555,7 +555,7 @@ x_1 = lean_mk_string("ill-formed structure");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Structure_2__isSubobjectFieldAux___main___closed__2() {
+static lean_object* _init_l___private_Lean_Structure_2__isSubobjectFieldAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 

@@ -459,7 +459,7 @@ x_4 = lean_alloc_closure((void*)(l_coeSortTrans___rarg), 3, 0);
 return x_4;
 }
 }
-lean_object* _init_l_boolToProp() {
+static lean_object* _init_l_boolToProp() {
 _start:
 {
 return lean_box(0);

@@ -235,7 +235,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_IR_ExplicitRC_getVarInfo___closed__1() {
+static lean_object* _init_l_Lean_IR_ExplicitRC_getVarInfo___closed__1() {
 _start:
 {
 uint8_t x_1; uint8_t x_2; lean_object* x_3; 

@@ -103,7 +103,7 @@ lean_object* l___private_Lean_Data_Trie_6__toStringAux___main(lean_object*);
 lean_object* l_Std_RBNode_ins___main___at___private_Lean_Data_Trie_2__insertAux___main___spec__7(lean_object*);
 lean_object* l_Std_RBNode_fold___main___at___private_Lean_Data_Trie_6__toStringAux___main___spec__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Trie_insert(lean_object*);
-lean_object* _init_l_Lean_Parser_Trie_empty___closed__1() {
+static lean_object* _init_l_Lean_Parser_Trie_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -123,7 +123,7 @@ x_2 = l_Lean_Parser_Trie_empty___closed__1;
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Trie_HasEmptyc___closed__1() {
+static lean_object* _init_l_Lean_Parser_Trie_HasEmptyc___closed__1() {
 _start:
 {
 lean_object* x_1; 

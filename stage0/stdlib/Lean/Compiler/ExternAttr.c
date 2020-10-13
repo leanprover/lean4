@@ -192,7 +192,7 @@ extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_getExternConstArity(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* _init_l_Lean_ExternAttrData_inhabited___closed__1() {
+static lean_object* _init_l_Lean_ExternAttrData_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -204,7 +204,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ExternAttrData_inhabited() {
+static lean_object* _init_l_Lean_ExternAttrData_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -212,7 +212,7 @@ x_1 = l_Lean_ExternAttrData_inhabited___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__1() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -220,7 +220,7 @@ x_1 = lean_mk_string("identifier expected");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__2() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -230,7 +230,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__3() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -238,7 +238,7 @@ x_1 = lean_mk_string("string literal expected");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__4() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -248,7 +248,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__5() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -256,7 +256,7 @@ x_1 = lean_mk_string("adhoc");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__6() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -264,7 +264,7 @@ x_1 = lean_mk_string("string or identifier expected");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__7() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -495,7 +495,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__1() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -503,7 +503,7 @@ x_1 = lean_mk_string("all");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__2() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -513,7 +513,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__3() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -523,7 +523,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__4() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -535,7 +535,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__5() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -547,7 +547,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__6() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -557,7 +557,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__7() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -565,7 +565,7 @@ x_1 = lean_mk_string("invalid extern attribute");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__8() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -575,7 +575,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__9() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -583,7 +583,7 @@ x_1 = lean_mk_string("unexpected kind of argument");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__10() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -833,7 +833,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkExternAttr___spec__5___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkExternAttr___spec__5___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1375,7 +1375,7 @@ lean_dec(x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__2___closed__1() {
+static lean_object* _init_l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1749,7 +1749,7 @@ return x_57;
 }
 }
 }
-lean_object* _init_l_Lean_mkExternAttr___closed__1() {
+static lean_object* _init_l_Lean_mkExternAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1757,7 +1757,7 @@ x_1 = lean_mk_string("extern");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkExternAttr___closed__2() {
+static lean_object* _init_l_Lean_mkExternAttr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1767,7 +1767,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_mkExternAttr___closed__3() {
+static lean_object* _init_l_Lean_mkExternAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1775,7 +1775,7 @@ x_1 = lean_mk_string("builtin and foreign functions");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkExternAttr___closed__4() {
+static lean_object* _init_l_Lean_mkExternAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1783,7 +1783,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkExternAttr___lambda__1___boxed), 6, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkExternAttr___closed__5() {
+static lean_object* _init_l_Lean_mkExternAttr___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2933,7 +2933,7 @@ lean_ctor_set(x_9, 1, x_7);
 return x_9;
 }
 }
-lean_object* _init_l_Lean_getExternConstArity___closed__1() {
+static lean_object* _init_l_Lean_getExternConstArity___closed__1() {
 _start:
 {
 lean_object* x_1; 

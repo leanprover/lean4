@@ -119,7 +119,7 @@ return x_20;
 }
 }
 }
-lean_object* _init_l_Lean_Lsp_Hover_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_Hover_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 

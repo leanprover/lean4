@@ -1586,7 +1586,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__1() {
+static lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1595,7 +1595,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__2() {
+static lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1604,7 +1604,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__3() {
+static lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

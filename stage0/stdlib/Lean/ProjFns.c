@@ -152,7 +152,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ProjectionFunctionInfo_inhabited___closed__1() {
+static lean_object* _init_l_Lean_ProjectionFunctionInfo_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -167,7 +167,7 @@ lean_ctor_set_uint8(x_4, sizeof(void*)*3, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_ProjectionFunctionInfo_inhabited() {
+static lean_object* _init_l_Lean_ProjectionFunctionInfo_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -175,7 +175,7 @@ x_1 = l_Lean_ProjectionFunctionInfo_inhabited___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -777,7 +777,7 @@ lean_dec(x_7);
 return x_9;
 }
 }
-lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__1() {
+static lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -785,7 +785,7 @@ x_1 = lean_mk_string("projinfo");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__2() {
+static lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -795,7 +795,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__3() {
+static lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -803,7 +803,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkProjectionFnInfoExtension___lambda__1)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__4() {
+static lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -811,7 +811,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkProjectionFnInfoExtension___lambda__2_
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__5() {
+static lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -819,7 +819,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkProjectionFnInfoExtension___lambda__3)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__6() {
+static lean_object* _init_l_Lean_mkProjectionFnInfoExtension___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -927,7 +927,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__4___rarg)
 return x_3;
 }
 }
-lean_object* _init_l_Lean_projectionFnInfoExt___closed__1() {
+static lean_object* _init_l_Lean_projectionFnInfoExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -935,7 +935,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__4___boxed
 return x_1;
 }
 }
-lean_object* _init_l_Lean_projectionFnInfoExt___closed__2() {
+static lean_object* _init_l_Lean_projectionFnInfoExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -943,7 +943,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__3___boxed
 return x_1;
 }
 }
-lean_object* _init_l_Lean_projectionFnInfoExt___closed__3() {
+static lean_object* _init_l_Lean_projectionFnInfoExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -951,7 +951,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__2___boxed
 return x_1;
 }
 }
-lean_object* _init_l_Lean_projectionFnInfoExt___closed__4() {
+static lean_object* _init_l_Lean_projectionFnInfoExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -959,7 +959,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_projectionFnInfoExt___elambda__1___boxed
 return x_1;
 }
 }
-lean_object* _init_l_Lean_projectionFnInfoExt___closed__5() {
+static lean_object* _init_l_Lean_projectionFnInfoExt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 

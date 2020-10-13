@@ -713,7 +713,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_LiveVarSet_inhabited() {
+static lean_object* _init_l_Lean_IR_LiveVarSet_inhabited() {
 _start:
 {
 lean_object* x_1; 

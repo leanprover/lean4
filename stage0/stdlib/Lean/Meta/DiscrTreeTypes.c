@@ -29,7 +29,7 @@ lean_object* l_Lean_Meta_DiscrTree_Key_hasBeq___closed__1;
 size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_Lean_Meta_DiscrTree_Key_hash___boxed(lean_object*);
 size_t l_Lean_Meta_DiscrTree_Key_hash(lean_object*);
-lean_object* _init_l_Lean_Meta_DiscrTree_Key_inhabited() {
+static lean_object* _init_l_Lean_Meta_DiscrTree_Key_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -99,7 +99,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_DiscrTree_Key_hashable___closed__1() {
+static lean_object* _init_l_Lean_Meta_DiscrTree_Key_hashable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -107,7 +107,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_DiscrTree_Key_hash___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_DiscrTree_Key_hashable() {
+static lean_object* _init_l_Lean_Meta_DiscrTree_Key_hashable() {
 _start:
 {
 lean_object* x_1; 
@@ -240,7 +240,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Meta_DiscrTree_Key_hasBeq___closed__1() {
+static lean_object* _init_l_Lean_Meta_DiscrTree_Key_hasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -248,7 +248,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_DiscrTree_Key_beq___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_DiscrTree_Key_hasBeq() {
+static lean_object* _init_l_Lean_Meta_DiscrTree_Key_hasBeq() {
 _start:
 {
 lean_object* x_1; 

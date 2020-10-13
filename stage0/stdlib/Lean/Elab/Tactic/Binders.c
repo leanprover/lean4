@@ -162,7 +162,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Binders_0__Lean_El
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -174,7 +174,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -184,7 +184,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -194,7 +194,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__4() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -206,7 +206,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__5() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -214,7 +214,7 @@ x_1 = lean_mk_string("unexpected binder syntax");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__6() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -222,7 +222,7 @@ x_1 = lean_mk_string("refine");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__7() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -232,7 +232,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__8() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -244,7 +244,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__9() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -366,7 +366,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -374,7 +374,7 @@ x_1 = lean_mk_string("have");
 return x_1;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -384,7 +384,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__3() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -420,7 +420,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -430,7 +430,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -466,7 +466,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetBangTactic___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetBangTactic___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -476,7 +476,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetBangTactic___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandLetBangTactic___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -512,7 +512,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -520,7 +520,7 @@ x_1 = lean_mk_string("suffices");
 return x_1;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -530,7 +530,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__3() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -549,7 +549,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -557,7 +557,7 @@ x_1 = lean_mk_string("show");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -567,7 +567,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -579,7 +579,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -589,7 +589,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -597,7 +597,7 @@ x_1 = lean_mk_string("fromTerm");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -607,7 +607,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -615,7 +615,7 @@ x_1 = lean_mk_string("from");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__8() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -627,7 +627,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__9() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -637,7 +637,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__10() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -647,7 +647,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__11() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -711,7 +711,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandShowTactic___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandShowTactic___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -721,7 +721,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandShowTactic___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandShowTactic___closed__2() {
 _start:
 {
 lean_object* x_1; 

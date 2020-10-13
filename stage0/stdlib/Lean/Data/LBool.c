@@ -35,7 +35,7 @@ uint8_t l_Lean_LBool_beq(uint8_t, uint8_t);
 lean_object* l_Lean_LBool_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LBool_HasToString___closed__1;
 lean_object* l_toLBoolM___rarg(lean_object*, lean_object*);
-uint8_t _init_l_Lean_LBool_Inhabited() {
+static uint8_t _init_l_Lean_LBool_Inhabited() {
 _start:
 {
 uint8_t x_1; 
@@ -180,7 +180,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_LBool_HasBeq___closed__1() {
+static lean_object* _init_l_Lean_LBool_HasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -188,7 +188,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_LBool_beq___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_LBool_HasBeq() {
+static lean_object* _init_l_Lean_LBool_HasBeq() {
 _start:
 {
 lean_object* x_1; 
@@ -196,7 +196,7 @@ x_1 = l_Lean_LBool_HasBeq___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_LBool_toString___closed__1() {
+static lean_object* _init_l_Lean_LBool_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -239,7 +239,7 @@ x_3 = l_Lean_LBool_toString(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_LBool_HasToString___closed__1() {
+static lean_object* _init_l_Lean_LBool_HasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -247,7 +247,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_LBool_toString___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_LBool_HasToString() {
+static lean_object* _init_l_Lean_LBool_HasToString() {
 _start:
 {
 lean_object* x_1; 

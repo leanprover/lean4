@@ -335,7 +335,7 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__1() {
+static lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -343,7 +343,7 @@ x_1 = lean_mk_string("Lean.Data.SMap");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__2() {
+static lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 

@@ -354,7 +354,7 @@ return x_19;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -362,7 +362,7 @@ x_1 = lean_mk_string("induction");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -372,7 +372,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -380,7 +380,7 @@ x_1 = lean_mk_string("ill-formed recursor");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__4() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -390,7 +390,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__5() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -400,7 +400,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__6() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -408,7 +408,7 @@ x_1 = lean_mk_string("failed to generate type class instance parameter");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__7() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -418,7 +418,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__8() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_2__addRecParams___main___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -679,7 +679,7 @@ lean_dec(x_2);
 return x_10;
 }
 }
-lean_object* _init_l_Lean_Meta_InductionSubgoal_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Meta_InductionSubgoal_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -693,7 +693,7 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Meta_InductionSubgoal_inhabited() {
+static lean_object* _init_l_Lean_Meta_InductionSubgoal_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -2346,7 +2346,7 @@ lean_dec(x_2);
 return x_14;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2354,7 +2354,7 @@ x_1 = lean_mk_string("unexpected major premise type ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2364,7 +2364,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_6__throwUnexpectedMajorType___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3884,7 +3884,7 @@ return x_24;
 }
 }
 }
-lean_object* _init_l_List_forM___main___at_Lean_Meta_induction___spec__4___closed__1() {
+static lean_object* _init_l_List_forM___main___at_Lean_Meta_induction___spec__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3892,7 +3892,7 @@ x_1 = lean_mk_string("major premise type is ill-formed");
 return x_1;
 }
 }
-lean_object* _init_l_List_forM___main___at_Lean_Meta_induction___spec__4___closed__2() {
+static lean_object* _init_l_List_forM___main___at_Lean_Meta_induction___spec__4___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3902,7 +3902,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_List_forM___main___at_Lean_Meta_induction___spec__4___closed__3() {
+static lean_object* _init_l_List_forM___main___at_Lean_Meta_induction___spec__4___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4013,7 +4013,7 @@ return x_8;
 }
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__1() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4021,7 +4021,7 @@ x_1 = lean_mk_string("' is an index in major premise, but it depends on index oc
 return x_1;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__2() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4031,7 +4031,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__3() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4041,7 +4041,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__4() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -4049,7 +4049,7 @@ x_1 = lean_mk_string("' is an index in major premise, but it occurs in previous 
 return x_1;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__5() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4059,7 +4059,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__6() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4069,7 +4069,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__7() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -4077,7 +4077,7 @@ x_1 = lean_mk_string("' is an index in major premise, but it occurs more than on
 return x_1;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__8() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4087,7 +4087,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__9() {
+static lean_object* _init_l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4409,7 +4409,7 @@ return x_95;
 }
 }
 }
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__1() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4417,7 +4417,7 @@ x_1 = lean_mk_string("major premise type index ");
 return x_1;
 }
 }
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__2() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4427,7 +4427,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__3() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4437,7 +4437,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__4() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -4445,7 +4445,7 @@ x_1 = lean_mk_string(" is not variable ");
 return x_1;
 }
 }
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__5() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4455,7 +4455,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__6() {
+static lean_object* _init_l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4890,7 +4890,7 @@ return x_64;
 }
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__1() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4898,7 +4898,7 @@ x_1 = lean_mk_string("major premise is not of the form (C ...)");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__2() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4908,7 +4908,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__3() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4918,7 +4918,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__4() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -4926,7 +4926,7 @@ x_1 = lean_mk_string("recursor '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__5() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4936,7 +4936,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__6() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4946,7 +4946,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__7() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -4954,7 +4954,7 @@ x_1 = lean_mk_string("' can only eliminate into Prop");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__8() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4964,7 +4964,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__9() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5558,7 +5558,7 @@ return x_136;
 }
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5566,7 +5566,7 @@ x_1 = lean_mk_string("after revert&intro");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5576,7 +5576,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5586,7 +5586,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5807,7 +5807,7 @@ return x_54;
 }
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__1() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5817,7 +5817,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__2() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -5825,7 +5825,7 @@ x_1 = lean_mk_string("' does not support dependent elimination, but conclusion d
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__3() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5835,7 +5835,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__4() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

@@ -546,7 +546,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescope___at___private_Lean
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__1___closed__1() {
+static lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -554,7 +554,7 @@ x_1 = lean_mk_string("processing ");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__1___closed__2() {
+static lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -564,7 +564,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__1___closed__3() {
+static lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -589,7 +589,7 @@ lean_ctor_set(x_6, 1, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__2___closed__1() {
+static lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -597,7 +597,7 @@ x_1 = lean_mk_string("inhabitant for ");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__2___closed__2() {
+static lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -607,7 +607,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__2___closed__3() {
+static lean_object* _init_l_Array_forMAux___main___at___private_Lean_Elab_PreDefinition_Main_1__addAndCompilePartial___spec__5___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3635,7 +3635,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__6___closed__1() {
+static lean_object* _init_l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__6___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3644,7 +3644,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__6___closed__2() {
+static lean_object* _init_l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_3__partitionPreDefs___spec__6___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -4169,7 +4169,7 @@ lean_dec(x_2);
 return x_9;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1___closed__1() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4177,7 +4177,7 @@ x_1 = lean_mk_string("body");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1___closed__2() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4187,7 +4187,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1___closed__3() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4602,7 +4602,7 @@ lean_ctor_set(x_12, 0, x_11);
 return x_12;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__1() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4610,7 +4610,7 @@ x_1 = lean_mk_string("fail to show termination for");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__2() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4620,7 +4620,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__3() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4630,7 +4630,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__4() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -4638,7 +4638,7 @@ x_1 = lean_mk_string("with errors");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__5() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4648,7 +4648,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__6() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__2___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4889,7 +4889,7 @@ lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__5___closed__1() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4897,7 +4897,7 @@ x_1 = lean_mk_string("scc");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__5___closed__2() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__5___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4907,7 +4907,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__5___closed__3() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Elab_addPreDefinitions___spec__9___lambda__5___closed__3() {
 _start:
 {
 lean_object* x_1; 

@@ -104,7 +104,7 @@ lean_object* l_EStateM_Result_repr___rarg(lean_object*, lean_object*, lean_objec
 lean_object* l_EStateM_monadExceptAdapter___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orelse_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orelse_x27(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* _init_l_EStateM_Result_toString___rarg___closed__1() {
+static lean_object* _init_l_EStateM_Result_toString___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -112,7 +112,7 @@ x_1 = lean_mk_string("ok: ");
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Result_toString___rarg___closed__2() {
+static lean_object* _init_l_EStateM_Result_toString___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1088,7 +1088,7 @@ return x_20;
 }
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__1() {
+static lean_object* _init_l_EStateM_Monad___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1098,7 +1098,7 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__2() {
+static lean_object* _init_l_EStateM_Monad___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1106,7 +1106,7 @@ x_1 = lean_alloc_closure((void*)(l_EStateM_Monad___lambda__1), 5, 0);
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__3() {
+static lean_object* _init_l_EStateM_Monad___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1118,7 +1118,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__4() {
+static lean_object* _init_l_EStateM_Monad___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1128,7 +1128,7 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__5() {
+static lean_object* _init_l_EStateM_Monad___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1138,7 +1138,7 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__6() {
+static lean_object* _init_l_EStateM_Monad___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1146,7 +1146,7 @@ x_1 = lean_alloc_closure((void*)(l_EStateM_Monad___lambda__2), 5, 0);
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__7() {
+static lean_object* _init_l_EStateM_Monad___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -1154,7 +1154,7 @@ x_1 = lean_alloc_closure((void*)(l_EStateM_Monad___lambda__3), 4, 0);
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__8() {
+static lean_object* _init_l_EStateM_Monad___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -1172,7 +1172,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__9() {
+static lean_object* _init_l_EStateM_Monad___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -1182,7 +1182,7 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_Monad___closed__10() {
+static lean_object* _init_l_EStateM_Monad___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1219,7 +1219,7 @@ x_5 = lean_alloc_closure((void*)(l_EStateM_HasOrelse___rarg), 1, 0);
 return x_5;
 }
 }
-lean_object* _init_l_EStateM_MonadStateOf___closed__1() {
+static lean_object* _init_l_EStateM_MonadStateOf___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1229,7 +1229,7 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_MonadStateOf___closed__2() {
+static lean_object* _init_l_EStateM_MonadStateOf___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1237,7 +1237,7 @@ x_1 = lean_alloc_closure((void*)(l_EStateM_get___rarg), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_MonadStateOf___closed__3() {
+static lean_object* _init_l_EStateM_MonadStateOf___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1245,7 +1245,7 @@ x_1 = lean_alloc_closure((void*)(l_EStateM_set___rarg___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_MonadStateOf___closed__4() {
+static lean_object* _init_l_EStateM_MonadStateOf___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1267,7 +1267,7 @@ x_3 = l_EStateM_MonadStateOf___closed__4;
 return x_3;
 }
 }
-lean_object* _init_l_EStateM_MonadExceptOf___rarg___closed__1() {
+static lean_object* _init_l_EStateM_MonadExceptOf___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1703,7 +1703,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_EStateM_nonBacktrackable___closed__1() {
+static lean_object* _init_l_EStateM_nonBacktrackable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1712,7 +1712,7 @@ lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_nonBacktrackable___closed__2() {
+static lean_object* _init_l_EStateM_nonBacktrackable___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1720,7 +1720,7 @@ x_1 = lean_alloc_closure((void*)(l_EStateM_dummyRestore___rarg___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_EStateM_nonBacktrackable___closed__3() {
+static lean_object* _init_l_EStateM_nonBacktrackable___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

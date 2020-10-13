@@ -236,7 +236,7 @@ lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_o
 lean_object* l___private_Lean_Meta_InferType_22__isTypeFormerTypeImp___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar___at___private_Lean_Meta_Basic_4__mkFreshExprMVarImpl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -244,7 +244,7 @@ x_1 = lean_mk_string("function expected ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__2() {
+static lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -254,7 +254,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__3() {
+static lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -790,7 +790,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -798,7 +798,7 @@ x_1 = lean_mk_string("incorrect number of universe levels ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__2() {
+static lean_object* _init_l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -808,7 +808,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__3() {
+static lean_object* _init_l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -970,7 +970,7 @@ lean_dec(x_3);
 return x_8;
 }
 }
-lean_object* _init_l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1___closed__1() {
+static lean_object* _init_l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -978,7 +978,7 @@ x_1 = lean_mk_string("invalide projection");
 return x_1;
 }
 }
-lean_object* _init_l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1___closed__2() {
+static lean_object* _init_l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -988,7 +988,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1___closed__3() {
+static lean_object* _init_l_Nat_foldMAux___main___at___private_Lean_Meta_InferType_3__inferProjType___spec__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1781,7 +1781,7 @@ lean_dec(x_4);
 return x_12;
 }
 }
-lean_object* _init_l_Lean_Meta_throwTypeExcepted___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_throwTypeExcepted___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1789,7 +1789,7 @@ x_1 = lean_mk_string("type expected ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_throwTypeExcepted___rarg___closed__2() {
+static lean_object* _init_l_Lean_Meta_throwTypeExcepted___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1799,7 +1799,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_throwTypeExcepted___rarg___closed__3() {
+static lean_object* _init_l_Lean_Meta_throwTypeExcepted___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2946,7 +2946,7 @@ return x_29;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_InferType_5__inferForallType___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_InferType_5__inferForallType___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3304,7 +3304,7 @@ return x_15;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_InferType_6__inferLambdaType___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_InferType_6__inferLambdaType___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4950,7 +4950,7 @@ x_8 = l_Std_PersistentHashMap_insertAux___main___at___private_Lean_Meta_InferTyp
 return x_8;
 }
 }
-lean_object* _init_l___private_Lean_Meta_InferType_11__inferTypeAux___main___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_InferType_11__inferTypeAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4958,7 +4958,7 @@ x_1 = lean_mk_string("unexpected bound variable ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_InferType_11__inferTypeAux___main___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_InferType_11__inferTypeAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4968,7 +4968,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_InferType_11__inferTypeAux___main___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_InferType_11__inferTypeAux___main___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6908,7 +6908,7 @@ return x_60;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_setInferTypeRef___closed__1() {
+static lean_object* _init_l_Lean_Meta_setInferTypeRef___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10340,7 +10340,7 @@ x_7 = l___private_Lean_Meta_InferType_22__isTypeFormerTypeImp___main(x_1, x_2, x
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Meta_isTypeFormer___rarg___closed__1() {
+static lean_object* _init_l_Lean_Meta_isTypeFormer___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

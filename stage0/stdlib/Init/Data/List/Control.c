@@ -327,7 +327,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_List_mapA___main___rarg___closed__1() {
+static lean_object* _init_l_List_mapA___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

@@ -130,7 +130,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -138,7 +138,7 @@ x_1 = lean_mk_string("off");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__2() {
+static lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -146,7 +146,7 @@ x_1 = lean_mk_string("messages");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__3() {
+static lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -157,7 +157,7 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__4() {
+static lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__4() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -168,7 +168,7 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__5() {
+static lean_object* _init_l_Lean_Lsp_Trace_hasFromJson___closed__5() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -544,7 +544,7 @@ return x_11;
 }
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -552,7 +552,7 @@ x_1 = lean_mk_string("processId");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__2() {
+static lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -560,7 +560,7 @@ x_1 = lean_mk_string("clientInfo");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__3() {
+static lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -568,7 +568,7 @@ x_1 = lean_mk_string("rootUri");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__4() {
+static lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -576,7 +576,7 @@ x_1 = lean_mk_string("initializationOptions");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__5() {
+static lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -584,7 +584,7 @@ x_1 = lean_mk_string("capabilities");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__6() {
+static lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -592,7 +592,7 @@ x_1 = lean_mk_string("trace");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__7() {
+static lean_object* _init_l_Lean_Lsp_InitializeParams_hasFromJson___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -814,7 +814,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializedParams_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_InitializedParams_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -912,7 +912,7 @@ return x_16;
 }
 }
 }
-lean_object* _init_l_Lean_Lsp_InitializeResult_hasToJson___closed__1() {
+static lean_object* _init_l_Lean_Lsp_InitializeResult_hasToJson___closed__1() {
 _start:
 {
 lean_object* x_1; 

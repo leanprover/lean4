@@ -169,7 +169,7 @@ return x_28;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -177,7 +177,7 @@ x_1 = lean_mk_string("result is not type correct");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -187,7 +187,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -197,7 +197,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -205,7 +205,7 @@ x_1 = lean_mk_string("failed to find expression in the target");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -215,7 +215,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Meta_generalize___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -559,7 +559,7 @@ return x_78;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___closed__1() {
+static lean_object* _init_l_Lean_Meta_generalize___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -567,7 +567,7 @@ x_1 = lean_mk_string("generalize");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_generalize___closed__2() {
+static lean_object* _init_l_Lean_Meta_generalize___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

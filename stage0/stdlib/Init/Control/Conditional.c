@@ -34,7 +34,7 @@ lean_object* l_andM(lean_object*, lean_object*);
 lean_object* l_orM(lean_object*, lean_object*);
 lean_object* l_Option_toBool___rarg___boxed(lean_object*);
 lean_object* l_notM___rarg(lean_object*, lean_object*);
-lean_object* _init_l_Bool_HasToBool() {
+static lean_object* _init_l_Bool_HasToBool() {
 _start:
 {
 lean_object* x_1; 
@@ -42,7 +42,7 @@ x_1 = l_Nat_HasOfNat___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Option_HasToBool___closed__1() {
+static lean_object* _init_l_Option_HasToBool___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -232,7 +232,7 @@ return x_3;
 }
 }
 }
-lean_object* _init_l_notM___rarg___closed__1() {
+static lean_object* _init_l_notM___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

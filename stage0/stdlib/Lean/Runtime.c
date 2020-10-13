@@ -37,7 +37,7 @@ x_2 = lean_max_small_nat(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_closureMaxArgs___closed__1() {
+static lean_object* _init_l_Lean_closureMaxArgs___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -46,7 +46,7 @@ x_2 = lean_closure_max_args(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_closureMaxArgs() {
+static lean_object* _init_l_Lean_closureMaxArgs() {
 _start:
 {
 lean_object* x_1; 
@@ -54,7 +54,7 @@ x_1 = l_Lean_closureMaxArgs___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_maxSmallNat___closed__1() {
+static lean_object* _init_l_Lean_maxSmallNat___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -63,7 +63,7 @@ x_2 = lean_max_small_nat(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_maxSmallNat() {
+static lean_object* _init_l_Lean_maxSmallNat() {
 _start:
 {
 lean_object* x_1; 

@@ -152,7 +152,7 @@ x_4 = lean_panic_fn(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__1() {
+static lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -160,7 +160,7 @@ x_1 = lean_mk_string("PANIC at ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__2() {
+static lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -168,7 +168,7 @@ x_1 = lean_mk_string(":");
 return x_1;
 }
 }
-lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__3() {
+static lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -297,7 +297,7 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* _init_l_unreachable_x21___rarg___closed__1() {
+static lean_object* _init_l_unreachable_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -305,7 +305,7 @@ x_1 = lean_mk_string("Init.Util");
 return x_1;
 }
 }
-lean_object* _init_l_unreachable_x21___rarg___closed__2() {
+static lean_object* _init_l_unreachable_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -313,7 +313,7 @@ x_1 = lean_mk_string("unreachable");
 return x_1;
 }
 }
-lean_object* _init_l_unreachable_x21___rarg___closed__3() {
+static lean_object* _init_l_unreachable_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -558,7 +558,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_withPtrAddr___rarg___boxed__const__1() {
+static lean_object* _init_l_withPtrAddr___rarg___boxed__const__1() {
 _start:
 {
 size_t x_1; lean_object* x_2; 

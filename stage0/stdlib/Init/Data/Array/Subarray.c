@@ -406,7 +406,7 @@ x_2 = lean_alloc_closure((void*)(l_Array_extract___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Array_Init_Data_Array_Subarray___instance__1___closed__1() {
+static lean_object* _init_l_Array_Init_Data_Array_Subarray___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; 

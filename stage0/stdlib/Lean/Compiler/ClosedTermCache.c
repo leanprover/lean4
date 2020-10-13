@@ -1453,7 +1453,7 @@ x_5 = l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1(x_1, x_3
 return x_5;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___lambda__2___closed__1() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1462,7 +1462,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___lambda__2___closed__2() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1474,7 +1474,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___lambda__2___closed__3() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___lambda__2___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1499,7 +1499,7 @@ x_5 = l_Lean_SMap_switch___at_Lean_mkClosedTermCacheExtension___spec__16(x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__1() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1507,7 +1507,7 @@ x_1 = lean_mk_string("closedTermCache");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__2() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1517,7 +1517,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__3() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1525,7 +1525,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkClosedTermCacheExtension___lambda__1),
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__4() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1533,7 +1533,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkClosedTermCacheExtension___lambda__2__
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__5() {
+static lean_object* _init_l_Lean_mkClosedTermCacheExtension___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -1687,7 +1687,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_closedTermCacheExt___elambda__4___rarg),
 return x_3;
 }
 }
-lean_object* _init_l_Lean_closedTermCacheExt___closed__1() {
+static lean_object* _init_l_Lean_closedTermCacheExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1695,7 +1695,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_closedTermCacheExt___elambda__4___boxed)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_closedTermCacheExt___closed__2() {
+static lean_object* _init_l_Lean_closedTermCacheExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1703,7 +1703,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_closedTermCacheExt___elambda__3___boxed)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_closedTermCacheExt___closed__3() {
+static lean_object* _init_l_Lean_closedTermCacheExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1711,7 +1711,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_closedTermCacheExt___elambda__2___boxed)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_closedTermCacheExt___closed__4() {
+static lean_object* _init_l_Lean_closedTermCacheExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1719,7 +1719,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_closedTermCacheExt___elambda__1___boxed)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_closedTermCacheExt___closed__5() {
+static lean_object* _init_l_Lean_closedTermCacheExt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 

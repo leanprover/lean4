@@ -48,7 +48,7 @@ lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_mkInternalExceptionsRef___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkInternalExceptionsRef(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Inhabited() {
+static lean_object* _init_l_Lean_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -155,7 +155,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_registerInternalExceptionId___closed__1() {
+static lean_object* _init_l_Lean_registerInternalExceptionId___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -163,7 +163,7 @@ x_1 = lean_mk_string("invalid internal exception id, '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerInternalExceptionId___closed__2() {
+static lean_object* _init_l_Lean_registerInternalExceptionId___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -323,7 +323,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_InternalExceptionId_toString___closed__1() {
+static lean_object* _init_l_Lean_InternalExceptionId_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -342,7 +342,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_InternalExceptionId_getName___closed__1() {
+static lean_object* _init_l_Lean_InternalExceptionId_getName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -350,7 +350,7 @@ x_1 = lean_mk_string("invalid internal exception id");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_InternalExceptionId_getName___closed__2() {
+static lean_object* _init_l_Lean_InternalExceptionId_getName___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

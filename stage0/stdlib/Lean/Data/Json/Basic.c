@@ -187,7 +187,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_natToJsonNumber___closed__1() {
+static lean_object* _init_l_Lean_JsonNumber_natToJsonNumber___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -195,7 +195,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_JsonNumber_fromNat), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_natToJsonNumber() {
+static lean_object* _init_l_Lean_JsonNumber_natToJsonNumber() {
 _start:
 {
 lean_object* x_1; 
@@ -203,7 +203,7 @@ x_1 = l_Lean_JsonNumber_natToJsonNumber___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_intToJsonNumber___closed__1() {
+static lean_object* _init_l_Lean_JsonNumber_intToJsonNumber___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -211,7 +211,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_JsonNumber_fromInt), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_intToJsonNumber() {
+static lean_object* _init_l_Lean_JsonNumber_intToJsonNumber() {
 _start:
 {
 lean_object* x_1; 
@@ -292,7 +292,7 @@ return x_3;
 }
 }
 }
-lean_object* _init_l_Lean_JsonNumber_toString___closed__1() {
+static lean_object* _init_l_Lean_JsonNumber_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -558,7 +558,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_jsonNumberToString___closed__1() {
+static lean_object* _init_l_Lean_JsonNumber_jsonNumberToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -566,7 +566,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_JsonNumber_toString), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_jsonNumberToString() {
+static lean_object* _init_l_Lean_JsonNumber_jsonNumberToString() {
 _start:
 {
 lean_object* x_1; 

@@ -143,7 +143,7 @@ lean_object* l_Lean_resolveGlobalName___at_Lean_mkInitAttr___spec__4___boxed(lea
 lean_object* l___private_Lean_Compiler_InitAttr_1__getIOTypeArg(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1() {
+static lean_object* _init_l___private_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -743,7 +743,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkInitAttr___spec__9___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_mkInitAttr___spec__9___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1284,7 +1284,7 @@ lean_dec(x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__6___closed__1() {
+static lean_object* _init_l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__6___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1415,7 +1415,7 @@ return x_32;
 }
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1423,7 +1423,7 @@ x_1 = lean_mk_string("unexpected kind of argument");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1433,7 +1433,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1443,7 +1443,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1451,7 +1451,7 @@ x_1 = lean_mk_string("initialization function must have type `IO Unit`");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1461,7 +1461,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1471,7 +1471,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__7() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -1479,7 +1479,7 @@ x_1 = lean_mk_string("initialization function '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__8() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1489,7 +1489,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__9() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1499,7 +1499,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__10() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -1507,7 +1507,7 @@ x_1 = lean_mk_string("' must have type of the form `IO <type>`");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__11() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1517,7 +1517,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__12() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1527,7 +1527,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__13() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -1535,7 +1535,7 @@ x_1 = lean_mk_string("' type mismatch");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__14() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1545,7 +1545,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__15() {
+static lean_object* _init_l_Lean_mkInitAttr___lambda__1___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2058,7 +2058,7 @@ lean_ctor_set(x_8, 1, x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___closed__1() {
+static lean_object* _init_l_Lean_mkInitAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2066,7 +2066,7 @@ x_1 = lean_mk_string("init");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___closed__2() {
+static lean_object* _init_l_Lean_mkInitAttr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2076,7 +2076,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___closed__3() {
+static lean_object* _init_l_Lean_mkInitAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2084,7 +2084,7 @@ x_1 = lean_mk_string("initialization procedure for global references");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___closed__4() {
+static lean_object* _init_l_Lean_mkInitAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2092,7 +2092,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkInitAttr___lambda__1___boxed), 6, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkInitAttr___closed__5() {
+static lean_object* _init_l_Lean_mkInitAttr___closed__5() {
 _start:
 {
 lean_object* x_1; 

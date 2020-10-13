@@ -675,7 +675,7 @@ return x_29;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalExact___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalExact___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -683,7 +683,7 @@ x_1 = lean_mk_string("exact");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalExact___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalExact___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -889,7 +889,7 @@ lean_dec(x_3);
 return x_13;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalExact___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalExact___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -908,7 +908,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -920,7 +920,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -930,7 +930,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -938,7 +938,7 @@ x_1 = lean_mk_string("sorry");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -948,7 +948,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -960,7 +960,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -970,7 +970,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -982,7 +982,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__8() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -992,7 +992,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__9() {
+static lean_object* _init_l_Lean_Elab_Tactic_expandAdmit___rarg___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1033,7 +1033,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandAdmit___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandAdmit___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1043,7 +1043,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandAdmit___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_expandAdmit___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1884,7 +1884,7 @@ x_14 = l_Lean_Elab_Tactic_refineCore(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_
 return x_14;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalRefine___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalRefine___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1892,7 +1892,7 @@ x_1 = lean_mk_string("refine");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalRefine___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalRefine___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1902,7 +1902,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalRefine___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalRefine___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1972,7 +1972,7 @@ return x_23;
 }
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRefine___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRefine___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1991,7 +1991,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalRefineBang___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalRefineBang___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1999,7 +1999,7 @@ x_1 = lean_mk_string("refine!");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalRefineBang___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalRefineBang___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2069,7 +2069,7 @@ return x_23;
 }
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRefineBang___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRefineBang___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2254,7 +2254,7 @@ return x_39;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Tactic_evalApply___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalApply___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2447,7 +2447,7 @@ lean_dec(x_3);
 return x_13;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalApply___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalApply___closed__1() {
 _start:
 {
 lean_object* x_1; 

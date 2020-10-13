@@ -144,35 +144,24 @@ instance : ToJson Message := ⟨fun m =>
         ] ++ opt "data" data?⟩
     ]⟩
 
-def aux1 (j : Json) : Option Message := do
-  let id ← j.getObjValAs? RequestID "id"
-  let method ← j.getObjValAs? String "method"
-  let params? := j.getObjValAs? Structured "params"
-  pure (Message.request id method params?)
-
-def aux2 (j : Json) : Option Message := do
-  let method ← j.getObjValAs? String "method"
-  let params? := j.getObjValAs? Structured "params"
-  pure (Message.notification method params?)
-
-def aux3 (j : Json) : Option Message := do
-  let id ← j.getObjValAs? RequestID "id"
-  let result ← j.getObjVal? "result"
-  pure (Message.response id result)
-
-def aux4 (j : Json) : Option Message := do
-  let id ← j.getObjValAs? RequestID "id"
-  let err ← j.getObjVal? "error"
-  let code ← err.getObjValAs? ErrorCode "code"
-  let message ← err.getObjValAs? String "message"
-  let data? := err.getObjVal? "data";
-  pure (Message.responseError id code message data?)
-
--- HACK: The implementation must be made up of several `auxN`s instead
--- of one large block because of a bug in the compiler.
 instance : FromJson Message := ⟨fun j => do
   let "2.0" ← j.getObjVal? "jsonrpc" | none
-  aux1 j <|> aux2 j <|> aux3 j <|> aux4 j⟩
+  (do let id ← j.getObjValAs? RequestID "id";
+      let method ← j.getObjValAs? String "method";
+      let params? := j.getObjValAs? Structured "params";
+      pure (Message.request id method params?)) <|>
+  (do let method ← j.getObjValAs? String "method";
+      let params? := j.getObjValAs? Structured "params";
+      pure (Message.notification method params?)) <|>
+  (do let id ← j.getObjValAs? RequestID "id";
+      let result ← j.getObjVal? "result";
+      pure (Message.response id result)) <|>
+  (do let id ← j.getObjValAs? RequestID "id";
+      let err ← j.getObjVal? "error";
+      let code ← err.getObjValAs? ErrorCode "code";
+      let message ← err.getObjValAs? String "message";
+      let data? := err.getObjVal? "data";
+      pure (Message.responseError id code message data?))⟩
 
 end JsonRpc
 end Lean

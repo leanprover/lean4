@@ -57,6 +57,9 @@ instance : ToJson Structured := ⟨fun s =>
   | Structured.arr a => arr a
   | Structured.obj o => obj o⟩
 
+def toStructured? {α : Type} [ToJson α] (v : α) : Option Structured :=
+  fromJson? (toJson v)
+
 def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Option α :=
   (j.getObjVal? k).bind fromJson?
 

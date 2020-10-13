@@ -986,7 +986,8 @@ Or.elim h id (fun hb => absurd hb nb)
 theorem negResolveRight {a b : Prop} (h : a ∨ ¬b) (hb : b) : a :=
 Or.elim h id (fun nb => absurd hb nb)
 
-theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop} (h₁ : Exists (fun x => p x)) (h₂ : ∀  (a : α), p a → b) : b :=
+theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop} (h₁ : Exists (fun x => p x)) (h₂ : ∀  (a : α), p a → b) :
+  b :=
 Exists.rec h₂ h₁
 
 @[inlineIfReduce, nospecialize]
@@ -1625,7 +1626,8 @@ def sound {α : Sort u} [s : Setoid α] {a b : α} : a ≈ b → Quotient.mk a =
 Quot.sound
 
 @[reducible, elabAsEliminator]
-protected def lift {α : Sort u} {β : Sort v} [s : Setoid α] (f : α → β) : (∀  a b, a ≈ b → f a = f b) → Quotient s → β :=
+protected def lift {α : Sort u} {β : Sort v} [s : Setoid α] (f : α → β) :
+  (∀  a b, a ≈ b → f a = f b) → Quotient s → β :=
 Quot.lift f
 
 @[elabAsEliminator]
@@ -1711,7 +1713,8 @@ Quotient.ind (fun a₁ => Quotient.ind (fun a₂ => h a₁ a₂) q₂) q₁
 
 @[elabAsEliminator]
 protected theorem inductionOn₃ [s₃ : Setoid φ] {δ : Quotient s₁ → Quotient s₂ → Quotient s₃ → Prop} (q₁ : Quotient s₁)
-  (q₂ : Quotient s₂) (q₃ : Quotient s₃) (h : ∀  a b c, δ (Quotient.mk a) (Quotient.mk b) (Quotient.mk c)) : δ q₁ q₂ q₃ :=
+  (q₂ : Quotient s₂) (q₃ : Quotient s₃) (h : ∀  a b c, δ (Quotient.mk a) (Quotient.mk b) (Quotient.mk c)) :
+  δ q₁ q₂ q₃ :=
 Quotient.ind (fun a₁ => Quotient.ind (fun a₂ => Quotient.ind (fun a₃ => h a₁ a₂ a₃) q₃) q₂) q₁ 
 
 end 
@@ -1942,7 +1945,8 @@ have notUvOrP : u ≠ v ∨ p from
   Or.elim uDef (fun hut => Or.elim vDef (fun hvf => have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
               Or.inl hne) Or.inr) Or.inr;
 have pImpliesUv : p → u = v from
-  fun hp => have hpred : U = V from funext $ fun x => have hl : (x = True ∨ p) → (x = False ∨ p) from fun a => Or.inr hp;
+  fun hp =>
+    have hpred : U = V from funext $ fun x => have hl : (x = True ∨ p) → (x = False ∨ p) from fun a => Or.inr hp;
           have hr : (x = False ∨ p) → (x = True ∨ p) from fun a => Or.inr hp;
           show (x = True ∨ p) = (x = False ∨ p) from propext (Iff.intro hl hr);
     have h₀ : ∀  exU exV, @choose _ U exU = @choose _ V exV from hpred ▸ fun exU exV => rfl;

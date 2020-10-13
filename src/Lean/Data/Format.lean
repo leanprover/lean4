@@ -144,7 +144,7 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
     | FlattenBehavior.fill => do
       -- if preceding fill item fit in a single line, try to fit next one too
       flattened ← pure g.flatten <&&> do {
-        gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs w
+        gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - " ".length)
           | unreachable!;
         when g'.flatten do {
           pushOutput " ";

@@ -11,7 +11,7 @@ namespace Lean.Elab.Tactic
 -- optional (" with " >> many1 ident')
 private def getInjectionNewIds (stx : Syntax) : List Name :=
 if stx.isNone then []
-else stx.getArg 1 $.getArgs.toList.map Syntax.getId
+else stx[1].getArgs.toList.map Syntax.getId
 
 private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit := do
 unless unusedIds.isEmpty do
@@ -20,8 +20,8 @@ unless unusedIds.isEmpty do
 @[builtinTactic «injection»] def evalInjection : Tactic :=
 fun stx => do
   -- parser! nonReservedSymbol "injection " >> termParser >> withIds
-  let fvarId ← elabAsFVar (stx.getArg 1)
-  let ids := getInjectionNewIds (stx.getArg 2)
+  let fvarId ← elabAsFVar stx[1]
+  let ids := getInjectionNewIds stx[2]
   liftMetaTactic fun mvarId => do
     match ← Meta.injection mvarId fvarId ids (!ids.isEmpty) with
     | Meta.InjectionResult.solved                      => checkUnusedIds mvarId ids; pure []

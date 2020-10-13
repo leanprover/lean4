@@ -13,11 +13,11 @@ namespace Lean.Elab.Tactic
 open Meta
 
 private def getAuxHypothesisName (stx : Syntax) : Option Name :=
-if (stx.getArg 1).isNone then none
-else some ((stx.getArg 1).getIdAt 0)
+if stx[1].isNone then none
+else some stx[1][0].getId
 
 private def getVarName (stx : Syntax) : Name :=
-stx.getIdAt 4
+stx[4].getId
 
 private def evalGeneralizeFinalize (mvarId : MVarId) (e : Expr) (target : Expr) : MetaM (List MVarId) := do
 let tag    ← Meta.getMVarTag mvarId
@@ -68,7 +68,7 @@ match h? with
 fun stx => do
   let h? := getAuxHypothesisName stx
   let x  := getVarName stx
-  let e ← elabTerm (stx.getArg 2) none
+  let e ← elabTerm stx[2] none
   evalGeneralizeAux h? e x
 
 end Lean.Elab.Tactic

@@ -21,13 +21,13 @@ def location         := parser! "at " >> (locationWildcard <|> locationTarget <|
 ```
 -/
 def expandLocation (stx : Syntax) : Location :=
-let arg := stx.getArg 1
+let arg := stx[1]
 if arg.getKind == `Lean.Parser.Tactic.locationWildcard then Location.wildcard
 else if arg.getKind == `Lean.Parser.Tactic.locationTarget then Location.target
-else Location.localDecls $ arg.getArg 0 $.getArgs.map fun stx => stx.getId
+else Location.localDecls $ arg[0].getArgs.map fun stx => stx.getId
 
 def expandOptLocation (stx : Syntax) : Location :=
 if stx.isNone then Location.target
-else expandLocation $ stx.getArg 0
+else expandLocation stx[0]
 
 end Lean.Elab.Tactic

@@ -81,10 +81,10 @@ lean_object* l_Std_PersistentHashMap_foldlMAux___main___rarg___lambda__2___boxed
 lean_object* l_Std_PersistentHashMap_empty___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__28;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l_Std_PersistentHashMap_isUnaryNode___rarg(lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x21___rarg___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlM___at_Std_PersistentHashMap_toList___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3739,7 +3739,7 @@ lean_dec(x_1);
 x_19 = l_Nat_repr(x_18);
 x_20 = lean_string_append(x_17, x_19);
 lean_dec(x_19);
-x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
+x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__28;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }

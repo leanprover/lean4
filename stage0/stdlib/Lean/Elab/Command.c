@@ -34,7 +34,6 @@ extern lean_object* l_Lean_Meta_check___closed__1;
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_ExprDefEq_8__checkTypesAndAssign___closed__7;
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabExport___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Tactic_evalTactic___main___closed__3;
 lean_object* l_Lean_Elab_Command_Lean_MonadEnv___closed__6;
 lean_object* l_Lean_Elab_logAt___at_Lean_Elab_Command_withLogging___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KeyedDeclsAttribute_KeyedDeclsAttribute_inhabited___closed__1;
@@ -166,6 +165,7 @@ lean_object* l_Lean_Elab_Command_setOption(lean_object*, lean_object*, lean_obje
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Elab_Command_Lean_Elab_MonadMacroAdapter___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_failIfSucceeds(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Tactic_evalTactic___closed__3;
 lean_object* l_Lean_Elab_Command_CommandElabM_monadLog___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_addOpenDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
@@ -5096,7 +5096,7 @@ block_71:
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 lean_dec(x_66);
-x_67 = l_Lean_Elab_Tactic_evalTactic___main___closed__3;
+x_67 = l_Lean_Elab_Tactic_evalTactic___closed__3;
 lean_inc(x_32);
 x_68 = l_Lean_throwError___at___private_Lean_Elab_Command_3__elabCommandUsing___main___spec__1___rarg(x_67, x_32, x_3, x_30);
 x_69 = lean_ctor_get(x_68, 0);
@@ -5709,7 +5709,7 @@ block_230:
 {
 lean_object* x_226; lean_object* x_227; lean_object* x_228; lean_object* x_229; 
 lean_dec(x_225);
-x_226 = l_Lean_Elab_Tactic_evalTactic___main___closed__3;
+x_226 = l_Lean_Elab_Tactic_evalTactic___closed__3;
 lean_inc(x_196);
 x_227 = l_Lean_throwError___at___private_Lean_Elab_Command_3__elabCommandUsing___main___spec__1___rarg(x_226, x_196, x_3, x_194);
 x_228 = lean_ctor_get(x_227, 0);
@@ -6418,7 +6418,7 @@ block_409:
 {
 lean_object* x_405; lean_object* x_406; lean_object* x_407; lean_object* x_408; 
 lean_dec(x_404);
-x_405 = l_Lean_Elab_Tactic_evalTactic___main___closed__3;
+x_405 = l_Lean_Elab_Tactic_evalTactic___closed__3;
 lean_inc(x_375);
 x_406 = l_Lean_throwError___at___private_Lean_Elab_Command_3__elabCommandUsing___main___spec__1___rarg(x_405, x_375, x_3, x_373);
 x_407 = lean_ctor_get(x_406, 0);

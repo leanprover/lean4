@@ -79,7 +79,7 @@ lean_object* l_List_foldr___main___at_Lean_Json_mkObj___spec__3___boxed(lean_obj
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__8;
 lean_object* l___private_Lean_Data_Json_Basic_1__countDigitsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getBool_x3f___boxed(lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -588,7 +588,7 @@ lean_dec(x_2);
 x_5 = l_Sigma_HasRepr___rarg___closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
-x_7 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
+x_7 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__8;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_repr(x_3);
 x_10 = lean_string_append(x_8, x_9);

@@ -190,7 +190,7 @@ lean_object* l_Lean_Format_be___boxed(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Lean_Format_sbracket___closed__1;
 lean_object* l_Lean_Format_Coe(lean_object*);
 lean_object* l_Lean_optionHasFormat___rarg(lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__8;
 lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Format_spaceUptoLine_x27___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Format_getIndent(lean_object*);
@@ -3908,7 +3908,7 @@ lean_object* _init_l_Lean_List_format___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

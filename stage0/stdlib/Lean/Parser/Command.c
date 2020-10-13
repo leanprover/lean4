@@ -461,6 +461,7 @@ lean_object* l_Lean_Parser_Command_structInstBinder_formatter___closed__6;
 lean_object* l_Lean_Parser_Command_in___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_ctor___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_declId___closed__8;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 lean_object* l_Lean_Parser_Command_declModifiers_parenthesizer___closed__22;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_in_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -517,7 +518,6 @@ lean_object* l_Lean_Parser_Command_set__option_formatter___closed__8;
 lean_object* l_Lean_Parser_Command_mutual_formatter___closed__4;
 lean_object* l_Lean_Parser_Command_end_formatter___closed__4;
 lean_object* l_Lean_Parser_Command_print___elambda__1___closed__1;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 lean_object* l___regBuiltin_Lean_Parser_Command_attribute_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Command_instance;
 lean_object* l_Lean_Parser_Command_initialize_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3008,7 +3008,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_quot(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_3 = l_Lean_Parser_Term_quot___elambda__1___closed__1;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_quot;
@@ -9536,7 +9536,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
 x_16 = l_Lean_Parser_Command_declValSimple___elambda__1___closed__2;
@@ -9680,7 +9680,7 @@ lean_inc(x_50);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; 
-x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_Parser_categoryParser___elambda__1(x_51, x_52, x_1, x_49);
 x_54 = l_Lean_Parser_Command_declValSimple___elambda__1___closed__2;
@@ -35937,7 +35937,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
 x_16 = l_Lean_Parser_Command_check___elambda__1___closed__2;
@@ -36081,7 +36081,7 @@ lean_inc(x_50);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; 
-x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_Parser_categoryParser___elambda__1(x_51, x_52, x_1, x_49);
 x_54 = l_Lean_Parser_Command_check___elambda__1___closed__2;
@@ -36527,7 +36527,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
 x_16 = l_Lean_Parser_Command_check__failure___elambda__1___closed__2;
@@ -36671,7 +36671,7 @@ lean_inc(x_50);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; 
-x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_Parser_categoryParser___elambda__1(x_51, x_52, x_1, x_49);
 x_54 = l_Lean_Parser_Command_check__failure___elambda__1___closed__2;
@@ -37117,7 +37117,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
 x_16 = l_Lean_Parser_Command_eval___elambda__1___closed__2;
@@ -37261,7 +37261,7 @@ lean_inc(x_50);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; 
-x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_Parser_categoryParser___elambda__1(x_51, x_52, x_1, x_49);
 x_54 = l_Lean_Parser_Command_eval___elambda__1___closed__2;
@@ -37707,7 +37707,7 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_13 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Lean_Parser_categoryParser___elambda__1(x_13, x_14, x_1, x_11);
 x_16 = l_Lean_Parser_Command_synth___elambda__1___closed__2;
@@ -37851,7 +37851,7 @@ lean_inc(x_50);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; 
-x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
+x_51 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_Parser_categoryParser___elambda__1(x_51, x_52, x_1, x_49);
 x_54 = l_Lean_Parser_Command_synth___elambda__1___closed__2;

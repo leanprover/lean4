@@ -96,6 +96,7 @@ lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___r
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux(lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_5__mkMaxArgsDiff(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_1__decAux_x3f___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_831____closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_LevelDefEq_11__processPostponedStep___spec__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isReadOnlyLevelMVar___rarg___lambda__1___closed__3;
@@ -108,7 +109,6 @@ lean_object* l___private_Lean_Util_Trace_5__getResetTraces___at___private_Lean_M
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__1;
 lean_object* l___private_Lean_Meta_LevelDefEq_12__processPostponedAux___main___rarg___lambda__1___closed__6;
 lean_object* l_Lean_Meta_isLevelDefEqAux___main___closed__4;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_829____closed__1;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__4;
 lean_object* l_monadLiftTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3760,7 +3760,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isLevelDefEqAux___main___closed__2;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_829____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_831____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -5813,7 +5813,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_LevelDefEq_11__processPostponedStep___closed__2;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_829____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_831____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
